@@ -90,7 +90,8 @@ public class PythonRunnerConfig {
 	 * gets location of jpydaemon.py
 	 */
 	public static String getDebugScript() throws CoreException {
-		IPath relative = new Path("pysrc").addTrailingSeparator().append("jpydaemon.py");
+		IPath relative = new Path("pysrc").addTrailingSeparator().append("pydevd.py");
+//		IPath relative = new Path("pysrc").addTrailingSeparator().append("jpydaemon.py");
 //		IPath relative = new Path("pysrc").addTrailingSeparator().append("rpdb.py");
 		URL location = org.python.pydev.debug.core.PydevDebugPlugin.getDefault().find(relative);
 		if (location == null)
@@ -111,9 +112,15 @@ public class PythonRunnerConfig {
 //	rpdb		cmdArgs.add(debugScript);
 //			cmdArgs.add("-c");
 //			cmdArgs.add("-p"+Integer.toString(debugPort));		
+// jpydebug	cmdArgs.add(debugScript);
+//			cmdArgs.add("localhost");
+//			cmdArgs.add(Integer.toString(debugPort));
 			cmdArgs.add(debugScript);
+			cmdArgs.add("--client");
 			cmdArgs.add("localhost");
+			cmdArgs.add("--port");
 			cmdArgs.add(Integer.toString(debugPort));
+			cmdArgs.add("--file");
 		}
 		cmdArgs.add(file.toOSString());
 		for (int i=0; arguments != null && i<arguments.length; i++)

@@ -20,7 +20,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.debug.model.PythonDebugTarget;
+import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.RemoteDebugger;
 
 /**
@@ -31,46 +31,12 @@ import org.python.pydev.debug.model.RemoteDebugger;
  */
 public class PythonRunner {
 
-	class DebugConnector implements Runnable {
-		int port;
-		int timeout;
-		ServerSocket serverSocket;
-		Socket socket;	 // what got accepted
-		Exception e;
 
-		boolean terminated;
-		
-		public DebugConnector(int port, int timeout) throws IOException {
-			this.port = port;
-			this.timeout = timeout;
-			serverSocket = new ServerSocket(port);
-		}
-		
-		Exception getException() {
-			return e;
-		}
-	
-		public Socket getSocket() {
-			return socket;
-		}
-
-		public void stopListening() throws IOException {
-			if (serverSocket != null)
-				serverSocket.close();
-			terminated = true;
-		}
-	
-		public void run() {
-			try {
-				serverSocket.setSoTimeout(timeout);
-				socket = serverSocket.accept();
-			}
-			catch (IOException e) {
-				this.e = e;
-			}
-		}
-	}
-
+	/**
+	 * Launches the config in the debug mode.
+	 * 
+	 * Loosely modeled upon Ant launcher.
+	 */
 	public void runDebug(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
@@ -78,72 +44,43 @@ public class PythonRunner {
 		subMonitor.beginTask("Launching python", 1);
 		
 		// Launch & connect to the debugger		
-		subMonitor.subTask("Finding free socket...");
-		DebugConnector server = new DebugConnector(config.getDebugPort(), config.acceptTimeout);
-		subMonitor.worked(1);		
+		RemoteDebugger debugger = new RemoteDebugger(config);
+		debugger.startConnect(subMonitor);
 		subMonitor.subTask("Constructing command_line...");
 		String[] cmdLine = config.getCommandLine();
-		subMonitor.worked(1);
-				
-		Thread connectThread = new Thread(server, "Pydev debug listener");
-		connectThread.start();
+
 		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory);	
 		if (p == null)
 			throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, "Could not execute python process. Was it cancelled?", null));
 		
 		IProcess process = registerWithDebugPlugin(config, launch, p);
 
-		// Register the process with the debug plugin
-		subMonitor.worked(2);
-		subMonitor.subTask("Starting debugger...");
-		// Launch the debug listener on a thread, and wait until it completes
-		while (connectThread.isAlive()) {
-			if (monitor.isCanceled()) {
-				server.stopListening();
-				p.destroy();
+		subMonitor.subTask("Waiting for connection...");
+		try {
+			boolean userCanceled = debugger.waitForConnect(subMonitor, p, process);
+			if (userCanceled) {
+				debugger.dispose();
 				return;
 			}
-			try {
-				p.exitValue(); // throws exception if process has terminated
-				// process has terminated - stop waiting for a connection
-				try {
-					server.stopListening(); 
-				} catch (IOException e) {
-					// expected
-				}
-				checkErrorMessage(process);
-			} catch (IllegalThreadStateException e) {
-				// expected while process is alive
-			}
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
 		}
-
-		Exception ex = server.getException();
-		if (ex != null) {
+		catch (Exception ex) {
 			process.terminate();
 			p.destroy();
 			String message = "Unexpected error setting up the debugger";
 			if (ex instanceof SocketTimeoutException)
 				message = "Timed out after " + Float.toString(config.acceptTimeout/1000) + " seconds while waiting for python script to connect.";
-			throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, message, ex));
+			throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, message, ex));			
 		}
+		subMonitor.subTask("Done");
 		// hook up debug model, and we are off & running
-		RemoteDebugger debugger = new RemoteDebugger(server.getSocket());
-		PythonDebugTarget t = new PythonDebugTarget(launch, process, 
-									config.getRunningName(), debugger);
-		Thread dt = new Thread(debugger, "Pydev remote debug connection");
-		dt.start();
+		PyDebugTarget t = new PyDebugTarget(launch, process, 
+									config.file, debugger);
 	}
 
 	/**
-	 * launches the debug configuration
-	 * @param config
-	 * @param launch
-	 * @param monitor
-	 * @throws CoreException
+	 * Launches the configuration
+     * 
+     * The code is modeled after Ant launching example.
 	 */
 	public void run(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
 		if (config.isDebug) {
@@ -158,7 +95,6 @@ public class PythonRunner {
 		// Launch & connect to the debugger		
 		subMonitor.subTask("Constructing command_line...");
 		String[] cmdLine = config.getCommandLine();
-		subMonitor.worked(1);
 		
 		subMonitor.subTask("Exec...");		
 		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory);	
@@ -166,25 +102,18 @@ public class PythonRunner {
 			throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, "Could not execute python process. Was it cancelled?", null));
 
 		// Register the process with the debug plugin
-		subMonitor.worked(2);
 		subMonitor.subTask("Done");
 		registerWithDebugPlugin(config, launch, p);
 	}
 
 	/**
-	 * TODO document
+	 * The debug plugin needs to be notified about our process.
+	 * It'll then display the appropriate UI.
 	 */
 	private IProcess registerWithDebugPlugin(PythonRunnerConfig config, ILaunch launch, Process p) {
 		HashMap processAttributes = new HashMap();
 		processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
 		processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
 		return DebugPlugin.newProcess(launch,p, config.file.lastSegment(), processAttributes);
-	}
-	
-	protected void checkErrorMessage(IProcess process) throws CoreException {
-		String errorMessage= process.getStreamsProxy().getErrorStreamMonitor().getContents();
-		if (errorMessage.length() != 0)
-			// TODO not sure if this is really an error
-			throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, "Something got printed in the error stream", null));
 	}
 }

@@ -5,75 +5,95 @@
  */
 package org.python.pydev.debug.model;
 
+import org.eclipse.core.runtime.IStatus;
+import org.python.pydev.debug.core.PydevDebugPlugin;
+
 /**
- * Interacts with jpydaemon.py.
+ * Superclass of all debugger commands.
  * 
- * Knows how to create and interpret jpydaemon commands.
+ * Debugger commands know how to interact with pydevd.py.
+ * See pydevd.py for protocol information.
  * 
- * jpydaemon commands:
+ * Command lifecycle:
+ *  cmd = new Command() // creation
+ *  cmd.getSequence()	// get the sequence number of the command
+ *  cmd.getOutgoing()	// asks command for outgoing message
+ *  cmd.aboutToSend()	// called right before we go on wire
+ * 						// by default, if command needs response
+ * 						// it gets posted to in the response queue
+ * 	if (cmd.needsResponse())
+ * 		post the command to response queue, otherwise we are done
+ *  when response arrives:
+ *  if response is an error
+ * 		cmd.processResponse()
+ * 	else
+ * 		cmd.processErrorResponse()
  * 
- * STOP: exits the debugger
- * CMD <command>: takes a command and executes it 
-
-success:
-<JPY> <COMMAND cmd="CMD a=1" operation="a=1" result="OK" /></JPY>
-<JPY> <STDOUT content="1" /></JPY>
-<JPY> <STDOUT content="/EOL/" /></JPY>
-<JPY> <COMMAND cmd="CMD print a" operation="print a" result="OK" /></JPY>
-error:
-<JPY> <COMMAND cmd="CMD er!" operation="er!" result="Error on CMD" /></JPY>
-<JPY> <COMMANDDETAIL  content="Traceback (most recent call last):"  /></JPY>
-<JPY> <COMMANDDETAIL  content="  File &quot;D:\pydevspace2\org.python.pydev.debug\pysrc\jpydaemon.py&quot;, line 231, in dealWithCmd    code = compile( arg ,&quot;&lt;string&gt;&quot; , cmdType)"  /></JPY>
-<JPY> <COMMANDDETAIL  content="  File &quot;&lt;string&gt;&quot;, line 1"  /></JPY>
-<JPY> <COMMANDDETAIL  content="    er!"  /></JPY>
-<JPY> <COMMANDDETAIL  content="      ^"  /></JPY>
-<JPY> <COMMANDDETAIL  content="SyntaxError: unexpected EOF while parsing"  /></JPY>
-
- * READSRC <filename>: reads in the whole file
- * SETARGS : sets arguments before we start execution
- <JPY> <COMMAND cmd="SETARGS -u -v" operation="-u -v" result="OK" /></JPY>
-
- * DBG:
- <JPY><COMMAND cmd="DBG test.py" /></JPY>
- <JPY> <LINE cmd="31" fn="&lt;string&gt;" lineno="1" name="?" line="" /></JPY>
  */
-public class RemoteDebuggerCommand {
-	public final static String VERSION = "JpyDbg 0.0.3" ; 	
-	public final static int INACTIVE  = 0 ; 
-	public final static int STARTING  = 1 ; 
-	public final static int STARTED   = 2 ; 
-    
-	private final static String _ERROR_ = "ERROR:"  ;
-	private final static String _END_OF_LINE_ = "\n" ; 
-	private final static String _INACTIVE_TEXT_ = "inactive" ; 
-	private final static String _READY_TEXT_ = "ready" ; 
-	private final static String _STRING_ ="<string>"   ;
-	private final static String _EOL_ = "/EOL/" ; 
-	private final static String _OK_ = "OK" ; 
-    
-	private final static String _COMMAND_  = "CMD " ; 
-	private final static String _BPSET_  = "BP+ " ; 
-	private final static String _BPCLEAR_  = "BP- " ; 
-	private final static String _DBG_      = "DBG " ; 
-	private final static String _SETARGS_  = "SETARGS " ; 
-	private final static String _READSRC_  = "READSRC " ; 
-	private final static String _NEXT_     = "NEXT " ; 
-	private final static String _SET_      = "set " ; 
-	private final static String _STEP_     = "STEP " ; 
-	private final static String _RUN_      = "RUN " ; 
-	private final static String _STOP_     = "STOP " ; 
-	private final static String _STACK_    = "STACK " ; 
-	private final static String _GLOBALS_  = "GLOBALS " ; 
-	private final static String _GLOBAL_   = "global" ; 
-	private final static String _EQUAL_    = "=" ; 
-	private final static String _SEMICOLON_= ";" ; 
-	private final static String _SILENT_   = "silent" ; 
-	private final static String _LOCALS_   = "LOCALS " ; 
-	private final static String _SPACE_    = " " ; 
-
-	String xmlMessage;
+public abstract class RemoteDebuggerCommand {
 	
-	public String getXMLMessage() {
-		return xmlMessage;
+	static final int CMD_LIST_THREADS = 102;
+	static final int CMD_THREAD_CREATED = 103;
+	static final int CMD_ERROR = 501;
+	static final int CMD_VERSION = 901;
+	static final int CMD_RETURN = 902;
+	
+	protected RemoteDebugger debugger;
+	
+	public RemoteDebuggerCommand(RemoteDebugger debugger) {
+		this.debugger = debugger;
+	}
+
+	/**
+	 * @return outgoing message
+	 */
+	public abstract String getOutgoing();
+	
+	/**
+	 * Notification right before the command is sent.
+	 * If subclassed, call super()
+	 */
+	public void aboutToSend() {
+		// if we need a response, put me on the waiting queue
+		if (needResponse())
+			debugger.addToResponseQueue(this);
+	}
+
+	/**
+	 * Does this command require a response?
+	 */
+	public boolean needResponse() {
+		return false;
+	}
+	
+	/**
+	 * returns Sequence # 
+	 */
+	public int getSequence() {
+		System.err.println("Fatal: must override getSequence");
+		PydevDebugPlugin.log(IStatus.ERROR, "getSequence must be overridden", null);
+		return 0;
+	}
+	
+	/**
+	 * notification of the response to the command.
+	 * You'll get either processResponse or processErrorResponse
+	 */
+	public void processResponse(int cmdCode, String payload) {
+		PydevDebugPlugin.log(IStatus.ERROR, "Debugger command ignored response " + getClass().toString() + payload, null);
+	}
+	
+	public void processErrorResponse(int cmdCode, String payload) {
+		PydevDebugPlugin.log(IStatus.ERROR, "Debugger command ignored error response " + getClass().toString() + payload, null);
+	}
+	
+	public static String makeCommand(String code, int sequence, String payload) {
+		StringBuffer s = new StringBuffer();
+		s.append(code);
+		s.append("\t");
+		s.append(sequence);
+		s.append("\t");
+		s.append(payload);
+		return s.toString();
 	}
 }
