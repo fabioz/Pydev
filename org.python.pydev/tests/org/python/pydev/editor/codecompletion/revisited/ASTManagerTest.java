@@ -179,6 +179,30 @@ public class ASTManagerTest extends TestCase {
         assertIsIn("foo", comps);
         assertIsIn("a", comps);
         assertIsIn("test", comps);
+
+        
+        
+		sDoc = ""+
+		"class LinkedList:                      \n"+
+		"    def __init__(self,content='Null'): \n" +
+		"        if not content:                \n"+
+		"            self.first=content         \n"+
+		"            self.last=content          \n"+
+		"        else:                          \n"+
+		"            self.first='Null'          \n"+
+		"            self.last='Null'           \n"+
+		"        self.content=content           \n"+
+		"        self.                          \n";
+		
+		line = 9;
+		col = 9;
+		token = "LinkedList";
+		doc = new Document(sDoc);
+        state = new CompletionState(line,col, token, nature);
+        comps = manager.getCompletionsForToken(doc, state);
+        assertIsIn("first", comps);
+        assertIsIn("last", comps);
+        assertIsIn("content", comps);
         
     }
 

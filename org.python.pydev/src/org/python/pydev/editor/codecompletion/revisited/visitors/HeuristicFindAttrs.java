@@ -10,6 +10,7 @@ import org.python.parser.ast.Assign;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.FunctionDef;
+import org.python.parser.ast.If;
 import org.python.parser.ast.Name;
 
 /**
@@ -68,6 +69,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
      */
     public void traverse(SimpleNode node) throws Exception {
     }
+    
     
     
     //ENTRY POINTS
@@ -167,5 +169,16 @@ public class HeuristicFindAttrs extends AbstractVisitor {
         }
         return null;
     }
+    
+
+    /**
+     * @see org.python.parser.ast.VisitorIF#visitIf(org.python.parser.ast.If)
+     */
+    public Object visitIf(If node) throws Exception {
+        node.traverse(this);
+        return null;
+    }
+
+
 
 }

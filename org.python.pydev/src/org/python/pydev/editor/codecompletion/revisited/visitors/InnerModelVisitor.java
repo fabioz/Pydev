@@ -94,7 +94,7 @@ public class InnerModelVisitor extends AbstractVisitor {
         }
         return null;
     }
-    
+        
     /**
      * @see org.python.parser.ast.VisitorBase#visitAssign(org.python.parser.ast.Assign)
      */

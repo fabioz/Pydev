@@ -8,6 +8,7 @@ package org.python.pydev.parser;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -207,33 +208,25 @@ public class PyParser {
     
     public static class ParserInfo{
         public IDocument document;
-        public boolean reparseIfErrorFound=true; 
+        public boolean changedCurrentLine=true; 
         public PythonNature nature;
         public int currentLine=-1;
         public String initial = null;
+        public List linesChanged = new ArrayList();
         
-        public ParserInfo(IDocument document, boolean reparseIfErrorFound, PythonNature nature){
+        public ParserInfo(IDocument document, boolean changedCurrentLine, PythonNature nature){
             this.document = document;
-            this.reparseIfErrorFound = reparseIfErrorFound;
+            this.changedCurrentLine = changedCurrentLine;
             this.nature = nature;
         }
 
-        public ParserInfo(IDocument document, boolean reparseIfErrorFound, PythonNature nature, int currentLine){
-            this(document, reparseIfErrorFound, nature);
+        public ParserInfo(IDocument document, boolean changedCurrentLine, PythonNature nature, int currentLine){
+            this(document, changedCurrentLine, nature);
             this.currentLine = currentLine;
         }
     }
     
     /**
-     * 
-     * @param document the document that should be parsed.
-     * 
-     * @param reparseIfErrorFound boolean indicating that another reparse should
-     * 		  be attempted, changing the current text line for a 'pass', so that we can 
-     * 		  give outline and some feedback.
-     * 		  (Maybe a good idea would be a fast parser that is error aware and that finds
-     * 		  the information we need, as class and function definitions).
-     * 
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
@@ -260,7 +253,7 @@ public class PyParser {
         } catch (ParseException parseErr) {
             SimpleNode newRoot = null;
             
-            if (info.reparseIfErrorFound){
+            if (info.changedCurrentLine){
                 newRoot = tryReparseAgain(info, parseErr);
             } else {
                 info.currentLine = -1;
@@ -290,7 +283,7 @@ public class PyParser {
             }
             //END: HACK
             
-            if (info.reparseIfErrorFound){
+            if (info.changedCurrentLine){
                 newRoot = tryReparseAgain(info, tokenErr);
             }
             
@@ -333,11 +326,42 @@ public class PyParser {
         
         if(info.currentLine > -1){
             line = info.currentLine;
+        
         }else{
             line = tokenErr.currentToken.beginLine-1;
-        }
         
+	        boolean okToGo = false;
+	        
+	        while(! okToGo){
+		        if(! lineIn(info.linesChanged, line)){
+		            info.linesChanged.add(new Integer(line));
+		            okToGo = true;
+		            
+		        } else if(info.linesChanged.size() < 10){
+		            line += 1;
+		            
+		        } else{
+		            return null;
+		        }
+	        }
+        }
+
         return tryReparseChangingLine(info, line);
+    }
+
+    /**
+     * @param linesChanged
+     * @param line
+     * @return
+     */
+    private static boolean lineIn(List linesChanged, int line) {
+        for (Iterator iter = linesChanged.iterator(); iter.hasNext();) {
+            Integer i = (Integer) iter.next();
+            if (i.intValue() == line){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -349,11 +373,11 @@ public class PyParser {
      */
     private static SimpleNode tryReparseChangingLine(ParserInfo info, int line) {
         String docToParse = PyCodeCompletion.getDocToParseFromLine(info.document, line);
-        if(docToParse != null && info.reparseIfErrorFound){
+        if(docToParse != null){
 
             Document doc = new Document(docToParse);
             info.document = doc;
-            info.reparseIfErrorFound = false;
+            info.changedCurrentLine = false;
 	        return (SimpleNode) reparseDocument(info)[0];
         }
         return null;
