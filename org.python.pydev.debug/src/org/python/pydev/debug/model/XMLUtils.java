@@ -144,6 +144,8 @@ public class XMLUtils {
 			String name = attributes.getValue("name");
 			String id = attributes.getValue("id");
 			String file = attributes.getValue("file");
+			if (file != null)
+				file = URLDecoder.decode(file);
 			String line = attributes.getValue("line");
 			IPath filePath = new Path(file);
 			// Try to recycle old stack objects

@@ -76,7 +76,7 @@ Debugger = None
 
 __all__ = ();
 
-_trace = -1
+_trace = 0
 
 def log(level, s):
     """ levels are: 
@@ -85,7 +85,7 @@ def log(level, s):
         2 informational trace
     """
     if (level <= _trace):
-        print sys.stderr, s 
+        print >>sys.stderr, s 
 
 
 class ReaderThread(threading.Thread):
@@ -241,7 +241,7 @@ class NetCommandFactory:
                 myLine = str(curFrame.f_lineno)
 #                print "line is ", myLine
                 cmdText += '<frame id="' + myId +'" name="' + myName + '" '
-                cmdText += 'file="' + myFile + '" line="' + myLine + '">"'
+                cmdText += 'file="' + urllib.quote(myFile, '/>_= \t') + '" line="' + myLine + '">"'
                 variables = pydevd_vars.frameVarsToXML(curFrame)
                 cmdText += variables
                 cmdText += "</frame>"
@@ -610,17 +610,17 @@ class PyDB:
 #        print "t3 ", str(id(t))
         if self.quitting:
             pass
-        elif event == 'line':
-            retVal =  self.dispatch_line(frame)
-        elif event == 'call':
-            retVal =  self.dispatch_call(frame, arg)
-        elif event == 'return':
-            retVal =  self.dispatch_return(frame, arg)
-        elif event == 'exception':
-            retVal =  self.dispatch_exception(frame, arg)
+#        elif event == 'line':
+#            retVal =  self.dispatch_line(frame)
+#        elif event == 'call':
+#            retVal =  self.dispatch_call(frame, arg)
+#        elif event == 'return':
+#            retVal =  self.dispatch_return(frame, arg)
+#        elif event == 'exception':
+#            retVal =  self.dispatch_exception(frame, arg)
         else:
             retVal = self.trace_dispatch
-            print 'bdb.Bdb.dispatch: unknown debugging event:', `event`
+#            print 'bdb.Bdb.dispatch: unknown debugging event:', `event`
 #        print "b", str(id(t))
         return retVal
 

@@ -1,5 +1,6 @@
 package org.python.pydev.debug.core;
 
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.*;
@@ -62,13 +63,19 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
 		getDefault().getLog().log(s);
 	}
 	
-	public static void errorDialog(String message, Throwable t) {
-		IWorkbenchWindow window = getDefault().getWorkbench().getActiveWorkbenchWindow();
-		Shell shell = window == null ? null : window.getShell();	
-		if (shell != null) {
-			IStatus status= makeStatus(IStatus.ERROR, "Error logged from Pydev Debug: ", t);	
-			ErrorDialog.openError(shell, "Its an error", message, status);
-		}
+	public static void errorDialog(final String message, final Throwable t) {
+		Display disp = Display.getCurrent();
+		disp.asyncExec(new Runnable() {
+			public void run() {
+				IWorkbenchWindow window = getDefault().getWorkbench().getActiveWorkbenchWindow();
+				Shell shell = window == null ? null : window.getShell();
+				if (shell != null) {
+					IStatus status= makeStatus(IStatus.ERROR, "Error logged from Pydev Debug: ", t);	
+					ErrorDialog.openError(shell, "Its an error", message, status);
+				}
+			}	
+		});
+		log(IStatus.ERROR, message, t);
 	}
 
 }
