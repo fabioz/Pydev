@@ -221,9 +221,9 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		IToken keywordToken = new Token(
 				new TextAttribute(colorCache.getNamedColor(PydevPrefs.KEYWORD_COLOR)));
 		IToken defaultToken = new Token(
-				new TextAttribute(colorCache.getNamedColor("BLACK")));
+				new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR)));
 		IToken errorToken = new Token(
-				new TextAttribute(colorCache.getNamedColor("BLACK"))); // You can make it RED for fun display
+				new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR))); // Includes operators, brackets, numbers etc.
 		codeScanner.setDefaultReturnToken(errorToken);
 		List rules = new ArrayList();
 		

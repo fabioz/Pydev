@@ -18,4 +18,8 @@ public class CompiledToken extends AbstractToken{
         super(rep, doc, parentPackage, -1);
     }
 
+    public CompiledToken(String rep, String doc, String parentPackage, int type){
+        super(rep, doc, parentPackage, type);
+    }
+
 }

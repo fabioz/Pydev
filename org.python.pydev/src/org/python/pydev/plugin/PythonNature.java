@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ASTManagerIO;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.ui.PyProjectProperties;
@@ -194,6 +195,9 @@ public class PythonNature implements IProjectNature {
         Job myJob = new Job("Pydev code completion: rebuilding modules") {
 
             protected IStatus run(IProgressMonitor monitor) {
+                if(astManager == null){
+                    astManager = new ASTManager();
+                }
                 astManager.changePythonPath(paths, project, new JobProgressComunicator(monitor, "Rebuilding modules", 500, this));
                 return Status.OK_STATUS;
             }

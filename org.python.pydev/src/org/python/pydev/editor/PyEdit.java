@@ -19,6 +19,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -33,6 +36,8 @@ import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
@@ -117,7 +122,20 @@ public class PyEdit extends PyEditProjection {
     public PyEdit() {
         super();
         modelListeners = new ArrayList();
-        colorCache = new ColorCache(PydevPrefs.getPreferences());
+        Preferences pluginPrefs = PydevPrefs.getPreferences();
+        colorCache = new ColorCache(pluginPrefs);
+        
+        //call updatePyDevPluginPrefs() when Pydev prefs are modified
+        //TODO: update the syntax highlighting colors too
+        Preferences.IPropertyChangeListener listener = new Preferences.IPropertyChangeListener() {
+        	public void propertyChange(Preferences.PropertyChangeEvent event) {
+        		updatePyDevPluginPrefs();
+        	}
+        };
+        pluginPrefs.addPropertyChangeListener(listener);
+        
+        updatePyDevPluginPrefs();
+        
         if (getDocumentProvider() == null) {
             setDocumentProvider(new PyDocumentProvider());
         }
@@ -131,7 +149,7 @@ public class PyEdit extends PyEditProjection {
         //Added to set the code folding.
         CodeFoldingSetter codeFoldingSetter = new CodeFoldingSetter(this);
         this.addModelListener(codeFoldingSetter);
-        this.addPropertyListener(codeFoldingSetter);
+        this.addPropertyListener(codeFoldingSetter);		
 
         //we also want to initialize our shells...
         //we use 2: one for refactoring and one for code completion.
@@ -550,6 +568,32 @@ public class PyEdit extends PyEditProjection {
         IProject project = getProject();
         return PythonNature.getPythonNature(project);
     }
-
+    
+    protected void initializeEditor()
+    {
+    	//Use a fresh PreferenceStore to avoid modifying the default TextEditor PreferenceStore
+    	//All the TextEditor defaults will be used unless explicitly set in this PreferenceStore
+    	super.initializeEditor();
+    	this.setPreferenceStore(new PreferenceStore());
+    }
+    
+    private void updatePyDevPluginPrefs()
+    {
+    	Preferences pluginPrefs = PydevPrefs.getPreferences();
+    	colorCache = new ColorCache(pluginPrefs);
+        IPreferenceStore edprefs = getPreferenceStore();
+    	
+    	edprefs.setValue(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE, 
+    			pluginPrefs.getBoolean(PydevPrefs.EDITOR_CURRENT_LINE));
+        edprefs.setValue(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE_COLOR, 
+        		StringConverter.asString(colorCache.getNamedColor(
+        				PydevPrefs.EDITOR_CURRENT_LINE_COLOR).getRGB()));
+        
+        edprefs.setValue(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT, 
+        		!pluginPrefs.getBoolean(PydevPrefs.EDITOR_USE_CUSTOM_BACKGROUND_COLOR));
+        edprefs.setValue(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND, 
+        		StringConverter.asString(colorCache.getNamedColor(
+        				PydevPrefs.EDITOR_BACKGROUND_COLOR).getRGB()));
+    }
 }
 

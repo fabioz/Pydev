@@ -77,6 +77,9 @@ public class CompletionCache {
 
         	case PyCodeCompletion.TYPE_ATTR: 
         	    return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
+
+        	case PyCodeCompletion.TYPE_BUILTIN: 
+        	    return imageCache.get(UIConstants.BUILTINS_ICON);
         	default:
         	    return null;
         }

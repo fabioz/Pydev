@@ -92,17 +92,25 @@ public class PythonPathHelper implements Serializable{
         return false;
     }
     
+    
+    public String resolveModule(String fullPath){
+        return resolveModule(fullPath, true);
+    }
+    
     /**
      * DAMN... when I started thinking this up, it seemed much better... (and easier)
      * 
      * @param module - this is the full path of the module. Only for directories or py,pyd,dll,pyo files.
      * @return a String with the module that the file or folder should represent.
      */
-    public String resolveModule(String fullPath){
+    public String resolveModule(String fullPath, boolean requireFileToExist){
         fullPath = getDefaultPathStr(fullPath, true);
         File moduleFile = new File(fullPath);
-        if(moduleFile.exists() == false){
-            return null;
+        
+        if(requireFileToExist){
+	        if(moduleFile.exists() == false){
+	            return null;
+	        }
         }
         if(moduleFile.isFile()){
             
@@ -198,7 +206,7 @@ public class PythonPathHelper implements Serializable{
      * @param s
      * @return
      */
-    private String stripExtension(String s) {
+    public static String stripExtension(String s) {
         String[] strings = s.split("\\.");
         return s.substring(0, s.length() - strings[strings.length -1].length() -1);
     }

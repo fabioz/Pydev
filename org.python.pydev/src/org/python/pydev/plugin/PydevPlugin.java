@@ -101,9 +101,15 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             
             IProject[] projects = getWorkspace().getRoot().getProjects();
             for (int i = 0; i < projects.length; i++) {
-                IProjectNature n = projects[i].getNature(PythonNature.PYTHON_NATURE_ID);
-                if(n instanceof PythonNature){
-                    PythonNature nature = (PythonNature) n;
+                try {
+                    if (projects[i].isOpen()){
+	                    IProjectNature n = projects[i].getNature(PythonNature.PYTHON_NATURE_ID);
+	                    if(n instanceof PythonNature){
+	                        PythonNature nature = (PythonNature) n;
+	                    }
+                    }
+                } catch (CoreException e) {
+                    e.printStackTrace();
                 }
             }
         } finally{

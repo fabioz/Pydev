@@ -12,8 +12,11 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.resource.StringConverter;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.ui.InterpreterEditor;
@@ -44,6 +47,20 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	public static final String TAB_WIDTH = "TAB_WIDTH";
 	public static final int DEFAULT_TAB_WIDTH = 4;
 	
+	public static final String EDITOR_BACKGROUND_COLOR = "EDITOR_BACKGROUND_COLOR";
+	//The widget colors are not the editor actual editor defaults, but they look OK
+	//Not sure how to lookup the actual editor defaults
+	private static final RGB DEFAULT_EDITOR_BACKGROUND_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND).getRGB();	
+	
+	public static final String EDITOR_USE_CUSTOM_BACKGROUND_COLOR = "EDITOR_USE_CUSTOM_BACKGROUND_COLOR";
+	public static final boolean DEFAULT_EDITOR_BACKGROUND_COLOR_SYSTEM_DEFAULT = false;
+	
+	public static final String EDITOR_CURRENT_LINE = "EDITOR_CURRENT_LINE";
+	private static final boolean DEFAULT_EDITOR_CURRENT_LINE = true;
+	
+	public static final String EDITOR_CURRENT_LINE_COLOR = "EDITOR_CURRENT_LINE_COLOR";
+	private static final RGB DEFAULT_EDITOR_CURRENT_LINE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW).getRGB();
+	
 	public static final String CODE_COLOR = "CODE_COLOR";
 	private static final RGB DEFAULT_CODE_COLOR = new RGB(0, 0, 0);
 	
@@ -72,6 +89,10 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	public static final String RUN_MANY_SCRIPT_LOCATION = "RUN_MANY_SCRIPT_LOCATION";
 	public static final String DEFAULT_RUN_MANY_SCRIPT_LOCATION = "";
 
+	//FieldEditors that need to be manipulated
+	private ColorFieldEditor colorBackground, colorLine;
+	private BooleanFieldEditor boolSysDefaultBackground, boolLine;
+	
 	/**
 	 * Initializer sets the preference store
 	 */
@@ -113,9 +134,22 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		IntegerFieldEditor ife = new IntegerFieldEditor(TAB_WIDTH, "Tab length", p, 1);
 		ife.setValidRange(1, 8);	
 		// you can't restrict widget width on IntegerFieldEditor for now
-		addField(ife);
+		addField(ife);		
 		
-				
+		boolSysDefaultBackground = new BooleanFieldEditor(
+				EDITOR_USE_CUSTOM_BACKGROUND_COLOR, "Use custom background?", p);		
+		addField(boolSysDefaultBackground);
+		
+		colorBackground = new ColorFieldEditor(EDITOR_BACKGROUND_COLOR, "Background", p); 
+		addField(colorBackground);		
+		
+		boolLine = new BooleanFieldEditor(
+				EDITOR_CURRENT_LINE, "Highlight current line?", p);		
+		addField(boolLine);		
+		
+		colorLine = new ColorFieldEditor(EDITOR_CURRENT_LINE_COLOR, "Current Line", p);
+		addField(colorLine);
+		
 		addField(new ColorFieldEditor(
 			CODE_COLOR, "Code", p));
 		
@@ -131,8 +165,35 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		StringFieldEditor sfe = new StringFieldEditor ( BLOCK_COMMENT, "Block comment separator", 40, StringFieldEditor.VALIDATE_ON_FOCUS_LOST ,p );
 		addField(sfe);
 	}
-
 	
+	protected void initialize()
+	{
+		super.initialize();
+		activateControls();
+	}
+	
+	public void propertyChange(PropertyChangeEvent e)
+	{
+		Object src = e.getSource();
+		if( src.equals(boolSysDefaultBackground) ||
+			src.equals(boolLine) )
+		{
+			activateControls();
+		}
+	}
+	
+	//Adjust the state of all controls on the page
+	private void activateControls()
+	{
+		colorBackground.setEnabled(
+				boolSysDefaultBackground.getBooleanValue(), 
+				getFieldEditorParent());
+		
+		colorLine.setEnabled(
+				boolLine.getBooleanValue(),
+				getFieldEditorParent());
+	}
+		
 	/**
 	 * Sets default preference values
 	 */
@@ -146,6 +207,10 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		prefs.setDefault(STRING_COLOR,StringConverter.asString(DEFAULT_STRING_COLOR));
 		prefs.setDefault(COMMENT_COLOR,StringConverter.asString(DEFAULT_COMMENT_COLOR));
 		prefs.setDefault(HYPERLINK_COLOR, StringConverter.asString(DEFAULT_HYPERLINK_COLOR));
+		prefs.setDefault(EDITOR_BACKGROUND_COLOR, StringConverter.asString(DEFAULT_EDITOR_BACKGROUND_COLOR));
+		prefs.setDefault(EDITOR_USE_CUSTOM_BACKGROUND_COLOR, DEFAULT_EDITOR_BACKGROUND_COLOR_SYSTEM_DEFAULT);
+		prefs.setDefault(EDITOR_CURRENT_LINE, StringConverter.asString(DEFAULT_EDITOR_CURRENT_LINE));
+		prefs.setDefault(EDITOR_CURRENT_LINE_COLOR, StringConverter.asString(DEFAULT_EDITOR_CURRENT_LINE_COLOR));
 		prefs.setDefault(BLOCK_COMMENT, DEFAULT_BLOCK_COMMENT_STRING);
 		prefs.setDefault(CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
 		prefs.setDefault(RUN_MANY_SCRIPT_LOCATION, DEFAULT_RUN_MANY_SCRIPT_LOCATION);

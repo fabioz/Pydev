@@ -58,7 +58,15 @@ public interface IASTManager {
      */
     public abstract void syncModules(final IProject project, IProgressMonitor monitor);
 
-    
+    /**
+     * Remove all modules below a module represented by a folder.
+     * 
+     * @param file
+     * @param project
+     * @param monitor
+     */
+    public void removeModulesBelow(File file, IProject project, IProgressMonitor monitor);
+
     //----------------------------------- COMPLETIONS
 
     /**

@@ -56,6 +56,11 @@ public class PyCodeCompletion {
     public static final int TYPE_ATTR = 3;
     
     /**
+     * Type for attr (used to decide the icon)
+     */
+    public static final int TYPE_BUILTIN = 4;
+    
+    /**
      * Position in document prior to the activation token
      */
     private int docBoundary = -1; 
@@ -92,8 +97,6 @@ public class PyCodeCompletion {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        
-        String docToParse = getDocToParse(doc, documentOffset);
         
         String trimmed = theActivationToken.replace('.', ' ').trim();
         

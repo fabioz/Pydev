@@ -13,6 +13,7 @@ public class UIConstants {
 	public static final String CLASS_ICON = "icons/class_obj.gif";
 	public static final String IMPORT_ICON = "icons/imp_obj.gif";
 	public static final String IMPORTS_ICON = "icons/impc_obj.gif";
+	public static final String BUILTINS_ICON = "icons/builtin_obj.gif";
 	public static final String PRIVATE_METHOD_ICON = "icons/methpri_obj.gif";
 	public static final String PUBLIC_METHOD_ICON = "icons/methpub_obj.gif";
 	public static final String MAIN_FUNCTION_ICON = "icons/mainfunction.gif";

@@ -45,14 +45,17 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             // Do a Full Build: Use a ResourceVisitor to process the tree.
             performFullBuild(monitor);
         } else { // Build it with a delta
+            
             IResourceDelta delta = getDelta(getProject());
             if (delta == null) {
                 performFullBuild(monitor);
             } else {
+                
                 for (Iterator it = getVisitors().iterator(); it.hasNext();) {
                     PyDevBuilderVisitor element = (PyDevBuilderVisitor) it.next();
                     delta.accept(element);
                 }
+                
             }
         }
         return null;

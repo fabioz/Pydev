@@ -57,7 +57,12 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
         
         if (astManager != null){
             IPath location = resource.getLocation(); 
-            astManager.removeModule(new File(location.toOSString()), resource.getProject(), new NullProgressMonitor());
+
+            if(resource.getType() == IResource.FOLDER){
+                astManager.removeModulesBelow(new File(location.toOSString()), resource.getProject(), new NullProgressMonitor());
+            }else{
+	            astManager.removeModule(new File(location.toOSString()), resource.getProject(), new NullProgressMonitor());
+            }
         }
 
         return false;

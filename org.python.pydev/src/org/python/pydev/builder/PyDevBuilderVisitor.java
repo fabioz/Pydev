@@ -32,13 +32,28 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 		}
 
 		IResource resource = delta.getResource();
-		if(resource == null || resource.getFileExtension() == null){ //resource.getFileExtension() may return null if it has none.
+		int type = resource.getType();
+
+		if(resource == null){
 		    return true;
 		}
 		
-		int type = resource.getType();
+		if (type == IResource.FOLDER) {
+			switch (delta.getKind()) {
+				case IResourceDelta.REMOVED:
+				    visitRemovedResource(resource, null);
+					break;
+			}
+		}
+		
+		
 		if (type == IResource.FILE) {
-			if (resource.getFileExtension().equals("py")) {
+			String ext = resource.getFileExtension();
+            if(ext == null){ //resource.getFileExtension() may return null if it has none.
+			    return true;
+			}
+			
+			if (ext.equals("py") || ext.equals("pyw")) {
 				switch (delta.getKind()) {
 					case IResourceDelta.ADDED :
 					    visitResource(resource, PyDevBuilder.getDocFromResource(resource));
@@ -47,11 +62,12 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 					    visitResource(resource, PyDevBuilder.getDocFromResource(resource));
 						break;
 					case IResourceDelta.REMOVED:
-					    visitRemovedResource(resource, PyDevBuilder.getDocFromResource(resource));
+					    visitRemovedResource(resource, null);
 						break;
 				}
 			}
 		}
+		
 		return true;
 	}
 

@@ -7,6 +7,8 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.Serializable;
 
 import org.eclipse.jface.text.Document;
@@ -75,27 +77,30 @@ public abstract class AbstractModule implements Serializable{
      * 
      * @param f
      * @return
+     * @throws FileNotFoundException
      */
-    public static AbstractModule createModule(String name, File f) {
+    public static AbstractModule createModule(String name, File f) throws FileNotFoundException {
         String path = f.getAbsolutePath();
         if(PythonPathHelper.isValidFileMod(path)){
 	        if(isValidSourceFile(path)){
-		        try {
-		            FileInputStream stream = new FileInputStream(f);
-		            try {
-		                int i = stream.available();
-		                byte[] b = new byte[i];
-		                stream.read(b);
-		
-		                Document doc = new Document(new String(b));
-	                    return createModuleFromDoc(name, f, doc);
-		
-		            } finally {
-		                stream.close();
-		            }
-		        } catch (Exception e) {
-		            PydevPlugin.log(e);
-		        }
+	            FileInputStream stream = new FileInputStream(f);
+	            try {
+	                int i = stream.available();
+	                byte[] b = new byte[i];
+	                stream.read(b);
+	
+	                Document doc = new Document(new String(b));
+                    return createModuleFromDoc(name, f, doc);
+	
+	            } catch (IOException e) {
+                    PydevPlugin.log(e);
+                } finally {
+	                try {
+                        stream.close();
+                    } catch (IOException e1) {
+                        PydevPlugin.log(e1);
+                    }
+	            }
 	        }else{ //this should be a compiled extension... we have to get completions from the python shell.
 	            return new CompiledModule(name);
 	        }

@@ -115,8 +115,13 @@ public abstract class AbstractVisitor extends VisitorBase{
         }else{
             modelVisitor = new GlobalModelVisitor(which, moduleName);
         }
-        ast.accept(modelVisitor);
-        return (SourceToken[]) modelVisitor.tokens.toArray(new SourceToken[0]);
+        
+        if (ast != null){
+            ast.accept(modelVisitor);
+            return (SourceToken[]) modelVisitor.tokens.toArray(new SourceToken[0]);
+        }else{
+            return new SourceToken[0];
+        }
     }
 
 }

@@ -34,7 +34,9 @@ public class ModulesKey implements Comparable, Serializable{
             if (i != 0)
                 return i;
             
-            i = file.compareTo(m.file);
+            if(file != null && m.file != null){
+                i = file.compareTo(m.file);
+            }
             return i;
         }
         return 0;

@@ -27,6 +27,14 @@ public class CompiledModule extends AbstractModule{
      * @param module - module from where to get completions.
      */
     public CompiledModule(String name){
+        this(name, -1);
+    }
+
+    /**
+     * 
+     * @param module - module from where to get completions.
+     */
+    public CompiledModule(String name, int tokenTypes){
         super(name);
         System.out.println("creating compiled module: "+name);
         try {
@@ -37,7 +45,7 @@ public class CompiledModule extends AbstractModule{
             
             for (Iterator iter = completions.iterator(); iter.hasNext();) {
                 String[] element = (String[]) iter.next();
-                IToken t = new CompiledToken(element[0], element[1], name);
+                IToken t = new CompiledToken(element[0], element[1], name, tokenTypes);
                 array.add(t);
                 
             }

@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,7 +112,16 @@ public class ASTManager implements Serializable, IASTManager {
                 }
             }
         }
-        modules = mods;
+        
+        //create the builtin modules
+        String name = "sys";
+        mods.put(new ModulesKey(name, null), AbstractModule.createEmptyModule(name, null));
+        
+        name = "__builtin__";
+        mods.put(new ModulesKey(name, null), AbstractModule.createEmptyModule(name, null));
+
+        //assign to instance variable 
+        this.modules = mods;
         
         final ASTManager m = this;
         new Thread(){
@@ -139,14 +149,6 @@ public class ASTManager implements Serializable, IASTManager {
             final ModulesKey key = new ModulesKey(m, f);
             modules.put(key, value);
 
-//            new Thread() {
-//                public void run() {
-//                    File dir = ASTManager.getCompletionsCacheDir(project);
-//                    String name = m;
-//                    File f = new File(dir, name + ".pydevcompletions");
-//                    ASTManagerIO.saveDelta(f, key, value );
-//                }
-//            }.start();
         }
     }
 
@@ -156,9 +158,32 @@ public class ASTManager implements Serializable, IASTManager {
      * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
     public void removeModule(File file, IProject project, IProgressMonitor monitor) {
-        final String m = pythonPathHelper.resolveModule(file.getAbsolutePath());
+        String m = pythonPathHelper.resolveModule(file.getAbsolutePath(), false);
+        m = PythonPathHelper.stripExtension(m);
         if (m != null) {
-            modules.remove(m);
+            modules.remove(new ModulesKey(m, file));
+        }
+    }
+
+    /**
+     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
+     */
+    public void removeModulesBelow(File file, IProject project, IProgressMonitor monitor) {
+        String m = pythonPathHelper.resolveModule(file.getAbsolutePath(), false);
+        List toRem = new ArrayList();
+        if (m != null) {
+            for (Iterator iter = modules.keySet().iterator(); iter.hasNext();) {
+                ModulesKey key = (ModulesKey) iter.next();
+                if(key.name.startsWith(m)){
+                    toRem.add(key);
+                }
+            }
+        }
+        
+        //really remove them here.
+        for (Iterator iter = toRem.iterator(); iter.hasNext();) {
+            modules.remove(iter.next());
+            
         }
     }
 
@@ -311,12 +336,33 @@ public class ASTManager implements Serializable, IASTManager {
         if(n == null){
             System.out.println("The module "+name+" could not be found!");
         }
+        
         if (n instanceof EmptyModule){
             EmptyModule e = (EmptyModule)n;
             System.out.println("Loading module: "+name+ " file "+e.f);
-            n = AbstractModule.createModule(name, e.f);
-            System.out.println("Loaded");
-            this.modules.put(new ModulesKey(name, e.f), n);
+
+            if(e.f != null){
+                try{
+                    n = AbstractModule.createModule(name, e.f);
+                }catch(FileNotFoundException exc){
+                    this.modules.remove(new ModulesKey(name, e.f));
+                    n = null;
+                }
+            }else{
+                //check for supported builtins
+                if(name.equals("__builtin__")){
+                    n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN);
+                }else if(name.equals("sys")){
+                    n = new CompiledModule(name);
+                }else{
+                    System.out.println("The module "+name+" could not be found nor created!");
+                }
+            }
+            
+            if(n != null){
+	            System.out.println("Loaded");
+	            this.modules.put(new ModulesKey(name, e.f), n);
+            }
         }
         
         if( n instanceof EmptyModule){
@@ -366,13 +412,17 @@ public class ASTManager implements Serializable, IASTManager {
         return getCompletionsForModule("", activationToken, qualifier, module);
     }
 
+    public IToken[] getCompletionsForModule(String modName, String activationToken, String qualifier, AbstractModule module) {
+        return getCompletionsForModule(modName, activationToken, qualifier, module, false);
+    }
+    
     /**
      * @param file
      * @param activationToken
      * @param qualifier
      * @param module
      */
-    public IToken[] getCompletionsForModule(String modName, String activationToken, String qualifier, AbstractModule module) {
+    private IToken[] getCompletionsForModule(String modName, String activationToken, String qualifier, AbstractModule module, boolean recursing) {
         List completions = new ArrayList();
 
         if (module != null) {
@@ -400,8 +450,12 @@ public class ASTManager implements Serializable, IASTManager {
                     IToken name = wildImportedModules[i];
                     AbstractModule mod = getModule(name.getCompletePath());
                     
+                    if (mod == null) {
+                        mod = getModule(name.getRepresentation());
+                    }
+                    
                     if (mod != null) {
-                        IToken[] completionsForModule = getCompletionsForModule(name.getRepresentation(), activationToken, qualifier, mod);
+                        IToken[] completionsForModule = getCompletionsForModule(name.getRepresentation(), activationToken, qualifier, mod, true);
                         for (int j = 0; j < completionsForModule.length; j++) {
                             completions.add(completionsForModule[j]);
                         }
@@ -410,6 +464,14 @@ public class ASTManager implements Serializable, IASTManager {
                     }
                 }
 
+                if(!recursing){
+	                //last thing: get completions from module __builtin__
+	                IToken[] toks = getModule("__builtin__").getGlobalTokens();
+	                for (int i = 0; i < toks.length; i++) {
+	                    completions.add(toks[i]);
+	                }
+                }
+                
             }else{ //ok, we have a token, find it and get its completions.
                 
                 //first check if the token is a module... if it is, get the completions for that module.
@@ -432,7 +494,7 @@ public class ASTManager implements Serializable, IASTManager {
                         
                         if(tok.length() == 0){
 	                        //the activation token corresponds to an imported module. We have to get its global tokens and return them.
-	                        return getCompletionsForModule(rep, "", "", mod);
+	                        return getCompletionsForModule(rep, "", "", mod, true);
                         }else{
 	                        return mod.getGlobalTokens(tok);
                         }
@@ -448,6 +510,7 @@ public class ASTManager implements Serializable, IASTManager {
                 
                  
             }
+
             
         } else {
             System.out.println("Invalid module: " + modName);

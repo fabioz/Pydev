@@ -106,17 +106,22 @@ public class SourceModule extends AbstractModule {
      * @see org.python.pydev.editor.codecompletion.revisited.AbstractModule#getGlobalTokens(java.lang.String)
      */
     public IToken[] getGlobalTokens(String token) {
-        SourceToken[] tokens = (SourceToken[]) getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
-        for (int i = 0; i < tokens.length; i++) {
-            if(tokens[i].getRepresentation().equals(token)){
-                ast = tokens[i].getAst();
-                try {
-                    //TODO: COMPLETION: get the completions for the whole hierarchy if this is a class!!
-                    return GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+        IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
+        if(t instanceof SourceToken[]){
+	        SourceToken[] tokens = (SourceToken[]) t;
+	        for (int i = 0; i < tokens.length; i++) {
+	            if(tokens[i].getRepresentation().equals(token)){
+	                ast = tokens[i].getAst();
+	                try {
+	                    //TODO: COMPLETION: get the completions for the whole hierarchy if this is a class!!
+	                    return GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name);
+	                } catch (Exception e) {
+	                    e.printStackTrace();
+	                }
+	            }
+	        }
+        }else{
+            System.out.println("Expecting SourceToken, got: "+t.getClass().getName());
         }
         return new IToken[0];
     }
