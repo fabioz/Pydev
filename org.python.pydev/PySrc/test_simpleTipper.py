@@ -41,7 +41,7 @@ class C(object):
         
 
     def testEnv1(self):
-        comps = simpleTipper.GenerateTip(self.getDoc1(), None)
+        comps = simpleTipper.GenerateTip(self.getDoc1(), None, True)
         import math, inspect
         
         checkedMath = False
@@ -60,7 +60,7 @@ class C(object):
 
 
     def testEnv1CToken(self):
-        comps = simpleTipper.GenerateTip(self.getDoc1(), 'C')
+        comps = simpleTipper.GenerateTip(self.getDoc1(), 'C', True)
         checkedA = False
         for tup in comps:
             if tup[0] == 'a':
@@ -68,6 +68,32 @@ class C(object):
                 self.assert_('ADescription' in tup[1])
 
         self.assert_(checkedA)
+
+
+    def getDoc2(self):
+        s = \
+'''
+class C(object):
+    def __init__(self):
+        self.a = 1
+        self.b = 2
+'''
+        return s
+
+    def testEnv2(self):
+        '''
+        Now, check completion for C - should return object methods, 'a' and 'b'
+        '''
+        comps = simpleTipper.GenerateTip(self.getDoc2(), 'C', True)
+#        print comps
+        checkedA = False
+        for tup in comps:
+            if tup[0] == 'a':
+                checkedA = True
+        self.assert_(checkedA)
+#        self.assert_(('a',' ') in comps)
+        
+
         
 if __name__ == '__main__':
     unittest.main()

@@ -96,16 +96,20 @@ public class PyCodeCompletion {
         
         String docToParse = getDocToParse(doc, documentOffset);
 
-        if (theActivationToken.replace('.',' ').trim().equals("self")){
-//            System.out.println("serverCompletion - self.");
+        String trimmed = theActivationToken.replace('.',' ').trim();
+        if (trimmed.equals("") == false){
             
-            Location loc = Location.offsetToLocation(doc, documentOffset);
-            AbstractNode closest = ModelUtils.getLessOrEqualNode(edit.getPythonModel(),loc);
+            List completions;
+            if (trimmed.equals("self")){
+                Location loc = Location.offsetToLocation(doc, documentOffset);
+                AbstractNode closest = ModelUtils.getLessOrEqualNode(edit.getPythonModel(),loc);
 
-            Scope scope = closest.getScope().findContainingClass();
-            String token = scope.getStartNode().getName();
-            
-            List completions = serverShell.getTokenCompletions(token, docToParse);
+                Scope scope = closest.getScope().findContainingClass();
+                String token = scope.getStartNode().getName();
+                completions = serverShell.getClassCompletions(token, docToParse);
+            }else{
+                completions = serverShell.getTokenCompletions(trimmed, docToParse);
+            }
             theList.addAll(completions);
             
         }
@@ -146,7 +150,7 @@ public class PyCodeCompletion {
             newDoc += spaces+"pass\n";
             newDoc += wholeDoc.substring(lineInformation.getOffset() + lineInformation.getLength(), docLength);
             
-            System.out.println("DOC:"+newDoc);
+//            System.out.println("DOC:"+newDoc);
             
         } catch (BadLocationException e1) {
             e1.printStackTrace();

@@ -77,11 +77,31 @@ public class PythonShellTest extends TestCase {
    }
     
    public void testOther(){
-       String str = 
+       String str = getTestStr();
+       
+       List list = shell.getClassCompletions("C",str);
+       assertEquals(18, list.size());
+
+       list = shell.getTokenCompletions("C",str);
+       assertEquals(17, list.size());
+//       for (Iterator iter = list.iterator(); iter.hasNext();) {
+//           Object[] element = (Object[]) iter.next();
+//           System.out.println(element[0]);
+//           System.out.println(element[1]);
+//       }
+
+
+       
+   }
+
+/**
+ * @return
+ */
+private String getTestStr() {
+    String str = 
 		"class C(object):        \n"+  
 		"                        \n"+   
 		"    def __init__(self): \n"+          
-		"                        \n"+  
 		"        print dir(self) \n"+      
 		"                        \n"+     
 		"    def a(self):        \n"+        
@@ -89,16 +109,8 @@ public class PythonShellTest extends TestCase {
 		"                        \n"+         
 		"                        \n"+        
 		"    def b(self):        \n"+           
-		"        self.a          \n"+          
-		"                        \n"+        
+		"        self.c=1        \n"+          
 		"        pass            \n";
-       
-       List list = shell.getTokenCompletions("C",str);
-       assertEquals(17, list.size());
-//       for (Iterator iter = list.iterator(); iter.hasNext();) {
-//           Object[] element = (Object[]) iter.next();
-//           System.out.println(element[0]);
-//           System.out.println(element[1]);
-//       }
-   }
+    return str;
+}
 }

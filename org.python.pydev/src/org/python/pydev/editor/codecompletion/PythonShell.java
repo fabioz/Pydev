@@ -268,6 +268,35 @@ public class PythonShell {
     }
 
     /**
+     * @param token
+     * @param docToParse
+     * @return
+     */
+    public List getClassCompletions(String token, String str) {
+        String s = "@@CLASS_GLOBALS("+token+"):"+str+"\nEND@@";
+        try {
+            this.write(s);
+ 
+            return getCompletions();
+        } catch (IOException e) {
+            e.printStackTrace();
+            try {
+                this.endIt();
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            try {
+                this.startIt();
+            } catch (IOException e2) {
+                // TODO Auto-generated catch block
+                e2.printStackTrace();
+            }
+            return getInvalidCompletion();
+        }
+    }
+
+    /**
      * @return
      */
     private List getInvalidCompletion() {
@@ -292,5 +321,7 @@ public class PythonShell {
         }
         return list;
     }
+
+
 
 }

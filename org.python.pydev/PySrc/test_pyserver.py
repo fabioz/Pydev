@@ -75,13 +75,17 @@ class C(object):
                                  
                                 
     def b(self):                   
-        self.a                    
+        self.c=1                    
                                 
         pass            
 '''     
 
         sToWrite.send('@@TOKEN_GLOBALS(C):%s\nEND@@'%s) 
         completions = connToRead.recv(4086)
+
+        sToWrite.send('@@CLASS_GLOBALS(C):%s\nEND@@'%s) 
+        completions2 = connToRead.recv(4086)
+        self.assert_(len(completions) != len(completions2))
 
         self.sendKillMsg(sToWrite)
         

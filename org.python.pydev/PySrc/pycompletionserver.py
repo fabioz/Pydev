@@ -13,6 +13,7 @@ MSG_COMPLETIONS     = '@@COMPLETIONS'
 MSG_END             = 'END@@'
 MSG_GLOBALS         = '@@GLOBALS:'
 MSG_TOKEN_GLOBALS   = '@@TOKEN_GLOBALS('
+MSG_CLASS_GLOBALS   = '@@CLASS_GLOBALS('
 MSG_INVALID_REQUEST = '@@INVALID_REQUEST'
 
 BUFFER_SIZE = 1024
@@ -107,13 +108,19 @@ class T(threading.Thread):
             
             if MSG_GLOBALS in data:
                 data = data.replace(MSG_GLOBALS, '')
-                comps = simpleTipper.GenerateTip(data, None)
+                comps = simpleTipper.GenerateTip(data, None, False)
                 self.sendCompletionsMessage(comps)
             
             elif MSG_TOKEN_GLOBALS in data:
                 data = data.replace(MSG_TOKEN_GLOBALS, '')
                 token, data = self.getTokenAndData(data)                
-                comps = simpleTipper.GenerateTip(data, token)
+                comps = simpleTipper.GenerateTip(data, token, False)
+                self.sendCompletionsMessage(comps)
+
+            elif MSG_CLASS_GLOBALS in data:
+                data = data.replace(MSG_CLASS_GLOBALS, '')
+                token, data = self.getTokenAndData(data)                
+                comps = simpleTipper.GenerateTip(data, token, True)
                 self.sendCompletionsMessage(comps)
 
             else:
