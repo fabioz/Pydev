@@ -1845,8 +1845,9 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
               jjtree.closeNodeScope(jjtn000, true);
               jjtc000 = false;
               jjtreeCloseNodeScope(jjtn000);
-              if (mod.equals("__future__") && name.equals("generators"))
-                token_source.generator_allowed = true;
+              //this is always true by default now (yield support)
+              //if (mod.equals("__future__") && name.equals("generators"))
+              //token_source.generator_allowed = true;
         break;
       default:
         jj_la1[33] = jj_gen;

@@ -21,7 +21,7 @@ public class PythonGrammarTokenManager implements PythonGrammarConstants
     // is expected,i.e. classic behavior at jython prompt (different from codeop behavior)
     public boolean stdprompt = false;
 
-    public boolean generator_allowed = false;
+    public boolean generator_allowed = true; //now we can have yield
 
     static Token addDedent(Token previous) {
         Token t = new Token();
