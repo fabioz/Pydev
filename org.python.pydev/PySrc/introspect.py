@@ -7,8 +7,8 @@ NOTE: this file is a modification of Patrick O'Brien's version 1.62
 from __future__ import nested_scopes
 
 __author__ = "Patrick K. O'Brien <pobrien@orbtech.com>"
-__cvsid__ = "$Id: introspect.py,v 1.2 2004-05-25 21:42:14 dana_virtual Exp $"
-__revision__ = "$Revision: 1.2 $"[11:-2]
+__cvsid__ = "$Id: introspect.py,v 1.3 2004-08-09 21:10:45 dana_virtual Exp $"
+__revision__ = "$Revision: 1.3 $"[11:-2]
 # PYDEV Wrapping by the PyDev content team
 
 import cStringIO
@@ -17,7 +17,7 @@ import sys
 
 import tokenize
 import types
-from debug import *
+from debug import debug
 
 try:
     True
@@ -25,31 +25,32 @@ except NameError:
     True = 1==1
     False = 1==0
 
-def getAutoCompleteList(command='', locals=None, includeMagic=1, 
+
+def getAutoCompleteList(command='', locals=None, includeMagic=1,
                         includeSingle=1, includeDouble=1):
     """Return list of auto-completion options for command.
-    
+
     The list of options will be based on the locals namespace."""
     attributes = []
     # Get the proper chunk of code from the command.
     root = getRoot(command, terminator='.')
-    debug( "getAutoCompleteList: root ", root)  
+    debug( "introspect:getAutoCompleteList: root ", root)
     try:
         if locals is not None:
             object = eval(root, locals)
-            debug( "getAutoCompleteList: object w locals ", object)
+            debug( "introspect:getAutoCompleteList: object w locals ", object)
         else:
             object = eval(root)
-            debug( "getAutoCompleteList: object ", object)
+            debug( "introspect:getAutoCompleteList: object ", object)
     except:
         debug( "getAutoCompleteList: could not eval object ")
         pass
     else:
-        attributes = getAttributeNames(object, includeMagic, 
+        attributes = getAttributeNames(object, includeMagic,
                                        includeSingle, includeDouble)
-    debug( "getAutoCompleteList: attributes ", attributes)  
+    debug( "getAutoCompleteList: attributes ", attributes)
     return attributes
-    
+
 def getAttributeNames(object, includeMagic=1, includeSingle=1,
                       includeDouble=1):
     """Return list of unique attributes, including inherited, for object."""
@@ -58,8 +59,8 @@ def getAttributeNames(object, includeMagic=1, includeSingle=1,
     if not hasattrAlwaysReturnsTrue(object):
         # Add some attributes that don't always get picked up.  If
         # they don't apply, they'll get filtered out at the end.
-        attributes += ['__bases__', '__class__', '__dict__', '__name__', 
-                       'func_closure', 'func_code', 'func_defaults', 
+        attributes += ['__bases__', '__class__', '__dict__', '__name__',
+                       'func_closure', 'func_code', 'func_defaults',
                        'func_dict', 'func_doc', 'func_globals', 'func_name']
     if includeMagic:
         try: attributes += object._getAttributeNames()
@@ -81,7 +82,7 @@ def getAttributeNames(object, includeMagic=1, includeSingle=1,
     # Make sure we haven't picked up any bogus attributes somehow.
     attributes = [attribute for attribute in attributes \
                   if hasattr(object, attribute)]
-    debug( "getAttributeNames: attributes ",attributes)              
+    debug( "getAttributeNames: attributes ",attributes)
     return attributes
 
 def hasattrAlwaysReturnsTrue(object):
@@ -89,7 +90,7 @@ def hasattrAlwaysReturnsTrue(object):
 
 def getAllAttributeNames(object):
     """Return dict of all attributes, including inherited, for an object.
-    
+
     Recursively walk through a class and all base classes.
     """
     attrdict = {}  # (object, technique, count): [list of attributes]
@@ -148,7 +149,7 @@ def getAllAttributeNames(object):
 
 def getCallTip(command='', locals=None):
     """For a command, return a tuple of object name, argspec, tip text.
-    
+
     The call tip information will be based on the locals namespace."""
     calltip = ('', '', '')  # object name, argspec, tip text.
     # Get the proper chunk of code from the command.
@@ -208,11 +209,13 @@ def getCallTip(command='', locals=None):
 
 def getRoot(command, terminator=None):
     """Return the rightmost root portion of an arbitrary Python command.
-    
+
     Return only the root portion that can be eval()'d without side
     effects.  The command would normally terminate with a '(' or
     '.'. The terminator and anything after the terminator will be
     dropped."""
+    debug("introspect: getRoot:command >>>", command)
+    debug("<<< introspect: getRoot:command:")
     command = command.split('\n')[-1]
     #~ print "DBG: command", command
     #~ print "DBG: sys", dir(sys), ' ps2 ', sys.ps2
@@ -288,13 +291,13 @@ def getRoot(command, terminator=None):
         # Empty types are safe to be eval()'d and introspected.
         root = prefix + root
 
-    return root    
+    return root
 
 def getTokens(command):
     """Return list of token tuples for command."""
     command = str(command)  # In case the command is unicode, which fails.
     f = cStringIO.StringIO(command)
-    # tokens is a list of token tuples, each looking like: 
+    # tokens is a list of token tuples, each looking like:
     # (type, string, (srow, scol), (erow, ecol), line)
     tokens = []
     # Can't use list comprehension:
@@ -314,7 +317,7 @@ def getTokens(command):
         # This is due to a premature EOF, which we expect since we are
         # feeding in fragments of Python code.
         pass
-    return tokens    
+    return tokens
 
 def rtrimTerminus(command, terminator=None):
     """Return command minus anything that follows the final terminator."""
@@ -379,3 +382,41 @@ def getConstructor(object):
             if constructor is not None:
                 return constructor
     return None
+
+def printAttributes (theDoc, locals):
+    print "the Doc:", theDoc, '\n'
+    attributes = getAutoCompleteList(theDoc)
+    #~ attributes = ['first', 'second' , 'third']
+    for a in attributes:
+            print "attribute:", a
+    print 'done!'
+
+theDoc = """
+import sys,os
+class AClass:
+        def __init__(self, attribute):
+                self.attribute = attribute
+        def doSomething(self, value):
+                try:
+                        self.attribute += value
+                        print "attribute >>>", self.attribute
+                except TypeError:
+                        print 'Error unable to concat ', self.attribute, 'and', value
+
+
+a = AClass('Hello ')
+b = 'world'
+a.doSomething(b)
+a.doSomething(42)
+a.
+"""
+theDoc = """
+import os
+os.
+"""
+theActivation = "a."
+if __name__ == '__main__':
+    import sys,os
+    #~ printAttributes(sys.argv[1], sys.argv[2])
+    printAttributes(theDoc, theActivation)
+

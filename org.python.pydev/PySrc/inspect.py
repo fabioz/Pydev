@@ -28,7 +28,7 @@ __author__ = 'Ka-Ping Yee <ping@lfw.org>'
 __date__ = '1 Jan 2001'
 
 import sys, os, types, string, re, dis, imp, tokenize
-
+from debug import debug
 # ----------------------------------------------------------- type-checking
 def ismodule(object):
     """Return true if the object is a module.
@@ -580,7 +580,7 @@ def getargs(co):
     step = 0
 
 ## We don't have co_code, so skip this for now
-##    
+##
 ##     # The following acrobatics are for anonymous (tuple) arguments.
 ##     for i in range(nargs):
 ##         if args[i][:1] in ['', '.']:

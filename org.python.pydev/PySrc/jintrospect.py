@@ -2,35 +2,36 @@
 
 from introspect import *
 import string
-from debug import *
-
+from debug import debug
 __author__ = "Don Coleman <dcoleman@chariotsolutions.com>"
-__cvsid__ = "$Id: jintrospect.py,v 1.1 2004-05-25 21:36:56 dana_virtual Exp $"
+__cvsid__ = "$Id: jintrospect.py,v 1.2 2004-08-09 21:10:45 dana_virtual Exp $"
 
-def getAutoCompleteList(command='', locals=None, includeMagic=1, 
+def getAutoCompleteList(command='', locals=None, includeMagic=1,
                         includeSingle=1, includeDouble=1):
     """Return list of auto-completion options for command.
-    
+
     The list of options will be based on the locals namespace."""
     attributes = []
     # Get the proper chunk of code from the command.
     root = getRoot(command, terminator='.')
-    debug( "JgetAutoCompleteList: root ", root)  
+    debug( "getAutoCompleteList: root ", root)
     try:
         if locals is not None:
             object = eval(root, locals)
+            debug( "getAutoCompleteList: object w locals ", object)
         else:
             object = eval(root)
+            debug( "getAutoCompleteList:locals is None object ", object)
     except:
         return attributes
-    debug( "JgetAutoCompleteList:  object ", object)
+
     if ispython(object):
         # use existing code
         attributes = getAttributeNames(object, includeMagic, includeSingle, includeDouble)
     else:
         methods = methodsOf(object.__class__)
         attributes = [eachMethod.__name__ for eachMethod in methods]
-        
+
     return attributes
 
 def methodsOf(clazz):
@@ -69,10 +70,10 @@ def getCallTipJava(command='', locals=None):
         name = object.__name__
     except AttributeError:
         pass
-    
+
     tipList = []
     argspec = '' # not using argspec for Java
-    
+
     if inspect.isbuiltin(object):
         # inspect.isbuiltin() fails for Jython
         # Can we get the argspec for Jython builtins?  We can't in Python.
@@ -92,7 +93,7 @@ def getCallTipJava(command='', locals=None):
             paramString = string.join(paramList,', ')
             tip = "%s(%s)" % (constructor.name, paramString)
             tipList.append(tip)
-             
+
     elif inspect.ismethod(object):
         method = object
         object = method.im_class
@@ -105,7 +106,7 @@ def getCallTipJava(command='', locals=None):
                 paramList = []
                 for eachParam in eachMethod.parameterTypes:
                     paramList.append(eachParam.__name__)
-                 
+
                 paramString = string.join(paramList,', ')
 
                 # create a python style string a la PyCrust
@@ -118,13 +119,13 @@ def getCallTipJava(command='', locals=None):
 
                 tip = "%s(%s) -> %s" % (eachMethod.name, paramString, eachMethod.returnType)
                 tipList.append(tip)
-            
+
 #    else:
 #        print "Not a java class :("
 
     calltip = (name, argspec, string.join(tipList,"\n"))
     return calltip
-                                      
+
 def ispython(object):
     """
     Figure out if this is Python code or Java Code
@@ -133,7 +134,7 @@ def ispython(object):
     pyclass = 0
     pycode = 0
     pyinstance = 0
-    
+
     if inspect.isclass(object):
         try:
             object.__doc__
@@ -155,6 +156,46 @@ def ispython(object):
             pyinstance = 0
 
 #    print "object", object, "pyclass", pyclass, "pycode", pycode, "returning", pyclass | pycode
-    
+
     return pyclass | pycode | pyinstance
 
+def printAttributes (theDoc, theActivation):
+    debug("printAttributes:theDoc:", theDoc)
+    debug("printAttributes:locals >>>", dir(locals))
+    attributes = getAutoCompleteList(theActivation)
+    #~ attributes = getAutoCompleteList(theDoc)
+    #~ attributes = ['first', 'second' , 'third']
+    debug("ATTRS >>>", attributes)
+    debug("<<< ATTRS DONE")
+    for attr in attributes:
+            print >> sys.stdout, attr
+    debug('done!')
+
+theDoc = """
+import sys,os
+class AClass:
+        def __init__(self, attribute):
+                self.attribute = attribute
+        def doSomething(self, value):
+                try:
+                        self.attribute += value
+                        print "attribute >>>", self.attribute
+                except TypeError:
+                        print 'Error unable to concat ', self.attribute, 'and', value
+
+
+a = AClass('Hello ')
+b = 'world'
+a.doSomething(b)
+a.doSomething(42)
+a.
+"""
+#~ theDoc = """
+#~ import sys
+#~ sys.
+#~ """
+theActivation = "sys."
+if __name__ == '__main__':
+    import sys,os
+    #~ printAttributes(sys.argv[1], sys.argv[2])
+    printAttributes(theDoc, theActivation)
