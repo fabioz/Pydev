@@ -3,7 +3,7 @@
 <plugin
 	id="org.python.pydev.debug"
 	name="Pydev debug"
-	version="0.5.3"
+	version="0.5.3a"
 	provider-name="Aleks Totic"
 	class="org.python.pydev.debug.core.PydevDebugPlugin">
 
@@ -100,6 +100,14 @@
 				enablesFor="1"
 				id="org.python.pydev.debug.RunPythonAction">
 			</action>
+   <action
+         enablesFor="1"
+         label="pyUnit Test..."
+         tooltip="Test a python script with pyUnit"
+         icon="icons/python.gif"
+         class="org.python.pydev.debug.ui.actions.PythonTestActionDelegate"
+         menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
+         id="org.python.pydev.debug.TestPythonAction"/>
 		</objectContribution>
 	</extension>
 <!--- launch groups for python -->
