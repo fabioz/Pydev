@@ -277,20 +277,20 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 	 * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
 	 */
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-//		public final static String PY_SINGLELINE_STRING = "__python_singleline_string";
-//		public final static String PY_MULTILINE_STRING = "__python_multiline_string";);
+		final String   PY_SINGLELINE_STRING = "__python_singleline_string";
+		final String   PY_MULTILINE_STRING = "__python_multiline_string";
 		// create a content assistant:
 		ContentAssistant assistant = new ContentAssistant();
 		// next create a content assistant processor to populate the completions window
 		IContentAssistProcessor processor = new PythonCompletionProcessor();
 // No code completion in strings
-//		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_SINGLELINE_STRING );
-// 		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_MULTILINE_STRING );
+		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_SINGLELINE_STRING );
+ 		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_MULTILINE_STRING );
 		assistant.setContentAssistProcessor(processor,IDocument.DEFAULT_CONTENT_TYPE );
 		assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 		// Allow automatic activation after 500 msec
-//		assistant.enableAutoActivation(true);
-//		assistant.setAutoActivationDelay(500);
+		assistant.enableAutoActivation(true);
+		assistant.setAutoActivationDelay(500);
 		Color bgColor = colorCache.getColor(new RGB(230,255,230));
 		assistant.setProposalSelectorBackground(bgColor);
 		return assistant;
