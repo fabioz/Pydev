@@ -18,13 +18,14 @@ public class PythonPathHelperTest extends TestCase {
 
     public void testResolvePath(){
         PythonPathHelper helper = new PythonPathHelper();
-        helper.setPythonPath("C:\\bin\\Python23\\lib, C:\\bin\\Python23\\lib\\site-packages, " +
-        		"C:\\bin\\Python23\\lib\\site-packages\\Pythonwin,'C:\\bin\\Python23\\lib\\plat-win'");
+        helper.setPythonPath("C:\\bin\\Python23\\lib| C:\\bin\\Python23\\lib\\site-packages| " +
+        		"C:\\bin\\Python23\\lib\\site-packages\\Pythonwin|C:\\bin\\Python23\\lib\\plat-win");
         
         //note: this tests might run only in my computer... too much system dependence!!!
         assertEquals("unittest",helper.resolveModule("C:\\bin\\Python23\\lib\\unittest.py"));
         assertEquals("compiler.ast",helper.resolveModule("C:\\bin\\Python23\\lib\\compiler\\ast.py"));
-        assertEquals("compiler.ast",helper.resolveModule("C:\\bin\\Python23\\lib\\compiler\\ast.pyc"));
+//.pyc files are not supported, only source and compiled extensions.
+//        assertEquals("compiler.ast",helper.resolveModule("C:\\bin\\Python23\\lib\\compiler\\ast.pyc"));
         
         //this happens because Pythonwin is not a module.
         assertEquals("email",helper.resolveModule("C:\\bin\\Python23\\lib\\email"));

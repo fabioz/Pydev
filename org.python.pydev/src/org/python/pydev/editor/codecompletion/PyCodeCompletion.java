@@ -7,18 +7,17 @@ package org.python.pydev.editor.codecompletion;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.model.AbstractNode;
-import org.python.pydev.editor.model.Location;
-import org.python.pydev.editor.model.ModelUtils;
-import org.python.pydev.editor.model.Scope;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PythonNature;
 
 /**
  * @author Dmoore
@@ -26,39 +25,51 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyCodeCompletion {
 
-    int docBoundary = -1; // the document prior to the activation token
-
     /**
-     * @param theDoc:
-     *            the whole document as a string.
-     * @param documentOffset:
-     *            the cursor position
+     * Type for import (used to decide the icon)
      */
-    String partialDocument(String theDoc, int documentOffset) {
-        if (this.docBoundary < 0) {
-            calcDocBoundary(theDoc, documentOffset);
-        }
-        if (this.docBoundary != -1) {
-            String before = theDoc.substring(0, this.docBoundary);
-            return before;
-        }
-        return "";
+    public static final int TYPE_IMPORT = 0;
+    
+    /**
+     * Type for class (used to decide the icon)
+     */
+    public static final int TYPE_CLASS = 1;
+    
+    /**
+     * Type for function (used to decide the icon)
+     */
+    public static final int TYPE_FUNCTION = 2;
+    
+    /**
+     * Type for attr (used to decide the icon)
+     */
+    public static final int TYPE_ATTR = 3;
+    
+    /**
+     * Position in document prior to the activation token
+     */
+    private int docBoundary = -1; 
 
-    }
 
     /**
      * Returns a list with the tokens to use for autocompletion.
      * 
-     * @param edit
-     * @param doc
-     * @param documentOffset
+     * The list is composed from tuples containing the following:
      * 
-     * @param theActivationToken
-     * @return
-     * @throws CoreException
+     * 0 - String  - token name
+     * 1 - String  - token description
+     * 2 - Integer - token type (see constants)
+     * 
+     * (This is where we do the "REAL" work).
      */
-    public List autoComplete(PyEdit edit, IDocument doc, int documentOffset,
+    public List getCodeCompletionProposals(PyEdit edit, IDocument doc, int documentOffset,
             java.lang.String theActivationToken) throws CoreException {
+        
+        PythonNature pythonNature = edit.getPythonNature();
+        if(pythonNature == null){
+            throw new RuntimeException("Unable to get python nature.");
+        }
+
         List theList = new ArrayList();
         PythonShell serverShell = null;
         try {
@@ -72,38 +83,55 @@ public class PyCodeCompletion {
         String trimmed = theActivationToken.replace('.', ' ').trim();
         
         String importsTipper = getImportsTipperStr(theActivationToken, edit, doc, documentOffset);
-        if (importsTipper.length()!=0) { //may be space.
         
-            List completions = serverShell.getImportCompletions(importsTipper);
+        
+        //code completion in imports 
+        if (importsTipper.length()!=0) { 
+        
+            //get the project and make the code completion!!
+            //so, we want to do a code completion for imports...
+            //let's see what we have...
+            System.out.println(importsTipper);
+
+            importsTipper = importsTipper.trim();
+            Set imports = new HashSet();
+            imports = pythonNature.getAstManager().getImports(importsTipper);
+            List completions = new ArrayList(imports);
             theList.addAll(completions);
         
+
+//            completions = serverShell.getImportCompletions(importsTipper);
+
+            
+            
+        //code completion for a token
         } else if (trimmed.equals("") == false
                 && theActivationToken.indexOf('.') != -1) {
         
-            List completions;
-            if (trimmed.equals("self")) {
-                Location loc = Location.offsetToLocation(doc, documentOffset);
-                AbstractNode closest = ModelUtils.getLessOrEqualNode(edit
-                        .getPythonModel(), loc);
-        
-                if(closest == null){
-                    completions = serverShell.getTokenCompletions(trimmed,
-                            docToParse);
-                }else{
-                    Scope scope = closest.getScope().findContainingClass(); //null returned if self. within a method and not in a class.
-                    String token = scope.getStartNode().getName();
-                    completions = serverShell
-                            .getClassCompletions(token, docToParse);
-                }
-            } else {
-                completions = serverShell.getTokenCompletions(trimmed,
-                        docToParse);
-            }
-            theList.addAll(completions);
+//            List completions;
+//            if (trimmed.equals("self")) {
+//                Location loc = Location.offsetToLocation(doc, documentOffset);
+//                AbstractNode closest = ModelUtils.getLessOrEqualNode(edit
+//                        .getPythonModel(), loc);
+//        
+//                if(closest == null){
+//                    completions = serverShell.getTokenCompletions(trimmed,
+//                            docToParse);
+//                }else{
+//                    Scope scope = closest.getScope().findContainingClass(); //null returned if self. within a method and not in a class.
+//                    String token = scope.getStartNode().getName();
+//                    completions = serverShell
+//                            .getClassCompletions(token, docToParse);
+//                }
+//            } else {
+//                completions = serverShell.getTokenCompletions(trimmed,
+//                        docToParse);
+//            }
+//            theList.addAll(completions);
         
         } else { //go to globals
-            List completions = serverShell.getGlobalCompletions(docToParse);
-            theList.addAll(completions);
+//            List completions = serverShell.getGlobalCompletions(docToParse);
+//            theList.addAll(completions);
         
         }
         return theList;
@@ -111,11 +139,14 @@ public class PyCodeCompletion {
 
 
     /**
+     * Returns non empty string if we are in imports section 
+     * 
      * @param theActivationToken
      * @param edit
      * @param doc
      * @param documentOffset
-     * @return
+     * @return single space string if we are in imports but without any module
+     *         string with current module (e.g. foo.bar.
      */
     public String getImportsTipperStr(String theActivationToken, PyEdit edit,
             IDocument doc, int documentOffset) {
@@ -127,6 +158,7 @@ public class PyCodeCompletion {
             int fromIndex = string.indexOf("from");
             int importIndex = string.indexOf("import");
 
+            //check if we have a from or an import.
             if(fromIndex  != -1 || importIndex != -1){
                 string = string.replaceAll("#.*", ""); //remove comments 
                 String[] strings = string.split(" ");
@@ -152,7 +184,7 @@ public class PyCodeCompletion {
             e.printStackTrace();
         }
         if (importMsg.indexOf(".") == -1){
-            return " ";
+            return " "; //we have only import fff (so, we're going for all imports).
         }
         if (importMsg.length() > 0 && importMsg.endsWith(".") == false ){
             importMsg = importMsg.substring(0, importMsg.lastIndexOf('.'));
@@ -162,6 +194,8 @@ public class PyCodeCompletion {
     }
 
     /**
+     * Return a document to parse, using some heuristics to make it parseable.
+     * 
      * @param doc
      * @param documentOffset
      * @return
@@ -186,6 +220,9 @@ public class PyCodeCompletion {
     }
 
     /**
+     * Return a document to parse, using some heuristics to make it parseable.
+     * (Changes the line specified by a pass)
+     * 
      * @param doc
      * @param documentOffset
      * @param lineOfOffset
@@ -253,9 +290,8 @@ public class PyCodeCompletion {
      * @return
      */
     public String getActivationToken(String theDoc, int documentOffset) {
-        if (this.docBoundary < 0) {
-            calcDocBoundary(theDoc, documentOffset);
-        }
+        calcDocBoundary(theDoc, documentOffset);
+        
         String str = theDoc.substring(this.docBoundary + 1, documentOffset);
         if (str.endsWith(" ")) {
             return " ";

@@ -31,17 +31,17 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static final String ATTEMPTS_CODECOMPLETION = "ATTEMPTS_CODECOMPLETION";
     public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 25;
 
-    //	public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
-    //	public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
-    //
-    //	public static final String USE_AUTOCOMPLETE = "USE_AUTOCOMPLETE";
-    //	public static final boolean DEFAULT_USE_AUTOCOMPLETE = true;
-    //
-    //	public static final String AUTOCOMPLETE_DELAY = "AUTOCOMPLETE_DELAY";
-    //	public static final int DEFAULT_AUTOCOMPLETE_DELAY = 250;
-    //
-    //	public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
-    //	public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
+    	public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
+    	public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
+    
+    	public static final String USE_AUTOCOMPLETE = "USE_AUTOCOMPLETE";
+    	public static final boolean DEFAULT_USE_AUTOCOMPLETE = true;
+    
+    	public static final String AUTOCOMPLETE_DELAY = "AUTOCOMPLETE_DELAY";
+    	public static final int DEFAULT_AUTOCOMPLETE_DELAY = 250;
+    
+    	public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
+    	public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
     private Label labelWarning;
 
     /**
@@ -66,36 +66,28 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 		        USE_CODECOMPLETION, "Use code completion?", p));
 
         String w = "\nWARNINGS for code completion:\n\n" 
-            	+ "Code completion works on top of a python shell and really \n"
-                + "EXECUTES THE CODE YOU WRITE on the top level on the module.\n\n"
-                + "So, you should NEVER call code that allocates resources or \n" 
-                + "make any other dangerous initializations in the global scope of \n" 
-                + "the module (not only because of code completion, as a simple \n" 
-                + "import of that code would be dangerous).\n\n"
-                + "Code completion might also not work if the interpreter is not \n" 
-                + "correctly set, as it creates a shell to make code completion.\n\n" 
-        		+ "Code completion is activated by Ctrl+Space, as are the templates, so,\n" 
-				+ "if you stop using code completion, the templates should still appear.\n\n" +
-				"AUTOCOMPLETION NOTE: autocompletion has been deactivated by default because\n" +
-				"sometimes it would seem that the editor hanged, and many times no tips are\n" +
-				"gotten, e.g.: Tips on parameters are NEVER gotten.\n\n" +
-				"See http://pydev.sourceforge.net/codecompletion.html for more information.\n";
+            	+ "Code completion works mostly on source files \n" +
+            			"read from java and parsed, but cpython modules\n" +
+            			"are also supported, and to use them, it is necessary to\n" +
+            			"have a shell that gets completions on them, so, if \n" +
+            			"code completion does not work, check if there is a \n" +
+            			"python shell running.";
 
         FieldEditor fe = new LabelFieldEditor("Warning", w, p);
         addField(fe);
 
 
-        //        addField(new BooleanFieldEditor(
-        //		        USE_AUTOCOMPLETE, "Use autocompletion?", p));
-        //
-        //		addField(new IntegerFieldEditor(
-        //		        AUTOCOMPLETE_DELAY, "Autocompletion delay: ", p));
-        //
-        //		addField(new BooleanFieldEditor(
-        //		        AUTOCOMPLETE_ON_DOT, "Autocomplete on '.'?", p));
-        //
-        //		addField(new BooleanFieldEditor(
-        //		        AUTOCOMPLETE_ON_PAR, "Autocomplete on '('?", p));
+        addField(new BooleanFieldEditor(
+		        USE_AUTOCOMPLETE, "Use autocompletion?", p));
+
+		addField(new IntegerFieldEditor(
+		        AUTOCOMPLETE_DELAY, "Autocompletion delay: ", p));
+
+		addField(new BooleanFieldEditor(
+		        AUTOCOMPLETE_ON_DOT, "Autocomplete on '.'?", p));
+
+		addField(new BooleanFieldEditor(
+		        AUTOCOMPLETE_ON_PAR, "Autocomplete on '('?", p));
 
     }
 
@@ -113,10 +105,10 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static void initializeDefaultPreferences(Preferences prefs) {
 		prefs.setDefault(USE_CODECOMPLETION, DEFAULT_USE_CODECOMPLETION);
 		prefs.setDefault(ATTEMPTS_CODECOMPLETION, DEFAULT_ATTEMPTS_CODECOMPLETION);
-        //		prefs.setDefault(AUTOCOMPLETE_ON_DOT, DEFAULT_AUTOCOMPLETE_ON_DOT);
-        //		prefs.setDefault(USE_AUTOCOMPLETE, DEFAULT_USE_AUTOCOMPLETE);
-        //		prefs.setDefault(AUTOCOMPLETE_DELAY, DEFAULT_AUTOCOMPLETE_DELAY);
-        //		prefs.setDefault(AUTOCOMPLETE_ON_PAR, DEFAULT_AUTOCOMPLETE_ON_PAR);
+		prefs.setDefault(AUTOCOMPLETE_ON_DOT, DEFAULT_AUTOCOMPLETE_ON_DOT);
+		prefs.setDefault(USE_AUTOCOMPLETE, DEFAULT_USE_AUTOCOMPLETE);
+		prefs.setDefault(AUTOCOMPLETE_DELAY, DEFAULT_AUTOCOMPLETE_DELAY);
+		prefs.setDefault(AUTOCOMPLETE_ON_PAR, DEFAULT_AUTOCOMPLETE_ON_PAR);
     }
 
     public static boolean useCodeCompletion() {
@@ -127,21 +119,21 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
         return PydevPrefs.getPreferences().getInt(PyCodeCompletionPreferencesPage.ATTEMPTS_CODECOMPLETION);
     }
 
-    //    public static boolean isToAutocompleteOnDot() {
-    //        return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_DOT);
-    //    }
-    //
-    //    public static boolean isToAutocompleteOnPar() {
-    //        return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_PAR);
-    //    }
-    //
-    //    public static boolean useAutocomplete() {
-    //        return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.USE_AUTOCOMPLETE);
-    //    }
-    //
-    //    public static int getAutocompleteDelay() {
-    //        return PydevPrefs.getPreferences().getInt(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_DELAY);
-    //    }
+    public static boolean isToAutocompleteOnDot() {
+        return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_DOT);
+    }
+
+    public static boolean isToAutocompleteOnPar() {
+        return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_PAR);
+    }
+
+    public static boolean useAutocomplete() {
+        return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.USE_AUTOCOMPLETE);
+    }
+
+    public static int getAutocompleteDelay() {
+        return PydevPrefs.getPreferences().getInt(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_DELAY);
+    }
 
 
 }

@@ -19,7 +19,7 @@ public class CompletionsCacheTest extends TestCase {
     }
 
     public void testRebuild(){
-        CompletionsCache cache = new CompletionsCache();
+        ASTManager cache = new ASTManager();
         
         cache.rebuildModules("C:\\bin\\Python23\\lib\\");
         
@@ -32,15 +32,21 @@ public class CompletionsCacheTest extends TestCase {
         }
 
         System.out.println("----------------------");
-        imports = cache.getImports();
+        imports = cache.getImports("");
         for (Iterator iter = imports.iterator(); iter.hasNext();) {
-            System.out.println(iter.next());
+            System.out.println(((Object[])iter.next())[0]);
         }
        
         System.out.println("----------------------");
         imports = cache.getImports("xml");
         for (Iterator iter = imports.iterator(); iter.hasNext();) {
-            System.out.println(iter.next());
+            System.out.println(((Object[])iter.next())[0]);
+        }
+
+        System.out.println("----------------------");
+        imports = cache.getImports("xml.dom.");
+        for (Iterator iter = imports.iterator(); iter.hasNext();) {
+            System.out.println(((Object[])iter.next())[0]);
         }
     }
 }

@@ -51,8 +51,9 @@ public class PyDocumentProvider extends FileDocumentProvider {
 		// nature automatically to any project that has active python files.
 		if (element instanceof FileEditorInput) {
 			IFile file = (IFile)((FileEditorInput)element).getAdapter(IFile.class);
-			if (file != null)
+			if (file != null){
 				PythonNature.addNature(file.getProject(), null);
+			}
 		}
 		return document;
 	}

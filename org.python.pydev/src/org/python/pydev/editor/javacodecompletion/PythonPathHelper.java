@@ -7,6 +7,7 @@ package org.python.pydev.editor.javacodecompletion;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -20,7 +21,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * 
  * @author Fabio Zadrozny
  */
-public class PythonPathHelper {
+public class PythonPathHelper implements Serializable{
     
     /**
      * This is a list of Files containg the pythonpath.
@@ -239,7 +240,7 @@ public class PythonPathHelper {
      * @return
      */
     public List setPythonPath(String string) {
-        String[] strings = string.split(",");
+        String[] strings = string.split("\\|");
         for (int i = 0; i < strings.length; i++) {
             pythonpath.add(getDefaultPathStr(strings[i]));
         }

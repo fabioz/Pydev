@@ -26,6 +26,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.pylint.PyLintVisitor;
 import org.python.pydev.builder.todo.PyTodoVisitor;
+import org.python.pydev.editor.javacodecompletion.PyCodeCompletionVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -33,8 +34,9 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyDevBuilder extends IncrementalProjectBuilder {
     /**
+     * Builds the project.
      * 
-     * @see IncrementalProjectBuilder#build
+     * @see org.eclipse.core.internal.events.InternalBuilder#build(int, java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
      */
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
 
@@ -55,11 +57,16 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         return null;
     }
 
+    /**
+     * 
+     * @return a list of visitors for building the application.
+     */
     private List getVisitors() {
         ArrayList list = new ArrayList();
 //        list.add(new PyCheckerVisitor());
         list.add(new PyTodoVisitor());
         list.add(new PyLintVisitor());
+        list.add(new PyCodeCompletionVisitor());
 
         return list;
     }
@@ -70,14 +77,13 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * @param monitor
      */
     private void performFullBuild(IProgressMonitor monitor) throws CoreException {
-
         IProject project = getProject();
 
-        List resourcesToParse = new ArrayList();
-
-        List visitors = getVisitors();
-
         if (project != null) {
+	        List resourcesToParse = new ArrayList();
+	
+	        List visitors = getVisitors();
+
 	        monitor.beginTask("Building...", (visitors.size() * 100) + 30);
 
             IResource[] members = project.members();
@@ -140,7 +146,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
             IDocument doc = getDocFromResource(r);
             for (Iterator it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
-                PyDevBuilderVisitor element = (PyDevBuilderVisitor) it.next();
+                PyDevBuilderVisitor visitor = (PyDevBuilderVisitor) it.next();
                 
                 StringBuffer msgBuf = new StringBuffer();
                 msgBuf.append("Visiting... (");
@@ -150,11 +156,11 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 msgBuf.append(") - ");
                 msgBuf.append(r.getProjectRelativePath());
                 msgBuf.append(" - visitor: ");
-                msgBuf.append(element.getClass().getName());
+                msgBuf.append(visitor.getClass().getName());
                 
                 
                 monitor.subTask(msgBuf.toString());
-                element.visitResource(r, doc);
+                visitor.visitResource(r, doc);
             }
 
             if(total > 1){
@@ -164,7 +170,12 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         }
     }
 
-    
+    /**
+     * Returns a document, created with the contents of a resource.
+     * 
+     * @param resource
+     * @return
+     */
     public static IDocument getDocFromResource(IResource resource){
         IProject project = resource.getProject();
         if (project != null && resource instanceof IFile) {

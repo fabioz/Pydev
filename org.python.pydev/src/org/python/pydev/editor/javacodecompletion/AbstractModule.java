@@ -5,12 +5,13 @@
  */
 package org.python.pydev.editor.javacodecompletion;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author Fabio Zadrozny
  */
-public abstract class AbstractModule {
+public abstract class AbstractModule implements Serializable{
 
     public abstract List getWildImportedModules();
     public abstract List getTokenImportedModules();

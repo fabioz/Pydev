@@ -61,9 +61,9 @@
          point="org.eclipse.ui.propertyPages">
       <page
             objectClass="org.eclipse.core.resources.IProject"
-            name="Python"
-            class="org.python.pydev.ui.ProjectProperties"
-            id="org.python.pydev.ui.projectProperties">
+            name="PyDev"
+            class="org.python.pydev.ui.PyProjectProperties"
+            id="org.python.pydev.ui.pyProjectProperties">
          <filter
                name="projectNature"
                value="org.python.pydev.pythonNature">

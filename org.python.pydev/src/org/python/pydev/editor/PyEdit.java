@@ -12,6 +12,8 @@ import java.util.Iterator;
 import org.eclipse.core.internal.resources.MarkerAttributeMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -54,6 +56,7 @@ import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.plugin.PythonNature;
 import org.python.pydev.ui.ColorCache;
 
 /**
@@ -208,6 +211,7 @@ public class PyEdit extends PyEditProjection {
      */
     public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
         super.init(site, input);
+        
         parser = new PyParser(this);
         parser.addParseListener(this);
         parser.setDocument(getDocumentProvider().getDocument(input));
@@ -232,6 +236,16 @@ public class PyEdit extends PyEditProjection {
 
     }
 
+    
+    public IProject getProject(){
+        IEditorInput editorInput = this.getEditorInput();
+        if (editorInput instanceof FileEditorInput) {
+            IFile file = (IFile) ((FileEditorInput) editorInput).getAdapter(IFile.class);
+            return file.getProject();
+        }
+        return null;
+    }
+    
     /**
      * @return
      *  
@@ -527,6 +541,25 @@ public class PyEdit extends PyEditProjection {
                 l.modelChanged(root);
             }
         }
+    }
+
+    /**
+     * @return
+     * 
+     */
+    public PythonNature getPythonNature() {
+        IProject project = getProject();
+        if(project != null){
+            try {
+                IProjectNature n = project.getNature(PythonNature.PYTHON_NATURE_ID);
+                if(n instanceof PythonNature){
+                    return (PythonNature) n;
+                }
+            } catch (CoreException e) {
+                PydevPlugin.log(e);
+            }
+        }
+        return null;
     }
 
 }

@@ -17,7 +17,6 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
-import org.eclipse.swt.graphics.Point;
 import org.python.pydev.editor.PyEdit;
 
 /**
@@ -28,14 +27,29 @@ import org.python.pydev.editor.PyEdit;
  */
 public class PythonCompletionProcessor implements IContentAssistProcessor {
 
+    /**
+     * This makes the templates completion
+     */
     private PyTemplateCompletion templatesCompletion = new PyTemplateCompletion();
 
+    /**
+     * This makes python code completion
+     */
     private PyCodeCompletion codeCompletion = new PyCodeCompletion();
 
+    /**
+     * This is the cache, so that we can get it if we want it later.
+     */
     private CompletionCache completionCache = new CompletionCache();
 
+    /**
+     * Edit.
+     */
     private PyEdit edit;
 
+    /**
+     * Compares proposals so that we can order them.
+     */
     private ProposalsComparator proposalsComparator = new ProposalsComparator();
 
 
@@ -46,6 +60,9 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
         this.edit = edit;
     }
 
+    /**
+     * Checks if the activationToken ends with some char from cs.
+     */
     private boolean endsWithSomeChar(char cs[], String activationToken) {
         for (int i = 0; i < cs.length; i++) {
             if (activationToken.endsWith(cs[i] + "")) {
@@ -56,16 +73,19 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
     }
 
+    /**
+     * This is the interface implemented to get the completions.
+     * 
+     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer, int)
+     */
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int documentOffset) {
 
         try {
+            //FIRST: discover activation token and qualifier.
             IDocument doc = viewer.getDocument();
 
-            Point selectedRange = viewer.getSelectedRange();
-            // there may not be a selected range
             java.lang.String completeDoc = doc.get();
-            codeCompletion.calcDocBoundary(completeDoc, documentOffset);
-
+            
             String activationToken = codeCompletion.getActivationToken(completeDoc, documentOffset);
 
             java.lang.String qualifier = "";
@@ -89,7 +109,16 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
             int qlen = qualifier.length();
 
+            //list for storing the proposals
             ArrayList pythonAndTemplateProposals = new ArrayList();
+
+            
+            
+            
+            
+            //SECOND: getting code completions and deciding if templates should be shown too.
+            boolean showTemplates = true;
+            //Get code completion proposals
             if(PyCodeCompletionPreferencesPage.useCodeCompletion()){
 	            try {
 	                PythonShell.getServerShell(PythonShell.COMPLETION_SHELL).sendGoToDirMsg(edit.getEditorFile());
@@ -99,17 +128,36 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 	                e.printStackTrace();
 	            }
 	
-	            List pythonProposals = getPythonProposals(documentOffset, doc, activationToken, qlen);
+	            Object[] objects = getPythonProposals(documentOffset, doc, activationToken, qlen);
+	            List pythonProposals = (List) objects[0];
+	            showTemplates = ((Boolean)objects[1]).booleanValue();
 	            pythonAndTemplateProposals.addAll(pythonProposals);
             }
-            List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier);
-            pythonAndTemplateProposals.addAll(templateProposals);
+            
+            
+            
+            
+            
+            //THIRD: Get template proposals (if asked for)
+            if(showTemplates){
+                List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier);
+                pythonAndTemplateProposals.addAll(templateProposals);
+            }
 
+            
+            
+            
+            
+            
+            
+            //FOURTH: Now, we have all the proposals, only thing is deciding wich ones are valid (depending on
+            //qualifier) and sorting them correctly.
             ArrayList returnProposals = new ArrayList();
-
+            String lowerCaseQualifier = qualifier.toLowerCase();
+            
             for (Iterator iter = pythonAndTemplateProposals.iterator(); iter.hasNext();) {
                 ICompletionProposal proposal = (ICompletionProposal) iter.next();
-                if (proposal.getDisplayString().startsWith(qualifier)) {
+                if (proposal.getDisplayString().toLowerCase().startsWith(lowerCaseQualifier)) {
                     returnProposals.add(proposal);
                 }
             }
@@ -126,30 +174,28 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             
             ErrorDialog.openError(null,"Error", "Error", e.getStatus());
         }
-        return new ICompletionProposal[0]; 
+        return new ICompletionProposal[0]; //if error happens, return no completions.
     }
 
+    
+    
+    
     /**
-     * @param documentOffset
-     * @param doc
-     * @param theDoc
-     * @param activationToken
-     * @param qlen
-     * @return
-     * @throws CoreException
+     * Returns the python proposals as a list.
+     * First parameter of tuple is a list and second is a Boolean object indicating whether the templates
+     * should be also shown or not. 
      */
-    private List getPythonProposals(int documentOffset, IDocument doc, String activationToken, int qlen) throws CoreException {
-        List allProposals = this.completionCache.getAllProposals(edit, doc, activationToken, documentOffset,
+    private Object[] getPythonProposals(int documentOffset, IDocument doc, String activationToken, int qlen) throws CoreException {
+        //we always ask the completions cache... even if it is not in the cache (cache takes care of asking them
+        //and putting them in it for later calls).
+        return  this.completionCache.getProposals(edit, doc, activationToken, documentOffset,
                 qlen, codeCompletion);
-        return allProposals;
     }
 
+    
+    
     /**
-     * @param viewer
-     * @param documentOffset
-     * @param activationToken
-     * @param qualifier
-     * @param allProposals
+     * Returns the template proposals as a list.
      */
     private List getTemplateProposals(ITextViewer viewer, int documentOffset, String activationToken,
             java.lang.String qualifier) {
@@ -158,32 +204,36 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
         return propList;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
-     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeContextInformation(org.eclipse.jface.text.ITextViewer,
-     *      int)
+     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeContextInformation(org.eclipse.jface.text.ITextViewer, int)
      */
     public IContextInformation[] computeContextInformation(ITextViewer viewer, int documentOffset) {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
         char[] c = new char[0];
-//        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnDot()) {
-//            c = addChar(c, '.');
-//        }
-//        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnPar()) {
-//            c = addChar(c, '(');
-//        }
+        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnDot()) {
+            c = addChar(c, '.');
+        }
+        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnPar()) {
+            c = addChar(c, '(');
+        }
         return c;
     }
 
+    /**
+     * Adds a char to an array of chars and returns the new array. 
+     * 
+     * @param c
+     * @param toAdd
+     * @return
+     */
     private char[] addChar(char[] c, char toAdd) {
         char[] c1 = new char[c.length + 1];
 
@@ -197,8 +247,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationAutoActivationCharacters()
      */
@@ -206,23 +255,20 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
         return new char[] {};
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * If completion fails for some reason, we could give it here...
      * 
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getErrorMessage()
      */
     public java.lang.String getErrorMessage() {
-        // TODO Auto-generated method stub
         return null;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationValidator()
      */
     public IContextInformationValidator getContextInformationValidator() {
-        // TODO Auto-generated method stub
         return null;
     }
 

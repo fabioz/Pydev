@@ -13,6 +13,7 @@ import java.util.ResourceBundle;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -65,8 +66,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     /** Key to store custom templates. */
     private static final String CUSTOM_TEMPLATES_PY_KEY = "org.python.pydev.editor.templates.PyTemplatePreferencesPage";
 
-	/** Listener list **/
-    private List listeners = new ArrayList();
 
     /**
      * The constructor.
@@ -88,10 +87,23 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     public void stop(BundleContext context) throws Exception {
-        Preferences preferences = plugin.getPluginPreferences();
-        preferences.removePropertyChangeListener(this);
-        PythonShell.stopAllShells();
-        super.stop(context);
+        
+        try {
+            Preferences preferences = plugin.getPluginPreferences();
+            preferences.removePropertyChangeListener(this);
+            PythonShell.stopAllShells();
+            
+            IProject[] projects = getWorkspace().getRoot().getProjects();
+            for (int i = 0; i < projects.length; i++) {
+                IProjectNature n = projects[i].getNature(PythonNature.PYTHON_NATURE_ID);
+                if(n instanceof PythonNature){
+                    PythonNature nature = (PythonNature) n;
+                    nature.saveIt();
+                }
+            }
+        } finally{
+	        super.stop(context);
+        }
     }
 
     public static PydevPlugin getDefault() {
@@ -286,6 +298,15 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 
         IPath relative = new Path("PySrc").addTrailingSeparator().append(targetExec);
 
+        return getRelativePath(relative);
+    }
+
+    /**
+     * @param relative
+     * @return
+     * @throws CoreException
+     */
+    private static File getRelativePath(IPath relative) throws CoreException {
         Bundle bundle = getDefault().getBundle();
 
         URL bundleURL = Platform.find(bundle, relative);
@@ -304,18 +325,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 
         IPath relative = new Path("icons").addTrailingSeparator().append(icon);
 
-        Bundle bundle = getDefault().getBundle();
-
-        URL bundleURL = Platform.find(bundle, relative);
-        URL fileURL;
-        try {
-            fileURL = Platform.asLocalURL(bundleURL);
-            File f = new File(fileURL.getPath());
-
-            return f;
-        } catch (IOException e) {
-            throw new CoreException(makeStatus(IStatus.ERROR, "Can't find image", null));
-        }
+        return getRelativePath(relative);
 
     }
 
@@ -378,6 +388,18 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return new List[] { filesToReturn, folders };
 
     }
+
+    
+    
+    
+    
+    
+    
+    
+    //PyUnit integration
+    
+	/** Listener list **/
+    private List listeners = new ArrayList();
 
 	public void addTestListener(ITestRunListener listener) {
 		listeners.add(listener);
