@@ -159,6 +159,20 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
     	    //requestCompl(s, s.indexOf('#'), 1, new String[]{"__getattribute__"});
     	    requestCompl(s, s.indexOf('#'), 0, new String[]{});
 
+
+    	    //check for builtins..1
+    	    s = "" +
+    	    "\n" +
+    	    "";
+    	    requestCompl(s, s.length(), -1, new String[]{"RuntimeError"});
+
+    	    //check for builtins..2
+    	    s = "" +
+    	    "from testlib import *\n" +
+    	    "\n" +
+    	    "";
+    	    requestCompl(s, s.length(), -1, new String[]{"RuntimeError"});
+
         
         } finally {
             shell.endIt();

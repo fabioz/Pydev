@@ -463,7 +463,6 @@ public class ASTManager implements Serializable, IASTManager {
 	        Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, state.nature, state.line));
 	        SimpleNode n = (SimpleNode) obj[0];
 	        AbstractModule module = AbstractModule.createModule(n);
-	        state.recursing = false;
         
             completionsForModule = getCompletionsForModule(module, state);
 
@@ -577,7 +576,6 @@ public class ASTManager implements Serializable, IASTManager {
                     }
                     
                     if (mod != null) {
-                        state.recursing = true;
                         IToken[] completionsForModule = getCompletionsForModule(mod, state);
                         if(completionsForModule.length > 0)
                             return completionsForModule;
@@ -644,7 +642,6 @@ public class ASTManager implements Serializable, IASTManager {
                 if(defs.length > 0){
                     for (int i = 0; i < defs.length; i++) {
                         
-                        state.recursing = true;
                         CompletionState copy = state.getCopy();
                         copy.activationToken = defs[i].value;
                         copy.line = defs[i].line;
@@ -696,7 +693,6 @@ public class ASTManager implements Serializable, IASTManager {
             }
             
             if (mod != null) {
-                state.recursing = true;
                 state.checkWildImportInMemory(current, mod);
                 IToken[] completionsForModule = getCompletionsForModule(mod, state);
                 for (int j = 0; j < completionsForModule.length; j++) {
@@ -708,6 +704,7 @@ public class ASTManager implements Serializable, IASTManager {
         }
 
         if(!state.recursing){
+            state.recursing = true;
             //last thing: get completions from module __builtin__
             AbstractModule builtMod = getModule("__builtin__", state.nature);
             if(builtMod != null){
@@ -763,7 +760,6 @@ public class ASTManager implements Serializable, IASTManager {
                 
                 if(tok.length() == 0){
                     //the activation token corresponds to an imported module. We have to get its global tokens and return them.
-                    state.recursing = true;
                     CompletionState copy = state.getCopy();
                     copy.activationToken = "";
                     return getCompletionsForModule(mod, copy);
@@ -800,7 +796,6 @@ public class ASTManager implements Serializable, IASTManager {
                         }
                         
                         if (mod2 != null) {
-                            state.recursing = true;
                             //the token to find is already specified.
                             CompletionState copy = state.getCopy();
                             if(tok != null){
@@ -840,7 +835,6 @@ public class ASTManager implements Serializable, IASTManager {
                 
                 if(tok.length() == 0){
                     //the activation token corresponds to an imported module. We have to get its global tokens and return them.
-                    state.recursing = true;
                     CompletionState copy = state.getCopy();
                     copy.activationToken = "";
                     return getCompletionsForModule(mod, copy);

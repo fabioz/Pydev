@@ -172,7 +172,6 @@ public class SourceModule extends AbstractModule {
                                 //        pass
                                 state = state.getCopy();
                                 state.activationToken = base;
-                                state.recursing = true;
                                 
                                 state.checkMemory(this, base);
                                 
