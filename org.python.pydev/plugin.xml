@@ -3,8 +3,8 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.7"
-   provider-name="AleksTotic / Fabio Zadrozny"
+   version="0.7.1"
+   provider-name="Aleks Totic / Fabio Zadrozny"
    class="org.python.pydev.plugin.PydevPlugin">
 
    <runtime>

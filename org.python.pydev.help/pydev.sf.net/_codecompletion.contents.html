@@ -1,15 +1,28 @@
 <H3>Code Completion</H3>
-<P>This feature is already usable, but still has to be used with care, as it <STRONG>executes 
-		the current editor code to get it's completions</STRONG>. That means that 
+
+<br>
+<strong> Notes for release 0.7.1</strong><br>
+Code completion has some changes in version 0.7.1, most notable, the parameters of a method are also gotten
+when completing and the autocompletion has been completely disabled (mainly because of complaints on the editor 
+hanging and because most of the time you don't have valid completions - it only works for the tokens gotten
+from the global scope and on self - so, forget about trying to complete on parameters...). 
+<br>
+
+<P>But even with those limitations, this feature is already usable, but still has to be used with care, 
+	as it <STRONG>executes the current editor code to get it's completions</STRONG>. That means that 
 	one should be very careful on what is put in the global context when using code 
 	completion.</P>
+
 <P>So, that means that if you put sys.exec("rm -r *") in the&nbsp; top level of any 
 	module, it would probably would really delete all you&nbsp;have... Not good 
 	hummm... But if you did it, you would never be able&nbsp; to import that module 
 	from python from anywhere, because it would do&nbsp;the same thing...(so, that 
 	makes me feel not so guilty :-) ).
 </P>
-<P>Aside from that, code completion works on imports, on the current class and on 
+<br>
+<strong> Now, how to use it:</strong><br>
+<a href="codecompletionsnapshots.html">(Here are some snapshots on the current uses)</a>
+<P>Code completion works on imports, on the current class and on 
 	the global context - it uses the current pythonpath in order to do that, so, if 
 	you go in python and</P>
 <P><FONT face="Courier New" size="2">import sys<BR>
@@ -64,6 +77,6 @@
 <P><FONT><STRONG>Note on code completion:</STRONG></FONT></P>
 <P><FONT face="Courier New" size="2"><FONT face="Times New Roman" size="3">Currently code 
 			completion does not work on methods after '(' and on any variable that is 
-			passed in as a parameter == actually it works only on 'self', on the imports 
-			and on global variables ==</FONT></P>
+			passed in as a parameter. Right now it works only on 'self', on the imports 
+			and on global variables </FONT></P>
 </FONT>

@@ -1,71 +1,72 @@
-<h2>Features (release 0.6.1):</h2>
-<p>The pydev is composed of three plug-ins:</p>
-<h3>Editor (org.python.pydev):</h3>
-<li>
-Syntax highlighting
-<li>
-Parser errors marked in the task list
-<li>
-Outline view with imports/functions/classes
-<li>
-Tabs or spaces preference
+<h2>New on 0.7.1:</h2>
+<br>
+<LI><a href="codecoverage.html">Code Coverage</a></li>
+<LI><a href="run.html">Run subset from dir</a> (this is not unit-test, but it can be really useful if you do tests).</li>
+<LI><a href="contentassist.html">New Content Assistants</a> <EM>(Ctrl+F1)</EM></li>
 <LI>
-Smart indentation
-<li>
-	Navigation: keyboard shortcuts to previous or next 
-	function.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <EM>Default:&nbsp;(Ctrl+Shift+Up 
-		and Ctrl+Shift+Down) </EM>
-<li>
-	Comment and uncomment commands (on the popup menu) and 
-	keybindings.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <EM>Default: (Ctrl+3 and Ctrl+Shift+3) </EM>
-<li>
-hyperlinks over functions//import statements
-<li>
-Code folding
-<LI>
-	<a href="refactoring.html">Refactoring</a> with <A href="http://bicyclerepair.sourceforge.net/">
-		bicycle repair man</A>.
-<LI>
-	<a href="codecompletion.html">Code Completion</a>&nbsp;&nbsp;&nbsp;&nbsp; 
-	&nbsp;<EM>(Ctrl+Space) </EM>
-<LI>
-	Templates Completion&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <EM>(Ctrl+Space Too) </EM>
-<LI>
-	Go to&nbsp;definition with <EM>F3</EM> (powered by <A href="http://bicyclerepair.sourceforge.net/">
-		bicycle repair man</A>)&nbsp;&nbsp;
-<LI>
-	<a href="contentassist.html">Content Assistant</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<EM>(Ctrl+F1)</EM></LI>
-<h3>Debugger (org.python.pydev.debug)</h3>
-<li>
-breakpoints
-<li>
-step in/out/over
-<li>
-multiple threads
-<li>
-variable display
-<li>
-	file hyperlinks in the console output (you can click on stack traces)
+	Integrated new <a href="refactoring.html">refactorings</a> from <A href="http://bicyclerepair.sourceforge.net/">bicycle repair man</A> 
+	(inline local variable and extract local variable)
 </li>
+
+<br>
+<br>	
+
+<h2>Features (release 0.7.1):</h2>
+
+<p>Pydev is composed of three plug-ins:</p>
+
+
+<h3>Editor (org.python.pydev):</h3>
+
+<li>Syntax highlighting</li>
+<li>Parser errors marked in the task list</li>
+<li>Outline view with imports/functions/classes</li>
+<li>Tabs or spaces preference</li>
+<LI>Smart indentation</li>
+<li>Navigation: keyboard shortcuts to previous or next function. <EM>Default: (Ctrl+Shift+Up and Ctrl+Shift+Down) </EM></li>
+<li>Comment and uncomment commands (on the popup menu) and keybindings. <EM>Default: (Ctrl+3 and Ctrl+Shift+3) </EM></li>
+<li>hyperlinks over functions//import statements</li>
+<li>Code folding</li>
+<LI><a href="refactoring.html">Refactoring</a> with <A href="http://bicyclerepair.sourceforge.net/">bicycle repair man</A>.</li>
+<LI><a href="codecompletion.html">Code Completion</a> <EM>(Ctrl+Space) </EM> </li>
+<LI>Templates Completion <EM>(Ctrl+Space Too) </EM></li>
+<LI>Go to definition with <EM>F3</EM> (powered by <A href="http://bicyclerepair.sourceforge.net/">bicycle repair man</A>)</li>
+<LI><a href="contentassist.html">Content Assistant</a> <EM>(Ctrl+F1)</EM></li>
+<LI><a href="codecoverage.html">Code Coverage</a></li>
+
+
+
+<h3>Debugger (org.python.pydev.debug)</h3>
+
+<li>breakpoints</li>
+<li>step in/out/over</li>
+<li>multiple threads</li>
+<li>variable display</li>
+<li>file hyperlinks in the console output (you can click on stack traces)</li>
+
+
+
+
 <H3>Help (org.python.pydev.help)</H3>
-<LI>
-	Brief documentation in Eclipse format.
-</LI>
+
+<LI>Brief documentation in Eclipse format.</li>
+
+
 <H3>Note on code completion</H3>
 <P>Code completion works on top of a python shell and really <STRONG>executes the code 
-		you write on the top level on the module</STRONG> , so, beware of what is 
+	you write on the top level on the module</STRONG> , so, beware of what is 
 	written in this case (as a rule, you should never initialize a variable to 
-	something other that None. You should init it to None&nbsp;and then call a 
-	function to make the real initialization after&nbsp;an <EM>if __name__ == 
-		'__main__'</EM> statement or inside some other scope, but never in the 
-	global scope of the module (not only because of code completion, as a simple 
-	import of that code would do it).</P>
+	something other that None. You should init it to None and then call a function 
+	to make the real initialization after an <EM>if __name__ == '__main__'</EM> statement 
+	or inside some other scope, but never in the global scope of the module (not 
+	only because of code completion, as a simple import of that code would do it).
+</P>
+
+
 <H3>Note on text completion</H3>
 <P>
-	We do not provide&nbsp;text completion&nbsp;ourselves in the plugin, as other 
-	plugins already provide this. A good suggestion is using the <A href="http://sourceforge.net/projects/lunar-eclipse/">
-		lunar eclipse</A>&nbsp;editor-enhancements&nbsp;plugin. It does not only 
-	provide text completion, but other very useful enhancements.</P>
-<P>&nbsp;</P>
-<P>&nbsp;</P>
+	We do not provide text completion ourselves in the plugin, as other plugins 
+	already provide this. A good suggestion is using the <A href="http://sourceforge.net/projects/lunar-eclipse/">
+		lunar eclipse</A> editor-enhancements plugin. It does not only provide text 
+	completion, but other very useful enhancements.
+</P>

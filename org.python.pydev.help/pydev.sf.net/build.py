@@ -1,6 +1,5 @@
 
 
-
 def Template( p_template, p_name ):
 
     contents_file = '_%s.contents.html' % p_name
@@ -22,10 +21,16 @@ def Main():
     Template( '_template.html', 'Download' )
     Template( '_template.html', 'Roadmap' )
     Template( '_template.html', 'codecompletion' )
+    Template( '_template.html', 'codecompletionsnapshots' )
     Template( '_template.html', 'contentassist' )
     Template( '_template.html', 'refactoring' )
     Template( '_template.html', 'Faq' )
     Template( '_template.html', 'Credits' )
-
-
+    Template( '_template.html', 'codecoverage' )
+    Template( '_template.html', 'run' )
+    Template( '_template.html', 'debug' )
+    Template( '_template.html', 'debug_prefs' )
+    Template( '_template.html', 'editor_prefs' )
+    
+    
 Main()

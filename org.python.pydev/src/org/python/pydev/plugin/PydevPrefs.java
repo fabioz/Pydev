@@ -69,6 +69,9 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
 	public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
 
+	public static final String RUN_MANY_SCRIPT_LOCATION = "RUN_MANY_SCRIPT_LOCATION";
+	public static final String DEFAULT_RUN_MANY_SCRIPT_LOCATION = "";
+
 	/**
 	 * Initializer sets the preference store
 	 */
@@ -145,5 +148,6 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		prefs.setDefault(HYPERLINK_COLOR, StringConverter.asString(DEFAULT_HYPERLINK_COLOR));
 		prefs.setDefault(BLOCK_COMMENT, DEFAULT_BLOCK_COMMENT_STRING);
 		prefs.setDefault(CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+		prefs.setDefault(RUN_MANY_SCRIPT_LOCATION, DEFAULT_RUN_MANY_SCRIPT_LOCATION);
 	}
 }

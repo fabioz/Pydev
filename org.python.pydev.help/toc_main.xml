@@ -1,9 +1,18 @@
-<toc label="PyDev User Guide" topic="html/index.html">
-	<topic label="Editor" href="html/editor.html">
-		<topic label="Undocumented" href="html/ed_undocumented.html"/>
-		<topic label="Preferences" href="html/ed_prefs.html"/>
+<toc label="PyDev User Guide" topic="pydev.sf.net/index.html">
+	
+	<topic label="Features" href="pydev.sf.net/features.html">
+		<topic label="Preferences" href="pydev.sf.net/editor_prefs.html"/>
+		<topic label="Code Completion" href="pydev.sf.net/codecompletion.html"/>
+		<topic label="Code Coverage" href="pydev.sf.net/codecoverage.html"/>
+		<topic label="Content Assist" href="pydev.sf.net/contentassist.html"/>
+		<topic label="Refactoring" href="pydev.sf.net/refactoring.html"/>
+		<topic label="Running python file" href="pydev.sf.net/run.html"/>
 	</topic>
-	<topic label="Debugger" href="html/debug.html">
-		<topic label="Preferences" href="html/db_prefs.html"/>
+	
+	<topic label="Debugger" href="pydev.sf.net/debug.html">
+		<topic label="Preferences" href="pydev.sf.net/debug_prefs.html"/>
 	</topic>
+
+	<topic label="Roadmap" href="pydev.sf.net/roadmap.html"/>
+	<topic label="Credits" href="pydev.sf.net/credits.html"/>
 </toc>

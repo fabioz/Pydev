@@ -5,7 +5,11 @@
  */
 package org.python.pydev.debug.codecoverage;
 
+import java.io.File;
+
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -17,6 +21,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
+import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**
@@ -183,7 +188,7 @@ public class RunManyDialog extends Dialog implements Listener {
         layoutData.horizontalAlignment = GridData.FILL;
         layoutData.verticalAlignment = GridData.FILL;
         labelScript0 = new Label(composite, 0);
-        labelScript0.setText("Script location (absolute)");
+        labelScript0.setText("Script location (absolute) - default script executes only files that match test_*.py");
         labelScript0.setLayoutData(layoutData);
 
         layoutData = new GridData();
@@ -192,7 +197,17 @@ public class RunManyDialog extends Dialog implements Listener {
         layoutData.horizontalAlignment = GridData.FILL;
         layoutData.verticalAlignment = GridData.FILL;
         textScriptLocation = new Text(composite, SWT.SINGLE);
-        textScriptLocation.setText("X:\\coilib30\\tools\\runtests.py");
+        try {
+            String defaultV = PydevPrefs.getPreferences().getString(PydevPrefs.RUN_MANY_SCRIPT_LOCATION);
+            if(defaultV.length() < 1){
+	            File file = PydevDebugPlugin.getScriptWithinPySrc("runfiles.py");
+	            defaultV = file.getAbsolutePath();
+	            PydevPrefs.getPreferences().setValue(PydevPrefs.RUN_MANY_SCRIPT_LOCATION, defaultV);
+            }
+            textScriptLocation.setText(defaultV);
+        } catch (CoreException e) {
+            textScriptLocation.setText("Add script that receives dir.");
+        }
         textScriptLocation.setLayoutData(layoutData);
 
         //-------
@@ -234,8 +249,17 @@ public class RunManyDialog extends Dialog implements Listener {
         scriptArgs = textScriptArgs.getText();
         scriptLocation = textScriptLocation.getText();
         scriptSelected = check.getSelection();
-        // TODO Auto-generated method stub
-        super.okPressed();
+
+        if(scriptSelected){
+            if (scriptLocation.length() > 0){
+                PydevPrefs.getPreferences().setValue(PydevPrefs.RUN_MANY_SCRIPT_LOCATION, scriptLocation);
+                super.okPressed();
+            }else{
+                MessageDialog.openInformation(this.getShell(), "ERROR: Script not selected", "A script must be specified.");
+            }
+        }else{
+            super.okPressed();
+        }
     }
 
     /*

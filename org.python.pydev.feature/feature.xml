@@ -2,15 +2,15 @@
 <feature
       id="org.python.pydev.feature"
       label="org.python.pydev.feature"
-      version="0.6.1"
-      provider-name="Aleks Totic">
+      version="0.7.1"
+      provider-name="Aleks Totic / Fabio Zadrozny">
 
    <description>
       Python development environment
    </description>
 
    <copyright>
-      (c) Aleksandar Totic
+      (c) Aleksandar Totic / Fabio Zadrozny
    </copyright>
 
    <license url="http://www.opensource.org/licenses/cpl.php">
@@ -18,7 +18,7 @@
 For my own enjoyment, take a deep breath. Really deep one, until
 you can feel in your toes and your head gets dizzy.
 Doesn&apos;t that feel good? Yum.
-Aleks
+Aleks and Fabio
    </license>
 
    <url>
@@ -43,20 +43,20 @@ Aleks
 
    <plugin
          id="org.python.pydev"
-         download-size="275"
-         install-size="275"
-         version="0.6.1"/>
+         download-size="0"
+         install-size="0"
+         version="0.7.1"/>
 
    <plugin
          id="org.python.pydev.debug"
-         download-size="87"
-         install-size="87"
-         version="0.6"/>
+         download-size="0"
+         install-size="0"
+         version="0.7.1"/>
 
    <plugin
          id="org.python.pydev.help"
-         download-size="100"
-         install-size="100"
-         version="0.6"/>
+         download-size="0"
+         install-size="0"
+         version="0.7.1"/>
 
 </feature>
