@@ -54,7 +54,11 @@ def scanScopeForMatches(sourcenode,scope,matchFinder,targetname):
     for line in generateLogicalLines(scope.getMaskedLines()):
         if line.find(targetname) != -1:
             doctoredline = makeLineParseable(line)
-            ast = compiler.parse(doctoredline)
+            try:
+                ast = compiler.parse(doctoredline)
+            except :
+                print >> log.warning , 'Error parsing: %s' % doctoredline
+                raise
             scope = getScopeForLine(sourcenode, lineno)
             matchFinder.reset(line)
             matchFinder.setScope(scope)
@@ -196,7 +200,17 @@ class MatchFinder:
     def popWordsUpTo(self, word):
         if word == "*":
             return        # won't be able to find this
-        posInWords = self.words.index(word)
+        try:
+            posInWords = self.words.index(word)
+        except ValueError:
+            print >> log.warning , 'ValueError raised (communicate to bicycle repair man plugin).'
+            print >> log.warning , 'code that raised error (commom.py): posInWords = self.words.index(word)'
+            try:
+                print >> log.warning , 'WORD: %s'%word
+            except TypeError:
+                print >> log.warning , 'Unable to get word.'
+            print >> log.warning , 'SELF.WORDS: %s'%self.words
+            return
         idx = self.positions[posInWords]
         self.words = self.words[posInWords+1:]
         self.positions = self.positions[posInWords+1:]

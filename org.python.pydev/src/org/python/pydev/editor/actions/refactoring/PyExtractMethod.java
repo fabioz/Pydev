@@ -28,7 +28,7 @@ public class PyExtractMethod extends PyRefactorAction {
      * @throws BadLocationException
      * @throws CoreException
      */
-    protected void perform(IAction action) throws BadLocationException, CoreException {
+    protected String perform(IAction action, String name, Operation operation) throws BadLocationException, CoreException {
         File editorFile = getPyEdit().getEditorFile();
         
         //testing first with whole lines.
@@ -38,17 +38,20 @@ public class PyExtractMethod extends PyRefactorAction {
         int endLine   = getEndLine();
         int endCol    = getEndCol();
         
-        String name = getInput(getPyEdit(),"Please inform the new name.");
-
+        String res = "";
         if(name.equals("") == false){
-	        PyRefactoring.getPyRefactoring().extract(editorFile, beginLine, beginCol, endLine, endCol, name);
+	        res = PyRefactoring.getPyRefactoring().extract(editorFile, beginLine, beginCol, endLine, endCol, name, operation);
 
-	        refreshEditor(getPyEdit());
+	        refreshEditors(getPyEdit());
         }
+        return res;
 
     }
     
-    
+    protected String getInputMessage() {
+        return "Please inform the new name.";
+    }
+
     
 
 }

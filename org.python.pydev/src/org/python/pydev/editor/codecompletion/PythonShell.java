@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.plugin.SocketUtil;
 
 /**
@@ -33,7 +34,7 @@ public class PythonShell {
      * @throws IOException
      * 
      */
-    public static PythonShell getServerShell() throws IOException, CoreException {
+    public synchronized static PythonShell getServerShell() throws IOException, CoreException {
         if(pytonShell == null){
             pytonShell = new PythonShell();
             pytonShell.startIt();
@@ -120,9 +121,10 @@ public class PythonShell {
      * This method creates the python server process and starts the sockets, so that we
      * can talk with the server.
      * 
+     * @param milisSleep: time to wait after creating the process.
      * @throws IOException is some error happens creating the sockets - the process is terminated.
      */
-    public void startIt() throws IOException{
+    public void startIt(int milisSleep) throws IOException{
         try {
 
             int pWrite = SocketUtil.findUnusedLocalPort("127.0.0.1", 50000, 55000);
@@ -136,14 +138,14 @@ public class PythonShell {
             int attempts = 0;
             while(!connected && attempts < 20){
                 attempts += 1;
-	            sleepALittle();            
+	            sleepALittle(milisSleep);            
 	            try {
                     socketToWrite = new Socket("127.0.0.1",pWrite); //we should write in this port  
                     serverSocket = new ServerSocket(pRead);         //and read in this port 
                     socketToRead = serverSocket.accept();
                     connected = true;
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    //e1.printStackTrace();
                 }
             }
         } catch (IOException e) {
@@ -152,60 +154,96 @@ public class PythonShell {
                 process.destroy();
             }
             process = null;
-            e.printStackTrace();
+            //e.printStackTrace();
             throw e;
         }
     }
-
     
     /**
-     * @return s string with the contents read.
+     * This method creates the python server process and starts the sockets, so that we
+     * can talk with the server.
+     * 
+     * @throws IOException is some error happens creating the sockets - the process is terminated.
+     */
+    public void startIt() throws IOException{
+        this.startIt(25);
+    }
+
+    
+    private void communicateWork(String desc, Operation operation){
+        if(operation != null){
+            operation.monitor.setTaskName(desc);
+            operation.monitor.worked(1);
+        }
+    }
+    
+    /**
+     * @param operation
+     * @return
      * @throws IOException
      */
-    public String read() throws IOException {
+    public String read(Operation operation) throws IOException {
         String str = "";
 
         int j = 0;
         while(j != 100){
 	        byte[] b = new byte[PythonShell.BUFFER_SIZE];
 
-//            System.out.println("WILL READ");
             this.socketToRead.getInputStream().read(b);
-//            System.out.println("READ");
 
             String s = new String(b);
+            
             if(s.indexOf("@@PROCESSING_END@@") != -1){ //each time we get a processing message, reset j to 0.
                 s = s.replaceAll("@@PROCESSING_END@@", "");
                 j = 0;
-//                System.out.println("Processing msg received.");
+                communicateWork("Processing...", operation);
             }
+            
+            
+            if(s.indexOf("@@PROCESSING:") != -1){ //each time we get a processing message, reset j to 0.
+                s = s.replaceAll("@@PROCESSING:", "");
+                s = s.replaceAll("END@@", "");
+                j = 0;
+                if(s.trim().equals("") == false){
+                    communicateWork("Processing: "+s, operation);
+                }else{
+                    communicateWork("Processing...", operation);
+                }
+                s = "";
+            }
+
+            
             s = s.replaceAll((char)0+"",""); //python sends this char as payload.
-            System.out.println("RECEIVED:"+s);
             str += s;
             
             if(str.indexOf("END@@") != -1){
-//                System.out.println("WILL BREAK");
                 break;
             }else{
-//                System.out.println("WILL SLEEP");
                 j++;
                 sleepALittle(10);
             }
             
         }
-//        System.out.println("OUT");
         
         //remove @@COMPLETIONS
         str = str.replaceFirst("@@COMPLETIONS","");
         //remove END@@
-        
         try {
             return str.substring(0, str.lastIndexOf("END@@"));
         } catch (RuntimeException e) {
-            System.out.println("ERROR WIT STRING:"+str);
+            System.out.println("ERROR WITH STRING:"+str);
             e.printStackTrace();
             return "";
         }
+    }
+
+
+    /**
+     * @return s string with the contents read.
+     * @throws IOException
+     */
+    public String read() throws IOException {
+        return read(null);
     }
     
 
@@ -389,6 +427,7 @@ public class PythonShell {
         }
         return list;
     }
+
 
 
 

@@ -43,12 +43,14 @@ import org.python.parser.SimpleNode;
 import org.python.parser.Token;
 import org.python.parser.TokenMgrError;
 import org.python.pydev.editor.actions.PyOpenAction;
+import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.editor.model.ModelMaker;
+import org.python.pydev.editor.refactoring.PyRefactoring;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
@@ -109,6 +111,27 @@ public class PyEdit extends PyEditProjection {
         CodeFoldingSetter codeFoldingSetter = new CodeFoldingSetter(this);
         this.addModelListener(codeFoldingSetter);
         this.addPropertyListener(codeFoldingSetter);
+        
+        //we also want to initialize our shells...
+        //we use 2: one for refactoring and one for code completion.
+        new Thread(){
+            public void run(){
+                try {
+                    try {
+                        PyRefactoring.getPyRefactoring();
+                    } catch (RuntimeException e1) {
+                    }
+                    try {
+                        PythonShell.getServerShell();
+                    } catch (RuntimeException e1) {
+                    }
+                } catch (Exception e) {
+                }
+                
+                
+            }
+        }.start();
+        
 	}
 	
 	/**

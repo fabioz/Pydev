@@ -20,22 +20,27 @@ public class PyRename extends PyRefactorAction {
      * 
      *     renameByCoordinates(filename, line, column, newname)
      */
-    protected void perform(IAction action) throws Exception {
+    protected String perform(IAction action, String name, Operation operation) throws Exception {
         File editorFile = getPyEdit().getEditorFile();
         
         //testing first with whole lines.
         int beginLine = getStartLine();
         int beginCol  = getStartCol();
 
-        String name = getInput(getPyEdit(),"Please inform the new name.");
-
+        String res = "";
         if(name.equals("") == false){
-	        PyRefactoring.getPyRefactoring().rename(editorFile, beginLine, beginCol, name);
+	        res = PyRefactoring.getPyRefactoring().rename(editorFile, beginLine, beginCol, name, operation);
 
-	        refreshEditor(getPyEdit());
+	        refreshEditors(getPyEdit());
         }
-        
+        return res;
     }
 
+    protected String getInputMessage() {
+        return "Please inform the new name.";
+    }
+
+
+    
 
 }

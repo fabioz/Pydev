@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.codecompletion.PythonShell;
 
 /**
@@ -35,15 +36,19 @@ public class PyRefactoring {
     private static PyRefactoring pyRefactoring;
 
     
-    private PyRefactoring(){
-        
-    }
-    
-    public static PyRefactoring getPyRefactoring(){
+    public synchronized static PyRefactoring getPyRefactoring(){
         if (pyRefactoring == null){
             pyRefactoring = new PyRefactoring();
         }
         return pyRefactoring;
+    }
+
+    private PyRefactoring(){
+        try {
+            getServerShell(); //when we initialize, initialize the server.
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -52,7 +57,7 @@ public class PyRefactoring {
      * @throws IOException
      * 
      */
-    private PythonShell getServerShell() throws IOException, CoreException {
+    private synchronized PythonShell getServerShell() throws IOException, CoreException {
         if(pytonShell == null){
             pytonShell = new PythonShell();
             pytonShell.startIt();
@@ -64,16 +69,17 @@ public class PyRefactoring {
      * This method can be used to write something to the server and get its answer.
      * 
      * @param str
+     * @param operation
      * @return
      */
-    private String makeAction(String str){
+    private String makeAction(String str, Operation operation){
         PythonShell pytonShell;
         try {
             pytonShell = getServerShell();
 	        try {
 	            pytonShell.write(str);
 	 
-	            return pytonShell.read();
+	            return pytonShell.read(operation);
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            
@@ -93,8 +99,9 @@ public class PyRefactoring {
      * @param endLine
      * @param endCol
      * @param name
+     * @param operation
      */
-    public void extract(File editorFile, int beginLine, int beginCol, int endLine, int endCol, String name) {
+    public String extract(File editorFile, int beginLine, int beginCol, int endLine, int endCol, String name, Operation operation) {
         String s = "@@REFACTOR";
         s+=        "extractMethod";
         s+=        " "+editorFile.getAbsolutePath();
@@ -105,9 +112,9 @@ public class PyRefactoring {
         s+=        " "+name;
         s+=        "END@@";
         System.out.println("Extract: "+s);
-        String string = makeAction(s);
+        String string = makeAction(s, operation);
         System.out.println("REFACTOR RESULT:"+string);
-        
+        return string;
     }
 
     /**
@@ -115,8 +122,9 @@ public class PyRefactoring {
      * @param beginLine
      * @param beginCol
      * @param name
+     * @param operation
      */
-    public void rename(File editorFile, int beginLine, int beginCol, String name) {
+    public String rename(File editorFile, int beginLine, int beginCol, String name, Operation operation) {
         String s = "@@REFACTOR";
         s+=        "renameByCoordinates";
         s+=        " "+editorFile.getAbsolutePath();
@@ -125,9 +133,23 @@ public class PyRefactoring {
         s+=        " "+name;
         s+=        "END@@";
         System.out.println("Extract: "+s);
-        String string = makeAction(s);
+        String string = makeAction(s, operation);
         System.out.println("REFACTOR RESULT:"+string);
+        return string;
         
+    }
+
+    /**
+     * 
+     */
+    public void restartShell() {
+        try {
+            getServerShell().restartShell();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (CoreException e) {
+            e.printStackTrace();
+        }
     }
 
 }
