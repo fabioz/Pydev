@@ -7,9 +7,9 @@ NOTE: this file is a modification of Patrick O'Brien's version 1.62
 from __future__ import nested_scopes
 
 __author__ = "Patrick K. O'Brien <pobrien@orbtech.com>"
-__cvsid__ = "$Id: introspect.py,v 1.1 2004-05-25 21:36:56 dana_virtual Exp $"
-__revision__ = "$Revision: 1.1 $"[11:-2]
-
+__cvsid__ = "$Id: introspect.py,v 1.2 2004-05-25 21:42:14 dana_virtual Exp $"
+__revision__ = "$Revision: 1.2 $"[11:-2]
+# PYDEV Wrapping by the PyDev content team
 
 import cStringIO
 import inspect
