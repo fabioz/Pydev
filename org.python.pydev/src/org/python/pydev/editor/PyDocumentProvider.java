@@ -6,11 +6,11 @@
  
 package org.python.pydev.editor;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.IDocument;
@@ -75,17 +75,37 @@ public class PyDocumentProvider extends FileDocumentProvider {
 		if (retVal == false) {
 			// for Open External File, we get JavaFile, which we have no access to
 			// luckily, this object is also a ILocationProvider
+
 			if (editorInput instanceof ILocationProvider) {
 				IPath path = ((ILocationProvider)editorInput).getPath(editorInput);
 				path = path.makeAbsolute();
-				File f = path.toFile();
-				try {
-					setDocumentContent(document, new FileInputStream(f), encoding);
-				} catch (FileNotFoundException e) {
-					return false;
-				}
-				return true;
+		        IWorkspace ws = ResourcesPlugin.getWorkspace();
+		        IProject project = ws.getRoot().getProject("External Files");
+		        if (!project.exists())
+		           project.create(null);
+		        if (!project.isOpen())
+		           project.open(null);
+	
+		        IFile file = project.getFile(path.lastSegment());
+		        try{
+		            file.createLink(path, IResource.NONE, null);
+		        }catch (Exception e) {
+//		            e.printStackTrace(); it already exists.
+                }
+                return super.setDocumentContent(document, new FileEditorInput(file), encoding);
 			}
+		    
+//			if (editorInput instanceof ILocationProvider) {
+//				IPath path = ((ILocationProvider)editorInput).getPath(editorInput);
+//				path = path.makeAbsolute();
+//				File f = path.toFile();
+//				try {
+//					setDocumentContent(document, new FileInputStream(f), encoding);
+//				} catch (FileNotFoundException e) {
+//					return false;
+//				}
+//				return true;
+//			}
 		}
 		return true;
 	}

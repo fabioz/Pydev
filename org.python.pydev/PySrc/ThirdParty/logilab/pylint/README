@@ -1,0 +1,48 @@
+README for PyLint
+=================
+
+Dependencies
+------------
+Pylint requires the logilab-common(version >= 0.3.4) and the optik (only for
+python < 2.3) packages.
+
+
+Distributions
+-------------
+The source tarball is available at ftp://ftp.logilab.fr/pub/pylint.
+
+You may apt-get a debian package by adding ::
+
+    deb ftp://ftp.logilab.org/pub/debian unstable/
+
+to your /etc/apt/sources.list files. In bonus
+
+Contributed RPM packages for pylint and logilab-common are available at
+ftp://ftp.nest.pld-linux.org/test .
+
+
+Install
+-------
+From the source distribution, extract the tarball and run ::
+
+    python setup.py install
+
+For debian and rpm packages, use your usual tools according to your Linux
+distribution. 
+
+
+Documentation
+-------------
+Look in the doc/ subdirectory.
+
+
+Comments, support, bug reports
+------------------------------
+Use the python-projects@logilab.org mailing list. Since we do not have publicly
+available bug tracker yet, bug reports should be emailed there too.
+
+You can subscribe to this mailing list at
+http://www.logilab.org/mailinglists/python_projects/mailinglist_register_form
+
+Archives are available at 
+http://lists.logilab.org/pipermail/python-projects/

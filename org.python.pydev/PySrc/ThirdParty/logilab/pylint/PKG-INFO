@@ -1,0 +1,19 @@
+Metadata-Version: 1.0
+Name: pylint
+Version: 0.4.2
+Summary: Python code static checker
+Home-page: http://www.logilab.org/projects/pylint/
+Author: Sylvain Thenault
+Author-email: sylvain.thenault@logilab.fr
+License: GPL
+Description: Pylint is tool to analyze Python source code looking for bugs and signs
+        of poor quality. It can check if a module satisfies a coding standard.
+        Pylint can be seen as another PyChecker since nearly all tests you can
+        do with PyChecker can also be done with Pylint. However, Pylint offers
+        some more features, like checking line-code's length, checking if
+        variable names are well-formed according to your coding standard, or
+        checking if declared interfaces are truly implemented, and much more.
+        .
+        Additionnaly, it is possible to write plugins to add your own checks,
+        using a plugin mechanism.
+Platform: UNKNOWN

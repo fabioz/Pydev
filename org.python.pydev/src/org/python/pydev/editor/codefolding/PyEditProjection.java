@@ -8,7 +8,6 @@ package org.python.pydev.editor.codefolding;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
-import org.eclipse.jface.text.source.IOverviewRuler;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.projection.ProjectionSupport;
@@ -53,7 +52,6 @@ public abstract class PyEditProjection extends TextEditor implements
     
 	
     public void createPartControl(Composite parent) {
-
         super.createPartControl(parent);
         try {
             ProjectionViewer projectionViewer = (ProjectionViewer) getSourceViewer();

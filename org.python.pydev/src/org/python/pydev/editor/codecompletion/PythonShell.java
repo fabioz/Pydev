@@ -24,6 +24,7 @@ import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.SocketUtil;
+import org.python.pydev.utils.SimplePythonRunner;
 
 /**
  * @author Fabio Zadrozny
@@ -160,7 +161,7 @@ public class PythonShell {
                 endIt();
             String interpreter = getDefaultInterpreter();
             String execMsg = interpreter+" \""+serverFile.getAbsolutePath()+"\" "+pWrite+" "+pRead;
-            process = Runtime.getRuntime().exec(execMsg);
+            process = SimplePythonRunner.createProcess(execMsg, serverFile.getParentFile());
             
             sleepALittle(200);
             if(process == null){
@@ -253,7 +254,7 @@ public class PythonShell {
      * @throws IOException
      */
     public String read(Operation operation) throws IOException {
-        String str = "";
+        StringBuffer str = new StringBuffer();
         String tempStr = "";
         int j = 0;
         while(j != 100){
@@ -285,7 +286,7 @@ public class PythonShell {
 
             
             s = s.replaceAll((char)0+"",""); //python sends this char as payload.
-            str += s;
+            str.append(s);
             
             if(str.indexOf("END@@") != -1){
                 break;
@@ -297,27 +298,26 @@ public class PythonShell {
                     j = 0; //we are receiving, even though that may take a long time if the namespace is really polluted...
                 }
                 sleepALittle(10);
-                tempStr = str;
+                tempStr = str.toString();
             }
             
         }
         
-        //remove @@COMPLETIONS
-        str = str.replaceFirst("@@COMPLETIONS","");
+        String ret = str.toString().replaceFirst("@@COMPLETIONS","");
         //remove END@@
         try {
-            if(str.indexOf("END@@")!= -1){
-	            str = str.substring(0, str.indexOf("END@@"));
-	            return str;
+            if(ret.indexOf("END@@")!= -1){
+                ret = ret.substring(0, ret.indexOf("END@@"));
+	            return ret;
             }else{
                 throw new RuntimeException("Couldn't find END@@ on received string.");
             }
         } catch (RuntimeException e) {
             e.printStackTrace();
-            if(str.length() > 1000){
-                str = str.substring(0, 999)+"...(continued)...";//if the string gets too big, it can crash Eclipse...
+            if(ret.length() > 500){
+                ret = ret.substring(0, 499)+"...(continued)...";//if the string gets too big, it can crash Eclipse...
             }
-            PydevPlugin.log(IStatus.ERROR, "ERROR WITH STRING:"+str, e);
+            PydevPlugin.log(IStatus.ERROR, "ERROR WITH STRING:"+ret, e);
             return "";
         }
     }

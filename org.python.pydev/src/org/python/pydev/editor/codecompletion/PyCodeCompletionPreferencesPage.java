@@ -6,7 +6,6 @@
 package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.core.runtime.Preferences;
-import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -22,8 +21,7 @@ import org.python.pydev.plugin.PydevPrefs;
  * 
  * @author Fabio Zadrozny
  */
-public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage,
-        Preferences.IPropertyChangeListener {
+public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
 
     public static final String USE_CODECOMPLETION = "USE_CODECOMPLETION";
     public static final boolean DEFAULT_USE_CODECOMPLETION = false;
@@ -99,7 +97,6 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
     public void init(IWorkbench workbench) {
-        PydevPrefs.getPreferences().addPropertyChangeListener(this);
     }
 
     /**
@@ -133,18 +130,5 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     //        return PydevPrefs.getPreferences().getInt(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_DELAY);
     //    }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.core.runtime.Preferences.IPropertyChangeListener#propertyChange(org.eclipse.core.runtime.Preferences.PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent event) {
-        //		System.out.println( event.getProperty()
-        //		 + "\n\told setting: "
-        //		 + event.getOldValue()
-        //		 + "\n\tnew setting: "
-        //		 + event.getNewValue());
-
-    }
 
 }

@@ -1,0 +1,129 @@
+Logilab's common library
+========================
+
+What's this ?
+-------------
+
+This package contains some modules used by differents Logilab's
+projects.
+
+It is released under the GNU Public License.
+
+There is no documentation available yet but the source code should be
+clean and well documented.
+
+
+Installation
+------------
+
+Extract the tarball, jump into the created directory and run ::
+
+	python setup.py install
+
+For installation options, see ::
+
+	python setup.py install --help
+
+
+Provided modules
+----------------
+
+Here is a brief description of the available modules :
+
+* astutils:
+  Some utilities function to manipulate Python's AST.
+
+* astng :
+  Python Abstract Syntax Tree New Generation. Provides an higher
+  level representation of ast objects.
+
+* bind.py :
+  Provides a way to optimize globals in certain functions by binding
+  their names to values provided in a dictionnary.
+
+* cache.py :
+  A cache implementation with a least recently used algorithm.
+
+* cli.py :
+  Command line interface helper classes.
+
+* compat.py: 
+  Transparent compatibility layer between different python version
+  (actually 2.2 vs 2.3 for now)
+
+* configuration.py :
+  Two mix-in classes to handle configuration from both command line 
+  (using optik) and configuration file.
+
+* corbautils.py:
+  Usefull functions for use with the OmniORB CORBA library.
+
+* daemon.py :
+  A daemon mix-in class.
+
+* db.py :
+  A generic method to get a database connection. 
+
+* html.py :
+  Return an html formatted traceback from python exception infos.
+
+* fileutils.py :
+  Some file / file path manipulation utilities.
+
+* interface.py
+  Bases class for interfaces.
+
+* logger.py :
+  Define a logger interface and two concrete loggers : one which prints
+  everything on stdout, the other using syslog.
+
+* modutils.py :
+  Module manipulation utilities.
+
+* optik_ext :
+  Add an abstraction level to transparently import optik classes from
+  optparse (python >= 2.3) or the optik package. It also defines two
+  new option types : regexp and csv.
+
+* patricia.py :
+  A Python implementation of PATRICIA trie (Practical Algorithm to
+  Retrieve Information Coded in Alphanumeric).
+
+* shellutils:
+  Some utilities to replace shell scripts with python scripts.
+
+* sqlgen.py :
+  Helper class to generate SQL strings to use with python's DB-API.
+
+* testlib.py :
+  Generic tests execution methods.
+
+* textutils.py:
+  Some text manipulation utilities.
+
+* tree.py :
+  Base class to represent tree structure, and some others to make it
+  works with the visitor implementation (see below).
+
+* ureports:
+  Provides a way to create simple reports using python objects
+  without care of the final formatting. Some formatters text and html
+  are provided.
+
+* vcgutils.py :
+  utilities functions to generate file readable with Georg Sander's vcg
+  (Visualization of Compiler Graphs).
+
+* visitor.py :
+  A generic visitor pattern implementation.
+
+* twisted_distutils.py
+  This module enables the installation of plugins.tml files using standard
+  distutils syntax. Note that you can use this to install files that
+  are not twisted plugins in any package directory of your application.
+
+
+If you have any questions, please mail devel@logilab.fr for support. 
+
+Sylvain Thénault
+Apr 15, 2004
