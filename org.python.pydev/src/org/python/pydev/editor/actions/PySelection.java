@@ -43,6 +43,7 @@ public class PySelection
     public ITextEditor textEditor;
     /** Cursor offset. */
     public int absoluteCursorOffset;
+    public ITextSelection textSelection;
 
 	/**
 	 * Default constructor for PySelection.  Simply defaults all the values.
@@ -76,6 +77,7 @@ public class PySelection
 			this.textEditor = textEditor;
 			// Grab the selection
 			ITextSelection selection = getITextSelection();
+			this.textSelection = selection;
 			
 			this.absoluteCursorOffset   = selection.getOffset();
 			// Set data

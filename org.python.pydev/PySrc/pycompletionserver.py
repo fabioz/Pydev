@@ -4,6 +4,8 @@
 import threading
 import time
 import simpleTipper
+import refactoring
+import sys
 
 HOST = '127.0.0.1'               # Symbolic name meaning the local host
 
@@ -17,9 +19,26 @@ MSG_INVALID_REQUEST = '@@INVALID_REQUEST'
 MSG_RELOAD_MODULES  = '@@RELOAD_MODULES_END@@'
 MSG_CHANGE_DIR      = '@@CHANGE_DIR:'
 MSG_OK              = '@@MSG_OK_END@@'
+MSG_REFACTOR        = '@@REFACTOR'
+MSG_PROCESSING      = '@@PROCESSING_END@@'
 
-BUFFER_SIZE = 1024 * 4
+BUFFER_SIZE = 1024
 
+class KeepAliveThread(threading.Thread):
+    def __init__(self, socket):
+        threading.Thread.__init__(self)
+        self.socket = socket
+        self.lastMsg = None
+    
+    def run(self):
+        time.sleep(0.1)
+        while self.lastMsg == None:
+            print 'sending', MSG_PROCESSING
+            self.socket.send(MSG_PROCESSING)
+            time.sleep(0.1)
+        print 'sending', self.lastMsg
+        self.socket.send(self.lastMsg)
+        
 class T(threading.Thread):
 
     def __init__(self, thisPort, serverPort):
@@ -54,18 +73,12 @@ class T(threading.Thread):
             
         return '%s(%s)%s'%(MSG_COMPLETIONS, compMsg, MSG_END)
     
-    def sendCompletionsMessage(self, completionsList):
+    def getCompletionsMessage(self, completionsList):
         '''
-        Send message with completions.
+        get message with completions.
         '''
-        self.socket.send(self.formatCompletionMessage(completionsList))
+        return self.formatCompletionMessage(completionsList)
     
-    def sendReceivedInvalidMessage(self):
-        self.socket.send(MSG_INVALID_REQUEST)
-    
-    def sendOkMsg(self):
-        self.socket.send(MSG_OK)
-
     def getTokenAndData(self, data):
         '''
         When we receive this, we have 'token):data'
@@ -102,55 +115,70 @@ class T(threading.Thread):
         
         while 1:
             data = ''
+            returnMsg = ''
+            keepAliveThread = KeepAliveThread(self.socket)
+            
             while not data.endswith(MSG_END):
-                data+=conn.recv(BUFFER_SIZE)
+                data += conn.recv(BUFFER_SIZE)
             
-            if MSG_KILL_SERVER in data:
-                #break if we received kill message.
-                break;
-
-            elif MSG_RELOAD_MODULES in data:
-                simpleTipper.ReloadModules()
-                self.sendOkMsg()
-
-            else:
-                data = data[:data.find(MSG_END)]
-            
-                if MSG_GLOBALS in data:
-                    data = data.replace(MSG_GLOBALS, '')
-                    comps = simpleTipper.GenerateTip(data, None, False)
-                    self.sendCompletionsMessage(comps)
-                
-                elif MSG_TOKEN_GLOBALS in data:
-                    data = data.replace(MSG_TOKEN_GLOBALS, '')
-                    token, data = self.getTokenAndData(data)                
-                    comps = simpleTipper.GenerateTip(data, token, False)
-                    self.sendCompletionsMessage(comps)
+            try:
+                if MSG_KILL_SERVER in data:
+                    #break if we received kill message.
+                    break;
     
-                elif MSG_CLASS_GLOBALS in data:
-                    data = data.replace(MSG_CLASS_GLOBALS, '')
-                    token, data = self.getTokenAndData(data)                
-                    comps = simpleTipper.GenerateTip(data, token, True)
-                    self.sendCompletionsMessage(comps)
+                keepAliveThread.start()
                 
-                elif MSG_CHANGE_DIR in data:
-                    data = data.replace(MSG_CHANGE_DIR, '')
-                    simpleTipper.CompleteFromDir(data)
-                    self.sendOkMsg()
-                    
+                if MSG_RELOAD_MODULES in data:
+                    simpleTipper.ReloadModules()
+                    returnMsg = MSG_OK
+                
                 else:
-                    self.sendReceivedInvalidMessage()
-            
+                    data = data[:data.find(MSG_END)]
+                
+                    if data.startswith(MSG_GLOBALS):
+                        data = data.replace(MSG_GLOBALS, '')
+                        comps = simpleTipper.GenerateTip(data, None, False)
+                        returnMsg = self.getCompletionsMessage(comps)
+                    
+                    elif data.startswith(MSG_TOKEN_GLOBALS ):
+                        data = data.replace(MSG_TOKEN_GLOBALS, '')
+                        token, data = self.getTokenAndData(data)                
+                        comps = simpleTipper.GenerateTip(data, token, False)
+                        returnMsg = self.getCompletionsMessage(comps)
+        
+                    elif data.startswith(MSG_CLASS_GLOBALS ):
+                        data = data.replace(MSG_CLASS_GLOBALS, '')
+                        token, data = self.getTokenAndData(data)                
+                        comps = simpleTipper.GenerateTip(data, token, True)
+                        returnMsg = self.getCompletionsMessage(comps)
+                    
+                    elif data.startswith(MSG_CHANGE_DIR ):
+                        data = data.replace(MSG_CHANGE_DIR, '')
+                        simpleTipper.CompleteFromDir(data)
+                        returnMsg = MSG_OK
+                        
+                    elif data.startswith(MSG_REFACTOR):
+                        data = data.replace(MSG_REFACTOR, '')
+                        returnMsg = refactoring.HandleRefactorMessage(data)
+                        
+                    else:
+                        returnMsg = MSG_INVALID_REQUEST
+            finally:
+                keepAliveThread.lastMsg = returnMsg
             
         conn.close()
         self.ended = True
 
 if __name__ == '__main__':
+    #let's log this!!
+    out = open('c:/temp/pydev.log', 'w')
+    sys.stdout = out
+    sys.stderr = out
     
-    import sys
     thisPort = int(sys.argv[1])  #this is from where we want to receive messages.
     serverPort = int(sys.argv[2])#this is where we want to write messages.
     
     t = T(thisPort, serverPort)
+    print 'will start'
     t.start()
 

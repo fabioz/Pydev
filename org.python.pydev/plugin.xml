@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.5.9.4"
+   version="0.5.9.5a"
    provider-name="AleksTotic"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -255,6 +255,23 @@
             	  name="whitespaceGroup">
             </separator>
          </menu>
+         <menu
+               label="Refactoring"
+               id="org.python.pydev.refactoring">
+            <separator name="refactorings"/>
+         </menu>
+         <action
+               label="Extract Method"
+               class="org.python.pydev.editor.actions.refactoring.PyExtractMethod"
+               menubarPath="org.python.pydev.refactoring/refactorings"
+               id="org.python.pydev.refactoring.extractmethod">
+         </action>
+         <action
+               label="Rename"
+               class="org.python.pydev.editor.actions.refactoring.PyRename"
+               menubarPath="org.python.pydev.refactoring/refactorings"
+               id="org.python.pydev.refactoring.rename">
+         </action>
          <action
                label="Convert space-tabs to tabs"
                class="org.python.pydev.editor.actions.PyConvertSpaceToTab"
@@ -554,6 +571,24 @@
             command="org.python.pydev.editor.actions.pyShowOutline"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
+
+<!-- category: Refactor
+      <category
+            name="Refactor category"
+            description="Python refactor category"
+            id="org.python.pydev.ui.category.refactor"/>
+ command: Extract Method
+      <command
+            category="org.python.pydev.ui.category.refactor"
+            name="Python Extract Method"
+            id="org.python.pydev.refactor.extractmethod"/>
+      <keyBinding
+            string="Shift+Alt+M"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.refactor.extractmethod"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+-->
    </extension>
 <!-- file type extensions for the team (CVS) -->
    <extension

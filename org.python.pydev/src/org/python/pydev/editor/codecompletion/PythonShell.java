@@ -39,11 +39,10 @@ public class PythonShell {
             pytonShell.startIt();
         }
         return pytonShell;
-        
     }
 
     
-    public static final int BUFFER_SIZE = 1024 * 4;
+    public static final int BUFFER_SIZE = 1024 ;
     /**
      * Python server process.
      */
@@ -133,16 +132,26 @@ public class PythonShell {
                 endIt();
             process = Runtime.getRuntime().exec("python "+serverFile.getAbsolutePath()+" "+pWrite+" "+pRead);
             
-            sleepALittle();
-            
-            socketToWrite = new Socket("127.0.0.1",pWrite); //we should write in this port  
-            serverSocket = new ServerSocket(pRead);         //and read in this port 
-            socketToRead = serverSocket.accept();
+            boolean connected = false;
+            int attempts = 0;
+            while(!connected && attempts < 20){
+                attempts += 1;
+	            sleepALittle();            
+	            try {
+                    socketToWrite = new Socket("127.0.0.1",pWrite); //we should write in this port  
+                    serverSocket = new ServerSocket(pRead);         //and read in this port 
+                    socketToRead = serverSocket.accept();
+                    connected = true;
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
         } catch (IOException e) {
             
             if(process!=null){
                 process.destroy();
             }
+            process = null;
             e.printStackTrace();
             throw e;
         }
@@ -157,22 +166,46 @@ public class PythonShell {
         String str = "";
 
         int j = 0;
-        while(str.indexOf("END@@") == -1 && j != 100){
+        while(j != 100){
 	        byte[] b = new byte[PythonShell.BUFFER_SIZE];
 
+//            System.out.println("WILL READ");
             this.socketToRead.getInputStream().read(b);
-//            System.out.println("READ:"+new String(b));
+//            System.out.println("READ");
 
             String s = new String(b);
-            
+            if(s.indexOf("@@PROCESSING_END@@") != -1){ //each time we get a processing message, reset j to 0.
+                s = s.replaceAll("@@PROCESSING_END@@", "");
+                j = 0;
+//                System.out.println("Processing msg received.");
+            }
+            s = s.replaceAll((char)0+"",""); //python sends this char as payload.
+            System.out.println("RECEIVED:"+s);
             str += s;
-            j++;
+            
+            if(str.indexOf("END@@") != -1){
+//                System.out.println("WILL BREAK");
+                break;
+            }else{
+//                System.out.println("WILL SLEEP");
+                j++;
+                sleepALittle(10);
+            }
+            
         }
+//        System.out.println("OUT");
         
         //remove @@COMPLETIONS
         str = str.replaceFirst("@@COMPLETIONS","");
         //remove END@@
-        return str.substring(0, str.lastIndexOf("END@@"));
+        
+        try {
+            return str.substring(0, str.lastIndexOf("END@@"));
+        } catch (RuntimeException e) {
+            System.out.println("ERROR WIT STRING:"+str);
+            e.printStackTrace();
+            return "";
+        }
     }
     
 
@@ -181,7 +214,6 @@ public class PythonShell {
      * @throws IOException
      */
     public void write(String str) throws IOException {
-//        System.out.println("WRITING:"+str);
         this.socketToWrite.getOutputStream().write(str.getBytes());
     }
 
@@ -212,15 +244,17 @@ public class PythonShell {
      * Kill our sub-process.
      * @throws IOException
      */
-    void endIt() {
+    public void endIt() {
         
         try {
             closeConn();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         if (process!= null){
             try {
+                
+                process.getOutputStream().close();
                 int i = process.getErrorStream().available();
                 byte b[] = new byte[i];
                 process.getErrorStream().read(b);
@@ -228,7 +262,7 @@ public class PythonShell {
                 
                 i = process.getInputStream().available();
                 b = new byte[i];
-                process.getErrorStream().read(b);
+                process.getInputStream().read(b);
                 System.out.println(new String(b));
             } catch (Exception e1) {
                 e1.printStackTrace();
@@ -255,7 +289,6 @@ public class PythonShell {
             if(file.isDirectory() == false){
                 file = file.getParentFile();
             }
-            System.out.println("changing dir:"+file.getAbsolutePath());
             this.write("@@CHANGE_DIR:"+file.getAbsolutePath()+"END@@");
             String ok = this.read(); //this should be the ok message...
             
@@ -309,16 +342,28 @@ public class PythonShell {
         } catch (Exception e) {
             e.printStackTrace();
 
-            this.endIt();
-            try {
-                this.startIt();
-            } catch (IOException e2) {
-                e2.printStackTrace();
-            }
+            restartShell();
             return getInvalidCompletion();
         }
     }
     
+    /**
+     * 
+     */
+    public void restartShell() {
+        try {
+            this.endIt();
+        } catch (Exception e2) {
+            e2.printStackTrace();
+        }
+        try {
+            this.startIt();
+        } catch (IOException e2) {
+            e2.printStackTrace();
+        }
+    }
+
+
     /**
      * @return
      */

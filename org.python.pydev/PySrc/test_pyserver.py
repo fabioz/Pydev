@@ -33,7 +33,10 @@ class Test(unittest.TestCase):
         msg = t.formatCompletionMessage(l)
         self.assertEquals('@@COMPLETIONS((Def,description),(Def1,description1),(Def2,description2))END@@', msg)
 
-    def testSocketsAndMessages(self):
+    def createConnections(self):
+        '''
+        Creates the connections needed for testing.
+        '''
         t = pycompletionserver.T(50002,50003)
         
         t.start()
@@ -46,11 +49,28 @@ class Test(unittest.TestCase):
         sToRead.listen(1) #socket to receive messages.
 
         connToRead, addr = sToRead.accept()
+
+        return t, sToWrite, sToRead, connToRead, addr
+        
+#    def testRefactoring(self):
+#        t, sToWrite, sToRead, connToRead, addr = self.createConnections()
+#        self.
+
+    def readMsg(self):
+        msg = '@@PROCESSING_END@@'
+        while msg == '@@PROCESSING_END@@':
+            msg = self.connToRead.recv(1024*4)
+
+        return msg
+
+    def testSocketsAndMessages(self):
+        t, sToWrite, sToRead, self.connToRead, addr = self.createConnections()
         
         
         #now that we have the connections all set up, check the code completion messages.
         sToWrite.send('@@GLOBALS:import math\nEND@@') #only 1 global should be returned: math itself.
-        completions = connToRead.recv(1024)
+        completions = self.readMsg()
+        
         self.assertEquals('@@COMPLETIONS((math,This module is always available.  It provides access to the\n'\
                           'mathematical functions defined by the C standard.))END@@',
                           completions)
@@ -58,7 +78,7 @@ class Test(unittest.TestCase):
         
         #check token msg.
         sToWrite.send('@@TOKEN_GLOBALS(math):import math\nEND@@') 
-        completions = connToRead.recv(4086)
+        completions = self.readMsg()
 
         self.assert_('@@COMPLETIONS' in completions)
         self.assert_('END@@' in completions)
@@ -82,16 +102,16 @@ class C(object):
 '''     
 
         sToWrite.send('@@TOKEN_GLOBALS(C):%s\nEND@@'%s) 
-        completions = connToRead.recv(4086)
+        completions = self.readMsg()
 
         sToWrite.send('@@CLASS_GLOBALS(C):%s\nEND@@'%s) 
-        completions2 = connToRead.recv(4086)
+        completions2 = self.readMsg()
         self.assert_(len(completions) != len(completions2))
 
         
         #reload modules test
 #        sToWrite.send('@@RELOAD_MODULES_END@@')
-#        ok = connToRead.recv(4086)
+#        ok = self.readMsg()
 #        self.assertEquals('@@MSG_OK_END@@' , ok)
 #        this test is not executed because it breaks our current enviroment.
         
@@ -108,10 +128,10 @@ class C(object):
         
         self.assert_(newDir != None)
         sToWrite.send('@@CHANGE_DIR:%sEND@@'%newDir)
-        ok = connToRead.recv(4086)
+        ok = self.readMsg()
         self.assertEquals('@@MSG_OK_END@@' , ok)
         sToWrite.send('@@TOKEN_GLOBALS(math acos):import math\nEND@@') 
-        completions = connToRead.recv(4086)
+        completions = self.readMsg()
 
         self.sendKillMsg(sToWrite)
         

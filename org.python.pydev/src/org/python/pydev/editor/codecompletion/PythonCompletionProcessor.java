@@ -84,7 +84,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 	                    .length() - 1);
 	        }
         }else{ //everything is a part of the qualifier.
-            qualifier = activationToken;
+            qualifier = activationToken.trim();
             activationToken = "";
         }
 
@@ -152,7 +152,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      */
     private List getTemplateProposals(ITextViewer viewer, int documentOffset, String activationToken, java.lang.String qualifier, List allProposals) {
         List propList = new ArrayList();
-        if(activationToken.trim().equals("") == false){
+        if(activationToken.trim().equals("") == false || qualifier.trim().equals("") == false){
             //templates proposals are added here.
 	        this.templatesCompletion.addTemplateProposals(viewer, documentOffset,
 	                propList);
