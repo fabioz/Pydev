@@ -5,8 +5,10 @@
  */
 package org.python.pydev.editor.codecompletion;
 
+import java.io.File;
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
@@ -50,7 +52,12 @@ public class PyTemplateCompletion extends TemplateCompletionProcessor{
      * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getImage(org.eclipse.jface.text.templates.Template)
      */
     protected Image getImage(Template template) {
-        // TODO Auto-generated method stub
+        try {
+            File file = PyCodeCompletion.getImageWithinIcons("template.gif");
+            return new Image(null, file.getAbsolutePath());
+        } catch (CoreException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 

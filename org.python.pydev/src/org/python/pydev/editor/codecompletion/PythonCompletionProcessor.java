@@ -15,6 +15,7 @@ import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.editor.PyEdit;
 
 /**
  * @author Dmoore
@@ -30,6 +31,15 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
     private CompletionCache completionCache = new CompletionCache();
 
+    private PyEdit edit;
+
+    /**
+     * @param edit
+     */
+    public PythonCompletionProcessor(PyEdit edit) {
+        this.edit = edit;
+    }
+
     private boolean endsWithSomeChar(char cs[], String activationToken) {
         for (int i = 0; i < cs.length; i++) {
             if (activationToken.endsWith(cs[i] + "")) {
@@ -42,8 +52,9 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer,
             int documentOffset) {
-        List propList = new ArrayList();
+        
         IDocument doc = viewer.getDocument();
+        
 
         Point selectedRange = viewer.getSelectedRange();
         // there may not be a selected range
@@ -54,15 +65,22 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
                 documentOffset);
 
         java.lang.String qualifier = "";
-        char[] cs = getCompletionProposalAutoActivationCharacters();
+        char[] cs = new char[]{'.', '(', ' '}; 
+        
+        //we complete on '.' and '('. 
+        //' ' gets globals
+        //and any other char gets globals on token and templates.
 
-        while (endsWithSomeChar(cs, activationToken) == false
-                && activationToken.length() > 0) {
-
-            qualifier = activationToken.charAt(activationToken.length() - 1)
-                    + qualifier;
-            activationToken = activationToken.substring(0, activationToken
-                    .length() - 1);
+        //we have to get the qualifier. e.g. bla.foo = foo is the qualifier.
+        if(activationToken.indexOf('.')!= -1){
+	        while (endsWithSomeChar(cs, activationToken) == false
+	                && activationToken.length() > 0) {
+	
+	            qualifier = activationToken.charAt(activationToken.length() - 1)
+	                    + qualifier;
+	            activationToken = activationToken.substring(0, activationToken
+	                    .length() - 1);
+	        }
         }
 
         theDoc = codeCompletion.partialDocument(theDoc, documentOffset);
@@ -70,27 +88,62 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
         int qlen = qualifier.length();
         theDoc += "\n" + activationToken;
 
-        List allProposals = this.completionCache.getAllProposals(theDoc,
-                activationToken, documentOffset, qlen, codeCompletion);
+        List pythonProposals = getPythonProposals(documentOffset, doc, theDoc, activationToken, qlen);
 
-        //templates proposals are added here.
-        this.templatesCompletion.addTemplateProposals(viewer, documentOffset,
-                propList);
+        List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier, pythonProposals);
 
-        for (Iterator iter = allProposals.iterator(); iter.hasNext();) {
+        ArrayList pythonAndTemplateProposals = new ArrayList();
+        pythonAndTemplateProposals.addAll(pythonProposals);
+        pythonAndTemplateProposals.addAll(templateProposals);
+
+        ArrayList returnProposals = new ArrayList();
+        
+        for (Iterator iter = pythonAndTemplateProposals.iterator(); iter.hasNext();) {
             ICompletionProposal proposal = (ICompletionProposal) iter.next();
             if (proposal.getDisplayString().startsWith(qualifier)) {
-                propList.add(proposal);
+                returnProposals.add(proposal);
             }
         }
 
-        ICompletionProposal[] proposals = new ICompletionProposal[propList
-                .size()];
+        ICompletionProposal[] proposals = new ICompletionProposal[returnProposals.size()];
+
         // and fill with list elements
-        propList.toArray(proposals);
+        returnProposals.toArray(proposals);
         // Return the proposals
         return proposals;
 
+    }
+
+    /**
+     * @param documentOffset
+     * @param doc
+     * @param theDoc
+     * @param activationToken
+     * @param qlen
+     * @return
+     */
+    private List getPythonProposals(int documentOffset, IDocument doc, java.lang.String theDoc, String activationToken, int qlen) {
+        List allProposals = this.completionCache.getAllProposals(edit, doc, theDoc,
+                activationToken, documentOffset, qlen, codeCompletion);
+        return allProposals;
+    }
+
+    /**
+     * @param viewer
+     * @param documentOffset
+     * @param activationToken
+     * @param qualifier
+     * @param allProposals
+     */
+    private List getTemplateProposals(ITextViewer viewer, int documentOffset, String activationToken, java.lang.String qualifier, List allProposals) {
+        List propList = new ArrayList();
+        if(activationToken.trim().equals("") == false){
+            //templates proposals are added here.
+	        this.templatesCompletion.addTemplateProposals(viewer, documentOffset,
+	                propList);
+	
+        }
+        return propList;
     }
 
     /*

@@ -98,7 +98,7 @@ public class PyEdit extends PyEditProjection {
 		if (getDocumentProvider() == null) {
 			setDocumentProvider(new PyDocumentProvider());
 		}
-		editConfiguration = new PyEditConfiguration(colorCache);
+		editConfiguration = new PyEditConfiguration(colorCache,this);
 		setSourceViewerConfiguration(editConfiguration);
 		indentStrategy = (PyAutoIndentStrategy)editConfiguration.getAutoIndentStrategy(null, IDocument.DEFAULT_CONTENT_TYPE);
 		setRangeIndicator(new DefaultRangeIndicator()); // enables standard vertical ruler

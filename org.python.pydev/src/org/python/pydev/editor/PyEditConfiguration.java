@@ -62,9 +62,11 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 	private PyAutoIndentStrategy autoIndentStrategy;
 //	private ColorManager colorManager;
 	private String[] indentPrefixes = { "    ", "\t", ""};
+	private PyEdit edit;
 	
-	public PyEditConfiguration(ColorCache colorManager) {
+	public PyEditConfiguration(ColorCache colorManager, PyEdit edit) {
 		colorCache = colorManager;
+		this.setEdit(edit);
 	}
 
 	public IUndoManager getUndoManager(ISourceViewer sourceViewer) {
@@ -290,7 +292,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		ContentAssistant assistant = new PyContentAssistant();
 		
 		// next create a content assistant processor to populate the completions window
-		IContentAssistProcessor processor = new PythonCompletionProcessor();
+		IContentAssistProcessor processor = new PythonCompletionProcessor(this.getEdit());
 		
 		// No code completion in strings
 		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_SINGLELINE_STRING );
@@ -357,6 +359,20 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 			}
 		};
 	}
+
+    /**
+     * @param edit The edit to set.
+     */
+    private void setEdit(PyEdit edit) {
+        this.edit = edit;
+    }
+
+    /**
+     * @return Returns the edit.
+     */
+    private PyEdit getEdit() {
+        return edit;
+    }
 
 
 

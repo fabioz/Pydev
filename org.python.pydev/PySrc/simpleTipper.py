@@ -36,17 +36,22 @@ for d in dir(%s):
     __eraseThisTips.append([d,inspect.getdoc(getattr(%s, d))])
 ''' % (token,token)
     
-        
+    
     
     import simpleinspect
     import compiler
-    __eraseThis = compiler.compile(theDoc, 'temporary', 'exec')
-
-    simpleinspect.__eraseThisTips = []
-    simpleinspect.GenerateTip (__eraseThis)
-    toReturn = simpleinspect.__eraseThisTips
-    simpleinspect.__eraseThisTips = []
-    return toReturn
+    try:
+        __eraseThis = compiler.compile(theDoc, 'temporary', 'exec')
+    
+        simpleinspect.__eraseThisTips = []
+        simpleinspect.GenerateTip (__eraseThis)
+        toReturn = simpleinspect.__eraseThisTips
+        simpleinspect.__eraseThisTips = []
+        return toReturn
+    except :
+        import sys
+        s = str(sys.exc_info()[1])
+        return [('ERROR_COMPLETING',s)]
     
 
     

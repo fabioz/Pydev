@@ -45,7 +45,6 @@ class Test(unittest.TestCase):
         sToRead.listen(1) #socket to receive messages.
 
         connToRead, addr = sToRead.accept()
-#        print 'test connected addr', addr
         
         
         #now that we have the connections all set up, check the code completion messages.
@@ -63,7 +62,27 @@ class Test(unittest.TestCase):
         self.assert_('@@COMPLETIONS' in completions)
         self.assert_('END@@' in completions)
 
-        
+        s = \
+'''
+class C(object):          
+                           
+    def __init__(self):           
+                          
+        print dir(self)       
+                             
+    def a(self):                
+        pass                             
+                                 
+                                
+    def b(self):                   
+        self.a                    
+                                
+        pass            
+'''     
+
+        sToWrite.send('@@TOKEN_GLOBALS(C):%s\nEND@@'%s) 
+        completions = connToRead.recv(4086)
+
         self.sendKillMsg(sToWrite)
         
 

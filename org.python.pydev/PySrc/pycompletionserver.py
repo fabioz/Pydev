@@ -33,7 +33,9 @@ class T(threading.Thread):
         s.connect((HOST, self.serverPort))
 
     def removeInvalidChars(self, msg):
-        return msg.replace(',','').replace('(','').replace(')','')
+        if msg:
+            return msg.replace(',','').replace('(','').replace(')','')
+        return ' '
     
     def formatCompletionMessage(self, completionsList):
         '''

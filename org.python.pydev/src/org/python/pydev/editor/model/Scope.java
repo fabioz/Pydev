@@ -74,9 +74,9 @@ public class Scope {
 
 	
 	void addFunctionDefinition(FunctionNode newDef) {
-		if (functions == null)
-			functions = new ArrayList();
-		functions.add(newDef);
+		if (getFunctions() == null)
+			setFunctions(new ArrayList());
+		getFunctions().add(newDef);
 	}
 	
 	public Location getStart() {
@@ -190,5 +190,19 @@ public class Scope {
 		else
 			return parent != null ? parent.findContainingClass() : null; 
 	}
+
+    /**
+     * @param functions The functions to set.
+     */
+    public void setFunctions(ArrayList functions) {
+        this.functions = functions;
+    }
+
+    /**
+     * @return Returns the functions.
+     */
+    public ArrayList getFunctions() {
+        return functions;
+    }
 
 }
