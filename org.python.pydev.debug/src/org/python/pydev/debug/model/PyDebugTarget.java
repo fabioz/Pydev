@@ -281,7 +281,10 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 				return null;
 		} else if (adapter.equals(IPropertySource.class))
 			return launch.getAdapter(adapter);
-		else if (adapter.equals(ITaskListResourceAdapter.class))
+		else if (adapter.equals(ITaskListResourceAdapter.class) 
+				|| adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class) 
+				|| adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class) 
+				)
 			return  super.getAdapter(adapter);
 		System.err.println("Need adapter " + adapter.toString());
 		return super.getAdapter(adapter);

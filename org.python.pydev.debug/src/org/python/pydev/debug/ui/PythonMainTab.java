@@ -22,6 +22,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.python.pydev.debug.core.*;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.InterpreterEditor;
 
@@ -155,7 +156,7 @@ public class PythonMainTab extends AbstractLaunchConfigurationTab {
 			ImageDescriptor desc;
 			try {
 				URL url = new URL(
-						PydevDebugPlugin.getDefault().getDescriptor().getInstallURL(),
+						PydevPlugin.getDefault().getBundle().getEntry("/"),
 						Constants.MAIN_ICON);
 				desc = ImageDescriptor.createFromURL(url);
 			} catch (MalformedURLException e) {
@@ -176,13 +177,12 @@ public class PythonMainTab extends AbstractLaunchConfigurationTab {
 	/** The original AbstractLaunchConfigurationTab does
 	 * refresh in reverse (updateMessage, then buttons)
 	 * This does not work well (Message uses ol
-	 * E3 fixes this problem
 	 */	
 	protected void updateLaunchConfigurationDialog() {
 		if (getLaunchConfigurationDialog() != null) {
 			getLaunchConfigurationDialog().updateButtons();
 			getLaunchConfigurationDialog().updateMessage();
-			getLaunchConfigurationDialog().updateButtons();
+//			getLaunchConfigurationDialog().updateButtons();
 		}
 	}
 

@@ -15,9 +15,6 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.ui.IWindowListener;
-import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsUtil;
-// import org.eclipse.ui.externaltools.internal.program.launchConfigurations.BackgroundResourceRefresher;
-import org.eclipse.ui.externaltools.internal.variable.ExpandVariableContext;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
@@ -46,8 +43,7 @@ public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDe
 			monitor = new NullProgressMonitor();
 		monitor.beginTask("Preparing configuration", 3);
 
-		ExpandVariableContext resourceContext = ExternalToolsUtil.getVariableContext();
-		PythonRunnerConfig runConfig = new PythonRunnerConfig(conf, mode, resourceContext);
+		PythonRunnerConfig runConfig = new PythonRunnerConfig(conf, mode);
 		PythonRunner runner = new PythonRunner();
 		
 		monitor.worked(1);
@@ -61,19 +57,21 @@ public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDe
 //		cur.setContextClassLoader(getClass().getClassLoader());
 //		try {
 //			PythonDebugClient test = new PythonDebugClient();
-//			test.init("localhost", 29000, -1, null, null, null);			  // do whatever needs the contextClassLoader
+//			test.init("localhost", 29000, -1, null, null, null); // do whatever needs the
+// contextClassLoader
 //		} catch (PythonDebugException e1) {
 //			DebugPlugin.log(e1);
 //		} finally {
 //		  cur.setContextClassLoader(save);
-//		}			
-// E3		if (CommonTab.isLaunchInBackground(conf)) {
-// E3		// refresh resources after process finishes
-// E3		if (RefreshTab.getRefreshScope(conf) != null) {
-// E3			BackgroundResourceRefresher refresher = new BackgroundResourceRefresher(conf, process);
-// E3			refresher.startBackgroundRefresh();
-// E3		}				
-// refresh resources
-// E3			RefreshTab.refreshResources(conf, monitor);
+//		}
+//		if (CommonTab.isLaunchInBackground(conf)) {
+//		// refresh resources after process finishes
+//			if (RefreshTab.getRefreshScope(conf) != null) {
+//				BackgroundResourceRefresher refresher = new BackgroundResourceRefresher(conf, process);
+//				refresher.startBackgroundRefresh();
+//			}
+//			// refresh resources
+//			RefreshTab.refreshResources(conf, monitor);
+//		}
 	}
 }

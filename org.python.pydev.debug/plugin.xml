@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
 <plugin
 	id="org.python.pydev.debug"
 	name="Pydev debug"
-	version="0.4.1"
+	version="0.5"
 	provider-name="Aleks Totic"
 	class="org.python.pydev.debug.core.PydevDebugPlugin">
 
@@ -21,7 +22,9 @@
 		<import plugin="org.eclipse.debug.core"/>
 		<import plugin="org.eclipse.debug.ui"/>
 		<import plugin="org.python.pydev"/>
-		<import plugin="org.apache.xerces"/>
+  <import plugin="org.eclipse.ui.workbench.texteditor"/>
+  <import plugin="org.eclipse.ui.ide"/>
+  <import plugin="org.eclipse.core.variables"/>
 	</requires>
 
 
@@ -191,7 +194,7 @@
 	/>
 </extension>
 <extension
-	point="org.eclipse.ui.markerImageProviders">
+	point="org.eclipse.ui.ide.markerImageProviders">
 	<imageprovider id="pythonBreakPointImage"
 		markertype="org.python.pydev.debug.pyStopBreakpointMarker"
 		icon="icons/breakmarker.gif"/>

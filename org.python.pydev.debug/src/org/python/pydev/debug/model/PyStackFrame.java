@@ -201,8 +201,11 @@ public class PyStackFrame extends PlatformObject implements IStackFrame {
 			return thread.getAdapter(adapter);
 		else if (adapter.equals(ITaskListResourceAdapter.class))
 			return null;
-		else if (adapter.equals(IPropertySource.class) || 
-			adapter.equals(ITaskListResourceAdapter.class))
+		else if (adapter.equals(IPropertySource.class) 
+			|| adapter.equals(ITaskListResourceAdapter.class)
+			|| adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class)
+			|| adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)
+			)
 			return  super.getAdapter(adapter);
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
 		System.err.println("PyStackFrame Need adapter " + adapter.toString());

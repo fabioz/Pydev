@@ -7,6 +7,7 @@ import org.eclipse.ui.plugin.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.osgi.framework.BundleContext;
 import org.python.pydev.ui.ImageCache;
 /**
  * The main plugin for Python Debugger.
@@ -19,10 +20,13 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
 	
 	public ImageCache imageCache;
 	
-	public PydevDebugPlugin(IPluginDescriptor descriptor) {
-		super(descriptor);
+	public PydevDebugPlugin() {
 		plugin = this;
-		imageCache = new ImageCache(getDescriptor().getInstallURL());
+	}
+
+	public void start(BundleContext context) throws Exception {
+		super.start(context);
+		imageCache = new ImageCache(PydevDebugPlugin.getDefault().getBundle().getEntry("/"));		
 	}
 
 	public static PydevDebugPlugin getDefault() {
@@ -30,7 +34,7 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
 	}
 	
 	public static String getPluginID() {
-		return getDefault().getDescriptor().getUniqueIdentifier();
+		return getDefault().getBundle().getSymbolicName();
 	}
 	
 	public static IWorkspace getWorkspace() {

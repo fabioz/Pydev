@@ -6,6 +6,7 @@
 package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Vector;
 
@@ -13,10 +14,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsUtil;
-import org.eclipse.ui.externaltools.internal.variable.ExpandVariableContext;
+import org.osgi.framework.Bundle;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
@@ -37,23 +40,23 @@ public class PythonRunnerConfig {
 	private int debugPort = 0;  // use getDebugPort
 	public String debugScript;
 	public int acceptTimeout = 5000; // miliseconds
+	public String[] envp = null;
 
 	/**
 	 * Sets defaults.
 	 */
 
-	public PythonRunnerConfig(ILaunchConfiguration conf, String mode, ExpandVariableContext resourceContext) throws CoreException {
+	public PythonRunnerConfig(ILaunchConfiguration conf, String mode) throws CoreException {
 		isDebug = mode.equals(ILaunchManager.DEBUG_MODE);
-		file = ExternalToolsUtil.getLocation(conf, resourceContext);
+		file = ExternalToolsUtil.getLocation(conf);
 		interpreter = conf.getAttribute(Constants.ATTR_INTERPRETER, "python");
-		arguments = ExternalToolsUtil.getArguments(conf, resourceContext);
-		IPath workingPath = ExternalToolsUtil.getWorkingDirectory(conf, resourceContext);
+		arguments = ExternalToolsUtil.getArguments(conf);
+		IPath workingPath = ExternalToolsUtil.getWorkingDirectory(conf);
 		workingDirectory = workingPath == null ? null : workingPath.toFile();
 		if (isDebug) {
 			debugScript = getDebugScript();
 		}
-		// E3		String[] envp = DebugPlugin.getDefault().getLaunchManager().getEnvironment(conf);
-
+		envp = DebugPlugin.getDefault().getLaunchManager().getEnvironment(conf);
 	}
 	
 	public int getDebugPort() throws CoreException {
@@ -91,10 +94,19 @@ public class PythonRunnerConfig {
 		IPath relative = new Path("pysrc").addTrailingSeparator().append("pydevd.py");
 //		IPath relative = new Path("pysrc").addTrailingSeparator().append("jpydaemon.py");
 //		IPath relative = new Path("pysrc").addTrailingSeparator().append("rpdb.py");
-		URL location = org.python.pydev.debug.core.PydevDebugPlugin.getDefault().find(relative);
-		if (location == null)
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Internal pydev error: Cannot find pydevd.py", null));
-		return location.getPath();
+		Bundle bundle = PydevDebugPlugin.getDefault().getBundle();
+		URL bundleURL = Platform.find( bundle, relative);
+		URL fileURL;
+		try {
+			fileURL = Platform.resolve( bundleURL);
+			String fixmePath = fileURL.getPath(); // this gets you /D:/eclipse3/workspace/org.python.pydev.debug/pysrc/pydevd.py
+			if (fixmePath.charAt(2) == ':')	// Windows path, fix remove the front slash
+				fixmePath = fixmePath.substring(1);
+			IPath fullPath = new Path(fixmePath);
+			return fullPath.toOSString();
+		} catch (IOException e) {
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Can't find python debug script", null));
+		}
 	}
 
 	/**
