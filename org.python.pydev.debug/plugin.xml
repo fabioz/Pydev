@@ -1,160 +1,193 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin
-   id="org.python.pydev.debug"
-   name="Pydev debug"
-   version="0.4.0"
-   provider-name="Aleks Totic"
-   class="org.python.pydev.debug.core.PydevDebugPlugin">
+	id="org.python.pydev.debug"
+	name="Pydev debug"
+	version="0.4.0"
+	provider-name="Aleks Totic"
+	class="org.python.pydev.debug.core.PydevDebugPlugin">
 
-   <runtime>
-      <library name="pydev-debug.jar"/>
-   </runtime>
-   <requires>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.core.boot"/>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.ui.externaltools"/>
-      <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.eclipse.jface.text"/>
-      <import plugin="org.eclipse.debug.core"/>
-      <import plugin="org.eclipse.debug.ui"/>
-      <import plugin="org.python.pydev"/>
-      <import plugin="org.apache.xerces"/>
-   </requires>
+	<runtime>
+		<library name="pydev-debug.jar"/>
+	</runtime>
+	<requires>
+		<import plugin="org.eclipse.core.resources"/>
+		<import plugin="org.eclipse.core.runtime"/>
+		<import plugin="org.eclipse.core.boot"/>
+		<import plugin="org.eclipse.ui"/>
+		<import plugin="org.eclipse.ui.editors"/>
+		<import plugin="org.eclipse.ui.externaltools"/>
+		<import plugin="org.eclipse.ui.views"/>
+		<import plugin="org.eclipse.jface.text"/>
+		<import plugin="org.eclipse.debug.core"/>
+		<import plugin="org.eclipse.debug.ui"/>
+		<import plugin="org.python.pydev"/>
+		<import plugin="org.apache.xerces"/>
+	</requires>
 
 
 <!--- launcher -->
-   <extension
-         point="org.eclipse.debug.core.launchConfigurationTypes">
-      <launchConfigurationType
-            name="Python"
-            delegate="org.python.pydev.debug.ui.launching.PythonLaunchConfigurationDelegate"
-            modes="run, debug"
-            id="org.python.pydev.debug.launchConfigurationType">
-      </launchConfigurationType>
-   </extension>
+	<extension
+		point="org.eclipse.debug.core.launchConfigurationTypes">
+		<launchConfigurationType
+			name="Python"
+			delegate="org.python.pydev.debug.ui.launching.PythonLaunchConfigurationDelegate"
+			modes="run, debug"
+			id="org.python.pydev.debug.launchConfigurationType">
+		</launchConfigurationType>
+	</extension>
 <!--- the launcher icon -->
-   <extension
-         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
-      <launchConfigurationTypeImage
-            icon="icons/python.gif"
-            configTypeID="org.python.pydev.debug.launchConfigurationType"
-            id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
-      </launchConfigurationTypeImage>
-   </extension>
+	<extension
+		point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+		<launchConfigurationTypeImage
+			icon="icons/python.gif"
+			configTypeID="org.python.pydev.debug.launchConfigurationType"
+			id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
+		</launchConfigurationTypeImage>
+	</extension>
 <!--- launcher tab group -->
-   <extension
-         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
-      <launchConfigurationTabGroup
-            type="org.python.pydev.debug.launchConfigurationType"
-            class="org.python.pydev.debug.ui.PythonTabGroup"
-            id="org.python.pydev.debug.ui.PythonTabGroup">
-      </launchConfigurationTabGroup>
-   </extension>
+	<extension
+			point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+		<launchConfigurationTabGroup
+			type="org.python.pydev.debug.launchConfigurationType"
+			class="org.python.pydev.debug.ui.PythonTabGroup"
+			id="org.python.pydev.debug.ui.PythonTabGroup">
+		</launchConfigurationTabGroup>
+	</extension>
 <!--- launch shortcuts -->
-   <extension
-         point="org.eclipse.debug.ui.launchShortcuts">
-      <shortcut
-            label="Python script"
-            icon="icons/python.gif"
-            modes="run, debug"
-            class="org.python.pydev.debug.launching.LaunchShortcut"
-            id="org.python.pydev.debug.launchShortcut">
-         <perspective
-               id="org.eclipse.debug.ui.DebugPerspective">
-         </perspective>
-      </shortcut>
-   </extension>
+	<extension
+			point="org.eclipse.debug.ui.launchShortcuts">
+		<shortcut
+			label="Python script"
+			icon="icons/python.gif"
+			modes="run, debug"
+			class="org.python.pydev.debug.launching.LaunchShortcut"
+			id="org.python.pydev.debug.launchShortcut">
+			<perspective id="org.eclipse.debug.ui.DebugPerspective"/>
+		</shortcut>
+	</extension>
 <!--- launcher pop up over a python file -->
-   <extension
-         point="org.eclipse.ui.popupMenus">
-      <objectContribution
-            objectClass="org.eclipse.core.resources.IFile"
-            adaptable="true"
-            nameFilter="*.py"
-            id="org.python.pydev.debug.RunPython">
-         <menu
-               label="Python"
-               path="additions"
-               id="org.python.pydev.debug.WorkspaceMenu">
-            <separator
-                  name="group1">
-            </separator>
-         </menu>
-         <action
-               label="Debug..."
-               icon="icons/python.gif"
-               tooltip="Debug python script"
-               class="org.python.pydev.debug.ui.launching.PythonRunActionDelegate"
-               menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
-               enablesFor="1"
-               id="org.python.pydev.debug.DebugPythonAction">
-         </action>
-         <action
-               label="Run..."
-               icon="icons/python.gif"
-               tooltip="Run a python script"
-               class="org.python.pydev.debug.ui.launching.PythonRunActionDelegate"
-               menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
-               enablesFor="1"
-               id="org.python.pydev.debug.RunPythonAction">
-         </action>
-      </objectContribution>
-   </extension>
+	<extension
+			point="org.eclipse.ui.popupMenus">
+		<objectContribution
+			objectClass="org.eclipse.core.resources.IFile"
+			adaptable="true"
+			nameFilter="*.py"
+			id="org.python.pydev.debug.RunPython">
+			<menu
+				label="Python"
+				path="additions"
+				id="org.python.pydev.debug.WorkspaceMenu">
+				<separator name="group1"/>
+			</menu>
+			<action
+				label="Debug..."
+				icon="icons/python.gif"
+				tooltip="Debug python script"
+				class="org.python.pydev.debug.ui.launching.PythonRunActionDelegate"
+				menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
+				enablesFor="1"
+				id="org.python.pydev.debug.DebugPythonAction">
+			</action>
+			<action
+				label="Run..."
+				icon="icons/python.gif"
+				tooltip="Run a python script"
+				class="org.python.pydev.debug.ui.launching.PythonRunActionDelegate"
+				menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
+				enablesFor="1"
+				id="org.python.pydev.debug.RunPythonAction">
+			</action>
+		</objectContribution>
+	</extension>
 <!--- launch groups for python -->
-   <extension
-         point="org.eclipse.debug.ui.launchGroups">
-      <launchGroup
-            label="Debug"
-            bannerImage="icons/python-big.gif"
-            category="org.python.pydev.debug"
-            image="icons/python.gif"
-            mode="debug"
-            id="org.python.pydev.debug.debug">
-      </launchGroup>
-      <launchGroup
-            label="Run"
-            bannerImage="icons/python-big.gif"
-            category="org.python.pydev.debug"
-            image="icons/python.gif"
-            mode="run"
-            id="org.python.pydev.debug.run">
-      </launchGroup>
-   </extension>
+	<extension
+		point="org.eclipse.debug.ui.launchGroups">
+		<launchGroup
+			label="Debug"
+			bannerImage="icons/python-big.gif"
+			category="org.python.pydev.debug"
+			image="icons/python.gif"
+			mode="debug"
+			id="org.python.pydev.debug.debug">
+		</launchGroup>
+		<launchGroup
+			label="Run"
+			bannerImage="icons/python-big.gif"
+			category="org.python.pydev.debug"
+			image="icons/python.gif"
+			mode="run"
+			id="org.python.pydev.debug.run">
+		</launchGroup>
+	</extension>
 <!--- console line tracking -->
-   <extension
-         point="org.eclipse.debug.ui.consoleLineTrackers">
-      <consoleLineTracker
-            class="org.python.pydev.debug.ui.PythonConsoleLineTracker"
-            processType="PYDEV.PYTHON"
-            id="org.python.pydev.debug.ui.PythonConsoleLineTracker">
-      </consoleLineTracker>
-   </extension>
-<!--- TODO just a placeholder for now -->
-<!--- breakpoint marker -->
-   <extension
-         id="pyBreakpointMarker"
-         point="org.eclipse.core.resources.markers">
-      <super
-            type="org.eclipse.debug.core.breakpointMarker">
-      </super>
-      <persistent
-            value="true">
-      </persistent>
-      <attribute
-            name="org.eclipse.cdt.debug.core.condition">
-      </attribute>
-      <attribute
-            name="org.eclipse.cdt.debug.core.ignoreCount">
-      </attribute>
-      <attribute
-            name="org.eclipse.cdt.debug.core.threadId">
-      </attribute>
-      <attribute
-            name="org.eclipse.cdt.debug.core.installCount">
-      </attribute>
-   </extension>
+	<extension 
+		point="org.eclipse.debug.ui.consoleLineTrackers">
+		<consoleLineTracker
+			class="org.python.pydev.debug.ui.PythonConsoleLineTracker"
+			processType="PYDEV.PYTHON"
+			id="org.python.pydev.debug.ui.PythonConsoleLineTracker">
+		</consoleLineTracker>
+	</extension>
 
+<!-- breakpoint ruler action -->
+<extension point="org.eclipse.ui.editorActions">
+	<editorContribution
+		id="org.python.pydev.debug.BreakpointRulerActions"
+		targetID="org.python.pydev.editor.PyEdit">
+		<action
+			id="org.python.pydev.debug.BreakpointRulerAction"
+			actionID="RulerDoubleClick"
+			label="Add breakpoint"
+			class="org.python.pydev.debug.ui.ManageBreakpointRulerActionDelegate">
+		</action>
+	</editorContribution>	
+</extension>
+
+<!-- breakpoint popup menu -->
+<!-- <extension point="org.eclipse.ui.popupMenus">
+	<viewerContribution 
+    	id="org.python.pydev.debug.PyEditPopupActions" 
+    	targetID="#ClassFileRulerContext">
+    	<action
+			id="org.eclipse.jdt.ui.actions.JavaBreakpointPropertiesRulerActionDelegate"
+			label="%JavaBreakpointProperties.label"
+			menubarPath="debug"
+			helpContextId="breakpoint_properties_action_context"
+			class="org.eclipse.jdt.internal.debug.ui.actions.JavaBreakpointPropertiesRulerActionDelegate">
+		</action>
+    	<action
+			id="org.eclipse.jdt.ui.actions.EnableDisableBreakpointRulerActionDelegate"
+			label="%EnableBreakpoint.label"
+			menubarPath="debug"
+			helpContextId="enable_disable_breakpoint_action_context"
+			class="org.eclipse.jdt.internal.debug.ui.actions.EnableDisableBreakpointRulerActionDelegate">
+		</action>
+		<action
+			id="org.eclipse.jdt.ui.actions.ManageBreakpointRulerActionDelegate"
+			label="%AddBreakpoint.label"
+			menubarPath="debug"
+			helpContextId="manage_breakpoint_action_context"
+			class="org.eclipse.jdt.internal.debug.ui.actions.ManageBreakpointRulerActionDelegate">
+		</action>
+	</viewerContribution>
+<extension>
+-->
+<!--- breakpoint marker -->
+	<extension 
+		point="org.eclipse.core.resources.markers"
+		id="pyStopBreakpointMarker">			
+		<super type="org.eclipse.debug.core.breakpointMarker"/>
+		<persistent value="true"/>
+		<attribute name="org.eclipse.cdt.debug.core.condition"/>
+		<attribute name="org.eclipse.cdt.debug.core.ignoreCount"/>
+		<attribute name="org.eclipse.cdt.debug.core.threadId"/>
+		<attribute name="org.eclipse.cdt.debug.core.installCount"/>
+	</extension>
+	<extension
+		point="org.eclipse.debug.core.breakpoints">
+		<breakpoint id="pythonStopBreakpoint"
+			markerType="pyStopBreakpointMarker"
+			class="org.python.pydev.debug.core.breakpoints.PyStopBreakpoint"
+		/>
+	</extension>
 </plugin>
