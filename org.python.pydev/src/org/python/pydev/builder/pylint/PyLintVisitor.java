@@ -360,5 +360,11 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         }
         return true;
     }
+    /**
+     * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
+     */
+    public boolean visitRemovedResource(IResource resource, IDocument document) {
+        return false;
+    }
 
 }

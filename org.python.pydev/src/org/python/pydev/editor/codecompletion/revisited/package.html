@@ -1,4 +1,10 @@
 This is the new code completion.
 
 It is almost completely java-powered (except for the need to get completion tips on dlls from cpython).
-Its target will be a 1.5 version.
+
+The main class here is based on the IASTManager.
+Its purpose is to manage the modules and completions based on the AST (if source file) or other methods (if compiled module).
+
+All should be delta based. This is:
+- We set the pythonpath and it gets all modules, but loads None.
+- When a module is requested, we start a process to get its AST or compleitons if it is compiled.

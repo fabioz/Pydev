@@ -108,5 +108,13 @@ public abstract class AbstractModule implements Serializable{
     public static AbstractModule createModule(SimpleNode n) {
         return new SourceModule(null, null, n);
     }
+    /**
+     * @param m
+     * @param f
+     * @return
+     */
+    public static AbstractModule createEmptyModule(String m, File f) {
+        return new EmptyModule(m, f);
+    }
 
 }

@@ -15,7 +15,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.Location;
@@ -80,7 +80,7 @@ public class PyCodeCompletion {
         if(pythonNature == null){
             throw new RuntimeException("Unable to get python nature.");
         }
-        ASTManager astManager = pythonNature.getAstManager();
+        IASTManager astManager = pythonNature.getAstManager();
         if(astManager == null){ //we're probably still loading it.
             return new ArrayList();
         }
@@ -99,6 +99,8 @@ public class PyCodeCompletion {
         
         String importsTipper = getImportsTipperStr(theActivationToken, edit, doc, documentOffset);
         
+        int line = doc.getLineOfOffset(documentOffset);
+        IRegion region = doc.getLineInformation(line);
         
         //code completion in imports 
         if (importsTipper.length()!=0) { 
@@ -113,9 +115,6 @@ public class PyCodeCompletion {
             theList.addAll(Arrays.asList(imports));
         
 
-//            completions = serverShell.getImportCompletions(importsTipper);
-
-            
             
         //code completion for a token
         } else if (trimmed.equals("") == false
@@ -137,18 +136,21 @@ public class PyCodeCompletion {
 //                            .getClassCompletions(token, docToParse);
                 }
             } else {
+                if(theActivationToken.endsWith(".")){
+                    theActivationToken = theActivationToken.substring(0, theActivationToken.length()-1);
+                }
+	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" );
 //                completions = serverShell.getTokenCompletions(trimmed,
 //                        docToParse);
+	            theList.addAll(Arrays.asList(comps));
             }
             theList.addAll(completions);
         
         } else { //go to globals
             List completions = new ArrayList();
             System.out.println("Globals - "+theActivationToken);
-            int line = doc.getLineOfOffset(documentOffset);
-            IRegion region = doc.getLineInformation(line);
             
-            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), line, documentOffset - region.getOffset(), theActivationToken, "" );
+            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" );
 
             theList.addAll(Arrays.asList(comps));
 //            completions = serverShell.getGlobalCompletions(docToParse);

@@ -6,6 +6,8 @@ package org.python.pydev.editor.codecompletion;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -157,7 +159,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             
             //FOURTH: Now, we have all the proposals, only thing is deciding wich ones are valid (depending on
             //qualifier) and sorting them correctly.
-            ArrayList returnProposals = new ArrayList();
+            Collection returnProposals = new HashSet();
             String lowerCaseQualifier = qualifier.toLowerCase();
             
             for (Iterator iter = pythonAndTemplateProposals.iterator(); iter.hasNext();) {

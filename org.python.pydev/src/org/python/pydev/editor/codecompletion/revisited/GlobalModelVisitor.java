@@ -181,7 +181,8 @@ public class GlobalModelVisitor extends VisitorBase {
                     if(node.names[i].asname != null){
                         name = node.names[i].asname;
                     }
-	                this.tokens.add(new SourceToken(node, name, "", moduleName));
+                    
+	                this.tokens.add(new SourceToken(node, name, "", node.module));
                 }
             }
         }

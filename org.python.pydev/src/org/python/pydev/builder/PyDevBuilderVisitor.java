@@ -47,7 +47,7 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 					    visitResource(resource, PyDevBuilder.getDocFromResource(resource));
 						break;
 					case IResourceDelta.REMOVED:
-						// TODO: if removed, we have to get it out of code completion.
+					    visitRemovedResource(resource, PyDevBuilder.getDocFromResource(resource));
 						break;
 				}
 			}
@@ -59,6 +59,11 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
      * @param resource to be visited.
      */
     public abstract boolean visitResource(IResource resource, IDocument document);
+
+    /**
+     * @param resource to be visited.
+     */
+    public abstract boolean visitRemovedResource(IResource resource, IDocument document);
 
 
     /**

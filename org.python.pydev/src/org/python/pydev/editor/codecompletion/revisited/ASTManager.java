@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -23,13 +22,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.parser.SimpleNode;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PythonNature;
-import org.python.pydev.utils.JobProgressComunicator;
 
 /**
  * This structure should be in memory, so that it acts very quickly.
@@ -39,26 +39,41 @@ import org.python.pydev.utils.JobProgressComunicator;
  * 
  * The ast manager is a part of the python nature (as a field).
  * 
- * TODO: OK, saving is a one step and then on demand, but we could do lazy evaluation so that we don't have too 
- * much time to start using the plugin... (just load module names and do the rest as requested).
- * 
  * @author Fabio Zadrozny
  */
-public class ASTManager implements Serializable {
+public class ASTManager implements Serializable, IASTManager {
 
     /**
      * Modules that we have in memory. This is persisted when saved.
      * 
      * Keys are strings with the name of the module. Values are AbstractModule objects.
      */
-    private Map modules = new HashMap();
+    Map modules = new HashMap();
 
     /**
      * Helper for using the pythonpath. Also persisted.
      */
-    private PythonPathHelper pythonPathHelper = new PythonPathHelper();
+    PythonPathHelper pythonPathHelper = new PythonPathHelper();
 
-    //----------------------- SAVE
+    
+    
+    
+    
+    //----------------------- AUXILIARIES
+
+    /**
+     * Returns the directory that should store completions.
+     * 
+     * @param p
+     * @return
+     */
+    static File getCompletionsCacheDir(IProject p) {
+        IPath location = p.getWorkingLocation(PydevPlugin.getPluginID());
+        IPath path = location;
+    
+        File file = new File(path.toOSString());
+        return file;
+    }
 
     /**
      * @param dir: parent directory where file should be.
@@ -74,90 +89,33 @@ public class ASTManager implements Serializable {
      * @param dir: parent directory where file should be.
      * @return the file where the python path helper should be saved.
      */
-    private static File getPythonPathHelperFilePath(File dir) {
+    static File getPythonPathHelperFilePath(File dir) {
         return new File(dir, "pathhelper" + ".pydevpathhelper");
     }
 
-    /**
-     * Saves the ast to a file.
-     * 
-     * @see other function.
-     * 
-     * @param parentDir: directory where the files should be saved.
-     * @param monitor
-     */
-    public void saveASTManager(File parentDir, IProgressMonitor monitor) {
-        try {
-            int size = modules.size()+1;
-            monitor.worked(1);
-            monitor.setTaskName("Saving completions to disk: 0 of " + size);
-
-            int j = 0;
-            for (Iterator i = modules.entrySet().iterator(); i.hasNext() && monitor.isCanceled() == false; j++) {
-
-                Map.Entry e = (Map.Entry) i.next();
-                Object key = e.getKey();
-                File filePath = getFilePath(parentDir, (String) key);
-
-                if (filePath.exists() == false) {
-                    filePath.createNewFile();
-                }
-                FileOutputStream out = new FileOutputStream(filePath);
-
-                try {
-                    ObjectOutputStream stream = new ObjectOutputStream(out);
-                    try {
-                        stream.writeObject(key);
-                        stream.writeObject(e.getValue());
-                        monitor.worked(1);
-                        monitor.setTaskName(new StringBuffer("Saving completion to disk: ").append(j).append(" of ").append(size).append(
-                                " (").append(key).append(")").toString());
-                    } finally {
-                        stream.close();
-                    }
-                } finally {
-                    out.close();
-                }
-            }
-
-            if (monitor.isCanceled() == false) {
-                File filePath = getPythonPathHelperFilePath(parentDir);
-                FileOutputStream out = new FileOutputStream(filePath);
-
-                try {
-                    ObjectOutputStream stream = new ObjectOutputStream(out);
-                    try {
-                        stream.writeObject(pythonPathHelper);
-                        monitor.worked(1);
-                        monitor.setTaskName("Saved all");
-                    } finally {
-                        stream.close();
-                    }
-                } finally {
-                    out.close();
-                }
-            }
-        } catch (IOException e) {
-            PydevPlugin.log(e);
-        }
-
-    }
-
+    
+    
+    
+    
+    
+    
+    //------------------------------- SAVE
+    
     /**
      * This saves an object representing a delta to a file.
      * 
-     * @param f
+     * @param f - File to save the delta (the module should have the same name).
      * @param obj tuple so that the first item is the name of the module and the second the module itself.
      */
-    private void saveDelta(File f, Object[] obj) {
+    private void saveDelta(File f, ModulesKey key) {
         try {
             FileOutputStream out = new FileOutputStream(f);
             try {
                 ObjectOutputStream stream = null;
                 try {
                     stream = new ObjectOutputStream(out);
-                    stream.writeObject(obj[0]);
-                    stream.writeObject(obj[1]);
+                    stream.writeObject(key);
+                    stream.writeObject(modules.get(key));
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -183,65 +141,6 @@ public class ASTManager implements Serializable {
         }
     }
 
-    //----------------------- RESTORE
-
-    /**
-     * @see other function. This is a wrapper that uses a file.
-     * 
-     * @param file
-     * @param monitor
-     * @param job
-     * @return
-     */
-    public static ASTManager restoreASTManager(File dir, IProgressMonitor monitor, Job job) {
-        ASTManager c = new ASTManager();
-
-        File[] deltas = dir.listFiles(new FilenameFilter() {
-
-            public boolean accept(File dir, String name) {
-                return name.endsWith("pydevcompletions");
-            }
-
-        });
-
-
-        if (monitor.isCanceled() == false) {
-            File file = getPythonPathHelperFilePath(dir);
-
-            if (file.exists()) {
-                try {
-                    FileInputStream stream = new FileInputStream(file);
-                    try {
-
-                        ObjectInputStream in = new ObjectInputStream(stream);
-                        try {
-                            c.pythonPathHelper = (PythonPathHelper) in.readObject();
-                        } finally {
-                            in.close();
-                        }
-
-                    } finally {
-                        stream.close();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    PydevPlugin.log(e);
-                }
-            }
-            
-            //first we restore the pythonpath helper because it was the last saved.
-            //the deltas are restored later.
-            if(c.pythonPathHelper != null){
-		        restoreDeltas(monitor, deltas, c, job);
-		        monitor.done();
-            }
-            
-            
-            return c;
-        }
-        return null;
-
-    }
 
     /**
      * @param monitor
@@ -249,61 +148,50 @@ public class ASTManager implements Serializable {
      * @param c
      * @return
      */
-    private static IProgressMonitor restoreDeltas(IProgressMonitor monitor, File[] deltas, ASTManager c, Job j) {
-        int size = deltas.length;
-        
-        monitor = new JobProgressComunicator(monitor, "Restoring", size+1, j);
-        
-        for (int i = 0; i < deltas.length && monitor.isCanceled() == false; i++) {
-            String curr = deltas[i].getName();
-            monitor.worked(1);
-            monitor.setTaskName(new StringBuffer("Restoring deltas: ").append(i).append(" of ").append(size).append(" (").append(curr)
-                    .append(")").toString());
+    private void restoreDelta(IProgressMonitor monitor, File delta) {
 
-            Object value = null;
-            File file = deltas[i];
-            if (file.exists()) {
+        monitor.worked(1);
+        monitor.setTaskName(new StringBuffer("Restoring delta: ").append(delta).toString());
+
+        Object value = null;
+        File file = delta;
+        if (file.exists()) {
+            try {
+                FileInputStream in = new FileInputStream(file);
                 try {
-                    FileInputStream in = new FileInputStream(file);
+
+                    ObjectInputStream stream = null;
+
                     try {
-
-                        ObjectInputStream stream = null;
-
-                        try {
-                            stream = new ObjectInputStream(in);
-				            String key = (String) stream.readObject();
-                            value = stream.readObject();
-				            if (value != null) {
-				                c.modules.put(key, value);
-				            }
-                        } finally {
-                            if (stream != null) {
-                                stream.close();
-                            }
+                        stream = new ObjectInputStream(in);
+                        ModulesKey key = (ModulesKey) stream.readObject();
+                        value = stream.readObject();
+                        if (value != null) {
+                            modules.put(key, value);
                         }
-
                     } finally {
-                        in.close();
+                        if (stream != null) {
+                            stream.close();
+                        }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    PydevPlugin.log(e);
-                }
-            }
 
+                } finally {
+                    in.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                PydevPlugin.log(e);
+            }
         }
-        return monitor;
+
     }
 
-    //--------------------------------- METHODS TO REBUILD
+    
 
     /**
-     * This function rebuilds the completions based on the pythonpath passed.
-     * 
-     * @param pythonpath - string with the pythonpath (separated by |)
-     * @param monitor
+     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#changePythonPath(java.lang.String, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
-    public void rebuildModules(String pythonpath, IProgressMonitor monitor) {
+    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
         System.out.println("rebuildModules " + pythonpath);
 
         List pythonpathList = pythonPathHelper.setPythonPath(pythonpath);
@@ -325,51 +213,106 @@ public class ASTManager implements Serializable {
         }
 
         int j = 0;
-        //now, create in memory modules for all the loaded files.
+        
+        //now, create in memory modules for all the loaded files (empty modules).
         for (Iterator iterator = completions.iterator(); iterator.hasNext() && monitor.isCanceled() == false; j++) {
             Object o = iterator.next();
             if (o instanceof File) {
                 File f = (File) o;
                 String m = pythonPathHelper.resolveModule(f.getAbsolutePath());
 
-                monitor.setTaskName(new StringBuffer("Creating completion: ").append(j).append(" of ").append(total).append(" (").append(m)
+                monitor.setTaskName(new StringBuffer("Module resolved: ").append(j).append(" of ").append(total).append(" (").append(m)
                         .append(")").toString());
                 monitor.worked(1);
-
                 if (m != null) {
-                    AbstractModule s = AbstractModule.createModule(m, f);
-                    mods.put(m, s);
+					//we don't load them at this time.
+                    mods.put(new ModulesKey(m, f), AbstractModule.createEmptyModule(m, f));
                 }
             }
         }
         modules = mods;
-
+        
+        final ASTManager m = this;
+        new Thread(){
+            /**
+             * @see java.lang.Thread#run()
+             */
+            public void run() {
+                try{
+                    ASTManagerFactory.savePythonPath(getCompletionsCacheDir(project), new NullProgressMonitor(), m);
+                }catch(Exception e){
+                    //we're not in the eclipse enviroment
+                }
+            }
+        }.start();
     }
 
     /**
-     * This method is an interface
-     * 
-     * @param monitor
-     * @param f
+     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#rebuildModule(java.io.File, org.eclipse.jface.text.IDocument, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
-    public void rebuildModule(final File f, final IDocument doc, final IProject project) {
+    public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor) {
         final String m = pythonPathHelper.resolveModule(f.getAbsolutePath());
         if (m != null) {
             final AbstractModule s = AbstractModule.createModuleFromDoc(m, f, doc);
-            modules.put(m, s);
+            modules.put(new ModulesKey(m, f), s);
 
             new Thread() {
                 public void run() {
-                    System.out.println("Saving delta");
-                    File dir = PythonNature.getCompletionsCacheDir(project);
+                    File dir = ASTManager.getCompletionsCacheDir(project);
                     String name = m;
                     File f = new File(dir, name + ".pydevcompletions");
-                    saveDelta(f, new Object[] { m, s });
+                    saveDelta(f, new ModulesKey(m,f) );
                 }
             }.start();
         }
     }
 
+
+
+    /**
+     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
+     */
+    public void removeModule(File file, IProject project, IProgressMonitor monitor) {
+        final String m = pythonPathHelper.resolveModule(file.getAbsolutePath());
+        if (m != null) {
+            modules.remove(m);
+        }
+    }
+
+    /**
+     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#syncModules(org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
+     */
+    public void syncModules(IProject project, IProgressMonitor monitor) {
+    }
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     //----------------------------------- COMPLETIONS
 
     /**
@@ -390,8 +333,10 @@ public class ASTManager implements Serializable {
 
         //first we get the imports...
         for (Iterator iter = modules.keySet().iterator(); iter.hasNext();) {
-            String element = (String) iter.next();
+            ModulesKey key = (ModulesKey) iter.next();
 
+            String element = key.name;
+            
             if (element.toLowerCase().startsWith(initial)) {
                 element = element.substring(initial.length());
 
@@ -428,7 +373,7 @@ public class ASTManager implements Serializable {
                 nameInCache = nameInCache.substring(0, nameInCache.length() - 1);
             }
 
-            Object object = modules.get(nameInCache);
+            Object object = getModule(nameInCache);
             if (object instanceof AbstractModule) {
                 AbstractModule m = (AbstractModule) object;
 
@@ -447,8 +392,8 @@ public class ASTManager implements Serializable {
     /**
      * @return a Set of strings with all the modules.
      */
-    public String[] getAllModules() {
-        return (String[]) modules.keySet().toArray(new String[0]);
+    public ModulesKey[] getAllModules() {
+        return (ModulesKey[]) modules.keySet().toArray(new ModulesKey[0]);
     }
 
     /**
@@ -476,7 +421,26 @@ public class ASTManager implements Serializable {
      * @return the module represented by this name
      */
     private AbstractModule getModule(String name) {
-        return (AbstractModule) modules.get(name);
+        AbstractModule n = (AbstractModule) modules.get(new ModulesKey(name, null));
+        if (n == null){
+            n = (AbstractModule) modules.get(new ModulesKey(name+".__init__", null));
+        }
+        if(n == null){
+            System.out.println("The module "+name+" could not be found!");
+        }
+        if (n instanceof EmptyModule){
+            EmptyModule e = (EmptyModule)n;
+            System.out.println("Loading module: "+name+ " file "+e.f);
+            n = AbstractModule.createModule(name, e.f);
+            System.out.println("Loaded");
+            this.modules.put(new ModulesKey(name, e.f), n);
+        }
+        
+        if( n instanceof EmptyModule){
+            throw new RuntimeException("Should not be an empty module anymore!");
+        }
+        return n;
+
     }
 
     /**
@@ -498,9 +462,25 @@ public class ASTManager implements Serializable {
      * @param qualifier
      * @return
      */
-    public IToken[] getCompletionsForToken(File file, int line, int col, String activationToken, String qualifier) {
-        AbstractModule module = getModule(file); //this is the module we are in.
+    public IToken[] getCompletionsForToken(File file, IDocument doc, int line, int col, String activationToken, String qualifier) {
+        AbstractModule module = AbstractModule.createModuleFromDoc("", file, doc);
         return getCompletionsForModule(file.toString(), activationToken, qualifier, module);
+    }
+
+    /**
+     * 
+     * @param doc
+     * @param line
+     * @param col
+     * @param activationToken
+     * @param qualifier
+     * @return
+     */
+    public IToken[] getCompletionsForToken(IDocument doc, int line, int col, String activationToken, String qualifier) {
+        Object[] obj = PyParser.reparseDocument(doc, true);
+        SimpleNode n = (SimpleNode) obj[0];
+        AbstractModule module = AbstractModule.createModule(n);
+        return getCompletionsForModule("", activationToken, qualifier, module);
     }
 
     /**
@@ -509,12 +489,12 @@ public class ASTManager implements Serializable {
      * @param qualifier
      * @param module
      */
-    private IToken[] getCompletionsForModule(String modName, String activationToken, String qualifier, AbstractModule module) {
+    public IToken[] getCompletionsForModule(String modName, String activationToken, String qualifier, AbstractModule module) {
         List completions = new ArrayList();
 
         if (module != null) {
 
-            if (activationToken.length() == 0 && qualifier.length() == 0) {
+            if (activationToken.length() == 0) {
 
                 //in completion with nothing, just go for what is imported and global tokens.
                 IToken[] globalTokens = module.getGlobalTokens();
@@ -531,10 +511,10 @@ public class ASTManager implements Serializable {
                 //wild imports: recursively go and get those completions.
                 IToken[] wildImportedModules = module.getWildImportedModules();
                 for (int i = 0; i < wildImportedModules.length; i++) {
-                    //                    System.out.println(wildImportedModules[i]);
 
                     IToken name = wildImportedModules[i];
-                    AbstractModule mod = getModule(name.getRepresentation());
+                    AbstractModule mod = getModule(name.getCompletePath());
+                    
                     if (mod != null) {
                         IToken[] completionsForModule = getCompletionsForModule(name.getRepresentation(), activationToken, qualifier, mod);
                         for (int j = 0; j < completionsForModule.length; j++) {
@@ -545,7 +525,19 @@ public class ASTManager implements Serializable {
                     }
                 }
 
+            }else{ //ok, we have a token, find it and get its completions.
+                IToken[] importedModules = module.getTokenImportedModules();
+                for (int i = 0; i < importedModules.length; i++) {
+                    if(importedModules[i].getRepresentation().equals(activationToken)){
+                        String rep = importedModules[i].getCompletePath();
+                        
+                        AbstractModule mod = getModule(rep);
+                        //the activation token corresponds to an imported module. We have to get its global tokens and return them.
+                        return getCompletionsForModule(rep, "", "", mod);
+                    }
+                }
             }
+            
         } else {
             System.out.println("Invalid module: " + modName);
         }

@@ -18,9 +18,22 @@ public abstract class AbstractToken implements IToken{
     private int type;
 
     public AbstractToken(String rep, String doc, String parentPackage, int type){
-        this.rep = rep;
-        this.doc = doc;
-        this.parentPackage = parentPackage;
+        if (rep != null)
+            this.rep = rep;
+        else
+            this.rep = "";
+        
+        if (doc != null)
+            this.doc = doc;
+        else
+            this.doc = "";
+        
+        
+        if (parentPackage != null)
+            this.parentPackage = parentPackage;
+        else
+            this.parentPackage = "";
+        
         this.type = type;
     }
     
@@ -124,11 +137,22 @@ public abstract class AbstractToken implements IToken{
      */
     public String toString() {
         
-        if(getParentPackage().length() > 0){
+        if(getParentPackage() != null && getParentPackage().length() > 0){
             return new StringBuffer(getRepresentation()).append(" - ").append(getParentPackage()).toString();
         }else{
             return getRepresentation();
         }
+    }
+
+    /**
+     * @see org.python.pydev.editor.codecompletion.revisited.IToken#getCompletePath()
+     */
+    public String getCompletePath() {
+        String p = getParentPackage();
+        if( p != null && p.length()>0){
+            return p+"."+getRepresentation();
+        }
+        return getRepresentation();
     }
 
 }

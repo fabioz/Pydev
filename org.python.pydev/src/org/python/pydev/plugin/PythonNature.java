@@ -6,21 +6,17 @@
 
 package org.python.pydev.plugin;
 
-import java.io.File;
-
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.text.IDocument;
-import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.ASTManagerFactory;
+import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.ui.PyProjectProperties;
 import org.python.pydev.utils.JobProgressComunicator;
 
@@ -57,7 +53,7 @@ public class PythonNature implements IProjectNature {
     /**
      * This is the completions cache for the nature represented by this object (it is associated with a project).
      */
-    private ASTManager astManager;
+    private IASTManager astManager;
 
     /**
      * We have to know if it has already been initialized.
@@ -170,29 +166,15 @@ public class PythonNature implements IProjectNature {
             Job myJob = new Job("Pydev code completion") {
 
                 protected IStatus run(IProgressMonitor monitor) {
-                    File dir = getCompletionsCacheDir();
 
-                    //this is ok, just set it directly... (if it is still null anyway, 
-                    //some error happened).
-                    astManager = ASTManager.restoreASTManager(dir, monitor, this);
-
-                    //failed if still null.
-                    if (astManager == null) {
-                        ASTManager tempAstManager = new ASTManager();
-                        try {
-                            IProgressMonitor comunicator = new JobProgressComunicator(monitor, "Rebuilding modules", 500, this);
-                            comunicator.worked(1);
-                            comunicator.setTaskName("Rebuilding modules.");
-                            String pathStr = PyProjectProperties.getProjectPythonPathStr(project);
-                            tempAstManager.rebuildModules(pathStr, comunicator);
-                            astManager = tempAstManager; //only make it available after it is all loaded (better than synchronizing it).
-                            saveIt(); //after rebuilding it, save it.
-                            comunicator.done();
-                        } catch (CoreException e) {
-                            e.printStackTrace();
-                            PydevPlugin.log(e);
-                        }
+                    String pythonpath = null;
+                    try {
+                        pythonpath = PyProjectProperties.getProjectPythonPathStr(project);
+                    } catch (CoreException e) {
+                        e.printStackTrace();
                     }
+                    astManager = ASTManagerFactory.restoreASTManager(project, pythonpath, monitor);
+
                     return Status.OK_STATUS;
                 }
             };
@@ -201,48 +183,7 @@ public class PythonNature implements IProjectNature {
         }
     }
 
-    /**
-     * @return the file that should be used to store the completions.
-     */
-    private File getCompletionsCacheDir() {
-        IProject p = project; 
-        return getCompletionsCacheDir(p);
-    }
 
-    /**
-     * @param p
-     * @return
-     */
-    public static File getCompletionsCacheDir(IProject p) {
-        IPath location = p.getWorkingLocation(PydevPlugin.getPluginID());
-        IPath path = location;//.addTrailingSeparator().append(name + ".pydevcompletions");
-
-        File file = new File(path.toOSString());
-        return file;
-    }
-
-    /**
-     * This method puts the completions cache in a dump file, so that we can restore it later. We do this ourselves because we don't want
-     * this to be stored as a xml, as it is not an optimized format (the object dump should be much faster).
-     * 
-     * This can be used from time to time to store what we have (you never know when a crash might occur).
-     */
-    private void saveIt() {
-        Job myJob = new Job("Pydev code completion (saving tokens)") {
-
-            protected IStatus run(IProgressMonitor monitor) {
-                if (astManager != null) {
-                    //synchronize it!!
-                    synchronized (astManager) {
-                        //write completions cache to outputstream.
-                        astManager.saveASTManager(getCompletionsCacheDir(), new JobProgressComunicator(monitor, "Save ast manager", astManager.getSize()+10, this));
-                    }
-                }
-                return Status.OK_STATUS;
-            }
-        };
-        myJob.schedule();
-    }
 
     /**
      * This method is called whenever the pythonpath for the project with this nature is changed. It should then get the Completion Code
@@ -253,10 +194,7 @@ public class PythonNature implements IProjectNature {
         Job myJob = new Job("Pydev code completion: rebuilding modules") {
 
             protected IStatus run(IProgressMonitor monitor) {
-                astManager.rebuildModules(paths, new JobProgressComunicator(monitor, "Rebuilding modules", 500, this));
-                if(monitor.isCanceled() == false){
-                    saveIt(); //after rebuilding, save it.
-                }
+                astManager.changePythonPath(paths, project, new JobProgressComunicator(monitor, "Rebuilding modules", 500, this));
                 return Status.OK_STATUS;
             }
         };
@@ -265,24 +203,9 @@ public class PythonNature implements IProjectNature {
     }
     
     /**
-     * Updates the ast for the resource (that has the given document).
-     * @param resource
-     * @param document
-     */
-    public void rebuildDelta(final IResource resource, final IDocument document){
-		IPath location = resource.getLocation(); 
-		   
-		if (astManager != null){
-		    astManager.rebuildModule(new File(location.toOSString()), document, resource.getProject());
-		}
-        
-    }
-
-
-    /**
      * @return Returns the completionsCache.
      */
-    public ASTManager getAstManager() {
+    public IASTManager getAstManager() {
         return astManager;
     }
 

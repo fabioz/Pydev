@@ -5,8 +5,12 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.plugin.PythonNature;
@@ -27,11 +31,34 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
     public boolean visitResource(IResource resource, IDocument document) {
-
         System.out.println("Visiting delta");
+        
         IProject project = resource.getProject();
         PythonNature pythonNature = PythonNature.getPythonNature(project);
-        pythonNature.rebuildDelta(resource, document);
+        IASTManager astManager = pythonNature.getAstManager();
+        
+        if (astManager != null){
+            IPath location = resource.getLocation(); 
+            astManager.rebuildModule(new File(location.toOSString()), document, resource.getProject(), new NullProgressMonitor());
+        }
+
+        return false;
+    }
+
+    /**
+     * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
+     */
+    public boolean visitRemovedResource(IResource resource, IDocument document) {
+        System.out.println("Visiting removed delta");
+
+        IProject project = resource.getProject();
+        PythonNature pythonNature = PythonNature.getPythonNature(project);
+        IASTManager astManager = pythonNature.getAstManager();
+        
+        if (astManager != null){
+            IPath location = resource.getLocation(); 
+            astManager.removeModule(new File(location.toOSString()), resource.getProject(), new NullProgressMonitor());
+        }
 
         return false;
     }
