@@ -104,7 +104,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
             return l;
         }
 
-        String params = "("+getInsideParentesisTok(ps)+")";
+        String params = getInsideParentesisTok(ps);
         int firstCharPosition = PyAction.getFirstCharRelativePosition(ps.doc, ps.absoluteCursorOffset);
         
         String indentation = PyBackspace.getStaticIndentationString();
@@ -112,10 +112,16 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
         
         String delim = PyAction.getDelimiter(ps.doc, 0);
         String cls = "class "+callName+":"+delim+delim;
-        cls += indentation+"def __init__"+params+":"+delim;
+        
+        String self = "self";
+        if(params.trim().length() != 0){
+            self += ", ";
+        }
+        
+        cls += indentation+"def __init__("+self+params+"):"+delim;
         cls += indentation+indentation+"pass"+delim;
         
-        String method = "def "+callName+params+":"+delim+indentation+"pass"+delim;
+        String method = "def "+callName+"(%s"+params+"):"+delim+indentation+"pass"+delim;
 
         if (firstCharPosition == 0){ //we are in the global context
 
@@ -129,6 +135,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
             l.add(new CompletionProposal(cls, newPos, 0, cls.length()+1, null,
                     "Create new class (global context)", null, null));
 
+            method = method.replaceFirst("%s", "");
             l.add(new CompletionProposal(method, newPos, 0, method.length()+1, null,
                     "Create new method (global context)", null, null));
 
@@ -171,6 +178,8 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 	                String atStart = newIndent.replaceFirst(indentation, "");
 	                method = method.replaceAll(indentation, newIndent);
 	                method = atStart+method+delim;
+	                
+	                method = method.replaceFirst("%s", self);
 	                
 		            l.add(new CompletionProposal(method, newPos, 0, method.length()-4, null,
 		                    "Create new method (in class)", null, null));
