@@ -202,6 +202,13 @@
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.pyUnCollapse">
          </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.pyShowOutline"
+               label="Show Quick Outline"
+               class="org.python.pydev.editor.actions.PyShowOutline"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.navigation.pyShowOutline">
+         </action>
       </editorContribution>
    </extension>
 <!-- NOTE: EditorContext part of the targetID was deduced, that is just what Eclipse expects -->
@@ -487,6 +494,19 @@
             string="Ctrl+="
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.navigation.pyUnCollapse"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: Show outline-->
+      <command
+            name="Python Show Outline"
+            description="Show Outline"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pyShowOutline">
+      </command>
+      <keyBinding
+            string="Ctrl+O"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.pyShowOutline"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
    </extension>
