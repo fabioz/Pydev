@@ -138,13 +138,6 @@
                id="org.python.pydev.editor.actions.convertTabToSpace">
          </action>
          <action
-               definitionId="org.python.pydev.editor.actions.stripTrailingWhitespace"
-               label="Strip trailing whitespace"
-               class="org.python.pydev.editor.actions.PyStripTrailingWhitespace"
-               menubarPath="org.python.pydev.editor.actions.sourceMenu/whitespaceGroup"
-               id="org.python.pydev.editor.actions.stripTrailingWhitespace">
-         </action>
-         <action
                definitionId="org.python.pydev.editor.actions.uncomment"
                label="Uncomment"
                class="org.python.pydev.editor.actions.PyUncomment"
@@ -261,12 +254,6 @@
                class="org.python.pydev.editor.actions.PyConvertTabToSpace"
                menubarPath="org.python.pydev.editor.actions.editorPopup/whitespaceGroup"
                id="org.python.pydev.editor.actions.convertTabToSpace">
-         </action>
-         <action
-               label="Strip trailing whitespace"
-               class="org.python.pydev.editor.actions.PyStripTrailingWhitespace"
-               menubarPath="org.python.pydev.editor.actions.editorPopup/whitespaceGroup"
-               id="org.python.pydev.editor.actions.stripTrailingWhitespace">
          </action>
          <action
                label="Uncomment"
@@ -397,19 +384,6 @@
             string="Ctrl+Tab"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.convertTabToSpace"
-            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </keyBinding>
-<!-- command: whitespace-->
-      <command
-            name="Strip trailing whitespace"
-            description="Strips trailing whitespace from selected region or whole document if nothing selected"
-            category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.stripTrailingWhitespace">
-      </command>
-      <keyBinding
-            string="Shift+Space"
-            scope="org.python.pydev.ui.editor.scope"
-            command="org.python.pydev.editor.actions.stripTrailingWhitespace"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
 <!-- command: unblock-->
