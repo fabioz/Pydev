@@ -1,79 +1,86 @@
 body {
-	font-family: Arial, Helvetica, sans-serif
-    font-size: 12px;
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	background-color:#d5efd5 ; 
 }
-    
-h1 
-{
+.download_text {
 	font-family: Arial, Helvetica, sans-serif;
+	font-size: large;
+	color: #666666;
+}
+a:link {
+	text-decoration: none;
+}
+a:visited {
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+a:active {
+	text-decoration: none;
+}
+.header_text {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: small;
+	color: #666666;
+	margin: 3px;
+}
+.menu_links {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: small;
+	color: #666666;
+}
+.menu_headings {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: small;
+	color: #FFFFFF;
+	font-weight: bold;
+}
+.body_text {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: small;
+}
+.screenshot {
+	float: left;
+	margin: 0px 9px 9px 0px;
+}
+.download {
+	float: right;
 }
 
-div.sidebar
+div.plugin-list-item
 {
-	position:static;
-    float: left;
-    width: 150px;
-    height: 150%;
-    background-color: lightyellow;
-    color: white;
-}
-  
-.sidebar li
-{
-    margin-left: 0px;
-    margin-top: 3px;
-    padding: 0px;
-    color:lightyellow;
-}    
-
-div.contents
-{
-    width: 100%;
+	padding-bottom: 10px;
 }
 
-li
+div.plugin-name
 {
-    margin-left: 5px;
+	font-weight: bold;
 }
 
-a
+div.plugin-summary
 {
-    color: blue;
-    text-decoration: none;
+	padding: 3px;
+	border: solid black 1px;
+	background: white;
 }
 
-a:hover
+div.plugin-branch
 {
-    text-decoration: underline;
+	padding-top: 3px;
+	padding-left: 10px;
 }
 
-.sidebar a
+span.plugin-date
 {
-    font-size: medium;
+	font-size: smaller;
 }
 
-
-
-
-
-div.rightsidebar
+div.plugin-detail-link
 {
-	position:static;
-    float: right;
-    width: 150px;
-    height: 150%;
-    background-color: white;
-    color: black;
-    vertical-align: top;
-    margin-left:20px;
-    
+	font-size: smaller;
+	text-align: right;
 }
-  
-.rightsidebar li
-{
-    margin-left: 0px;
-    margin-top: 3px;
-    padding: 0px;
-    color:white;
-}    
-  

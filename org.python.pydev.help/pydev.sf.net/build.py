@@ -11,6 +11,7 @@ def Template( p_template, p_name, p_title=None ):
     d = {
         'title' :    p_title,
         'contents' : file( contents_file, 'r' ).read(),
+        'perc':'%',
     }
 
     contents = file( p_template, 'r' ).read()
