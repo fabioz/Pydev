@@ -91,7 +91,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 } else if (members[i].getType() == IResource.FOLDER) {
                     IPath location = ((IFolder) members[i]).getLocation();
                     File folder = new File(location.toOSString());
-                    List l = PydevPlugin.getPyFilesBelow(folder, null, false)[0];
+                    List l = PydevPlugin.getPyFilesBelow(folder, null, true)[0];
                     for (Iterator iter = l.iterator(); iter.hasNext();) {
                         File element = (File) iter.next();
                         IPath path = PydevPlugin.getPath(new Path(element.getAbsolutePath()));
@@ -126,15 +126,15 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         double inc = (visitors.size() * 100) / (double)resourcesToParse.size();
         
         double total = 0;
-        for (Iterator iter = resourcesToParse.iterator(); iter.hasNext();) {
+        for (Iterator iter = resourcesToParse.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
             total += inc;
             IResource r = (IResource) iter.next();
 
-
-            for (Iterator it = visitors.iterator(); it.hasNext();) {
+            IDocument doc = getDocFromResource(r);
+            for (Iterator it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
                 PyDevBuilderVisitor element = (PyDevBuilderVisitor) it.next();
-                monitor.subTask("Visiting... "+element.getClass().getName());
-                element.visitResource(r, getDocFromResource(r));
+                monitor.subTask("Visiting... "+r.getName()+" ("+element.getClass().getName()+")");
+                element.visitResource(r, doc);
             }
 
             if(total > 1){

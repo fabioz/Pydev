@@ -195,12 +195,12 @@ import org.python.pydev.utils.SimplePythonRunner;
  *    checks for:
  *    * source code with non ascii characters but no encoding declaration (PEP
  *    263)
- *    * warning notes in the code like FIXME, XXX
+ *    * warning notes in the code like FIXMEc, XXXx
  *    --enable-miscellaneous=<y_or_n>
  *                        Enable / disable this checker
  *    --notes=<comma separated values>
  *                        List of note tags to take in consideration, separated by
- *                        a comma. Default to FIXME, XXX, TODO
+ *                        a comma. Default to FIXMEc, XXXx, TODOo
  *
  *  Metrics:
  *    does not check anything but gives some raw metrics :
