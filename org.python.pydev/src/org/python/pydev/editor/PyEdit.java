@@ -31,6 +31,7 @@ import org.python.parser.Token;
 import org.python.parser.TokenMgrError;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.editor.dictionary.PyDEditorItem;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.outline.SelectionPosition;
 import org.python.pydev.parser.IParserListener;
@@ -46,7 +47,7 @@ import org.python.pydev.ui.ColorCache;
  * <li>The {@link org.python.pydev.parser.PyParser PyParser} does a lazy validating python parse.
  * <li>The {@link org.python.pydev.outline.PyOutlinePage PyOutlinePage} shows the outline
  * 
- * <p>Listens to the parser's events, and displays error markers from the parser
+ * <p>Listens to the parser's events, and displays error markers from the parser.
  * 
  * <p>General notes:
  * <p>TextWidget creates SourceViewer, an SWT control
@@ -65,6 +66,8 @@ public class PyEdit extends TextEditor implements IParserListener {
 	private PyAutoIndentStrategy indentStrategy;
 	/** need to hold onto it to support indentPrefix change through preferences */
 	PyEditConfiguration editConfiguration;
+	/** top-level dictionary */
+	PyDEditorItem dictionaryRoot;
 	
 	public PyEdit() {
 		super();
@@ -138,6 +141,8 @@ public class PyEdit extends TextEditor implements IParserListener {
 		parser = new PyParser(this);
 		parser.addParseListener(this);
 		parser.setDocument(getDocumentProvider().getDocument(input));
+		
+		dictionaryRoot = new PyDEditorItem(parser);
 		
 		// listen to changes in TAB_WIDTH preference
 		prefListener = new Preferences.IPropertyChangeListener() {

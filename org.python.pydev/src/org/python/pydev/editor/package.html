@@ -3,4 +3,42 @@ The main editor widget and its helper classes.
 
 <p>The main widget is {@link org.python.pydev.editor.PyEdit PyEdit}. It ties other
 utility classes together, sets error markers.
+<p>PyContentAssistant & PyContentAssisProcessors are dummy classes,
+avaiting implementation.
+<h3>Design notes</h3>
+<p>I really want to implement ctrl-click navigation. It is not as easy
+as pluging in a new class to PyEditConfiguration. This one
+See JavaEditor::MouseClickListener (set breakpoint at highlightRegion if debugging to see it in action)
+<p>
+<pre>
+To implement navigation/completion.
+- Each editor needs a vocabulary. The vocabulary is hierarchical in structure, and
+has items:
+Top-level (file vocabulary) has:
+ classes
+ functions
+ globals?
+Class vocabulary has:
+ documentation string
+ classes
+ methods (functions)
+ instance variables (inferred from self.)
+Method/function vocabulary has:
+ documentation string
+ locals
+ classes
+ functions
+
+Each definition in the vocabulary describes:
+- where is it defined (file, char span)
+- character range where it is applicable
+
+Vocabulary usage:
+Find an innermost vocabulary containing current selection.
+Then quiz it for whatever is needed
+
+Questions:
+ can vocabularies be overlapping? That would make things hard.
+ 
+</pre>
 </body>

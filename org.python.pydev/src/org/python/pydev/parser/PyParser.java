@@ -41,21 +41,19 @@ public class PyParser {
 	
 	IDocument document;
 	PyEdit editorView;
+	SimpleNode root = null;
 	
 	IDocumentListener documentListener; // listens to changes in the document
 	ArrayList parserListeners;	// listeners that get notified 
 	
-	SimpleNode root; // root of the last PythonGrammar analysis
-
 	static final boolean parseOnThread = true; // can turn of thread parsing for debugging
 	ParsingThread parsingThread;	// thread that reparses the document
 	
 	public PyParser(PyEdit editorView) {
 		this.editorView = editorView;
-		root = null;
 		parserListeners = new ArrayList();
 		parsingThread = new ParsingThread(this);
-		parsingThread.setName("Parsing thread");
+		parsingThread.setName("Pydev parsing thread");
 	}
 	
 	public void dispose() {
@@ -63,6 +61,10 @@ public class PyParser {
 		if (document != null)
 			document.removeDocumentListener(documentListener);
 		parsingThread.diePlease();
+	}
+	
+	public SimpleNode getRoot() {
+		return root;
 	}
 
 	public void setDocument(IDocument document) {
@@ -99,12 +101,7 @@ public class PyParser {
 		else
 			reparseDocument();
 	}
-	
-	
-	public SimpleNode getRoot() {
-		return root;
-	}
-	
+
 	/** stock listener implementation */
 	public void addParseListener(IParserListener listener) {
 		Assert.isNotNull(listener);
@@ -122,7 +119,8 @@ public class PyParser {
 	 * stock listener implementation 
 	 * event is fired whenever we get a new root
 	 */
-	protected void fireParserChanged() {		
+	protected void fireParserChanged(SimpleNode root) {
+		this.root = root;		
 		if (parserListeners.size() > 0) {
 			ArrayList list= new ArrayList(parserListeners);
 			Iterator e= list.iterator();
@@ -152,6 +150,7 @@ public class PyParser {
 	 * Parses the document, generates error annotations
 	 */
 	void reparseDocument() {
+		// create a stream with document's data
 		StringReader inString = new StringReader(document.get());
 		ReaderCharStream in = new ReaderCharStream(inString);
 		PythonGrammar grammar = new PythonGrammar(in, new CompilerAPI());
@@ -162,9 +161,8 @@ public class PyParser {
 		IFile original= (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
 		try {
 			SimpleNode newRoot = grammar.file_input(); // parses the file
-			root = newRoot;
 			original.deleteMarkers(IMarker.PROBLEM, false, 1);
-			fireParserChanged();
+			fireParserChanged(newRoot);
 		} catch (ParseException parseErr) {
 			fireParserError(parseErr);
 		} 

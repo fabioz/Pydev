@@ -14,6 +14,7 @@ import org.eclipse.jface.text.IAutoIndentStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.TextAttribute;
+import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
@@ -253,5 +254,8 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		return reconciler;
 	}
 
+	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
+		return new PyContentAssistant();
+	}
 
 }
