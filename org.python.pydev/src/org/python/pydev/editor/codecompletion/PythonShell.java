@@ -99,7 +99,7 @@ public class PythonShell {
      * @throws CoreException
      */
     public PythonShell() throws IOException, CoreException {
-        this(PyCodeCompletion.getScriptWithinPySrc("pycompletionserver.py"));
+        this(PydevPlugin.getScriptWithinPySrc("pycompletionserver.py"));
     }
 
     /**

@@ -47,6 +47,8 @@ public class PyRefactoring {
 
     public static final int REFACTOR_RESULT = 1;
 
+    private Object lastRefactorResults;
+
     
     public synchronized static PyRefactoring getPyRefactoring(){
         if (pyRefactoring == null){
@@ -206,12 +208,21 @@ public class PyRefactoring {
     private void communicateRefactorResult(String string) {
    
         List l = refactorResultAsList(string);
-
+        
+        Object o=null;
+        
         for (Iterator iter = this.propChangeListeners.iterator(); iter.hasNext();) {
             IPropertyListener element = (IPropertyListener) iter.next();
-            element.propertyChanged(new Object[]{this, l}, REFACTOR_RESULT);
+            o = new Object[]{this, l};
+            element.propertyChanged(o, REFACTOR_RESULT);
         }
+        
+        this.lastRefactorResults = o;
     }
+    
+    
+    
+
 
 
     /**
@@ -244,6 +255,20 @@ public class PyRefactoring {
         } catch (CoreException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * @param lastRefactorResults The lastRefactorResults to set.
+     */
+    public void setLastRefactorResults(Object lastRefactorResults) {
+        this.lastRefactorResults = lastRefactorResults;
+    }
+
+    /**
+     * @return Returns the lastRefactorResults.
+     */
+    public Object getLastRefactorResults() {
+        return lastRefactorResults;
     }
 
 }

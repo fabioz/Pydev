@@ -6,20 +6,13 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.osgi.framework.Bundle;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.Location;
@@ -231,53 +224,7 @@ public class PyCodeCompletion {
      * @throws CoreException
      */
     public static File getAutoCompleteScript() throws CoreException {
-        return getScriptWithinPySrc("simpleTipper.py");
-    }
-
-    /**
-     * 
-     * @return the script to get the variables.
-     * 
-     * @throws CoreException
-     */
-    public static File getScriptWithinPySrc(String targetExec)
-            throws CoreException {
-
-        IPath relative = new Path("PySrc").addTrailingSeparator().append(
-                targetExec);
-
-        Bundle bundle = PydevPlugin.getDefault().getBundle();
-
-        URL bundleURL = Platform.find(bundle, relative);
-        URL fileURL;
-        try {
-            fileURL = Platform.asLocalURL(bundleURL);
-            File f = new File(fileURL.getPath());
-
-            return f;
-        } catch (IOException e) {
-            throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR,
-                    "Can't find python debug script", null));
-        }
-    }
-
-    public static File getImageWithinIcons(String icon) throws CoreException {
-
-        IPath relative = new Path("icons").addTrailingSeparator().append(icon);
-
-        Bundle bundle = PydevPlugin.getDefault().getBundle();
-
-        URL bundleURL = Platform.find(bundle, relative);
-        URL fileURL;
-        try {
-            fileURL = Platform.asLocalURL(bundleURL);
-            File f = new File(fileURL.getPath());
-
-            return f;
-        } catch (IOException e) {
-            throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR,
-                    "Can't find image", null));
-        }
+        return PydevPlugin.getScriptWithinPySrc("simpleTipper.py");
     }
 
     /**

@@ -53,7 +53,7 @@ public class PyTemplateCompletion extends TemplateCompletionProcessor{
      */
     protected Image getImage(Template template) {
         try {
-            File file = PyCodeCompletion.getImageWithinIcons("template.gif");
+            File file = PydevPlugin.getImageWithinIcons("template.gif");
             return new Image(null, file.getAbsolutePath());
         } catch (CoreException e) {
             e.printStackTrace();

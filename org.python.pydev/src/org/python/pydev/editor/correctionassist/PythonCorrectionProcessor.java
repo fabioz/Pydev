@@ -25,27 +25,40 @@ import org.python.pydev.editor.model.FunctionNode;
 import org.python.pydev.editor.model.ModelUtils;
 
 /**
- * /** This class should be used to give context help
- *  - Help depending on context (Ctrl+1):
+ * This class should be used to give context help
+ * 
+ * Help depending on context (Ctrl+1):
  * 
  * class A: pass
  * 
  * class C:
  * 
- * def __init__(self, param): self.newMethod() <- create new method on class C <-
- * assign result to new local variable <- assign result to new field a = A()
- * a.newMethod() <- create new method on class A <- assign result to new local
- * variable <- assign result to new field
+ * def __init__(self, param): 
+ * 	    self.newMethod()<- create new method on class C  (with params if needed)
+ * 						<- assign result to new local variable 
+ * 						<- assign result to new field 
  * 
- * param. <- don't show anything.
+ * 		a = A()
+ * 		a.newMethod()   <- create new method on class A 
+ * 						<- assign result to new local variable 
+ * 						<- assign result to new field
  * 
- * self.a1 = A() self.a1.newMethod() <- create new method on class A <- assign
- * result to new local variable <- assign result to new field
+ * 		param.b() <- don't show anything.
  * 
- * def m(self): self.a1.newMethod() <- create new method on class A <- assign
- * result to new local variable <- assign result to new field
+ * 		self.a1 = A() 
+ * 		self.a1.newMethod() <- create new method on class A (difficult part is discovering class)
+ * 							<- assign result to new local variable 
+ * 							<- assign result to new field
  * 
+ * 		def m(self): 
+ * 			self.a1.newMethod() <- create new method on class A 
+ * 								<- assign result to new local variable 
+ * 								<- assign result to new field
  * 
+ * 			import compiler	<- move import to global context
+ * 			NewClass() <- Create class NewClass (Depends on new class wizard)
+ * 
+ *                       																				 
  * @author Fabio Zadrozny
  */
 public class PythonCorrectionProcessor implements IContentAssistProcessor {

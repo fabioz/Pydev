@@ -1,11 +1,18 @@
 '''
 @author Fabio Zadrozny 
 '''
+import sys
+import os
+
+#make it as if we were executing from the directory above this one (so that we can use pycompletionserver
+#without the need for it being in the pythonpath)
+sys.argv[0] = os.path.dirname(sys.argv[0]) 
+#twice the dirname to get the previous level from this file.
+sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
 
 import unittest
 import pycompletionserver
 import socket
-import os
 import urllib
 
 
@@ -68,29 +75,29 @@ class Test(unittest.TestCase):
     def testCompletionSocketsAndMessages(self):
         t, sToWrite, sToRead, self.connToRead, addr = self.createConnections()
         
-        
-        #now that we have the connections all set up, check the code completion messages.
-        msg = urllib.quote_plus('import math\n')
-        sToWrite.send('@@GLOBALS:%sEND@@'%msg) #only 1 global should be returned: math itself.
-        completions = self.readMsg()
-        
-        
-        msg = urllib.quote_plus('This module is always available.  It provides access to the\n'\
-                           'mathematical functions defined by the C standard.')
-        self.assertEquals('@@COMPLETIONS((math,%s))END@@'%msg,
-                          completions)
+        try:
+            #now that we have the connections all set up, check the code completion messages.
+            msg = urllib.quote_plus('import math\n')
+            sToWrite.send('@@GLOBALS:%sEND@@'%msg) #only 1 global should be returned: math itself.
+            completions = self.readMsg()
+            
+            
+            msg = urllib.quote_plus('This module is always available.  It provides access to the\n'\
+                               'mathematical functions defined by the C standard.')
+            start = '@@COMPLETIONS((math,%s)'%msg
+            self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % ( completions, start) ) #it returns math and builtins...just check for math.
+    
+            
+            msg1 = urllib.quote_plus('math')
+            msg2 = urllib.quote_plus('import math\n')
+            #check token msg.
+            sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' % (msg1, msg2)) 
+            completions = self.readMsg()
+    
+            self.assert_('@@COMPLETIONS' in completions)
+            self.assert_('END@@' in completions)
 
-        
-        msg1 = urllib.quote_plus('math')
-        msg2 = urllib.quote_plus('import math\n')
-        #check token msg.
-        sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' % (msg1, msg2)) 
-        completions = self.readMsg()
-
-        self.assert_('@@COMPLETIONS' in completions)
-        self.assert_('END@@' in completions)
-
-        s = \
+            s = \
 '''
 class C(object):          
                            
@@ -107,14 +114,14 @@ class C(object):
                                 
         pass            
 '''     
-        msg = urllib.quote_plus(s)
-
-        sToWrite.send('@@TOKEN_GLOBALS(C):%s\nEND@@'%s) 
-        completions = self.readMsg()
-
-        sToWrite.send('@@CLASS_GLOBALS(C):%s\nEND@@'%s) 
-        completions2 = self.readMsg()
-        self.assert_(len(completions) != len(completions2))
+            msg = urllib.quote_plus(s)
+    
+            sToWrite.send('@@TOKEN_GLOBALS(C):%s\nEND@@'%s) 
+            completions = self.readMsg()
+    
+            sToWrite.send('@@CLASS_GLOBALS(C):%s\nEND@@'%s) 
+            completions2 = self.readMsg()
+            self.assert_(len(completions) != len(completions2))
 
         
         #reload modules test
@@ -125,44 +132,47 @@ class C(object):
         
         
         
-        #change dir test
-        curr = os.getcwd( ) 
-        newDir = None
-        
-        if curr.find('/') != -1:
-            newDir = curr[0:curr.rindex('/')]
-        elif curr.find('\\') != -1:
-            newDir = curr[0:curr.rindex('\\')]
-        
-        self.assert_(newDir != None)
-        newDir = urllib.quote_plus(newDir)
-        sToWrite.send('@@CHANGE_DIR:%sEND@@'%newDir)
-        ok = self.readMsg()
-        self.assertEquals('@@MSG_OK_END@@' , ok)
-        
-        msg1 = urllib.quote_plus('math.acos') #with point
-        msg2 = urllib.quote_plus('import math\n')
-        sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' %(msg1, msg2)) 
-        completions = self.readMsg()
-        self.assert_('@@COMPLETIONS' in completions)
-        self.assert_('END@@' in completions)
-
-        msg1 = urllib.quote_plus('math acos') #with space
-        msg2 = urllib.quote_plus('import math\n')
-        sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' %(msg1, msg2)) 
-        completions2 = self.readMsg()
-        self.assertEquals(completions, completions2)
-
-        self.sendKillMsg(sToWrite)
-        
-
-        while not hasattr(t, 'ended'):
-            pass #wait until it receives the message and quits.
-
+            #change dir test
+            curr = os.getcwd( ) 
+            newDir = None
             
-        sToRead.close()
-        sToWrite.close()
-        self.connToRead.close()
+            if curr.find('/') != -1:
+                newDir = curr[0:curr.rindex('/')]
+            elif curr.find('\\') != -1:
+                newDir = curr[0:curr.rindex('\\')]
+            
+            self.assert_(newDir != None)
+            newDir = urllib.quote_plus(newDir)
+            sToWrite.send('@@CHANGE_DIR:%sEND@@'%newDir)
+            ok = self.readMsg()
+            self.assertEquals('@@MSG_OK_END@@' , ok)
+            
+            msg1 = urllib.quote_plus('math.acos') #with point
+            msg2 = urllib.quote_plus('import math\n')
+            sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' %(msg1, msg2)) 
+            completions = self.readMsg()
+            self.assert_('@@COMPLETIONS' in completions)
+            self.assert_('END@@' in completions)
+    
+            msg1 = urllib.quote_plus('math acos') #with space
+            msg2 = urllib.quote_plus('import math\n')
+            sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' %(msg1, msg2)) 
+            completions2 = self.readMsg()
+            self.assertEquals(completions, completions2)
+        finally:
+            try:
+                self.sendKillMsg(sToWrite)
+                
+        
+                while not hasattr(t, 'ended'):
+                    pass #wait until it receives the message and quits.
+        
+                    
+                sToRead.close()
+                sToWrite.close()
+                self.connToRead.close()
+            except:
+                pass
         
     def sendKillMsg(self, socket):
         socket.send(pycompletionserver.MSG_KILL_SERVER)

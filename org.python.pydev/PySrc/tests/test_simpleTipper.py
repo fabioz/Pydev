@@ -2,6 +2,14 @@
 @author Fabio Zadrozny 
 '''
 
+import os
+import sys
+#make it as if we were executing from the directory above this one (so that we can use pycompletionserver
+#without the need for it being in the pythonpath)
+sys.argv[0] = os.path.dirname(sys.argv[0]) 
+#twice the dirname to get the previous level from this file.
+sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
+
 import unittest
 import simpleTipper
 import importsTipper

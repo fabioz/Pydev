@@ -102,6 +102,10 @@ public class PyRefactorView extends ViewPart implements IPropertyListener,
         hookDoubleClickAction();
         
         PyRefactoring.getPyRefactoring().addPropertyListener(this);
+        
+        //now try to load the last results.
+        this.propertyChanged(PyRefactoring.getPyRefactoring().getLastRefactorResults(), PyRefactoring.REFACTOR_RESULT);
+        this.refresh();
     }
 
     private void hookDoubleClickAction() {
@@ -133,7 +137,16 @@ public class PyRefactorView extends ViewPart implements IPropertyListener,
     }
 
     public void propertyChanged(Object source, int propId) {
+        if (source == null){
+            return;
+        }
+        
         Object[] sources = (Object[]) source;
+        
+        if(sources[0]== null || sources[1]== null){
+            return;
+        }
+        
         if (sources[0] == PyRefactoring.getPyRefactoring()
                 && propId == PyRefactoring.REFACTOR_RESULT) {
             

@@ -1,6 +1,8 @@
 package org.python.pydev.plugin;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -8,8 +10,11 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
@@ -25,6 +30,7 @@ import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.templates.PyContextType;
@@ -189,5 +195,51 @@ public class PydevPlugin extends AbstractUIPlugin
 		}
 		return fRegistry;
 	}
+
+    /**
+     * 
+     * @return the script to get the variables.
+     * 
+     * @throws CoreException
+     */
+    public static File getScriptWithinPySrc(String targetExec)
+            throws CoreException {
+    
+        IPath relative = new Path("PySrc").addTrailingSeparator().append(
+                targetExec);
+    
+        Bundle bundle = getDefault().getBundle();
+    
+        URL bundleURL = Platform.find(bundle, relative);
+        URL fileURL;
+        try {
+            fileURL = Platform.asLocalURL(bundleURL);
+            File f = new File(fileURL.getPath());
+    
+            return f;
+        } catch (IOException e) {
+            throw new CoreException(makeStatus(IStatus.ERROR,
+                    "Can't find python debug script", null));
+        }
+    }
+
+    public static File getImageWithinIcons(String icon) throws CoreException {
+    
+        IPath relative = new Path("icons").addTrailingSeparator().append(icon);
+    
+        Bundle bundle = getDefault().getBundle();
+    
+        URL bundleURL = Platform.find(bundle, relative);
+        URL fileURL;
+        try {
+            fileURL = Platform.asLocalURL(bundleURL);
+            File f = new File(fileURL.getPath());
+    
+            return f;
+        } catch (IOException e) {
+            throw new CoreException(makeStatus(IStatus.ERROR,
+                    "Can't find image", null));
+        }
+    }
 
 }

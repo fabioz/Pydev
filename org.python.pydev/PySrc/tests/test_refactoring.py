@@ -2,9 +2,17 @@
 Refactoring tests.
 '''
 
+import os
+import sys
+#make it as if we were executing from the directory above this one (so that we can use pycompletionserver
+#without the need for it being in the pythonpath)
+sys.argv[0] = os.path.dirname(sys.argv[0]) 
+#twice the dirname to get the previous level from this file.
+sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
+
+
 import unittest
 import refactoring
-import os
 
 #===============================================================================
 # delete
@@ -93,15 +101,15 @@ c = C()
 
         self.assertEquals(self.getRefactoredFile(), contents)
 
-#    def testRename(self):
-#        r = refactoring.Refactoring()
-#        s = r.renameByCoordinates(FILE, 1+1, 6, 'G')
-#
-#        f = file(FILE, 'r')
-#        contents = f.read()
-#        f.close()
-#
-#        self.assertEquals(getRenameRefactored(), contents)
+    def testRename(self):
+        r = refactoring.Refactoring()
+        s = r.renameByCoordinates(FILE, 1+1, 6, 'G')
+
+        f = file(FILE, 'r')
+        contents = f.read()
+        f.close()
+
+        self.assertEquals(getRenameRefactored(), contents)
 
     def testRename2(self):
         r = refactoring.Refactoring()

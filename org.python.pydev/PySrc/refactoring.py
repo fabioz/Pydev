@@ -6,6 +6,7 @@ import traceback
 import StringIO
 import urllib
 
+#kind of hack to get the bicicle repair man without having it in the pythonpath.
 sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0]), 
     "ThirdParty", "brm"))
 import ThirdParty.brm.bike as bike
