@@ -52,7 +52,7 @@ public class CompletionRequest{
             int documentOffset,
             PyCodeCompletion codeCompletion){
 
-        String[] strs = codeCompletion.getActivationTokenAndQual(doc, documentOffset); 
+        String[] strs = PyCodeCompletion.getActivationTokenAndQual(doc, documentOffset); 
         this.activationToken = strs[0];
         this.qualifier = strs[1];
         int qlen = qualifier.length();

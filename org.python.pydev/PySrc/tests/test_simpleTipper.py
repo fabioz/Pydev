@@ -59,7 +59,7 @@ class Test(unittest.TestCase):
         raise AssertionError('%s not in %s', tok, tips)
 
     def assertIn(self, tok, tips):
-        self.assertEquals(3, len(tips[0]))
+        self.assertEquals(4, len(tips[0]))
         for a in tips:
             if tok == a[0]:
                 return

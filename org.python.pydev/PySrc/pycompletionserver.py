@@ -115,6 +115,10 @@ class T( threading.Thread ):
                 compMsg.append( ',' )
                 compMsg.append( self.removeInvalidChars( tup[2] ) ) #args - only if function.
                 
+            if(len(tup) > 3):
+                compMsg.append( ',' )
+                compMsg.append( self.removeInvalidChars( tup[3] ) ) #TYPE
+                
             compMsg.append( ')' )
         
         return '%s(%s)%s'%( MSG_COMPLETIONS, ''.join( compMsg ), MSG_END )

@@ -499,11 +499,12 @@ public class PythonShell {
             String token       = URLDecoder.decode(tokenizer.nextToken());
             String description = URLDecoder.decode(tokenizer.nextToken());
             String args        = URLDecoder.decode(tokenizer.nextToken());
+            String type        = URLDecoder.decode(tokenizer.nextToken());
             
 //            System.out.println(token);
 //            System.out.println(description);
 
-            list.add(new String[]{token, description,args});
+            list.add(new String[]{token, description, args, type});
         }
         return list;
     }

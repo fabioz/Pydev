@@ -102,7 +102,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             
             
             
-            String[] strs = codeCompletion.getActivationTokenAndQual(doc, documentOffset); 
+            String[] strs = PyCodeCompletion.getActivationTokenAndQual(doc, documentOffset); 
 
             String activationToken = strs[0];
             String qualifier = strs[1];

@@ -1,6 +1,19 @@
 import inspect
 import sys
 
+
+#completion types.
+TYPE_UNKNOWN = -1
+TYPE_IMPORT = 0
+TYPE_CLASS = 1
+TYPE_FUNCTION = 2
+TYPE_ATTR = 3
+TYPE_BUILTIN = 4
+TYPE_PARAM = 5
+
+
+
+
 def find_class( module, name):
     __import__(module)
     mod   = sys.modules[module]
@@ -73,26 +86,28 @@ def GenerateImportsTipForModule( mod ):
     
     for d in dir( mod ):
         
-        args = ""
-        
+        args = ''
         obj = getattr(mod, d)
-        if inspect.isfunction(obj) or inspect.ismethod (obj):
-        
-            args, vargs, kwargs, defaults = inspect.getargspec( obj )
-            if len( args ) > 0 and args[0] == 'self':
-                args = args[1:]
-                
-            r = '('
-            for a in ( args ):
-                if len( r ) > 1:
-                    r += ', '
-                r += str( a )
-            r += ')'
-            args = r
-            #print obj, args
+        type = TYPE_BUILTIN
 
-        #add token and doc to return
-        ret.append(   (d, inspect.getdoc( getattr( mod, d ) ), args)   )
+        if inspect.ismethod(obj) or inspect.isbuiltin(obj) or inspect.isfunction(obj) or inspect.isroutine(obj):
+            try:
+                args, vargs, kwargs, defaults = inspect.getargspec( obj )
+                    
+                r = ''
+                for a in ( args ):
+                    if len( r ) > 0:
+                        r += ', '
+                    r += str( a )
+                args = '( %s )' % (r)
+            except TypeError:
+
+            #print obj, args
+                args = '()'
+            type = TYPE_FUNCTION
+
+        #add token and doc to return - assure only strings.
+        ret.append(   (d, inspect.getdoc( obj ), args, str(type))   )
 
     return ret
 

@@ -55,7 +55,7 @@ public class CompiledModule extends AbstractModule{
 	            
 	            for (Iterator iter = completions.iterator(); iter.hasNext();) {
 	                String[] element = (String[]) iter.next();
-	                IToken t = new CompiledToken(element[0], element[1], element[2], name, tokenTypes);
+	                IToken t = new CompiledToken(element[0], element[1], element[2], name, Integer.parseInt(element[3]));
 	                array.add(t);
 	                
 	            }
@@ -120,7 +120,7 @@ public class CompiledModule extends AbstractModule{
 	            
 	            for (Iterator iter = completions.iterator(); iter.hasNext();) {
 	                String[] element = (String[]) iter.next();
-	                IToken t = new CompiledToken(element[0], element[1], element[2], name, PyCodeCompletion.TYPE_BUILTIN);
+	                IToken t = new CompiledToken(element[0], element[1], element[2], name, Integer.parseInt(element[3]));
 	                array.add(t);
 	                
 	            }

@@ -138,10 +138,11 @@ public abstract class AbstractVisitor extends VisitorBase{
         if(node instanceof FunctionDef){
             FunctionDef f = (FunctionDef)node;
             
-            StringBuffer buffer = new StringBuffer("( ");
+            String startPar = "( ";
+            StringBuffer buffer = new StringBuffer(startPar);
             
             for (int i = 0; i < f.args.args.length; i++) {
-                if(buffer.length() > 1){
+                if(buffer.length() > startPar.length()){
                     buffer.append(", ");
                 }
                 buffer.append( getRepresentationString(f.args.args[i]) );

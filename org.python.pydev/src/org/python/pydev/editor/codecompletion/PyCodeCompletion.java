@@ -16,12 +16,14 @@ import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
+import org.python.parser.ast.Name;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
@@ -190,26 +192,7 @@ public class PyCodeCompletion {
         
             List completions = new ArrayList();
             if (trimmed.equals("self")) {
-                SimpleNode s = (SimpleNode) PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, pythonNature, line))[0];
-                if(s != null){
-                    FindScopeVisitor visitor = new FindScopeVisitor(line, 0);
-                    try {
-                        s.accept(visitor);
-                        
-                        while(visitor.scope.scope.size() > 0){
-	                        SimpleNode node = (SimpleNode) visitor.scope.scope.pop();
-	                        if(node instanceof ClassDef){
-	                            ClassDef d = (ClassDef) node;
-	                            state.activationToken = d.name;
-	            	            IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
-	            	            theList.addAll(Arrays.asList(comps));
-	                            break;
-	                        }
-                        }
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
-                }
+                getSelfCompletions(request, theList, state);
                 
             } else {
                 if(request.activationToken.endsWith(".")){
@@ -237,6 +220,68 @@ public class PyCodeCompletion {
         changeItokenToCompletionPropostal(request, ret, theList);
 
         return ret;
+    }
+
+    /**
+     * @param request
+     * @param pythonNature
+     * @param astManager
+     * @param theList OUT - returned completions are added here. (IToken instances)
+     * @param line 
+     * @param state
+     * @return the same tokens added in theList
+     */
+    public static IToken[] getSelfCompletions(CompletionRequest request, List theList, CompletionState state) {
+        return getSelfCompletions(request, theList, state, false);
+    }
+    
+    /**
+     * @param request
+     * @param pythonNature
+     * @param astManager
+     * @param theList OUT - returned completions are added here. (IToken instances)
+     * @param line 
+     * @param state
+     * @return the same tokens added in theList
+     */
+    public static IToken[] getSelfCompletions(CompletionRequest request, List theList, CompletionState state, boolean getOnlySupers) {
+        SimpleNode s = (SimpleNode) PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, request.nature, state.line))[0];
+        if(s != null){
+            FindScopeVisitor visitor = new FindScopeVisitor(state.line, 0);
+            try {
+                s.accept(visitor);
+                
+                while(visitor.scope.scope.size() > 0){
+                    SimpleNode node = (SimpleNode) visitor.scope.scope.pop();
+                    if(node instanceof ClassDef){
+                        ClassDef d = (ClassDef) node;
+                        IToken[] comps = new IToken[0];
+                        
+                        if(getOnlySupers){
+                            List gottenComps = new ArrayList();
+                            for (int i = 0; i < d.bases.length; i++) {
+	                            if(d.bases[i] instanceof Name){
+	                                Name n = (Name) d.bases[i];
+			                        state.activationToken = n.id;
+			        	            IToken[] completions = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
+			        	            theList.addAll(Arrays.asList(completions));
+			        	            gottenComps.addAll(Arrays.asList(completions));
+	                            }
+                            }
+                            comps = (IToken[]) gottenComps.toArray(new IToken[0]);
+                        }else{
+	                        state.activationToken = d.name;
+	        	            comps = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
+	        	            theList.addAll(Arrays.asList(comps));
+                        }
+                        return comps;
+                    }
+                }
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+        return new IToken[0];
     }
 
     /**
@@ -314,7 +359,10 @@ public class PyCodeCompletion {
             }
             buffer.append(")");
             args = buffer.toString();
+        } else if (element.getType() == PyCodeCompletion.TYPE_FUNCTION){
+            args = "()";
         }
+        
         return args;
     }
 
@@ -547,7 +595,7 @@ public class PyCodeCompletion {
                 .lastIndexOf('\n');
     }
     
-	private String extractPrefix(IDocument document, int offset) {
+	private static String extractPrefix(IDocument document, int offset) {
 		int i= offset;
 		if (i > document.getLength())
 			return ""; //$NON-NLS-1$
@@ -566,6 +614,11 @@ public class PyCodeCompletion {
 		}
 	}
 
+    public static String [] getActivationTokenAndQual(String theDoc, int documentOffset) {
+        return getActivationTokenAndQual(new Document(theDoc), documentOffset);
+        
+    }
+	
     /**
      * Returns the activation token.
      * 
@@ -573,7 +626,7 @@ public class PyCodeCompletion {
      * @param documentOffset
      * @return the activation token and the qualifier.
      */
-    public String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset) {
+    public static String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset) {
         String activationToken = extractPrefix(theDoc, documentOffset);
         documentOffset = documentOffset-activationToken.length()-1;
 
@@ -644,7 +697,7 @@ public class PyCodeCompletion {
      * @return
      * @throws BadLocationException
      */
-    private int eatFuncCall(IDocument theDoc, int documentOffset) throws BadLocationException {
+    private static int eatFuncCall(IDocument theDoc, int documentOffset) throws BadLocationException {
         String c = theDoc.get(documentOffset, 1);
         if(c.equals(")") == false){
             throw new AssertionError("Expecting ) to eat callable. Received: "+c);
@@ -661,7 +714,7 @@ public class PyCodeCompletion {
     /**
      * Checks if the activationToken ends with some char from cs.
      */
-    private boolean endsWithSomeChar(char cs[], String activationToken) {
+    private static boolean endsWithSomeChar(char cs[], String activationToken) {
         for (int i = 0; i < cs.length; i++) {
             if (activationToken.endsWith(cs[i] + "")) {
                 return true;

@@ -69,7 +69,7 @@ public class PythonShellTest extends TestCase {
         List list = shell.getImportCompletions("dfjslkfjds\n\n");
         assertEquals(1, list.size());
         Object object[] = (Object[]) list.get(0);
-        assertEquals("ERROR:", object[0]);
+        assertEquals("SERVER_ERROR", object[0]);
     }
 
 }

@@ -20,6 +20,7 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionProposal;
+import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
@@ -27,6 +28,7 @@ import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.ClassNode;
 import org.python.pydev.editor.model.FunctionNode;
 import org.python.pydev.editor.model.ModelUtils;
+import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
@@ -121,6 +123,14 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 	        }
             
             
+        }else if (sel.indexOf("def ") != -1){
+            
+            try {
+                results.addAll(getOverrideProps(ps));
+	        } catch (BadLocationException e) {
+	        }
+            
+            
         }else {
             
             try {
@@ -145,8 +155,83 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
      * @param ps
      * @return
      */
+    private List getOverrideProps(PySelection ps) throws BadLocationException {
+        ArrayList l = new ArrayList();
+        String sel = getLine(ps);
+        int j = sel.indexOf("def ");
+        
+        String indentation = PyBackspace.getStaticIndentationString();
+        String delimiter = PyAction.getDelimiter(ps.doc, 0);
+        String indStart = "";
+
+        for (int i = 0; i < j; i++) {
+            indStart += " ";
+        }
+        
+        String start = sel.substring(0, j+4);
+        
+        String[] strs = PyCodeCompletion.getActivationTokenAndQual(ps.doc, ps.absoluteCursorOffset);
+        String tok = strs[1];
+        
+        
+        CompletionState state = new CompletionState(ps.startLineIndex, ps.absoluteCursorOffset - ps.startLine.getOffset(), null, edit.getPythonNature());
+        CompletionRequest request = new CompletionRequest(edit, ps.doc, "self", ps.absoluteCursorOffset, 0, new PyCodeCompletion(true), "");
+        IToken[] selfCompletions = PyCodeCompletion.getSelfCompletions(request, new ArrayList(), state, true);
+        for (int i = 0; i < selfCompletions.length; i++) {
+            IToken token = selfCompletions[i];
+            String rep = token.getRepresentation();
+            if(rep.startsWith(tok)){
+		        StringBuffer buffer = new StringBuffer( start );
+                buffer.append(rep);
+
+                String args = token.getArgs();
+	            if(args.equals("()")){
+	                args = "( self )";
+	            }
+		        buffer.append(args);
+                
+                buffer.append(":");
+                buffer.append(delimiter);
+                
+                buffer.append(indStart);
+                buffer.append(indentation);
+                buffer.append("'''");
+                buffer.append(delimiter);
+
+                buffer.append(indStart);
+                buffer.append(indentation);
+		        buffer.append("@see super method: "+rep);
+                buffer.append(delimiter);
+
+                buffer.append(indStart);
+                buffer.append(indentation);
+                buffer.append("'''");
+                buffer.append(delimiter);
+                
+                buffer.append(indStart);
+                buffer.append(indentation);
+                
+                String comp = buffer.toString();
+
+                System.out.println("comp ="+comp);
+                l.add(new CompletionProposal(comp, ps.startLine.getOffset(), ps.startLine.getLength(), comp.length() , imageCache.get(UIConstants.ASSIST_NEW_CLASS),
+                        rep+" (Override)", null, null));
+            }
+        }
+        
+        return l;
+    }
+
+    /**
+     * @param ps
+     * @return
+     */
     private List getClassProps(PySelection ps) throws BadLocationException {
         ArrayList l = new ArrayList();
+
+        String indentation = PyBackspace.getStaticIndentationString();
+        String delimiter = PyAction.getDelimiter(ps.doc, 0);
+        
         
         String sel = getLine(ps);
         int beg = sel.indexOf('(');
@@ -156,6 +241,9 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
             sel = sel.substring(beg+1, end);
         }
         
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(delimiter);
+        
         StringTokenizer tokenizer = new StringTokenizer(sel);
         while (tokenizer.hasMoreTokens()) {
             String cl = tokenizer.nextToken();
@@ -164,10 +252,42 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
             
             //ok, now that we have the tokens, we have to discover which ones are methods...
             for (int i = 0; i < tokens.length; i++) {
-                if(tokens[i].getType() == PyCodeCompletion.TYPE_FUNCTION){
-                    
+                IToken token = tokens[i];
+                if(token.getType() == PyCodeCompletion.TYPE_FUNCTION){
+                    String rep = token.getRepresentation();
+                    if(rep.startsWith("_") == false){
+				        buffer.append(delimiter);
+				        buffer.append(indentation);
+				        buffer.append("def ");
+				        buffer.append(rep);
+
+				        String args = token.getArgs();
+			            if(args.equals("()")){
+			                args = "( self )";
+			            }
+				        buffer.append(args);
+				        buffer.append(":");
+				        buffer.append(delimiter);
+				        buffer.append(indentation);
+				        buffer.append(indentation);
+				        buffer.append("'''");
+
+				        buffer.append(delimiter);
+				        buffer.append(indentation);
+				        buffer.append(indentation);
+				        buffer.append("@see "+sel+"."+rep);
+				        
+				        buffer.append(delimiter);
+				        buffer.append(indentation);
+				        buffer.append(indentation);
+				        buffer.append("'''");
+				        buffer.append(delimiter);
+                    }
                 }
             }
+            int offset = ps.startLine.getOffset()+ps.startLine.getLength();
+            l.add(new CompletionProposal(buffer.toString(), offset, 0, 0 , imageCache.get(UIConstants.ASSIST_NEW_CLASS),
+                    "Implement super public interface", null, null));
         }
         return l;
     }

@@ -80,6 +80,7 @@ class Test(unittest.TestCase):
             msg = urllib.quote_plus('math')
             sToWrite.send('@@IMPORTS:%sEND@@'%msg) #math completions
             completions = self.readMsg()
+            #print urllib.unquote_plus(completions)
             
             
             start = '@@COMPLETIONS((__doc__,'
