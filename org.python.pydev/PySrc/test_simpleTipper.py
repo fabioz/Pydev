@@ -123,23 +123,6 @@ class TestLocals(object):
     
         return s
 
-    def testEnv4(self):
-        comps = simpleTipper.GenerateTip(self.getDoc4(), None, False)
-
-    def getDoc4(self):
-        s = \
-'''import test
-
-
-class KKKK(object):
-    pass
-    
-f = KKKK()
-
-d = test.LL()
-d.vv()
-'''
-        return s
 
 if __name__ == '__main__':
     
