@@ -128,7 +128,7 @@ public class Scope {
 					retVal.add(item);
 			}
 		}
-		if (start != null && start instanceof ClassNode)
+		if (start != null && start instanceof ClassNode && c.compare(token, start) == 0)
 		// class name can also be a function call
 			retVal.add(start);
 		// now traverse parents

@@ -24,6 +24,7 @@ set up the python interpreter in the preferences.
 		[self.method calls]: self.method_name works if method is defined in the same file
 - When you are editing in the tab mode, paste will replace spaces with tabs
 - tabs/spaces conversion only takes place inside code, not inside comments
+- IDLE like colors for text
 
 Bug fixes:
 - Moved parsing so that all pydev parsers use single thread

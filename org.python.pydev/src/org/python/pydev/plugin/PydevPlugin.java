@@ -109,7 +109,7 @@ public class PydevPlugin extends AbstractUIPlugin
 	 * 
 	 * @return part that is the editor
 	 */
-	public IEditorPart doOpenEditor(IPath path) {
+	public IEditorPart doOpenEditor(IPath path, boolean activate) {
 		if (path == null)
 			return null;
 		IWorkspace w = ResourcesPlugin.getWorkspace();
@@ -118,7 +118,7 @@ public class PydevPlugin extends AbstractUIPlugin
 		try {
 			if (file != null && file.exists()) {
 				// File is inside the workspace
-				return wp.openEditor(file, null, true);
+				return wp.openEditor(file, null, activate);
 			} else {
 				IStorage storage = new FileStorage(path);
 				IEditorRegistry registry = PlatformUI.getWorkbench().getEditorRegistry();

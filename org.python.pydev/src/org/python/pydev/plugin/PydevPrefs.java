@@ -40,11 +40,11 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	public static final String CODE_COLOR = "CODE_COLOR";
 	private static final RGB DEFAULT_CODE_COLOR = new RGB(0, 0, 0);
 	public static final String KEYWORD_COLOR = "KEYWORD_COLOR";
-	private static final RGB DEFAULT_KEYWORD_COLOR = new RGB(160, 32, 240);
+	private static final RGB DEFAULT_KEYWORD_COLOR = new RGB(255, 119, 0);
 	public static final String STRING_COLOR = "STRING_COLOR";
-	private static final RGB DEFAULT_STRING_COLOR = new RGB(120, 130, 61);
+	private static final RGB DEFAULT_STRING_COLOR = new RGB(0, 170, 0);
 	public static final String COMMENT_COLOR = "COMMENT_COLOR";
-	private static final RGB DEFAULT_COMMENT_COLOR = new RGB(178, 34, 34);
+	private static final RGB DEFAULT_COMMENT_COLOR = new RGB(221, 0, 0);
 	public static final String INTERPRETER_PATH = "INTERPRETER_PATH";
 	protected static final String DEFAULT_INTERPRETER_PATH = "python";
 	public static final String HYPERLINK_COLOR = "HYPERLINK_COLOR";

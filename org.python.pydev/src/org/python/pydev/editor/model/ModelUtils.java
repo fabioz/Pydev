@@ -67,7 +67,8 @@ public class ModelUtils {
 		}
 		if (loc.contained(root.getStart(), root.getEnd())
 			&& ((root.getProperties() & properties) == properties)) {
-				System.out.println(root.toString());
+				// LAM Uncomment this to see all items you are hovering over
+				// System.out.println(root.toString());
 				return root;
 			}
 		return null;
@@ -202,7 +203,7 @@ public class ModelUtils {
 					}		
 				});
 			for (Iterator i = funcCalls.iterator(); i.hasNext();) {
-				FunctionNode funcNode = (FunctionNode)i.next();
+				AbstractNode funcNode = (AbstractNode)i.next();
 				retVal.add(new ItemPointer(funcNode.getPath(), funcNode.getStart(), funcNode.getEnd()));
 			}
 		} else if (node instanceof ImportAlias || node instanceof ImportFromNode) {
@@ -230,7 +231,7 @@ public class ModelUtils {
 								}}
 								);
 				for (Iterator i = funcCalls.iterator(); i.hasNext();) {
-					FunctionNode funcNode = (FunctionNode)i.next();
+					AbstractNode funcNode = (AbstractNode)i.next();
 					retVal.add(new ItemPointer(funcNode.getPath(), funcNode.getStart(), funcNode.getEnd()));
 				}
 			}

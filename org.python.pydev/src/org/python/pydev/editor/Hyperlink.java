@@ -300,7 +300,9 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 			return null;
 		fClickedNode = ModelUtils.getElement(fEditor.getPythonModel(), 
 									offset, viewer.getDocument(), AbstractNode.PROP_CLICKABLE);
-		if (fClickedNode == null)
+		
+		if (fClickedNode == null || 
+			ModelUtils.findDefinition(fClickedNode).size() == 0)
 			return null;
 
 //		try {
