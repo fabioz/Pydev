@@ -286,7 +286,7 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 				|| adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class) 
 				)
 			return  super.getAdapter(adapter);
-		System.err.println("Need adapter " + adapter.toString());
+//		System.err.println("Need adapter " + adapter.toString());
 		return super.getAdapter(adapter);
 	}
 

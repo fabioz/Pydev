@@ -208,7 +208,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame {
 			)
 			return  super.getAdapter(adapter);
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
-		System.err.println("PyStackFrame Need adapter " + adapter.toString());
+//		System.err.println("PyStackFrame Need adapter " + adapter.toString());
 		return super.getAdapter(adapter);
 	}
 
