@@ -14,8 +14,8 @@
 <tr align="center" bgcolor="#eeeeee" valign="middle">
 <td colspan="7" nowrap="nowrap">
 <center>
-<p class="header_text">Last Site Update: 14 February 2005 |
-Latest Version: 0.9.0</p>
+<p class="header_text">Last Site Update: 02 March 2005 |
+Latest Version: 0.9.1</p>
 </center>
 </td>
 </tr>
@@ -213,9 +213,9 @@ cellspacing="0" width="200">
 
 <tr>
 <td colspan="2" class="menu_links" align="center">
-<a href="http://sourceforge.net"> <img src="http://sourceforge.net/sflogo.php?group_id=85796&amp;type=5" 
-alt="SourceForge Logo"
-width="70" height="25" alt="SourceForge.net Logo" BORDER="1"> </a>
+<a href="http://sourceforge.net"> 
+<img src="http://sourceforge.net/sflogo.php?group_id=85796&amp;type=5" alt="SourceForge" width="70" height="25" border="1"/> 
+</a>
 </td>
 </tr>
 
@@ -227,10 +227,10 @@ width="70" height="25" alt="SourceForge.net Logo" BORDER="1"> </a>
 </tr>
 
 <tr>
-<td colspan="2" class="menu_links" align="center"><a href=
-"http://sourceforge.net/donate/index.php?group_id=85796"><img
-alt="" src="images/paypal.gif" alt=
-"Make payments with PayPal - it's fast, free and secure!" BORDER="0"/></a>
+<td colspan="2" class="menu_links" align="center">
+<a href="http://sourceforge.net/donate/index.php?group_id=85796">
+<img alt="paypal" src="images/paypal.gif" border="0"/>
+</a>
 </td>
 </tr>
 
@@ -245,9 +245,11 @@ alt="" src="images/paypal.gif" alt=
 ESSS - Engineering Simulation and Scientific Software
 -->
 <tr>
-<td colspan="2" class="menu_links" align="center"><a href=
-"sponsors.html"><img alt="" src="images/logo_esss2.gif" alt=
-"ESSS" BORDER="0" /></a>
+<td colspan="2" class="menu_links" align="center">
+<a href="sponsors.html">
+<img src="images/logo_esss2.gif" alt="ESSS" border="0" />
+</a>
+
 </td>
 </tr>
 
@@ -291,31 +293,39 @@ as a "getting to know Eclipse project".<br>
 
 <h2>News:</h2>
 
-<li>
-Homepage update: Check available keybindings for PyDev in the <a href="faq.html">FAQ</a>
-</li>
-<li>
-Homepage update: Check our <a href="sponsors.html">sponsors</a> section (and become one).
-</li>
-<br>
 <p>
-<strong>New Release: 0.9.0!!</strong><br><br>
+<strong>New Release: 0.9.1!!</strong><br>
 
+<ul class="ulnav">
+Lot's of 'sugar' in this release...
 <li>
-This release claims support for the 2.4 syntax (sort of - see details <a href = "version_2_4.html">here</a>). 
+Code Formatter (simple, but already useful) - Ctrl+Shift+F
 </li>
 
 <li>
-Keep you 'quality standards': <a href="pylint.html">PyLint 0.6</a> is integrated with PyDev!! <br>
-PyLint can help you verify your code for some 'quality standard',
-and can find many errors in your program without having to run it.
+Organize imports/selection alphabetically - Ctrl+Shift+O
 </li>
 
 <li>
-Builders can be disabled if you want (check our <a href=faq.html>FAQ</a> as this can be a problem or a solution).
+Keep your 'quality standards' with <a href="pylint.html">PyLint 0.6.3</a>: now it only locks the interface whan updating results.
 </li>
 
+<li>
+<a href="contentassist.html">Content Assistants</a>: They now have icons!!
+</li>
 
+<li>
+Scott Schlesier provided a patch for the <a href="editor.html">editor preferences</a>! It is much better now!
+</li>
+
+<li>
+<a href="codecompletion.html">Code completion</a> has been improved! 
+</li>
+
+<li>
+In debug, the PYTHONPATH and namespaces are the same used in run mode.
+</li>
+</ul>
 
 <hr/>
 <br>
@@ -323,6 +333,7 @@ Builders can be disabled if you want (check our <a href=faq.html>FAQ</a> as this
 
 <IMG src="images/tks_smiley4.gif" border="0" >
 Thanks to everyone that supports this project... It feels really good know that the effort to support this project is being appreciated!
+Check our <a href="sponsors.html">sponsors</a> section (and become one)
 <br>
 <br>
 If you also want to donate, click <a href="http://sourceforge.net/donate/index.php?group_id=85796">here (paypal)</a>. And just as
@@ -342,6 +353,7 @@ PyDev is featured as a plugin for eclipse for editing, running and debugging Pyt
 It has already proven stable, even though it has still not reached version 1.0.
 
 Some features provided are:
+<ul class="ulnav">
 <li><a href="codecompletion.html">Code Completion</a> </li> 
 <li><a href="refactoring.html">Refactoring</a> with <a href="http://bicyclerepair.sourceforge.net/">bicycle repair man</a></li>
 <li>Outline</li>
@@ -352,6 +364,7 @@ Some features provided are:
 <li><a href="tasks.html">TODO tasks</a></li>
 <li>Editor with color selection, syntax highlighting, etc.</li>
 Etc. (more details can be found at the <a href="features.html">features</a> page)
+</ul>
 </p>
 
 <p>

@@ -24,6 +24,11 @@ PyLint does not work if we have spaces in the path
 
 
 
+
+
+
+
+
 Done after 0.9.0
 
 Content assistant improvements:
@@ -40,6 +45,7 @@ Others:
 - PyLint only blocks interface on "update results";
 - the namespace in debug mode is not polluted anymore (Scott Schleiser provided the patch);
 - The PYTHONPATH used for debug now should be the same used in run.
+- Editor preferences
 
 Code Completion:
 - get parameters in code completion;

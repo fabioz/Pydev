@@ -1,7 +1,7 @@
 <toc label="PyDev User Guide" topic="pydev.sf.net/_index.contents.html">
 	
 	<topic label="Features" href="pydev.sf.net/_features.contents.html">
-		<topic label="Preferences" href="pydev.sf.net/_editor_prefs.contents.html"/>
+		<topic label="Preferences" href="pydev.sf.net/_editor.contents.html"/>
 		<topic label="Code Completion" href="pydev.sf.net/_codecompletion.contents.html"/>
 		<topic label="Code Coverage" href="pydev.sf.net/_codecoverage.contents.html"/>
 		<topic label="Content Assist" href="pydev.sf.net/_contentassist.contents.html"/>

@@ -1,3 +1,16 @@
+/*** Nav bar styles ***/
+
+
+.linav {
+	margin: 10px;
+	padding: 0px;
+}
+
+.ulnav {
+	margin: 0px;
+	padding: 0px;
+}
+
 
 body {
 	margin-left: 0px;

@@ -30,6 +30,9 @@ def _getTopicTd(link, name):
 ''' 
     return s % (link, name)
 
+
+
+
 def _topicFeatures():
 #    return ''
     s = \
@@ -149,7 +152,6 @@ def Main():
     channelPydevCodeCover      = '8064582308'
     channelPydevDebug          = '5155326690'
     channelPydevEditor         = '1542865200'
-    channelPydevEditorPrefs    = '9616384936'
     channelPydevPyLint         = '5824164055'
     channelPydevTasks          = '0662167821'
     
@@ -172,7 +174,6 @@ def Main():
     Template( '_template.html', 'codecoverage'            , 'Code Coverage'            ,_topicFeatures() , channelPydevCodeCover    , _otherFeatures())
     Template( '_template.html', 'debug'                   , 'Debugger'                 ,_topicFeatures() , channelPydevDebug        , _otherFeatures())
     Template( '_template.html', 'editor'                  , 'Editor'                   ,_topicFeatures() , channelPydevEditor       , _otherFeatures())
-    Template( '_template.html', 'editor_prefs'            , 'Editor Preferences'       ,_topicFeatures() , channelPydevEditorPrefs  , _otherFeatures())
     Template( '_template.html', 'pylint'                  , 'PyLint'                   ,_topicFeatures() , channelPydevPyLint       , _otherFeatures())
     Template( '_template.html', 'tasks'                   , 'Tasks'                    ,_topicFeatures() , channelPydevTasks        , _otherFeatures())
     print "done"

@@ -2,7 +2,7 @@
 <feature
       id="org.python.pydev.feature"
       label="org.python.pydev.feature"
-      version="0.9.0.9"
+      version="0.9.1"
       provider-name="Aleks Totic / Fabio Zadrozny">
 
    <description>
@@ -42,21 +42,21 @@ Aleks and Fabio
    </requires>
 
    <plugin
+         id="org.python.pydev"
+         download-size="0"
+         install-size="0"
+         version="0.9.1"/>
+
+   <plugin
          id="org.python.pydev.debug"
          download-size="0"
          install-size="0"
-         version="0.9.0.4"/>
+         version="0.9.1"/>
 
    <plugin
          id="org.python.pydev.help"
          download-size="0"
          install-size="0"
-         version="0.9.0.4"/>
-
-   <plugin
-         id="org.python.pydev"
-         download-size="0"
-         install-size="0"
-         version="0.9.0.9"/>
+         version="0.9.1"/>
 
 </feature>
