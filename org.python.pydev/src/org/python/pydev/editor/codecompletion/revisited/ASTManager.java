@@ -282,7 +282,7 @@ public class ASTManager implements Serializable, IASTManager {
                     String[] splitted = element.split("\\.");
                     if (splitted.length > 0) {
                         //this is the completion
-                        set.add(new ConcreteToken(splitted[0], "", initial, PyCodeCompletion.TYPE_IMPORT));
+                        set.add(new ConcreteToken(splitted[0], "", "", initial, PyCodeCompletion.TYPE_IMPORT));
                     }
                 }
 

@@ -21,8 +21,8 @@ public class ConcreteToken extends AbstractToken{
      * @param parentPackage
      * @param type
      */
-    public ConcreteToken(String rep, String doc, String parentPackage, int type) {
-        super(rep, doc, parentPackage, type);
+    public ConcreteToken(String rep, String doc, String args, String parentPackage, int type) {
+        super(rep, doc, args, parentPackage, type);
     }
 
 

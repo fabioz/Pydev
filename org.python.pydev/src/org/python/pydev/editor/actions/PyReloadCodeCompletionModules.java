@@ -22,13 +22,13 @@ public class PyReloadCodeCompletionModules extends PyAction{
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
-        try {
-            PythonShell.getServerShell(PythonShell.COMPLETION_SHELL).sendReloadModulesMsg();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (CoreException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            PythonShell.getServerShell(PythonShell.COMPLETION_SHELL).sendReloadModulesMsg();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (CoreException e) {
+//            e.printStackTrace();
+//        }
         
     }
 

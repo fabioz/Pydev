@@ -13,6 +13,7 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.Expr;
+import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Str;
@@ -125,10 +126,31 @@ public abstract class AbstractVisitor extends VisitorBase{
      */
     protected void addToken(SimpleNode node) {
         //add the token
-        SourceToken t = new SourceToken(node, getRepresentationString(node), getNodeDocString(node), moduleName);
+        SourceToken t = new SourceToken(node, getRepresentationString(node), getNodeArgs(node), getNodeDocString(node), moduleName);
         this.tokens.add(t);
     }
 
+    /**
+     * @param node
+     * @return
+     */
+    private String getNodeArgs(SimpleNode node) {
+        if(node instanceof FunctionDef){
+            FunctionDef f = (FunctionDef)node;
+            
+            StringBuffer buffer = new StringBuffer("( ");
+            
+            for (int i = 0; i < f.args.args.length; i++) {
+                if(buffer.length() > 1){
+                    buffer.append(", ");
+                }
+                buffer.append( getRepresentationString(f.args.args[i]) );
+            }
+            buffer.append(" )");
+            return buffer.toString();
+        }
+        return "";
+    }
     /**
      * This method transverses the ast and returns a list of found tokens.
      * 

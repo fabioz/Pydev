@@ -24,6 +24,7 @@ public interface IToken extends Serializable, Comparable{
     public String getRepresentation();
     public String getDocStr();
     public int getType();
+    public String getArgs();
     public String getParentPackage();
     
     /**

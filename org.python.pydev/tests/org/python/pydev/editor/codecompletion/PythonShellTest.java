@@ -54,69 +54,22 @@ public class PythonShellTest extends TestCase {
     }
 
     public void testGetGlobalCompletions() throws IOException, CoreException {
-        String str = "import math\n";
-        List list = shell.getGlobalCompletions(str);
+        List list = shell.getImportCompletions("math");
 
         Object[] element = null;
         
         element = (Object[]) list.get(0);
-        assertEquals("math", element[0]);
-        assertEquals(
-                "This module is always available.  It provides access to the\n"
-                        + "mathematical functions defined by the C standard.",
-                element[1]);
+        assertEquals("__doc__", element[0]);
 
-        element = (Object[]) list.get(1);
-        assertEquals("__builtins__", element[0]);
-
-    }
-
-    public void testGetTokenCompletions() throws IOException, CoreException {
-        String str = "\n\n\n\n\nimport math\n\n\n#testetestse\n\n\n\n\n";
-        List list = shell.getTokenCompletions("math", str);
         assertEquals(29, list.size());
-        //        for (Iterator iter = list.iterator(); iter.hasNext();) {
-        //            Object[] element = (Object[]) iter.next();
-        //            System.out.println(element[0]);
-        //            System.out.println(element[1]);
-        //        }
     }
+
 
     public void testErrorOnCompletions() throws IOException, CoreException {
-        String str = "import math; class C dsdfas d not valid\n";
-        List list = shell.getTokenCompletions("math", str);
+        List list = shell.getImportCompletions("dfjslkfjds\n\n");
         assertEquals(1, list.size());
         Object object[] = (Object[]) list.get(0);
         assertEquals("ERROR:", object[0]);
     }
 
-    public void testOther() throws CoreException {
-        String str = getTestStr();
-
-        List list = shell.getClassCompletions("C", str);
-        assertEquals(18, list.size());
-
-        list = shell.getTokenCompletions("C", str);
-        assertEquals(17, list.size());
-        //       for (Iterator iter = list.iterator(); iter.hasNext();) {
-        //           Object[] element = (Object[]) iter.next();
-        //           System.out.println(element[0]);
-        //           System.out.println(element[1]);
-        //       }
-
-    }
-
-    /**
-     * @return
-     */
-    private String getTestStr() {
-        String str = "class C(object):        \n"
-                + "                        \n" + "    def __init__(self): \n"
-                + "        print dir(self) \n" + "                        \n"
-                + "    def a(self):        \n" + "        pass            \n"
-                + "                        \n" + "                        \n"
-                + "    def b(self):        \n" + "        self.c=1        \n"
-                + "        pass            \n";
-        return str;
-    }
 }

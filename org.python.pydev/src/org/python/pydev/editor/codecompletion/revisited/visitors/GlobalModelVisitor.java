@@ -92,7 +92,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
     public Object visitImportFrom(ImportFrom node) throws Exception {
         if (this.visitWhat == WILD_MODULES) {
             if (node.names.length == 0) {
-                this.tokens.add(new SourceToken(node, node.module, "", moduleName));
+                this.tokens.add(new SourceToken(node, node.module, "",  "", moduleName));
             }
         } else if (this.visitWhat == ALIAS_MODULES) {
             if (node.names.length > 0) {
@@ -103,7 +103,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
                         name = node.names[i].asname;
                     }
                     
-	                this.tokens.add(new SourceToken(node, name, "", node.module, original));
+	                this.tokens.add(new SourceToken(node, name, "", "", node.module, original));
                 }
             }
         }
@@ -123,7 +123,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
                     if(node.names[i].asname != null){
                         name = node.names[i].asname;
                     } 
-	                this.tokens.add(new SourceToken(node, name, "", moduleName, original));
+	                this.tokens.add(new SourceToken(node, name, "", "", moduleName, original));
                 }
             }
         }
@@ -135,7 +135,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
      */
     public Object visitStr(Str node) throws Exception {
         if(this.visitWhat == MODULE_DOCSTRING){
-            this.tokens.add(new SourceToken(node, node.s, "", moduleName));
+            this.tokens.add(new SourceToken(node, node.s, "", "", moduleName));
         }
         return null;
     }

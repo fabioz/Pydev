@@ -1,128 +1,99 @@
-import copy
-import os
-import sys
-import os.path 
 import inspect
+import sys
 
-_accessibleModules = {}
+def find_class( module, name):
+    __import__(module)
+    mod   = sys.modules[module]
+    klass = getattr(mod, name)
+    return klass
 
-def isModuleWithinList(mod, lis, dbg = False):
-    for l in lis:
-        if l[0] == mod:
-            if dbg:
-                print 'returning', l
-            return l
-    return None
+
+def FindClass( p_full_class_ ):
+    import types
+    type    = p_full_class_.split('.')
+    module_ = '.'.join( type[:-1] )
+    class_  = type[-1]
+
+    if class_ == 'NoneType':
+        return types.NoneType
+
+    if module_:
+        return find_class( module_, class_ )
+    else:
+        return eval( class_ )
+
+def _genMod( toks ):
+    ret = ''
     
-def ParseDir(d):
-    ret = []
-    if os.path.exists(d) and os.path.isdir(d):
-        contents = os.listdir(d)
+    for t in toks:
+        if len(ret) > 0:
+            ret += '.'
+        ret += t
         
-        for f in contents:
-            absolute = os.path.join(d, f)
-            
-            if os.path.isfile(absolute):
-                m = None
-                
-                #if it is a file, just check if it is a valid module.
-                if f.endswith('.py'):
-                    m = stripExtension(f, ret, '.py')
-
-                if f.endswith('.pyw'):
-                    m = stripExtension(f, ret, '.pyw')
-
-                if f.endswith('.pyc'):
-                    m = stripExtension(f, ret, '.pyc')
-
-                if f.endswith('.pyd'):
-                    m = stripExtension(f, ret, '.pyd')
-
-                if f.endswith('.dll'):
-                    m = stripExtension(f, ret, '.dll')
-
-                if f.endswith('.pyo'):
-                    m = stripExtension(f, ret, '.pyo')
-
-                if m is not None and isModuleWithinList(m, ret) is None:
-                    ret.append((m,absolute))
-                    
-            elif os.path.isdir(absolute):
-                contents2 = os.listdir(absolute)
-                
-                if '__init__.py' in contents2 or '__init__.pyc' in contents2 or '__init__.pyw' in contents2:
-                    ret.append((f,absolute))
-                    
     return ret
 
-def stripExtension(f, ret, ext):
-    return f[0:-len(ext)]
-
-def GenerateTip(data):
-    data = data.replace('\n','')
-    if data.endswith('.'):
-        data = data.rstrip('.')
-    
-    if data.strip() == '':
-        return GenerateImportsTip([])
-    
-    splitted = data.split('.')
-    return GenerateImportsTip(splitted)
-
-
-def GenerateImportsTip(tokenList, pth = sys.path, completeModule = ''):
-    pythonPath = pth
-
-    #first, just get the root modules
-    mods = []
-    for d in pythonPath:
-        if _accessibleModules.get(d, None) == None:
-            mods += ParseDir(d)
-    
-    if len(tokenList) == 0:
-        return mods
-    
-    else:
-        token = tokenList[0]
-        if len(completeModule) > 0:
-            completeModule += '.'
-        completeModule += token
-        
-        
-        newTokenList = tokenList[1:]
-        mod = isModuleWithinList(token , mods) 
-
-        if mod is not None:
-
-            if os.path.isfile(mod[1]):
-                mod = myImport(completeModule)
-                return GenerateImportsTipForModule(newTokenList, mod)
-                
-            elif os.path.isdir(mod[1]):
-                return GenerateImportsTip(newTokenList, [mod[1]], completeModule)
-        
-        else:
-            mod = myImport(completeModule)
-            return GenerateImportsTipForModule(newTokenList, mod)
-    
-    raise RuntimeError('Unable to complete.')
-    
-def myImport(name):
-    mod = __import__(name)
+def ImportMod(name):
+    '''
+    Method used to import a module from a string.
+    '''
     components = name.split('.')
-    for comp in components[1:]:
-        mod = getattr(mod, comp)
+    
+    raised = False
+    for c in components:
+        if not raised:
+            try:
+                mod = __import__(c)
+            except:
+                raised = True
+        
+        if raised:
+            mod = getattr(mod, c)
+            
     return mod
 
 
-def GenerateImportsTipForModule(tokenList, mod):
+
+def GenerateTip( data ):
+    data = data.replace( '\n', '' )
+    if data.endswith( '.' ):
+        data = data.rstrip( '.' )
+    
+
+    try:
+        mod = FindClass( data )
+    except:
+        mod = ImportMod( data )
+    return GenerateImportsTipForModule( mod )
+    
+    
+
+
+def GenerateImportsTipForModule( mod ):
     ret = []
     
-    while len(tokenList) > 0:
-        mod = getattr(mod, tokenList.pop(0))
+    for d in dir( mod ):
         
-    for d in dir(mod):
-        ret.append([d,inspect.getdoc(getattr(mod, d))])
+        args = ""
+        
+        obj = getattr(mod, d)
+        if inspect.isfunction(obj) or inspect.ismethod (obj):
+        
+            args, vargs, kwargs, defaults = inspect.getargspec( obj )
+            if len( args ) > 0 and args[0] == 'self':
+                args = args[1:]
+                
+            r = '('
+            for a in ( args ):
+                if len( r ) > 1:
+                    r += ', '
+                r += str( a )
+            r += ')'
+            args = r
+            #print obj, args
+
+        #add token and doc to return
+        ret.append(   (d, inspect.getdoc( getattr( mod, d ) ), args)   )
+
     return ret
 
 

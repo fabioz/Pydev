@@ -15,19 +15,25 @@ public abstract class AbstractToken implements IToken{
     private String rep;
     private String originalRep;
     private String doc;
+    private String args;
     private String parentPackage;
     private int type;
 
-    public AbstractToken(String rep, String doc, String parentPackage, int type, String originalRep){
-        this(rep, doc, parentPackage, type);
+    public AbstractToken(String rep, String doc, String args, String parentPackage, int type, String originalRep){
+        this(rep, doc, args, parentPackage, type);
         this.originalRep = originalRep;
     }
     
-    public AbstractToken(String rep, String doc, String parentPackage, int type){
+    public AbstractToken(String rep, String doc, String args, String parentPackage, int type){
         if (rep != null)
             this.rep = rep;
         else
             this.rep = "";
+        
+        if (args != null)
+            this.args = args;
+        else
+            this.args = "";
         
         this.originalRep = this.rep;
         
@@ -43,6 +49,14 @@ public abstract class AbstractToken implements IToken{
             this.parentPackage = "";
         
         this.type = type;
+    }
+    
+    
+    /**
+     * @see org.python.pydev.editor.codecompletion.revisited.IToken#getArgs()
+     */
+    public String getArgs() {
+        return args;
     }
     
     /**

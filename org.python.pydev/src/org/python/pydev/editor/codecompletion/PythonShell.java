@@ -334,7 +334,7 @@ public class PythonShell {
      */
     public String read() throws IOException {
         String r = read(null);
-//        System.out.println("RETURNING:"+r);
+//        System.out.println("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r)));
         return r;
     }
     
@@ -426,50 +426,6 @@ public class PythonShell {
         }
     }
     
-    public void sendReloadModulesMsg(){
-        try {
-            this.write("@@RELOAD_MODULES_END@@");
-            String ok = this.read(); //this should be the ok message...
-            
-        } catch (IOException e) {
-            PydevPlugin.log(IStatus.ERROR, "ERROR sending reload modules msg.", e);
-        }
-    }
-
-    /**
-     * @param str
-     * @throws CoreException
-     * @throws IOException
-     */
-    public List getGlobalCompletions(String str) throws CoreException {
-        str = URLEncoder.encode(str);
-        return this.getTheCompletions("@@GLOBALS:"+str+"\nEND@@");
-    }
-
-    /**
-     * @param str
-     * @throws CoreException
-     * @throws IOException
-     */
-    public List getTokenCompletions(String token, String str) throws CoreException  {
-        token = URLEncoder.encode(token);
-        str = URLEncoder.encode(str);
-        String s = "@@TOKEN_GLOBALS("+token+"):"+str+"\nEND@@";
-        return this.getTheCompletions(s);
-    }
-
-    /**
-     * @param token
-     * @param docToParse
-     * @return
-     * @throws CoreException
-     */
-    public List getClassCompletions(String token, String str) throws CoreException {
-        token = URLEncoder.encode(token);
-        str = URLEncoder.encode(str);
-        String s = "@@CLASS_GLOBALS("+token+"):"+str+"\nEND@@";
-        return this.getTheCompletions(s);
-    }
 
     /**
      * 
@@ -542,11 +498,12 @@ public class PythonShell {
         while(tokenizer.hasMoreTokens()){
             String token       = URLDecoder.decode(tokenizer.nextToken());
             String description = URLDecoder.decode(tokenizer.nextToken());
+            String args        = URLDecoder.decode(tokenizer.nextToken());
             
 //            System.out.println(token);
 //            System.out.println(description);
 
-            list.add(new String[]{token, description});
+            list.add(new String[]{token, description,args});
         }
         return list;
     }

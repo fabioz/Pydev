@@ -96,7 +96,7 @@ public class Scope {
                 FunctionDef f = (FunctionDef) element;
                 for (int i = 0; i < f.args.args.length; i++) {
                     String s = AbstractVisitor.getRepresentationString(f.args.args[i]);
-                    comps.add(new SourceToken(f.args.args[i], s, "", "", PyCodeCompletion.TYPE_PARAM));
+                    comps.add(new SourceToken(f.args.args[i], s, "", "", "", PyCodeCompletion.TYPE_PARAM));
                 }
             }
         }

@@ -12,16 +12,8 @@ import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
  */
 public class CompiledToken extends AbstractToken{
 
-    /**
-     * @param rep
-     * @param doc
-     */
-    public CompiledToken(String rep, String doc, String parentPackage) {
-        super(rep, doc, parentPackage, -1);
-    }
-
-    public CompiledToken(String rep, String doc, String parentPackage, int type){
-        super(rep, doc, parentPackage, type);
+    public CompiledToken(String rep, String doc, String args, String parentPackage, int type){
+        super(rep, doc, args, parentPackage, type);
     }
 
 }

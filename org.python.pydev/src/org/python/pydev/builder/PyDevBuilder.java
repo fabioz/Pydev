@@ -104,26 +104,30 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             if(members != null){
 	            //get all the python files to get information.
 	            for (int i = 0; i < members.length; i++) {
-	                if(members[i] == null){
-	                    continue;
-	                }
-	                if (members[i].getType() == IResource.FILE) {
-	                    if (members[i].getFileExtension().equals("py")) {
-	                        resourcesToParse.add(members[i]);
-	                    }
-	                } else if (members[i].getType() == IResource.FOLDER) {
-	                    IPath location = ((IFolder) members[i]).getLocation();
-	                    File folder = new File(location.toOSString());
-	                    List l = PydevPlugin.getPyFilesBelow(folder, null, true)[0];
-	                    for (Iterator iter = l.iterator(); iter.hasNext();) {
-	                        File element = (File) iter.next();
-	                        IPath path = PydevPlugin.getPath(new Path(element.getAbsolutePath()));
-	                        IResource resource = project.findMember(path);
-	                        if (resource != null) {
-	                            resourcesToParse.add(resource);
-	                        }
-	                    }
-	                }
+	                try {
+                        if (members[i] == null) {
+                            continue;
+                        }
+                        if (members[i].getType() == IResource.FILE) {
+                            if (members[i].getFileExtension().equals("py")) {
+                                resourcesToParse.add(members[i]);
+                            }
+                        } else if (members[i].getType() == IResource.FOLDER) {
+                            IPath location = ((IFolder) members[i]).getLocation();
+                            File folder = new File(location.toOSString());
+                            List l = PydevPlugin.getPyFilesBelow(folder, null, true)[0];
+                            for (Iterator iter = l.iterator(); iter.hasNext();) {
+                                File element = (File) iter.next();
+                                IPath path = PydevPlugin.getPath(new Path(element.getAbsolutePath()));
+                                IResource resource = project.findMember(path);
+                                if (resource != null) {
+                                    resourcesToParse.add(resource);
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        //that's ok...
+                    }
 	            }
 	            monitor.worked(30);
 	            fullBuild(resourcesToParse, monitor, visitors);

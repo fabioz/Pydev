@@ -7,6 +7,7 @@ package org.python.pydev.editor.correctionassist;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextViewer;
@@ -19,6 +20,9 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionProposal;
+import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.ClassNode;
 import org.python.pydev.editor.model.FunctionNode;
@@ -99,8 +103,26 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 	            results.addAll(getTryProps(ps));
 	        } catch (BadLocationException e) {
 	        }
-        } else if(sel.indexOf("import ") == -1){
+        
+	        
+        }else if(sel.indexOf("import ") != -1){
+            //import 
+            
+	        try {
+	            results.addAll(getMoveImports(ps));
+	        } catch (BadLocationException e1) {
+	        }
 
+        }else if (sel.indexOf("class ") != -1){
+            
+            try {
+                results.addAll(getClassProps(ps));
+	        } catch (BadLocationException e) {
+	        }
+            
+            
+        }else {
+            
             try {
                 results.addAll(getAssignToResults(ps));
 	        } catch (BadLocationException e) {
@@ -110,12 +132,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 	            results.addAll(getCreations(ps));
 	        } catch (BadLocationException e1) {
 	        }
-        }else{
 
-	        try {
-	            results.addAll(getMoveImports(ps));
-	        } catch (BadLocationException e1) {
-	        }
         }
 
     
@@ -124,6 +141,37 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 
     
     
+    /**
+     * @param ps
+     * @return
+     */
+    private List getClassProps(PySelection ps) throws BadLocationException {
+        ArrayList l = new ArrayList();
+        
+        String sel = getLine(ps);
+        int beg = sel.indexOf('(');
+        int end = sel.indexOf(')');
+        
+        if(beg != -1 && end != -1){
+            sel = sel.substring(beg+1, end);
+        }
+        
+        StringTokenizer tokenizer = new StringTokenizer(sel);
+        while (tokenizer.hasMoreTokens()) {
+            String cl = tokenizer.nextToken();
+            CompletionState completionState = new CompletionState(ps.cursorLine, ps.absoluteCursorOffset - ps.startLine.getOffset(), cl, edit.getPythonNature());;
+            IToken[] tokens = edit.getPythonNature().getAstManager().getCompletionsForToken(edit.getEditorFile(), ps.doc, completionState);
+            
+            //ok, now that we have the tokens, we have to discover which ones are methods...
+            for (int i = 0; i < tokens.length; i++) {
+                if(tokens[i].getType() == PyCodeCompletion.TYPE_FUNCTION){
+                    
+                }
+            }
+        }
+        return l;
+    }
+
     /**
      * @param ps
      * @return

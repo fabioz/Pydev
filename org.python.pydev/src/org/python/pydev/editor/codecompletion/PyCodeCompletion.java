@@ -253,10 +253,21 @@ public class PyCodeCompletion {
                 IToken element =  (IToken) obj;
                 
                 String name = element.getRepresentation();
+                
+                //GET the ARGS
+                int l = name.length();
+                
+                String args = getArgs(element);                
+                if(args.length()>0){
+                    l++;
+                }
+                //END
+                
                 String docStr = element.getDocStr();
                 int type = element.getType();
-                CompletionProposal proposal = new CompletionProposal(name,
-                        request.documentOffset - request.qlen, request.qlen, name.length(), getImageForType(type), null, null, docStr);
+
+                CompletionProposal proposal = new CompletionProposal(name+args,
+                        request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, null, docStr);
                 
                 convertedProposals.add(proposal);
             
@@ -281,6 +292,34 @@ public class PyCodeCompletion {
 
     
     
+    /**
+     * @param element
+     * @param args
+     * @return
+     */
+    private String getArgs(IToken element) {
+        String args = "";
+        if(element.getArgs().trim().length() > 0){
+            StringBuffer buffer = new StringBuffer("(");
+            StringTokenizer strTok = new StringTokenizer(element.getArgs(), "( ,)");
+
+            while(strTok.hasMoreTokens()){
+                String tok = strTok.nextToken();
+                if(tok.equals("self") == false){
+                    if(buffer.length() > 1){
+                        buffer.append(", ");
+                    }
+                    buffer.append(tok);
+                }
+            }
+            buffer.append(")");
+            args = buffer.toString();
+        }
+        return args;
+    }
+
+
+
     /**
      * This is an image cache (probably this should be initialized elsewhere).
      */

@@ -29,19 +29,19 @@ class Test(unittest.TestCase):
         t = pycompletionserver.T(0,0)
         
         l = []
-        l.append(('Def','description'  ))
-        l.append(('Def1','description1'))
-        l.append(('Def2','description2'))
+        l.append(('Def','description'  , 'args'))
+        l.append(('Def1','description1', 'args1'))
+        l.append(('Def2','description2', 'args2'))
         
         msg = t.formatCompletionMessage(l)
-        self.assertEquals('@@COMPLETIONS((Def,description),(Def1,description1),(Def2,description2))END@@', msg)
+        self.assertEquals('@@COMPLETIONS((Def,description,args),(Def1,description1,args1),(Def2,description2,args2))END@@', msg)
         
         l = []
-        l.append(('Def','desc,,r,,i()ption'  ))
-        l.append(('Def(1','descriptio(n1'))
-        l.append(('De,f)2','de,s,c,ription2'))
+        l.append(('Def','desc,,r,,i()ption',''  ))
+        l.append(('Def(1','descriptio(n1',''))
+        l.append(('De,f)2','de,s,c,ription2',''))
         msg = t.formatCompletionMessage(l)
-        self.assertEquals('@@COMPLETIONS((Def,desc%2C%2Cr%2C%2Ci%28%29ption),(Def%281,descriptio%28n1),(De%2Cf%292,de%2Cs%2Cc%2Cription2))END@@', msg)
+        self.assertEquals('@@COMPLETIONS((Def,desc%2C%2Cr%2C%2Ci%28%29ption, ),(Def%281,descriptio%28n1, ),(De%2Cf%292,de%2Cs%2Cc%2Cription2, ))END@@', msg)
 
     def createConnections(self, p1 = 50002,p2 = 50003):
         '''
@@ -77,51 +77,17 @@ class Test(unittest.TestCase):
         
         try:
             #now that we have the connections all set up, check the code completion messages.
-            msg = urllib.quote_plus('import math\n')
-            sToWrite.send('@@GLOBALS:%sEND@@'%msg) #only 1 global should be returned: math itself.
+            msg = urllib.quote_plus('math')
+            sToWrite.send('@@IMPORTS:%sEND@@'%msg) #math completions
             completions = self.readMsg()
             
             
-            msg = urllib.quote_plus('This module is always available.  It provides access to the\n'\
-                               'mathematical functions defined by the C standard.')
-            start = '@@COMPLETIONS((math,%s)'%msg
-            self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % ( completions, start) ) #it returns math and builtins...just check for math.
-    
-            
-            msg1 = urllib.quote_plus('math')
-            msg2 = urllib.quote_plus('import math\n')
-            #check token msg.
-            sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' % (msg1, msg2)) 
-            completions = self.readMsg()
+            start = '@@COMPLETIONS((__doc__,'
+            self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % ( completions, start) )
     
             self.assert_('@@COMPLETIONS' in completions)
             self.assert_('END@@' in completions)
 
-            s = \
-'''
-class C(object):          
-                           
-    def __init__(self):           
-                          
-        print dir(self)       
-                             
-    def a(self):                
-        pass                             
-                                 
-                                
-    def b(self):                   
-        self.c=1                    
-                                
-        pass            
-'''     
-            msg = urllib.quote_plus(s)
-    
-            sToWrite.send('@@TOKEN_GLOBALS(C):%s\nEND@@'%s) 
-            completions = self.readMsg()
-    
-            sToWrite.send('@@CLASS_GLOBALS(C):%s\nEND@@'%s) 
-            completions2 = self.readMsg()
-            self.assert_(len(completions) != len(completions2))
 
         
         #reload modules test
@@ -131,34 +97,6 @@ class C(object):
 #        this test is not executed because it breaks our current enviroment.
         
         
-        
-            #change dir test
-            curr = os.getcwd( ) 
-            newDir = None
-            
-            if curr.find('/') != -1:
-                newDir = curr[0:curr.rindex('/')]
-            elif curr.find('\\') != -1:
-                newDir = curr[0:curr.rindex('\\')]
-            
-            self.assert_(newDir != None)
-            newDir = urllib.quote_plus(newDir)
-            sToWrite.send('@@CHANGE_DIR:%sEND@@'%newDir)
-            ok = self.readMsg()
-            self.assertEquals('@@MSG_OK_END@@' , ok)
-            
-            msg1 = urllib.quote_plus('math.acos') #with point
-            msg2 = urllib.quote_plus('import math\n')
-            sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' %(msg1, msg2)) 
-            completions = self.readMsg()
-            self.assert_('@@COMPLETIONS' in completions)
-            self.assert_('END@@' in completions)
-    
-            msg1 = urllib.quote_plus('math acos') #with space
-            msg2 = urllib.quote_plus('import math\n')
-            sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' %(msg1, msg2)) 
-            completions2 = self.readMsg()
-            self.assertEquals(completions, completions2)
         finally:
             try:
                 self.sendKillMsg(sToWrite)
@@ -178,31 +116,34 @@ class C(object):
         socket.send(pycompletionserver.MSG_KILL_SERVER)
         
     
-    def testRefactoringSocketsAndMessages(self):
-        t, sToWrite, sToRead, self.connToRead, addr = self.createConnections(50002+2,50003+2)
-
-        import refactoring
-        from test_refactoring import delete, createFile, FILE, getInitialFile, getRenameRefactored
-        createFile(FILE, getInitialFile())
-        
-        sToWrite.send('@@BIKEfindDefinition %s %s %sEND@@'%(FILE, 7+1, 4)) 
-        result = self.readMsg()
-        self.assert_('BIKE_OK:' in result)
-
-        sToWrite.send('@@BIKErenameByCoordinates %s %s %s %sEND@@'%(FILE, 1+1, 6, 'G')) 
-        result = self.readMsg()
-        self.assert_('BIKE_OK:' in result)
-
-        self.sendKillMsg(sToWrite)
-        
-
-        while not hasattr(t, 'ended'):
-            pass #wait until it receives the message and quits.
-
-            
-        sToRead.close()
-        sToWrite.close()
-        self.connToRead.close()
+#    def testRefactoringSocketsAndMessages(self):
+#        t, sToWrite, sToRead, self.connToRead, addr = self.createConnections(50002+2,50003+2)
+#
+#        import refactoring
+#        from test_refactoring import delete, createFile, FILE, getInitialFile, getRenameRefactored
+#        try:
+#            createFile(FILE, getInitialFile())
+#            
+#            msg = urllib.quote_plus('@@BIKEfindDefinition %s %s %sEND@@'%(FILE, 7+1, 4))
+#            sToWrite.send(msg) 
+#            result = self.readMsg()
+#            self.assert_('BIKE_OK:' in result)
+#    
+#            msg = urllib.quote_plus('@@BIKErenameByCoordinates %s %s %s %sEND@@'%(FILE, 1+1, 6, 'G'))
+#            sToWrite.send(msg) 
+#            result = self.readMsg()
+#            self.assert_('BIKE_OK:' in result)
+#    
+#            self.sendKillMsg(sToWrite)
+#            
+#    
+#            while not hasattr(t, 'ended'):
+#                pass #wait until it receives the message and quits.
+#        finally:
+#            
+#            sToRead.close()
+#            sToWrite.close()
+#            self.connToRead.close()
 
         
 if __name__ == '__main__':
