@@ -126,12 +126,6 @@ public class PyFormatStd extends PyAction{
         char c = ' ';
         StringBuffer locBuf = new StringBuffer();
         
-        //check that, otherwise, we get 2 spaces (so we don't break the rule... and treat the exception as exception)
-        if(cs[i+1] == ')'){
-            buf.append( "( )" ); 
-            return i+1;
-        }
-        
         int j = i+1;
         while(j < cs.length && (c = cs[j]) != ')'){
             
@@ -147,14 +141,21 @@ public class PyFormatStd extends PyAction{
         }
         
         if(c == ')'){
-        
+	        String formatStr = formatStr(locBuf.toString().trim(), std);
+	        formatStr = formatStr.trim();
+	        
 	        if(std.parametersWithSpace){
-	            buf.append( "( " );
-	            buf.append( formatStr(locBuf.toString().trim(), std) );
-	            buf.append( " )" );
+	            if(formatStr.length() == 0){
+		            buf.append( "( )" );
+	                
+	            }else{
+		            buf.append( "( " );
+		            buf.append( formatStr );
+		            buf.append( " )" );
+	            }
 	        }else{
 	            buf.append( "(" );
-	            buf.append( formatStr(locBuf.toString().trim(), std) );
+	            buf.append( formatStr );
 	            buf.append( ")" );
 	        }
 	        return j;

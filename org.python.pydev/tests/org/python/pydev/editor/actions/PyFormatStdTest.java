@@ -143,6 +143,21 @@ public class PyFormatStdTest extends TestCase {
         assertEquals(s2, PyFormatStd.formatStr(s, std));
     }
 
+    public void testFormatInnerParams2(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = true;
+
+        String s = ""+
+"def a(a,   b):\n"+
+"    return ( callA() + callB(b+b) )   \n";
+        
+        String s1 = ""+
+"def a( a, b ):\n"+
+"    return ( callA( ) + callB( b+b ) )   \n";
+        
+        assertEquals(s1, PyFormatStd.formatStr(s, std));
+    }
+
     
     
 
