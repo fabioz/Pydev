@@ -40,7 +40,7 @@ class KeepAliveThread(threading.Thread):
         while self.lastMsg == None:
             
             if self.processMsgFunc != None:
-                s = MSG_PROCESSING_PROGRESS % self.processMsgFunc()
+                s = MSG_PROCESSING_PROGRESS % urllib.quote_plus(self.processMsgFunc())
                 self.socket.send(s)
             else:
                 self.socket.send(MSG_PROCESSING)

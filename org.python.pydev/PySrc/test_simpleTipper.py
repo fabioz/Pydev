@@ -98,7 +98,7 @@ class C(object):
         pass
         
     def testImports(self):
-        importsTipper.GenerateTip('qt.') 
+        print importsTipper.GenerateTip('qt.') 
         importsTipper.GenerateTip('scbr.') 
         importsTipper.GenerateImportsTip(['scbr']) 
         importsTipper.GenerateImportsTip([ ] ) 

@@ -32,22 +32,24 @@ import org.python.pydev.plugin.PydevPlugin;
  * @author Fabio Zadrozny
  */
 public class PyCodeCompletion {
-    
-    
+
     int docBoundary = -1; // the document prior to the activation token
+
     private PythonShell pytonShell;
 
     /**
-     * @param theDoc: the whole document as a string.
-     * @param documentOffset: the cursor position
+     * @param theDoc:
+     *            the whole document as a string.
+     * @param documentOffset:
+     *            the cursor position
      */
     String partialDocument(String theDoc, int documentOffset) {
         if (this.docBoundary < 0) {
             calcDocBoundary(theDoc, documentOffset);
         }
-        if(this.docBoundary != -1){
-	        String before = theDoc.substring(0, this.docBoundary);
-	        return before;
+        if (this.docBoundary != -1) {
+            String before = theDoc.substring(0, this.docBoundary);
+            return before;
         }
         return "";
 
@@ -55,6 +57,7 @@ public class PyCodeCompletion {
 
     /**
      * Returns a list with the tokens to use for autocompletion.
+     * 
      * @param edit
      * @param doc
      * @param documentOffset
@@ -67,13 +70,13 @@ public class PyCodeCompletion {
         return serverCompletion(theActivationToken, edit, doc, documentOffset);
     }
 
-
     /**
      * @param edit
      * @param doc
      * @param documentOffset
      */
-    private List serverCompletion(String theActivationToken, PyEdit edit, IDocument doc, int documentOffset) {
+    private List serverCompletion(String theActivationToken, PyEdit edit,
+            IDocument doc, int documentOffset) {
         List theList = new ArrayList();
         PythonShell serverShell = null;
         try {
@@ -82,33 +85,92 @@ public class PyCodeCompletion {
             throw new RuntimeException(e);
         }
 
-        
         String docToParse = getDocToParse(doc, documentOffset);
 
-        String trimmed = theActivationToken.replace('.',' ').trim();
-        if (trimmed.equals("") == false && theActivationToken.indexOf('.') != -1){
-            
+        String trimmed = theActivationToken.replace('.', ' ').trim();
+
+        String importsTipper = useImportsTipper(theActivationToken, edit, doc, documentOffset);
+        if (importsTipper.length()!=0) { //may be space.
+
+            List completions = serverShell.getImportCompletions(importsTipper);
+            theList.addAll(completions);
+        
+        } else if (trimmed.equals("") == false
+                && theActivationToken.indexOf('.') != -1) {
+
             List completions;
-            if (trimmed.equals("self")){
+            if (trimmed.equals("self")) {
                 Location loc = Location.offsetToLocation(doc, documentOffset);
-                AbstractNode closest = ModelUtils.getLessOrEqualNode(edit.getPythonModel(),loc);
+                AbstractNode closest = ModelUtils.getLessOrEqualNode(edit
+                        .getPythonModel(), loc);
 
                 Scope scope = closest.getScope().findContainingClass();
                 String token = scope.getStartNode().getName();
-                completions = serverShell.getClassCompletions(token, docToParse);
-            }else{
-                completions = serverShell.getTokenCompletions(trimmed, docToParse);
+                completions = serverShell
+                        .getClassCompletions(token, docToParse);
+            } else {
+                completions = serverShell.getTokenCompletions(trimmed,
+                        docToParse);
             }
             theList.addAll(completions);
-            
-        }
-        else{ //go to globals
+
+        } else { //go to globals
             List completions = serverShell.getGlobalCompletions(docToParse);
             theList.addAll(completions);
-            
+
         }
         return theList;
+
+    }
+
+    /**
+     * @param theActivationToken
+     * @param edit
+     * @param doc
+     * @param documentOffset
+     * @return
+     */
+    private String useImportsTipper(String theActivationToken, PyEdit edit,
+            IDocument doc, int documentOffset) {
+        String importMsg = "";
+        try {
+            
+            IRegion region = doc.getLineInformationOfOffset(documentOffset);
+            String string = doc.get(region.getOffset(), documentOffset-region.getOffset());
+            int fromIndex = string.indexOf("from");
+            int importIndex = string.indexOf("import");
+            if(fromIndex  != -1 || importIndex != -1){
+                string = string.replaceAll("#.*", ""); //remove comments 
+                String[] strings = string.split(" ");
+                
+                for (int i = 0; i < strings.length; i++) {
+                    if(strings[i].equals("from")==false && strings[i].equals("import")==false){
+                        if(importMsg.length() != 0){
+                            importMsg += '.';
+                        }
+                        importMsg += strings[i];
+                    }
+                }
+                
+                if(fromIndex  != -1 && importIndex != -1){
+                    if(strings.length == 3){
+                        importMsg += '.';
+                    }
+                }
+            }else{
+                return "";
+            }
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        if (importMsg.indexOf(".") == -1){
+            return " ";
+        }
+        if (importMsg.length() > 0 && importMsg.endsWith(".") == false ){
+            importMsg = importMsg.substring(0, importMsg.lastIndexOf('.'));
+        }
         
+        return importMsg;
     }
 
     /**
@@ -122,29 +184,29 @@ public class PyCodeCompletion {
         try {
             int lineOfOffset = doc.getLineOfOffset(documentOffset);
             IRegion lineInformation = doc.getLineInformation(lineOfOffset);
-            
+
             int docLength = doc.getLength();
-            String src = doc.get(lineInformation.getOffset(), documentOffset-lineInformation.getOffset());
-            
-            String spaces="";
+            String src = doc.get(lineInformation.getOffset(), documentOffset
+                    - lineInformation.getOffset());
+
+            String spaces = "";
             for (int i = 0; i < src.length(); i++) {
-                if(src.charAt(i) != ' '){
+                if (src.charAt(i) != ' ') {
                     break;
                 }
                 spaces += ' ';
             }
-            
+
             newDoc = wholeDoc.substring(0, lineInformation.getOffset());
-            newDoc += spaces+"pass\n";
-            newDoc += wholeDoc.substring(lineInformation.getOffset() + lineInformation.getLength(), docLength);
-            
+            newDoc += spaces + "pass\n";
+            newDoc += wholeDoc.substring(lineInformation.getOffset()
+                    + lineInformation.getLength(), docLength);
+
         } catch (BadLocationException e1) {
             e1.printStackTrace();
         }
         return newDoc;
     }
-
-
 
     /**
      * 
@@ -163,7 +225,8 @@ public class PyCodeCompletion {
      * 
      * @throws CoreException
      */
-    public static File getScriptWithinPySrc(String targetExec) throws CoreException {
+    public static File getScriptWithinPySrc(String targetExec)
+            throws CoreException {
 
         IPath relative = new Path("PySrc").addTrailingSeparator().append(
                 targetExec);
@@ -185,8 +248,7 @@ public class PyCodeCompletion {
 
     public static File getImageWithinIcons(String icon) throws CoreException {
 
-        IPath relative = new Path("icons").addTrailingSeparator().append(
-                icon);
+        IPath relative = new Path("icons").addTrailingSeparator().append(icon);
 
         Bundle bundle = PydevPlugin.getDefault().getBundle();
 
@@ -204,8 +266,8 @@ public class PyCodeCompletion {
     }
 
     /**
-     * The docBoundary should get until the last line before the one
-     * we are editing.
+     * The docBoundary should get until the last line before the one we are
+     * editing.
      * 
      * @param qualifier
      * @param documentOffset
@@ -215,7 +277,7 @@ public class PyCodeCompletion {
         this.docBoundary = theDoc.substring(0, documentOffset)
                 .lastIndexOf('\n');
     }
-    
+
     /**
      * Returns the activation token.
      * 
@@ -228,8 +290,11 @@ public class PyCodeCompletion {
             calcDocBoundary(theDoc, documentOffset);
         }
         String str = theDoc.substring(this.docBoundary + 1, documentOffset);
-        if (str.endsWith(" ")){
-            str = " ";
+        if (str.endsWith(" ")) {
+            return " ";
+        }
+        if(str.lastIndexOf(' ') != -1){
+            return str.substring(str.lastIndexOf(' '), str.length());
         }
         return str;
     }

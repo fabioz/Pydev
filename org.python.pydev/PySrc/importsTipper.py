@@ -55,7 +55,6 @@ def GenerateTip(data):
         return GenerateImportsTip([])
     
     splitted = data.split('.')
-    print splitted
     return GenerateImportsTip(splitted)
 
 
@@ -68,7 +67,6 @@ def GenerateImportsTip(tokenList, pth = sys.path, completeModule = ''):
         if _accessibleModules.get(d, None) == None:
             mods += ParseDir(d)
     
-    print mods
     if len(tokenList) == 0:
         return mods
     
@@ -90,6 +88,10 @@ def GenerateImportsTip(tokenList, pth = sys.path, completeModule = ''):
                 
             elif os.path.isdir(mod[1]):
                 return GenerateImportsTip(newTokenList, [mod[1]], completeModule)
+        
+        else:
+            mod = myImport(completeModule)
+            return GenerateImportsTipForModule(newTokenList, mod)
     
     raise RuntimeError('Unable to complete.')
     

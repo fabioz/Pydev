@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -204,6 +206,7 @@ public class PythonShell {
                 s = s.replaceAll("@@PROCESSING:", "");
                 s = s.replaceAll("END@@", "");
                 j = 0;
+                s = URLDecoder.decode(s);
                 if(s.trim().equals("") == false){
                     communicateWork("Processing: "+s, operation);
                 }else{
@@ -229,7 +232,8 @@ public class PythonShell {
         str = str.replaceFirst("@@COMPLETIONS","");
         //remove END@@
         try {
-            return str.substring(0, str.lastIndexOf("END@@"));
+            str = str.substring(0, str.lastIndexOf("END@@"));
+            return str;
         } catch (RuntimeException e) {
             System.out.println("ERROR WITH STRING:"+str);
             e.printStackTrace();
@@ -243,7 +247,9 @@ public class PythonShell {
      * @throws IOException
      */
     public String read() throws IOException {
-        return read(null);
+        String r = read(null);
+        System.out.println("RETURNING:"+r);
+        return r;
     }
     
 
@@ -252,6 +258,7 @@ public class PythonShell {
      * @throws IOException
      */
     public void write(String str) throws IOException {
+        System.out.println("WRITING:"+str);
         this.socketToWrite.getOutputStream().write(str.getBytes());
     }
 
@@ -327,7 +334,10 @@ public class PythonShell {
             if(file.isDirectory() == false){
                 file = file.getParentFile();
             }
-            this.write("@@CHANGE_DIR:"+file.getAbsolutePath()+"END@@");
+            
+            String str = file.getAbsolutePath();
+            str = URLEncoder.encode(str);
+            this.write("@@CHANGE_DIR:"+str+"END@@");
             String ok = this.read(); //this should be the ok message...
             
         } catch (IOException e) {
@@ -350,6 +360,7 @@ public class PythonShell {
      * @throws IOException
      */
     public List getGlobalCompletions(String str) {
+        str = URLEncoder.encode(str);
         return this.getTheCompletions("@@GLOBALS:"+str+"\nEND@@");
     }
 
@@ -358,6 +369,8 @@ public class PythonShell {
      * @throws IOException
      */
     public List getTokenCompletions(String token, String str)  {
+        token = URLEncoder.encode(token);
+        str = URLEncoder.encode(str);
         String s = "@@TOKEN_GLOBALS("+token+"):"+str+"\nEND@@";
         return this.getTheCompletions(s);
     }
@@ -368,8 +381,19 @@ public class PythonShell {
      * @return
      */
     public List getClassCompletions(String token, String str) {
+        token = URLEncoder.encode(token);
+        str = URLEncoder.encode(str);
         String s = "@@CLASS_GLOBALS("+token+"):"+str+"\nEND@@";
         return this.getTheCompletions(s);
+    }
+
+    /**
+     * @param importsTipper
+     * @return
+     */
+    public List getImportCompletions(String str) {
+        str = URLEncoder.encode(str);
+        return this.getTheCompletions("@@IMPORTS:"+str+"\nEND@@");
     }
 
     private List getTheCompletions(String str){
@@ -421,12 +445,16 @@ public class PythonShell {
         StringTokenizer tokenizer = new StringTokenizer(string, ",");
         
         while(tokenizer.hasMoreTokens()){
-            String token = tokenizer.nextToken();
-            String description = tokenizer.nextToken();
+            String token       = URLDecoder.decode(tokenizer.nextToken());
+            String description = URLDecoder.decode(tokenizer.nextToken());
+            
+
             list.add(new String[]{token, description});
         }
         return list;
     }
+
+
 
 
 

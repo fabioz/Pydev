@@ -7,6 +7,7 @@ package org.python.pydev.editor.refactoring;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
 
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
@@ -79,7 +80,7 @@ public class PyRefactoring {
 	        try {
 	            pytonShell.write(str);
 	 
-	            return pytonShell.read(operation);
+	            return URLDecoder.decode(pytonShell.read(operation));
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            

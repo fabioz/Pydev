@@ -58,6 +58,7 @@ def scanScopeForMatches(sourcenode,scope,matchFinder,targetname):
                 ast = compiler.parse(doctoredline)
             except :
                 print >> log.warning , 'Error parsing: %s' % doctoredline
+                print >> log.warning , 'Params: \n--%s\n--%s\n--%s\n--%s' % (sourcenode,scope,matchFinder,targetname)
                 raise
             scope = getScopeForLine(sourcenode, lineno)
             matchFinder.reset(line)

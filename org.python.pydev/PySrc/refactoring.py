@@ -29,7 +29,7 @@ class Refactoring(object):
             except:
                 msg = ''
             i -= 1
-        return urllib.quote(msg)
+        return msg
     
     def getLastProgressMsgs(self, v):
         progress = self.progress.getvalue().split('\n')
@@ -41,7 +41,7 @@ class Refactoring(object):
             except:
                 pass
             i -= 1
-        return urllib.quote(msg)
+        return msg
 
     def init(self):
         """
@@ -113,7 +113,7 @@ def HandleRefactorMessage(msg, keepAliveThread):
     try:
         f = func(*msgSplit)
         releaseRefactorerBuffers()
-        s = urllib.quote(f)
+        s = urllib.quote_plus(f)
         return 'REFACTOR_OK:%s\nEND@@'%(s)
     except:
         import sys
@@ -133,7 +133,7 @@ def HandleRefactorMessage(msg, keepAliveThread):
         
         releaseRefactorerBuffers()
         restartRefactorer()
-        s = urllib.quote(s.getvalue())
+        s = urllib.quote_plus(s.getvalue())
         return 'ERROR:%s\nEND@@'%(s)
         
 

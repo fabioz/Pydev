@@ -24,6 +24,7 @@ getTypeOfStack = []
 # or None if type not found
 def getTypeOf(scope, fqn):
     if isinstance(scope, Root):
+        return getModuleOrPackageUsingFQN(fqn)
         assert False, "Can't use getTypeOf to resolve from Root. Use getModuleOrPackageUsingFQN instead"
 
 
