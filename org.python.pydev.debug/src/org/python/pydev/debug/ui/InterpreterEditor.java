@@ -66,7 +66,7 @@ public class InterpreterEditor extends ListEditor {
 	protected String getNewInputObject() {
 		FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
 		if (System.getProperty("os.name").startsWith("Win"))
-			dialog.setFilterExtensions(new String[] {"*.exe"});
+			dialog.setFilterExtensions(new String[] {"*.exe", "*.*"});
 		else
 			; // TODO right file dialog executable filters for unix/mac?
 		if (lastPath != null) {
@@ -131,13 +131,24 @@ public class InterpreterEditor extends ListEditor {
 	}
 	
 	/**
+	 * true if executable is jython. A hack, 
+	 */
+	static public boolean isJython(String executable) {
+		return executable.toLowerCase().indexOf("jython") != -1;
+	}
+
+	/**
 	 * returns true if interpreter was launched successfully
 	 */
 	static boolean validateInterpreterPath(String executable) {
 		boolean retVal = true;
 		
 		try {
-			Process pr = Runtime.getRuntime().exec(executable + " -V");
+			String versionOption = " -V";
+			// Jython command line option is --version, not -V
+			if (isJython(executable))
+				versionOption = " --version";
+			Process pr = Runtime.getRuntime().exec(executable + versionOption);
 			StreamConsumer outputs = new StreamConsumer(pr.getInputStream());
 			outputs.start();
 			StreamConsumer errors = new StreamConsumer(pr.getErrorStream());

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.python.pydev.debug.core.Constants;
+import org.python.pydev.debug.ui.InterpreterEditor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IPath;
@@ -121,7 +122,8 @@ public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDe
 		
 		String[] cmdLine = new String[cmdLineLength];
 		cmdLine[0] = interpreter;
-		cmdLine[1] = "-u";	// Unbuffered stdout, otherwise Eclipse will not see any output until done
+		// Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
+		cmdLine[1] = InterpreterEditor.isJython(interpreter) ? "-i" : "-u";	
 		cmdLine[2] = location.toOSString();
 		if (arguments != null)
 			System.arraycopy(arguments, 0, cmdLine, 3, arguments.length);
@@ -140,6 +142,7 @@ public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDe
 		
 		// Execute the process
 //		E3		Process p = DebugPlugin.exec(cmdLine, workingDir, envp);
+//DebugPlugin.newProcess(launch, )
 		Process p = DebugPlugin.exec(cmdLine, workingDir);
 		IProcess process = null;
 		
