@@ -65,7 +65,10 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	public static final String BLOCK_COMMENT = "BLOCK_COMMENT";
 	public static final String DEFAULT_BLOCK_COMMENT_STRING = "================================================================================";
 	public static final boolean DEFAULT_BLOCK_COMMENT = true;
-	
+
+	public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
+	public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
+
 	/**
 	 * Initializer sets the preference store
 	 */
@@ -118,7 +121,7 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		addField(new ColorFieldEditor(
 			COMMENT_COLOR, "Comments", p));
 
-		StringFieldEditor sfe = new StringFieldEditor ( BLOCK_COMMENT, "Block comment separator", p );
+		StringFieldEditor sfe = new StringFieldEditor ( BLOCK_COMMENT, "Block comment separator", 40, StringFieldEditor.VALIDATE_ON_FOCUS_LOST ,p );
 		addField(sfe);
 	}
 
@@ -137,5 +140,6 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		prefs.setDefault(COMMENT_COLOR,StringConverter.asString(DEFAULT_COMMENT_COLOR));
 		prefs.setDefault(HYPERLINK_COLOR, StringConverter.asString(DEFAULT_HYPERLINK_COLOR));
 		prefs.setDefault(BLOCK_COMMENT, DEFAULT_BLOCK_COMMENT_STRING);
+		prefs.setDefault(CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
 	}
 }

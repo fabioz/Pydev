@@ -7,6 +7,7 @@ package org.python.pydev.plugin;
 
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -47,6 +48,9 @@ public class DebugPrefsPage extends FieldEditorPreferencePage
 		InterpreterEditor pathEditor = new InterpreterEditor (
 		PydevPrefs.INTERPRETER_PATH, "Python interpreters (for example python.exe)", p);
 		addField(pathEditor);
+		IntegerFieldEditor ife = new IntegerFieldEditor(PydevPrefs.CONNECT_TIMEOUT, "Connect timeout (ms)", p, 1);
+		ife.setValidRange(1000, 200000);	
+		addField(ife);
 	}
 
 	/**

@@ -22,6 +22,7 @@ import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsU
 import org.osgi.framework.Bundle;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 
 /**
  * Holds configuration for PythonRunner.
@@ -53,6 +54,7 @@ public class PythonRunnerConfig {
 		arguments = ExternalToolsUtil.getArguments(conf);
 		IPath workingPath = ExternalToolsUtil.getWorkingDirectory(conf);
 		workingDirectory = workingPath == null ? null : workingPath.toFile();
+		acceptTimeout = PydevPrefs.getPreferences().getInt(PydevPrefs.CONNECT_TIMEOUT);
 		if (isDebug) {
 			debugScript = getDebugScript();
 		}
