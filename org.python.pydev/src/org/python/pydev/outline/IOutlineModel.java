@@ -34,7 +34,7 @@ public interface IOutlineModel {
 	SelectThis selectionChanged(StructuredSelection sel);
 	
 	class SelectThis {
-		Region r;
+		public Region r;
 
 		int line;
 		int column;  // use WHOLE_LINE to select the whole line
