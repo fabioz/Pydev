@@ -66,6 +66,24 @@ public class PyCodeScanner extends RuleBasedScanner {
 		}
 	}
 	
+	static private class DecoratorDetector implements IWordDetector{
+
+        /**
+         * @see org.eclipse.jface.text.rules.IWordDetector#isWordStart(char)
+         */
+        public boolean isWordStart(char c) {
+            return c == '@';
+        }
+
+        /**
+         * @see org.eclipse.jface.text.rules.IWordDetector#isWordPart(char)
+         */
+        public boolean isWordPart(char c) {
+			return c != '\n' && c != '\r';
+        }
+	    
+	}
+	
 	public PyCodeScanner(ColorCache colorCache) {
 		super();
 		this.colorCache = colorCache;
@@ -78,12 +96,11 @@ public class PyCodeScanner extends RuleBasedScanner {
 	}
 	
 	private void setupRules() {
-		IToken keywordToken = new Token(
-				new TextAttribute(colorCache.getNamedColor(PydevPrefs.KEYWORD_COLOR)));
-		IToken defaultToken = new Token(
-				new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR)));
-		IToken errorToken = new Token(
-				new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR))); // Includes operators, brackets, numbers etc.
+		IToken keywordToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.KEYWORD_COLOR)));
+		IToken defaultToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR)));
+		IToken decoratorToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.DECORATOR_COLOR)));
+		IToken errorToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR))); // Includes operators, brackets, numbers etc.
+		
 		setDefaultReturnToken(errorToken);
 		List rules = new ArrayList();
 		
@@ -100,6 +117,9 @@ public class PyCodeScanner extends RuleBasedScanner {
 		}
 		rules.add(wordRule);
 
+		WordRule wordRule2 = new WordRule(new DecoratorDetector(), decoratorToken);
+		rules.add(wordRule2);
+		
 		IRule[] result = new IRule[rules.size()];
 		rules.toArray(result);
 		setRules(result);

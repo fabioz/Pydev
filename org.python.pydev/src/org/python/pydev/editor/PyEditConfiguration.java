@@ -322,7 +322,9 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
     	if (reconciler != null) {
     		
     		if (name.equals(PydevPrefs.CODE_COLOR) ||
-    			name.equals(PydevPrefs.KEYWORD_COLOR)) 
+    			name.equals(PydevPrefs.KEYWORD_COLOR) ||
+    			name.equals(PydevPrefs.DECORATOR_COLOR)
+    			) 
     		{
     			codeScanner.updateColors();    			
     		} else if (name.equals(PydevPrefs.COMMENT_COLOR)) {

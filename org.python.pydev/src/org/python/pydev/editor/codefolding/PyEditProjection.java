@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codefolding;
 
+import org.eclipse.jdt.internal.ui.text.JavaPairMatcher;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
@@ -16,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
+import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.parser.IParserListener;
 import org.python.pydev.plugin.PydevPrefs;
@@ -49,7 +51,29 @@ public abstract class PyEditProjection extends TextEditor implements
         return viewer;
     }
 
-    
+	/**
+	 * Returns the source viewer decoration support.
+	 * 
+	 * @param viewer the viewer for which to return a decoration support
+	 * @return the source viewer decoration support
+	 */
+	protected SourceViewerDecorationSupport getSourceViewerDecorationSupport(ISourceViewer viewer) {
+		if (fSourceViewerDecorationSupport == null) {
+			fSourceViewerDecorationSupport= new SourceViewerDecorationSupport(viewer, getOverviewRuler(), getAnnotationAccess(), getSharedColors());
+			configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
+		}
+		return fSourceViewerDecorationSupport;
+	}
+
+	protected final static char[] BRACKETS= { '{', '}', '(', ')', '[', ']' };
+	protected JavaPairMatcher fBracketMatcher= new JavaPairMatcher(BRACKETS);
+
+	protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
+		support.setCharacterPairMatcher(fBracketMatcher);
+		support.setMatchingCharacterPainterPreferenceKeys(PydevPrefs.USE_MATCHING_BRACKETS, PydevPrefs.MATCHING_BRACKETS_COLOR);
+		
+		super.configureSourceViewerDecorationSupport(support);
+	}
 	
     public void createPartControl(Composite parent) {
         super.createPartControl(parent);

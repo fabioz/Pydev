@@ -94,9 +94,17 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final boolean DEFAULT_EDITOR_USE_CUSTOM_CARETS = false;
 	public static final boolean DEFAULT_EDITOR_WIDE_CARET = false;
 	
+	//matching
+    public static final boolean DEFAULT_USE_MATCHING_BRACKETS = true;
+    public static final String USE_MATCHING_BRACKETS = "USE_MATCHING_BRACKETS";
+    public static final RGB DEFAULT_MATCHING_BRACKETS_COLOR = new RGB(64,128,128);
+    public static final String MATCHING_BRACKETS_COLOR = "EDITOR_MATCHING_BRACKETS_COLOR";
 	
 	//colors
-	public static final String CODE_COLOR = "CODE_COLOR";
+    public static final String DECORATOR_COLOR = "DECORATOR_COLOR";
+	private static final RGB DEFAULT_DECORATOR_COLOR = new RGB(125, 125, 125);
+
+    public static final String CODE_COLOR = "CODE_COLOR";
 	private static final RGB DEFAULT_CODE_COLOR = new RGB(0, 0, 0);
 	
 	public static final String KEYWORD_COLOR = "KEYWORD_COLOR";
@@ -137,6 +145,8 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	 */
 	private final String[][] fAppearanceColorListModel= new String[][] {
 		{"Code", CODE_COLOR, null},
+		{"Decorators", DECORATOR_COLOR, null},
+		{"Matching brackets", MATCHING_BRACKETS_COLOR, null},
 		{"Keywords", KEYWORD_COLOR, null},
 		{"Strings", STRING_COLOR, null},
 		{"Comments", COMMENT_COLOR, null},
@@ -211,6 +221,10 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, BLOCK_COMMENT));
 		
+		//matching
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_MATCHING_BRACKETS));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING,  MATCHING_BRACKETS_COLOR));
+		
 		//checkbox		
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SUBSTITUTE_TABS));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, GUESS_TAB_SUBSTITUTION));
@@ -224,6 +238,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		
 		//colors
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, CODE_COLOR));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, DECORATOR_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, KEYWORD_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, STRING_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, COMMENT_COLOR));
@@ -662,8 +677,13 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_USE_CUSTOM_CARETS, StringConverter.asString(DEFAULT_EDITOR_USE_CUSTOM_CARETS));
 		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_WIDE_CARET, StringConverter.asString(DEFAULT_EDITOR_WIDE_CARET));
 		
+		//matching
+		prefs.setDefault(USE_MATCHING_BRACKETS, DEFAULT_USE_MATCHING_BRACKETS);
+		prefs.setDefault(MATCHING_BRACKETS_COLOR, StringConverter.asString(DEFAULT_MATCHING_BRACKETS_COLOR));
+		
 		//colors
 		prefs.setDefault(CODE_COLOR,StringConverter.asString(DEFAULT_CODE_COLOR));
+		prefs.setDefault(DECORATOR_COLOR,StringConverter.asString(DEFAULT_DECORATOR_COLOR));
 		prefs.setDefault(KEYWORD_COLOR,StringConverter.asString(DEFAULT_KEYWORD_COLOR));
 		prefs.setDefault(STRING_COLOR,StringConverter.asString(DEFAULT_STRING_COLOR));
 		prefs.setDefault(COMMENT_COLOR,StringConverter.asString(DEFAULT_COMMENT_COLOR));

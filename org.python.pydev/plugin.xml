@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.9.1.75"
+   version="0.9.1.76"
    provider-name="Aleks Totic / Fabio Zadrozny"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -22,6 +22,7 @@
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.jface.text"/>
       <import plugin="org.eclipse.ui.console"/>
+      <import plugin="org.eclipse.jdt.ui"/>
    </requires>
 
 

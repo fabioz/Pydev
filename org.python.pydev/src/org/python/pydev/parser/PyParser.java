@@ -21,7 +21,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
-import org.python.parser.CharStream;
 import org.python.parser.IParserHost;
 import org.python.parser.ParseException;
 import org.python.parser.PythonGrammar;
@@ -241,7 +240,6 @@ public class PyParser {
         StringReader inString = new StringReader(initialDoc);
         ReaderCharStream in = new ReaderCharStream(inString);
         IParserHost host = new CompilerAPI();
-        PythonGrammar g1 = new PythonGrammar((CharStream) null, (IParserHost) null);
         PythonGrammar grammar = new PythonGrammar(in, host);
 
 
