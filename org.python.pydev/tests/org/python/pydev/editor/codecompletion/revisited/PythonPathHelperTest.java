@@ -82,37 +82,15 @@ public class PythonPathHelperTest extends TestCase {
         Document doc = new Document(sDoc);
         CompletionState state = new CompletionState(line,col, token, nature);
         comps = manager.getCompletionsForToken(doc, state);
-        assertEquals(3, comps.length);
+        assertEquals(6, comps.length);
 
         ASTManagerTest.assertIsIn("TestCase", comps);
         ASTManagerTest.assertIsIn("main", comps);
         ASTManagerTest.assertIsIn("TestCaseAlias", comps);
+        ASTManagerTest.assertIsIn("GUITest", comps);
+        ASTManagerTest.assertIsIn("testcase", comps);
+        ASTManagerTest.assertIsIn("AnotherTest", comps);
     }
-    
-//	public void testHierarchy(){
-//        token = "Test";
-//        line = 6;
-//        col = 14;
-//        
-//		sDoc = ""+
-//		"from testlib import unittest   \n" +    
-//		"                              \n" +      
-//		"class Test(unittest.TestCase):\n" +       
-//		"                              \n" +     
-//		"    def a(self):              \n" +    
-//		"        self.                 \n";
-//		
-//        Document doc = new Document(sDoc);
-//        IToken[] comps = null;
-//        comps = manager.getCompletionsForToken(doc, line, col, token, qual, nature);
-//        System.out.println("COMPLETIONS ---------------------");
-//        for (int i = 0; i < comps.length; i++) {
-//            System.out.println(comps[i].getRepresentation());
-//        }
-//        System.out.println("END COMPLETIONS ---------------------");
-//        assertTrue(comps.length > 5);
-//
-//    }
     
     
     public void testClassHierarchyCompletion(){
@@ -134,31 +112,49 @@ public class PythonPathHelperTest extends TestCase {
         ASTManagerTest.assertIsIn("assertEquals", comps);
         ASTManagerTest.assertIsIn("assertNotEquals", comps);
         ASTManagerTest.assertIsIn("assertAlmostEquals", comps);
-//
-//		
-//		
-//		
-//		
-//		
-//		
-//		token = "unittest.TestCase";
-//		line = 6;
-//		col = 18;
-//      
-//		sDoc = ""+
-//		"from testlib import unittest \n"+ 
-//		"                            \n"+  
-//		"unittest.TestCase.          \n";
-//		
-//		doc = new Document(sDoc);
-//		comps = manager.getCompletionsForToken(doc, line,col, token, qual, nature);
-//		System.out.println("COMPLETIONS ---------------------");
-//		for (int i = 0; i < comps.length; i++) {
-//		    System.out.println(comps[i].getRepresentation());
-//		}
-//		System.out.println("END COMPLETIONS -----------------");
-//		assertTrue(comps.length > 5);
+    }
+    
+    public void testClassHierarchyCompletion2(){
+        
+		token = "GUITest";
+		line = 3;
+		col = 8;
+      
+		sDoc = ""+
+		"from testlib.unittest import GUITest  \n"+ 
+		"                                      \n"+  
+		"GUITest.                              \n";
 
+		IToken[] comps = null;
+        Document doc = new Document(sDoc);
+        CompletionState state = new CompletionState(line,col, token, nature);
+		comps = manager.getCompletionsForToken(doc, state);
+		assertTrue(comps.length > 5);
+        ASTManagerTest.assertIsIn("assertEquals", comps);
+        ASTManagerTest.assertIsIn("assertNotEquals", comps);
+        ASTManagerTest.assertIsIn("assertAlmostEquals", comps);
+        ASTManagerTest.assertIsIn("SetWidget", comps);
+    }
 
+    public void testClassHierarchyCompletion3(){
+        
+		token = "AnotherTest";
+		line = 3;
+		col = 12;
+      
+		sDoc = ""+
+		"from testlib.unittest import AnotherTest  \n"+ 
+		"                                          \n"+  
+		"AnotherTest.                              \n";
+
+		IToken[] comps = null;
+        Document doc = new Document(sDoc);
+        CompletionState state = new CompletionState(line,col, token, nature);
+		comps = manager.getCompletionsForToken(doc, state);
+		assertTrue(comps.length > 5);
+        ASTManagerTest.assertIsIn("assertEquals", comps);
+        ASTManagerTest.assertIsIn("assertNotEquals", comps);
+        ASTManagerTest.assertIsIn("assertAlmostEquals", comps);
+        ASTManagerTest.assertIsIn("another", comps);
     }
 }

@@ -495,13 +495,15 @@ public class ASTManager implements Serializable, IASTManager {
                 //If it was still not found, go to builtins.
                 AbstractModule builtinsMod = getModule("__builtin__", state.nature);
                 if(builtinsMod != null){
-                    state.recursing = true;
-	                tokens = getCompletionsForModule( builtinsMod, state);
-	                if (tokens.length > 0){
-	                    if (tokens[0].getRepresentation().equals("ERROR:") == false){
-	                        return tokens;
-	                    }
-	                }
+                    if(!state.recursing){
+	                    state.recursing = true;
+		                tokens = getCompletionsForModule( builtinsMod, state);
+		                if (tokens.length > 0){
+		                    if (tokens[0].getRepresentation().equals("ERROR:") == false){
+		                        return tokens;
+		                    }
+		                }
+                    }
                 }
                 
                 return getAssignCompletions( module, state);
@@ -643,7 +645,42 @@ public class ASTManager implements Serializable, IASTManager {
                     return getCompletionsForModule(mod, copy);
                 }else if (mod != null){
                     //the token returned is the token we have to get the completions on the module we have.
-                    return mod.getGlobalTokens(tok, this, state.line, state.col, state.nature);
+                    IToken[] globalTokens = mod.getGlobalTokens(tok, this, state.line, state.col, state.nature);
+                    if(globalTokens.length > 0){
+                        return globalTokens;
+                    }
+                    
+                    //ok, it was not a global token, still, it might be some import from that module.
+                    IToken[] tokenImportedModules = mod.getTokenImportedModules();
+                    for (int j = 0; j < tokenImportedModules.length; j++) {
+                        if(tokenImportedModules[j].getRepresentation().equals(state.activationToken)){
+                            String path = tokenImportedModules[j].getCompletePath();
+                            Object [] o2 = findModuleFromPath(path , state.nature);
+                            AbstractModule mod2 = (AbstractModule) o2[0];
+                            String tok2 = (String) o2[1];
+                            if (mod2 != null){
+                                return mod2.getGlobalTokens(tok2, this, state.line, state.col, state.nature);
+                            }      
+                        }
+                    }
+                    IToken[] wildImportedModules = mod.getWildImportedModules();
+                    for (int j = 0; j < wildImportedModules.length; j++) {
+                        AbstractModule mod2 = getModule(wildImportedModules[j].getCompletePath(), state.nature);
+                        
+                        if (mod2 == null) {
+                            mod2 = getModule(wildImportedModules[j].getRepresentation(), state.nature);
+                        }
+                        
+                        if (mod2 != null) {
+                            state.recursing = true;
+                            //the token to find is already specified.
+                            IToken[] completionsForModule = getCompletionsForModule(mod2, state);
+                            return completionsForModule;
+                        }
+                            
+                        
+                    }
+                    
                 }
 
                 
