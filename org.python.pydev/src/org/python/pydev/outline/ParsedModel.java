@@ -110,7 +110,7 @@ public class ParsedModel implements IOutlineModel {
 	}
 	
 	public void setError(Throwable error) {
-		// TODO put some error note on the items?
+		// put some error note on the items?
 	}
 	
 	/*

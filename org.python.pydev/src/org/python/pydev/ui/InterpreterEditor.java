@@ -68,7 +68,7 @@ public class InterpreterEditor extends ListEditor {
 		if (System.getProperty("os.name").startsWith("Win"))
 			dialog.setFilterExtensions(new String[] {"*.exe", "*.*"});
 		else
-			; // TODO right file dialog executable filters for unix/mac?
+			; // right file dialog executable filters for unix/mac?
 		if (lastPath != null) {
 			if (new File(lastPath).exists())
 				dialog.setFilterPath(lastPath);
