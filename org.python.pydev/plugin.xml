@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.5.9.7"
+   version="0.5.9.7b"
    provider-name="AleksTotic"
    class="org.python.pydev.plugin.PydevPlugin">
 
