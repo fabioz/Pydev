@@ -34,7 +34,7 @@ public class PydevPlugin extends AbstractUIPlugin
 	public void startup() throws CoreException {
 		super.startup();
 		try {
-			resourceBundle= ResourceBundle.getBundle("org.python.pydev.PydevPluginResources");
+			resourceBundle= ResourceBundle.getBundle("org.python.pydev.PyDevPluginResources");
 		} catch (MissingResourceException x) {
 			resourceBundle = null;
 		}

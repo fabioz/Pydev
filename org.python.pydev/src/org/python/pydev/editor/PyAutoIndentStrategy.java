@@ -31,6 +31,14 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 	public void setForceTabs(boolean forceTabs) {
 		this.forceTabs = forceTabs;
 	}
+	
+	private String createSpaceString(int width) {
+		StringBuffer b = new StringBuffer(width);
+						while (tabWidth-- > 0)
+							b.append(" ");
+		return b.toString();
+	}
+
 	/** returns correct single-step indentation */
 	private String getIndentationString() {
 		if (identString == null ||
@@ -39,12 +47,9 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 		{
 			tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
 			useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
-			if (useSpaces && !forceTabs) {
-				StringBuffer b = new StringBuffer(tabWidth);
-				while (tabWidth-- > 0)
-					b.append(" ");
-				identString = b.toString();
-			} else
+			if (useSpaces && !forceTabs)
+				identString = createSpaceString(tabWidth);
+			else
 				identString = "\t";
 		}
 		return identString;
@@ -62,13 +67,6 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 	 * Replaces tabs if needed by ident string or just a space depending of the
 	 * tab location
 	 * 
-	 * @param document
-	 * @param length
-	 * @param text
-	 * @param offset
-	 * @param indentString
-	 * @return String
-	 * @throws BadLocationException
 	 */
 	protected String convertTabs(
 		IDocument document, int length, String text, int offset, 
@@ -102,6 +100,18 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 			}
 		}
 		return text;
+	}
+	
+	/**
+	 * Converts spaces to strings. Useful when pasting
+	 */
+	protected String convertSpaces(
+		IDocument document, int length, String text, int offset, 
+		String indentString) throws BadLocationException 
+	{
+		if (text.length() > 2)
+			return text;
+		return text.replaceAll(createSpaceString(tabWidth), "\t");
 	}
 
 	/**
@@ -172,6 +182,9 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 				command.text = convertTabs(
 					document, command.length, command.text, command.offset,
 					getIndentationString());
+			else command.text = convertSpaces(
+				document, command.length, command.text, command.offset,
+				getIndentationString());
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}

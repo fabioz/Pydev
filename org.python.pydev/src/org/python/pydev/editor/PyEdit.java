@@ -11,7 +11,9 @@ import java.util.Iterator;
 import org.eclipse.core.internal.resources.MarkerAttributeMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.text.Assert;
@@ -24,6 +26,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
@@ -93,7 +96,7 @@ public class PyEdit extends TextEditor implements IParserListener {
 		}
 		editConfiguration = new PyEditConfiguration(colorCache);
 		setSourceViewerConfiguration(editConfiguration);
-		indentStrategy = (PyAutoIndentStrategy)editConfiguration.getAutoIndentStrategy(null, null);
+		indentStrategy = (PyAutoIndentStrategy)editConfiguration.getAutoIndentStrategy(null, IDocument.DEFAULT_CONTENT_TYPE);
 		setRangeIndicator(new DefaultRangeIndicator()); // enables standard vertical ruler
 		
 	}
@@ -249,8 +252,6 @@ public class PyEdit extends TextEditor implements IParserListener {
 		if (node == null)
 			return;	// nothing to see here
 		boolean wholeLine = false;
-//		if (node instanceof ImportNode)
-//			wholeLine = true;
 		Location start = node.getStart();
 		Location end = node.getEnd();
 		IDocument document = getDocumentProvider().getDocument(getEditorInput());
@@ -281,20 +282,30 @@ public class PyEdit extends TextEditor implements IParserListener {
 	public void parserChanged(SimpleNode root) {
 		// Remove all the error markers
 		IEditorInput input = getEditorInput();
-		IFile original= (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
+		IPath filePath = null;
+		if (input instanceof IStorageEditorInput)
+			try {
+				filePath = ((IStorageEditorInput)input).getStorage().getFullPath();
+			} catch (CoreException e2) {
+				PydevPlugin.log(IStatus.ERROR, "unexpected error getting path", e2);
+			}
+		else 
+			PydevPlugin.log(IStatus.ERROR, "unexpected type of editor input " + input.getClass().toString(), null);
+			
 		try {
-			if (original != null)
-				original.deleteMarkers(IMarker.PROBLEM, false, 1);
+			IResource res = (IResource) input.getAdapter(IResource.class);
+			if (res != null)
+				res.deleteMarkers(IMarker.PROBLEM, false, 1);
 		} catch (CoreException e) {
 			// What bad can come from removing markers? Ignore this exception
 			PydevPlugin.log(IStatus.WARNING, "Unexpected error removing markers", e);
 		}
-		IDocument document = getDocumentProvider().getDocument(getEditorInput());
+		IDocument document = getDocumentProvider().getDocument(input);
 		int lastLine = document.getNumberOfLines();
 		IRegion r;
 		try {
 			r = document.getLineInformation(lastLine-1);
-			pythonModel = ModelMaker.createModel(root, document, original);
+			pythonModel = ModelMaker.createModel(root, document, filePath);
 			fireModelChanged(pythonModel);
 		} catch (BadLocationException e1) {
 			PydevPlugin.log(IStatus.WARNING, "Unexpected error getting document length. No model!", e1);		
@@ -373,7 +384,7 @@ public class PyEdit extends TextEditor implements IParserListener {
 	
 	private void enableBrowserLikeLinks() {
 		if (fMouseListener == null) {
-			fMouseListener= new Hyperlink(getSourceViewer(), this);
+			fMouseListener= new Hyperlink(getSourceViewer(), this, colorCache);
 			fMouseListener.install();
 		}
 	}

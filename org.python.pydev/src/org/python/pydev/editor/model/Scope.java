@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.python.pydev.plugin.PydevPrefs;
 
@@ -106,7 +105,7 @@ public class Scope {
 	/**
 	 * @param name: function name
 	 * @param c: comparator to test for.
-	 * @return an ArrayList of ItemPointers to the function definitions. 
+	 * @return an ArrayList of AbstractNode to the function/class definitions. 
 	 * each returned item will test as equal in c.compare(token, item);
 	 * null is never returned, there will be an empty array if none were found.
 	 * 
@@ -129,6 +128,9 @@ public class Scope {
 					retVal.add(item);
 			}
 		}
+		if (start != null && start instanceof ClassNode)
+		// class name can also be a function call
+			retVal.add(start);
 		// now traverse parents
 		ArrayList ancestors = null;
 		if (recursive)
@@ -144,11 +146,11 @@ public class Scope {
 	 * @param startingPoint: a file to start searching from 
 	 * @return an ordered ArrayList of File of all import paths for the project.
 	 */
-	private ArrayList getImportPaths(IFile startingPoint) {
+	private ArrayList getImportPaths(IPath startingPoint) {
 		ArrayList retVal = new ArrayList();
 		// 1) the directory where the file is
 		if (startingPoint != null) {
-			IPath fileDir = startingPoint.getLocation().removeLastSegments(1);
+			IPath fileDir = startingPoint.removeLastSegments(1);
 			retVal.add(fileDir.toFile());
 		}
 		// 2) interpreter/Lib
@@ -164,7 +166,7 @@ public class Scope {
 	 * Find a file "name.py", searching the import include path
 	 * @return ArrayList of File objects that match.
 	 */
-	public File findImport(String name, IFile startAt) {
+	public File findImport(String name, IPath startAt) {
 		ArrayList importPaths = getImportPaths(startAt);
 		for (Iterator i= importPaths.iterator();i.hasNext();) {
 			File dir = (File)i.next();
@@ -173,5 +175,12 @@ public class Scope {
 				return testFile;
 		}
 		return null;
+	}
+	
+	public Scope findContainingClass() {
+		if (this.start instanceof ClassNode)
+			return this;
+		else
+			return parent != null ? parent.findContainingClass() : null; 
 	}
 }

@@ -47,6 +47,8 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	private static final RGB DEFAULT_COMMENT_COLOR = new RGB(178, 34, 34);
 	public static final String INTERPRETER_PATH = "INTERPRETER_PATH";
 	protected static final String DEFAULT_INTERPRETER_PATH = "python";
+	public static final String HYPERLINK_COLOR = "HYPERLINK_COLOR";
+	private static final RGB DEFAULT_HYPERLINK_COLOR = new RGB(0, 0, 238);
 	
 	/**
 	 * Initializer sets the preference store
@@ -102,5 +104,6 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		prefs.setDefault(KEYWORD_COLOR,StringConverter.asString(DEFAULT_KEYWORD_COLOR));
 		prefs.setDefault(STRING_COLOR,StringConverter.asString(DEFAULT_STRING_COLOR));
 		prefs.setDefault(COMMENT_COLOR,StringConverter.asString(DEFAULT_COMMENT_COLOR));
+		prefs.setDefault(HYPERLINK_COLOR, StringConverter.asString(DEFAULT_HYPERLINK_COLOR));
 	}
 }

@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
-import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
@@ -26,8 +24,6 @@ import org.eclipse.jface.text.ITextViewerExtension3;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -53,6 +49,8 @@ import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.ModelUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.ui.ColorCache;
 
 /**
  * Hyperlink is a "Mouse highlight on ctrl".
@@ -60,7 +58,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * I've just modified Python-specific code.
  */
 public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
-	FocusListener, PaintListener, IPropertyChangeListener, IDocumentListener, ITextInputListener {
+	FocusListener, PaintListener, IDocumentListener, ITextInputListener {
 
 	/** The session is active. */
 	private boolean fActive;
@@ -77,6 +75,8 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 	/** The key modifier mask. */
 	private int fKeyModifierMask;
 
+	private ColorCache fColorCache;
+
 	/************
 	 * ALEKS ADDITIONS
 	 */
@@ -84,22 +84,16 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 	private PyEdit fEditor;
 	private AbstractNode fClickedNode;
 	
-	public Hyperlink(ISourceViewer sourceViewer, PyEdit editor) {
+	public Hyperlink(ISourceViewer sourceViewer, PyEdit editor, ColorCache colorCache) {
 		fSourceViewer = sourceViewer;
 		fEditor = editor;
+		fKeyModifierMask = SWT.CTRL;
+		fColorCache = colorCache;
 	}
 	
 	private ISourceViewer getSourceViewer() {
 		return fSourceViewer;
-	}
-	
-	IPreferenceStore fPrefStore = null;
-	
-	public IPreferenceStore getPreferenceStore() {
-		if (fPrefStore == null)
-			fPrefStore = JavaPlugin.getDefault().getPreferenceStore();
-		return fPrefStore;
-	}
+	}	
 
 	public void deactivate() {
 		deactivate(false);
@@ -136,20 +130,6 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		text.addMouseMoveListener(this);
 		text.addFocusListener(this);
 		text.addPaintListener(this);
-			
-		updateKeyModifierMask();
-			
-		IPreferenceStore preferenceStore= getPreferenceStore();
-		preferenceStore.addPropertyChangeListener(this);			
-	}
-		
-	private void updateKeyModifierMask() {
-		String modifiers= getPreferenceStore().getString(PreferenceConstants.EDITOR_BROWSER_LIKE_LINKS_KEY_MODIFIER_MASK);
-		fKeyModifierMask= computeStateMask(modifiers);
-		if (fKeyModifierMask == -1) {
-			// Fallback to stored state mask
-			fKeyModifierMask= getPreferenceStore().getInt(PreferenceConstants.EDITOR_BROWSER_LIKE_LINKS_KEY_MODIFIER_MASK);
-		};
 	}
 
 	private int computeStateMask(String modifiers) {
@@ -191,10 +171,6 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		IDocument document= sourceViewer.getDocument();
 		if (document != null)
 			document.removeDocumentListener(this);
-				
-		IPreferenceStore preferenceStore= getPreferenceStore();
-		if (preferenceStore != null)
-			preferenceStore.removePropertyChangeListener(this);
 			
 		StyledText text= sourceViewer.getTextWidget();
 		if (text == null || text.isDisposed())
@@ -206,30 +182,14 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		text.removeFocusListener(this);
 		text.removePaintListener(this);
 		}
-				
-	/*
-	 * @see IPropertyChangeListener#propertyChange(PropertyChangeEvent)
-	 */
-	public void propertyChange(PropertyChangeEvent event) {
-		if (event.getProperty().equals(PreferenceConstants.EDITOR_LINK_COLOR)) {
-			ISourceViewer viewer= getSourceViewer();
-			if (viewer != null)	
-				updateColor(viewer);
-		} else if (event.getProperty().equals(PreferenceConstants.EDITOR_BROWSER_LIKE_LINKS_KEY_MODIFIER)) {
-			updateKeyModifierMask();
-		}
-	}
 
 	private void updateColor(ISourceViewer viewer) {
-		if (fColor != null)
-			fColor.dispose();
 	
 		StyledText text= viewer.getTextWidget();
 		if (text == null || text.isDisposed())
 			return;
 
-		Display display= text.getDisplay();
-		fColor= createColor(getPreferenceStore(), PreferenceConstants.EDITOR_LINK_COLOR, display);
+		fColor = fColorCache.getNamedColor(PydevPrefs.HYPERLINK_COLOR);
 	}
 
 	/**

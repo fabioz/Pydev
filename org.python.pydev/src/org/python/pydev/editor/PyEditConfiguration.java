@@ -85,7 +85,10 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 	 public IAutoIndentStrategy getAutoIndentStrategy(ISourceViewer sourceViewer,String contentType) {
 		if (autoIndentStrategy == null)
 			autoIndentStrategy = new PyAutoIndentStrategy();
-	 	return autoIndentStrategy;
+		if (contentType == null || contentType.equals(IDocument.DEFAULT_CONTENT_TYPE))
+			return autoIndentStrategy;
+		else
+			return super.getAutoIndentStrategy(sourceViewer, contentType);
 	 }
 	
 	 /**
@@ -185,7 +188,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 				"finally","for","from","global",
 				"if","import","in","is","lambda","not",
 				"or","pass","print","raise","return",
-				"try","while","yield","None" };
+				"try","while","yield","False", "None", "True" };
 
 		public GreatKeywordDetector() {
 		}
@@ -279,13 +282,14 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		ContentAssistant assistant = new ContentAssistant();
 		// next create a content assistant processor to populate the completions window
 		IContentAssistProcessor processor = new PythonCompletionProcessor();
-		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_SINGLELINE_STRING );
-		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_MULTILINE_STRING );
+// No code completion in strings
+//		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_SINGLELINE_STRING );
+// 		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_MULTILINE_STRING );
 		assistant.setContentAssistProcessor(processor,IDocument.DEFAULT_CONTENT_TYPE );
 		assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 		// Allow automatic activation after 500 msec
-		assistant.enableAutoActivation(true);
-		assistant.setAutoActivationDelay(500);
+//		assistant.enableAutoActivation(true);
+//		assistant.setAutoActivationDelay(500);
 		Color bgColor = colorCache.getColor(new RGB(230,255,230));
 		assistant.setProposalSelectorBackground(bgColor);
 		return assistant;

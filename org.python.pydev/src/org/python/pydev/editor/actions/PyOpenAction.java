@@ -61,8 +61,6 @@ public class PyOpenAction extends Action {
 				}
 		} catch (PartInitException e) {
 			PydevPlugin.log(IStatus.ERROR, "Unexpected error opening file", e);
-		} catch (BadLocationException e1) {
-			PydevPlugin.log(IStatus.ERROR, "Error setting selection", e1);
 		}
 	}
 
@@ -76,19 +74,32 @@ public class PyOpenAction extends Action {
 		IWorkbenchPage p = PydevPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();	
 		try {
 			IEditorPart editor = p.openEditor(input, desc.getId());
+			if (start != null &&
+				editor instanceof ITextEditor) {
+					ITextEditor textEdit = (ITextEditor)editor;
+					showInEditor(textEdit, start, end);
+				}
 		} catch (PartInitException e) {
 			PydevPlugin.log(IStatus.ERROR, "Unexpected error opening external file", e);
 		}	
 	}
 	
-	private void showInEditor(ITextEditor textEdit, Location start, Location end)
-		throws BadLocationException {
-		IDocument doc = textEdit.getDocumentProvider().getDocument(textEdit.getEditorInput());
-		int s;
+	private void showInEditor(
+		ITextEditor textEdit,
+		Location start,
+		Location end) {
+		try {
+			IDocument doc =
+				textEdit.getDocumentProvider().getDocument(
+					textEdit.getEditorInput());
+			int s;
 			s = start.toOffset(doc);
-		int e = end == null ? s : end.toOffset(doc);
-		TextSelection sel = new TextSelection(s, e - s);
-		textEdit.getSelectionProvider().setSelection(sel);
+			int e = end == null ? s : end.toOffset(doc);
+			TextSelection sel = new TextSelection(s, e - s);
+			textEdit.getSelectionProvider().setSelection(sel);
+		} catch (BadLocationException e1) {
+			PydevPlugin.log(IStatus.ERROR, "Error setting selection", e1);
+		}
 	}
 	
 

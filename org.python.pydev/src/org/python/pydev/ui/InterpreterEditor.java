@@ -136,13 +136,18 @@ public class InterpreterEditor extends ListEditor {
 	static public boolean isJython(String executable) {
 		return executable.toLowerCase().indexOf("jython") != -1;
 	}
-
+	
 	/**
 	 * returns true if interpreter was launched successfully
 	 */
+	static String cachedExecutable = null;
+	static boolean cachedExecutableValid = false;
 	public static boolean validateInterpreterPath(String executable) {
+		// we cache the last query because this gets called a lot
+		// i do not want to launch 
+		if (cachedExecutable != null && cachedExecutable.equals(executable))
+			return cachedExecutableValid;
 		boolean retVal = true;
-		
 		try {
 			String versionOption = " -V";
 			// Jython command line option is --version, not -V
@@ -165,6 +170,8 @@ public class InterpreterEditor extends ListEditor {
 			// launching which failed, assume browser executable is present
 			retVal = false;
 		}
+		cachedExecutable = executable;
+		cachedExecutableValid = retVal;
 		return retVal;
 	}
 	

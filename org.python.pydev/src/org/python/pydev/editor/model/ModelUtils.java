@@ -10,11 +10,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.python.parser.ast.Name;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -176,6 +176,15 @@ public class ModelUtils {
 			return getNextNodeHelper(node.getParent(), node);
 	}
 	
+	public static Scope findEnclosingClassScope(AbstractNode node) {
+		if (node == null)
+			return null;
+		Scope s = node.getScope();
+		while (s != null && !(s.getStartNode() instanceof ClassNode))
+			s = s.getParent();
+		return s;
+	}
+
 	/**
 	 * Finds where the given node is defined.
 	 * @return TRICKY: null if nothing found. Otherwise, an array list of
@@ -183,7 +192,6 @@ public class ModelUtils {
 	 * second element is start of the
 	 */
 	public static ArrayList findDefinition(AbstractNode node) {
-		IFile file;
 		ArrayList retVal = new ArrayList();
 		// simple function calls
 		// ex: simpleCall()
@@ -197,16 +205,37 @@ public class ModelUtils {
 				});
 			for (Iterator i = funcCalls.iterator(); i.hasNext();) {
 				FunctionNode funcNode = (FunctionNode)i.next();
-				retVal.add(new ItemPointer(funcNode.getFile(), funcNode.getStart(), funcNode.getEnd()));
+				retVal.add(new ItemPointer(funcNode.getPath(), funcNode.getStart(), funcNode.getEnd()));
 			}
-		} else if (node instanceof ImportAlias) {
+		} else if (node instanceof ImportAlias || node instanceof ImportFromNode) {
 			// imports:
 			// import sys
-			File myImport = node.getScope().findImport(node.getName(), node.getFile());
+			File myImport = node.getScope().findImport(node.getName(), node.getPath());
 			if (myImport != null)
 				retVal.add(new ItemPointer(myImport));
-		}else if (node instanceof AttributeNode)	{
+		} else if (node instanceof AttributeNode &&
+					node.parent instanceof FunctionCallNode &&
+					((AttributeNode)node).astNode.value instanceof Name &&
+					((Name)((AttributeNode)node).astNode.value).id.equals("self")) 
+			{
+			// self. method calls
 			// method calls. ex: self.break_here()
+			// Find the function calls in the containing class that 
+			Scope s = node.getScope();
+			s = s.findContainingClass();
+			if (s != null) {
+				ArrayList funcCalls = s.findFunctionCalls(
+							node.getName(), false, 
+							new Comparator() {
+								public int compare(Object token, Object funcCall) {
+									return ((String)token).compareTo(((AbstractNode)funcCall).getName());
+								}}
+								);
+				for (Iterator i = funcCalls.iterator(); i.hasNext();) {
+					FunctionNode funcNode = (FunctionNode)i.next();
+					retVal.add(new ItemPointer(funcNode.getPath(), funcNode.getStart(), funcNode.getEnd()));
+				}
+			}
 		}
 		return retVal;
 	}

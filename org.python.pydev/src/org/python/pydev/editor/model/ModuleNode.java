@@ -5,7 +5,7 @@
  */
 package org.python.pydev.editor.model;
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
 
 /**
  * Top-level node representing a python module.
@@ -15,9 +15,9 @@ import org.eclipse.core.resources.IFile;
 public class ModuleNode extends AbstractNode {
 
 	Scope scope;
-	IFile file;
+	IPath file;
 	
-	public ModuleNode(IFile file, int lines, int cols) {
+	public ModuleNode(IPath file, int lines, int cols) {
 		super(null);
 		scope = new Scope(this);
 		// FileNode always spans the entire file
@@ -27,11 +27,10 @@ public class ModuleNode extends AbstractNode {
 	}
 
 	public String getName() {
-		// TODO module needs a name, probably a file it comes from
-		return "module";
+		return (file != null) ? file.lastSegment() : "module";
 	}
 	
-	public IFile getFile() {
+	public IPath getPath() {
 		return file;
 	}
 	

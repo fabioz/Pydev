@@ -7,7 +7,7 @@ package org.python.pydev.editor.model;
 
 import java.util.ArrayList;
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -100,8 +100,8 @@ public abstract class AbstractNode {
 	 */
 	public abstract String getName();
 
-	public IFile getFile() {
-		return parent.getFile();
+	public IPath getPath() {
+		return parent.getPath();
 	}
 	
 	/**

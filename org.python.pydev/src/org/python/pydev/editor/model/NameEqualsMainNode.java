@@ -17,8 +17,8 @@ public class NameEqualsMainNode extends AbstractNode {
 	public NameEqualsMainNode(AbstractNode parent, If astNode) {
 		super(parent);	
 		this.astNode = astNode;
-		this.setStart(new Location(astNode.beginLine, astNode.beginColumn-1));
-		this.setEnd(new Location(astNode.beginLine, astNode.beginColumn + 22));
+		this.setStart(new Location(astNode.beginLine-1, astNode.beginColumn-1));
+		this.setEnd(new Location(astNode.beginLine-1, astNode.beginColumn + 22));
 	}
 	
 	public String getName() {

@@ -5,7 +5,7 @@
  */
 package org.python.pydev.editor.model;
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -25,7 +25,7 @@ public class ModelMaker {
 	 * For each Item found, call foundItem.
 	 * 
 	 */
-	public static ModuleNode createModel(SimpleNode root, IDocument doc, IFile file) {
+	public static ModuleNode createModel(SimpleNode root, IDocument doc, IPath file) {
 		int lastLine = doc.getNumberOfLines();
 		int lineLength = 255;
 		try {
