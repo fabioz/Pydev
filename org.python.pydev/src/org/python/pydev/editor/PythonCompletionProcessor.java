@@ -64,22 +64,22 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 			int documentOffset) {
 		List propList = new ArrayList();
 		IDocument doc = viewer.getDocument();
-		//		System.out.println("The document:"+doc.get());
+		//System.out.println("The document:"+doc.get());
 		Point selectedRange = viewer.getSelectedRange();
 		// there may not be a selected range
 		java.lang.String theDoc = doc.get();
 		calcDocBoundary(theDoc, documentOffset);
 		String activationToken = this
 				.getActivationToken(theDoc, documentOffset);
-		System.out.println("DBG:theActivationToken: " + activationToken);
+		//System.out.println("DBG:theActivationToken: " + activationToken);
 		theDoc = partialDocument(theDoc, documentOffset);
 		java.lang.String qualifier = getQualifier(doc, documentOffset);
 		int qlen = qualifier.length();
 		theDoc += "\n"+activationToken;
-		System.out.println("Interpreted doc: " + theDoc);
-//		System.out.println("activationToken: " + activationToken);
+		//System.out.println("Interpreted doc: " + theDoc);
+		//System.out.println("activationToken: " + activationToken);
 		Vector theList = autoComplete(theDoc, activationToken);
-		System.out.println("DBG:vector:" + theList);
+		//System.out.println("DBG:vector:" + theList);
 
 		for (Iterator iter = theList.iterator(); iter.hasNext();) {
 			String element = (String) iter.next();
@@ -103,13 +103,13 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 		Vector theList = new Vector();
 		String s = new String();
 		File tmp = null;
-		System.out.println("DBG:autoComplete");
+		//System.out.println("DBG:autoComplete");
 		try {
 			// get the inspect.py file from the package:
 			s = getAutoCompleteScript();
-			System.out.println("DBG:getAutoCompleteScript() returns" + s);
+			//System.out.println("DBG:getAutoCompleteScript() returns" + s);
 		} catch (CoreException e) {
-			System.out.println("DBG:getAutoCompleteScript() fails " + e);
+			//System.out.println("DBG:getAutoCompleteScript() fails " + e);
 			e.printStackTrace();
 		}
 
@@ -123,7 +123,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 			}
 			String ss = new String("python " + s + " "
 					+ tmp.getAbsolutePath());
-			System.out.println("DBG:exec string " + ss);
+			//System.out.println("DBG:exec string " + ss);
 			Process p = Runtime.getRuntime().exec(ss);
 			BufferedReader in = new BufferedReader(new InputStreamReader(p
 					.getInputStream()));
@@ -131,7 +131,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 			while ((str = in.readLine()) != null) {
 				if(!str.startsWith("tip: ")) continue;
 				str = str.substring(5);
-				System.out.println("DBG:autoComplete:output: " + str);
+				//System.out.println("DBG:autoComplete:output: " + str);
 				theList.add(str);
 			}
 			in.close();
@@ -140,7 +140,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 					eInput));
 
 			while ((str = eIn.readLine()) != null) {
-				System.out.println("error output: " + str);
+				//System.out.println("error output: " + str);
 			}
 			p.waitFor();
 		} catch (IOException e) {
@@ -148,7 +148,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
-			System.out.println("Interrupted call: error output: ");
+			//System.out.println("Interrupted call: error output: ");
 			e.printStackTrace();
 		}
 		return theList;
@@ -178,19 +178,18 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
 	public static String getAutoCompleteScript() throws CoreException {
 		String targetExec = "tipper.py";
-		System.out.println("DBG:getAutoCompleteScript();");
+		//System.out.println("DBG:getAutoCompleteScript();");
 		IPath relative = new Path("PySrc").addTrailingSeparator().append(
 				targetExec);
-		System.out.println("DBG:getAutoCompleteScript(); relative " + relative);
+		//System.out.println("DBG:getAutoCompleteScript(); relative " + relative);
 		Bundle bundle = PydevPlugin.getDefault().getBundle();
-		System.out.println("DBG:getAutoCompleteScript(); bundle " + bundle);
+		//System.out.println("DBG:getAutoCompleteScript(); bundle " + bundle);
 		URL bundleURL = Platform.find(bundle, relative);
 		URL fileURL;
 		try {
 			fileURL = Platform.asLocalURL(bundleURL);
 			String filePath = new File(fileURL.getPath()).getAbsolutePath();
-			System.out.println("DBG:getAutoCompleteScript();filePath "
-					+ filePath);
+			//System.out.println("DBG:getAutoCompleteScript();filePath " + filePath);
 			return filePath;
 		} catch (IOException e) {
 			throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR,
