@@ -84,7 +84,7 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 				if (isWhitespace(line))
 					text = indentString;
 				else
-					text = " ";
+					text = indentString;
 				// contains a char (pasted text)
 			} else {
 				byte[] byteLine = text.getBytes();
@@ -178,13 +178,15 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 		try {
 			command.text = autoIndentNewline(
 					document, command.length, command.text, command.offset);
-			if (PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS))
+			if (PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS)){
 				command.text = convertTabs(
 					document, command.length, command.text, command.offset,
 					getIndentationString());
-			else command.text = convertSpaces(
+			}else {
+			    command.text = convertSpaces(
 				document, command.length, command.text, command.offset,
 				getIndentationString());
+			}
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
