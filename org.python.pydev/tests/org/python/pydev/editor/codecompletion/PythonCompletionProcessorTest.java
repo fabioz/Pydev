@@ -118,6 +118,8 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 	    
 	    String s = "from testlib.unittest import  ";
 	    requestCompl(s, s.length(), -1, new String[]{"anothertest", "guitestcase", "testcase", "__init__"});
+
+	    requestCompl("from testlib.unittest.testcase.TestCase import  assertImagesNotE", new String[]{"assertImagesNotEqual"});
     }
     
 
@@ -167,47 +169,47 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
     public void testGetActTok(){
         String strs[];
         
-        strs = codeCompletion.getActivationTokenAndQual(new Document(""), 0);
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document(""), 0);
         assertEquals("", strs[0]);
         assertEquals("", strs[1]);
         
-        strs = codeCompletion.getActivationTokenAndQual(new Document("self.assertEquals( DECAY_COEF, t.item(0, C).text())"), 42);
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("self.assertEquals( DECAY_COEF, t.item(0, C).text())"), 42);
         assertEquals("" , strs[0]);
         assertEquals("C", strs[1]);
         
-        strs = codeCompletion.getActivationTokenAndQual(new Document("self.assertEquals( DECAY_COEF, t.item(0,C).text())"), 41);
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("self.assertEquals( DECAY_COEF, t.item(0,C).text())"), 41);
         assertEquals("" , strs[0]);
         assertEquals("C", strs[1]);
         
-        strs = codeCompletion.getActivationTokenAndQual(new Document("m = met(self.c, self.b)"), 14);
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("m = met(self.c, self.b)"), 14);
         assertEquals("self." , strs[0]);
         assertEquals("c", strs[1]);
         
-        strs = codeCompletion.getActivationTokenAndQual(new Document("[a,b].ap"), 8);
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("[a,b].ap"), 8);
         assertEquals("list." , strs[0]);
         assertEquals("ap", strs[1]);
         
-        strs = codeCompletion.getActivationTokenAndQual(new Document("{a:1,b:2}.ap"), 12);
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("{a:1,b:2}.ap"), 12);
         assertEquals("dict." , strs[0]);
         assertEquals("ap", strs[1]);
         
-        strs = codeCompletion.getActivationTokenAndQual(new Document("''.ap"), 5);
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("''.ap"), 5);
         assertEquals("str." , strs[0]);
         assertEquals("ap", strs[1]);
         
-        strs = codeCompletion.getActivationTokenAndQual(new Document("\"\".ap"), 5);
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("\"\".ap"), 5);
         assertEquals("str." , strs[0]);
         assertEquals("ap", strs[1]);
         
-        strs = codeCompletion.getActivationTokenAndQual(new Document("ClassA.someMethod.ap"), 20);
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("ClassA.someMethod.ap"), 20);
         assertEquals("ClassA.someMethod." , strs[0]);
         assertEquals("ap", strs[1]);
         
-        strs = codeCompletion.getActivationTokenAndQual(new Document("ClassA.someMethod().ap"), 22);
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("ClassA.someMethod().ap"), 22);
         assertEquals("ClassA.someMethod()." , strs[0]);
         assertEquals("ap", strs[1]);
         
-        strs = codeCompletion.getActivationTokenAndQual(new Document("ClassA.someMethod( a, b ).ap"), 28);
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("ClassA.someMethod( a, b ).ap"), 28);
         assertEquals("ClassA.someMethod()." , strs[0]);
         assertEquals("ap", strs[1]);
         

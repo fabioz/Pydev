@@ -498,8 +498,14 @@ public class PythonShell {
         while(tokenizer.hasMoreTokens()){
             String token       = URLDecoder.decode(tokenizer.nextToken());
             String description = URLDecoder.decode(tokenizer.nextToken());
-            String args        = URLDecoder.decode(tokenizer.nextToken());
-            String type        = URLDecoder.decode(tokenizer.nextToken());
+            
+            String args = "";
+            if(tokenizer.hasMoreTokens())
+                args = URLDecoder.decode(tokenizer.nextToken());
+            
+            String type =""+PyCodeCompletion.TYPE_UNKNOWN;
+            if(tokenizer.hasMoreTokens())
+                type = URLDecoder.decode(tokenizer.nextToken());
             
 //            System.out.println(token);
 //            System.out.println(description);

@@ -4,5 +4,5 @@
    <description url="http://pydev.sourceforge.net/">
       The python development environment.
    </description>
-   <feature url="features/org.python.pydev.feature_0.9.1.7.jar" id="org.python.pydev.feature" version="0.9.1.7"/>
+   <feature url="features/org.python.pydev.feature_0.9.1.75.jar" id="org.python.pydev.feature" version="0.9.1.75"/>
 </site>

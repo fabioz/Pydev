@@ -173,6 +173,7 @@ public class PyCodeCompletion {
         
         CompletionState state = new CompletionState(line,request.documentOffset - region.getOffset(), null, request.nature);
         
+        boolean importsTip = false;
         //code completion in imports 
         if (importsTipper.length()!=0) { 
         
@@ -180,6 +181,7 @@ public class PyCodeCompletion {
             //so, we want to do a code completion for imports...
             //let's see what we have...
 
+	        importsTip = true;
             importsTipper = importsTipper.trim();
             IToken[] imports = astManager.getCompletionsForImport(importsTipper, request.nature);
             theList.addAll(Arrays.asList(imports));
@@ -217,7 +219,7 @@ public class PyCodeCompletion {
         }
 
         ArrayList ret = new ArrayList();
-        changeItokenToCompletionPropostal(request, ret, theList);
+        changeItokenToCompletionPropostal(request, ret, theList, importsTip);
 
         return ret;
     }
@@ -288,8 +290,9 @@ public class PyCodeCompletion {
      * @param request
      * @param convertedProposals
      * @param iTokenList
+     * @param importsTip
      */
-    private void changeItokenToCompletionPropostal(CompletionRequest request, List convertedProposals, List iTokenList) {
+    private void changeItokenToCompletionPropostal(CompletionRequest request, List convertedProposals, List iTokenList, boolean importsTip) {
         for (Iterator iter = iTokenList.iterator(); iter.hasNext();) {
             
             Object obj = iter.next();
@@ -302,15 +305,19 @@ public class PyCodeCompletion {
                 //GET the ARGS
                 int l = name.length();
                 
-                String args = getArgs(element);                
-                if(args.length()>0){
-                    l++;
+                String args = "";
+                if(! importsTip){
+	                args = getArgs(element);                
+	                if(args.length()>0){
+	                    l++;
+	                }
                 }
                 //END
                 
                 String docStr = element.getDocStr();
                 int type = element.getType();
-
+                
+                    
                 CompletionProposal proposal = new CompletionProposal(name+args,
                         request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, null, docStr);
                 

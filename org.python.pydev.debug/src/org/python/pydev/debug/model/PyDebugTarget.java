@@ -35,6 +35,7 @@ import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.core.PydevDebugPrefs;
 import org.python.pydev.debug.model.remote.*;
+import org.python.pydev.plugin.PydevPlugin;
 /**
  * Debugger class that represents a single python process.
  * 
@@ -309,18 +310,22 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 	 * are processed by commands themselves
 	 */
 	public void processCommand(String sCmdCode, String sSeqCode, String payload) {
-		int cmdCode = Integer.parseInt(sCmdCode);
-		int seqCode = Integer.parseInt(sSeqCode);
-		if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_CREATED)
-			processThreadCreated(payload);
-		else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_KILL)
-			processThreadKilled(payload);
-		else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_SUSPEND)
-			processThreadSuspended(payload);
-		else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_RUN)
-			processThreadRun(payload);
-		else
-			PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command" + sCmdCode, null);	
+		try {
+            int cmdCode = Integer.parseInt(sCmdCode);
+            int seqCode = Integer.parseInt(sSeqCode);
+            if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_CREATED)
+                processThreadCreated(payload);
+            else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_KILL)
+                processThreadKilled(payload);
+            else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_SUSPEND)
+                processThreadSuspended(payload);
+            else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_RUN)
+                processThreadRun(payload);
+            else
+                PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command" + sCmdCode, null); 
+        } catch (Exception e) {
+            PydevDebugPlugin.log(IStatus.ERROR, "Error processing: " + sCmdCode+"\npayload: "+payload, e); 
+        }	
 	}
 
 	protected void fireEvent(DebugEvent event) {

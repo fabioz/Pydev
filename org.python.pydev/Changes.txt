@@ -10,7 +10,6 @@ c.foo = 2
 c. | triggers completion with bla,foo
 
 - imports in local scope should be gotten
-- from scbr import a, b, ...should work
 - pythonpath should be the same for project and lauch
 - IPython should be integrated
 - code completion: support zip imports
@@ -25,9 +24,12 @@ PyLint does not work if we have spaces in the path
 After 0.9.1
 
 - Integrated Scott Schleiser's editor patch (now on apply, it really applies new settings, without having to close the editor).
-- Code Formatting bugs solved (unit-tests added)
+- Code Formatting bugs solved (unit-tests added).
 - Code completion had unit-tests added and some minor bugs solved.
-
+- New Content Assistants added. 
+- Docstrings in national encodings should work now.
+- from scbr import a, b... should work now.
+- Minor bugs in other areas. 
 
 
 

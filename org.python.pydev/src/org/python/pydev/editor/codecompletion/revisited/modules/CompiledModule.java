@@ -119,9 +119,11 @@ public class CompiledModule extends AbstractModule{
 	            ArrayList array = new ArrayList();
 	            
 	            for (Iterator iter = completions.iterator(); iter.hasNext();) {
-	                String[] element = (String[]) iter.next();
-	                IToken t = new CompiledToken(element[0], element[1], element[2], name, Integer.parseInt(element[3]));
-	                array.add(t);
+	                String[] element = (String[]) iter.next(); 
+	                if(element.length >= 4){//it might be a server error
+	                    IToken t = new CompiledToken(element[0], element[1], element[2], name, Integer.parseInt(element[3]));
+		                array.add(t);
+	                }
 	                
 	            }
 	            toks = (CompiledToken[]) array.toArray(new CompiledToken[0]);

@@ -281,10 +281,10 @@ public class PythonPathHelper implements Serializable{
                 
                 String lEnc = null;
                 //encoding must be specified in first or second line...
-                if (l1.toLowerCase().indexOf("coding") != -1){
+                if (l1 != null && l1.toLowerCase().indexOf("coding") != -1){
                     lEnc = l1; 
                 }
-                else if (l2.toLowerCase().indexOf("coding") != -1){
+                else if (l2 != null && l2.toLowerCase().indexOf("coding") != -1){
                     lEnc = l2; 
                 }
                 else{
