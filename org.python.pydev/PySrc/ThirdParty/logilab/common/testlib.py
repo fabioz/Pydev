@@ -16,13 +16,14 @@ Command line options:
 -q: quiet -- don't print anything except if a test fails
 -t: testdir -- directory where the tests will be found
 -x: exclude -- add a test to exclude
+-p: profile -- profiled execution
 
 If no non-option arguments are present, prefixes used are 'test',
 'regrtest', 'smoketest' and 'unittest'.
 
 """
 
-__revision__ = "$Id: testlib.py,v 1.3 2005-01-21 17:42:05 fabioz Exp $"
+__revision__ = "$Id: testlib.py,v 1.4 2005-02-16 16:45:43 fabioz Exp $"
 
 import sys
 import os
@@ -65,13 +66,14 @@ def main(testdir=os.getcwd()):
     """
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'vqx:t:')
+        opts, args = getopt.getopt(sys.argv[1:], 'vqx:t:p')
     except getopt.error, msg:
         print msg
         print __doc__
         return 2
     verbose = 0
     quiet = 0
+    profile = 0
     exclude = []
     for o, a in opts:
         if o == '-v':
@@ -83,6 +85,8 @@ def main(testdir=os.getcwd()):
             exclude.append(a)
         elif o == '-t':
             testdir = a
+        elif o == '-p':
+            profile = 1
         elif o == '-h':
             print __doc__
             sys.exit(0)
@@ -94,13 +98,20 @@ def main(testdir=os.getcwd()):
     if exclude:
         for i in range(len(exclude)):
             # Strip trailing ".py" from arguments
-            if args[i][-3:] == '.py':
+            if exclude[i][-3:] == '.py':
                 exclude[i] = exclude[i][:-3]
     tests = find_tests(testdir, args or DEFAULT_PREFIXES, excludes=exclude)
     sys.path.insert(0, testdir)
     # Tell tests to be moderately quiet
     test_support.verbose = verbose
-    good, bad, skipped, all_result = run_tests(tests, quiet, verbose)
+    if profile:
+        print >> sys.stderr, '** profiled run'
+        from hotshot import Profile
+        prof = Profile('stones.prof')
+        good, bad, skipped, all_result = prof.runcall(run_tests, tests, quiet, verbose)
+        prof.close()
+    else:
+        good, bad, skipped, all_result = run_tests(tests, quiet, verbose)
     if not quiet:
         print '*'*80
         if all_result:
@@ -120,6 +131,11 @@ def main(testdir=os.getcwd()):
         if skipped:
             print _count(len(skipped), "test"), "skipped:",
             print ', '.join(['%s (%s)' % (test, msg) for test, msg in skipped])
+    if profile:
+        from hotshot import stats
+        stats = stats.load('stones.prof')
+        stats.sort_stats('time', 'calls')
+        stats.print_stats(30)
     sys.exit(len(bad) + len(skipped))
 
 def run_tests(tests, quiet, verbose, runner=None):
@@ -219,12 +235,19 @@ def _count(n, word):
 
 
 # test utils ##################################################################
+from xml.sax import make_parser, SAXParseException
+from cStringIO import StringIO
 
 class TestCase(unittest.TestCase):
     """unittest.TestCase with some additional methods"""
 
 
     def assertDictEquals(self, d1, d2):
+        """compares two dicts
+
+        If the two dict differ, the first difference is shown in the error
+        message
+        """
         d1 = d1.copy()
         for key, value in d2.items():
             try:
@@ -237,6 +260,11 @@ class TestCase(unittest.TestCase):
             self.fail('d2 is missing %r' % d1)
     
     def assertListEquals(self, l1, l2):
+        """compares two lists
+
+        If the two list differ, the first difference is shown in the error
+        message
+        """
         l1 = l1[:]
         for value in l2:
             try:
@@ -251,7 +279,23 @@ class TestCase(unittest.TestCase):
             self.fail('l2 is missing %r' % l1)
     
     def assertLinesEquals(self, l1, l2):
+        """assert list of lines are equal"""
         self.assertListEquals(l1.splitlines(), l2.splitlines())
+
+    def assertXMLValid(self, stream):
+        """asserts the XML stream is well-formed (no DTD conformance check)"""
+        parser = make_parser()
+        try:
+            parser.parse(stream)
+        except SAXParseException:
+            self.fail('XML stream not well formed')
+
+    def assertXMLStringValid(self, xml_string):
+        """asserts the XML string is well-formed (no DTD conformance check)"""
+        stream = StringIO(xml_string)
+        self.assertXMLValid(stream)
+
+        
         
 import doctest
 
@@ -260,12 +304,12 @@ class DocTest(unittest.TestCase):
     I don't know how to make unittest.main consider the DocTestSuite instance
     without this hack
     """
-    def run(self, result=None):
+    def __call__(self, result=None):
         return doctest.DocTestSuite(self.module).run(result)
+    run = __call__
     
     def test(self):
         """just there to trigger test execution"""
-
 
 MAILBOX = None
 

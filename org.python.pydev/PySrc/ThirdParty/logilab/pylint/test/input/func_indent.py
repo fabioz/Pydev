@@ -1,5 +1,5 @@
 """docstring"""
-__revision__ = '$Id: func_indent.py,v 1.1 2005-01-21 17:46:09 fabioz Exp $'
+__revision__ = '$Id: func_indent.py,v 1.2 2005-02-16 16:45:46 fabioz Exp $'
 
 def totoo():
  """docstring"""

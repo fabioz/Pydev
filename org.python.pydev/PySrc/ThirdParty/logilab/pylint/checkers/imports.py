@@ -16,7 +16,7 @@
 imports checkers for Python code
 """
 
-__revision__ = "$Id: imports.py,v 1.3 2005-01-21 17:42:08 fabioz Exp $"
+__revision__ = "$Id: imports.py,v 1.4 2005-02-16 16:45:47 fabioz Exp $"
 
 from logilab.common import get_cycles, astng
 from logilab.common.modutils import is_standard_module, is_relative, \
@@ -168,7 +168,7 @@ class ImportsChecker(BaseChecker):
 
     name = 'imports'
     msgs = MSGS
-    priority = -1
+    priority = -2
     
     options = (('deprecated-modules',
                 {'default' : ('regsub','string', 'TERMIOS',

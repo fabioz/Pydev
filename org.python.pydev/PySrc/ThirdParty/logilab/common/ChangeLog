@@ -1,6 +1,52 @@
 ChangeLog for logilab.common
 ============================
 
+2005-02-16  --  0.9.2
+    * textutils:
+	
+      - added epydoc documentation
+      - new sep argument to the get_csv function
+      - fix pb with normalize_* functions on windows platforms
+
+    * fileutils:
+	
+      - added epydoc documentation
+      - fixed bug in get_by_ext (renamed files_by_ext) with the
+        exclude_dirs argument
+
+    * configuration:
+
+      - fixed a bug in configuration file generation on windows platforms
+      - better test coverage
+	
+    * fixed testlib.DocTest which wasn't working anymore with recent
+      versions of pyunit
+
+    * added "context_file" argument to file_from_modpath to avoid
+      possible relative import problems
+
+    * astng: use the new context_file argument from Node.resolve()
+
+	
+	
+2005-02-04  --  0.9.1
+    * astng:
+	
+      - remove buggy print
+      - fixed builder to deal with builtin methods
+      - fixed raw_building.build_function with python 2.4
+	
+    * modutils: code cleanup, some reimplementation based on "imp",
+      better handling of windows specific extensions, epydoc documentation
+   
+    * fileutils: new exclude_dirs argument to the get_by_ext function
+
+    * testlib: main() support -p option to run test in a profiled mode
+	
+    * generated documentation for modutils in the doc/ subdirectory
+
+
+	
 2005-01-20  --  0.9.0
     * astng:
 	

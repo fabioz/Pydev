@@ -18,7 +18,7 @@
  their names to values provided in a dictionnary
 """
 
-__revision__ = '$Id: bind.py,v 1.4 2005-01-21 17:42:05 fabioz Exp $'
+__revision__ = '$Id: bind.py,v 1.5 2005-02-16 16:45:43 fabioz Exp $'
 
 # TODO: unit tests
 # * this module provide a function bind(func,vars) which replaces every
@@ -118,15 +118,15 @@ def optimize_module(m, global_consts):
 
 
 
-def analyze_code(co, globals, consts_dict, consts_list ):
+def analyze_code(co, globals, consts_dict, consts_list):
     """Take a code object and a dictionnary and returns a
     new code object where the opcodes LOAD_GLOBAL are replaced
     by LOAD_CONST whenever the global's name appear in the
     dictionnary"""
+    modified_globals = []
     for c in co.co_consts:
         if c not in consts_list:
             consts_list.append(c)
-    print "consts len=", len(co.co_consts)
     modified = []
     code = co.co_code
     new_code = ""
@@ -157,7 +157,8 @@ def analyze_code(co, globals, consts_dict, consts_list ):
         if op == STORE_GLOBAL:
             name = co.co_names[oparg]
             if globals.has_key(name):
-                print "Warning global %s modified" % name
+                modified_globals.append(name)
+    return modified_globals
 
 def rewrite_code(co, consts_dict, consts_tuple):
     """Take a code object and a dictionnary and returns a
@@ -169,7 +170,6 @@ def rewrite_code(co, consts_dict, consts_tuple):
     n = len(code)
     i = 0
     consts_list = list(consts_tuple)
-    print "rewritten len=", len(consts_list)
     while i < n:
         c = code[i]
         op = ord(c)

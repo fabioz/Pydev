@@ -1,3 +1,6 @@
+# Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
+# http://www.logilab.fr/ -- mailto:contact@logilab.fr
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -10,11 +13,18 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2002-2004 LOGILAB S.A. (Paris, FRANCE).
- http://www.logilab.fr/ -- mailto:contact@logilab.fr
+"""Some classes used to handle advanced configuration in simple to
+complex applications.
 
-Sample usage
-````````````
+It's able to load the configuration from a file and or command line
+options, to generate a sample configuration file or to display program's
+usage. It basically fill the gap between optik/optparse and ConfigParser,
+with some additional data types (available as standalone optik extension
+in the `optik_ext` module)
+
+
+Quick start: simplest usage
+```````````````````````````````
 
 import sys
 from logilab.common.configuration import Configuration
@@ -32,7 +42,7 @@ print config['value']
 print config['multiple']
 print config['number']
 
-config.help()
+print config.help()
 
 f = open('myconfig.ini', 'w')
 f.write('''[MY CONFIG]
@@ -52,9 +62,20 @@ print config.load_command_line_configuration()
 print config['value']
 
 config.generate_config()
+
+
+:version:   $Revision: 1.4 $  
+:author:    Logilab
+:copyright: 2003-2005 LOGILAB S.A. (Paris, FRANCE)
+:contact:   http://www.logilab.fr/ -- mailto:python-projects@logilab.org
 """
 
-__revision__ = "$Id: configuration.py,v 1.3 2005-01-21 17:42:03 fabioz Exp $"
+__revision__ = "$Id: configuration.py,v 1.4 2005-02-16 16:45:42 fabioz Exp $"
+__docformat__ = "restructuredtext en"
+__all__ = ('OptionsManagerMixIn', 'OptionsProviderMixIn',
+           'ConfigurationMixIn', 'Configuration',
+           'OptionsManager2ConfigurationAdapter')
+
 
 import sys
 import re
@@ -64,7 +85,8 @@ from copy import copy
 from ConfigParser import ConfigParser, NoOptionError, NoSectionError
 
 from logilab.common.optik_ext import OptionParser, OptionGroup, Values, \
-     OptionValueError, check_yn, check_csv, check_file, check_color
+     OptionValueError, OptionError, check_yn, check_csv, check_file, \
+     check_color, check_named
 from logilab.common.textutils import normalize_text, unquote
 
 class UnsupportedAction(Exception):
@@ -99,6 +121,11 @@ def yn_validator(opt_dict, name, value):
     """
     return check_yn(None, name, value)
 
+def named_validator(opt_dict, name, value):
+    """validate and return a converted value for option of type 'named'
+    """
+    return check_named(None, name, value)
+
 def file_validator(opt_dict, name, value):
     """validate and return a filepath for option of type 'file'"""
     return check_file(None, name, value)
@@ -117,6 +144,8 @@ VALIDATORS = {'string' : unquote,
               'regexp': re.compile,
               'csv': csv_validator,
               'yn': yn_validator,
+              'bool': yn_validator,
+              'named': named_validator,
               'choice': choice_validator,
               'multiple_choice': multiple_choice_validator,
               }
@@ -126,7 +155,11 @@ def convert(value, opt_dict, name=''):
     
     optional argument name is only used for error message formatting
     """
-    _type = opt_dict['type']
+    try:
+        _type = opt_dict['type']
+    except KeyError:
+        # FIXME
+        return value
     if not VALIDATORS.has_key(_type):
         raise Exception('Unsupported type "%s"' % _type)
     try:
@@ -140,9 +173,9 @@ def convert(value, opt_dict, name=''):
             raise OptionValueError('%s value (%s) should be of type %s' %
                                    (name, value, _type))
 
-def comment(string, marker='# '):
+def comment(string):
     """return string as a comment"""
-    return marker + string.replace(linesep, linesep + marker)
+    return '# ' + string.replace('\n', '\n# ')
                 
 def format_section(stream, section, options, doc=None):
     """format an options section using the INI format"""
@@ -168,6 +201,7 @@ def format_section(stream, section, options, doc=None):
         print >> stream, '%s=%s\n' % (opt_name, value)
     print >> stream, '\n'
 
+
 class OptionsManagerMixIn:
     """MixIn to handle a configuration from both a configuration file and
     command line options
@@ -183,6 +217,7 @@ class OptionsManagerMixIn:
         self.options_providers = []
         # dictionary assocating option name to checker
         self._all_options = {}
+        self._short_options = {}
         self._nocallback_options = {}
         # verbosity
         self.quiet = quiet
@@ -246,6 +281,7 @@ class OptionsManagerMixIn:
                 del opt_dict[specific]
         args = ['--' + opt_name]
         if opt_dict.has_key('short'):
+            self._short_options[opt_dict['short']] = opt_name
             args.append('-' + opt_dict['short'])
             del opt_dict['short']
         return args, opt_dict
@@ -253,7 +289,10 @@ class OptionsManagerMixIn:
     def cb_set_provider_option(self, option, opt_name, value, parser):
         """optik callback for option setting"""
         # remove --
-        opt_name = opt_name[2:]
+        if opt_name.startswith('--'):
+            opt_name = opt_name[2:]
+        else: # short version
+            opt_name = self._short_options[opt_name[1:]]
         # trick since we can't set action='store_true' on options
         if value is None:
             value = 1
@@ -313,9 +352,7 @@ class OptionsManagerMixIn:
                 section = section.upper()
                 try:
                     value = parser.get(section, opt_name)
-                    # type casting
-                    value = convert(value, opt_dict, opt_name)
-                    provider.set_option(opt_name, value)
+                    provider.set_option(opt_name, value, opt_dict=opt_dict)
                 except (NoSectionError, NoOptionError), ex:
                     continue
 
@@ -360,9 +397,8 @@ class OptionsManagerMixIn:
         
     def help(self):
         """return the usage string for available options """
-        return self._optik_parser.print_help()
+        return self._optik_parser.format_help()
     
-
         
 class OptionsProviderMixIn:
     """Mixin to provide options to an OptionsManager
@@ -381,7 +417,6 @@ class OptionsProviderMixIn:
             except ValueError:
                 raise Exception('Bad option: %r' % option)
             action = opt_dict.get('action')
-                
             if action != 'callback':
                 # callback action have no default
                 self.set_option(opt_name, opt_dict.get('default'),
@@ -397,9 +432,11 @@ class OptionsProviderMixIn:
     def set_option(self, opt_name, value, action=None, opt_dict=None):
         """method called to set an option (registered in the options list)
         """
+        if opt_dict is None:
+            opt_dict = self.get_option_def(opt_name)
+        if value is not None:
+            value = convert(value, opt_dict, opt_name)
         if action is None:
-            if opt_dict is None:
-                opt_dict = self.get_option_def(opt_name)
             action = opt_dict.get('action', 'store')
         if action == 'store':
             setattr(self.config, self.option_name(opt_name), value)
@@ -430,9 +467,9 @@ class OptionsProviderMixIn:
             if opt[0] == opt_name:
                 return opt[1]
         else:
-            raise OptionValueError('No such option %s in section %s' % (
-                opt_name, self.name))
-        
+            raise OptionError('no such option in section %r' % self.name, opt_name)
+       
+
 class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
     """basic mixin for simple configurations which don't need the
     manager / providers model
@@ -445,6 +482,7 @@ class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
         OptionsProviderMixIn.__init__(self)
         self.register_options_provider(self, own_group=0)
 
+
 class Configuration(ConfigurationMixIn):
     """class for simple configurations which don't need the
     manager / providers model and prefer delegation to inheritance
@@ -452,11 +490,13 @@ class Configuration(ConfigurationMixIn):
     configuration values are accessible through a dict like interface
     """
 
-    def __init__(self, config_file=None, options=None, name=None, usage=None):
+    def __init__(self, config_file=None, options=None, name=None, usage=None, doc=None):
         if options is not None:
             self.options = options
         if name is not None:
             self.name = name
+        if doc is not None:
+            self.__doc__ = doc
         ConfigurationMixIn.__init__(self, config_file=config_file, usage=usage)
 
     def __getitem__(self, key):
@@ -471,7 +511,7 @@ class Configuration(ConfigurationMixIn):
     def get(self, key, default=None):
         try:
             return getattr(self.config, self.option_name(key))
-        except (OptionValueError, AttributeError):
+        except (OptionError, AttributeError):
             return default
 
 

@@ -16,7 +16,7 @@ Copyright (c) 2003-2004 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
-__revision__ = "$Id: unittest_astng.py,v 1.1 2005-01-21 17:46:21 fabioz Exp $"
+__revision__ = "$Id: unittest_astng.py,v 1.2 2005-02-16 16:45:45 fabioz Exp $"
 
 import unittest
 import sys
@@ -326,9 +326,9 @@ class ASTNGRepresentationTest(unittest.TestCase):
         _object = yo.resolve('object')
         self.assert_(isinstance(_object, astng.Class))
         self.assertEquals(_object.name, 'object')
-        # check builtin function has argnames == []
+        # check builtin function has argnames == None
         _object = yo.resolve('dict')
-        self.assertEquals(_object.locals['has_key'].argnames, [])
+        self.assertEquals(_object.locals['has_key'].argnames, None)
 
     def test_resolve_raise(self):
         self.assertRaises(ResolveError, MODULE.resolve, 'YOAA')
@@ -337,6 +337,17 @@ class ASTNGRepresentationTest(unittest.TestCase):
         self.assertEquals(NONREGR.resolve('enumerate').name, 'enumerate')
         self.assertRaises(ResolveError, NONREGR.locals['toto'].resolve_dotted, 'v.get')
                           
+    def test_resolve_package_redirection(self):
+        sys.path.insert(1, 'astng_data')
+        try:
+            m = abuilder.file_build('astng_data/appl/myConnection.py', 'appl.myConnection')
+            cnx = m.resolve_dotted('SSL1.Connection')
+            self.assertEquals(cnx.__class__, astng.Class)
+            self.assertEquals(cnx.name, 'Connection')
+            self.assertEquals(cnx.root().name, 'Connection1')
+        finally:
+            del sys.path[1]
+        
     def test_get_assigned_value(self):
         my_dict = MODULE.locals['MY_DICT']
         self.assert_(isinstance(my_dict.get_assigned_value(), astng.Dict))

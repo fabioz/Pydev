@@ -16,7 +16,7 @@
 HTML reporter
 """
 
-__revision__ = "$Id: html.py,v 1.3 2005-01-21 17:42:10 fabioz Exp $"
+__revision__ = "$Id: html.py,v 1.4 2005-02-16 16:45:46 fabioz Exp $"
 
 import sys
 from cgi import escape

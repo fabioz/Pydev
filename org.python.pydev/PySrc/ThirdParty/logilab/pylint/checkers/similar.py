@@ -18,7 +18,7 @@
 """
 from __future__ import generators
 
-__revision__ = '$Id: similar.py,v 1.2 2005-01-21 17:42:08 fabioz Exp $'
+__revision__ = '$Id: similar.py,v 1.3 2005-02-16 16:45:47 fabioz Exp $'
 
 import sys
 

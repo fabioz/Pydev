@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>logilab.common.textutils</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" align="right" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+      <tr><th class="navbar" align="center">
+        <p class="nomargin">
+          Logilab's&nbsp;common&nbsp;library
+      </p></th></tr></table>
+    </th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        Package&nbsp;logilab ::
+        Package&nbsp;common ::
+        Module&nbsp;textutils
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[show&nbsp;private&nbsp;|&nbsp;<a href="../public/logilab.common.textutils-module.html">hide&nbsp;private</a>]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="logilab.common.textutils-module.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF MODULE DESCRIPTION =========== -->
+<h2 class="module">Module logilab.common.textutils</h2>
+
+<p>Some text manipulation utility functions.</p>
+<hr/>
+<p><b>Version:</b> <p>$Revision: 1.1 $</p>
+</p>
+
+<p><b>Author:</b> <p>Logilab</p>
+</p>
+
+<p><b>Contact:</b> <p><a class="reference" href="http://www.logilab.fr/">http://www.logilab.fr/</a> -- <a class="reference" href="mailto:python-projects&#64;logilab.org">mailto:python-projects&#64;logilab.org</a></p>
+</p>
+
+<p><b>Copyright:</b> <p>2003-2005 LOGILAB S.A. (Paris, FRANCE)</p>
+</p>
+
+
+<!-- =========== START OF FUNCTION SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Function Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><p>str</p>
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/logilab.common.textutils-module.html#_get_ansi_code" class="summary-sig-name"><code>_get_ansi_code</code></a>(<span class=summary-sig-arg>color</span>,
+          <span class=summary-sig-arg>style</span>)</span></code>
+<br />
+return ansi escape code corresponding to color and style</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;text formatting</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><p>str or unicode</p>
+</font></td>
+  <td><code><span class="summary-sig"><a href="logilab.common.textutils-module.html#normalize_text" class="summary-sig-name"><code>normalize_text</code></a>(<span class=summary-sig-arg>text</span>,
+          <span class=summary-sig-arg>line_len</span>,
+          <span class=summary-sig-arg>indent</span>)</span></code>
+<br />
+normalize a text to display it with a maximum line size and
+optionaly arbitrary indentation.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><p>str or unicode</p>
+</font></td>
+  <td><code><span class="summary-sig"><a href="logilab.common.textutils-module.html#normalize_paragraph" class="summary-sig-name"><code>normalize_paragraph</code></a>(<span class=summary-sig-arg>text</span>,
+          <span class=summary-sig-arg>line_len</span>,
+          <span class=summary-sig-arg>indent</span>)</span></code>
+<br />
+normalize a text to display it with a maximum line size and
+optionaly arbitrary indentation.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><p>str or unicode</p>
+</font></td>
+  <td><code><span class="summary-sig"><a href="logilab.common.textutils-module.html#pretty_match" class="summary-sig-name"><code>pretty_match</code></a>(<span class=summary-sig-arg>match</span>,
+          <span class=summary-sig-arg>string</span>,
+          <span class=summary-sig-arg>underline_char</span>)</span></code>
+<br />
+return a string with the match location underlined:</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><p>str or unicode</p>
+</font></td>
+  <td><code><span class="summary-sig"><a href="logilab.common.textutils-module.html#unquote" class="summary-sig-name"><code>unquote</code></a>(<span class=summary-sig-arg>string</span>)</span></code>
+<br />
+remove optional quotes (simple or double) from the string</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><p>str or unicode</p>
+</font></td>
+  <td><code><span class="summary-sig"><a href="logilab.common.textutils-module.html#colorize_ansi" class="summary-sig-name"><code>colorize_ansi</code></a>(<span class=summary-sig-arg>msg</span>,
+          <span class=summary-sig-arg>color</span>,
+          <span class=summary-sig-arg>style</span>)</span></code>
+<br />
+colorize message by wrapping it with ansi escape codes</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;text manipulation</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="logilab.common.textutils-module.html#searchall" class="summary-sig-name"><code>searchall</code></a>(<span class=summary-sig-arg>rgx</span>,
+          <span class=summary-sig-arg>data</span>)</span></code>
+<br />
+apply a regexp using &quot;search&quot; until no more match is found</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><p>str or unicode</p>
+</font></td>
+  <td><code><span class="summary-sig"><a href="logilab.common.textutils-module.html#get_csv" class="summary-sig-name"><code>get_csv</code></a>(<span class=summary-sig-arg>string</span>,
+          <span class=summary-sig-arg>sep</span>)</span></code>
+<br />
+return a list of string in from a csv formatted line</td></tr>
+</table><br />
+
+
+<!-- =========== START OF VARIABLE SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Variable Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>str</code></font></td>
+<td><b><a href="logilab.common.textutils-module.html#__revision__"><code>__revision__</code></a></b> = <span title="'$Id: logilab.common.textutils-module.html,v 1.1 2005-02-16 16:45:44 fabioz Exp $'"><code><span class="variable-quote">'</span>$Id:&nbsp;textutils.py,v&nbsp;1.23&nbsp;2005/02/08&nbsp;17:2<span class="variable-ellipsis">...</span></code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><p>dict(str)</p></font></td>
+<td><b><a href="logilab.common.textutils-module.html#ANSI_COLORS"><code>ANSI_COLORS</code></a></b>: dictionary mapping color identifier to ANSI terminal code</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><p>str</p></font></td>
+<td><b><a href="logilab.common.textutils-module.html#ANSI_END"><code>ANSI_END</code></a></b>: ANSI terminal code notifing the end of an ANSI escape sequence</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><p>str</p></font></td>
+<td><b><a href="logilab.common.textutils-module.html#ANSI_PREFIX"><code>ANSI_PREFIX</code></a></b>: ANSI terminal code notifing the start of an ANSI escape sequence</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><p>str</p></font></td>
+<td><b><a href="logilab.common.textutils-module.html#ANSI_RESET"><code>ANSI_RESET</code></a></b>: ANSI terminal code reseting format defined by a previous ANSI escape sequence</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><p>dict(str)</p></font></td>
+<td><b><a href="logilab.common.textutils-module.html#ANSI_STYLES"><code>ANSI_STYLES</code></a></b>: dictionary mapping style identifier to ANSI terminal code</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>SRE_Pattern</code></font></td>
+<td><b><a href="../private/logilab.common.textutils-module.html#_BLANKLINES_RGX"><code>_BLANKLINES_RGX</code></a></b> = <span title="&lt;_sre.SRE_Pattern object at 0xb7bcda38&gt;"><code><span class="re"><span class="re-char">\r</span><span class="re-op">?</span><span class="re-char">\n</span><span class="re-char">\r</span><span class="re-op">?</span><span class="re-char">\n</span></span>                             </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>SRE_Pattern</code></font></td>
+<td><b><a href="../private/logilab.common.textutils-module.html#_LINE_RGX"><code>_LINE_RGX</code></a></b> = <span title="&lt;_sre.SRE_Pattern object at 0xb7deb700&gt;"><code><span class="re"><span class="re-char">\r</span><span class="re-char">\n</span><span class="re-op">|</span><span class="re-char">\r</span><span class="re-op">+</span><span class="re-op">|</span><span class="re-char">\n</span></span>                                  </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>SRE_Pattern</code></font></td>
+<td><b><a href="../private/logilab.common.textutils-module.html#_NORM_SPACES_RGX"><code>_NORM_SPACES_RGX</code></a></b> = <span title="&lt;_sre.SRE_Pattern object at 0xb7e10360&gt;"><code><span class="re"><span class="re-char">\s</span><span class="re-op">+</span></span>                                   </code>
+</span></td></tr>
+</table><br />
+
+
+<!-- =========== START OF FUNCTION DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Function Details</th></tr>
+</table>
+
+<a name="normalize_text"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">normalize_text</span>(<span class=sig-arg>text</span>,
+          <span class=sig-arg>line_len</span>=<span class=sig-default>80</span>,
+          <span class=sig-arg>indent</span>=<span class=sig-default>''</span>)</span>
+  </h3>
+<p>normalize a text to display it with a maximum line size and
+optionaly arbitrary indentation. Line jumps are normalized but blank
+lines are kept. The indentation string may be used top insert a
+comment mark for instance.</p>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>text</b></code> -
+ <p>the input text to normalize</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      <dd><code><b>line_len</b></code> -
+ <p>expected maximum line's length, default to 80</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>int</p>)</i>
+      <dd><code><b>indent</b></code> -
+ <p>optional string to use as indentation</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+<p>the input text normalized to fit on lines with a maximized size
+inferior to <a href="logilab.common.textutils-module.html#normalize_text" class="link"><code>line_len</code></a>, and optionally prefixed by an
+indentation string</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="normalize_paragraph"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">normalize_paragraph</span>(<span class=sig-arg>text</span>,
+          <span class=sig-arg>line_len</span>=<span class=sig-default>80</span>,
+          <span class=sig-arg>indent</span>=<span class=sig-default>''</span>)</span>
+  </h3>
+<p>normalize a text to display it with a maximum line size and
+optionaly arbitrary indentation. Line jumps are normalized. The
+indentation string may be used top insert a comment mark for
+instance.</p>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>text</b></code> -
+ <p>the input text to normalize</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      <dd><code><b>line_len</b></code> -
+ <p>expected maximum line's length, default to 80</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>int</p>)</i>
+      <dd><code><b>indent</b></code> -
+ <p>optional string to use as indentation</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+<p>the input text normalized to fit on lines with a maximized size
+inferior to <a href="logilab.common.textutils-module.html#normalize_paragraph" class="link"><code>line_len</code></a>, and optionally prefixed by an
+indentation string</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="pretty_match"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">pretty_match</span>(<span class=sig-arg>match</span>,
+          <span class=sig-arg>string</span>,
+          <span class=sig-arg>underline_char</span>=<span class=sig-default>'^'</span>)</span>
+  </h3>
+<p>return a string with the match location underlined:</p>
+<pre class="doctest-block">
+&gt;&gt;&gt; import re
+&gt;&gt;&gt; print pretty_match(re.search('mange', 'il mange du bacon'), 'il mange du bacon')
+il mange du bacon
+   ^^^^^
+&gt;&gt;&gt;
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>match</b></code> -
+ <p>object returned by re.match, re.search or re.finditer</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>_sre.SRE_match</p>)</i>
+      <dd><code><b>string</b></code> -
+ <p>the string on which the regular expression has been applied to
+obtain the <a href="logilab.common.textutils-module.html#pretty_match" class="link"><code>match</code></a> object</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      <dd><code><b>underline_char</b></code> -
+ <p>character to use to underline the matched section, default to the
+carret '^'</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+<p>the original string with an inserted line to underline the match
+location</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="unquote"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">unquote</span>(<span class=sig-arg>string</span>)</span>
+  </h3>
+<p>remove optional quotes (simple or double) from the string</p>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>string</b></code> -
+ <p>an optionaly quoted string</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+<p>the unquoted string (or the input string if it wasn't quoted)</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="colorize_ansi"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">colorize_ansi</span>(<span class=sig-arg>msg</span>,
+          <span class=sig-arg>color</span>=<span class=sig-default>None</span>,
+          <span class=sig-arg>style</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+<p>colorize message by wrapping it with ansi escape codes</p>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>msg</b></code> -
+ <p>the message string to colorize</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      <dd><code><b>color</b></code> -
+ <p>the color identifier (see <a href="logilab.common.textutils-module.html#ANSI_COLORS" class="link"><code>ANSI_COLORS</code></a> for available values)</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or None</p>)</i>
+      <dd><code><b>style</b></code> -
+ <p>style string (see <a href="logilab.common.textutils-module.html#ANSI_COLORS" class="link"><code>ANSI_COLORS</code></a> for available values). To get
+several style effects at the same time, use a coma as separator.</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or None</p>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+<p>the ansi escaped string</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>KeyError</b></code> -
+<p>if an unexistant color or style identifier is given</p>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="searchall"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">searchall</span>(<span class=sig-arg>rgx</span>,
+          <span class=sig-arg>data</span>)</span>
+  </h3>
+<p>apply a regexp using &quot;search&quot; until no more match is found</p>
+<p>This function is deprecated, use re.finditer() instead.</p>
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_csv"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_csv</span>(<span class=sig-arg>string</span>,
+          <span class=sig-arg>sep</span>=<span class=sig-default>','</span>)</span>
+  </h3>
+<p>return a list of string in from a csv formatted line</p>
+<pre class="doctest-block">
+&gt;&gt;&gt; get_csv('a, b, c   ,  4')
+['a', 'b', 'c', '4']
+&gt;&gt;&gt; get_csv('a')
+['a']
+&gt;&gt;&gt;
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>string</b></code> -
+ <p>a csv line</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      <dd><code><b>sep</b></code> -
+ <p>field separator, default to the comma (',')</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+<p>the unquoted string (or the input string if it wasn't quoted)</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or unicode</p>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="_get_ansi_code"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">_get_ansi_code</span>(<span class=sig-arg>color</span>=<span class=sig-default>None</span>,
+          <span class=sig-arg>style</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+<p>return ansi escape code corresponding to color and style</p>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>color</b></code> -
+ <p>the color identifier (see <a href="logilab.common.textutils-module.html#ANSI_COLORS" class="link"><code>ANSI_COLORS</code></a> for available values)</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or None</p>)</i>
+      <dd><code><b>style</b></code> -
+ <p>style string (see <a href="logilab.common.textutils-module.html#ANSI_COLORS" class="link"><code>ANSI_COLORS</code></a> for available values). To get
+several style effects at the same time, use a coma as separator.</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str or None</p>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+<p>the built escape code</p>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<p>str</p>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>KeyError</b></code> -
+<p>if an unexistant color or style identifier is given</p>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF VARIABLE DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Variable Details</th></tr>
+</table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="__revision__"></a>
+<h3>__revision__</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>str</code>
+
+      </dd>
+<span title="'$Id: logilab.common.textutils-module.html,v 1.1 2005-02-16 16:45:44 fabioz Exp $'">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'</span>$Id: logilab.common.textutils-module.html,v 1.1 2005-02-16 16:45:44 fabioz Exp $<span class="variable-quote">'</span>               </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="ANSI_COLORS"></a>
+<h3>ANSI_COLORS</h3>
+<p>dictionary mapping color identifier to ANSI terminal code</p>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+<p>dict(str)</p>
+
+      </dd>
+<span title="{'reset': '0', 'blue': '34', 'yellow': '33', 'green': '32', 'cyan': '36', 'black': '30', 'magenta': '35', 'white': '37', 'red': '31'}">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+{'black': '30',
+ 'blue': '34',
+ 'cyan': '36',
+ 'green': '32',
+ 'magenta': '35',
+ 'red': '31',
+ 'reset': '0',
+ 'white': '37',
+<span class="variable-ellipsis">...</span>                                                                    </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="ANSI_END"></a>
+<h3>ANSI_END</h3>
+<p>ANSI terminal code notifing the end of an ANSI escape sequence</p>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+<p>str</p>
+
+      </dd>
+<span title="'m'">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'</span>m<span class="variable-quote">'</span>                                                                    </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="ANSI_PREFIX"></a>
+<h3>ANSI_PREFIX</h3>
+<p>ANSI terminal code notifing the start of an ANSI escape sequence</p>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+<p>str</p>
+
+      </dd>
+<span title="'\x1b['">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'</span>\x1b[<span class="variable-quote">'</span>                                                                </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="ANSI_RESET"></a>
+<h3>ANSI_RESET</h3>
+<p>ANSI terminal code reseting format defined by a previous ANSI escape sequence</p>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+<p>str</p>
+
+      </dd>
+<span title="'\x1b[0m'">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'</span>\x1b[0m<span class="variable-quote">'</span>                                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="ANSI_STYLES"></a>
+<h3>ANSI_STYLES</h3>
+<p>dictionary mapping style identifier to ANSI terminal code</p>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+<p>dict(str)</p>
+
+      </dd>
+<span title="{'reset': '0', 'inverse': '7', 'bold': '1', 'blink': '5', 'italic': '3', 'strike': '9', 'underline': '4'}">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+{'blink': '5',
+ 'bold': '1',
+ 'inverse': '7',
+ 'italic': '3',
+ 'reset': '0',
+ 'strike': '9',
+ 'underline': '4'}                                                     </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="_BLANKLINES_RGX"></a>
+<h3>_BLANKLINES_RGX</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>SRE_Pattern</code>
+
+      </dd>
+<span title="&lt;_sre.SRE_Pattern object at 0xb7bcda38&gt;">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="re"><span class="re-char">\r</span><span class="re-op">?</span><span class="re-char">\n</span><span class="re-char">\r</span><span class="re-op">?</span><span class="re-char">\n</span></span>                                                             </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="_LINE_RGX"></a>
+<h3>_LINE_RGX</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>SRE_Pattern</code>
+
+      </dd>
+<span title="&lt;_sre.SRE_Pattern object at 0xb7deb700&gt;">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="re"><span class="re-char">\r</span><span class="re-char">\n</span><span class="re-op">|</span><span class="re-char">\r</span><span class="re-op">+</span><span class="re-op">|</span><span class="re-char">\n</span></span>                                                            </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="_NORM_SPACES_RGX"></a>
+<h3>_NORM_SPACES_RGX</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>SRE_Pattern</code>
+
+      </dd>
+<span title="&lt;_sre.SRE_Pattern object at 0xb7e10360&gt;">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="re"><span class="re-char">\s</span><span class="re-op">+</span></span>                                                                    </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" align="right" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+      <tr><th class="navbar" align="center">
+        <p class="nomargin">
+          Logilab's&nbsp;common&nbsp;library
+      </p></th></tr></table>
+    </th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed Feb 16 13:40:11 2005</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

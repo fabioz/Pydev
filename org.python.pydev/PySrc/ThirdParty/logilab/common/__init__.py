@@ -16,7 +16,7 @@
 Logilab common libraries
 """
 
-__revision__ = "$Id: __init__.py,v 1.3 2005-01-21 17:42:05 fabioz Exp $"
+__revision__ = "$Id: __init__.py,v 1.4 2005-02-16 16:45:43 fabioz Exp $"
 
 # FIXME: move all those functions in a separated module
 

@@ -4,8 +4,8 @@ Pylint Quickstart
 
 :Author: Alexandre Fayolle
 :Organization: Logilab
-:Version: $Revision: 1.1 $
-:Date: $Date: 2005-01-21 17:46:20 $
+:Version: $Revision: 1.2 $
+:Date: $Date: 2005-02-16 16:45:45 $
 
 .. contents::
 

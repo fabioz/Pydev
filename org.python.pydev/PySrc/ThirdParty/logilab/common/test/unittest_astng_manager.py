@@ -1,12 +1,12 @@
 import unittest
 import os
 from os.path import join
-from logilab.common.astng.manager import FileBasedASTNGManager
+from logilab.common.astng.manager import ASTNGManager
 
 
-class FileBasedASTNGManagerTC(unittest.TestCase):
+class ASTNGManagerTC(unittest.TestCase):
     def setUp(self):
-        self.manager = FileBasedASTNGManager()
+        self.manager = ASTNGManager()
 
     def test_from_directory(self):
         obj = self.manager.from_directory('data')

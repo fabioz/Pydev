@@ -16,7 +16,7 @@
 """A generic function to get a database connection.
 """
 
-__revision__ = "$Id: db.py,v 1.3 2005-01-21 17:42:03 fabioz Exp $"
+__revision__ = "$Id: db.py,v 1.4 2005-02-16 16:45:42 fabioz Exp $"
 
 import sys
 
@@ -265,7 +265,7 @@ class _MySqlDBAdapter(DBAPIAdapter):
     def connect(self, host = '', database = '', user = '', password = ''):
         """Handles psycopg connexion format"""
         kwargs = {'host' : host, 'db' : database,
-                  'user' : user, 'password' : password or None}
+                  'user' : user, 'passwd' : password or None}
         return self._native_module.connect(**kwargs)
         
     

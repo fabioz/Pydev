@@ -14,11 +14,13 @@
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
-__revision__ = '$Id: unittest_lint.py,v 1.1 2005-01-21 17:46:21 fabioz Exp $'
+__revision__ = '$Id: unittest_lint.py,v 1.2 2005-02-16 16:45:43 fabioz Exp $'
 
 import unittest
 import sys
 import os
+import tempfile
+from os.path import join
 from cStringIO import StringIO
 
 from logilab.pylint.config import get_note_message
@@ -36,7 +38,12 @@ class SortMessagesTC(unittest.TestCase):
                                          'W0321', 'W0540',
                                          'E0501', 'E0503',
                                          'F0002', 'F0203'])
-
+try:
+    optimized = True
+    raise AssertionError
+except AssertionError:
+    optimized = False
+    
 class GetNoteMessageTC(unittest.TestCase):
     def test(self):
         msg = None
@@ -44,9 +51,9 @@ class GetNoteMessageTC(unittest.TestCase):
             note_msg = get_note_message(note)
             self.assertNotEquals(msg, note_msg)
             msg = note_msg
-        self.assertRaises(AssertionError, get_note_message, 11)
-
-
+        if optimized:
+            self.assertRaises(AssertionError, get_note_message, 11)
+            
 class RunTC(unittest.TestCase):
     
     def test_no_args(self):
@@ -66,6 +73,7 @@ class PyLinterTC(unittest.TestCase):
     def setUp(self):
         self.linter = PyLinter()
         self.linter.disable_message_category('I')
+        self.linter.config.persistent = 0
         # register checkers
         checkers.initialize(self.linter)
         
@@ -79,7 +87,7 @@ class PyLinterTC(unittest.TestCase):
     def test_message_help(self):
         msg = self.linter.get_message_help('F0001')
         expected = 'F0001:\n  Used when an error occured preventing the analyzing of a module (unable to\n  find it for instance). This message belongs to the master checker.'
-        self.assertEquals(msg, expected)
+        self.assertEquals(' '.join(msg.splitlines()), ' '.join(expected.splitlines()))
         self.assertRaises(UnknownMessage, self.linter.get_message_help, 'YB12')
         
     def test_enable_message(self):
@@ -130,12 +138,12 @@ class PyLinterTC(unittest.TestCase):
     def test_lint_ext_module_with_file_output(self):
         self.linter.config.files_output = True
         try:
-            self.linter.check('cStringIO')
-            self.assert_(os.path.exists('pylint_cStringIO.txt'))
+            self.linter.check('StringIO')
+            self.assert_(os.path.exists('pylint_StringIO.txt'))
             self.assert_(os.path.exists('pylint_global.txt'))
         finally:
             try:
-                os.remove('pylint_cStringIO.txt')
+                os.remove('pylint_StringIO.txt')
                 os.remove('pylint_global.txt')
             except:
                 pass
@@ -159,26 +167,32 @@ class ConfigTC(unittest.TestCase):
         else:
             expected = os.path.join(uhome, '.pylint.d')
         self.assertEquals(config.PYLINT_HOME, expected)
-        
-        os.environ['PYLINTHOME'] = '/tmp/.pylint.d'
+
         try:
-            reload(config)
-            self.assertEquals(config.PYLINT_HOME, '/tmp/.pylint.d')
-        finally:
+            pylintd = join(tempfile.gettempdir(), '.pylint.d')
+            os.environ['PYLINTHOME'] = pylintd
             try:
-                os.remove('/tmp/.pylint.d')
-            except:
-                pass
+                reload(config)
+                self.assertEquals(config.PYLINT_HOME, pylintd)
+            finally:
+                try:
+                    os.remove(pylintd)
+                except:
+                    pass
+        finally:
+            del os.environ['PYLINTHOME']
         
     def test_pylintrc(self):
-        self.assertEquals(config.PYLINTRC, None)
-        os.environ['PYLINTRC'] = '/tmp/.pylintrc'
-        reload(config)
-        self.assertEquals(config.PYLINTRC, None)
-        os.environ['PYLINTRC'] = '/tmp'
-        reload(config)
-        self.assertEquals(config.PYLINTRC, '/tmp')
-
+        try:
+            self.assertEquals(config.PYLINTRC, None)
+            os.environ['PYLINTRC'] = join(tempfile.gettempdir(), '.pylintrc')
+            reload(config)
+            self.assertEquals(config.PYLINTRC, None)
+            os.environ['PYLINTRC'] = '.'
+            reload(config)
+            self.assertEquals(config.PYLINTRC, '.')
+        finally:
+            del os.environ['PYLINTRC']
         
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,38 @@
 ChangeLog for PyLint
 ====================
 
+2005-02-16  --  0.6.2
+    * fix false positive on E0201 ("access to undefined member") with
+      metaclasses 
+
+    * fix false positive on E0203 ("access to member before its
+      definition") when attributes are defined in a parent class
+
+    * fix false positive on W0706 ("identifier used to raise an exception
+      assigned to...")
+	
+    * fix interpretation of "\t" as value for the indent-string
+      configuration variable
+
+    * fix --rcfile so that --rcfile=pylintrc (only --rcfile pylintrc was
+      working in earlier release)
+
+    * new raw checker example in the examples/ directory
+
+
+	
+2005-02-04  --  0.6.1
+    * new --rcfile option to specify the configuration file without the
+      PYLINTRC environment variable
+	
+    * added an example module for a custom pylint checker (see the
+      example/ directory)
+
+    * some fixes to handle fixes in common 0.9.1 (should however still working
+      with common 0.9.0, even if upgrade is recommended)
+
+
+	
 2005-01-20  --  0.6.0
     * refix pylint emacs mode
 	
@@ -27,6 +59,8 @@ ChangeLog for PyLint
       the --list-msgs option), more entries into the FAQ
 
     * improved tests coverage
+
+
 	
 2004-10-19  --  0.5.0
     * avoid to import analyzed modules !

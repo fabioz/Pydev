@@ -15,7 +15,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """functional/non regression tests for pylint"""
 
-__revision__ = '$Id: func_test.py,v 1.1 2005-01-21 17:46:21 fabioz Exp $'
+__revision__ = '$Id: func_test.py,v 1.2 2005-02-16 16:45:43 fabioz Exp $'
 
 import unittest
 import sys
@@ -134,9 +134,17 @@ def make_tests():
 ##         depends = dependancies or None
 ##     tests.append(LintTestSubclass)
         
+    class LintBuiltinModuleTest(LintTest):
+        output = 'messages/builtin_module.txt'
+        module = 'sys'
+        def test_functionality(self):
+            self._test(['sys'])
+            
+    tests.append(LintBuiltinModuleTest)
+    
     # test all features are tested :)    
     tests.append(TestTests)
-    
+
     return tests
 
 def suite():

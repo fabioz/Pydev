@@ -10,14 +10,14 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2002-2005 LOGILAB S.A. (Paris, FRANCE).
+""" Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
  basic checker for Python code
 """
 from __future__ import generators
 
-__revision__ = "$Id: classes.py,v 1.4 2005-01-31 17:23:22 fabioz Exp $"
+__revision__ = "$Id: classes.py,v 1.5 2005-02-16 16:45:47 fabioz Exp $"
 
 from logilab.common import astng
 
@@ -160,28 +160,28 @@ class should be ignored. A mixin class is detected if its name ends with \
             except astng.NotFoundError:
                 self.add_message('W0232', args=node, node=node)
             
-    def leave_class(self, class_node):
-        """close a class node :
+    def leave_class(self, cnode):
+        """close a class node:
         check that instance attributes are defined in __init__ and check
         access to existant members
         """
         # checks attributes are defined in __init__
-        for attr, node in class_node.instance_attrs.items():
+        for attr, node in cnode.instance_attrs.items():
             frame = node.get_frame()
             if frame.name not in ('__init__', '__new__', 'setUp'):
                 try:
-                    par_node = class_node.get_ancestor_for_attribute(attr)
+                    par_node = cnode.get_ancestor_for_attribute(attr)
                     frame = par_node.instance_attrs[attr].get_frame()
                     if frame.name not in ('__init__', '__new__',
                                           'setUp'):
                         self.add_message('W0201', args=attr, node=node)
                 except astng.NotFoundError:
                     self.add_message('W0201', args=attr, node=node)
-        # check access to existant members
+        # check access to existant members on non metaclass classes
         accessed = self._accessed.pop()
-        if not self.config.ignore_mixin_members or \
-               class_node.name[-5:].lower() != 'mixin':
-            self._check_accessed_members(class_node, accessed)
+        if not cnode.metaclass and (not self.config.ignore_mixin_members or 
+                                    cnode.name[-5:].lower() != 'mixin'):
+            self._check_accessed_members(cnode, accessed)
             
     def visit_function(self, node):
         """check method arguments, overriding"""
@@ -237,14 +237,18 @@ class should be ignored. A mixin class is detected if its name ends with \
                 continue
             # is it an instance attribute ?
             if node.instance_attrs.has_key(attr):
-                frame = node.instance_attrs[attr].get_frame()
-                lineno = node.instance_attrs[attr].source_line()
-                # check that if the node is accessed in the same method as
-                # it's defined, it's accessed after the initial assigment
-                for _node in nodes:
-                    if _node.get_frame() is frame and _node.lineno < lineno:
-                        self.add_message('E0203', node=_node,
-                                         args=(attr, lineno))
+                try:
+                    node.get_ancestor_for_attribute(attr)
+                    # an ancestor is defining this attribute, skip it
+                except astng.NotFoundError:
+                    frame = node.instance_attrs[attr].get_frame()
+                    lineno = node.instance_attrs[attr].source_line()
+                    # check that if the node is accessed in the same method as
+                    # it's defined, it's accessed after the initial assigment
+                    for _node in nodes:
+                        if _node.get_frame() is frame and _node.lineno < lineno:
+                            self.add_message('E0203', node=_node,
+                                             args=(attr, lineno))
                 continue
             # or a class attribute ?
             if node.locals.has_key(attr):
@@ -422,7 +426,7 @@ class should be ignored. A mixin class is detected if its name ends with \
             cbase = parts[0]
             try:
                 baseastng = klass_node.resolve(cbase)
-            except (astng.ResolveError, astng.NotFoundError):
+            except (astng.ResolveError, astng.NotFoundError, AssertionError):
                 unresolved[base] = 1
                 self.add_message('F0203', node=node, args=cbase)
                 continue

@@ -113,5 +113,14 @@ Answer:
 
 
 
+Question:
+  I've a mixin class relying on attributes of the mixed class, and I
+  would like to not have the "access to undefined member" message on
+  this class. Is it possible ?
+
+Answer:
+  Yes :o) To do so you have to set the ignore-mixin-members option to
+  "yes" (this is the default value) and to name your mixin class with
+  a name which ends with "mixin" (whatever case)
 
 .. _psyco: http://psyco.sf.net

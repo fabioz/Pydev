@@ -19,7 +19,7 @@
 from __future__ import generators
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: utils.py,v 1.3 2005-01-21 17:42:09 fabioz Exp $"
+__revision__ = "$Id: utils.py,v 1.4 2005-02-16 16:45:44 fabioz Exp $"
 
 from logilab.common.astng import NotFoundError, manager
 

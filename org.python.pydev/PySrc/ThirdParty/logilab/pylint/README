@@ -87,11 +87,12 @@ http://lists.logilab.org/pipermail/python-projects/
 
 Contributors
 ------------
-* Sylvain Thénault: main author / maintainer
+* Sylvain Thenault: main author / maintainer
 * Alexandre Fayolle: TkInter gui, documentation
 * Brian van den Broek: windows installation documentation
 * Wolfgang Grafen: feedback, feature requests such as message identifiers
-* Axel Müller: bug reports
+* Axel Muller: bug reports
+* Fabio Zadrozny: bug reports
 * All the Logilab's team: daily use, bug reports, feature requests
 * Other people have contributed by their feedback, if I've forgotten
   you, send me a note !

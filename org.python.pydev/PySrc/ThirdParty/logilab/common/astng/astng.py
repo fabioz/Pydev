@@ -88,7 +88,7 @@ on From and Import :
 from __future__ import generators
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: astng.py,v 1.5 2005-01-21 17:42:09 fabioz Exp $"
+__revision__ = "$Id: astng.py,v 1.6 2005-02-16 16:45:44 fabioz Exp $"
 
 import __builtin__
 from compiler.ast import *
@@ -221,7 +221,7 @@ def resolve_all(node, names):
     for name in names:
         try:
             yield node.resolve_dotted(name)
-        except (ResolveError, NotFoundError):
+        except (ResolveError, NotFoundError, AssertionError):
             continue
         
 Node.resolve_all = resolve_all
@@ -234,9 +234,9 @@ def resolve(node, name):
 
     FIXME: refactor !!
     """
+    #print 'resolve', node.__class__, getattr(node, 'name', '?'), name
     assert ID_RGX.match(name), '%r is not a valid identifier' % name
     frame = node.get_frame()
-    #print 'resolving', name, 'from', frame.__class__.__name__, frame.name, frame.locals.keys()
     try:
         stmt = frame.locals[name]
     except KeyError:
@@ -291,6 +291,8 @@ def import_self_resolve(node, name):
     except ImportError:
         raise ResolveError(name)
     except Exception, ex:
+        #import traceback
+        #traceback.print_exc()
         raise ResolveError(name)
     # check that get_module_object seems to have worked correctly...
     if obj is not None and obj.find('.') > -1:
@@ -302,7 +304,7 @@ def import_self_resolve(node, name):
         # FIXME: I don't know what to do here...
         raise ResolveError(name)
     try:
-        module = ASTNGManager().astng_from_module_name(modname)
+        module = ASTNGManager().astng_from_module_name(modname, context_file)
     except (ASTNGBuildingException, SyntaxError):
         # FIXME
         raise ResolveError(name)
@@ -510,6 +512,9 @@ def get_ancestor_for_attribute(node, attr):
     for astng in ancestors(node):
         if astng.instance_attrs.has_key(attr):
             return astng
+#    anode = get_ancestor_for_class_attribute(node, attr)
+#    if not isinstance(anode, Function):
+#        return anode
     raise NotFoundError(attr)
 
 Class.get_ancestor_for_attribute = get_ancestor_for_attribute

@@ -1,5 +1,5 @@
-# Copyright (c) 2003-2004 Sylvain Thenault (thenault@nerim.net)
-# Copyright (c) 2003-2004 Logilab
+# Copyright (c) 2003-2005 Sylvain Thenault (thenault@gmail.com)
+# Copyright (c) 2003-2005 Logilab (contact@logilab.fr)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -17,8 +17,9 @@
 """
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: raw_building.py,v 1.1 2005-01-21 17:46:21 fabioz Exp $"
+__revision__ = "$Id: raw_building.py,v 1.2 2005-02-16 16:45:44 fabioz Exp $"
 
+import sys
 from logilab.common.astng import astng
 
 def build_module(name, doc=None):
@@ -31,18 +32,36 @@ def build_module(name, doc=None):
     node.parent = None
     node.globals = node.locals = {}
     return node
+
+
+if sys.version_info >= (2, 4):
     
-def build_function(name, args=None, defaults=None, flag=0, doc=None):
-    """create and initialize a astng Function node"""
-    args, defaults = args or [], defaults or []
-    func = astng.Function(name, args, defaults, flag, doc, astng.Stmt([]))
-    func.code.parent = func
-    func.locals = {}
-    func.object = None
-    if args:
-        register_arguments(func, args)
-    return func
+    # introduction of decorators has changed the Function initializer arguments
     
+    def build_function(name, args=None, defaults=None, flag=0, doc=None):
+        """create and initialize a astng Function node"""
+        args, defaults = args or [], defaults or []
+        # first argument is now a list of decorators
+        func = astng.Function([], name, args, defaults, flag, doc, astng.Stmt([]))
+        func.code.parent = func
+        func.locals = {}
+        func.object = None
+        if args:
+            register_arguments(func, args)
+        return func
+else:
+    
+    def build_function(name, args=None, defaults=None, flag=0, doc=None):
+        """create and initialize a astng Function node"""
+        args, defaults = args or [], defaults or []
+        func = astng.Function(name, args, defaults, flag, doc, astng.Stmt([]))
+        func.code.parent = func
+        func.locals = {}
+        func.object = None
+        if args:
+            register_arguments(func, args)
+        return func
+
 
 def build_class(name, basenames=None, doc=None):
     """create and initialize a astng Class node"""

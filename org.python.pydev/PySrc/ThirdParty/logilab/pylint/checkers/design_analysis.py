@@ -20,7 +20,7 @@
  FIXME: missing 13, 15, 16
 """
 
-__revision__ = "$Id: design_analysis.py,v 1.2 2005-01-21 17:42:08 fabioz Exp $"
+__revision__ = "$Id: design_analysis.py,v 1.3 2005-02-16 16:45:47 fabioz Exp $"
 
 from logilab.common.astng import Function
 from logilab.common.astng.utils import get_interfaces

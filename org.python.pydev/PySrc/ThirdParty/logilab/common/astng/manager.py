@@ -1,4 +1,6 @@
-# Copyright (c) 2003 Sylvain Thenault (thenault@nerim.net)
+# Copyright (c) 2003-2005 Sylvain Thenault (thenault@gmail.com)
+# Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
+# http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -12,22 +14,29 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""astng loader, avoid multible astng build of a same module
+"""astng manager: avoid multible astng build of a same module when
+possible by providing a class responsible to get astng representation
+from various source and using a cache of built modules)
+
+:version:   $Revision: 1.5 $  
+:author:    Sylvain Thenault
+:copyright: 2003-2005 LOGILAB S.A. (Paris, FRANCE)
+:copyright: 2003-2005 Sylvain Thenault
+:contact:   http://www.logilab.fr/ -- mailto:python-projects@logilab.org
 """
 
-__author__ = "Sylvain Thenault"
-__revision__ = "$Id: manager.py,v 1.4 2005-01-21 17:42:09 fabioz Exp $"
+__revision__ = "$Id: manager.py,v 1.5 2005-02-16 16:45:44 fabioz Exp $"
+__doctype__ = "restructuredtext en"
 
 import sys
 import os
 from os.path import dirname, basename, abspath, join, isdir, exists
 
 from logilab.common.cache import Cache
-from logilab.common.astng import ASTNGBuildingException
-from logilab.common.modutils import modpath_from_file, file_from_modpath, \
-     get_modules, get_module_files, load_module_from_name
+from logilab.common.modutils import NoSourceFile, is_python_source, \
+     file_from_modpath, get_module_files, load_module_from_name, get_source_file
 from logilab.common.configuration import OptionsProviderMixIn
-
+from logilab.common.astng import ASTNGBuildingException
 
 def normalize_module_name(modname):
     """normalize a module name (i.e remove trailing __init__ if any)
@@ -36,12 +45,6 @@ def normalize_module_name(modname):
     if parts[-1] == '__init__':
         return '.'.join(parts[:-1])
     return modname
-
-def normalize_file_name(filename):
-    """normalize a file name (i.e .pyc, .pyo, .pyd -> .py and normalize the
-    path)
-    """
-    return abspath(filename.replace('.pyc', '.py').replace('.pyo', '.py').replace('.pyd', '.py'))
 
 def astng_wrapper(func, modname):
     """wrapper to give to ASTNGManager.project_from_files"""
@@ -57,9 +60,9 @@ def astng_wrapper(func, modname):
         traceback.print_exc()
 
 
-class AbstractASTNGManager(OptionsProviderMixIn):
-    """abstract class for astng manager, responsible to build astng from files
-    and / or modules.
+class ASTNGManager(OptionsProviderMixIn):
+    """the astng manager, responsible to build astng from files
+     or modules.
 
     Use the Borg pattern.
     """
@@ -71,7 +74,7 @@ class AbstractASTNGManager(OptionsProviderMixIn):
 . It should be a base name, not a path. You may set this option multiple times\
 ."}),
                ("project",
-                {'default': "No Name", 'type' : 'string',
+                {'default': "No Name", 'type' : 'string', 'short': 'p',
                  'metavar' : '<project name>',
                  'help' : 'set the project name.'}),
                )
@@ -87,28 +90,6 @@ class AbstractASTNGManager(OptionsProviderMixIn):
         """
         self._cache = Cache(cache_size)
 
-    # astng manager iface
-    
-    def astng_from_module_name(self, modname):
-        """given a module name, return the astng object"""
-        raise NotImplementedError
-
-    def astng_from_module(self, module, modname=None):
-        """given an imported module, return the astng object"""
-        raise NotImplementedError
-
-    def astng_from_class(self, klass, module=None):
-        """get astng for the given class"""
-        raise NotImplementedError
-
-    def astng_from_file(self, filepath, modname=None):
-        """given a module name, return the astng object"""
-        raise NotImplementedError
-
-
-class FileBasedASTNGManager(AbstractASTNGManager):
-    """control the creation of astng trees from files or modules"""
-
     def from_directory(self, directory, modname=None):
         """given a module name, return the astng object"""
         modname = modname or basename(directory)
@@ -117,39 +98,45 @@ class FileBasedASTNGManager(AbstractASTNGManager):
 
     def astng_from_file(self, filepath, modname=None, fallback=True):
         """given a module name, return the astng object"""
-        norm_file = normalize_file_name(filepath)
         try:
-            return self._cache[norm_file]
+            filepath = get_source_file(filepath)
+            source = True
+        except NoSourceFile:
+            source = False
+        try:
+            return self._cache[filepath]
         except KeyError:
-            try:
-                from logilab.common.astng.builder import ASTNGBuilder
-                astng = ASTNGBuilder(self).file_build(norm_file, modname)
-            except SyntaxError:
-                raise
-            except Exception, ex:
-                if fallback and modname:
-                    return self.astng_from_module_name(modname)
-                if __debug__:
-                    import traceback
-                    traceback.print_exc()
-                msg = 'Unable to load module %s (%s)' % (modname, ex)
-                raise ASTNGBuildingException(msg)
-        self._cache[norm_file] = astng
+            if source:
+                try:
+                    from logilab.common.astng.builder import ASTNGBuilder
+                    astng = ASTNGBuilder(self).file_build(filepath, modname)
+                except SyntaxError:
+                    raise
+                except Exception, ex:
+                    #if __debug__:
+                    #    import traceback
+                    #    traceback.print_exc()
+                    msg = 'Unable to load module %s (%s)' % (modname, ex)
+                    raise ASTNGBuildingException(msg)
+            elif fallback and modname:
+                return self.astng_from_module_name(modname)
+        self._cache[filepath] = astng
         return astng
-    from_file = astng_from_file
     
-    def astng_from_module_name(self, modname):
+    from_file = astng_from_file # backward compat
+    
+    def astng_from_module_name(self, modname, context_file=None):
         """given a module name, return the astng object"""
         try:
-            filepath = file_from_modpath(modname.split('.'))
-        except ImportError:
-            try:
-                return self.astng_from_module(load_module_from_name(modname), modname)
-            except ImportError, ex:
-                msg = 'Unable to load module %s (%s)' % (modname, ex)
-                raise ASTNGBuildingException(msg)
-        if not filepath.endswith('.py'):
-            return self.astng_from_module(load_module_from_name(modname), modname)
+            filepath = file_from_modpath(modname.split('.'),
+                                         context_file=context_file)
+        except ImportError, ex:
+            msg = 'Unable to load module %s (%s)' % (modname, ex)
+            raise ASTNGBuildingException(msg)
+        if filepath is None or not is_python_source(filepath):
+            # FIXME: context
+            return self.astng_from_module(load_module_from_name(modname),
+                                          modname)
         return self.astng_from_file(filepath, modname, fallback=False)
                                  
     def astng_from_module(self, module, modname=None):
@@ -157,7 +144,7 @@ class FileBasedASTNGManager(AbstractASTNGManager):
         try:
             # some builtin modules don't have __file__ attribute
             filepath = module.__file__
-            if not (filepath.endswith('.so') or filepath.endswith('.dll') or filepath.endswith('.pyd')):
+            if is_python_source(filepath):
                 return self.astng_from_file(filepath, modname or module.__name__)
         except AttributeError:
             pass
@@ -192,7 +179,6 @@ class FileBasedASTNGManager(AbstractASTNGManager):
             project_name = project_name or self.config.project
             black_list = black_list or self.config.black_list
             project = Project(project_name)
-            modnames = []
             for something in files:
                 if not exists(something):
                     fpath = file_from_modpath(something.split('.'))
@@ -209,7 +195,8 @@ class FileBasedASTNGManager(AbstractASTNGManager):
                 # recurse in package except if __init__ was explicitly given
                 if astng.package and not '__init__' in something:
                     # recurse on others packages / modules if this is a package
-                    for fpath in get_module_files(dirname(astng.file), black_list):
+                    for fpath in get_module_files(dirname(astng.file),
+                                                  black_list):
                         astng = func_wrapper(self.astng_from_file, fpath)
                         if astng is None or astng.name == base_name:
                             continue
@@ -218,103 +205,6 @@ class FileBasedASTNGManager(AbstractASTNGManager):
         finally:
             sys.path.pop(0)
     
-## class ModuleBasedASTNGManager(AbstractASTNGManager):
-##     """build astng from files or modules, but mainly files"""
-    
-
-##     def astng_from_class(self, klass, modname=None):
-##         """get astng for the given class"""
-##         if modname is None:
-##             try:
-##                 modname = klass.__module__
-##             except AttributeError:
-##                 raise ASTNGBuildingException(
-##                     'Unable to get module for class %s' % klass)
-##         return self.astng_from_module_name(modname).resolve(klass.__name__)
-
-##     def astng_from_module(self, module, modname=None):
-##         """given an imported module, return the astng object"""
-##         try:
-##             return self._cache[modname or module.__name__]
-##         except:
-##             if hasattr(module, '__file__'):
-##                 # this is required to make works relative imports in
-##                 # analyzed code
-##                 sys.path.insert(0, dirname(module.__file__))
-##             try:
-##                 astng = self._builder.build_from_module(module, modname)
-##                 # update caches
-##                 self._cache[astng.name] = astng
-##                 return astng
-##             finally:
-##                 # clean path
-##                 if hasattr(module, '__file__'):
-##                     sys.path.pop(0)
-
-##     def astng_from_module_name(self, modname):
-##         """given a module name, return the astng object"""
-##         norm_modname = normalize_module_name(modname)
-##         try:
-##             return self._cache[norm_modname]
-##         except KeyError:
-##             try:
-##                 module = load_module_from_name(norm_modname)
-##             except Exception, ex:
-##                 msg = 'Unable to load module %s (%s)' % (modname, ex)
-##                 raise ASTNGBuildingException(msg)
-##         # return the astng representation
-##         return self.astng_from_module(module, norm_modname)
-
-##     def astng_from_file(self, filepath, modname=None):
-##         """given a module name, return the astng object"""
-##         norm_modname = normalize_module_name(modname)
-##         try:
-##             return self._cache[norm_modname]
-##         except KeyError:
-##             try:
-##                 astng = self._builder.file_build(filepath, modname)
-##             except Exception, ex:
-##                 msg = 'Unable to load module %s (%s)' % (modname, ex)
-##                 raise ASTNGBuildingException(msg)
-##         self._cache[norm_modname] = astng
-##         return astng
-
-##     def project_from_files(self, files, func_wrapper=astng_wrapper,
-##                            project_name=None, black_list=None):
-##         """return a Project from a list of files or modules
-##         """
-##         # insert current working directory to the python path to have a correct
-##         # behaviour
-##         sys.path.insert(0, os.getcwd())
-##         try:
-##             # build the project representation
-##             project_name = project_name or self.config.project
-##             black_list = black_list or self.config.black_list
-##             project = Project(project_name)
-##             modnames = []
-##             for modname in files:
-##                 if modname[-3:] == '.py' or modname.find(os.sep) > -1:
-##                     modname = '.'.join(modpath_from_file(modname))
-##                 astng = func_wrapper(self.astng_from_module_name, modname)
-##                 if astng is None:
-##                     continue
-##                 project.path = project.path or astng.file
-##                 project.add_module(astng)
-##                 # recurse in package except if __init__ was explicitly given
-##                 if not modname.endswith('.__init__') and astng.package:
-##                     # recurse on others packages / modules if this is a package
-##                     for submod in get_modules(modname, dirname(astng.file),
-##                                               black_list):
-##                         astng = func_wrapper(self.astng_from_module_name, submod)
-##                         if astng is None:
-##                             continue
-##                         project.add_module(astng)
-##             return project
-##         finally:
-##             sys.path.pop(0)
-
-    
-ASTNGManager = FileBasedASTNGManager
 
 
 class Package:
@@ -333,27 +223,34 @@ class Package:
         self.__subobjects = None
 
     def fullname(self):
+        """return the full name of the package (i.e. prefix by the full name
+        of the parent package if any
+        """
         if self.parent is None:
             return self.name
         return '%s.%s' % (self.parent.fullname(), self.name)
     
     def get_subobject(self, name):
+        """method used to get sub-objects lazily : sub package or module are
+        only build once they are requested
+        """
         if self.__subobjects is None:
             self.__subobjects = dict.fromkeys(self.keys())
         obj = self.__subobjects[name]
         if obj is None:
-            abspath = join(self.path, name)
-            if isdir(abspath):
-                obj = Package(abspath, name, self.manager)
+            objpath = join(self.path, name)
+            if isdir(objpath):
+                obj = Package(objpath, name, self.manager)
                 obj.parent = self
             else:
-                abspath += '.py'
                 modname = '%s.%s' % (self.fullname(), name)
-                obj = self.manager.astng_from_file(abspath, modname)
+                obj = self.manager.astng_from_file(objpath + '.py', modname)
             self.__subobjects[name] = obj
         return obj
     
     def get_module(self, modname):
+        """return the Module or Package object with the given name if any
+        """
         path = modname.split('.')
         if path[0] != self.name:
             raise KeyError(modname)

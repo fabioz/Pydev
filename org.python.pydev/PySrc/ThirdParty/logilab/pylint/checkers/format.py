@@ -22,7 +22,7 @@ http://www.python.org/doc/essays/styleguide.html
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
-__revision__ = "$Id: format.py,v 1.3 2005-01-21 17:42:08 fabioz Exp $"
+__revision__ = "$Id: format.py,v 1.4 2005-02-16 16:45:47 fabioz Exp $"
 
 from os import linesep
 import re
@@ -295,6 +295,8 @@ class FormatChecker(BaseRawChecker):
         """return the indent level of the string
         """
         indent = self.config.indent_string
+        if indent == '\\t': # \t is not interpreted in the configuration file
+            indent = '\t'
         level = 0
         unit_size = len(indent)
         while string[:unit_size] == indent:

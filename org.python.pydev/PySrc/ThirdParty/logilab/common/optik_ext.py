@@ -28,16 +28,16 @@ It also defines three new types for optik/optparse command line parser :
 
 """
 
-__revision__ = '$Id: optik_ext.py,v 1.3 2005-01-21 17:42:03 fabioz Exp $'
+__revision__ = '$Id: optik_ext.py,v 1.4 2005-02-16 16:45:43 fabioz Exp $'
 
 try:
     # python >= 2.3
     from optparse import OptionParser as BaseParser, Option as BaseOption, \
-         OptionGroup, OptionValueError, Values
+         OptionGroup, OptionValueError, OptionError, Values
 except Exception, ex:
     # python < 2.3
     from optik import OptionParser as BaseParser, Option as BaseOption, \
-         OptionGroup, OptionValueError, Values
+         OptionGroup, OptionValueError, OptionError, Values
     
 import re
 from copy import copy
@@ -49,6 +49,8 @@ def check_regexp(option, opt, value):
     """check a regexp value by trying to compile it
     return the compiled regexp
     """
+    if hasattr(value, 'pattern'):
+        return value
     try:
         return re.compile(value)
     except ValueError:
@@ -59,6 +61,8 @@ def check_csv(option, opt, value):
     """check a csv value by trying to split it
     return the list of separated values
     """
+    if isinstance(value, (list, tuple)):
+        return value
     try:
         return get_csv(value)
     except ValueError:
@@ -69,10 +73,12 @@ def check_yn(option, opt, value):
     """check a yn value
     return true for yes and false for no
     """
+    if isinstance(value, int):
+        return bool(value)
     if value in ('y', 'yes'):
-        return 1
+        return True
     if value in ('n', 'no'):
-        return 0
+        return False
     msg = "option %s: invalid yn value %r, should be in (y, yes, n, no)"
     raise OptionValueError(msg % (opt, value))
 
@@ -80,6 +86,8 @@ def check_named(option, opt, value):
     """check a named value
     return a 2-uple (name, value)
     """
+    if isinstance(value, (list, tuple)) and len(value) % 2 == 0:
+        return value
     if value.find('=') != -1:
         return value.split('=', 1)
     if value.find(':') != -1:

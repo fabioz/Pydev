@@ -2,7 +2,7 @@
 unit tests for module logilab.common.db
 
 """
-__revision__ = "$Id: unittest_db.py,v 1.1 2005-01-21 17:46:21 fabioz Exp $"
+__revision__ = "$Id: unittest_db.py,v 1.2 2005-02-16 16:45:45 fabioz Exp $"
 
 import unittest
 from logilab.common.db import *
@@ -43,7 +43,7 @@ class PreferedDriverTC(unittest.TestCase):
 class getCnxTC(unittest.TestCase):
     def setUp(self):
         self.host = 'crater.logilab.fr'
-        self.db = 'bugtracker'
+        self.db = 'gincotest2'
         self.user = 'adim'
         self.passwd = 'adim'
         
@@ -96,7 +96,7 @@ class DBAPIAdaptersTC(unittest.TestCase):
         """Memorize original PREFERED_DRIVERS"""
         self.old_drivers = PREFERED_DRIVERS['postgres'][:]
         self.host = 'crater.logilab.fr'
-        self.db = 'bugtracker'
+        self.db = 'gincotest2'
         self.user = 'adim'
         self.passwd = 'adim'
 

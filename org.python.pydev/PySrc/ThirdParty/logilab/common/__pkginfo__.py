@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 # This program is free software; you can redistribute it and/or modify it under
@@ -17,10 +17,10 @@
 logilab.common packaging information
 """
 
-__revision__ = "$Id: __pkginfo__.py,v 1.3 2005-01-21 17:42:05 fabioz Exp $"
+__revision__ = "$Id: __pkginfo__.py,v 1.4 2005-02-16 16:45:43 fabioz Exp $"
 
 modname = 'common'
-numversion = (0, 9, 0)
+numversion = (0, 9, 2)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'

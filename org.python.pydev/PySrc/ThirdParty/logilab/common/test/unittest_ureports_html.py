@@ -1,7 +1,7 @@
 '''unit tests for ureports.html_writer
 '''
 
-__revision__ = "$Id: unittest_ureports_html.py,v 1.1 2005-01-21 17:46:21 fabioz Exp $"
+__revision__ = "$Id: unittest_ureports_html.py,v 1.2 2005-02-16 16:45:45 fabioz Exp $"
 
 import unittest
 

@@ -2,7 +2,7 @@
 unit tests for module logilab.common.patricia
 """
 
-__revision__ = "$Id: unittest_patricia.py,v 1.1 2005-01-21 17:46:21 fabioz Exp $"
+__revision__ = "$Id: unittest_patricia.py,v 1.2 2005-02-16 16:45:45 fabioz Exp $"
 
 import unittest
 import sys

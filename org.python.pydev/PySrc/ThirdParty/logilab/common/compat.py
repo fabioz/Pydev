@@ -19,7 +19,7 @@ in python 2.2
 
 from __future__ import generators
 
-__revision__ = '$Id: compat.py,v 1.3 2005-01-21 17:42:05 fabioz Exp $'
+__revision__ = '$Id: compat.py,v 1.4 2005-02-16 16:45:43 fabioz Exp $'
 
 try:
     from sets import Set

@@ -16,12 +16,12 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """pylint packaging information"""
 
-__revision__ = '$Id: __pkginfo__.py,v 1.3 2005-01-21 17:42:02 fabioz Exp $'
+__revision__ = '$Id: __pkginfo__.py,v 1.4 2005-02-16 16:45:37 fabioz Exp $'
 
 
 modname = 'pylint'
 
-numversion = (0, 6, 0)
+numversion = (0, 6, 2)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
@@ -48,7 +48,7 @@ author_email = "sylvain.thenault@logilab.fr"
 
 web = "http://www.logilab.org/projects/%s" % modname
 ftp = "ftp://ftp.logilab.org/pub/%s" % modname
-mailinglist = "mailto://python-projects@lists.logilab.org"
+mailinglist = "mailto://python-projects@logilab.org"
 
 from os.path import join
 scripts = [join('bin', filename)

@@ -18,7 +18,7 @@
  FIXME : should check constant names !
 """
 
-__revision__ = "$Id: base.py,v 1.4 2005-01-31 17:23:24 fabioz Exp $"
+__revision__ = "$Id: base.py,v 1.5 2005-02-16 16:45:47 fabioz Exp $"
 
 from logilab.common import astng
 from logilab.common.ureports import Table

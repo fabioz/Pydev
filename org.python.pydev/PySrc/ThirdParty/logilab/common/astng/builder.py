@@ -24,7 +24,7 @@ TODO:
 """
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: builder.py,v 1.6 2005-01-31 17:23:10 fabioz Exp $"
+__revision__ = "$Id: builder.py,v 1.7 2005-02-16 16:45:44 fabioz Exp $"
 
 import sys
 from compiler import parse
@@ -83,7 +83,7 @@ class ASTNGBuilder:
         path is expected to be a python source file
         """
         try:
-            data = norm_read(path, '\n')
+            data = norm_read(path)
         except IOError, ex:
             msg = 'Unable to load file %r (%s)' % (path, ex)
             raise astng.ASTNGBuildingException(msg)
@@ -208,8 +208,8 @@ class ASTNGBuilder:
                     for name in imported.wildcard_import_names():
                         node.parent.set_local(name, node)
                 except:
-                    import traceback
-                    traceback.print_exc()
+                    #import traceback
+                    #traceback.print_exc()
                     print >> sys.stderr, \
                           'Unable to get imported names for %r line %s"' % (
                         node.modname, node.lineno)

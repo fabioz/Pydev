@@ -19,7 +19,7 @@ Try to resolve definitions (namespace) dictionnary, relationship...
 This module has been imported from pyreverse
 """
 
-__revision__ = "$Id: inspector.py,v 1.1 2005-01-21 17:46:21 fabioz Exp $"
+__revision__ = "$Id: inspector.py,v 1.2 2005-02-16 16:45:44 fabioz Exp $"
 
 from os.path import dirname
 

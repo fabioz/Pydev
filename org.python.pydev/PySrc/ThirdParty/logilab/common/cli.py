@@ -20,7 +20,7 @@
  configuration with completion and persistent history
 """
 
-__revision__ = "$Id: cli.py,v 1.3 2005-01-21 17:42:05 fabioz Exp $"
+__revision__ = "$Id: cli.py,v 1.4 2005-02-16 16:45:43 fabioz Exp $"
 
 
 if not __builtins__.has_key('_'):

@@ -27,7 +27,7 @@
   Display help messages about given message identifiers and exit.
 """
 
-__revision__ = "$Id: lint.py,v 1.6 2005-02-03 12:31:14 fabioz Exp $"
+__revision__ = "$Id: lint.py,v 1.7 2005-02-16 16:45:42 fabioz Exp $"
 
 from __future__ import nested_scopes
 
@@ -39,11 +39,9 @@ sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0]), "../../../ThirdPar
 # import this first to avoid further builtins pollution possibilities
 from logilab.pylint.checkers import utils
 
-import sys
-import os
 import re
 import tokenize
-from os.path import dirname, basename, splitext, exists, isdir, join
+from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
 from logilab.common.configuration import OptionsManagerMixIn
 from logilab.common.astng import ASTNGManager
@@ -77,6 +75,9 @@ MSGS = {
               'Used when an unexpected error occured while building the ASTNG \
               representation. This is usually accomopagned by a traceback. \
               Please report such errors !'),
+    'F0003': ('ignored builtin module %s',
+              'Used to indicate that the user asked to analyze a builtin module\
+              which has been skipped.'),
     
     'I0001': ('Unable to run raw checkers on built-in module %s',
               'Used to inform that a built-in module has not been checked \
@@ -116,48 +117,48 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     msgs = MSGS
     may_be_disabled = False
     
-    options = (("ignore",
-                {'type' : "csv", 'metavar' : "<file>",
-                 'dest' : "black_list", "default" : ('CVS',),
-                 'help' : "Add <file or directory> to the black list. It \
-should be a base name, not a path. You may set this option multiple times."}),
-               ("persistent",
+    options = (('ignore',
+                {'type' : 'csv', 'metavar' : '<file>',
+                 'dest' : 'black_list', 'default' : ('CVS',),
+                 'help' : 'Add <file or directory> to the black list. It \
+should be a base name, not a path. You may set this option multiple times.'}),
+               ('persistent',
                 {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help' : 'Pickle collected data for later comparisons.'}),
                
-               ("cache-size",
+               ('cache-size',
                 {'default': 500, 'type' : 'int', 'metavar': '<size>',
-                 'help' : "Set the cache size for astng objects."}),
+                 'help' : 'Set the cache size for astng objects.'}),
                
-               ("reports",
+               ('reports',
                 {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'group': 'Reports',
-                 'help' : "Tells wether to display a full report or only the\
- messages"}),
-               ("html",
+                 'help' : 'Tells wether to display a full report or only the\
+ messages'}),
+               ('html',
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'group': 'Reports',
-                 'help' : "Use HTML as output format instead of text"}),
+                 'help' : 'Use HTML as output format instead of text'}),
                
-               ("parseable",
+               ('parseable',
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'group': 'Reports',
-                 'help' : "Use a parseable text output format, so your favorite\
- text editor will be able to jump to the line corresponding to a message."}),
+                 'help' : 'Use a parseable text output format, so your favorite\
+ text editor will be able to jump to the line corresponding to a message.'}),
                
-               ("color",
+               ('color',
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'group': 'Reports',
-                 'help' : "Colorizes text output using ansi escape codes"}),
+                 'help' : 'Colorizes text output using ansi escape codes'}),
                
-               ("files-output",
+               ('files-output',
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'group': 'Reports',
                  'help' : 'Put messages in a separate file for each module / \
 package specified on the command line instead of printing them on stdout. \
 Reports (if any) will be written in a file name "pylint_global.[txt|html]".'}),
                
-               ("evaluation",
+               ('evaluation',
                 {'type' : 'string', 'metavar' : '<python_expression>',
                  'group': 'Reports',
                  'default': '10.0 - ((float(5 * error + warning + refactor + \
@@ -168,43 +169,43 @@ warning, statement which respectivly contain the number of errors / warnings\
  messages and the total number of statements analyzed. This is used by the \
  global evaluation report (R0004).'}),
                
-               ("comment",
+               ('comment',
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'group': 'Reports',
                  'help' : 'Add a comment according to your evaluation note. \
 This is used by the global evaluation report (R0004).'}),
 
-               ("include-ids",
-                {'type' : "yn", 'metavar' : '<y_or_n>', 'default' : 0,
+               ('include-ids',
+                {'type' : 'yn', 'metavar' : '<y_or_n>', 'default' : 0,
                  'group': 'Reports',
-                 'help' : "Include message's id in output"}),
+                 'help' : 'Include message\'s id in output'}),
                
-               ("enable-msg-cat",
+               ('enable-msg-cat',
                 {'type' : 'csv', 'metavar': '<msg cats>',
                  'group': 'Reports',
                  'help' : 'Enable all messages in the listed categories.'}),
 
-               ("disable-msg-cat",
+               ('disable-msg-cat',
                 {'type' : 'csv', 'metavar': '<msg cats>',
                  'group': 'Reports',
                  'help' : 'Disable all messages in the listed categories.'}),
                
-               ("enable-msg",
+               ('enable-msg',
                 {'type' : 'csv', 'metavar': '<msg ids>',
                  'group': 'Reports',
                  'help' : 'Enable the message with the given id.'}),
             
-               ("disable-msg",
+               ('disable-msg',
                 {'type' : 'csv', 'metavar': '<msg ids>',
                  'group': 'Reports',
                  'help' : 'Disable the message with the given id.'}),
 
-               ("enable-report",
+               ('enable-report',
                 {'type' : 'csv', 'metavar': '<rpt ids>',
                  'group': 'Reports',
                  'help' : 'Enable the report with the given id.'}),
                
-               ("disable-report",
+               ('disable-report',
                 {'type' : 'csv', 'metavar': '<rpt ids>',
                  'group': 'Reports',
                  'help' : 'Disable the report with the given id.'}),
@@ -215,7 +216,8 @@ This is used by the global evaluation report (R0004).'}),
         ('Reports', 'Options related to messages / statistics reporting'),
         )
     
-    def __init__(self, options=(), reporter=None, option_groups=()):
+    def __init__(self, options=(), reporter=None, option_groups=(),
+                 pylintrc=None):
         # some stuff has to be done before ancestors initialization...
         #
         # checkers / reporter / astng manager
@@ -239,11 +241,11 @@ This is used by the global evaluation report (R0004).'}),
             'disable-msg': self.disable_message,
             'enable-msg-cat': self.enable_message_category,
             'disable-msg-cat': self.disable_message_category}
-        full_version = "%%prog %s\nPython %s" % (version,
+        full_version = '%%prog %s\nPython %s' % (version,
                                                  sys.version)
         OptionsManagerMixIn.__init__(self, usage=__doc__,
                                      version=full_version,
-                                     config_file=config.PYLINTRC)
+                                     config_file=pylintrc or config.PYLINTRC)
         MessagesHandlerMixIn.__init__(self)
         ReportsHandlerMixIn.__init__(self)
         BaseRawChecker.__init__(self)
@@ -303,6 +305,8 @@ This is used by the global evaluation report (R0004).'}),
         if hasattr(checker, 'reports'):
             for r_id, r_title, r_cb in checker.reports:
                 self.register_report(r_id, r_title, r_cb, checker)
+            if checker.__doc__ is None:
+                checker.__doc__ = 'no documentation available for this checker'
             need_space = 80 - (len(checker.__doc__.splitlines()[-1]) % 80)
             checker.__doc__ += """%s
 This checker also defines the following reports:                                    
@@ -366,7 +370,7 @@ This checker also defines the following reports:
             checker.open()
         # check modules or packages        
         for something in files_or_modules:
-            self.base_name = self.base_file = something
+            self.base_name = self.base_file = normpath(something)
             if exists(something):
                 # this is a file or a directory
                 try:
@@ -382,12 +386,17 @@ This checker also defines the following reports:
                 modname = something
                 try:
                     filepath = file_from_modpath(modname.split('.'))
+                    if filepath is None:
+                        self.set_current_module(modname)
+                        self.add_message('F0003', args=modname)
+                        continue
                 except Exception, ex:
                     #if __debug__:
                     #    import traceback
                     #    traceback.print_exc()
                     self.set_current_module(modname)
-                    self.add_message('F0001', args=str(ex))
+                    msg = str(ex).replace(os.getcwd() + os.sep, '')
+                    self.add_message('F0001', args=msg)
                     continue
             if self.config.files_output:
                 reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
@@ -405,7 +414,7 @@ This checker also defines the following reports:
         filepath = splitext(filepath)[0] + '.py'
         # get the given module representation
         self.base_name = modname
-        self.base_file = filepath
+        self.base_file = normpath(filepath)
         # check this module
         astng = self._check_file(filepath, modname, checkers)
         if astng is None:
@@ -625,42 +634,53 @@ class Run:
     """
     
     def __init__(self, args, reporter=None, quiet=0):
-        from logilab.pylint import checkers
+        rcfile = None
+        if '--rcfile' in args:
+            rcindex = args.index('--rcfile')
+            rcfile = args[rcindex + 1]
+            del args[rcindex + 1]
+            del args[rcindex]
         self.linter = linter = PyLinter((
-            ("zope",
-            {'action' : "callback", 'callback' : self.cb_init_zope,
-             'help' : "Initialize Zope products before starting."}),
+            ('rcfile',
+             {'action' : 'callback', 'callback' : lambda *args: 1,
+              'type': 'string', 'metavar': '<file>',
+              'help' : 'Specify a configuration file.'}),
+
+            ('zope',
+            {'action' : 'callback', 'callback' : self.cb_init_zope,
+             'help' : 'Initialize Zope products before starting.'}),
             
-            ("disable-all",
-             {'action' : "callback",
+            ('disable-all',
+             {'action' : 'callback',
               'callback' : self.cb_disable_all_checkers,
               'help' : '''Disable all possible checkers. This option should 
               precede enable-* options.'''}),
 
-            ("help-msg",
-             {'action' : "callback", 'type' : 'string', 'metavar': '<msg-id>',
+            ('help-msg',
+             {'action' : 'callback', 'type' : 'string', 'metavar': '<msg-id>',
               'callback' : self.cb_help_message,
               'help' : '''Display a help message for the given message id and \
 exit. This option may be a comma separated list.'''}),
 
-            ("list-msgs",
-             {'action' : "callback", 'metavar': '<msg-id>',
+            ('list-msgs',
+             {'action' : 'callback', 'metavar': '<msg-id>',
               'callback' : self.cb_list_messages,
               'help' : 'List and explain every available messages.'}),
 
-            ("generate-rcfile",
-             {'action' : "callback", 'callback' : self.cb_generate_config,
+            ('generate-rcfile',
+             {'action' : 'callback', 'callback' : self.cb_generate_config,
               'help' : '''Generate a sample configuration file according to \
 the current configuration. You can put other options before this one to use \
 them in the configuration. This option causes the program to exit'''}),
             
-            ("profile",
-             {'action' : "store_true",
+            ('profile',
+             {'action' : 'store_true',
               'help' : 'Profiled execution.'}),
 
-            ), reporter=reporter)
+            ), reporter=reporter, pylintrc=rcfile)
         linter.quiet = quiet
         # register checkers
+        from logilab.pylint import checkers
         checkers.initialize(linter)
         # add some help section
         linter.add_help_section('Environment variables', config.ENV_HELP)
@@ -679,7 +699,7 @@ processing.
         linter.load_file_configuration()
         args = linter.load_command_line_configuration(args)
         if not args:
-            linter.help()
+            print linter.help()
             sys.exit(1)
         # insert current working directory to the python path to have a correct
         # behaviour
@@ -687,10 +707,10 @@ processing.
         if self.linter.config.profile:
             print >> sys.stderr, '** profiled run'
             from hotshot import Profile, stats
-            prof = Profile("stones.prof")
+            prof = Profile('stones.prof')
             prof.runcall(linter.check, args)
             prof.close()
-            stats = stats.load("stones.prof")
+            stats = stats.load('stones.prof')
             stats.strip_dirs()
             stats.sort_stats('time', 'calls')
             stats.print_stats(30)
@@ -727,7 +747,7 @@ importing analyzed code now'
         sys.exit(0)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     #patched
     import sys
     sys.stderr = sys.stdout

@@ -18,7 +18,7 @@ Some shell utilities, usefull to write some python scripts instead of shell
 scripts
 """
 
-__revision__ = '$Id: shellutils.py,v 1.3 2005-01-21 17:42:04 fabioz Exp $'
+__revision__ = '$Id: shellutils.py,v 1.4 2005-02-16 16:45:43 fabioz Exp $'
 
 import os        
 import glob

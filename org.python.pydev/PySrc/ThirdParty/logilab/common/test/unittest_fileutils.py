@@ -2,27 +2,19 @@
 
 Some file / path manipulation utilities
 """
-__revision__ = "$Id: unittest_fileutils.py,v 1.1 2005-01-21 17:46:21 fabioz Exp $"
+__revision__ = "$Id: unittest_fileutils.py,v 1.2 2005-02-16 16:45:45 fabioz Exp $"
 
 import unittest
-import sys
+import sys, os, tempfile, shutil
 from os.path import join
-from os import getcwd, linesep
-from logilab.common import fileutils
+
 from logilab.common.fileutils import *
 
-from logilab.common.testlib import DocTest
 
 #import data
 DATA_DIR = 'data' #data.__path__[0]
 NEWLINES_TXT = join(DATA_DIR,'newlines.txt')
 
-
-class RelativePathDocTest(DocTest):
-    """relative_path embed tests in docstring"""
-    module = fileutils
-    
-    
 class FirstleveldirectoryTC(unittest.TestCase):
 
     def test_known_values_first_level_directory(self):
@@ -36,6 +28,7 @@ class IsBinaryTC(unittest.TestCase):
         #self.assertEqual(is_binary('toto.xml'), 0)
         self.assertEqual(is_binary('toto.bin'), 1)
         self.assertEqual(is_binary('toto.sxi'), 1)
+        self.assertEqual(is_binary('toto.whatever'), 1)
         
 class GetModeTC(unittest.TestCase):
     def test(self):
@@ -47,7 +40,7 @@ class GetModeTC(unittest.TestCase):
 class NormReadTC(unittest.TestCase):
     def test_known_values_norm_read(self):
         data = norm_read(NEWLINES_TXT)
-        self.assertEqual(data, linesep.join(['# mixed new lines', '1', '2', '3', '']))
+        self.assertEqual(data.strip(), '\n'.join(['# mixed new lines', '1', '2', '3']))
 
 
 class LinesTC(unittest.TestCase):
@@ -60,33 +53,48 @@ class LinesTC(unittest.TestCase):
                          ['1', '2', '3'])
 
 class GetByExtTC(unittest.TestCase):
-    def test_kv_include(self):
-        files = get_by_ext(DATA_DIR, include_exts=('.py',))
+    def test_include(self):
+        files = files_by_ext(DATA_DIR, include_exts=('.py',))
         files.sort()
         self.assertEquals(files,
-                          ['data/__init__.py', 'data/module.py', 'data/module2.py',
-                           'data/noendingnewline.py', 'data/nonregr.py', 'data/sub/momo.py'])
-
-    def test_kv_exclude(self):
-        files = get_by_ext(DATA_DIR, exclude_exts=('.py', '.pyc'))
+                          [join('data', f) for f in ['__init__.py', 'module.py', 'module2.py',
+                           'noendingnewline.py', 'nonregr.py', join('sub', 'momo.py')]])
+        files = files_by_ext(DATA_DIR, include_exts=('.py',), exclude_dirs=('sub',))
         files.sort()
         self.assertEquals(files,
-                          ['data/newlines.txt', 'data/sub/doc.txt'])
+                          [join('data', f) for f in ['__init__.py', 'module.py', 'module2.py',
+                           'noendingnewline.py', 'nonregr.py']])
 
-def suite():
-    """return the unitest suite"""
-    loader = unittest.TestLoader()
-    testsuite = loader.loadTestsFromModule(sys.modules[__name__])
-    return testsuite
+    def test_exclude(self):
+        files = files_by_ext(DATA_DIR, exclude_exts=('.py', '.pyc'))
+        files.sort()
+        self.assertEquals(files,
+                          [join('data', f) for f in ['newlines.txt', join('sub', 'doc.txt')]])
 
-def Run(runner=None):
-    """run tests"""
-    testsuite = suite()
-    if runner is None:
-        runner = unittest.TextTestRunner()
-        # uncomment next line to write tests results in a file
-        #runner.__init__(open('tests.log','w+'))    
-    return runner.run(testsuite)
+    def test_exclude_base_dir(self):
+        self.assertEquals(files_by_ext(DATA_DIR, include_exts=('.py',), exclude_dirs=(DATA_DIR)),
+                          [])
+
+class ExportTC(unittest.TestCase):
+    def setUp(self):
+        self.tempdir = tempfile.mktemp()
+        os.mkdir(self.tempdir)
+
+    def test(self):
+        export('data', self.tempdir, verbose=0)
+        self.assert_(exists(join(self.tempdir, '__init__.py')))
+        self.assert_(exists(join(self.tempdir, 'sub')))
+        self.assert_(not exists(join(self.tempdir, '__init__.pyc')))
+        self.assert_(not exists(join(self.tempdir, 'CVS')))
         
+    def tearDown(self):
+        shutil.rmtree(self.tempdir)
+
+from logilab.common.testlib import DocTest
+class ModuleDocTest(DocTest):
+    """relative_path embed tests in docstring"""
+    from logilab.common import fileutils as module    
+del DocTest # necessary if we don't want it to be executed (we don't...)
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,7 +1,7 @@
 """Table management module
 """
 
-__revision__ = '$Id: table.py,v 1.3 2005-01-21 17:42:05 fabioz Exp $'
+__revision__ = '$Id: table.py,v 1.4 2005-02-16 16:45:43 fabioz Exp $'
 
 from logilab.common.compat import enumerate, sum
 
@@ -29,11 +29,8 @@ class Table:
     def create_columns(self, col_names):
         """Appends col_names to the list of existing columns
         """
-        self.col_names.extend(col_names)
         for col_name in col_names:
-            for row in self.data:
-                row.append(0)
-        
+            self.create_column(col_name)
 
     def create_row(self, row_name):
         """Creates a rowname to the row_names list
@@ -246,7 +243,7 @@ class Table:
     def get_dimensions(self):
         """Returns a tuple which represents the table's size
         """
-        return len(self.col_names), len(self.row_names)
+        return len(self.row_names), len(self.col_names)
         
 
     def get_element(self, row_index, col_index):
@@ -385,7 +382,7 @@ class TableStyle:
         self.units = dict([(col_name,'') for col_name in table.col_names])
         self.units['__row_column__'] = '' 
        
-        
+    # XXX FIXME : params order should be reversed for all set() methods
     def set_size(self, value, col_id):
         """Sets the size of the specified col_id to value
         """
@@ -404,7 +401,7 @@ class TableStyle:
         self.size[col_id] = value
 
 
-    def set_aligment(self, value, col_id):
+    def set_alignment(self, value, col_id):
         """Sets the alignment of the specified col_id to value
         """
         self.alignment[col_id] = value
@@ -517,12 +514,11 @@ class TableStyleSheet:
     """
     
     def __init__(self, rules = None):
-        self.rules = rules or []
+        rules = rules or []
+        self.rules = []
         self.instructions = []
-        for rule in self.rules:
-            self.instructions.append(compile(
-                CELL_PROG.sub(r'self.data[\1][\2]', rule),
-                'table.py', 'exec'))
+        for rule in rules:
+            self.add_rule(rule)
 
 
     def add_rule(self, rule):

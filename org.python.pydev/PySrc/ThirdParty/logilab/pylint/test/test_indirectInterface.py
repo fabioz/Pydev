@@ -15,7 +15,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """bug report 8086 in JPL"""
 
-__revision__ = '$Id: test_indirectInterface.py,v 1.1 2005-01-21 17:46:21 fabioz Exp $'
+__revision__ = '$Id: test_indirectInterface.py,v 1.2 2005-02-16 16:45:43 fabioz Exp $'
 
 import unittest
 from utils import get_tests_info, fix_path, TestReporter

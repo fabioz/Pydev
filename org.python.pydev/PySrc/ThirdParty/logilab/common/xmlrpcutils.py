@@ -16,52 +16,52 @@
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
-__revision__ = "$Id: xmlrpcutils.py,v 1.3 2005-01-21 17:42:05 fabioz Exp $"
+__revision__ = "$Id: xmlrpcutils.py,v 1.4 2005-02-16 16:45:43 fabioz Exp $"
 
 import xmlrpclib
 from base64 import encodestring
-from cStringIO import StringIO
+#from cStringIO import StringIO
 
 ProtocolError = xmlrpclib.ProtocolError
 
-class BasicAuthTransport(xmlrpclib.Transport):
-    def __init__(self, username=None, password=None):
-        self.username = username
-        self.password = password
-        self.verbose = None
-        self.has_ssl = httplib.__dict__.has_key("HTTPConnection")
+## class BasicAuthTransport(xmlrpclib.Transport):
+##     def __init__(self, username=None, password=None):
+##         self.username = username
+##         self.password = password
+##         self.verbose = None
+##         self.has_ssl = httplib.__dict__.has_key("HTTPConnection")
  
-    def request(self, host, handler, request_body, verbose=None):
-        # issue XML-RPC request
-        if self.has_ssl:
-            if host.startswith("https:"): h = httplib.HTTPSConnection(host)
-            else: h = httplib.HTTPConnection(host)
-        else: h = httplib.HTTP(host)
+##     def request(self, host, handler, request_body, verbose=None):
+##         # issue XML-RPC request
+##         if self.has_ssl:
+##             if host.startswith("https:"): h = httplib.HTTPSConnection(host)
+##             else: h = httplib.HTTPConnection(host)
+##         else: h = httplib.HTTP(host)
  
-        h.putrequest("POST", handler)
+##         h.putrequest("POST", handler)
  
-        # required by HTTP/1.1
-        if not self.has_ssl: # HTTPConnection already does 1.1
-            h.putheader("Host", host)
-        h.putheader("Connection", "close")
+##         # required by HTTP/1.1
+##         if not self.has_ssl: # HTTPConnection already does 1.1
+##             h.putheader("Host", host)
+##         h.putheader("Connection", "close")
  
-        if request_body: h.send(request_body)
-        if self.has_ssl:
-            response = h.getresponse()
-            if response.status != 200:
-                raise xmlrpclib.ProtocolError(host + handler,
-                                              response.status,
-                                              response.reason,
-                                              response.msg)
-            file = response.fp
-        else:
-            errcode, errmsg, headers = h.getreply()
-            if errcode != 200:
-                raise xmlrpclib.ProtocolError(host + handler, errcode, errmsg, headers)
+##         if request_body: h.send(request_body)
+##         if self.has_ssl:
+##             response = h.getresponse()
+##             if response.status != 200:
+##                 raise xmlrpclib.ProtocolError(host + handler,
+##                                               response.status,
+##                                               response.reason,
+##                                               response.msg)
+##             file = response.fp
+##         else:
+##             errcode, errmsg, headers = h.getreply()
+##             if errcode != 200:
+##                 raise xmlrpclib.ProtocolError(host + handler, errcode, errmsg, headers)
  
-            file = h.getfile()
+##             file = h.getfile()
  
-        return self.parse_response(file)
+##         return self.parse_response(file)
                                                                               
 
 

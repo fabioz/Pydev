@@ -18,7 +18,7 @@
 main pylint class
 """
 
-__revision__ = "$Id: utils.py,v 1.1 2005-01-21 17:46:21 fabioz Exp $"
+__revision__ = "$Id: utils.py,v 1.2 2005-02-16 16:45:37 fabioz Exp $"
 
 from logilab.common.astng import Module
 from logilab.common.textutils import normalize_text
@@ -92,7 +92,7 @@ class MessagesHandlerMixIn:
         self._msgs_state = {}
         self._module_msgs_state = None
         self._msg_cats_state = {}
-        self._module_msg_cats_state = None    
+        self._module_msg_cats_state = None
         
     def register_messages(self, checker):
         """register a dictionary of messages

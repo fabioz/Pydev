@@ -3,6 +3,12 @@ from logilab.common import astng
 from logilab.pylint.interfaces import IASTNGChecker
 from logilab.pylint.checkers import BaseChecker
 
+def make_get_name(prop_name):
+    return 'Get' + _title(prop_name)
+    
+def make_set_name(prop_name):
+    return 'Set' + _title(prop_name)
+
 class MyChecker(BaseChecker):
     """add member attributes defined using my own "properties.create"
     function to the class locals dictionary
@@ -25,6 +31,8 @@ class MyChecker(BaseChecker):
         in_class = node.get_frame()
         for param in node.args:
             in_class.locals[param.name] = node
+            in_class.locals[make_set_name(param.name)] = node
+            in_class.locals[make_get_name(param.name)] = node
 
         in_class.locals["__properties__"] = node
     
