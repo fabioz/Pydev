@@ -29,7 +29,7 @@ PyLint does not work if we have spaces in the path
 
 
 
-Done after 0.9.0
+Done in 0.9.1
 
 Content assistant improvements:
 - assign content assistant when assigned to variable strips the "get";
@@ -104,28 +104,4 @@ Bug fixes:
 
 
 
-
-Where to announce:
-python-announce-list@python.org
-python-list@python.org
-pydev-code@lists.sourceforge.net
-pydev-users@lists.sourceforge.net
-
-Hi All,
-
-PyDev - Python IDE (Python development enviroment for Eclipse) version xxx has just been released.
-
-Comments
-This release supports python 2.4 and has PyLint 0.6 integrated.
-Code completion had some improvements too.
-
-Check the homepage (http://pydev.sourceforge.net/) or my blog (http://pydev.blogspot.com/) for more details.
-
-Regards,
-
-Fabio Zadrozny
-------------------------------------------------------
-Software Developer
-ESSS - Engineering Simulation and Scientific Software
-www.esss.com.br
 
