@@ -25,6 +25,7 @@ def Main():
     Template( '_template.html', 'contentassist' )
     Template( '_template.html', 'refactoring' )
     Template( '_template.html', 'Faq' )
+    Template( '_template.html', 'Credits' )
 
 
 Main()

@@ -1,0 +1,54 @@
+body {
+	font-family: Arial, Helvetica, sans-serif
+    font-size: 12px;
+}
+    
+h1 
+{
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+div.sidebar
+{
+	position:static;
+    float: left;
+    width: 180px;
+    height: 150%;
+    background-color: lightyellow;
+    color: white;
+}
+  
+.sidebar li
+{
+    margin-left: 0px;
+    margin-top: 3px;
+    padding: 0px;
+}    
+
+div.contents
+{
+    width: 100%;
+    padding-left: 15px;
+}
+
+li
+{
+    margin-left: 5px;
+}
+
+a
+{
+    color: blue;
+    text-decoration: none;
+}
+
+a:hover
+{
+    text-decoration: underline;
+}
+
+.sidebar a
+{
+    font-size: medium;
+}
+
