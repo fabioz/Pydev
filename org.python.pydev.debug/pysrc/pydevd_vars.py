@@ -40,6 +40,7 @@ class ObjectResolver(Resolver):
             newDict = vars(var).copy()
             newDict['__class__'] = var.__class__
         else: 
+            #ok, no __dict__, let's see what we do now...
             newDict = {}
             for d in dir(var):
                 v = getattr(var, d)
