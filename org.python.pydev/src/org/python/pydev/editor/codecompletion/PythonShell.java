@@ -139,7 +139,7 @@ public class PythonShell {
             if(process != null)
                 endIt();
             String interpreter = getDefaultInterpreter();
-            String execMsg = interpreter+" "+serverFile.getAbsolutePath()+" "+pWrite+" "+pRead;
+            String execMsg = interpreter+" \""+serverFile.getAbsolutePath()+"\" "+pWrite+" "+pRead;
             process = Runtime.getRuntime().exec(execMsg);
             
             boolean connected = false;
