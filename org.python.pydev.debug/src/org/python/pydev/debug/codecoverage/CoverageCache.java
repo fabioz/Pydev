@@ -105,11 +105,34 @@ public class CoverageCache {
         folderNode.files.put(node, fileNode);
         files.put(node, fileNode);
     }
+    
+    /**
+     * 
+     * @param node
+     * @param parent
+     * @param stmts
+     * @param exec
+     * @param notExecuted
+     */
+    public void addFile(Object node, Object parent, String desc) {
+        FolderNode folderNode = (FolderNode) getFolder(parent);
+        
+        if (folderNode == null){
+            throw new RuntimeException("A file node ("+node.toString()+")MUST have a related folder node.");
+        }
+        
+        ErrorFileNode fileNode = new ErrorFileNode();
+        fileNode.node = node;
+        fileNode.desc = desc;
+        
+        folderNode.files.put(node, fileNode);
+        files.put(node, fileNode);
+    }
 
     public List getFiles(Object node) throws NodeNotFoudException{
         FolderNode folderNode = (FolderNode) getFolder(node);
         if (folderNode == null){
-            FileNode fileNode = (FileNode) getFile(node);
+            Object fileNode = getFile(node);
             if (fileNode == null){
                 throw new NodeNotFoudException("The node has not been found: "+node.toString());
             }
@@ -171,10 +194,12 @@ public class CoverageCache {
             int totalStmts = 0;
             
             for (Iterator it = list.iterator(); it.hasNext();) {
-                FileNode element = (FileNode) it.next();
+                Object element = it.next();
                 buffer.append(element.toString()+"\n");
-                totalExecuted += element.exec;
-                totalStmts += element.stmts;
+                if(element instanceof FileNode){ //it may have been an error node...
+	                totalExecuted += ((FileNode)element).exec;
+	                totalStmts += ((FileNode)element).stmts;
+                }
             }
             
             buffer.append("-----------------------------------------------------------------------------\n");

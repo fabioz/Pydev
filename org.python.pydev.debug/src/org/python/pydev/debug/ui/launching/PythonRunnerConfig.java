@@ -15,6 +15,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsUtil;
+import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPrefs;
@@ -149,6 +150,7 @@ public class PythonRunnerConfig {
 		
 		if(isProfile){
 			cmdArgs.add(profileScript);
+			cmdArgs.add(PyCoverage.getCoverageFileLocation());
 			cmdArgs.add("-x");
 		}
 		
@@ -160,26 +162,6 @@ public class PythonRunnerConfig {
 		return retVal;
 	}
 	
-	public String[] getProfileResultsCommandLine(){
-		Vector cmdArgs = new Vector(10);
-		cmdArgs.add(interpreter);
-		// Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
-		cmdArgs.add(org.python.pydev.ui.InterpreterEditor.isJython(interpreter) ? "-i" : "-u");
-		
-		if(isProfile){
-			cmdArgs.add(profileScript);
-			cmdArgs.add("-r");
-			cmdArgs.add("-m");
-		}else{
-		    throw new RuntimeException("Can only get profile script in profile mode.");
-		}
-		
-		cmdArgs.add(file.toOSString());
-
-		String[] retVal = new String[cmdArgs.size()];
-		cmdArgs.toArray(retVal);
-		return retVal;
-	}
 	
 	public String getCommandLineAsString() {
 		String[] args = getCommandLine();

@@ -3,7 +3,7 @@
 <plugin
 	id="org.python.pydev.debug"
 	name="Pydev debug"
-	version="0.6.2"
+	version="0.6.2.2"
 	provider-name="Aleks Totic"
 	class="org.python.pydev.debug.core.PydevDebugPlugin">
 

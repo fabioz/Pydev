@@ -71,7 +71,10 @@ public class FileNode {
     }
 
     public static String calcCover( int stmts, int exec){
-        double v = ((double)exec) / ((double)stmts) * 100.0;
+        double v = 0;
+        if(stmts != 0){
+            v = ((double)exec) / ((double)stmts) * 100.0;
+        }
         DecimalFormat format = new DecimalFormat("##.#");
         String str = format.format(v);
         str += "%";

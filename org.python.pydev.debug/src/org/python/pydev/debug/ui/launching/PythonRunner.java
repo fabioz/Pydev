@@ -7,7 +7,7 @@ package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.*;
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 
 import org.eclipse.core.runtime.CoreException;
@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
-import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
@@ -41,11 +40,6 @@ public class PythonRunner {
 	public static void run(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
 		if (config.isDebug) {
 		    runDebug(config, launch, monitor);
-		    
-		}else if (config.isProfile){
-	        String[] envp = config.envp;
-	        envp = PyCoverage.setCoverageFileEnviromentVariable(envp);
-	        doIt(monitor, envp, config.getCommandLine(), config.workingDirectory, launch);
 		    
 		}else{ //default
 	        doIt(monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);

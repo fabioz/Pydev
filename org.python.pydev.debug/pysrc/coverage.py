@@ -87,7 +87,10 @@ def t(f, x, y):
     c[(f.f_code.co_filename, f.f_lineno)] = 1
     return t
 
-the_coverage = None
+
+def getCoverageLoc(self):
+    global cache_location
+    return cache_location
 
 class coverage:
     error = "coverage error"
@@ -111,11 +114,15 @@ class coverage:
     # avoid duplicating work.
     canonical_filename_cache = {}
 
+        
     def __init__(self):
         global the_coverage
-        if the_coverage:
-            raise self.error, "Only one coverage object allowed."
-        self.cache = os.environ.get(self.cache_env, self.cache_default)
+        try:
+            if the_coverage:
+                raise self.error, "Only one coverage object allowed."
+        except NameError:#that's ok, it is still not defined...
+            pass
+        self.cache = getCoverageLoc(self)
         self.restore()
         self.analysis_cache = {}
 
@@ -516,8 +523,6 @@ class coverage:
                     raise
 
 
-# Singleton object.
-the_coverage = coverage()
 
 # Module functions call methods in the singleton object.
 def start(*args): return apply(the_coverage.start, args)
@@ -526,25 +531,39 @@ def erase(*args): return apply(the_coverage.erase, args)
 def analysis(*args): return apply(the_coverage.analysis, args)
 def report(*args): return apply(the_coverage.report, args)
 
-# Save coverage data when Python exits.  (The atexit module wasn't
-# introduced until Python 2.0, so use sys.exitfunc when it's not
-# available.)
-try:
-    import atexit
-    atexit.register(the_coverage.save)
-except ImportError:
-    sys.exitfunc = the_coverage.save
 
 # Command-line interface.
 if __name__ == '__main__':
 #    it's the same as -r -m, but...
 #    goes to a raw_input() and waits for the files that should be executed...
 
+
+    global cache_location #let's set the cache location now...
+    cache_location = sys.argv[1] #first parameter is the cache location.
+    sys.argv.remove(cache_location)
+    print cache_location
+    
+    global the_coverage
+    # Singleton object.
+    the_coverage = coverage()
+
+    # Save coverage data when Python exits.  (The atexit module wasn't
+    # introduced until Python 2.0, so use sys.exitfunc when it's not
+    # available.)
+    try:
+        import atexit
+        atexit.register(the_coverage.save)
+    except ImportError:
+        sys.exitfunc = the_coverage.save
+
     if len(sys.argv) == 2:
+        
         if '-waitfor' == sys.argv[1]:
             sys.argv.remove('-waitfor')
             sys.argv.append('-r')
             sys.argv.append('-m')
+            
+            #second gets the files to be executed
             s = raw_input()
             s = s.replace('\r', '')
             s = s.replace('\n', '')
@@ -629,4 +648,4 @@ if __name__ == '__main__':
 #
 #
 #
-# $Id: coverage.py,v 1.4 2004-10-18 19:13:13 fabioz Exp $
+# $Id: coverage.py,v 1.5 2004-10-19 11:12:17 fabioz Exp $
