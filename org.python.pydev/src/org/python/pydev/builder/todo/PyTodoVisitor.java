@@ -30,34 +30,36 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
     public boolean visitResource(IResource resource, IDocument document) {
         if (document != null) {
             List todoTags = PyTodoPrefPage.getTodoTags();
+            if(todoTags.size() > 0){
 
-            int numberOfLines = document.getNumberOfLines();
-
-            try {
-                resource.deleteMarkers(IMarker.TASK, false, IResource.DEPTH_ZERO);
-
-                int line = 1;
-                while (line < numberOfLines) {
-                    IRegion region = document.getLineInformation(line);
-                    String tok = document.get(region.getOffset(), region.getLength());
-                    int index;
-
-                    for (Iterator iter = todoTags.iterator(); iter.hasNext();) {
-                        String element = (String) iter.next();
-
-                        if ((index = tok.indexOf(element)) != -1) {
-                            HashMap map = new HashMap();
-
-                            createMarker(resource, tok.substring(index).trim(), line + 1, Marker.TASK, IMarker.SEVERITY_WARNING, false, false);
-                        }
-
-                    }
-
-                    line++;
-                }
-            } catch (Exception e) {
-                PydevPlugin.log(e);
-            } 
+	            int numberOfLines = document.getNumberOfLines();
+	
+	            try {
+	                resource.deleteMarkers(IMarker.TASK, false, IResource.DEPTH_ZERO);
+	
+	                int line = 1;
+	                while (line < numberOfLines) {
+	                    IRegion region = document.getLineInformation(line);
+	                    String tok = document.get(region.getOffset(), region.getLength());
+	                    int index;
+	
+	                    for (Iterator iter = todoTags.iterator(); iter.hasNext();) {
+	                        String element = (String) iter.next();
+	
+	                        if ((index = tok.indexOf(element)) != -1) {
+	                            HashMap map = new HashMap();
+	
+	                            createMarker(resource, tok.substring(index).trim(), line + 1, Marker.TASK, IMarker.SEVERITY_WARNING, false, false);
+	                        }
+	
+	                    }
+	
+	                    line++;
+	                }
+	            } catch (Exception e) {
+	                PydevPlugin.log(e);
+	            } 
+            }
         }
 
         return true;

@@ -5,7 +5,7 @@
  */
 package org.python.pydev.builder.todo;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Preferences;
@@ -53,6 +53,12 @@ public class PyTodoPrefPage extends FieldEditorPreferencePage implements IWorkbe
     public static List getTodoTags(){
         String string = PydevPrefs.getPreferences().getString(PY_TODO_TAGS);
         String[] strings = string.split(" ");
-        return Arrays.asList(strings);
+        ArrayList list = new ArrayList();
+        for (int i = 0; i < strings.length; i++) {
+            if(strings[i].length() > 0){
+                list.add(strings[i]);
+            }
+        }
+        return list;
     }
 }

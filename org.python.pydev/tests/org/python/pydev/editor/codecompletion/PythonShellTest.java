@@ -14,6 +14,8 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.CoreException;
 
 /**
+ * These tests should run, however the directory where the tests are run must be correct.
+ * 
  * @author Fabio Zadrozny
  */
 public class PythonShellTest extends TestCase {

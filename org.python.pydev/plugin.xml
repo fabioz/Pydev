@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.9"
+   version="0.8.7"
    provider-name="Aleks Totic / Fabio Zadrozny"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -92,20 +92,26 @@
             id="org.python.pydev.prefs">
       </page>
       <page
+            name="Builders"
+            category="org.python.pydev.prefs"
+            class="org.python.pydev.builder.PyDevBuilderPrefPage"
+            id="org.python.pydev.builder.pyDevBuilderPrefPage">
+      </page>
+      <page
             name="Debug"
             category="org.python.pydev.prefs"
             class="org.python.pydev.plugin.DebugPrefsPage"
             id="org.python.pydev.prefs.debugPage">
       </page>
       <page
+            name="Templates"
             class="org.python.pydev.editor.templates.PyTemplatePreferencesPage"
             category="org.python.pydev.prefs"
-            name="Templates"
             id="org.python.pydev.prefs.template"/>
       <page
+            name="Code Completion"
             class="org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage"
             category="org.python.pydev.prefs"
-            name="Code Completion"
             id="org.python.pydev.prefs.PyCodeCompletionPage"/>
 <!--
       <page

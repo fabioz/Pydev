@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.Assign;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
@@ -90,6 +91,22 @@ public class InnerModelVisitor extends AbstractVisitor {
                 addElementTokens(element);
             }
 
+        }
+        return null;
+    }
+    
+    /**
+     * @see org.python.parser.ast.VisitorBase#visitAssign(org.python.parser.ast.Assign)
+     */
+    public Object visitAssign(Assign node) throws Exception {
+        if(visiting == VISITING_CLASS){
+            
+            //iterate heuristics to find attributes
+	        for (Iterator iter = attrsHeuristics.iterator(); iter.hasNext();) {
+	            HeuristicFindAttrs element = (HeuristicFindAttrs) iter.next();
+	            element.visitAssign(node);
+	            addElementTokens(element);
+	        }
         }
         return null;
     }

@@ -22,6 +22,8 @@ import org.python.pydev.plugin.PythonNature;
  * @author Fabio Zadrozny
  */
 public class CompiledModule extends AbstractModule{
+    
+    public static boolean COMPILED_MODULES_ENABLED = true; 
 
     private HashMap cache = new HashMap();
     
@@ -44,22 +46,26 @@ public class CompiledModule extends AbstractModule{
      */
     public CompiledModule(String name, int tokenTypes){
         super(name);
-        try {
-            PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
-            List completions = shell.getImportCompletions(name);
-            
-            ArrayList array = new ArrayList();
-            
-            for (Iterator iter = completions.iterator(); iter.hasNext();) {
-                String[] element = (String[]) iter.next();
-                IToken t = new CompiledToken(element[0], element[1], name, tokenTypes);
-                array.add(t);
-                
-            }
-            tokens = (CompiledToken[]) array.toArray(new CompiledToken[0]);
-        } catch (Exception e) {
-            e.printStackTrace();
-            PydevPlugin.log(e);
+        if(COMPILED_MODULES_ENABLED){
+	        try {
+	            PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
+	            List completions = shell.getImportCompletions(name);
+	            
+	            ArrayList array = new ArrayList();
+	            
+	            for (Iterator iter = completions.iterator(); iter.hasNext();) {
+	                String[] element = (String[]) iter.next();
+	                IToken t = new CompiledToken(element[0], element[1], name, tokenTypes);
+	                array.add(t);
+	                
+	            }
+	            tokens = (CompiledToken[]) array.toArray(new CompiledToken[0]);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            PydevPlugin.log(e);
+	        }
+        }else{
+            //not used if not enabled.
         }
 
     }
@@ -105,23 +111,25 @@ public class CompiledModule extends AbstractModule{
         
         IToken[] toks = new IToken[0];
 
-        try {
-            PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
-            List completions = shell.getImportCompletions(name+"."+token);
-            
-            ArrayList array = new ArrayList();
-            
-            for (Iterator iter = completions.iterator(); iter.hasNext();) {
-                String[] element = (String[]) iter.next();
-                IToken t = new CompiledToken(element[0], element[1], name, PyCodeCompletion.TYPE_BUILTIN);
-                array.add(t);
-                
-            }
-            toks = (CompiledToken[]) array.toArray(new CompiledToken[0]);
-            cache.put(token, toks);
-        } catch (Exception e) {
-            e.printStackTrace();
-            PydevPlugin.log(e);
+        if(COMPILED_MODULES_ENABLED){
+	        try {
+	            PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
+	            List completions = shell.getImportCompletions(name+"."+token);
+	            
+	            ArrayList array = new ArrayList();
+	            
+	            for (Iterator iter = completions.iterator(); iter.hasNext();) {
+	                String[] element = (String[]) iter.next();
+	                IToken t = new CompiledToken(element[0], element[1], name, PyCodeCompletion.TYPE_BUILTIN);
+	                array.add(t);
+	                
+	            }
+	            toks = (CompiledToken[]) array.toArray(new CompiledToken[0]);
+	            cache.put(token, toks);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            PydevPlugin.log(e);
+	        }
         }
         return toks;
     }

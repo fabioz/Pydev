@@ -9,12 +9,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.model.AbstractNode;
@@ -105,6 +107,8 @@ public class PyCodeCompletion {
         int line = doc.getLineOfOffset(documentOffset);
         IRegion region = doc.getLineInformation(line);
         
+        CompletionState state = new CompletionState(line,documentOffset - region.getOffset(), null, edit.getPythonNature());
+        
         //code completion in imports 
         if (importsTipper.length()!=0) { 
         
@@ -132,14 +136,16 @@ public class PyCodeCompletion {
                     if(theActivationToken.endsWith(".")){
                         theActivationToken = theActivationToken.substring(0, theActivationToken.length()-1);
                     }
-    	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "", edit.getPythonNature() );
+                    state.activationToken = theActivationToken;
+    	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, state  );
     	            theList.addAll(Arrays.asList(comps));
 
                 }else{
                     Scope scope = closest.getScope().findContainingClass(); //null returned if self. within a method and not in a class.
                     String token = scope.getStartNode().getName();
                     
-    	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), token, "" , edit.getPythonNature());
+                    state.activationToken = token;
+    	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, state);
     	            theList.addAll(Arrays.asList(comps));
                 }
                 
@@ -148,8 +154,10 @@ public class PyCodeCompletion {
                     theActivationToken = theActivationToken.substring(0, theActivationToken.length()-1);
                 }
                 
+                state.activationToken = theActivationToken;
+
                 //Ok, looking for a token in globals.
-	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" , edit.getPythonNature());
+	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, state);
 	            theList.addAll(Arrays.asList(comps));
             }
             theList.addAll(completions);
@@ -157,7 +165,8 @@ public class PyCodeCompletion {
         } else { //go to globals
             List completions = new ArrayList();
             
-            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" , edit.getPythonNature());
+            state.activationToken = theActivationToken;
+            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, state);
             
             theList.addAll(Arrays.asList(comps));
         }
@@ -263,6 +272,11 @@ public class PyCodeCompletion {
             IRegion lineInformation = doc.getLineInformation(lineOfOffset);
 
             int docLength = doc.getLength();
+
+            String before = wholeDoc.substring(0, lineInformation.getOffset());
+            String after = wholeDoc.substring(lineInformation.getOffset()
+                    + lineInformation.getLength(), docLength);
+            
             String src = doc.get(lineInformation.getOffset(), lineInformation.getLength());
 
             String spaces = "";
@@ -273,10 +287,57 @@ public class PyCodeCompletion {
                 spaces += ' ';
             }
 
-            newDoc = wholeDoc.substring(0, lineInformation.getOffset());
-            newDoc += spaces + "pass";
-            newDoc += wholeDoc.substring(lineInformation.getOffset()
-                    + lineInformation.getLength(), docLength);
+
+            src = src.trim();
+            if (src.startsWith("class")){
+                //let's discover if we should put a pass or not...
+                //e.g if we are declaring the class and no methods are put, we have
+                //to put a pass, otherwise, the pass would ruin the indentation, therefore,
+                //we cannot put it.
+                //
+                //so, search for another class or def after this line and discover if it has another indentation 
+                //or not.
+                
+                StringTokenizer tokenizer = new StringTokenizer(after, "\r\n");
+                String tokSpaces = null;
+                
+                while(tokenizer.hasMoreTokens()){
+                    String tok = tokenizer.nextToken();
+                    String t = tok.trim();
+                    if(t.startsWith("class") || t.startsWith("def") ){
+                        tokSpaces = "";
+                        for (int i = 0; i < tok.length(); i++) {
+                            if (tok.charAt(i) != ' ') {
+                                break;
+                            }
+                            tokSpaces += ' ';
+                        }
+                        break;
+                    }
+                }
+                
+                if(tokSpaces != null && tokSpaces.length() > spaces.length()){
+	                if(src.indexOf('(') != -1){
+	                    src = src.substring(0, src.indexOf('('))+":";
+	                }else{
+	                    src = "class COMPLETION_HELPER_CLASS:";
+	                }
+                }else{
+	                if(src.indexOf('(') != -1){
+	                    src = src.substring(0, src.indexOf('('))+":pass";
+	                }else{
+	                    src = "class COMPLETION_HELPER_CLASS:pass";
+	                }
+                }
+                
+                
+            }else{
+                src = "pass";
+            }
+            
+            newDoc = before;
+            newDoc += spaces + src;
+            newDoc += after;
 
         } catch (BadLocationException e1) {
             //that's ok...

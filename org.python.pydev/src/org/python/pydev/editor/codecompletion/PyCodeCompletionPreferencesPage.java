@@ -116,7 +116,12 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     }
 
     public static int getNumberOfConnectionAttempts() {
-        return PydevPrefs.getPreferences().getInt(PyCodeCompletionPreferencesPage.ATTEMPTS_CODECOMPLETION);
+        try{
+            Preferences preferences = PydevPrefs.getPreferences();
+            return preferences.getInt(PyCodeCompletionPreferencesPage.ATTEMPTS_CODECOMPLETION);
+        }catch (NullPointerException e) {
+            return 20;
+        }
     }
 
     public static boolean isToAutocompleteOnDot() {

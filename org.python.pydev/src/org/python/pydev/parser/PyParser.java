@@ -296,11 +296,11 @@ public class PyParser {
      */
     private static SimpleNode tryReparseAgain(IDocument document, ParseException tokenErr, PythonNature nature) {
         int line = 0;
-        if(tokenErr.currentToken.image.equals(".") || tokenErr.currentToken.image.equals("(")){
             line = tokenErr.currentToken.beginLine-1;
-        }else{
-            line = tokenErr.currentToken.beginLine;
-        }
+//        if(tokenErr.currentToken.image.equals(".") || tokenErr.currentToken.image.equals("(")){
+//        }else{
+//            line = tokenErr.currentToken.beginLine;
+//        }
         
         return tryReparseChangingLine(document, line, nature);
     }

@@ -17,6 +17,7 @@ import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
@@ -153,13 +154,16 @@ public class SourceModule extends AbstractModule {
 	                                //    
 	                                //    def b(self):
 	                                //        pass
-	                                final IToken[] comps = manager.getCompletionsForModule(base, "", this, line, col, nature);
+	                                CompletionState state = new CompletionState(line,col, base, nature);
+	                                state.recursing = true;
+	                                final IToken[] comps = manager.getCompletionsForModule(this, state);
                                     modToks.addAll(Arrays.asList(comps));
 	                            }else if (c.bases[j] instanceof Attribute){
 	                                Attribute attr = (Attribute) c.bases[j];
 	                                String s = AbstractVisitor.getFullRepresentationString(attr);
 	                                
-	                                final IToken[] comps = manager.getCompletionsForModule(s, "", this, line, col, nature);
+	                                CompletionState state = new CompletionState(line,col, s, nature);
+	                                final IToken[] comps = manager.getCompletionsForModule(this, state);
                                     modToks.addAll(Arrays.asList(comps));
 	                            }
                             }

@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ASTManagerIO;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
@@ -119,7 +120,7 @@ public class PythonNature implements IProjectNature {
         ICommand[] commands = desc.getBuildSpec();
 
         //now, add the builder if it still hasn't been added.
-        if (hasBuilder(commands) == false) {
+        if (hasBuilder(commands) == false && PyDevBuilderPrefPage.usePydevBuilders()) {
 
             ICommand command = desc.newCommand();
             command.setBuilderName(BUILDER_ID);

@@ -125,14 +125,6 @@ public class HeuristicFindAttrs extends AbstractVisitor {
     
     
     
-    /**
-     * 
-     */
-    private void checkEntryPoint() {
-        if(entryPointCorrect == false)
-            throw new RuntimeException("Invalid entry point. ");
-    }
-
     
     /**
      * Name should be whithin assign.
@@ -140,10 +132,22 @@ public class HeuristicFindAttrs extends AbstractVisitor {
      * @see org.python.parser.ast.VisitorIF#visitAssign(org.python.parser.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
-        checkEntryPoint();
         if(how == IN_ASSIGN){
             inAssing = true;
-            node.traverse(this);
+            
+            for (int i = 0; i < node.targets.length; i++) {
+                if(node.targets[i] instanceof Attribute){
+                    visitAttribute((Attribute)node.targets[i]);
+                    
+                }else if(node.targets[i] instanceof Name){
+                    String id = ((Name)node.targets[i]).id;
+                    if(id != null){
+                        addToken(node.targets[i]);
+                    }
+                    
+                }
+            }
+            
             inAssing = false;
         }
         return null;

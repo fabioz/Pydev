@@ -39,6 +39,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.pychecker.PyCheckerPrefPage;
 import org.python.pydev.builder.pylint.PyLintPrefPage;
 import org.python.pydev.builder.todo.PyTodoPrefPage;
@@ -158,6 +159,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         PyCheckerPrefPage.initializeDefaultPreferences(getPluginPreferences());
         PyLintPrefPage.initializeDefaultPreferences(getPluginPreferences());
         PyTodoPrefPage.initializeDefaultPreferences(getPluginPreferences());
+        PyDevBuilderPrefPage.initializeDefaultPreferences(getPluginPreferences());
     }
 
     public void propertyChange(Preferences.PropertyChangeEvent event) {

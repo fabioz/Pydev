@@ -76,6 +76,11 @@ public class ASTManagerIO {
             }
         }
         
+        for (int i = 0; i < ASTManager.BUILTINS.length; i++) {
+            String name = ASTManager.BUILTINS[i];
+            c.modules.put(new ModulesKey(name, null), AbstractModule.createEmptyModule(name, null));
+        }
+
         return c;
 
     }

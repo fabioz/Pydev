@@ -40,6 +40,9 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      */
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
 
+        if(PyDevBuilderPrefPage.usePydevBuilders() == false)
+            return null;
+        
         if (kind == IncrementalProjectBuilder.FULL_BUILD) {
             // Do a Full Build: Use a ResourceVisitor to process the tree.
             performFullBuild(monitor);

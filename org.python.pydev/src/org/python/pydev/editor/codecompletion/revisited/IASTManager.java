@@ -103,12 +103,8 @@ public interface IASTManager {
      * 
      * @param file
      * @param doc
-     * @param line
-     * @param col
-     * @param activationToken
-     * @param qualifier
-     * @param nature
+     * @param state
      * @return
      */
-    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, int line, int col, String activationToken, String qualifier, PythonNature nature);
+    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, CompletionState state);
 }

@@ -1,0 +1,4 @@
+This folder is used for code completion tests.
+
+It has a structure for the tests (still, the tests also depend on the python lib - it should be set before running
+any tests).
