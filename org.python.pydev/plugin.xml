@@ -203,6 +203,20 @@
                id="org.python.pydev.editor.actions.navigation.pyUnCollapse">
          </action>
          <action
+               definitionId="org.python.pydev.editor.actions.navigation.pyCollapseAll"
+               label="Collapse code (All)"
+               class="org.python.pydev.editor.actions.codefolding.PyCollapseAll"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.navigation.pyCollapseAll">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.navigation.pyUnCollapseAll"
+               label="Un Collapse code (All)"
+               class="org.python.pydev.editor.actions.codefolding.PyUnCollapseAll"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.navigation.pyUnCollapseAll">
+         </action>
+         <action
                definitionId="org.python.pydev.editor.actions.pyShowOutline"
                label="Show Quick Outline"
                class="org.python.pydev.editor.actions.PyShowOutline"
@@ -494,6 +508,32 @@
             string="Ctrl+="
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.navigation.pyUnCollapse"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: Collapse All-->
+      <command
+            name="Python Collapse All"
+            description="Collapse all blocks of code"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.navigation.pyCollapseAll">
+      </command>
+      <keyBinding
+            string="Ctrl+9"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.navigation.pyCollapseAll"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: Un Collapse-->
+      <command
+            name="Python Un Collapse All"
+            description="Un Collapse all blocks of code"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.navigation.pyUnCollapseAll">
+      </command>
+      <keyBinding
+            string="Ctrl+0"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.navigation.pyUnCollapseAll"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
 <!-- command: Show outline-->
