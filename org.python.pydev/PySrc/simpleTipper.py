@@ -97,8 +97,11 @@ class Visitor(compiler.visitor.ASTVisitor):
         
         for n in node.getChildNodes():
             if isinstance(n,compiler.ast.AssAttr):
-                if n.expr.name == 'self':
-                    self.selfAttribs.append((n.attrname,'Instance attribute'))
+                try:
+                    if n.expr.name == 'self' and (n.attrname,'Instance attribute') not in self.selfAttribs:
+                        self.selfAttribs.append((n.attrname,'Instance attribute'))
+                except:
+                    pass
             
     
 def GetSelfVariables(theDoc, classToVisit):
