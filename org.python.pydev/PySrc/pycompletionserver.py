@@ -74,14 +74,20 @@ class T(threading.Thread):
         Format the completions suggestions in the following format:
         @@COMPLETIONS((token,description),(token,description),(token,description))END@@
         '''
-        compMsg = ''
+        compMsg = []
         for tup in completionsList:
-            if compMsg != '':
-                compMsg += ','
+            if len(compMsg) > 0:
+                compMsg.append(',')
                 
-            compMsg += '(%s,%s)' % (self.removeInvalidChars(tup[0]),self.removeInvalidChars(tup[1]))
-            
-        return '%s(%s)%s'%(MSG_COMPLETIONS, compMsg, MSG_END)
+#was:       compMsg.append( '(%s,%s)' % (self.removeInvalidChars(tup[0]),self.removeInvalidChars(tup[1]))  )
+
+            compMsg.append( '(')
+            compMsg.append( str(self.removeInvalidChars(tup[0])) )
+            compMsg.append( ',' )
+            compMsg.append( self.removeInvalidChars(tup[1]) )
+            compMsg.append( ')' )
+        
+        return '%s(%s)%s'%(MSG_COMPLETIONS, ''.join(compMsg), MSG_END)
     
     def getCompletionsMessage(self, completionsList):
         '''
