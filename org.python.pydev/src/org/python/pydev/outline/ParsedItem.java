@@ -88,7 +88,7 @@ class ParsedItem  {
 					&& compareNode.comparators != null
 					&& compareNode.comparators.length == 1
 					&& compareNode.comparators[0] instanceof Str 
-					&& ((Str)compareNode.comparators[0]).s.equals("main"))
+					&& ((Str)compareNode.comparators[0]).s.equals("__main__"))
 					fill.add(new ParsedItem(parent, node));					
 		}
 			return super.visitIf(node);
