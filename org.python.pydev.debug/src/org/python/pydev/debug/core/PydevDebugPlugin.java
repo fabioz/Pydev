@@ -37,11 +37,14 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
 		return getDefault().getWorkbench().getActiveWorkbenchWindow();
 	}
 	
+	public static Status makeStatus(int errorLevel, String message, Throwable e) {
+		return new Status(errorLevel, getPluginID(), errorLevel, message, e);
+	}
 	/**
 	 * @param errorLevel  IStatus.[OK|INFO|WARNING|ERROR]
 	 */
 	public static void log(int errorLevel, String message, Throwable e) {
-		Status s = new Status(errorLevel, getPluginID(), errorLevel, message, e);
+		Status s = makeStatus(errorLevel, message, e);
 		getDefault().getLog().log(s);
 	}
 }

@@ -161,7 +161,7 @@ class NetCommand:
         return self.outgoing
     
     def makeMessage(self, cmd, seq, payload):
-        encoded = urllib.quote(str(payload), '/<>_=" ')
+        encoded = urllib.quote(str(payload), '/<>_=" \t')
         return str(cmd) + '\t' + str(seq) + '\t' + encoded + "\n"
 
 class NetCommandFactory:
@@ -271,9 +271,10 @@ class InternalTerminateThread:
 def findThreadById(thread_id):
     try:
         int_id = int(thread_id)
-        print >>sys.stderr, "enumerating"
+#        print >>sys.stderr, "enumerating"
+# there was a deadlock here when I did not remove the tracing function when thread was dead
         threads = threading.enumerate()
-        print >>sys.stderr, "done enumerating"
+#        print >>sys.stderr, "done enumerating"
         for i in threads:
             if int_id == id(i): return i
         print >>sys.stderr, "could not find thread"
@@ -389,7 +390,7 @@ class PyDB:
     def processNetCommand(self, id, seq, text):
         try:
             cmd = None
-            print >>sys.stderr, "processing command", id
+#            print >>sys.stderr, "processing command", id
             if (id == CMD_VERSION): # response is version number
                 cmd = self.cmdFactory.makeVersionMessage(seq)
             elif (id == CMD_LIST_THREADS): # response is a list of threads
@@ -436,14 +437,14 @@ class PyDB:
         thread.pydev_state = PyDB.STATE_SUSPEND
         thread.stop_reason = stop_reason
 
-    def doWaitSuspend(self, thread):
+    def doWaitSuspend(self, thread, frame, event, arg):
         """ busy waits until the thread state changes to RUN 
         it expects thread's state as attributes of the thread.
         Upon running, processes any outstanding Stepping commands.
         """
 #        print >>sys.stderr, "thread suspended", thread.getName()
      
-        cmd = self.cmdFactory.makeThreadSuspendMessage(id(thread), thread.pydev_frame, thread.stop_reason)
+        cmd = self.cmdFactory.makeThreadSuspendMessage(id(thread), frame, thread.stop_reason)
         self.writer.addCommand(cmd)
         while (thread.pydev_state == PyDB.STATE_SUSPEND):
  #           print "waiting on thread"
@@ -452,19 +453,15 @@ class PyDB:
         try:
             """ process any stepping instructions """
             if (thread.pydev_step_cmd == CMD_STEP_INTO):
-                thread.pydev_step_return = None
-                pass
+                thread.pydev_step_stop = None
             elif (thread.pydev_step_cmd == CMD_STEP_OVER):
-                thread.pydev_step_stop = thread.pydev_frame
+                thread.pydev_step_stop = frame
             elif (thread.pydev_step_cmd == CMD_STEP_RETURN):
-                thread.pydev_step_stop = thread.pydev_frame.f_back
+                thread.pydev_step_stop = frame.f_back
         except AttributeError:
             thread.pydev_step_cmd = None # so we do ont thro
             pass
-        del thread.pydev_frame
-        del thread.pydev_event
-        del thread.pydev_arg
-
+ 
         print >>sys.stderr, "thread resumed", thread.getName()     
         cmd = self.cmdFactory.makeThreadRunMessage(id(thread), thread.pydev_step_cmd)
         self.writer.addCommand(cmd)
@@ -483,11 +480,8 @@ class PyDB:
         try:
             """ if thread has a suspend flag, we suspend with a busy wait """
             if (t.pydev_state == PyDB.STATE_SUSPEND):
-                t.pydev_frame = frame
-                t.pydev_event = event
-                t.pydev_arg = arg
                 wasSuspended = True
-                self.doWaitSuspend(t)
+                self.doWaitSuspend(t, frame, event, arg)
                 return self.trace_dispatch
         except AttributeError:
             t.pydev_state = PyDB.STATE_RUN # assign it to avoid future exceptions
@@ -497,15 +491,15 @@ class PyDB:
             raise
 
         if ( not wasSuspended and event == 'line'):
-            """ step handling """
+            """ step handling. We stop when we hit the right frame"""
             try:
                 if (t.pydev_step_cmd == CMD_STEP_INTO):
                     self.setSuspend(t, CMD_STEP_INTO)
-                    self.doWaitSuspend(t)
+                    self.doWaitSuspend(t, frame, event, arg)
                 elif (t.pydev_step_cmd == CMD_STEP_OVER or t.pydev_step_cmd == CMD_STEP_RETURN):
                     if (t.pydev_step_stop == frame):
                         self.setSuspend(t, t.pydev_step_cmd)
-                        self.doWaitSuspend(t)
+                        self.doWaitSuspend(t, frame, event, arg)
             except:
                 t.pydev_step_cmd = None
         

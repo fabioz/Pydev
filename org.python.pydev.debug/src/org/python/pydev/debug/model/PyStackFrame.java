@@ -7,6 +7,7 @@ package org.python.pydev.debug.model;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
@@ -15,6 +16,7 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
+import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
  * Represents a stack entry.
@@ -36,6 +38,7 @@ public class PyStackFrame implements IStackFrame {
 		this.line = line;
 	}
 
+	
 	public IPath getPath() {
 		return path;
 	}
@@ -63,13 +66,11 @@ public class PyStackFrame implements IStackFrame {
 	}
 
 	public int getCharStart() throws DebugException {
-		// TODO Auto-generated method stub
-		return 0;
+		return -1;
 	}
 
 	public int getCharEnd() throws DebugException {
-		// TODO Auto-generated method stub
-		return 0;
+		return -1;
 	}
 
 	public String getName() throws DebugException {
@@ -165,6 +166,34 @@ public class PyStackFrame implements IStackFrame {
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
 		System.err.println("PyStackFrame Need adapter " + adapter.toString());
 		return null;
+	}
+
+	/**
+	 * HACK
+	 * Here to work around eclipse2 annotation marker removal code.
+	 * This makes sure that old stack markers get removed.
+	 * E3 remove me in Eclipse 3
+	 */
+	public int hashCode() {
+		return 5;
+	}
+	/**
+	 * HACK
+	 * Here to work around eclipse2 annotation marker removal code
+	 * E3 remove me in Eclipse 3
+	 * LaunchView wants to know, 
+	 */
+	public boolean equals(Object obj) {
+		if (obj instanceof PyStackFrame) 
+			try {
+				return path.equals(((PyStackFrame)obj).getPath()) && 
+						(line == ((PyStackFrame)obj).getLineNumber());
+			} catch (DebugException e) {
+				PydevDebugPlugin.log(IStatus.ERROR, "PyStackFrame.equals", null);
+				return false;
+			}
+		else
+			return super.equals(obj);
 	}
 
 }

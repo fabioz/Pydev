@@ -25,12 +25,14 @@ import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.ui.views.properties.IPropertySource;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
  *
  * TODO Comment this class
  * Make sure we fire the right org.eclipse.debug.core.DebugEvents
+ * What  happens with debug events? LaunchViewEventHandlerL::
  */
 public class PyDebugTarget implements IDebugTarget, ILaunchListener {
 
@@ -214,12 +216,14 @@ public class PyDebugTarget implements IDebugTarget, ILaunchListener {
 		if (adapter.equals(ILaunch.class))
 			return launch;
 		else if (adapter.equals(IResource.class)) {
+			// used by Variable ContextManager, and Project:Properties menu item
 			IFile[] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(file);
 			if (files != null && files.length > 0)
 				return files[0];
 			else
 				return null;
-		}
+		} else if (adapter.equals(IPropertySource.class))
+			return launch.getAdapter(adapter);
 		else
 			System.err.println("Need adapter " + adapter.toString());
 		return null;
@@ -323,6 +327,8 @@ public class PyDebugTarget implements IDebugTarget, ILaunchListener {
 			}
 			if (t != null) {
 				t.setSuspended(true, (IStackFrame[])threadNstack[2]);
+				if (reason == DebugEvent.STEP_END)
+					System.out.println("need love");
 				fireEvent(new DebugEvent(t, DebugEvent.SUSPEND, reason));
 			}
 		} catch (DebugException e) {

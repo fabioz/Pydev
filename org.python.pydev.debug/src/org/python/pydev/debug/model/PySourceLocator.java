@@ -30,8 +30,9 @@ public class PySourceLocator implements ISourceLocator, ISourcePresentation {
 			IPath path = ((PyStackFrame)element).getPath();
 			if (path != null) {
 				IEditorPart part = PydevPlugin.getDefault().doOpenEditor(path, false);
-				if (part != null)
+				if (part != null) {
 					return part.getEditorInput();
+				}
 			}
 		}
 		return null;

@@ -6,12 +6,14 @@
 package org.python.pydev.debug.model;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 
 /**
  * Represents python threads.
@@ -162,7 +164,7 @@ public class PyThread implements IThread {
 	}
 
 	public IStackFrame getTopStackFrame() throws DebugException {
-		return stack == null ? stack[0] : null;
+		return stack == null ? null : stack[0];
 	}
 
 	public IBreakpoint[] getBreakpoints() {
@@ -174,8 +176,13 @@ public class PyThread implements IThread {
 		if (adapter.equals(ILaunch.class) ||
 			adapter.equals(IResource.class))
 			return target.getAdapter(adapter);
+		else if (adapter.equals(ITaskListResourceAdapter.class))
+			return null;
+		else {
+			System.err.println("PythonThread Need adapter " + adapter.toString());
+			Platform.getAdapterManager().getAdapter(this, adapter);
+		}
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
-		System.err.println("PythonThread Need adapter " + adapter.toString());
 		return null;
 	}
 
