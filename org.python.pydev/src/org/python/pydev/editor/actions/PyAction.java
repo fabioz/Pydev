@@ -151,10 +151,32 @@ public abstract class PyAction implements IEditorActionDelegate {
      * @return
      * @throws BadLocationException
      */
-    protected int getFirstCharRelativePosition(IDocument doc, int cursorOffset) throws BadLocationException {
+    public static int getFirstCharRelativePosition(IDocument doc, int cursorOffset) throws BadLocationException {
         IRegion region;
 		region = doc.getLineInformationOfOffset(cursorOffset);
-		int offset = region.getOffset();
+		return getFirstCharRelativePosition(doc, region);
+    }
+
+	/**
+     * @param doc
+     * @param cursorOffset
+     * @return
+     * @throws BadLocationException
+     */
+    public static int getFirstCharRelativeLinePosition(IDocument doc, int line) throws BadLocationException {
+        IRegion region;
+		region = doc.getLineInformation(line);
+		return getFirstCharRelativePosition(doc, region);
+    }
+
+    /**
+     * @param doc
+     * @param region
+     * @return
+     * @throws BadLocationException
+     */
+    public static int getFirstCharRelativePosition(IDocument doc, IRegion region) throws BadLocationException {
+        int offset = region.getOffset();
 		String src = doc.get(offset, region.getLength());
 
 		int i = 0;

@@ -10,12 +10,14 @@ import java.util.Iterator;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.ui.IPropertyListener;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.ClassNode;
 import org.python.pydev.editor.model.FunctionNode;
@@ -46,7 +48,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
         
         if (model == null){
             //we have to get the model to do it... so, start a thread and try until get it...
-            //this had to be done because sometime we get here and we still are unable to get the 
+            //this had to be done because sometimes we get here and we still are unable to get the 
             //projection annotation model. (there should be a better way, but this solves it...
             //even if it looks like a hack...)
             new Thread(){
@@ -90,13 +92,19 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
 
 	            //(re) insert annotations.
 	            AbstractNode current = ModelUtils.getNextNode(root);
+	            
+	            ArrayList nodes = new ArrayList();
+	            
 	            while (current != null) {
 	                if (current instanceof FunctionNode
 	                        || current instanceof ClassNode) {
-	                    addFoldingMark(current, model, collapsed);
+	                    nodes.add(current);
 	                }
 	                current = ModelUtils.getNextNode(current);
 	            }
+	            
+	            addMarks(nodes,model, collapsed);
+                
 	            
 	            //remove the annotations that have not been reinserted.
 	            for (Iterator it = collapsed.iterator(); it.hasNext();) {
@@ -110,19 +118,111 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
     }
 
     /**
+     * To add a mark, we have to do the following:
+     * 
+     * Get the current node to add and find the next that is on the same indentation
+     * or on an indentation that is lower than the current (this will mark the
+     * end of the selection).
+     * 
+     * If we don't find that, the end of the selection is the end of the file. 
+     * 
+     * @param nodes
+     * @param collapsed
+     * @param model
+     */
+    private void addMarks(ArrayList nodes, IAnnotationModel model, ArrayList collapsed) {
+        int i=0;
+        
+        IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+        
+        for (Iterator iter = nodes.iterator(); iter.hasNext();++i) {
+            
+            AbstractNode element = (AbstractNode) iter.next();
+            int end = findEnd(element, nodes, i, doc);
+            int start = element.getStart().line;
+            if (end == -1){
+                end = start;
+            }
+            try {
+                addFoldingMark(element, start, end, model, collapsed);
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * @param element
+     */
+    private int getStartColumn(AbstractNode element) {
+        int start = element.getStart().column;
+        if (element instanceof FunctionNode){
+            return start-4; //this is the 'def ' token
+        }else if( element instanceof ClassNode){
+            return start-6; //this is the 'class ' token
+        }else{
+            throw new RuntimeException("Invalid class");
+        }
+        
+    }
+
+    /**
+     * @param element
+     * @param nodes
+     * @param i
+     * @param doc
+     */
+    private int findEnd(AbstractNode element, ArrayList nodes, int m, IDocument doc) {
+        int end = -1;
+
+        int start = getStartColumn(element);
+        
+        //we are interested in getting the next code that is not a comment and that
+        //starts in the same or lower indentation level.
+        int line = element.getStart().line;
+        int endDocLine = doc.getNumberOfLines();
+        try {
+            for(int i=line+1; i<endDocLine; ++i){
+                
+                
+                IRegion region;
+                region = doc.getLineInformation(i);
+                String src = doc.get(region.getOffset(), region.getLength());
+                //we have to ignore comments and whitespaces.
+                String trimmed = src.trim();
+                if(trimmed.length() == 0 || trimmed.startsWith("#")){
+                    continue;
+                }
+                //TODO: check for multiline strings.
+                
+                int position = PyAction.getFirstCharRelativePosition(doc, region);
+                if (position <= start){
+                    return i;
+                }
+            }
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        
+//        for (int j = i+1; j < nodes.size(); j++) {
+//            AbstractNode curr = (AbstractNode) nodes.get(j);
+//            System.out.println("getStartColumn(curr) "+getStartColumn(curr)+" start "+start);
+//            if (getStartColumn(curr) <= start){
+//                end = curr.getEnd().line;
+//                return end;
+//            }
+//        }
+        
+        return end;
+    }
+
+
+    /**
      * @param node
      * @param model
      * @throws BadLocationException
      */
-    private void addFoldingMark(AbstractNode node, IAnnotationModel model, ArrayList collapsed) throws BadLocationException {
-        int start = node.getStart().line;
-        int end = start;
-        int size = node.getChildren().size();
-        if(size > 0){
-            end = ((AbstractNode)node.getChildren().get(size-1)).getScope().getEnd().line+1;
-        }else{
-            throw new BadLocationException("Invalid location");
-        }
+    private void addFoldingMark(AbstractNode node, int start, int end, IAnnotationModel model, ArrayList collapsed) throws BadLocationException {
 
         try {
             IDocument document = editor.getDocumentProvider().getDocument(
