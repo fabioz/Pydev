@@ -6,6 +6,9 @@
 package org.python.pydev.debug.codecoverage;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Fabio Zadrozny
@@ -76,6 +79,27 @@ public class FileNode {
             str += " ";
         }
         return str;
+    }
+
+    /**
+     * 
+     */
+    public Iterator notExecutedIterator() {
+        List l = new ArrayList();
+        
+        String[] toks = notExecuted.replaceAll(" ", "").split(",");
+        for (int i = 0; i < toks.length; i++) {
+            if(toks[i].indexOf("-") == -1){
+                l.add(new Integer(toks[i]));
+            }else{
+                String[] begEnd = toks[i].split("-");
+                for (int j = Integer.parseInt(begEnd[0]) ; j <= Integer.parseInt(begEnd[1]); j++){
+                    l.add(new Integer(j));
+                }
+            }
+        }
+        
+        return l.iterator();
     }
 
 }

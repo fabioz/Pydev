@@ -1,33 +1,41 @@
 package org.python.pydev.debug.codecoverage;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.Iterator;
 
+import org.eclipse.core.internal.resources.MarkerAttributeMap;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IPropertyListener;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.part.ViewPart;
-import org.python.pydev.editor.refactoring.PyRefactoring;
+import org.eclipse.ui.texteditor.MarkerUtilities;
+import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.actions.PyOpenAction;
+import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.editor.model.Location;
 import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
 import org.python.pydev.tree.FileTreePyFilesProvider;
@@ -47,27 +55,213 @@ import org.python.pydev.tree.FileTreePyFilesProvider;
  * <p>
  */
 
-public class PyCodeCoverageView extends ViewPart implements IPropertyListener, IStructuredContentProvider {
+public class PyCodeCoverageView extends ViewPart {
+    private static final String NOT_EXECUTED_MARKER = "org.python.pydev.debug.notexecuted";
 
-    private TreeViewer viewer;
+    //layout stuff
+    private Composite rComposite;
 
-    private Action doubleClickAction;
+    //actions
+    /**
+     * double click the tree
+     */
+    private DoubleClickTreeAction doubleClickAction = new DoubleClickTreeAction();
 
-    private Action chooseAction;
+    /**
+     * changed selected element
+     */
+    private SelectionChangedTreeAction selectionChangedAction = new SelectionChangedTreeAction();
 
-    protected Action clearAction;
+    /**
+     * choose new dir
+     */
+    private Action chooseAction = new ChooseAction();
 
+    /**
+     * clear the results (and erase .coverage file)
+     */
+    protected Action clearAction = new ClearAction();;
+
+    /**
+     * get the new results from the .coverage file
+     */
+    protected Action refreshAction = new RefreshAction();;
+
+    //buttons
     private Button clearButton;
 
-    private List elements = new ArrayList();
+    private Button refreshButton;
 
     private Button chooseButton;
 
-    private Composite rComposite;
-
+    //write the results here
     private Text text;
 
-    protected String currentDir;
+    //tree som that user can browse results.
+    private TreeViewer viewer;
+
+    /**
+     *  
+     */
+    private File lastChosenFile;
+
+    private SashForm s;
+
+    //Actions ------------------------------
+    /**
+     * In this action we have to go and refresh all the info based on the chosen
+     * dir.
+     * 
+     * @author Fabio Zadrozny
+     */
+    private final class RefreshAction extends Action {
+        public void run() {
+            PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenFile);
+            viewer.setInput(lastChosenFile); //new files may have been added.
+            text.setText("Refreshed info.");
+        }
+    }
+
+    /**
+     * 
+     * @author Fabio Zadrozny
+     */
+    private final class ClearAction extends Action {
+        public void run() {
+
+            PyCoverage.getPyCoverage().clearInfo();
+
+            MessageDialog.openInformation(getSite().getShell(), "Cleared",
+                    "All the coverage data has been cleared!");
+
+            text.setText("Data cleared (NOT REFRESHED).");
+        }
+    }
+
+    /**
+     * 
+     * @author Fabio Zadrozny
+     */
+    private final class SelectionChangedTreeAction extends Action {
+        public void run() {
+            run((IStructuredSelection) viewer.getSelection());
+        }
+
+        /**
+         * @param event
+         */
+        public void runWithEvent(SelectionChangedEvent event) {
+            run((IStructuredSelection) event.getSelection());
+        }
+
+        public void run(IStructuredSelection selection) {
+            Object obj = selection.getFirstElement();
+
+            if (obj == null)
+                return;
+
+            File realFile = new File(obj.toString());
+            if (realFile.exists()) {
+                text.setText(PyCoverage.getPyCoverage().cache.getStatistics(realFile));
+            }
+        }
+
+    }
+
+    /**
+     * 
+     * @author Fabio Zadrozny
+     */
+    private final class DoubleClickTreeAction extends Action {
+
+        public void run() {
+            run(viewer.getSelection());
+        }
+
+        /**
+         * @param event
+         */
+        public void runWithEvent(DoubleClickEvent event) {
+            run(event.getSelection());
+        }
+
+        public void run(ISelection selection) {
+            try {
+                Object obj = ((IStructuredSelection) selection).getFirstElement();
+
+                File realFile = new File(obj.toString());
+                if (realFile.exists() && !realFile.isDirectory()) {
+                    System.out.println("opening file:" + obj.toString());
+                    ItemPointer p = new ItemPointer(realFile, new Location(-1, -1), null);
+                    PyOpenAction act = new PyOpenAction();
+                    act.run(p);
+                    
+                    if(act.editor instanceof PyEdit){
+                        PyEdit e = (PyEdit) act.editor;
+                        IEditorInput input = e.getEditorInput();
+                        IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
+                        if (original == null)
+                            return;
+                        IDocument document = e.getDocumentProvider().getDocument(e.getEditorInput());
+
+                        String type = NOT_EXECUTED_MARKER;
+                        type = IMarker.PROBLEM;
+                        original.deleteMarkers(type, false, 1);
+                        
+                        
+                        
+                        String message = "Not Executed";
+
+                        FileNode cache = (FileNode) PyCoverage.getPyCoverage().cache.getFile(realFile);
+                        for(Iterator it = cache.notExecutedIterator();it.hasNext();){
+                            MarkerAttributeMap map = new MarkerAttributeMap();
+                            int errorLine = ((Integer)it.next()).intValue()-1;
+//                            System.out.println("adding at:"+errorLine);
+
+                            IRegion region = document.getLineInformation(errorLine);
+                            int errorEnd = region.getOffset();
+                            int errorStart = region.getOffset()+region.getLength();
+
+                            map.put(IMarker.MESSAGE, message);
+                            map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
+                            map.put(IMarker.LINE_NUMBER, new Integer(errorLine));
+                            map.put(IMarker.CHAR_START, new Integer(errorStart));
+                            map.put(IMarker.CHAR_END, new Integer(errorEnd));
+                            map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
+                            map.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_HIGH));
+                            
+                            MarkerUtilities.createMarker(original, map, type);
+                        }
+
+                    }
+                }
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 
+     * @author Fabio Zadrozny
+     */
+    private final class ChooseAction extends Action {
+        public void run() {
+            DirectoryDialog dialog = new DirectoryDialog(getSite().getShell());
+            if (lastChosenFile != null && lastChosenFile.exists()) {
+                dialog.setFilterPath(lastChosenFile.getParent());
+            }
+            String string = dialog.open();
+            if (string != null) {
+                File file = new File(string);
+                lastChosenFile = file;
+                refreshAction.run();
+            }
+        }
+    }
+
+    // Class -------------------------------------------------------------------
 
     /**
      * The constructor.
@@ -85,6 +279,7 @@ public class PyCodeCoverageView extends ViewPart implements IPropertyListener, I
      * it.
      */
     public void createPartControl(Composite parent) {
+
         GridLayout layout = new GridLayout();
         layout.numColumns = 2;
         layout.verticalSpacing = 2;
@@ -92,13 +287,23 @@ public class PyCodeCoverageView extends ViewPart implements IPropertyListener, I
         layout.marginHeight = 2;
         parent.setLayout(layout);
 
+        s = new SashForm(parent, SWT.HORIZONTAL);
+        GridData layoutData = new GridData();
+        layoutData.grabExcessHorizontalSpace = true;
+        layoutData.grabExcessVerticalSpace = true;
+        layoutData.horizontalAlignment = GridData.FILL;
+        layoutData.verticalAlignment = GridData.FILL;
+        s.setLayoutData(layoutData);
+
+        parent = s;
+
         rComposite = new Composite(parent, SWT.MULTI);
         layout = new GridLayout();
         layout.numColumns = 1;
         layout.verticalSpacing = 2;
         layout.marginWidth = 0;
         layout.marginHeight = 2;
-        GridData layoutData = new GridData();
+        layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.grabExcessVerticalSpace = true;
         layoutData.horizontalAlignment = GridData.FILL;
@@ -107,28 +312,22 @@ public class PyCodeCoverageView extends ViewPart implements IPropertyListener, I
         rComposite.setLayout(layout);
 
         text = new Text(parent, SWT.MULTI);
+        try {
+            text.setFont(new Font(null, "Courier new", 10, 0));
+        } catch (Exception e) {
+            //ok, might mot be available.
+        }
         layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.grabExcessVerticalSpace = true;
         layoutData.horizontalAlignment = GridData.FILL;
         layoutData.verticalAlignment = GridData.FILL;
         text.setLayoutData(layoutData);
-        text.setEditable(false);
 
         parent = rComposite;
 
         //choose button
         chooseButton = new Button(parent, SWT.PUSH);
-        chooseAction = new Action() {
-            public void run() {
-                DirectoryDialog dialog = new DirectoryDialog(getSite().getShell());
-                String string = dialog.open();
-                if (string != null) {
-                    text.setText("Chosen dir:" + string);
-                    notifyDirChanged(string);
-                }
-            }
-        };
         createButton(parent, chooseButton, "Choose dir!", chooseAction);
         //end choose button
 
@@ -137,20 +336,6 @@ public class PyCodeCoverageView extends ViewPart implements IPropertyListener, I
         viewer.setLabelProvider(new FileTreeLabelProvider());
         viewer.addFilter(new AllowValidPathsFilter());
 
-        doubleClickAction = new Action() {
-            public void run() {
-                ISelection selection = viewer.getSelection();
-                Object obj = ((IStructuredSelection) selection).getFirstElement();
-
-                File realFile = new File(obj.toString());
-                if (realFile.exists()) {
-                    System.out.println("opening file:" + obj.toString());
-                    //                    ItemPointer p = new ItemPointer(realFile, new
-                    // Location(-1, -1), null);
-                    //                    new PyOpenAction().run(p);
-                }
-            }
-        };
         hookViewerActions();
 
         layoutData = new GridData();
@@ -162,18 +347,12 @@ public class PyCodeCoverageView extends ViewPart implements IPropertyListener, I
 
         //clear results button
         clearButton = new Button(parent, SWT.PUSH);
-        clearAction = new Action() {
-            public void run() {
-
-                PyCoverage.getPyCoverage().clearInfo();
-
-                MessageDialog.openInformation(getSite().getShell(), "Cleared",
-                        "All the coverage data has been cleared!");
-
-                text.setText("");
-            }
-        };
         createButton(parent, clearButton, "Clear coverage information!", clearAction);
+        //end choose button
+
+        //refresh button
+        refreshButton = new Button(parent, SWT.PUSH);
+        createButton(parent, refreshButton, "Refresh coverage information!", refreshAction);
         //end choose button
 
         this.refresh();
@@ -181,16 +360,8 @@ public class PyCodeCoverageView extends ViewPart implements IPropertyListener, I
     }
 
     /**
-     * @param string
-     */
-    protected void notifyDirChanged(String newDir) {
-        File file = new File(newDir);
-        PyCoverage.getPyCoverage().refreshCoverageInfo(file);
-        viewer.setInput(file);
-
-    }
-
-    /**
+     * Create button with hooked action.
+     * 
      * @param parent
      * @param button
      * @param string
@@ -215,21 +386,21 @@ public class PyCodeCoverageView extends ViewPart implements IPropertyListener, I
         button.setLayoutData(layoutData);
     }
 
+    /**
+     * 
+     * Add the double click and selection changed action
+     */
     private void hookViewerActions() {
         viewer.addDoubleClickListener(new IDoubleClickListener() {
             public void doubleClick(DoubleClickEvent event) {
-                doubleClickAction.run();
+                doubleClickAction.runWithEvent(event);
             }
         });
 
         viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
             public void selectionChanged(SelectionChangedEvent event) {
-                IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-
-                Object selected_file = selection.getFirstElement();
-                System.out.println("Number of items selected is " + selection.size());
-                System.out.println("selected_file = " + selected_file);
+                selectionChangedAction.runWithEvent(event);
             }
 
         });
@@ -240,31 +411,6 @@ public class PyCodeCoverageView extends ViewPart implements IPropertyListener, I
      */
     public void setFocus() {
         viewer.getControl().setFocus();
-    }
-
-    public void propertyChanged(Object source, int propId) {
-        if (source == null) {
-            return;
-        }
-
-        Object[] sources = (Object[]) source;
-
-        if (sources[0] == null || sources[1] == null) {
-            return;
-        }
-
-        if (sources[0] == PyRefactoring.getPyRefactoring() && propId == PyRefactoring.REFACTOR_RESULT) {
-
-            elements.clear();
-            elements.addAll((Collection) sources[1]);
-        }
-    }
-
-    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-    }
-
-    public Object[] getElements(Object parent) {
-        return elements.toArray();
     }
 
 }

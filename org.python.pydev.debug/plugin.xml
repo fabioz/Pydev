@@ -109,7 +109,8 @@
 				enablesFor="1"
 				id="org.python.pydev.debug.CoveragePythonAction">
 			</action>
-   <action
+<!-- Disabled until it works better...
+	   <action
          enablesFor="1"
          label="pyUnit Test..."
          tooltip="Test a python script with pyUnit"
@@ -117,6 +118,29 @@
          class="org.python.pydev.debug.ui.actions.PythonTestActionDelegate"
          menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
          id="org.python.pydev.debug.TestPythonAction"/>
+-->
+		</objectContribution>
+
+		<objectContribution
+        adaptable="true"
+        objectClass="org.eclipse.core.resources.IFolder"
+        nameFilter="*"
+        id="org.python.pydev.debug.RunPythonFolder">
+			<menu
+				label="Python (many)"
+				path="additions2"
+				id="org.python.pydev.debug.WorkspaceMenu">
+				<separator name="group2"/>
+			</menu>
+			<action
+				label="Coverage many..."
+				icon="icons/python.gif"
+				tooltip="Make code coverage for many python files at once."
+				class="org.python.pydev.debug.ui.actions.PythonRunSubsetActionDelegate"
+				menubarPath="org.python.pydev.debug.WorkspaceMenu/group2"
+				enablesFor="1"
+				id="org.python.pydev.debug.PythonRunSubsetActionDelegate">
+			</action>
 		</objectContribution>
 	</extension>
 <!--- launch groups for python -->
@@ -210,6 +234,7 @@
 	<super type="org.eclipse.debug.core.lineBreakpointMarker"/>
 	<persistent value="true"/>
 	<attribute name="org.eclipse.cdt.debug.core.condition"/>
+ <super type="org.python.pydev.debug.notexecuted"/>
 </extension>
 <extension 
 	point="org.eclipse.debug.core.breakpoints">
@@ -223,6 +248,10 @@
 	<imageprovider id="pythonBreakPointImage"
 		markertype="org.python.pydev.debug.pyStopBreakpointMarker"
 		icon="icons/breakmarker.gif"/>
+ <imageprovider
+       markertype="org.python.pydev.debug.notexecuted"
+       icon="icons/reddot.gif"
+       id="pyCodeCoverageImageProvider"/>
 </extension>
 <extension point = "org.eclipse.debug.ui.debugModelPresentations"> 
 	<debugModelPresentation

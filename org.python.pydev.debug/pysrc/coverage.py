@@ -29,6 +29,10 @@ coverage.py -x MODULE.py [ARG1 ARG2 ...]
 coverage.py -e
     Erase collected coverage data.
 
+coverage.py -waitfor
+    it's the same as -r -m, but...
+    goes to a raw_input() and waits for the files that should be executed...
+
 coverage.py -r [-m] FILE1 FILE2 ...
     Report on the statement coverage for the given files.  With the -m
     option, show line numbers of the statements that weren't executed.
@@ -133,7 +137,7 @@ class coverage:
             '-i': 'ignore-errors',
             '-m': 'show-missing',
             '-r': 'report',
-            '-x': 'execute',
+            '-x': 'execute'
             }
         short_opts = string.join(map(lambda o: o[1:], optmap.keys()), '')
         long_opts = optmap.values()
@@ -533,6 +537,20 @@ except ImportError:
 
 # Command-line interface.
 if __name__ == '__main__':
+#    it's the same as -r -m, but...
+#    goes to a raw_input() and waits for the files that should be executed...
+
+    if len(sys.argv) == 2:
+        if '-waitfor' == sys.argv[1]:
+            sys.argv.remove('-waitfor')
+            sys.argv.append('-r')
+            sys.argv.append('-m')
+            s = raw_input()
+            s = s.replace('\r', '')
+            s = s.replace('\n', '')
+            files = s.split(' ')
+            sys.argv += files
+            
     the_coverage.command_line()
 
 
@@ -610,4 +628,4 @@ if __name__ == '__main__':
 #
 #
 #
-# $Id: coverage.py,v 1.2 2004-10-13 19:49:37 fabioz Exp $
+# $Id: coverage.py,v 1.3 2004-10-15 19:53:27 fabioz Exp $

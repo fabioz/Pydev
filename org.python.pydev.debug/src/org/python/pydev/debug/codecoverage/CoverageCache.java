@@ -44,16 +44,41 @@ public class CoverageCache {
      * @param parent
      */
     public void addFolder(Object node, Object parent) {
-        FolderNode parentNode = (FolderNode) folders.get(parent);
+        FolderNode parentNode = (FolderNode) getFolder(parent);
         
         FolderNode newNode = new FolderNode();
         newNode.node = node;
         if(parentNode == null){
-            throw new RuntimeException("The folder being added didn't have its parent found.");
+            throw new RuntimeException("The folder being added:"+node.toString()+" didn't have its parent found.");
         }
         
         parentNode.subFolders.put(node, newNode);
         folders.put(node, newNode);
+    }
+
+    public Object getFolder(Object obj){
+        return getIt(obj,folders);
+    }
+    
+    public Object getFile(Object obj){
+        return getIt(obj,files);
+    }
+    
+    /**
+     * @param obj
+     * @return
+     */
+    private Object getIt(Object obj, Map m) {
+        Object object = m.get(obj);
+        if (object == null){
+            for (Iterator iter = m.keySet().iterator(); iter.hasNext();) {
+                Object element = (Object) iter.next();
+                if(element.equals(obj)){
+                    return m.get(element);
+                }
+            }
+        }
+        return object;
     }
 
     /**
@@ -65,7 +90,7 @@ public class CoverageCache {
      * @param notExecuted
      */
     public void addFile(Object node, Object parent, int stmts, int exec, String notExecuted) {
-        FolderNode folderNode = (FolderNode) folders.get(parent);
+        FolderNode folderNode = (FolderNode) getFolder(parent);
         
         if (folderNode == null){
             throw new RuntimeException("A file node MUST have a related folder node.");
@@ -82,9 +107,9 @@ public class CoverageCache {
     }
 
     public List getFiles(Object node){
-        FolderNode folderNode = (FolderNode) folders.get(node);
+        FolderNode folderNode = (FolderNode) getFolder(node);
         if (folderNode == null){
-            FileNode fileNode = (FileNode) files.get(node);
+            FileNode fileNode = (FileNode) getFile(node);
             if (fileNode == null){
                 throw new RuntimeException("The node has not been found: "+node.toString());
             }
@@ -155,6 +180,15 @@ public class CoverageCache {
         buffer.append(FileNode.toString("TOTAL",totalStmts, totalExecuted, "")+"\n");
         
         return buffer.toString();
+    }
+
+    /**
+     * 
+     */
+    public void clear() {
+        folders.clear();
+        files.clear();
+        
     }
     
 

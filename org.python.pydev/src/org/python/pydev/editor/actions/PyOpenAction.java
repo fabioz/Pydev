@@ -29,7 +29,10 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyOpenAction extends Action {
 		
-	public PyOpenAction() {
+	public IEditorPart editor;
+
+
+    public PyOpenAction() {
 	}
 		
 	private void showInEditor(
@@ -52,7 +55,7 @@ public class PyOpenAction extends Action {
 	
 
 	public void run(ItemPointer p) {
-		IEditorPart editor = null;
+		editor = null;
 		if (p.file instanceof IFile)
 			editor = PydevPlugin.doOpenEditor(((IFile)p.file).getFullPath(), true);
 		else if (p.file instanceof IPath) {
