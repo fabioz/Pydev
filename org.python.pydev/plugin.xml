@@ -1,45 +1,148 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin
-   id="org.python.pydev"
-   name="Pydev"
-   version="0.3.0"
-   provider-name="AleksTotic"
-   class="org.python.pydev.plugin.PydevPlugin">
+	id="org.python.pydev"
+	name="Pydev - Python Development Environment"
+	version="0.3.0"
+	provider-name="AleksTotic"
+	class="org.python.pydev.plugin.PydevPlugin">
 
-   <runtime>
-      <library name="pydev.jar"/>
-   </runtime>
-   <requires>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.eclipse.ui.workbench.texteditor"/>
-      <import plugin="org.eclipse.jface.text"/>
-   </requires>
+	<runtime>
+		<library name="pydev.jar"/>
+	</runtime>
+	<requires>
+		<import plugin="org.eclipse.core.resources"/>
+		<import plugin="org.eclipse.core.runtime"/>
+		<import plugin="org.eclipse.ui"/>
+		<import plugin="org.eclipse.ui.editors"/>
+		<import plugin="org.eclipse.ui.views"/>
+		<import plugin="org.eclipse.ui.workbench.texteditor"/>
+		<import plugin="org.eclipse.jface.text"/>
+	</requires>
 
 
-<!-- editor -->
-   <extension
-         point="org.eclipse.ui.editors">
-      <editor
-            name="Python Editor"
-            icon="icons/sample.gif"
-            extensions="py"
-            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
-            class="org.python.pydev.editor.PyEdit"
-            id="org.python.pydev.editor.PyEdit">
-      </editor>
-   </extension>
-<!-- preference page -->
-   <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            name="Pydev"
-            class="org.python.pydev.plugin.PydevPrefs"
-            id="org.python.pydev.prefs">
-      </page>
-   </extension>
+<!-- Python editor -->
+	<extension point="org.eclipse.ui.editors">
+		<editor
+			name="Python Editor"
+			icon="icons/sample.gif"
+			extensions="py"
+			contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+			class="org.python.pydev.editor.PyEdit"
+			id="org.python.pydev.editor.PythonEditor">
+		</editor>
+	</extension>
+
+<!-- Preference page -->
+	<extension point="org.eclipse.ui.preferencePages">
+		<page
+			name="Pydev"
+			class="org.python.pydev.plugin.PydevPrefs"
+			id="org.python.pydev.prefs">
+		</page>
+	</extension>
+
+<!-- Editor menus -->
+	<extension point="org.eclipse.ui.editorActions">
+		<editorContribution 
+			id="org.python.pydev.editor.editorContribution" 
+			targetID="org.python.pydev.editor.PythonEditor">
+			<menu id="org.python.pydev.editor.actions.sourceMenu"
+				label="Source"
+				path="edit">
+					<separator name="editGroup"/>
+					<separator name="addGroup"/>
+			</menu>
+			<action id="org.python.pydev.editor.actions.uncomment"
+				label="Uncomment"
+				menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
+				class="org.python.pydev.editor.actions.PyUncomment"
+				definitionId="org.python.pydev.editor.actions.uncomment"
+				>
+			</action>
+			<action id="org.python.pydev.editor.actions.comment"
+				label="Comment"
+				menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
+				class="org.python.pydev.editor.actions.PyComment"
+				definitionId="org.python.pydev.editor.actions.comment"
+				>
+			</action>
+			<action id="org.python.pydev.editor.actions.addBlockComment"
+				label="Add comment block"
+				menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+				class="org.python.pydev.editor.actions.PyAddBlockComment"
+				definitionId="org.python.pydev.editor.actions.addBlockComment"
+				>
+			</action>
+		</editorContribution>
+	</extension>
+
+<!-- Editor popup menus-->
+<!-- NOTE: EditorContext part of the targetID was deduced, that is just what Eclipse expects -->
+	<extension point="org.eclipse.ui.popupMenus">
+		<viewerContribution id="org.python.pydev.editor.popup"
+			targetID="org.python.pydev.editor.PythonEditor.EditorContext">
+			<menu id="org.python.pydev.editor.actions.editorPopup"
+				label="Source"
+				>
+					<separator name="editGroup"/>
+					<separator name="addGroup"/>
+			</menu>
+			<action id="org.python.pydev.editor.actions.uncomment"
+				label="Uncomment"
+				menubarPath="org.python.pydev.editor.actions.editorPopup/editGroup"
+				class="org.python.pydev.editor.actions.PyUncomment"
+				>
+			</action>
+			<action id="org.python.pydev.editor.actions.comment"
+				label="Comment"
+				menubarPath="org.python.pydev.editor.actions.editorPopup/editGroup"
+				class="org.python.pydev.editor.actions.PyComment"
+				>
+			</action>
+			<action id="org.python.pydev.editor.actions.addBlockComment"
+				label="Add comment block"
+				menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
+				class="org.python.pydev.editor.actions.PyAddBlockComment"
+				>
+			</action>
+		</viewerContribution>			
+	</extension>
+
+<!-- Commands -->
+<!-- associates commands with keyboard shortcuts -->
+	<extension point="org.eclipse.ui.commands">
+		<category
+			name="Pydev editor commands"
+			description="Pydev editor category"
+			id="org.python.pydev.ui.category.source">
+		</category>
+		<scope
+			name="Pydev editor scope"
+			parent="org.eclipse.ui.textEditorScope"
+			description="Pydev commands"
+			id="org.python.pydev.ui.editor.scope">
+		</scope>
+		<keyBinding
+			string="Ctrl+/"
+			scope="org.python.pydev.ui.editor.scope"
+			command="org.python.pydev.editor.actions.comment"
+			configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+		</keyBinding>
+		<keyBinding
+			string="Ctrl+\"
+			scope="org.python.pydev.ui.editor.scope"
+			command="org.python.pydev.editor.actions.uncomment"
+			configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+		</keyBinding>
+	</extension>
+
+<!-- file type extensions for the team (CVS) -->
+	<extension point="org.eclipse.team.core.fileTypes">
+		<fileTypes type="text" extension="py"/>
+	</extension>
+	
+	<extension point="org.eclipse.team.core.ignore">
+		<ignore enabled="true" pattern="*.pyc"/>
+	</extension>
 
 </plugin>

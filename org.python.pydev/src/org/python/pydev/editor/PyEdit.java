@@ -163,6 +163,11 @@ public class PyEdit extends TextEditor implements IParserListener {
 		super.dispose();
 	}
 
+
+	protected void initializeKeyBindingScopes() {
+		setKeyBindingScopes(new String[] { "org.python.pydev.ui.editor.scope" });  //$NON-NLS-1$
+	}
+
 	public PyParser getParser() {
 		return parser;
 	}
@@ -271,6 +276,8 @@ public class PyEdit extends TextEditor implements IParserListener {
 			e2.printStackTrace();
 		}
 	}
+
+
 
 }
 
