@@ -49,7 +49,7 @@ public class PythonRunner {
 		subMonitor.subTask("Constructing command_line...");
 		String[] cmdLine = config.getCommandLine();
 
-		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory);	
+		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory, config.envp);	
 		if (p == null)
 			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,"Could not execute python process. Was it cancelled?", null));
 		
@@ -100,7 +100,7 @@ public class PythonRunner {
 		String[] cmdLine = config.getCommandLine();
 		
 		subMonitor.subTask("Exec...");		
-		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory);	
+		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory, config.envp);	
 		if (p == null)
 			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not execute python process. Was it cancelled?", null));
 
