@@ -8,6 +8,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 /**
@@ -33,7 +34,7 @@ public class PydevPlugin extends AbstractUIPlugin
 	public void startup() throws CoreException {
 		super.startup();
 		try {
-			resourceBundle= ResourceBundle.getBundle("org.totic.pydev.PydevPluginResources");
+			resourceBundle= ResourceBundle.getBundle("org.python.pydev.PydevPluginResources");
 		} catch (MissingResourceException x) {
 			resourceBundle = null;
 		}
@@ -50,7 +51,10 @@ public class PydevPlugin extends AbstractUIPlugin
 	public static PydevPlugin getDefault() {
 		return plugin;
 	}
-
+	
+	public static String getPluginID() {
+		return getDefault().getDescriptor().getUniqueIdentifier();
+	}
 
 	/**
 	 * Returns the workspace instance.
@@ -86,6 +90,13 @@ public class PydevPlugin extends AbstractUIPlugin
 //		 + event.getOldValue()
 //		 + "\n\tnew setting: "
 //		 + event.getNewValue());
+	}
+	/**
+	 * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
+	 */
+	public static void log(int errorLevel, String message, Throwable e) {
+		Status s = new Status(errorLevel, getPluginID(), errorLevel, message, e);
+		getDefault().getLog().log(s);
 	}
 	
 }
