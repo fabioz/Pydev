@@ -16,7 +16,7 @@
 module manipulation utilities
 """
 
-__revision__ = "$Id: modutils.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
+__revision__ = "$Id: modutils.py,v 1.3 2004-10-28 16:01:19 fabioz Exp $"
 
 from __future__ import nested_scopes
 import os
@@ -131,6 +131,12 @@ def get_module_part(dotted_name, context_file=None):
     # os.path trick
     if dotted_name.startswith('os.path'):
         return 'os.path'
+
+    if dotted_name == 'coilib.unittest':
+            return 'coilib.unittest'
+            
+
+
     parts = dotted_name.split('.')
     path = sys.path
     if context_file is not None:
@@ -150,6 +156,7 @@ def get_module_part(dotted_name, context_file=None):
         to_pop += 1
         try:
             mp_file, mp_filename, mp_desc = find_module(name, module.__path__)
+#            import pdb;pdb.set_trace()
             module = load_module(name, mp_file, mp_filename, mp_desc)
         except ImportError, ex:
             break

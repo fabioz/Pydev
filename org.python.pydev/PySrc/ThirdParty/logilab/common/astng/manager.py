@@ -16,7 +16,7 @@
 """
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: manager.py,v 1.2 2004-10-26 14:18:36 fabioz Exp $"
+__revision__ = "$Id: manager.py,v 1.3 2004-10-28 16:01:19 fabioz Exp $"
 
 import sys
 import os
@@ -126,17 +126,28 @@ class FileBasedASTNGManager(AbstractASTNGManager):
     
     def astng_from_module_name(self, modname):
         """given a module name, return the astng object"""
+        print '\n\n*********-------------- modname %s\n\n'% modname
         try:
             filepath = file_from_modpath(modname.split('.'))
         except ImportError:
+            import sys;exc_info = sys.exc_info()
+            import traceback;traceback.print_exception(exc_info[0], exc_info[1], exc_info[2])
+            
             return self.astng_from_module(load_module_from_name(modname), modname)
-        return self.astng_from_file(filepath, modname)
+        
+        if filepath.endswith("py") or filepath.endswith("pyc"):
+            return self.astng_from_file(filepath, modname)
+        else:
+            mod = load_module_from_name(modname)
+            print '###############------------ mod = %s modname = %s\n\n' % (mod,modname)
+            return self.astng_from_module(mod, modname)
+                         
                                  
     def astng_from_module(self, module, modname=None):
         """given an imported module, return the astng object"""
         try:
             return self.astng_from_file(module.__file__, modname or module.__name__)
-        except AttributeError:
+        except (ASTNGBuildingException , AttributeError ):
             # builtin modules don't have __file__ attribute
             try:
                 return self._cache[modname]
