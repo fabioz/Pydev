@@ -112,6 +112,13 @@
                id="org.python.pydev.editor.actions.firstChar">
          </action>
          <action
+               definitionId="org.python.pydev.editor.actions.pybackspace"
+               label="Python Backspace (considers indentation)"
+               class="org.python.pydev.editor.actions.PyBackspace"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
+               id="org.python.pydev.editor.actions.pybackspace">
+         </action>
+         <action
                definitionId="org.python.pydev.editor.actions.convertSpaceToTab"
                label="Convert space-tabs to tabs"
                class="org.python.pydev.editor.actions.PyConvertSpaceToTab"
@@ -274,7 +281,7 @@
             description="Pydev editor category"
             id="org.python.pydev.ui.category.source">
       </category>
-<!-- command: next method / class-->
+<!-- command: goto first char-->
       <command
             name="First char"
             description="Goes to the first non space char or first char of the line depending on the cursor position."
@@ -285,6 +292,19 @@
             string="Home"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.firstChar"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: backspace considering indentation-->
+      <command
+            name="Python Backspace (with indentation)"
+            description="Backspace considering indentation for Python."
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pybackspace">
+      </command>
+      <keyBinding
+            string="Backspace"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.pybackspace"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
 <!-- command: next method / class-->
