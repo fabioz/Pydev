@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,6 +18,8 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class CompiledModule extends AbstractModule{
 
+    private HashMap cache = new HashMap();
+    
     /**
      * These are the tokens the compiled module has.
      */
@@ -90,8 +93,38 @@ public class CompiledModule extends AbstractModule{
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(String token) {
-        throw new RuntimeException("TODO: finish them!");
+    public IToken[] getGlobalTokens(String token, ASTManager manager) {
+        Object v = cache.get(token);
+        if(v != null){
+            return (IToken[]) v;
+        }
+        
+        IToken[] toks = new IToken[0];;
+        for (int i = 0; i < tokens.length; i++) {
+            if(tokens[i].getRepresentation().equals(token)){
+
+                try {
+                    PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
+                    List completions = shell.getImportCompletions(name+"."+token);
+                    
+                    ArrayList array = new ArrayList();
+                    
+                    for (Iterator iter = completions.iterator(); iter.hasNext();) {
+                        String[] element = (String[]) iter.next();
+                        IToken t = new CompiledToken(element[0], element[1], name, -1);
+                        array.add(t);
+                        
+                    }
+                    toks = (CompiledToken[]) array.toArray(new CompiledToken[0]);
+                    cache.put(token, toks);
+                    break;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    PydevPlugin.log(e);
+                }
+            }
+        }
+        return toks;
     }
 
 }

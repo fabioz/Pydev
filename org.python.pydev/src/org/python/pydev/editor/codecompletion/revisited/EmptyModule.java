@@ -53,7 +53,7 @@ public class EmptyModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(String token) {
+    public IToken[] getGlobalTokens(String token, ASTManager manager) {
         throw new RuntimeException("Not intended to be called");
     }
 

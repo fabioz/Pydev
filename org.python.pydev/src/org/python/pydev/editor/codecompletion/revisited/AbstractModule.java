@@ -47,9 +47,10 @@ public abstract class AbstractModule implements Serializable{
      * for the class (methods and attributes).
      * 
      * @param token
+     * @param manager
      * @return
      */
-    public abstract IToken[] getGlobalTokens(String token);
+    public abstract IToken[] getGlobalTokens(String token, ASTManager manager);
     
     /**
      * 

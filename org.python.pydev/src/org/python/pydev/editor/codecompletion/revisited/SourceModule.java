@@ -6,8 +6,13 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.ClassDef;
+import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
 
 /**
@@ -105,16 +110,31 @@ public class SourceModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(String token) {
+    public IToken[] getGlobalTokens(String token, ASTManager manager) {
         IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
         if(t instanceof SourceToken[]){
 	        SourceToken[] tokens = (SourceToken[]) t;
 	        for (int i = 0; i < tokens.length; i++) {
 	            if(tokens[i].getRepresentation().equals(token)){
-	                ast = tokens[i].getAst();
+	                SimpleNode a = tokens[i].getAst();
 	                try {
+	                    
 	                    //TODO: COMPLETION: get the completions for the whole hierarchy if this is a class!!
-	                    return GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name);
+	                    List modToks = new ArrayList(Arrays.asList(GlobalModelVisitor.getTokens(a, GlobalModelVisitor.INNER_DEFS, name)));
+	                    
+	                    if( a instanceof ClassDef){
+	                        ClassDef c = (ClassDef) a;
+	                        for (int j = 0; j < c.bases.length; j++) {
+	                            if(c.bases[j] instanceof Name){
+	                                Name n = (Name) c.bases[j];
+	                                String base = n.id;
+	                                modToks.addAll(Arrays.asList(manager.getCompletionsForModule(base, "", this)));
+	                            }
+                            }
+	                        
+	                    }
+	                    
+	                    return (IToken[]) modToks.toArray(new IToken[0]);
 	                } catch (Exception e) {
 	                    e.printStackTrace();
 	                }

@@ -393,7 +393,7 @@ public class ASTManager implements Serializable, IASTManager {
      */
     public IToken[] getCompletionsForToken(File file, IDocument doc, int line, int col, String activationToken, String qualifier) {
         AbstractModule module = AbstractModule.createModuleFromDoc("", file, doc);
-        return getCompletionsForModule(file.toString(), activationToken, qualifier, module);
+        return getCompletionsForModule(activationToken, qualifier, module);
     }
 
     /**
@@ -409,11 +409,11 @@ public class ASTManager implements Serializable, IASTManager {
         Object[] obj = PyParser.reparseDocument(doc, true);
         SimpleNode n = (SimpleNode) obj[0];
         AbstractModule module = AbstractModule.createModule(n);
-        return getCompletionsForModule("", activationToken, qualifier, module);
+        return getCompletionsForModule( activationToken, qualifier, module);
     }
 
-    public IToken[] getCompletionsForModule(String modName, String activationToken, String qualifier, AbstractModule module) {
-        return getCompletionsForModule(modName, activationToken, qualifier, module, false);
+    public IToken[] getCompletionsForModule(String activationToken, String qualifier, AbstractModule module) {
+        return getCompletionsForModule(activationToken, qualifier, module, false);
     }
     
     /**
@@ -422,7 +422,7 @@ public class ASTManager implements Serializable, IASTManager {
      * @param qualifier
      * @param module
      */
-    private IToken[] getCompletionsForModule(String modName, String activationToken, String qualifier, AbstractModule module, boolean recursing) {
+    private IToken[] getCompletionsForModule(String activationToken, String qualifier, AbstractModule module, boolean recursing) {
         List completions = new ArrayList();
 
         if (module != null) {
@@ -455,7 +455,7 @@ public class ASTManager implements Serializable, IASTManager {
                     }
                     
                     if (mod != null) {
-                        IToken[] completionsForModule = getCompletionsForModule(name.getRepresentation(), activationToken, qualifier, mod, true);
+                        IToken[] completionsForModule = getCompletionsForModule(activationToken, qualifier, mod, true);
                         for (int j = 0; j < completionsForModule.length; j++) {
                             completions.add(completionsForModule[j]);
                         }
@@ -494,15 +494,34 @@ public class ASTManager implements Serializable, IASTManager {
                         
                         if(tok.length() == 0){
 	                        //the activation token corresponds to an imported module. We have to get its global tokens and return them.
-	                        return getCompletionsForModule(rep, "", "", mod, true);
+	                        return getCompletionsForModule("", "", mod, true);
                         }else{
-	                        return mod.getGlobalTokens(tok);
+	                        return mod.getGlobalTokens(tok, this);
                         }
                     }
                 }
 
-                //it was not a module, so, try to get the completions for a global token defined.
-                IToken[] tokens = module.getGlobalTokens(activationToken);
+                //wild imports: recursively go and get those completions and see if any matches it.
+                for (int i = 0; i < wildImportedModules.length; i++) {
+
+                    IToken name = wildImportedModules[i];
+                    AbstractModule mod = getModule(name.getCompletePath());
+                    
+                    if (mod == null) {
+                        mod = getModule(name.getRepresentation());
+                    }
+                    
+                    if (mod != null) {
+                        IToken[] completionsForModule = getCompletionsForModule(activationToken, qualifier, mod, true);
+                        if(completionsForModule.length > 0)
+                            return completionsForModule;
+                    } else {
+                        System.out.println("Module not found:" + name.getRepresentation());
+                    }
+                }
+
+                //it was not a module (would have returned already), so, try to get the completions for a global token defined.
+                IToken[] tokens = module.getGlobalTokens(activationToken, this);
                 if (tokens.length > 0){
                     return tokens;
                 }
@@ -512,8 +531,8 @@ public class ASTManager implements Serializable, IASTManager {
             }
 
             
-        } else {
-            System.out.println("Invalid module: " + modName);
+        }else{
+            System.out.println("Module passed in is null!!");
         }
         return (IToken[]) completions.toArray(new IToken[0]);
     }
