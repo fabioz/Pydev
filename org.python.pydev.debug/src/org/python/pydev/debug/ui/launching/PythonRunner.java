@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
+import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
@@ -31,6 +32,22 @@ import org.python.pydev.debug.model.remote.RemoteDebugger;
  */
 public class PythonRunner {
 
+	/**
+	 * Launches the configuration
+     * 
+     * The code is modeled after Ant launching example.
+	 */
+	public void run(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
+		if (config.isDebug) {
+		    runDebug(config, launch, monitor);
+		    
+		}else if (config.isProfile){
+		    runProfile(config, launch, monitor);
+		    
+		}else{ //default
+			runDefault(config, launch, monitor);
+		}
+	}
 
 	/**
 	 * Launches the config in the debug mode.
@@ -80,36 +97,76 @@ public class PythonRunner {
 		t.initialize();
 	}
 
-	/**
-	 * Launches the configuration
-     * 
-     * The code is modeled after Ant launching example.
-	 */
-	public void run(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
-		if (config.isDebug) {
-			runDebug(config, launch, monitor);
-			return;
-		}
-		if (monitor == null)
-			monitor = new NullProgressMonitor();
-		IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
-		subMonitor.beginTask("Launching python", 1);
-		
-		// Launch & connect to the debugger		
-		subMonitor.subTask("Constructing command_line...");
-		String[] cmdLine = config.getCommandLine();
-		
-		subMonitor.subTask("Exec...");		
-		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory, config.envp);	
-		if (p == null)
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not execute python process. Was it cancelled?", null));
-
-		// Register the process with the debug plugin
-		subMonitor.subTask("Done");
-		registerWithDebugPlugin(config, launch, p);
-	}
 
 	/**
+     * @param config
+     * @param launch
+     * @param monitor
+     * @throws CoreException
+     */
+    protected void runDefault(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException {
+        if (monitor == null)
+        	monitor = new NullProgressMonitor();
+        IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
+        subMonitor.beginTask("Launching python", 1);
+        
+        // Launch & connect to the debugger		
+        subMonitor.subTask("Constructing command_line...");
+        String[] cmdLine = config.getCommandLine();
+        
+        subMonitor.subTask("Exec...");		
+        Process p = DebugPlugin.exec(cmdLine, config.workingDirectory, config.envp);	
+        if (p == null)
+        	throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not execute python process. Was it cancelled?", null));
+
+        // Register the process with the debug plugin
+        subMonitor.subTask("Done");
+        registerWithDebugPlugin(config, launch, p);
+    }
+
+    /**
+     * @param config
+     * @param launch
+     * @param monitor
+     * @throws CoreException
+     */
+    private void runProfile(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException {
+        if (monitor == null)
+        	monitor = new NullProgressMonitor();
+        IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
+        subMonitor.beginTask("Launching python", 1);
+        
+        // Launch & connect to the debugger		
+        subMonitor.subTask("Constructing command_line...");
+        
+        subMonitor.subTask("Exec...");		
+        String[] envp = config.envp;
+        
+        envp = PyCoverage.setCoverageFileEnviromentVariable(envp);
+        
+        Process p = DebugPlugin.exec(config.getCommandLine(), config.workingDirectory, envp);	
+        if (p == null)
+        	throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not execute python process. Was it cancelled?", null));
+
+        // Register the process with the debug plugin
+        subMonitor.subTask("Done");
+        registerWithDebugPlugin(config, launch, p);
+
+        
+//        try {
+//            p.waitFor();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        Process p1 = DebugPlugin.exec(config.getProfileResultsCommandLine(), config.workingDirectory, config.envp);	
+//        if (p1 == null)
+//        	throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not execute python process. Was it cancelled?", null));
+//        registerWithDebugPlugin(config, launch, p1);
+        
+    }
+
+    /**
 	 * The debug plugin needs to be notified about our process.
 	 * It'll then display the appropriate UI.
 	 */

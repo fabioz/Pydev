@@ -6,20 +6,15 @@
 package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.Vector;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsUtil;
-import org.osgi.framework.Bundle;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPrefs;
@@ -39,10 +34,13 @@ public class PythonRunnerConfig {
 	public File workingDirectory;
 	// debugging
 	public boolean isDebug;
+	public boolean isProfile;
 	private int debugPort = 0;  // use getDebugPort
-	public String debugScript;
 	public int acceptTimeout = 5000; // miliseconds
 	public String[] envp = null;
+
+	public String debugScript;
+	public String profileScript;
 
 	/**
 	 * Sets defaults.
@@ -50,6 +48,8 @@ public class PythonRunnerConfig {
 
 	public PythonRunnerConfig(ILaunchConfiguration conf, String mode) throws CoreException {
 		isDebug = mode.equals(ILaunchManager.DEBUG_MODE);
+		isProfile = mode.equals(ILaunchManager.PROFILE_MODE);
+		
 		file = ExternalToolsUtil.getLocation(conf);
 		interpreter = conf.getAttribute(Constants.ATTR_INTERPRETER, "python");
 		arguments = ExternalToolsUtil.getArguments(conf);
@@ -58,11 +58,14 @@ public class PythonRunnerConfig {
 		acceptTimeout = PydevPrefs.getPreferences().getInt(PydevPrefs.CONNECT_TIMEOUT);
 		if (isDebug) {
 			debugScript = getDebugScript();
+		}else if(isProfile){
+		    profileScript = getProfileScript();
 		}
 		envp = DebugPlugin.getDefault().getLaunchManager().getEnvironment(conf);
 	}
 	
-	public int getDebugPort() throws CoreException {
+
+    public int getDebugPort() throws CoreException {
 		if (debugPort == 0) {
 			debugPort= SocketUtil.findUnusedLocalPort("", 5000, 15000); //$NON-NLS-1$
 			if (debugPort == -1)
@@ -90,23 +93,33 @@ public class PythonRunnerConfig {
 		throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
 	}
 
-	/** 
+	/**
+     * @return
+	 * @throws CoreException
+     */
+    public static String getProfileScript() throws CoreException {
+        return PydevDebugPlugin.getScriptWithinPySrc("coverage.py").getAbsolutePath();
+    }
+
+    /** 
 	 * gets location of jpydaemon.py
 	 */
 	public static String getDebugScript() throws CoreException {
-		IPath relative = new Path("pysrc").addTrailingSeparator().append("pydevd.py");
+	    return PydevDebugPlugin.getScriptWithinPySrc("pydevd.py").getAbsolutePath();
+
+//	    IPath relative = new Path("pysrc").addTrailingSeparator().append("pydevd.py");
 //		IPath relative = new Path("pysrc").addTrailingSeparator().append("jpydaemon.py");
 //		IPath relative = new Path("pysrc").addTrailingSeparator().append("rpdb.py");
-		Bundle bundle = PydevDebugPlugin.getDefault().getBundle();
-		URL bundleURL = Platform.find( bundle, relative);
-		URL fileURL;
-		try {
-			fileURL = Platform.asLocalURL( bundleURL);	 
-			String filePath = new File(fileURL.getPath()).getAbsolutePath();
-			return filePath;
-		} catch (IOException e) {
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Can't find python debug script", null));
-		}
+//		Bundle bundle = PydevDebugPlugin.getDefault().getBundle();
+//		URL bundleURL = Platform.find( bundle, relative);
+//		URL fileURL;
+//		try {
+//			fileURL = Platform.asLocalURL( bundleURL);	 
+//			String filePath = new File(fileURL.getPath()).getAbsolutePath();
+//			return filePath;
+//		} catch (IOException e) {
+//			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Can't find python debug script", null));
+//		}
 	}
 
 	/**
@@ -132,9 +145,36 @@ public class PythonRunnerConfig {
 			cmdArgs.add(Integer.toString(debugPort));
 			cmdArgs.add("--file");
 		}
+		
+		if(isProfile){
+			cmdArgs.add(profileScript);
+			cmdArgs.add("-x");
+		}
+		
 		cmdArgs.add(file.toOSString());
 		for (int i=0; arguments != null && i<arguments.length; i++)
 			cmdArgs.add(arguments[i]);
+		String[] retVal = new String[cmdArgs.size()];
+		cmdArgs.toArray(retVal);
+		return retVal;
+	}
+	
+	public String[] getProfileResultsCommandLine(){
+		Vector cmdArgs = new Vector(10);
+		cmdArgs.add(interpreter);
+		// Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
+		cmdArgs.add(org.python.pydev.ui.InterpreterEditor.isJython(interpreter) ? "-i" : "-u");
+		
+		if(isProfile){
+			cmdArgs.add(profileScript);
+			cmdArgs.add("-r");
+			cmdArgs.add("-m");
+		}else{
+		    throw new RuntimeException("Can only get profile script in profile mode.");
+		}
+		
+		cmdArgs.add(file.toOSString());
+
 		String[] retVal = new String[cmdArgs.size()];
 		cmdArgs.toArray(retVal);
 		return retVal;

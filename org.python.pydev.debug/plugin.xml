@@ -34,7 +34,7 @@
 		<launchConfigurationType
 			name="Python"
 			delegate="org.python.pydev.debug.ui.launching.PythonLaunchConfigurationDelegate"
-			modes="run, debug"
+			modes="run, debug, profile"
 			id="org.python.pydev.debug.launchConfigurationType">
 		</launchConfigurationType>
 	</extension>
@@ -62,7 +62,7 @@
 		<shortcut
 			label="Python script"
 			icon="icons/python.gif"
-			modes="run, debug"
+			modes="run, debug, profile"
 			class="org.python.pydev.debug.ui.launching.LaunchShortcut"
 			id="org.python.pydev.debug.ui.launchShortcut">
 			<perspective id="org.eclipse.debug.ui.DebugPerspective"/>
@@ -100,6 +100,15 @@
 				enablesFor="1"
 				id="org.python.pydev.debug.RunPythonAction">
 			</action>
+			<action
+				label="Coverage..."
+				icon="icons/python.gif"
+				tooltip="Make code coverage for a python script"
+				class="org.python.pydev.debug.ui.actions.PythonRunActionDelegate"
+				menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
+				enablesFor="1"
+				id="org.python.pydev.debug.CoveragePythonAction">
+			</action>
    <action
          enablesFor="1"
          label="pyUnit Test..."
@@ -128,6 +137,14 @@
 			image="icons/python.gif"
 			mode="run"
 			id="org.python.pydev.debug.run">
+		</launchGroup>
+		<launchGroup
+			label="Profile"
+			bannerImage="icons/python-big.gif"
+			category="org.python.pydev.debug"
+			image="icons/python.gif"
+			mode="profile"
+			id="org.python.pydev.debug.coverage">
 		</launchGroup>
 	</extension>
 <!--- console line tracking -->
@@ -213,6 +230,19 @@
 		id = "org.python.pydev.debug">
 	</debugModelPresentation>
 </extension>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Pydev"
+            id="org.python.pydev.debug"/>
+      <view
+            class="org.python.pydev.debug.codecoverage.PyCodeCoverageView"
+            icon="icons/python.gif"
+            category="org.python.pydev"
+            name="Code Coverage Results View"
+            id="org.python.pydev.views.PyCodeCoverageView"/>
+   </extension>
 
 </plugin>
 

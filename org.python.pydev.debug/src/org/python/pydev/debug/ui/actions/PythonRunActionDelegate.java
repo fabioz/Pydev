@@ -31,8 +31,20 @@ public class PythonRunActionDelegate extends ActionDelegate
 	public void run(IAction action) {
 		if (part != null && selectedFile != null) {
 			// figure out run or debug mode
-			String runMode = action.getId().endsWith("RunPythonAction") ? 
-												ILaunchManager.RUN_MODE : ILaunchManager.DEBUG_MODE;
+			String runMode = "";
+			if(action.getId().endsWith("RunPythonAction")){
+			    runMode = ILaunchManager.RUN_MODE;
+			    
+			}else if(action.getId().endsWith("DebugPythonAction")){
+			    runMode = ILaunchManager.DEBUG_MODE;
+			    
+			} else if(action.getId().endsWith("CoveragePythonAction")){
+			    runMode = ILaunchManager.PROFILE_MODE;
+			    
+			} else{
+			    throw new RuntimeException("Unknown ");
+			}
+			
 			LaunchShortcut shortcut = new LaunchShortcut();
 			shortcut.setShowDialog(true);
 			shortcut.launch(selectedFile, runMode, null);

@@ -17,6 +17,7 @@ public interface Constants {
 	static final String PLUGIN_ID = "org.python.pydev.debug";
 	static final String PYTHON_DEBUG_LAUNCH_GROUP = "org.python.pydev.debug.debug";
 	static final String PYTHON_RUN_LAUNCH_GROUP = "org.python.pydev.debug.run";
+	static final String PYTHON_COVERAGE_LAUNCH_GROUP = "org.python.pydev.debug.coverage";
 	static final String ID_PYTHON_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.launchConfigurationType";
 	static final String PROCESS_TYPE = "PYDEV.PYTHON";
 	
