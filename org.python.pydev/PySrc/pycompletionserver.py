@@ -116,6 +116,7 @@ class T(threading.Thread):
         #we only accept 1 client. 
         #the exit message for the server is @@KILL_SERVER_END@@
         conn, addr = s.accept()
+        time.sleep(0.5) #wait a little before connecting to JAVA server
 
         #after being connected, create a socket as a client.
         self.connectToServer()

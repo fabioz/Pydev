@@ -3,7 +3,6 @@
 '''
 import compiler
 
-
 __eraseThisCurrDirModule = None
 
 def CompleteFromDir(dir):
@@ -34,6 +33,23 @@ def GenerateTip (theDoc, token, checkForSelf):
     '''
     Put in the doc the code so that we get the locals.
     '''
+    getArgsDef = \
+'''
+def __eraseThisGetArgsDef(func):
+    args, vargs, kwargs, defaults = inspect.getargspec(func)
+    if len(args) > 0 and args[0] == 'self':
+        args = args[1:]
+        
+    r = '('
+    for a in (args):
+        if len(r) > 1:
+            r += ', '
+        r += str(a)
+    r += ')'
+    return r
+'''
+
+
 
     originalDoc = theDoc
     if token is None:
@@ -47,7 +63,7 @@ import copy as __eraseThiscopy
 __eraseThisf = __eraseThisinspect.currentframe()
 __eraseThislocs = __eraseThiscopy.copy(__eraseThisf.f_locals)
 
-for __eraseThisd in __eraseThislocs: 
+for __eraseThisd in __eraseThislocs:
     if __eraseThisd.startswith('__eraseThis') == False : __eraseThisTips.append([__eraseThisd,None])
 
 l = locals()
@@ -56,14 +72,34 @@ for t in __eraseThisTips:
 '''
     
     else : #just complete for token.
+
         theDoc+= \
 '''
 
 import inspect 
 
+%s
+
 for d in dir(%s):
-    __eraseThisTips.append([d,inspect.getdoc(getattr(%s, d))])
-''' % (token.replace(' ','.'),token.replace(' ','.'))
+    attr = getattr(%s, d)
+    func = None
+    if inspect.ismethod(attr):
+        func = attr.im_func
+    elif inspect.isfunction(attr):
+        func = attr
+    
+    if func and inspect.isfunction(func):
+        try:
+            args = __eraseThisGetArgsDef(func)
+            __eraseThisTips.append([d+args,inspect.getdoc(attr)])
+        except:
+            __eraseThisTips.append([d,inspect.getdoc(attr)])
+    else:
+        __eraseThisTips.append([d,inspect.getdoc(attr)])
+''' % ( getArgsDef,  token.replace(' ','.'),token.replace(' ','.')  )
+
+
+
     
     
     

@@ -13,6 +13,7 @@ sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
 import unittest
 import simpleTipper
 import importsTipper
+import inspect
 
 class Test(unittest.TestCase):
 
@@ -108,15 +109,15 @@ class C(object):
         '''
         You can print the results to check...
         '''
-        importsTipper.GenerateTip('inspect.') 
-        importsTipper.GenerateTip('compiler.') 
-        importsTipper.GenerateImportsTip(['scbr']) 
-        importsTipper.GenerateImportsTip([ ] ) 
-        importsTipper.GenerateImportsTip(['os']) 
-        importsTipper.GenerateImportsTip(['os','path']) 
-        importsTipper.GenerateImportsTip(['unittest']) 
-        importsTipper.GenerateImportsTip(['compiler', 'ast']) 
-        importsTipper.GenerateImportsTip(['compiler', 'ast', 'Node']) 
+#        importsTipper.GenerateTip('inspect.') 
+#        importsTipper.GenerateTip('compiler.') 
+#        importsTipper.GenerateImportsTip(['compiler']) 
+#        importsTipper.GenerateImportsTip([ ] ) 
+#        importsTipper.GenerateImportsTip(['os']) 
+#        importsTipper.GenerateImportsTip(['os','path']) 
+#        importsTipper.GenerateImportsTip(['unittest']) 
+#        importsTipper.GenerateImportsTip(['compiler', 'ast']) 
+#        importsTipper.GenerateImportsTip(['compiler', 'ast', 'Node']) 
         
         
     def testEnv3(self):
@@ -136,7 +137,36 @@ class TestLocals(object):
         return s
 
 
-if __name__ == '__main__':
+    def testEnv4(self):
+        comps = simpleTipper.GenerateTip(self.getDoc4(), 'C', True)
+        print comps
+        
+        
+    def getDoc4(self):
+        s= \
+'''
+class C(object):
+    def metA(self, a, b):
+        pass
+        
+'''
     
+        return s
+
+    def testInspect(self):
+        return 
+        
+        class C(object):
+            def metA(self, a, b):
+                pass
+        
+        obj = C.metA
+        if inspect.ismethod (obj):
+            print obj.im_func
+            print inspect.getargspec(obj.im_func)
+            
+        
+        
+if __name__ == '__main__':
     unittest.main()
     
