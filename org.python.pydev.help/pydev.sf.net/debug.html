@@ -1,0 +1,16 @@
+<style type="text/css">
+<!--
+body {
+	background-color: #FFFFCC;
+}
+-->
+</style><h2>Pydev debugger </h2>
+<p>Debugger, one step behind the editor. The ultimate goal is a nice graphical debugger, but until then here is a small improvement to the External Tools method:</p>
+<p>There is a Python context menu in Navigator:</p>
+<p><img src="images/debug_menu.gif" width="328" height="373"></p>
+<p>If you pick &quot;Run...&quot;, you'll get the standard Eclipse debug dialog:</p>
+<p><img src="images/debug_dialog.gif" width="612" height="434"> </p>
+<p>Here you can pick your program arguments, etc. The dialog will try to verify that your python interpreter is present. If it is not, go to Preferences:Pydev:Debug and configure a valid python executable.</p>
+<p>And when you run the program, the output is in the console. The errors in the console are hyperlinked back to the file:</p>
+<p><img src="images/debug_console.gif" width="600" height="498"> </p>
+<p>That's all for now, time to work on the graphical debugger. </p>

@@ -1,0 +1,128 @@
+<html>
+<head>
+<title>pydev - python development environment for Eclipse</title>
+<link rel="stylesheet" href="http://www.totic.org/main.css" type="text/css">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<p><A href="http://sourceforge.net"> <IMG src="http://sourceforge.net/sflogo.php?group_id=85796&amp;type=5"
+ width="210" height="62" border="0" alt="SourceForge.net Logo" /> </A></p>
+<h1><code>PyDev</code></h1>
+<fieldset>
+<legend>About</legend>
+<p>Pydev is a project to create a complete python development environment for eclipse: syntax highlighting,
+outline view, code navigation, debugger integration. The current release is 0.4. Both editor and debugger require Java 1.4.x. Editor runs on Eclipse 2.1.x, and 3.x, while debugger is not compatible with Eclipse 3 yet. Pydev consists of 3 plugins:</p>
+<p><b><a href="snap.gif">Editor</a></b> (org.python.pydev): </p>
+<li>syntax highlighting
+<li>the parser errors marked in the task list
+<li>outline view with imports/functions/classes
+<li>tabs/spaces preference.</li>
+<li>Navigation: keyboard shortcuts to previous/next function</li>
+<li>comment/uncomment commands (on the popup menu) </li>
+<li> hyperlinks over functions//import statements</li>
+<p><b><a href="images/debugger.gif">Debugger</a></b> (org.python.pydev.debug)</p>
+<li>breakpoints</li>
+<li>step in/out/over</li>
+<li>multiple threads</li>
+<li>variable display</li>
+<li>file hyperlinks in the console output (you can click on stack traces) </li>
+<p><b>Help</b> (org.python.pydev.help)</p>
+<li>Brief documentation in Eclipse format.
+<p>Pydev is an open-source project, hosted at <a href='http://www.sourceforge.net/projects/pydev/'>http://www.sourceforge.net/projects/pydev/</a>.
+You can download the releases from there, or from an Eclipse update site <a href="http://pydev.sf.net/updates/">http://pydev.sf.net/updates/</a>.
+Developer issues are discussed at <a href="http://sourceforge.net/mailarchive/forum.php?forum_id=39082">pydev-code</a> mailing list. For support, try the <a href="http://sourceforge.net/forum/forum.php?forum_id=293649">users</a> bulletin board. I sometimes post tidbits about the development progress in the <a href="http://blogs.osafoundation.org/atotic/cat_work_log.html">weblog</a>. 
+<p>Most of the pydev has been developed by Aleks Totic as a &quot;getting to know Eclipse&quot; project, with some wonderful help from Fabio Zadrozny.
+</fieldset>
+<p>
+<fieldset>
+<legend>Development notes</legend>
+<pre>
+<b>History</b>
+In 2003, I was volunteering at OSAF. OSAF was developing Chandler in Python and wxWindows. 
+I was not a great fan of wx, so I looked around for other cross-platform GUI toolkits.
+That's when I discovered Eclipse and SWT, and I really liked what I saw. I am a big fan
+of IDEs, ever since I used ThinkPascal to teach myself Macintosh Toolbox. Poweplant & 
+CodeWarrior are still the nicest development combo I've ever used. With Eclipse, I saw
+potential, Emacs for the 21st century. So I decided to see what would it take to
+create a Python IDE for it.
+
+The answer is, a lot of time. Eclipse's APIs are a bit convoluted, with intefaces,
+delagates, and adapters obscuring your vision like a San Francisco fog. Thankfully, 
+the source code is there representing all the knowledge. It just takes a lot of time.
+O'Reilly editors, if you are reading this, I'd be very happy to help out with
+"Learning Eclipse".
+
+As an additional handicap, my last real encounter with Java was in '95, and that was
+with its C security APIs. Oh, and I never really coded much in Python either.
+
+In spite of all this, 0.4 is here, and I am happy with it. It has a debugger, 
+and an editor. Both of them are not fully-featured, like its Java counterparts, 
+but they are very usable for smaller projects. My interest in the project is 
+starting to wane, I've done what I wanted to do, and I am ready for something new.
+
+<b>Future</b>
+My plans for the future are:
+- 0.5 will be a bug-fix release, I am sure there are a few, there has been a lot of new
+code between 0.3 & 0.4.
+- 1.0 will be an Eclipse 3.0 compatibility release. There are some new debugger features
+like an environment tab that are cheap to implement, and very useful.
+
+And that's it. Over & out, off to new projects.
+
+So if you like this tool, it'll be up to you to take it to where you want it to be.
+I am always happy to discuss design, it is much less painful than coding. Here are some
+of my thoughts for the future:
+
+Editor:
+
+Editor could use some minor polish, especially when it comes to spaces/tabs issues.
+Things like smart-indent paste, multiple-space delete when i hit delete on the blank
+line, etc.
+The most requested feature in the editor is code completion/assist/hyperlink navigation.
+All these depend on the good model of the underlying code. I am currently building the 
+model myself using jython's parser. Whoever decideds to implement these should look
+into using more of whatever model jython uses. I think RedRobin guy is using this
+approach, and is having a lot of success.
+It would be really neat if you could use Jython to run code refactoring/error
+checking scripts already in common use in the Python community.
+For full-featured development, editor needs to understand and deal with modules.
+It needs knowledge of include paths, wizards to create new modules.
+
+Debugger:
+
+I am proud of this one. The debugger is written in 2 parts, java & python.
+The python part is yet another implementation of a remote debugger. I really tried
+to use what was out there, but none of it had functionality & documentation that
+I needed. Some feature ideas are:
+- extending breakpoints with watchpoints/expressions
+- implementing the unimplemented container variables display (you only need python 
+knowledge for this, look at pydev_vars.py).
+- implementing the "change variable" API
+- allowing execution inside frame context.
+- remote debugging capabilities
+All of these are between 1 and 3 day tasks, if you know python & eclipse.
+
+<b>You'd like to give it a try?</b>
+You can download the latest source from sourceforge. To compile, you need to set
+the following preferences:
+'Plug-In Development:Java Build Path Control:Use classpath containers' to true
+'Plug-In Development:Target Platform' select "this application" and enable all plugins.
+Most of the code is well-documented in javadoc. I try to cc every answer to a coding
+question to pydev-code, so you can look there for hints too.
+That's it. If you have not developed Eclipse plugins before, I recommend reading the 
+online documentation and trying out a sample plugin. Doing some prep work before
+jumping in will really pay off.
+Then, it is all up to you. 
+
+As for me, I have several possible projects coming up. I might do something with
+Mozilla guys. I am also thinking of developing a family tree web site that my family
+could use. Of course, there is no web site software out there I am happy with, so
+it'd involve writing a whole new web ui development system. Or I might do some work
+with startups, or something completely different. Life is never boring. Well, coding
+gets boring every once in a while, but I am just such an amateur when it comes
+to many other things I'd like to do.
+</pre>
+</fieldset>
+</body>
+</html>

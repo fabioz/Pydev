@@ -1,16 +1,24 @@
-<h2>Pydev guide </h2>
-<p>Pydev is a Python development environment for Eclipse. It is an open-source one-man effort so far.</p>
-<p>The current release is 0.3. The editor is stable, and debugger is very much work in progress.</p>
+<h2>Pydev manual</h2>
+<p>Pydev is a Python development environment for Eclipse. It is an open-source effort, hosted at  <a href="http://pydev.sourceforge.net/">http://pydev.sourceforge.net/</a>. See the website for the up-to-date development information.</p>
+<p>Pydev consists of two main components, the editor and the debugger. The editor is stable, and provides the following features:</p>
 <ul>
   <li>syntax highlighting</li>
   <li>syntax analysis, first synax error gets marked</li>
   <li>works with tabs or spaces. </li>
   <li>outline view that shows functions, imports, classes</li>
-  <li>you can run a python script from the navigator context menu.</li>
-  <li>errors in console output get hyperlinked to its file locations</li>
-  <li>update site at http://pydev.sourceforge.net/updates/</li>
+  <li>limited hyperlinks: by pressing ctrl key you can jump to functons defined inside the same file.</li>
 </ul>
+<p>This is the first public release of the debugger, so its stability is unknown. The debugger provider the following features: </p>
+<ul>
+  <li>fully integrated into Eclipse's debugging framework.</li>
+  <li>execution control: you can set breakpoints, step in/out/over</li>
+  <li>supports python threads.</li>
+  <li>variables/stack are there, just like other IDE's </li>
+  <li>console traces are hyperlinked to files. Even files outside of workspace can be opened through hyperlinks. </li>
+</ul>
+<p>Some of the advanced Eclipse features are not there: conditional breakpoints, code execution. </p>
+<p>update site at http://pydev.sourceforge.net/updates/</p>
 <p>Projects home page is at: <a href="http://pydev.sourceforge.net/">http://pydev.sourceforge.net/</a></p>
-<p>Thanks to the jython team for their parsers, and OSAF for exposing me to python.</p>
+<p>Thanks to the jython team for their parser, OSAF for exposing me to python, and sourceforge &amp; meer.net for hosting. </p>
 <p>Cheers,</p>
 <p><a href="mailto:atotic@yahoo.com">atotic@yahoo.com</a></p>
