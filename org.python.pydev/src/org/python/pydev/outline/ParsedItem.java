@@ -20,7 +20,7 @@ import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.aliasType;
 
 /**
- * ParsedModel is composed of ParsedItems
+ * ParsedModel is composed of ParsedItems.
  * 
  * <p>The model gets an AST (Abstract Syntax Tree) from jython's parser
  * and this is then converted to a tree of ParsedItems

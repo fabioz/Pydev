@@ -9,6 +9,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.text.IAutoIndentStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
@@ -25,6 +26,7 @@ import org.eclipse.jface.text.rules.WordRule;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.graphics.Color;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
 
@@ -43,7 +45,21 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 	public PyEditConfiguration(ColorCache colorManager) {
 		colorCache = colorManager;
 	}
-	
+
+	/**
+	  * @return PyAutoIndentStrategy which deals with spaces/tabs
+	  */
+	 public IAutoIndentStrategy getAutoIndentStrategy(ISourceViewer sourceViewer,String contentType) {
+		 return new PyAutoIndentStrategy();
+	 }
+
+	/**
+	 * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getTabWidth(org.eclipse.jface.text.source.ISourceViewer)
+	 */
+	public int getTabWidth(ISourceViewer sourceViewer) {
+		return PydevPlugin.getDefault().getPluginPreferences().getInt(PydevPrefs.TAB_WIDTH);
+	}
+    
 	/**
 	 * @param color - default return color of this scanner
 	 * @return scanner with no rules, that colors all text with default color
@@ -162,5 +178,4 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
 		return reconciler;
 	}
-
 }

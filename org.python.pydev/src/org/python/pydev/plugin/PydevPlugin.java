@@ -82,11 +82,11 @@ public class PydevPlugin extends AbstractUIPlugin
 
 	public void propertyChange(Preferences.PropertyChangeEvent event) {
 		// TODO handle preference changes here
-		System.out.println( event.getProperty()
-		 + "\n\told setting: "
-		 + event.getOldValue()
-		 + "\n\tnew setting: "
-		 + event.getNewValue());
+//		System.out.println( event.getProperty()
+//		 + "\n\told setting: "
+//		 + event.getOldValue()
+//		 + "\n\tnew setting: "
+//		 + event.getNewValue());
 	}
 	
 }

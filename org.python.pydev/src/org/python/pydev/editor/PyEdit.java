@@ -9,6 +9,7 @@ import org.eclipse.core.internal.resources.MarkerAttributeMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -26,6 +27,7 @@ import org.python.parser.SimpleNode;
 import org.python.parser.Token;
 import org.python.parser.TokenMgrError;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.IParserListener;
 import org.python.pydev.parser.PyParser;
@@ -41,6 +43,9 @@ import org.python.pydev.ui.ColorCache;
  * <li>The {@link org.python.pydev.outline.PyOutlinePage PyOutlinePage} shows the outline
  * 
  * <p>Listens to the parser's events, and displays error markers from the parser
+ * 
+ * <p>General notes:
+ * <p>TextWidget creates SourceViewer, an SWT control
  * @see <a href="http://dev.eclipse.org/newslists/news.eclipse.tools/msg61594.html">This eclipse article was an inspiration</a>
  * 
  */
@@ -49,11 +54,13 @@ public class PyEdit extends TextEditor implements IParserListener {
 	/** color cache */
 	private ColorCache colorCache;
 	/** lexical parser that continuously reparses the document on a thread */
-	private PyParser parser; 
+	private PyParser parser;
+	// Listener waits for tab/spaces preferences that affect sourceViewer
+	private Preferences.IPropertyChangeListener prefListener;
 	
 	public PyEdit() {
 		super();
-		colorCache = new ColorCache(PydevPlugin.getDefault().getPluginPreferences());
+		colorCache = new ColorCache(PydevPrefs.getPreferences());
 		if (getDocumentProvider() == null) {
 			setDocumentProvider(new PyDocumentProvider());
 		}
@@ -67,19 +74,32 @@ public class PyEdit extends TextEditor implements IParserListener {
 		parser = new PyParser(this);
 		parser.addParseListener(this);
 		parser.setDocument(getDocumentProvider().getDocument(input));
-	}
-	
-	public PyParser getParser() {
-		return parser;
+		prefListener = new Preferences.IPropertyChangeListener() {
+			public void propertyChange(Preferences.PropertyChangeEvent event) {
+				String property= event.getProperty();
+				if (property.equals(PydevPrefs.TAB_WIDTH)) {
+					ISourceViewer sourceViewer= getSourceViewer();
+					if (sourceViewer == null)
+						return;
+					sourceViewer.getTextWidget().setTabs(PydevPlugin.getDefault().getPluginPreferences().getInt(PydevPrefs.TAB_WIDTH));
+				}
+			}
+		};
+		PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
 	}
 	
 	// cleanup
 	public void dispose() {
+		PydevPrefs.getPreferences().removePropertyChangeListener(prefListener);
 		parser.dispose();
 		colorCache.dispose();
 		super.dispose();
 	}
 
+	public PyParser getParser() {
+		return parser;
+	}
+	
 	/**
 	 * @return an outline view
 	 */
@@ -162,6 +182,11 @@ public class PyEdit extends TextEditor implements IParserListener {
 				message = tokenErr.getMessage();
 			}
 			// map.put(IMarker.LOCATION, "Whassup?"); this is the location field in task manager
+			if (message != null) { // prettyprint
+				message = message.replaceAll("\\r\\n", " ");
+				message = message.replaceAll("\\r", " ");
+				message = message.replaceAll("\\n", " ");
+			}
 			MarkerAttributeMap map = new MarkerAttributeMap();
 			map.put(IMarker.MESSAGE, message);
 			map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
@@ -178,6 +203,7 @@ public class PyEdit extends TextEditor implements IParserListener {
 			// Whatever, could not create a marker. Swallow this one
 			e2.printStackTrace();
 		}
-
 	}
+
 }
+

@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
@@ -28,6 +29,9 @@ public class PydevPrefs extends FieldEditorPreferencePage
 
 	// Preferences	
 	public static final String SUBSTITUTE_TABS = "SUBSTITUTE_TABS";
+	public static final boolean DEFAULT_SUBSTITUTE_TABS = false;
+	public static final String TAB_WIDTH = "TAB_WIDTH";
+	public static final int DEFAULT_TAB_WIDTH = 4;
 	public static final String CODE_COLOR = "CODE_COLOR";
 	private static final RGB DEFAULT_CODE_COLOR = new RGB(0, 0, 0);
 	public static final String KEYWORD_COLOR = "KEYWORD_COLOR";
@@ -36,7 +40,7 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	private static final RGB DEFAULT_STRING_COLOR = new RGB(120, 130, 61);
 	public static final String COMMENT_COLOR = "COMMENT_COLOR";
 	private static final RGB DEFAULT_COMMENT_COLOR = new RGB(178, 34, 34);
-
+	
 	/**
 	 * Initializer sets the preference store
 	 */
@@ -45,6 +49,10 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
 	}
 
+	static public Preferences getPreferences() {
+		return 	PydevPlugin.getDefault().getPluginPreferences();
+	}
+	
 	public void init(IWorkbench workbench) {		
 	}
 	
@@ -55,6 +63,10 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		Composite p = getFieldEditorParent();
 		addField(new BooleanFieldEditor(
 			SUBSTITUTE_TABS, "Substitute spaces for tabs?", p));
+		IntegerFieldEditor ife = new IntegerFieldEditor(TAB_WIDTH, "Tab length", p, 1);
+		ife.setValidRange(1, 8);
+		// you can't restrict widget width on IntegerFieldEditor for now
+		addField(ife);
 		addField(new ColorFieldEditor(
 			CODE_COLOR, "Code", p));
 		addField(new ColorFieldEditor(
@@ -69,7 +81,8 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	 * Sets default preference values
 	 */
 	protected static void initializeDefaultPreferences(Preferences prefs) {
-		prefs.setDefault(SUBSTITUTE_TABS, true);
+		prefs.setDefault(SUBSTITUTE_TABS, DEFAULT_SUBSTITUTE_TABS);
+		prefs.setDefault(TAB_WIDTH, DEFAULT_TAB_WIDTH);
 		prefs.setDefault(CODE_COLOR,StringConverter.asString(DEFAULT_CODE_COLOR));
 		prefs.setDefault(KEYWORD_COLOR,StringConverter.asString(DEFAULT_KEYWORD_COLOR));
 		prefs.setDefault(STRING_COLOR,StringConverter.asString(DEFAULT_STRING_COLOR));
