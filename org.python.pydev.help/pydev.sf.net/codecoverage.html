@@ -1,0 +1,83 @@
+<html>
+<head>
+    <title>Code Coverage</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+    <link rel="stylesheet" href="stylesheet.css" type="text/css"/>
+
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+    
+        <div class="header">
+			<h1>PyDev</h1>
+		</div>
+
+        <div class="sidebar">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="Features.html">Features</a></li>
+                <li><a href="Roadmap.html">Roadmap</a></li>
+                <li><a href="Download.html">Download</a></li>
+                <li><a href="Credits.html">Credits</a></li>
+            </ul>
+        </div>
+
+
+
+<div class="rightsidebar">
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0781609843524821";
+google_ad_width = 120;
+google_ad_height = 600;
+google_ad_format = "120x600_as";
+google_ad_channel ="";
+google_ad_type = "text";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+</div>
+
+
+        <div class="contents">
+<strong>Code coverage is a whole new feature, added on version 0.7.0</strong><br>
+<br>
+The data gathered for code coverage is obtained by a module distributed along with pydev, 
+based on the <A href="http://www.ravenbrook.com/project/p4dti/master/test/"> Perforce Defect Tracking Integration Project </a>
+(actually, it was just slightly modified so that the output and input could be given in other ways).
+<br>
+<br>
+<strong>Code coverage provides the following features:</strong><br>
+<br>
+<strong>In the navigator:</strong><br>
+<li>run a file with code coverage recording <a href="run.html">(right click on python file)</a></li>
+<li>run multiple files with code coverage recording <a href="run.html">(right click on folder)</a></li>
+<br>
+<strong>In code coverage contributed view:</strong><br>
+<li>clean the code coverage information</li>
+<li>refresh the code coverage information</li>
+<li>choose directory to see code coverage information</li>
+<li>See coverage information for a file or folder + subfolders</li>
+<li>Double clicking from the coverage dir indicates the lines that were not executed as errors.</li>
+<br>
+<br>
+
+<IMG src="images/codecoverageview.png" border="1" >
+				
+<br><br>
+<strong> Usage:</strong><br>
+<br>
+Basically, you do some runs with the code coverage run, then you choose a dir from where you want coverage information and
+can browse it as much as you want (results for the file or folder + subfolders always on the left).<br>
+<br>
+If you want to clear all the runs info, just click on clear on the view (this will not refresh the info already gotten).<br>
+<br>
+Now, if you do some more runs and want to refresh it, just call refresh.<br>
+<br>
+<strong>Note:</strong> when the view is closed, the information does not reappear. However, it is not lost. You just have
+to choose the folder again (the information is only lost if you click on Clear).
+        </div>
+</body>
+</html>

@@ -1,12 +1,15 @@
 
 
-def Template( p_template, p_name ):
+def Template( p_template, p_name, p_title=None ):
 
+    if p_title is None:
+        p_title = p_name
+        
     contents_file = '_%s.contents.html' % p_name
     target_file   = '%s.html' % p_name
     
     d = {
-        'title' :    p_name,
+        'title' :    p_title,
         'contents' : file( contents_file, 'r' ).read(),
     }
 
@@ -16,24 +19,24 @@ def Template( p_template, p_name ):
 
 
 def Main():
-    Template( '_template.html', 'index' )
-    Template( '_template.html', 'Features' )
-    Template( '_template.html', 'Download' )
-    Template( '_template.html', 'Roadmap' )
-    Template( '_template.html', 'codecompletion' )
-    Template( '_template.html', 'codecompletionsnapshots' )
-    Template( '_template.html', 'contentassist' )
-    Template( '_template.html', 'refactoring' )
-    Template( '_template.html', 'Faq' )
-    Template( '_template.html', 'Credits' )
-    Template( '_template.html', 'codecoverage' )
-    Template( '_template.html', 'run' )
-    Template( '_template.html', 'debug' )
-    Template( '_template.html', 'debug_prefs' )
-    Template( '_template.html', 'editor_prefs' )
-    Template( '_template.html', 'pylint' )
-    Template( '_template.html', 'pychecker' )
-    Template( '_template.html', 'tasks' )
+    Template( '_template.html', 'index'                   , 'Pydev')
+    Template( '_template.html', 'Features'                , 'Features')
+    Template( '_template.html', 'Download'                , 'Download')
+    Template( '_template.html', 'Roadmap'                 , 'Roadmap')
+    Template( '_template.html', 'codecompletion'          , 'Code Completion')
+    Template( '_template.html', 'codecompletionsnapshots' , 'Code Completion Snapshots')
+    Template( '_template.html', 'contentassist'           , 'Content Assist (Ctrl+1)')
+    Template( '_template.html', 'refactoring'             , 'Refactoring')
+    Template( '_template.html', 'Faq'                     , 'FAQ')
+    Template( '_template.html', 'Credits'                 , 'Credits')
+    Template( '_template.html', 'codecoverage'            , 'Code Coverage')
+    Template( '_template.html', 'run'                     , 'Run')
+    Template( '_template.html', 'debug'                   , 'Debug')
+    Template( '_template.html', 'debug_prefs'             , 'Debug Preferences')
+    Template( '_template.html', 'editor_prefs'            , 'Editor Preferences')
+    Template( '_template.html', 'pylint'                  , 'PyLint')
+    Template( '_template.html', 'pychecker'               , 'PyChecker')
+    Template( '_template.html', 'tasks'                   , 'Tasks')
     
     
 Main()
