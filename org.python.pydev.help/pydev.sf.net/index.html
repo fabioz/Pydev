@@ -14,7 +14,7 @@
 <tr align="center" bgcolor="#eeeeee" valign="middle">
 <td colspan="7" nowrap="nowrap">
 <center>
-<p class="header_text">Last Site Update: 03 February 2005 |
+<p class="header_text">Last Site Update: 14 February 2005 |
 Latest Version: 0.9.0</p>
 </center>
 </td>
@@ -134,7 +134,7 @@ cellspacing="0" width="200">
 
 <tr>
 <td colspan="2"><a class="menu_links" href=
-"credits.html">Credits</a> </td>
+"sponsors.html">Credits</a> </td>
 </tr>
 
 
@@ -180,7 +180,7 @@ cellspacing="0" width="200">
 </tr>
 
 
-
+<!--
 <tr bgcolor="lightblue">
 <td colspan="2"><span class="menu_headings">Mentions in the press</span>
 
@@ -197,7 +197,7 @@ cellspacing="0" width="200">
 </td>
 </tr>
 
-
+-->
 
 <tr bgcolor="lightblue">
 <td colspan="2"><span class="menu_headings">Hosted at</span>
@@ -215,7 +215,7 @@ cellspacing="0" width="200">
 <td colspan="2" class="menu_links" align="center">
 <a href="http://sourceforge.net"> <img src="http://sourceforge.net/sflogo.php?group_id=85796&amp;type=5" 
 alt="SourceForge Logo"
-width="70" height="25" border="2" alt="SourceForge.net Logo"> </a>
+width="70" height="25" alt="SourceForge.net Logo" BORDER="1"> </a>
 </td>
 </tr>
 
@@ -230,9 +230,27 @@ width="70" height="25" border="2" alt="SourceForge.net Logo"> </a>
 <td colspan="2" class="menu_links" align="center"><a href=
 "http://sourceforge.net/donate/index.php?group_id=85796"><img
 alt="" src="images/paypal.gif" alt=
-"Make payments with PayPal - it's fast, free and secure!" /></a>
+"Make payments with PayPal - it's fast, free and secure!" BORDER="0"/></a>
 </td>
 </tr>
+
+
+
+<tr bgcolor="lightblue">
+<td colspan="2"><span class="menu_headings">Sponsored by</span>
+</td>
+</tr>
+
+<!--
+ESSS - Engineering Simulation and Scientific Software
+-->
+<tr>
+<td colspan="2" class="menu_links" align="center"><a href=
+"sponsors.html"><img alt="" src="images/logo_esss2.gif" alt=
+"ESSS" BORDER="0" /></a>
+</td>
+</tr>
+
 
 
 
@@ -272,29 +290,31 @@ as a "getting to know Eclipse project".<br>
 <hr/>
 
 <h2>News:</h2>
+
+<li>
+Homepage update: Check available keybindings for PyDev in the <a href="faq.html">FAQ</a>
+</li>
+<li>
+Homepage update: Check our <a href="sponsors.html">sponsors</a> section (and become one).
+</li>
+<br>
 <p>
 <strong>New Release: 0.9.0!!</strong><br><br>
-<li>
-This release claims support for python 2.4 syntax (sort of - see details <a href = "version_2_4.html">here</a>). 
-</li>
-<li>
-The new <a href="pylint.html">PyLint 0.6</a> is integrated with PyDev!!
-</li>
-<li>
-Builders can be disabled if you want (check our <a href=faq.html>FAQ</a>).
-</li>
-<br>
-<br>
-<strong>IMPORTANT:</strong> <a href="codecompletion.html">Code Completion</a> is still not finished, but for those of you using python 2.4, you
-should really upgrade (because of a build error, sometimes version 0.8.5 code completion did not work well with python 2.4) 
-<br>
-<br>
 
-<hr/>
-<br>
-<strong>FAQ</strong>: I added a <a href="faq.html">FAQ</a> to the project, as it seems we're starting to reach an always-growing python audience.
-So, don't forget to read it before asking for support or using the users forum.
-<br><br>
+<li>
+This release claims support for the 2.4 syntax (sort of - see details <a href = "version_2_4.html">here</a>). 
+</li>
+
+<li>
+Keep you 'quality standards': <a href="pylint.html">PyLint 0.6</a> is integrated with PyDev!! <br>
+PyLint can help you verify your code for some 'quality standard',
+and can find many errors in your program without having to run it.
+</li>
+
+<li>
+Builders can be disabled if you want (check our <a href=faq.html>FAQ</a> as this can be a problem or a solution).
+</li>
+
 
 
 <hr/>
@@ -326,9 +346,11 @@ Some features provided are:
 <li><a href="refactoring.html">Refactoring</a> with <a href="http://bicyclerepair.sourceforge.net/">bicycle repair man</a></li>
 <li>Outline</li>
 <li>Find definition (powered by <a href="http://bicyclerepair.sourceforge.net/">bicycle repair man</a>)</li>
-<li><a href="debug.html">Debugger</a></li>
+<li><a href="debug.html">Debug</a> (watch expressions in debug now)</li>
 <li><a href="contentassist.html">Content Assistant</a></li>
 <li><a href="codecoverage.html">Code Coverage</a></li>
+<li><a href="tasks.html">TODO tasks</a></li>
+<li>Editor with color selection, syntax highlighting, etc.</li>
 Etc. (more details can be found at the <a href="features.html">features</a> page)
 </p>
 
@@ -336,7 +358,8 @@ Etc. (more details can be found at the <a href="features.html">features</a> page
 It is featured as an open source project, so, if you want, you can just go to the <a href="download.html">downloads</a> page, get it and
 use it as you like.
 </p>
-
+Also, any patches submitted are welcome, and really help improve the plugin... Some nice features (and some bug fixes)
+have came through patches, so, if you want something and know how to do it, just send it in!
 <br />
 </p>
 </td>

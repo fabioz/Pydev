@@ -134,10 +134,12 @@ def Main():
     channelPydevFeaturesMain = '9124732182'
     channelPydevIndex        = '0232202381'
     channelPydevFaq          = '9395062605'
+    channelPydevSponsors     = '9586823051'
     
     
     Template( '_template.html', 'index'                   , 'Pydev'                    ,None             , channelPydevIndex        , None)
     Template( '_template.html', 'version_2_4'             , 'Python 2.4 Support'       ,None             , channelPydev             , None)
+    Template( '_template.html', 'sponsors'                , 'Sponsors'                 ,None             , channelPydevSponsors     , None)
     Template( '_template.html', 'screenshots'             , 'Screenshots'              ,None             , channelPydev             , None)
     Template( '_template.html', 'download'                , 'Download'                 ,None             , channelPydev             , None)
     Template( '_template.html', 'roadmap'                 , 'Roadmap'                  ,None             , channelPydev             , None)
