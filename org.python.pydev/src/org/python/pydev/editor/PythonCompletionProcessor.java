@@ -61,6 +61,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 		java.lang.String qualifier = getQualifier(doc, documentOffset);
 		int qlen = qualifier.length();
 		try {
+			System.out.println("Interpreted doc: "+theDoc);
 			PyList theList = autoComplete(interp, theDoc, activationToken);
 			PyObject o = new PyObject();
 			for (int i = 0; i < theList.__len__(); i++) {
@@ -97,6 +98,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 		StringBuffer example = new StringBuffer();
 		interp.exec("from PyDev import jintrospect");
 //		System.out.println("DBG:from PyDev import jintrospect:done");
+		interp.exec("class object:pass"); //TODO: REMOVE AFTER JYTHON ADDS SUPPORT TO NEW STYLE CLASSES.
 		interp.exec(theCode);
 		String xCommand = "theList = jintrospect.getAutoCompleteList(command='"+theActivationToken+"', locals=locals())";
 //		System.out.println("DBG:xCommand:"+xCommand);
