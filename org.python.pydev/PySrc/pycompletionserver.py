@@ -6,6 +6,8 @@ import time
 import simpleTipper
 import refactoring
 import sys
+import urllib
+import importsTipper
 
 HOST = '127.0.0.1'               # Symbolic name meaning the local host
 
@@ -22,6 +24,7 @@ MSG_OK                  = '@@MSG_OK_END@@'
 MSG_REFACTOR            = '@@REFACTOR'
 MSG_PROCESSING          = '@@PROCESSING_END@@'
 MSG_PROCESSING_PROGRESS = '@@PROCESSING:%sEND@@'
+MSG_IMPORTS             = '@@IMPORTS:'
 
 BUFFER_SIZE = 1024
 
@@ -63,7 +66,7 @@ class T(threading.Thread):
 
     def removeInvalidChars(self, msg):
         if msg:
-            return msg.replace(',','').replace('(','').replace(')','')
+            return urllib.quote_plus(msg)
         return ' '
     
     def formatCompletionMessage(self, completionsList):
@@ -129,47 +132,70 @@ class T(threading.Thread):
                 data += conn.recv(BUFFER_SIZE)
             
             try:
-                if MSG_KILL_SERVER in data:
-                    #break if we received kill message.
-                    break;
-    
-                keepAliveThread.start()
-                
-                if MSG_RELOAD_MODULES in data:
-                    simpleTipper.ReloadModules()
-                    returnMsg = MSG_OK
-                
-                else:
-                    data = data[:data.rfind(MSG_END)]
-                
-                    if data.startswith(MSG_GLOBALS):
-                        data = data.replace(MSG_GLOBALS, '')
-                        comps = simpleTipper.GenerateTip(data, None, False)
-                        returnMsg = self.getCompletionsMessage(comps)
-                    
-                    elif data.startswith(MSG_TOKEN_GLOBALS ):
-                        data = data.replace(MSG_TOKEN_GLOBALS, '')
-                        token, data = self.getTokenAndData(data)                
-                        comps = simpleTipper.GenerateTip(data, token, False)
-                        returnMsg = self.getCompletionsMessage(comps)
+                try:
+                    if MSG_KILL_SERVER in data:
+                        #break if we received kill message.
+                        break;
         
-                    elif data.startswith(MSG_CLASS_GLOBALS ):
-                        data = data.replace(MSG_CLASS_GLOBALS, '')
-                        token, data = self.getTokenAndData(data)                
-                        comps = simpleTipper.GenerateTip(data, token, True)
-                        returnMsg = self.getCompletionsMessage(comps)
+                    keepAliveThread.start()
                     
-                    elif data.startswith(MSG_CHANGE_DIR ):
-                        data = data.replace(MSG_CHANGE_DIR, '')
-                        simpleTipper.CompleteFromDir(data)
+                    if MSG_RELOAD_MODULES in data:
+                        simpleTipper.ReloadModules()
                         returnMsg = MSG_OK
-                        
-                    elif data.startswith(MSG_REFACTOR):
-                        data = data.replace(MSG_REFACTOR, '')
-                        returnMsg = refactoring.HandleRefactorMessage(data, keepAliveThread)
-                        
+                    
                     else:
-                        returnMsg = MSG_INVALID_REQUEST
+                        data = data[:data.rfind(MSG_END)]
+                    
+                        if data.startswith(MSG_GLOBALS):
+                            data = data.replace(MSG_GLOBALS, '')
+                            data = urllib.unquote_plus(data)
+                            comps = simpleTipper.GenerateTip(data, None, False)
+                            returnMsg = self.getCompletionsMessage(comps)
+                        
+                        elif data.startswith(MSG_TOKEN_GLOBALS ):
+                            data = data.replace(MSG_TOKEN_GLOBALS, '')
+                            data = urllib.unquote_plus(data)
+                            token, data = self.getTokenAndData(data)                
+                            comps = simpleTipper.GenerateTip(data, token, False)
+                            returnMsg = self.getCompletionsMessage(comps)
+            
+                        elif data.startswith(MSG_CLASS_GLOBALS ):
+                            data = data.replace(MSG_CLASS_GLOBALS, '')
+                            data = urllib.unquote_plus(data)
+                            token, data = self.getTokenAndData(data)                
+                            comps = simpleTipper.GenerateTip(data, token, True)
+                            returnMsg = self.getCompletionsMessage(comps)
+                        
+                        elif data.startswith(MSG_IMPORTS ):
+                            data = data.replace(MSG_IMPORTS, '')
+                            data = urllib.unquote_plus(data)
+                            comps = importsTipper.GenerateTip(data)
+                            returnMsg = self.getCompletionsMessage(comps)
+    
+                        elif data.startswith(MSG_CHANGE_DIR ):
+                            data = data.replace(MSG_CHANGE_DIR, '')
+                            data = urllib.unquote_plus(data)
+                            simpleTipper.CompleteFromDir(data)
+                            returnMsg = MSG_OK
+                            
+                        elif data.startswith(MSG_REFACTOR):
+                            data = data.replace(MSG_REFACTOR, '')
+                            data = urllib.unquote_plus(data)
+                            returnMsg = refactoring.HandleRefactorMessage(data, keepAliveThread)
+                            
+                        else:
+                            returnMsg = MSG_INVALID_REQUEST
+                except :
+                    import sys
+                    import traceback
+                    import StringIO
+
+                    s = StringIO.StringIO()
+                    exc_info = sys.exc_info()
+
+                    traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], limit=None, file = s)
+                    returnMsg = self.getCompletionsMessage([('ERROR:','%s'%(s.getvalue()))])
+                
             finally:
                 keepAliveThread.lastMsg = returnMsg
             
@@ -178,7 +204,14 @@ class T(threading.Thread):
 
 if __name__ == '__main__':
     #let's log this!!
-    out = open('c:/temp/pydev.log', 'w')
+    import os
+    f = 'c:/temp/pydev.log'
+    i=0
+    while os.path.exists(f):
+        f = 'c:/temp/pydev%s.log' % i
+        i+=1
+        
+    out = open(f, 'w')
     sys.stdout = out
     sys.stderr = out
     

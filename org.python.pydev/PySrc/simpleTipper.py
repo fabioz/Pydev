@@ -70,25 +70,21 @@ for d in dir(%s):
     
     import simpleinspect
     __eraseThisMsg = ''
-    try:
-        __eraseThisMsg += 'Compiling \n%s\n'%theDoc
-        __eraseThis = compiler.compile(theDoc, 'temporary_file_completion.py', 'exec')
-        __eraseThisMsg += 'Compiled'
-        
-        simpleinspect.__eraseThisTips = []
-        simpleinspect.GenerateTip (__eraseThis, token)
-        toReturn = simpleinspect.__eraseThisTips
-        simpleinspect.__eraseThisTips = []
-        
-        __eraseThisMsg += 'Getting self variables \n%s\n' % originalDoc
-        if checkForSelf:
-            toReturn += GetSelfVariables(originalDoc, token)
-        
-        return toReturn
-    except :
-        import sys
-        s = str(sys.exc_info()[1])
-        return [('ERROR_COMPLETING','%s\nerror tracing:\n%s'%(s,__eraseThisMsg))]
+
+    __eraseThisMsg += 'Compiling \n%s\n'%theDoc
+    __eraseThis = compiler.compile(theDoc, 'temporary_file_completion.py', 'exec')
+    __eraseThisMsg += 'Compiled'
+    
+    simpleinspect.__eraseThisTips = []
+    simpleinspect.GenerateTip (__eraseThis, token)
+    toReturn = simpleinspect.__eraseThisTips
+    simpleinspect.__eraseThisTips = []
+    
+    __eraseThisMsg += 'Getting self variables \n%s\n' % originalDoc
+    if checkForSelf:
+        toReturn += GetSelfVariables(originalDoc, token)
+    
+    return toReturn
     
 class Visitor(compiler.visitor.ASTVisitor):
 

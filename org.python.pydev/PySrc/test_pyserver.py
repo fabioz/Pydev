@@ -6,6 +6,9 @@ import unittest
 import pycompletionserver
 import socket
 import os
+import urllib
+
+
 
 class Test(unittest.TestCase):
 
@@ -31,7 +34,7 @@ class Test(unittest.TestCase):
         l.append(('Def(1','descriptio(n1'))
         l.append(('De,f)2','de,s,c,ription2'))
         msg = t.formatCompletionMessage(l)
-        self.assertEquals('@@COMPLETIONS((Def,description),(Def1,description1),(Def2,description2))END@@', msg)
+        self.assertEquals('@@COMPLETIONS((Def,desc%2C%2Cr%2C%2Ci%28%29ption),(Def%281,descriptio%28n1),(De%2Cf%292,de%2Cs%2Cc%2Cription2))END@@', msg)
 
     def createConnections(self, p1 = 50002,p2 = 50003):
         '''
@@ -67,17 +70,23 @@ class Test(unittest.TestCase):
         
         
         #now that we have the connections all set up, check the code completion messages.
-        sToWrite.send('@@GLOBALS:import math\nEND@@') #only 1 global should be returned: math itself.
+        msg = urllib.quote('import math\n')
+        sToWrite.send('@@GLOBALS:%sEND@@'%msg) #only 1 global should be returned: math itself.
         completions = self.readMsg()
         
-        self.assertEquals('@@COMPLETIONS((math,This module is always available.  It provides access to the\n'\
-                          'mathematical functions defined by the C standard.))END@@',
+        
+        msg = urllib.quote('This module is always available.  It provides access to the\n'\
+                           'mathematical functions defined by the C standard.')
+        self.assertEquals('@@COMPLETIONS((math,%s))END@@'%msg,
                           completions)
 
         
+        msg1 = urllib.quote('math')
+        msg2 = urllib.quote('import math\n')
         #check token msg.
-        sToWrite.send('@@TOKEN_GLOBALS(math):import math\nEND@@') 
+        sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' % (msg1, msg2)) 
         completions = self.readMsg()
+        
 
         self.assert_('@@COMPLETIONS' in completions)
         self.assert_('END@@' in completions)
@@ -99,6 +108,7 @@ class C(object):
                                 
         pass            
 '''     
+        msg = urllib.quote(s)
 
         sToWrite.send('@@TOKEN_GLOBALS(C):%s\nEND@@'%s) 
         completions = self.readMsg()
@@ -126,11 +136,23 @@ class C(object):
             newDir = curr[0:curr.rindex('\\')]
         
         self.assert_(newDir != None)
+        newDir = urllib.quote(newDir)
         sToWrite.send('@@CHANGE_DIR:%sEND@@'%newDir)
         ok = self.readMsg()
         self.assertEquals('@@MSG_OK_END@@' , ok)
-        sToWrite.send('@@TOKEN_GLOBALS(math acos):import math\nEND@@') 
+        
+        msg1 = urllib.quote('math.acos') #with point
+        msg2 = urllib.quote('import math\n')
+        sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' %(msg1, msg2)) 
         completions = self.readMsg()
+        self.assert_('@@COMPLETIONS' in completions)
+        self.assert_('END@@' in completions)
+
+        msg1 = urllib.quote('math acos') #with space
+        msg2 = urllib.quote('import math\n')
+        sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' %(msg1, msg2)) 
+        completions2 = self.readMsg()
+        self.assertEquals(completions, completions2)
 
         self.sendKillMsg(sToWrite)
         

@@ -4,7 +4,7 @@ import sys
 import os
 import traceback
 import StringIO
-
+import urllib
 
 sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0]), 
     "ThirdParty", "brm"))
@@ -29,7 +29,7 @@ class Refactoring(object):
             except:
                 msg = ''
             i -= 1
-        return msg
+        return urllib.quote(msg)
     
     def getLastProgressMsgs(self, v):
         progress = self.progress.getvalue().split('\n')
@@ -41,7 +41,7 @@ class Refactoring(object):
             except:
                 pass
             i -= 1
-        return msg
+        return urllib.quote(msg)
 
     def init(self):
         """
@@ -111,9 +111,10 @@ def HandleRefactorMessage(msg, keepAliveThread):
     keepAliveThread.processMsgFunc = refactorer.getLastProgressMsg
     
     try:
-        f = func(*msgSplit)+'END@@'
+        f = func(*msgSplit)
         releaseRefactorerBuffers()
-        return f
+        s = urllib.quote(f)
+        return 'REFACTOR_OK:%s\nEND@@'%(s)
     except:
         import sys
         s = StringIO.StringIO()
@@ -132,6 +133,7 @@ def HandleRefactorMessage(msg, keepAliveThread):
         
         releaseRefactorerBuffers()
         restartRefactorer()
-        return 'ERROR:%s\nEND@@'%(s.getvalue().replace('END@@',''))
+        s = urllib.quote(s.getvalue())
+        return 'ERROR:%s\nEND@@'%(s)
         
 

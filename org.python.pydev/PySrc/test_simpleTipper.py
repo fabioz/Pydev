@@ -92,16 +92,21 @@ class C(object):
             if tup[0] == 'a':
                 checkedA = True
         self.assert_(checkedA)
-#        self.assert_(('a',' ') in comps)
         
 
     def getDoc3(self):
         pass
         
     def testImports(self):
-        raise RuntimeError('not implemented')
-        importsTipper.GenerateImportsTip(0)
-        
+        importsTipper.GenerateTip('qt.') 
+        importsTipper.GenerateTip('scbr.') 
+        importsTipper.GenerateImportsTip(['scbr']) 
+        importsTipper.GenerateImportsTip([ ] ) 
+        importsTipper.GenerateImportsTip(['os']) 
+        importsTipper.GenerateImportsTip(['os','path']) 
+        importsTipper.GenerateImportsTip(['unittest']) 
+        importsTipper.GenerateImportsTip(['scbr', 'app', 'actions', 'db']) 
+        importsTipper.GenerateImportsTip(['scbr', 'app', 'actions', 'db', 'EditCont']) 
         
         
         
