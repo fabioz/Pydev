@@ -1,0 +1,4 @@
+python-announce-list@python.org
+python-list@python.org
+pydev-code@lists.sourceforge.net
+pydev-users@lists.sourceforge.net

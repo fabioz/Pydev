@@ -1,0 +1,7 @@
+markus_wankusGETRIDOFALLCAPS@hotmail.com
+
+I highly recommend trying pyDev.  0.9 just came out, and I find 0.85 very usable and quite cool.  
+There is nice debug support, and context-sensitive code completion as well as real-time validation of your code.  
+This is an exciting project with a bright future in my opinion.
+
+Markus Wankus
