@@ -25,6 +25,7 @@ MSG_BIKE                = '@@BIKE'
 MSG_PROCESSING          = '@@PROCESSING_END@@'
 MSG_PROCESSING_PROGRESS = '@@PROCESSING:%sEND@@'
 MSG_IMPORTS             = '@@IMPORTS:'
+MSG_PYTHONPATH          = '@@PYTHONPATH_END@@'
 
 BUFFER_SIZE = 1024
 
@@ -146,7 +147,14 @@ class T(threading.Thread):
         
                     keepAliveThread.start()
                     
-                    if MSG_RELOAD_MODULES in data:
+                    if MSG_PYTHONPATH in data:
+                        import sys
+                        comps = []
+                        for p in sys.path:
+                            comps.append((p,' '))
+                        returnMsg = self.getCompletionsMessage(comps)
+
+                    elif MSG_RELOAD_MODULES in data:
                         simpleTipper.ReloadModules()
                         returnMsg = MSG_OK
                     
@@ -158,7 +166,7 @@ class T(threading.Thread):
                             data = urllib.unquote_plus(data)
                             comps = simpleTipper.GenerateTip(data, None, False)
                             returnMsg = self.getCompletionsMessage(comps)
-                        
+
                         elif data.startswith(MSG_TOKEN_GLOBALS ):
                             data = data.replace(MSG_TOKEN_GLOBALS, '')
                             data = urllib.unquote_plus(data)

@@ -489,6 +489,15 @@ public class PythonShell {
         return this.getTheCompletions("@@IMPORTS:"+str+"\nEND@@");
     }
 
+    /**
+     * 
+     * @return List with String[] (we are interested only in the String[0])
+     * @throws CoreException
+     */
+    public List getPythonPath() throws CoreException{
+        return this.getTheCompletions("@@PYTHONPATH_END@@");
+    }
+    
     private List getTheCompletions(String str) throws CoreException{
         try {
             this.write(str);
@@ -541,6 +550,8 @@ public class PythonShell {
             String token       = URLDecoder.decode(tokenizer.nextToken());
             String description = URLDecoder.decode(tokenizer.nextToken());
             
+//            System.out.println(token);
+//            System.out.println(description);
 
             list.add(new String[]{token, description});
         }
