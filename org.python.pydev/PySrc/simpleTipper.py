@@ -2,7 +2,7 @@
 @author Fabio Zadrozny 
 '''
 import compiler
-import sys
+
 
 __eraseThisCurrDirModule = None
 
@@ -11,15 +11,14 @@ def CompleteFromDir(dir):
     This is necessary so that we get the imports from the same dir where the file
     we are completing is located.
     '''
+    import sys
     global __eraseThisCurrDirModule
     if __eraseThisCurrDirModule is not None:
         del sys.path[__eraseThisCurrDirModule]
 
     sys.path.insert(0, dir)
 
-def GenerateImportsTip(theDoc):
-    pass
-    
+
 def ReloadModules():
     '''
     Reload all the modules in sys.modules
@@ -75,10 +74,7 @@ for d in dir(%s):
     __eraseThis = compiler.compile(theDoc, 'temporary_file_completion.py', 'exec')
     __eraseThisMsg += 'Compiled'
     
-    simpleinspect.__eraseThisTips = []
-    simpleinspect.GenerateTip (__eraseThis, token)
-    toReturn = simpleinspect.__eraseThisTips
-    simpleinspect.__eraseThisTips = []
+    toReturn = simpleinspect.GenerateTip (__eraseThis)
     
     __eraseThisMsg += 'Getting self variables \n%s\n' % originalDoc
     if checkForSelf:
@@ -93,7 +89,6 @@ class Visitor(compiler.visitor.ASTVisitor):
         self.selfAttribs = []
         
     def visitClass(self, node):
-#        print node.name
         if node.name == self.classToVisit:
             for n in node.getChildNodes():
                 self.visit(n)

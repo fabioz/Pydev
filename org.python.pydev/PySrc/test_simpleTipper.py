@@ -2,7 +2,7 @@
 @author Fabio Zadrozny 
 '''
 
-import unittest
+from coilib import unittest
 import simpleTipper
 import importsTipper
 
@@ -94,11 +94,9 @@ class C(object):
         self.assert_(checkedA)
         
 
-    def getDoc3(self):
-        pass
         
     def testImports(self):
-        print importsTipper.GenerateTip('qt.') 
+        importsTipper.GenerateTip('qt.') 
         importsTipper.GenerateTip('scbr.') 
         importsTipper.GenerateImportsTip(['scbr']) 
         importsTipper.GenerateImportsTip([ ] ) 
@@ -109,8 +107,43 @@ class C(object):
         importsTipper.GenerateImportsTip(['scbr', 'app', 'actions', 'db', 'EditCont']) 
         
         
+    def testEnv3(self):
+        comps = simpleTipper.GenerateTip(self.getDoc3(), None, False)
         
         
+    def getDoc3(self):
+        s= \
+'''
+import sys
+
+class TestLocals(object):
     
+    sys.path
+'''
+    
+        return s
+
+    def testEnv4(self):
+        comps = simpleTipper.GenerateTip(self.getDoc4(), None, False)
+
+    def getDoc4(self):
+        s = \
+'''import test
+
+
+class KKKK(object):
+    pass
+    
+f = KKKK()
+
+d = test.LL()
+d.vv()
+'''
+        return s
+
 if __name__ == '__main__':
+    
+    from coilib import unittest
+#    unittest.TestMethod(Test, 'Test.testEnv3')
     unittest.main()
+    
