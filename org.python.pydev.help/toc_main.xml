@@ -1,5 +1,6 @@
 <toc label="PyDev User Guide" topic="html/index.html">
 	<topic label="Editor" href="html/editor.html">
+		<topic label="Undocumented" href="html/ed_undocumented.html"/>
 		<topic label="Preferences" href="html/ed_prefs.html"/>
 	</topic>
 	<topic label="Debugger" href="html/debug.html">
