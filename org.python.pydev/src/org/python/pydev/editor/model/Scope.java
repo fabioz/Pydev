@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 
+
 import org.eclipse.core.runtime.IPath;
 import org.python.pydev.plugin.PydevPrefs;
 
@@ -71,6 +72,7 @@ public class Scope {
 			locals.add(newLocal);
 	}
 
+	
 	void addFunctionDefinition(FunctionNode newDef) {
 		if (functions == null)
 			functions = new ArrayList();
@@ -119,19 +121,24 @@ public class Scope {
 	
 	public ArrayList findFunctionCalls(Object token, boolean recursive, Comparator c) {
 		ArrayList retVal = new ArrayList();
-		// traverse our definitions
-		if (functions != null) {	
-			Iterator i = functions.iterator();
-			while (i.hasNext()) {
-				Object item = i.next();
-				if (c.compare(token, item) == 0)
-					retVal.add(item);
+		
+		if (start != null){
+			if (start instanceof ClassNode && c.compare(token, start) == 0){
+			
+				// class name can also be a function call
+				retVal.add(start);
+				// now traverse parents
+			}
+			for( Iterator itChildren = start.children.iterator(); itChildren.hasNext();){
+				Object item = itChildren.next();
+				if(item instanceof FunctionNode || item instanceof ClassNode){
+					if (c.compare(token, item) == 0){
+						retVal.add(item);
+					}
+				}
 			}
 		}
-		if (start != null && start instanceof ClassNode && c.compare(token, start) == 0)
-		// class name can also be a function call
-			retVal.add(start);
-		// now traverse parents
+			
 		ArrayList ancestors = null;
 		if (recursive)
 			if (parent != null) 
@@ -183,4 +190,5 @@ public class Scope {
 		else
 			return parent != null ? parent.findContainingClass() : null; 
 	}
+
 }

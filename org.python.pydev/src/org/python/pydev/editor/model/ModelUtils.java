@@ -195,17 +195,28 @@ public class ModelUtils {
 		// simple function calls
 		// ex: simpleCall()
 		if (node instanceof LocalNode &&
-			node.getParent() instanceof FunctionCallNode) {
-			ArrayList funcCalls = node.getScope().findFunctionCalls(node.getName(), true, 
-				new Comparator() {
-					public int compare(Object token, Object funcCall) {
-						return ((String)token).compareTo(((AbstractNode)funcCall).getName());
-					}		
-				});
+			node.getParent() instanceof FunctionCallNode) { 
+			
+			//here we go for function calls... that is run(), Test()
+			//Note: this can be functions or Class definitions.
+			Comparator c = new Comparator() {
+				public int compare(Object token, Object funcCall) {
+					return ((String)token).compareTo(((AbstractNode)funcCall).getName());
+				}
+			};
+			 
+			
+			ArrayList funcCalls = new ArrayList();
+			funcCalls = node.getScope().findFunctionCalls(node.getName(), true, c	);
+
+
 			for (Iterator i = funcCalls.iterator(); i.hasNext();) {
 				AbstractNode funcNode = (AbstractNode)i.next();
 				retVal.add(new ItemPointer(funcNode.getPath(), funcNode.getStart(), funcNode.getEnd()));
 			}
+
+
+
 		} else if (node instanceof ImportAlias || node instanceof ImportFromNode) {
 			// imports:
 			// import sys
