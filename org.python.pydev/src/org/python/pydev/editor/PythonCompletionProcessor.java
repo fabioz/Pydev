@@ -13,9 +13,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.eclipse.core.runtime.CoreException;
@@ -49,6 +50,10 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PythonCompletionProcessor extends TemplateCompletionProcessor
         implements IContentAssistProcessor {
+    
+    private Map cache = new HashMap();
+    private List cacheEntries = new ArrayList();
+    
     /*
      * (non-Javadoc)
      * 
@@ -94,33 +99,65 @@ public class PythonCompletionProcessor extends TemplateCompletionProcessor
             int documentOffset) {
         List propList = new ArrayList();
         IDocument doc = viewer.getDocument();
-        //System.out.println("The document:"+doc.get());
+
         Point selectedRange = viewer.getSelectedRange();
         // there may not be a selected range
         java.lang.String theDoc = doc.get();
         calcDocBoundary(theDoc, documentOffset);
+        
         String activationToken = this
                 .getActivationToken(theDoc, documentOffset);
-        //System.out.println("DBG:theActivationToken: " + activationToken);
+        
+        java.lang.String qualifier = "";
+
+        while(activationToken.endsWith(".") == false && activationToken.length() > 0){
+            qualifier += activationToken.charAt(activationToken.length()-1);
+            activationToken = activationToken.substring(0, activationToken.length()-1);
+        }
+        
+
         theDoc = partialDocument(theDoc, documentOffset);
-        java.lang.String qualifier = getQualifier(doc, documentOffset);
+        
+        
         int qlen = qualifier.length();
         theDoc += "\n" + activationToken;
-        //System.out.println("Interpreted doc: " + theDoc);
-        //System.out.println("activationToken: " + activationToken);
-        Vector theList = autoComplete(theDoc, activationToken);
-        //System.out.println("DBG:vector:" + theList);
 
-        for (Iterator iter = theList.iterator(); iter.hasNext();) {
-            String element = (String) iter.next();
-
-            CompletionProposal proposal = new CompletionProposal(element,
-                    documentOffset - qlen, qlen, element.length());
-            propList.add(proposal);
+        //simple cache mechanism.
+        List allProposals;
+        if(cache.containsKey(theDoc)){
+	        allProposals = (List) cache.get(theDoc);
         }
+        else{
+	        Vector theList = autoComplete(theDoc, activationToken);
+	
+	        allProposals = new ArrayList();
+	
+	        for (Iterator iter = theList.iterator(); iter.hasNext();) {
+	            String element = (String) iter.next();
+	            CompletionProposal proposal = new CompletionProposal(element,
+	                    documentOffset - qlen, qlen, element.length());
+	            allProposals.add(proposal);
+	        }
+	        cacheEntries.add(theDoc);
+	        cache.put(theDoc, allProposals);
+	        //we don't want this the get huge...
+	        if(cacheEntries.size() > 20){
+	            Object entry = cacheEntries.remove(0);
+	            cache.remove(entry);
+	        }
+        }
+        //end cache mechanism.
+        
 
         //templates proposals are added here.
         addTemplateProposals(viewer, documentOffset, propList);
+
+        for (Iterator iter = allProposals.iterator(); iter.hasNext();) {
+            ICompletionProposal proposal = (ICompletionProposal) iter.next();
+            if(proposal.getDisplayString().startsWith(qualifier)){
+                propList.add(proposal);
+            }
+        }
 
         ICompletionProposal[] proposals = new ICompletionProposal[propList
                 .size()];
@@ -310,15 +347,6 @@ public class PythonCompletionProcessor extends TemplateCompletionProcessor
 
     }
 
-    /**
-     * @param doc
-     * @param documentOffset
-     */
-    private java.lang.String getQualifier(IDocument doc, int documentOffset) {
-        // this routine should return any partial entry after the activation
-        // character
-        return "";
-    }
 
     /*
      * (non-Javadoc)
@@ -338,7 +366,7 @@ public class PythonCompletionProcessor extends TemplateCompletionProcessor
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
-        return new char[] { '.', '(', '[' };
+        return new char[] { '.'/*, '(', '['*/ };
     }
 
     /*
