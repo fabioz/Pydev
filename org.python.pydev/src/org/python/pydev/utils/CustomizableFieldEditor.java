@@ -217,7 +217,7 @@ public class CustomizableFieldEditor extends FieldEditor {
 //            System.out.println("fill");
             gd.horizontalAlignment = GridData.FILL_BOTH;
             gd.verticalSpan = 4;
-            gd.horizontalSpan=1;
+            gd.horizontalSpan=2;
             gd.grabExcessVerticalSpace = true;
             gd.widthHint = 600;
             gd.heightHint = 60;
