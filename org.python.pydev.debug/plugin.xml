@@ -3,7 +3,7 @@
 <plugin
 	id="org.python.pydev.debug"
 	name="Pydev debug"
-	version="0.8.2"
+	version="0.8.2.1"
 	provider-name="Aleks Totic / Fabio Zadrozny"
 	class="org.python.pydev.debug.core.PydevDebugPlugin">
 
@@ -296,6 +296,12 @@
             name="Unit Test Report View"
             id="org.python.pydev.debug.views.TestReportView"/>
    </extension>
+   
+	<extension point="org.eclipse.debug.core.watchExpressionDelegates">
+		<watchExpressionDelegate 
+			debugModel="org.python.pydev.debug"
+			delegateClass="org.python.pydev.debug.model.PyWatchExpressionDelegate"/>
+	</extension>
 
 </plugin>
 

@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
+import org.eclipse.debug.core.model.IWatchExpression;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.IValueDetailListener;
 import org.eclipse.jface.util.ListenerList;
@@ -91,6 +92,19 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 		} else if (element instanceof PyVariableCollection
 			|| element instanceof PyVariable) {
 			return null;	// defaults are fine
+		} else if (element instanceof IWatchExpression) {
+			try {
+				IWatchExpression watch_expression = (IWatchExpression)element;
+				IValue value = watch_expression.getValue();
+				if (value != null) {
+					return "\"" + watch_expression.getExpressionText() + "\"= " + 
+						value.getValueString();
+				}else{
+					return null;
+				}
+			}catch( DebugException e ){
+				return null;
+			}
 		}
 		PydevDebugPlugin.log(IStatus.ERROR, "unknown debug type", null);
 		return null;

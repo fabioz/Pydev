@@ -155,4 +155,14 @@ def resolveCompoundVariable(thread, frame_id, scope, attrs):
 #	print >>sys.stderr, "Got variable", var
 	(type, typeName, resolver) = getType(var)
 	return resolver.getDictionary(var)
+
 	
+def evaluateExpression( thread, frame_id, expression ):
+	"""returns the result of the evaluated expression"""
+	frame = findFrame(thread, frame_id)
+	result = None	
+	try:
+		result = eval( expression, frame.f_globals, frame.f_locals )
+	except Exception, e:
+		result = str( e )
+	return result

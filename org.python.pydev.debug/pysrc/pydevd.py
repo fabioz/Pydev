@@ -34,6 +34,7 @@ each command has a format:
 									   see code for definition
 	111      SET_BREAK       RDB       file/line of the breakpoint
 	112      REMOVE_BREAK    RDB       file/line of the return
+    113      EVALUATE_EXPRESSION RDB   expression          result of evaluating the expression
 
 500 series diagnostics/ok
     901      VERSION       either      Version string (1.0)               Currently just used at startup
@@ -68,6 +69,7 @@ CMD_STEP_RETURN = 109
 CMD_GET_VARIABLE = 110
 CMD_SET_BREAK = 111
 CMD_REMOVE_BREAK = 112
+CMD_EVALUATE_EXPRESSION = 113
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -265,6 +267,13 @@ class NetCommandFactory:
         except Exception, e:
             return self.makeErrorMessage(seq, str(e))
 
+            
+    def makeEvaluateExpressionMessage(self, seq, payload):
+        try:
+            return NetCommand(CMD_EVALUATE_EXPRESSION, seq, payload)
+        except Exception, e:
+            return self.makeErrorMessage(seq, str(e))
+
 INTERNAL_TERMINATE_THREAD = 1
 INTERNAL_SUSPEND_THREAD = 2
 
@@ -318,6 +327,32 @@ class InternalGetVariable:
         except Exception, e:
            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + str(e))
            dbg.writer.addCommand(cmd)
+
+           
+class InternalEvaluateExpression:
+    """ gets the value of a variable """
+    def __init__(self, seq, thread, frame_id, expression):
+        self.sequence = seq
+        self.thread = thread
+        self.frame_id = frame_id
+        self.expression = expression
+     
+    def doIt(self, dbg):
+        """ Converts request into python variable """
+        try:
+           result = pydevd_vars.evaluateExpression( self.thread, self.frame_id, self.expression )
+           xml = "<xml>"
+           xml += pydevd_vars.varToXML(result, "")
+           xml += "</xml>"
+#           print >>sys.stderr, "done to xml"
+           cmd = dbg.cmdFactory.makeEvaluateExpressionMessage(self.sequence, xml)
+#           print >>sys.stderr, "sending command"
+           dbg.writer.addCommand(cmd)
+        except Exception, e:
+           cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + str(e))
+           dbg.writer.addCommand(cmd)
+           traceback.print_exc(file=sys.stderr)
+
 
 def pydevd_findThreadById(thread_id):
     try:
@@ -502,6 +537,15 @@ class PyDB:
                             del self.breakpoints[file]
                     else:
                        print sys.stderr, "breakpoint not found", file, str(line)
+            elif (id == CMD_EVALUATE_EXPRESSION):
+                 # text is: thread\tstackframe\tLOCAL\texpression
+                 (thread_id, frame_id, scope, expression) = text.split('\t', 3)
+                 t = pydevd_findThreadById(thread_id)
+                 if t:
+                     int_cmd = InternalEvaluateExpression(seq, t, frame_id, expression)
+                     self.postInternalCommand(int_cmd, thread_id)
+                 else:
+                     cmd = self.cmdFactory.makeErrorMessage(seq, "could not find thread for expression")
             else:
                 cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(id))
             pydevd_log(1, "processed command " + str (id))
