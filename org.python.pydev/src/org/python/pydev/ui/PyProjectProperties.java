@@ -5,11 +5,14 @@
  */
 package org.python.pydev.ui;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
@@ -293,19 +296,22 @@ public class PyProjectProperties extends PropertyPage {
 
             public void widgetSelected(SelectionEvent e) {
                 try {
-                    List p = new ArrayList();
+                    Set p = new HashSet();
                     
                     List pythonPath = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL).getPythonPath();
                     for (Iterator iter = pythonPath.iterator(); iter.hasNext();) {
                         String[] element = (String[]) iter.next();
                         if(element.length > 0){
-                            p.add(element[0]);
+                            File file = new File(element[0]);
+                            if(file.exists() && file.isDirectory()){
+                                p.add(element[0]);
+                            }
                         }                        
                     }
                     
                     table.removeAll();
                     
-                    fillTableWithPath(p);
+                    fillTableWithPath(new ArrayList(p));
 
                 } catch (CoreException e1) {
                     PydevPlugin.log(e1);

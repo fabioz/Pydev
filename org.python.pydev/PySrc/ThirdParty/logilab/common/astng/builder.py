@@ -15,13 +15,12 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """The ASTNGBuilder makes astng from living object and / or from compiler.ast 
 
-TODO:
  - more complet representation on inspect build
    (imported modules ? use dis.dis ?)
 """
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: builder.py,v 1.2 2004-10-26 14:18:36 fabioz Exp $"
+__revision__ = "$Id: builder.py,v 1.3 2004-12-01 16:59:14 fabioz Exp $"
 
 import sys
 from compiler import parse

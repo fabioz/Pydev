@@ -47,7 +47,7 @@ public abstract class AbstractModule implements Serializable{
     public static AbstractModule createModule(String name, File f) {
         String path = f.getAbsolutePath();
         if(PythonPathHelper.isValidFileMod(path)){
-	        if(path.endsWith(".py")){
+	        if(isValidSourceFile(path)){
 		        try {
 		            FileInputStream stream = new FileInputStream(f);
 		            try {
@@ -75,6 +75,14 @@ public abstract class AbstractModule implements Serializable{
 
     
     /**
+     * @param path
+     * @return
+     */
+    private static boolean isValidSourceFile(String path) {
+        return path.endsWith(".py") || path.endsWith(".pyw");
+    }
+    
+    /**
      * @param name
      * @param f
      * @param doc
@@ -82,7 +90,8 @@ public abstract class AbstractModule implements Serializable{
      */
     public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc) {
         //for doc, we are only interested in python files.
-        if(f.getAbsolutePath().endsWith(".py")){
+        String absolutePath = f.getAbsolutePath();
+        if(isValidSourceFile(absolutePath)){
 	        Object[] obj = PyParser.reparseDocument(doc, true);
 	        SimpleNode n = (SimpleNode) obj[0];
 	        return new SourceModule(name, f, n);

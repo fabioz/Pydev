@@ -27,14 +27,13 @@
   Display help messages about given message identifiers and exit.
 """
 
-__revision__ = "$Id: lint.py,v 1.2 2004-10-26 14:18:33 fabioz Exp $"
+__revision__ = "$Id: lint.py,v 1.3 2004-12-01 16:59:15 fabioz Exp $"
 
 from __future__ import nested_scopes
 
 import sys
 import os
 
-#HACK - TODO:Fix it!!
 sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0]), "../../../ThirdParty"))
 
 # import this to avoid further builtins pollution possibilities

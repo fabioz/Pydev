@@ -82,7 +82,6 @@ class SourceFile:
     def getLine(self,linenum):
         return self.getLines()[linenum-1]
 
-    # TODO: rename me!
     def getFlattenedListOfFastParserASTNodes(self):
         return self.fastparseroot.getFlattenedListOfChildNodes()
         

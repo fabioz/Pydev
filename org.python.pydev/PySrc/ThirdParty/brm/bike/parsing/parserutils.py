@@ -129,7 +129,6 @@ def generateLogicalLines(physicallines):
 
 # see above but yields (line,linenum)
 #   needs physicallines to have linenum attribute
-#   TODO: refactor with previous function
 def generateLogicalLinesAndLineNumbers(physicallines):
     tmp = []
     hangingBraces = list(emptyHangingBraces)

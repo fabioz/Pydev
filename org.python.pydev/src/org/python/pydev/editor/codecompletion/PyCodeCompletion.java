@@ -120,29 +120,32 @@ public class PyCodeCompletion {
         } else if (trimmed.equals("") == false
                 && theActivationToken.indexOf('.') != -1) {
         
-            List completions;
+            List completions = new ArrayList();
             if (trimmed.equals("self")) {
                 Location loc = Location.offsetToLocation(doc, documentOffset);
                 AbstractNode closest = ModelUtils.getLessOrEqualNode(edit
                         .getPythonModel(), loc);
         
                 if(closest == null){
-                    completions = serverShell.getTokenCompletions(trimmed,
-                            docToParse);
+//                    completions = serverShell.getTokenCompletions(trimmed,
+//                            docToParse);
                 }else{
                     Scope scope = closest.getScope().findContainingClass(); //null returned if self. within a method and not in a class.
                     String token = scope.getStartNode().getName();
-                    completions = serverShell
-                            .getClassCompletions(token, docToParse);
+//                    completions = serverShell
+//                            .getClassCompletions(token, docToParse);
                 }
             } else {
-                completions = serverShell.getTokenCompletions(trimmed,
-                        docToParse);
+//                completions = serverShell.getTokenCompletions(trimmed,
+//                        docToParse);
             }
             theList.addAll(completions);
         
         } else { //go to globals
-            List completions = serverShell.getGlobalCompletions(docToParse);
+            List completions = new ArrayList();
+            System.out.println("Globals");
+
+//            completions = serverShell.getGlobalCompletions(docToParse);
             theList.addAll(completions);
         
         }

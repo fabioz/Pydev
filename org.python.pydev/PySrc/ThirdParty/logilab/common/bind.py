@@ -18,9 +18,8 @@
  their names to values provided in a dictionnary
 """
 
-__revision__ = '$Id: bind.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $'
+__revision__ = '$Id: bind.py,v 1.3 2004-12-01 16:59:13 fabioz Exp $'
 
-# TODO: unit tests
 # * this module provide a function bind(func,vars) which replaces every
 #   global variable 'm' by the value vars['m'] if such value exists in dict
 

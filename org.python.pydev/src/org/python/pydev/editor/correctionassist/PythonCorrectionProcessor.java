@@ -494,7 +494,6 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
      *      int)
      */
     public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -504,7 +503,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
-        // TODO Auto-generated method stub
+        // TODO: Make this in new code completion
         return null;
     }
 
@@ -514,7 +513,6 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationAutoActivationCharacters()
      */
     public char[] getContextInformationAutoActivationCharacters() {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -534,7 +532,6 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationValidator()
      */
     public IContextInformationValidator getContextInformationValidator() {
-        // TODO Auto-generated method stub
         return null;
     }
 

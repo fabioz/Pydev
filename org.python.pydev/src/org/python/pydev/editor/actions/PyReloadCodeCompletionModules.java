@@ -12,6 +12,8 @@ import org.eclipse.jface.action.IAction;
 import org.python.pydev.editor.codecompletion.PythonShell;
 
 /**
+ * 
+ * TODO: use this action with the new code completion
  * @author Fabio Zadrozny
  */
 public class PyReloadCodeCompletionModules extends PyAction{
@@ -23,10 +25,8 @@ public class PyReloadCodeCompletionModules extends PyAction{
         try {
             PythonShell.getServerShell(PythonShell.COMPLETION_SHELL).sendReloadModulesMsg();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (CoreException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         

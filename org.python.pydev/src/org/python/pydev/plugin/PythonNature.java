@@ -7,7 +7,6 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
@@ -171,11 +170,11 @@ public class PythonNature implements IProjectNature {
             Job myJob = new Job("Pydev code completion") {
 
                 protected IStatus run(IProgressMonitor monitor) {
-                    File file = getCompletionsCacheFile();
+                    File dir = getCompletionsCacheDir();
 
-                    //this is ok, just set it directly... (it is still null anyway, and it
-                    //might return null if some error happens).
-                    astManager = ASTManager.restoreASTManager(file, monitor, this);
+                    //this is ok, just set it directly... (if it is still null anyway, 
+                    //some error happened).
+                    astManager = ASTManager.restoreASTManager(dir, monitor, this);
 
                     //failed if still null.
                     if (astManager == null) {
@@ -205,18 +204,18 @@ public class PythonNature implements IProjectNature {
     /**
      * @return the file that should be used to store the completions.
      */
-    private File getCompletionsCacheFile() {
+    private File getCompletionsCacheDir() {
         IProject p = project; 
-        return getCompletionsCacheFile(p, p.getName());
+        return getCompletionsCacheDir(p);
     }
 
     /**
      * @param p
      * @return
      */
-    public static File getCompletionsCacheFile(IProject p, String name) {
+    public static File getCompletionsCacheDir(IProject p) {
         IPath location = p.getWorkingLocation(PydevPlugin.getPluginID());
-        IPath path = location.addTrailingSeparator().append(name + ".pydevcompletions");
+        IPath path = location;//.addTrailingSeparator().append(name + ".pydevcompletions");
 
         File file = new File(path.toOSString());
         return file;
@@ -235,19 +234,8 @@ public class PythonNature implements IProjectNature {
                 if (astManager != null) {
                     //synchronize it!!
                     synchronized (astManager) {
-                        File file = getCompletionsCacheFile();
-                        //create file if needed
-                        if (file.exists() == false) {
-                            try {
-                                file.createNewFile();
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                                PydevPlugin.log(e1);
-                            }
-                        }
-
                         //write completions cache to outputstream.
-                        astManager.saveASTManager(file, new JobProgressComunicator(monitor, "Save ast manager", astManager.getSize()+10, this));
+                        astManager.saveASTManager(getCompletionsCacheDir(), new JobProgressComunicator(monitor, "Save ast manager", astManager.getSize()+10, this));
                     }
                 }
                 return Status.OK_STATUS;

@@ -37,8 +37,8 @@ public class PythonPathHelper implements Serializable{
      * @return
      */
     public String getDefaultPathStr(String str, boolean acceptPoint){
-        if(str.indexOf(".") != -1 && acceptPoint == false){
-            throw new RuntimeException("The pythonpath can only have full paths without . or ..");
+        if((str.indexOf("\\.") != -1 || str.indexOf(".") == 1) && acceptPoint == false){
+            throw new RuntimeException("The pythonpath can only have full paths without . or .. ("+str+") is not valid.");
         }
         if(str.indexOf(':') == 1){
             String drive = str.substring(0,1).toLowerCase();
@@ -81,6 +81,7 @@ public class PythonPathHelper implements Serializable{
      */
     public static boolean isValidFileMod(String path){
         if(path.endsWith(".py")   || 
+           path.endsWith(".pyw")   ||     
 //           path.endsWith(".pyc")  || - we don't want pyc files, only source files and compiled extensions
            path.endsWith(".pyd")  ||
            path.endsWith(".dll")  

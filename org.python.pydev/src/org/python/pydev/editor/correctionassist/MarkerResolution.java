@@ -28,7 +28,6 @@ public class MarkerResolution implements IMarkerResolution {
      * @see org.eclipse.ui.IMarkerResolution#getLabel()
      */
     public String getLabel() {
-        // TODO Auto-generated method stub
         return label;
     }
 

@@ -137,7 +137,6 @@ public class PyUnitTestRunner {
 		try {
 			serverFile = getScriptWithinPySrc("SocketTestRunner.py");
 		} catch (CoreException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		String command = "python "+serverFile.getAbsolutePath()+" "+pRead+" ";
