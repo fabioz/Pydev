@@ -182,7 +182,7 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		text.removePaintListener(this);
 		}
 
-	private void updateColor(ISourceViewer viewer) {
+	public void updateColor(ISourceViewer viewer) {
 	
 		StyledText text= viewer.getTextWidget();
 		if (text == null || text.isDisposed())

@@ -90,4 +90,14 @@ public class ColorCache {
 		}
 		return color;
 	}
+	
+	//reloads the specified color from preferences
+	public void reloadNamedColor(String name)
+	{
+		if( fNamedColorTable.containsKey(name) ) {
+			//UndisposedColors.add(fNamedColorTable.get(name));
+			((Color)fNamedColorTable.get(name)).dispose();
+			fNamedColorTable.remove(name);
+		}
+	}
 }

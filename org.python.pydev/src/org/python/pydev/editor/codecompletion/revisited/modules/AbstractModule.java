@@ -107,7 +107,7 @@ public abstract class AbstractModule implements Serializable{
      * @return
      * @throws FileNotFoundException
      */
-    public static AbstractModule createModule(String name, File f, PythonNature nature) throws FileNotFoundException {
+    public static AbstractModule createModule(String name, File f, PythonNature nature, int currLine) throws FileNotFoundException {
         String path = f.getAbsolutePath();
         if(PythonPathHelper.isValidFileMod(path)){
 	        if(isValidSourceFile(path)){
@@ -118,7 +118,7 @@ public abstract class AbstractModule implements Serializable{
 	                stream.read(b);
 	
 	                Document doc = new Document(new String(b));
-                    return createModuleFromDoc(name, f, doc, nature);
+                    return createModuleFromDoc(name, f, doc, nature, currLine);
 	
 	            } catch (IOException e) {
                     PydevPlugin.log(e);
@@ -153,11 +153,11 @@ public abstract class AbstractModule implements Serializable{
      * @param doc
      * @return
      */
-    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, PythonNature nature) {
+    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, PythonNature nature, int currLine) {
         //for doc, we are only interested in python files.
         String absolutePath = f.getAbsolutePath();
         if(isValidSourceFile(absolutePath)){
-	        Object[] obj = PyParser.reparseDocument(doc, true, nature);
+	        Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine));
 	        SimpleNode n = (SimpleNode) obj[0];
 	        return new SourceModule(name, f, n);
         }else{

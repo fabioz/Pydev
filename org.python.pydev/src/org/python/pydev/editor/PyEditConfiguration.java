@@ -6,9 +6,6 @@
  
 package org.python.pydev.editor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.DefaultUndoManager;
@@ -18,21 +15,12 @@ import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.IUndoManager;
-import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
-import org.eclipse.jface.text.rules.IRule;
-import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.IWhitespaceDetector;
-import org.eclipse.jface.text.rules.IWordDetector;
-import org.eclipse.jface.text.rules.RuleBasedScanner;
-import org.eclipse.jface.text.rules.Token;
-import org.eclipse.jface.text.rules.WhitespaceRule;
-import org.eclipse.jface.text.rules.WordRule;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
@@ -61,12 +49,14 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
 	private ColorCache colorCache;
 	private PyAutoIndentStrategy autoIndentStrategy;
-//	private ColorManager colorManager;
 	private String[] indentPrefixes = { "    ", "\t", ""};
 	private PyEdit edit;
-    public PyContentAssistant pyContentAssistant = new PyContentAssistant();
-	
-	public PyEditConfiguration(ColorCache colorManager, PyEdit edit) {
+	private PresentationReconciler reconciler;
+	private PyCodeScanner codeScanner;
+	private PyColoredScanner commentScanner, stringScanner;
+	public PyContentAssistant pyContentAssistant = new PyContentAssistant();    
+    
+    public PyEditConfiguration(ColorCache colorManager, PyEdit edit) {
 		colorCache = colorManager;
 		this.setEdit(edit);
 	}
@@ -164,124 +154,45 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		return PydevPlugin.getDefault().getPluginPreferences().getInt(PydevPrefs.TAB_WIDTH);
 	}
     
-	/**
-	 * @param color - default return color of this scanner
-	 * @return scanner with no rules, that colors all text with default color
-	 */
-	private RuleBasedScanner getColoredScanner(Color color) {
-		RuleBasedScanner scanner = new RuleBasedScanner();
-		TextAttribute style = new TextAttribute(color);
-		scanner.setDefaultReturnToken(new Token(style));
-		return scanner;
-	}
-	
-	/**
-	 * Whitespace detector.
-	 * 
-	 * I know, naming the class after a band that burned
-	 * is not funny, but I've got to get my brain off my
-	 * annoyance with the abstractions of JFace.
-	 * So many classes and interfaces for a single method?
-	 * f$%@#$!!
-	 */
-	static private class GreatWhite implements IWhitespaceDetector {
-		public boolean isWhitespace(char c) {return Character.isWhitespace(c);}
-	};
-	
-	/**
-	 * Python keyword detector
-	 */
-	static private class GreatKeywordDetector implements IWordDetector {
-		// keywords list has to be alphabetized for this to work properly
-		static public String[] keywords = {
-				"and","as","assert","break","class","continue",
-				"def","del","elif","else","except","exec",
-				"finally","for","from","global",
-				"if","import","in","is","lambda","not",
-				"or","pass","print","raise","return",
-				"try","while","yield","False", "None", "True" };
-
-		public GreatKeywordDetector() {
-		}
-		public boolean isWordStart(char c) {
-			return Character.isJavaIdentifierStart(c);
-		}
-		public boolean isWordPart(char c) {
-			return Character.isJavaIdentifierPart(c);
-		}
-	}
-	
-	/** 
-	 * Code scanner colors keywords
-	 * 
-	 */
-	private RuleBasedScanner getCodeScanner() {
-		RuleBasedScanner codeScanner = new RuleBasedScanner();
-		IToken keywordToken = new Token(
-				new TextAttribute(colorCache.getNamedColor(PydevPrefs.KEYWORD_COLOR)));
-		IToken defaultToken = new Token(
-				new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR)));
-		IToken errorToken = new Token(
-				new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR))); // Includes operators, brackets, numbers etc.
-		codeScanner.setDefaultReturnToken(errorToken);
-		List rules = new ArrayList();
-		
-		// Scanning strategy:
-		// 1) whitespace
-		// 2) code
-		// 3) regular words?
-		
-		rules.add(new WhitespaceRule(new GreatWhite()));
-		
-		WordRule wordRule = new WordRule(new GreatKeywordDetector(), defaultToken);
-		for (int i=0; i<GreatKeywordDetector.keywords.length;i++) {
-			wordRule.addWord(GreatKeywordDetector.keywords[i], keywordToken);
-		}
-		rules.add(wordRule);
-
-		IRule[] result = new IRule[rules.size()];
-		rules.toArray(result);
-		codeScanner.setRules(result);
-		return codeScanner;
-	}
- 
 	public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
 
-		PresentationReconciler reconciler = new PresentationReconciler();
+		if (reconciler == null)
+		{
+			reconciler = new PresentationReconciler();
+			
+			DefaultDamagerRepairer dr;
+			
+			// DefaultDamagerRepairer implements both IPresentationDamager, IPresentationRepairer 
+			// IPresentationDamager::getDamageRegion does not scan, just 
+			// returns the intersection of document event, and partition region
+			// IPresentationRepairer::createPresentation scans
+			// gets each token, and sets text attributes according to token
+			
+			// We need to cover all the content types from PyPartitionScanner
 
-		DefaultDamagerRepairer dr;
+			// Comments have uniform color
+			commentScanner = new PyColoredScanner(colorCache, PydevPrefs.COMMENT_COLOR);
+			dr = new DefaultDamagerRepairer(commentScanner);
+			reconciler.setDamager(dr, PyPartitionScanner.PY_COMMENT);
+			reconciler.setRepairer(dr, PyPartitionScanner.PY_COMMENT);
 
-		// DefaultDamagerRepairer implements both IPresentationDamager, IPresentationRepairer 
-		// IPresentationDamager::getDamageRegion does not scan, just 
-		// returns the intersection of document event, and partition region
-		// IPresentationRepairer::createPresentation scans
-		// gets each token, and sets text attributes according to token
+			// Strings have uniform color
+			stringScanner = new PyColoredScanner(colorCache, PydevPrefs.STRING_COLOR);
+			dr = new DefaultDamagerRepairer(stringScanner);
+			reconciler.setDamager(dr, PyPartitionScanner.PY_SINGLELINE_STRING);
+			reconciler.setRepairer(dr, PyPartitionScanner.PY_SINGLELINE_STRING);
+			reconciler.setDamager(dr, PyPartitionScanner.PY_MULTILINE_STRING);
+			reconciler.setRepairer(dr, PyPartitionScanner.PY_MULTILINE_STRING);
 		
-		// We need to cover all the content types from PyPartitionScanner
-
-		// Comments have uniform color
-		dr = new DefaultDamagerRepairer(
-				getColoredScanner((colorCache.getNamedColor(PydevPrefs.COMMENT_COLOR))));
-		reconciler.setDamager(dr, PyPartitionScanner.PY_COMMENT);
-		reconciler.setRepairer(dr, PyPartitionScanner.PY_COMMENT);
-
-		// Strings have uniform color
-		dr = new DefaultDamagerRepairer(
-				getColoredScanner((colorCache.getNamedColor(PydevPrefs.STRING_COLOR))));
-		reconciler.setDamager(dr, PyPartitionScanner.PY_SINGLELINE_STRING);
-		reconciler.setRepairer(dr, PyPartitionScanner.PY_SINGLELINE_STRING);
-		reconciler.setDamager(dr, PyPartitionScanner.PY_MULTILINE_STRING);
-		reconciler.setRepairer(dr, PyPartitionScanner.PY_MULTILINE_STRING);
-	
-		// Default content is code, we need syntax highlighting
-		dr = new DefaultDamagerRepairer(
-			getCodeScanner());
-		reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
-		reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
+			// Default content is code, we need syntax highlighting
+			codeScanner = new PyCodeScanner(colorCache);
+			dr = new DefaultDamagerRepairer(codeScanner);
+			reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
+			reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
+		}
 
 		return reconciler;
 	}
-
 	
 	
 	/* (non-Javadoc)
@@ -403,7 +314,22 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         return edit;
     }
 
-
-
-
+    //updates the syntax highlighting for the specified preference
+    //assumes that that editor colorCache has been updated with the
+    //new named color
+    public void updateSyntaxColor(String name)
+    {
+    	if (reconciler != null) {
+    		
+    		if (name.equals(PydevPrefs.CODE_COLOR) ||
+    			name.equals(PydevPrefs.KEYWORD_COLOR)) 
+    		{
+    			codeScanner.updateColors();    			
+    		} else if (name.equals(PydevPrefs.COMMENT_COLOR)) {
+    			commentScanner.updateColor();
+    	    } else if (name.equals(PydevPrefs.STRING_COLOR)) {
+    	    	stringScanner.updateColor();
+    	    }
+    	}
+    }
 }

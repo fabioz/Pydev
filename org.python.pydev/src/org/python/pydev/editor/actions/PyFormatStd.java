@@ -159,6 +159,10 @@ public class PyFormatStd extends PyAction{
         //check if we're starting a single or multiline comment...
         char curr = cs[i];
         
+        if(curr != '"' && curr != '\''){
+            throw new RuntimeException("Wrong location to eat literals. Expecting ' or \" ");
+        }
+        
         boolean multi = isMultiLiteral(cs, i, curr);
         
         int j;
@@ -223,7 +227,13 @@ public class PyFormatStd extends PyAction{
             
             j++;
             
-            if( c == '('){ //open another par.
+            if(c == '\'' || c == '"'){ //ignore comments or multiline comments...
+                j = eatLiterals(std, cs, locBuf, j-1)+1;
+                
+            }else if(c == '#'){
+                j = eatComments(std, cs, locBuf, j-1)+1;
+                
+            }else if( c == '('){ //open another par.
                 j = formatForPar(cs, j-1, std, locBuf)+1;
             
             }else{
@@ -233,8 +243,9 @@ public class PyFormatStd extends PyAction{
         }
         
         if(c == ')'){
-	        String formatStr = formatStr(locBuf.toString().trim(), std);
-	        formatStr = formatStr.trim();
+            
+	        String formatStr = formatStr(trim(locBuf), std);
+	        formatStr = trim(new StringBuffer(formatStr));
 	        
 	        if(std.parametersWithSpace){
 	            if(formatStr.length() == 0){
@@ -254,6 +265,23 @@ public class PyFormatStd extends PyAction{
         }else{
             return i;
         }
+    }
+
+    
+    
+    /**
+     * We just want to trim whitespaces, not newlines!
+     * @param locBuf
+     * @return
+     */
+    private static String trim(StringBuffer locBuf) {
+        while(locBuf.length() > 0 && locBuf.charAt(0) == ' '){
+            locBuf.deleteCharAt(0);
+        }
+        while(locBuf.length() > 0 && locBuf.charAt(locBuf.length()-1) == ' '){
+            locBuf.deleteCharAt(locBuf.length()-1);
+        }
+        return locBuf.toString();
     }
 
     /**

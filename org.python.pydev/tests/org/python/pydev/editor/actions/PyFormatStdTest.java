@@ -205,6 +205,27 @@ public class PyFormatStdTest extends TestCase {
         assertEquals(s, PyFormatStd.formatStr(s, std));
     }
 
+    public void testFormatNotInsideComments2(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = true;
+
+        String s = "methodname.split( '(' )";
+        
+        assertEquals(s, PyFormatStd.formatStr(s, std));
+    }
+
+    public void testFormatNotInsideComments3(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = true;
+
+        String s = "methodname.split( #'(' \n" +
+        		" )";
+        
+        String formatStr = PyFormatStd.formatStr(s, std);
+        System.out.println(formatStr);
+        assertEquals(s, formatStr);
+    }
+
     
     
 

@@ -18,6 +18,8 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.python.parser.CharStream;
@@ -175,7 +177,7 @@ public class PyParser {
     void reparseDocument() {
         
         //get the document ast and error in object
-        Object obj[] = reparseDocument(document, true, editorView.getPythonNature());
+        Object obj[] = reparseDocument(new ParserInfo(document, true, editorView.getPythonNature(), -1));
         
         if(obj[0] != null && obj[0] instanceof SimpleNode){
             IEditorInput input = editorView.getEditorInput();
@@ -204,7 +206,26 @@ public class PyParser {
 
     
     //static methods that can be used to get the ast (and error if any) --------------------------------------
+    
+    public static class ParserInfo{
+        public IDocument document;
+        public boolean reparseIfErrorFound=true; 
+        public PythonNature nature;
+        public int currentLine=-1;
+        public String initial = null;
+        
+        public ParserInfo(IDocument document, boolean reparseIfErrorFound, PythonNature nature){
+            this.document = document;
+            this.reparseIfErrorFound = reparseIfErrorFound;
+            this.nature = nature;
+        }
 
+        public ParserInfo(IDocument document, boolean reparseIfErrorFound, PythonNature nature, int currentLine){
+            this(document, reparseIfErrorFound, nature);
+            this.currentLine = currentLine;
+        }
+    }
+    
     /**
      * 
      * @param document the document that should be parsed.
@@ -218,16 +239,20 @@ public class PyParser {
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
-    public static Object[] reparseDocument(IDocument document, boolean reparseIfErrorFound, PythonNature nature) {
+    public static Object[] reparseDocument(ParserInfo info) {
         // create a stream with document's data
-        StringReader inString = new StringReader(document.get());
+        String initialDoc = info.document.get();
+        
+        if(info.initial == null){
+            info.initial = initialDoc;
+        }
+        
+        StringReader inString = new StringReader(initialDoc);
         ReaderCharStream in = new ReaderCharStream(inString);
-
         IParserHost host = new CompilerAPI();
-
         PythonGrammar g1 = new PythonGrammar((CharStream) null, (IParserHost) null);
-
         PythonGrammar grammar = new PythonGrammar(in, host);
+
 
         try {
             SimpleNode newRoot = grammar.file_input(); // parses the file
@@ -237,8 +262,8 @@ public class PyParser {
         } catch (ParseException parseErr) {
             SimpleNode newRoot = null;
             
-            if (reparseIfErrorFound){
-                newRoot = tryReparseAgain(document, parseErr, nature);
+            if (info.reparseIfErrorFound){
+                newRoot = tryReparseAgain(info, parseErr);
             }
             
             return new Object[]{newRoot, parseErr};
@@ -249,22 +274,22 @@ public class PyParser {
     
             //lets try to make it 2.4 compatible
             //TODO: (HACK) this is a hack, once the grammar is compatible to 2.4, remove it!
-            float f = Float.parseFloat(nature.getVersion());
-            if(nature != null && f >= 2.4){
+            float f = Float.parseFloat(info.nature.getVersion());
+            if(info.nature != null && f >= 2.4){
 	            if(tokenErr.curChar.equals("@") && tokenErr.errorCode == TokenMgrError.LEXICAL_ERROR){
 	                int line = tokenErr.errorLine;
-	                String docToParse = PyCodeCompletion.getDocToParseFromLine(document, line-1);
+	                String docToParse = PyCodeCompletion.getDocToParseFromLine(info.document, line-1);
 	                if(docToParse != null){
 	
 	                    Document doc = new Document(docToParse);
-	                    return reparseDocument(doc, true, nature);
+	                    return reparseDocument(new ParserInfo(doc, true, info.nature));
 	                }
 	            }
             }
             //END: HACK
             
-            if (reparseIfErrorFound){
-                newRoot = tryReparseAgain(document, tokenErr, nature);
+            if (info.reparseIfErrorFound){
+                newRoot = tryReparseAgain(info, tokenErr);
             }
             
             return new Object[]{newRoot, tokenErr};
@@ -274,13 +299,20 @@ public class PyParser {
             return null;
         }
     }
+
     /**
      * @param tokenErr
      */
-    private static SimpleNode tryReparseAgain(IDocument document, TokenMgrError tokenErr, PythonNature nature) {
-        int line = tokenErr.errorLine;
+    private static SimpleNode tryReparseAgain(ParserInfo info, TokenMgrError tokenErr) {
+        int line = -1;
         
-        return tryReparseChangingLine(document, line, nature);
+        if(info.currentLine > -1){
+            line = info.currentLine;
+        }else{
+            line = tokenErr.errorLine;
+        }
+        
+        return tryReparseChangingLine(info, line);
     }
 
     /**
@@ -294,15 +326,16 @@ public class PyParser {
      * 
      * @param tokenErr
      */
-    private static SimpleNode tryReparseAgain(IDocument document, ParseException tokenErr, PythonNature nature) {
-        int line = 0;
-            line = tokenErr.currentToken.beginLine-1;
-//        if(tokenErr.currentToken.image.equals(".") || tokenErr.currentToken.image.equals("(")){
-//        }else{
-//            line = tokenErr.currentToken.beginLine;
-//        }
+    private static SimpleNode tryReparseAgain(ParserInfo info, ParseException tokenErr) {
+        int line = -1;
         
-        return tryReparseChangingLine(document, line, nature);
+        if(info.currentLine > -1){
+            line = info.currentLine;
+        }else{
+            line = tokenErr.currentToken.beginLine-1;
+        }
+        
+        return tryReparseChangingLine(info, line);
     }
 
     /**
@@ -312,12 +345,14 @@ public class PyParser {
      * @param line: offending line to be changed to try a reparse.
      * 
      */
-    private static SimpleNode tryReparseChangingLine(IDocument document, int line, PythonNature nature) {
-        String docToParse = PyCodeCompletion.getDocToParseFromLine(document, line);
+    private static SimpleNode tryReparseChangingLine(ParserInfo info, int line) {
+        String docToParse = PyCodeCompletion.getDocToParseFromLine(info.document, line);
         if(docToParse != null){
 
             Document doc = new Document(docToParse);
-	        return (SimpleNode) reparseDocument(doc, false, nature)[0];
+            info.document = doc;
+            info.reparseIfErrorFound = false;
+	        return (SimpleNode) reparseDocument(info)[0];
         }
         return null;
     }

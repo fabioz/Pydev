@@ -108,6 +108,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String COMMENT_COLOR = "COMMENT_COLOR";
 	private static final RGB DEFAULT_COMMENT_COLOR = new RGB(192, 192, 192);
 	
+	public static final String HYPERLINK_COLOR = "HYPERLINK_COLOR";
+	private static final RGB DEFAULT_HYPERLINK_COLOR = new RGB(0, 0, 238);
+	
 	private static final RGB DEFAULT_PREFERENCE_COLOR_BACKGROUND = new RGB(255, 255, 255);	
 	public static final boolean DEFAULT_EDITOR_BACKGROUND_COLOR_SYSTEM_DEFAULT = true;
 	private static final RGB DEFAULT_EDITOR_CURRENT_LINE_COLOR = new RGB(244, 255, 255);	
@@ -121,9 +124,6 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	//no UI
 	public static final String INTERPRETER_PATH = "INTERPRETER_PATH";
 	protected static final String DEFAULT_INTERPRETER_PATH = "python";
-	
-	public static final String HYPERLINK_COLOR = "HYPERLINK_COLOR";
-	private static final RGB DEFAULT_HYPERLINK_COLOR = new RGB(0, 0, 238);
 	
 	public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
 	public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
@@ -140,6 +140,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		{"Keywords", KEYWORD_COLOR, null},
 		{"Strings", STRING_COLOR, null},
 		{"Comments", COMMENT_COLOR, null},
+		{"Hyperlink", HYPERLINK_COLOR, null},
 		{"Background", AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT},
 		{"Current line highlight", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE_COLOR, null},
 		{"Line numbers", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_LINE_NUMBER_RULER_COLOR, null},		 
@@ -226,6 +227,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, KEYWORD_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, STRING_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, COMMENT_COLOR));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, HYPERLINK_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE_COLOR));
@@ -665,6 +667,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		prefs.setDefault(KEYWORD_COLOR,StringConverter.asString(DEFAULT_KEYWORD_COLOR));
 		prefs.setDefault(STRING_COLOR,StringConverter.asString(DEFAULT_STRING_COLOR));
 		prefs.setDefault(COMMENT_COLOR,StringConverter.asString(DEFAULT_COMMENT_COLOR));
+		prefs.setDefault(HYPERLINK_COLOR, StringConverter.asString(DEFAULT_HYPERLINK_COLOR));
 		prefs.setDefault(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND, StringConverter.asString(DEFAULT_PREFERENCE_COLOR_BACKGROUND));
 		prefs.setDefault(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT, StringConverter.asString(DEFAULT_EDITOR_BACKGROUND_COLOR_SYSTEM_DEFAULT));
 		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE_COLOR, StringConverter.asString(DEFAULT_EDITOR_CURRENT_LINE_COLOR));
@@ -676,8 +679,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		
 		//no UI
 		prefs.setDefault(CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
-		prefs.setDefault(RUN_MANY_SCRIPT_LOCATION, DEFAULT_RUN_MANY_SCRIPT_LOCATION);
-		prefs.setDefault(HYPERLINK_COLOR, StringConverter.asString(DEFAULT_HYPERLINK_COLOR));
+		prefs.setDefault(RUN_MANY_SCRIPT_LOCATION, DEFAULT_RUN_MANY_SCRIPT_LOCATION);		
 		prefs.setDefault(INTERPRETER_PATH, DEFAULT_INTERPRETER_PATH);
 	}
 	

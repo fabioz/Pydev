@@ -155,7 +155,7 @@ public class ASTManager implements Serializable, IASTManager {
     public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature) {
         final String m = pythonPathHelper.resolveModule(f.getAbsolutePath());
         if (m != null) {
-            final AbstractModule value = AbstractModule.createModuleFromDoc(m, f, doc, nature);
+            final AbstractModule value = AbstractModule.createModuleFromDoc(m, f, doc, nature, -1);
             final ModulesKey key = new ModulesKey(m, f);
             modules.put(key, value);
 
@@ -356,7 +356,7 @@ public class ASTManager implements Serializable, IASTManager {
                 
             } else if(e.f != null){
                 try{
-                    n = AbstractModule.createModule(name, e.f, nature);
+                    n = AbstractModule.createModule(name, e.f, nature, -1);
                 }catch(FileNotFoundException exc){
                     this.modules.remove(new ModulesKey(name, e.f));
                     n = null;
@@ -407,7 +407,7 @@ public class ASTManager implements Serializable, IASTManager {
      * @return
      */
     public IToken[] getCompletionsForToken(File file, IDocument doc, CompletionState state) {
-        AbstractModule module = AbstractModule.createModuleFromDoc("", file, doc, state.nature);
+        AbstractModule module = AbstractModule.createModuleFromDoc("", file, doc, state.nature, state.line);
         return getCompletionsForModule(module, state);
     }
 
@@ -421,7 +421,7 @@ public class ASTManager implements Serializable, IASTManager {
      * @return
      */
     public IToken[] getCompletionsForToken(IDocument doc, CompletionState state) {
-        Object[] obj = PyParser.reparseDocument(doc, true, state.nature);
+        Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, state.nature, state.line));
         SimpleNode n = (SimpleNode) obj[0];
         AbstractModule module = AbstractModule.createModule(n);
         state.recursing = false;

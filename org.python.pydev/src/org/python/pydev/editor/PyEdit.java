@@ -113,7 +113,7 @@ public class PyEdit extends PyEditProjection {
 
     /** listeners that get notified of model changes */
     ArrayList modelListeners;
-
+    
     public PyEdit() {
         super();
         modelListeners = new ArrayList();
@@ -229,6 +229,20 @@ public class PyEdit extends PyEditProjection {
                             PydevPlugin.getDefault().getPluginPreferences().getInt(PydevPrefs.TAB_WIDTH));
                 } else if (property.equals(PydevPrefs.GUESS_TAB_SUBSTITUTION)) {
                     resetForceTabs();
+                } else if (
+                		property.equals(PydevPrefs.CODE_COLOR) ||
+						property.equals(PydevPrefs.KEYWORD_COLOR) ||
+						property.equals(PydevPrefs.COMMENT_COLOR) ||
+						property.equals(PydevPrefs.STRING_COLOR)
+						) 
+                {
+                	colorCache.reloadNamedColor(property);
+					editConfiguration.updateSyntaxColor(property);
+                	getSourceViewer().invalidateTextPresentation();
+                } else if (property.equals(PydevPrefs.HYPERLINK_COLOR)) {
+                	colorCache.reloadNamedColor(property);
+                	if( fMouseListener != null )
+                		fMouseListener.updateColor(getSourceViewer());
                 }
             }
         };

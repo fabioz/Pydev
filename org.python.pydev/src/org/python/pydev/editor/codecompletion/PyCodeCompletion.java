@@ -15,14 +15,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.python.parser.SimpleNode;
+import org.python.parser.ast.ClassDef;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
-import org.python.pydev.editor.model.AbstractNode;
-import org.python.pydev.editor.model.Location;
-import org.python.pydev.editor.model.ModelUtils;
-import org.python.pydev.editor.model.Scope;
+import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
+import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PythonNature;
 
@@ -133,25 +133,25 @@ public class PyCodeCompletion {
         
             List completions = new ArrayList();
             if (trimmed.equals("self")) {
-                Location loc = Location.offsetToLocation(doc, documentOffset);
-                AbstractNode closest = ModelUtils.getLessOrEqualNode(edit
-                        .getPythonModel(), loc);
-        
-                if(closest == null){
-                    if(theActivationToken.endsWith(".")){
-                        theActivationToken = theActivationToken.substring(0, theActivationToken.length()-1);
+                SimpleNode s = (SimpleNode) PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, pythonNature, line))[0];
+                if(s != null){
+                    FindScopeVisitor visitor = new FindScopeVisitor(line, 0);
+                    try {
+                        s.accept(visitor);
+                        
+                        while(visitor.scope.scope.size() > 0){
+	                        SimpleNode node = (SimpleNode) visitor.scope.scope.pop();
+	                        if(node instanceof ClassDef){
+	                            ClassDef d = (ClassDef) node;
+	                            state.activationToken = d.name;
+	            	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, state);
+	            	            theList.addAll(Arrays.asList(comps));
+	                            break;
+	                        }
+                        }
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
                     }
-                    state.activationToken = theActivationToken;
-    	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, state  );
-    	            theList.addAll(Arrays.asList(comps));
-
-                }else{
-                    Scope scope = closest.getScope().findContainingClass(); //null returned if self. within a method and not in a class.
-                    String token = scope.getStartNode().getName();
-                    
-                    state.activationToken = token;
-    	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, state);
-    	            theList.addAll(Arrays.asList(comps));
                 }
                 
             } else {
