@@ -29,7 +29,7 @@ import org.python.pydev.plugin.SocketUtil;
  */
 public class PythonShell {
 
-    private static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 100;
+    private static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 500;
     /**
      * Reference to a 'global python shell'
      */

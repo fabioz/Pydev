@@ -174,10 +174,15 @@ public class PyCodeCompletion {
             e.printStackTrace();
         }
         
-        if(lineOfOffset!=-1)
-            return "\n"+getDocToParseFromLine(doc, lineOfOffset);
-        else
+        if(lineOfOffset!=-1){
+            String docToParseFromLine = getDocToParseFromLine(doc, lineOfOffset);
+            if(docToParseFromLine != null)
+                return "\n"+docToParseFromLine;
+            else
+                return "";
+        }else{
             return "";
+        }
     }
 
     /**
@@ -209,7 +214,9 @@ public class PyCodeCompletion {
                     + lineInformation.getLength(), docLength);
 
         } catch (BadLocationException e1) {
-            e1.printStackTrace();
+            //that's ok...
+            //e1.printStackTrace();
+            return null;
         }
         return newDoc;
     }

@@ -255,11 +255,13 @@ public class PyParser {
      */
     private void tryReparseChangingLine(int line) {
         String docToParse = PyCodeCompletion.getDocToParseFromLine(document, line);
+        if(docToParse != null){
 
-        // create a stream with document's data
-        StringReader inString = new StringReader(docToParse);
-        ReaderCharStream in = new ReaderCharStream(inString);
-        reparseDocument(in, false);
+	        // create a stream with document's data
+	        StringReader inString = new StringReader(docToParse);
+	        ReaderCharStream in = new ReaderCharStream(inString);
+	        reparseDocument(in, false);
+        }
     }
 }
 

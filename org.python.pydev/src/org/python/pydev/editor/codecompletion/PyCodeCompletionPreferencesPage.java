@@ -56,7 +56,10 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        String w = "WARNINGS for code completion:\n\n" 
+        addField(new BooleanFieldEditor(
+		        USE_CODECOMPLETION, "Use code completion?", p));
+
+        String w = "\nWARNINGS for code completion:\n\n" 
             	+ "Code completion works on top of a python shell and really \n"
                 + "EXECUTES THE CODE YOU WRITE on the top level on the module.\n\n"
                 + "So, you should NEVER call code that allocates resources or \n" 
@@ -66,13 +69,15 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
                 + "Code completion might also not work if the interpreter is not \n" 
                 + "correctly set, as it creates a shell to make code completion.\n\n" 
         		+ "Code completion is activated by Ctrl+Space, as are the templates, so,\n" 
-				+ "if you stop using code completion, the templates should still appear.";
+				+ "if you stop using code completion, the templates should still appear.\n\n" +
+				"AUTOCOMPLETION NOTE: autocompletion has been deactivated by default because\n" +
+				"sometimes it would seem that the editor hanged, and many times no tips are\n" +
+				"gotten, e.g.: Tips on parameters are NEVER gotten.\n\n" +
+				"See http://pydev.sourceforge.net/codecompletion.html for more information.\n";
 
         FieldEditor fe = new LabelFieldEditor("Warning", w, p);
         addField(fe);
 
-        addField(new BooleanFieldEditor(
-		        USE_CODECOMPLETION, "Use code completion?", p));
 
         //        addField(new BooleanFieldEditor(
         //		        USE_AUTOCOMPLETE, "Use autocompletion?", p));
