@@ -117,7 +117,8 @@ public class PyAddBlockComment extends PyAction
 		}
 		catch ( Exception e )
 		{
-			return "=========================";
+		    //return the default print margin...
+			return "================================================================================";
 		}
 	}
 }
