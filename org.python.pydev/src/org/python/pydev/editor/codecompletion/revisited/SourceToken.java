@@ -21,25 +21,17 @@ public class SourceToken extends AbstractToken{
     /**
      * @param node
      */
-    public SourceToken(SimpleNode node, String rep, String doc) {
-        super(rep, doc);
+    public SourceToken(SimpleNode node, String rep, String doc, String parentPackage) {
+        super(rep, doc, parentPackage, getType(node));
         this.ast = node;
     }
     private SimpleNode ast;
-    
- 
-    /**
-     * @see java.lang.Object#toString()
-     */
-    public String toString() {
-        return "Token: "+getRepresentation();
-    }
     
     /**
      * 
      * @return the completion type depending on the syntax tree.
      */
-    public int getCompletionType(){
+    public static int getType(SimpleNode ast){
         if (ast instanceof ClassDef){
             return PyCodeCompletion.TYPE_CLASS; 
         

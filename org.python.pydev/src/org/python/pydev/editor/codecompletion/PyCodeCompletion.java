@@ -7,8 +7,8 @@ package org.python.pydev.editor.codecompletion;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
@@ -16,6 +16,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PythonNature;
 
@@ -103,9 +104,8 @@ public class PyCodeCompletion {
             System.out.println(importsTipper);
 
             importsTipper = importsTipper.trim();
-            Set imports = astManager.getCompletionForImport(importsTipper);
-            List completions = new ArrayList(imports);
-            theList.addAll(completions);
+            IToken[] imports = astManager.getCompletionsForImport(importsTipper);
+            theList.addAll(Arrays.asList(imports));
         
 
 //            completions = serverShell.getImportCompletions(importsTipper);

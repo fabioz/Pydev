@@ -10,10 +10,10 @@ import java.io.Serializable;
 /**
  * @author Fabio Zadrozny
  */
-public interface IToken extends Serializable{
+public interface IToken extends Serializable, Comparable{
 
     public String getRepresentation();
     public String getDocStr();
-    public int getCompletionType();
-
+    public int getType();
+    public String getParentPackage();
 }

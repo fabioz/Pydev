@@ -6,8 +6,6 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Str;
@@ -44,7 +42,7 @@ public class SourceModule extends AbstractModule {
      * This modules are treated specially, as we don't care which tokens were imported. When this is requested, the module is prompted for
      * its tokens.
      */
-    public List getWildImportedModules() {
+    public IToken[] getWildImportedModules() {
         return getTokens(GlobalModelVisitor.WILD_MODULES);
     }
 
@@ -53,7 +51,7 @@ public class SourceModule extends AbstractModule {
      * 
      * from xxx import xxx import xxx import xxx as ... from xxx import xxx as ....
      */
-    public List getTokenImportedModules() {
+    public IToken[] getTokenImportedModules() {
         return getTokens(GlobalModelVisitor.ALIAS_MODULES);
     }
 
@@ -62,7 +60,7 @@ public class SourceModule extends AbstractModule {
      * 
      * The tokens can be class definitions, method definitions and attributes.
      */
-    public List getGlobalTokens() {
+    public IToken[] getGlobalTokens() {
         return getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
     }
 
@@ -70,9 +68,9 @@ public class SourceModule extends AbstractModule {
      * @return a string representing the module docstring.
      */
     public String getDocString() {
-        List l = getTokens(GlobalModelVisitor.MODULE_DOCSTRING);
-        if (l.size() > 0) {
-            SimpleNode a = ((SourceToken) l.get(0)).getAst();
+        IToken[] l = getTokens(GlobalModelVisitor.MODULE_DOCSTRING);
+        if (l.length > 0) {
+            SimpleNode a = ((SourceToken) l[0]).getAst();
 
             return ((Str) a).s;
         }
@@ -81,23 +79,25 @@ public class SourceModule extends AbstractModule {
 
     /**
      * @param which
-     * @return
+     * @return a list of IToken
      */
-    private List getTokens(int which) {
+    private IToken[] getTokens(int which) {
         try {
-            return GlobalModelVisitor.getTokens(ast, which);
+            return GlobalModelVisitor.getTokens(ast, which, name);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ArrayList();
+        return new IToken[0];
     }
 
     /**
-     * private constructor.
      * 
+     * @param name
+     * @param f
      * @param n
      */
-    public SourceModule(File f, SimpleNode n) {
+    public SourceModule(String name, File f, SimpleNode n) {
+        super(name);
         this.ast = n;
         this.file = f;
     }

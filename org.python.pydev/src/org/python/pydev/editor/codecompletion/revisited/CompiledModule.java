@@ -17,26 +17,31 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class CompiledModule extends AbstractModule{
 
-    private List tokens;
+    /**
+     * These are the tokens the compiled module has.
+     */
+    private IToken[] tokens = new IToken[0];
 
     /**
      * 
      * @param module - module from where to get completions.
      */
-    public CompiledModule(String moduleName){
-        System.out.println("creating compiled module: "+moduleName);
+    public CompiledModule(String name){
+        super(name);
+        System.out.println("creating compiled module: "+name);
         try {
             PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
-            List completions = shell.getImportCompletions(moduleName);
+            List completions = shell.getImportCompletions(name);
             
-            tokens = new ArrayList();
+            ArrayList array = new ArrayList();
             
             for (Iterator iter = completions.iterator(); iter.hasNext();) {
                 String[] element = (String[]) iter.next();
-                IToken t = new CompiledToken(element[0], element[1]);
-                tokens.add(t);
+                IToken t = new CompiledToken(element[0], element[1], name);
+                array.add(t);
                 
             }
+            tokens = (IToken[]) array.toArray(new IToken[0]);
         } catch (Exception e) {
             e.printStackTrace();
             PydevPlugin.log(e);
@@ -48,22 +53,22 @@ public class CompiledModule extends AbstractModule{
      * Compiled modules do not have imports to be seen
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getWildImportedModules()
      */
-    public List getWildImportedModules() {
-        return new ArrayList();
+    public IToken[] getWildImportedModules() {
+        return new IToken[0];
     }
 
     /**
      * Compiled modules do not have imports to be seen
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getTokenImportedModules()
      */
-    public List getTokenImportedModules() {
-        return new ArrayList();
+    public IToken[] getTokenImportedModules() {
+        return new IToken[0];
     }
 
     /**
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getGlobalTokens()
      */
-    public List getGlobalTokens() {
+    public IToken[] getGlobalTokens() {
         return tokens;
     }
 

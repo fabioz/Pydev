@@ -7,9 +7,6 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.eclipse.core.resources.ICommand;
@@ -172,31 +169,17 @@ public class PythonNature implements IProjectNature {
                 protected IStatus run(IProgressMonitor monitor) {
                     File file = getCompletionsCacheFile();
 
-                    if (file.exists()) {
-                        try {
-                            FileInputStream stream = new FileInputStream(file);
-                            try {
-                                //no way to end this operation.
-
-                                //this is ok, just set it directly... (it is still null anyway, and it
-                                //might return null if some error happens).
-                                astManager = ASTManager.restoreASTManager(stream, monitor, this);
-                                
-                            } finally {
-                                stream.close();
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            PydevPlugin.log(e);
-                        }
-                    }
+                    //this is ok, just set it directly... (it is still null anyway, and it
+                    //might return null if some error happens).
+                    astManager = ASTManager.restoreASTManager(file, monitor, this);
 
                     //failed if still null.
                     if (astManager == null) {
                         ASTManager tempAstManager = new ASTManager();
                         try {
-                            JobProgressComunicator comunicator = new JobProgressComunicator(monitor, "Rebuilding modules", 500, this);
-                            comunicator.worked("Rebuilding modules.", 1);
+                            IProgressMonitor comunicator = new JobProgressComunicator(monitor, "Rebuilding modules", 500, this);
+                            comunicator.worked(1);
+                            comunicator.setTaskName("Rebuilding modules.");
                             String pathStr = PyProjectProperties.getProjectPythonPathStr(project);
                             tempAstManager.rebuildModules(pathStr, comunicator);
                             astManager = tempAstManager; //only make it available after it is all loaded (better than synchronizing it).
@@ -251,21 +234,7 @@ public class PythonNature implements IProjectNature {
                         }
 
                         //write completions cache to outputstream.
-                        try {
-                            FileOutputStream out = new FileOutputStream(file);
-                            try{
-                                astManager.saveASTManager(out, new JobProgressComunicator(monitor, "Save ast manager", astManager.getSize()+10, this));
-                            }finally{
-                                try {
-                                    out.close();
-                                } catch (IOException e1) {
-                                    //that should be ok.
-                                }
-                            }
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                            PydevPlugin.log(e);
-                        }
+                        astManager.saveASTManager(file, new JobProgressComunicator(monitor, "Save ast manager", astManager.getSize()+10, this));
                     }
                 }
                 return Status.OK_STATUS;

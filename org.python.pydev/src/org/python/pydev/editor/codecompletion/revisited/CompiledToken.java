@@ -14,15 +14,8 @@ public class CompiledToken extends AbstractToken{
      * @param rep
      * @param doc
      */
-    public CompiledToken(String rep, String doc) {
-        super(rep, doc);
-    }
-
-    /**
-     * @see org.python.pydev.editor.javacodecompletion.IToken#getCompletionType()
-     */
-    public int getCompletionType() {
-        return -1;
+    public CompiledToken(String rep, String doc, String parentPackage) {
+        super(rep, doc, parentPackage, -1);
     }
 
 }

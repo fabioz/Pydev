@@ -43,12 +43,19 @@ public class GlobalModelVisitor extends VisitorBase {
     
     private SimpleNode initialAst;
 
+    /**
+     * Module being visited.
+     */
+    private String moduleName;
+
 
     /**
+     * @param moduleName
      * @param global_tokens2
      */
-    private GlobalModelVisitor(int visitWhat) {
+    private GlobalModelVisitor(int visitWhat, String moduleName) {
         this.visitWhat = visitWhat;
+        this.moduleName = moduleName;
     }
 
     protected Object unhandled_node(SimpleNode node) throws Exception {
@@ -113,7 +120,7 @@ public class GlobalModelVisitor extends VisitorBase {
      */
     private void addToken(SimpleNode node) {
         //add the token
-        SourceToken t = new SourceToken(node, getRepresentationString(node), getNodeDocString(node));
+        SourceToken t = new SourceToken(node, getRepresentationString(node), getNodeDocString(node), moduleName);
         this.tokens.add(t);
     }
 
@@ -165,11 +172,11 @@ public class GlobalModelVisitor extends VisitorBase {
     public Object visitImportFrom(ImportFrom node) throws Exception {
         if (this.visitWhat == WILD_MODULES) {
             if (node.names.length == 0) {
-                this.tokens.add(new SourceToken(node, node.module, ""));
+                this.tokens.add(new SourceToken(node, node.module, "", moduleName));
             }
         } else if (this.visitWhat == ALIAS_MODULES) {
             if (node.names.length > 0) {
-                this.tokens.add(new SourceToken(node, node.module, ""));
+                this.tokens.add(new SourceToken(node, node.module, "", moduleName));
             }
         }
         return null;
@@ -187,7 +194,7 @@ public class GlobalModelVisitor extends VisitorBase {
                     name += node.names[i].name + " ";
                 }
                 
-                this.tokens.add(new SourceToken(node, name, ""));
+                this.tokens.add(new SourceToken(node, name, "", moduleName));
             }
         }
         return null;
@@ -198,7 +205,7 @@ public class GlobalModelVisitor extends VisitorBase {
      */
     public Object visitStr(Str node) throws Exception {
         if(this.visitWhat == MODULE_DOCSTRING){
-            this.tokens.add(new SourceToken(node, node.s, ""));
+            this.tokens.add(new SourceToken(node, node.s, "", moduleName));
         }
         return null;
     }
@@ -208,12 +215,13 @@ public class GlobalModelVisitor extends VisitorBase {
      * 
      * @param ast
      * @param which
+     * @param name
      * @return
      * @throws Exception
      */
-    public static List getTokens(SimpleNode ast, int which) throws Exception {
-        GlobalModelVisitor modelVisitor = new GlobalModelVisitor(which);
+    public static IToken[] getTokens(SimpleNode ast, int which, String moduleName) throws Exception {
+        GlobalModelVisitor modelVisitor = new GlobalModelVisitor(which, moduleName);
         ast.accept(modelVisitor);
-        return modelVisitor.tokens;
+        return (IToken[]) modelVisitor.tokens.toArray(new IToken[0]);
     }
 }

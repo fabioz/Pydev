@@ -5,15 +5,10 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import java.util.Iterator;
-import java.util.List;
-
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.python.parser.SimpleNode;
-import org.python.pydev.editor.codecompletion.revisited.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.SourceToken;
 import org.python.pydev.parser.PyParser;
 
 /**
@@ -30,18 +25,11 @@ public class ModuleTest extends TestCase {
         SimpleNode n = (SimpleNode)obj[0];
         AbstractModule module = AbstractModule.createModule(n);
        
-        assertEquals(5, module.getGlobalTokens().size());
-        List list = module.getGlobalTokens();
-        for (Iterator iter = list.iterator(); iter.hasNext();) {
-            SourceToken element = (SourceToken) iter.next();
-//            System.out.println(element);
-//            System.out.println(element.docStr);
-//            System.out.println(element.getCompletionType());
-        }
+        assertEquals(5, module.getGlobalTokens().length);
 
-        assertEquals(1, module.getWildImportedModules().size());
+        assertEquals(1, module.getWildImportedModules().length);
 
-        assertEquals(4, module.getTokenImportedModules().size());
+        assertEquals(4, module.getTokenImportedModules().length);
 
         assertEquals("docstring for module", module.getDocString());
         
