@@ -1,11 +1,27 @@
 <H3>Content Assistant</H3>
 <P>This is still on development, but it can already be useful. Current status is:</P>
 
+<strong>New content assistants added (0.9.2):</strong><br><br>
+
+<li>Implement superclass interface</li><br>
+If you do a subclass of another. <br>
+E.g.: class Test(set): |Ctrl+1 - offers option for implementing the superclass interface, so, it gathers all methods
+from the class that are public (don't have underscore in the beggining) and adds a stub for each of them.
+<br><br>
+
+<li>Make method override</li>
+E.g.:<br>
+class Test(set):<br>
+<br>
+....def | Ctrl+1 - offers option for overriding methods from superclass <br>
+<br><br>
+
 <strong>New content assistants added (0.7.1):</strong><br><br>
 <li>Move imports:</li><br>
 	If you have some import on a non global scope, a move to global scope tip appears. It moves the current
 	import line to the beggining of the file.
 <br><br>
+
 <li>Surround with try..except or try..finally:</li><br>
 	If you select any portion of a line (must be at least one character selected), typing Ctrl+1 will bring
 	you surround with try..except and try..finally.<br>
