@@ -43,6 +43,7 @@ public class ASTManager implements Serializable {
      * Modules that we have in memory. This is persisted when saved.
      * 
      * Keys are strings with the name of the module.
+     * Values are AbstractModule objects.
      */
     private Map modules = new HashMap();
 

@@ -29,11 +29,6 @@ public class PythonPathHelper implements Serializable{
      */
     public List pythonpath = new ArrayList();
     
-    /**
-     * These are the modules that we have.
-     * Instances should be subclasses of AbstractModule.
-     */
-    public List modules = new ArrayList();
     
     /**
      * Returns the default path given from the string.
