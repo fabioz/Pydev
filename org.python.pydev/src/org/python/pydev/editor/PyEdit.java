@@ -88,7 +88,7 @@ public class PyEdit extends PyEditProjection {
 	/** Hyperlinking listener */
 	Hyperlink fMouseListener;
 	/** listeners that get notified of model changes */
-	ArrayList modelListeners;	
+	ArrayList modelListeners;
 
 	public PyEdit() {
 		super();
@@ -105,6 +105,7 @@ public class PyEdit extends PyEditProjection {
 		//Added to set the code folding.
         CodeFoldingSetter codeFoldingSetter = new CodeFoldingSetter(this);
         this.addModelListener(codeFoldingSetter);
+        this.addPropertyListener(codeFoldingSetter);
 	}
 	
 	/**
@@ -184,6 +185,7 @@ public class PyEdit extends PyEditProjection {
 		};
 		resetForceTabs();
 		PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
+
 	}
 	
 	// cleanup
@@ -433,7 +435,7 @@ public class PyEdit extends PyEditProjection {
 	 * event is fired whenever we get a new root
 	 */
 	protected void fireModelChanged(AbstractNode root) {
-		if (modelListeners.size() > 0) {
+	    if (modelListeners.size() > 0) {
 			ArrayList list= new ArrayList(modelListeners);
 			Iterator e= list.iterator();
 			while (e.hasNext()) {

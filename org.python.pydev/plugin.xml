@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.5.1"
+   version="0.5.3"
    provider-name="AleksTotic"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -191,14 +191,14 @@
          <action
                definitionId="org.python.pydev.editor.actions.navigation.pyCollapse"
                label="Collapse code"
-               class="org.python.pydev.editor.actions.PyCollapse"
+               class="org.python.pydev.editor.actions.codefolding.PyCollapse"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.pyCollapse">
          </action>
          <action
                definitionId="org.python.pydev.editor.actions.navigation.pyUnCollapse"
                label="Un Collapse code"
-               class="org.python.pydev.editor.actions.PyUnCollapse"
+               class="org.python.pydev.editor.actions.codefolding.PyUnCollapse"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.pyUnCollapse">
          </action>
