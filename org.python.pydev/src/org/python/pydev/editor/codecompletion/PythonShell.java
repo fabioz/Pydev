@@ -211,7 +211,7 @@ public class PythonShell {
      */
     public String read(Operation operation) throws IOException {
         String str = "";
-
+        String tempStr = "";
         int j = 0;
         while(j != 100){
 	        byte[] b = new byte[PythonShell.BUFFER_SIZE];
@@ -247,8 +247,14 @@ public class PythonShell {
             if(str.indexOf("END@@") != -1){
                 break;
             }else{
-                j++;
+                
+                if(tempStr.equals(str) == true){ //only raise if nothing was received.
+                    j++;
+                }else{
+                    j = 0; //we are receiving, even though that may take a long time if the namespace is really polluted...
+                }
                 sleepALittle(10);
+                tempStr = str;
             }
             
         }
@@ -257,9 +263,17 @@ public class PythonShell {
         str = str.replaceFirst("@@COMPLETIONS","");
         //remove END@@
         try {
-            str = str.substring(0, str.lastIndexOf("END@@"));
-            return str;
+            if(str.indexOf("END@@")!= -1){
+	            str = str.substring(0, str.indexOf("END@@"));
+	            return str;
+            }else{
+                throw new RuntimeException("Couldn't find END@@ on received string.");
+            }
         } catch (RuntimeException e) {
+            e.printStackTrace();
+            if(str.length() > 1000){
+                str = str.substring(0, 999)+"...(continued)...";//if the string gets too big, it can crash Eclipse...
+            }
             PydevPlugin.log(IStatus.ERROR, "ERROR WITH STRING:"+str, e);
             return "";
         }
