@@ -2,7 +2,7 @@
 <plugin
    id="org.python.pydev.help"
    name="Pydev Online Help"
-   version="0.4.0"
+   version="0.5.3"
    provider-name="Aleks Totic">
 
    <runtime>
