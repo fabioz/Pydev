@@ -36,7 +36,8 @@ public class ParsedModel implements IOutlineModel {
 				final SimpleNode myRoot = pyRoot;
 				Display.getDefault().syncExec( new Runnable() {
 					public void run() {
-						setRoot(new ParsedItem(null, myRoot));
+						if (myRoot != null)
+							setRoot(new ParsedItem(null, myRoot));
 					}
 				});
 			}
