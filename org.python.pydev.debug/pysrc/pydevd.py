@@ -328,7 +328,13 @@ class InternalGetVariable:
 #            print >>sys.stderr, "sending command"
             dbg.writer.addCommand(cmd)
         except Exception, e:
-            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + str(e))
+            import sys;exc_info = sys.exc_info()
+            import StringIO
+            s = StringIO.StringIO()
+            import traceback;traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = s)
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + s.getvalue())
+
+#            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + str(e))
             dbg.writer.addCommand(cmd)
 
            
