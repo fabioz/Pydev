@@ -3,6 +3,9 @@ from logilab.common import astng
 from logilab.pylint.interfaces import IASTNGChecker
 from logilab.pylint.checkers import BaseChecker
 
+def _title(prop_name):
+    return prop_name.title().replace('_', '')
+
 def make_get_name(prop_name):
     return 'Get' + _title(prop_name)
     
