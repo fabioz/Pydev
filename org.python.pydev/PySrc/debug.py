@@ -6,3 +6,5 @@ def debug(name, value=None):
         print >> sys.stderr, "DBG:",name
     else:
         print >> sys.stderr, "DBG:%s = %s" % (name, value)
+        
+        

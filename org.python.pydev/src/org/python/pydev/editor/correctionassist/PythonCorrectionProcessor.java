@@ -503,7 +503,6 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
-        // TODO: Make this in new code completion
         return null;
     }
 
@@ -522,7 +521,6 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getErrorMessage()
      */
     public String getErrorMessage() {
-        // TODO Auto-generated method stub
         return null;
     }
 

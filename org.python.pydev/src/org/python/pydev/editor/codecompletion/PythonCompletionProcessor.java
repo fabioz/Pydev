@@ -226,7 +226,6 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
-        System.out.println("getCompletionProposalAutoActivationCharacters");
         char[] c = new char[0];
         if (PyCodeCompletionPreferencesPage.isToAutocompleteOnDot()) {
             c = addChar(c, '.');
