@@ -60,7 +60,8 @@ public class PyParser {
 	
 	public void dispose() {
 		// remove the listeners
-		document.removeDocumentListener(documentListener);
+		if (document != null)
+			document.removeDocumentListener(documentListener);
 		parsingThread.diePlease();
 	}
 
@@ -69,8 +70,13 @@ public class PyParser {
 		if (this.document != null) {
 			document.removeDocumentListener(documentListener);
 		}
+		
 		// Set up new listener
 		this.document = document;
+		if (document == null) {
+			System.err.println("No document in PyParser::setDocument?");
+			return;
+		}
 		documentListener = new IDocumentListener() {
 			public void documentChanged(DocumentEvent event) {
 				if (parseOnThread == true)
