@@ -388,17 +388,17 @@ public class PythonShell {
         }
         if (process!= null){
             try {
-                
                 process.getOutputStream().close();
-                int i = process.getErrorStream().available();
-                byte b[] = new byte[i];
-                process.getErrorStream().read(b);
-                System.out.println(new String(b));
-                
-                i = process.getInputStream().available();
-                b = new byte[i];
-                process.getInputStream().read(b);
-                System.out.println(new String(b));
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            try {
+                process.getErrorStream().close();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            try {
+                process.getInputStream().close();
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -409,11 +409,6 @@ public class PythonShell {
                 e2.printStackTrace();
             }
 
-            try {
-                process.waitFor();
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
             process = null;
         }
         
