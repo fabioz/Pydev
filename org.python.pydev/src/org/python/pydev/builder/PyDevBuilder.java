@@ -7,6 +7,7 @@ package org.python.pydev.builder;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -194,11 +195,24 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             
             IFile file = (IFile) resource;
             try {
+                String encoding = file.getCharset();
                 InputStream stream = file.getContents();
-                int c; 
                 StringBuffer buf = new StringBuffer();
-                while((c = stream.read()) != -1){
-                    buf.append((char)c);
+
+                InputStreamReader in = null;
+	            try {
+                    if (encoding != null) {
+                        in = new InputStreamReader(stream, encoding);
+                    } else {
+                        in = new InputStreamReader(stream);
+                    }
+
+                    int c;
+                    while ((c = in.read()) != -1) {
+                        buf.append((char) c);
+                    }
+                } finally {
+                    in.close();
                 }
                 return new Document(buf.toString());
             }catch (Exception e) {

@@ -5,8 +5,13 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -260,5 +265,57 @@ public class PythonPathHelper implements Serializable{
             pythonpath.add(getDefaultPathStr(strings[i]));
         }
         return Arrays.asList(strings);
+    }
+
+    /**
+     * @param f
+     * @return
+     */
+    public static String getPythonFileEncoding(File f) {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+            try{
+                
+                String l1 = reader.readLine();
+                String l2 = reader.readLine();
+                
+                String lEnc = null;
+                //encoding must be specified in first or second line...
+                if (l1.toLowerCase().indexOf("coding") != -1){
+                    lEnc = l1; 
+                }
+                else if (l2.toLowerCase().indexOf("coding") != -1){
+                    lEnc = l2; 
+                }
+                else{
+                    return null;
+                }
+                
+                //ok, the encoding line is in lEnc
+                lEnc = lEnc.substring(lEnc.indexOf("coding")+6);
+                
+                char c;
+                while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) == ' ' || c == ':' || c == '=')) {
+                    lEnc = lEnc.substring(1);
+                }
+
+                StringBuffer buffer = new StringBuffer();
+                while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) != ' ' || c == '-' || c == '*')) {
+                    
+                    buffer.append(c);
+                    lEnc = lEnc.substring(1);
+                }
+
+                return buffer.toString();
+                
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally{
+                try {reader.close();} catch (IOException e1) {}
+            }
+        } catch (FileNotFoundException e) {
+            return null;
+        }
+        return null;
     }
 }

@@ -5,6 +5,8 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.io.File;
+
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
@@ -39,6 +41,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         super.tearDown();
     }
 
+    
     public void testResolvePath(){
         PythonPathHelper helper = new PythonPathHelper();
         helper.setPythonPath(PYTHON_INSTALL+"lib| "+PYTHON_INSTALL+"lib/site-packages|"+
@@ -216,14 +219,19 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         
     }
     
-	public static void main(String[] args) {
-	    //IMPORTANT: I don't want to test the compiled modules, only the source modules.
+    public void testGetEncoding(){
+        String loc = TEST_PYSRC_LOC+"testenc/encutf8.py";
+        String encoding = PythonPathHelper.getPythonFileEncoding(new File(loc));
+        assertEquals("utf-8", encoding.toLowerCase());
+    }
+
+    public static void main(String[] args) {
         
         junit.textui.TestRunner.run(PythonPathHelperTest.class);
 //        try {
 //            PythonPathHelperTest test = new PythonPathHelperTest();
 //            test.setUp();
-//            test.testModuleCompletion();
+//            test.testGetEncoding();
 //            test.tearDown();
 //        } catch (Exception e) {
 //            e.printStackTrace();

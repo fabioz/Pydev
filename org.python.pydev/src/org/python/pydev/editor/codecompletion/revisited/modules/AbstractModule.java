@@ -5,11 +5,14 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.modules;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -116,23 +119,43 @@ public abstract class AbstractModule implements Serializable{
         if(PythonPathHelper.isValidFileMod(path)){
 	        if(isValidSourceFile(path)){
 	            FileInputStream stream = new FileInputStream(f);
+	            
+	            InputStreamReader in = null;
+                
 	            try {
-	                int i = stream.available();
-	                byte[] b = new byte[i];
-	                stream.read(b);
-	
-	                Document doc = new Document(new String(b));
-                    return createModuleFromDoc(name, f, doc, nature, currLine);
-	
-	            } catch (IOException e) {
+	                //I wish we had an IFile here, but as that's not possible...
+	                //This is way too decoupled from the workbench itself so that we
+	                //can have this kind of thing... 
+	                String encoding = PythonPathHelper.getPythonFileEncoding(f);
+	                
+	                if(encoding != null){
+	                    in = new InputStreamReader(stream, encoding);
+	                }else{
+	                    in = new InputStreamReader(stream);
+	                }
+                } catch (UnsupportedEncodingException e) {
                     PydevPlugin.log(e);
-                } finally {
-	                try {
-                        stream.close();
-                    } catch (IOException e1) {
-                        PydevPlugin.log(e1);
-                    }
+                    in = new InputStreamReader(stream);
+                }
+                
+                BufferedReader reader = new BufferedReader(in);
+                StringBuffer buffer = new StringBuffer();
+	            try{
+	                String line = "";
+	                while( (line = reader.readLine() ) != null){
+	                    buffer.append(line);
+	                    buffer.append('\n');
+	                }
+
+	            }catch (Exception e2) {
+                    PydevPlugin.log(e2);
+                }finally{
+	                try {reader.close();} catch (IOException e1) {}
 	            }
+	            
+                Document doc = new Document(buffer.toString());
+                return createModuleFromDoc(name, f, doc, nature, currLine);
+	
 	        }else{ //this should be a compiled extension... we have to get completions from the python shell.
 	            return new CompiledModule(name);
 	        }
