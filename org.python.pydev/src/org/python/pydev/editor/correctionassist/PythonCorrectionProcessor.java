@@ -418,7 +418,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
             if(callName.length() > 0){
                 //all that just to change first char to lower case.
                 callName = lowerChar(callName, 0);
-                if (callName.startsWith("get")){
+                if (callName.startsWith("get") && callName.length() > 3){
                     callName = callName.substring(3);
 	                callName = lowerChar(callName, 0);
                 }

@@ -12,7 +12,6 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
@@ -91,10 +90,10 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
         addField(new BooleanFieldEditor(USE_PYLINT, "Use pylint?", p));
         addField(new IntegerFieldEditor(MAX_PYLINT_DELTA, "Max delta to run PyLint?", p));
-        FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of pylint:", true, p);
-        //not used - some patches had to be applied.
-        fileField.setEnabled(false, p);
-        addField(fileField);
+//        FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of pylint:", true, p);
+        //not used - some patches had to be applied to pylint, so, the original might not work!
+//        fileField.setEnabled(false, p);
+//        addField(fileField);
 
         addField(new BooleanFieldEditor(USE_FATAL, "Communicate FATAL?", p));
         addField(new BooleanFieldEditor(USE_ERRORS, "Communicate ERRORS?", p));

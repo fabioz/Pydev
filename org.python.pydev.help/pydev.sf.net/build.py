@@ -129,37 +129,52 @@ def _otherFeatures():
 
 
 def Main():
-    channelPydev             = '6798751939'
-    channelPydevFeatures     = '1935586933'
-    channelPydevFeaturesMain = '9124732182'
-    channelPydevIndex        = '0232202381'
-    channelPydevFaq          = '9395062605'
-    channelPydevSponsors     = '9586823051'
+#    channelPydev               = '6798751939'
+#    channelPydevFeatures       = '1935586933'
+    channelPydevFeaturesMain   = '9124732182'
+    channelPydevIndex          = '0232202381'
+    channelPydevFaq            = '9395062605'
+    channelPydevSponsors       = '9586823051'
+    channelPydevVersion24      = '8139721027'
+    channelPydevScreenshots    = '7446949127'
+    channelPydevDownload       = '4850861835'
+    channelPydevRoadmap        = '7477309072'
+    channelPydevRun            = '8142059816'
+    channelPydevDebugPrefs     = '2396011149'
+    channelPydevCodeComplScre  = '1729524630'
+    channelPydevCodeCompl      = '4190535423'
+    channelPydevTemplates      = '9692148260'
+    channelPydevContentAss     = '3352888466'
+    channelPydevRefactoring    = '6336735894'
+    channelPydevCodeCover      = '8064582308'
+    channelPydevDebug          = '5155326690'
+    channelPydevEditor         = '1542865200'
+    channelPydevEditorPrefs    = '9616384936'
+    channelPydevPyLint         = '5824164055'
+    channelPydevTasks          = '0662167821'
     
     
     Template( '_template.html', 'index'                   , 'Pydev'                    ,None             , channelPydevIndex        , None)
-    Template( '_template.html', 'version_2_4'             , 'Python 2.4 Support'       ,None             , channelPydev             , None)
+    Template( '_template.html', 'version_2_4'             , 'Python 2.4 Support'       ,None             , channelPydevVersion24    , None)
     Template( '_template.html', 'sponsors'                , 'Sponsors'                 ,None             , channelPydevSponsors     , None)
-    Template( '_template.html', 'screenshots'             , 'Screenshots'              ,None             , channelPydev             , None)
-    Template( '_template.html', 'download'                , 'Download'                 ,None             , channelPydev             , None)
-    Template( '_template.html', 'roadmap'                 , 'Roadmap'                  ,None             , channelPydev             , None)
-    Template( '_template.html', 'codecompletionsnapshots' , 'Code Completion Snapshots',None             , channelPydevFeatures     , None)
+    Template( '_template.html', 'screenshots'             , 'Screenshots'              ,None             , channelPydevScreenshots  , None)
+    Template( '_template.html', 'download'                , 'Download'                 ,None             , channelPydevDownload     , None)
+    Template( '_template.html', 'roadmap'                 , 'Roadmap'                  ,None             , channelPydevRoadmap      , None)
+    Template( '_template.html', 'codecompletionsnapshots' , 'Code Completion Snapshots',None             , channelPydevCodeComplScre, None)
     Template( '_template.html', 'faq'                     , 'FAQ'                      ,None             , channelPydevFaq          , None)
-    Template( '_template.html', 'credits'                 , 'Credits'                  ,None             , channelPydev             , None)
-    Template( '_template.html', 'run'                     , 'Run'                      ,None             , channelPydev             , None)
-    Template( '_template.html', 'debug_prefs'             , 'Debug Preferences'        ,None             , channelPydev             , None)
-    Template( '_template.html', 'pychecker'               , 'PyChecker'                ,None             , channelPydevFeatures     , None)
+    Template( '_template.html', 'run'                     , 'Run'                      ,None             , channelPydevRun          , None)
+    Template( '_template.html', 'debug_prefs'             , 'Debug Preferences'        ,None             , channelPydevDebugPrefs   , None)
     Template( '_template.html', 'features'                , 'Features'                 ,_topicFeatures() , channelPydevFeaturesMain , _otherFeatures())
-    Template( '_template.html', 'codecompletion'          , 'Code Completion'          ,_topicFeatures() , channelPydevFeatures     , _otherFeatures())
-    Template( '_template.html', 'templates'               , 'Templates'                ,_topicFeatures() , channelPydevFeatures     , _otherFeatures())
-    Template( '_template.html', 'contentassist'           , 'Content Assist (Ctrl+1)'  ,_topicFeatures() , channelPydevFeatures     , _otherFeatures())
-    Template( '_template.html', 'refactoring'             , 'Refactoring'              ,_topicFeatures() , channelPydevFeatures     , _otherFeatures())
-    Template( '_template.html', 'codecoverage'            , 'Code Coverage'            ,_topicFeatures() , channelPydevFeatures     , _otherFeatures())
-    Template( '_template.html', 'debug'                   , 'Debugger'                 ,_topicFeatures() , channelPydev             , _otherFeatures())
-    Template( '_template.html', 'editor_prefs'            , 'Editor Preferences'       ,_topicFeatures() , channelPydev             , _otherFeatures())
-    Template( '_template.html', 'editor'                  , 'Editor'                   ,_topicFeatures() , channelPydevFeatures     , _otherFeatures())
-    Template( '_template.html', 'pylint'                  , 'PyLint'                   ,_topicFeatures() , channelPydevFeatures     , _otherFeatures())
-    Template( '_template.html', 'tasks'                   , 'Tasks'                    ,_topicFeatures() , channelPydevFeatures     , _otherFeatures())
+    Template( '_template.html', 'codecompletion'          , 'Code Completion'          ,_topicFeatures() , channelPydevCodeCompl    , _otherFeatures())
+    Template( '_template.html', 'templates'               , 'Templates'                ,_topicFeatures() , channelPydevTemplates    , _otherFeatures())
+    Template( '_template.html', 'contentassist'           , 'Content Assist (Ctrl+1)'  ,_topicFeatures() , channelPydevContentAss   , _otherFeatures())
+    Template( '_template.html', 'refactoring'             , 'Refactoring'              ,_topicFeatures() , channelPydevRefactoring  , _otherFeatures())
+    Template( '_template.html', 'codecoverage'            , 'Code Coverage'            ,_topicFeatures() , channelPydevCodeCover    , _otherFeatures())
+    Template( '_template.html', 'debug'                   , 'Debugger'                 ,_topicFeatures() , channelPydevDebug        , _otherFeatures())
+    Template( '_template.html', 'editor'                  , 'Editor'                   ,_topicFeatures() , channelPydevEditor       , _otherFeatures())
+    Template( '_template.html', 'editor_prefs'            , 'Editor Preferences'       ,_topicFeatures() , channelPydevEditorPrefs  , _otherFeatures())
+    Template( '_template.html', 'pylint'                  , 'PyLint'                   ,_topicFeatures() , channelPydevPyLint       , _otherFeatures())
+    Template( '_template.html', 'tasks'                   , 'Tasks'                    ,_topicFeatures() , channelPydevTasks        , _otherFeatures())
     print "done"
     
 if __name__ == '__main__':
