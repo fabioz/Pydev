@@ -108,8 +108,10 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                         if (members[i] == null) {
                             continue;
                         }
+                        
                         if (members[i].getType() == IResource.FILE) {
-                            if (members[i].getFileExtension().equals("py")) {
+                            String fileExtension = members[i].getFileExtension();
+                            if (fileExtension != null && fileExtension.equals("py")) {
                                 resourcesToParse.add(members[i]);
                             }
                         } else if (members[i].getType() == IResource.FOLDER) {
