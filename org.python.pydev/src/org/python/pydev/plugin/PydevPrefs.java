@@ -34,24 +34,36 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	// Preferences	
 	public static final String SUBSTITUTE_TABS = "SUBSTITUTE_TABS";
 	public static final boolean DEFAULT_SUBSTITUTE_TABS = true;
+	
+	public static final String USE_CODE_FOLDING = "USE_CODE_FOLDING";
+	public static final boolean DEFAULT_USE_CODE_FOLDING = true;
+	
 	public static final String GUESS_TAB_SUBSTITUTION = "GUESS_TAB_SUBSTITUTION";
 	public static final boolean DEFAULT_GUESS_TAB_SUBSTITUTION = true;
+	
 	public static final String TAB_WIDTH = "TAB_WIDTH";
 	public static final int DEFAULT_TAB_WIDTH = 4;
+	
 	public static final String CODE_COLOR = "CODE_COLOR";
 	private static final RGB DEFAULT_CODE_COLOR = new RGB(0, 0, 0);
+	
 	public static final String KEYWORD_COLOR = "KEYWORD_COLOR";
 	private static final RGB DEFAULT_KEYWORD_COLOR = new RGB(255, 119, 0);
+	
 	public static final String STRING_COLOR = "STRING_COLOR";
 	private static final RGB DEFAULT_STRING_COLOR = new RGB(0, 170, 0);
+	
 	public static final String COMMENT_COLOR = "COMMENT_COLOR";
 	private static final RGB DEFAULT_COMMENT_COLOR = new RGB(221, 0, 0);
+	
 	public static final String INTERPRETER_PATH = "INTERPRETER_PATH";
 	protected static final String DEFAULT_INTERPRETER_PATH = "python";
+	
 	public static final String HYPERLINK_COLOR = "HYPERLINK_COLOR";
 	private static final RGB DEFAULT_HYPERLINK_COLOR = new RGB(0, 0, 238);
+	
 	public static final String BLOCK_COMMENT = "BLOCK_COMMENT";
-	public static final String DEFAULT_BLOCK_COMMENT_STRING = "=======================================";
+	public static final String DEFAULT_BLOCK_COMMENT_STRING = "================================================================================";
 	public static final boolean DEFAULT_BLOCK_COMMENT = true;
 	
 	/**
@@ -81,8 +93,13 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		Composite p = getFieldEditorParent();
 		addField(new BooleanFieldEditor(
 			SUBSTITUTE_TABS, "Substitute spaces for tabs?", p));
+
 		addField(new BooleanFieldEditor(
 				GUESS_TAB_SUBSTITUTION, "Assume tab spacing when files contain tabs?", p));
+		
+		addField(new BooleanFieldEditor(
+				USE_CODE_FOLDING, "Use code folding?", p));
+
 		IntegerFieldEditor ife = new IntegerFieldEditor(TAB_WIDTH, "Tab length", p, 1);
 		ife.setValidRange(1, 8);	
 		// you can't restrict widget width on IntegerFieldEditor for now
@@ -91,10 +108,13 @@ public class PydevPrefs extends FieldEditorPreferencePage
 				
 		addField(new ColorFieldEditor(
 			CODE_COLOR, "Code", p));
+		
 		addField(new ColorFieldEditor(
 			KEYWORD_COLOR, "Keywords", p));
+		
 		addField(new ColorFieldEditor(
 			STRING_COLOR, "Strings", p));
+		
 		addField(new ColorFieldEditor(
 			COMMENT_COLOR, "Comments", p));
 
@@ -108,6 +128,7 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	 */
 	protected static void initializeDefaultPreferences(Preferences prefs) {
 		prefs.setDefault(SUBSTITUTE_TABS, DEFAULT_SUBSTITUTE_TABS);
+		prefs.setDefault(USE_CODE_FOLDING, DEFAULT_USE_CODE_FOLDING);
 		prefs.setDefault(GUESS_TAB_SUBSTITUTION, DEFAULT_GUESS_TAB_SUBSTITUTION);
 		prefs.setDefault(TAB_WIDTH, DEFAULT_TAB_WIDTH);
 		prefs.setDefault(CODE_COLOR,StringConverter.asString(DEFAULT_CODE_COLOR));

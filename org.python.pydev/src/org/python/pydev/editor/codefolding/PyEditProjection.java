@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.python.pydev.parser.IParserListener;
+import org.python.pydev.plugin.PydevPrefs;
 
 /**
  * @author Fabio Zadrozny
@@ -77,9 +78,8 @@ public abstract class PyEditProjection extends TextEditor implements
     /**
      * @return
      */
-    private boolean isFoldingEnabled() {
-        // TODO Auto-generated method stub
-        return true;
+    public static boolean isFoldingEnabled() {
+        return PydevPrefs.getPreferences().getBoolean(PydevPrefs.USE_CODE_FOLDING);
     }
 
     public Object getAdapter(Class required) {
