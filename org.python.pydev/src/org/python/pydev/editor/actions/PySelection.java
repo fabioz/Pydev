@@ -39,6 +39,8 @@ public class PySelection
 	public IRegion endLine;
 	/* Original cursor line */
 	public int cursorLine;
+	/* Text editor */
+    public ITextEditor textEditor;
 
 	/**
 	 * Default constructor for PySelection.  Simply defaults all the values.
@@ -69,12 +71,9 @@ public class PySelection
 			this.doc =
 				textEditor.getDocumentProvider().getDocument(
 					textEditor.getEditorInput());
-								
+			this.textEditor = textEditor;
 			// Grab the selection
-			ITextSelection selection =
-				(ITextSelection) textEditor
-					.getSelectionProvider()
-					.getSelection();
+			ITextSelection selection = getITextSelection();
 			
 			// Set data
 			this.startLine 		= doc.getLineInformation ( selection.getStartLine ( ) );
@@ -97,6 +96,17 @@ public class PySelection
 		
 		
 	/**
+     * @param textEditor
+     * @return
+     */
+    public ITextSelection getITextSelection() {
+        return (ITextSelection) textEditor
+        	.getSelectionProvider()
+        	.getSelection();
+    }
+
+
+    /**
 	 * Alt constructor for PySelection.  Takes in a document, starting line, ending line, and
 	 * length of selection, as well as a boolean indicating how to handle an empty selection.
 	 * 
@@ -134,9 +144,7 @@ public class PySelection
 		startLineIndex	= 0;
 		endLineIndex	= 0;
 		selLength		= 0;
-		selection		= new String ( );
 		selection		= "";
-		endLineDelim	= new String ( );
 		endLineDelim	= "";
 		startLine		= null;
 		endLine			= null;	
@@ -251,7 +259,7 @@ public class PySelection
 	
 	
 	/**
-	 * Gets cursor offset to go to.
+	 * Gets cursor offset within a line.
 	 * 
 	 * @return int Offset to put cursor at
 	 */
