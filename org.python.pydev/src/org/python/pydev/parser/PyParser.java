@@ -25,6 +25,7 @@ import org.python.parser.ReaderCharStream;
 import org.python.parser.SimpleNode;
 import org.python.parser.TokenMgrError;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 
 /**
  * PyParser uses org.python.parser to parse the document (lexical analysis) It
@@ -52,6 +53,7 @@ public class PyParser {
 
     boolean parseNow = false; // synchronized access by ParsingThread
 
+    
     /*
      * counter how to parse. 0 means do not parse, > 0 means wait this many
      * loops in main thread
@@ -99,6 +101,7 @@ public class PyParser {
         }
         final PyParser parser = this;
         documentListener = new IDocumentListener() {
+
             public void documentChanged(DocumentEvent event) {
                 if (event == null || event.getText() == null || event.getText().indexOf("\n") == -1) {
                     // carriage return in changed text means parse now, anything
@@ -166,32 +169,97 @@ public class PyParser {
         // create a stream with document's data
         StringReader inString = new StringReader(document.get());
         ReaderCharStream in = new ReaderCharStream(inString);
+        reparseDocument(in, true);
+    }
+
+    /**
+     * 
+     * @param in char stream to read
+     * @param reparseIfErrorFound boolean indicating that another reparse should
+     * 		  be attempted, changing the current text line for a 'pass', so that we can 
+     * 		  give outline and some feedback.
+     * 		  (Maybe a good idea would be a fast parser that is error aware and that finds
+     * 		  the information we need, as class and function definitions).
+     */
+    private void reparseDocument(ReaderCharStream in, boolean reparseIfErrorFound) {
         IParserHost host = new CompilerAPI();
 
-        PythonGrammar g1 = new PythonGrammar((CharStream) null,
-                (IParserHost) null);
+        PythonGrammar g1 = new PythonGrammar((CharStream) null, (IParserHost) null);
 
         PythonGrammar grammar = new PythonGrammar(in, host);
 
         IEditorInput input = editorView.getEditorInput();
         if (input == null)
             return;
-        IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input)
-                .getFile()
-                : null;
+        IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
         try {
             SimpleNode newRoot = grammar.file_input(); // parses the file
-            if (original != null)
+
+            if (original != null && reparseIfErrorFound)
                 original.deleteMarkers(IMarker.PROBLEM, false, 1);
+
             fireParserChanged(newRoot);
         } catch (ParseException parseErr) {
-            fireParserError(parseErr);
+            if (reparseIfErrorFound)
+                tryReparseAgain(parseErr);
+
         } catch (TokenMgrError tokenErr) {
-            fireParserError(tokenErr);
+            if (reparseIfErrorFound)
+                tryReparseAgain(tokenErr);
+
         } catch (Exception e) {
             System.err.println("Unexpected parse error");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * @param tokenErr
+     */
+    private void tryReparseAgain(TokenMgrError tokenErr) {
+        int line = tokenErr.errorLine;
+        
+        tryReparseChangingLine(line);
+
+        fireParserError(tokenErr); //in this on
+    }
+
+    /**
+     * This method tries to reparse the code again, changing the current line to
+     * a 'pass'
+     * 
+     * Any new errors are ignored, and the error passed as a parameter is fired
+     * anyway, so, the utility of this function is trying to make a real model
+     * without any problems, so that we can update the outline and ModelUtils
+     * with a good aproximation of the code.
+     * 
+     * @param tokenErr
+     */
+    private void tryReparseAgain(ParseException tokenErr) {
+        int line = 0;
+        if(tokenErr.currentToken.image.equals(".") || tokenErr.currentToken.image.equals("(")){
+            line = tokenErr.currentToken.beginLine-1;
+        }else{
+            line = tokenErr.currentToken.beginLine;
+        }
+        
+        
+        tryReparseChangingLine(line);
+
+        fireParserError(tokenErr);
+    }
+
+    /**
+     * @param line
+     * 
+     */
+    private void tryReparseChangingLine(int line) {
+        String docToParse = PyCodeCompletion.getDocToParseFromLine(document, line);
+
+        // create a stream with document's data
+        StringReader inString = new StringReader(docToParse);
+        ReaderCharStream in = new ReaderCharStream(inString);
+        reparseDocument(in, false);
     }
 }
 
@@ -209,7 +277,8 @@ class ParsingThread extends Thread {
     private static ParsingThread thread = null;
 
     private static ArrayList parsers = new ArrayList(); // synchronized access
-                                                        // only
+
+    // only
 
     private boolean done = false;
 

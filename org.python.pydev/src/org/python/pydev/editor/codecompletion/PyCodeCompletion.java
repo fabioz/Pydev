@@ -174,16 +174,34 @@ public class PyCodeCompletion {
      * @param documentOffset
      * @return
      */
-    public String getDocToParse(IDocument doc, int documentOffset) {
+    public static String getDocToParse(IDocument doc, int documentOffset) {
+        int lineOfOffset = -1;
+        try {
+            lineOfOffset = doc.getLineOfOffset(documentOffset);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        
+        if(lineOfOffset!=-1)
+            return "\n"+getDocToParseFromLine(doc, lineOfOffset);
+        else
+            return "";
+    }
+
+    /**
+     * @param doc
+     * @param documentOffset
+     * @param lineOfOffset
+     * @return
+     */
+    public static String getDocToParseFromLine(IDocument doc, int lineOfOffset) {
         String wholeDoc = doc.get();
         String newDoc = "";
         try {
-            int lineOfOffset = doc.getLineOfOffset(documentOffset);
             IRegion lineInformation = doc.getLineInformation(lineOfOffset);
 
             int docLength = doc.getLength();
-            String src = doc.get(lineInformation.getOffset(), documentOffset
-                    - lineInformation.getOffset());
+            String src = doc.get(lineInformation.getOffset(), lineInformation.getLength());
 
             String spaces = "";
             for (int i = 0; i < src.length(); i++) {
@@ -194,14 +212,14 @@ public class PyCodeCompletion {
             }
 
             newDoc = wholeDoc.substring(0, lineInformation.getOffset());
-            newDoc += spaces + "pass\n";
+            newDoc += spaces + "pass";
             newDoc += wholeDoc.substring(lineInformation.getOffset()
                     + lineInformation.getLength(), docLength);
 
         } catch (BadLocationException e1) {
             e1.printStackTrace();
         }
-        return "\n"+newDoc;
+        return newDoc;
     }
 
     /**

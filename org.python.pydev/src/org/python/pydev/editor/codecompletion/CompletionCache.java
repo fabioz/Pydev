@@ -46,7 +46,7 @@ public class CompletionCache {
         if (importsTipperStr.length() != 0){
             partialDoc = importsTipperStr;
         }else{
-            partialDoc = codeCompletion.getDocToParse(doc, documentOffset);
+            partialDoc = PyCodeCompletion.getDocToParse(doc, documentOffset);
             partialDoc += activationToken;
         }
         
