@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.python.parser.SimpleNode;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.parser.PyParser;
 
 /**

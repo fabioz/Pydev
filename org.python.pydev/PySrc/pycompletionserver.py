@@ -1,13 +1,16 @@
 '''
 @author Fabio Zadrozny 
 '''
+import sys
+_sys_path = [p for p in sys.path]
+
 import threading
 import time
 import simpleTipper
 import refactoring
-import sys
 import urllib
 import importsTipper
+
 
 HOST = '127.0.0.1'               # Symbolic name meaning the local host
 
@@ -148,9 +151,8 @@ class T(threading.Thread):
                     keepAliveThread.start()
                     
                     if MSG_PYTHONPATH in data:
-                        import sys
                         comps = []
-                        for p in sys.path:
+                        for p in _sys_path:
                             comps.append((p,' '))
                         returnMsg = self.getCompletionsMessage(comps)
 
@@ -218,6 +220,7 @@ class T(threading.Thread):
         self.ended = True
 
 if __name__ == '__main__':
+
     #let's log this!!
 #    import os
 #    f = 'c:/temp/pydev.log'

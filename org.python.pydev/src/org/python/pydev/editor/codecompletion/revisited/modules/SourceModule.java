@@ -8,16 +8,20 @@ package org.python.pydev.editor.codecompletion.revisited.modules;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.Attribute;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
+import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
 
 /**
@@ -150,6 +154,12 @@ public class SourceModule extends AbstractModule {
 	                                //        pass
 	                                final IToken[] comps = manager.getCompletionsForModule(base, "", this, line, col);
                                     modToks.addAll(Arrays.asList(comps));
+	                            }else if (c.bases[j] instanceof Attribute){
+	                                Attribute attr = (Attribute) c.bases[j];
+	                                String s = AbstractVisitor.getFullRepresentationString(attr);
+	                                
+	                                final IToken[] comps = manager.getCompletionsForModule(s, "", this, line, col);
+                                    modToks.addAll(Arrays.asList(comps));
 	                            }
                             }
 	                        
@@ -168,11 +178,25 @@ public class SourceModule extends AbstractModule {
     }
 
     public AssignDefinition[] findDefinition(String token, int line, int col) throws Exception{
+        //the line passed in starts at 1 and the lines for the visitor start at 0
+        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
+        if (ast != null){
+            ast.accept(scopeVisitor);
+        }
+        
         FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(token, line, col);
         if (ast != null){
             ast.accept(visitor);
         }
-        return (AssignDefinition[]) visitor.definitions.toArray(new AssignDefinition[0]);
+        
+        ArrayList toRet = new ArrayList();
+        for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {
+            AssignDefinition element = (AssignDefinition) iter.next();
+            if(element.scope.isOuterOrSameScope(scopeVisitor.scope)){
+                toRet.add(element);
+            }
+        }
+        return (AssignDefinition[]) toRet.toArray(new AssignDefinition[0]);
     }
 
 

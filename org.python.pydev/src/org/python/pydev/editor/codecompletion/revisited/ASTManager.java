@@ -529,6 +529,13 @@ public class ASTManager implements Serializable, IASTManager {
             SourceModule s = (SourceModule) module;
             try {
                 AssignDefinition[] defs = s.findDefinition(activationToken, line, col);
+                if(defs.length > 0){
+                    for (int i = 0; i < defs.length; i++) {
+                        IToken[] tks = getCompletionsForModule(defs[i].value,qualifier, module, defs[i].line, defs[i].col);
+                        if(tks.length > 0)
+                            return tks;
+                    }
+                }
                 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -609,7 +616,7 @@ public class ASTManager implements Serializable, IASTManager {
                 if(tok.length() == 0){
                     //the activation token corresponds to an imported module. We have to get its global tokens and return them.
                     return getCompletionsForModule("", "", mod, line, col, true);
-                }else{
+                }else if (mod != null){
                     return mod.getGlobalTokens(tok, this, line, col);
                 }
 
@@ -621,7 +628,8 @@ public class ASTManager implements Serializable, IASTManager {
                 //qt.QWidget.| Ctrl+Space
                 //
                 //so, we have to find the qt module and then go for the token.
-                Object [] o = findModuleFromPath(activationToken);
+                String subst = activationToken.substring(modRep.length());
+                Object [] o = findModuleFromPath(importedModules[i].getCompletePath() + subst);
                 AbstractModule mod = (AbstractModule) o[0];
                 String tok = (String) o[1];
                 System.out.println(tok);
@@ -629,7 +637,7 @@ public class ASTManager implements Serializable, IASTManager {
                 if(tok.length() == 0){
                     //the activation token corresponds to an imported module. We have to get its global tokens and return them.
                     return getCompletionsForModule("", "", mod, line, col, true);
-                }else{
+                }else if (mod != null){
                     return mod.getGlobalTokens(tok, this, line, col);
                 }
             }

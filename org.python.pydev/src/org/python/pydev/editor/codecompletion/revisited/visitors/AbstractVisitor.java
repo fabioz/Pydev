@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.Attribute;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.Expr;
 import org.python.parser.ast.Str;
@@ -41,12 +42,22 @@ public abstract class AbstractVisitor extends VisitorBase{
      */
     protected String moduleName;
     
+    public static String getFullRepresentationString(SimpleNode node) {
+	    if (node instanceof Attribute){
+	        Attribute a = (Attribute)node;
+	        return getRepresentationString(a.value) + "."+ a.attr;
+	    } else {
+	        return getRepresentationString(node);
+	    }
+        
+    }
     /**
      * @param node
      * @return
      */
     public static String getRepresentationString(SimpleNode node) {
-        if (REF.hasAttr(node, "name")) {
+	        
+	    if (REF.hasAttr(node, "name")) {
             return REF.getAttrObj(node, "name").toString();
             
         }else if (REF.hasAttr(node, "id")) {

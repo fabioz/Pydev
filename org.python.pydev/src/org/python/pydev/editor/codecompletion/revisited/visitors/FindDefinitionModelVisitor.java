@@ -85,13 +85,12 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     public Object visitAssign(Assign node) throws Exception {
         
         for (int i = 0; i < node.targets.length; i++) {
-            String rep = getRepresentationString(node.targets[i]);
+            String rep = getFullRepresentationString(node.targets[i]);
 	        
             if(rep != null && rep.equals(tokenToFind)){
-	            String value = getRepresentationString(node.value);
+	            String value = getFullRepresentationString(node.value);
 	            
-	            AssignDefinition definition = new AssignDefinition(value, rep, i, node, node.beginLine, node.beginColumn);
-	            definition.nodeStack.addAll(this.defsStack);
+	            AssignDefinition definition = new AssignDefinition(value, rep, i, node, node.beginLine, node.beginColumn, new Scope(this.defsStack));
 	            definitions.add(definition);
 	        }
         }

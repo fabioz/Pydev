@@ -5,8 +5,6 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
-import java.util.Stack;
-
 import org.python.parser.ast.Assign;
 
 
@@ -47,7 +45,7 @@ public class AssignDefinition extends Definition{
     /**
      * Node with the path of classes / funcs to get to an assign.
      */
-    public Stack nodeStack = new Stack(); 
+    public Scope scope; 
     
     /**
      * Default constructor.
@@ -64,11 +62,12 @@ public class AssignDefinition extends Definition{
      * @param line
      * @param col
      */
-    public AssignDefinition(String value, String target, int targetPos, Assign ast, int line, int col){
+    public AssignDefinition(String value, String target, int targetPos, Assign ast, int line, int col, Scope scope){
         super(line, col);
         this.target = target;
         this.targetPos = targetPos;
         this.value = value;
         this.ast = ast;
+        this.scope = scope;
     }
 }
