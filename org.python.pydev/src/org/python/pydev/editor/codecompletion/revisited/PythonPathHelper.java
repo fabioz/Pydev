@@ -40,6 +40,10 @@ public class PythonPathHelper implements Serializable{
         if(str.indexOf(".") != -1 && acceptPoint == false){
             throw new RuntimeException("The pythonpath can only have full paths without . or ..");
         }
+        if(str.indexOf(':') == 1){
+            String drive = str.substring(0,1).toLowerCase();
+            str = drive + str.substring(1);
+        }
         return str.trim().replaceAll("\\\\","/");//.toLowerCase();
     }
     
@@ -75,7 +79,7 @@ public class PythonPathHelper implements Serializable{
      * @param path
      * @return if the paths maps to a valid python module (depending on its extension).
      */
-    public boolean isValidFileMod(String path){
+    public static boolean isValidFileMod(String path){
         if(path.endsWith(".py")   || 
 //           path.endsWith(".pyc")  || - we don't want pyc files, only source files and compiled extensions
            path.endsWith(".pyd")  ||
@@ -109,7 +113,7 @@ public class PythonPathHelper implements Serializable{
         //go through our pythonpath and check the beggining
         for (Iterator iter = pythonpath.iterator(); iter.hasNext();) {
             
-            String element = (String) iter.next();
+            String element = getDefaultPathStr((String) iter.next());
             if(fullPath.startsWith(element)){
                 String s = fullPath.substring(element.length());
                 if(s.startsWith("/")){

@@ -13,7 +13,6 @@ import org.eclipse.core.internal.resources.MarkerAttributeMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -549,17 +548,7 @@ public class PyEdit extends PyEditProjection {
      */
     public PythonNature getPythonNature() {
         IProject project = getProject();
-        if(project != null){
-            try {
-                IProjectNature n = project.getNature(PythonNature.PYTHON_NATURE_ID);
-                if(n instanceof PythonNature){
-                    return (PythonNature) n;
-                }
-            } catch (CoreException e) {
-                PydevPlugin.log(e);
-            }
-        }
-        return null;
+        return PythonNature.getPythonNature(project);
     }
 
 }

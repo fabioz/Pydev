@@ -16,6 +16,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
@@ -119,16 +120,36 @@ public class CompletionCache {
             List theList = codeCompletion.getCodeCompletionProposals(edit, doc, documentOffset, activationToken);
             allProposals = new ArrayList();
             for (Iterator iter = theList.iterator(); iter.hasNext();) {
-                Object element[] = (Object[]) iter.next();
                 
-                String name = (String) element[0];
-                String docStr = (String) element [1];
-                int type = ((Integer) element [2]).intValue();
+                Object obj = iter.next();
                 
-                CompletionProposal proposal = new CompletionProposal(name,
-                        documentOffset - qlen, qlen, name.length(), getImageForType(type), null, null, docStr);
+                if(obj instanceof IToken){
+	                IToken element =  (IToken) obj;
+	                
+	                String name = element.getRepresentation();
+	                String docStr = element.getDocStr();
+	                int type = element.getType();
+	                CompletionProposal proposal = new CompletionProposal(name,
+	                        documentOffset - qlen, qlen, name.length(), getImageForType(type), null, null, docStr);
+	                
+	                allProposals.add(proposal);
+	            
+                }else if(obj instanceof Object[]){
+
+	                Object element[] = (Object[]) obj;
+	                
+	                String name = (String) element[0];
+	                String docStr = (String) element [1];
+	                int type = -1;
+	                if(element.length > 2){
+	                    type = ((Integer) element [2]).intValue();
+	                }
+	                CompletionProposal proposal = new CompletionProposal(name,
+	                        documentOffset - qlen, qlen, name.length(), getImageForType(type), null, null, docStr);
+	                
+	                allProposals.add(proposal);
+                }
                 
-                allProposals.add(proposal);
             }
 
             

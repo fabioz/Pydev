@@ -105,12 +105,12 @@ public class PyRefactoring {
     public String extract(File editorFile, int beginLine, int beginCol, int endLine, int endCol, String name, Operation operation) {
         String s = "@@BIKE";
         s+=        "extractMethod";
-        s+=        " "+editorFile.getAbsolutePath();
-        s+=        " "+beginLine;
-        s+=        " "+beginCol;
-        s+=        " "+endLine;
-        s+=        " "+endCol;
-        s+=        " "+name;
+        s+=        "|"+editorFile.getAbsolutePath();
+        s+=        "|"+beginLine;
+        s+=        "|"+beginCol;
+        s+=        "|"+endLine;
+        s+=        "|"+endCol;
+        s+=        "|"+name;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
         String string = makeAction(s, operation);
@@ -130,10 +130,10 @@ public class PyRefactoring {
     public String rename(File editorFile, int beginLine, int beginCol, String name, Operation operation) {
         String s = "@@BIKE";
         s+=        "renameByCoordinates";
-        s+=        " "+editorFile.getAbsolutePath();
-        s+=        " "+beginLine;
-        s+=        " "+beginCol;
-        s+=        " "+name;
+        s+=        "|"+editorFile.getAbsolutePath();
+        s+=        "|"+beginLine;
+        s+=        "|"+beginCol;
+        s+=        "|"+name;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
         String string = makeAction(s, operation);
@@ -147,9 +147,9 @@ public class PyRefactoring {
     public List findDefinition(File editorFile, int beginLine, int beginCol, Operation operation) {
         String s = "@@BIKE";
         s+=        "findDefinition";
-        s+=        " "+editorFile.getAbsolutePath();
-        s+=        " "+beginLine;
-        s+=        " "+beginCol;
+        s+=        "|"+editorFile.getAbsolutePath();
+        s+=        "|"+beginLine;
+        s+=        "|"+beginCol;
         s+=        "END@@";
 
         System.out.println("Find: "+s);
@@ -194,9 +194,9 @@ public class PyRefactoring {
     public String inlineLocalVariable(File editorFile, int beginLine, int beginCol, Operation operation) {
         String s = "@@BIKE";
         s+=        "inlineLocalVariable";
-        s+=        " "+editorFile.getAbsolutePath();
-        s+=        " "+beginLine;
-        s+=        " "+beginCol;
+        s+=        "|"+editorFile.getAbsolutePath();
+        s+=        "|"+beginLine;
+        s+=        "|"+beginCol;
         s+=        "END@@";
 //        System.out.println("Inline: "+s);
         String string = makeAction(s, operation);
@@ -219,12 +219,12 @@ public class PyRefactoring {
     public String extractLocalVariable(File editorFile, int beginLine, int beginCol, int endLine, int endCol, String name, Operation operation) {
         String s = "@@BIKE";
         s+=        "extractLocalVariable";
-        s+=        " "+editorFile.getAbsolutePath();
-        s+=        " "+beginLine;
-        s+=        " "+beginCol;
-        s+=        " "+endLine;
-        s+=        " "+endCol;
-        s+=        " "+name;
+        s+=        "|"+editorFile.getAbsolutePath();
+        s+=        "|"+beginLine;
+        s+=        "|"+beginCol;
+        s+=        "|"+endLine;
+        s+=        "|"+endCol;
+        s+=        "|"+name;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
         String string = makeAction(s, operation);

@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.Serializable;
 
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
@@ -44,33 +45,52 @@ public abstract class AbstractModule implements Serializable{
      * @return
      */
     public static AbstractModule createModule(String name, File f) {
-        if(f.getAbsolutePath().endsWith(".py")){
-	        try {
-	            FileInputStream stream = new FileInputStream(f);
-	            try {
-	                int i = stream.available();
-	                byte[] b = new byte[i];
-	                stream.read(b);
-	
-	                Object[] obj = PyParser.reparseDocument(new Document(new String(b)), false);
-	                SimpleNode n = (SimpleNode) obj[0];
-	                return new SourceModule(name, f, n);
-	
-	            } finally {
-	                stream.close();
-	            }
-	        } catch (Exception e) {
-	            PydevPlugin.log(e);
+        String path = f.getAbsolutePath();
+        if(PythonPathHelper.isValidFileMod(path)){
+	        if(path.endsWith(".py")){
+		        try {
+		            FileInputStream stream = new FileInputStream(f);
+		            try {
+		                int i = stream.available();
+		                byte[] b = new byte[i];
+		                stream.read(b);
+		
+		                Document doc = new Document(new String(b));
+	                    return createModuleFromDoc(name, f, doc);
+		
+		            } finally {
+		                stream.close();
+		            }
+		        } catch (Exception e) {
+		            PydevPlugin.log(e);
+		        }
+	        }else{ //this should be a compiled extension... we have to get completions from the python shell.
+	            return new CompiledModule(name);
 	        }
-        }else{ //this should be a compiled extension... we have to get completions from the python shell.
-            return new CompiledModule(name);
         }
         
-        //otherwise, source module does not have an ast.
-        return new SourceModule(name, f, null);
+        //if we are here, return null...
+        return null;
     }
 
     
+    /**
+     * @param name
+     * @param f
+     * @param doc
+     * @return
+     */
+    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc) {
+        //for doc, we are only interested in python files.
+        if(f.getAbsolutePath().endsWith(".py")){
+	        Object[] obj = PyParser.reparseDocument(doc, true);
+	        SimpleNode n = (SimpleNode) obj[0];
+	        return new SourceModule(name, f, n);
+        }else{
+            return null;
+        }
+    }
+
     /**
      * Creates a source file generated only from an ast.
      * @param n

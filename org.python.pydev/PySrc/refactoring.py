@@ -137,9 +137,9 @@ def restartRefactorer():
     
 def HandleRefactorMessage(msg, keepAliveThread):
     '''
-    The message received should have: the method of the class
+    The message received should have: the method of the class and its parameters.
     '''
-    msgSplit = msg.split(' ')
+    msgSplit = msg.split('|')
     
     func = msgSplit.pop(0)
     

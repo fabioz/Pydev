@@ -13,12 +13,14 @@ import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.ui.PyProjectProperties;
 import org.python.pydev.utils.JobProgressComunicator;
@@ -160,10 +162,12 @@ public class PythonNature implements IProjectNature {
      * 
      * Actions includes restoring the dump from the code completion cache
      */
-    public void init() {
+    private void init() {
         if (initialized == false) {
             initialized = true;
 
+            astManager = null;
+            
             Job myJob = new Job("Pydev code completion") {
 
                 protected IStatus run(IProgressMonitor monitor) {
@@ -202,8 +206,17 @@ public class PythonNature implements IProjectNature {
      * @return the file that should be used to store the completions.
      */
     private File getCompletionsCacheFile() {
-        IPath location = project.getWorkingLocation(PydevPlugin.getPluginID());
-        IPath path = location.addTrailingSeparator().append(project.getName() + ".pydevcompletions");
+        IProject p = project; 
+        return getCompletionsCacheFile(p, p.getName());
+    }
+
+    /**
+     * @param p
+     * @return
+     */
+    public static File getCompletionsCacheFile(IProject p, String name) {
+        IPath location = p.getWorkingLocation(PydevPlugin.getPluginID());
+        IPath path = location.addTrailingSeparator().append(name + ".pydevcompletions");
 
         File file = new File(path.toOSString());
         return file;
@@ -215,7 +228,7 @@ public class PythonNature implements IProjectNature {
      * 
      * This can be used from time to time to store what we have (you never know when a crash might occur).
      */
-    public void saveIt() {
+    private void saveIt() {
         Job myJob = new Job("Pydev code completion (saving tokens)") {
 
             protected IStatus run(IProgressMonitor monitor) {
@@ -262,6 +275,20 @@ public class PythonNature implements IProjectNature {
         myJob.schedule();
         
     }
+    
+    /**
+     * Updates the ast for the resource (that has the given document).
+     * @param resource
+     * @param document
+     */
+    public void rebuildDelta(final IResource resource, final IDocument document){
+		IPath location = resource.getLocation(); 
+		   
+		if (astManager != null){
+		    astManager.rebuildModule(new File(location.toOSString()), document, resource.getProject());
+		}
+        
+    }
 
 
     /**
@@ -269,5 +296,23 @@ public class PythonNature implements IProjectNature {
      */
     public ASTManager getAstManager() {
         return astManager;
+    }
+
+    /**
+     * @param project
+     * @return
+     */
+    public static PythonNature getPythonNature(IProject project) {
+        if(project != null){
+            try {
+                IProjectNature n = project.getNature(PYTHON_NATURE_ID);
+                if(n instanceof PythonNature){
+                    return (PythonNature) n;
+                }
+            } catch (CoreException e) {
+                PydevPlugin.log(e);
+            }
+        }
+        return null;
     }
 }

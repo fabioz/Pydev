@@ -17,6 +17,10 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.editor.model.Location;
+import org.python.pydev.editor.model.ModelUtils;
+import org.python.pydev.editor.model.Scope;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PythonNature;
 
@@ -116,30 +120,30 @@ public class PyCodeCompletion {
         } else if (trimmed.equals("") == false
                 && theActivationToken.indexOf('.') != -1) {
         
-//            List completions;
-//            if (trimmed.equals("self")) {
-//                Location loc = Location.offsetToLocation(doc, documentOffset);
-//                AbstractNode closest = ModelUtils.getLessOrEqualNode(edit
-//                        .getPythonModel(), loc);
-//        
-//                if(closest == null){
-//                    completions = serverShell.getTokenCompletions(trimmed,
-//                            docToParse);
-//                }else{
-//                    Scope scope = closest.getScope().findContainingClass(); //null returned if self. within a method and not in a class.
-//                    String token = scope.getStartNode().getName();
-//                    completions = serverShell
-//                            .getClassCompletions(token, docToParse);
-//                }
-//            } else {
-//                completions = serverShell.getTokenCompletions(trimmed,
-//                        docToParse);
-//            }
-//            theList.addAll(completions);
+            List completions;
+            if (trimmed.equals("self")) {
+                Location loc = Location.offsetToLocation(doc, documentOffset);
+                AbstractNode closest = ModelUtils.getLessOrEqualNode(edit
+                        .getPythonModel(), loc);
+        
+                if(closest == null){
+                    completions = serverShell.getTokenCompletions(trimmed,
+                            docToParse);
+                }else{
+                    Scope scope = closest.getScope().findContainingClass(); //null returned if self. within a method and not in a class.
+                    String token = scope.getStartNode().getName();
+                    completions = serverShell
+                            .getClassCompletions(token, docToParse);
+                }
+            } else {
+                completions = serverShell.getTokenCompletions(trimmed,
+                        docToParse);
+            }
+            theList.addAll(completions);
         
         } else { //go to globals
-//            List completions = serverShell.getGlobalCompletions(docToParse);
-//            theList.addAll(completions);
+            List completions = serverShell.getGlobalCompletions(docToParse);
+            theList.addAll(completions);
         
         }
         return theList;
