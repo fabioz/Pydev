@@ -35,7 +35,7 @@ implements ITableLabelProvider, IColorProvider {
 	
 	private static Image createImage(String path) {
 	    //TODO: Use an ImageCache object instead.
-		URL url = PydevPlugin.getDefault().getDescriptor().getInstallURL();
+	    URL url = PydevPlugin.getDefault().getBundle().getEntry("/");
 		ImageDescriptor descriptor = null;
 		try {
 			descriptor = ImageDescriptor.createFromURL(new URL(url, path));

@@ -31,6 +31,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PythonNature;
 
 /**
  * This structure should be in memory, so that it acts very quickly.
@@ -148,10 +149,10 @@ public class ASTManager implements Serializable, IASTManager {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#rebuildModule(java.io.File, org.eclipse.jface.text.IDocument, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
-    public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor) {
+    public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature) {
         final String m = pythonPathHelper.resolveModule(f.getAbsolutePath());
         if (m != null) {
-            final AbstractModule value = AbstractModule.createModuleFromDoc(m, f, doc);
+            final AbstractModule value = AbstractModule.createModuleFromDoc(m, f, doc, nature);
             final ModulesKey key = new ModulesKey(m, f);
             modules.put(key, value);
 
@@ -235,7 +236,7 @@ public class ASTManager implements Serializable, IASTManager {
      * @param initial: this is the initial module (e.g.: foo.bar) or an empty string.
      * @return a Set with the imports as tuples with the name, the docstring.
      */
-    public IToken[] getCompletionsForImport(final String original) {
+    public IToken[] getCompletionsForImport(final String original, PythonNature nature) {
         String initial = original;
         if (initial.endsWith(".")) {
             initial = initial.substring(0, initial.length() - 1);
@@ -287,7 +288,7 @@ public class ASTManager implements Serializable, IASTManager {
                 nameInCache = nameInCache.substring(0, nameInCache.length() - 1);
             }
 
-            Object object = getModule(nameInCache);
+            Object object = getModule(nameInCache, nature);
             if (object instanceof AbstractModule) {
                 AbstractModule m = (AbstractModule) object;
 
@@ -323,9 +324,9 @@ public class ASTManager implements Serializable, IASTManager {
      * @param file
      * @return the module represented by the file.
      */
-    private AbstractModule getModule(File file) {
+    private AbstractModule getModule(File file, PythonNature nature) {
         String name = pythonPathHelper.resolveModule(file.getAbsolutePath());
-        return getModule(name);
+        return getModule(name, nature);
     }
 
     /**
@@ -334,7 +335,7 @@ public class ASTManager implements Serializable, IASTManager {
      * @param name
      * @return the module represented by this name
      */
-    private AbstractModule getModule(String name) {
+    private AbstractModule getModule(String name, PythonNature nature) {
         AbstractModule n = (AbstractModule) modules.get(new ModulesKey(name, null));
         if (n == null){
             n = (AbstractModule) modules.get(new ModulesKey(name+".__init__", null));
@@ -349,7 +350,7 @@ public class ASTManager implements Serializable, IASTManager {
 
             if(e.f != null){
                 try{
-                    n = AbstractModule.createModule(name, e.f);
+                    n = AbstractModule.createModule(name, e.f, nature);
                 }catch(FileNotFoundException exc){
                     this.modules.remove(new ModulesKey(name, e.f));
                     n = null;
@@ -397,9 +398,9 @@ public class ASTManager implements Serializable, IASTManager {
      * @param qualifier
      * @return
      */
-    public IToken[] getCompletionsForToken(File file, IDocument doc, int line, int col, String activationToken, String qualifier) {
-        AbstractModule module = AbstractModule.createModuleFromDoc("", file, doc);
-        return getCompletionsForModule(activationToken, qualifier, module, line, col);
+    public IToken[] getCompletionsForToken(File file, IDocument doc, int line, int col, String activationToken, String qualifier, PythonNature nature) {
+        AbstractModule module = AbstractModule.createModuleFromDoc("", file, doc, nature);
+        return getCompletionsForModule(activationToken, qualifier, module, line, col, nature);
     }
 
     /**
@@ -411,15 +412,15 @@ public class ASTManager implements Serializable, IASTManager {
      * @param qualifier
      * @return
      */
-    public IToken[] getCompletionsForToken(IDocument doc, int line, int col, String activationToken, String qualifier) {
-        Object[] obj = PyParser.reparseDocument(doc, true);
+    public IToken[] getCompletionsForToken(IDocument doc, int line, int col, String activationToken, String qualifier, PythonNature nature) {
+        Object[] obj = PyParser.reparseDocument(doc, true, nature);
         SimpleNode n = (SimpleNode) obj[0];
         AbstractModule module = AbstractModule.createModule(n);
-        return getCompletionsForModule( activationToken, qualifier, module, line, col);
+        return getCompletionsForModule( activationToken, qualifier, module, line, col, nature);
     }
 
-    public IToken[] getCompletionsForModule(String activationToken, String qualifier, AbstractModule module, int line, int col) {
-        return getCompletionsForModule(activationToken, qualifier, module, line, col, false);
+    public IToken[] getCompletionsForModule(String activationToken, String qualifier, AbstractModule module, int line, int col, PythonNature nature) {
+        return getCompletionsForModule(activationToken, qualifier, module, line, col, false, nature);
     }
     
     /**
@@ -430,7 +431,7 @@ public class ASTManager implements Serializable, IASTManager {
      * @param col
      * @param line
      */
-    private IToken[] getCompletionsForModule(String activationToken, String qualifier, AbstractModule module, int line, int col, boolean recursing) {
+    private IToken[] getCompletionsForModule(String activationToken, String qualifier, AbstractModule module, int line, int col, boolean recursing, PythonNature nature) {
 
         if (module != null) {
 
@@ -441,7 +442,7 @@ public class ASTManager implements Serializable, IASTManager {
 
             if (activationToken.length() == 0) {
 
-		        List completions = getGlobalCompletions(activationToken, qualifier, line, col, recursing, globalTokens, importedModules, wildImportedModules);
+		        List completions = getGlobalCompletions(activationToken, qualifier, line, col, recursing, globalTokens, importedModules, wildImportedModules, nature);
                 return (IToken[]) completions.toArray(new IToken[0]);
                 
             }else{ //ok, we have a token, find it and get its completions.
@@ -450,7 +451,7 @@ public class ASTManager implements Serializable, IASTManager {
                 //TODO: COMPLETION: when we get here, we might have the module or something imports
                 //from a module, so, first we check if it is a module or module token.
                 
-                final IToken[] t = searchOnImportedMods(activationToken, importedModules, line, col);
+                final IToken[] t = searchOnImportedMods(activationToken, importedModules, line, col, nature);
                 if(t != null && t.length > 0){
                     return t;
                 }
@@ -459,14 +460,14 @@ public class ASTManager implements Serializable, IASTManager {
                 for (int i = 0; i < wildImportedModules.length; i++) {
 
                     IToken name = wildImportedModules[i];
-                    AbstractModule mod = getModule(name.getCompletePath());
+                    AbstractModule mod = getModule(name.getCompletePath(), nature);
                     
                     if (mod == null) {
-                        mod = getModule(name.getRepresentation());
+                        mod = getModule(name.getRepresentation(), nature);
                     }
                     
                     if (mod != null) {
-                        IToken[] completionsForModule = getCompletionsForModule(activationToken, qualifier, mod, line, col, true);
+                        IToken[] completionsForModule = getCompletionsForModule(activationToken, qualifier, mod, line, col, true, nature);
                         if(completionsForModule.length > 0)
                             return completionsForModule;
                     } else {
@@ -475,15 +476,15 @@ public class ASTManager implements Serializable, IASTManager {
                 }
 
                 //it was not a module (would have returned already), so, try to get the completions for a global token defined.
-                IToken[] tokens = module.getGlobalTokens(activationToken, this, line, col);
+                IToken[] tokens = module.getGlobalTokens(activationToken, this, line, col, nature);
                 if (tokens.length > 0){
                     return tokens;
                 }
                 
                 //If it was still not found, go to builtins.
-                AbstractModule builtinsMod = getModule("__builtin__");
+                AbstractModule builtinsMod = getModule("__builtin__", nature);
                 if(builtinsMod != null){
-	                tokens = getCompletionsForModule(activationToken, qualifier, builtinsMod, line, col, true);
+	                tokens = getCompletionsForModule(activationToken, qualifier, builtinsMod, line, col, true, nature);
 	                if (tokens.length > 0){
 	                    if (tokens[0].getRepresentation().equals("ERROR:") == false){
 	                        return tokens;
@@ -491,7 +492,7 @@ public class ASTManager implements Serializable, IASTManager {
 	                }
                 }
                 
-                return getAssignCompletions(activationToken, qualifier, module, line, col);
+                return getAssignCompletions(activationToken, qualifier, module, line, col, nature);
             }
 
             
@@ -524,14 +525,14 @@ public class ASTManager implements Serializable, IASTManager {
      * @param col
      * @return
      */
-    private IToken[] getAssignCompletions(String activationToken, String qualifier, AbstractModule module, int line, int col) {
+    private IToken[] getAssignCompletions(String activationToken, String qualifier, AbstractModule module, int line, int col, PythonNature nature) {
         if (module instanceof SourceModule) {
             SourceModule s = (SourceModule) module;
             try {
                 AssignDefinition[] defs = s.findDefinition(activationToken, line, col);
                 if(defs.length > 0){
                     for (int i = 0; i < defs.length; i++) {
-                        IToken[] tks = getCompletionsForModule(defs[i].value,qualifier, module, defs[i].line, defs[i].col);
+                        IToken[] tks = getCompletionsForModule(defs[i].value,qualifier, module, defs[i].line, defs[i].col, nature);
                         if(tks.length > 0)
                             return tks;
                     }
@@ -552,7 +553,7 @@ public class ASTManager implements Serializable, IASTManager {
      * @param importedModules
      * @param wildImportedModules
      */
-    private List getGlobalCompletions(String activationToken, String qualifier, int line, int col, boolean recursing, IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules) {
+    private List getGlobalCompletions(String activationToken, String qualifier, int line, int col, boolean recursing, IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, PythonNature nature) {
         List completions = new ArrayList();
 
         //in completion with nothing, just go for what is imported and global tokens.
@@ -569,14 +570,14 @@ public class ASTManager implements Serializable, IASTManager {
         for (int i = 0; i < wildImportedModules.length; i++) {
 
             IToken name = wildImportedModules[i];
-            AbstractModule mod = getModule(name.getCompletePath());
+            AbstractModule mod = getModule(name.getCompletePath(), nature);
             
             if (mod == null) {
-                mod = getModule(name.getRepresentation());
+                mod = getModule(name.getRepresentation(), nature);
             }
             
             if (mod != null) {
-                IToken[] completionsForModule = getCompletionsForModule(activationToken, qualifier, mod, line, col, true);
+                IToken[] completionsForModule = getCompletionsForModule(activationToken, qualifier, mod, line, col, true, nature);
                 for (int j = 0; j < completionsForModule.length; j++) {
                     completions.add(completionsForModule[j]);
                 }
@@ -587,7 +588,7 @@ public class ASTManager implements Serializable, IASTManager {
 
         if(!recursing){
             //last thing: get completions from module __builtin__
-            AbstractModule builtMod = getModule("__builtin__");
+            AbstractModule builtMod = getModule("__builtin__", nature);
             if(builtMod != null){
                 IToken[] toks = builtMod.getGlobalTokens();
                 for (int i = 0; i < toks.length; i++) {
@@ -603,21 +604,21 @@ public class ASTManager implements Serializable, IASTManager {
      * @param importedModules
      * @return
      */
-    private IToken[] searchOnImportedMods(String activationToken, IToken[] importedModules, int line, int col) {
+    private IToken[] searchOnImportedMods(String activationToken, IToken[] importedModules, int line, int col, PythonNature nature) {
         for (int i = 0; i < importedModules.length; i++) {
             final String modRep = importedModules[i].getRepresentation();
             if(modRep.equals(activationToken)){
                 String rep = importedModules[i].getCompletePath();
                 
-                Object [] o = findModuleFromPath(rep);
+                Object [] o = findModuleFromPath(rep, nature);
                 AbstractModule mod = (AbstractModule) o[0];
                 String tok = (String) o[1];
                 
                 if(tok.length() == 0){
                     //the activation token corresponds to an imported module. We have to get its global tokens and return them.
-                    return getCompletionsForModule("", "", mod, line, col, true);
+                    return getCompletionsForModule("", "", mod, line, col, true, nature);
                 }else if (mod != null){
-                    return mod.getGlobalTokens(tok, this, line, col);
+                    return mod.getGlobalTokens(tok, this, line, col, nature);
                 }
 
                 
@@ -629,16 +630,16 @@ public class ASTManager implements Serializable, IASTManager {
                 //
                 //so, we have to find the qt module and then go for the token.
                 String subst = activationToken.substring(modRep.length());
-                Object [] o = findModuleFromPath(importedModules[i].getCompletePath() + subst);
+                Object [] o = findModuleFromPath(importedModules[i].getCompletePath() + subst, nature);
                 AbstractModule mod = (AbstractModule) o[0];
                 String tok = (String) o[1];
                 System.out.println(tok);
                 
                 if(tok.length() == 0){
                     //the activation token corresponds to an imported module. We have to get its global tokens and return them.
-                    return getCompletionsForModule("", "", mod, line, col, true);
+                    return getCompletionsForModule("", "", mod, line, col, true, nature);
                 }else if (mod != null){
-                    return mod.getGlobalTokens(tok, this, line, col);
+                    return mod.getGlobalTokens(tok, this, line, col, nature);
                 }
             }
         }
@@ -654,19 +655,20 @@ public class ASTManager implements Serializable, IASTManager {
      * @return tuple with found module and the String removed from the path in
      * order to find the module.
      */
-    private Object [] findModuleFromPath(String rep){
+    private Object [] findModuleFromPath(String rep, PythonNature nature){
         String tok = "";
-        AbstractModule mod = getModule(rep);
+        AbstractModule mod = getModule(rep, nature);
         String mRep = rep;
         int index;
         while(mod == null && (index = mRep.lastIndexOf('.')) != -1){
             tok = mRep.substring(index+1) + "."+tok;
             mRep = mRep.substring(0,index);
-            mod = getModule(mRep);
+            mod = getModule(mRep, nature);
         }
         if (tok.endsWith(".")){
             tok = tok.substring(0, tok.length()-1); //remove last point if found.
         }
         return new Object[]{mod, tok};
     }
+
 }

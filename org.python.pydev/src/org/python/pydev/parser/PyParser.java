@@ -30,6 +30,7 @@ import org.python.parser.TokenMgrError;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PythonNature;
 
 /**
  * PyParser uses org.python.parser to parse the document (lexical analysis) It
@@ -174,7 +175,7 @@ public class PyParser {
     void reparseDocument() {
         
         //get the document ast and error in object
-        Object obj[] = reparseDocument(document, true);
+        Object obj[] = reparseDocument(document, true, editorView.getPythonNature());
         
         if(obj[0] != null && obj[0] instanceof SimpleNode){
             IEditorInput input = editorView.getEditorInput();
@@ -217,7 +218,7 @@ public class PyParser {
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
-    public static Object[] reparseDocument(IDocument document, boolean reparseIfErrorFound) {
+    public static Object[] reparseDocument(IDocument document, boolean reparseIfErrorFound, PythonNature nature) {
         // create a stream with document's data
         StringReader inString = new StringReader(document.get());
         ReaderCharStream in = new ReaderCharStream(inString);
@@ -235,8 +236,9 @@ public class PyParser {
 
         } catch (ParseException parseErr) {
             SimpleNode newRoot = null;
+            
             if (reparseIfErrorFound){
-                newRoot = tryReparseAgain(document, parseErr);
+                newRoot = tryReparseAgain(document, parseErr, nature);
             }
             
             return new Object[]{newRoot, parseErr};
@@ -245,8 +247,24 @@ public class PyParser {
         } catch (TokenMgrError tokenErr) {
             SimpleNode newRoot = null;
     
+            //lets try to make it 2.4 compatible
+            //TODO: (HACK) this is a hack, once the grammar is compatible to 2.4, remove it!
+            float f = Float.parseFloat(nature.getVersion());
+            if(nature != null && f >= 2.4){
+	            if(tokenErr.curChar.equals("@") && tokenErr.errorCode == TokenMgrError.LEXICAL_ERROR){
+	                int line = tokenErr.errorLine;
+	                String docToParse = PyCodeCompletion.getDocToParseFromLine(document, line-1);
+	                if(docToParse != null){
+	
+	                    Document doc = new Document(docToParse);
+	                    return reparseDocument(doc, true, nature);
+	                }
+	            }
+            }
+            //END: HACK
+            
             if (reparseIfErrorFound){
-                newRoot = tryReparseAgain(document, tokenErr);
+                newRoot = tryReparseAgain(document, tokenErr, nature);
             }
             
             return new Object[]{newRoot, tokenErr};
@@ -259,10 +277,10 @@ public class PyParser {
     /**
      * @param tokenErr
      */
-    private static SimpleNode tryReparseAgain(IDocument document, TokenMgrError tokenErr) {
+    private static SimpleNode tryReparseAgain(IDocument document, TokenMgrError tokenErr, PythonNature nature) {
         int line = tokenErr.errorLine;
         
-        return tryReparseChangingLine(document, line);
+        return tryReparseChangingLine(document, line, nature);
     }
 
     /**
@@ -276,7 +294,7 @@ public class PyParser {
      * 
      * @param tokenErr
      */
-    private static SimpleNode tryReparseAgain(IDocument document, ParseException tokenErr) {
+    private static SimpleNode tryReparseAgain(IDocument document, ParseException tokenErr, PythonNature nature) {
         int line = 0;
         if(tokenErr.currentToken.image.equals(".") || tokenErr.currentToken.image.equals("(")){
             line = tokenErr.currentToken.beginLine-1;
@@ -284,7 +302,7 @@ public class PyParser {
             line = tokenErr.currentToken.beginLine;
         }
         
-        return tryReparseChangingLine(document, line);
+        return tryReparseChangingLine(document, line, nature);
     }
 
     /**
@@ -294,12 +312,12 @@ public class PyParser {
      * @param line: offending line to be changed to try a reparse.
      * 
      */
-    private static SimpleNode tryReparseChangingLine(IDocument document, int line) {
+    private static SimpleNode tryReparseChangingLine(IDocument document, int line, PythonNature nature) {
         String docToParse = PyCodeCompletion.getDocToParseFromLine(document, line);
         if(docToParse != null){
 
             Document doc = new Document(docToParse);
-	        return (SimpleNode) reparseDocument(doc, false)[0];
+	        return (SimpleNode) reparseDocument(doc, false, nature)[0];
         }
         return null;
     }

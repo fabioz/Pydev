@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.8.5"
+   version="0.8.5.1"
    provider-name="Aleks Totic / Fabio Zadrozny"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -61,9 +61,22 @@
          point="org.eclipse.ui.propertyPages">
       <page
             objectClass="org.eclipse.core.resources.IProject"
-            name="PyDev"
+            name="PyDev PYTHONPATH"
             class="org.python.pydev.ui.PyProjectProperties"
             id="org.python.pydev.ui.pyProjectProperties">
+         <filter
+               name="projectNature"
+               value="org.python.pydev.pythonNature">
+         </filter>
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            objectClass="org.eclipse.core.resources.IProject"
+            name="PyDev details"
+            class="org.python.pydev.ui.PyProjectPythonDetails"
+            id="org.python.pydev.ui.pyProjectPythonDetails">
          <filter
                name="projectNature"
                value="org.python.pydev.pythonNature">

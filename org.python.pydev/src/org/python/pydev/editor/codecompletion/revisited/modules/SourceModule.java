@@ -23,6 +23,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinitio
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
+import org.python.pydev.plugin.PythonNature;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.
@@ -119,7 +120,7 @@ public class SourceModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col) {
+    public IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col, PythonNature nature) {
         IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
         if(t instanceof SourceToken[]){
 	        SourceToken[] tokens = (SourceToken[]) t;
@@ -152,13 +153,13 @@ public class SourceModule extends AbstractModule {
 	                                //    
 	                                //    def b(self):
 	                                //        pass
-	                                final IToken[] comps = manager.getCompletionsForModule(base, "", this, line, col);
+	                                final IToken[] comps = manager.getCompletionsForModule(base, "", this, line, col, nature);
                                     modToks.addAll(Arrays.asList(comps));
 	                            }else if (c.bases[j] instanceof Attribute){
 	                                Attribute attr = (Attribute) c.bases[j];
 	                                String s = AbstractVisitor.getFullRepresentationString(attr);
 	                                
-	                                final IToken[] comps = manager.getCompletionsForModule(s, "", this, line, col);
+	                                final IToken[] comps = manager.getCompletionsForModule(s, "", this, line, col, nature);
                                     modToks.addAll(Arrays.asList(comps));
 	                            }
                             }

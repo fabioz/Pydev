@@ -114,7 +114,7 @@ public class PyCodeCompletion {
             System.out.println(importsTipper);
 
             importsTipper = importsTipper.trim();
-            IToken[] imports = astManager.getCompletionsForImport(importsTipper);
+            IToken[] imports = astManager.getCompletionsForImport(importsTipper, edit.getPythonNature());
             theList.addAll(Arrays.asList(imports));
         
 
@@ -133,14 +133,14 @@ public class PyCodeCompletion {
                     if(theActivationToken.endsWith(".")){
                         theActivationToken = theActivationToken.substring(0, theActivationToken.length()-1);
                     }
-    	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" );
+    	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "", edit.getPythonNature() );
     	            theList.addAll(Arrays.asList(comps));
 
                 }else{
                     Scope scope = closest.getScope().findContainingClass(); //null returned if self. within a method and not in a class.
                     String token = scope.getStartNode().getName();
                     
-    	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), token, "" );
+    	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), token, "" , edit.getPythonNature());
     	            theList.addAll(Arrays.asList(comps));
                 }
                 
@@ -150,7 +150,7 @@ public class PyCodeCompletion {
                 }
                 
                 //Ok, looking for a token in globals.
-	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" );
+	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" , edit.getPythonNature());
 	            theList.addAll(Arrays.asList(comps));
             }
             theList.addAll(completions);
@@ -158,7 +158,7 @@ public class PyCodeCompletion {
         } else { //go to globals
             List completions = new ArrayList();
             
-            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" );
+            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" , edit.getPythonNature());
             
             theList.addAll(Arrays.asList(comps));
         }

@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
+import org.python.pydev.plugin.PythonNature;
 
 /**
  * @author Fabio Zadrozny
@@ -35,7 +36,7 @@ public interface IASTManager {
      * @param project: this is the project that is associated with this manager.
      * @param monitor: monitor for progress.
      */
-    public abstract void rebuildModule(final File file, final IDocument doc, final IProject project, IProgressMonitor monitor);
+    public abstract void rebuildModule(final File file, final IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature);
 
     /**
      * This method provides a way to remove a module (remove delta).
@@ -76,7 +77,7 @@ public interface IASTManager {
      * @param initial: this is the initial module (e.g.: foo.bar) or an empty string.
      * @return a Set with the imports as tuples with the name, the docstring.
      */
-    public abstract IToken[] getCompletionsForImport(final String original);
+    public abstract IToken[] getCompletionsForImport(final String original, PythonNature nature);
 
     /**
      * @return a Set of strings with all the modules.
@@ -106,7 +107,8 @@ public interface IASTManager {
      * @param col
      * @param activationToken
      * @param qualifier
+     * @param nature
      * @return
      */
-    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, int line, int col, String activationToken, String qualifier);
+    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, int line, int col, String activationToken, String qualifier, PythonNature nature);
 }

@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
@@ -584,6 +585,12 @@ public class PyEdit extends PyEditProjection {
     	colorCache = new ColorCache(pluginPrefs);
         IPreferenceStore edprefs = getPreferenceStore();
     	
+        if(edprefs == null){
+            System.out.println("setting new pref store");
+            edprefs = new PreferenceStore();
+            this.setPreferenceStore(edprefs);
+        }
+        
     	edprefs.setValue(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE, 
     			pluginPrefs.getBoolean(PydevPrefs.EDITOR_CURRENT_LINE));
         edprefs.setValue(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE_COLOR, 

@@ -60,7 +60,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 //    													"--disable-msg=W0103,W0131,C0103,W0312,C0301,C0101,C0324,W0511";
 
     public PyLintPrefPage() {
-        super(GRID);
+        super(FLAT);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         setDescription("Pylint");
     }
@@ -93,11 +93,11 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of pylint:", true, p);
         addField(fileField);
 
-        addField(new BooleanFieldEditor(USE_FATAL, "Communicate found fatal errors?", p));
-        addField(new BooleanFieldEditor(USE_ERRORS, "Communicate found errors?", p));
-        addField(new BooleanFieldEditor(USE_WARNINGS, "Communicate found warnings?", p));
-        addField(new BooleanFieldEditor(USE_CODING_STANDARD, "Communicate coding standard warnings?", p));
-        addField(new BooleanFieldEditor(USE_REFACTOR, "Communicate refactor warnings?", p));
+        addField(new BooleanFieldEditor(USE_FATAL, "Communicate FATAL?", p));
+        addField(new BooleanFieldEditor(USE_ERRORS, "Communicate ERRORS?", p));
+        addField(new BooleanFieldEditor(USE_WARNINGS, "Communicate WARNINGS?", p));
+        addField(new BooleanFieldEditor(USE_CODING_STANDARD, "Communicate CONVENTIONS?", p));
+        addField(new BooleanFieldEditor(USE_REFACTOR, "Communicate REFACTOR?", p));
 
         
         

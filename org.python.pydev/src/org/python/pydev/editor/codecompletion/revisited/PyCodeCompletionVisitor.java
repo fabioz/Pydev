@@ -39,7 +39,7 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
         
         if (astManager != null){
             IPath location = resource.getLocation(); 
-            astManager.rebuildModule(new File(location.toOSString()), document, resource.getProject(), new NullProgressMonitor());
+            astManager.rebuildModule(new File(location.toOSString()), document, resource.getProject(), new NullProgressMonitor(), pythonNature);
         }
 
         return false;

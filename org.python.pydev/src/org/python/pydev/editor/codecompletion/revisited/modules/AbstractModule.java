@@ -20,6 +20,7 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PythonNature;
 
 /**
  * @author Fabio Zadrozny
@@ -66,7 +67,7 @@ public abstract class AbstractModule implements Serializable{
      * @param manager
      * @return
      */
-    public abstract IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col);
+    public abstract IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col, PythonNature nature);
     
     /**
      * 
@@ -96,7 +97,7 @@ public abstract class AbstractModule implements Serializable{
      * @return
      * @throws FileNotFoundException
      */
-    public static AbstractModule createModule(String name, File f) throws FileNotFoundException {
+    public static AbstractModule createModule(String name, File f, PythonNature nature) throws FileNotFoundException {
         String path = f.getAbsolutePath();
         if(PythonPathHelper.isValidFileMod(path)){
 	        if(isValidSourceFile(path)){
@@ -107,7 +108,7 @@ public abstract class AbstractModule implements Serializable{
 	                stream.read(b);
 	
 	                Document doc = new Document(new String(b));
-                    return createModuleFromDoc(name, f, doc);
+                    return createModuleFromDoc(name, f, doc, nature);
 	
 	            } catch (IOException e) {
                     PydevPlugin.log(e);
@@ -142,11 +143,11 @@ public abstract class AbstractModule implements Serializable{
      * @param doc
      * @return
      */
-    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc) {
+    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, PythonNature nature) {
         //for doc, we are only interested in python files.
         String absolutePath = f.getAbsolutePath();
         if(isValidSourceFile(absolutePath)){
-	        Object[] obj = PyParser.reparseDocument(doc, true);
+	        Object[] obj = PyParser.reparseDocument(doc, true, nature);
 	        SimpleNode n = (SimpleNode) obj[0];
 	        return new SourceModule(name, f, n);
         }else{

@@ -19,6 +19,7 @@ import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ASTManagerIO;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.ui.PyProjectProperties;
+import org.python.pydev.ui.PyProjectPythonDetails;
 import org.python.pydev.utils.JobProgressComunicator;
 
 /**
@@ -229,5 +230,12 @@ public class PythonNature implements IProjectNature {
             }
         }
         return null;
+    }
+
+    /**
+     * @return
+     */
+    public String getVersion() {
+        return PyProjectPythonDetails.getPythonVersion();
     }
 }

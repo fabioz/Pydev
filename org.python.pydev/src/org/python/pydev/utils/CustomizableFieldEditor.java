@@ -139,13 +139,16 @@ public class CustomizableFieldEditor extends FieldEditor {
      * (non-Javadoc) Method declared on FieldEditor.
      */
     protected void adjustForNumColumns(int numColumns) {
-//        System.out.println("adjustForNumColumns");
+//        GridData gd = (GridData) textField.getLayoutData();
+//        gd.horizontalSpan = 30;//numColumns - 1;
+
+        System.out.println("adjustForNumColumns");
         GridData gd = (GridData) textField.getLayoutData();
-        gd.horizontalSpan = 30;//numColumns - 1;
+        gd.horizontalSpan = numColumns - 1;
         // We only grab excess space if we have to
         // If another field editor has more columns then
         // we assume it is setting the width.
-//        gd.grabExcessHorizontalSpace = gd.horizontalSpan == 1;
+        gd.grabExcessHorizontalSpace = gd.horizontalSpan == 1;
     }
 
     /**
@@ -217,9 +220,9 @@ public class CustomizableFieldEditor extends FieldEditor {
 //            System.out.println("fill");
             gd.horizontalAlignment = GridData.FILL_BOTH;
             gd.verticalSpan = 4;
-            gd.horizontalSpan=2;
+            gd.horizontalSpan=1;
             gd.grabExcessVerticalSpace = true;
-            gd.widthHint = 600;
+            gd.widthHint = 400;
             gd.heightHint = 60;
 //            gd.grabExcessHorizontalSpace = true;
         }

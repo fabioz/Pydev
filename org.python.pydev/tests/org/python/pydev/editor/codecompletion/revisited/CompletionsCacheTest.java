@@ -76,7 +76,7 @@ public class CompletionsCacheTest extends TestCase {
 //            }
 	        
 	        doc = getTestDoc3();
-	        completions = cache.getCompletionsForToken(doc,1,10,"C","");
+	        completions = cache.getCompletionsForToken(doc,1,10,"C","", null);
 	        System.out.println(" token 5 ----------------------");
 	        for (int i = 0; i < completions.length; i++) {
                 System.out.println(completions[i]);

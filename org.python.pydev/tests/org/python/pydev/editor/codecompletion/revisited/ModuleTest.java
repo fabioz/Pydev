@@ -22,7 +22,7 @@ public class ModuleTest extends TestCase {
     }
     
     public void testMod1(){
-        Object[] obj = PyParser.reparseDocument(new Document(getDoc1()), false);
+        Object[] obj = PyParser.reparseDocument(new Document(getDoc1()), false, null);
         SimpleNode n = (SimpleNode)obj[0];
         AbstractModule module = AbstractModule.createModule(n);
        
