@@ -50,13 +50,14 @@ public class PyComment extends PyAction {
 					+ endLine.getLength();
 
 			String endLineDelim = getDelimiter(doc, startLineIndex);
-			startLine = doc.getLineInformation(startLineIndex);
-			endLine = doc.getLineInformation(endLineIndex);
 
 			String str = doc.get(initialPos, length);
 
 			str = replaceStr(str, endLineDelim);
 			doc.replace(initialPos, length, str);
+
+			// Select the new comment block automatically
+			textEditor.selectAndReveal(initialPos,str.length());
 
 		} catch (Exception e) {
 			beep(e);
@@ -77,4 +78,5 @@ public class PyComment extends PyAction {
 	protected String replaceStr(String str, String endLineDelim) {
 		return "#" + str.replaceAll(endLineDelim, endLineDelim + "#");
 	}
+
 }

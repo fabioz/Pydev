@@ -1,8 +1,20 @@
-<toc label="Pydev" topic="html/index.html">
+<toc label="PyDev" topic="html/index.html">
 	<topic label="Editor" href="html/editor.html">
 		<topic label="Preferences" href="html/ed_prefs.html"/>
 	</topic>
 	<topic label="Debugger" href="html/debug.html">
 		<topic label="Preferences" href="html/db_prefs.html"/>
+	</topic>
+	<topic label="User Guide" href="html/userguide/index.html">
+		<topic label="Editor">
+			<topic label="Syntax Highlighting" href="html/userguide/editor_syntaxh.html"/>
+			<topic label="Auto-Indentation" href="html/userguide/editor_autoi.html"/>
+			<topic label="Comment" href="html/userguide/editor_comment.html"/>
+			<topic label="Block Comment" href="html/userguide/editor_blockc.html"/>
+			<topic label="Strip Trailing Whitespace" href="html/userguide/editor_stripw.html"/>
+		</topic>
+		<topic label="Preferences" href="html/userguide/preferences.html"/>
+		<topic label="Debugger"/>
+		<topic label="Developer Guide" href="html/devguide/index.html"/>
 	</topic>
 </toc>

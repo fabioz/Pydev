@@ -6,81 +6,46 @@
 
 package org.python.pydev.editor.actions;
 
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.plugin.PydevPrefs;
+import org.eclipse.core.runtime.Preferences;
+import org.python.pydev.plugin.PydevPlugin;
+
 
 /**
- * Creates a comment block
+ * Creates a comment block.  Comment blocks are slightly different than regular comments 
+ * created in that they provide a distinguishing element at the beginning and end as a 
+ * separator.  In this case, it is a string of <code>=======</code> symbols to strongly
+ * differentiate this comment block.
  * 
  * @author Fabio Zadrozny
+ * @author Parhaum Toofanian
  */
-public class PyAddBlockComment extends PyAction {
+public class PyAddBlockComment extends PyComment {
 
 	/**
-	 * .
-	 * Insert a comment block.
-	 *                #===...
-	 * 				  #
-	 * 				  #===...
-	 * (TODO:This could be customized somewhere...)
+	 * This method is called to return the text that should be replaced
+	 * by the text passed as a parameter.
+	 * 
+	 * The text passed as a parameter represents the text from the whole
+	 * lines of the selection.
+	 * 
+	 * @param str the string to be replaced.
+	 * @param endLineDelim delimiter used.
+	 * @return the new string.
 	 */
-	public void run(IAction action) {
-		try {
-			ITextEditor textEditor = getTextEditor();
-
-			IDocument doc =
-				textEditor.getDocumentProvider().getDocument(
-					textEditor.getEditorInput());
-			ITextSelection selection =
-				(ITextSelection) textEditor
-					.getSelectionProvider()
-					.getSelection();
-
-			//strange things happen when we try to get the line information on the last line of the
-			//document (it doesn't return the end line delimiter correctly), so we always get on position
-			//0 and check to see if we are not in the last line. 
-			if (doc.getNumberOfLines() <= 1)
-				return;
-				
-			IRegion startLine = null;
-
-			int startLineIndex = selection.getStartLine();
-
-			String endLineDelim = getDelimiter(doc, 0);
-			startLine = doc.getLineInformation(startLineIndex);
-
-			IRegion line = doc.getLineInformation(startLineIndex);
-			int lineLenght = line.getLength();
-			int pos = line.getOffset();
-			
-			String content = doc.get(pos, lineLenght);
-			String comment = getFullCommentLine();
-			
-			StringBuffer strBuf = new StringBuffer();
-			
-			strBuf.append(endLineDelim);
-			strBuf.append(comment); //#=========...
-			strBuf.append(endLineDelim);
-			
-			strBuf.append("# ");
-			strBuf.append(content);
-			
-			strBuf.append(endLineDelim);
-			strBuf.append(comment); //#=========...
-			strBuf.append(endLineDelim);
-			
-			doc.replace(pos, lineLenght, strBuf.toString());
-			textEditor.selectAndReveal(pos+strBuf.length()-comment.length()-4,0);
-
-		} catch (Exception e) {
-			beep(e);
-		}
+	protected String replaceStr(String str, String endLineDelim) {
+		return	"#" + getFullCommentLine ( ) + endLineDelim +
+				"#" + str.replaceAll(endLineDelim, endLineDelim + "#") +
+				endLineDelim + "#" + getFullCommentLine ( );
 	}
 	
-	private String getFullCommentLine(){
-		return "#===============================================================================";
+	/**
+	 * Currently returns a string with the comment block.  
+	 * @return Comment line string
+	 */
+	protected String getFullCommentLine(){
+		Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
+		return prefs.getString(PydevPrefs.BLOCK_COMMENT);
 	}
+
 }

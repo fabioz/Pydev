@@ -100,6 +100,9 @@
             <separator
                   name="addGroup">
             </separator>
+            <separator
+            	  name="whitespaceGroup">
+            </separator>
          </menu>
          <action
                definitionId="org.python.pydev.editor.actions.firstChar"
@@ -107,6 +110,13 @@
                class="org.python.pydev.editor.actions.FirstCharAction"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
                id="org.python.pydev.editor.actions.firstChar">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.stripTrailingWhitespace"
+               label="Strip trailing whitespace"
+               class="org.python.pydev.editor.actions.PyStripTrailingWhitespace"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/whitespaceGroup"
+               id="org.python.pydev.editor.actions.stripTrailingWhitespace">
          </action>
          <action
                definitionId="org.python.pydev.editor.actions.uncomment"
@@ -121,6 +131,13 @@
                class="org.python.pydev.editor.actions.PyComment"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
                id="org.python.pydev.editor.actions.comment">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.removeBlockComment"
+               label="Remove comment block"
+               class="org.python.pydev.editor.actions.PyRemoveBlockComment"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.removeBlockComment">
          </action>
          <action
                definitionId="org.python.pydev.editor.actions.addBlockComment"
@@ -168,7 +185,16 @@
             <separator
                   name="addGroup">
             </separator>
+            <separator
+            	  name="whitespaceGroup">
+            </separator>
          </menu>
+         <action
+               label="Strip trailing whitespace"
+               class="org.python.pydev.editor.actions.PyStripTrailingWhitespace"
+               menubarPath="org.python.pydev.editor.actions.editorPopup/whitespaceGroup"
+               id="org.python.pydev.editor.actions.stripTrailingWhitespace">
+         </action>
          <action
                label="Uncomment"
                class="org.python.pydev.editor.actions.PyUncomment"
@@ -180,6 +206,12 @@
                class="org.python.pydev.editor.actions.PyComment"
                menubarPath="org.python.pydev.editor.actions.editorPopup/editGroup"
                id="org.python.pydev.editor.actions.comment">
+         </action>
+         <action
+               label="Remove comment block"
+               class="org.python.pydev.editor.actions.PyRemoveBlockComment"
+               menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
+               id="org.python.pydev.editor.actions.removeBlockComment">
          </action>
          <action
                label="Add comment block"
@@ -253,6 +285,32 @@
             string="Ctrl+Shift+Arrow_Up"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.navigation.previousMethod"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: whitespace-->
+      <command
+            name="Strip trailing whitespace"
+            description="Strips trailing whitespace from selected region or whole document if nothing selected"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.stripTrailingWhitespace">
+      </command>
+      <keyBinding
+            string="Shift+Space"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.stripTrailingWhitespace"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: unblock-->
+      <command
+            name="Remove Comment Block"
+            description="Removes a python comment block"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.removeBlockComment">
+      </command>
+      <keyBinding
+            string="Ctrl+5"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.removeBlockComment"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
 <!-- command: block-->
