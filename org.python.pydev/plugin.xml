@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.5.8.7"
+   version="0.5.9.1"
    provider-name="AleksTotic"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -88,6 +88,11 @@
             category="org.python.pydev.prefs"
             name="Templates"
             id="org.python.pydev.prefs.template"/>
+      <page
+            class="org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage"
+            category="org.python.pydev.prefs"
+            name="Code Completion"
+            id="org.python.pydev.prefs.PyCodeCompletionPage"/>
    </extension>
 <!-- Editor menus -->
    <extension
@@ -588,7 +593,7 @@ if __name__ == '__main__':
       <template
             name="stderr"
             icon="icons/template.gif"
-            description="Prints to sys.stdout"
+            description="Prints to sys.stderr"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.stderr">
          <pattern>print >> sys.stderr, ${cursor}${data}</pattern>

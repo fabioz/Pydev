@@ -26,6 +26,7 @@ import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.templates.PyContextType;
 
 /**
@@ -109,6 +110,7 @@ public class PydevPlugin extends AbstractUIPlugin
 
 	protected void initializeDefaultPluginPreferences() {
 		PydevPrefs.initializeDefaultPreferences(getPluginPreferences());
+		PyCodeCompletionPreferencesPage.initializeDefaultPreferences(getPluginPreferences());
 	}
 
 	public void propertyChange(Preferences.PropertyChangeEvent event) {

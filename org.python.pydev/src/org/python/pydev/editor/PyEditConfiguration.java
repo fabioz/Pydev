@@ -42,6 +42,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
@@ -286,7 +287,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		final String   PY_MULTILINE_STRING = "__python_multiline_string";
 		
 		// create a content assistant:
-		ContentAssistant assistant = new ContentAssistant();
+		ContentAssistant assistant = new PyContentAssistant();
 		
 		// next create a content assistant processor to populate the completions window
 		IContentAssistProcessor processor = new PythonCompletionProcessor();
@@ -296,9 +297,9 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
  		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_MULTILINE_STRING );
 		assistant.setContentAssistProcessor(processor,IDocument.DEFAULT_CONTENT_TYPE );
 		assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
-		// Allow automatic activation after 500 msec
-		assistant.enableAutoActivation(true);
-		assistant.setAutoActivationDelay(250);
+		
+		//delay and auto activate set on PyContentAssistant constructor.
+		
 		Color bgColor = colorCache.getColor(new RGB(230,255,230));
 		assistant.setProposalSelectorBackground(bgColor);
 		return assistant;

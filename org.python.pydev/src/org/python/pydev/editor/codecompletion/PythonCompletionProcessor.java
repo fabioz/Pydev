@@ -18,17 +18,27 @@ import org.eclipse.swt.graphics.Point;
 
 /**
  * @author Dmoore
- * @author Fabio Zadrozny 
+ * @author Fabio Zadrozny
  * 
  * This class is responsible for code completion / template completion.
  */
-public class PythonCompletionProcessor 
-        implements IContentAssistProcessor {
-    
+public class PythonCompletionProcessor implements IContentAssistProcessor {
+
     private PyTemplateCompletion templatesCompletion = new PyTemplateCompletion();
+
     private PyCodeCompletion codeCompletion = new PyCodeCompletion();
+
     private CompletionCache completionCache = new CompletionCache();
 
+    private boolean endsWithSomeChar(char cs[], String activationToken) {
+        for (int i = 0; i < cs.length; i++) {
+            if (activationToken.endsWith(cs[i] + "")) {
+                return true;
+            }
+        }
+        return false;
+
+    }
 
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer,
             int documentOffset) {
@@ -39,32 +49,37 @@ public class PythonCompletionProcessor
         // there may not be a selected range
         java.lang.String theDoc = doc.get();
         codeCompletion.calcDocBoundary(theDoc, documentOffset);
-        
-        String activationToken = codeCompletion
-                .getActivationToken(theDoc, documentOffset);
-//        System.out.println("DBG:PythonCompletionProcessor:activationToken:"+activationToken);
+
+        String activationToken = codeCompletion.getActivationToken(theDoc,
+                documentOffset);
+
         java.lang.String qualifier = "";
-        while(
-        		(activationToken.endsWith(".") ||activationToken.endsWith("("))
-        				== false && activationToken.length() > 0){
-            qualifier = activationToken.charAt(activationToken.length()-1) + qualifier;
-            activationToken = activationToken.substring(0, activationToken.length()-1);
+        char[] cs = getCompletionProposalAutoActivationCharacters();
+
+        while (endsWithSomeChar(cs, activationToken) == false
+                && activationToken.length() > 0) {
+
+            qualifier = activationToken.charAt(activationToken.length() - 1)
+                    + qualifier;
+            activationToken = activationToken.substring(0, activationToken
+                    .length() - 1);
         }
 
         theDoc = codeCompletion.partialDocument(theDoc, documentOffset);
-        
-        
+
         int qlen = qualifier.length();
         theDoc += "\n" + activationToken;
 
-        List allProposals = this.completionCache.getAllProposals(theDoc, activationToken, documentOffset, qlen, codeCompletion);
+        List allProposals = this.completionCache.getAllProposals(theDoc,
+                activationToken, documentOffset, qlen, codeCompletion);
 
         //templates proposals are added here.
-        this.templatesCompletion.addTemplateProposals(viewer, documentOffset, propList);
+        this.templatesCompletion.addTemplateProposals(viewer, documentOffset,
+                propList);
 
         for (Iterator iter = allProposals.iterator(); iter.hasNext();) {
             ICompletionProposal proposal = (ICompletionProposal) iter.next();
-            if(proposal.getDisplayString().startsWith(qualifier)){
+            if (proposal.getDisplayString().startsWith(qualifier)) {
                 propList.add(proposal);
             }
         }
@@ -78,11 +93,6 @@ public class PythonCompletionProcessor
 
     }
 
-
-
-  
-
-
     /*
      * (non-Javadoc)
      * 
@@ -91,7 +101,6 @@ public class PythonCompletionProcessor
      */
     public IContextInformation[] computeContextInformation(ITextViewer viewer,
             int documentOffset) {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -101,8 +110,27 @@ public class PythonCompletionProcessor
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
-    	//System.out.println("DBG:getCompletionProposalAutoActivationCharacters called");
-        return new char[] { '.', '(', /*'['*/ };
+        char[] c = new char[0];
+        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnDot()) {
+            c = addChar(c, '.');
+        }
+        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnPar()) {
+            c = addChar(c, '(');
+        }
+        return c;
+    }
+
+    private char[] addChar(char[] c, char toAdd) {
+        char[] c1 = new char[c.length + 1];
+
+        int i;
+
+        for (i = 0; i < c.length; i++) {
+            c1[i] = c[i];
+        }
+        c1[i] = toAdd;
+        return c1;
+
     }
 
     /*
@@ -111,8 +139,7 @@ public class PythonCompletionProcessor
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationAutoActivationCharacters()
      */
     public char[] getContextInformationAutoActivationCharacters() {
-        // is this _really_ what we want to use??
-        return new char[] { '.' };
+        return new char[] {};
     }
 
     /*
