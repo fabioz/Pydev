@@ -10,10 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IAutoIndentStrategy;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IInformationControl;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.TextAttribute;
+import org.eclipse.jface.text.TextPresentation;
+import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
@@ -28,7 +34,12 @@ import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
@@ -45,6 +56,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
 	private ColorCache colorCache;
 	private PyAutoIndentStrategy autoIndentStrategy;
+//	private ColorManager colorManager;
 	private String[] indentPrefixes = { "    ", "\t", ""};
 	
 	public PyEditConfiguration(ColorCache colorManager) {
@@ -254,8 +266,84 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		return reconciler;
 	}
 
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
+	 */
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-		return new PyContentAssistant();
+//		public final static String PY_SINGLELINE_STRING = "__python_singleline_string";
+//		public final static String PY_MULTILINE_STRING = "__python_multiline_string";);
+		// create a content assistant:
+		ContentAssistant assistant = new ContentAssistant();
+		// next create a content assistant processor to populate the completions window
+		IContentAssistProcessor processor = new PythonCompletionProcessor();
+		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_SINGLELINE_STRING );
+		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_MULTILINE_STRING );
+		assistant.setContentAssistProcessor(processor,IDocument.DEFAULT_CONTENT_TYPE );
+		assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
+		// Allow automatic activation after 500 msec
+		assistant.enableAutoActivation(true);
+		assistant.setAutoActivationDelay(500);
+		Color bgColor = colorCache.getColor(new RGB(230,255,230));
+		assistant.setProposalSelectorBackground(bgColor);
+		return assistant;
+		
 	}
+
+
+	// The presenter instance for the information window
+	private static final DefaultInformationControl.IInformationPresenter presenter =
+		new DefaultInformationControl.IInformationPresenter() {
+		public String updatePresentation(
+			Display display,
+			String infoText,
+			TextPresentation presentation,
+			int maxWidth,
+			int maxHeight) {
+			int start = -1;
+			// Loop over all characters of information text
+			//These will have to be tailored for the appropriate Python
+			for (int i = 0; i < infoText.length(); i++) {
+				switch (infoText.charAt(i)) {
+					case '<' :
+						// Remember start of tag
+						start = i;
+						break;
+					case '>' :
+						if (start >= 0) {
+							// We have found a tag and create a new style range
+							StyleRange range =
+								new StyleRange(
+									start,
+									i - start + 1,
+									null,
+									null,
+									SWT.BOLD);
+							// Add this style range to the presentation
+							presentation.addStyleRange(range);
+							// Reset tag start indicator
+							start = -1;
+						}
+						break;
+				}
+			}
+			// Return the information text
+			return infoText;
+		}
+	};
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getInformationControlCreator(org.eclipse.jface.text.source.ISourceViewer)
+	 */
+	public IInformationControlCreator getInformationControlCreator(ISourceViewer sourceViewer) {
+		return new IInformationControlCreator() {
+			public IInformationControl createInformationControl(Shell parent) {
+				return new DefaultInformationControl(parent, presenter);
+			}
+		};
+	}
+
+
+
 
 }
