@@ -22,7 +22,8 @@ public class PyDFunctionItem extends PyDictionaryItem {
 		this.node = node;
 		PopulateDictionary populator = new PopulateDictionary(this, subItems);
 		try {
-			node.traverse(populator);
+			PopulateDictionary.FunctionDefTraverse(populator, node);
+			//node.traverse(populator);
 		} catch (Exception e) {
 			PydevPlugin.log(IStatus.ERROR, "Unexpected error populating ClassDef", e);
 			e.printStackTrace();
@@ -30,7 +31,9 @@ public class PyDFunctionItem extends PyDictionaryItem {
 	}
 
 	public String toString() {
-		return "Function " + node.name + "\n" + subItems.toString();
+		String dic = subItems.toString();
+		String dicString = dic.length() == 0 ? " []" : "\n[ "+dic+" ]\n";
+		return node.name + " FUNCTION DICTIONARY" + dicString;
 	}
 
 }

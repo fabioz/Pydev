@@ -55,6 +55,6 @@ public class PyDEditorItem extends PyDictionaryItem implements IParserListener{
 	}
 
 	public String toString() {
-		return "Top node\n" + subItems.toString();
+		return "##### TOP NODE #########\n" + subItems.toString();
 	}
 }

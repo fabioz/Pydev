@@ -5,7 +5,7 @@
  */
 package org.python.pydev.editor.dictionary;
 
-import org.python.parser.ast.Assign;
+import org.python.parser.ast.Name;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -15,9 +15,9 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyDLocalItem extends PyDictionaryItem {
 
-	Assign node;
+	Name node;
 	
-	public PyDLocalItem(PyDictionaryItem parent, Assign node) {
+	public PyDLocalItem(PyDictionaryItem parent, Name node) {
 		super(parent);
 		this.node = node;
 		PopulateDictionary populator = new PopulateDictionary(this, subItems);
@@ -30,9 +30,13 @@ public class PyDLocalItem extends PyDictionaryItem {
 	}
 
 	public String toString() {
-		String locals = "";
-		for (int i=0;i<node.targets.length; i++)
-			locals += node.targets[i].toString(); 
-		return "Local " + locals + "\n" + subItems.toString();
+		return node.id;
+	}
+
+	/**
+	 * get the name of the local variable
+	 */
+	public String getName() {
+		return node.id;
 	}
 }

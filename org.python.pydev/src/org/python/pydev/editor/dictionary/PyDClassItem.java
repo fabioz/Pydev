@@ -30,6 +30,6 @@ public class PyDClassItem extends PyDictionaryItem {
 	}
 
 	public String toString() {
-		return "Class " + node.name + "\n" + subItems.toString();
+		return node.name + " CLASS & ITS DICTIONARY\n"  + "[" + subItems.toString() + "]";
 	}
 }

@@ -35,9 +35,17 @@ public class PyDictionary {
 	}
 
 	public void addLocal(PyDLocalItem newLocal) {
-		locals.add(newLocal);
+		// eliminate dupes
+		if (!hasLocal(newLocal))
+			locals.add(newLocal);
 	}
 	
+	boolean hasLocal(PyDLocalItem local) {
+		for (Iterator i = locals.iterator();i.hasNext();)
+			if (local.getName().equals(((PyDLocalItem)i.next()).getName()))
+				return true;
+		return false;
+	}
 	/**
 	 * For debugging, pretty print the dictionary
 	 */
@@ -48,21 +56,23 @@ public class PyDictionary {
 			Iterator i = classes.iterator();
 			while (i.hasNext())
 				buf.append(i.next().toString());
-			buf.append("\n");
+//			buf.append("\n");
 		}
 		if (!functions.isEmpty()) {
 			buf.append("Functions: ");
 			Iterator i = functions.iterator();
 			while (i.hasNext())
 				buf.append(i.next().toString());
-			buf.append("\n");
+//			buf.append("\n");
 		}
 		if (!locals.isEmpty()) {
 			buf.append("Locals: ");
 			Iterator i = locals.iterator();
-			while (i.hasNext())
+			while (i.hasNext()) {
 				buf.append(i.next().toString());
-			buf.append("\n");
+				buf.append(",");
+			}
+//			buf.append("\n");
 		}
 		return buf.toString();
 	}
