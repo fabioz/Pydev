@@ -31,7 +31,7 @@ import org.python.pydev.utils.SimplePythonRunner;
  */
 public class PythonShell {
 
-    private static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 500;
+    private static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000;
     /**
      * Reference to 'global python shells'
      */
@@ -188,8 +188,9 @@ public class PythonShell {
             
             sleepALittle(300);
             socketToWrite = null;
-            serverSocket = new ServerSocket(pRead); //read in this port 
-            while(!connected && attempts < 20){
+            serverSocket = new ServerSocket(pRead); //read in this port
+            int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
+            while(!connected && attempts < maxAttempts){
                 attempts += 1;
 	            try {
 	                if(socketToWrite == null || socketToWrite.isConnected() == false){
@@ -199,10 +200,13 @@ public class PythonShell {
                     connected = true;
                 } catch (IOException e1) {
 	                if(socketToWrite != null && socketToWrite.isConnected() == true){
-	                    PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of 20 failed, trying again...(socketToWrite already binded)", e1);
-	                }else{
-	                    PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of 20 failed, trying again...", e1);
+	                    PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of "+maxAttempts+" failed, trying again...(socketToWrite already binded)", e1);
 	                }
+//	                no need for showing the error below...
+//	                else{
+//	                    PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of "+maxAttempts+" failed, trying again...", e1);
+//	                }
+	                
                 }
                 
                 //if not connected, let's sleep a little for another attempt

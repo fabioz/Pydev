@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
@@ -27,6 +28,9 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static final String USE_CODECOMPLETION = "USE_CODECOMPLETION";
     public static final boolean DEFAULT_USE_CODECOMPLETION = false;
     
+    public static final String ATTEMPTS_CODECOMPLETION = "ATTEMPTS_CODECOMPLETION";
+    public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 25;
+
     //	public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
     //	public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
     //
@@ -54,6 +58,9 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
      */
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
+
+        addField(new IntegerFieldEditor(
+		        ATTEMPTS_CODECOMPLETION, "Number of attempts to connect to shell?\n(timeout between attempts is 1 sec.)\n\n", p));
 
         addField(new BooleanFieldEditor(
 		        USE_CODECOMPLETION, "Use code completion?", p));
@@ -105,6 +112,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
      */
     public static void initializeDefaultPreferences(Preferences prefs) {
 		prefs.setDefault(USE_CODECOMPLETION, DEFAULT_USE_CODECOMPLETION);
+		prefs.setDefault(ATTEMPTS_CODECOMPLETION, DEFAULT_ATTEMPTS_CODECOMPLETION);
         //		prefs.setDefault(AUTOCOMPLETE_ON_DOT, DEFAULT_AUTOCOMPLETE_ON_DOT);
         //		prefs.setDefault(USE_AUTOCOMPLETE, DEFAULT_USE_AUTOCOMPLETE);
         //		prefs.setDefault(AUTOCOMPLETE_DELAY, DEFAULT_AUTOCOMPLETE_DELAY);
@@ -113,6 +121,10 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
     public static boolean useCodeCompletion() {
         return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.USE_CODECOMPLETION);
+    }
+
+    public static int getNumberOfConnectionAttempts() {
+        return PydevPrefs.getPreferences().getInt(PyCodeCompletionPreferencesPage.ATTEMPTS_CODECOMPLETION);
     }
 
     //    public static boolean isToAutocompleteOnDot() {
