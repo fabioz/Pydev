@@ -98,12 +98,21 @@ public class PyOutlinePage extends ContentOutlinePage  {
 		final TreeViewer tree = getTreeViewer();
 		IDocumentProvider provider = editorView.getDocumentProvider();
 		document = provider.getDocument(editorView.getEditorInput());
-		model = new ParsedModel(this, editorView.getParser());
+		model = getParsedModel();
 		tree.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
 		tree.setContentProvider(new ParsedContentProvider());
 		tree.setLabelProvider(new ParsedLabelProvider(imageCache));
 		tree.setInput(model.getRoot());
 	}
+
+	/**
+	 * 
+	 * @return the parsed model, so that it can be used elsewhere (in navigation)
+	 */
+	public ParsedModel getParsedModel() {
+		return new ParsedModel(this, editorView.getParser());
+	}
+	
 		
 	/*
 	 * called when model has structural changes, refreshes all items underneath
@@ -112,20 +121,22 @@ public class PyOutlinePage extends ContentOutlinePage  {
 	 */
 	public void refreshItems(Object[] items) {
 		TreeViewer viewer = getTreeViewer();
-		Tree treeWidget = viewer.getTree();
-		ScrollBar bar = treeWidget.getVerticalBar();
-		int barPosition = 0;
-		if (bar != null) {
-			barPosition = bar.getSelection();
-		}
-		if (items == null)
-			viewer.refresh();
-		else 
-			for (int i=0; i< items.length; i++) {
-				viewer.refresh(items[i]);
+		if (viewer != null){
+			Tree treeWidget = viewer.getTree();
+			ScrollBar bar = treeWidget.getVerticalBar();
+			int barPosition = 0;
+			if (bar != null) {
+				barPosition = bar.getSelection();
 			}
-		if (barPosition != 0) {
-			bar.setSelection(Math.min(bar.getMaximum(), barPosition));
+			if (items == null)
+				viewer.refresh();
+			else 
+				for (int i=0; i< items.length; i++) {
+					viewer.refresh(items[i]);
+				}
+			if (barPosition != 0) {
+				bar.setSelection(Math.min(bar.getMaximum(), barPosition));
+			}
 		}
 	}
 	public void refreshAll() {
@@ -135,7 +146,9 @@ public class PyOutlinePage extends ContentOutlinePage  {
 	 * called when a single item changes
 	 */
 	public void updateItems(Object[] items) {
-		getTreeViewer().update(items, null);
+		TreeViewer tree = getTreeViewer();
+		if (tree != null)
+			getTreeViewer().update(items, null);
 	}
 
 	/**
@@ -196,27 +209,32 @@ public class PyOutlinePage extends ContentOutlinePage  {
 				IOutlineModel.SelectThis newSel = model.selectionChanged(sel);
 				if (newSel == null)
 					return;
-				if (newSel.r != null) {
-					editorView.setSelection(newSel.r.getOffset(), newSel.r.getLength());
-				}
-				else {
-					IDocumentProvider provider = editorView.getDocumentProvider();
-					IDocument document = provider.getDocument(editorView.getEditorInput());
-					try {
-						IRegion r = document.getLineInformation(newSel.line - 1);
-						// if selecting the whole line, just use the information
-						if (newSel.column == IOutlineModel.SelectThis.WHOLE_LINE) {
-							newSel.column = 0;
-							newSel.length = r.getLength();
-						}
-						editorView.setSelection(r.getOffset() + newSel.column, newSel.length);
-					} catch (BadLocationException e) {
-						e.printStackTrace();
-					}
-				}
+				selectSelectionInEditor(newSel,editorView);
 			}
 		};
 		tree.addSelectionChangedListener(selectionListener);		
 		createActions();
 	}
+	
+	public static void selectSelectionInEditor(IOutlineModel.SelectThis newSel, PyEdit editorView) {
+		if (newSel.r != null) {
+			editorView.setSelection(newSel.r.getOffset(), newSel.r.getLength());
+		}
+		else {
+			IDocumentProvider provider = editorView.getDocumentProvider();
+			IDocument document = provider.getDocument(editorView.getEditorInput());
+			try {
+				IRegion r = document.getLineInformation(newSel.line - 1);
+				// if selecting the whole line, just use the information
+				if (newSel.column == IOutlineModel.SelectThis.WHOLE_LINE) {
+					newSel.column = 0;
+					newSel.length = r.getLength();
+				}
+				editorView.setSelection(r.getOffset() + newSel.column, newSel.length);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 }
