@@ -67,7 +67,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage
 
 		addField(new BooleanFieldEditor(
 		        USE_SERVER_TIP, "Use server tipper enviroment (otherwise console is used)?", p));
-}
+    }
 
     /*
      * (non-Javadoc)
