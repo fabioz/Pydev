@@ -590,6 +590,28 @@ def __eq__(self,o):
 def __ne__(self,o):
 	return not self == o
 </pattern>
+
+      </template>
+
+      <template
+            name="iff"
+            icon="icons/template.gif"
+            description="Normal 'if' test"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.iff">
+         <pattern>
+if ${cursor}${condition}: True
+         </pattern>
+      </template>
+           <template
+            name="def"
+            icon="icons/template.gif"
+            description="global method definition"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.def">
+         <pattern>
+def ${cursor}${method}(): True
+         </pattern>
       </template>
 
    </extension>
