@@ -91,7 +91,7 @@ public class LaunchShortcut implements ILaunchShortcut {
 		} else {
 			status = new Status(IStatus.ERROR, "org.python.pydev.debug", 0, message, throwable);
 		}
-		ErrorDialog.openError(DebugPlugin.getActiveWorkbenchWindow().getShell(), 
+		ErrorDialog.openError(PydevDebugPlugin.getActiveWorkbenchWindow().getShell(), 
 			"Python pydev.debug error", "Python launch failed", status);
 	}
 	
@@ -153,7 +153,7 @@ public class LaunchShortcut implements ILaunchShortcut {
 // E3			String baseDirectory = varManager.generateVariableExpression("workspace_loc",file.getRawLocation().removeLastSegments(1).toString());
 			String baseDirectory = file.getRawLocation().removeLastSegments(1).toString();
 			String arguments = "";
-			String interpreter = DebugPlugin.getDefault().getInterpreters()[0];
+			String interpreter = PydevDebugPlugin.getDefault().getInterpreters()[0];
 			workingCopy.setAttribute(Constants.ATTR_LOCATION,location);
 			workingCopy.setAttribute(Constants.ATTR_WORKING_DIRECTORY,baseDirectory);
 			workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS,arguments);
@@ -222,7 +222,7 @@ public class LaunchShortcut implements ILaunchShortcut {
 			if (fShowDialog) {
 				IStatus status = new Status(IStatus.INFO, Constants.PLUGIN_ID, 0, "Hmm", null); //$NON-NLS-1$
 				String groupID = mode.equals("run") ? Constants.PYTHON_RUN_LAUNCH_GROUP : Constants.PYTHON_DEBUG_LAUNCH_GROUP;
-				DebugUITools.openLaunchConfigurationDialog(DebugPlugin.getActiveWorkbenchWindow().getShell(), conf, groupID, null);
+				DebugUITools.openLaunchConfigurationDialog(PydevDebugPlugin.getActiveWorkbenchWindow().getShell(), conf, groupID, null);
 			} else {
 				DebugUITools.launch(conf, mode);
 				// TODO what's this code doing?

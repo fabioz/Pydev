@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.debug.core.Constants;
-import org.python.pydev.debug.core.DebugPlugin;
+import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
  * Debug preferences.
@@ -27,7 +27,7 @@ public class DebugPrefsPage extends FieldEditorPreferencePage
 	 */
 	public DebugPrefsPage() {
 		super(GRID);
-		setPreferenceStore(DebugPlugin.getDefault().getPreferenceStore());
+		setPreferenceStore(PydevDebugPlugin.getDefault().getPreferenceStore());
 	}
 
 	public void init(IWorkbench workbench) {

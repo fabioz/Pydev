@@ -17,8 +17,7 @@ import org.eclipse.ui.actions.ActionDelegate;
 /**
  * Implements "Run Python..." extension for org.eclipse.ui.popupMenus.
  * 
- * <p>Lots of functionality borrowed from AntRunActionDelegate.
- * <p>Collects all the files, then passes everything off to LaunchShortcut
+ * <p>Passes off the selected file to {@link org.python.pydev.debug.ui.launching.LaunchShortcut LaunchShortcut}.
  * 
  * @see org.python.pydev.debug.ui.launching.LaunchShortcut 
  */

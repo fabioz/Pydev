@@ -15,7 +15,7 @@ import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
-import org.python.pydev.debug.core.DebugPlugin;
+import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
  * Field editor for a list of python interpreter with executable verifier.
@@ -85,7 +85,7 @@ public class InterpreterEditor extends ListEditor {
 
 	public static String[] getInterpreterList(String stringList) {
 		if (stringList == null) {
-			DebugPlugin.log(IStatus.WARNING, "No python interpreters specified", (Throwable)null);
+			PydevDebugPlugin.log(IStatus.WARNING, "No python interpreters specified", (Throwable)null);
 			return new String[] {"python"};
 		}
 		StringTokenizer st = new StringTokenizer(stringList, File.pathSeparator + "\n\r"); //$NON-NLS-1$

@@ -2,7 +2,7 @@ package org.python.pydev.debug.ui;
 import java.io.*;
 
 import org.eclipse.core.runtime.IStatus;
-import org.python.pydev.debug.core.DebugPlugin;
+import org.python.pydev.debug.core.PydevDebugPlugin;
 
 
 /**
@@ -27,7 +27,7 @@ public class StreamConsumer extends Thread {
 			}
 			bReader.close();
 		} catch (IOException ioe) {
-			DebugPlugin.log(IStatus.ERROR, "Error in stream consumer", ioe);
+			PydevDebugPlugin.log(IStatus.ERROR, "Error in stream consumer", ioe);
 		}
 	}
 	/**

@@ -11,16 +11,16 @@ import org.python.pydev.debug.ui.InterpreterEditor;
  * 
  * Standard plugin functionality: preferences, logging, some utility functions
  */
-public class DebugPlugin extends AbstractUIPlugin {
+public class PydevDebugPlugin extends AbstractUIPlugin {
 	//The shared instance.
-	private static DebugPlugin plugin;
+	private static PydevDebugPlugin plugin;
 		
-	public DebugPlugin(IPluginDescriptor descriptor) {
+	public PydevDebugPlugin(IPluginDescriptor descriptor) {
 		super(descriptor);
 		plugin = this;
 	}
 
-	public static DebugPlugin getDefault() {
+	public static PydevDebugPlugin getDefault() {
 		return plugin;
 	}
 	

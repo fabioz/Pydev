@@ -17,7 +17,7 @@ import org.eclipse.debug.ui.console.IConsole;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
-import org.python.pydev.debug.core.DebugPlugin;
+import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
  * Line tracker that hyperlinks error lines: 'File "D:\mybad.py" line 3\n n Syntax error'
@@ -72,7 +72,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 				}
 			}
 		} catch (BadLocationException e) {
-			DebugPlugin.log(IStatus.ERROR, "unexpected error", e);
+			PydevDebugPlugin.log(IStatus.ERROR, "unexpected error", e);
 		}
 	}
 

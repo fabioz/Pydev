@@ -105,7 +105,7 @@ public class PythonMainTab extends AbstractLaunchConfigurationTab {
 
 
 		interpreterField = new Combo (comp, SWT.DROP_DOWN);
-		interpreterField.setItems (DebugPlugin.getDefault().getInterpreters());
+		interpreterField.setItems (PydevDebugPlugin.getDefault().getInterpreters());
 		interpreterField.select(0);
 		data = new GridData ();
 		data.horizontalAlignment = GridData.FILL;
@@ -153,7 +153,7 @@ public class PythonMainTab extends AbstractLaunchConfigurationTab {
 			ImageDescriptor desc;
 			try {
 				URL url = new URL(
-						DebugPlugin.getDefault().getDescriptor().getInstallURL(),
+						PydevDebugPlugin.getDefault().getDescriptor().getInstallURL(),
 						Constants.MAIN_ICON);
 				desc = ImageDescriptor.createFromURL(url);
 			} catch (MalformedURLException e) {
@@ -210,7 +210,7 @@ public class PythonMainTab extends AbstractLaunchConfigurationTab {
 			if (interpreter.equals(interpreters[i]))
 				selectThis = i;
 		if (selectThis == -1) {
-			DebugPlugin.log(IStatus.INFO, "Obsolete interpreter selected", null);
+			PydevDebugPlugin.log(IStatus.INFO, "Obsolete interpreter selected", null);
 			interpreterField.add(interpreter);
 			interpreterField.select(interpreterField.getItemCount()-1);
 		}
