@@ -195,7 +195,10 @@ public class PyFormatStd extends PyAction{
      * @param i
      */
     private static int findNextMulti(char[] cs, int i, char curr) {
-        while(i < cs.length && cs[i] != curr){
+        while(i+2 < cs.length){
+            if (cs[i] == curr && cs[i+1] == curr && cs[i+2] == curr){
+                break;
+            }
             i++;
         }
         if(cs.length < i+2){
