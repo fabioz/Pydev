@@ -2,7 +2,7 @@
 <plugin
    id="org.python.pydev.debug"
    name="Pydev debug"
-   version="0.3.0"
+   version="0.4.0"
    provider-name="Aleks Totic"
    class="org.python.pydev.debug.core.PydevDebugPlugin">
 
@@ -31,10 +31,9 @@
       <launchConfigurationType
             name="Python"
             delegate="org.python.pydev.debug.ui.launching.PythonLaunchConfigurationDelegate"
-             modes="run, debug"
+            modes="run, debug"
             id="org.python.pydev.debug.launchConfigurationType">
       </launchConfigurationType>
-           <!--- set category="org.python.pydev.debug" to disable display in debug window-->
    </extension>
 <!--- the launcher icon -->
    <extension
@@ -63,7 +62,9 @@
             modes="run, debug"
             class="org.python.pydev.debug.launching.LaunchShortcut"
             id="org.python.pydev.debug.launchShortcut">
-            <perspective id="org.eclipse.debug.ui.DebugPerspective"/>
+         <perspective
+               id="org.eclipse.debug.ui.DebugPerspective">
+         </perspective>
       </shortcut>
    </extension>
 <!--- launcher pop up over a python file -->
@@ -113,7 +114,7 @@
             mode="debug"
             id="org.python.pydev.debug.debug">
       </launchGroup>
-       <launchGroup
+      <launchGroup
             label="Run"
             bannerImage="icons/python-big.gif"
             category="org.python.pydev.debug"
@@ -131,8 +132,8 @@
             id="org.python.pydev.debug.ui.PythonConsoleLineTracker">
       </consoleLineTracker>
    </extension>
-<!--- breakpoint marker -->
 <!--- TODO just a placeholder for now -->
+<!--- breakpoint marker -->
    <extension
          id="pyBreakpointMarker"
          point="org.eclipse.core.resources.markers">
@@ -155,4 +156,5 @@
             name="org.eclipse.cdt.debug.core.installCount">
       </attribute>
    </extension>
+
 </plugin>
