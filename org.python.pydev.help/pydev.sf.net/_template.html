@@ -14,7 +14,7 @@
 <tr align="center" bgcolor="#eeeeee" valign="middle">
 <td colspan="7" nowrap="nowrap">
 <center>
-<p class="header_text">Last Site Update: 30th November 2004 |
+<p class="header_text">Last Site Update: %(date)s |
 Latest Version: 0.80</p>
 </center>
 </td>
@@ -90,6 +90,8 @@ cellspacing="0" width="200">
 "features.html">Features</a> </td>
 </tr>
 
+
+%(other_features)s
 
 
 <tr>
@@ -251,7 +253,7 @@ google_ad_client = "pub-0781609843524821";
 google_ad_width = 160;
 google_ad_height = 600;
 google_ad_format = "160x600_as";
-google_ad_channel ="6798751939";
+google_ad_channel ="%(channel)s";
 //--></script>
 <script type="text/javascript"
   src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
