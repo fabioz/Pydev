@@ -6,46 +6,28 @@
  */
 package org.python.pydev.editor;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
-import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
-import org.eclipse.jface.text.contentassist.ContextInformation;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.swt.graphics.Point;
-
-import org.python.core.*;
-//import org.python.pydev.editor.test.Debug;
-//import org.python.pydev.editor.test.Inspect;
-//import org.python.pydev.editor.test.Introspect;
-//import org.python.pydev.editor.test.Jintrospect;
-//import org.python.pydev.editor.test.Sre_compile;
-//import org.python.pydev.editor.test.Sre_constants;
-//import org.python.pydev.editor.test.Token;
-//import org.python.pydev.editor.test.Tokenize;
-//import org.python.pydev.editor.test.Re;
-//import org.python.pydev.editor.test.Sre;
-//import org.python.pydev.editor.test.String;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.core.PyException;
+import org.python.core.PyList;
+import org.python.core.PyObject;
+import org.python.core.PyString;
+import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
 /**

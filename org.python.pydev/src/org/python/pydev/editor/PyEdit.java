@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -38,7 +39,6 @@ import org.python.parser.ParseException;
 import org.python.parser.SimpleNode;
 import org.python.parser.Token;
 import org.python.parser.TokenMgrError;
-import org.python.pydev.plugin.*;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.IModelListener;
@@ -47,8 +47,9 @@ import org.python.pydev.editor.model.ModelMaker;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.IParserListener;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
-import org.eclipse.jface.action.IAction;
 
 
 /**
