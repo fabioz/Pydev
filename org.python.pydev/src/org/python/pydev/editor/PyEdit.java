@@ -9,6 +9,7 @@ import org.eclipse.core.internal.resources.MarkerAttributeMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -20,6 +21,7 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
+import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.parser.ParseException;
@@ -57,6 +59,10 @@ public class PyEdit extends TextEditor implements IParserListener {
 	private PyParser parser;
 	// Listener waits for tab/spaces preferences that affect sourceViewer
 	private Preferences.IPropertyChangeListener prefListener;
+	/** need it to support GUESS_TAB_SUBSTITUTION preference */
+	private PyAutoIndentStrategy indentStrategy;
+	/** need to hold onto it to support indentPrefix change through preferences */
+	PyEditConfiguration editConfiguration;
 	
 	public PyEdit() {
 		super();
@@ -64,16 +70,73 @@ public class PyEdit extends TextEditor implements IParserListener {
 		if (getDocumentProvider() == null) {
 			setDocumentProvider(new PyDocumentProvider());
 		}
-		setSourceViewerConfiguration(new PyEditConfiguration(colorCache));
+		editConfiguration = new PyEditConfiguration(colorCache);
+		setSourceViewerConfiguration(editConfiguration);
+		indentStrategy = (PyAutoIndentStrategy)editConfiguration.getAutoIndentStrategy(null, null);
 		setRangeIndicator(new DefaultRangeIndicator()); // enables standard vertical ruler
 	}
 	
-	/** hooks up the parser */
+	/**
+	 * Sets the forceTabs preference for auto-indentation.
+	 * 
+	 * <p>This is the preference that overrides "use spaces" preference
+	 * when file contains tabs (like mine do).
+	 * <p>If the first indented line starts with a tab, 
+	 * then tabs override spaces.
+	 */
+	private void resetForceTabs() {
+		IDocument doc = getDocumentProvider().getDocument(getEditorInput());
+		if (doc == null)
+			return;
+		if ( !PydevPrefs.getPreferences().getBoolean(PydevPrefs.GUESS_TAB_SUBSTITUTION)) {
+			indentStrategy.setForceTabs(false);
+			return;
+		}
+
+		int lines = doc.getNumberOfLines();
+		boolean forceTabs = false;
+		int i = 0;
+		// look for the first line that starts with '  ', or '\t'
+		while (i<lines) {
+			try {
+				IRegion r = doc.getLineInformation(i);
+				String text = doc.get(r.getOffset(), r.getLength());
+				if (text != null)
+					if (text.startsWith("\t")) {
+						forceTabs = true;
+						break;
+					}
+					else if (text.startsWith("  ")) {
+						forceTabs = false;
+						break;
+					}
+			} catch (BadLocationException e) {
+				PydevPlugin.log(IStatus.ERROR, "Unexpected error forcing tabs", e);
+				break;
+			}
+			i++;
+		}
+		indentStrategy.setForceTabs(forceTabs);
+		editConfiguration.resetIndentPrefixes();
+		// display a message in the status line
+		if (forceTabs) {
+			IEditorStatusLine statusLine = (IEditorStatusLine)getAdapter(IEditorStatusLine.class);
+			if (statusLine != null)
+				statusLine.setMessage(false, "Pydev: forcing tabs", null);
+		}
+	}
+	
+	/** 
+	 * Initializes everyone that needs document access
+	 * 
+	 */
 	public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
 		super.init(site, input);
 		parser = new PyParser(this);
 		parser.addParseListener(this);
 		parser.setDocument(getDocumentProvider().getDocument(input));
+		
+		// listen to changes in TAB_WIDTH preference
 		prefListener = new Preferences.IPropertyChangeListener() {
 			public void propertyChange(Preferences.PropertyChangeEvent event) {
 				String property= event.getProperty();
@@ -83,8 +146,12 @@ public class PyEdit extends TextEditor implements IParserListener {
 						return;
 					sourceViewer.getTextWidget().setTabs(PydevPlugin.getDefault().getPluginPreferences().getInt(PydevPrefs.TAB_WIDTH));
 				}
+				else if (property.equals(PydevPrefs.GUESS_TAB_SUBSTITUTION)) {
+					resetForceTabs();
+				}
 			}
 		};
+		resetForceTabs();
 		PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
 	}
 	

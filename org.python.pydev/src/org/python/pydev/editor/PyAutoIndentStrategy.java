@@ -26,7 +26,11 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 	//	should tab be converted to spaces?
 	boolean useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);	
 	int tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
+	boolean forceTabs = false;
 	
+	public void setForceTabs(boolean forceTabs) {
+		this.forceTabs = forceTabs;
+	}
 	/** returns correct single-step indentation */
 	private String getIndentationString() {
 		if (identString == null ||
@@ -35,7 +39,7 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 		{
 			tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
 			useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
-			if (useSpaces) {
+			if (useSpaces && !forceTabs) {
 				StringBuffer b = new StringBuffer(tabWidth);
 				while (tabWidth-- > 0)
 					b.append(" ");
@@ -101,8 +105,8 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 	}
 
 	/**
-		* When hitting TAB, delete the whitespace after the cursor in the line
-		*/
+	 * When hitting TAB, delete the whitespace after the cursor in the line
+	 */
 	protected void deleteWhitespaceAfter(IDocument document, int offset)
 		throws BadLocationException {
 		if (offset < document.getLength()
