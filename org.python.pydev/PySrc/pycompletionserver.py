@@ -204,21 +204,21 @@ class T(threading.Thread):
 
 if __name__ == '__main__':
     #let's log this!!
-    import os
-    f = 'c:/temp/pydev.log'
-    i=0
-    while os.path.exists(f):
-        f = 'c:/temp/pydev%s.log' % i
-        i+=1
-        
-    out = open(f, 'w')
-    sys.stdout = out
-    sys.stderr = out
+#    import os
+#    f = 'c:/temp/pydev.log'
+#    i=0
+#    while os.path.exists(f):
+#        f = 'c:/temp/pydev%s.log' % i
+#        i+=1
+#        
+#    out = open(f, 'w')
+#    sys.stdout = out
+#    sys.stderr = out
     
     thisPort = int(sys.argv[1])  #this is from where we want to receive messages.
     serverPort = int(sys.argv[2])#this is where we want to write messages.
     
     t = T(thisPort, serverPort)
-    print 'will start'
+#    print 'will start'
     t.start()
 
