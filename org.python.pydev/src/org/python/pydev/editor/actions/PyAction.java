@@ -59,7 +59,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 	 * @return  delimiter for the document (\n|\r\|r\n)
 	 * @throws BadLocationException
 	 */
-	protected static String getDelimiter(IDocument doc, int startLineIndex)
+	public static String getDelimiter(IDocument doc, int startLineIndex)
 		throws BadLocationException {
 		String endLineDelim = doc.getLineDelimiter(startLineIndex);
 		if (endLineDelim == null) {
