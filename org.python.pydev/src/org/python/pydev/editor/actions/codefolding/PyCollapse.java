@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.actions;
+package org.python.pydev.editor.actions.codefolding;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,14 +13,18 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
+import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codefolding.PyProjectionAnnotation;
 
 /**
  * @author Fabio Zadrozny
  */
-public class PyUnCollapse extends PyAction{
+public class PyCollapse extends PyAction {
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
@@ -28,7 +32,6 @@ public class PyUnCollapse extends PyAction{
 
         IAnnotationModel model = (IAnnotationModel) getTextEditor ( )
                 .getAdapter(ProjectionAnnotationModel.class);
-
         try {
             if (model != null) {
                 ArrayList collapsed = new ArrayList();
@@ -41,17 +44,16 @@ public class PyUnCollapse extends PyAction{
                     int line = ps.doc.getLineOfOffset(position.offset);
                     if(ps.startLineIndex == line){
                         model.removeAnnotation(element);
-                        element.markExpanded();
+                        element.markCollapsed();
                         model.addAnnotation(element, position);
                         break;
                     }
                 }
+                
             }
         } catch (BadLocationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
     }
-
 }
