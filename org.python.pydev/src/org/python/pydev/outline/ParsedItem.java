@@ -25,7 +25,7 @@ import org.python.parser.ast.aliasType;
  * <p>The model gets an AST (Abstract Syntax Tree) from jython's parser
  * and this is then converted to a tree of ParsedItems
  */
-class ParsedItem  {
+public class ParsedItem  {
 	ParsedItem parent;
 	ParsedItem[] children = null; // array of modTypes
 	SimpleNode token; // parser token that this node represents
@@ -111,6 +111,13 @@ class ParsedItem  {
 	 * @return where in the document is this item located
 	 */
 	public IOutlineModel.SelectThis getPosition() {
+		return getPosition(token);
+	}
+
+	/*
+	 * @return where in the document is this item located
+	 */
+	public static IOutlineModel.SelectThis getPosition(SimpleNode token) {
 		int startOffset = 0;
 		boolean wholeLine = false;
 		if (token instanceof ClassDef) {
@@ -127,13 +134,13 @@ class ParsedItem  {
 			wholeLine = true;
 		}
 		
-		IOutlineModel.SelectThis position = new IOutlineModel.SelectThis(token.beginLine, token.beginColumn+startOffset, toString().length());
+		IOutlineModel.SelectThis position = new IOutlineModel.SelectThis(token.beginLine, token.beginColumn+startOffset, toString(token).length());
 
 		if (wholeLine)
 			position.column = IOutlineModel.SelectThis.WHOLE_LINE;		
 		return position;
 	}
-
+	
 	public ParsedItem[] getChildren() {
 		if (children == null) {
 			ArrayList allMyChildren = new ArrayList();
@@ -151,7 +158,12 @@ class ParsedItem  {
 		return children;
 	}
 	
+	
 	public String toString() {
+		return toString(token);
+	}
+	
+	public static String toString(SimpleNode token) {
 		if (token instanceof ClassDef) {
 			return ((ClassDef)token).name;
 		}
