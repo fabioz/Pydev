@@ -3,7 +3,7 @@
  * Created on Apr 22, 2004
  * License: Common Public License v1.0
  */
-package org.python.pydev.debug.model;
+package org.python.pydev.debug.model.remote;
 
 /**
  * Suspend thread network command.

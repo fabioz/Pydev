@@ -8,6 +8,7 @@ package org.python.pydev.debug.model;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
@@ -15,6 +16,7 @@ import org.eclipse.debug.core.model.IRegisterGroup;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
@@ -23,22 +25,59 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
  * 
  * Needs to integrate with the source locator
  */
-public class PyStackFrame implements IStackFrame {
+public class PyStackFrame extends PlatformObject implements IStackFrame {
 
 	private String name;
 	private PyThread thread;
 	private String id;
 	private IPath path;
 	private int line;
-	
-	public PyStackFrame(String id, String name, IPath file, int line) {
-		this.id = id;
+	private IVariable[] variables;
+	private IVariableLocator localsLocator;
+	private IVariableLocator globalsLocator;
+
+	public PyStackFrame(PyThread in_thread, String in_id, String name, IPath file, int line) {
+		this.id = in_id;
 		this.name = name;
 		this.path = file;
 		this.line = line;
+		this.thread = in_thread;
+		localsLocator = new IVariableLocator() {
+			public String getPyDBLocation() {
+				return thread.getId() + "\t" + id + "\tLOCAL"; 
+			}
+		};
+		globalsLocator = new IVariableLocator() {
+			public String getPyDBLocation() {
+				return thread.getId() + "\t" + id + "\tGLOBAL"; 
+			}
+		};
 	}
 
+	public String getId() {
+		return id;
+	}
 	
+	public IVariableLocator getLocalsLocator() {
+		return localsLocator;
+	}
+	
+	public IVariableLocator getGlobalLocator() {
+		return globalsLocator;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setPath(IPath path) {
+		this.path = path;
+	}
+	
+	public void setLine(int line) {
+		this.line = line;
+	}
+
 	public IPath getPath() {
 		return path;
 	}
@@ -46,19 +85,17 @@ public class PyStackFrame implements IStackFrame {
 	public IThread getThread() {
 		return thread;
 	}
-
-	public void setThread(PyThread thread) {
-		this.thread = thread;
+	
+	public void setVariables(IVariable[] locals) {
+		this.variables = locals;
 	}
 	
 	public IVariable[] getVariables() throws DebugException {
-		// TODO Auto-generated method stub
-		return null;
+		return variables;
 	}
 
 	public boolean hasVariables() throws DebugException {
-		// TODO Auto-generated method stub
-		return false;
+		return (variables != null);
 	}
 
 	public int getLineNumber() throws DebugException {
@@ -75,6 +112,7 @@ public class PyStackFrame implements IStackFrame {
 
 	public String getName() throws DebugException {
 		return name + " [" + path.lastSegment() + ":" + Integer.toString(line) + "]";
+//		return "(" + id + ")" + name + " [" + path.lastSegment() + ":" + Integer.toString(line) + "]";
 	}
 
 	public IRegisterGroup[] getRegisterGroups() throws DebugException {
@@ -163,9 +201,12 @@ public class PyStackFrame implements IStackFrame {
 			return thread.getAdapter(adapter);
 		else if (adapter.equals(ITaskListResourceAdapter.class))
 			return null;
+		else if (adapter.equals(IPropertySource.class) || 
+			adapter.equals(ITaskListResourceAdapter.class))
+			return  super.getAdapter(adapter);
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
 		System.err.println("PyStackFrame Need adapter " + adapter.toString());
-		return null;
+		return super.getAdapter(adapter);
 	}
 
 	/**
@@ -195,5 +236,4 @@ public class PyStackFrame implements IStackFrame {
 		else
 			return super.equals(obj);
 	}
-
 }

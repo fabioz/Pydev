@@ -7,46 +7,45 @@ package org.python.pydev.debug.model;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
+import org.python.pydev.debug.model.remote.*;
 
 /**
  * Represents python threads.
- * 
- * 
+ * Stack global variables are associated with threads.
  */
-public class PyThread implements IThread {
+public class PyThread extends PlatformObject implements IThread {
 
 	private PyDebugTarget target;
 	private String name;
 	private String id;
-	boolean isPydevThread;	// true if this is a debugger thread, that can't be killed/suspended
+	private boolean isPydevThread;	// true if this is a debugger thread, that can't be killed/suspended
 
-	boolean isSuspended = false;
-	boolean isStepping = false;
-	IStackFrame[] stack;
-
+	private boolean isSuspended = false;
+	private boolean isStepping = false;
+	private IStackFrame[] stack;
+	
 	public PyThread(PyDebugTarget target, String name, String id) {
 		this.target = target;
 		this.name = name;
 		this.id = id;
 		isPydevThread = id.equals("-1");	// use a special id for pydev threads
 	}
-	
+
 	/**
 	 * If a thread is entering a suspended state, pass in the stack
 	 */
 	public void setSuspended(boolean state, IStackFrame[] stack) {
 		isSuspended = state;
 		this.stack = stack;
-		if (stack != null) 
-			for (int i=0; i<stack.length; i++)
-				((PyStackFrame)stack[i]).setThread(this);
 	}
 
 	public String getName() throws DebugException {
@@ -82,10 +81,14 @@ public class PyThread implements IThread {
 	}
 
 	public void terminate() throws DebugException {
-		if (!isPydevThread) {
-			RemoteDebugger d = target.getDebugger();
-			d.postCommand(new ThreadKillCommand(d, id));
-		}
+		// this only kills a single thread, we usually want to kill 
+		// the whole app
+//		if (!isPydevThread) {
+//			RemoteDebugger d = target.getDebugger();
+//			d.postCommand(new ThreadKillCommand(d, id));
+//		}
+//		else
+			target.terminate();
 	}
 
 	public boolean canResume() {
@@ -167,6 +170,14 @@ public class PyThread implements IThread {
 		return stack == null ? null : stack[0];
 	}
 
+	public PyStackFrame findStackFrameByID(String id) {
+		if (stack != null) 
+			for (int i=0; i<stack.length; i++)
+				if (id.equals(((PyStackFrame)stack[i]).getId()))
+					return (PyStackFrame)stack[i];
+		return null;
+	}
+
 	public IBreakpoint[] getBreakpoints() {
 		// TODO Auto-generated method stub
 		return null;
@@ -178,12 +189,14 @@ public class PyThread implements IThread {
 			return target.getAdapter(adapter);
 		else if (adapter.equals(ITaskListResourceAdapter.class))
 			return null;
+		else if (adapter.equals(IPropertySource.class) || adapter.equals(ITaskListResourceAdapter.class))
+			return  super.getAdapter(adapter);
 		else {
 			System.err.println("PythonThread Need adapter " + adapter.toString());
 			Platform.getAdapterManager().getAdapter(this, adapter);
 		}
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
-		return null;
+		return super.getAdapter(adapter);
 	}
 
 }

@@ -3,7 +3,7 @@
  * Created: Aug 27, 2003
  * License: Common Public License v1.0
  */
-package org.python.pydev.debug.ui.launching;
+package org.python.pydev.debug.ui.actions;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.debug.core.ILaunchManager;
@@ -13,6 +13,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.actions.ActionDelegate;
+import org.python.pydev.debug.ui.launching.LaunchShortcut;
 
 /**
  * Implements "Run Python..." extension for org.eclipse.ui.popupMenus.

@@ -3,7 +3,7 @@
  * Created on Mar 23, 2004
  * License: Common Public License v1.0
  */
-package org.python.pydev.debug.model;
+package org.python.pydev.debug.model.remote;
 
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -32,26 +32,33 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
  */
 public abstract class AbstractDebuggerCommand {
 	
-	static final int CMD_LIST_THREADS = 102;
-	static final int CMD_THREAD_CREATED = 103;
-	static final int CMD_THREAD_KILL = 104;
-	static final int CMD_THREAD_SUSPEND = 105;
-	static final int CMD_THREAD_RUN = 106;
-	static final int CMD_STEP_INTO = 107;
-	static final int CMD_STEP_OVER = 108;
-	static final int CMD_STEP_RETURN = 109;
-	static final int CMD_ERROR = 901;
-	static final int CMD_VERSION = 501;
-	static final int CMD_RETURN = 502;
+	static public final int CMD_LIST_THREADS = 102;
+	static public final int CMD_THREAD_CREATED = 103;
+	static public final int CMD_THREAD_KILL = 104;
+	static public final int CMD_THREAD_SUSPEND = 105;
+	static public final int CMD_THREAD_RUN = 106;
+	static public final int CMD_STEP_INTO = 107;
+	static public final int CMD_STEP_OVER = 108;
+	static public final int CMD_STEP_RETURN = 109;
+	static public final int CMD_GET_VARIABLE = 110;
+	static public final int CMD_ERROR = 901;
+	static public final int CMD_VERSION = 501;
+	static public final int CMD_RETURN = 502;
 	
 	protected RemoteDebugger debugger;
+	protected ICommandResponseListener responseListener;
 	int sequence;
 	
 	public AbstractDebuggerCommand(RemoteDebugger debugger) {
 		this.debugger = debugger;
+		this.responseListener = null;
 		sequence = debugger.getNextSequence();
 	}
 
+	public void setCompletionListener(ICommandResponseListener listener) {
+		this.responseListener = listener;
+	}
+	
 	/**
 	 * @return outgoing message
 	 */
@@ -82,10 +89,22 @@ public abstract class AbstractDebuggerCommand {
 	}
 	
 	/**
+	 * Called when command completes, if needResponse was true
+	 */
+	public final void processResponse(int cmdCode, String payload) {
+		if (cmdCode / 100  == 9)	
+			processErrorResponse(cmdCode, payload);	
+		else
+			processOKResponse(cmdCode, payload);
+		if (responseListener != null)
+			responseListener.commandComplete(this);
+	}
+	
+	/**
 	 * notification of the response to the command.
 	 * You'll get either processResponse or processErrorResponse
 	 */
-	public void processResponse(int cmdCode, String payload) {
+	public void processOKResponse(int cmdCode, String payload) {
 		PydevDebugPlugin.log(IStatus.ERROR, "Debugger command ignored response " + getClass().toString() + payload, null);
 	}
 	

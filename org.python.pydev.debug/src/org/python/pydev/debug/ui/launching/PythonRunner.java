@@ -22,7 +22,7 @@ import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
-import org.python.pydev.debug.model.RemoteDebugger;
+import org.python.pydev.debug.model.remote.RemoteDebugger;
 
 /**
  * Launches Python process, and connects it to Eclipse's debugger.

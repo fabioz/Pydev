@@ -3,7 +3,7 @@
  * Created on Apr 19, 2004
  * License: Common Public License v1.0
  */
-package org.python.pydev.debug.model;
+package org.python.pydev.debug.model.remote;
 
 /**
  * Version debugger command.
@@ -29,8 +29,9 @@ public class VersionCommand extends AbstractDebuggerCommand {
 		return true;
 	}
 	
-	public void processResponse(int cmdCode, String payload) {
-		System.err.println("The version is " + payload);
+	public void processOKResponse(int cmdCode, String payload) {
+//		System.err.println("The version is " + payload);
+// not checking for versioning in 1.0, might come in useful later
 	}
 
 }

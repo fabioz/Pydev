@@ -3,12 +3,15 @@
  * Created on Apr 21, 2004
  * License: Common Public License v1.0
  */
-package org.python.pydev.debug.model;
+package org.python.pydev.debug.model.remote;
 
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.model.IThread;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.model.*;
+import org.python.pydev.debug.model.PyDebugTarget;
 
 /**
  * ListThreads command.
@@ -51,12 +54,17 @@ public class ThreadListCommand extends AbstractDebuggerCommand {
 	/**
 	 * The response is a list of threads
 	 */
-	public void processResponse(int cmdCode, String payload) {
+	public void processOKResponse(int cmdCode, String payload) {
 		if (cmdCode != 102) {
 			PydevDebugPlugin.log(IStatus.ERROR, "Unexpected response to LIST THREADS"  + payload, null);
 			return;
 		}
-		threads = XMLUtils.ThreadsFromXML(target, payload);
+		try {
+			threads = XMLUtils.ThreadsFromXML(target, payload);
+		} catch (CoreException e) {
+			PydevDebugPlugin.log(IStatus.ERROR, "LIST THREADS got an unexpected response "  + payload, null);
+			e.printStackTrace();
+		}
 		done = true;
 	}
 

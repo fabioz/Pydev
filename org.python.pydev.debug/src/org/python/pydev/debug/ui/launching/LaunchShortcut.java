@@ -226,7 +226,7 @@ public class LaunchShortcut implements ILaunchShortcut {
 				DebugUITools.openLaunchConfigurationDialog(PydevDebugPlugin.getActiveWorkbenchWindow().getShell(), conf, groupID, null);
 			} else {
 				DebugUITools.launch(conf, mode);
-				// TODO what's this code doing?
+				//  what's this code doing?
 				// It is copied from Ant, so I am keeping it around
 //				if (targetAttribute != null) {
 //					String newName= DebugPlugin.getDefault().getLaunchManager().generateUniqueLaunchConfigurationNameFrom(configuration.getName());

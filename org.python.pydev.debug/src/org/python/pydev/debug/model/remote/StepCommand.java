@@ -3,7 +3,7 @@
  * Created on Apr 27, 2004
  * License: Common Public License v1.0
  */
-package org.python.pydev.debug.model;
+package org.python.pydev.debug.model.remote;
 
 /**
  * Debugger step command.

@@ -3,7 +3,7 @@
  * Created on Mar 23, 2004
  * License: Common Public License v1.0
  */
-package org.python.pydev.debug.model;
+package org.python.pydev.debug.model.remote;
 
 import java.io.*;
 import java.net.*;
@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 
 /**
@@ -177,12 +178,8 @@ public class RemoteDebugger extends Object {
 					target.processCommand(cmdParsed[0], cmdParsed[1], payload);
 				else
 					PydevDebugPlugin.log(IStatus.ERROR, "internal error, command received no target", null);
-			else {
-				if (cmdParsed[0].startsWith("9"))
-					cmd.processErrorResponse(cmdCode, payload);	
-				else
-					cmd.processResponse(cmdCode, payload);
-			}
+			else 
+				cmd.processResponse(cmdCode, payload);
 		}
 
 		public void run() {
