@@ -63,18 +63,6 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
         this.edit = edit;
     }
 
-    /**
-     * Checks if the activationToken ends with some char from cs.
-     */
-    private boolean endsWithSomeChar(char cs[], String activationToken) {
-        for (int i = 0; i < cs.length; i++) {
-            if (activationToken.endsWith(cs[i] + "")) {
-                return true;
-            }
-        }
-        return false;
-
-    }
 
     /**
      * This is the interface implemented to get the completions.
@@ -89,27 +77,10 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
             java.lang.String completeDoc = doc.get();
             
-            String activationToken = codeCompletion.getActivationToken(completeDoc, documentOffset);
+            String[] strs = codeCompletion.getActivationTokenAndQual(doc, documentOffset); 
 
-            java.lang.String qualifier = "";
-
-            //we complete on '.' and '('.
-            //' ' gets globals
-            //and any other char gets globals on token and templates.
-
-            //we have to get the qualifier. e.g. bla.foo = foo is the qualifier.
-            if (activationToken.indexOf('.') != -1) {
-                while (endsWithSomeChar(new char[] { '.','[' }, activationToken) == false
-                        && activationToken.length() > 0) {
-
-                    qualifier = activationToken.charAt(activationToken.length() - 1) + qualifier;
-                    activationToken = activationToken.substring(0, activationToken.length() - 1);
-                }
-            } else { //everything is a part of the qualifier.
-                qualifier = activationToken.trim();
-                activationToken = "";
-            }
-
+            String activationToken = strs[0];
+            String qualifier = strs[1];
             int qlen = qualifier.length();
 
             //list for storing the proposals

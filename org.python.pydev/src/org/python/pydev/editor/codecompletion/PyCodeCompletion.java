@@ -371,33 +371,129 @@ public class PyCodeCompletion {
         this.docBoundary = theDoc.substring(0, documentOffset)
                 .lastIndexOf('\n');
     }
+    
+	private String extractPrefix(IDocument document, int offset) {
+		int i= offset;
+		if (i > document.getLength())
+			return ""; //$NON-NLS-1$
+		
+		try {
+			while (i > 0) {
+				char ch= document.getChar(i - 1);
+				if (!Character.isJavaIdentifierPart(ch))
+					break;
+				i--;
+			}
+
+			return document.get(i, offset - i);
+		} catch (BadLocationException e) {
+			return ""; //$NON-NLS-1$
+		}
+	}
 
     /**
      * Returns the activation token.
      * 
      * @param theDoc
      * @param documentOffset
-     * @return
+     * @return the activation token and the qualifier.
      */
-    public String getActivationToken(String theDoc, int documentOffset) {
-        calcDocBoundary(theDoc, documentOffset);
-        
-        String str = theDoc.substring(this.docBoundary + 1, documentOffset);
-        if (str.endsWith(" ")) {
-            return " ";
+    public String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset) {
+        String activationToken = extractPrefix(theDoc, documentOffset);
+        documentOffset = documentOffset-activationToken.length()-1;
+
+        try {
+            while(documentOffset >= 0 && documentOffset < theDoc.getLength() && theDoc.get(documentOffset, 1).equals(".")){
+                String tok = extractPrefix(theDoc, documentOffset);
+
+                    
+                String c = theDoc.get(documentOffset-1, 1);
+                
+                if(c.equals("]")){
+	                activationToken = "list."+activationToken;  
+                    break;
+                    
+                }else if(c.equals("}")){
+	                activationToken = "dict."+activationToken;  
+                    break;
+                    
+                }else if(c.equals("'") || c.equals("\"")){
+	                activationToken = "str."+activationToken;  
+                    break;
+                
+                }else if(c.equals(")")){
+                    documentOffset = eatFuncCall(theDoc, documentOffset-1);
+                    tok = extractPrefix(theDoc, documentOffset);
+	                activationToken = tok+"()."+activationToken;  
+                    documentOffset = documentOffset-tok.length()-1;
+                
+                }else if(tok.length() > 0){
+	                activationToken = tok+"."+activationToken;  
+                    documentOffset = documentOffset-tok.length()-1;
+                    
+                }else{
+                    break;
+                }
+
+            }
+        } catch (BadLocationException e) {
+            System.out.println("documentOffset "+documentOffset);
+            System.out.println("theDoc.getLength() "+theDoc.getLength());
+            e.printStackTrace();
         }
         
-        //this can surely be reworked...
-        int lastSpaceIndex = str.lastIndexOf(' ');
-        int lastParIndex = str.lastIndexOf('(');
-        int lastCIndex = str.lastIndexOf('[');
-        
-        if(lastParIndex != -1 || lastSpaceIndex != -1 || lastCIndex != -1){
-            int lastIndex = lastSpaceIndex > lastParIndex ? lastSpaceIndex : lastParIndex;
-            lastIndex = lastIndex > lastCIndex ? lastIndex : lastCIndex;
-            return str.substring(lastIndex+1, str.length());
+        String qualifier = "";
+        //we complete on '.' and '('.
+        //' ' gets globals
+        //and any other char gets globals on token and templates.
+
+        //we have to get the qualifier. e.g. bla.foo = foo is the qualifier.
+        if (activationToken.indexOf('.') != -1) {
+            while (endsWithSomeChar(new char[] { '.','[' }, activationToken) == false
+                    && activationToken.length() > 0) {
+
+                qualifier = activationToken.charAt(activationToken.length() - 1) + qualifier;
+                activationToken = activationToken.substring(0, activationToken.length() - 1);
+            }
+        } else { //everything is a part of the qualifier.
+            qualifier = activationToken.trim();
+            activationToken = "";
         }
-        return str;
+        return new String[]{activationToken, qualifier};
+    }
+
+    
+    /**
+     * @param theDoc
+     * @param documentOffset
+     * @return
+     * @throws BadLocationException
+     */
+    private int eatFuncCall(IDocument theDoc, int documentOffset) throws BadLocationException {
+        String c = theDoc.get(documentOffset, 1);
+        if(c.equals(")") == false){
+            throw new AssertionError("Expecting ) to eat callable. Received: "+c);
+        }
+        
+        while(documentOffset > 0 && theDoc.get(documentOffset, 1).equals("(") == false){
+            documentOffset -= 1;
+        }
+        
+        return documentOffset;
+    }
+
+
+    /**
+     * Checks if the activationToken ends with some char from cs.
+     */
+    private boolean endsWithSomeChar(char cs[], String activationToken) {
+        for (int i = 0; i < cs.length; i++) {
+            if (activationToken.endsWith(cs[i] + "")) {
+                return true;
+            }
+        }
+        return false;
+
     }
 
 }

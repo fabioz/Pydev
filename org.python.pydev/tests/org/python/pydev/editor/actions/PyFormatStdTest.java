@@ -222,7 +222,17 @@ public class PyFormatStdTest extends TestCase {
         		" )";
         
         String formatStr = PyFormatStd.formatStr(s, std);
-        System.out.println(formatStr);
+        assertEquals(s, formatStr);
+    }
+
+    public void testFormatNotInsideStrings2(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = true;
+
+        String s = "r = re.compile( \"(?P<latitude>\\d*\\.\\d*)\" )";
+
+        
+        String formatStr = PyFormatStd.formatStr(s, std);
         assertEquals(s, formatStr);
     }
 

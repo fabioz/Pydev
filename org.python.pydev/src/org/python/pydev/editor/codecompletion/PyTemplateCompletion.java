@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -82,30 +81,31 @@ public class PyTemplateCompletion extends TemplateCompletionProcessor{
         }
 
     }
-
-    public String extractPrefix(ITextViewer viewer, int offset) {
-        String str ="";
-        int i = offset - 1;
-        if (i == -1){
-            return "";
-        }
-        
-        char c;
-        try {
-            c = viewer.getDocument().getChar(i);
-            while (c != ' ' && c != '\n' && c != '\r') {
-                str = c + str;
-                i--;
-                if(i < 0){
-                    break;
-                }else{
-                    c = viewer.getDocument().getChar(i);
-                }
-            }
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-        return str;
-    }
+//
+//    public String extractPrefix(ITextViewer viewer, int offset) {
+//        IDocument doc = viewer.getDocument();
+//        String str ="";
+//        int i = offset - 1;
+//        if (i == -1){
+//            return "";
+//        }
+//        
+//        char c;
+//        try {
+//            c = doc.getChar(i);
+//            while (c != ' ' && c != '\n' && c != '\r') {
+//                str = c + str;
+//                i--;
+//                if(i < 0){
+//                    break;
+//                }else{
+//                    c = doc.getChar(i);
+//                }
+//            }
+//        } catch (BadLocationException e) {
+//            e.printStackTrace();
+//        }
+//        return str;
+//    }
 
 }
