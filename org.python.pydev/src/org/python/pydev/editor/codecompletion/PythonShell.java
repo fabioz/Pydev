@@ -154,7 +154,7 @@ public class PythonShell {
                     socketToRead = serverSocket.accept();
                     connected = true;
                 } catch (IOException e1) {
-                    PydevPlugin.log(IStatus.ERROR, "Error starting server", e1);
+                    PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of 20 failed, trying again...", e1);
                 }
             }
             
