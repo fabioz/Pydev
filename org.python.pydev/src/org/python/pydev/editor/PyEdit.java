@@ -32,6 +32,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
+import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
@@ -197,6 +198,7 @@ public class PyEdit extends PyEditProjection {
 	}
 	private static final String CONTENTASSIST_PROPOSAL_ID = 
 						 "org.python.pydev.editors.PyEdit.ContentAssistProposal"; 
+	private static final String TEMPLATE_PROPOSALS= "org.python.pydev.editors.PyEdit.TemplateProposalsAction";
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.texteditor.AbstractTextEditor#createActions()
@@ -206,14 +208,31 @@ public class PyEdit extends PyEditProjection {
 
 		// This action will fire a CONTENTASSIST_PROPOSALS operation
 		// when executed		
-		IAction action= new TextOperationAction(PydevPlugin.getDefault().getResourceBundle(), 
-		"ContentAssistProposal",this,SourceViewer.CONTENTASSIST_PROPOSALS);
+		IAction action= new TextOperationAction(
+		        PydevPlugin.getDefault().getResourceBundle(), 
+		        "ContentAssistProposal",
+		        this,
+		        SourceViewer.CONTENTASSIST_PROPOSALS);
+		
 		action.setActionDefinitionId(CONTENTASSIST_PROPOSAL_ID);
 		// Tell the editor about this new action
 		setAction(CONTENTASSIST_PROPOSAL_ID, action);
 		// Tell the editor to execute this action 
 		// when Ctrl+Spacebar is pressed
 		setActionActivationCode(CONTENTASSIST_PROPOSAL_ID,' ', -1, SWT.CTRL);
+		
+
+		//template proposals
+		action= new TextOperationAction(
+		        PydevPlugin.getDefault().getResourceBundle(),
+		        "ContentTemplateProposal", 
+				this,
+				ISourceViewer.CONTENTASSIST_PROPOSALS);
+		
+		action.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
+		setAction(TEMPLATE_PROPOSALS, action);
+		markAsStateDependentAction(TEMPLATE_PROPOSALS, true);
+
 		
 		IAction openAction = new PyOpenAction();
 		setAction(ACTION_OPEN, openAction);

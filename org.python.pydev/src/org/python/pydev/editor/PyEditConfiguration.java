@@ -11,13 +11,17 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.text.DefaultInformationControl;
+import org.eclipse.jface.text.DefaultUndoManager;
 import org.eclipse.jface.text.IAutoIndentStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
+import org.eclipse.jface.text.IUndoManager;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.TextPresentation;
+import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
@@ -35,6 +39,7 @@ import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.plugin.PydevPlugin;
@@ -58,6 +63,10 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 	
 	public PyEditConfiguration(ColorCache colorManager) {
 		colorCache = colorManager;
+	}
+
+	public IUndoManager getUndoManager(ISourceViewer sourceViewer) {
+		return new DefaultUndoManager(100);
 	}
 
 	/**
@@ -272,26 +281,26 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 	 * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
 	 */
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-		return null;
-/*
  		final String   PY_SINGLELINE_STRING = "__python_singleline_string";
 		final String   PY_MULTILINE_STRING = "__python_multiline_string";
+		
 		// create a content assistant:
 		ContentAssistant assistant = new ContentAssistant();
+		
 		// next create a content assistant processor to populate the completions window
 		IContentAssistProcessor processor = new PythonCompletionProcessor();
-// No code completion in strings
+		
+		// No code completion in strings
 		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_SINGLELINE_STRING );
  		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_MULTILINE_STRING );
 		assistant.setContentAssistProcessor(processor,IDocument.DEFAULT_CONTENT_TYPE );
 		assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 		// Allow automatic activation after 500 msec
-		assistant.enableAutoActivation(true);
+		assistant.enableAutoActivation(false);
 		assistant.setAutoActivationDelay(500);
 		Color bgColor = colorCache.getColor(new RGB(230,255,230));
 		assistant.setProposalSelectorBackground(bgColor);
 		return assistant;
-		*/
 	}
 
 

@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.5.3"
+   version="0.5.7.2"
    provider-name="AleksTotic"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -83,6 +83,11 @@
             class="org.python.pydev.plugin.DebugPrefsPage"
             id="org.python.pydev.prefs.debugPage">
       </page>
+      <page
+            class="org.python.pydev.editor.templates.PyTemplatePreferencesPage"
+            category="org.python.pydev.prefs"
+            name="Templates"
+            id="org.python.pydev.prefs.template"/>
    </extension>
 <!-- Editor menus -->
    <extension
@@ -572,6 +577,39 @@
             selected="True"
             pattern="*.pyc">
       </filter>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <contextType
+            class="org.python.pydev.editor.templates.PyContextType"
+            id="org.python.pydev.editor.templates.python"/>
+      <template
+            name="pd"
+            icon="icons/template.gif"
+            description="pdb"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.pdb">
+         <pattern>import pdb;pdb.set_trace</pattern>
+      </template>
+      <template
+            name="eq"
+            icon="icons/template.gif"
+            description="equals and not equals"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.eq">
+<pattern>
+def __eq__(self,o):
+    if isintance(o, self.__class__):
+        pass
+        #TODO:class checking
+
+    return False
+
+def __ne__(self,o):
+	return not self == o
+</pattern>
+      </template>
+      
    </extension>
 
 </plugin>

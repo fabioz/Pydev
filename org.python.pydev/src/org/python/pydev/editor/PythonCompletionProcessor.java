@@ -6,63 +6,43 @@
  */
 package org.python.pydev.editor;
 
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
-import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+import org.eclipse.jface.text.templates.Template;
+import org.eclipse.jface.text.templates.TemplateCompletionProcessor;
+import org.eclipse.jface.text.templates.TemplateContextType;
+import org.eclipse.swt.graphics.Image;
+import org.python.pydev.editor.templates.PyContextType;
+import org.python.pydev.plugin.PydevPlugin;
 
 
 
-public class PythonCompletionProcessor implements IContentAssistProcessor {
+public class PythonCompletionProcessor extends TemplateCompletionProcessor implements IContentAssistProcessor {
 
     /* (non-Javadoc)
-     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer, int)
+     * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getTemplates(java.lang.String)
      */
-    public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
+    protected Template[] getTemplates(String contextTypeId) {
+        return PydevPlugin.getDefault().getTemplateStore().getTemplates();
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getContextType(org.eclipse.jface.text.ITextViewer, org.eclipse.jface.text.IRegion)
+     */
+    protected TemplateContextType getContextType(ITextViewer viewer, IRegion region) {
+        return PydevPlugin.getDefault().getContextTypeRegistry().getContextType(PyContextType.PY_CONTEXT_TYPE);
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getImage(org.eclipse.jface.text.templates.Template)
+     */
+    protected Image getImage(Template template) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeContextInformation(org.eclipse.jface.text.ITextViewer, int)
-     */
-    public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
-     */
-    public char[] getCompletionProposalAutoActivationCharacters() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationAutoActivationCharacters()
-     */
-    public char[] getContextInformationAutoActivationCharacters() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getErrorMessage()
-     */
-    public String getErrorMessage() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationValidator()
-     */
-    public IContextInformationValidator getContextInformationValidator() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }
 ///**
 // * @author Dmoore

@@ -1,5 +1,6 @@
 package org.python.pydev.plugin;
 
+import java.io.IOException;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -11,6 +12,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.text.templates.ContextTypeRegistry;
+import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -18,9 +21,12 @@ import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
+import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.eclipse.ui.ide.IDE;
+import org.python.pydev.editor.templates.PyContextType;
 
 /**
  * The main plugin class
@@ -34,6 +40,13 @@ public class PydevPlugin extends AbstractUIPlugin
 	private static PydevPlugin plugin;	//The shared instance.
 	private ResourceBundle resourceBundle;  //Resource bundle.
 
+	/** The template store. */
+	private TemplateStore fStore;
+	/** The context type registry. */
+	private ContributionContextTypeRegistry fRegistry=null;
+	/** Key to store custom templates. */
+    private static final String CUSTOM_TEMPLATES_PY_KEY = "org.python.pydev.editor.templates.PyTemplatePreferencesPage";
+	
 	/**
 	 * The constructor.
 	 */
@@ -139,4 +152,37 @@ public class PydevPlugin extends AbstractUIPlugin
 			return null;
 		}
 	}
+	
+	/**
+	 * Returns this plug-in's template store.
+	 * 
+	 * @return the template store of this plug-in instance
+	 */
+	public TemplateStore getTemplateStore() {
+		if (fStore == null) {
+			fStore= new ContributionTemplateStore(getContextTypeRegistry(), getPreferenceStore(), CUSTOM_TEMPLATES_PY_KEY);
+			try {
+				fStore.load();
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new RuntimeException(e);
+			}
+		}
+		return fStore;
+	}
+
+	/**
+	 * Returns this plug-in's context type registry.
+	 * 
+	 * @return the context type registry for this plug-in instance
+	 */
+	public ContextTypeRegistry getContextTypeRegistry() {
+		if (fRegistry == null) {
+			// create an configure the contexts available in the template editor
+			fRegistry= new ContributionContextTypeRegistry();
+			fRegistry.addContextType(PyContextType.PY_CONTEXT_TYPE);
+		}
+		return fRegistry;
+	}
+
 }
