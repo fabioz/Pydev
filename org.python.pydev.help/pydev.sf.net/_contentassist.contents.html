@@ -1,0 +1,59 @@
+<H3>Content Assistant</H3>
+<P>This is still on development, but it can already be useful. Current status is:</P>
+<P>
+	If you have a call in the main module, let's say:<BR>
+	<BR>
+	C()| Ctrl+1 - bring a list of suggestions for assistants (it's still not very 
+	complete, but it has already proved very usable for me)<BR>
+	<BR>
+	Or if you have:<BR>
+	<BR>
+	<FONT face="Courier New" size="2">Class C:<BR>
+		<BR>
+		....def a(self):<BR>
+		........self.newMethod()| Ctrl+1 also brings some interesting assistants. </FONT>
+</P>
+<P><FONT face="Courier New" size="2">Whishes:</FONT></P>
+<P><FONT face="Courier New" size="2"></FONT>&nbsp;</P>
+<FONT face="Courier New" size="2">class A: pass<br>
+	<br>
+	class C:<br>
+	<br>
+	....def __init__(self, param):
+	<br>
+	........self.newMethod()&lt;- create new method on class C (with params if 
+	needed)<br>
+	........................&lt;- assign result to new local variable
+	<br>
+	........................&lt;- assign result to new field
+	<br>
+	<br>
+	........a = A()<br>
+	........a.newMethod() &lt;- create new method on class A
+	<br>
+	........................&lt;- assign result to new local variable
+	<br>
+	........................&lt;- assign result to new field<br>
+	<br>
+	........param.b() &lt;- don't show anything.<br>
+	<br>
+	........self.a1 = A()
+	<br>
+	........self.a1.newMethod() &lt;- create new method on class A (difficult part 
+	is discovering class)<br>
+	............................&lt;- assign result to new local variable
+	<br>
+	............................&lt;- assign result to new field<br>
+	<br>
+	........def m(self):
+	<br>
+	............self.a1.newMethod() &lt;- create new method on class A
+	<br>
+	................................&lt;- assign result to new local variable
+	<br>
+	................................&lt;- assign result to new field<br>
+	<br>
+	............importcompiler&lt;- move import to global context<br>
+	............NewClass() &lt;- Create class NewClass (Depends on new class 
+	wizard)<br>
+</FONT>
