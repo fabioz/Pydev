@@ -568,14 +568,16 @@ public class PyEdit extends PyEditProjection {
         IProject project = getProject();
         return PythonNature.getPythonNature(project);
     }
-    
-    protected void initializeEditor()
-    {
-    	//Use a fresh PreferenceStore to avoid modifying the default TextEditor PreferenceStore
-    	//All the TextEditor defaults will be used unless explicitly set in this PreferenceStore
-    	super.initializeEditor();
-    	this.setPreferenceStore(new PreferenceStore());
-    }
+
+//TODO: REMOVED: when not using it, some things are not editable (I guess that we have to move all that
+//to the plugin in order to get this kind of 'independence'.
+//    protected void initializeEditor()
+//    {
+//    	//Use a fresh PreferenceStore to avoid modifying the default TextEditor PreferenceStore
+//    	//All the TextEditor defaults will be used unless explicitly set in this PreferenceStore
+//    	super.initializeEditor();
+//    	this.setPreferenceStore(new PreferenceStore());
+//    }
     
     private void updatePyDevPluginPrefs()
     {

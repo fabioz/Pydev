@@ -7,7 +7,6 @@ package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
@@ -16,7 +15,6 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
-import org.python.pydev.utils.LabelFieldEditor;
 
 /**
  * The preferences for autocompletion should only be reactivated when the code completion feature gets better (more stable and precise).
@@ -26,7 +24,7 @@ import org.python.pydev.utils.LabelFieldEditor;
 public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
 
     public static final String USE_CODECOMPLETION = "USE_CODECOMPLETION";
-    public static final boolean DEFAULT_USE_CODECOMPLETION = false;
+    public static final boolean DEFAULT_USE_CODECOMPLETION = true;
     
     public static final String ATTEMPTS_CODECOMPLETION = "ATTEMPTS_CODECOMPLETION";
     public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 25;
@@ -38,7 +36,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 	public static final boolean DEFAULT_USE_AUTOCOMPLETE = true;
 
 	public static final String AUTOCOMPLETE_DELAY = "AUTOCOMPLETE_DELAY";
-	public static final int DEFAULT_AUTOCOMPLETE_DELAY = 250;
+	public static final int DEFAULT_AUTOCOMPLETE_DELAY = 100;
 
 	public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
 	public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
@@ -63,26 +61,27 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
         addField(new IntegerFieldEditor(
 		        ATTEMPTS_CODECOMPLETION, "Number of attempts to connect to shell?\n(timeout between attempts is 1 sec.)\n\n", p));
 
-        addField(new BooleanFieldEditor(
+		addField(new IntegerFieldEditor(
+		        AUTOCOMPLETE_DELAY, "Autocompletion delay: ", p));
+
+		addField(new BooleanFieldEditor(
 		        USE_CODECOMPLETION, "Use code completion?", p));
 
-        String w = "\nWARNINGS for code completion:\n\n" 
-            	+ "Code completion works mostly on source files \n" +
-            			"read from java and parsed, but cpython modules\n" +
-            			"are also supported, and to use them, it is necessary to\n" +
-            			"have a shell that gets completions on them, so, if \n" +
-            			"code completion does not work, check if there is a \n" +
-            			"python shell running.";
-
-        FieldEditor fe = new LabelFieldEditor("Warning", w, p);
-        addField(fe);
+//        String w = "\nWARNINGS for code completion:\n\n" 
+//            	+ "Code completion works mostly on source files \n" +
+//            			"read from java and parsed, but cpython modules\n" +
+//            			"are also supported, and to use them, it is necessary to\n" +
+//            			"have a shell that gets completions on them, so, if \n" +
+//            			"code completion does not work, check if there is a \n" +
+//            			"python shell running.";
+//
+//        FieldEditor fe = new LabelFieldEditor("Warning", w, p);
+//        addField(fe);
 
 
 //        addField(new BooleanFieldEditor(
 //		        USE_AUTOCOMPLETE, "Use autocompletion?", p));
 
-		addField(new IntegerFieldEditor(
-		        AUTOCOMPLETE_DELAY, "Autocompletion delay: ", p));
 
 		addField(new BooleanFieldEditor(
 		        AUTOCOMPLETE_ON_DOT, "Autocomplete on '.'?", p));

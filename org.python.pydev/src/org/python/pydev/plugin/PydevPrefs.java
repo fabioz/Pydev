@@ -13,10 +13,8 @@ import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.ui.InterpreterEditor;
@@ -50,7 +48,7 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	public static final String EDITOR_BACKGROUND_COLOR = "EDITOR_BACKGROUND_COLOR";
 	//The widget colors are not the editor actual editor defaults, but they look OK
 	//Not sure how to lookup the actual editor defaults
-	private static final RGB DEFAULT_EDITOR_BACKGROUND_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND).getRGB();	
+	private static final RGB DEFAULT_EDITOR_BACKGROUND_COLOR = new RGB(255, 255, 255);	
 	
 	public static final String EDITOR_USE_CUSTOM_BACKGROUND_COLOR = "EDITOR_USE_CUSTOM_BACKGROUND_COLOR";
 	public static final boolean DEFAULT_EDITOR_BACKGROUND_COLOR_SYSTEM_DEFAULT = false;
@@ -59,7 +57,7 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	private static final boolean DEFAULT_EDITOR_CURRENT_LINE = true;
 	
 	public static final String EDITOR_CURRENT_LINE_COLOR = "EDITOR_CURRENT_LINE_COLOR";
-	private static final RGB DEFAULT_EDITOR_CURRENT_LINE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW).getRGB();
+	private static final RGB DEFAULT_EDITOR_CURRENT_LINE_COLOR = new RGB(233, 249, 254);	
 	
 	public static final String CODE_COLOR = "CODE_COLOR";
 	private static final RGB DEFAULT_CODE_COLOR = new RGB(0, 0, 0);
