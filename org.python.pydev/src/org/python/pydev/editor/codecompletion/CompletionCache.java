@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.swt.graphics.Image;
@@ -85,10 +86,12 @@ public class CompletionCache {
     /**
      * Returns all the completions in a list in position 0 of tuple and boolean in position 1, indication
      * whether templates should be shown.
+     * @throws CoreException
+     * @throws BadLocationException
      */
     public Object[] getProposals(PyEdit edit, IDocument doc,
             String activationToken, int documentOffset, int qlen,
-            PyCodeCompletion codeCompletion) throws CoreException {
+            PyCodeCompletion codeCompletion) throws CoreException, BadLocationException {
 
         //this indicates whether the templates are going to be shown (if in imports section they are not).
         boolean showTemplates = true;

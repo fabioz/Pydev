@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -128,10 +129,14 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 	                e.printStackTrace();
 	            }
 	
-	            Object[] objects = getPythonProposals(documentOffset, doc, activationToken, qlen);
-	            List pythonProposals = (List) objects[0];
-	            showTemplates = ((Boolean)objects[1]).booleanValue();
-	            pythonAndTemplateProposals.addAll(pythonProposals);
+	            try {
+                    Object[] objects = getPythonProposals(documentOffset, doc, activationToken, qlen);
+                    List pythonProposals = (List) objects[0];
+                    showTemplates = ((Boolean)objects[1]).booleanValue();
+                    pythonAndTemplateProposals.addAll(pythonProposals);
+                } catch (BadLocationException e1) {
+                    e1.printStackTrace();
+                }
             }
             
             
@@ -184,8 +189,10 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * Returns the python proposals as a list.
      * First parameter of tuple is a list and second is a Boolean object indicating whether the templates
      * should be also shown or not. 
+     * @throws CoreException
+     * @throws BadLocationException
      */
-    private Object[] getPythonProposals(int documentOffset, IDocument doc, String activationToken, int qlen) throws CoreException {
+    private Object[] getPythonProposals(int documentOffset, IDocument doc, String activationToken, int qlen) throws CoreException, BadLocationException {
         //we always ask the completions cache... even if it is not in the cache (cache takes care of asking them
         //and putting them in it for later calls).
         return  this.completionCache.getProposals(edit, doc, activationToken, documentOffset,

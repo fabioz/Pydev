@@ -71,9 +71,10 @@ public class PyCodeCompletion {
      * 2 - Integer - token type (see constants)
      * 
      * (This is where we do the "REAL" work).
+     * @throws BadLocationException
      */
     public List getCodeCompletionProposals(PyEdit edit, IDocument doc, int documentOffset,
-            java.lang.String theActivationToken) throws CoreException {
+            java.lang.String theActivationToken) throws CoreException, BadLocationException {
         
         PythonNature pythonNature = edit.getPythonNature();
         if(pythonNature == null){
@@ -143,10 +144,15 @@ public class PyCodeCompletion {
         
         } else { //go to globals
             List completions = new ArrayList();
-            System.out.println("Globals");
+            System.out.println("Globals - "+theActivationToken);
+            int line = doc.getLineOfOffset(documentOffset);
+            IRegion region = doc.getLineInformation(line);
+            
+            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), line, documentOffset - region.getOffset(), theActivationToken, "" );
 
+            theList.addAll(Arrays.asList(comps));
 //            completions = serverShell.getGlobalCompletions(docToParse);
-            theList.addAll(completions);
+//            theList.addAll(completions);
         
         }
         return theList;
@@ -288,10 +294,6 @@ public class PyCodeCompletion {
     /**
      * The docBoundary should get until the last line before the one we are
      * editing.
-     * 
-     * @param qualifier
-     * @param documentOffset
-     * @param proposals
      */
     public void calcDocBoundary(String theDoc, int documentOffset) {
         this.docBoundary = theDoc.substring(0, documentOffset)

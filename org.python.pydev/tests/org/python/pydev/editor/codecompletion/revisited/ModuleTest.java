@@ -25,16 +25,43 @@ public class ModuleTest extends TestCase {
         SimpleNode n = (SimpleNode)obj[0];
         AbstractModule module = AbstractModule.createModule(n);
        
-        assertEquals(5, module.getGlobalTokens().length);
+        IToken[] globalTokens = module.getGlobalTokens();
+        assertEquals(5, globalTokens.length); //C c D d a
+        compareReps(globalTokens, "C c D d a");
 
-        assertEquals(1, module.getWildImportedModules().length);
+        IToken[] wildImportedModules = module.getWildImportedModules();
+        assertEquals(1, wildImportedModules.length); //m4
+        compareReps(wildImportedModules, "m4");
 
-        assertEquals(4, module.getTokenImportedModules().length);
+        IToken[] tokenImportedModules = module.getTokenImportedModules();
+        assertEquals(5, tokenImportedModules.length); //a1, xx, yy, aa
+        compareReps(tokenImportedModules, "a1 xx yy aa m3");
 
         assertEquals("docstring for module", module.getDocString());
         
     }
     
+    /**
+     * @param globalTokens
+     * @param string
+     */
+    private void compareReps(IToken[] globalTokens, String string) {
+        String[] strings = string.split(" ");
+        assertEquals(strings.length , globalTokens.length);
+        for (int i = 0; i < globalTokens.length; i++) {
+            assertEquals(strings[i], globalTokens[i].getRepresentation());
+        }
+    }
+
+    /**
+     * @param globalTokens
+     */
+    private void printTokens(IToken[] globalTokens) {
+        for (int i = 0; i < globalTokens.length; i++) {
+            System.out.println(globalTokens[i].getRepresentation());
+        }
+    }
+
     public String getDoc1(){
         //damn, I really miss python when writing this...
         return

@@ -176,7 +176,13 @@ public class GlobalModelVisitor extends VisitorBase {
             }
         } else if (this.visitWhat == ALIAS_MODULES) {
             if (node.names.length > 0) {
-                this.tokens.add(new SourceToken(node, node.module, "", moduleName));
+                for (int i = 0; i < node.names.length; i++) {
+                    String name = node.names[i].name;
+                    if(node.names[i].asname != null){
+                        name = node.names[i].asname;
+                    }
+	                this.tokens.add(new SourceToken(node, name, "", moduleName));
+                }
             }
         }
         return null;
@@ -189,12 +195,13 @@ public class GlobalModelVisitor extends VisitorBase {
     public Object visitImport(Import node) throws Exception {
         if (this.visitWhat == ALIAS_MODULES) {
             if (node.names.length > 0) {
-                String name = "";
                 for (int i = 0; i < node.names.length; i++) {
-                    name += node.names[i].name + " ";
+                    String name = node.names[i].name;
+                    if(node.names[i].asname != null){
+                        name = node.names[i].asname;
+                    }
+	                this.tokens.add(new SourceToken(node, name, "", moduleName));
                 }
-                
-                this.tokens.add(new SourceToken(node, name, "", moduleName));
             }
         }
         return null;

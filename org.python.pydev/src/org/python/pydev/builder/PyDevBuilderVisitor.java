@@ -47,7 +47,7 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 					    visitResource(resource, PyDevBuilder.getDocFromResource(resource));
 						break;
 					case IResourceDelta.REMOVED:
-						// Do nothing
+						// TODO: if removed, we have to get it out of code completion.
 						break;
 				}
 			}
