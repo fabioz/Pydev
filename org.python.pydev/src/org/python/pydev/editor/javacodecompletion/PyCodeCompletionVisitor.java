@@ -5,13 +5,9 @@
  */
 package org.python.pydev.editor.javacodecompletion;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.IDocument;
-import org.python.parser.SimpleNode;
 import org.python.pydev.builder.PyDevBuilderVisitor;
-import org.python.pydev.parser.PyParser;
 
 /**
  * @author Fabio Zadrozny

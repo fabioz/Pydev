@@ -13,8 +13,6 @@ import java.io.StringWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -22,21 +20,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.osgi.framework.Bundle;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.PythonShell;
-import org.python.pydev.editor.model.AbstractNode;
-import org.python.pydev.editor.model.Location;
-import org.python.pydev.editor.model.ModelUtils;
-import org.python.pydev.editor.model.Scope;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
-
-import com.sun.rsasign.t;
 
 public class PyUnitTestRunner {
 

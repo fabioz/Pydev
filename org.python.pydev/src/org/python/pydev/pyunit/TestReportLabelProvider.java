@@ -18,7 +18,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.pyunit.TestResult;
 
 /**
  * @author ggheorg
@@ -33,11 +32,13 @@ implements ITableLabelProvider, IColorProvider {
 	
 	public TestReportLabelProvider() {
 		images = new Image[2];
+	    //TODO: Use an ImageCache object instead.
 		images[TestResult.OK] = createImage("icons/testok.gif");
 		images[TestResult.FAILED] = createImage("icons/testerr.gif");
 	}
 	
 	private static Image createImage(String path) {
+	    //TODO: Use an ImageCache object instead.
 		URL url = PydevPlugin.getDefault().getDescriptor().getInstallURL();
 		ImageDescriptor descriptor = null;
 		try {
