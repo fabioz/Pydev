@@ -9,18 +9,19 @@ import sys
 
 HOST = '127.0.0.1'               # Symbolic name meaning the local host
 
-MSG_KILL_SERVER     = '@@KILL_SERVER_END@@'
-MSG_COMPLETIONS     = '@@COMPLETIONS'
-MSG_END             = 'END@@'
-MSG_GLOBALS         = '@@GLOBALS:'
-MSG_TOKEN_GLOBALS   = '@@TOKEN_GLOBALS('
-MSG_CLASS_GLOBALS   = '@@CLASS_GLOBALS('
-MSG_INVALID_REQUEST = '@@INVALID_REQUEST'
-MSG_RELOAD_MODULES  = '@@RELOAD_MODULES_END@@'
-MSG_CHANGE_DIR      = '@@CHANGE_DIR:'
-MSG_OK              = '@@MSG_OK_END@@'
-MSG_REFACTOR        = '@@REFACTOR'
-MSG_PROCESSING      = '@@PROCESSING_END@@'
+MSG_KILL_SERVER         = '@@KILL_SERVER_END@@'
+MSG_COMPLETIONS         = '@@COMPLETIONS'
+MSG_END                 = 'END@@'
+MSG_GLOBALS             = '@@GLOBALS:'
+MSG_TOKEN_GLOBALS       = '@@TOKEN_GLOBALS('
+MSG_CLASS_GLOBALS       = '@@CLASS_GLOBALS('
+MSG_INVALID_REQUEST     = '@@INVALID_REQUEST'
+MSG_RELOAD_MODULES      = '@@RELOAD_MODULES_END@@'
+MSG_CHANGE_DIR          = '@@CHANGE_DIR:'
+MSG_OK                  = '@@MSG_OK_END@@'
+MSG_REFACTOR            = '@@REFACTOR'
+MSG_PROCESSING          = '@@PROCESSING_END@@'
+MSG_PROCESSING_PROGRESS = '@@PROCESSING:%sEND@@'
 
 BUFFER_SIZE = 1024
 
@@ -28,15 +29,21 @@ class KeepAliveThread(threading.Thread):
     def __init__(self, socket):
         threading.Thread.__init__(self)
         self.socket = socket
+        self.processMsgFunc = None
         self.lastMsg = None
     
     def run(self):
         time.sleep(0.1)
         while self.lastMsg == None:
-            print 'sending', MSG_PROCESSING
-            self.socket.send(MSG_PROCESSING)
+            
+            if self.processMsgFunc != None:
+                s = MSG_PROCESSING_PROGRESS % self.processMsgFunc()
+                self.socket.send(s)
+            else:
+                self.socket.send(MSG_PROCESSING)
             time.sleep(0.1)
-        print 'sending', self.lastMsg
+
+        #print 'sending', self.lastMsg
         self.socket.send(self.lastMsg)
         
 class T(threading.Thread):
@@ -133,7 +140,7 @@ class T(threading.Thread):
                     returnMsg = MSG_OK
                 
                 else:
-                    data = data[:data.find(MSG_END)]
+                    data = data[:data.rfind(MSG_END)]
                 
                     if data.startswith(MSG_GLOBALS):
                         data = data.replace(MSG_GLOBALS, '')
@@ -159,7 +166,7 @@ class T(threading.Thread):
                         
                     elif data.startswith(MSG_REFACTOR):
                         data = data.replace(MSG_REFACTOR, '')
-                        returnMsg = refactoring.HandleRefactorMessage(data)
+                        returnMsg = refactoring.HandleRefactorMessage(data, keepAliveThread)
                         
                     else:
                         returnMsg = MSG_INVALID_REQUEST

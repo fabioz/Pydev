@@ -28,11 +28,9 @@ def createFile(filename, contents='', flag='w'):
     f.close()
 
 FILE = 'temporary_file.py'
-    
-class Test(unittest.TestCase):
 
-    def getInitialFile(self):
-        s = \
+def getInitialFile():
+    s = \
 '''
 class C:
     def a(self):
@@ -40,8 +38,26 @@ class C:
         b = 3
         c = a+b #this should be refactored.
         return c
+c = C()
 '''
-        return s
+    return s
+
+
+def getRenameRefactored():
+    s = \
+'''
+class G:
+    def a(self):
+        a = 2
+        b = 3
+        c = a+b #this should be refactored.
+        return c
+c = G()
+'''
+    return s
+    
+class Test(unittest.TestCase):
+
         
     def getRefactoredFile(self):
         s = \
@@ -50,33 +66,43 @@ class C:
     def a(self):
         a = 2
         b = 3
-        c = self.plusMet(a, b)
+        c = self.plusMet(a, b) #this should be refactored.
         return c
 
     def plusMet(self, a, b):
-        c = a+b #this should be refactored.
-        return c
+        return a+b
+c = C()
 '''
         return s
 
     def setUp(self):
         unittest.TestCase.setUp(self)
-        createFile(FILE, self.getInitialFile())
+        createFile(FILE, getInitialFile())
 
     def tearDown(self):
         unittest.TestCase.tearDown(self)
         delete(FILE)
     
-    def testIt(self):
+    def testExtractMethod(self):
         r = refactoring.Refactoring()
-        s = r.extractMethod(FILE, 5+1, 0, 5+1, 44, 'plusMet')
+        s = r.extractMethod(FILE, 5+1, 12, 5+1, 12+3, 'plusMet')
 
         f = file(FILE, 'r')
         contents = f.read()
         f.close()
 
-        self.assertEquals(contents, self.getRefactoredFile())
-        
+        self.assertEquals(self.getRefactoredFile(), contents)
+
+    def testRename(self):
+        r = refactoring.Refactoring()
+        s = r.renameByCoordinates(FILE, 1+1, 6, 'G')
+
+        f = file(FILE, 'r')
+        contents = f.read()
+        f.close()
+
+        self.assertEquals(getRenameRefactored(), contents)
+
         
 if __name__ == '__main__':
     unittest.main()

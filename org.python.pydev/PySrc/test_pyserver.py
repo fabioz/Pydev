@@ -33,37 +33,36 @@ class Test(unittest.TestCase):
         msg = t.formatCompletionMessage(l)
         self.assertEquals('@@COMPLETIONS((Def,description),(Def1,description1),(Def2,description2))END@@', msg)
 
-    def createConnections(self):
+    def createConnections(self, p1 = 50002,p2 = 50003):
         '''
         Creates the connections needed for testing.
         '''
-        t = pycompletionserver.T(50002,50003)
+        t = pycompletionserver.T(p1,p2)
         
         t.start()
 
         sToWrite = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sToWrite.connect((pycompletionserver.HOST, 50002))
+        sToWrite.connect((pycompletionserver.HOST, p1))
         
         sToRead = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sToRead.bind((pycompletionserver.HOST, 50003))
+        sToRead.bind((pycompletionserver.HOST, p2))
         sToRead.listen(1) #socket to receive messages.
 
         connToRead, addr = sToRead.accept()
 
         return t, sToWrite, sToRead, connToRead, addr
         
-#    def testRefactoring(self):
-#        t, sToWrite, sToRead, connToRead, addr = self.createConnections()
-#        self.
 
     def readMsg(self):
         msg = '@@PROCESSING_END@@'
-        while msg == '@@PROCESSING_END@@':
+        while msg.startswith('@@PROCESSING'):
             msg = self.connToRead.recv(1024*4)
+            if msg.startswith('@@PROCESSING:'):
+                print 'Status msg:', msg
 
         return msg
 
-    def testSocketsAndMessages(self):
+    def testCompletionSocketsAndMessages(self):
         t, sToWrite, sToRead, self.connToRead, addr = self.createConnections()
         
         
@@ -142,11 +141,35 @@ class C(object):
             
         sToRead.close()
         sToWrite.close()
+        self.connToRead.close()
         
     def sendKillMsg(self, socket):
         socket.send(pycompletionserver.MSG_KILL_SERVER)
         
     
+    def testRefactoringSocketsAndMessages(self):
+        t, sToWrite, sToRead, self.connToRead, addr = self.createConnections(50002+2,50003+2)
+
+        import refactoring
+        from test_refactoring import delete, createFile, FILE, getInitialFile, getRenameRefactored
+        createFile(FILE, getInitialFile())
+        
+        sToWrite.send('@@REFACTORrenameByCoordinates %s %s %s %sEND@@'%(FILE, 1+1, 6, 'G')) 
+        result = self.readMsg()
+        print 'result', result
+
+        self.sendKillMsg(sToWrite)
+        
+
+        while not hasattr(t, 'ended'):
+            pass #wait until it receives the message and quits.
+
+            
+        sToRead.close()
+        sToWrite.close()
+        self.connToRead.close()
+
+        
 if __name__ == '__main__':
     unittest.main()
 

@@ -15,15 +15,41 @@ import ThirdParty.brm.bike as bike
 class Refactoring(object):
     
     def __init__(self):
+        self.progress = StringIO.StringIO()
+        self.warning = StringIO.StringIO()
         self.init()
+
+    def getLastProgressMsg(self):
+        progress = self.progress.getvalue().split('\n')
+        msg = ''
+        i = -1
+        while msg == '' and i > -5:
+            try:
+                msg = progress[i]
+            except:
+                msg = ''
+            i -= 1
+        return msg
     
+    def getLastProgressMsgs(self, v):
+        progress = self.progress.getvalue().split('\n')
+        msg = ''
+        i = -1
+        while i > -v:
+            try:
+                msg += progress[i]+'\n'
+            except:
+                pass
+            i -= 1
+        return msg
+
     def init(self):
         """
         Private slot to handle the Reset action.
         """
         self.brmctx = bike.init()
-        self.brmctx.setProgressLogger(sys.stdout)
-        self.brmctx.setWarningLogger(sys.stderr)
+        self.brmctx.setProgressLogger(self.progress)
+        self.brmctx.setWarningLogger(self.warning)
     
     def handleReset(self):
         """
@@ -60,7 +86,18 @@ def GetRefactorer():
     
     return __Refactoring
     
-def HandleRefactorMessage(msg):
+def releaseRefactorerBuffers():
+    GetRefactorer().warning.close()
+    GetRefactorer().progress.close()
+
+    GetRefactorer().warning.__init__()
+    GetRefactorer().progress.__init__()
+
+def restartRefactorer():
+    global __Refactoring
+    __Refactoring = Refactoring()
+    
+def HandleRefactorMessage(msg, keepAliveThread):
     '''
     The message received should have: the method of the class
     '''
@@ -68,16 +105,33 @@ def HandleRefactorMessage(msg):
     
     func = msgSplit.pop(0)
     
-    func = getattr(GetRefactorer(), func)
+    refactorer = GetRefactorer()
+    func = getattr(refactorer, func)
+    
+    keepAliveThread.processMsgFunc = refactorer.getLastProgressMsg
     
     try:
-        return func(*msgSplit)+'END@@'
+        f = func(*msgSplit)+'END@@'
+        releaseRefactorerBuffers()
+        return f
     except:
         import sys
         s = StringIO.StringIO()
         exc_info = sys.exc_info()
+        
         print >> s, str(exc_info[1])
+        
+        print >> s, '\nWARNINGS:\n'
+        print >> s, refactorer.warning.getvalue()
+
+        print >> s, '\nPROGRESS:\n'
+        print >> s, refactorer.getLastProgressMsgs(8)
+        
+        print >> s, '\nDETAILS:\n'
         traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], limit=None, file = s)
-        return 'ERROR: %s\nEND@@'%(s.getvalue())
+        
+        releaseRefactorerBuffers()
+        restartRefactorer()
+        return 'ERROR:%s\nEND@@'%(s.getvalue().replace('END@@',''))
         
 
