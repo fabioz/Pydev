@@ -26,18 +26,17 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
     private PyCodeCompletion codeCompletion;
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(PythonCompletionProcessorTest.class);
-//      try {
-//          PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
-//	      test.setUp();
-//	      test.testCompleteImportBuiltin();
-//	      test.testCompleteImportCompletion();
-//	      test.tearDown();
-//	  } catch (Exception e) {
-//	      e.printStackTrace();
-//	  } catch(Error e){
-//	      e.printStackTrace();
-//	  }
+//        junit.textui.TestRunner.run(PythonCompletionProcessorTest.class);
+      try {
+          PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
+	      test.setUp();
+	      test.testCompleteImportBuiltin();
+	      test.tearDown();
+	  } catch (Exception e) {
+	      e.printStackTrace();
+	  } catch(Error e){
+	      e.printStackTrace();
+	  }
     }
 
     /*
@@ -120,6 +119,18 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 	    String s = "from testlib.unittest import  ";
 	    requestCompl(s, s.length(), -1, new String[]{"anothertest", "guitestcase", "testcase", "__init__"});
     }
+    
+	/**
+	 * Problem here is that we do not evaluate correctly if
+	 * met( ddd,
+	 * 		fff,
+	 * 		ccc )
+	 * 
+	 * @throws CoreException
+	 * @throws BadLocationException
+	 */
+	public void testCompleteCompletion() throws CoreException, BadLocationException{
+    }
 
 	public void testCompleteImportBuiltin() throws BadLocationException, IOException, CoreException{
         CompiledModule.COMPILED_MODULES_ENABLED = true;
@@ -136,6 +147,28 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
             
             s = "from datetime.datetime import ";
             requestCompl(s, s.length(), -1, new String[] { "today", "now", "utcnow" });
+
+        
+        
+			// Problem here is that we do not evaluate correctly if
+			// met( ddd,
+			// 		fff,
+			// 		ccc )
+            //so, for now the test just checks that we do not get in any sort of
+            //look... 
+    	    s = "" +
+    		
+    	    "class bla(object):pass\n" +
+    	    "\n"+
+    		"def newFunc(): \n"+
+    		"    callSomething( bla.__get#complete here... stack error \n"+
+    		"                  keepGoing) \n";
+
+    	    //If we improve the parser to get the error above, uncomment line below to check it...
+    	    //requestCompl(s, s.indexOf('#'), 1, new String[]{"__getattribute__"});
+    	    requestCompl(s, s.indexOf('#'), 0, new String[]{""});
+
+        
         } finally {
             shell.endIt();
         }

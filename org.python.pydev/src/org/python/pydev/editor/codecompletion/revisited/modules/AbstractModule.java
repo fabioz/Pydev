@@ -159,14 +159,20 @@ public abstract class AbstractModule implements Serializable{
      */
     public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, PythonNature nature, int currLine) {
         //for doc, we are only interested in python files.
-        String absolutePath = f.getAbsolutePath();
-        if(isValidSourceFile(absolutePath)){
+        
+        if(f != null){
+	        String absolutePath = f.getAbsolutePath();
+	        if(isValidSourceFile(absolutePath)){
+		        Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine));
+		        SimpleNode n = (SimpleNode) obj[0];
+		        return new SourceModule(name, f, n);
+	        }
+        } else {
 	        Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine));
 	        SimpleNode n = (SimpleNode) obj[0];
 	        return new SourceModule(name, f, n);
-        }else{
-            return null;
         }
+        return null;
     }
 
     /**

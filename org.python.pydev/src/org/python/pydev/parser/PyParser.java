@@ -18,8 +18,6 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.python.parser.CharStream;
@@ -351,7 +349,7 @@ public class PyParser {
      */
     private static SimpleNode tryReparseChangingLine(ParserInfo info, int line) {
         String docToParse = PyCodeCompletion.getDocToParseFromLine(info.document, line);
-        if(docToParse != null){
+        if(docToParse != null && info.reparseIfErrorFound){
 
             Document doc = new Document(docToParse);
             info.document = doc;

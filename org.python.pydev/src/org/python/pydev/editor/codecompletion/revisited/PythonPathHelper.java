@@ -208,8 +208,11 @@ public class PythonPathHelper implements Serializable{
      * @return
      */
     public static String stripExtension(String s) {
-        String[] strings = s.split("\\.");
-        return s.substring(0, s.length() - strings[strings.length -1].length() -1);
+        if(s != null){
+	        String[] strings = s.split("\\.");
+	        return s.substring(0, s.length() - strings[strings.length -1].length() -1);
+        }
+        return null;
     }
 
     /**
