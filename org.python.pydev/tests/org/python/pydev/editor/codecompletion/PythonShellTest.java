@@ -7,12 +7,11 @@ package org.python.pydev.editor.codecompletion;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
-
 import junit.framework.TestCase;
+
+import org.eclipse.core.runtime.CoreException;
 
 /**
  * @author Fabio Zadrozny
@@ -47,15 +46,19 @@ public class PythonShellTest extends TestCase {
     public void testGetGlobalCompletions() throws IOException, CoreException {
         String str = "import math\n";
         List list = shell.getGlobalCompletions(str);
-        for (Iterator iter = list.iterator(); iter.hasNext();) {
-            Object[] element = (Object[]) iter.next();
-            assertEquals("math", element[0]);
-            assertEquals(
-                    "This module is always available.  It provides access to the\n"
-                            + "mathematical functions defined by the C standard.",
-                    element[1]);
 
-        }
+        Object[] element = null;
+        
+        element = (Object[]) list.get(0);
+        assertEquals("math", element[0]);
+        assertEquals(
+                "This module is always available.  It provides access to the\n"
+                        + "mathematical functions defined by the C standard.",
+                element[1]);
+
+        element = (Object[]) list.get(1);
+        assertEquals("__builtins__", element[0]);
+
     }
 
     public void testGetTokenCompletions() throws IOException, CoreException {
@@ -74,10 +77,10 @@ public class PythonShellTest extends TestCase {
         List list = shell.getTokenCompletions("math", str);
         assertEquals(1, list.size());
         Object object[] = (Object[]) list.get(0);
-        assertEquals("ERROR_COMPLETING", object[0]);
+        assertEquals("ERROR:", object[0]);
     }
 
-    public void testOther() {
+    public void testOther() throws CoreException {
         String str = getTestStr();
 
         List list = shell.getClassCompletions("C", str);

@@ -64,9 +64,10 @@ public class PyCodeCompletion {
      * 
      * @param theActivationToken
      * @return
+     * @throws CoreException
      */
     public List autoComplete(PyEdit edit, IDocument doc, int documentOffset,
-            java.lang.String theActivationToken) {
+            java.lang.String theActivationToken) throws CoreException {
         List theList = new ArrayList();
         PythonShell serverShell = null;
         try {

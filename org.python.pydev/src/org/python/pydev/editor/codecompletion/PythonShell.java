@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.SocketUtil;
 
@@ -126,8 +128,9 @@ public class PythonShell {
      * 
      * @param milisSleep: time to wait after creating the process.
      * @throws IOException is some error happens creating the sockets - the process is terminated.
+     * @throws CoreException
      */
-    public void startIt(int milisSleep) throws IOException{
+    public void startIt(int milisSleep) throws IOException, CoreException{
         try {
 
             int pWrite = SocketUtil.findUnusedLocalPort("127.0.0.1", 50000, 55000);
@@ -135,10 +138,13 @@ public class PythonShell {
 
             if(process != null)
                 endIt();
-            process = Runtime.getRuntime().exec(PydevPrefs.getDefaultInterpreter()+" "+serverFile.getAbsolutePath()+" "+pWrite+" "+pRead);
+            String interpreter = getDefaultInterpreter();
+            String execMsg = interpreter+" "+serverFile.getAbsolutePath()+" "+pWrite+" "+pRead;
+            process = Runtime.getRuntime().exec(execMsg);
             
             boolean connected = false;
             int attempts = 0;
+            
             while(!connected && attempts < 20){
                 attempts += 1;
 	            sleepALittle(milisSleep);            
@@ -148,27 +154,45 @@ public class PythonShell {
                     socketToRead = serverSocket.accept();
                     connected = true;
                 } catch (IOException e1) {
-                    //e1.printStackTrace();
+                    PydevPlugin.log(IStatus.ERROR, "Error starting server", e1);
                 }
             }
+            
+            if(!connected){
+                //what, after all this trouble we are still not connected????!?!?!?!
+                //let's communicate this to the user...
+                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error creating python process ("+execMsg+")", new Exception("Error creating python process.")));
+            }
+            
         } catch (IOException e) {
             
             if(process!=null){
                 process.destroy();
             }
             process = null;
-            //e.printStackTrace();
             throw e;
         }
     }
     
     /**
+     * @return
+     */
+    protected String getDefaultInterpreter() {
+        try {
+            return PydevPrefs.getDefaultInterpreter();
+        } catch (RuntimeException e) {
+            return "python";
+        }
+    }
+
+
+    /**
      * This method creates the python server process and starts the sockets, so that we
      * can talk with the server.
-     * 
-     * @throws IOException is some error happens creating the sockets - the process is terminated.
+     * @throws IOException
+     * @throws CoreException
      */
-    public void startIt() throws IOException{
+    public void startIt() throws IOException, CoreException{
         this.startIt(25);
     }
 
@@ -236,8 +260,7 @@ public class PythonShell {
             str = str.substring(0, str.lastIndexOf("END@@"));
             return str;
         } catch (RuntimeException e) {
-            System.out.println("ERROR WITH STRING:"+str);
-            e.printStackTrace();
+            PydevPlugin.log(IStatus.ERROR, "ERROR WITH STRING:"+str, e);
             return "";
         }
     }
@@ -342,7 +365,7 @@ public class PythonShell {
             String ok = this.read(); //this should be the ok message...
             
         } catch (IOException e) {
-            e.printStackTrace();
+            PydevPlugin.log(IStatus.ERROR, "ERROR sending go to dir msg.", e);
         }
     }
     
@@ -352,24 +375,26 @@ public class PythonShell {
             String ok = this.read(); //this should be the ok message...
             
         } catch (IOException e) {
-            e.printStackTrace();
+            PydevPlugin.log(IStatus.ERROR, "ERROR sending reload modules msg.", e);
         }
     }
 
     /**
      * @param str
+     * @throws CoreException
      * @throws IOException
      */
-    public List getGlobalCompletions(String str) {
+    public List getGlobalCompletions(String str) throws CoreException {
         str = URLEncoder.encode(str);
         return this.getTheCompletions("@@GLOBALS:"+str+"\nEND@@");
     }
 
     /**
      * @param str
+     * @throws CoreException
      * @throws IOException
      */
-    public List getTokenCompletions(String token, String str)  {
+    public List getTokenCompletions(String token, String str) throws CoreException  {
         token = URLEncoder.encode(token);
         str = URLEncoder.encode(str);
         String s = "@@TOKEN_GLOBALS("+token+"):"+str+"\nEND@@";
@@ -380,8 +405,9 @@ public class PythonShell {
      * @param token
      * @param docToParse
      * @return
+     * @throws CoreException
      */
-    public List getClassCompletions(String token, String str) {
+    public List getClassCompletions(String token, String str) throws CoreException {
         token = URLEncoder.encode(token);
         str = URLEncoder.encode(str);
         String s = "@@CLASS_GLOBALS("+token+"):"+str+"\nEND@@";
@@ -391,19 +417,20 @@ public class PythonShell {
     /**
      * @param importsTipper
      * @return
+     * @throws CoreException
      */
-    public List getImportCompletions(String str) {
+    public List getImportCompletions(String str) throws CoreException {
         str = URLEncoder.encode(str);
         return this.getTheCompletions("@@IMPORTS:"+str+"\nEND@@");
     }
 
-    private List getTheCompletions(String str){
+    private List getTheCompletions(String str) throws CoreException{
         try {
             this.write(str);
  
             return getCompletions();
         } catch (Exception e) {
-            e.printStackTrace();
+            PydevPlugin.log(IStatus.ERROR, "ERROR getting completions.", e);
 
             restartShell();
             return getInvalidCompletion();
@@ -411,18 +438,18 @@ public class PythonShell {
     }
     
     /**
+     * @throws CoreException
      * 
      */
-    public void restartShell() {
+    public void restartShell() throws CoreException {
         try {
             this.endIt();
-        } catch (Exception e2) {
-            e2.printStackTrace();
+        } catch (Exception e) {
         }
         try {
             this.startIt();
-        } catch (IOException e2) {
-            e2.printStackTrace();
+        } catch (IOException e) {
+            PydevPlugin.log(IStatus.ERROR, "ERROR restarting shell.", e);
         }
     }
 

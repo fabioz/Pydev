@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -55,70 +57,75 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int documentOffset) {
 
-        IDocument doc = viewer.getDocument();
-
-        Point selectedRange = viewer.getSelectedRange();
-        // there may not be a selected range
-        java.lang.String completeDoc = doc.get();
-        codeCompletion.calcDocBoundary(completeDoc, documentOffset);
-
-        String activationToken = codeCompletion.getActivationToken(completeDoc, documentOffset);
-
-        java.lang.String qualifier = "";
-
-        //we complete on '.' and '('.
-        //' ' gets globals
-        //and any other char gets globals on token and templates.
-
-        //we have to get the qualifier. e.g. bla.foo = foo is the qualifier.
-        if (activationToken.indexOf('.') != -1) {
-            while (endsWithSomeChar(new char[] { '.' }, activationToken) == false
-                    && activationToken.length() > 0) {
-
-                qualifier = activationToken.charAt(activationToken.length() - 1) + qualifier;
-                activationToken = activationToken.substring(0, activationToken.length() - 1);
-            }
-        } else { //everything is a part of the qualifier.
-            qualifier = activationToken.trim();
-            activationToken = "";
-        }
-
-        int qlen = qualifier.length();
-
         try {
-            PythonShell.getServerShell().sendGoToDirMsg(edit.getEditorFile());
-        } catch (Exception e) {
-            //if we don't suceed, we don't have to fail... just go on and try
-            // to complete...
-            e.printStackTrace();
-        }
+            IDocument doc = viewer.getDocument();
 
-        List pythonProposals = getPythonProposals(documentOffset, doc, activationToken, qlen);
-        List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier,
-                pythonProposals);
+            Point selectedRange = viewer.getSelectedRange();
+            // there may not be a selected range
+            java.lang.String completeDoc = doc.get();
+            codeCompletion.calcDocBoundary(completeDoc, documentOffset);
 
-        ArrayList pythonAndTemplateProposals = new ArrayList();
-        pythonAndTemplateProposals.addAll(pythonProposals);
-        pythonAndTemplateProposals.addAll(templateProposals);
+            String activationToken = codeCompletion.getActivationToken(completeDoc, documentOffset);
 
-        ArrayList returnProposals = new ArrayList();
+            java.lang.String qualifier = "";
 
-        for (Iterator iter = pythonAndTemplateProposals.iterator(); iter.hasNext();) {
-            ICompletionProposal proposal = (ICompletionProposal) iter.next();
-            if (proposal.getDisplayString().startsWith(qualifier)) {
-                returnProposals.add(proposal);
+            //we complete on '.' and '('.
+            //' ' gets globals
+            //and any other char gets globals on token and templates.
+
+            //we have to get the qualifier. e.g. bla.foo = foo is the qualifier.
+            if (activationToken.indexOf('.') != -1) {
+                while (endsWithSomeChar(new char[] { '.' }, activationToken) == false
+                        && activationToken.length() > 0) {
+
+                    qualifier = activationToken.charAt(activationToken.length() - 1) + qualifier;
+                    activationToken = activationToken.substring(0, activationToken.length() - 1);
+                }
+            } else { //everything is a part of the qualifier.
+                qualifier = activationToken.trim();
+                activationToken = "";
             }
+
+            int qlen = qualifier.length();
+
+            try {
+                PythonShell.getServerShell().sendGoToDirMsg(edit.getEditorFile());
+            } catch (Exception e) {
+                //if we don't suceed, we don't have to fail... just go on and try
+                // to complete...
+                e.printStackTrace();
+            }
+
+            List pythonProposals = getPythonProposals(documentOffset, doc, activationToken, qlen);
+            List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier,
+                    pythonProposals);
+
+            ArrayList pythonAndTemplateProposals = new ArrayList();
+            pythonAndTemplateProposals.addAll(pythonProposals);
+            pythonAndTemplateProposals.addAll(templateProposals);
+
+            ArrayList returnProposals = new ArrayList();
+
+            for (Iterator iter = pythonAndTemplateProposals.iterator(); iter.hasNext();) {
+                ICompletionProposal proposal = (ICompletionProposal) iter.next();
+                if (proposal.getDisplayString().startsWith(qualifier)) {
+                    returnProposals.add(proposal);
+                }
+            }
+
+            ICompletionProposal[] proposals = new ICompletionProposal[returnProposals.size()];
+
+            // and fill with list elements
+            returnProposals.toArray(proposals);
+
+            Arrays.sort(proposals, proposalsComparator);
+            // Return the proposals
+            return proposals;
+        } catch (CoreException e) {
+            
+            ErrorDialog.openError(null,"Error", "Error", e.getStatus());
         }
-
-        ICompletionProposal[] proposals = new ICompletionProposal[returnProposals.size()];
-
-        // and fill with list elements
-        returnProposals.toArray(proposals);
-
-        Arrays.sort(proposals, proposalsComparator);
-        // Return the proposals
-        return proposals;
-
+        return new ICompletionProposal[0]; 
     }
 
     /**
@@ -128,8 +135,9 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @param activationToken
      * @param qlen
      * @return
+     * @throws CoreException
      */
-    private List getPythonProposals(int documentOffset, IDocument doc, String activationToken, int qlen) {
+    private List getPythonProposals(int documentOffset, IDocument doc, String activationToken, int qlen) throws CoreException {
         List allProposals = this.completionCache.getAllProposals(edit, doc, activationToken, documentOffset,
                 qlen, codeCompletion);
         return allProposals;

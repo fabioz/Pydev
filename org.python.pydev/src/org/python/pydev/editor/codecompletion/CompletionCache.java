@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.python.pydev.editor.PyEdit;
@@ -35,10 +36,11 @@ public class CompletionCache {
      * @param qlen
      * @param codeCompletion
      * @return
+     * @throws CoreException
      */
     public List getAllProposals(PyEdit edit, IDocument doc,
             String activationToken, int documentOffset, int qlen,
-            PyCodeCompletion codeCompletion) {
+            PyCodeCompletion codeCompletion) throws CoreException {
 
         String importsTipperStr = codeCompletion.getImportsTipperStr(activationToken, edit, doc, documentOffset);
         

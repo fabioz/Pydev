@@ -241,10 +241,13 @@ public abstract class PyRefactorAction extends PyAction {
         if (operation.statusOfOperation.startsWith("ERROR:")) {
             restartRefactorShell();
             String[] strings = operation.statusOfOperation.split("DETAILS:");
+
             if (strings.length == 2) {
+                
                 IStatus status = new Status(IStatus.ERROR, PydevPlugin
                         .getPluginID(), 0, strings[0],
                         new Exception(strings[0]));
+            
                 ErrorDialog.openError(getPyEditShell(), "ERROR", strings[0],
                         status);
             } else {

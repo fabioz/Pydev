@@ -45,7 +45,9 @@ public abstract class PyEditProjection extends TextEditor implements
      */
     protected ISourceViewer createSourceViewer(Composite parent,
             IVerticalRuler ruler, int styles) {
-        return new PySourceViewer(parent, ruler, getOverviewRuler(), true, styles, this);
+        PySourceViewer viewer = new PySourceViewer(parent, ruler, getOverviewRuler(), true, styles, this);
+        getSourceViewerDecorationSupport(viewer);
+        return viewer;
     }
 
     

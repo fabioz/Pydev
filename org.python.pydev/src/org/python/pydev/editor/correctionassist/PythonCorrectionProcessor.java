@@ -17,7 +17,12 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PySelection;
+import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.editor.model.ClassNode;
+import org.python.pydev.editor.model.FunctionNode;
+import org.python.pydev.editor.model.ModelUtils;
 
 /**
  * /** This class should be used to give context help
@@ -64,8 +69,16 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 
         PySelection ps = new PySelection(edit, false);
 
-        List results = getAssignToResults(ps);
-        results.addAll(getCreations(ps));
+        List results = new ArrayList(); 
+        try {
+            results.addAll(getAssignToResults(ps));
+        } catch (BadLocationException e) {
+        }
+        
+        try {
+            results.addAll(getCreations(ps));
+        } catch (BadLocationException e1) {
+        }
 
         return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
     }
@@ -73,8 +86,9 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
     /**
      * @param ps
      * @return
+     * @throws BadLocationException
      */
-    private List getCreations(PySelection ps) {
+    private List getCreations(PySelection ps) throws BadLocationException {
         List l = new ArrayList();
 
         if (ps.selection.trim().length() == 0) {
@@ -82,16 +96,104 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
         }
 
         //here, any callable can be used to create a new method or class.
-        //we have to parse it, because we have to discover the parameters for the new class.
+        //we have to parse it, because we have to discover the parameters for the new class or method.
         
+        String callName = getBeforeParentesisTok(ps);
+
+        if(callName.length() == 0){
+            return l;
+        }
+
+        String params = "("+getInsideParentesisTok(ps)+")";
+        int firstCharPosition = PyAction.getFirstCharRelativePosition(ps.doc, ps.absoluteCursorOffset);
         
+        String indentation = PyBackspace.getStaticIndentationString();
+
+        
+        String delim = PyAction.getDelimiter(ps.doc, 0);
+        String cls = "class "+callName+":"+delim+delim;
+        cls += indentation+"def __init__"+params+":"+delim;
+        cls += indentation+indentation+"pass"+delim;
+        
+        String method = "def "+callName+params+":"+delim+indentation+"pass"+delim;
+
+        if (firstCharPosition == 0){ //we are in the global context
+
+            int newPos = 0;
+            int lineOfOffset = ps.doc.getLineOfOffset(ps.absoluteCursorOffset);
+            
+            if(lineOfOffset > 0){
+                newPos = ps.doc.getLineInformation(lineOfOffset - 1).getOffset();
+            }
+            
+            l.add(new CompletionProposal(cls, newPos, 0, cls.length()+1, null,
+                    "Create new class (global context)", null, null));
+
+            l.add(new CompletionProposal(method, newPos, 0, method.length()+1, null,
+                    "Create new method (global context)", null, null));
+
+        }else{ //we are in a method or class context
+
+	        AbstractNode root = edit.getPythonModel();
+	        if (root == null){
+	            return l;
+	        }
+	        
+	        //now, discover in which node we are right now...
+	        AbstractNode current = ModelUtils.getLessOrEqualNode(root, ps.absoluteCursorOffset, ps.doc);
+	        while (current != null) {
+	            if (current instanceof FunctionNode
+	                    || current instanceof ClassNode) {
+	                break;
+	            }
+	            current = ModelUtils.getPreviousNode(current);
+	        }
+	        
+	        
+	        if(ps.selection.indexOf("self.") != -1){ //we are going for a class method.
+	            
+	            if (current instanceof FunctionNode) { //if we are in a class, here we are within a method.
+	                FunctionNode node = (FunctionNode) current;
+	                
+	                int newPos = 0;
+	                int lineOfOffset = node.getStart().line;
+	                
+	                if(lineOfOffset > 0){
+	                    newPos = ps.doc.getLineInformation(lineOfOffset).getOffset();
+	                }
+	                
+	                int col = node.getStart().column;
+	                String newIndent = indentation;
+	                
+	                while(newIndent.length() < col){
+	                    newIndent += indentation;
+	                }
+	                String atStart = newIndent.replaceFirst(indentation, "");
+	                method = method.replaceAll(indentation, newIndent);
+	                method = atStart+method+delim;
+	                
+		            l.add(new CompletionProposal(method, newPos, 0, method.length()-4, null,
+		                    "Create new method (in class)", null, null));
+	            }
+	            
+	        }else{ //we are going for a class or a global method.
+	            //TODO: End this.
+//	            l.add(new CompletionProposal(callName, 0, 0, 0, null,
+//	                    "Create new class", null, null));
+//	            
+//	            l.add(new CompletionProposal(callName, 0, 0, 0, null,
+//	                    "Create new method", null, null));
+	        }
+        }        
         return l;
     }
 
+
     /**
      * @param ps
+     * @throws BadLocationException
      */
-    private List getAssignToResults(PySelection ps) {
+    private List getAssignToResults(PySelection ps) throws BadLocationException {
         List l = new ArrayList();
 
         if (ps.selection.trim().length() == 0) {
@@ -121,40 +223,57 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
             //					 |result| = 1+1
             //					 self.|result| = 1+1
 
-            String string = ps.selection.replaceAll("\\(*\\)", "()");
+            String callName = getBeforeParentesisTok(ps);
 
-            try {
-                int firstCharPosition = PyAction.getFirstCharPosition(ps.doc, ps.absoluteCursorOffset);
-                int i;
-
-                String callName = "result";
-                if ((i = string.indexOf("()")) != -1) {
-                    callName = "";
-
-                    for (int j = i-1; j >= 0 && stillInTok(string, j); j--) {
-                        callName = string.charAt(j) + callName;
-                    }
-                    
-                    if(callName.length()>0){
-	                    //all that just to change first char to lower case.
-	                    char[] ds = callName.toCharArray(); 
-	                    ds[0] = (""+ds[0]).toLowerCase().charAt(0);
-	                    callName = new String(ds);
-                    }
-                }
-
-                callName += " = ";
-                l.add(new CompletionProposal(callName, firstCharPosition, 0, 0, null,
-                        "Assign to new local variable", null, null));
-                
-                l.add(new CompletionProposal("self." + callName, firstCharPosition, 0, 0, null,
-                        "Assign to new field", null, null));
-                
-            } catch (BadLocationException e) {
-                e.printStackTrace();
+            if(callName.length() > 0){
+                //all that just to change first char to lower case.
+                char[] ds = callName.toCharArray(); 
+                ds[0] = (""+ds[0]).toLowerCase().charAt(0);
+                callName = new String(ds);
+            }else{
+                callName = "result";
             }
+
+            int firstCharPosition = PyAction.getFirstCharPosition(ps.doc, ps.absoluteCursorOffset);
+            callName += " = ";
+            l.add(new CompletionProposal(callName, firstCharPosition, 0, 0, null,
+                    "Assign to new local variable", null, null));
+            
+            l.add(new CompletionProposal("self." + callName, firstCharPosition, 0, 5, null,
+                    "Assign to new field", null, null));
         }
         return l;
+    }
+
+    /**
+     * @param ps
+     * @return
+     */
+    private String getInsideParentesisTok(PySelection ps) {
+        int beg = ps.selection.indexOf('(')+1;
+        int end = ps.selection.indexOf(')');
+        return ps.selection.substring(beg, end);
+    }
+
+    /**
+     * @param ps
+     * @return string with the token or empty token if not found.
+     */
+    private String getBeforeParentesisTok(PySelection ps) {
+        String string = ps.selection.replaceAll("\\(.*\\)", "()");
+
+        int i;
+
+        String callName = "";
+        if ((i = string.indexOf("()")) != -1) {
+            callName = "";
+
+            for (int j = i-1; j >= 0 && stillInTok(string, j); j--) {
+                callName = string.charAt(j) + callName;
+            }
+            
+        }
+        return callName;
     }
 
     /**
@@ -165,7 +284,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
     private boolean stillInTok(String string, int j) {
         char c = string.charAt(j);
 
-        return c != '\n' && c != '\r' && c != ' ' && c != '.' && c != '(' && c != ')';
+        return c != '\n' && c != '\r' && c != ' ' && c != '.' && c != '(' && c != ')' && c != ',' && c != ']' && c != '[';
     }
 
     /*
