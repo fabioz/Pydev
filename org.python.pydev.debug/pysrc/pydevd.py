@@ -49,7 +49,10 @@ import sys
 import threading
 import types
 import Queue as PydevQueue
-from socket import *
+from socket import socket
+from socket import AF_INET
+from socket import SOCK_STREAM
+from socket import timeout
 import urllib
 import time
 import inspect
@@ -115,8 +118,8 @@ class ReaderThread(threading.Thread):
                     PyDB.instance.processNetCommand(int(args[0]), int(args[1]), args[2])
 #                print >>sys.stderr, "processed input"
         except:
-           print >>sys.stderr, "Exception in reader thread"
-           raise
+            print >>sys.stderr, "Exception in reader thread"
+            raise
 
 class WriterThread(threading.Thread):
     """ writer thread writes out the commands in an infinite loop """
@@ -179,7 +182,7 @@ class NetCommand:
 class NetCommandFactory:
     
     def __init_(self):
-       self.next_seq = 0
+        self.next_seq = 0
 
     def threadToXML(self, thread):
         """ thread information as XML """
@@ -313,20 +316,20 @@ class InternalGetVariable:
     def doIt(self, dbg):
         """ Converts request into python variable """
         try:
-           xml = "<xml>"
-           valDict = pydevd_vars.resolveCompoundVariable(self.thread, self.frame_id, self.scope, self.attributes)
-           keys = valDict.keys()
-           keys.sort()
-           for k in keys:
-               xml += pydevd_vars.varToXML(valDict[k], str(k))
-           xml += "</xml>"
-#           print >>sys.stderr, "done to xml"
-           cmd = dbg.cmdFactory.makeGetVariableMessage(self.sequence, xml)
-#           print >>sys.stderr, "sending command"
-           dbg.writer.addCommand(cmd)
+            xml = "<xml>"
+            valDict = pydevd_vars.resolveCompoundVariable(self.thread, self.frame_id, self.scope, self.attributes)
+            keys = valDict.keys()
+            keys.sort()
+            for k in keys:
+                xml += pydevd_vars.varToXML(valDict[k], str(k))
+            xml += "</xml>"
+#            print >>sys.stderr, "done to xml"
+            cmd = dbg.cmdFactory.makeGetVariableMessage(self.sequence, xml)
+#            print >>sys.stderr, "sending command"
+            dbg.writer.addCommand(cmd)
         except Exception, e:
-           cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + str(e))
-           dbg.writer.addCommand(cmd)
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + str(e))
+            dbg.writer.addCommand(cmd)
 
            
 class InternalEvaluateExpression:
@@ -340,18 +343,19 @@ class InternalEvaluateExpression:
     def doIt(self, dbg):
         """ Converts request into python variable """
         try:
-           result = pydevd_vars.evaluateExpression( self.thread, self.frame_id, self.expression )
-           xml = "<xml>"
-           xml += pydevd_vars.varToXML(result, "")
-           xml += "</xml>"
-#           print >>sys.stderr, "done to xml"
-           cmd = dbg.cmdFactory.makeEvaluateExpressionMessage(self.sequence, xml)
-#           print >>sys.stderr, "sending command"
-           dbg.writer.addCommand(cmd)
+            result = pydevd_vars.evaluateExpression( self.thread, self.frame_id, self.expression )
+            xml = "<xml>"
+            xml += pydevd_vars.varToXML(result, "")
+            xml += "</xml>"
+#            print >>sys.stderr, "done to xml"
+            cmd = dbg.cmdFactory.makeEvaluateExpressionMessage(self.sequence, xml)
+#            print >>sys.stderr, "sending command"
+            dbg.writer.addCommand(cmd)
         except Exception, e:
-           cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + str(e))
-           dbg.writer.addCommand(cmd)
-           traceback.print_exc(file=sys.stderr)
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + str(e))
+            dbg.writer.addCommand(cmd)
+            import traceback
+            traceback.print_exc(file=sys.stderr)
 
 
 def pydevd_findThreadById(thread_id):
@@ -469,9 +473,9 @@ class PyDB:
         queue = self.getInternalQueue(id(threading.currentThread()))
         try:
             while (True):
-               int_cmd = queue.get(False)
-               pydevd_log(2, "processign internal command " + str(int_cmd))
-               int_cmd.doIt(self)
+                int_cmd = queue.get(False)
+                pydevd_log(2, "processign internal command " + str(int_cmd))
+                int_cmd.doIt(self)
         except PydevQueue.Empty:
             pass # this is how we exit
       
@@ -504,17 +508,17 @@ class PyDB:
                     t.pydev_step_cmd = id
             elif (id == CMD_GET_VARIABLE):
                  # text is: thread\tstackframe\tLOCAL|GLOBAL\tattributes*
-                 (thread_id, frame_id, scopeattrs) = text.split('\t', 2)
-                 if scopeattrs.find('\t') != -1: # there are attibutes beyond scope
-                     (scope, attrs) = scopeattrs.split('\t', 1)
-                 else:
-                     (scope, attrs) = (scopeattrs, None)
-                 t = pydevd_findThreadById(thread_id)
-                 if t:
-                     int_cmd = InternalGetVariable(seq, t, frame_id, scope, attrs)
-                     self.postInternalCommand(int_cmd, thread_id)
-                 else:
-                     cmd = self.cmdFactory.makeErrorMessage(seq, "could not find thread for variable")
+                (thread_id, frame_id, scopeattrs) = text.split('\t', 2)
+                if scopeattrs.find('\t') != -1: # there are attibutes beyond scope
+                    (scope, attrs) = scopeattrs.split('\t', 1)
+                else:
+                    (scope, attrs) = (scopeattrs, None)
+                t = pydevd_findThreadById(thread_id)
+                if t:
+                    int_cmd = InternalGetVariable(seq, t, frame_id, scope, attrs)
+                    self.postInternalCommand(int_cmd, thread_id)
+                else:
+                    cmd = self.cmdFactory.makeErrorMessage(seq, "could not find thread for variable")
             elif (id == CMD_SET_BREAK):
                 # text is file\tline. Add to breakpoints dictionary
                 (file, line) = text.split('\t', 1)
@@ -536,16 +540,16 @@ class PyDB:
                         if len(keys) is 0:
                             del self.breakpoints[file]
                     else:
-                       print sys.stderr, "breakpoint not found", file, str(line)
+                        print sys.stderr, "breakpoint not found", file, str(line)
             elif (id == CMD_EVALUATE_EXPRESSION):
-                 # text is: thread\tstackframe\tLOCAL\texpression
-                 (thread_id, frame_id, scope, expression) = text.split('\t', 3)
-                 t = pydevd_findThreadById(thread_id)
-                 if t:
-                     int_cmd = InternalEvaluateExpression(seq, t, frame_id, expression)
-                     self.postInternalCommand(int_cmd, thread_id)
-                 else:
-                     cmd = self.cmdFactory.makeErrorMessage(seq, "could not find thread for expression")
+                # text is: thread\tstackframe\tLOCAL\texpression
+                (thread_id, frame_id, scope, expression) = text.split('\t', 3)
+                t = pydevd_findThreadById(thread_id)
+                if t:
+                    int_cmd = InternalEvaluateExpression(seq, t, frame_id, expression)
+                    self.postInternalCommand(int_cmd, thread_id)
+                else:
+                    cmd = self.cmdFactory.makeErrorMessage(seq, "could not find thread for expression")
             else:
                 cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(id))
             pydevd_log(1, "processed command " + str (id))
@@ -561,7 +565,7 @@ class PyDB:
         """ if thread is not alive, cancel trace_dispatch processing """
         wasNotified = False
         try:
-           wasNotified = thread.pydev_notify_kill
+            wasNotified = thread.pydev_notify_kill
         except AttributeError:
             thread.pydev_notify_kill = False
         if not wasNotified:
@@ -712,8 +716,15 @@ class PyDB:
         #I think this is an ugly hack, bug it works (seems to) for the bug that says that sys.path should be the same in
         #debug and run.
         if __file__.startswith(sys.path[0]):
+            #print >> sys.stderr, 'Deleting: ', sys.path[0]
             del sys.path[0]
-            
+        
+        #now, the local directory has to be added to the pythonpath
+        import os
+        sys.path.insert(0, os.getcwd())
+        
+        
+        
 #        if not isinstance(cmd, types.CodeType):
 #            cmd = cmd+'\n'
 
