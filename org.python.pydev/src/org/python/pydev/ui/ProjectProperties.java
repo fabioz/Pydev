@@ -21,7 +21,7 @@ import org.python.pydev.plugin.PydevPlugin;
 
 
 /**
- * TODO just a stub for now. Dana will implement real include preferenecs
+ * TODO just a stub for now. Volunteers needed to implement real include preferenecs
  */
 public class ProjectProperties extends PropertyPage {
 
