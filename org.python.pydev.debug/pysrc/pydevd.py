@@ -688,14 +688,32 @@ class PyDB:
 #        print "E " + str(frame) + " " + str(arg)
         return self.trace_dispatch
 
-    def run(self, file, globals=None, locals=None):    
-        if globals is None:
-            import __main__
-            globals = __main__.__dict__
-            globals['__file__'] = file
-        if locals is None:
-            locals = globals
+    def run(self, file, globals=None, locals=None):
 
+        if globals is None:
+            #patch provided by: Scott Schlesier - when script is run, it does not 
+            #use globals from pydevd:
+            #This will prevent the pydevd script from contaminating the namespace for the script to be debugged
+            
+            #pretend pydevd is not the main module, and
+            #convince the file to be debugged that it was loaded as main
+            sys.modules['pydevd'] = sys.modules['__main__']
+            sys.modules['pydevd'].__name__ = 'pydevd'            
+            
+            from imp import new_module
+            m = new_module('__main__')
+            sys.modules['__main__'] = m
+            m.__file__ = file
+            globals = m.__dict__
+
+        if locals is None: 
+            locals = globals        
+        
+        #I think this is an ugly hack, bug it works (seems to) for the bug that says that sys.path should be the same in
+        #debug and run.
+        if __file__.startswith(sys.path[0]):
+            del sys.path[0]
+            
 #        if not isinstance(cmd, types.CodeType):
 #            cmd = cmd+'\n'
 
