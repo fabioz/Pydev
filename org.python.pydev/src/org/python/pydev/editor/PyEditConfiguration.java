@@ -18,8 +18,6 @@ import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.TextPresentation;
-import org.eclipse.jface.text.contentassist.ContentAssistant;
-import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
@@ -37,7 +35,6 @@ import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.plugin.PydevPlugin;
@@ -79,16 +76,14 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
 	/**
 	 * Cache the result, because we'll get asked for it multiple times
-	 * 
+	 * Now, we always return the PyAutoIndentStrategy. (even on commented lines).
 	 * @return PyAutoIndentStrategy which deals with spaces/tabs
 	 */
 	 public IAutoIndentStrategy getAutoIndentStrategy(ISourceViewer sourceViewer,String contentType) {
-		if (autoIndentStrategy == null)
+		if (autoIndentStrategy == null){
 			autoIndentStrategy = new PyAutoIndentStrategy();
-		if (contentType == null || contentType.equals(IDocument.DEFAULT_CONTENT_TYPE))
-			return autoIndentStrategy;
-		else
-			return super.getAutoIndentStrategy(sourceViewer, contentType);
+		}
+		return autoIndentStrategy;
 	 }
 	
 	 /**
