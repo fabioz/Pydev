@@ -114,9 +114,10 @@ public abstract class PyAction implements IEditorActionDelegate {
 				return;
 			int i = 0;
 			while (i < src.length()) {
-				if (!Character.isWhitespace(src.charAt(i++))) {
+				if (!Character.isWhitespace(src.charAt(i))) {
 					break;
 				}
+				i++;
 			}
 			setCaretPosition(offset + i - 1);
 		} catch (BadLocationException e) {
@@ -127,26 +128,81 @@ public abstract class PyAction implements IEditorActionDelegate {
 
 
 	/**
-	 * Returns the position of the first char.
+	 * Returns the position of the first non whitespace char in the current line.
 	 * @param doc
 	 * @param cursorOffset
-	 * @return position of the first character of the line
+	 * @return position of the first character of the line (returned as an absolute
+	 * 		   offset)
 	 * @throws BadLocationException
 	 */
 	protected int getFirstCharPosition(IDocument doc, int cursorOffset)
+		throws BadLocationException {
+        IRegion region;
+		region = doc.getLineInformationOfOffset(cursorOffset);
+		int offset = region.getOffset();
+		return offset + getFirstCharRelativePosition(doc, cursorOffset);
+	}
+	
+	
+
+	/**
+     * @param doc
+     * @param cursorOffset
+     * @return
+     * @throws BadLocationException
+     */
+    protected int getFirstCharRelativePosition(IDocument doc, int cursorOffset) throws BadLocationException {
+        IRegion region;
+		region = doc.getLineInformationOfOffset(cursorOffset);
+		int offset = region.getOffset();
+		String src = doc.get(offset, region.getLength());
+
+		int i = 0;
+		boolean breaked = false;
+		while (i < src.length()) {
+		    if (   Character.isWhitespace(src.charAt(i)) == false && src.charAt(i) != '\t'  ) {
+		        i++;
+			    breaked = true;
+				break;
+			}
+		    i++;
+		}
+		if (!breaked){
+		    i++;
+		}
+		return (i - 1);
+    }
+
+    /**
+	 * Returns the position of the last non whitespace char in the current line.
+	 * @param doc
+	 * @param cursorOffset
+	 * @return position of the last character of the line (returned as an absolute
+	 * 		   offset)
+	 * 
+	 * @throws BadLocationException
+	 */
+	protected int getLastCharPosition(IDocument doc, int cursorOffset)
 		throws BadLocationException {
 		IRegion region;
 		region = doc.getLineInformationOfOffset(cursorOffset);
 		int offset = region.getOffset();
 		String src = doc.get(offset, region.getLength());
 
-		int i = 0;
-		while (i < src.length()) {
-			if (!Character.isWhitespace(src.charAt(i++))) {
+		int i = src.length();
+		boolean breaked = false;
+		while (i > 0 ) {
+		    i--;
+		    //we have to break if we find a character that is not a whitespace or a tab.
+			if (   Character.isWhitespace(src.charAt(i)) == false && src.charAt(i) != '\t'  ) {
+			    breaked = true;
 				break;
 			}
 		}
-		return (offset + i - 1);
+		if (!breaked){
+		    i--;
+		}
+		return (offset + i);
 	}
 
 	/**
