@@ -87,7 +87,7 @@ on From and Import :
 from __future__ import generators
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: astng.py,v 1.3 2004-10-28 16:01:19 fabioz Exp $"
+__revision__ = "$Id: astng.py,v 1.4 2004-11-03 10:44:45 fabioz Exp $"
 
 from compiler.ast import *
 from inspect import isclass
@@ -196,18 +196,11 @@ def resolve(node, name):
             stmt = frame.root().globals[name]
         except KeyError:
             try:
-                print '*********************************'
-                print node
-                print name
-                print '*********************************'
                 object = getattr(__builtin__, name)
             except AttributeError:
                 try:
                     import qt
                     object = getattr(qt, name)
-                    print '-------- *********************************'
-                    print object
-                    print '-------- *********************************'
                 except:
                     raise ResolveError(name)
                     
