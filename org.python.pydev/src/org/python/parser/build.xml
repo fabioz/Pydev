@@ -1,41 +1,38 @@
-<project name="org.python.parser" default="parser" basedir=".">
-	<description>
-		Python parser Ant build file
-	</description>
+<project name="jython-parser" default="parser" basedir="." >
 
-	<property name="jjhome" location="D:/javacc/bin/lib/"/>
-	<property name="jjfile" location="./python.jjt"/>
-	<property name="output" location="."/>
-	
-     <available
-       property="javacc.present"
-       classname="org.netbeans.javacc.parser.Main"
-     />
-  
-  	<target name="javacc_check" unless="javacc.present">
-    	<echo>
-       	JavaCC not found. You need to install it, or point the 
-       	   jjhome variable in this file to the right location
-       	JavaCC Home: ${javacc.home}
- 		</echo>
- 	</target>
- 	
-	<target name="makejjt" depends="javacc_check">
-		<jjtree 
-			target="${jjfile}" 
-			javacchome="${jjhome}"
-			outputdirectory="${output}"/>
-		<javacc 
-			target="${output}/python.jj" 
-			javacchome="${jjhome}"
-			outputdirectory="${output}"/>
-	</target>
-	
-	<target name="parser" depends="makejjt" description="python parse tree"/>
-	
-	<target name="clean" description="remove parser files">
-		<delete>
-			<fileset dir="${output}" includes="**/*.java"/>
-		</delete>
-	</target>
+    <property name="javaccHome"  value="/usr/local/javacc" />
+    
+    <target name="pre">
+        <uptodate property="parser.regen.notreq" targetfile="${basedir}/PythonGrammarConstants.java">
+            <srcfiles dir="${basedir}" includes="python.jjt" />
+        </uptodate>
+    </target>
+    
+    <target name="clean" unless="parser.regen.notreq">
+        <delete file="${basedir}/PythonGrammar.java" />
+        <delete file="${basedir}/PythonGrammarTreeConstants.java" />
+        <delete file="${basedir}/PythonGrammarTokenManager.java" />
+        <delete file="${basedir}/PythonGrammarConstants.java" />
+        <delete file="${basedir}/CharStream.java" />
+    </target>
+    
+    <target name="tree" unless="parser.regen.notreq">
+        <java classname="jjtree" classpath="${javaccHome}/bin/lib/javacc.jar" fork="yes" >
+            <arg value="-OUTPUT_DIRECTORY=${basedir}" />
+            <arg file="${basedir}/python.jjt" />
+        </java>
+    </target>
+    
+    <target name="gen" unless="parser.regen.notreq" depends="tree" >
+        <java classname="javacc" classpath="${javaccHome}/bin/lib/javacc.jar" fork="yes" >
+            <arg value="-OUTPUT_DIRECTORY=${basedir}" />
+            <arg file="${basedir}/python.jj" />            
+        </java>
+        <delete file="${basedir}/python.jj" />
+    </target>    
+    
+    <target name="parser" depends="pre,clean,gen" >
+        <echo >parser gen (dir: ${basedir})</echo>
+    </target>
+
 </project>

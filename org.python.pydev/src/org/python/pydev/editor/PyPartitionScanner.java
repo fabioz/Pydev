@@ -18,11 +18,13 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 
 /**
- * rule-based partition scanner
- * simple, fast parsing of the document into partitions
- * This is like a rough 1st pass at parsing. The results are parsed again
- * inside PyEditConfiguration::getPresentationReconciler
- * and colored there.
+ * Rule-based partition scanner
+ * 
+ * Simple, fast parsing of the document into partitions.<p>
+ * This is like a rough 1st pass at parsing. We only parse
+ * out for comments, single-line strings, and multiline strings<p>
+ * The results are parsed again inside {@link org.python.pydev.editor.PyEditConfiguration#getPresentationReconciler}
+ * and colored there.<p>
  * 
  * "An IPartitionTokenScanner can also start in the middle of a partition,
  * if it knows the type of the partition."

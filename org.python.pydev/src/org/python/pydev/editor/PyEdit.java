@@ -1,5 +1,5 @@
 /*
- * Author: atotic
+ * @author: atotic
  * Created: July 10, 2003
  * License: Common Public License v1.0
  */
@@ -33,19 +33,24 @@ import org.python.pydev.ui.ColorCache;
 
 
 /**
- * This is the TextWidget
- * ties SourceViewerConfiguration, DocumentProvider, & OutlinePage
- * no interesting methods
- * all the logic is implemented through DocumentProvider, 
- * and SourceViewerConfiguration.
+ * The TextWidget.
  * 
- * see http://dev.eclipse.org/newslists/news.eclipse.tools/msg61594.html
+ * <p>Ties together all the main classes in this plugin.
+ * <li>The {@link org.python.pydev.editor.PyEditConfiguration PyEditConfiguration} does preliminary partitioning.
+ * <li>The {@link org.python.pydev.parser.PyParser PyParser} does a lazy validating python parse.
+ * <li>The {@link org.python.pydev.outline.PyOutlinePage PyOutlinePage} shows the outline
+ * 
+ * <p>Listens to the parser's events, and displays error markers from the parser
+ * @see <a href="http://dev.eclipse.org/newslists/news.eclipse.tools/msg61594.html">This eclipse article was an inspiration</a>
+ * 
  */
 public class PyEdit extends TextEditor implements IParserListener {
 
-	private ColorCache colorCache; // color cache
-	private PyParser parser; // lexical parser that continuously reparses the document
-
+	/** color cache */
+	private ColorCache colorCache;
+	/** lexical parser that continuously reparses the document on a thread */
+	private PyParser parser; 
+	
 	public PyEdit() {
 		super();
 		colorCache = new ColorCache(PydevPlugin.getDefault().getPluginPreferences());
@@ -55,14 +60,15 @@ public class PyEdit extends TextEditor implements IParserListener {
 		setSourceViewerConfiguration(new PyEditConfiguration(colorCache));
 		setRangeIndicator(new DefaultRangeIndicator()); // enables standard vertical ruler
 	}
-
+	
+	/** hooks up the parser */
 	public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
 		super.init(site, input);
 		parser = new PyParser(this);
 		parser.addParseListener(this);
 		parser.setDocument(getDocumentProvider().getDocument(input));
 	}
-
+	
 	public PyParser getParser() {
 		return parser;
 	}
@@ -86,7 +92,7 @@ public class PyEdit extends TextEditor implements IParserListener {
 	
 	/**
 	 * implementation copied from 
-	 * org.eclipse.ui.externaltools.internal.ant.editor.PlantyEditor::setSelection
+	 * @see org.eclipse.ui.externaltools.internal.ant.editor.PlantyEditor#setSelection
 	 */
 	public void setSelection(int offset, int length) {
 		ISourceViewer sourceViewer= getSourceViewer();
@@ -94,8 +100,10 @@ public class PyEdit extends TextEditor implements IParserListener {
 		sourceViewer.revealRange(offset, length);
 	}
 
-	/*
+	/**
 	 * this event comes when document was parsed without errors
+	 * 
+	 * Removes all the error markers
 	 */
 	public void parserChanged(SimpleNode root) {
 		// Remove all the error markers
@@ -110,9 +118,10 @@ public class PyEdit extends TextEditor implements IParserListener {
 		}
 	}
 
-	/*
+	/**
 	 * this event comes when parse ended in an error
-	 * generate an error marker
+	 * 
+	 * generates an error marker on the document
 	 */
 	public void parserError(Throwable error) {
 		IEditorInput input = getEditorInput();

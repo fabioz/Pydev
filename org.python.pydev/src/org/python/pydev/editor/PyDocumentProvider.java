@@ -14,6 +14,7 @@ import org.eclipse.ui.editors.text.FileDocumentProvider;
 
 /**
  * DocumentProvider creates and manages the document content. 
+ * 
  * It notifies the editors about changes applied to the document model. 
  * The document provider also creates an annotation model
  * on a document. 

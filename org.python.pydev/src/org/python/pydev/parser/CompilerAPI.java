@@ -5,13 +5,13 @@
  */
 package org.python.pydev.parser;
 
-import org.python.parser.ICompilerAPI;
+import org.python.parser.IParserHost;
 
 /**
  * Implement Py methods required by PythonGrammar
  * 
  */
-public class CompilerAPI implements ICompilerAPI {
+public class CompilerAPI implements IParserHost {
 	public Object newInteger(int i) {
 		return new java.lang.Integer(i);
 	}

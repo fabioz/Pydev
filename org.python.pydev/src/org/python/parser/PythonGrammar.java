@@ -3,12 +3,7 @@ package org.python.parser;
 import org.python.parser.ast.modType;
 
 public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants, PythonGrammarConstants {/*@bgen(jjtree)*/
-  protected JJTPythonGrammarState jjtree = new JJTPythonGrammarState();public ICompilerAPI compilerAPI;
-
-
-    public void setCompilerAPI(ICompilerAPI compilerAPI) {
-        this.compilerAPI = compilerAPI;
-    }
+  protected JJTPythonGrammarState jjtree = new JJTPythonGrammarState();public IParserHost hostLiteralMkr;
 
     void jjtreeOpenNodeScope(Node n) {
         Token t = getToken(1);
@@ -22,34 +17,34 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     Object makeInt(String s, int radix) {
         if (s.endsWith("L") || s.endsWith("l")) {
             s = s.substring(0, s.length()-1);
-            return compilerAPI.newLong(new java.math.BigInteger(s, radix));
+            return hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
         }
         int ndigits = s.length();
         int i=0;
         while (i < ndigits && s.charAt(i) == '0')
             i++;
         if ((ndigits - i) > 11) {
-            return compilerAPI.newLong(new java.math.BigInteger(s, radix));
+            return hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
         }
 
         long l = Long.valueOf(s, radix).longValue();
         if (l > 0xffffffffl || (radix == 10 && l > Integer.MAX_VALUE)) {
-            return compilerAPI.newLong(new java.math.BigInteger(s, radix));
+            return hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
         }
-        return compilerAPI.newInteger((int) l);
+        return hostLiteralMkr.newInteger((int) l);
     }
 
     Object makeFloat(String s) {
-        return compilerAPI.newFloat(Double.valueOf(s).doubleValue());
+        return hostLiteralMkr.newFloat(Double.valueOf(s).doubleValue());
     }
 
     Object makeLong(String s) {
-        return compilerAPI.newLong(s);
+        return hostLiteralMkr.newLong(s);
     }
 
     Object makeComplex(String s) {
         s = s.substring(0, s.length() - 1);
-        return compilerAPI.newImaginary(Double.valueOf(s).doubleValue());
+        return hostLiteralMkr.newImaginary(Double.valueOf(s).doubleValue());
     }
 
     String makeString(String s, int quotes) {
@@ -71,7 +66,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
             int i=quotes+start;
             int last_i=i;
 
-            return compilerAPI.decode_UnicodeEscape(s, i, n, "strict", ustring);
+            return hostLiteralMkr.decode_UnicodeEscape(s, i, n, "strict", ustring);
         }
     }
 
@@ -137,6 +132,20 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
             return false;
         }
     }
+
+        // constructors taking a IParserHost impl
+
+        public PythonGrammar(CharStream stream,IParserHost host) {
+            this(stream);
+            hostLiteralMkr = host;
+        }
+
+        public PythonGrammar(PythonGrammarTokenManager tm,
+                             IParserHost host)
+    {
+        this(tm);
+        hostLiteralMkr = host;
+        }
 
 //single_input: NEWLINE | simple_stmt | compound_stmt NEWLINE 
 // apparently CPython coalesces newlines, we don't

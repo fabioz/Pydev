@@ -18,9 +18,10 @@ import org.eclipse.jface.viewers.StructuredSelection;
 
 
 /**
- * model represents the partitions inside the document
- * @events-listen: document changed/document partitioning changed
- * @events-broadcast: 
+ * RawPartitionModel represents the partitions inside the document
+ * 
+ * events-listen: document changed/document partitioning changed
+ * events-broadcast: 
  * the model is a Position[], the replica of the document model
  */
 class RawPartitionModel implements IOutlineModel {

@@ -21,7 +21,8 @@ import org.python.parser.ast.aliasType;
 
 /**
  * ParsedModel is composed of ParsedItems
- * the model gets an AST (Abstract Syntax Tree) from jython's parser
+ * 
+ * <p>The model gets an AST (Abstract Syntax Tree) from jython's parser
  * and this is then converted to a tree of ParsedItems
  */
 class ParsedItem  {
@@ -30,14 +31,17 @@ class ParsedItem  {
 	SimpleNode token; // parser token that this node represents
 
 	/**
-	 * Traverses the parsed tree. Fills the array list
-	 * with the items we are interested in.
-	 * Has an option on whether to do recursive traversal
+	 * Traverses the parsed tree. 
+	 * 
+	 * <p>Fills the array list with the items we are interested in.
 	 */
 	static class Visitor extends VisitorBase {
 
 		ArrayList fill;
 		ParsedItem parent;
+
+		boolean hasImports;
+		ParsedItem imports;
 		
 		public Visitor(ParsedItem parent, ArrayList fill) {
 			this.parent = parent;
@@ -208,7 +212,7 @@ class ParsedItem  {
 
 	/**
 	 * @param item
-	 * @return
+	 * @return compares ParsedItems by their rank
 	 */
 	public int compareTo(ParsedItem item) {
 		int myRank = getClassRanking();

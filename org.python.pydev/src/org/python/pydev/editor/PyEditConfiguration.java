@@ -28,16 +28,13 @@ import org.eclipse.swt.graphics.Color;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
 
-/* Possibly obsolete wizard methods
-	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
-		return new String[] {IDocument.DEFAULT_CONTENT_TYPE,PyPartitionScanner.XML_COMMENT,XMLPartitionScanner.XML_TAG };
-	}
 
- */
-
-/* SourceViewerConfiguration adds specific behavior to the TextWidget
- * the behavious I might want to implemente are:
- * TODO doubleClickStragegy: implement me?
+/**
+ * Adds simple partitioner, and specific behaviors like double-click actions to the TextWidget.
+ * 
+ * <p>Implements a simple partitioner that does syntax highlighting.
+ * 
+ * <p>TODO: doubleClickStragegy?
  * 
  */
 public class PyEditConfiguration extends SourceViewerConfiguration {
@@ -48,7 +45,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 	}
 	
 	/**
-	 * @param color: default return color of this scanner
+	 * @param color - default return color of this scanner
 	 * @return scanner with no rules, that colors all text with default color
 	 */
 	private RuleBasedScanner getColoredScanner(Color color) {
@@ -58,7 +55,9 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		return scanner;
 	}
 	
-	/*
+	/**
+	 * Whitespace detector.
+	 * 
 	 * I know, naming the class after a band that burned
 	 * is not funny, but I've got to get my brain off my
 	 * annoyance with the abstractions of JFace.

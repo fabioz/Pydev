@@ -36,7 +36,7 @@ public class ImageCache {
 	}
 
 	/**
-	 * @param key: relative path to the plugin directory
+	 * @param key - relative path to the plugin directory
 	 * @return the image
 	 */
 	public Image get(String key) {

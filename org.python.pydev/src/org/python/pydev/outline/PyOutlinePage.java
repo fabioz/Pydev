@@ -138,7 +138,7 @@ public class PyOutlinePage extends ContentOutlinePage  {
 	}
 
 	/**
-	 * @args doSort : sort or not?
+	 * @param doSort : sort or not?
 	 */
 	public void setAlphaSort(boolean doSort) {
 		if (sortByNameSorter == null) {

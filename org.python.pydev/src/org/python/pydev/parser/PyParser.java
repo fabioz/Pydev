@@ -143,10 +143,11 @@ public class PyParser {
 	void reparseDocument() {
 		StringReader inString = new StringReader(document.get());
 		ReaderCharStream in = new ReaderCharStream(inString);
-		PythonGrammar grammar = new PythonGrammar(in);
-		grammar.setCompilerAPI(new CompilerAPI());
+		PythonGrammar grammar = new PythonGrammar(in, new CompilerAPI());
 		
 		IEditorInput input = editorView.getEditorInput();
+		if (input == null)
+			return;
 		IFile original= (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
 		try {
 			SimpleNode newRoot = grammar.file_input(); // parses the file

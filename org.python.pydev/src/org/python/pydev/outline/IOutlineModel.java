@@ -28,7 +28,7 @@ public interface IOutlineModel {
 	int compare(Object e1, Object e2);
 	/**
 	 * this will be called in response to selection event
-	 * @param sel: new selection
+	 * @param sel new selection
 	 * @return Point that contains line/column, or item to be selected
 	 */
 	SelectThis selectionChanged(StructuredSelection sel);
