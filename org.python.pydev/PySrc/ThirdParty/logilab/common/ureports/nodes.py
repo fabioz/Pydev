@@ -18,7 +18,7 @@
 A Universal report is a tree of layout and content objects
 """
 
-__revision__ = "$Id: nodes.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: nodes.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 from logilab.common.tree import VNode
 

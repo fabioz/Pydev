@@ -17,7 +17,7 @@
 Help to generate SQL string usable by the Python DB-API
 """
 
-__revision__ = "$Id: sqlgen.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: sqlgen.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 
 # SQLGenerator ################################################################

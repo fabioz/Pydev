@@ -1,9 +1,3 @@
-import sys
-import os.path
-#HACK - TODO:Fix it!!
-sys.path.insert(1, os.path.join(os.path.dirname("D:/dev_programs/eclipse_3/eclipse/workspace/org.python.pydev/PySrc/") , "ThirdParty"))
-
-
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -22,7 +16,7 @@ sys.path.insert(1, os.path.join(os.path.dirname("D:/dev_programs/eclipse_3/eclip
 Logilab common libraries
 """
 
-__revision__ = "$Id: __init__.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: __init__.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 # FIXME: move all those functions in a separated module
 

@@ -16,7 +16,7 @@
 exceptions checkers for Python code
 """
 
-__revision__ = '$Id: exceptions.py,v 1.1 2004-10-26 12:52:30 fabioz Exp $'
+__revision__ = '$Id: exceptions.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $'
 
 from logilab.common import astng
 
@@ -79,7 +79,7 @@ class ExceptionsChecker(BaseChecker, CheckerHandler):
             except astng.ResolveError:
                 pass
             else:
-                if type(value) in (type(''), type(u'')):
+                if isinstance(value, astng.Const):
                     self.add_message('W0701', node=node)
             
     def visit_tryexcept(self, node):
@@ -91,7 +91,8 @@ class ExceptionsChecker(BaseChecker, CheckerHandler):
             if exc_type is None:
                 if len(node.handlers) == 1 and not is_raising(stmt):
                     # FIXME: unable to get the correct line num !
-                    # need to patch ast 
+                    # need to patch ast
+                    
                     self.add_message('W0702', node=stmt.nodes[0])
             elif exc_type.as_string() == 'Exception':
                 # check if a "except Exception:" is followed by some other

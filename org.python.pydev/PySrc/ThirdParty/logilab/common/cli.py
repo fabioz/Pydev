@@ -20,7 +20,7 @@
  configuration with completion and persistent history
 """
 
-__revision__ = "$Id: cli.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: cli.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 
 if not __builtins__.has_key('_'):
@@ -96,6 +96,8 @@ class CLIHelper:
                 try:
                     cmd = 'do_%s' % self.commands[args[0]]
                     getattr(self, cmd)(*args[1:])
+                except EOFError:
+                    break
                 except:
                     import traceback
                     traceback.print_exc()

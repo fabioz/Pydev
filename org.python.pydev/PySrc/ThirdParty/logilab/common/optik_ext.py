@@ -28,13 +28,13 @@ It also defines three new types for optik/optparse command line parser :
 
 """
 
-__revision__ = '$Id: optik_ext.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $'
+__revision__ = '$Id: optik_ext.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $'
 
 try:
     # python >= 2.3
     from optparse import OptionParser as BaseParser, Option as BaseOption, \
          OptionGroup, OptionValueError, Values
-except:
+except Exception, ex:
     # python < 2.3
     from optik import OptionParser as BaseParser, Option as BaseOption, \
          OptionGroup, OptionValueError, Values
@@ -87,16 +87,33 @@ def check_named(option, opt, value):
 <NAME>:<VALUE>"
     raise OptionValueError(msg % (opt, value))
 
+import types
 
-class Option (BaseOption):
-    """override optik.Option to add some new types
+class Option(BaseOption):
+    """override optik.Option to add some new option types
     """
-    TYPES = BaseOption.TYPES + ("regexp", "csv", 'yn', 'named')
+    TYPES = BaseOption.TYPES + ("regexp", "csv", 'yn', 'named', "multiple_choice")
     TYPE_CHECKER = copy(BaseOption.TYPE_CHECKER)
     TYPE_CHECKER["regexp"] = check_regexp
     TYPE_CHECKER["csv"] = check_csv
     TYPE_CHECKER["yn"] = check_yn
     TYPE_CHECKER["named"] = check_named
+    TYPE_CHECKER["multiple_choice"] = check_csv
+
+    def _check_choice(self):
+        """FIXME: need to override this due to optik misdesign"""
+        if self.type in ("choice", "multiple_choice"):
+            if self.choices is None:
+                raise OptionError(
+                    "must supply a list of choices for type 'choice'", self)
+            elif type(self.choices) not in (types.TupleType, types.ListType):
+                raise OptionError(
+                    "choices must be a list of strings ('%s' supplied)"
+                    % str(type(self.choices)).split("'")[1], self)
+        elif self.choices is not None:
+            raise OptionError(
+                "must not supply choices for type %r" % self.type, self)
+    BaseOption.CHECK_METHODS[2] = _check_choice
 
     
 class OptionParser(BaseParser):
@@ -104,7 +121,6 @@ class OptionParser(BaseParser):
     """
     def __init__(self, option_class=Option, *args, **kwargs):
         BaseParser.__init__(self, option_class=Option, *args, **kwargs)
-        
     
 __all__ = ('OptionParser', 'Option', 'OptionGroup', 'OptionValueError',
            'Values')

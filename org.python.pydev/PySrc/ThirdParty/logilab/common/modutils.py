@@ -16,12 +16,12 @@
 module manipulation utilities
 """
 
-__revision__ = "$Id: modutils.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: modutils.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 from __future__ import nested_scopes
 import os
 import sys
-from os.path import walk, splitext, join, abspath, isdir, dirname, exists, normpath
+from os.path import walk, splitext, join, abspath, isdir, dirname, exists
 from imp import find_module, load_module
 
 # get standard library directory for the running python version
@@ -55,10 +55,10 @@ def load_module_from_parts(parts, path=None, use_sys=1, prefix=None):
 def modpath_from_file(filename):
     """given an absolute file path return the python module's path as a list
     """
-    base, ext = splitext(normpath(abspath(filename)))
+    base, ext = splitext(abspath(filename))
     base = base.lower()
     for path in sys.path:
-        path = normpath(abspath(path)).lower()
+        path = abspath(path).lower()
         if path and base[:len(path)] == path:
             if filename.find('site-packages') != -1 and \
                    path.find('site-packages') == -1:
@@ -175,6 +175,7 @@ def is_standard_module(modname, std_path=(STD_LIB_DIR,)):
         except:
             return 0
     for path in std_path:
+        path = abspath(path)
         if filename.startswith(path):
             pfx_len = len(path)
             if filename[pfx_len+1:pfx_len+14] != 'site-packages':

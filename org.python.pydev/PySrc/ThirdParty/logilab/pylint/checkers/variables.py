@@ -16,7 +16,7 @@
 variables checkers for Python code
 """
 
-__revision__ = "$Id: variables.py,v 1.1 2004-10-26 12:52:30 fabioz Exp $"
+__revision__ = "$Id: variables.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $"
 
 from copy import copy
 
@@ -69,6 +69,11 @@ class VariablesChecker(BaseChecker, CheckerHandler):
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help' : 'Tells wether we should check for unused import in \
 __init__ files.'}),
+               ("dummy-variables",
+                {'default': ('_', 'dummy'), 'type' : 'csv',
+                 'metavar' : '<comma separated list>',
+                 'help' : 'List of variable names used for dummy variables \
+(i.e. not used).'}),
                )
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -142,13 +147,17 @@ __init__ files.'}),
         """
         not_consumed = self._to_consume.pop()[0]
         is_method = node.is_method()
-        klass = node.parent.get_frame().object
-        if is_method and ((klass and is_interface(klass)) or
-                          is_abstract(node)):
+        klass = node.parent.get_frame()
+        # don't check arguments of abstract methods or within an interface
+        if is_method and (is_interface(klass) or is_abstract(node)):
             return
         if is_error(node):
             return
+        authorized = self.config.dummy_variables
         for name, stmt in not_consumed.items():
+            # ignore some special names specified by user configuration
+            if name in authorized:
+                continue
             # ignore names imported by the global statement
             # FIXME: should only ignore them if it's assigned latter
             if isinstance(stmt, astng.Global):

@@ -16,39 +16,44 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """pylint packaging information"""
 
-__revision__ = '$Id: __pkginfo__.py,v 1.1 2004-10-26 12:52:28 fabioz Exp $'
+__revision__ = '$Id: __pkginfo__.py,v 1.2 2004-10-26 14:18:33 fabioz Exp $'
 
 
 modname = 'pylint'
 
-numversion = (0, 4, 2)
+numversion = (0, 5, 0)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
 copyright = '''Copyright (c) 2003-2004 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr'''
 
-short_desc = "Python code static checker"
-long_desc = """Pylint is tool to analyze Python source code looking for bugs and signs
-  of poor quality. It can check if a module satisfies a coding standard.
-  Pylint can be seen as another PyChecker since nearly all tests you can
-  do with PyChecker can also be done with Pylint. However, Pylint offers
-  some more features, like checking line-code's length, checking if
-  variable names are well-formed according to your coding standard, or
-  checking if declared interfaces are truly implemented, and much more.
-  .
-  Additionnaly, it is possible to write plugins to add your own checks,
-  using a plugin mechanism."""
+short_desc = "python code static checker"
+long_desc = """\
+ Pylint is a Python source code analizer which looks for programming
+ errors, helps enforcing a coding standard and sniffs for some code
+ smells (as defined in Martin Fowler's Refactoring book)
+ .
+ Pylint can be seen as another PyChecker since nearly all tests you
+ can do with PyChecker can also be done with Pylint. However, Pylint
+ offers some more features, like checking length of lines of code,
+ checking if variable names are well-formed according to your coding
+ standard, or checking if declared interfaces are truly implemented,
+ and much more.
+ .
+ Additionnaly, it is possible to write plugins to add your own
+ checks, using a plugin mechanism."""
 
 author = "Sylvain Thenault"
 author_email = "sylvain.thenault@logilab.fr"
 
-web = "http://www.logilab.org/projects/%s/" % modname
-ftp = "ftp://ftp.logilab.org/pub/%s/" % modname
+web = "http://www.logilab.org/projects/%s" % modname
+ftp = "ftp://ftp.logilab.org/pub/%s" % modname
 mailinglist = "mailto://python-projects@lists.logilab.org"
 
 from os.path import join
-scripts = (join('bin','pylint'), join('bin','pylint-gui'))
+scripts = [join('bin', filename)
+           for filename in ('pylint', 'pylint-gui', "symilar")]
 
 subpackage_of = 'logilab'
 
@@ -57,4 +62,4 @@ include_dirs = [join('test', 'input'), join('test', 'messages')]
 pyversions = ["2.2", "2.3"]
 
 debian_maintainer = 'Alexandre Fayolle'
-debian_maintainer_email = 'alexandre.fayolle@logilab.fr'
+debian_maintainer_email = 'afayolle@debian.org'

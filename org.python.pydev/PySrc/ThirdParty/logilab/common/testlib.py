@@ -22,7 +22,7 @@ If no non-option arguments are present, prefixes used are 'test',
 
 """
 
-__revision__ = "$Id: testlib.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: testlib.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 import sys
 import os

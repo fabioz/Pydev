@@ -87,7 +87,7 @@ on From and Import :
 from __future__ import generators
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: astng.py,v 1.1 2004-10-26 12:52:31 fabioz Exp $"
+__revision__ = "$Id: astng.py,v 1.2 2004-10-26 14:18:36 fabioz Exp $"
 
 from compiler.ast import *
 from inspect import isclass
@@ -201,10 +201,12 @@ def resolve(node, name):
                 raise ResolveError(name)
             if name in ('None', 'True', 'False'):
                 return Const(eval(name))
-            if frame.name == '__builtin__' or not isclass(object):
+            module = getattr(object, '__module__', '__builtin__')
+            # the first test avoid infinite loops
+            if frame.name.split('.')[-1] == module or not isclass(object):
                 raise ResolveError(name)
             # FIXME: may not be a class
-            return ASTNGManager().astng_from_class(object, '__builtin__')
+            return ASTNGManager().astng_from_class(object, module)
     # nodes with "object" attribute are final objects such as class / function
     # definitions
     if hasattr(stmt, 'object'):
@@ -234,7 +236,12 @@ def resolve(node, name):
         if modname == getattr(node, 'name', None):
             # FIXME: I don't know what to do here...
             raise ResolveError(name)
-        module = ASTNGManager().astng_from_module_name(modname)
+        try:
+            module = ASTNGManager().astng_from_module_name(modname)
+        except SyntaxError:
+            # FIXME
+            raise ResolveError(name)
+            
         assert not (module is node and obj == name), \
                str((node.file, node.name, name))
         if obj:
@@ -268,6 +275,49 @@ def resolve_all(node, names):
 Node.resolve_all = resolve_all
 
 
+# module class dict/iterator interface ########################################
+
+def node_getitem(node, item):
+    # FIXME: for class sort keys according to line number
+    return node.locals[item]
+def node_iter(node):
+    return iter(node.keys())
+def node_keys(node):
+    try:
+        return node.__keys
+    except AttributeError:
+        keys = [n.name for n in node.locals.values()
+                if (isinstance(n, Function) or isinstance(n, Class))
+                    and n.parent.get_frame() is node]
+        node.__keys = keys
+        return keys 
+def node_values(node):
+    return [node[key] for key in node.keys()]
+def node_items(node):
+    return zip(node.keys(), node.values())
+
+def module_values(node):
+    return node.locals.values()
+def module_items(node):
+    return node.locals.items()
+Module.__getitem__ = node_getitem
+Module.__iter__ = node_iter
+Module.keys = node_keys
+Module.values = node_values
+Module.items = node_items
+
+Class.__getitem__ = node_getitem
+Class.__iter__ = node_iter
+Class.keys = node_keys
+Class.values = node_values
+Class.items = node_items
+
+Function.__getitem__ = node_getitem
+Function.__iter__ = node_iter
+Function.keys = node_keys
+Function.values = node_values
+Function.items = node_items
+
 # Module  #####################################################################
 
 def module_get_statement(node):
@@ -276,7 +326,6 @@ def module_get_statement(node):
     return node
 
 Module.get_statement = module_get_statement
-
 
 # Function  ###################################################################
 
@@ -384,7 +433,8 @@ def get_method(node, name):
 Class.get_method = get_method
 
 def methods(node, inherited=True):
-    """return an iterator on all defined methods in the class
+    """return an iterator on all defined methods in the class (including
+    inherited methods by default)
     """
     if inherited:
         done = {}

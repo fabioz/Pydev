@@ -16,28 +16,30 @@
 imports checkers for Python code
 """
 
-__revision__ = "$Id: imports.py,v 1.1 2004-10-26 12:52:30 fabioz Exp $"
+__revision__ = "$Id: imports.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $"
 
 from os.path import dirname
 
 from logilab.common import get_cycles, astng
 from logilab.common.modutils import is_standard_module, is_relative, \
-     get_module_part, STD_LIB_DIR
-from logilab.common.ureports import VerbatimText
+     get_module_part
+from logilab.common.ureports import VerbatimText, Text
 
 from logilab.pylint.interfaces import IASTNGChecker
 from logilab.pylint.checkers import BaseChecker, CheckerHandler, EmptyReport
 from logilab.pylint.checkers.utils import are_exclusive
 
 
-# utilities to represents imports as tree ######################################
+# utilities to represents import dependencies as tree and dot graph ###########
 
-def make_tree_defs(mod_files_list):
+def make_tree_defs(mod_files_list, package_dir):
     """get a list of 2-uple (module, list_of_files_which_import_this_module),
     it will return a dictionnary to represent this as a tree
     """
     tree_defs = {}
     for mod, files in mod_files_list:
+        if is_standard_module(mod, (package_dir,)):
+            continue
         node = (tree_defs, ())
         for prefix in mod.split('.'):
             node = node[0].setdefault(prefix, [{}, []])
@@ -67,20 +69,35 @@ def repr_tree_defs(data, indent_str=None):
             lines.append(repr_tree_defs(sub, sub_indent_str))
     return '\n'.join(lines)
 
+def dot_node(modname):
+    """return the string representation for a dot node"""
+    return '"%s" [ label="%s" ];' % (modname, modname)
+
+def dot_edge(from_, to_):
+    """return the string representation for a dot edge between two nodes"""
+    return'"%s" -> "%s" [ ] ;' % (from_, to_)
+
+DOT_HEADERS = '''rankdir="LR" URL="." concentrate=false
+edge[fontsize="10" ]
+node[width="0" height="0" fontsize="12" fontcolor="black"]'''
+
+# the import checker itself ###################################################
+
 MSGS = {
     'F0401': ('Unable to import %r (%s)' ,
               'Used when pylint has been unable to import a module.'),
-    'W0401': ('Cyclic import (%s)',
+    'R0401': ('Cyclic import (%s)',
               'Used when a cyclic import between two or more modules is \
               detected.'),
-    'W0402': ('Wildcard import',
+    
+    'W0401': ('Wildcard import',
               'Used when "from module import *" is detected.'),
-    'W0403': ('Uses of a deprecated module %r',
+    'W0402': ('Uses of a deprecated module %r',
               'Used a module marked as deprecated is imported.'),
-    'W0404': ('Relative import %r',
+    'W0403': ('Relative import %r',
               'Used when an import relative to the package directory is \
               detected.'),
-    'W0405': ('Reimport %r (imported line %s)',
+    'W0404': ('Reimport %r (imported line %s)',
               'Used when a module is reimported multiple times.'),
     'W0406': ('Module import itself',
               'Used when a module is importing itself.'),
@@ -117,22 +134,25 @@ separated by a comma'}
         self.import_graph = None
         self.reports = (('R0401', 'External dependencies',
                          self.report_external_dependencies),
+                        ('R0402', 'Module dependencies graph',
+                         self.report_dependencies_graph),
                         )
+        self.linter.disable_report('R0402')
         
     def open(self):
-        """called before visiting project (i.e set of modules) """
+        """called before visiting project (i.e set of modules)"""
         self.linter.add_stats(dependencies={})
         self.linter.add_stats(cycles=[])
         self.stats = self.linter.stats
         self.import_graph = {}
         
     def close(self):
-        """called before visiting project (i.e set of modules) """
+        """called before visiting project (i.e set of modules)"""
         for cycle in get_cycles(self.import_graph):
-            self.add_message('W0401', args=' -> '.join(cycle))
+            self.add_message('R0401', args=' -> '.join(cycle))
          
     def visit_import(self, node):
-        """triggered when an import statement is seen """
+        """triggered when an import statement is seen"""
         for name, asname in node.names:
             self.check_deprecated(node, name)
             relative = self.check_relative(node, name)
@@ -142,13 +162,13 @@ separated by a comma'}
         
 
     def visit_from(self, node):
-        """triggered when an import statement is seen """
+        """triggered when an import statement is seen"""
         basename = node.modname
         self.check_deprecated(node, basename)
         relative = self.check_relative(node, basename)
         for name, asname in node.names:
             if name == '*':
-                self.add_message('W0402', node=node)
+                self.add_message('W0401', node=node)
                 continue
             # handle reimport
             self.check_reimport(node, asname or name)
@@ -169,22 +189,20 @@ separated by a comma'}
         if relative:
             mod_path = '%s.%s' % ('.'.join(context_name.split('.')[:-1]),
                                   mod_path)
-            
-        package_dir = dirname(self.linter.base_file)
         if context_name == mod_path:
             # module importing itself !
             self.add_message('W0406', node=node)
-        elif not is_standard_module(mod_path, (STD_LIB_DIR, package_dir)):
+        elif not is_standard_module(mod_path):
             # handle dependancies
             mod_paths = self.stats['dependencies'].setdefault(mod_path, [])
             if not context_name in mod_paths:
                 mod_paths.append(context_name)
-        else:
-            # update import graph
-            mgraph = self.import_graph.setdefault(context_name, [])
-            if not mod_path in mgraph:
-                mgraph.append(mod_path)
-            self.import_graph.setdefault(mod_path, [])
+            if is_standard_module(mod_path, (dirname(self.linter.base_file))):
+                # update import graph
+                mgraph = self.import_graph.setdefault(context_name, [])
+                if not mod_path in mgraph:
+                    mgraph.append(mod_path)
+                self.import_graph.setdefault(mod_path, [])
 
     def check_relative(self, node, mod_path):
         """check relative import module
@@ -193,7 +211,7 @@ separated by a comma'}
         context_file = node.root().file
         relative = is_relative(mod_path, context_file)
         if relative:
-            self.add_message('W0404', args=mod_path, node=node)
+            self.add_message('W0403', args=mod_path, node=node)
         return relative
     
     def check_deprecated(self, node, mod_path):
@@ -201,38 +219,64 @@ separated by a comma'}
         """
         for mod_name in self.config.deprecated_modules:
             if mod_path.startswith(mod_name):
-                self.add_message('W0403', node=node, args=mod_path)
+                self.add_message('W0402', node=node, args=mod_path)
                 
     def check_reimport(self, node, name):
         """check if the import is necessary (i.e. not already done)
         """
         first = node.get_frame().locals.get(name)
         if not (isinstance(first, astng.Import) or
-                isinstance(first, astng.Import)):
+                isinstance(first, astng.From)):
             return
         if first is not None and first is not node and \
                not are_exclusive(first, node):
-            self.add_message('W0405', node=node, args=(name, first.lineno))
+            self.add_message('W0404', node=node, args=(name, first.lineno))
         else:
             first = node.root().globals.get(name)
             if not (isinstance(first, astng.Import) or
-                    isinstance(first, astng.Import)):
+                    isinstance(first, astng.From)):
                 return
             if first is not None and first is not node and \
                    not are_exclusive(first, node):
-                self.add_message('W0405', node=node,
+                self.add_message('W0404', node=node,
                                  args=(name + '???', first.lineno))
 
         
     def report_external_dependencies(self, sect, stats, old_stats):
         """return a verbatim layout for displaying dependancies
         """
-        dep_info = make_tree_defs(self.stats['dependencies'].items())
+        dep_info = make_tree_defs(self.stats['dependencies'].items(),
+                                  dirname(self.linter.base_file))
         if not dep_info:
             raise EmptyReport()
         tree_str = repr_tree_defs(dep_info)
         sect.append(VerbatimText(tree_str))
-    
+        
+    def report_dependencies_graph(self, sect, stats, old_stats):
+        """write dependancies as a dot (graphviz) file"""
+        dep_info = self.stats['dependencies']        
+        if not dep_info:
+            raise EmptyReport()
+        done = {}
+        filename = 'import_dependancies.dot'
+        stream = open(filename, 'w')
+        print >> stream, "digraph g {"
+        print >> stream, DOT_HEADERS
+        for modname, dependancies in dep_info.items():
+            done[modname] = 1
+            print >> stream, dot_node(modname)
+            for modname in dependancies:
+                if not done.has_key(modname):
+                    done[modname] = 1
+                    print >> stream, dot_node(modname)
+        for depmodname, dependancies in dep_info.items():
+            for modname in dependancies:
+                print >> stream, dot_edge(modname, depmodname)
+        print >> stream,'}'
+        stream.close()
+        sect.append(Text('import graph has been written to %s' % filename))
+
+
             
 def register(linter):
     """required method to auto register this checker """

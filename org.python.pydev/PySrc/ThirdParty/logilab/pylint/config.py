@@ -18,7 +18,7 @@
    _ pylint.d (PYLINT_HOME)
 """
 
-__revision__ = "$Id: config.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: config.py,v 1.2 2004-10-26 14:18:33 fabioz Exp $"
 
 import pickle
 import os
@@ -40,36 +40,33 @@ if not exists(PYLINT_HOME):
     try:
         os.mkdir(PYLINT_HOME)
     except OSError:
-        print 'Unable to create directory %s' % PYLINT_HOME
+        print >> sys.stderr, 'Unable to create directory %s' % PYLINT_HOME
 
 def get_pdata_path(base_name, recurs):
-    """
-    return the path of the file which should contain old search data for the
+    """return the path of the file which should contain old search data for the
     given base_name with the given options values
     """
     return join(PYLINT_HOME, "%s%s%s"%(base_name, recurs, '.stats'))
     
 def load_results(base):
-    """
-    try to unpickle and return data from file if it exists and is not corrupted
+    """try to unpickle and return data from file if it exists and is not
+    corrupted
+    
     return an empty dictionary if it doesn't exists
     """
     data_file = get_pdata_path(base, 1)        
-    if exists(data_file):
-        try:
-            return pickle.load(open(data_file))
-        except:
-            return {}
-    return {}
+    try:
+        return pickle.load(open(data_file))
+    except:
+        return {}
 
 def save_results(results, base):
-    """pickle results
-    """
+    """pickle results"""
     data_file = get_pdata_path(base, 1)
     try:
         pickle.dump(results, open(data_file, 'w'))
     except OSError:
-        print 'Unable to create file %s' % data_file
+        print >> sys.stderr, 'Unable to create file %s' % data_file
     
 # location of the configuration file ##########################################
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-# pylint: disable-msg=W0404,W0622,W0704,W0613,W0152
+# pylint: disable-msg=W0404,W0622,W0704,W0613,W0403
+#
 # Copyright (c) 2003 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
@@ -17,14 +18,13 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """ Generic Setup script, takes package info from __pkginfo__.py file """
 
-__revision__ = '$Id: setup.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $'
+__revision__ = '$Id: setup.py,v 1.2 2004-10-26 14:18:33 fabioz Exp $'
 
 from __future__ import nested_scopes
 import os
 import sys
 import shutil
 from distutils.core import setup
-from distutils import command
 from distutils.command import install_lib
 from os.path import isdir, exists, join, walk
 
@@ -111,7 +111,7 @@ def export(from_dir, to_dir,
                 continue
             src = '%s/%s' % (directory, filename)
             dest = to_dir + src[len(from_dir):]
-            print src, '->', dest
+            print >> sys.stderr, src, '->', dest
             if os.path.isdir(src):
                 if not exists(dest):
                     os.mkdir(dest)
@@ -131,10 +131,13 @@ def export(from_dir, to_dir,
 
 EMPTY_FILE = '"""generated file, don\'t modify or your data will be lost"""\n'
 
-class InstallLib(command.install_lib.install_lib):
-
+class InstallLib(install_lib.install_lib):
+    """custom distutils 'install' command"""
+    
     def run(self):
-        command.install_lib.install_lib.run(self)
+        """run the install command with handling of the logilab/__init__.py file
+        """
+        install_lib.install_lib.run(self)
         # create Products.__init__.py if needed
         product_init = join(self.install_dir, 'logilab', '__init__.py')
         if not exists(product_init):

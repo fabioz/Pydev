@@ -1,6 +1,6 @@
 """Tkinker gui for pylint"""
 
-__revision__ = '$Id: gui.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $'
+__revision__ = '$Id: gui.py,v 1.2 2004-10-26 14:18:33 fabioz Exp $'
 
 from Tkinter import Tk, Frame, Listbox, Entry, Label, Button, Scrollbar
 from Tkinter import TOP, LEFT, RIGHT, BOTTOM, END, X, Y, BOTH
@@ -49,11 +49,11 @@ class LintGui:
         """lauch the mainloop of the application"""
         self.root.mainloop()
 
-    def quit(self, event=None):
+    def quit(self, _=None):
         """quit the application"""
         self.root.quit()
 
-    def run_lint(self, event=None):
+    def run_lint(self, _=None):
         """lauches pylint"""
         colors = {'W:':'red1', 'E:': 'red4',
                   'W:': 'red3', '**': 'navy'}

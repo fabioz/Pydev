@@ -16,7 +16,7 @@
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
-__revision__ = "$Id: xmlrpcutils.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: xmlrpcutils.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 import xmlrpclib
 from base64 import encodestring

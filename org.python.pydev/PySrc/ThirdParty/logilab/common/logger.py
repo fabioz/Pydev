@@ -17,7 +17,7 @@ Define a logger interface and two concrete loggers : one which prints
 everything on stdout, the other using syslog.
 """
 
-__revision__ = "$Id: logger.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: logger.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 
 import sys
@@ -65,6 +65,7 @@ class AbstractLogger:
         """log a message with priority <priority>
         substs are optional substrings
         """
+        #print 'LOG', self, priority, self.threshold, message
         if priority <= self.threshold :
             if substs is not None:
                 message = message % substs

@@ -10,7 +10,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2000-2003 LOGILAB S.A. (Paris, FRANCE).
+""" Copyright (c) 2002-2004 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
  basic checker for Python code
@@ -18,7 +18,7 @@
  FIXME : should check constant names !
 """
 
-__revision__ = "$Id: base.py,v 1.1 2004-10-26 12:52:30 fabioz Exp $"
+__revision__ = "$Id: base.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $"
 
 from logilab.common import astng
 from logilab.common.ureports import Table
@@ -61,26 +61,15 @@ MSGS = {
               return value.'),    
     'E0102': ('%s already defined line %s',
               'Used when a function / class / method is redefined.'),
+
     'W0101': ('Unreachable code',
               'Used when there is some code behind a "return" or "raise" \
               statement, which will never be accessed.'),
-    'W0102': ('Dangerous default value %r as argument',
+    'W0102': ('Dangerous default value %s as argument',
               'Used when a mutable value as list or dictionary is detected in \
               a default value for an argument.'),
     'W0103': ('Missing required attribute "%s"',
               'Used when an attribute required for modules is missing.'),
-    
-    'W0111': ('Too many return statements (%s/%s)',
-              'Used when a function or method has too many return statement.'),
-    'W0112': ('Too many branches (%s/%s)',
-              'Used when a function or method has too many branches.'),
-    'W0113': ('Too many arguments (%s/%s)',
-              'Used when a function or method takes too many arguments.'),
-    'W0114': ('Too many local variables (%s/%s)',
-              'Used when a function or method has too many local variables.'),
-    'W0115': ('Too many statements (%s/%s)',
-              'Used when a function or method has too many statements. You \
-              should then split it in smaller functions / methods.'),
     
     'W0121': ('Use of the global statement',
               'Used when you use the "global" statement, to discourage its \
@@ -89,32 +78,33 @@ MSGS = {
               'Used when you use the "exec" statement, to discourage its \
               usage. That doesn\'t mean you can not use it !'),
     
-    'W0131': ('Too short name "%s"',
-              'Used when a variable has a too short name.'),
-    'W0132': ('Black listed name "%s"',
-              'Used when the name is listed in the black list (unauthorized \
-              names).'),
-    'W0133': ('Invalid name "%s" (should match %s)',
-              'Used when the name doesn\'t match the regular expression \
-              associated to its type (constant, variable, class...).'),
-    
-    'W0141': ('Missing docstring',
+    'W0131': ('Missing docstring',
               'Used when a module, function, class or method has no docstring.\
               Some special methods like __init__ doesn\'t necessary require a \
               docstring.'),
-    'W0142': ('Empty docstring',
+    'W0132': ('Empty docstring',
               'Used when a module, function, class or method has an empty \
               docstring (it would be to easy ;).'),
 
-    'W0151': ('Used builtin function %r',
+    'W0141': ('Used builtin function %r',
               'Used when a black listed builtin function is used (see the \
               bad-function option). Usual black listed functions are the ones \
               like map, or filter , where Python offers now some cleaner \
               alternative like list comprehension.'),
-    'W0152': ('Used * or ** magic',
+    'W0142': ('Used * or ** magic',
               'Used when a function or method is called using *args or **kwargs\
               to dispatch arguments. This doesn\'t improve readility and should\
               be used with care.'),
+
+    'C0101': ('Too short name "%s"',
+              'Used when a variable has a too short name.'),
+    'C0102': ('Black listed name "%s"',
+              'Used when the name is listed in the black list (unauthorized \
+              names).'),
+    'C0103': ('Invalid name "%s" (should match %s)',
+              'Used when the name doesn\'t match the regular expression \
+              associated to its type (constant, variable, class...).'),
+    
     }
 
 class BasicChecker(BaseChecker, CheckerHandler):
@@ -134,29 +124,7 @@ functions, methods
     name = 'basic'
     msgs = MSGS
     priority = -1
-    options = (('max-args',
-                {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of arguments for function / method'}
-                ),
-               ('max-locals',
-                {'default' : 15, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of locals for function / method body'}
-                ),
-               ('max-returns',
-                {'default' : 6, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of return / yield for function / '
-                         'method body'}
-                ),
-               ('max-branchs',
-                {'default' : 12, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of branch for function / method body'}
-                ),
-               ('max-statements',
-                {'default' : 50, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of statements in function / method '
-                         'body'}
-                ),
-               ('required-attributes',
+    options = (('required-attributes',
                 {'default' : ('__revision__',), 'type' : 'csv',
                  'metavar' : '<attributes>',
                  'help' : 'Required attributes for module, separated by a '
@@ -210,7 +178,7 @@ functions, methods
                           'variable names'}
                 ),
                ('good-names',
-                {'default' : ('i', 'j', 'k', 'ex', 'Run'),
+                {'default' : ('i', 'j', 'k', 'ex', 'Run', '_'),
                  'type' :'csv', 'metavar' : '<names>',
                  'help' : 'Good variable names which should always be accepted,'
                           ' separated by a comma'}
@@ -235,8 +203,6 @@ functions, methods
         CheckerHandler.__init__(self)
         self.stats = None
         self._returns = None
-        self._branchs = None
-        self._stmts = 0
         self.reports = (('R0101', 'Statistics by type',
                          self.report_by_type_stats),
                         )
@@ -244,6 +210,7 @@ functions, methods
     def open(self):
         """initialize visit variables and statistics
         """
+        self._returns = []
         self.stats = self.linter.add_stats(module=0, constant=0, function=0,
                                            method=0, class_=0, badname_module=0,
                                            badname_class=0, badname_function=0,
@@ -252,9 +219,8 @@ functions, methods
                                            badname_argument=0,
                                            undocumented_module=0,
                                            undocumented_function=0,
+                                           undocumented_method=0,
                                            undocumented_class=0)
-        self._returns = []
-        self._branchs = []
 
     def visit_module(self, node):
         """check module name, docstring and required arguments
@@ -273,41 +239,25 @@ functions, methods
         if self.config.no_docstring_rgx.match(node.name) is None:
             self.check_docstring('class', node)
         self.check_redefinition('class', node)
-        self.inc_branch()
             
     def visit_function(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
         is_method = node.is_method()
-        # init stats and counters for branchs and returns
-        self.stats['function'] += 1
-        self.inc_branch()
         self._returns.append(0)
-        self._branchs.append(0)
+        f_type = is_method and 'method' or 'function'
+        self.stats[f_type] += 1
         # function name
-        if is_method:
-            self.check_name('method', node.name, node)
-        else:
-            self.check_name('function', node.name, node)
+        self.check_name(f_type, node.name, node)
         # docstring
         if self.config.no_docstring_rgx.match(node.name) is None:
-            self.check_docstring('function', node)
+            self.check_docstring(f_type, node)
         # check default arguments'value
-        if node.object and getattr(node.object, 'func_defaults', None):
-            self.check_defaults(node.object.func_defaults, node)
-        # check number of arguments
-        args = node.argnames
-        if args is not None and len(args) > self.config.max_args:
-            self.add_message('W0113', node=node,
-                             args=(len(args), self.config.max_args))
+        self.check_defaults(node)
         # check arguments name
+        args = node.argnames
         self.recursive_check_names(args, node)
-        # check number of local variables
-        locnum = len(node.locals)
-        if locnum > self.config.max_locals:
-            self.add_message('W0114', node=node,
-                             args=(locnum, self.config.max_locals))
         # check local variable, avoiding argument, imported names, global names
         # and current class name if the function is actually a method
         for var, stmt in node.locals.items():
@@ -320,28 +270,14 @@ functions, methods
                 self.check_name('variable', var, stmt)
         # check for redefinition
         self.check_redefinition(is_method and 'method' or 'function', node)
-        # init statements counter
-        self._stmts = 1
 
     def leave_function(self, node):
         """most of the work is done here on close:
         checks for max returns, branch, return in __init__
         """
         is_method = node.is_method()
-        returns = self._returns.pop()
-        if is_method and node.name == '__init__' and returns:
+        if is_method and node.name == '__init__' and self._returns.pop():
             self.add_message('E0101', node=node)
-        elif returns > self.config.max_returns:
-            self.add_message('W0111', node=node,
-                             args=(returns, self.config.max_returns))
-        branchs = self._branchs.pop()
-        if branchs > self.config.max_branchs:
-            self.add_message('W0112', node=node,
-                             args=(branchs, self.config.max_branchs))
-        # check number of statements
-        if self._stmts > self.config.max_statements:
-            self.add_message('W0115', node=node,
-                             args=(self._stmts, self.config.max_statements))
 
     def visit_return(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
@@ -375,53 +311,12 @@ functions, methods
         self.check_unreachable(node)
 
     def visit_global(self, node):
-        """just print a warning on global statements
-        """
+        """just print a warning on global statements"""
         self.add_message('W0121', node=node)
-        self._stmts += 1
         
     def visit_exec(self, node):
-        """just pring a warning on exec statements
-        """
+        """just pring a warning on exec statements"""
         self.add_message('W0122', node=node)
-        self._stmts += 1
-
-    def visit_default(self, node):
-        """default visit method -> increments the statements counter if
-        necessary
-        """
-        if node.is_statement():
-            self._stmts += 1
-
-    def visit_tryexcept(self, node):
-        """increments the branchs counter"""
-        branchs = len(node.handlers)
-        if node.else_:
-            branchs += 1
-        self.inc_branch(branchs)
-        self._stmts += branchs
-        
-    def visit_tryfinally(self, node):
-        """increments the branchs counter"""
-        self.inc_branch(2)
-        self._stmts += 2
-        
-    def visit_if(self, node):
-        """increments the branchs counter"""
-        branchs = len(node.tests)
-        if node.else_:
-            branchs += 1
-        self.inc_branch(branchs)
-        self._stmts += branchs
-        
-    def visit_while(self, node):
-        """increments the branchs counter"""
-        branchs = 1
-        if node.else_:
-            branchs += 1
-        self.inc_branch(branchs)
-        
-    visit_for = visit_while
 
     def visit_callfunc(self, node):
         """visit a CallFunc node -> check if this is not a blacklisted builtin
@@ -434,21 +329,13 @@ functions, methods
             if not (node.get_frame().locals.has_key(name) or
                     node.root().locals.has_key(name)):
                 if name in self.config.bad_functions:
-                    self.add_message('W0151', node=node, args=name)
+                    self.add_message('W0141', node=node, args=name)
         if node.star_args or node.dstar_args:
-            self.add_message('W0152', node=node.node)
+            self.add_message('W0142', node=node.node)
             
-
-    def inc_branch(self, branchsnum=1):
-        """increments the branchs counter"""
-        branchs = self._branchs
-        for i in range(len(branchs)):
-            branchs[i] += branchsnum
-
 
     def check_unreachable(self, node):
         """check unreachable code"""
-        self._stmts += 1
         unreach_stmt = node.next_sibling()
         if unreach_stmt is not None:
             self.add_message('W0101', node=unreach_stmt)
@@ -461,19 +348,17 @@ functions, methods
                              args=(redef_type, defined_self.lineno))
         
     def check_docstring(self, node_type, node):
-        """check the node has a non empty docstring 
-        """
+        """check the node has a non empty docstring"""
         docstring = node.doc
         if docstring is None:
             self.stats['undocumented_'+node_type] += 1
-            self.add_message('W0141', node=node)
+            self.add_message('W0131', node=node)
         elif not docstring.strip():
             self.stats['undocumented_'+node_type] += 1
-            self.add_message('W0142', node=node)
+            self.add_message('W0132', node=node)
             
     def recursive_check_names(self, args, node):
-        """check names in a possibly recursive list <arg>
-        """
+        """check names in a possibly recursive list <arg>"""
         for arg in args:
             if type(arg) is type(''):
                 self.check_name('argument', arg, node)
@@ -486,21 +371,33 @@ functions, methods
             return
         if name in self.config.bad_names:
             self.stats['badname_' + node_type] += 1
-            self.add_message('W0132', node=node, args=name)
+            self.add_message('C0102', node=node, args=name)
             return
         regexp = getattr(self.config, node_type + '_rgx')
         if regexp.match(name) is None:
-            self.add_message('W0133', node=node, args=(name, regexp.pattern))
+            self.add_message('C0103', node=node, args=(name, regexp.pattern))
             self.stats['badname_' + node_type] += 1
         elif len(name) < self.config.min_name_length:
-            self.add_message('W0131', node=node, args=name)
+            self.add_message('C0101', node=node, args=name)
             self.stats['badname_' + node_type] += 1
 
-    def check_defaults(self, defaults, node):
+    def check_defaults(self, node):
         """check for dangerous default values as arguments"""
-        for default_value in defaults:
-            if type(default_value) in (type([]), type({})):
-                self.add_message('W0102', node=node, args=(default_value,))
+        for default in node.defaults:
+            if default.__class__ is astng.Name:
+                try:
+                    value = node.resolve(default.name)
+                except astng.ResolveError:
+                    # FIXME: log error ?
+                    continue
+            else:
+                value = default
+            if value.__class__ in (astng.Dict, astng.List):
+                if value is default:
+                    msg = default.as_string()
+                else:
+                    msg = '%s (%s)' % (default.as_string(), value.as_string())
+                self.add_message('W0102', node=node, args=(msg,))
         
     def check_required_attributes(self, node, attributes):
         """check for required attributes"""

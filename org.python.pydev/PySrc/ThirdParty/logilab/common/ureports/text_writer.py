@@ -15,7 +15,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Text formatting drivers for ureports"""
 
-__revision__ = "$Id: text_writer.py,v 1.1 2004-10-26 12:52:30 fabioz Exp $"
+__revision__ = "$Id: text_writer.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 from os import linesep
 from operator import add

@@ -16,13 +16,12 @@
 Plain text reporter
 """
 
-__revision__ = "$Id: text.py,v 1.1 2004-10-26 12:52:31 fabioz Exp $"
+__revision__ = "$Id: text.py,v 1.2 2004-10-26 14:18:37 fabioz Exp $"
 
 import sys
-import os
 
-from logilab.common.modutils import load_module_from_name
 from logilab.common.ureports import TextWriter
+from logilab.common.textutils import colorize_ansi
 
 from logilab.pylint.interfaces import IReporter
 from logilab.pylint.reporters import BaseReporter
@@ -30,17 +29,17 @@ from logilab.pylint.reporters import BaseReporter
 TITLE_UNDERLINES = ['', '=', '-', '.']
 
 
-def modname_to_path(modname, prefix=os.getcwd() + os.sep):
-    """transform a module name into a path"""
-    module = load_module_from_name(modname).__file__.replace(prefix, '')
-    return module.replace('.pyc', '.py').replace('.pyo', '.py')
+## def modname_to_path(modname, prefix=os.getcwd() + os.sep):
+##     """transform a module name into a path"""
+##     module = load_module_from_name(modname).__file__.replace(prefix, '')
+##     return module.replace('.pyc', '.py').replace('.pyo', '.py')
 
 
 class TextReporter(BaseReporter):
     """reports messages and layouts in plain text
     """
     
-    __implements____ = IReporter
+    __implements__ = IReporter
     extension = 'txt'
     
     def __init__(self, output=sys.stdout):
@@ -49,7 +48,7 @@ class TextReporter(BaseReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
-        module, obj, line = location
+        path, module, obj, line = location
         if not self._modules.has_key(module):
             self.writeln('************* Module %s' % module)
             self._modules[module] = 1
@@ -76,17 +75,68 @@ class TextReporter2(TextReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
-        module, obj, line = location
+        path, module, obj, line = location
         if obj:
             obj = ', %s' % obj
         if self.include_ids:
             sigle = msg_id
         else:
             sigle = msg_id[0]
-        try:
-            modpath = self._modules[module]
-        except KeyError:
-            modpath = self._modules[module] = modname_to_path(module)
-        self.writeln('%s:%s: [%s%s] %s' % (modpath, line, sigle, obj, msg))
-
+##         try:
+##             modpath = self._modules[module]
+##         except KeyError:
+##             modpath = self._modules[module] = self.linter.current_file or \
+##                       modname_to_path(module)
+        self.writeln('%s:%s: [%s%s] %s' % (path, line, sigle, obj, msg))
     
+
+class ColorizedTextReporter(TextReporter):
+    """Simple TextReporter that colorizes text output"""
+
+    COLOR_MAPPING = {
+        "I" : ("green", None),
+        'C' : (None, "bold"),
+        'R' : ("magenta", "bold, italic"),
+        'W' : ("blue", None),
+        'E' : ("red", "bold"),
+        'F' : ("red", "bold, underline"),
+        'S' : ("yellow", "inverse"), # S stands for module Separator
+    }
+
+    def __init__(self, output=sys.stdout, color_mapping = None):
+        TextReporter.__init__(self, output)
+        self.color_mapping = color_mapping or \
+                             dict(ColorizedTextReporter.COLOR_MAPPING)
+       
+
+    def _get_decoration(self, msg_id):
+        """Returns the tuple color, style associated with msg_id as defined
+        in self.color_mapping
+        """
+        try:
+            return self.color_mapping[msg_id]
+        except KeyError:
+            return None, None
+
+    def add_message(self, msg_id, location, msg):
+        """manage message of different types, and colorize output
+        using ansi escape codes
+        """
+        path, module, obj, line = location
+        if not self._modules.has_key(module):
+            color, style = self._get_decoration('S')
+            modsep = colorize_ansi('************* Module %s' % module,
+                                   color, style)
+            self.writeln(modsep)
+            self._modules[module] = 1
+        if obj:
+            obj = ':%s' % obj
+        if self.include_ids:
+            sigle = msg_id
+        else:
+            sigle = msg_id[0]
+        color, style = self._get_decoration(sigle)
+        msg = colorize_ansi(msg, color, style)
+        sigle = colorize_ansi(sigle, color, style)
+        self.writeln('%s:%3s%s: %s' % (sigle, line, obj, msg))
+ 

@@ -16,7 +16,7 @@
 """A generic function to get a database connection.
 """
 
-__revision__ = "$Id: db.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: db.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 import sys
 

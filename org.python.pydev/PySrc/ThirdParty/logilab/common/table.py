@@ -1,22 +1,9 @@
 """Table management module
 """
 
-__revision__ = '$Id: table.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $'
+__revision__ = '$Id: table.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $'
 
-
-def enumerate(iterable):
-    """emulates the python2.3 enumerate() function
-    """
-    return zip(range(len(iterable)), iterable)
-
-
-def sum(seq):
-    """Returns the sum of all elements in the sequence
-    """
-    total = 0
-    for element in seq:
-        total += element
-    return total
+from logilab.common.compat import enumerate, sum
 
 
 class Table:

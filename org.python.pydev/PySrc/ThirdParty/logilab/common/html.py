@@ -14,7 +14,7 @@
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
-__revision__ = "$Id: html.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: html.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 # mk html traceback error #####################################################
 def html_traceback(info, exception,

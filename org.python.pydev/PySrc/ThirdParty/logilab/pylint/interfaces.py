@@ -16,7 +16,7 @@
 Interfaces for PyLint objects
 """
 
-__revision__ = "$Id: interfaces.py,v 1.1 2004-10-26 12:52:28 fabioz Exp $"
+__revision__ = "$Id: interfaces.py,v 1.2 2004-10-26 14:18:33 fabioz Exp $"
 
 from logilab.common.interface import Interface
 

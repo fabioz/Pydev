@@ -16,7 +16,7 @@
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
-__revision__ = "$Id: __init__.py,v 1.1 2004-10-26 12:52:31 fabioz Exp $"
+__revision__ = "$Id: __init__.py,v 1.2 2004-10-26 14:18:37 fabioz Exp $"
 
 import sys
 
@@ -26,14 +26,13 @@ def diff_string(old, new):
     """given a old and new int value, return a string representing the
     difference
     """
-    #try:
     diff = abs(old - new)
-    diff_str = "%s%s" % (CMPS[old.__cmp__(new)], diff or '')
-    #except Exception, ex:
-    #    # the int.__cmp__ doesn't work with python < 2.2
-    #    diff_str = str(ex)
+    diff_str = "%s%s" % (CMPS[cmp(old, new)], diff and ('%.2f' % diff) or '')
     return diff_str
 
+
+class EmptyReport(Exception):
+    """raised when a report is empty and so should not be displayed"""
 
 class BaseReporter:
     """base class for reporters"""
@@ -41,11 +40,12 @@ class BaseReporter:
     extension = ''
     
     def __init__(self, output=sys.stdout):
+        self.linter = None
         self.include_ids = None
         self.section = 0
         self.out = None
         self.set_output(output)
-
+        
     def set_output(self, output):
         """set output stream"""
         self.out = output

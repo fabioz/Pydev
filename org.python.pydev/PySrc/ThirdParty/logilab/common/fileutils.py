@@ -17,7 +17,7 @@
 Some file / file path manipulation utilities
 """
 
-__revision__ = "$Id: fileutils.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: fileutils.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 from __future__ import nested_scopes
 import sys
@@ -25,7 +25,8 @@ import re
 import shutil
 import mimetypes
 from os.path import isabs, isdir, split, exists, walk, normpath, join
-from os import sep, linesep, mkdir, remove, listdir
+from os import sep, linesep, mkdir, remove, listdir, stat, chmod
+from stat import ST_MODE
 from cStringIO import StringIO
 from sys import version_info
 
@@ -193,7 +194,9 @@ def export(from_dir, to_dir,
     walk(from_dir, make_mirror, None)
 
 def get_by_ext(directory, include_exts=(), exclude_exts=()):
-    """return a list of files in a directory matching some extensions 
+    """return a list of files in a directory matching some extensions
+
+    subdirectories are processed recursivly.
     """
     assert not (include_exts and exclude_exts)
     result = []
@@ -223,3 +226,13 @@ def get_by_ext(directory, include_exts=(), exclude_exts=()):
                     result += get_by_ext(join(directory, fname),
                                          include_exts, exclude_exts)
     return result
+
+
+def ensure_mode(filepath, desired_mode):
+    """check that the given file has the given mode set, else try to set it
+
+    use constants from the `stat` module for file permission's modes
+    """
+    mode = stat(filepath)[ST_MODE]
+    if not mode & desired_mode:
+        chmod(filepath, mode | desired_mode)

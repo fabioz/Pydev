@@ -14,7 +14,7 @@
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
-__revision__ = "$Id: configuration.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: configuration.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 import sys
 import re
@@ -38,6 +38,17 @@ def choice_validator(opt_dict, name, value):
         raise OptionValueError(msg % (name, value, opt_dict['choices']))
     return value
 
+def multiple_choice_validator(opt_dict, name, value):
+    """validate and return a converted value for option of type 'choice'
+    """
+    choices = opt_dict['choices']
+    values = check_csv(None, name, value)
+    for value in values:
+        if not value in choices:
+            msg = "option %s: invalid value: %r, should be in %s"
+            raise OptionValueError(msg % (name, value, choices))
+    return values
+
 def csv_validator(opt_dict, name, value):
     """validate and return a converted value for option of type 'csv'
     """
@@ -54,7 +65,8 @@ VALIDATORS = {'string' : unquote,
               'regexp': re.compile,
               'csv': csv_validator,
               'yn': yn_validator,
-              'choice': choice_validator
+              'choice': choice_validator,
+              'multiple_choice': multiple_choice_validator,
               }
 
 def convert(value, opt_dict, name = ''):
@@ -70,6 +82,8 @@ def convert(value, opt_dict, name = ''):
     except TypeError:
         try:
             return VALIDATORS[_type](value)
+        except OptionValueError:
+            raise
         except:
             raise OptionValueError('%s value (%s) should be of type %s' %
                                    (name, value, _type))
@@ -106,7 +120,7 @@ class OptionsManagerMixIn:
     """
     
     def __init__(self, usage, config_file=None, version=None, quiet=0):
-        self._config_file = config_file
+        self.config_file = config_file
         # configuration file parser
         self._config_parser = ConfigParser()
         # command line parser
@@ -230,7 +244,7 @@ class OptionsManagerMixIn:
         """load the configuration from file
         """
         if config_file is None:
-            config_file = self._config_file
+            config_file = self.config_file
         parser = self._config_parser
         if config_file and exists(config_file):
             parser.read([config_file])
@@ -239,9 +253,10 @@ class OptionsManagerMixIn:
             print >> sys.stderr, msg
             return
         for provider in self.options_providers:
-            default_section = provider.name.upper()
+            default_section = provider.name
             for opt_name, opt_dict in provider.options:
                 section = opt_dict.get('group', default_section)
+                section = section.upper()
                 try:
                     value = parser.get(section, opt_name)
                     # type casting
@@ -367,8 +382,62 @@ class OptionsProviderMixIn:
 class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
     
     def __init__(self, *args, **kwargs):
-        not args and kwargs.setdefault('usage', '')
+        if not args:
+            kwargs.setdefault('usage', '')
         kwargs.setdefault('quiet', 1)
         OptionsManagerMixIn.__init__(self, *args, **kwargs)
         OptionsProviderMixIn.__init__(self)
         self.register_options_provider(self)
+
+class Configuration(ConfigurationMixIn):
+
+    def __init__(self, config_file=None, options=None, name=None):
+        if options is not None:
+            self.options = options
+        if name is not None:
+            self.name = name
+        ConfigurationMixIn.__init__(self, config_file=config_file)
+
+    def __getitem__(self, key):
+        try:
+            return getattr(self.config, self.option_name(key))
+        except (OptionValueError, AttributeError):
+            raise KeyError(key)
+
+    def __setitem__(self, key, value):
+        self.set_option(self.option_name(key), value)
+        
+    def get(self, key, default=None):
+        try:
+            return getattr(self.config, self.option_name(key))
+        except (OptionValueError, AttributeError):
+            return default
+
+
+class OptionsManager2ConfigurationAdapter:
+    """Adapt an option manager to behave like a
+    `logilab.common.configuration.Configuration` instance
+    """
+    def __init__(self, provider):
+        self.config = provider
+        
+    def __getattr__(self, key):
+        return getattr(self.config, key)
+        
+    def __getitem__(self, key):
+        provider = self.config._all_options[key]
+        try:
+            return getattr(provider.config, provider.option_name(key))
+        except AttributeError:
+            raise KeyError(key)
+
+    def __setitem__(self, key, value):
+        self.config.global_set_option(self.config.option_name(key), value)
+
+    def get(self, key, default=None):
+        provider = self.config._all_options[key]
+        try:
+            return getattr(provider.config, provider.option_name(key))
+        except AttributeError:
+            return default
+

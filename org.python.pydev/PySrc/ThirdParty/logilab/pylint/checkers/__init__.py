@@ -16,7 +16,7 @@
 """utilities methods and classes for checkers
 """
 
-__revision__ = "$Id: __init__.py,v 1.1 2004-10-26 12:52:30 fabioz Exp $"
+__revision__ = "$Id: __init__.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $"
 
 import tokenize
 from os import listdir
@@ -25,9 +25,7 @@ from os.path import join, isdir, splitext
 from logilab.common.astng import ASTWalker
 from logilab.common.configuration import OptionsProviderMixIn
 
-class EmptyReport(Exception):
-    """raised when a report is empty and so should not be displayed
-    """
+from logilab.pylint.reporters import diff_string, EmptyReport
 
 class CheckerHandler:
     """implements IChecker methods"""
@@ -47,7 +45,7 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
 
     options = ()
     priority = -9
-    may_be_disabled = 1
+    may_be_disabled = True
     name = None
     
     def __init__(self, linter=None):
@@ -84,6 +82,26 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
         if self.may_be_disabled:
             setattr(self.config, 'enable_' + self.name, enable)
         
+    def table_lines_from_stats(self, stats, old_stats, columns):
+        """get values listed in <columns> from <stats> and <old_stats>,
+        and return a formated list of values, designed to be given to a
+        ureport.Table object
+        """
+        lines = []
+        for m_type in columns:
+            new = stats[m_type]
+            format = str
+            if isinstance(new, float):
+                format = lambda num: '%.3f' % num
+            old = old_stats.get(m_type)
+            if old is not None:
+                diff_str = diff_string(old, new)
+                old = format(old)
+            else:
+                old, diff_str = 'NC', 'NC'
+            lines += (m_type.replace('_', ' '), format(new), old, diff_str)
+        return lines
+
 class BaseRawChecker(BaseChecker):
     """base class for raw checkers"""
     
@@ -125,7 +143,7 @@ def package_load(linter, directory):
                 continue
             except ImportError:
                 import sys
-                print "Problem importing module: %s" % filename
+                print >> sys.stderr, "Problem importing module: %s" % filename
             else:
                 if hasattr(module, 'register'):
                     module.register(linter)

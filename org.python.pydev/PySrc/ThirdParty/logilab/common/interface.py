@@ -24,7 +24,7 @@
   This module requires at least python 2.2
 """
 
-__revision__ = "$Id: interface.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: interface.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 from types import ListType, TupleType
 

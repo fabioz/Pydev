@@ -16,7 +16,7 @@
 Raw metrics checker :
 """
 
-__revision__ = "$Id: raw_metrics.py,v 1.1 2004-10-26 12:52:30 fabioz Exp $"
+__revision__ = "$Id: raw_metrics.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $"
 
 import tokenize
 if not hasattr(tokenize, 'NL'):
@@ -59,8 +59,7 @@ class RawMetricsChecker(BaseRawChecker, CheckerHandler):
                                            comment_lines=0)
         
     def process_tokens(self, tokens):
-        """update stats
-        """
+        """update stats"""
         i = 0
         tokens = list(tokens)
         while i < len(tokens):

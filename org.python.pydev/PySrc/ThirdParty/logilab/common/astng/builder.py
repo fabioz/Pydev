@@ -21,7 +21,7 @@ TODO:
 """
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: builder.py,v 1.1 2004-10-26 12:52:31 fabioz Exp $"
+__revision__ = "$Id: builder.py,v 1.2 2004-10-26 14:18:36 fabioz Exp $"
 
 import sys
 from compiler import parse
@@ -85,6 +85,7 @@ class ASTNGBuilder:
     
     def string_build(self, data):
         """build astng from a source code stream (i.e. from an ast)"""
+        data = data.rstrip()
         return self.ast_build(parse(data))
 
 
@@ -236,15 +237,18 @@ class ASTNGBuilder:
         frame = node.get_frame()
         if isinstance(frame, astng.Function) and frame.is_method():
             klass = frame.parent.get_frame()
-            # are we assigning to a (new ?) instance attribute ?
-            _self = frame.argnames[0]
-            if isinstance(node.expr, astng.Name) and node.expr.name == _self:
-                # always assign in __init__
-                if frame.name == '__init__':
-                    klass.instance_attrs[node.attrname] = node
-                # but only if not yet existant in others
-                elif not klass.instance_attrs.has_key(node.attrname):
-                    klass.instance_attrs[node.attrname] = node
+            try:
+                # are we assigning to a (new ?) instance attribute ?
+                _self = frame.argnames[0]
+                if isinstance(node.expr, astng.Name) and node.expr.name == _self:
+                    # always assign in __init__
+                    if frame.name == '__init__':
+                        klass.instance_attrs[node.attrname] = node
+                    # but only if not yet existant in others
+                    elif not klass.instance_attrs.has_key(node.attrname):
+                        klass.instance_attrs[node.attrname] = node
+            except:
+                pass
                     
     def visit_default(self, node):
         """default visit method, handle the parent attribute

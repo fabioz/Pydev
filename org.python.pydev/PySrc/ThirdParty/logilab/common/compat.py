@@ -19,7 +19,7 @@ in python 2.2
 
 from __future__ import generators
 
-__revision__ = '$Id: compat.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $'
+__revision__ = '$Id: compat.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $'
 
 try:
     from sets import Set
@@ -46,4 +46,22 @@ except ImportError:
     def chain(*iterables):
         for it in iterables:
             for element in it:
-                yield element            
+                yield element
+                
+try:
+    sum = sum
+    enumerate = enumerate
+except NameError:
+    # define the sum and enumerate functions (builtins introduced in py 2.3)
+    import operator
+    def sum(seq, start=0):
+        """Returns the sum of all elements in the sequence"""
+        return reduce(operator.add, seq, start)
+
+    def enumerate(iterable):
+        """emulates the python2.3 enumerate() function"""
+        i = 0
+        for val in iterable:
+            yield i, val
+            i += 1
+        #return zip(range(len(iterable)), iterable)

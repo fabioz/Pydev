@@ -10,15 +10,14 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2000-2003 LOGILAB S.A. (Paris, FRANCE).
+""" Copyright (c) 2002-2004 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
  basic checker for Python code
 """
+from __future__ import generators
 
-__revision__ = "$Id: classes.py,v 1.1 2004-10-26 12:52:30 fabioz Exp $"
-
-import inspect
+__revision__ = "$Id: classes.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $"
 
 from logilab.common import astng
 
@@ -147,22 +146,16 @@ class should be ignored. A mixin class is detected if its name ends with \
         
     def visit_class(self, node):
         """init visit variable _accessed and check interfaces
-        """
+        """        
         self._accessed.append({})
-        # FIXME: should not depend on object
-        if node.object is not None:
-            
-            node.metaclass = is_metaclass(node.object)
-            self.check_bases_classes(node)
-            self.check_interfaces(node)
-            if not (is_interface(node.object) or is_exception(node.object)
-                    or node.metaclass):
-                try:
-                    node.get_method('__init__')
-                except astng.NotFoundError:
-                    self.add_message('W0232', args=node, node=node)
-        else:
-            node.metaclass = None
+        node.metaclass = is_metaclass(node)
+        self.check_bases_classes(node)
+        self.check_interfaces(node)
+        if not (is_interface(node) or is_exception(node) or node.metaclass):
+            try:
+                node.get_method('__init__')
+            except astng.NotFoundError:
+                self.add_message('W0232', args=node, node=node)
             
     def leave_class(self, class_node):
         """close a class node :
@@ -301,80 +294,59 @@ class should be ignored. A mixin class is detected if its name ends with \
         """check that the given class node implements abstract methods from
         base classes
         """
-        obj = node.object
-        for name in dir(obj):
-            try:
-                member = getattr(obj, name)
-            except AttributeError:
-                # occurs on ExtensionClass.Base !
-                continue
-            if not inspect.ismethod(member):
-                continue
-            if inspect.isbuiltin(member.im_func):
-                continue
-            # get class method astng
-            try:
-                method_node = self._get_method(node, name)
-            except astng.NotFoundError:
-            # FIXME : should not need try:except and test on method_node
-            # (usually means we need a fix to astng.resolve...)
-                continue
-            if method_node is None:
-                continue
-            # ignore method defined in the class
-            meth_class = method_node.parent.get_frame()
-            if meth_class is node:
+        for method in node.methods():
+            owner = method.parent.get_frame()
+            if owner is node:
                 continue
             # check that the ancestor's method is not abstract
-            if is_abstract(method_node, pass_is_abstract=0):
+            if is_abstract(method, pass_is_abstract=0):
                 self.add_message('W0223', node=node,
-                                 args=(name, meth_class.name))
+                                 args=(method.name, owner.name))
                     
     def check_interfaces(self, node):
         """check that the given class node really implements declared
         interfaces
         """
-        try:
-            implements = node.object.__implements__
-        except AttributeError:
-            return
-        manager = self.linter.manager
-        if not type(implements) in (type(()), type([])):
-            implements = (implements,)
+        def iface_handler(klass, iface_node):
+            """filter interface objects, it should be classes"""
+            try:
+                obj = klass.resolve_dotted(iface_node.as_string())
+                if not isinstance(obj, astng.Class):
+                    self.add_message('E0221', node=node,
+                                     args=(iface_node.as_string(),
+                                           obj.__class__.__name__))
+                else:
+                    yield obj
+            except:
+                self.add_message('F0203', node=node,
+                                 args=(iface_node.as_string()))
+                
+        implements = astng.utils.get_interfaces(node,
+                                                manager=self.linter.manager,
+                                                handler_func=iface_handler)
         for iface in implements:
-            if not inspect.isclass(iface):
-                self.add_message('E0221', node=node,
-                                 args=(iface, type(iface)))
-                continue
-            iface_node = manager.astng_from_class(iface)
-            for name in dir(iface):
+            for imethod in iface.methods():
+                name = imethod.name
                 if name.startswith('_') or \
                        name in self.config.ignore_iface_methods:
                     # don't check method begining with an underscore, usually
                     # belonging to the interface implementation
                     continue
-                member = getattr(iface, name)
-                if not inspect.ismethod(member):
-                    continue
                 # get class method astng
                 try:
-                    method_astng = self._get_method(node, name)
+                    method = self._get_method(node, name)
                 except astng.NotFoundError:
-                    self.add_message('E0222', args=(name, iface_node.name),
+                    self.add_message('E0222', args=(name, iface.name),
                                      node=node)
                     continue
-                if method_astng is None:
+                if method is None:
                     continue
                 # don't go further if it is an inherited method
-                if not method_astng.parent.get_frame() is node:
-                    continue
-                # get iface method astng
-                imethod_astng = self._get_method(iface_node, name)
-                if imethod_astng is None:
+                if not method.parent.get_frame() is node:
                     continue
                 # check signature
-                self.check_signature(method_astng, imethod_astng,
-                                     '%s interface' % iface_node.name)
+                self.check_signature(method, imethod,
+                                     '%s interface' % iface.name)
 
     def check_init(self, node):
         """check that the __init__ method call super or ancestors'__init__
@@ -445,7 +417,7 @@ class should be ignored. A mixin class is detected if its name ends with \
             parts = base.split('.')
             cbase = parts[0]
             try:
-                baseobj = klass_node.resolve(cbase)
+                baseastng = klass_node.resolve(cbase)
             except (astng.ResolveError, astng.NotFoundError):
                 unresolved[base] = 1
                 self.add_message('F0203', node=node, args=cbase)
@@ -453,13 +425,17 @@ class should be ignored. A mixin class is detected if its name ends with \
             for part in parts[1:]:
                 try:
                     cbase = '%s.%s' % (cbase, part)
-                    baseobj = getattr(baseobj, part)
-                except AttributeError:
+                    baseastng = baseastng.resolve(part)
+                except KeyError:
                     unresolved[base] = 1
                     self.add_message('F0203', node=node, args=cbase)
+                    break
             else:
-                if hasattr(baseobj, method):
+                try:
+                    baseastng.get_method(method)
                     to_call[base] = 1
+                except astng.NotFoundError:
+                    continue
         return to_call, unresolved
         
         

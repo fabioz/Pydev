@@ -1,23 +1,43 @@
 ChangeLog for logilab.common
 ============================
 
-2004-09-23 -- 0.6.0
+2004-10-11  --  0.7.0
+    * astng: new methods on the manager, returning astng with nodes for
+      packages (ie recursive structure instead of the flat one), with
+      automatic lazy loading + introduction of a dict like interface to
+      manipulate those nodes and Module, Class and Function nodes.
 
+    * logservice: module imported from the ginco project
+
+    * configuration: added new classes Configuration and
+      OptionsManager2Configuration adapter, fix bug in loading options
+      from file
+
+    * optik_ext/configuration: some new option type "multiple_choice"
+
+    * fileutils: new ensure_mode function
+
+    * compat: support for sum and enumerate
+
+
+
+2004-09-23  --  0.6.0
     * db: added DBAPIAdapter
 
     * textutils: fix in pretty_match causing malformated messages in pylint
-                 added ansi colorization management
+      added ansi colorization management
 
     * modutils: new functions get_module_files, has_module and file_from_modpath
 
     * astng: some new utility functions taken from pylint, minor changes to the
       manager API, Node.resolve doesn't support anymore "living" resolution,
       some new methods on astng nodes
-	
+
     * compat: new module for a transparent compatibility layer between
       different python version (actually 2.2 vs 2.3 for now)
 
-	
+
+
 2004-07-08  --  0.5.2
     * astng: fix another bug in klassnode.ancestors() method...
 
@@ -25,7 +45,8 @@ ChangeLog for logilab.common
 
     * cli: added a space after the prompt
 
-	
+
+
 2004-06-04  --  0.5.1
     * astng: fix undefined var bug in klassnode.ancestors() method
 

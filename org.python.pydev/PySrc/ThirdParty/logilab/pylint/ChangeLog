@@ -1,6 +1,26 @@
 ChangeLog for PyLint
 ====================
 
+2004-10-19  --  0.5.0
+    * avoid to import analyzed modules !
+
+    * new Refactor and Convention message categories. Some Warnings have been
+      remaped into those new categories
+
+    * added "similar", a tool to find copied and pasted lines of code,
+      both using a specific command line tool and integrated as a
+      pylint's checker
+
+    * imports checker may report import dependancies as a dot graph
+
+    * new checker regrouping most Refactor detection (with some new metrics)
+
+    * more command line options storable in the configuration file
+
+    * fix bug with total / undocumented number of methods
+
+
+
 2004-07-08  --  0.4.2
     * fix pylint emacs mode
 

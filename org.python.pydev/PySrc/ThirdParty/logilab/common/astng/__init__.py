@@ -19,7 +19,7 @@ Look at the astng submodule for more info.
 """
 
 __author__ = u"Sylvain Thenault"
-__revision__ = "$Id: __init__.py,v 1.1 2004-10-26 12:52:31 fabioz Exp $"
+__revision__ = "$Id: __init__.py,v 1.2 2004-10-26 14:18:36 fabioz Exp $"
 
 class ASTNGError(Exception):
     """base exception class for all astng related exceptions
@@ -34,6 +34,6 @@ class ResolveError(ASTNGError):
 class NotFoundError(ASTNGError):
     """raised when we are unabled to resolve a name"""
 
-from logilab.common.astng.manager import ASTNGManager, Project
+from logilab.common.astng.manager import ASTNGManager, Project, Package
 from logilab.common.astng.utils import ASTWalker, IgnoreChild
 from logilab.common.astng.astng import *

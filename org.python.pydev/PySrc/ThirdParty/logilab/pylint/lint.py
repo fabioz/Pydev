@@ -1,4 +1,5 @@
-# Copyright (c) 2002-2003 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2002-2004 Sylvain Thenault (syt@logilab.fr).
+# Copyright (c) 2002-2004 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -26,26 +27,28 @@
   Display help messages about given message identifiers and exit.
 """
 
-__revision__ = "$Id: lint.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: lint.py,v 1.2 2004-10-26 14:18:33 fabioz Exp $"
 
 from __future__ import nested_scopes
 
-
-
 import sys
 import os
-import re
-import tokenize
-from os.path import dirname
 
 #HACK - TODO:Fix it!!
 sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0]), "../../../ThirdParty"))
-#sys.path.insert(1, os.path.join(os.path.dirname("D:/dev_programs/eclipse_3/eclipse/workspace/org.python.pydev/PySrc/") , "ThirdParty"))
+
+# import this to avoid further builtins pollution possibilities
+from logilab.pylint.checkers import utils
+
+import re
+import tokenize
+from os.path import dirname, basename, splitext, exists, isdir, join
 
 
 from logilab.common.configuration import OptionsManagerMixIn
 from logilab.common.astng import ASTNGManager, ASTNGBuildingException, Module
-from logilab.common.modutils import modpath_from_file, get_modules
+from logilab.common.modutils import modpath_from_file, get_module_files, \
+     load_module_from_name
 from logilab.common.interface import implements
 from logilab.common.textutils import normalize_text, get_csv
 from logilab.common.ureports import Section, Table, Text
@@ -53,18 +56,30 @@ from logilab.common.ureports import Section, Table, Text
 from logilab.pylint.interfaces import ILinter, IRawChecker, IASTNGChecker
 from logilab.pylint.checkers import CheckerHandler, BaseRawChecker, EmptyReport
 from logilab.pylint import config
-from logilab.pylint.reporters import diff_string
 from logilab.pylint.reporters.text import TextReporter
 
 from logilab.pylint.__pkginfo__ import version
 
-# utilities ###################################################################
 
+OPTION_RGX = re.compile('#*\s*pylint:(.*)')
 
+MSG_TYPES = {
+    'I' : 'info',
+    'C' : 'convention',
+    'R' : 'refactor',
+    'W' : 'warning',
+    'E' : 'error',
+    'F' : 'fatal'
+    }
+MSG_CATEGORIES = MSG_TYPES.keys()
+
+class UnknownMessage(Exception):
+    """raised when a unregistered message id is encountered"""
+
+# utility functions ###########################################################
 
 def sort_checkers(checkers, enabled_only=1):
-    """return a list of enabled checker sorted by priority
-    """
+    """return a list of enabled checker sorted by priority"""
     if enabled_only:
         checkers = [(-checker.priority, checker) for checker in checkers
                     if checker.is_enabled()]
@@ -73,10 +88,8 @@ def sort_checkers(checkers, enabled_only=1):
     checkers.sort()
     return [item[1] for item in checkers]
 
-
 def get_module_and_frameid(node):
-    """return the module name and the frame id in the module
-    """
+    """return the module name and the frame id in the module"""
     frame = node.get_frame()
     module, obj = '', []
     while frame:
@@ -91,16 +104,9 @@ def get_module_and_frameid(node):
     obj.reverse()
     return module, '.'.join(obj)
 
-class UnknownMessage(Exception):
-    """raised when a unregistered message id is encountered
-    """
-MSG_TYPES = {
-    'I' : 'info',
-    'W' : 'warning',
-    'E' : 'error',
-    'F' : 'fatal'
-    }
 
+# Python Linter class #########################################################
+    
 MSGS = {
     'F0001': ('%s',
               'Used when an error occured while building the ASTNG \
@@ -119,19 +125,25 @@ MSGS = {
               using the raw checkers.'),
     
     'I0011': ('Locally disabling %r',
-              'Used when an inline option disable a message.'),
+              'Used when an inline option disable a message or a messages \
+              category.'),
+    
+    'E0001': ('%s',
+              'Used when a syntax error is raised for a module.'),
+
     'E0011': ('Unrecognized file option %r',
               'Used when an unknown inline option is encountered.'),
     'E0012': ('Bad option value %r',
               'Used when an bad value for an inline option is encountered.'),
     }
 
-OPTION_RGX = re.compile('#*\s*pylint:(.*)')
-
-# Python Linter class #########################################################
-
 class PyLinter(OptionsManagerMixIn, BaseRawChecker, CheckerHandler):
-    """lint Python modules using external checkers.
+    """the main pylint classes :
+    lint Python modules using external checkers
+
+    This class is itself both a raw checker and an astng checker in order to:
+    * handle some basic but necessary stats'data (number of classes, methods...)
+    * handle message activation / deactivation at the module level
     """
 
     __implements__ = (ILinter, IRawChecker, IASTNGChecker)
@@ -139,10 +151,10 @@ class PyLinter(OptionsManagerMixIn, BaseRawChecker, CheckerHandler):
     name = 'master'
     priority = 0
     msgs = MSGS
-    may_be_disabled = 0
+    may_be_disabled = False
     
     options = (("ignore",
-                {'action' :"append", 'type' : "string", 'metavar' : "<file>",
+                {'type' : "csv", 'metavar' : "<file>",
                  'dest' : "black_list", "default" : ('CVS',),
                  'help' : """Add <file> (may be a directory) to the black list\
 . It should be a base name, not a path. You may set this option multiple times\
@@ -151,26 +163,46 @@ class PyLinter(OptionsManagerMixIn, BaseRawChecker, CheckerHandler):
                 {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help' : 'Pickle collected data for later comparisons.'}),
                
+               ("cache-size",
+                {'default': 500, 'type' : 'int', 'metavar': '<size>',
+                 'help' : "Set the cache size for astng objects."}),
+               
                ("reports",
                 {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'group': 'Reports',
                  'help' : "Tells wether to display a full report or only the\
  messages"}),
+               ("html",
+                {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 'group': 'Reports',
+                 'help' : "Use HTML as output format instead of text"}),
+               
+               ("parseable",
+                {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 'group': 'Reports',
+                 'help' : "Use a parseable text output format, so your favorite\
+ text editor will be able to jump to the line corresponding to a message."}),
+               
+               ("color",
+                {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 'group': 'Reports',
+                 'help' : "Colorizes text output using ansi escape codes"}),
+               
                ("files-output",
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'group': 'Reports',
                  'help' : 'Put messages in a separate file for each module / \
 package specified on the command line instead of printing them on stdout. \
-Reports (if any) will be written in a file name "pylint_global.[txt|html]".'}),               
+Reports (if any) will be written in a file name "pylint_global.[txt|html]".'}),
                
                ("evaluation",
                 {'type' : 'string', 'metavar' : '<python_expression>',
                  'group': 'Reports',
-                 'default': '10.0 - ((float(5 * errors + warnings) / \
-statements) * 10)', 
+                 'default': '10.0 - ((float(5 * error + warning + refactor + \
+convention) / statement) * 10)', 
                  'help' : 'Python expression which should return a note less \
-than 10 (10 is the highest note).You have access to the variables errors, \
-warnings, statements which respectivly contain the number of errors / warnings\
+than 10 (10 is the highest note).You have access to the variables errors \
+warning, statement which respectivly contain the number of errors / warnings\
  messages and the total number of statements analyzed. This is used by the \
  global evaluation report (R0004).'}),
                
@@ -185,30 +217,56 @@ This is used by the global evaluation report (R0004).'}),
                  'group': 'Reports',
                  'help' : "Include message's id in output"}),
                
+               ("enable-msg-cat",
+                {'type' : 'csv', 'metavar': '<msg cats>',
+                 'group': 'Reports',
+                 'help' : 'Enable all messages in the listed categories.'}),
+
+               ("disable-msg-cat",
+                {'type' : 'csv', 'metavar': '<msg cats>',
+                 'group': 'Reports',
+                 'help' : 'Disable all messages in the listed categories.'}),
+               
+               ("enable-msg",
+                {'type' : 'csv', 'metavar': '<msg ids>',
+                 'group': 'Reports',
+                 'help' : 'Enable the message with the given id.'}),
+            
+               ("disable-msg",
+                {'type' : 'csv', 'metavar': '<msg ids>',
+                 'group': 'Reports',
+                 'help' : 'Disable the message with the given id.'}),
+
+               ("enable-report",
+                {'type' : 'csv', 'metavar': '<rpt ids>',
+                 'group': 'Reports',
+                 'help' : 'Enable the report with the given id.'}),
+               
+               ("disable-report",
+                {'type' : 'csv', 'metavar': '<rpt ids>',
+                 'group': 'Reports',
+                 'help' : 'Disable the report with the given id.'}),
+               
                )
     
     option_groups = (
         ('Reports', 'Options related to messages / statistics reporting'),
-            )
+        )
     
     def __init__(self, options=(), reporter=TextReporter(),
                  option_groups=()):
-        self.options = options + PyLinter.options
-        self.option_groups = option_groups + PyLinter.option_groups
-        full_version = "%%prog %s\nPython %s" % (version,
-                                                 sys.version)
-        OptionsManagerMixIn.__init__(self, usage=__doc__,
-                                     version=full_version,
-                                     config_file=config.PYLINTRC)
-        BaseRawChecker.__init__(self)
-        # helpers
+        # some stuff has to be done before ancestors initialization...
         self.manager = ASTNGManager()
-        self.reporter = reporter
+        self.reporter = None
+        # helpers
+        self.set_reporter(reporter)
         # dictionary of registered messages
         self._messages = {}
         self._messages_help = {}
         self._msgs_state = {}
         self._module_msgs_state = None
+        self._msg_cats_state = {}
+        self._module_msg_cats_state = None    
         # reports variables
         self._reports = []
         self._reports_state = {}
@@ -218,7 +276,25 @@ This is used by the global evaluation report (R0004).'}),
         self.base_name = None
         self.base_file = None
         self.current_name = None
+        self.current_file = None
         self.stats = None
+        # init options
+        self.options = options + PyLinter.options
+        self.option_groups = option_groups + PyLinter.option_groups
+        self._options_methods = {
+            'enable-report': self.enable_report,
+            'disable-report': self.disable_report,
+            'enable-msg': self.enable_message,
+            'disable-msg': self.disable_message,
+            'enable-msg-cat': self.enable_message_category,
+            'disable-msg-cat': self.disable_message_category}
+        full_version = "%%prog %s\nPython %s" % (version,
+                                                 sys.version)
+        OptionsManagerMixIn.__init__(self, usage=__doc__,
+                                     version=full_version,
+                                     config_file=config.PYLINTRC)
+        BaseRawChecker.__init__(self)
+        CheckerHandler.__init__(self)
         # provided reports
         self.reports = (('R0001', 'Global evaluation',
                          self.report_evaluation),
@@ -234,7 +310,33 @@ This is used by the global evaluation report (R0004).'}),
         os.environ['PYLINT_IMPORT'] = '1'
         # PyLinter is itself a checker, register it
         self.register_checker(self)
-
+            
+    def set_option(self, opt_name, value, action=None, opt_dict=None):
+        """overriden from configuration.OptionsProviderMixin to handle some
+        special options
+        """
+        if opt_name in self._options_methods:
+            if value:
+                meth = self._options_methods[opt_name]
+                for _id in value:
+                    meth(_id)
+            else:
+                value = ()
+        elif opt_name == 'html':
+            if value:
+                from logilab.pylint.reporters.html import HTMLReporter
+                self.set_reporter(HTMLReporter())
+        elif opt_name == 'parseable':
+            if value:
+                from logilab.pylint.reporters.text import TextReporter2
+                self.set_reporter(TextReporter2())
+        elif opt_name == 'color':
+            if value:
+                from logilab.pylint.reporters.text import ColorizedTextReporter
+                self.set_reporter(ColorizedTextReporter())
+        elif opt_name == 'cache-size':
+            self.manager.set_cache_size(int(value))
+        BaseRawChecker.set_option(self, opt_name, value, action, opt_dict)
 
     # checkers manipulation methods ###########################################
     
@@ -255,7 +357,7 @@ This is used by the global evaluation report (R0004).'}),
     def disable_all_checkers(self):
         """disable all possible checkers """
         for checker in self._checkers.keys():
-            checker.enable(0)
+            checker.enable(False)
 
 
     # messages handling #######################################################
@@ -278,7 +380,7 @@ This is used by the global evaluation report (R0004).'}),
             assert len(msg_id) == 5, 'Invalid message id %s' % msg_id
             assert chk_id is None or chk_id == msg_id[1:3], \
                    'Inconsistent checker part in message id %r' %msg_id
-            assert msg_id[0] in ('I', 'W', 'E', 'F'), \
+            assert msg_id[0] in MSG_CATEGORIES, \
                    'Bad message type %s in %r' % (msg_id[0], msg_id)
             chk_id = msg_id[1:3]
             if checker is not None:
@@ -297,29 +399,48 @@ This is used by the global evaluation report (R0004).'}),
             msg = 'No help available for message %s' % msg_id
         return '%s:\n%s' % (msg_id, msg)
 
-    def disable_message(self, msg_id, scope='package'):
+    def disable_message(self, msg_id, scope='package', line=None):
         """don't output message of the given id"""
         assert scope in ('package', 'module')
         msg_id = self.check_message_id(msg_id)
         if scope == 'module':
-            self._module_msgs_state[msg_id] = 0
+            self.add_message('I0011', line=line, args=msg_id)
+            self._module_msgs_state[msg_id] = False
         else:
-            self._msgs_state[msg_id] = 0
-        
-    def enable_message(self, msg_id, scope='package'):
+            self._msgs_state[msg_id] = False
+            
+    def enable_message(self, msg_id, scope='package', line=None):
         """reenable message of the given id"""
         assert scope in ('package', 'module')
         msg_id = self.check_message_id(msg_id)
         if scope == 'module':
-            self._module_msgs_state[msg_id] = 1
+            self._module_msgs_state[msg_id] = True
         else:
-            self._msgs_state[msg_id] = 1
+            self._msgs_state[msg_id] = True
+            
+    def disable_message_category(self, msg_cat_id, scope='package', line=None):
+        """don't output message in the given category"""
+        assert scope in ('package', 'module')
+        msg_cat_id = msg_cat_id[0].upper()
+        if scope == 'module':
+            self.add_message('I0011', line=line, args=msg_cat_id)
+            self._module_msg_cats_state[msg_cat_id] = False
+        else:
+            self._msg_cats_state[msg_cat_id] = False
+        
+    def enable_message_category(self, msg_cat_id, scope='package', line=None):
+        """reenable message of the given category"""
+        assert scope in ('package', 'module')
+        msg_cat_id = msg_cat_id[0].upper()
+        if scope == 'module':
+            self._module_msg_cats_state[msg_cat_id] = True
+        else:
+            self._msg_cats_state[msg_cat_id] = True
             
     def check_message_id(self, msg_id):
         """raise UnknownMessage if the message id is not defined"""
         msg_id = msg_id.upper()
         if not self._messages.has_key(msg_id):
-            print self._messages
             raise UnknownMessage('No such message id %s' % msg_id)
         return msg_id
 
@@ -328,25 +449,31 @@ This is used by the global evaluation report (R0004).'}),
         enabled
         """
         try:
+            if not self._module_msg_cats_state[msg_id[0]]:
+                return False
+        except KeyError:
+            if not self._msg_cats_state.get(msg_id[0], True):
+                return False
+        try:
             return self._module_msgs_state[msg_id]
         except KeyError:
-            return self._msgs_state.get(msg_id, 1)
+            return self._msgs_state.get(msg_id, True)
         
     def add_message(self, msg_id, line=None, node=None, args=None):
         """add the message corresponding to the given id.
 
         If provided, msg is expanded using args
         
-        astng checkers should provide the node argument,
-        raw checkers should provide the line argument.
+        astng checkers should provide the node argument, raw checkers should
+        provide the line argument.
         """
         # should this message be displayed
         if not self.is_message_enabled(msg_id):
             return        
         # update stats
-        key = '%ss' % MSG_TYPES[msg_id[0]]
-        self.stats[key] += 1
-        self.stats['by_module'][self.current_name][key] += 1
+        msg_cat = MSG_TYPES[msg_id[0]]
+        self.stats[msg_cat] += 1
+        self.stats['by_module'][self.current_name][msg_cat] += 1
         try:
             self.stats['by_msg'][msg_id] += 1
         except KeyError:
@@ -357,28 +484,27 @@ This is used by the global evaluation report (R0004).'}),
             msg %= args
         if line is None and node is not None:
             line = node.lineno or node.get_statement().lineno
+            #if not isinstance(node, Module):
+            #    assert line > 0, node.__class__
         # get module and object
         if node is None:
             module, obj = self.current_name, ''
+            path = self.current_file
         else:
             module, obj = get_module_and_frameid(node)
+            path = node.root().file
         # add the message
-        self.reporter.add_message(msg_id, (module, obj, line or 0), msg)
+        self.reporter.add_message(msg_id, (path, module, obj, line or 0), msg)
 
         
     def process_tokens(self, tokens):
-        """process the module with the given name
-        
-        the module's content is accessible via the stream object
-        
-        stream must implements the readline method.
-
-        Search for file specific options
+        """process tokens from the current module to search for module level
+        options
         """
         comment = tokenize.COMMENT
         newline = tokenize.NEWLINE
         line_num = 0
-        for (tok_type, token, start, end, line) in tokens:
+        for (tok_type, _, start, _, line) in tokens:
             if tok_type not in (comment, newline):
                 break
             if start[0] == line_num:
@@ -387,28 +513,22 @@ This is used by the global evaluation report (R0004).'}),
             match = OPTION_RGX.match(line)
             if match is None:
                 continue
-            option, value = match.group(1).split('=', 1)
-            option = option.strip()
-            if option == 'disable-msg':
+            opt, value = match.group(1).split('=', 1)
+            opt = opt.strip()
+            if opt in self._options_methods and not opt.endswith('-report'):
+                meth = self._options_methods[opt]
                 for msg_id in get_csv(value):
                     try:
-                        self.disable_message(msg_id, 'module')
-                        self.add_message('I0011', args=msg_id, line=line_num)
-                    except UnknownMessage:
-                        self.add_message('E0012', args=msg_id, line=line_num)
-                        
-            elif option == 'enable-msg':
-                for msg_id in get_csv(value):
-                    try:
-                        self.enable_message(msg_id, 'module')
+                        meth(msg_id, 'module', line_num)
                     except UnknownMessage:
                         self.add_message('E0012', args=msg_id, line=line_num)
             else:
-                self.add_message('E0011', args=option, line=line_num)
+                self.add_message('E0011', args=opt, line=line_num)
 
     def set_reporter(self, reporter):
         """set the reporter used to display messages"""
         self.reporter = reporter
+        reporter.linter = self
         
     # reports / stats manipulation method #####################################
     
@@ -423,6 +543,11 @@ This is used by the global evaluation report (R0004).'}),
         r_id = r_id.upper()
         self._reports.insert(0, (r_id, r_title, r_cb, checker) )
         
+    def enable_report(self, r_id):
+        """disable the report of the given id"""
+        r_id = r_id.upper()
+        self._reports_state[r_id] = 1
+        
     def disable_report(self, r_id):
         """disable the report of the given id"""
         r_id = r_id.upper()
@@ -434,7 +559,7 @@ This is used by the global evaluation report (R0004).'}),
             filename = 'pylint_global.' + self.reporter.extension
             self.reporter.set_output(open(filename, 'w'))
         sect = Section('Report',
-                       '%s statements analysed.'% (self.stats['statements']))
+                       '%s statements analysed.'% (self.stats['statement']))
         for r_id, r_title, r_cb, checker in self._reports:
             if not (self._reports_state.get(r_id, 1) and checker.is_enabled()):
                 continue
@@ -460,13 +585,13 @@ This is used by the global evaluation report (R0004).'}),
 
     # code checking methods ###################################################
 
-    def check(self, mod_names):
-        """main checking entry : check a list of modules or packages from their
+    def check(self, files_or_modules):
+        """main checking entry: check a list of files or modules from their
         name.
         """
         self.reporter.include_ids = self.config.include_ids
-        if type(mod_names) not in (type(()), type([])):
-            mod_names = [mod_names]
+        if type(files_or_modules) not in (type(()), type([])):
+            files_or_modules = [files_or_modules]
         checkers = sort_checkers(self._checkers.keys())
         rev_checkers = checkers[:]
         rev_checkers.reverse()
@@ -474,75 +599,109 @@ This is used by the global evaluation report (R0004).'}),
         for checker in checkers:
             checker.open()
         # check modules or packages        
-        for mod_name in mod_names:
+        for something in files_or_modules:
+            self.base_name = self.base_file = something
+            if exists(something):
+                # this is a file or a directory
+                try:
+                    modname = '.'.join(modpath_from_file(something))
+                except Exception:
+                    modname = splitext(basename(something))[0]
+                if isdir(something):
+                    filepath = join(something, '__init__.py')
+                else:
+                    filepath = something
+            else:
+                # suppose it's a module or package
+                modname = something
+                try:
+                    filepath = load_module_from_name(modname).__file__
+                except SyntaxError, ex:
+                    self.set_current_module(modname)
+                    self.add_message('E0001', line=ex.lineno, args=ex.msg)
+                    continue
+                except Exception, ex:
+                    self.set_current_module(modname)
+                    self.add_message('F0001', args=ex)
+                    continue
             if self.config.files_output:
-                filename = 'pylint_%s.%s' % (mod_name, self.reporter.extension)
-                self.reporter.set_output(open(filename, 'w'))
-            try:
-                self.check_module(mod_name, checkers, rev_checkers)
-            except:
-                pass
+                reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
+                self.reporter.set_output(open(reportfile, 'w'))
+            self.check_file(filepath, modname, checkers)
         # notify global end
         for checker in rev_checkers:
             checker.close()
 
-    def check_module(self, mod_name, checkers, rev_checkers):
+    def check_file(self, filepath, modname, checkers):
         """check a module or package from its name
-        if mod_name is a package, recurse on its subpackages / submodules
+        if modname is a package, recurse on its subpackages / submodules
         """
+        # normalize the file path to parse the python source file
+        filepath = splitext(filepath)[0] + '.py'
         # get the given module representation
-        self.base_name = mod_name
-        self.base_file = None
+        self.base_name = modname
+        self.base_file = filepath
         # check this module
-        astng = self._check_module(mod_name, checkers, rev_checkers)
+        astng = self._check_file(filepath, modname, checkers)
         if astng is None:
             return
         # recurse in package except if __init__ was explicitly given
-        if not mod_name.endswith('.__init__') and astng.package:
-            # recurse on others packages / modules if this is a package
-            for mod_name in get_modules(mod_name, dirname(astng.file),
-                                        self.config.black_list):
-                self._check_module(mod_name, checkers, rev_checkers)
-                    
-    def _check_module(self, mod_name, checkers, rev_checkers):
+        if not modname.endswith('.__init__') and astng.package:
+            for filepath in get_module_files(dirname(filepath),
+                                             self.config.black_list):
+                if filepath == self.base_file:
+                    continue
+                modname = '.'.join(modpath_from_file(filepath))
+                self._check_file(filepath, modname, checkers)
+
+    def _check_file(self, filepath, modname, checkers):
         """check a module by building its astng representation"""
-        self.current_name = mod_name
-##         # notify visit begin
-##         for checker in checkers:
-##             checker.open_module()
-        self.open_module(mod_name)
+        self.set_current_module(modname, filepath)
         # get the module representation
-        astng = self.get_astng(mod_name)
+        astng = self.get_astng(filepath, modname)
         if astng is not None:
             # set the base file if necessary
             self.base_file = self.base_file or astng.file
+            # fix the current file (if the source file was not available or
+            # if its actually a c extension
+            self.current_file = astng.file
             # and check it
             self.check_astng_module(astng, checkers)
-##         # notify visit end
-##         for checker in rev_checkers:
-##             checker.close_module()
         return astng
         
-    def open_module(self, name):
-        """initialize counters for a given module name"""
-        self.stats['by_module'][name] = {}
-        self.stats['by_module'][name]['infos'] = 0
-        self.stats['by_module'][name]['warnings'] = 0
-        self.stats['by_module'][name]['errors'] = 0
-        self.stats['by_module'][name]['fatals'] = 0
+    def set_current_module(self, modname, filepath=None):
+        """set the name of the currently analyzed module and
+        init statistics for it
+        """
+        self.current_name = modname 
+        self.current_file = filepath or modname
+        self.stats['by_module'][modname] = {}
+        self.stats['by_module'][modname]['statement'] = 0
+        for msg_cat in MSG_TYPES.values():
+            self.stats['by_module'][modname][msg_cat] = 0
         self._module_msgs_state = {}
-
-    def get_astng(self, mod_name):
+        self._module_msg_cats_state = {}
+            
+    def get_astng(self, filepath, modname):
         """return a astng representation for a module"""
         try:
-            return self.manager.astng_from_module_name(mod_name)
+            return self.manager.astng_from_file(filepath, modname)
+        except SyntaxError, ex:
+            self.add_message('E0001', line=ex.lineno, args=ex.msg)
         except ASTNGBuildingException, ex:
-            self.add_message('F0001', args=ex)
+            # try to get it from
+            try:
+                return self.manager.astng_from_module_name(modname)
+            except SyntaxError, ex:
+                self.add_message('E0001', line=ex.lineno, args=ex.msg)
+            except ASTNGBuildingException, ex:
+                self.add_message('F0001', args=ex)
         except KeyboardInterrupt:
             raise
         except Exception, ex:
-            import traceback
-            traceback.print_exc()
+            if __debug__:
+                import traceback
+                traceback.print_exc()
             self.add_message('F0002', args=(ex.__class__, ex))
         
 
@@ -575,7 +734,7 @@ This is used by the global evaluation report (R0004).'}),
         node and recurse on its children
         """
         if astng.is_statement():
-            self.stats['statements'] += 1
+            self.stats['statement'] += 1
         # generate events for this node on each checkers
         for checker in checkers:
             checker.visit(astng)
@@ -591,14 +750,12 @@ This is used by the global evaluation report (R0004).'}),
         
     def open(self):
         """initialize counters"""
-        self.stats = { 'statements': 0,
-                       'infos'     : 0,
-                       'warnings'  : 0,
-                       'errors'    : 0,
-                       'fatals'    : 0,
-                       'by_module' : {},
+        self.stats = { 'by_module' : {},
                        'by_msg' : {},
+                       'statement' : 0
                        }
+        for msg_cat in MSG_TYPES.values():
+            self.stats[msg_cat] = 0
     
     def close(self):
         """close the whole package /module, it's time to make reports !
@@ -616,22 +773,17 @@ This is used by the global evaluation report (R0004).'}),
     # specific reports ########################################################
         
     def report_error_warning_stats(self, sect, stats, old_stats):
-        """make total errors / warnings report
-        """
-        lines = ('type', 'number', 'previous', 'difference')
-        for m_type in ('warnings', 'errors'):
-            new = stats[m_type]
-            old = old_stats.get(m_type, None)
-            if old is not None:
-                diff_str = diff_string(old, new)
-            else:
-                old, diff_str = 'NC', 'NC'
-            lines += (m_type, str(new), str(old), diff_str)
+        """make total errors / warnings report"""
+        lines = ['type', 'number', 'previous', 'difference']
+        lines += self.table_lines_from_stats(stats, old_stats,
+                                             ('convention',
+                                              'refactor',
+                                              'warning',
+                                              'error'))
         sect.append(Table(children=lines, cols=4, rheaders=1))
-        
+    
     def report_messages_stats(self, sect, stats, old_stats):
-        """make messages type report
-        """
+        """make messages type report"""
         if not stats['by_msg']:
             # don't print this report when we didn't detected any errors
             raise EmptyReport()
@@ -651,7 +803,7 @@ This is used by the global evaluation report (R0004).'}),
             # don't print this report when we are analysing a single module
             raise EmptyReport()
         by_mod = {} 
-        for m_type in ('fatals', 'errors', 'warnings'):
+        for m_type in ('fatal', 'error', 'warning', 'refactor', 'convention'):
             total = stats[m_type]
             for module in stats['by_module'].keys():
                 mod_total = stats['by_module'][module][m_type]
@@ -662,25 +814,29 @@ This is used by the global evaluation report (R0004).'}),
                 by_mod.setdefault(module, {})[m_type] = percent            
         sorted_result = []
         for module, mod_info in by_mod.items():
-            sorted_result.append((mod_info['errors'],
-                                  mod_info['warnings'],
+            sorted_result.append((mod_info['error'],
+                                  mod_info['warning'],
+                                  mod_info['refactor'],
+                                  mod_info['convention'],
                                   module))
         sorted_result.sort()
         sorted_result.reverse()
-        lines = ('module', 'error', 'warning')
+        lines = ['module', 'error', 'warning', 'refactor', 'convention']
         for line in sorted_result:
             if line[0] == 0 and line[1] == 0:
                 break
-            lines += (line[2], '%.2f' % line[0], '%.2f' % line[1])
-        if len(lines) == 3:
+            lines.append(line[-1])
+            for val in line[:-1]:
+                lines.append('%.2f' % val)
+        if len(lines) == 5:
             raise EmptyReport()
-        sect.append(Table(children=lines, cols=3, rheaders=1))
+        sect.append(Table(children=lines, cols=5, rheaders=1))
 
     def report_evaluation(self, sect, stats, old_stats):
         """make the global evaluation report"""
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
-        if stats['statements'] == 0:
+        if stats['statement'] == 0:
             raise EmptyReport()
         # get a global note for the code
         evaluation = self.config.evaluation
@@ -734,49 +890,11 @@ exit. This option may be a comma separated list.'''}),
             {'action' : "callback", 'callback' : self.cb_init_zope,
              'help' : "Initialize Zope products before starting."}),
             
-            ("cache-size",
-            {'action' : "callback", 'type' : 'int', 'metavar': '<size>',
-             'callback' : self.cb_astng_cache_size,
-             'help' : "Set the cache size for astng objects."}),
-            
             ("generate-rcfile",
              {'action' : "callback", 'callback' : self.cb_generate_config,
               'help' : '''Generate a sample configuration file according to \
 the current configuration. You can put other options before this one to use \
 them in the configuration. This option causes the program to exit'''}),
-            
-            ("enable-msg",
-             {'action' : "callback", 'type' : 'string', 'metavar': '<msg ids>',
-              'group': 'Reports',
-              'callback' : self.cb_enable_message,
-              'help' : '''Enable the message with the given id. This option \
-may be a comma separated list or be set multiple time.'''}),
-            
-            ("disable-msg",
-             {'action' : "callback", 'type' : 'string', 'metavar': '<msg ids>',
-              'group': 'Reports',
-              'callback' : self.cb_disable_message,
-              'help' : '''Disable the message with the given id. This option \
-may be a comma separated list or be set multiple time.'''}),
-
-            ("disable-report",
-             {'action' : "callback", 'type' : 'string', 'metavar': '<rpt ids>',
-              'group': 'Reports',
-              'callback' : self.cb_disable_report,
-              'help' : '''Disable the report with the given id. This option \
-may be a comma separated list or be set multiple time.'''}),
-
-            ("html",
-             {'action' : "callback", 'callback' : self.cb_set_format,
-              'group': 'Reports',
-              'help' : "Use HTML as output format instead of text"}),
-                                        
-            ("parseable",
-             {'action' : "callback", 'callback' : self.cb_set_format,
-              'group': 'Reports',
-              'help' : "Use a parseable text output format, so your favorite \
-text editor will be able to jump to the line corresponding to a message."}),
-            
             ), reporter=reporter)
         linter.quiet = quiet
         # register checkers
@@ -801,32 +919,19 @@ problem.
         # insert current working directory to the python path to have a correct
         # behaviour
         sys.path.insert(0, os.getcwd())
-        modnames = []
-        for modname in args:
-            if modname[-3:] == '.py' or modname.find(os.sep) > -1:
-                modname = '.'.join(modpath_from_file(modname))
-            modnames.append(modname)
-        linter.check(modnames)
+#        modnames = []
+#        for modname in args:
+#            if modname[-3:] == '.py' or modname.find(os.sep) > -1:
+#                modname = '.'.join(modpath_from_file(modname))
+#            modnames.append(modname)
+        linter.check(args)
         sys.path.pop(0)
 
     def cb_generate_config(self, *args, **kwargs):
         """optik callback for sample config file generation"""
         self.linter.generate_config()
-#        sys.exit(0)
-        
-    def cb_set_format(self, option, opt_name, value, parser):
-        """optik callback for HTML format setting"""
-        if opt_name == '--html':
-            from logilab.pylint.reporters.html import HTMLReporter
-            self.linter.set_reporter(HTMLReporter())
-        elif opt_name == '--parseable':
-            from logilab.pylint.reporters.text import TextReporter2
-            self.linter.set_reporter(TextReporter2())
-        
-    def cb_astng_cache_size(self, option, opt_name, value, parser):
-        """set the astng cache size"""
-        self.linter.manager.set_cache_size(int(value))
-        
+        sys.exit(0)
+         
     def cb_init_zope(self, *args, **kwargs):
         """optik callback for Zope products initialization"""
         import Zope
@@ -837,21 +942,6 @@ problem.
     def cb_disable_all_checkers(self, *args, **kwargs):
         """optik callback for disabling all checkers"""
         self.linter.disable_all_checkers()
-
-    def cb_disable_message(self, option, opt_name, value, parser):
-        """optik callback for disabling some particular messages"""
-        for msg_id in get_csv(value):
-            self.linter.disable_message(msg_id)
-            
-    def cb_disable_report(self, option, opt_name, value, parser):
-        """optik callback for disabling some particular messages"""
-        for r_id in get_csv(value):
-            self.linter.disable_report(r_id)
-            
-    def cb_enable_message(self, option, opt_name, value, parser):
-        """optik callback for enabling some particular messages"""
-        for msg_id in get_csv(value):
-            self.linter.enable_message(msg_id)
             
     def cb_help_message(self, option, opt_name, value, parser):
         """optik callback for printing some help about a particular message"""
@@ -863,10 +953,10 @@ problem.
                 print ex
                 print
                 continue
-#        sys.exit(0)
+        sys.exit(0)
         
 
 
 if __name__ == "__main__":
-    sys.stderr = sys.stdout #we don't want to write in stderr, only in stdout.
+    sys.stderr = sys.stdout
     Run(sys.argv[1:])

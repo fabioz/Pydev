@@ -17,7 +17,7 @@
 Some text manipulation utilities
 """
 
-__revision__ = "$Id: textutils.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: textutils.py,v 1.2 2004-10-26 14:18:33 fabioz Exp $"
 
 import re
 from os import linesep
@@ -45,7 +45,17 @@ def searchall(rgx, data):
 
 def normalize_text(text, line_len=80, indent=''):
     """normalize a text to display it with a maximum line size and optionaly
-    indentation
+    indentation. Blank lines are conserved.
+    """
+    result = []
+    for text in text.split('\n\n'):
+        result.append(normalize_paragraph(text, line_len, indent))
+    return ('\n%s\n' % indent).join(result)
+
+def normalize_paragraph(text, line_len=80, indent=''):
+    """normalize a text paragraph to display it with a maximum line size
+    and optional indentation (the indentation may be used top insert a
+    comment mark for instance)
     """
     text = text.replace(linesep, ' ')
     text = NORM_SPACES.sub(' ', text)

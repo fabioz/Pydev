@@ -1,3 +1,5 @@
+# pylint: disable-msg=W0611
+#
 # Copyright (c) 2002-2004 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
@@ -16,63 +18,11 @@
 """some functions that may be usefull for checkers
 """
 
-__revision__ = '$Id: utils.py,v 1.1 2004-10-26 12:52:30 fabioz Exp $'
+__revision__ = '$Id: utils.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $'
 
 from logilab.common import astng
-
-def get_nodes_from_class(node, klass):
-    """return the list of node instance of the given class"""
-    if isinstance(node, klass):
-        return [node]
-    result = []
-    for child_node in node.getChildNodes():
-        result += get_nodes_from_class(child_node, klass)
-    return result
-
-def get_names(node):
-    """return the list of accessed names from node"""
-    return [name.name for name in get_nodes_from_class(node, astng.Name)]
-
-
-def is_interface(klass):
-    """return true if the given class may be considered as an interface"""
-    if klass.__name__.endswith('Interface'):
-        return 1
-    for base in klass.__bases__:
-        if is_interface(base):
-            return 1
-    return 0
-
-def is_exception(klass):
-    """return true if the given class may be considered as an exception"""
-    if klass.__name__.endswith('Exception'):
-        return 1
-    for base in klass.__bases__:
-        if is_exception(base):
-            return 1
-    return 0
-
-def is_metaclass(klass):
-    """return true if the given class may be considered as a meta-class"""
-    if klass.__name__ == 'type':
-        return 1
-    for base in klass.__bases__:
-        if is_metaclass(base):
-            return 1
-    return 0
-
-
-def is_abstract(node, pass_is_abstract=1):
-    """return true if the method is abstract, ie raises a NotImplementError
-    or contains a single pass (if pass_is_abstract)
-    """
-    for child_node in node.code.getChildNodes():
-        if (isinstance(child_node, astng.Raise) and child_node.expr1 and
-              get_names(child_node.expr1)[0] == 'NotImplementedError'):
-            return 1
-        if pass_is_abstract and isinstance(child_node, astng.Pass):
-            return 1
-        return 0
+from logilab.common.astng.utils import is_exception, is_interface, \
+     is_metaclass, is_abstract, get_nodes_from_class, get_names
 
 
 def is_error(node):
@@ -81,7 +31,6 @@ def is_error(node):
         if isinstance(child_node, astng.Raise):
             return 1
         return 0
-
 
 def is_empty(node):
     """return true if the given node does nothing but 'pass'"""

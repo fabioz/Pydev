@@ -16,7 +16,7 @@
 HTML reporter
 """
 
-__revision__ = "$Id: html.py,v 1.1 2004-10-26 12:52:31 fabioz Exp $"
+__revision__ = "$Id: html.py,v 1.2 2004-10-26 14:18:37 fabioz Exp $"
 
 import sys
 from cgi import escape
@@ -31,7 +31,7 @@ class HTMLReporter(BaseReporter):
     """report messages and layouts in HTML
     """
 
-    __implements____ = IReporter
+    __implements__ = IReporter
     extension = 'html'
     
     def __init__(self, output=sys.stdout):
@@ -40,10 +40,10 @@ class HTMLReporter(BaseReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
-        module, obj, line = location
+        path, module, obj, line = location
         if type == 'info':
-            # print informal messages on 
-            print msg
+            # print informal messages on stderr
+            print >> sys.stderr, msg
         else:
             
             if self.include_ids:

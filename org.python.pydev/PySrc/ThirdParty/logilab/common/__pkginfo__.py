@@ -17,10 +17,10 @@
 logilab.common packaging information
 """
 
-__revision__ = "$Id: __pkginfo__.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: __pkginfo__.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 modname = 'common'
-numversion = (0, 6, 0)
+numversion = (0, 7, 0)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
@@ -57,5 +57,5 @@ include_dirs = [join('test', 'data')]
 
 debian_name = 'logilab-common'
 debian_maintainer = 'Alexandre Fayolle'
-debian_maintainer_email = 'alexandre.fayolle@logilab.fr'
+debian_maintainer_email = 'afayolle@debian.org'
 debian_handler = 'python-library'

@@ -17,7 +17,7 @@
 """
 
 __author__ = u"Sylvain Thenault"
-__revision__ = "$Id: astutils.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: astutils.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 import symbol
 import token

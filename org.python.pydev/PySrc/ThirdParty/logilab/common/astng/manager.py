@@ -16,11 +16,11 @@
 """
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: manager.py,v 1.1 2004-10-26 12:52:31 fabioz Exp $"
+__revision__ = "$Id: manager.py,v 1.2 2004-10-26 14:18:36 fabioz Exp $"
 
 import sys
 import os
-from os.path import normpath, dirname
+from os.path import normpath, dirname, basename, abspath, join, isdir, exists
 
 from logilab.common.cache import Cache
 from logilab.common.astng import ASTNGBuildingException
@@ -95,9 +95,14 @@ class AbstractASTNGManager(OptionsProviderMixIn):
         """given a module name, return the astng object"""
         raise NotImplementedError
 
-
 class FileBasedASTNGManager(AbstractASTNGManager):
     """build astng from files or modules, but mainly modules"""
+
+    def from_directory(self, directory, modname=None):
+        """given a module name, return the astng object"""
+        modname = modname or basename(directory)
+        directory = normpath(directory)
+        return Package(directory, modname, self)
 
     def astng_from_file(self, filepath, modname=None):
         """given a module name, return the astng object"""
@@ -107,12 +112,18 @@ class FileBasedASTNGManager(AbstractASTNGManager):
         except KeyError:
             try:
                 astng = self._builder.file_build(norm_file, modname)
+            except SyntaxError:
+                raise
             except Exception, ex:
+                import sys;exc_info = sys.exc_info()
+                import traceback;traceback.print_exception(exc_info[0], exc_info[1], exc_info[2])
+                
                 msg = 'Unable to load module %s (%s)' % (modname, ex)
                 raise ASTNGBuildingException(msg)
         self._cache[norm_file] = astng
         return astng
-
+    from_file = astng_from_file
+    
     def astng_from_module_name(self, modname):
         """given a module name, return the astng object"""
         try:
@@ -245,6 +256,73 @@ class ModuleBasedASTNGManager(AbstractASTNGManager):
     
 ASTNGManager = FileBasedASTNGManager
 
+
+class Package:
+    """a package using a dictionary interface
+
+    load submodules as needed
+    """
+    
+    def __init__(self, path, name, manager):
+        self.name = name
+        self.path = abspath(path)
+        self.manager = manager
+        self.parent = None
+        self.lineno = 0
+        self.__keys = None
+        self.__subobjects = None
+    
+    def get_subobject(self, name):
+        if self.__subobjects is None:
+            self.__subobjects = dict.fromkeys(self.keys())
+        obj = self.__subobjects[name]
+        if obj is None:
+            abspath = join(self.path, name)
+            if isdir(abspath):
+                obj = Package(abspath, name, self.manager)
+                obj.parent = self
+            else:
+                abspath += '.py'
+                obj = self.manager.astng_from_file(abspath, name)
+            self.__subobjects[name] = obj
+        return obj
+    
+    def keys(self):
+        if self.__keys is None:
+            self.__keys = []
+            for fname in os.listdir(self.path):
+                if fname.endswith('.py'):
+                    self.__keys.append(fname[:-3])
+                    continue
+                abspath = join(self.path, fname)
+                if isdir(abspath) and exists(join(abspath, '__init__.py')):
+                    self.__keys.append(fname)
+            self.__keys.sort()
+            print 'computed keys', self.__keys
+        return self.__keys[:]
+    
+    def values(self):
+        return [self.get_subobject(name) for name in self.keys()]
+        
+    def items(self):
+        return zip(self.keys(), self.values())
+    
+    def has_key(self, name):
+        return bool(self.get(name))
+    
+    def get(self, name, default=None):
+        try:
+            return self.get_subobject(name)
+        except KeyError:
+            return default
+        
+    def __getitem__(self, name):
+        return self.get_subobject(name)        
+    def __contains__(self, name):
+        return self.has_key(name)
+    def __iter__(self):
+        return iter(self.keys())
+    
 
 class Project:
     """a project handle a set of modules"""

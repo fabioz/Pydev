@@ -1,6 +1,11 @@
 PyLint's TODO list
 ------------------
 
+
+- un rapport avec les métriques vues dans TDD
+- métrique manquantes
+- tests
+
 * faire tourner sur wxpython...
 
 * test external dependancies
@@ -24,7 +29,7 @@ PyLint's TODO list
 
 * commenter les regexp de format.py
 
-* gestion nested_scopes
+* gestion nested_scopes (modes py2.1, 2.2... ?)
 
 * checkers :
   - vérifier arguments __new__
@@ -39,8 +44,3 @@ PyLint's TODO list
   - vérification utilisation __getattribute__, __slots__ dans new
   style class seulement
   - vérification assignements quand __slots__
-  - gestion *super*
-
-* rapports :
-  - un rapport avec les métriques vues dans TDD
-  - utilisation ureports

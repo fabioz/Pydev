@@ -45,7 +45,7 @@ package directory of your application.
 #
 # Happy twisting!
 #
-__revision__ = "$Id: twisted_distutils.py,v 1.1 2004-10-26 12:52:29 fabioz Exp $"
+__revision__ = "$Id: twisted_distutils.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
 
 from distutils.core import Distribution, Command
 from distutils.command.install import install

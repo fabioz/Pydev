@@ -17,7 +17,7 @@
 Check source code is ascii only or has an encoding declaration (PEP 263)
 """
 
-__revision__ = '$Id: misc.py,v 1.1 2004-10-26 12:52:30 fabioz Exp $'
+__revision__ = '$Id: misc.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $'
 
 import re
 
