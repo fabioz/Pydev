@@ -264,6 +264,10 @@ public class PyParser {
             
             if (info.reparseIfErrorFound){
                 newRoot = tryReparseAgain(info, parseErr);
+            } else {
+                info.currentLine = -1;
+                info.document = new Document(info.initial);
+                newRoot = tryReparseAgain(info, parseErr);
             }
             
             return new Object[]{newRoot, parseErr};

@@ -214,6 +214,10 @@ public class PythonNature implements IProjectNature {
     public IASTManager getAstManager() {
         return astManager;
     }
+    
+    public void setAstManager(IASTManager astManager){
+        this.astManager = astManager;
+    }
 
     /**
      * @param project

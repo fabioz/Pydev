@@ -1,0 +1,80 @@
+/*
+ * Created on Mar 9, 2005
+ *
+ * @author Fabio Zadrozny
+ */
+package org.python.pydev.editor.codecompletion;
+
+import java.io.File;
+
+import org.eclipse.jface.text.IDocument;
+import org.python.pydev.editor.PyEdit;
+import org.python.pydev.plugin.PythonNature;
+
+
+/**
+ * This class defines the information used for a code completion request.
+ * @author Fabio Zadrozny
+ */
+public class CompletionRequest{
+
+    public CompletionRequest(PyEdit edit, IDocument doc,
+            String activationToken, int documentOffset, int qlen,
+            PyCodeCompletion codeCompletion, 
+            String qualifier){
+        this.editorFile = edit.getEditorFile();
+        this.nature = edit.getPythonNature();
+        this.doc = doc;
+        this.activationToken  = activationToken;
+        this.documentOffset = documentOffset;
+        this.qlen = qlen;
+        this.codeCompletion = codeCompletion;
+        this.qualifier = qualifier;
+        
+    }
+
+    public CompletionRequest(File editorFile, PythonNature nature, IDocument doc,
+            String activationToken, int documentOffset, int qlen,
+            PyCodeCompletion codeCompletion, 
+            String qualifier){
+
+        this.editorFile = editorFile;
+        this.nature = nature;
+        this.doc = doc;
+        this.activationToken  = activationToken;
+        this.documentOffset = documentOffset;
+        this.qlen = qlen;
+        this.codeCompletion = codeCompletion;
+        this.qualifier = qualifier;
+        
+    }
+
+    public CompletionRequest(File editorFile, PythonNature nature, IDocument doc,
+            int documentOffset,
+            PyCodeCompletion codeCompletion){
+
+        String[] strs = codeCompletion.getActivationTokenAndQual(doc, documentOffset); 
+        this.activationToken = strs[0];
+        this.qualifier = strs[1];
+        int qlen = qualifier.length();
+        
+        
+        this.editorFile = editorFile;
+        this.nature = nature;
+        this.doc = doc;
+        this.documentOffset = documentOffset;
+        this.qlen = qlen;
+        this.codeCompletion = codeCompletion;
+        
+    }
+
+    
+    File editorFile;
+    PythonNature nature;
+    IDocument doc;
+    String activationToken; 
+    String qualifier; 
+    int documentOffset; 
+    int qlen;
+    PyCodeCompletion codeCompletion;
+}

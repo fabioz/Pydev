@@ -13,13 +13,6 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.swt.graphics.Image;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.revisited.IToken;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.ImageCache;
-import org.python.pydev.ui.UIConstants;
 
 /**
  * @author Fabio Zadrozny
@@ -47,47 +40,13 @@ public class CompletionCache {
      */
     public static final boolean USE_CACHE = false;
 
-    /**
-     * This is an image cache (probably this should be initialized elsewhere).
-     */
-    private ImageCache imageCache;
     
     /**
      * Constructor (creates the image cache).
      */
     public CompletionCache(){
-        imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
     }
     
-    /**
-     * Returns an image for the given type
-     * @param type
-     * @return
-     */
-    public Image getImageForType(int type){
-        switch(type){
-        	case PyCodeCompletion.TYPE_IMPORT: 
-        	    return imageCache.get(UIConstants.COMPLETION_IMPORT_ICON);
-        	
-        	case PyCodeCompletion.TYPE_CLASS: 
-        	    return imageCache.get(UIConstants.COMPLETION_CLASS_ICON);
-        	
-        	case PyCodeCompletion.TYPE_FUNCTION: 
-        	    return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
-
-        	case PyCodeCompletion.TYPE_ATTR: 
-        	    return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
-
-        	case PyCodeCompletion.TYPE_BUILTIN: 
-        	    return imageCache.get(UIConstants.BUILTINS_ICON);
-        	
-        	case PyCodeCompletion.TYPE_PARAM: 
-        	    return imageCache.get(UIConstants.COMPLETION_PARAMETERS_ICON);
-        	
-        	default:
-        	    return null;
-        }
-    }
     
     /**
      * Returns all the completions in a list in position 0 of tuple and boolean in position 1, indication
@@ -95,30 +54,28 @@ public class CompletionCache {
      * @throws CoreException
      * @throws BadLocationException
      */
-    public Object[] getProposals(PyEdit edit, IDocument doc,
-            String activationToken, int documentOffset, int qlen,
-            PyCodeCompletion codeCompletion) throws CoreException, BadLocationException {
+    public Object[] getProposals(CompletionRequest request) throws CoreException, BadLocationException {
 
         //this indicates whether the templates are going to be shown (if in imports section they are not).
         boolean showTemplates = true;
         
         //if non empty string, we're in imports section.
-        String importsTipperStr = codeCompletion.getImportsTipperStr(activationToken, edit, doc, documentOffset);
+        String importsTipperStr = request.codeCompletion.getImportsTipperStr(request);
         
         String partialDoc = ""; //the document used as the key for the cache.
         if (importsTipperStr.length() != 0){
             partialDoc = importsTipperStr;
             showTemplates = false; //don't show templates if we are in the imports section.
         }else{
-            partialDoc = PyCodeCompletion.getDocToParse(doc, documentOffset);
-            partialDoc += activationToken;
+            partialDoc = PyCodeCompletion.getDocToParse(request.doc, request.documentOffset);
+            partialDoc += request.activationToken;
         }
         
         
         //Get the cache proposals (if wanted - see the constant)
         List allProposals = null;
         if(USE_CACHE){
-            allProposals = getCacheProposals(partialDoc, documentOffset, qlen);
+            allProposals = getCacheProposals(partialDoc, request.documentOffset, request.qlen);
         }
 
         
@@ -126,41 +83,7 @@ public class CompletionCache {
         if(allProposals == null){ //no cache proposals
             
             //get the code completion proposals.
-            List theList = codeCompletion.getCodeCompletionProposals(edit, doc, documentOffset, activationToken);
-            allProposals = new ArrayList();
-            for (Iterator iter = theList.iterator(); iter.hasNext();) {
-                
-                Object obj = iter.next();
-                
-                if(obj instanceof IToken){
-	                IToken element =  (IToken) obj;
-	                
-	                String name = element.getRepresentation();
-	                String docStr = element.getDocStr();
-	                int type = element.getType();
-	                CompletionProposal proposal = new CompletionProposal(name,
-	                        documentOffset - qlen, qlen, name.length(), getImageForType(type), null, null, docStr);
-	                
-	                allProposals.add(proposal);
-	            
-                }else if(obj instanceof Object[]){
-
-	                Object element[] = (Object[]) obj;
-	                
-	                String name = (String) element[0];
-	                String docStr = (String) element [1];
-	                int type = -1;
-	                if(element.length > 2){
-	                    type = ((Integer) element [2]).intValue();
-	                }
-	                CompletionProposal proposal = new CompletionProposal(name,
-	                        documentOffset - qlen, qlen, name.length(), getImageForType(type), null, null, docStr);
-	                
-	                allProposals.add(proposal);
-                }
-                
-            }
-
+            allProposals = request.codeCompletion.getCodeCompletionProposals(request);
             
             
             //add the newly gotten proposals to the cache.
@@ -171,6 +94,7 @@ public class CompletionCache {
         return new Object[]{allProposals, new Boolean(showTemplates)};
 
     }
+
 
     /**
      * This method adds the proposals to a cache, so that they can be retrieved later with little effort.

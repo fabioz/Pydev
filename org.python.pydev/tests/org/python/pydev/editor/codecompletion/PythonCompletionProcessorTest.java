@@ -5,19 +5,34 @@
  */
 package org.python.pydev.editor.codecompletion;
 
-import org.eclipse.jface.text.Document;
+import java.util.List;
 
-import junit.framework.TestCase;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 
 /**
  * @author Fabio Zadrozny
  */
-public class PythonCompletionProcessorTest extends TestCase {
+public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 
     private PyCodeCompletion codeCompletion;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(PythonCompletionProcessorTest.class);
+//      try {
+//          PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
+//	      test.setUp();
+//	      test.testCompleteCompletion();
+//	      test.tearDown();
+//	  } catch (Exception e) {
+//	      e.printStackTrace();
+//	  } catch(Error e){
+//	      e.printStackTrace();
+//	  }
     }
 
     /*
@@ -25,7 +40,7 @@ public class PythonCompletionProcessorTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        codeCompletion = new PyCodeCompletion();
+        codeCompletion = new PyCodeCompletion(false);
     }
 
     /*
@@ -35,6 +50,20 @@ public class PythonCompletionProcessorTest extends TestCase {
         super.tearDown();
     }
     
+    
+	public void testCompleteCompletion() throws CoreException, BadLocationException{
+        IDocument doc = new Document("import testl");
+        int documentOffset = 12;
+        CompletionRequest request = new CompletionRequest(null, 
+                nature, doc, documentOffset,
+                codeCompletion);
+
+        List props = codeCompletion.getCodeCompletionProposals(request);
+        ICompletionProposal[] codeCompletionProposals = codeCompletion.onlyValidSorted(props, request.qualifier);
+        assertEquals(1, codeCompletionProposals.length);
+        assertEquals("testlib", codeCompletionProposals[0].getDisplayString());
+        
+    }
     
     public void testGetActTok(){
         String strs[];
@@ -85,5 +114,6 @@ public class PythonCompletionProcessorTest extends TestCase {
         
         
     }
+
 
 }

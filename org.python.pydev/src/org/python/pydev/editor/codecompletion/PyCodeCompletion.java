@@ -8,6 +8,9 @@ package org.python.pydev.editor.codecompletion;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -15,16 +18,20 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.swt.graphics.Image;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.ui.ImageCache;
+import org.python.pydev.ui.UIConstants;
 
 /**
  * @author Dmoore
@@ -71,7 +78,54 @@ public class PyCodeCompletion {
      * Position in document prior to the activation token
      */
     private int docBoundary = -1; 
+    
+    /**
+     * 
+     */
+    public PyCodeCompletion() {
+        imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
+    }
 
+    /**
+     * 
+     */
+    public PyCodeCompletion(boolean useImageCache) {
+        if(useImageCache)
+            imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
+    }
+
+    /**
+     * Returns an image for the given type
+     * @param type
+     * @return
+     */
+    public Image getImageForType(int type){
+        if(imageCache == null)
+            return null;
+        
+        switch(type){
+        	case PyCodeCompletion.TYPE_IMPORT: 
+        	    return imageCache.get(UIConstants.COMPLETION_IMPORT_ICON);
+        	
+        	case PyCodeCompletion.TYPE_CLASS: 
+        	    return imageCache.get(UIConstants.COMPLETION_CLASS_ICON);
+        	
+        	case PyCodeCompletion.TYPE_FUNCTION: 
+        	    return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
+
+        	case PyCodeCompletion.TYPE_ATTR: 
+        	    return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
+
+        	case PyCodeCompletion.TYPE_BUILTIN: 
+        	    return imageCache.get(UIConstants.BUILTINS_ICON);
+        	
+        	case PyCodeCompletion.TYPE_PARAM: 
+        	    return imageCache.get(UIConstants.COMPLETION_PARAMETERS_ICON);
+        	
+        	default:
+        	    return null;
+        }
+    }
 
     /**
      * Returns a list with the tokens to use for autocompletion.
@@ -82,13 +136,14 @@ public class PyCodeCompletion {
      * 1 - String  - token description
      * 2 - Integer - token type (see constants)
      * 
+     * @return list of IToken.
+     * 
      * (This is where we do the "REAL" work).
      * @throws BadLocationException
      */
-    public List getCodeCompletionProposals(PyEdit edit, IDocument doc, int documentOffset,
-            java.lang.String theActivationToken) throws CoreException, BadLocationException {
+    public List getCodeCompletionProposals(CompletionRequest request) throws CoreException, BadLocationException {
         
-        PythonNature pythonNature = edit.getPythonNature();
+        PythonNature pythonNature = request.nature;
         if(pythonNature == null){
             throw new RuntimeException("Unable to get python nature.");
         }
@@ -100,19 +155,21 @@ public class PyCodeCompletion {
         List theList = new ArrayList();
         PythonShell serverShell = null;
         try {
-            serverShell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
+            if(CompiledModule.COMPILED_MODULES_ENABLED){
+	            serverShell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         
-        String trimmed = theActivationToken.replace('.', ' ').trim();
+        String trimmed = request.activationToken.replace('.', ' ').trim();
         
-        String importsTipper = getImportsTipperStr(theActivationToken, edit, doc, documentOffset);
+        String importsTipper = getImportsTipperStr(request);
         
-        int line = doc.getLineOfOffset(documentOffset);
-        IRegion region = doc.getLineInformation(line);
+        int line = request.doc.getLineOfOffset(request.documentOffset);
+        IRegion region = request.doc.getLineInformation(line);
         
-        CompletionState state = new CompletionState(line,documentOffset - region.getOffset(), null, edit.getPythonNature());
+        CompletionState state = new CompletionState(line,request.documentOffset - region.getOffset(), null, request.nature);
         
         //code completion in imports 
         if (importsTipper.length()!=0) { 
@@ -122,18 +179,18 @@ public class PyCodeCompletion {
             //let's see what we have...
 
             importsTipper = importsTipper.trim();
-            IToken[] imports = astManager.getCompletionsForImport(importsTipper, edit.getPythonNature());
+            IToken[] imports = astManager.getCompletionsForImport(importsTipper, request.nature);
             theList.addAll(Arrays.asList(imports));
         
 
             
         //code completion for a token
         } else if (trimmed.equals("") == false
-                && theActivationToken.indexOf('.') != -1) {
+                && request.activationToken.indexOf('.') != -1) {
         
             List completions = new ArrayList();
             if (trimmed.equals("self")) {
-                SimpleNode s = (SimpleNode) PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, pythonNature, line))[0];
+                SimpleNode s = (SimpleNode) PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, pythonNature, line))[0];
                 if(s != null){
                     FindScopeVisitor visitor = new FindScopeVisitor(line, 0);
                     try {
@@ -144,7 +201,7 @@ public class PyCodeCompletion {
 	                        if(node instanceof ClassDef){
 	                            ClassDef d = (ClassDef) node;
 	                            state.activationToken = d.name;
-	            	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, state);
+	            	            IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
 	            	            theList.addAll(Arrays.asList(comps));
 	                            break;
 	                        }
@@ -155,14 +212,14 @@ public class PyCodeCompletion {
                 }
                 
             } else {
-                if(theActivationToken.endsWith(".")){
-                    theActivationToken = theActivationToken.substring(0, theActivationToken.length()-1);
+                if(request.activationToken.endsWith(".")){
+                    request.activationToken = request.activationToken.substring(0, request.activationToken.length()-1);
                 }
                 
-                state.activationToken = theActivationToken;
+                state.activationToken = request.activationToken;
 
                 //Ok, looking for a token in globals.
-	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, state);
+	            IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
 	            theList.addAll(Arrays.asList(comps));
             }
             theList.addAll(completions);
@@ -170,14 +227,64 @@ public class PyCodeCompletion {
         } else { //go to globals
             List completions = new ArrayList();
             
-            state.activationToken = theActivationToken;
-            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, state);
+            state.activationToken = request.activationToken;
+            IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
             
             theList.addAll(Arrays.asList(comps));
         }
-        return theList;
+
+        ArrayList ret = new ArrayList();
+        changeItokenToCompletionPropostal(request, ret, theList);
+
+        return ret;
     }
 
+    /**
+     * @param request
+     * @param convertedProposals
+     * @param iTokenList
+     */
+    private void changeItokenToCompletionPropostal(CompletionRequest request, List convertedProposals, List iTokenList) {
+        for (Iterator iter = iTokenList.iterator(); iter.hasNext();) {
+            
+            Object obj = iter.next();
+            
+            if(obj instanceof IToken){
+                IToken element =  (IToken) obj;
+                
+                String name = element.getRepresentation();
+                String docStr = element.getDocStr();
+                int type = element.getType();
+                CompletionProposal proposal = new CompletionProposal(name,
+                        request.documentOffset - request.qlen, request.qlen, name.length(), getImageForType(type), null, null, docStr);
+                
+                convertedProposals.add(proposal);
+            
+            }else if(obj instanceof Object[]){
+
+                Object element[] = (Object[]) obj;
+                
+                String name = (String) element[0];
+                String docStr = (String) element [1];
+                int type = -1;
+                if(element.length > 2){
+                    type = ((Integer) element [2]).intValue();
+                }
+                CompletionProposal proposal = new CompletionProposal(name,
+                        request.documentOffset - request.qlen, request.qlen, name.length(), getImageForType(type), null, null, docStr);
+                
+                convertedProposals.add(proposal);
+            }
+            
+        }
+    }
+
+    
+    
+    /**
+     * This is an image cache (probably this should be initialized elsewhere).
+     */
+    private ImageCache imageCache;
 
     /**
      * Returns non empty string if we are in imports section 
@@ -189,13 +296,12 @@ public class PyCodeCompletion {
      * @return single space string if we are in imports but without any module
      *         string with current module (e.g. foo.bar.
      */
-    public String getImportsTipperStr(String theActivationToken, PyEdit edit,
-            IDocument doc, int documentOffset) {
+    public String getImportsTipperStr(CompletionRequest request) {
         String importMsg = "";
         try {
             
-            IRegion region = doc.getLineInformationOfOffset(documentOffset);
-            String string = doc.get(region.getOffset(), documentOffset-region.getOffset());
+            IRegion region = request.doc.getLineInformationOfOffset(request.documentOffset);
+            String string = request.doc.get(region.getOffset(), request.documentOffset-region.getOffset());
             int fromIndex = string.indexOf("from");
             int importIndex = string.indexOf("import");
 
@@ -495,5 +601,43 @@ public class PyCodeCompletion {
         return false;
 
     }
+    
+    /**
+     * @param pythonAndTemplateProposals
+     * @param qualifier
+     * @return
+     */
+    public ICompletionProposal[] onlyValidSorted(List pythonAndTemplateProposals, String qualifier) {
+        //FOURTH: Now, we have all the proposals, only thing is deciding wich ones are valid (depending on
+        //qualifier) and sorting them correctly.
+        Collection returnProposals = new HashSet();
+        String lowerCaseQualifier = qualifier.toLowerCase();
+        
+        for (Iterator iter = pythonAndTemplateProposals.iterator(); iter.hasNext();) {
+            Object o = iter.next();
+            if (o instanceof ICompletionProposal) {
+                ICompletionProposal proposal = (ICompletionProposal) o;
+            
+	            if (proposal.getDisplayString().toLowerCase().startsWith(lowerCaseQualifier)) {
+	                returnProposals.add(proposal);
+	            }
+            }else{
+                throw new RuntimeException("Error: expected instanceof ICompletionProposal and received: "+o.getClass().getName());
+            }
+        }
+
+        ICompletionProposal[] proposals = new ICompletionProposal[returnProposals.size()];
+
+        // and fill with list elements
+        returnProposals.toArray(proposals);
+
+        Arrays.sort(proposals, proposalsComparator);
+        return proposals;
+    }
+
+    /**
+     * Compares proposals so that we can order them.
+     */
+    private ProposalsComparator proposalsComparator = new ProposalsComparator();
 
 }

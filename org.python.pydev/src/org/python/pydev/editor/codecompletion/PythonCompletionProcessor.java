@@ -5,10 +5,6 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -50,10 +46,6 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      */
     private PyEdit edit;
 
-    /**
-     * Compares proposals so that we can order them.
-     */
-    private ProposalsComparator proposalsComparator = new ProposalsComparator();
 
 
     /**
@@ -77,11 +69,6 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
             java.lang.String completeDoc = doc.get();
             
-            String[] strs = codeCompletion.getActivationTokenAndQual(doc, documentOffset); 
-
-            String activationToken = strs[0];
-            String qualifier = strs[1];
-            int qlen = qualifier.length();
 
             //list for storing the proposals
             ArrayList pythonAndTemplateProposals = new ArrayList();
@@ -103,7 +90,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 	            }
 	
 	            try {
-                    Object[] objects = getPythonProposals(documentOffset, doc, activationToken, qlen);
+                    Object[] objects = getPythonProposals(documentOffset, doc);
                     List pythonProposals = (List) objects[0];
                     showTemplates = ((Boolean)objects[1]).booleanValue();
                     pythonAndTemplateProposals.addAll(pythonProposals);
@@ -115,6 +102,11 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             
             
             
+            String[] strs = codeCompletion.getActivationTokenAndQual(doc, documentOffset); 
+
+            String activationToken = strs[0];
+            String qualifier = strs[1];
+
             
             //THIRD: Get template proposals (if asked for)
             if(showTemplates){
@@ -124,28 +116,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
             
             
-            
-            
-            
-            
-            //FOURTH: Now, we have all the proposals, only thing is deciding wich ones are valid (depending on
-            //qualifier) and sorting them correctly.
-            Collection returnProposals = new HashSet();
-            String lowerCaseQualifier = qualifier.toLowerCase();
-            
-            for (Iterator iter = pythonAndTemplateProposals.iterator(); iter.hasNext();) {
-                ICompletionProposal proposal = (ICompletionProposal) iter.next();
-                if (proposal.getDisplayString().toLowerCase().startsWith(lowerCaseQualifier)) {
-                    returnProposals.add(proposal);
-                }
-            }
-
-            ICompletionProposal[] proposals = new ICompletionProposal[returnProposals.size()];
-
-            // and fill with list elements
-            returnProposals.toArray(proposals);
-
-            Arrays.sort(proposals, proposalsComparator);
+            ICompletionProposal[] proposals = codeCompletion.onlyValidSorted(pythonAndTemplateProposals, qualifier);
             // Return the proposals
             return proposals;
         } catch (CoreException e) {
@@ -158,6 +129,8 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     
     
     
+
+
     /**
      * Returns the python proposals as a list.
      * First parameter of tuple is a list and second is a Boolean object indicating whether the templates
@@ -165,11 +138,14 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @throws CoreException
      * @throws BadLocationException
      */
-    private Object[] getPythonProposals(int documentOffset, IDocument doc, String activationToken, int qlen) throws CoreException, BadLocationException {
+    private Object[] getPythonProposals(int documentOffset, IDocument doc) throws CoreException, BadLocationException {
         //we always ask the completions cache... even if it is not in the cache (cache takes care of asking them
         //and putting them in it for later calls).
-        return  this.completionCache.getProposals(edit, doc, activationToken, documentOffset,
-                qlen, codeCompletion);
+        return  this.completionCache.getProposals(
+                new CompletionRequest(edit.getEditorFile(), 
+                        edit.getPythonNature(), doc, documentOffset,
+                        codeCompletion)
+                );
     }
 
     

@@ -5,25 +5,15 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import junit.framework.TestCase;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.plugin.PythonNature;
 
 /**
  * @author Fabio Zadrozny
  */
-public class PythonPathHelperTest extends TestCase {
+public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
-    //NOTE: this should be gotten from some variable to point to the python lib (less system dependence, but still, some).
-    public static final String PYTHON_INSTALL="C:/bin/Python23/";
-    //NOTE: this should set to the tests pysrc location, so that it can be added to the pythonpath.
-    public static final String TEST_PYSRC_LOC="D:/dev_programs/eclipse_3/eclipse/workspace/org.python.pydev/tests/pysrc/";
     
-	public ASTManager manager ;
-	public PythonNature nature;
 	public String qual = "";
 	public String token = "";
 	public int line;
@@ -37,10 +27,6 @@ public class PythonPathHelperTest extends TestCase {
      */
     public void setUp() throws Exception {
         super.setUp();
-        CompiledModule.COMPILED_MODULES_ENABLED = false;
-	    manager = new ASTManager();
-	    nature = new PythonNature();
-	    manager.changePythonPath(PYTHON_INSTALL+"lib|"+TEST_PYSRC_LOC, null, new NullProgressMonitor());
     }
     
     /**
@@ -84,7 +70,7 @@ public class PythonPathHelperTest extends TestCase {
         IToken[] comps = null;
         Document doc = new Document(sDoc);
         CompletionState state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = ((ASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
         assertEquals(6, comps.length);
 
         ASTManagerTest.assertIsIn("TestCase", comps);
@@ -110,7 +96,7 @@ public class PythonPathHelperTest extends TestCase {
 		IToken[] comps = null;
         Document doc = new Document(sDoc);
         CompletionState state = new CompletionState(line,col, token, nature);
-		comps = manager.getCompletionsForToken(doc, state);
+		comps = ((ASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
 		assertTrue(comps.length > 5);
         ASTManagerTest.assertIsIn("assertEquals", comps);
         ASTManagerTest.assertIsIn("assertNotEquals", comps);
@@ -131,7 +117,7 @@ public class PythonPathHelperTest extends TestCase {
 		IToken[] comps = null;
         Document doc = new Document(sDoc);
         CompletionState state = new CompletionState(line,col, token, nature);
-		comps = manager.getCompletionsForToken(doc, state);
+		comps = ((ASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
 		assertTrue(comps.length > 5);
         ASTManagerTest.assertIsIn("assertEquals", comps);
         ASTManagerTest.assertIsIn("assertNotEquals", comps);
@@ -153,7 +139,7 @@ public class PythonPathHelperTest extends TestCase {
 		IToken[] comps = null;
         Document doc = new Document(sDoc);
         CompletionState state = new CompletionState(line,col, token, nature);
-		comps = manager.getCompletionsForToken(doc, state);
+		comps = ((ASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
 		assertTrue(comps.length > 5);
         ASTManagerTest.assertIsIn("assertEquals", comps);
         ASTManagerTest.assertIsIn("assertNotEquals", comps);
@@ -174,7 +160,7 @@ public class PythonPathHelperTest extends TestCase {
         IToken[] comps = null;
         Document doc = new Document(sDoc);
         CompletionState state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = ((ASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
         assertEquals(6, comps.length);
 
         ASTManagerTest.assertIsIn("TestCase", comps);
@@ -198,7 +184,7 @@ public class PythonPathHelperTest extends TestCase {
 		IToken[] comps = null;
         Document doc = new Document(sDoc);
         CompletionState state = new CompletionState(line,col, token, nature);
-		comps = manager.getCompletionsForToken(doc, state);
+		comps = ((ASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
 		assertTrue(comps.length > 5);
         ASTManagerTest.assertIsIn("assertEquals", comps);
         ASTManagerTest.assertIsIn("assertNotEquals", comps);
@@ -220,7 +206,7 @@ public class PythonPathHelperTest extends TestCase {
 		IToken[] comps = null;
         Document doc = new Document(sDoc);
         CompletionState state = new CompletionState(line,col, token, nature);
-		comps = manager.getCompletionsForToken(doc, state);
+		comps = ((ASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
 		assertEquals(2, comps.length);
         ASTManagerTest.assertIsIn("test1", comps);
         ASTManagerTest.assertIsIn("test2", comps);
@@ -235,7 +221,7 @@ public class PythonPathHelperTest extends TestCase {
 //        try {
 //            PythonPathHelperTest test = new PythonPathHelperTest();
 //            test.setUp();
-//            test.testRelativeImport();
+//            test.testModuleCompletion();
 //            test.tearDown();
 //        } catch (Exception e) {
 //            e.printStackTrace();
