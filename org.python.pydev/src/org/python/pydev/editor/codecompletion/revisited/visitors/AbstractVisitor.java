@@ -161,7 +161,7 @@ public abstract class AbstractVisitor extends VisitorBase{
      * @return
      * @throws Exception
      */
-    public static IToken[] getTokens(SimpleNode ast, int which, String moduleName) throws Exception {
+    public static IToken[] getTokens(SimpleNode ast, int which, String moduleName) {
         AbstractVisitor modelVisitor;
         if(which == INNER_DEFS){
             modelVisitor = new InnerModelVisitor();
@@ -170,7 +170,11 @@ public abstract class AbstractVisitor extends VisitorBase{
         }
         
         if (ast != null){
-            ast.accept(modelVisitor);
+            try {
+                ast.accept(modelVisitor);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             return (SourceToken[]) modelVisitor.tokens.toArray(new SourceToken[0]);
         }else{
             return new SourceToken[0];

@@ -206,6 +206,19 @@ public class ASTManagerTest extends TestCase {
         
     }
 
+    public void testRecursion(){
+        token = "B";
+        line = 0;
+        col = 0;
+        sDoc = ""+
+			"class A(B):pass          \n" +    
+			"class B(A):pass          \n";
+        doc = new Document(sDoc);
+        state = new CompletionState(line,col, token, nature);
+        comps = manager.getCompletionsForToken(doc, state);
+        assertEquals(1, comps.length);
+        
+    }
     
     public void testLocals(){
         token = "";
@@ -254,8 +267,18 @@ public class ASTManagerTest extends TestCase {
         assertTrue("The searched token ("+string+")was not found in the completions", found);
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args)  {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
+        
         junit.textui.TestRunner.run(ASTManagerTest.class);
+
+//        try {
+//            ASTManagerTest test = new ASTManagerTest();
+//            test.setUp();
+//            test.testRecursion();
+//            test.tearDown();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 }

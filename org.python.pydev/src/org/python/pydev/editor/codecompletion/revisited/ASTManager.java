@@ -308,7 +308,8 @@ public class ASTManager implements Serializable, IASTManager {
 
                 IToken[] globalTokens;
                 if(tok != null && tok.length() > 0){
-                    globalTokens = m.getGlobalTokens(tok, this, -1, -1, nature);
+                    CompletionState state2 = new CompletionState(-1,-1,tok,nature);
+                    globalTokens = m.getGlobalTokens(state2, this);
                 }else{
                     globalTokens = m.getGlobalTokens();
                 }
@@ -457,11 +458,20 @@ public class ASTManager implements Serializable, IASTManager {
      * @return
      */
     public IToken[] getCompletionsForToken(IDocument doc, CompletionState state) {
-        Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, state.nature, state.line));
-        SimpleNode n = (SimpleNode) obj[0];
-        AbstractModule module = AbstractModule.createModule(n);
-        state.recursing = false;
-        return getCompletionsForModule( module, state);
+        IToken[] completionsForModule;
+        try {
+	        Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, state.nature, state.line));
+	        SimpleNode n = (SimpleNode) obj[0];
+	        AbstractModule module = AbstractModule.createModule(n);
+	        state.recursing = false;
+        
+            completionsForModule = getCompletionsForModule(module, state);
+
+        } catch (CompletionRecustionException e) {
+            completionsForModule = new IToken[]{ new ConcreteToken(e.getMessage(), e.getMessage(), "","", PyCodeCompletion.TYPE_UNKNOWN)};
+        }
+        
+        return completionsForModule;
     }
 
     /**
@@ -472,37 +482,40 @@ public class ASTManager implements Serializable, IASTManager {
      * @return
      */
     private IToken[] getBuiltinsCompletions(CompletionState state){
+        CompletionState state2 = state.getCopy();
+        state2.activationToken = null;
+
         //check for the builtin types.
         if(state.activationToken.endsWith("'") || state.activationToken.endsWith("\"")){
             //ok, we are getting code completion for a string.
-            AbstractModule m = getModule("__builtin__", state.nature);
-            return m.getGlobalTokens("str", this, state.line, state.col, state.nature);
+	        state2.activationToken = "str";
         }
 
         if(state.activationToken.endsWith("]")){
             //ok, we are getting code completion for a list.
-            AbstractModule m = getModule("__builtin__", state.nature);
-            return m.getGlobalTokens("list", this, state.line, state.col, state.nature);
+            state2.activationToken = "list";
         }
 
         if(state.activationToken.endsWith("}")){
             //ok, we are getting code completion for a dict.
-            AbstractModule m = getModule("__builtin__", state.nature);
-            return m.getGlobalTokens("dict", this, state.line, state.col, state.nature);
+            state2.activationToken = "dict";
         }
 
         try {
             Integer.parseInt(state.activationToken);
-            AbstractModule m = getModule("__builtin__", state.nature);
-            return m.getGlobalTokens("int", this, state.line, state.col, state.nature);
+            state2.activationToken = "int";
         } catch (Exception e) { //ok, not parsed as int
         }
 
         try {
             Float.parseFloat(state.activationToken);
-            AbstractModule m = getModule("__builtin__", state.nature);
-            return m.getGlobalTokens("float", this, state.line, state.col, state.nature);
+            state2.activationToken = "float";
         } catch (Exception e) { //ok, not parsed as int
+        }
+
+        if(state2.activationToken != null){
+            AbstractModule m = getModule("__builtin__", state.nature);
+            return m.getGlobalTokens(state2, this);
         }
         return null;
     }
@@ -530,7 +543,7 @@ public class ASTManager implements Serializable, IASTManager {
 
             if (state.activationToken.length() == 0) {
 
-		        List completions = getGlobalCompletions(globalTokens, importedModules, wildImportedModules, state);
+		        List completions = getGlobalCompletions(globalTokens, importedModules, wildImportedModules, state, module);
 		        
 		        //now find the locals for the module
 		        if (state.line >= 0){
@@ -574,7 +587,7 @@ public class ASTManager implements Serializable, IASTManager {
                 }
 
                 //it was not a module (would have returned already), so, try to get the completions for a global token defined.
-                IToken[] tokens = module.getGlobalTokens(state.activationToken, this, state.line, state.col, state.nature);
+                IToken[] tokens = module.getGlobalTokens(state, this);
                 if (tokens.length > 0){
                     return tokens;
                 }
@@ -657,8 +670,9 @@ public class ASTManager implements Serializable, IASTManager {
      * @param globalTokens
      * @param importedModules
      * @param wildImportedModules
+     * @param module
      */
-    private List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, CompletionState state) {
+    private List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, CompletionState state, AbstractModule current) {
         List completions = new ArrayList();
 
         //in completion with nothing, just go for what is imported and global tokens.
@@ -683,6 +697,7 @@ public class ASTManager implements Serializable, IASTManager {
             
             if (mod != null) {
                 state.recursing = true;
+                state.checkWildImportInMemory(current, mod);
                 IToken[] completionsForModule = getCompletionsForModule(mod, state);
                 for (int j = 0; j < completionsForModule.length; j++) {
                     completions.add(completionsForModule[j]);
@@ -753,8 +768,9 @@ public class ASTManager implements Serializable, IASTManager {
                     copy.activationToken = "";
                     return getCompletionsForModule(mod, copy);
                 }else if (mod != null){
-                    //the token returned is the token we have to get the completions on the module we have.
-                    IToken[] globalTokens = mod.getGlobalTokens(tok, this, state.line, state.col, state.nature);
+                    CompletionState state2 = state.getCopy();
+                    state2.activationToken = tok;
+                    IToken[] globalTokens = mod.getGlobalTokens(state2, this);
                     if(globalTokens.length > 0){
                         return globalTokens;
                     }
@@ -767,8 +783,11 @@ public class ASTManager implements Serializable, IASTManager {
                             Object [] o2 = findModuleFromPath(path , state.nature);
                             AbstractModule mod2 = (AbstractModule) o2[0];
                             String tok2 = (String) o2[1];
+                            
+                            state2 = state.getCopy();
+                            state2.activationToken = tok2;
                             if (mod2 != null){
-                                return mod2.getGlobalTokens(tok2, this, state.line, state.col, state.nature);
+                                return mod2.getGlobalTokens(state2, this);
                             }      
                         }
                     }

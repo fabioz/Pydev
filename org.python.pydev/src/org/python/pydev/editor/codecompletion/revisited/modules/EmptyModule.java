@@ -8,9 +8,9 @@ package org.python.pydev.editor.codecompletion.revisited.modules;
 import java.io.File;
 
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
-import org.python.pydev.plugin.PythonNature;
 
 /**
  * @author Fabio Zadrozny
@@ -58,7 +58,7 @@ public class EmptyModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col, PythonNature nature) {
+    public IToken[] getGlobalTokens(CompletionState state, ASTManager manager) {
         throw new RuntimeException("Not intended to be called");
     }
 

@@ -24,15 +24,16 @@ PyLint does not work if we have spaces in the path
 After 0.9.1
 
 - Integrated Scott Schleiser's editor patch (now on apply, it really applies new settings, without having to close the editor).
-- Code Formatting bugs solved (unit-tests added).
+- Integrated Scott Schleiser's debugger patch - most 'implement me' and 'volunteers needed' were fixed.
+- Code Formatting bugs solved (and unit-tests added).
 - Code completion had unit-tests added and some minor bugs solved.
 - New Content Assistants added. 
 - Docstrings in national encodings should work now.
 - from scbr import a, b... should work now.
-- Minor bugs in other areas. 
 - Decorators now can have custom colors.
 - Numbers now can have custom colors.
 - Matching brackets now highlighted.
+- Minor bugs in other areas. 
 
 
 

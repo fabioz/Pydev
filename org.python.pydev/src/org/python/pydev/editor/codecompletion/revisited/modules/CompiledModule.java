@@ -13,10 +13,10 @@ import java.util.List;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PythonNature;
 
 /**
  * @author Fabio Zadrozny
@@ -99,12 +99,13 @@ public class CompiledModule extends AbstractModule{
     public String getDocString() {
         return "compiled extension";
     }
+//    public IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col, PythonNature nature) {
 
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col, PythonNature nature) {
-        Object v = cache.get(token);
+    public IToken[] getGlobalTokens(CompletionState state, ASTManager manager) {
+        Object v = cache.get(state.activationToken);
         if(v != null){
             return (IToken[]) v;
         }
@@ -114,7 +115,7 @@ public class CompiledModule extends AbstractModule{
         if(COMPILED_MODULES_ENABLED){
 	        try {
 	            PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
-	            List completions = shell.getImportCompletions(name+"."+token);
+	            List completions = shell.getImportCompletions(name+"."+state.activationToken);
 	            
 	            ArrayList array = new ArrayList();
 	            
@@ -127,7 +128,7 @@ public class CompiledModule extends AbstractModule{
 	                
 	            }
 	            toks = (CompiledToken[]) array.toArray(new CompiledToken[0]);
-	            cache.put(token, toks);
+	            cache.put(state.activationToken, toks);
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            PydevPlugin.log(e);

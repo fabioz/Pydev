@@ -18,6 +18,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
@@ -80,7 +81,7 @@ public abstract class AbstractModule implements Serializable{
      * @param manager
      * @return
      */
-    public abstract IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col, PythonNature nature);
+    public abstract IToken[] getGlobalTokens(CompletionState state, ASTManager manager);
     
     /**
      * 

@@ -19,11 +19,13 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Name;
+import org.python.pydev.editor.codecompletion.revisited.CompletionRecustionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
@@ -145,81 +147,82 @@ public class PyCodeCompletion {
      */
     public List getCodeCompletionProposals(CompletionRequest request) throws CoreException, BadLocationException {
         
-        PythonNature pythonNature = request.nature;
-        if(pythonNature == null){
-            throw new RuntimeException("Unable to get python nature.");
-        }
-        IASTManager astManager = pythonNature.getAstManager();
-        if(astManager == null){ //we're probably still loading it.
-            return new ArrayList();
-        }
-
-        List theList = new ArrayList();
-        PythonShell serverShell = null;
-        try {
-            if(CompiledModule.COMPILED_MODULES_ENABLED){
-	            serverShell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        
-        String trimmed = request.activationToken.replace('.', ' ').trim();
-        
-        String importsTipper = getImportsTipperStr(request);
-        
-        int line = request.doc.getLineOfOffset(request.documentOffset);
-        IRegion region = request.doc.getLineInformation(line);
-        
-        CompletionState state = new CompletionState(line,request.documentOffset - region.getOffset(), null, request.nature);
-        
-        boolean importsTip = false;
-        //code completion in imports 
-        if (importsTipper.length()!=0) { 
-        
-            //get the project and make the code completion!!
-            //so, we want to do a code completion for imports...
-            //let's see what we have...
-
-	        importsTip = true;
-            importsTipper = importsTipper.trim();
-            IToken[] imports = astManager.getCompletionsForImport(importsTipper, request.nature);
-            theList.addAll(Arrays.asList(imports));
-        
-
-            
-        //code completion for a token
-        } else if (trimmed.equals("") == false
-                && request.activationToken.indexOf('.') != -1) {
-        
-            List completions = new ArrayList();
-            if (trimmed.equals("self")) {
-                getSelfCompletions(request, theList, state);
-                
-            } else {
-                if(request.activationToken.endsWith(".")){
-                    request.activationToken = request.activationToken.substring(0, request.activationToken.length()-1);
-                }
-                
-                state.activationToken = request.activationToken;
-
-                //Ok, looking for a token in globals.
-	            IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
-	            theList.addAll(Arrays.asList(comps));
-            }
-            theList.addAll(completions);
-        
-        } else { //go to globals
-            List completions = new ArrayList();
-            
-            state.activationToken = request.activationToken;
-            IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
-            
-            theList.addAll(Arrays.asList(comps));
-        }
-
         ArrayList ret = new ArrayList();
-        changeItokenToCompletionPropostal(request, ret, theList, importsTip);
+        try {
+            PythonNature pythonNature = request.nature;
+            if (pythonNature == null) {
+                throw new RuntimeException("Unable to get python nature.");
+            }
+            IASTManager astManager = pythonNature.getAstManager();
+            if (astManager == null) { //we're probably still loading it.
+                return new ArrayList();
+            }
+
+            List theList = new ArrayList();
+            PythonShell serverShell = null;
+            try {
+                if (CompiledModule.COMPILED_MODULES_ENABLED) {
+                    serverShell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            String trimmed = request.activationToken.replace('.', ' ').trim();
+
+            String importsTipper = getImportsTipperStr(request);
+
+            int line = request.doc.getLineOfOffset(request.documentOffset);
+            IRegion region = request.doc.getLineInformation(line);
+
+            CompletionState state = new CompletionState(line, request.documentOffset - region.getOffset(), null, request.nature);
+
+            boolean importsTip = false;
+            //code completion in imports 
+            if (importsTipper.length() != 0) {
+
+                //get the project and make the code completion!!
+                //so, we want to do a code completion for imports...
+                //let's see what we have...
+
+                importsTip = true;
+                importsTipper = importsTipper.trim();
+                IToken[] imports = astManager.getCompletionsForImport(importsTipper, request.nature);
+                theList.addAll(Arrays.asList(imports));
+
+                //code completion for a token
+            } else if (trimmed.equals("") == false && request.activationToken.indexOf('.') != -1) {
+
+                List completions = new ArrayList();
+                if (trimmed.equals("self")) {
+                    getSelfCompletions(request, theList, state);
+
+                } else {
+                    if (request.activationToken.endsWith(".")) {
+                        request.activationToken = request.activationToken.substring(0, request.activationToken.length() - 1);
+                    }
+
+                    state.activationToken = request.activationToken;
+
+                    //Ok, looking for a token in globals.
+                    IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
+                    theList.addAll(Arrays.asList(comps));
+                }
+                theList.addAll(completions);
+
+            } else { //go to globals
+                List completions = new ArrayList();
+
+                state.activationToken = request.activationToken;
+                IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
+
+                theList.addAll(Arrays.asList(comps));
+            }
+
+            changeItokenToCompletionPropostal(request, ret, theList, importsTip);
+        } catch (CompletionRecustionException e) {
+            ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
+        }
 
         return ret;
     }

@@ -24,7 +24,6 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinitio
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
-import org.python.pydev.plugin.PythonNature;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.
@@ -133,64 +132,67 @@ public class SourceModule extends AbstractModule {
             this.lastModified = f.lastModified();
     }
 
+//    public IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col, PythonNature nature) {
     
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col, PythonNature nature) {
+    public IToken[] getGlobalTokens(CompletionState state, ASTManager manager) {
         IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
         
         if(t instanceof SourceToken[]){
 	        SourceToken[] tokens = (SourceToken[]) t;
 	        for (int i = 0; i < tokens.length; i++) {
-	            if(tokens[i].getRepresentation().equals(token)){
+	            if(tokens[i].getRepresentation().equals(state.activationToken)){
 	                
 	                SimpleNode a = tokens[i].getAst();
-	                try {
 	                    
-	                    //COMPLETION: get the completions for the whole hierarchy if this is a class!!
-	                    List modToks = new ArrayList(Arrays.asList(GlobalModelVisitor.getTokens(a, GlobalModelVisitor.INNER_DEFS, name)));
-	                    
-	                    if( a instanceof ClassDef){
-	                        ClassDef c = (ClassDef) a;
-	                        for (int j = 0; j < c.bases.length; j++) {
-	                            if(c.bases[j] instanceof Name){
-	                                Name n = (Name) c.bases[j];
-	                                String base = n.id;
-	                                //TODO: this may enter in a loop, as it is recursive.
-	                                //An error in the programming might result in an error.
-	                                //
-	                                //e.g. The case below results in a loop.
-	                                //
-	                                //class A(B):
-	                                //    
-	                                //    def a(self):
-	                                //        pass
-	                                //        
-	                                //class B(A):
-	                                //    
-	                                //    def b(self):
-	                                //        pass
-	                                CompletionState state = new CompletionState(line,col, base, nature);
-	                                state.recursing = true;
-	                                final IToken[] comps = manager.getCompletionsForModule(this, state);
-                                    modToks.addAll(Arrays.asList(comps));
-	                            }else if (c.bases[j] instanceof Attribute){
-	                                Attribute attr = (Attribute) c.bases[j];
-	                                String s = AbstractVisitor.getFullRepresentationString(attr);
-	                                
-	                                CompletionState state = new CompletionState(line,col, s, nature);
-	                                final IToken[] comps = manager.getCompletionsForModule(this, state);
-                                    modToks.addAll(Arrays.asList(comps));
-	                            }
+                    //COMPLETION: get the completions for the whole hierarchy if this is a class!!
+                    List modToks = new ArrayList(Arrays.asList(GlobalModelVisitor.getTokens(a, GlobalModelVisitor.INNER_DEFS, name)));
+                    
+                    if( a instanceof ClassDef){
+                        ClassDef c = (ClassDef) a;
+                        for (int j = 0; j < c.bases.length; j++) {
+                            if(c.bases[j] instanceof Name){
+                                Name n = (Name) c.bases[j];
+                                String base = n.id;
+                                //TODO: this may enter in a loop, as it is recursive.
+                                //An error in the programming might result in an error.
+                                //
+                                //e.g. The case below results in a loop.
+                                //
+                                //class A(B):
+                                //    
+                                //    def a(self):
+                                //        pass
+                                //        
+                                //class B(A):
+                                //    
+                                //    def b(self):
+                                //        pass
+                                state = state.getCopy();
+                                state.activationToken = base;
+                                state.recursing = true;
+                                
+                                state.checkMemory(this, base);
+                                
+                                
+                                final IToken[] comps = manager.getCompletionsForModule(this, state);
+                                modToks.addAll(Arrays.asList(comps));
+                            }else if (c.bases[j] instanceof Attribute){
+                                Attribute attr = (Attribute) c.bases[j];
+                                String s = AbstractVisitor.getFullRepresentationString(attr);
+                                
+                                state = state.getCopy();
+                                state.activationToken = s;
+                                final IToken[] comps = manager.getCompletionsForModule(this, state);
+                                modToks.addAll(Arrays.asList(comps));
                             }
-	                        
-	                    }
-	                    
-	                    return (IToken[]) modToks.toArray(new IToken[0]);
-	                } catch (Exception e) {
-	                    e.printStackTrace();
-	                }
+                        }
+                        
+                    }
+                    
+                    return (IToken[]) modToks.toArray(new IToken[0]);
 	            }
 	        }
         }else{
