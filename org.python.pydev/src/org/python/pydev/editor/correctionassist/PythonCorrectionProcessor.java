@@ -57,7 +57,8 @@ import org.python.pydev.editor.model.ModelUtils;
  * 
  * 			import compiler	<- move import to global context
  * 			NewClass() <- Create class NewClass (Depends on new class wizard)
- * 
+ *
+ * 	   a() <-- make this a new method in this class 
  *                       																				 
  * @author Fabio Zadrozny
  */
@@ -306,17 +307,46 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 	                if(lineOfOffset > 0){
 	                    newPos = ps.doc.getLineInformation(lineOfOffset).getOffset();
 	                }
-	                method = method+delim;
+	                String finalMethod = method+delim;
 	                
-	                method = method.replaceFirst("%s", "");
+	                finalMethod = finalMethod.replaceFirst("%s", "" );
 	                
-		            l.add(new CompletionProposal(method, newPos, 0, method.length(), null,
+		            l.add(new CompletionProposal(finalMethod, newPos, 0, finalMethod.length(), null,
 		                    "Create new method (in global context)", null, null));
 
 	                cls = cls+delim;
 
 	                l.add(new CompletionProposal(cls, newPos, 0, cls.length(), null,
 		                    "Create new class (in global context)", null, null));
+	                
+
+	                
+	                //now get the attempt to make this a new method ------------------------------------------
+	                newPos = 0;
+	                lineOfOffset = ps.doc.getLineOfOffset(ps.absoluteCursorOffset);
+	                
+	                if(lineOfOffset > 0){
+	                    newPos = ps.doc.getLineInformation(lineOfOffset).getOffset();
+	                }
+
+	                int col = firstCharPosition;
+	                String newIndent = indentation;
+	                
+	                while(newIndent.length() <= col){ //one more...
+	                    newIndent += indentation;
+	                }
+	                String atStart = newIndent.replaceFirst(indentation, "");
+	                method = method.replaceAll(indentation, newIndent);
+	                method = atStart+method+delim;
+
+	                if(params.trim().length() > 0){
+	                    method = method.replaceFirst("%s", "self, ");
+	                }else{
+	                    method = method.replaceFirst("%s", "self");
+	                }
+	                l.add(new FixCompletionProposal(method, newPos, 0, method.length()+1, null,
+	                        "Make this a new method (in class)", null, null, ps.startLineIndex+3));
+
 	            }
 	        }
         }        

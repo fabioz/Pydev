@@ -44,7 +44,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
     private static final boolean DEFAULT_USE_REFACTOR = false;
 
     private static final String PYLINT_ARGS = "PYLINT_ARGS";
-    private static final String DEFAULT_PYLINT_ARGS = "--persistent=n --comment=n --disable-msg=0312";
+    private static final String DEFAULT_PYLINT_ARGS = "--persistent=n --comment=n --disable-msg=W0103,W0131,C0103,W0312,C0301,C0101,C0324,W0511";
     
     public PyLintPrefPage() {
         super(GRID);

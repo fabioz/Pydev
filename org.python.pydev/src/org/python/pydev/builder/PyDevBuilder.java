@@ -37,11 +37,11 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
         if (kind == IncrementalProjectBuilder.FULL_BUILD) {
             // Do a Full Build: Use a ResourceVisitor to process the tree.
-            performFullBuild();
+            performFullBuild(monitor);
         } else { // Build it with a delta
             IResourceDelta delta = getDelta(getProject());
             if (delta == null) {
-                performFullBuild();
+                performFullBuild(monitor);
             } else {
                 for (Iterator it = getVisitors().iterator(); it.hasNext();) {
                     PyDevBuilderVisitor element = (PyDevBuilderVisitor) it.next();
@@ -54,7 +54,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
     private List getVisitors() {
         ArrayList list = new ArrayList();
-        list.add(new PyCheckerVisitor());
+//        list.add(new PyCheckerVisitor());
         list.add(new PyTodoVisitor());
         list.add(new PyLintVisitor());
 
@@ -63,14 +63,20 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
     /**
      * Processes all python files.
+     * 
+     * @param monitor
      */
-    private void performFullBuild() throws CoreException {
+    private void performFullBuild(IProgressMonitor monitor) throws CoreException {
 
         IProject project = getProject();
 
         List resourcesToParse = new ArrayList();
 
+
         if (project != null) {
+	        List visitors = getVisitors();
+	        monitor.beginTask("Building...", (visitors.size() * 100) + 30);
+
             IResource[] members = project.members();
 
             //get all the python files to get information.
@@ -93,12 +99,15 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                     }
                 }
             }
+            monitor.worked(30);
+            
+            
+            for (Iterator it = visitors.iterator(); it.hasNext();) {
+                PyDevBuilderVisitor element = (PyDevBuilderVisitor) it.next();
+                element.fullBuild(resourcesToParse, monitor);
+            }
         }
-
-        for (Iterator it = getVisitors().iterator(); it.hasNext();) {
-            PyDevBuilderVisitor element = (PyDevBuilderVisitor) it.next();
-            element.fullBuild(resourcesToParse);
-        }
+        monitor.done();
 
     }
 }

@@ -11,6 +11,7 @@ import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -196,7 +197,7 @@ public class PyParser {
             SimpleNode newRoot = grammar.file_input(); // parses the file
 
             if (original != null && reparseIfErrorFound)
-                original.deleteMarkers(IMarker.PROBLEM, false, 1);
+                original.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
 
             fireParserChanged(newRoot);
         } catch (ParseException parseErr) {

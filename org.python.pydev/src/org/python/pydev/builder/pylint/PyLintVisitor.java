@@ -252,6 +252,7 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
     /* (non-Javadoc)
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitResource(org.eclipse.core.resources.IResource)
      */
+    public static final String PYLINT_PROBLEM_MARKER = "org.python.pydev.pylintproblemmarker";
     public boolean visitResource(IResource resource) {
         IProject project = resource.getProject();
         if (project != null && resource instanceof IFile) {
@@ -278,6 +279,9 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
 	            boolean useF = PyLintPrefPage.useFatal();
 	            boolean useC = PyLintPrefPage.useCodingStandard();
 	            boolean useR = PyLintPrefPage.useRefactorTips();
+	            
+	            resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+	            
 	            while(tokenizer.hasMoreTokens()){
 	                String tok = tokenizer.nextToken();
 	                
@@ -289,23 +293,23 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
                         //F0001:  0: Unable to load module test.test2 (list index out of range)
                         //C0321: 25:fdfd: More than one statement on a single line
                         if(tok.startsWith("C")&& useC && tok.indexOf(":") != -1){
-                            type = Marker.PROBLEM;
+                            type = PYLINT_PROBLEM_MARKER;
                             priority = Marker.SEVERITY_WARNING;
                         }
                         else if(tok.startsWith("R")  && useR && tok.indexOf(":") != -1){
-                            type = Marker.PROBLEM;
+                            type = PYLINT_PROBLEM_MARKER;
                             priority = Marker.SEVERITY_WARNING;
                         }
                         else if(tok.startsWith("W")  && useW && tok.indexOf(":") != -1){
-                            type = Marker.PROBLEM;
+                            type = PYLINT_PROBLEM_MARKER;
                             priority = Marker.SEVERITY_WARNING;
                         }
                         else if(tok.startsWith("E") && useE && tok.indexOf(":") != -1){
-                            type = Marker.PROBLEM;
+                            type = PYLINT_PROBLEM_MARKER;
                             priority = Marker.SEVERITY_ERROR;
                         }
                         else if(tok.startsWith("F") && useF && tok.indexOf(":") != -1){
-                            type = Marker.PROBLEM;
+                            type = PYLINT_PROBLEM_MARKER;
                             priority = Marker.SEVERITY_ERROR;
                         }
                         

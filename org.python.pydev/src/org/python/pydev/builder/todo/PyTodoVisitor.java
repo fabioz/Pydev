@@ -6,6 +6,9 @@
 package org.python.pydev.builder.todo;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.core.internal.resources.Marker;
 import org.eclipse.core.resources.IFile;
@@ -30,6 +33,8 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
     public boolean visitResource(IResource resource) {
         IProject project = resource.getProject();
         if (project != null && resource instanceof IFile) {
+            List todoTags = PyTodoPrefPage.getTodoTags();
+            
             IFile file = (IFile) resource;
             try {
                 InputStream stream = file.getContents();
@@ -48,10 +53,16 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
                     IRegion region = document.getLineInformation(line);
                     String tok = document.get(region.getOffset(), region.getLength());
                     int index;
-                    if ((index = tok.indexOf("TODO:")) != -1) {
-                        IMarker marker = createWarningMarker(resource, tok.substring(index).trim(), line+1, Marker.TASK);
-                        marker.setAttribute(IMarker.USER_EDITABLE, false);
-                        marker.setAttribute(IMarker.TRANSIENT, false);
+                    
+                    for (Iterator iter = todoTags.iterator(); iter.hasNext();) {
+                        String element = (String) iter.next();
+
+                        if ((index = tok.indexOf(element)) != -1) {
+                            HashMap map = new HashMap();
+
+                            createMarker(resource, tok.substring(index).trim(), line+1, Marker.TASK, IMarker.SEVERITY_WARNING, false, false);
+                        }
+                        
                     }
                     
                     line++;

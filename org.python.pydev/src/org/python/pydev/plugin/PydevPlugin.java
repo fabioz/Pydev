@@ -39,6 +39,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.builder.pychecker.PyCheckerPrefPage;
 import org.python.pydev.builder.pylint.PyLintPrefPage;
+import org.python.pydev.builder.todo.PyTodoPrefPage;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.templates.PyContextType;
@@ -127,6 +128,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         PyCodeCompletionPreferencesPage.initializeDefaultPreferences(getPluginPreferences());
         PyCheckerPrefPage.initializeDefaultPreferences(getPluginPreferences());
         PyLintPrefPage.initializeDefaultPreferences(getPluginPreferences());
+        PyTodoPrefPage.initializeDefaultPreferences(getPluginPreferences());
     }
 
     public void propertyChange(Preferences.PropertyChangeEvent event) {

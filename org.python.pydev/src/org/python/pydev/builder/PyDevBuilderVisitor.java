@@ -5,6 +5,7 @@
  */
 package org.python.pydev.builder;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,6 +14,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.ui.texteditor.MarkerUtilities;
 
 /**
  * @author Fabio Zadrozny
@@ -55,10 +58,21 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 	 * May be overriden if a better implementation is needed.
 	 * 
 	 * @param resourcesToParse list of resources from project that are python files.
+	 * @param monitor
 	 */
-    public void fullBuild(List resourcesToParse){
+    public void fullBuild(List resourcesToParse, IProgressMonitor monitor){
+        //we have 100 units here
+        monitor.subTask("Visiting: "+this.getClass().getName());
+        double inc = 100.0 / (double)resourcesToParse.size();
+        
+        double total = 0;
         for (Iterator iter = resourcesToParse.iterator(); iter.hasNext();) {
+            total += inc;
             visitResource((IResource) iter.next());
+            if(total > 1){
+                monitor.worked((int) total);
+                total -= (int)total;
+            }
         }
     }
 
@@ -93,10 +107,10 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
      * @param lineNumber line number of where marker will be tagged on to resource
      * @return
      */
-    public static IMarker createProblemMarker(IResource resource, String message, int lineNumber) {
+    public static void createProblemMarker(IResource resource, String message, int lineNumber) {
         String markerType = IMarker.PROBLEM;
 
-        return createWarningMarker(resource, message, lineNumber, markerType);
+        createWarningMarker(resource, message, lineNumber, markerType);
     }
 
     /**
@@ -106,10 +120,10 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
      * @param markerType
      * @return
      */
-    public static IMarker createWarningMarker(IResource resource, String message, int lineNumber, String markerType) {
+    public static void createWarningMarker(IResource resource, String message, int lineNumber, String markerType) {
     
         int severity = IMarker.SEVERITY_WARNING;
-        return createMarker(resource, message, lineNumber, markerType, severity);
+        createMarker(resource, message, lineNumber, markerType, severity);
     }
 
     /**
@@ -121,22 +135,42 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
      * @param severity
      * @return
      */
-    public static IMarker createMarker(IResource resource, String message, int lineNumber, String markerType, int severity) {
+    public static void createMarker(IResource resource, String message, int lineNumber, String markerType, int severity) {
         if(lineNumber <= 0)
             lineNumber = 1;
         IMarker marker = markerExists(resource, message, lineNumber, markerType);
         if (marker == null) {
             try {
-                marker = resource.createMarker(markerType);
-                marker.setAttribute(IMarker.MESSAGE, message);
-                marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-                marker.setAttribute(IMarker.SEVERITY, severity);
+                HashMap map = new HashMap();
+                map.put(IMarker.MESSAGE, message);
+                map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
+                map.put(IMarker.SEVERITY, new Integer(severity));
+
+                MarkerUtilities.createMarker(resource, map, markerType);
             } catch (CoreException e) {
                 throw new RuntimeException(e);
             }
         }
-        return marker;
     }
 
+    public static void createMarker(IResource resource, String message, int lineNumber, String markerType, int severity, boolean userEditable, boolean istransient) {
+        if(lineNumber <= 0)
+            lineNumber = 1;
+        IMarker marker = markerExists(resource, message, lineNumber, markerType);
+        if (marker == null) {
+            try {
+                HashMap map = new HashMap();
+                map.put(IMarker.MESSAGE, message);
+                map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
+                map.put(IMarker.SEVERITY, new Integer(severity));
+                map.put(IMarker.USER_EDITABLE, new Boolean(userEditable));
+                map.put(IMarker.TRANSIENT, new Boolean(istransient));
+
+                MarkerUtilities.createMarker(resource, map, markerType);
+            } catch (CoreException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
     
 }
