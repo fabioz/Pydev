@@ -37,8 +37,14 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
     private static final String USE_FATAL = "USE_FATAL";
     private static final boolean DEFAULT_USE_FATAL = true;
 
+    private static final String USE_CODING_STANDARD = "USE_CODING_STANDARD";
+    private static final boolean DEFAULT_USE_CODING_STANDARD = false;
+
+    private static final String USE_REFACTOR = "USE_REFACTOR";
+    private static final boolean DEFAULT_USE_REFACTOR = false;
+
     private static final String PYLINT_ARGS = "PYLINT_ARGS";
-    private static final String DEFAULT_PYLINT_ARGS = "--persistent=n --comment=n";
+    private static final String DEFAULT_PYLINT_ARGS = "--persistent=n --comment=n --disable-msg=0312";
     
     public PyLintPrefPage() {
         super(GRID);
@@ -54,6 +60,8 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
             prefs.setDefault(USE_ERRORS, DEFAULT_USE_ERRORS);
             prefs.setDefault(USE_WARNINGS, DEFAULT_USE_WARNINGS);
             prefs.setDefault(USE_FATAL, DEFAULT_USE_FATAL);
+            prefs.setDefault(USE_CODING_STANDARD, DEFAULT_USE_CODING_STANDARD);
+            prefs.setDefault(USE_REFACTOR, DEFAULT_USE_REFACTOR);
             prefs.setDefault(PYLINT_ARGS, DEFAULT_PYLINT_ARGS);
         } catch (CoreException e) {
             e.printStackTrace();
@@ -73,8 +81,11 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         addField(new BooleanFieldEditor(USE_FATAL, "Communicate found fatal errors?", p));
         addField(new BooleanFieldEditor(USE_ERRORS, "Communicate found errors?", p));
         addField(new BooleanFieldEditor(USE_WARNINGS, "Communicate found warnings?", p));
+        addField(new BooleanFieldEditor(USE_CODING_STANDARD, "Communicate coding standard warnings?", p));
+        addField(new BooleanFieldEditor(USE_REFACTOR, "Communicate refactor warnings?", p));
         
-        addField(new StringFieldEditor(PYLINT_ARGS, "Arguments to pass to pylint (customize its output).", p));
+        addField(new StringFieldEditor(PYLINT_ARGS, "Arguments to pass to pylint (customize its output).\n" +
+        		"The  --include-ids=y is always included and does not appear here..", p));
         
     }
 
@@ -126,7 +137,16 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         return PydevPrefs.getPreferences().getBoolean(USE_FATAL);
 	}
 	
-	public static String getPylintArgs(){
+    public static boolean useCodingStandard() {
+        return PydevPrefs.getPreferences().getBoolean(USE_CODING_STANDARD);
+    }
+
+    public static boolean useRefactorTips() {
+        return PydevPrefs.getPreferences().getBoolean(USE_REFACTOR);
+    }
+
+    public static String getPylintArgs(){
         return PydevPrefs.getPreferences().getString(PYLINT_ARGS);
 	}
+
 }

@@ -46,6 +46,7 @@
                class="org.python.pydev.plugin.PythonNature">
          </run>
       </runtime>
+      <builder id="org.python.pydev.builder"/>
    </extension>
    <extension
          point="org.eclipse.ui.ide.projectNatureImages">
@@ -93,6 +94,16 @@
             category="org.python.pydev.prefs"
             name="Code Completion"
             id="org.python.pydev.prefs.PyCodeCompletionPage"/>
+      <page
+            class="org.python.pydev.builder.pychecker.PyCheckerPrefPage"
+            category="org.python.pydev.prefs"
+            name="Pychecker"
+            id="org.python.pydev.prefs.pychecker"/>
+      <page
+            class="org.python.pydev.builder.pylint.PyLintPrefPage"
+            category="org.python.pydev.prefs"
+            name="Pylint"
+            id="org.python.pydev.prefs.pylint"/>
    </extension>
 <!-- Editor menus -->
    <extension
@@ -758,6 +769,14 @@ ${cursor}
       <markerResolutionGenerator
             class="org.python.pydev.editor.correctionassist.PyQuickFix"
             markerType="org.eclipse.core.resources.problemmarker"/>
+   </extension>
+   <extension
+         id="PyDevBuilder"
+         name="Pydev Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run class="org.python.pydev.builder.PyDevBuilder"/>
+      </builder>
    </extension>
 
 </plugin>

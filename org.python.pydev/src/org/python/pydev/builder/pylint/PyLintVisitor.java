@@ -276,6 +276,8 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
 	            boolean useW = PyLintPrefPage.useWarnings();
 	            boolean useE = PyLintPrefPage.useErrors();
 	            boolean useF = PyLintPrefPage.useFatal();
+	            boolean useC = PyLintPrefPage.useCodingStandard();
+	            boolean useR = PyLintPrefPage.useRefactorTips();
 	            while(tokenizer.hasMoreTokens()){
 	                String tok = tokenizer.nextToken();
 	                
@@ -285,7 +287,16 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
                         
                         //W0611:  3: Unused import finalize
                         //F0001:  0: Unable to load module test.test2 (list index out of range)
-                        if(tok.startsWith("W") && useW && tok.indexOf(":") != -1){
+                        //C0321: 25:fdfd: More than one statement on a single line
+                        if(tok.startsWith("C")&& useC && tok.indexOf(":") != -1){
+                            type = Marker.PROBLEM;
+                            priority = Marker.SEVERITY_WARNING;
+                        }
+                        else if(tok.startsWith("R")  && useR && tok.indexOf(":") != -1){
+                            type = Marker.PROBLEM;
+                            priority = Marker.SEVERITY_WARNING;
+                        }
+                        else if(tok.startsWith("W")  && useW && tok.indexOf(":") != -1){
                             type = Marker.PROBLEM;
                             priority = Marker.SEVERITY_WARNING;
                         }
@@ -301,7 +312,6 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
                         String initial = tok;
                         try {
                             if(type != null){
-                                tok = tok.substring(1);//remove W, E or F
                                 String id = tok.substring(0, tok.indexOf(":")).trim();
                                 
                                 tok = tok.substring(tok.indexOf(":")+1);
