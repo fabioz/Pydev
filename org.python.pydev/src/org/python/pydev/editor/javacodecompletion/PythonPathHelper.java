@@ -8,6 +8,7 @@ package org.python.pydev.editor.javacodecompletion;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -78,7 +79,7 @@ public class PythonPathHelper {
      */
     public boolean isValidFileMod(String path){
         if(path.endsWith(".py")   || 
-           path.endsWith(".pyc")  ||
+//           path.endsWith(".pyc")  || - we don't want pyc files, only source files and compiled extensions
            path.endsWith(".pyd")  ||
            path.endsWith(".dll")  ||
            path.endsWith(".pyo") ){
@@ -90,7 +91,7 @@ public class PythonPathHelper {
     /**
      * DAMN... when I started thinking this up, it seemed much better... (and easier)
      * 
-     * @param module - this is the full path of the module. Only for directories or py,pyc,pyd,dll,pyo files.
+     * @param module - this is the full path of the module. Only for directories or py,pyd,dll,pyo files.
      * @return a String with the module that the file or folder should represent.
      */
     public String resolveModule(String fullPath){
@@ -168,7 +169,7 @@ public class PythonPathHelper {
                         }
                         if(isValid){
                             if(moduleFile.isFile()){
-                                s = s.substring(0, s.length()-3);
+                                s = stripExtension(s);
                             }
 	                        return s;
                         }
@@ -186,6 +187,16 @@ public class PythonPathHelper {
             
         }
         return null;
+    }
+
+    /**
+     * Note that this function is not completely safe...beware when using it.
+     * @param s
+     * @return
+     */
+    private String stripExtension(String s) {
+        String[] strings = s.split("\\.");
+        return s.substring(0, s.length() - strings[strings.length -1].length() -1);
     }
 
     /**
@@ -225,11 +236,13 @@ public class PythonPathHelper {
 
     /**
      * @param string
+     * @return
      */
-    public void setPythonPath(String string) {
+    public List setPythonPath(String string) {
         String[] strings = string.split(",");
         for (int i = 0; i < strings.length; i++) {
             pythonpath.add(getDefaultPathStr(strings[i]));
         }
+        return Arrays.asList(strings);
     }
 }
