@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
 <plugin
    id="org.python.pydev"
    name="Pydev"
-   version="0.2.0"
+   version="0.2.1"
    provider-name="AleksTotic"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -10,6 +11,10 @@
       <library name="pydev.jar"/>
    </runtime>
    <requires>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.ui.editors"/>
@@ -22,10 +27,10 @@
          point="org.eclipse.ui.editors">
       <editor
             name="Python Editor"
-            icon="icons/sample.gif"
             extensions="py"
-            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            icon="icons/sample.gif"
             class="org.python.pydev.editor.PyEdit"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             id="org.python.pydev.editor.PyEdit">
       </editor>
    </extension>
