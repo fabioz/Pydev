@@ -13,8 +13,11 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
 /**
+ * This tests the 'whole' code completion, passing through all modules.
+ * 
  * @author Fabio Zadrozny
  */
 public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
@@ -40,6 +43,8 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
      */
     protected void setUp() throws Exception {
         super.setUp();
+        CompiledModule.COMPILED_MODULES_ENABLED = false;
+        this.restorePythonPath(false);
         codeCompletion = new PyCodeCompletion(false);
     }
 
@@ -47,24 +52,69 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
      * @see TestCase#tearDown()
      */
     protected void tearDown() throws Exception {
+        CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();
     }
     
-    
-	public void testCompleteCompletion() throws CoreException, BadLocationException{
-        IDocument doc = new Document("import testl");
-        int documentOffset = 12;
+
+    public void requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+        if(documentOffset == -1)
+            documentOffset = strDoc.length();
+        
+        IDocument doc = new Document(strDoc);
         CompletionRequest request = new CompletionRequest(null, 
                 nature, doc, documentOffset,
                 codeCompletion);
 
         List props = codeCompletion.getCodeCompletionProposals(request);
         ICompletionProposal[] codeCompletionProposals = codeCompletion.onlyValidSorted(props, request.qualifier);
-        assertEquals(1, codeCompletionProposals.length);
-        assertEquals("testlib", codeCompletionProposals[0].getDisplayString());
         
+        if(returned > -1)
+            assertEquals(returned, codeCompletionProposals.length);
+        
+        for (int i = 0; i < retCompl.length; i++) {
+            assertContains(retCompl[i], codeCompletionProposals);
+        }
     }
     
+    /**
+     * @param string
+     * @param codeCompletionProposals
+     */
+    private void assertContains(String string, ICompletionProposal[] codeCompletionProposals) {
+        for (int i = 0; i < codeCompletionProposals.length; i++) {
+            if(codeCompletionProposals[i].getDisplayString().equals(string)){
+                return ;
+            }
+        }
+        fail("The string "+string+" was not found in the returned completions.");
+    }
+
+    public void requestCompl(String strDoc, String []retCompl) throws CoreException, BadLocationException{
+        requestCompl(strDoc, -1, retCompl.length, retCompl);
+    }
+    
+    public void requestCompl(String strDoc, String retCompl) throws CoreException, BadLocationException{
+        requestCompl(strDoc, new String[]{retCompl});
+    }
+    
+	public void testCompleteImportCompletion() throws CoreException, BadLocationException{
+	    requestCompl("import testl"                        , "testlib");
+	    requestCompl("from testl"                          , "testlib");
+	    requestCompl("from testlib import "                , new String[]{"__init__", "unittest"});
+	    requestCompl("from testlib import unittest, __in"  , new String[]{"__init__"});
+	    requestCompl("from testlib import unittest,__in"   , new String[]{"__init__"});
+	    requestCompl("from testlib import unittest ,__in"  , new String[]{"__init__"});
+	    requestCompl("from testlib import unittest , __in" , new String[]{"__init__"});
+	    requestCompl("from testlib import unittest , "     , new String[]{"__init__", "unittest"});
+	    
+	    String s = "from testlib.unittest import  ";
+	    requestCompl(s, s.length(), -1, new String[]{"anothertest", "guitestcase", "testcase", "__init__"});
+    }
+
+	
+	
+	
     public void testGetActTok(){
         String strs[];
         

@@ -27,6 +27,8 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
      */
     public void setUp() throws Exception {
         super.setUp();
+        CompiledModule.COMPILED_MODULES_ENABLED = false;
+        this.restorePythonPath(false);
     }
     
     /**

@@ -5,11 +5,10 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.plugin.PythonNature;
-
 import junit.framework.TestCase;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.plugin.PythonNature;
 
 /**
  * @author Fabio Zadrozny
@@ -17,7 +16,7 @@ import junit.framework.TestCase;
 public class CodeCompletionTestsBase extends TestCase {
 
     //NOTE: this should be gotten from some variable to point to the python lib (less system dependence, but still, some).
-    public static final String PYTHON_INSTALL="C:/bin/Python23/";
+    public static final String PYTHON_INSTALL="C:/bin/Python24/";
     //NOTE: this should set to the tests pysrc location, so that it can be added to the pythonpath.
     public static final String TEST_PYSRC_LOC="D:/dev_programs/eclipse_3/eclipse/workspace/org.python.pydev/tests/pysrc/";
 
@@ -25,18 +24,31 @@ public class CodeCompletionTestsBase extends TestCase {
         junit.textui.TestRunner.run(CodeCompletionTestsBase.class);
     }
 
-	public PythonNature nature;
+    /**
+     * We want to keep it initialized among runs from the same class.
+     * Check the restorePythonPath function.
+     */
+	public static PythonNature nature;
+	public static Class restored;
 
 	/*
      * @see TestCase#setUp()
      */
     protected void setUp() throws Exception {
         super.setUp();
-        CompiledModule.COMPILED_MODULES_ENABLED = false;
-	    nature = new PythonNature();
-	    nature.setAstManager(new ASTManager());
-	    ((ASTManager)nature.getAstManager()).changePythonPath(PYTHON_INSTALL+"lib|"+TEST_PYSRC_LOC, null, new NullProgressMonitor());
     }
+    
+    
+    
+    public void restorePythonPath(boolean force){
+        if(restored == null || restored != this.getClass() || force){
+            restored = this.getClass();
+    	    nature = new PythonNature();
+    	    nature.setAstManager(new ASTManager());
+    	    ((ASTManager)nature.getAstManager()).changePythonPath(PYTHON_INSTALL+"lib|"+TEST_PYSRC_LOC, null, new NullProgressMonitor());
+        }
+    }
+   
 
     /*
      * @see TestCase#tearDown()

@@ -333,9 +333,19 @@ public class PyCodeCompletion {
         if (importMsg.indexOf(".") == -1){
             return " "; //we have only import fff (so, we're going for all imports).
         }
-        if (importMsg.length() > 0 && importMsg.endsWith(".") == false ){
+
+        //now, we may still have something like 'unittest.test,' or 'unittest.test.,'
+        //so, we have to remove this comma (s).
+        int i;
+        if ( ( i = importMsg.indexOf(',')) != -1){
+            int j = importMsg.lastIndexOf('.');
+            importMsg = importMsg.substring(0, j);
+        }
+
+        if (importMsg.length() > 0 && importMsg.endsWith(".") == false && importMsg.indexOf('.') != -1){
             importMsg = importMsg.substring(0, importMsg.lastIndexOf('.'));
         }
+        
         
         return importMsg;
     }
