@@ -7,18 +7,19 @@ def _topicDefault():
 <tbody>
 <tr>
 <td bgcolor="#eeeeee" align="center" valign="middle" >
-<h1>PyDev - Python IDE</h1>
+<h1>PyDev</h1>
+
+-- A new way of making software development in Python -- <br /><br/>
 
 
-(<a href="http://www.python.org">Python</a> development enviroment for <a href="http://www.eclipse.org">Eclipse</a>)<br /><br/>
-
- </td>
+</td>
 </tr>
 </tbody>
 </table>
 </td>
 '''
 
+#(<a href="http://www.python.org">Python</a> development enviroment for <a href="http://www.eclipse.org">Eclipse</a>)<br /><br/>
     return s
 
 def _getTopicTd(link, name):
