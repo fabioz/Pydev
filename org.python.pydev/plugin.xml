@@ -744,11 +744,8 @@ ${cursor}
    <extension
          point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
-            class="org.python.pydev.editor.markers.PyQuickFix"
+            class="org.python.pydev.editor.correctionassist.PyQuickFix"
             markerType="org.eclipse.core.resources.problemmarker"/>
-      <markerResolutionGenerator  
-               markerType="org.python.pydev.editor.markers.pycontentgeneratormarker"
-               class="org.python.pydev.editor.markers.PyContentGenerator"/>
    </extension>
 
 </plugin>
