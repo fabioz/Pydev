@@ -145,9 +145,9 @@ public class PythonShell {
             boolean connected = false;
             int attempts = 0;
             
+            sleepALittle(200);
             while(!connected && attempts < 20){
                 attempts += 1;
-	            sleepALittle(milisSleep);            
 	            try {
                     socketToWrite = new Socket("127.0.0.1",pWrite); //we should write in this port  
                     serverSocket = new ServerSocket(pRead);         //and read in this port 
@@ -156,6 +156,7 @@ public class PythonShell {
                 } catch (IOException e1) {
                     PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of 20 failed, trying again...", e1);
                 }
+	            sleepALittle(milisSleep);            
             }
             
             if(!connected){
