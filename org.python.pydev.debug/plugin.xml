@@ -60,7 +60,7 @@
             label="Python script"
             icon="icons/python.gif"
             modes="run, debug"
-            class="org.python.pydev.debug.launching.LaunchShortcut"
+            class="org.python.pydev.debug.ui.launching.LaunchShortcut"
             id="org.python.pydev.debug.launchShortcut">
       </shortcut>
    </extension>
