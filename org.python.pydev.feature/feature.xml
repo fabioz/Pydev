@@ -3,7 +3,7 @@
       id="org.python.pydev.feature"
       label="org.python.pydev.feature"
       version="0.3.0"
-      provider-name="">
+      provider-name="Aleks Totic">
 
    <description>
       Python development environment
@@ -15,34 +15,26 @@
 
    <license url="http://www.opensource.org/licenses/cpl.php">
       For legal terms, see the Common Public License.
-
-For my own enjoyment, take a deep breath. Really deep one, until you can feel in your toes and your head gets dizzy.
-
-Doesn&apos;t that feel good?
-
-Thanks,
-
+For my own enjoyment, take a deep breath. Really deep one, until
+you can feel in your toes and your head gets dizzy.
+Doesn&apos;t that feel good? Yum.
 Aleks
    </license>
 
    <url>
-      <update label="Pydev update site" url="http://www.totic.org/pydev/"/>
+      <update label="Pydev update site" url="http://pydev.sourceforge.net/updates/"/>
       <discovery label="Pydev discovery site" url="http://pydev.sourceforge.net/" type="web"/>
    </url>
 
    <requires>
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.core.runtime.compatibility"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.ui.views"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.jface.text"/>
-      <import plugin="org.eclipse.osgi"/>
       <import plugin="org.eclipse.core.boot"/>
-      <import plugin="org.eclipse.core.variables"/>
       <import plugin="org.eclipse.ui.externaltools"/>
       <import plugin="org.eclipse.debug.core"/>
       <import plugin="org.eclipse.debug.ui"/>
@@ -50,19 +42,20 @@ Aleks
 
    <plugin
          id="org.python.pydev"
-         download-size="0"
-         install-size="0"
+         download-size="204"
+         install-size="204"
          version="0.3.0"/>
 
    <plugin
          id="org.python.pydev.debug"
-         download-size="0"
-         install-size="0"
+         download-size="50"
+         install-size="50"
          version="0.3.0"/>
 
    <plugin
          id="org.python.pydev.help"
-         download-size="0"
-         install-size="0"
+         download-size="50"
+         install-size="50"
          version="0.3.0"/>
+
 </feature>

@@ -12,8 +12,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.variables.IStringVariableManager;
-import org.eclipse.core.variables.VariablesPlugin;
+// E3 import org.eclipse.core.variables.IStringVariableManager;
+// E3 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -124,9 +124,9 @@ public class LaunchShortcut implements ILaunchShortcut {
 	 * @return default string for the location field
 	 */
 	static String getDefaultLocation (IFile file) {
-		// file.getRawLocation().toString();
-		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
-		return varManager.generateVariableExpression("workspace_loc", file.getFullPath().toString());
+		return file.getRawLocation().toString();
+// E3		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
+// E3		return varManager.generateVariableExpression("workspace_loc", file.getFullPath().toString());
 	}
 	
 	/**
@@ -148,9 +148,10 @@ public class LaunchShortcut implements ILaunchShortcut {
 
 			ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, name);
 			// Python Main Tab Arguments
-			IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
+// E3			IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
 			String location = getDefaultLocation(file);
-			String baseDirectory = varManager.generateVariableExpression("workspace_loc",file.getRawLocation().removeLastSegments(1).toString());
+// E3			String baseDirectory = varManager.generateVariableExpression("workspace_loc",file.getRawLocation().removeLastSegments(1).toString());
+			String baseDirectory = file.getRawLocation().removeLastSegments(1).toString();
 			String arguments = "";
 			String interpreter = DebugPlugin.getDefault().getInterpreters()[0];
 			workingCopy.setAttribute(Constants.ATTR_LOCATION,location);

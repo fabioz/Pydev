@@ -23,8 +23,8 @@ import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.ui.CommonTab;
-import org.eclipse.debug.ui.RefreshTab;
+// E3 import org.eclipse.debug.ui.CommonTab;
+// E3 import org.eclipse.debug.ui.RefreshTab;
 import org.eclipse.ui.IWindowListener;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -32,6 +32,7 @@ import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsU
 import org.eclipse.ui.externaltools.internal.model.IExternalToolConstants;
 import org.eclipse.ui.externaltools.internal.program.launchConfigurations.BackgroundResourceRefresher;
 import org.eclipse.ui.externaltools.internal.program.launchConfigurations.ExternalToolsProgramMessages;
+import org.eclipse.ui.externaltools.internal.variable.ExpandVariableContext;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 
@@ -102,11 +103,13 @@ public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDe
 		if (monitor.isCanceled()) 
 			return;
 		
+		ExpandVariableContext resourceContext = ExternalToolsUtil.getVariableContext();
+		
 		// Get the basic parameters
-		IPath location = ExternalToolsUtil.getLocation(conf);
-		IPath workingDirectory = ExternalToolsUtil.getWorkingDirectory(conf);
+		IPath location = ExternalToolsUtil.getLocation(conf, resourceContext);
+		IPath workingDirectory = ExternalToolsUtil.getWorkingDirectory(conf, resourceContext);
 		String interpreter = conf.getAttribute(Constants.ATTR_INTERPRETER, "python");
-		String[] arguments = ExternalToolsUtil.getArguments(conf);
+		String[] arguments = ExternalToolsUtil.getArguments(conf, resourceContext);
 		
 		if (monitor.isCanceled())
 			return;
@@ -125,7 +128,7 @@ public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDe
 		
 		File workingDir = workingDirectory == null ? null : workingDirectory.toFile();
 			
-		String[] envp = DebugPlugin.getDefault().getLaunchManager().getEnvironment(conf);
+// E3		String[] envp = DebugPlugin.getDefault().getLaunchManager().getEnvironment(conf);
 		
 		if (monitor.isCanceled())
 			return;
@@ -136,7 +139,8 @@ public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDe
 		}
 		
 		// Execute the process
-		Process p = DebugPlugin.exec(cmdLine, workingDir, envp);
+//		E3		Process p = DebugPlugin.exec(cmdLine, workingDir, envp);
+		Process p = DebugPlugin.exec(cmdLine, workingDir);
 		IProcess process = null;
 		
 		// add process type to process attributes
@@ -149,17 +153,24 @@ public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDe
 			process = DebugPlugin.newProcess(launch, p, location.toOSString(), processAttributes);
 			if (process == null) {
 				p.destroy();
-				throw new CoreException(new Status(IStatus.ERROR, IExternalToolConstants.PLUGIN_ID, IExternalToolConstants.ERR_INTERNAL_ERROR, ExternalToolsProgramMessages.getString("ProgramLaunchDelegate.4"), null)); //$NON-NLS-1$
+// E3			throw new CoreException(new Status(IStatus.ERROR, IExternalToolConstants.PLUGIN_ID, IExternalToolConstants.ERR_INTERNAL_ERROR, ExternalToolsProgramMessages.getString("ProgramLaunchDelegate.4"), null)); //$NON-NLS-1$
+				throw new CoreException(new Status(IStatus.ERROR, IExternalToolConstants.PLUGIN_ID, -1, ExternalToolsProgramMessages.getString("ProgramLaunchDelegate.4"), null)); //$NON-NLS-1$
 			}
 		}
 		process.setAttribute(IProcess.ATTR_CMDLINE, generateCommandLine(cmdLine));
-		
-		if (CommonTab.isLaunchInBackground(conf)) {
+		if (ExternalToolsUtil.isBackground(conf)) {
 			// refresh resources after process finishes
-			if (RefreshTab.getRefreshScope(conf) != null) {
-				BackgroundResourceRefresher refresher = new BackgroundResourceRefresher(conf, process);
+			if (ExternalToolsUtil.getRefreshScope(conf) != null) {
+				BackgroundResourceRefresher refresher = new BackgroundResourceRefresher(conf, process, resourceContext);
 				refresher.startBackgroundRefresh();
 			}				
+
+// E3		if (CommonTab.isLaunchInBackground(conf)) {
+// E3		// refresh resources after process finishes
+// E3		if (RefreshTab.getRefreshScope(conf) != null) {
+// E3			BackgroundResourceRefresher refresher = new BackgroundResourceRefresher(conf, process);
+// E3			refresher.startBackgroundRefresh();
+// E3		}				
 		} else {
 			// wait for process to exit
 			while (!process.isTerminated()) {
@@ -174,7 +185,7 @@ public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDe
 			}
 			
 			// refresh resources
-			RefreshTab.refreshResources(conf, monitor);
+// E3			RefreshTab.refreshResources(conf, monitor);
 		}
 	}
 	

@@ -86,13 +86,15 @@ public class InterpreterEditor extends ListEditor {
 	public static String[] getInterpreterList(String stringList) {
 		if (stringList == null) {
 			DebugPlugin.log(IStatus.WARNING, "No python interpreters specified", (Throwable)null);
-			return new String[] {};
+			return new String[] {"python"};
 		}
 		StringTokenizer st = new StringTokenizer(stringList, File.pathSeparator + "\n\r"); //$NON-NLS-1$
 		ArrayList v = new ArrayList();
 		while (st.hasMoreElements()) {
 			v.add(st.nextElement());
 		}
+		if (v.size() == 0)
+			v.add("python");
 		return (String[])v.toArray(new String[v.size()]);
 	}
 

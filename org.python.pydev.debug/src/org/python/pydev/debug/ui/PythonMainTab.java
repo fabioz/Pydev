@@ -118,7 +118,8 @@ public class PythonMainTab extends AbstractLaunchConfigurationTab {
 	
 	private boolean isValid(String interpreter) {
 		if (!InterpreterEditor.validateInterpreterPath(interpreter)) {
-			setErrorMessage("Can't find Python interpreter '" + interpreter +"'");
+			setErrorMessage("Can't find Python interpreter '" + interpreter +"'"+
+			"\nUse the Pydev/Debug preferences to specify additional editors.");
 			return false;
 		}
 		return true;
@@ -169,7 +170,20 @@ public class PythonMainTab extends AbstractLaunchConfigurationTab {
 		// As far as I know, this has never been called
 		System.out.println("setDefaults");
 	}
-	
+
+	/** The original AbstractLaunchConfigurationTab does
+	 * refresh in reverse (updateMessage, then buttons)
+	 * This does not work well (Message uses ol
+	 * E3 fixes this problem
+	 */	
+	protected void updateLaunchConfigurationDialog() {
+		if (getLaunchConfigurationDialog() != null) {
+			getLaunchConfigurationDialog().updateButtons();
+			getLaunchConfigurationDialog().updateMessage();
+			getLaunchConfigurationDialog().updateButtons();
+		}
+	}
+
 	/**
 	 * Initializes widgets from ILaunchConfiguration
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)

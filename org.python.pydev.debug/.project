@@ -3,7 +3,6 @@
 	<name>org.python.pydev.debug</name>
 	<comment></comment>
 	<projects>
-		<project>org.eclipse.core.variables</project>
 		<project>org.python.pydev</project>
 	</projects>
 	<buildSpec>
