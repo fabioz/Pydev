@@ -5,7 +5,7 @@
 <meta name="generator" content="HTML Tidy, see www.w3.org" />
 <meta http-equiv="Content-Type" content=
 "text/html; charset=iso-8859-1" />
-<title>Pydev</title>
+<title>Editor</title>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -39,18 +39,61 @@ Latest Version: 0.80</p>
 
 <!-- Topic -->
 
-<td colspan="4" align="center" height="100" valign="middle">
-<table  border="1" cellpadding="0" cellspacing="0" width="100%(perc)s">
+<td colspan="2" align="middle" height="100" valign="middle">
+</td>
+<td colspan="1" align="middle" height="100" valign="middle">
+<table  border="1" cellpadding="0" cellspacing="0" width="100%">
 <tbody>
+
 <tr>
+
 <td bgcolor="#eeeeee" align="center" valign="middle" >
-<h1>PyDev - Python IDE</h1>
+<a href="features.html">Features</a>
+</td>
 
+<td bgcolor="#eeeeee" align="center" valign="middle" >
+<a href="editor.html">Editor</a>
+</td>
 
-(<a href="http://www.python.org">Python</a> development enviroment for <a href="http://www.eclipse.org">Eclipse</a>)<br /><br/>
+<td bgcolor="#eeeeee" align="center" valign="middle" >
+<a href="debug.html">Debugger</a>
+</td>
 
- </td>
+<td bgcolor="#eeeeee" align="center" valign="middle" >
+<a href="codecompletion.html">Code Completion</a>
+</td>
+
+<td bgcolor="#eeeeee" align="center" valign="middle" >
+<a href="templates.html">Templates</a>
+</td>
+
 </tr>
+
+<td bgcolor="#eeeeee" align="center" valign="middle" >
+<a href="codecoverage.html">Code Coverage</a>
+</td>
+
+<td bgcolor="#eeeeee" align="center" valign="middle" >
+<a href="contentassist.html">Content Assistants</a>
+</td>
+
+<td bgcolor="#eeeeee" align="center" valign="middle" >
+<a href="refactoring.html">Refactoring</a>
+</td>
+
+<td bgcolor="#eeeeee" align="center" valign="middle" >
+<a href="tasks.html">Tasks</a>
+</td>
+
+<td bgcolor="#eeeeee" align="center" valign="middle" >
+<a href="pylint.html">PyLint</a>
+</td>
+
+<tr>
+
+</tr>
+
+
 </tbody>
 </table>
 </td>
@@ -106,6 +149,53 @@ cellspacing="0" width="200">
 "features.html">Features</a> </td>
 </tr>
 
+
+
+
+<tr>
+<td colspan="1"><img src="images/button.png"/> </td>
+<td colspan="1"><a class="menu_links" href="editor.html">Editor</a> </td>
+</tr>
+
+<tr>
+<td colspan="1"><img src="images/button.png"/> </td>
+<td colspan="1"><a class="menu_links" href="debug.html">Debugger</a> </td>
+</tr>
+
+<tr>
+<td colspan="1"><img src="images/button.png"/> </td>
+<td colspan="1"><a class="menu_links" href="codecompletion.html">Code Completion</a> </td>
+</tr>
+
+<tr>
+<td colspan="1"><img src="images/button.png"/> </td>
+<td colspan="1"><a class="menu_links" href="templates.html">Templates</a> </td>
+</tr>
+
+<tr>
+<td colspan="1"><img src="images/button.png"/> </td>
+<td colspan="1"><a class="menu_links" href="codecoverage.html">Code Coverage</a> </td>
+</tr>
+
+<tr>
+<td colspan="1"><img src="images/button.png"/> </td>
+<td colspan="1"><a class="menu_links" href="contentassist.html">Content Assistants</a> </td>
+</tr>
+
+<tr>
+<td colspan="1"><img src="images/button.png"/> </td>
+<td colspan="1"><a class="menu_links" href="refactoring.html">Refactoring</a> </td>
+</tr>
+
+<tr>
+<td colspan="1"><img src="images/button.png"/> </td>
+<td colspan="1"><a class="menu_links" href="tasks.html">Tasks</a> </td>
+</tr>
+
+<tr>
+<td colspan="1"><img src="images/button.png"/> </td>
+<td colspan="1"><a class="menu_links" href="pylint.html">PyLint</a> </td>
+</tr>
 
 
 
@@ -247,59 +337,14 @@ alt="" src="images/paypal.gif" alt=
 
 <td valign="top" align="left" width="30">&nbsp;</td>
 <td valign="top" align="left"><!-- begin main.text -->
-<h2>A little history</h2>
+<h2>Pydev editor preferences</h2>
+<p><img src="images/ed_prefs.gif" width="590" height="371"></p>
+<p><strong>Substitute spaces for tabs</strong>: whether editor should insert spaces when you hit a tab. </p>
+<p><strong>Assume tab spacing when files contain tabs?</strong>: you'll like this preference if you swing both ways, and mix &amp; match tabs and spaces, When this pref is on, if the file is tab-indented editor will do the right thing and leave your tabs alone. </p>
+<p><strong>Code folding</strong>: turn this off if you'd like to get back the screen real estate </p>
+<p><strong>Tab length</strong>: in inches </p>
+<p><strong>Colors</strong>: are self-explanatary. The default colors have been borrowed from IDLE. </p>
 
-<p>Pydev is currently maintained by <b><A class="menu_links" href="http://pydev.blogspot.com/">Fabio Zadrozny</A></b>.<br/>
-It has been created by <b><A class="menu_links" href="http://blogs.osafoundation.org/atotic/cat_work_log.html">Aleks Totic</A></b> 
-as a "getting to know Eclipse project".<br>
-</p>
-
-<h2>News:</h2>
-<p>
-PyDev homepage redesigned! I hope you like it, if you find any broken links or have any suggestions, please
-let us now on our <a href="http://sourceforge.net/forum/forum.php?forum_id=293649">Users Forum</A><br/>
-A new code completion is being worked on!<br/> 
-</p>
-
-<h1>Quick Summary</h1>
-
-<p>
-So, first thing... what is Pydev?
-</p>
-
-<p>
-PyDev is featured as a plugin for eclipse for editing, running and debugging Python scripts.
-It has already proven stable, even though it has still not reached version 1.0.
-
-Some features provided are:
-<li><a href="codecompletion.html">Code Completion</a> (<b>disabled by default</b> - check the preferences page.)</li> 
-<li><a href="refactoring.html">Refactoring</a> with <a href="http://bicyclerepair.sourceforge.net/">bicycle repair man</a></li>
-<li>Outline</li>
-<li>Find definition (powered by <a href="http://bicyclerepair.sourceforge.net/">bicycle repair man</a>)</li>
-<li><a href="debug.html">Debugger</a></li>
-<li><a href="contentassist.html">Content Assistant</a></li>
-<li><a href="codecoverage.html">Code Coverage</a></li>
-Etc. (more details can be found at the <a href="Features.html">features</a> page)
-</p>
-
-<p>
-It is featured as an open source project, so, if you want, you can just go to the <a href="download.html">downloads</a> page, get it and
-use it as you like.
-</p>
-
-<h2>Notes for release 0.8.0</h2>
-
-<p>This release should have fixed the reported bugs on code
-completion and on markers (thanks for the feedback!)<br />
- And for those of you that had problems, please check them and
-see if it works!<br />
-<br />
- Builders have also been added, so, now we can have <a href=
-"tasks.html">TODO tasks</a> and get <a href=
-"pylint.html">Pylint</a> to analyze python files.<br />
-<br />
-<br />
-</p>
 </td>
 <!-- end main.text -->
 
@@ -321,7 +366,7 @@ google_ad_client = "pub-0781609843524821";
 google_ad_width = 160;
 google_ad_height = 600;
 google_ad_format = "160x600_as";
-google_ad_channel ="0232202381";
+google_ad_channel ="1935586933";
 //--></script>
 <script type="text/javascript"
   src="http://pagead2.googlesyndication.com/pagead/show_ads.js">

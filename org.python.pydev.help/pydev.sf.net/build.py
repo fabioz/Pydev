@@ -31,7 +31,7 @@ def _getTopicTd(link, name):
     return s % (link, name)
 
 def _topicFeatures():
-    return ''
+#    return ''
     s = \
 '''
 <td colspan="2" align="middle" height="100" valign="middle">
@@ -41,17 +41,9 @@ def _topicFeatures():
 <tbody>
 
 <tr>
-%s
-%s
-%s
-%s
-%s
+%s%s%s%s%s
 </tr>
-%s
-%s
-%s
-%s
-%s
+%s%s%s%s%s
 <tr>
 
 </tr>
@@ -66,7 +58,7 @@ def _topicFeatures():
        _getTopicTd('editor.html','Editor'),
        _getTopicTd('debug.html','Debugger'),
        _getTopicTd('codecompletion.html','Code Completion'),
-       _getTopicTd('templatescompletion.html','Templates'),
+       _getTopicTd('templates.html','Templates'),
        _getTopicTd('codecoverage.html','Code Coverage'),
        _getTopicTd('contentassist.html','Content Assistants'),
        _getTopicTd('refactoring.html','Refactoring'),
@@ -121,15 +113,7 @@ def _getFeaturesTd(link, name):
 def _otherFeatures():
     s = \
 '''
-%s
-%s
-%s
-%s
-%s
-%s
-%s
-%s
-%s
+%s%s%s%s%s%s%s%s%s
 ''' 
     return s % (
        _getFeaturesTd('editor.html','Editor'),
@@ -152,6 +136,7 @@ def Main():
     
     
     Template( '_template.html', 'index'                   , 'Pydev'                    ,None             , channelPydevIndex        , None)
+    Template( '_template.html', 'screenshots'             , 'Screenshots'              ,None             , channelPydev             , None)
     Template( '_template.html', 'download'                , 'Download'                 ,None             , channelPydev             , None)
     Template( '_template.html', 'roadmap'                 , 'Roadmap'                  ,None             , channelPydev             , None)
     Template( '_template.html', 'codecompletionsnapshots' , 'Code Completion Snapshots',None             , channelPydevFeatures     , None)
@@ -168,6 +153,7 @@ def Main():
     Template( '_template.html', 'codecoverage'            , 'Code Coverage'            ,_topicFeatures() , channelPydevFeatures     , _otherFeatures())
     Template( '_template.html', 'debug'                   , 'Debugger'                 ,_topicFeatures() , channelPydev             , _otherFeatures())
     Template( '_template.html', 'editor_prefs'            , 'Editor Preferences'       ,_topicFeatures() , channelPydev             , _otherFeatures())
+    Template( '_template.html', 'editor'                  , 'Editor'                   ,_topicFeatures() , channelPydevFeatures     , _otherFeatures())
     Template( '_template.html', 'pylint'                  , 'PyLint'                   ,_topicFeatures() , channelPydevFeatures     , _otherFeatures())
     Template( '_template.html', 'tasks'                   , 'Tasks'                    ,_topicFeatures() , channelPydevFeatures     , _otherFeatures())
     print "done"
