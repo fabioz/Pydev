@@ -129,7 +129,10 @@ public class RemoteDebugger extends Object {
 					done = true;
 				} catch (IOException e1) {
 					done = true;
-				}	
+				}
+				if ((socket == null) || !socket.isConnected()) {
+					done = true;
+				}
 			}
 		}
 	}
@@ -219,8 +222,6 @@ public class RemoteDebugger extends Object {
 		t.start();
 		t = new Thread(writer, "pydevd.writer");
 		t.start();
-		writer.postCommand(new VersionCommand(this));
-
 	}
 
 	/**

@@ -16,8 +16,11 @@ import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 
 /**
- *
- * TODO Comment this class
+ * Represents a python variable.
+ * 
+ * Eclipse gives you an option to separate implementation of variable
+ * and its value. I've found it convenient to roll both of them into 1
+ * class.
  * 
  */
 public class PyVariable extends PlatformObject implements IVariable, IValue {
@@ -34,6 +37,10 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 		this.target = target;
 	}
 
+	public String getDetailText() throws DebugException {
+		return getValueString();
+	}
+	
 	public IValue getValue() throws DebugException {
 		return this;
 	}
@@ -65,7 +72,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 	}
 
 	/**
-	 * TODO valueChanging nterface has not been implemented yet.
+	 * LATER valueChanging nterface has not been implemented yet.
 	 * When implemented, recently changed variables are shown in red.
 	 */
 	public boolean supportsValueModification() {
@@ -96,9 +103,14 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 			adapter.equals(IResource.class))
 			return target.getAdapter(adapter);
 		else if (adapter.equals(IPropertySource.class) ||
-				adapter.equals(ITaskListResourceAdapter.class))
+				adapter.equals(ITaskListResourceAdapter.class) ||
+				adapter.equals(org.eclipse.ui.IContributorResourceAdapter.class) ||
+				adapter.equals(org.eclipse.ui.IActionFilter.class) ||
+				adapter.equals(org.eclipse.ui.model.IWorkbenchAdapter.class)
+				)
 			return  super.getAdapter(adapter);
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
+		// so I print them out as errors
 		System.err.println("PyVariable Need adapter " + adapter.toString());
 		return super.getAdapter(adapter);
 	}

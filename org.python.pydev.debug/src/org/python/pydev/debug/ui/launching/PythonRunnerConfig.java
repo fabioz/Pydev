@@ -51,7 +51,6 @@ public class PythonRunnerConfig {
 		workingDirectory = workingPath == null ? null : workingPath.toFile();
 		if (isDebug) {
 			debugScript = getDebugScript();
-			// TODO debug socket port?
 		}
 		// E3		String[] envp = DebugPlugin.getDefault().getLaunchManager().getEnvironment(conf);
 

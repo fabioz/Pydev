@@ -32,6 +32,7 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
  */
 public abstract class AbstractDebuggerCommand {
 	
+	static public final int CMD_RUN = 101;
 	static public final int CMD_LIST_THREADS = 102;
 	static public final int CMD_THREAD_CREATED = 103;
 	static public final int CMD_THREAD_KILL = 104;

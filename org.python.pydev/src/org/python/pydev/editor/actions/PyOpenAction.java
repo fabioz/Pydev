@@ -54,13 +54,13 @@ public class PyOpenAction extends Action {
 	public void run(ItemPointer p) {
 		IEditorPart editor = null;
 		if (p.file instanceof IFile)
-			editor = PydevPlugin.getDefault().doOpenEditor(((IFile)p.file).getFullPath(), true);
+			editor = PydevPlugin.doOpenEditor(((IFile)p.file).getFullPath(), true);
 		else if (p.file instanceof IPath) {
-			editor = PydevPlugin.getDefault().doOpenEditor((IPath)p.file, true);
+			editor = PydevPlugin.doOpenEditor((IPath)p.file, true);
 		}
 		else if (p.file instanceof File) {
 			Path path = new Path(((File)p.file).getAbsolutePath());
-			editor = PydevPlugin.getDefault().doOpenEditor(path, true);
+			editor = PydevPlugin.doOpenEditor(path, true);
 		}
 		if (editor instanceof ITextEditor) {
 			showInEditor((ITextEditor)editor, p.start, p.end);

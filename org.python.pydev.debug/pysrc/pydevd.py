@@ -76,7 +76,7 @@ Debugger = None
 
 __all__ = ();
 
-_trace = 2
+_trace = -1
 
 def log(level, s):
     """ levels are: 
@@ -85,7 +85,7 @@ def log(level, s):
         2 informational trace
     """
     if (level <= _trace):
-        print s 
+        print sys.stderr, s 
 
 
 class ReaderThread(threading.Thread):
@@ -107,7 +107,7 @@ class ReaderThread(threading.Thread):
 #                print >>sys.stderr, "received input"
                 while (buffer.find('\n') != -1):
                     [command, buffer] = buffer.split('\n', 1)
-                    log(2, "received command " + command)
+                    log(1, "received command " + command)
                     args = command.split('\t', 2)
 #                    print "the args are", args[0], " 2 ", args[1], " 3 ", args[2]
                     PyDB.instance.processNetCommand(int(args[0]), int(args[1]), args[2])
@@ -135,7 +135,7 @@ class WriterThread(threading.Thread):
         try:
             while(True):
                 cmd = self.cmdQueue.get(1)
-                log(2, "sending cmd " + cmd.getOutgoing())
+                log(1, "sending cmd " + cmd.getOutgoing())
                 self.sock.sendall(cmd.getOutgoing())
         except:
           print >>sys.stderr, "Exception in writer thread"
@@ -284,7 +284,7 @@ class InternalTerminateThread:
         self.thread_id = thread_id
     
     def doIt(self, dbg):
-        print "killing " + str(self.thread_id)
+        log(1,  "killing " + str(self.thread_id))
         cmd = dbg.cmdFactory.makeThreadKilledMessage(self.thread_id)
         dbg.writer.addCommand(cmd)
         time.sleep(0.1)
@@ -302,22 +302,19 @@ class InternalGetVariable:
     def doIt(self, dbg):
         """ Converts request into python variable """
         try:
-           print >>sys.stderr, "getVar::doIt"
            xml = "<xml>"
            valDict = pydevd_vars.resolveCompoundVariable(self.thread, self.frame_id, self.scope, self.attributes)
-           print >>sys.stderr, "resolved variable"
            keys = valDict.keys()
            keys.sort()
            for k in keys:
                xml += pydevd_vars.varToXML(valDict[k], str(k))
            xml += "</xml>"
-           print >>sys.stderr, "done to xml"
+#           print >>sys.stderr, "done to xml"
            cmd = dbg.cmdFactory.makeGetVariableMessage(self.sequence, xml)
-           print >>sys.stderr, "sending command"
+#           print >>sys.stderr, "sending command"
            dbg.writer.addCommand(cmd)
         except Exception, e:
-           print >>sys.stderr, "ERROR RESOLVING", str(e)
-           cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables" + str(e))
+           cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + str(e))
            dbg.writer.addCommand(cmd)
 
 def findThreadById(thread_id):
@@ -361,6 +358,7 @@ class PyDB:
         self.cmdFactory = NetCommandFactory() 
         self.cmdQueue = {}     # the hash of Queues. Key is thread id, value is thread
         self.breakpoints = {}
+        self.readyToRun = False
 
     def initializeNetwork(self, sock):
         sock.settimeout(None) # infinite, no timeouts from now on
@@ -423,7 +421,7 @@ class PyDB:
         
     def postInternalCommand(self, int_cmd, thread_id):
         """ if thread_id is *, post to all """
-        print "Posting internal command for ", str(thread_id)
+#        print "Posting internal command for ", str(thread_id)
         if (thread_id == "*"):
             for k in self.cmdQueue.keys(): self.cmdQueue[k].put(int_cmd)
         else:
@@ -443,8 +441,9 @@ class PyDB:
     def processNetCommand(self, id, seq, text):
         try:
             cmd = None
-#            print >>sys.stderr, "processing command", id
-            if (id == CMD_VERSION): # response is version number
+            if (id == CMD_RUN):
+                self.readyToRun = True
+            elif (id == CMD_VERSION): # response is version number
                 cmd = self.cmdFactory.makeVersionMessage(seq)
             elif (id == CMD_LIST_THREADS): # response is a list of threads
                 cmd = self.cmdFactory.makeListThreadsMessage(seq)
@@ -452,10 +451,10 @@ class PyDB:
                 int_cmd = InternalTerminateThread(text)
                 self.postInternalCommand(int_cmd, text)
             elif (id == CMD_THREAD_SUSPEND):
-                print >>sys.stderr, "About to suspend ", text
+#                print >>sys.stderr, "About to suspend ", text
                 t = findThreadById(text)
                 if t: self.setSuspend(t, CMD_THREAD_SUSPEND)
-                else: print >>sys.stderr, "Could not find thread ", t
+#               else: print >>sys.stderr, "Could not find thread ", t
             elif (id  == CMD_THREAD_RUN):
                 t = findThreadById(text)
                 if t: 
@@ -482,15 +481,13 @@ class PyDB:
             elif (id == CMD_SET_BREAK):
                 # text is file\tline. Add to breakpoints dictionary
                 (file, line) = text.split('\t', 1)
-                print "line is ", line
-                print "file is ", file
                 if self.breakpoints.has_key(file):
                     breakDict = self.breakpoints[file]
                 else:
                     breakDict = {}
                 breakDict[int(line)] = True
                 self.breakpoints[file] = breakDict
-                print >>sys.stderr, "Set breakpoint at ", file, line
+                log(1, "Set breakpoint at " + file + " " + line)
             elif (id == CMD_REMOVE_BREAK):
                 # text is file\tline. Remove from breakpoints dictionary
                 (file, line) = text.split('\t', 1)
@@ -505,7 +502,7 @@ class PyDB:
                        print sys.stderr, "breakpoint not found", file, str(line)
             else:
                 cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(id))
-            print >>sys.stderr, "processed command", id
+            log( 1, "processed command " + str (id))
             if cmd: 
                 self.writer.addCommand(cmd)
         except Exception, e:
@@ -522,7 +519,7 @@ class PyDB:
         except AttributeError:
             thread.pydev_notify_kill = False
         if not wasNotified:
-            log(0, "leaving stopped thread " + str(id(thread)))
+            log(1, "leaving stopped thread " + str(id(thread)))
             cmd = self.cmdFactory.makeThreadKilledMessage(id(thread))
             self.writer.addCommand(cmd)
             thread.pydev_notify_kill = True
@@ -560,7 +557,7 @@ class PyDB:
             thread.pydev_step_cmd = None # so we do ont thro
             pass
  
-        print >>sys.stderr, "thread resumed", thread.getName()     
+        log(1, "thread resumed " + thread.getName())  
         cmd = self.cmdFactory.makeThreadRunMessage(id(thread), thread.pydev_step_cmd)
         self.writer.addCommand(cmd)
                 
@@ -589,7 +586,7 @@ class PyDB:
                 self.doWaitSuspend(t, frame, event, arg)
                 return self.trace_dispatch
         except AttributeError:
-            print "Attribute ERROR"
+#            print "Attribute ERROR"
             t.pydev_state = PyDB.STATE_RUN # assign it to avoid future exceptions
         except:
             print sys.stderr, "Exception in trace_dispatch"
@@ -663,16 +660,14 @@ class PyDB:
         
         threading.settrace(self.trace_dispatch) # for all future threads
         sys.settrace(self.trace_dispatch) # for this thread
+        while not self.readyToRun: time.sleep(0.1) # busy wait until we receive run command
         try:
             try:
-                print "exec start"
                 exec cmd in globals, locals
-                print >>sys.stderr, "Debugger done"
             except:
                 print >>sys.stderr, "Debugger exiting with exception"
                 raise
         finally:
-            print "Quitting now"
             self.quitting = 1
   
 def processCommandLine(argv):
@@ -713,10 +708,10 @@ def usage(doExit=0):
 
       
 def quittingNow():
-    log(1, "Exit function called. Bye")
+    log(1, "Debugger exiting. Over & out....\n")
 
 if __name__ == '__main__':
-    print sys.stderr, "pydev debugger"
+    print >>sys.stderr, "pydev debugger"
     # parse the command line. --file is our last argument that is required
     try:
         setup = processCommandLine(sys.argv)

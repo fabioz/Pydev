@@ -26,7 +26,9 @@ public class PydevDebugPrefs extends FieldEditorPreferencePage
 
 	// Preferences	
 	public static final String GET_VARIABLE_TIMEOUT = "GET_VARIABLE_TIMEOUT";// GetVariable command timeout
-	public static final int DEFAULT_GET_VARIABLE_TIMEOUT = 30;	
+	public static final int DEFAULT_GET_VARIABLE_TIMEOUT = 30;
+	public static final String HIDE_PYDEVD_THREADS = "HIDE_PYDEVD_THREADS";
+	public static final boolean DEFAULT_HIDE_PYDEVD_THREADS = true;
 		
 	/**
 	 * Initializer sets the preference store
@@ -60,5 +62,6 @@ public class PydevDebugPrefs extends FieldEditorPreferencePage
 	 */
 	protected static void initializeDefaultPreferences(Preferences prefs) {
 		prefs.setDefault(GET_VARIABLE_TIMEOUT, DEFAULT_GET_VARIABLE_TIMEOUT);
+		prefs.setDefault(HIDE_PYDEVD_THREADS, DEFAULT_HIDE_PYDEVD_THREADS);
 	}
 }

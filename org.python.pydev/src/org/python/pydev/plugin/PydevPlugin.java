@@ -109,12 +109,12 @@ public class PydevPlugin extends AbstractUIPlugin
 	 * 
 	 * @return part that is the editor
 	 */
-	public IEditorPart doOpenEditor(IPath path, boolean activate) {
+	public static IEditorPart doOpenEditor(IPath path, boolean activate) {
 		if (path == null)
 			return null;
 		IWorkspace w = ResourcesPlugin.getWorkspace();
 		IFile file = w.getRoot().getFileForLocation(path);
-		IWorkbenchPage wp = getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		IWorkbenchPage wp = plugin.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
 			if (file != null && file.exists()) {
 				// File is inside the workspace

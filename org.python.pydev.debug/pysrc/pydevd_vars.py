@@ -114,14 +114,11 @@ def frameVarsToXML(frame):
 	"""
 #	print "Calling frameVarsToXML"
 	xml = ""
-	try:
-		keys = frame.f_locals.keys()
-		keys.sort()
-		for k in keys:
-			 v = frame.f_locals[k]
-			 xml += varToXML(v, str(k))
-	except:
-		traceback.print_exc()
+	keys = frame.f_locals.keys()
+	keys.sort()
+	for k in keys:
+		 v = frame.f_locals[k]
+		 xml += varToXML(v, str(k))
 	return xml
 
 def findFrame(thread, frame_id):
@@ -147,12 +144,12 @@ def resolveCompoundVariable(thread, frame_id, scope, attrs):
 	else:
 		var = frame.f_locals
 	for k in attrList:
-		print >>sys.stderr, "resolving ", k
-		print >>sys.stderr, "attribute is ", k
+#		print >>sys.stderr, "resolving ", k
+#		print >>sys.stderr, "attribute is ", k
 		(type, typeName, resolver) = getType(var)
 		var = resolver.resolve(var, k)
 	
-	print >>sys.stderr, "Got variable", var
+#	print >>sys.stderr, "Got variable", var
 	(type, typeName, resolver) = getType(var)
 	return resolver.getDictionary(var)
 	

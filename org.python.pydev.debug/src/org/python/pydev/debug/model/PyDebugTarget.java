@@ -9,7 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IMarkerDelta;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -31,8 +33,8 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.core.PydevDebugPrefs;
 import org.python.pydev.debug.model.remote.*;
-
 /**
  * Debugger class that represents a single python process.
  * 
@@ -63,6 +65,37 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 		breakpointManager.addBreakpointListener(this);
 		// we have to know when we get removed, so that we can shut off the debugger
 		DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this);
+	}
+	
+	/**
+	 * Called after debugger has been connected. 
+	 * 
+	 * Here we send all the initialization commands
+	 */
+	public void initialize() {
+		// we post version command just for fun
+		// it establishes the connection
+		debugger.postCommand(new VersionCommand(debugger));
+		
+		// now, register all the breakpoints in our project
+		IFile launched = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(file);
+		IProject project = launched.getProject();
+		try {
+			IMarker[] markers = project.findMarkers(PyBreakpoint.PY_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
+			IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
+			for (int i= 0; i < markers.length; i++) {
+				PyBreakpoint brk = (PyBreakpoint)breakpointManager.getBreakpoint(markers[i]);
+				if (brk.isEnabled()) {
+					SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine());
+					debugger.postCommand(cmd);
+				}
+			}					
+		} catch (Throwable t) {
+			PydevDebugPlugin.errorDialog("Error setting breakpoints", t);
+		}
+		// Send the run command, and we are off
+		RunCommand run = new RunCommand(debugger);
+		debugger.postCommand(run);
 	}
 	
 	public RemoteDebugger getDebugger() {
@@ -200,10 +233,14 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 	}
 	
 	public void breakpointAdded(IBreakpoint breakpoint) {
-		if (breakpoint instanceof PyBreakpoint) {
-			PyBreakpoint b = (PyBreakpoint)breakpoint;
-			SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, b.getFile(), b.getLine());
-			debugger.postCommand(cmd);
+		try {
+			if (breakpoint instanceof PyBreakpoint && ((PyBreakpoint)breakpoint).isEnabled()) {
+				PyBreakpoint b = (PyBreakpoint)breakpoint;
+				SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, b.getFile(), b.getLine());
+				debugger.postCommand(cmd);
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -300,6 +337,29 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 			PydevDebugPlugin.errorDialog("Error in processThreadCreated", e);
 			return;
 		}
+
+		// Hide Pydevd threads if requested
+		if (PydevDebugPrefs.getPreferences().getBoolean(PydevDebugPrefs.HIDE_PYDEVD_THREADS)) {
+			int removeThisMany = 0;
+			for (int i=0; i< newThreads.length; i++)
+				if (((PyThread)newThreads[i]).isPydevThread())
+					removeThisMany++;
+			if (removeThisMany > 0) {
+				int newSize = newThreads.length - removeThisMany;
+				if (newSize == 0)	// no threads to add
+					return;
+				else {
+					IThread[] newnewThreads = new IThread[newSize];
+					int ii = 0;
+					for (int i =0; i< newThreads.length; i++)
+						if (!((PyThread)newThreads[i]).isPydevThread())
+							newnewThreads[ii++] = newThreads[i];
+					newThreads = newnewThreads;
+				}
+			}
+		}
+
+		// add threads to the thread list, and fire event
 		if (threads == null)
 			threads = newThreads;
 		else {
@@ -361,7 +421,8 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 			fireEvent(new DebugEvent(t, DebugEvent.SUSPEND, reason));
 		}
 	}
-
+	
+	// thread_id\tresume_reason
 	static Pattern threadRunPattern = Pattern.compile("(\\d+)\\t(\\w*)");
 	/**
 	 * ThreadRun event processing

@@ -77,6 +77,7 @@ public class PythonRunner {
 									config.file, debugger);
 		launch.setSourceLocator(new PySourceLocator());
 		debugger.startTransmission(); // this starts reading/writing from sockets
+		t.initialize();
 	}
 
 	/**

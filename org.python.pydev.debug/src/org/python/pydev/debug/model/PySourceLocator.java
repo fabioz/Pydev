@@ -11,13 +11,12 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.ui.ISourcePresentation;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
- *
- * TODO Comment this class
+ * Locates source files from stack elements
  * 
- * Take a look at IDebugModelPresentation
  */
 public class PySourceLocator implements ISourceLocator, ISourcePresentation {
 
@@ -29,7 +28,7 @@ public class PySourceLocator implements ISourceLocator, ISourcePresentation {
 		if (element instanceof PyStackFrame) {
 			IPath path = ((PyStackFrame)element).getPath();
 			if (path != null) {
-				IEditorPart part = PydevPlugin.getDefault().doOpenEditor(path, false);
+				IEditorPart part = PydevPlugin.doOpenEditor(path, false);
 				if (part != null) {
 					return part.getEditorInput();
 				}
@@ -39,7 +38,7 @@ public class PySourceLocator implements ISourceLocator, ISourcePresentation {
 	}
 
 	public String getEditorId(IEditorInput input, Object element) {
-		return "org.python.pydev.editor.PythonEditor";
+		return PyEdit.EDITOR_ID;
 	}
 
 }

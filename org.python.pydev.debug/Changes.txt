@@ -10,3 +10,4 @@ org.eclipse.cdt.launch.internal.LocalCLaunchConfigurationDelegate launches a deb
 Future ideas:
 - changing the values API inside PyVariable
 - better variable refresh
+- give user an option to specify debug port (better for remote debugging)

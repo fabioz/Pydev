@@ -17,8 +17,10 @@ import org.python.pydev.debug.model.remote.ICommandResponseListener;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
 
 /**
- *
- * TODO Comment this class
+ * PyVariableCollection represents container variables.
+ * 
+ * It knows how to fetch its contents over the network.
+ * 
  */
 public class PyVariableCollection extends PyVariable implements ICommandResponseListener, IVariableLocator {
 
@@ -33,6 +35,21 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 		this.locator = locator;
 	}
 	
+	public String getDetailText() throws DebugException {
+		return super.getDetailText();
+//		StringBuffer buf = new StringBuffer();
+//		buf.append("{ ");
+//		for (int i=0; i<variables.length; i++) {
+//			buf.append(variables[i].getName());
+//			buf.append(" : ");
+//			buf.append(variables[i].getValueString());
+//			if (i != variables.length - 1)
+//				buf.append(", ");
+//		}
+//		buf.append(" }");
+//		return buf.toString();
+	}
+
 	public String getPyDBLocation() {
 		return locator.getPyDBLocation() + "\t" + name;
 	}

@@ -68,6 +68,7 @@ import org.eclipse.jface.action.IAction;
  */
 public class PyEdit extends TextEditor implements IParserListener {
 
+	static public String EDITOR_ID = "org.python.pydev.editor.PythonEditor";
 	static public String ACTION_OPEN = "OpenEditor";
 	
 	/** color cache */

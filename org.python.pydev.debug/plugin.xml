@@ -202,20 +202,6 @@
 		id = "org.python.pydev.debug">
 	</debugModelPresentation>
 </extension>
-<!--- breakpoint marker -->
-<!--- <extension id="breakpointMarker" point="org.eclipse.core.resources.markers">
-   <super type="org.eclipse.core.resources.marker"/>
-   <persistent value="true"/>
-   <attribute name="org.eclipse.debug.core.modelIdentifier"/>
-   <attribute name="org.eclipse.debug.core.enabled"/>
-   <attribute name="org.eclipse.debug.core.registered"/>
-   <attribute name="org.eclipse.debug.core.persisted"/>
-</extension>
-<extension id="lineBreakpointMarker" point="org.eclipse.core.resources.markers">
-   <super type="org.eclipse.debug.core.breakpointMarker"/>
-   <super type="org.eclipse.core.resources.textmarker"/>
-   <persistent value="true"/>
-</extension> -->
 
 </plugin>
 

@@ -83,7 +83,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 			if (fileName != null) {
 				int num = -1;
 				try {
-					num = lineNumber != null ? Integer.parseInt(lineNumber) - 1: 0;
+					num = lineNumber != null ? Integer.parseInt(lineNumber) : 0;
 				}
 				catch (NumberFormatException e) {
 					num = 0;
@@ -95,7 +95,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 				else {	// files outside of the workspace
 					File realFile = new File(fileName);
 					if (realFile.exists()) {
-						ItemPointer p = new ItemPointer(realFile, new Location(num, 0), null);
+						ItemPointer p = new ItemPointer(realFile, new Location(num+1, 0), null);
 						link = new ConsoleLink(p);
 					}
 				}

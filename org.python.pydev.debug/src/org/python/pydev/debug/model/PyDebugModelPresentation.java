@@ -10,7 +10,10 @@ import java.util.Map;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.IValueDetailListener;
@@ -18,7 +21,9 @@ import org.eclipse.jface.util.ListenerList;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Provides decoration for model elements in the debugger interface.
@@ -29,6 +34,7 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 
 	protected ListenerList fListeners= new ListenerList();		
 
+	protected boolean displayVariableTypeNames = false;	// variables display attribute
 
 	public Image getImage(Object element) {
 		if (element instanceof PyBreakpoint) {
@@ -40,6 +46,10 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 			} catch (CoreException e) {
 				PydevDebugPlugin.log(IStatus.ERROR, "getImage error", e);
 			}
+		} else if (element instanceof PyVariableCollection) {
+			return PydevDebugPlugin.getImageCache().get("icons/greendot_big.gif");
+		} else if (element instanceof PyVariable) {
+			return PydevDebugPlugin.getImageCache().get("icons/greendot.gif");			
 		}
 		else if (element instanceof PyDebugTarget ||
 				element instanceof PyThread ||
@@ -77,42 +87,55 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 		else if (element instanceof PyDebugTarget 
 				|| element instanceof PyStackFrame 	
 				|| element instanceof PyThread) {
-			return null;
+			return null;	// defaults work 
+		} else if (element instanceof PyVariableCollection
+			|| element instanceof PyVariable) {
+			return null;	// defaults are fine
 		}
 		PydevDebugPlugin.log(IStatus.ERROR, "unknown debug type", null);
 		return null;
 	}
 
 	/**
-	 * override
-	 * TODO comment this method
+	 * We've got some work to do to replicate here, because we
+	 * can't return null, and have LazyModel presentation do the default
 	 */
 	public void computeDetail(IValue value, IValueDetailListener listener) {
-		// TODO Auto-generated method stub
-		System.out.println("in detail");
+		if (value instanceof PyVariable) {
+			try {
+				((PyVariable)value).getVariables();
+				listener.detailComputed(value, ((PyVariable)value).getDetailText());
+			} catch (DebugException e) {
+				PydevDebugPlugin.errorDialog("Unexpected error fetching variable", e);
+			}
+		}
 	}
 
 	/**
-	 * override
-	 * TODO comment this method
+	 * Returns editor to be displayed
 	 */
 	public IEditorInput getEditorInput(Object element) {
-		// TODO Auto-generated method stub
+		if (element instanceof PyBreakpoint)	{
+			String file = ((PyBreakpoint)element).getFile();
+			IPath path = new Path(file);
+			IEditorPart part = PydevPlugin.doOpenEditor(path, false);
+			return part.getEditorInput();
+		}
 		return null;
 	}
 
 	/**
-	 * override
-	 * TODO comment this method
+	 * @see org.eclipse.debug.ui.ISourcePresentation#getEditorInput
 	 */
 	public String getEditorId(IEditorInput input, Object element) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public void setAttribute(String attribute, Object value) {
-		// TODO Auto-generated method stub
-		System.out.println("setattribute");
+		if (attribute.equals(IDebugModelPresentation.DISPLAY_VARIABLE_TYPE_NAMES))
+			displayVariableTypeNames = ((Boolean)value).booleanValue();
+		else
+			System.err.println("setattribute");
 	}
 
 	public void addListener(ILabelProviderListener listener) {
@@ -126,11 +149,8 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 	public void dispose() {
 	}
 
-
 	public boolean isLabelProperty(Object element, String property) {
 		// Not really sure what this does. see IBaseLabelProvider:isLabelProperty
 		return false;
 	}
-
-
 }

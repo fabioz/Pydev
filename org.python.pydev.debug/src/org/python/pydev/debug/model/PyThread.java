@@ -55,6 +55,10 @@ public class PyThread extends PlatformObject implements IThread {
 	public String getId() {
 		return id;
 	}
+	
+	public boolean isPydevThread() {
+		return isPydevThread;
+	}
 
 	public int getPriority() throws DebugException {
 		return 0;
@@ -179,7 +183,8 @@ public class PyThread extends PlatformObject implements IThread {
 	}
 
 	public IBreakpoint[] getBreakpoints() {
-		// TODO Auto-generated method stub
+		// should return breakpoint that caused this thread to suspend
+		// not implementing this seems to cause no harm
 		return null;
 	}
 
