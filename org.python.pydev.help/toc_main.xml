@@ -1,0 +1,8 @@
+<toc label="Pydev topic="html/index.html">
+	<topic label="Editor" href="html/editor.html">
+		<topic label="Preferences" href="html/ed_prefs.html"/>
+	</topic>
+	<topic label="Debugger" href="html/debug.html">
+		<topic label="Preferences" href="html/db_prefs.html"/>
+	</topic>
+</toc>

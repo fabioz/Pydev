@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin
+   id="org.python.pydev.help"
+   name="Pydev Online Help"
+   version="0.3.0"
+   provider-name="Aleks Totic">
+
+   <runtime>
+   </runtime>
+
+<!-- ============================================== -->
+<!-- Define the main book                           -->
+<!-- ============================================== -->
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="toc_main.xml"
+            primary="true">
+      </toc>
+   </extension>
+
+</plugin>
