@@ -31,6 +31,7 @@ After 0.9.1
 - from scbr import a, b... should work now.
 - Minor bugs in other areas. 
 - Decorators now can have custom colors.
+- Numbers now can have custom colors.
 - Matching brackets now highlighted.
 
 

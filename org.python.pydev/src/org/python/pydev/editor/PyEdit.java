@@ -232,6 +232,7 @@ public class PyEdit extends PyEditProjection {
                 } else if (
                 		property.equals(PydevPrefs.CODE_COLOR) ||
                 		property.equals(PydevPrefs.DECORATOR_COLOR) ||
+                		property.equals(PydevPrefs.NUMBER_COLOR) ||
 						property.equals(PydevPrefs.KEYWORD_COLOR) ||
 						property.equals(PydevPrefs.COMMENT_COLOR) ||
 						property.equals(PydevPrefs.STRING_COLOR)

@@ -104,6 +104,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
     public static final String DECORATOR_COLOR = "DECORATOR_COLOR";
 	private static final RGB DEFAULT_DECORATOR_COLOR = new RGB(125, 125, 125);
 
+    public static final String NUMBER_COLOR = "NUMBER_COLOR";
+	private static final RGB DEFAULT_NUMBER_COLOR = new RGB(128, 0, 0);
+
     public static final String CODE_COLOR = "CODE_COLOR";
 	private static final RGB DEFAULT_CODE_COLOR = new RGB(0, 0, 0);
 	
@@ -146,6 +149,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	private final String[][] fAppearanceColorListModel= new String[][] {
 		{"Code", CODE_COLOR, null},
 		{"Decorators", DECORATOR_COLOR, null},
+		{"Numbers", NUMBER_COLOR, null},
 		{"Matching brackets", MATCHING_BRACKETS_COLOR, null},
 		{"Keywords", KEYWORD_COLOR, null},
 		{"Strings", STRING_COLOR, null},
@@ -238,6 +242,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		
 		//colors
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, CODE_COLOR));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, NUMBER_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, DECORATOR_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, KEYWORD_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, STRING_COLOR));
@@ -683,6 +688,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		
 		//colors
 		prefs.setDefault(CODE_COLOR,StringConverter.asString(DEFAULT_CODE_COLOR));
+		prefs.setDefault(NUMBER_COLOR,StringConverter.asString(DEFAULT_NUMBER_COLOR));
 		prefs.setDefault(DECORATOR_COLOR,StringConverter.asString(DEFAULT_DECORATOR_COLOR));
 		prefs.setDefault(KEYWORD_COLOR,StringConverter.asString(DEFAULT_KEYWORD_COLOR));
 		prefs.setDefault(STRING_COLOR,StringConverter.asString(DEFAULT_STRING_COLOR));

@@ -84,6 +84,25 @@ public class PyCodeScanner extends RuleBasedScanner {
 	    
 	}
 	
+	static public class NumberDetector implements IWordDetector{
+
+	    
+        /**
+         * @see org.eclipse.jface.text.rules.IWordDetector#isWordStart(char)
+         */
+        public boolean isWordStart(char c) {
+            return Character.isDigit(c);
+        }
+
+        /**
+         * @see org.eclipse.jface.text.rules.IWordDetector#isWordPart(char)
+         */
+        public boolean isWordPart(char c) {
+            return Character.isDigit(c) || c == 'e'  || c == '.';
+        }
+	    
+	}
+	
 	public PyCodeScanner(ColorCache colorCache) {
 		super();
 		this.colorCache = colorCache;
@@ -99,6 +118,7 @@ public class PyCodeScanner extends RuleBasedScanner {
 		IToken keywordToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.KEYWORD_COLOR)));
 		IToken defaultToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR)));
 		IToken decoratorToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.DECORATOR_COLOR)));
+		IToken numberToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.NUMBER_COLOR)));
 		IToken errorToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR))); // Includes operators, brackets, numbers etc.
 		
 		setDefaultReturnToken(errorToken);
@@ -117,8 +137,8 @@ public class PyCodeScanner extends RuleBasedScanner {
 		}
 		rules.add(wordRule);
 
-		WordRule wordRule2 = new WordRule(new DecoratorDetector(), decoratorToken);
-		rules.add(wordRule2);
+		rules.add(new WordRule(new DecoratorDetector(), decoratorToken));
+		rules.add(new WordRule(new NumberDetector(), numberToken));
 		
 		IRule[] result = new IRule[rules.size()];
 		rules.toArray(result);
