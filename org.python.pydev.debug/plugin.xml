@@ -63,8 +63,8 @@
 			label="Python script"
 			icon="icons/python.gif"
 			modes="run, debug"
-			class="org.python.pydev.debug.launching.LaunchShortcut"
-			id="org.python.pydev.debug.launchShortcut">
+			class="org.python.pydev.debug.ui.launching.LaunchShortcut"
+			id="org.python.pydev.debug.ui.launchShortcut">
 			<perspective id="org.eclipse.debug.ui.DebugPerspective"/>
 		</shortcut>
 	</extension>
