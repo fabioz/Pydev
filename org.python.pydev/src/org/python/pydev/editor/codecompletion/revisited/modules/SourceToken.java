@@ -34,6 +34,14 @@ public class SourceToken extends AbstractToken{
     /**
      * @param node
      */
+    public SourceToken(SimpleNode node, String rep, String doc, String parentPackage, int type) {
+        super(rep, doc, parentPackage, type);
+        this.ast = node;
+    }
+
+    /**
+     * @param node
+     */
     public SourceToken(SimpleNode node, String rep, String doc, String parentPackage, String originalRep) {
         super(rep, doc, parentPackage, getType(node), originalRep);
         this.ast = node;

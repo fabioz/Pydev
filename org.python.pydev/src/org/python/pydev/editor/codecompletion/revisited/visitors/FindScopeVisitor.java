@@ -24,7 +24,7 @@ public class FindScopeVisitor extends AbstractVisitor {
     /**
      * This is the scope.
      */
-    public Scope scope;
+    public Scope scope = new Scope(new Stack());
     
     /**
      * Variable to mark if we found scope.
@@ -59,7 +59,7 @@ public class FindScopeVisitor extends AbstractVisitor {
         //the line passed in starts at 1 and the lines for the visitor nodes start at 0
         
         if(! found){
-	        if(line <= node.beginLine - 1 ){
+	        if(line <= node.beginLine ){
 	            //scope is locked at this time.
 	            found = true;
 	            scope = new Scope(this.stackScope);

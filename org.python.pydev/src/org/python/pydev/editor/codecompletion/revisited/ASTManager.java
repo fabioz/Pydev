@@ -428,6 +428,42 @@ public class ASTManager implements Serializable, IASTManager {
         return getCompletionsForModule( module, state);
     }
 
+    /**
+     * Identifies the token passed and if it maps to a builtin not 'easily recognizable', as
+     * a string or list, we return it.
+     * 
+     * @param state
+     * @return
+     */
+    private IToken[] getBuiltinsCompletions(CompletionState state){
+        //check for the builtin types.
+        if(state.activationToken.endsWith("'") || state.activationToken.endsWith("\"")){
+            //ok, we are getting code completion for a string.
+            AbstractModule m = getModule("__builtin__", state.nature);
+            return m.getGlobalTokens("str", this, state.line, state.col, state.nature);
+        }
+
+        if(state.activationToken.endsWith("]")){
+            //ok, we are getting code completion for a string.
+            AbstractModule m = getModule("__builtin__", state.nature);
+            return m.getGlobalTokens("list", this, state.line, state.col, state.nature);
+        }
+
+        try {
+            Integer.parseInt(state.activationToken);
+            AbstractModule m = getModule("__builtin__", state.nature);
+            return m.getGlobalTokens("int", this, state.line, state.col, state.nature);
+        } catch (Exception e) { //ok, not parsed as int
+        }
+
+        try {
+            Float.parseFloat(state.activationToken);
+            AbstractModule m = getModule("__builtin__", state.nature);
+            return m.getGlobalTokens("float", this, state.line, state.col, state.nature);
+        } catch (Exception e) { //ok, not parsed as int
+        }
+        return null;
+    }
     
     /**
      * @param file
@@ -438,7 +474,11 @@ public class ASTManager implements Serializable, IASTManager {
      * @param line
      */
     public IToken[] getCompletionsForModule(AbstractModule module, CompletionState state) {
-
+        IToken[] builtinsCompletions = getBuiltinsCompletions(state);
+        if(builtinsCompletions != null){
+            return builtinsCompletions;
+        }
+        	
         if (module != null) {
 
             //get the tokens (global, imported and wild imported)
@@ -449,6 +489,15 @@ public class ASTManager implements Serializable, IASTManager {
             if (state.activationToken.length() == 0) {
 
 		        List completions = getGlobalCompletions(globalTokens, importedModules, wildImportedModules, state);
+		        
+		        //now find the locals for the module
+		        if (state.line >= 0){
+		            IToken[] localTokens = module.getLocalTokens(state.line, state.col);
+		            for (int i = 0; i < localTokens.length; i++) {
+                        completions.add(localTokens[i]); 
+                    }
+		        }
+
                 return (IToken[]) completions.toArray(new IToken[0]);
                 
             }else{ //ok, we have a token, find it and get its completions.
@@ -490,16 +539,13 @@ public class ASTManager implements Serializable, IASTManager {
                 
                 //If it was still not found, go to builtins.
                 AbstractModule builtinsMod = getModule("__builtin__", state.nature);
-                if(builtinsMod != null){
-                    if(!state.recursing){
-	                    state.recursing = true;
-		                tokens = getCompletionsForModule( builtinsMod, state);
-		                if (tokens.length > 0){
-		                    if (tokens[0].getRepresentation().equals("ERROR:") == false){
-		                        return tokens;
-		                    }
-		                }
-                    }
+                if(builtinsMod != null && builtinsMod != module){
+	                tokens = getCompletionsForModule( builtinsMod, state);
+	                if (tokens.length > 0){
+	                    if (tokens[0].getRepresentation().equals("ERROR:") == false){
+	                        return tokens;
+	                    }
+	                }
                 }
                 
                 return getAssignCompletions( module, state);
@@ -629,9 +675,34 @@ public class ASTManager implements Serializable, IASTManager {
             if(modRep.equals(state.activationToken)){
                 String rep = importedModules[i].getCompletePath();
                 
-                Object [] o = findModuleFromPath(rep, state.nature);
-                AbstractModule mod = (AbstractModule) o[0];
-                String tok = (String) o[1];
+                Object [] o = null;
+                AbstractModule mod = null;
+                String tok = null;
+                
+                try {
+                    if (current instanceof SourceModule) {
+                        File f = ((SourceModule) current).getFile();
+                        if (f != null) {
+                            String full = f.toString();
+                            full = this.pythonPathHelper.resolveModule(full);
+                            full = full.substring(0, full.lastIndexOf('.'));
+                            if (full != null) {
+                                full += "." + rep;
+                                o = findModuleFromPath(full, state.nature);
+                                mod = (AbstractModule) o[0];
+                                tok = (String) o[1];
+                            }
+                        }
+                    }
+                } catch (RuntimeException e) {
+                    e.printStackTrace();//that's ok...
+                }
+                
+                if(o == null || mod == null || tok == null || current == mod || tok.equals(rep)){  
+	                o = findModuleFromPath(rep, state.nature);
+	                mod = (AbstractModule) o[0];
+	                tok = (String) o[1];
+                }
                 
                 if(tok.length() == 0){
                     //the activation token corresponds to an imported module. We have to get its global tokens and return them.
@@ -711,9 +782,16 @@ public class ASTManager implements Serializable, IASTManager {
                     state.recursing = true;
                     CompletionState copy = state.getCopy();
                     copy.activationToken = "";
-                    return getCompletionsForModule(mod, state);
+                    return getCompletionsForModule(mod, copy);
                 }else if (mod != null){
-                    return mod.getGlobalTokens(tok, this, state.line, state.col, state.nature);
+//                    return mod.getGlobalTokens(tok, this, state.line, state.col, state.nature);
+                    CompletionState copy = state.getCopy();
+                    copy.activationToken = tok;
+                    copy.col = -1;
+                    copy.line = -1;
+                    
+                    return getCompletionsForModule(mod, copy);
+                    
                 }
             }
         }

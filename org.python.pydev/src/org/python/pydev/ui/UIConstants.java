@@ -31,6 +31,17 @@ public class UIConstants {
 //completion
 	public static final String COMPLETION_IMPORT_ICON = "icons/imp_obj.gif";
 	public static final String COMPLETION_CLASS_ICON = "icons/class_obj.gif";
-	
+	public static final String COMPLETION_PARAMETERS_ICON = "icons/parameters_obj.gif";
 
+//content assist
+	public static final String ASSIST_TRY_EXCEPT = "icons/template.gif";
+	public static final String ASSIST_TRY_FINNALLY = "icons/template.gif";
+
+	public static final String ASSIST_NEW_METHOD = "icons/add_correction.gif";
+	public static final String ASSIST_NEW_CLASS = "icons/class_obj.gif";
+	
+	public static final String ASSIST_MOVE_IMPORT = "icons/correction_move.gif";
+	    
+	public static final String ASSIST_ASSIGN_TO_LOCAL = "icons/methpub_obj.gif";
+	public static final String ASSIST_ASSIGN_TO_CLASS = "icons/methpub_obj.gif";
 }

@@ -80,6 +80,10 @@ public class CompletionCache {
 
         	case PyCodeCompletion.TYPE_BUILTIN: 
         	    return imageCache.get(UIConstants.BUILTINS_ICON);
+        	
+        	case PyCodeCompletion.TYPE_PARAM: 
+        	    return imageCache.get(UIConstants.COMPLETION_PARAMETERS_ICON);
+        	
         	default:
         	    return null;
         }

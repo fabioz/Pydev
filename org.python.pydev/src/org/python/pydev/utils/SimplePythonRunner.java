@@ -58,6 +58,7 @@ public class SimplePythonRunner {
         }
 
         String executionString = PydevPrefs.getDefaultInterpreter() + " -u " + script + " " + args;
+        //System.out.println(executionString);
         return runAndGetOutput(executionString, workingDir);
     }
 

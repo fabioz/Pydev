@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.PythonNature;
 
 /**
@@ -18,16 +19,24 @@ import org.python.pydev.plugin.PythonNature;
 public class ASTManagerTest extends TestCase {
 
     private CompletionState state;
+    private ASTManager manager;
+    private PythonNature nature;
+    private String token;
+    private int line;
+    private int col;
+    private String sDoc;
+    private Document doc;
+    private IToken[] comps = null;
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ASTManagerTest.class);
-    }
 
     /*
      * @see TestCase#setUp()
      */
     protected void setUp() throws Exception {
         super.setUp();
+        CompiledModule.COMPILED_MODULES_ENABLED = false;
+        manager = new ASTManager();
+        nature = new PythonNature();
     }
 
     /*
@@ -35,28 +44,24 @@ public class ASTManagerTest extends TestCase {
      */
     protected void tearDown() throws Exception {
         super.tearDown();
+        CompiledModule.COMPILED_MODULES_ENABLED = true;
     }
 
     public void testCompletion(){
-        ASTManager manager = new ASTManager();
-        PythonNature nature = new PythonNature();
-        String token = "C";
-        int line = 6;
-        int col = 11;
-        
-		String sDoc = ""+
-		"class C:             \n" +  
-		"                     \n" +    
-		"    def makeit(self):\n" +     
-		"        pass         \n" +     
-		"                     \n" +       
-		"class D(C.:          \n" +  
-		"                     \n" +    
-		"    def a(self):     \n" +   
-		"        pass         \n";
-		
-        Document doc = new Document(sDoc);
-        IToken[] comps = null;
+        token = "C";
+        line = 6;
+        col = 11;
+        sDoc = ""+
+        		"class C:             \n" +  
+        		"                     \n" +    
+        		"    def makeit(self):\n" +     
+        		"        pass         \n" +     
+        		"                     \n" +       
+        		"class D(C.:          \n" +  
+        		"                     \n" +    
+        		"    def a(self):     \n" +   
+        		"        pass         \n";
+        doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
         comps = manager.getCompletionsForToken(doc, state);
         assertEquals(1, comps.length);
@@ -177,6 +182,40 @@ public class ASTManagerTest extends TestCase {
         
     }
 
+    
+    public void testLocals(){
+        token = "";
+        line = 2;
+        col = 10;
+        sDoc = ""+
+        		"def met(par1, par2):          \n" +    
+        		"    print                     \n";
+        doc = new Document(sDoc);
+        state = new CompletionState(line,col, token, nature);
+        comps = manager.getCompletionsForToken(doc, state);
+        assertEquals(3, comps.length );
+        assertIsIn("par1", comps);
+        assertIsIn("par2", comps);
+        assertIsIn("met", comps);
+
+    
+        token = "";
+        line = 3;
+        col = 13;
+        sDoc = ""+
+        		"class C:                         \n" +    
+        		"    def met(self, par1, par2):   \n" +    
+        		"        print                    \n";
+        doc = new Document(sDoc);
+        state = new CompletionState(line,col, token, nature);
+        comps = manager.getCompletionsForToken(doc, state);
+        assertEquals(4, comps.length );
+        assertIsIn("par1", comps);
+        assertIsIn("par2", comps);
+        assertIsIn("self", comps);
+        assertIsIn("C", comps);
+    }
+    
     /**
      * @param string
      * @param comps
@@ -191,4 +230,8 @@ public class ASTManagerTest extends TestCase {
         assertTrue("The searched token ("+string+")was not found in the completions", found);
     }
     
+    public static void main(String[] args) {
+        CompiledModule.COMPILED_MODULES_ENABLED = false;
+        junit.textui.TestRunner.run(ASTManagerTest.class);
+    }
 }

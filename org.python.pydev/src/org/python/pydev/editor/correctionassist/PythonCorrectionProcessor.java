@@ -23,6 +23,9 @@ import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.ClassNode;
 import org.python.pydev.editor.model.FunctionNode;
 import org.python.pydev.editor.model.ModelUtils;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.ImageCache;
+import org.python.pydev.ui.UIConstants;
 
 /**
  * This class should be used to give context help
@@ -65,12 +68,14 @@ import org.python.pydev.editor.model.ModelUtils;
 public class PythonCorrectionProcessor implements IContentAssistProcessor {
 
     private PyEdit edit;
+    private ImageCache imageCache;
 
     /**
      * @param edit
      */
     public PythonCorrectionProcessor(PyEdit edit) {
         this.edit = edit;
+        this.imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
     }
 
     /*
@@ -155,10 +160,10 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
         finRelNewPos = finall.length();
         finall += "pass";
 
-        l.add(new CompletionProposal(except, start, end-start, excRelNewPos, null,
+        l.add(new CompletionProposal(except, start, end-start, excRelNewPos, imageCache.get(UIConstants.ASSIST_TRY_EXCEPT),
                 "Surround with try..except", null, null));
         
-        l.add(new CompletionProposal(finall, start, end-start, finRelNewPos, null,
+        l.add(new CompletionProposal(finall, start, end-start, finRelNewPos, imageCache.get(UIConstants.ASSIST_TRY_FINNALLY),
                 "Surround with try..finally", null, null));
 
         return l;
@@ -179,8 +184,21 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
         
         String delimiter = PyAction.getDelimiter(ps.doc, 0);
         
+        int lineToMoveImport = 0;
+        int lines = ps.doc.getNumberOfLines();
+        for (int line = 0; line < lines; line++) {
+            String str = ps.getLine(line);
+            if(str.startsWith("import")){
+                lineToMoveImport = line;
+                break;
+            }
+        }
+        
+        int offset = ps.doc.getLineOffset(lineToMoveImport+1);
+        
+        
         if(i != -1){
-            l.add(new FixCompletionProposal(sel+delimiter, 0, 0, ps.startLine.getOffset(), null,
+            l.add(new FixCompletionProposal(sel+delimiter, offset, 0, ps.startLine.getOffset(), imageCache.get(UIConstants.ASSIST_MOVE_IMPORT),
                     "Move import to global scope", null, null, ps.startLineIndex+1));
         }
         return l;
@@ -237,11 +255,11 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
                 newPos = ps.doc.getLineInformation(lineOfOffset).getOffset();
             }
             
-            l.add(new FixCompletionProposal(cls, newPos, 0, cls.length()+1, null,
+            l.add(new FixCompletionProposal(cls, newPos, 0, cls.length()+1, imageCache.get(UIConstants.ASSIST_NEW_CLASS),
                     "Make this a new class", null, null, ps.startLineIndex+4));
 
             method = method.replaceFirst("%s", "");
-            l.add(new FixCompletionProposal(method, newPos, 0, method.length()+1, null,
+            l.add(new FixCompletionProposal(method, newPos, 0, method.length()+1, imageCache.get(UIConstants.ASSIST_NEW_METHOD),
                     "Make this a new method", null, null, ps.startLineIndex+2));
 
         }else{ //we are in a method or class context
@@ -286,7 +304,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 	                
 	                method = method.replaceFirst("%s", self);
 	                
-		            l.add(new CompletionProposal(method, newPos, 0, method.length()-4, null,
+		            l.add(new CompletionProposal(method, newPos, 0, method.length()-4, imageCache.get(UIConstants.ASSIST_NEW_METHOD),
 		                    "Create new method (in class)", null, null));
 	            }
 	            
@@ -311,12 +329,12 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 	                
 	                finalMethod = finalMethod.replaceFirst("%s", "" );
 	                
-		            l.add(new CompletionProposal(finalMethod, newPos, 0, finalMethod.length(), null,
+		            l.add(new CompletionProposal(finalMethod, newPos, 0, finalMethod.length(), imageCache.get(UIConstants.ASSIST_NEW_METHOD),
 		                    "Create new method (in global context)", null, null));
 
 	                cls = cls+delim;
 
-	                l.add(new CompletionProposal(cls, newPos, 0, cls.length(), null,
+	                l.add(new CompletionProposal(cls, newPos, 0, cls.length(), imageCache.get(UIConstants.ASSIST_NEW_CLASS),
 		                    "Create new class (in global context)", null, null));
 	                
 
@@ -344,7 +362,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 	                }else{
 	                    method = method.replaceFirst("%s", "self");
 	                }
-	                l.add(new FixCompletionProposal(method, newPos, 0, method.length()+1, null,
+	                l.add(new FixCompletionProposal(method, newPos, 0, method.length()+1, imageCache.get(UIConstants.ASSIST_NEW_METHOD),
 	                        "Make this a new method (in class)", null, null, ps.startLineIndex+3));
 
 	            }
@@ -399,23 +417,32 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 
             if(callName.length() > 0){
                 //all that just to change first char to lower case.
-                char[] ds = callName.toCharArray(); 
-                ds[0] = (""+ds[0]).toLowerCase().charAt(0);
-                callName = new String(ds);
+                callName = lowerChar(callName, 0);
+                if (callName.startsWith("get")){
+                    callName = callName.substring(3);
+	                callName = lowerChar(callName, 0);
+                }
             }else{
                 callName = "result";
             }
 
             int firstCharPosition = PyAction.getFirstCharPosition(ps.doc, ps.absoluteCursorOffset);
             callName += " = ";
-            l.add(new CompletionProposal(callName, firstCharPosition, 0, 0, null,
+            l.add(new CompletionProposal(callName, firstCharPosition, 0, 0, imageCache.get(UIConstants.ASSIST_ASSIGN_TO_LOCAL),
                     "Assign to new local variable", null, null));
             
-            l.add(new CompletionProposal("self." + callName, firstCharPosition, 0, 5, null,
+            l.add(new CompletionProposal("self." + callName, firstCharPosition, 0, 5, imageCache.get(UIConstants.ASSIST_ASSIGN_TO_CLASS),
                     "Assign to new field", null, null));
         }
         return l;
     }
+    
+    private String lowerChar(String s, int pos){
+        char[] ds = s.toCharArray(); 
+        ds[pos] = (""+ds[pos]).toLowerCase().charAt(0);
+        return new String(ds);
+    }
+    
 
     /**
      * @param ps

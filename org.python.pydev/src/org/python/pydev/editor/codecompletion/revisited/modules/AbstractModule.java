@@ -47,6 +47,16 @@ public abstract class AbstractModule implements Serializable{
     public abstract IToken[] getGlobalTokens();
     
     /**
+     * This function returns the local completions 
+     * @param line
+     * @param col
+     * @return
+     */
+    public IToken[] getLocalTokens(int line, int col){
+        return new IToken[0];
+    }
+
+    /**
      * This function can be called to find possible definitions of a token, based on its name, line and
      * column.
      * 

@@ -72,6 +72,14 @@ public class SourceModule extends AbstractModule {
     }
 
     /**
+     * 
+     * @return the file this module corresponds to.
+     */
+    public File getFile(){
+        return this.file;
+    }
+    
+    /**
      * @return the tokens that are present in the global scope.
      * 
      * The tokens can be class definitions, method definitions and attributes.
@@ -207,4 +215,17 @@ public class SourceModule extends AbstractModule {
     }
 
 
+    public IToken[] getLocalTokens(int line, int col){
+        try {
+	        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
+	        if (ast != null){
+                ast.accept(scopeVisitor);
+	        }
+	        
+	        return scopeVisitor.scope.getLocalTokens(line, col);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new IToken[0];
+        }
+    }
 }

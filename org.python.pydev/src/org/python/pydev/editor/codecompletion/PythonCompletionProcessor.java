@@ -99,7 +99,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
             //we have to get the qualifier. e.g. bla.foo = foo is the qualifier.
             if (activationToken.indexOf('.') != -1) {
-                while (endsWithSomeChar(new char[] { '.' }, activationToken) == false
+                while (endsWithSomeChar(new char[] { '.','[' }, activationToken) == false
                         && activationToken.length() > 0) {
 
                     qualifier = activationToken.charAt(activationToken.length() - 1) + qualifier;

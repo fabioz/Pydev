@@ -13,6 +13,8 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.Expr;
+import org.python.parser.ast.ListComp;
+import org.python.parser.ast.Num;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.stmtType;
@@ -71,7 +73,18 @@ public abstract class AbstractVisitor extends VisitorBase{
             
         }else if (node instanceof Call){
             return getRepresentationString(((Call)node).func);
+            
+        }else if (node instanceof org.python.parser.ast.List || node instanceof ListComp){
+            return "[]";
+
+        }else if (node instanceof Str){
+            return "'"+((Str)node).s+"'";
+            
+        }else if (node instanceof Num){
+            return ((Num)node).n.toString();
+            
         }
+        System.err.println("Unable to get representation to:"+node);
         return null;
     }
     

@@ -37,6 +37,7 @@ public class PythonPathHelperTest extends TestCase {
      */
     public void setUp() throws Exception {
         super.setUp();
+        CompiledModule.COMPILED_MODULES_ENABLED = false;
 	    manager = new ASTManager();
 	    nature = new PythonNature();
 	    manager.changePythonPath(PYTHON_INSTALL+"lib|"+TEST_PYSRC_LOC, null, new NullProgressMonitor());
@@ -46,6 +47,7 @@ public class PythonPathHelperTest extends TestCase {
      * @see junit.framework.TestCase#tearDown()
      */
     public void tearDown() throws Exception {
+        CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();
     }
 
@@ -204,16 +206,36 @@ public class PythonPathHelperTest extends TestCase {
         ASTManagerTest.assertIsIn("another", comps);
 
     }
+
+    public void testRelativeImport(){
+		token = "Derived";
+		line = 3;
+		col = 8;
+      
+		sDoc = ""+
+		"from testlib.unittest.relative.testrelative import  Derived \n"+ 
+		"                                                            \n"+  
+		"Derived.                                                    \n";
+
+		IToken[] comps = null;
+        Document doc = new Document(sDoc);
+        CompletionState state = new CompletionState(line,col, token, nature);
+		comps = manager.getCompletionsForToken(doc, state);
+		assertEquals(2, comps.length);
+        ASTManagerTest.assertIsIn("test1", comps);
+        ASTManagerTest.assertIsIn("test2", comps);
+
+        
+    }
     
 	public static void main(String[] args) {
 	    //IMPORTANT: I don't want to test the compiled modules, only the source modules.
-        CompiledModule.COMPILED_MODULES_ENABLED = false;
         
         junit.textui.TestRunner.run(PythonPathHelperTest.class);
 //        try {
 //            PythonPathHelperTest test = new PythonPathHelperTest();
 //            test.setUp();
-//            test.testImportAs2();
+//            test.testRelativeImport();
 //            test.tearDown();
 //        } catch (Exception e) {
 //            e.printStackTrace();

@@ -63,6 +63,11 @@ public class PyCodeCompletion {
     public static final int TYPE_BUILTIN = 4;
     
     /**
+     * Type for parameter (used to decide the icon)
+     */
+    public static final int TYPE_PARAM = 5;
+    
+    /**
      * Position in document prior to the activation token
      */
     private int docBoundary = -1; 
@@ -382,11 +387,14 @@ public class PyCodeCompletion {
             return " ";
         }
         
+        //this can surely be reworked...
         int lastSpaceIndex = str.lastIndexOf(' ');
         int lastParIndex = str.lastIndexOf('(');
+        int lastCIndex = str.lastIndexOf('[');
         
-        if(lastParIndex != -1 || lastSpaceIndex != -1){
+        if(lastParIndex != -1 || lastSpaceIndex != -1 || lastCIndex != -1){
             int lastIndex = lastSpaceIndex > lastParIndex ? lastSpaceIndex : lastParIndex;
+            lastIndex = lastIndex > lastCIndex ? lastIndex : lastCIndex;
             return str.substring(lastIndex+1, str.length());
         }
         return str;

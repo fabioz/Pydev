@@ -114,7 +114,12 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                 tok = tok.substring(tok.indexOf(":")+1);
                                 int line = Integer.parseInt(tok.substring(0, tok.indexOf(":")).trim() );
                                 
-                                IRegion region = document.getLineInformation(line-1);
+                                IRegion region = null;
+                                try {
+                                    region = document.getLineInformation(line - 1);
+                                } catch (Exception e) {
+                                    region = document.getLineInformation(line);
+                                }
                                 String lineContents = document.get(region.getOffset(), region.getLength());
                                 
                                 int pos = -1;
