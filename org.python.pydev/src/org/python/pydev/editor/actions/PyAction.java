@@ -16,6 +16,7 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.editor.PyEdit;
 
 /**
  * @author Fabio Zadrozny
@@ -80,6 +81,19 @@ public abstract class PyAction implements IEditorActionDelegate {
 	}
 
 	/**
+	 * This function returns the python editor.
+	 * @return
+	 */
+	protected PyEdit getPyEdit() {
+		if (targetEditor instanceof PyEdit) {
+			return (PyEdit) targetEditor;
+		} else {
+			throw new RuntimeException("Expecting PyEdit editor. Found:"+targetEditor.getClass().getName());
+		}
+	}
+	
+
+	/**
 	 * Helper for setting caret
 	 * @param pos
 	 * @throws BadLocationException
@@ -127,8 +141,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 		region = doc.getLineInformationOfOffset(cursorOffset);
 		int offset = region.getOffset();
 		String src = doc.get(offset, region.getLength());
-		if ("".equals(src))
-			return 0;
+
 		int i = 0;
 		while (i < src.length()) {
 			if (!Character.isWhitespace(src.charAt(i++))) {
