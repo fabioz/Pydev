@@ -76,6 +76,7 @@ public class PyEdit extends TextEditor implements IParserListener {
 		setSourceViewerConfiguration(editConfiguration);
 		indentStrategy = (PyAutoIndentStrategy)editConfiguration.getAutoIndentStrategy(null, null);
 		setRangeIndicator(new DefaultRangeIndicator()); // enables standard vertical ruler
+		
 	}
 	
 	/**

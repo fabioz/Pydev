@@ -1,0 +1,13 @@
+org.python.pydev
+
+Since 0.3
+
+New features:
+
+- Added team file extensions for .py & .pyc
+- Added "Source" menu to the editor: comment/goto methods implemented by fabioz
+- Added Python nature, and nature icon. Nature get automatically added to any project
+that opens a python editor.
+- Added Python properties to projects that have Python nature
+
+Bug fixes:

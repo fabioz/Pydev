@@ -122,7 +122,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 	 public ITextDoubleClickStrategy getDoubleClickStrategy(
 	 		ISourceViewer sourceViewer,
 			String contentType) {
-	 	// TODO Auto-generated method stub
+	 	// TODO Implement smarter double-click strategy
 	 	return super.getDoubleClickStrategy(sourceViewer, contentType);
 	 }
 	 
