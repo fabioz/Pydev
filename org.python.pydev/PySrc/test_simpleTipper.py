@@ -13,6 +13,7 @@ class Test(unittest.TestCase):
 
     def tearDown(self):
         unittest.TestCase.tearDown(self)
+        
     
     def getDoc1(self):
         s = \

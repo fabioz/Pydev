@@ -21,6 +21,9 @@
       <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.jdt"/>
+      <import plugin="org.eclipse.jdt.core"/>
+      <import plugin="org.eclipse.jdt.ui"/>
    </requires>
 
 
@@ -740,6 +743,15 @@ ${cursor}
                relative="org.eclipse.ui.views.TaskList"
                id="org.python.pydev.views.PyRefactorView"/>
       </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.markerResolution">
+      <markerResolutionGenerator
+            class="org.python.pydev.editor.markers.PyQuickFix"
+            markerType="org.eclipse.core.resources.problemmarker"/>
+      <markerResolutionGenerator  
+               markerType="org.python.pydev.editor.markers.pycontentgeneratormarker"
+               class="org.python.pydev.editor.markers.PyContentGenerator"/>
    </extension>
 
 </plugin>

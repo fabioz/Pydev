@@ -135,7 +135,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 	 * 		   offset)
 	 * @throws BadLocationException
 	 */
-	protected int getFirstCharPosition(IDocument doc, int cursorOffset)
+	public static int getFirstCharPosition(IDocument doc, int cursorOffset)
 		throws BadLocationException {
         IRegion region;
 		region = doc.getLineInformationOfOffset(cursorOffset);

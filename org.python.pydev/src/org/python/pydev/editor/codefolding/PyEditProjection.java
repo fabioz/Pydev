@@ -8,6 +8,7 @@ package org.python.pydev.editor.codefolding;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
+import org.eclipse.jface.text.source.IOverviewRuler;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.projection.ProjectionSupport;
@@ -15,6 +16,8 @@ import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.texteditor.IEditorStatusLine;
+import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.parser.IParserListener;
 import org.python.pydev.plugin.PydevPrefs;
 
@@ -29,6 +32,7 @@ public abstract class PyEditProjection extends TextEditor implements
         IParserListener {
 
     private ProjectionSupport fProjectionSupport;
+	private PyCorrectionAssistant fCorrectionAssistant;
 
     public static final int PROP_FOLDING_CHANGED = -999;	
 
@@ -41,8 +45,7 @@ public abstract class PyEditProjection extends TextEditor implements
      */
     protected ISourceViewer createSourceViewer(Composite parent,
             IVerticalRuler ruler, int styles) {
-        return new ProjectionViewer(parent, ruler, getOverviewRuler(), true,
-                styles);
+        return new PySourceViewer(parent, ruler, getOverviewRuler(), true, styles, this);
     }
 
     
@@ -93,6 +96,17 @@ public abstract class PyEditProjection extends TextEditor implements
 
         return super.getAdapter(required);
     }
+
+	/**
+	 * Sets the given message as error message to this editor's status line.
+	 * 
+	 * @param msg message to be set
+	 */
+	public void setStatusLineErrorMessage(String msg) {
+		IEditorStatusLine statusLine= (IEditorStatusLine) getAdapter(IEditorStatusLine.class);
+		if (statusLine != null)
+			statusLine.setMessage(true, msg, null);	
+	}
 
 
 }

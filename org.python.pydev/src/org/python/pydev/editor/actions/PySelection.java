@@ -186,7 +186,7 @@ public class PySelection
 				endLineDelim = PyAction.getDelimiter ( doc, startLineIndex );
 	
 				// Grab the selected text into our string
-				selection = doc.get ( initialPos, selLength );
+				selection = doc.get ( getITextSelection().getOffset(), getITextSelection().getLength() );
 			}
 			// Otherwise we'll modify the whole document, if asked to
 			else if ( onEmptySelectAll )

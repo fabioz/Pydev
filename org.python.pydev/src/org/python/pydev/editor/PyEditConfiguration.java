@@ -44,6 +44,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
+import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
+import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
@@ -280,7 +282,8 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		return reconciler;
 	}
 
-
+	
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
 	 */
@@ -304,9 +307,37 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		
 		Color bgColor = colorCache.getColor(new RGB(230,255,230));
 		assistant.setProposalSelectorBackground(bgColor);
+		
 		return assistant;
 	}
 
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
+	 */
+	public PyCorrectionAssistant getCorrectionAssistant(ISourceViewer sourceViewer) {
+ 		final String   PY_SINGLELINE_STRING = "__python_singleline_string";
+		final String   PY_MULTILINE_STRING = "__python_multiline_string";
+		
+		// create a content assistant:
+		PyCorrectionAssistant assistant = new PyCorrectionAssistant();
+		
+		// next create a content assistant processor to populate the completions window
+		IContentAssistProcessor processor = new PythonCorrectionProcessor(this.getEdit());
+		
+		// No code completion in strings
+		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_SINGLELINE_STRING );
+ 		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_MULTILINE_STRING );
+		assistant.setContentAssistProcessor(processor,IDocument.DEFAULT_CONTENT_TYPE );
+		assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
+		
+		//delay and auto activate set on PyContentAssistant constructor.
+		
+		Color bgColor = colorCache.getColor(new RGB(230,255,230));
+		assistant.setProposalSelectorBackground(bgColor);
+		
+		return assistant;
+	}
 
 	// The presenter instance for the information window
 	private static final DefaultInformationControl.IInformationPresenter presenter =
