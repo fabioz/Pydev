@@ -636,7 +636,7 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		if (viewer instanceof ITextViewerExtension5) {
 				
 			ITextViewerExtension5 extension= (ITextViewerExtension5) viewer;
-			IRegion widgetRange= extension.modelRange2WidgetRange(new Region(offset, length));
+			IRegion widgetRange= extension.modelRange2WidgetRange(fActiveRegion);
 			if (widgetRange == null)
 				return;
 					
