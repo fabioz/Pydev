@@ -1,3 +1,52 @@
+
+
+
+what I want:
+
+- simple "text completion" for locals without found definitions:
+e.g. 
+c.bla = 1
+c.foo = 2
+c. | triggers completion with bla,foo
+
+- imports in local scope should be gotten
+- from scbr import a, b, ...should work
+- pythonpath should be the same for project and lauch
+- IPython should be integrated
+- code completion: support zip imports
+- code completion: reference to update completions for other project. Some kind of 'broadcast' could be used for these changes.
+- code completion: some thread could check for completions from time to time to make sure they're up-to-date (check timestamp)/changes in structure.
+- code completion: ClassC().| should bring suggestions for class 'ClassC'
+- Ctrl+Shift+O: if text is selected, organize selection.
+
+
+
+
+after 0.9.0
+
+Content assistant improvements:
+- assign content assistant when assigned to variable strips the "get";
+- move imports content assistant should be improved to move import closer to existant import and
+not to top of file;
+- Icons added to them;
+
+Others:
+- Ctrl+Shift+O: if no selection: Organizes all global imports from the file (sorts alphabetically);
+- Ctrl+Shift+O: if some line selection: sorts alphabetically the lines selected;
+- PyLint only blocks interface on "update results";
+
+Code Completion:
+- get parameters in code completion;
+- builtins like '', {}, [] should bring correct suggestions;
+- relative imports;
+- other bug-fixes;
+
+
+
+
+
+
+
 org.python.pydev
 
 Since 0.3
@@ -29,3 +78,35 @@ set up the python interpreter in the preferences.
 Bug fixes:
 - Moved parsing so that all pydev parsers use single thread
 -
+
+
+
+
+
+
+
+
+Where to announce:
+python-announce-list@python.org
+python-list@python.org
+pydev-code@lists.sourceforge.net
+pydev-users@lists.sourceforge.net
+
+Hi All,
+
+PyDev - Python IDE (Python development enviroment for Eclipse) version xxx has just been released.
+
+Comments
+This release supports python 2.4 and has PyLint 0.6 integrated.
+Code completion had some improvements too.
+
+Check the homepage (http://pydev.sourceforge.net/) or my blog (http://pydev.blogspot.com/) for more details.
+
+Regards,
+
+Fabio Zadrozny
+------------------------------------------------------
+Software Developer
+ESSS - Engineering Simulation and Scientific Software
+www.esss.com.br
+

@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.9.0.3"
+   version="0.9.0.9"
    provider-name="Aleks Totic / Fabio Zadrozny"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -93,27 +93,27 @@
             id="org.python.pydev.prefs">
       </page>
       <page
-            name="Builders"
-            category="org.python.pydev.prefs"
-            class="org.python.pydev.builder.PyDevBuilderPrefPage"
-            id="org.python.pydev.builder.pyDevBuilderPrefPage">
-      </page>
-      <page
-            name="Debug"
+            name="Python Interpreters"
             category="org.python.pydev.prefs"
             class="org.python.pydev.plugin.DebugPrefsPage"
             id="org.python.pydev.prefs.debugPage">
       </page>
       <page
-            name="Templates"
-            class="org.python.pydev.editor.templates.PyTemplatePreferencesPage"
+            name="Code Formatter"
             category="org.python.pydev.prefs"
-            id="org.python.pydev.prefs.template"/>
+            class="org.python.pydev.plugin.PyCodeFormatterPage"
+            id="org.python.pydev.plugin.pyCodeFormatterPage">
+      </page>
       <page
             name="Code Completion"
             class="org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage"
             category="org.python.pydev.prefs"
             id="org.python.pydev.prefs.PyCodeCompletionPage"/>
+      <page
+            name="Templates"
+            class="org.python.pydev.editor.templates.PyTemplatePreferencesPage"
+            category="org.python.pydev.prefs"
+            id="org.python.pydev.prefs.template"/>
 <!--
       <page
             class="org.python.pydev.builder.pychecker.PyCheckerPrefPage"
@@ -131,6 +131,12 @@
             category="org.python.pydev.prefs"
             name="Task Tags"
             id="org.python.pydev.prefs.pytodo"/>
+      <page
+            name="Builders"
+            category="org.python.pydev.prefs"
+            class="org.python.pydev.builder.PyDevBuilderPrefPage"
+            id="org.python.pydev.builder.pyDevBuilderPrefPage">
+      </page>
    </extension>
 <!-- Editor menus -->
    <extension
@@ -270,6 +276,20 @@
                class="org.python.pydev.editor.actions.PyShowOutline"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.pyShowOutline">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.pyOrganizeImports"
+               label="Organize Imports"
+               class="org.python.pydev.editor.actions.PyOrganizeImports"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.navigation.pyOrganizeImports">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.pyFormatStd"
+               label="Format Code"
+               class="org.python.pydev.editor.actions.PyFormatStd"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.navigation.pyFormatStd">
          </action>
       </editorContribution>
    </extension>
@@ -619,6 +639,32 @@
             string="Ctrl+O"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.pyShowOutline"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: Organize Imports-->
+      <command
+            name="Python Organize Imports"
+            description="Organize Imports"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pyOrganizeImports">
+      </command>
+      <keyBinding
+            string="Ctrl+Shift+O"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.pyOrganizeImports"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: Format code-->
+      <command
+            name="Python Format Code"
+            description="Format Code"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pyFormatStd">
+      </command>
+      <keyBinding
+            string="Ctrl+Shift+F"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.pyFormatStd"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
 

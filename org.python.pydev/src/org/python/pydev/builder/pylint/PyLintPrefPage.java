@@ -92,6 +92,8 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         addField(new BooleanFieldEditor(USE_PYLINT, "Use pylint?", p));
         addField(new IntegerFieldEditor(MAX_PYLINT_DELTA, "Max delta to run PyLint?", p));
         FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of pylint:", true, p);
+        //not used - some patches had to be applied.
+        fileField.setEnabled(false, p);
         addField(fileField);
 
         addField(new BooleanFieldEditor(USE_FATAL, "Communicate FATAL?", p));

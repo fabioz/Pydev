@@ -99,7 +99,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 	            results.addAll(getTryProps(ps));
 	        } catch (BadLocationException e) {
 	        }
-        } else if(sel.indexOf("import") == -1){
+        } else if(sel.indexOf("import ") == -1){
 
             try {
                 results.addAll(getAssignToResults(ps));
@@ -188,16 +188,16 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
         int lines = ps.doc.getNumberOfLines();
         for (int line = 0; line < lines; line++) {
             String str = ps.getLine(line);
-            if(str.startsWith("import")){
+            if(str.startsWith("import ") || str.startsWith("from ")){
                 lineToMoveImport = line;
                 break;
             }
         }
         
-        int offset = ps.doc.getLineOffset(lineToMoveImport+1);
+        int offset = ps.doc.getLineOffset(lineToMoveImport);
         
         
-        if(i != -1){
+        if(i >= 0){
             l.add(new FixCompletionProposal(sel+delimiter, offset, 0, ps.startLine.getOffset(), imageCache.get(UIConstants.ASSIST_MOVE_IMPORT),
                     "Move import to global scope", null, null, ps.startLineIndex+1));
         }

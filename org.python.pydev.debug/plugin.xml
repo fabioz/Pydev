@@ -3,7 +3,7 @@
 <plugin
 	id="org.python.pydev.debug"
 	name="Pydev debug"
-	version="0.9.0"
+	version="0.9.0.4"
 	provider-name="Aleks Totic / Fabio Zadrozny"
 	class="org.python.pydev.debug.core.PydevDebugPlugin">
 

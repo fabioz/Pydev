@@ -160,6 +160,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         PyLintPrefPage.initializeDefaultPreferences(getPluginPreferences());
         PyTodoPrefPage.initializeDefaultPreferences(getPluginPreferences());
         PyDevBuilderPrefPage.initializeDefaultPreferences(getPluginPreferences());
+        PyCodeFormatterPage.initializeDefaultPreferences(getPluginPreferences());
     }
 
     public void propertyChange(Preferences.PropertyChangeEvent event) {

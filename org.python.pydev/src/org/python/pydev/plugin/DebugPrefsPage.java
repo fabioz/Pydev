@@ -27,7 +27,7 @@ public class DebugPrefsPage extends FieldEditorPreferencePage
 	 * Initializer sets the preference store
 	 */
 	public DebugPrefsPage() {
-		super(GRID);
+		super("Python Interpreters", GRID);
 		setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
 	}
 

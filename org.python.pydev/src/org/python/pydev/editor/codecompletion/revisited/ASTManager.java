@@ -444,9 +444,15 @@ public class ASTManager implements Serializable, IASTManager {
         }
 
         if(state.activationToken.endsWith("]")){
-            //ok, we are getting code completion for a string.
+            //ok, we are getting code completion for a list.
             AbstractModule m = getModule("__builtin__", state.nature);
             return m.getGlobalTokens("list", this, state.line, state.col, state.nature);
+        }
+
+        if(state.activationToken.endsWith("}")){
+            //ok, we are getting code completion for a dict.
+            AbstractModule m = getModule("__builtin__", state.nature);
+            return m.getGlobalTokens("dict", this, state.line, state.col, state.nature);
         }
 
         try {
