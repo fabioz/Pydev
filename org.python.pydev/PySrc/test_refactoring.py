@@ -103,10 +103,36 @@ c = C()
 
         self.assertEquals(getRenameRefactored(), contents)
 
+    def testFind(self):
+        r = refactoring.Refactoring()
+        s = r.findDefinition(FILE, 7+1, 4)
+        
+        s = s.replace('[(','').replace(')]','').split(',')
+        self.assert_( s[0].endswith('temporary_file.py'))
+        self.assertEquals('2', s[1])   #line
+        self.assertEquals('6', s[2])   #col
+        self.assertEquals('100', s[3]) #accuracy
+
+        createFile(FILE, getFindFile())
+        s = r.findDefinition(FILE, 5+1, 2)
+        s1 = r.findDefinition(FILE, 5+1, 3)
+        s2 = r.findDefinition(FILE, 5+1, 4)
+        self.assert_(s == s1 == s2)
+
+def getFindFile():
+    s = \
+'''
+class C:
+    def aaa(self):
+        return 0
+c = C()
+c.aaa()
+'''
+    return s
         
 if __name__ == '__main__':
-    unittest.main()
-
+#    unittest.main()
+    unittest.TestMethod(Test, 'Test.testFind')
     
     
     

@@ -41,8 +41,6 @@ public class PyExtractMethod extends PyRefactorAction {
         String res = "";
         if(name.equals("") == false){
 	        res = PyRefactoring.getPyRefactoring().extract(editorFile, beginLine, beginCol, endLine, endCol, name, operation);
-
-	        refreshEditors(getPyEdit());
         }
         return res;
 

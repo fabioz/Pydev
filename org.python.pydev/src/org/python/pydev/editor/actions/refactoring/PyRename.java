@@ -30,8 +30,6 @@ public class PyRename extends PyRefactorAction {
         String res = "";
         if(name.equals("") == false){
 	        res = PyRefactoring.getPyRefactoring().rename(editorFile, beginLine, beginCol, name, operation);
-
-	        refreshEditors(getPyEdit());
         }
         return res;
     }

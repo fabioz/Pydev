@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.5.9.6a"
+   version="0.5.9.7"
    provider-name="AleksTotic"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -718,6 +718,28 @@ ${cursor}
             id="org.python.pydev.editor.templates.python.dbg">
          <pattern>debug('==>', ${cursor}${data})</pattern>
       </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Pydev"
+            id="org.python.pydev"/>
+      <view
+            class="org.python.pydev.views.PyRefactorView"
+            icon="icons/sample.gif"
+            category="org.python.pydev"
+            name="Refactor Results View"
+            id="org.python.pydev.views.PyRefactorView"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension targetID="org.eclipse.ui.resourcePerspective">
+         <view
+               ratio="0.5"
+               relationship="right"
+               relative="org.eclipse.ui.views.TaskList"
+               id="org.python.pydev.views.PyRefactorView"/>
+      </perspectiveExtension>
    </extension>
 
 </plugin>

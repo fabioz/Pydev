@@ -77,6 +77,18 @@ class Refactoring(object):
         savedfiles = self.brmctx.save()
         return str(savedfiles)
 
+
+    def findDefinition(self, filename, line, column):
+        defns = self.brmctx.findDefinitionByCoordinates(filename, int(line), int(column))
+        
+        ret = ''
+        
+        for ref in defns:
+            ret += '(%s)'%str(ref)
+        
+        return '[%s]' % ret
+
+
 __Refactoring = None
 
 def GetRefactorer():
@@ -86,12 +98,13 @@ def GetRefactorer():
     
     return __Refactoring
     
-def releaseRefactorerBuffers():
-    GetRefactorer().warning.close()
-    GetRefactorer().progress.close()
+def restartRefactorerBuffer():
+    r = GetRefactorer()
+    r.warning.close()
+    r.progress.close()
 
-    GetRefactorer().warning.__init__()
-    GetRefactorer().progress.__init__()
+    r.warning.__init__()
+    r.progress.__init__()
 
 def restartRefactorer():
     global __Refactoring
@@ -112,9 +125,9 @@ def HandleRefactorMessage(msg, keepAliveThread):
     
     try:
         f = func(*msgSplit)
-        releaseRefactorerBuffers()
+        restartRefactorerBuffer()
         s = urllib.quote_plus(f)
-        return 'REFACTOR_OK:%s\nEND@@'%(s)
+        return 'BIKE_OK:%s\nEND@@'%(s)
     except:
         import sys
         s = StringIO.StringIO()
@@ -131,7 +144,7 @@ def HandleRefactorMessage(msg, keepAliveThread):
         print >> s, '\nDETAILS:\n'
         traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], limit=None, file = s)
         
-        releaseRefactorerBuffers()
+        restartRefactorerBuffer()
         restartRefactorer()
         s = urllib.quote_plus(s.getvalue())
         return 'ERROR:%s\nEND@@'%(s)

@@ -6,5 +6,6 @@
 def GenerateTip (__eraseThisV):
     d = dict()
     d['__eraseThisTips'] = []
-    exec __eraseThisV in d
+    dGlobals = dict() #we don't want the globals 
+    exec __eraseThisV in dGlobals, d
     return d['__eraseThisTips']

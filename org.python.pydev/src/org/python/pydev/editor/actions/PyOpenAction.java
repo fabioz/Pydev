@@ -62,7 +62,7 @@ public class PyOpenAction extends Action {
 			Path path = new Path(((File)p.file).getAbsolutePath());
 			editor = PydevPlugin.doOpenEditor(path, true);
 		}
-		if (editor instanceof ITextEditor) {
+		if (editor instanceof ITextEditor && p.start.line >= 0 && p.end.line >= 0) {
 			showInEditor((ITextEditor)editor, p.start, p.end);
 		}
 	}

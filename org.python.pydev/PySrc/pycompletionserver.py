@@ -21,7 +21,7 @@ MSG_INVALID_REQUEST     = '@@INVALID_REQUEST'
 MSG_RELOAD_MODULES      = '@@RELOAD_MODULES_END@@'
 MSG_CHANGE_DIR          = '@@CHANGE_DIR:'
 MSG_OK                  = '@@MSG_OK_END@@'
-MSG_REFACTOR            = '@@REFACTOR'
+MSG_BIKE                = '@@BIKE'
 MSG_PROCESSING          = '@@PROCESSING_END@@'
 MSG_PROCESSING_PROGRESS = '@@PROCESSING:%sEND@@'
 MSG_IMPORTS             = '@@IMPORTS:'
@@ -178,8 +178,8 @@ class T(threading.Thread):
                             simpleTipper.CompleteFromDir(data)
                             returnMsg = MSG_OK
                             
-                        elif data.startswith(MSG_REFACTOR):
-                            data = data.replace(MSG_REFACTOR, '')
+                        elif data.startswith(MSG_BIKE): 
+                            data = data.replace(MSG_BIKE, '')
                             data = urllib.unquote_plus(data)
                             returnMsg = refactoring.HandleRefactorMessage(data, keepAliveThread)
                             

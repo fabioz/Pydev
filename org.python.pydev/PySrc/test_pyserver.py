@@ -70,23 +70,22 @@ class Test(unittest.TestCase):
         
         
         #now that we have the connections all set up, check the code completion messages.
-        msg = urllib.quote('import math\n')
+        msg = urllib.quote_plus('import math\n')
         sToWrite.send('@@GLOBALS:%sEND@@'%msg) #only 1 global should be returned: math itself.
         completions = self.readMsg()
         
         
-        msg = urllib.quote('This module is always available.  It provides access to the\n'\
+        msg = urllib.quote_plus('This module is always available.  It provides access to the\n'\
                            'mathematical functions defined by the C standard.')
         self.assertEquals('@@COMPLETIONS((math,%s))END@@'%msg,
                           completions)
 
         
-        msg1 = urllib.quote('math')
-        msg2 = urllib.quote('import math\n')
+        msg1 = urllib.quote_plus('math')
+        msg2 = urllib.quote_plus('import math\n')
         #check token msg.
         sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' % (msg1, msg2)) 
         completions = self.readMsg()
-        
 
         self.assert_('@@COMPLETIONS' in completions)
         self.assert_('END@@' in completions)
@@ -108,7 +107,7 @@ class C(object):
                                 
         pass            
 '''     
-        msg = urllib.quote(s)
+        msg = urllib.quote_plus(s)
 
         sToWrite.send('@@TOKEN_GLOBALS(C):%s\nEND@@'%s) 
         completions = self.readMsg()
@@ -136,20 +135,20 @@ class C(object):
             newDir = curr[0:curr.rindex('\\')]
         
         self.assert_(newDir != None)
-        newDir = urllib.quote(newDir)
+        newDir = urllib.quote_plus(newDir)
         sToWrite.send('@@CHANGE_DIR:%sEND@@'%newDir)
         ok = self.readMsg()
         self.assertEquals('@@MSG_OK_END@@' , ok)
         
-        msg1 = urllib.quote('math.acos') #with point
-        msg2 = urllib.quote('import math\n')
+        msg1 = urllib.quote_plus('math.acos') #with point
+        msg2 = urllib.quote_plus('import math\n')
         sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' %(msg1, msg2)) 
         completions = self.readMsg()
         self.assert_('@@COMPLETIONS' in completions)
         self.assert_('END@@' in completions)
 
-        msg1 = urllib.quote('math acos') #with space
-        msg2 = urllib.quote('import math\n')
+        msg1 = urllib.quote_plus('math acos') #with space
+        msg2 = urllib.quote_plus('import math\n')
         sToWrite.send('@@TOKEN_GLOBALS(%s):%sEND@@' %(msg1, msg2)) 
         completions2 = self.readMsg()
         self.assertEquals(completions, completions2)
@@ -176,9 +175,13 @@ class C(object):
         from test_refactoring import delete, createFile, FILE, getInitialFile, getRenameRefactored
         createFile(FILE, getInitialFile())
         
-        sToWrite.send('@@REFACTORrenameByCoordinates %s %s %s %sEND@@'%(FILE, 1+1, 6, 'G')) 
+        sToWrite.send('@@BIKEfindDefinition %s %s %sEND@@'%(FILE, 7+1, 4)) 
         result = self.readMsg()
-        print 'result', result
+        self.assert_('BIKE_OK:' in result)
+
+        sToWrite.send('@@BIKErenameByCoordinates %s %s %s %sEND@@'%(FILE, 1+1, 6, 'G')) 
+        result = self.readMsg()
+        self.assert_('BIKE_OK:' in result)
 
         self.sendKillMsg(sToWrite)
         

@@ -132,22 +132,25 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      */
     private void addMarks(ArrayList nodes, ProjectionAnnotationModel model, ArrayList collapsed) {
         int i=0;
-        
-        IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
-        
-        for (Iterator iter = nodes.iterator(); iter.hasNext();++i) {
+
+        try {
+            IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
             
-            AbstractNode element = (AbstractNode) iter.next();
-            int end = findEnd(element, nodes, i, doc);
-            int start = element.getStart().line;
-            if (end == -1){
-                end = start;
+            for (Iterator iter = nodes.iterator(); iter.hasNext();++i) {
+                
+                AbstractNode element = (AbstractNode) iter.next();
+                int end = findEnd(element, nodes, i, doc);
+                int start = element.getStart().line;
+                if (end == -1){
+                    end = start;
+                }
+                try {
+                    addFoldingMark(element, start, end, model, collapsed);
+                } catch (BadLocationException e) {
+                    e.printStackTrace();
+                }
             }
-            try {
-                addFoldingMark(element, start, end, model, collapsed);
-            } catch (BadLocationException e) {
-                e.printStackTrace();
-            }
+        } catch (NullPointerException e) {
         }
     }
 

@@ -21,7 +21,9 @@ import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
@@ -31,13 +33,14 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.refactoring.PyRefactoring;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.views.PyRefactorView;
 
 /**
  * @author Fabio Zadrozny
  */
 public abstract class PyRefactorAction extends PyAction {
 
-    private IWorkbenchWindow workbenchWindow;
+    protected IWorkbenchWindow workbenchWindow;
 
     public final class Operation extends WorkspaceModifyOperation {
         public String statusOfOperation;
@@ -103,16 +106,30 @@ public abstract class PyRefactorAction extends PyAction {
             IEditorReference[] editorReferences = pages[i]
                     .getEditorReferences();
 
+            IViewReference[] viewReferences = pages[i].getViewReferences();
+            
             for (int j = 0; j < editorReferences.length; j++) {
-                if (editorReferences[j] instanceof PyEdit) {
-                    PyEdit e = (PyEdit) editorReferences[j];
+                IEditorPart ed = editorReferences[j].getEditor(false);
+                if (ed instanceof PyEdit) {
+                    PyEdit e = (PyEdit) ed;
                     if (e != edit) {
-                        System.out.println("REFRESHING OTHER");
                         refreshEditor(e);
                     }
                 }
             }
+
+        
+            for (int j = 0; j < viewReferences.length; j++) {
+                IWorkbenchPart view = viewReferences[j].getPart(false);
+                if(view instanceof PyRefactorView){
+                  view = viewReferences[j].getPart(true);
+                  PyRefactorView e = (PyRefactorView) view;
+                    e.refresh();
+                }
+            }
+
         }
+        
     }
 
     /**
@@ -205,6 +222,11 @@ public abstract class PyRefactorAction extends PyAction {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+        try {
+            refreshEditors(getPyEdit());
+        } catch (CoreException e1) {
+            e1.printStackTrace();
         }
 
         if (operation.statusOfOperation.startsWith("ERROR:")) {
