@@ -4,9 +4,9 @@
    <description url="http://pydev.sourceforge.net/">
       The python development environment.
    </description>
-   <feature url="features/org.python.pydev.feature_0.8.0.jar" id="org.python.pydev.feature" version="0.8.0"/>
    <feature url="features/org.python.pydev.feature_0.7.1.jar" id="org.python.pydev.feature" version="0.7.1"/>
    <feature url="features/org.python.pydev.feature_0.6.1.jar" id="org.python.pydev.feature" version="0.6.1"/>
    <feature url="features/org.python.pydev.feature_0.5.3.jar" id="org.python.pydev.feature" version="0.5.3"/>
    <feature url="features/org.python.pydev.feature_0.4.2.jar" id="org.python.pydev.feature" version="0.4.2"/>
+   <feature url="features/org.python.pydev.feature_0.8.5.jar" id="org.python.pydev.feature" version="0.8.5"/>
 </site>
