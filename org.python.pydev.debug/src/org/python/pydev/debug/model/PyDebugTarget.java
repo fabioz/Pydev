@@ -78,21 +78,32 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 		debugger.postCommand(new VersionCommand(debugger));
 		
 		// now, register all the breakpoints in our project
-		IFile launched = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(file);
-		IProject project = launched.getProject();
-		try {
-			IMarker[] markers = project.findMarkers(PyBreakpoint.PY_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
-			IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
-			for (int i= 0; i < markers.length; i++) {
-				PyBreakpoint brk = (PyBreakpoint)breakpointManager.getBreakpoint(markers[i]);
-				if (brk.isEnabled()) {
-					SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine());
-					debugger.postCommand(cmd);
-				}
-			}					
-		} catch (Throwable t) {
-			PydevDebugPlugin.errorDialog("Error setting breakpoints", t);
+		IFile launched[];
+		IFile temp = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(file);
+		if(temp != null) {
+			launched = new IFile[1];
+			launched[0] = temp;
 		}
+		else {
+			launched = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(file);
+		}
+		for(int ii = 0; ii != launched.length; ++ii) {
+			IProject project = launched[ii].getProject();
+			try {
+				IMarker[] markers = project.findMarkers(PyBreakpoint.PY_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
+				IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
+				for (int i= 0; i < markers.length; i++) {
+					PyBreakpoint brk = (PyBreakpoint)breakpointManager.getBreakpoint(markers[i]);
+					if (brk.isEnabled()) {
+						SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine());
+						debugger.postCommand(cmd);
+					}
+				}
+			} catch (Throwable t) {
+				PydevDebugPlugin.errorDialog("Error setting breakpoints", t);
+			}
+		}
+			
 		// Send the run command, and we are off
 		RunCommand run = new RunCommand(debugger);
 		debugger.postCommand(run);
