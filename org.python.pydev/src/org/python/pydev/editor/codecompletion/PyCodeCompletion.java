@@ -65,7 +65,7 @@ public class PyCodeCompletion {
         List theList = new ArrayList();
         String s = new String();
         File tmp = null;
-
+//        System.out.println("DBG:autoComplete:theActivationToken: "+theActivationToken);
         try {
             // get the inspect.py file from the package:
             s = getAutoCompleteScript();
@@ -84,8 +84,7 @@ public class PyCodeCompletion {
             tmp = bufferContent(theCode);
 
             if (tmp == null) {
-                System.out
-                        .println("DBG:bufferContent() null. No tip for you!!");
+                System.out.println("DBG:bufferContent() null. No tip for you!!");
                 return theList;
             }
             
@@ -95,8 +94,7 @@ public class PyCodeCompletion {
             BufferedReader in = new BufferedReader(new InputStreamReader(p
                     .getInputStream()));
             String str;
-            while ((str = in.readLine()) != null) {
-                
+            while ((str = in.readLine()) != null) {                
                 if (!str.startsWith("tip: ")){
                     continue;
                 }

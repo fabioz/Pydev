@@ -42,10 +42,11 @@ public class PythonCompletionProcessor
         
         String activationToken = codeCompletion
                 .getActivationToken(theDoc, documentOffset);
-        
+//        System.out.println("DBG:PythonCompletionProcessor:activationToken:"+activationToken);
         java.lang.String qualifier = "";
-
-        while(activationToken.endsWith(".") == false && activationToken.length() > 0){
+        while(
+        		(activationToken.endsWith(".") ||activationToken.endsWith("("))
+        				== false && activationToken.length() > 0){
             qualifier = activationToken.charAt(activationToken.length()-1) + qualifier;
             activationToken = activationToken.substring(0, activationToken.length()-1);
         }
@@ -100,7 +101,8 @@ public class PythonCompletionProcessor
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
-        return new char[] { '.'/*, '(', '['*/ };
+    	//System.out.println("DBG:getCompletionProposalAutoActivationCharacters called");
+        return new char[] { '.', '(', /*'['*/ };
     }
 
     /*
