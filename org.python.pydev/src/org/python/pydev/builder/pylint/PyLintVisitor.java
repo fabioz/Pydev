@@ -14,6 +14,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.utils.SimplePythonRunner;
@@ -253,7 +255,7 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitResource(org.eclipse.core.resources.IResource)
      */
     public static final String PYLINT_PROBLEM_MARKER = "org.python.pydev.pylintproblemmarker";
-    public boolean visitResource(IResource resource) {
+    public boolean visitResource(IResource resource, IDocument document) {
         IProject project = resource.getProject();
         if (project != null && resource instanceof IFile) {
 
@@ -319,6 +321,18 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
                                 
                                 tok = tok.substring(tok.indexOf(":")+1);
                                 int line = Integer.parseInt(tok.substring(0, tok.indexOf(":")).trim() );
+                                
+                                IRegion region = document.getLineInformation(line-1);
+                                String lineContents = document.get(region.getOffset(), region.getLength());
+                                
+                                int pos = -1;
+                                if( ( pos = lineContents.indexOf("IGNORE:") ) != -1){
+                                    String lintW = lineContents.substring(pos+"IGNORE:".length());
+                                    if (lintW.startsWith(id)){
+                                        continue;
+                                    }
+                                }
+                                
                                 tok = tok.substring(tok.indexOf(":")+1);
                                 createMarker(resource, "ID:"+id+" "+tok , line,  type, priority);
                             }

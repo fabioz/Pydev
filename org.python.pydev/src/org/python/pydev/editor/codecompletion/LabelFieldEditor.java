@@ -9,7 +9,7 @@ import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.swt.widgets.Composite;
 
 
-class LabelFieldEditor extends FieldEditor {
+public class LabelFieldEditor extends FieldEditor {
     public LabelFieldEditor(String name, String labelText, Composite parent) {
         init(name, labelText);
         createControl(parent);

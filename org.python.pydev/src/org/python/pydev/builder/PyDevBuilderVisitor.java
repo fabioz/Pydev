@@ -6,21 +6,20 @@
 package org.python.pydev.builder;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 
 /**
  * @author Fabio Zadrozny
  */
 public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
+
 
 
 	/**
@@ -34,10 +33,11 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 			if (resource.getFileExtension().equals("py")) {
 				switch (delta.getKind()) {
 					case IResourceDelta.ADDED :
-					    visitResource(resource);
+					    visitResource(resource, PyDevBuilder.getDocFromResource(resource));
 						break;
 					case IResourceDelta.CHANGED:
-					    visitResource(resource);
+					    visitResource(resource, PyDevBuilder.getDocFromResource(resource));
+						break;
 					case IResourceDelta.REMOVED:
 						// Do nothing
 						break;
@@ -50,31 +50,8 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
     /**
      * @param resource to be visited.
      */
-    public abstract boolean visitResource(IResource resource);
+    public abstract boolean visitResource(IResource resource, IDocument document);
 
-	/**
-	 * Default implementation. 
-	 * Visits each resource once at a time.
-	 * May be overriden if a better implementation is needed.
-	 * 
-	 * @param resourcesToParse list of resources from project that are python files.
-	 * @param monitor
-	 */
-    public void fullBuild(List resourcesToParse, IProgressMonitor monitor){
-        //we have 100 units here
-        monitor.subTask("Visiting: "+this.getClass().getName());
-        double inc = 100.0 / (double)resourcesToParse.size();
-        
-        double total = 0;
-        for (Iterator iter = resourcesToParse.iterator(); iter.hasNext();) {
-            total += inc;
-            visitResource((IResource) iter.next());
-            if(total > 1){
-                monitor.worked((int) total);
-                total -= (int)total;
-            }
-        }
-    }
 
     /**
      * Checks pre-existance of marker.

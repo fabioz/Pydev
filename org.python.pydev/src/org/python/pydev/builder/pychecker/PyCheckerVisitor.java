@@ -5,9 +5,8 @@
  */
 package org.python.pydev.builder.pychecker;
 
-import java.util.List;
-
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 
 /**
@@ -18,21 +17,13 @@ public class PyCheckerVisitor extends PyDevBuilderVisitor {
     /* (non-Javadoc)
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitResource(org.eclipse.core.resources.IResource)
      */
-    public boolean visitResource(IResource resource) {
+    public boolean visitResource(IResource resource, IDocument document) {
         if (PyCheckerPrefPage.usePyChecker() == false) {
             return false;
         }
 
 //        PyCheckerLauncher.pycheck(resource);
         return true;
-    }
-    
-    public void fullBuild(List resourcesToParse){
-        if (PyCheckerPrefPage.usePyChecker() == false) {
-            return;
-        }
-        
-//        PyCheckerLauncher.pycheck(resourcesToParse);
     }
     
 }
