@@ -86,6 +86,10 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		return InterpreterEditor.getInterpreterList(interpreters);
 	}
 
+	public static String getDefaultInterpreter() {
+		return getInterpreters()[0];
+	}
+
 	public void init(IWorkbench workbench) {		
 	}
 	

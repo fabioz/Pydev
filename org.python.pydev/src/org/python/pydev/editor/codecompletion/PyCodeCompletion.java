@@ -104,10 +104,15 @@ public class PyCodeCompletion {
                 AbstractNode closest = ModelUtils.getLessOrEqualNode(edit
                         .getPythonModel(), loc);
 
-                Scope scope = closest.getScope().findContainingClass();
-                String token = scope.getStartNode().getName();
-                completions = serverShell
-                        .getClassCompletions(token, docToParse);
+                if(closest == null){
+                    completions = serverShell.getTokenCompletions(trimmed,
+                            docToParse);
+                }else{
+	                Scope scope = closest.getScope().findContainingClass();
+	                String token = scope.getStartNode().getName();
+	                completions = serverShell
+	                        .getClassCompletions(token, docToParse);
+                }
             } else {
                 completions = serverShell.getTokenCompletions(trimmed,
                         docToParse);
@@ -205,7 +210,7 @@ public class PyCodeCompletion {
         } catch (BadLocationException e1) {
             e1.printStackTrace();
         }
-        return newDoc;
+        return "\n"+newDoc;
     }
 
     /**
@@ -293,8 +298,13 @@ public class PyCodeCompletion {
         if (str.endsWith(" ")) {
             return " ";
         }
-        if(str.lastIndexOf(' ') != -1){
-            return str.substring(str.lastIndexOf(' '), str.length());
+        
+        int lastSpaceIndex = str.lastIndexOf(' ');
+        int lastParIndex = str.lastIndexOf('(');
+        
+        if(lastParIndex != -1 || lastSpaceIndex != -1){
+            int lastIndex = lastSpaceIndex > lastParIndex ? lastSpaceIndex : lastParIndex;
+            return str.substring(lastIndex+1, str.length());
         }
         return str;
     }

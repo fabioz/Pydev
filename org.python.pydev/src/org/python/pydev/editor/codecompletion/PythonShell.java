@@ -17,6 +17,7 @@ import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
+import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.SocketUtil;
 
 /**
@@ -134,7 +135,7 @@ public class PythonShell {
 
             if(process != null)
                 endIt();
-            process = Runtime.getRuntime().exec("python "+serverFile.getAbsolutePath()+" "+pWrite+" "+pRead);
+            process = Runtime.getRuntime().exec(PydevPrefs.getDefaultInterpreter()+" "+serverFile.getAbsolutePath()+" "+pWrite+" "+pRead);
             
             boolean connected = false;
             int attempts = 0;
@@ -248,7 +249,7 @@ public class PythonShell {
      */
     public String read() throws IOException {
         String r = read(null);
-        System.out.println("RETURNING:"+r);
+//        System.out.println("RETURNING:"+r);
         return r;
     }
     
@@ -258,7 +259,7 @@ public class PythonShell {
      * @throws IOException
      */
     public void write(String str) throws IOException {
-        System.out.println("WRITING:"+str);
+//        System.out.println("WRITING:"+str);
         this.socketToWrite.getOutputStream().write(str.getBytes());
     }
 
