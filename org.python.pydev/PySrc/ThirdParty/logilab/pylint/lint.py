@@ -27,7 +27,7 @@
   Display help messages about given message identifiers and exit.
 """
 
-__revision__ = "$Id: lint.py,v 1.4 2005-01-21 17:42:02 fabioz Exp $"
+__revision__ = "$Id: lint.py,v 1.5 2005-01-25 15:53:54 fabioz Exp $"
 
 from __future__ import nested_scopes
 
@@ -728,6 +728,4 @@ importing analyzed code now'
 
 
 if __name__ == "__main__":
-    #patched -- Fabio
-    sys.stderr = sys.stdout
     Run(sys.argv[1:])
