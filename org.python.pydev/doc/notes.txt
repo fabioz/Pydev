@@ -1,0 +1,89 @@
+SOURCEFORGE access:
+ scp index.html atotic@shell.sourceforge.net:/home/groups/p/py/pydev/htdocs
+WISHLIST
+
+TODO highlighting in task list
+New wizard (python project, class, python package, chandler parcel
+Code snippets
+
+DOCUMENTATION
+
+Overview of how text editor works:
+http://dev.eclipse.org/newslists/news.eclipse.tools/msg61602.html
+
+Class navigation
+PyEdit creates PyDocumentProvider
+PyDocumentProvider creates document 
+
+What happens when I type:
+Document(AbstractDocument).computePartitioning(int, int) line: 759
+PresentationReconciler.createPresentation(IRegion, IDocument) line: 370
+PresentationReconciler.processDamage(IRegion, IDocument) line: 475
+PresentationReconciler.access$5(PresentationReconciler, IRegion, IDocument) line: 473
+PresentationReconciler$InternalListener.textChanged(TextEvent) line: 187
+SourceViewer(TextViewer).updateTextListeners(TextViewer$WidgetCommand) line: 1885
+TextViewer$DocumentListener.documentChanged(DocumentEvent) line: 287
+Document(AbstractDocument).doFireDocumentChanged(DocumentEvent, boolean, IRegion) line: 598
+Document(AbstractDocument).doFireDocumentChanged(DocumentEvent) line: 563
+Document(AbstractDocument).fireDocumentChanged(DocumentEvent) line: 623
+Document(AbstractDocument).replace(int, int, String) line: 906
+DocumentAdapter.replaceTextRange(int, int, String) line: 165
+StyledText.modifyContent(Event, boolean) line: 5820
+
+PyEdit getDocumentProvider
+ducumentProvider.getDocument(bject)
+
+Getting a document from the editor:
+		IDocumentProvider provider= fTextEditor.getDocumentProvider();
+		return provider.getDocument(fTextEditor.getEditorInput());
+
+PyEdit workbench part
+workbench parts have: IEditorInput, IWorkbenchPartSite
+text editor part has ISourceViewer(AbstractTextEditor::fSourceViewer)
+ISourceViewer has text widget getTextWidget
+ISourceViewer is not publicly available from the workbench part
+
+
+
+EditorsPlugin.getDefault().getSharedTextColors();
+
+CLASS DOCS
+
+**** org.totic.pydev
+- general plugin framework classes
+
+PydevPlugin:
+- initialized on startup
+- has resource bundle for internationalization
+- has preferences
+
+PydevPrefs:
+- has constants to fetch preferences
+- handles defaults for every preference
+
+**** org.totic.pydev.editors
+- everything related to the editor: editor widget, parsers, outline page, actions
+
+PyEdit:
+- editing widget
+- ties PyDocumentProvider, PyEditConfiguration to the widget
+- creates teh outline page
+- creates/destroys color cache
+
+PyDocumentProvider:
+- big class name, does very little
+- creates document, and has ties to it
+- ties IDocument with PyPartitionScanner
+
+PyPartitionScanner:
+- partitiions document into simple tokens
+- for python, our strategy is to partition into 4 different regions:
+    single-line string, multi-line strings, comments, and everything else
+- see class for more information
+
+PyEditConfiguration
+- lots of interesting stuff in this class
+- responsible for most of custom behavior of PyEdit
+- has parsers for coloring keywords, the parser matches partition scanner
+
+

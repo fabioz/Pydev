@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="org.python.pydev"
+   name="Pydev"
+   version="0.1.0"
+   provider-name="AleksTotic"
+   class="org.python.pydev.plugin.PydevPlugin">
+
+   <runtime>
+      <library name="pydev.jar"/>
+   </runtime>
+   <requires>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui"/>
+   </requires>
+
+
+<!-- editor -->
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="Python Editor"
+            icon="icons/sample.gif"
+            extensions="py,pytest"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            class="org.python.pydev.editor.PyEdit"
+            id="org.python.pydev.editor.PyEdit">
+      </editor>
+   </extension>
+
+<!-- preference page -->
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="Pydev"
+            class="org.python.pydev.plugin.PydevPrefs"
+            id="org.python.pydev.prefs">
+      </page>
+   </extension>
+
+</plugin>

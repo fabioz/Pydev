@@ -1,0 +1,14 @@
+Python parser has to be modified.
+Imported all the modified files from jython
+Eliminated all imports from org.python.core
+Created a new class called Py that implements commonly used Py methods (makeInt & friends)
+
+org.python.parser.ast.Num:
+> global replace of PyObject with String
+
+org.python.parser.SimpleNode:
+> pickleThis takes object instead of PyObject
+
+org.python.parser.PythonGrammar
+> minor changes, mostly with calling Py instead of python.core
+

@@ -1,0 +1,41 @@
+<project name="org.python.parser" default="parser" basedir=".">
+	<description>
+		Python parser Ant build file
+	</description>
+
+	<property name="jjhome" location="D:/javacc/bin/lib/"/>
+	<property name="jjfile" location="./python.jjt"/>
+	<property name="output" location="."/>
+	
+     <available
+       property="javacc.present"
+       classname="org.netbeans.javacc.parser.Main"
+     />
+  
+  	<target name="javacc_check" unless="javacc.present">
+    	<echo>
+       	JavaCC not found. You need to install it, or point the 
+       	   jjhome variable in this file to the right location
+       	JavaCC Home: ${javacc.home}
+ 		</echo>
+ 	</target>
+ 	
+	<target name="makejjt" depends="javacc_check">
+		<jjtree 
+			target="${jjfile}" 
+			javacchome="${jjhome}"
+			outputdirectory="${output}"/>
+		<javacc 
+			target="${output}/python.jj" 
+			javacchome="${jjhome}"
+			outputdirectory="${output}"/>
+	</target>
+	
+	<target name="parser" depends="makejjt" description="python parse tree"/>
+	
+	<target name="clean" description="remove parser files">
+		<delete>
+			<fileset dir="${output}" includes="**/*.java"/>
+		</delete>
+	</target>
+</project>
