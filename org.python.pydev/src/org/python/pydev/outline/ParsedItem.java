@@ -10,7 +10,12 @@ import java.util.Iterator;
 
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.aliasType;
-import org.python.pydev.editor.model.*;
+import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.editor.model.ClassNode;
+import org.python.pydev.editor.model.FunctionNode;
+import org.python.pydev.editor.model.ImportFromNode;
+import org.python.pydev.editor.model.ImportNode;
+import org.python.pydev.editor.model.NameEqualsMainNode;
 
 /**
  * ParsedModel is composed of ParsedItems.

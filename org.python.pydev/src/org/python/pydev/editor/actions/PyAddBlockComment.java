@@ -6,10 +6,10 @@
 
 package org.python.pydev.editor.actions;
 
-import org.python.pydev.plugin.PydevPrefs;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 
 
 /**

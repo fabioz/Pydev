@@ -6,10 +6,8 @@ package org.python.pydev.plugin;
  * (c) Copyright QNX Software Systems Ltd. 2002.
  * All Rights Reserved.
  */
-import org.eclipse.jface.resource.ImageDescriptor;
-
 import org.eclipse.core.resources.IStorage;
-
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IStorageEditorInput;

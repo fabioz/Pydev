@@ -6,7 +6,10 @@
 
 package org.python.pydev.editor.actions;
 
-import org.python.pydev.editor.model.*;
+import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.editor.model.ClassNode;
+import org.python.pydev.editor.model.FunctionNode;
+import org.python.pydev.editor.model.ModelUtils;
 
 
 /**

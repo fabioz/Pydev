@@ -5,11 +5,7 @@
  */
 package org.python.pydev.editor.actions;
 
-import java.io.IOException;
-
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
-import org.python.pydev.editor.codecompletion.PythonShell;
 
 /**
  * 

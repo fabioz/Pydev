@@ -1,6 +1,6 @@
 package org.python.parser;
 
-import org.python.parser.ast.*;
+import org.python.parser.ast.VisitorBase;
 
 public class Visitor extends VisitorBase {
 

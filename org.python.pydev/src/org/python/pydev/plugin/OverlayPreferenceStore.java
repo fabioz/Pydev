@@ -16,10 +16,9 @@ package org.python.pydev.plugin;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-
-import org.eclipse.jface.text.Assert;
 
 /**
  * An overlaying preference store.

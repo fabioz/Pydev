@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 
-
 import org.eclipse.core.runtime.IPath;
 import org.python.pydev.plugin.PydevPrefs;
 

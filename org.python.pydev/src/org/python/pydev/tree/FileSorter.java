@@ -1,7 +1,8 @@
 package org.python.pydev.tree;
 
-import java.io.*;
-import org.eclipse.jface.viewers.*;
+import java.io.File;
+
+import org.eclipse.jface.viewers.ViewerSorter;
 
 public class FileSorter extends ViewerSorter {
     public int category(Object element) {

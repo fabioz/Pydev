@@ -7,7 +7,12 @@ package org.python.pydev.outline;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.editor.model.*;
+import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.editor.model.ClassNode;
+import org.python.pydev.editor.model.FunctionNode;
+import org.python.pydev.editor.model.ImportFromNode;
+import org.python.pydev.editor.model.ImportNode;
+import org.python.pydev.editor.model.NameEqualsMainNode;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
 

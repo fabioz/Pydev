@@ -1,5 +1,8 @@
 package org.python.pydev.ui;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.plugin.PydevPlugin;

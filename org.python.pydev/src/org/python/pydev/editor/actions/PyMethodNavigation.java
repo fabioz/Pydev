@@ -10,7 +10,9 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.model.*;
+import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.editor.model.Location;
+import org.python.pydev.editor.model.ModelUtils;
 
 /**
  * The trick here is getting the outline... To do that, some refactorings had

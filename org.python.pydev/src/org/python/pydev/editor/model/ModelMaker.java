@@ -11,7 +11,19 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.parser.SimpleNode;
-import org.python.parser.ast.*;
+import org.python.parser.ast.Attribute;
+import org.python.parser.ast.Call;
+import org.python.parser.ast.ClassDef;
+import org.python.parser.ast.Compare;
+import org.python.parser.ast.FunctionDef;
+import org.python.parser.ast.If;
+import org.python.parser.ast.Import;
+import org.python.parser.ast.ImportFrom;
+import org.python.parser.ast.Name;
+import org.python.parser.ast.Pass;
+import org.python.parser.ast.Str;
+import org.python.parser.ast.VisitorBase;
+import org.python.parser.ast.aliasType;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**

@@ -1,10 +1,12 @@
 package org.python.pydev.tree;
 
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-import org.eclipse.jface.resource.*;
-import org.eclipse.swt.dnd.*;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.widgets.Display;
 
 public class Util {
     private static ImageRegistry image_registry;
