@@ -2,7 +2,7 @@
 <feature
       id="org.python.pydev.feature"
       label="org.python.pydev.feature"
-      version="0.4.2"
+      version="0.6.1"
       provider-name="Aleks Totic">
 
    <description>
@@ -23,7 +23,6 @@ Aleks
 
    <url>
       <update label="Pydev update site" url="http://pydev.sourceforge.net/updates/"/>
-      <discovery label="Pydev discovery site" url="http://pydev.sourceforge.net/" type="web"/>
    </url>
 
    <requires>
@@ -32,31 +31,32 @@ Aleks
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.ui.editors"/>
       <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.jface.text"/>
-      <import plugin="org.eclipse.jdt.ui"/>
       <import plugin="org.eclipse.core.boot"/>
       <import plugin="org.eclipse.ui.externaltools"/>
       <import plugin="org.eclipse.debug.core"/>
       <import plugin="org.eclipse.debug.ui"/>
+      <import plugin="org.eclipse.core.variables"/>
    </requires>
 
    <plugin
          id="org.python.pydev"
          download-size="275"
          install-size="275"
-         version="0.4.2"/>
+         version="0.6.1"/>
 
    <plugin
          id="org.python.pydev.debug"
          download-size="87"
          install-size="87"
-         version="0.4.2"/>
+         version="0.6"/>
 
    <plugin
          id="org.python.pydev.help"
          download-size="100"
          install-size="100"
-         version="0.4.0"/>
+         version="0.6"/>
 
 </feature>
