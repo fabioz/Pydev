@@ -6,6 +6,7 @@ import java.util.Iterator;
 import org.eclipse.core.internal.resources.MarkerAttributeMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.IDocument;
@@ -26,16 +27,17 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
 import org.python.pydev.tree.FileTreePyFilesProvider;
@@ -43,23 +45,17 @@ import org.python.pydev.utils.ProgressAction;
 import org.python.pydev.utils.ProgressOperation;
 
 /**
- * This sample class demonstrates how to plug-in a new workbench view. The view
- * shows data obtained from the model. The sample creates a dummy model on the
- * fly, but a real implementation would connect to the model available either in
- * this or another plug-in (e.g. the workspace). The view is connected to the
- * model using a content provider.
+ * This sample class demonstrates how to plug-in a new workbench view. The view shows data obtained from the model. The sample creates a
+ * dummy model on the fly, but a real implementation would connect to the model available either in this or another plug-in (e.g. the
+ * workspace). The view is connected to the model using a content provider.
  * <p>
- * The view uses a label provider to define how model objects should be
- * presented in the view. Each view can present the same model objects using
- * different labels and icons, if needed. Alternatively, a single label provider
- * can be shared between views in order to ensure that objects of the same type
- * are presented in the same way everywhere.
+ * The view uses a label provider to define how model objects should be presented in the view. Each view can present the same model objects
+ * using different labels and icons, if needed. Alternatively, a single label provider can be shared between views in order to ensure that
+ * objects of the same type are presented in the same way everywhere.
  * <p>
  */
 
 public class PyCodeCoverageView extends ViewPart {
-    private static final String NOT_EXECUTED_MARKER = "org.python.pydev.debug.notexecuted";
-
     //layout stuff
     private Composite leftComposite;
 
@@ -108,19 +104,17 @@ public class PyCodeCoverageView extends ViewPart {
     private File lastChosenFile;
 
     private SashForm s;
-    
-    
+
     //Actions ------------------------------
     /**
-     * In this action we have to go and refresh all the info based on the chosen
-     * dir.
+     * In this action we have to go and refresh all the info based on the chosen dir.
      * 
      * @author Fabio Zadrozny
      */
     private final class RefreshAction extends ProgressAction {
         public void run() {
             PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenFile, this.monitor);
-            
+
             viewer.setInput(lastChosenFile); //new files may have been added.
             text.setText("Refreshed info.");
         }
@@ -135,8 +129,7 @@ public class PyCodeCoverageView extends ViewPart {
 
             PyCoverage.getPyCoverage().clearInfo();
 
-            MessageDialog.openInformation(getSite().getShell(), "Cleared",
-                    "All the coverage data has been cleared!");
+            MessageDialog.openInformation(getSite().getShell(), "Cleared", "All the coverage data has been cleared!");
 
             text.setText("Data cleared (NOT REFRESHED).");
         }
@@ -198,8 +191,8 @@ public class PyCodeCoverageView extends ViewPart {
                     ItemPointer p = new ItemPointer(realFile, new Location(-1, -1), null);
                     PyOpenAction act = new PyOpenAction();
                     act.run(p);
-                    
-                    if(act.editor instanceof PyEdit){
+
+                    if (act.editor instanceof PyEdit) {
                         PyEdit e = (PyEdit) act.editor;
                         IEditorInput input = e.getEditorInput();
                         IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
@@ -207,22 +200,19 @@ public class PyCodeCoverageView extends ViewPart {
                             return;
                         IDocument document = e.getDocumentProvider().getDocument(e.getEditorInput());
 
-                        String type = NOT_EXECUTED_MARKER;
-                        type = IMarker.PROBLEM;
+                        String type = IMarker.PROBLEM;
                         original.deleteMarkers(type, false, 1);
-                        
-                        
-                        
+
                         String message = "Not Executed";
 
                         FileNode cache = (FileNode) PyCoverage.getPyCoverage().cache.getFile(realFile);
-                        for(Iterator it = cache.notExecutedIterator();it.hasNext();){
+                        for (Iterator it = cache.notExecutedIterator(); it.hasNext();) {
                             MarkerAttributeMap map = new MarkerAttributeMap();
-                            int errorLine = ((Integer)it.next()).intValue()-1;
+                            int errorLine = ((Integer) it.next()).intValue() - 1;
 
                             IRegion region = document.getLineInformation(errorLine);
                             int errorEnd = region.getOffset();
-                            int errorStart = region.getOffset()+region.getLength();
+                            int errorStart = region.getOffset() + region.getLength();
 
                             map.put(IMarker.MESSAGE, message);
                             map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
@@ -231,7 +221,7 @@ public class PyCodeCoverageView extends ViewPart {
                             map.put(IMarker.CHAR_END, new Integer(errorEnd));
                             map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
                             map.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_HIGH));
-                            
+
                             MarkerUtilities.createMarker(original, map, type);
                         }
 
@@ -250,17 +240,35 @@ public class PyCodeCoverageView extends ViewPart {
      */
     private final class ChooseAction extends ProgressAction {
         public void run() {
-            DirectoryDialog dialog = new DirectoryDialog(getSite().getShell());
-            if (lastChosenFile != null && lastChosenFile.exists()) {
-                dialog.setFilterPath(lastChosenFile.getParent());
+            ContainerSelectionDialog dialog = new ContainerSelectionDialog(getSite().getShell(), null, false, "Test");
+            dialog.open();
+            Object[] objects = dialog.getResult();
+            if (objects.length == 1) { //only one folder can be selected
+                if (objects[0] instanceof IPath) {
+                    IPath p = (IPath) objects[0];
+
+                    
+                    p = PydevPlugin.getLocation(p);
+                    File file = p.toFile().getAbsoluteFile();
+                    lastChosenFile = file;
+                    refreshAction.monitor = this.monitor;
+                    refreshAction.run();
+                }
             }
-            String string = dialog.open();
-            if (string != null) {
-                File file = new File(string);
-                lastChosenFile = file;
-                refreshAction.monitor = this.monitor;
-                refreshAction.run();
-            }
+
+            //previous code...
+            //DirectoryDialog dialog = new DirectoryDialog(getSite().getShell());
+            //if (lastChosenFile != null && lastChosenFile.exists()) {
+            //    dialog.setFilterPath(lastChosenFile.getParent());
+            //}
+            //String string = dialog.open();
+            //if (string != null) {
+            //    File file = new File(string);
+            //    lastChosenFile = file;
+            //    refreshAction.monitor = this.monitor;
+            //    refreshAction.run();
+            //}
+
         }
     }
 
@@ -278,8 +286,7 @@ public class PyCodeCoverageView extends ViewPart {
     }
 
     /**
-     * This is a callback that will allow us to create the viewer and initialize
-     * it.
+     * This is a callback that will allow us to create the viewer and initialize it.
      */
     public void createPartControl(Composite parent) {
 
@@ -314,7 +321,6 @@ public class PyCodeCoverageView extends ViewPart {
         leftComposite.setLayoutData(layoutData);
         leftComposite.setLayout(layout);
 
-        
         text = new Text(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
         try {
             text.setFont(new Font(null, "Courier new", 10, 0));
@@ -328,9 +334,6 @@ public class PyCodeCoverageView extends ViewPart {
         layoutData.verticalAlignment = GridData.FILL;
         text.setLayoutData(layoutData);
 
-        
-        
-        
         parent = leftComposite;
 
         //choose button
@@ -379,7 +382,7 @@ public class PyCodeCoverageView extends ViewPart {
         button.addSelectionListener(new SelectionListener() {
 
             public void widgetSelected(SelectionEvent e) {
-                ProgressOperation.startAction(getSite().getShell(),action );
+                ProgressOperation.startAction(getSite().getShell(), action);
             }
 
             public void widgetDefaultSelected(SelectionEvent e) {

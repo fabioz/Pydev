@@ -31,11 +31,11 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.actions.ActionDelegate;
-import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.codecoverage.RunManyDialog;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Fabio Zadrozny
@@ -125,7 +125,7 @@ public class PythonRunSubsetActionDelegate extends ActionDelegate implements IOb
 
             };
 
-            l = PyCoverage.getPyFilesBelow(file, filter, null)[0];
+            l = PydevPlugin.getPyFilesBelow(file, filter, null)[0];
         }
         
         return l;

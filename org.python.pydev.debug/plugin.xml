@@ -243,7 +243,6 @@
 	<super type="org.eclipse.debug.core.lineBreakpointMarker"/>
 	<persistent value="true"/>
 	<attribute name="org.eclipse.cdt.debug.core.condition"/>
- <super type="org.python.pydev.debug.notexecuted"/>
 </extension>
 <extension 
 	point="org.eclipse.debug.core.breakpoints">
@@ -257,10 +256,6 @@
 	<imageprovider id="pythonBreakPointImage"
 		markertype="org.python.pydev.debug.pyStopBreakpointMarker"
 		icon="icons/breakmarker.gif"/>
- <imageprovider
-       markertype="org.python.pydev.debug.notexecuted"
-       icon="icons/reddot.gif"
-       id="pyCodeCoverageImageProvider"/>
 </extension>
 <extension point = "org.eclipse.debug.ui.debugModelPresentations"> 
 	<debugModelPresentation

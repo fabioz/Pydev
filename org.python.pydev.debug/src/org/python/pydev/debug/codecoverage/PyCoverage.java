@@ -7,7 +7,6 @@ package org.python.pydev.debug.codecoverage;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -17,9 +16,9 @@ import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**
@@ -56,7 +55,7 @@ public class PyCoverage {
             List pyFilesBelow[] = new List[] { new ArrayList(), new ArrayList() };
 
             if (file.exists()) {
-                pyFilesBelow = getPyFilesBelow(file, monitor, true);
+                pyFilesBelow = PydevPlugin.getPyFilesBelow(file, monitor, true);
             }
 
             if (pyFilesBelow[0].size() == 0) { //no files
@@ -256,66 +255,6 @@ public class PyCoverage {
         return p;
     }
 
-    /**
-     * Returns the directories and python files in a list.
-     * 
-     * @param file
-     * @return tuple with files in pos 0 and folders in pos 1
-     */
-    public static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor) {
-        if (monitor == null) {
-            monitor = new NullProgressMonitor();
-        }
-        List filesToReturn = new ArrayList();
-        List folders = new ArrayList();
-
-        if (file.exists() == true) {
-
-            if (file.isDirectory()) {
-                folders.add(file);
-                File[] files = null;
-
-                if (filter != null) {
-                    files = file.listFiles(filter);
-                } else {
-                    files = file.listFiles();
-                }
-
-                for (int i = 0; i < files.length; i++) {
-                    List[] below = getPyFilesBelow(files[i], filter, monitor);
-                    filesToReturn.addAll(below[0]);
-                    folders.addAll(below[1]);
-                    monitor.worked(1);
-                }
-            } else if (file.isFile()) {
-                filesToReturn.add(file);
-                monitor.worked(1);
-                monitor.setTaskName("Found:" + file.toString());
-            }
-        }
-        return new List[] { filesToReturn, folders };
-
-    }
-
-    /**
-     * Returns the directories and python files in a list.
-     * 
-     * @param file
-     * @return tuple with files in pos 0 and folders in pos 1
-     */
-    public static List[] getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs) {
-        FileFilter filter = new FileFilter() {
-
-            public boolean accept(File pathname) {
-                if (includeDirs)
-                    return pathname.isDirectory() || pathname.toString().endsWith(".py");
-                else
-                    return pathname.isDirectory() == false || pathname.toString().endsWith(".py");
-            }
-
-        };
-        return getPyFilesBelow(file, filter, monitor);
-    }
 
     private static PyCoverage pyCoverage;
 
