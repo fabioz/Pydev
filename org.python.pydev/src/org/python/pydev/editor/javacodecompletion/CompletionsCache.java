@@ -20,7 +20,7 @@ public class CompletionsCache {
 
     public Map modules = new HashMap();
     
-    public void addModule(String modName, Module mod){
+    public void addModule(String modName, SourceModule mod){
         
     }
 }

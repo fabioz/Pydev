@@ -24,26 +24,12 @@ import org.python.parser.SimpleNode;
  * 
  * @author Fabio Zadrozny
  */
-public class Module {
+public class SourceModule extends AbstractModule{
 
-    /**
-     * This attribute determines if this module was created from a dll or from a source file.
-     */
-    public boolean isDllModule = false;
-    
     /**
      * This is the abstract syntax tree based on the jython parser output.
      */
     private SimpleNode ast;
-    
-    /**
-     * 
-     * @return true if this module was created from a source file (for now, we can create modules from
-     * a source file or from a dll).
-     */
-    public boolean isSourceModule(){
-        return ! isDllModule;
-    }
     
     /**
      * @return a reference to all the modules that are imported from this one in the global context as a
@@ -93,18 +79,12 @@ public class Module {
         return null;
     }
 
-    /**
-     * 
-     */
-    public Module(boolean isDllModule) {
-    }
 
 
     /**
      * @param n
      */
-    public Module(SimpleNode n) {
-        this(false);
+    public SourceModule(SimpleNode n) {
         this.ast = n;
     }
 }
