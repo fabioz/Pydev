@@ -44,7 +44,7 @@ public class ThreadListCommand extends AbstractDebuggerCommand {
 	}
 	
 	public String getOutgoing() {
-		return makeCommand(Integer.toString(CMD_LIST_THREADS), sequence, "");
+		return makeCommand(CMD_LIST_THREADS, sequence, "");
 	}
 	
 	public boolean needResponse() {

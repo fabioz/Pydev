@@ -131,14 +131,14 @@
          <action
                definitionId="org.python.pydev.editor.actions.navigation.nextMethod"
                label="Goto next method or class"
-               class="org.python.pydev.editor.actions.navigation.PyNextMethod"
+               class="org.python.pydev.editor.actions.PyNextMethod"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.nextMethod">
          </action>
          <action
                definitionId="org.python.pydev.editor.actions.navigation.previousMethod"
                label="Goto previous method or class"
-               class="org.python.pydev.editor.actions.navigation.PyPreviousMethod"
+               class="org.python.pydev.editor.actions.PyPreviousMethod"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.previousMethod">
          </action>
@@ -181,13 +181,13 @@
          </action>
          <action
                label="Navigate to next method / class"
-               class="org.python.pydev.editor.actions.navigation.PyNextMethod"
+               class="org.python.pydev.editor.actions.PyNextMethod"
                menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
                id="org.python.pydev.editor.actions.navigation.nextMethod">
          </action>
          <action
                label="Navigate to previous method / class"
-               class="org.python.pydev.editor.actions.navigation.PyPreviousMethod"
+               class="org.python.pydev.editor.actions.PyPreviousMethod"
                menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
                id="org.python.pydev.editor.actions.navigation.previousMethod">
          </action>

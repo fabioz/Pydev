@@ -4,7 +4,7 @@
  * License: Common Public License v1.0
  */
 
-package org.python.pydev.editor.actions.navigation;
+package org.python.pydev.editor.actions;
 
 import org.python.pydev.editor.model.*;
 

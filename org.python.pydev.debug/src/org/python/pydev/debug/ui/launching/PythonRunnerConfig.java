@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsUtil;
@@ -62,7 +61,7 @@ public class PythonRunnerConfig {
 		if (debugPort == 0) {
 			debugPort= SocketUtil.findUnusedLocalPort("", 5000, 15000); //$NON-NLS-1$
 			if (debugPort == -1)
-				throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, "Could not find a free socket for debugger", null));
+				throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not find a free socket for debugger", null));
 		}
 		return debugPort;		
 	}
@@ -78,12 +77,12 @@ public class PythonRunnerConfig {
 	public void verify() throws CoreException {
 		if (file == null
 			|| interpreter == null)
-		throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, "Invalid PythonRunnerConfig",null));
+		throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
 		if (isDebug &&
 			( acceptTimeout < 0
 			|| debugPort < 0
 			|| debugScript == null))
-		throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, "Invalid PythonRunnerConfig",null));
+		throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
 	}
 
 	/** 
@@ -95,7 +94,7 @@ public class PythonRunnerConfig {
 //		IPath relative = new Path("pysrc").addTrailingSeparator().append("rpdb.py");
 		URL location = org.python.pydev.debug.core.PydevDebugPlugin.getDefault().find(relative);
 		if (location == null)
-			throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, "Internal pydev error: Cannot find jpydaemon.py", null));
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Internal pydev error: Cannot find pydevd.py", null));
 		return location.getPath();
 	}
 

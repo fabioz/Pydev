@@ -25,6 +25,7 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
 
@@ -50,7 +51,7 @@ public class PyOutlinePage extends ContentOutlinePage  {
 	PyEdit editorView;
 	IDocument document;
 	IOutlineModel model;
-	ImageCache imageCache = new ImageCache();
+	ImageCache imageCache;
 	
 	// listeners to rawPartition
 	ISelectionChangedListener selectionListener;
@@ -58,6 +59,7 @@ public class PyOutlinePage extends ContentOutlinePage  {
 	public PyOutlinePage(PyEdit editorView) {
 		super();
 		this.editorView = editorView;
+		imageCache = new ImageCache(PydevPlugin.getDefault().getDescriptor().getInstallURL());
 	}
 	
 	public void dispose() {

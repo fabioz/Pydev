@@ -7,6 +7,9 @@
 		<project>org.eclipse.core.boot</project>
 		<project>org.eclipse.core.resources</project>
 		<project>org.eclipse.core.runtime</project>
+		<project>org.eclipse.debug.core</project>
+		<project>org.eclipse.ui</project>
+		<project>org.eclipse.ui.views</project>
 		<project>org.python.pydev</project>
 	</projects>
 	<buildSpec>
@@ -29,5 +32,6 @@
 	<natures>
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.python.pydev.pythonNature</nature>
 	</natures>
 </projectDescription>

@@ -83,7 +83,7 @@
 				label="Debug..."
 				icon="icons/python.gif"
 				tooltip="Debug python script"
-				class="org.python.pydev.debug.ui.launching.PythonRunActionDelegate"
+				class="org.python.pydev.debug.ui.actions.PythonRunActionDelegate"
 				menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
 				enablesFor="1"
 				id="org.python.pydev.debug.DebugPythonAction">
@@ -92,7 +92,7 @@
 				label="Run..."
 				icon="icons/python.gif"
 				tooltip="Run a python script"
-				class="org.python.pydev.debug.ui.launching.PythonRunActionDelegate"
+				class="org.python.pydev.debug.ui.actions.PythonRunActionDelegate"
 				menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
 				enablesFor="1"
 				id="org.python.pydev.debug.RunPythonAction">
@@ -133,61 +133,89 @@
 <extension point="org.eclipse.ui.editorActions">
 	<editorContribution
 		id="org.python.pydev.debug.BreakpointRulerActions"
-		targetID="org.python.pydev.editor.PyEdit">
+		targetID="org.python.pydev.editor.PythonEditor">
 		<action
 			id="org.python.pydev.debug.BreakpointRulerAction"
 			actionID="RulerDoubleClick"
 			label="Add breakpoint"
-			class="org.python.pydev.debug.ui.ManageBreakpointRulerActionDelegate">
+			class="org.python.pydev.debug.ui.actions.ManageBreakpointRulerActionDelegate">
 		</action>
-	</editorContribution>	
+	</editorContribution>
 </extension>
 
 <!-- breakpoint popup menu -->
-<!-- <extension point="org.eclipse.ui.popupMenus">
+<extension point="org.eclipse.ui.popupMenus">
 	<viewerContribution 
     	id="org.python.pydev.debug.PyEditPopupActions" 
-    	targetID="#ClassFileRulerContext">
-    	<action
-			id="org.eclipse.jdt.ui.actions.JavaBreakpointPropertiesRulerActionDelegate"
-			label="%JavaBreakpointProperties.label"
+    	targetID="#TextRulerContext">
+<!--    	<action
+			id="org.python.pydev.actions.JavaBreakpointPropertiesRulerActionDelegate"
+			label="Breakpoint properties"
 			menubarPath="debug"
-			helpContextId="breakpoint_properties_action_context"
 			class="org.eclipse.jdt.internal.debug.ui.actions.JavaBreakpointPropertiesRulerActionDelegate">
 		</action>
     	<action
 			id="org.eclipse.jdt.ui.actions.EnableDisableBreakpointRulerActionDelegate"
-			label="%EnableBreakpoint.label"
+			label="Enable breakpoint"
 			menubarPath="debug"
 			helpContextId="enable_disable_breakpoint_action_context"
 			class="org.eclipse.jdt.internal.debug.ui.actions.EnableDisableBreakpointRulerActionDelegate">
-		</action>
+		</action> -->
 		<action
 			id="org.eclipse.jdt.ui.actions.ManageBreakpointRulerActionDelegate"
-			label="%AddBreakpoint.label"
+			label="Add Breakpoint"
 			menubarPath="debug"
-			helpContextId="manage_breakpoint_action_context"
-			class="org.eclipse.jdt.internal.debug.ui.actions.ManageBreakpointRulerActionDelegate">
+			class="org.python.pydev.debug.ui.actions.ManageBreakpointRulerActionDelegate">
 		</action>
 	</viewerContribution>
-<extension>
+</extension>
+
+<!-- breakpoints
+	need a marker to mark the breakpoint
+	breakpoint associated with marker for BreakpointManager
+	marker image provider to provide name for the marker
 -->
+<!-- org.eclipse.debug.core.breakpointMarker -->		
+<extension 
+	point="org.eclipse.core.resources.markers"
+	id="pyStopBreakpointMarker">
+	<super type="org.eclipse.debug.core.lineBreakpointMarker"/>
+	<persistent value="true"/>
+	<attribute name="org.eclipse.cdt.debug.core.condition"/>
+</extension>
+<extension 
+	point="org.eclipse.debug.core.breakpoints">
+	<breakpoint id="pythonStopBreakpoint"
+		markerType="org.python.pydev.debug.pyStopBreakpointMarker"
+		class="org.python.pydev.debug.model.PyBreakpoint"
+	/>
+</extension>
+<extension
+	point="org.eclipse.ui.markerImageProviders">
+	<imageprovider id="pythonBreakPointImage"
+		markertype="org.python.pydev.debug.pyStopBreakpointMarker"
+		icon="icons/breakmarker.gif"/>
+</extension>
+<extension point = "org.eclipse.debug.ui.debugModelPresentations"> 
+	<debugModelPresentation
+		class = "org.python.pydev.debug.model.PyDebugModelPresentation"
+		id = "org.python.pydev.debug">
+	</debugModelPresentation>
+</extension>
 <!--- breakpoint marker -->
-	<extension 
-		point="org.eclipse.core.resources.markers"
-		id="pyStopBreakpointMarker">			
-		<super type="org.eclipse.debug.core.breakpointMarker"/>
-		<persistent value="true"/>
-		<attribute name="org.eclipse.cdt.debug.core.condition"/>
-		<attribute name="org.eclipse.cdt.debug.core.ignoreCount"/>
-		<attribute name="org.eclipse.cdt.debug.core.threadId"/>
-		<attribute name="org.eclipse.cdt.debug.core.installCount"/>
-	</extension>
-	<extension
-		point="org.eclipse.debug.core.breakpoints">
-		<breakpoint id="pythonStopBreakpoint"
-			markerType="pyStopBreakpointMarker"
-			class="org.python.pydev.debug.core.breakpoints.PyStopBreakpoint"
-		/>
-	</extension>
+<!--- <extension id="breakpointMarker" point="org.eclipse.core.resources.markers">
+   <super type="org.eclipse.core.resources.marker"/>
+   <persistent value="true"/>
+   <attribute name="org.eclipse.debug.core.modelIdentifier"/>
+   <attribute name="org.eclipse.debug.core.enabled"/>
+   <attribute name="org.eclipse.debug.core.registered"/>
+   <attribute name="org.eclipse.debug.core.persisted"/>
+</extension>
+<extension id="lineBreakpointMarker" point="org.eclipse.core.resources.markers">
+   <super type="org.eclipse.debug.core.breakpointMarker"/>
+   <super type="org.eclipse.core.resources.textmarker"/>
+   <persistent value="true"/>
+</extension> -->
+
 </plugin>
+

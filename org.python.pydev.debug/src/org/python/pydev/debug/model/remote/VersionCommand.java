@@ -22,7 +22,7 @@ public class VersionCommand extends AbstractDebuggerCommand {
 	}
 
 	public String getOutgoing() {
-		return makeCommand(Integer.toString(CMD_VERSION), sequence, VERSION);
+		return makeCommand(CMD_VERSION, sequence, VERSION);
 	}
 
 	public boolean needResponse() {

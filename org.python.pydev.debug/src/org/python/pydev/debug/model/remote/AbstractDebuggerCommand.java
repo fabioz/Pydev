@@ -41,6 +41,8 @@ public abstract class AbstractDebuggerCommand {
 	static public final int CMD_STEP_OVER = 108;
 	static public final int CMD_STEP_RETURN = 109;
 	static public final int CMD_GET_VARIABLE = 110;
+	static public final int CMD_SET_BREAK = 111;
+	static public final int CMD_REMOVE_BREAK = 112;
 	static public final int CMD_ERROR = 901;
 	static public final int CMD_VERSION = 501;
 	static public final int CMD_RETURN = 502;
@@ -116,7 +118,7 @@ public abstract class AbstractDebuggerCommand {
 		PydevDebugPlugin.log(IStatus.ERROR, "Debugger command ignored error response " + getClass().toString() + payload, null);
 	}
 	
-	public static String makeCommand(String code, int sequence, String payload) {
+	public static String makeCommand(int code, int sequence, String payload) {
 		StringBuffer s = new StringBuffer();
 		s.append(code);
 		s.append("\t");

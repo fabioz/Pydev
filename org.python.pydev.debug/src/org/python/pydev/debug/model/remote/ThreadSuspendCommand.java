@@ -20,6 +20,6 @@ public class ThreadSuspendCommand extends AbstractDebuggerCommand {
 	}
 
 	public String getOutgoing() {
-		return makeCommand(Integer.toString(CMD_THREAD_SUSPEND), sequence, thread);
+		return makeCommand(CMD_THREAD_SUSPEND, sequence, thread);
 	}
 }

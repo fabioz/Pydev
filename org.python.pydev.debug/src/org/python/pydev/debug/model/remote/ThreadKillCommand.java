@@ -19,7 +19,7 @@ public class ThreadKillCommand extends AbstractDebuggerCommand {
 	}
 	
 	public String getOutgoing() {
-		return makeCommand(Integer.toString(CMD_THREAD_KILL), sequence, thread_id);
+		return makeCommand(CMD_THREAD_KILL, sequence, thread_id);
 	}
 
 }

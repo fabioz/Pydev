@@ -24,7 +24,7 @@ public class StepCommand extends AbstractDebuggerCommand {
 	}
 
 	public String getOutgoing() {
-		return makeCommand(Integer.toString(command_id), sequence, thread_id);
+		return makeCommand(command_id, sequence, thread_id);
 	}
 
 }

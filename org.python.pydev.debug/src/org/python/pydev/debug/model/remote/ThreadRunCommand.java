@@ -18,6 +18,6 @@ public class ThreadRunCommand extends AbstractDebuggerCommand {
 	}
 
 	public String getOutgoing() {
-		return makeCommand(Integer.toString(CMD_THREAD_RUN), sequence, thread);
+		return makeCommand(CMD_THREAD_RUN, sequence, thread);
 	}
 }

@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
@@ -56,7 +55,7 @@ public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDe
 			runner.run(runConfig, launch, monitor);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, "Unexpected IO Exception in Pydev debugger", null));
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected IO Exception in Pydev debugger", null));
 		}
 //		ClassLoader save = cur.getContextClassLoader();
 //		cur.setContextClassLoader(getClass().getClassLoader());

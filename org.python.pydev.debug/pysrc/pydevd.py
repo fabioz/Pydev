@@ -30,7 +30,11 @@ each command has a format:
 	107      STEP_INTO       RDB       thread_id
 	108      STEP_OVER       RDB       thread_id
 	109      STEP_RETURN     RDB       thread_id
-	
+	110		 GET_VARIABLE	 RDB       var_locator		   GET_VARIABLE with XML of var content
+									   see code for definition
+	111      SET_BREAK       RDB       file/line of the breakpoint
+	112      REMOVE_BREAK    RDB       file/line of the return
+
 500 series diagnostics/ok
     901      VERSION       either      Version string (1.0)               Currently just used at startup
     902      RETURN		   either      Depends on caller    -
@@ -48,6 +52,7 @@ from socket import *
 import urllib
 import time
 import inspect
+import pydevd_vars
 
 VERSION_STRING = "1.0"
 
@@ -60,6 +65,9 @@ CMD_THREAD_RUN = 106
 CMD_STEP_INTO = 107
 CMD_STEP_OVER = 108
 CMD_STEP_RETURN = 109
+CMD_GET_VARIABLE = 110
+CMD_SET_BREAK = 111
+CMD_REMOVE_BREAK = 112
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -101,7 +109,7 @@ class ReaderThread(threading.Thread):
                     [command, buffer] = buffer.split('\n', 1)
                     log(2, "received command " + command)
                     args = command.split('\t', 2)
-                    print "the args are", args[0], " 2 ", args[1], " 3 ", args[2]
+#                    print "the args are", args[0], " 2 ", args[1], " 3 ", args[2]
                     PyDB.instance.processNetCommand(int(args[0]), int(args[1]), args[2])
 #                print >>sys.stderr, "processed input"
         except:
@@ -177,6 +185,7 @@ class NetCommandFactory:
 
     def makeErrorMessage(self, seq, text):
         cmd = NetCommand(CMD_ERROR, seq, text)
+        print >>sys.stderr, "Error: ", text
         return cmd;
 
     def makeThreadCreatedMessage(self,thread):
@@ -210,12 +219,15 @@ class NetCommandFactory:
     def makeThreadSuspendMessage(self, thread_id, frame, stop_reason):
         
         """ <xml>
-        	<thread id="id"/>
-        	<frame id="id" name="functionName " file="file" line="line">
+        	<thread id="id">
+ 		       	<frame id="id" name="functionName " file="file" line="line">
+        			<var variable stuffff....
+        		</frame>
+        	</thread>
        	"""
         try:
             cmdText = "<xml>"
-            cmdText += '<thread id="' + str(thread_id) + '" ' + 'stop_reason="' + str(stop_reason) + '"/>'
+            cmdText += '<thread id="' + str(thread_id) + '" ' + 'stop_reason="' + str(stop_reason) + '">'
             curFrame = frame
             while (curFrame):
 #                print cmdText
@@ -223,14 +235,18 @@ class NetCommandFactory:
 #                print "id is ", myId
                 myName = curFrame.f_code.co_name
 #                print "name is ", myName
-                myFile = inspect.getsourcefile(curFrame) or inspect.getfile(frame)
+                myFile = curFrame.f_code.co_filename
+#                myFile = inspect.getsourcefile(curFrame) or inspect.getfile(frame)
 #                print "file is ", myFile
                 myLine = str(curFrame.f_lineno)
 #                print "line is ", myLine
                 cmdText += '<frame id="' + myId +'" name="' + myName + '" '
-                cmdText += 'file="' + myFile + '" line="' + myLine + '"/>"'
+                cmdText += 'file="' + myFile + '" line="' + myLine + '">"'
+                variables = pydevd_vars.frameVarsToXML(curFrame)
+                cmdText += variables
+                cmdText += "</frame>"
                 curFrame = curFrame.f_back
-            cmdText += "</xml>"
+            cmdText += "</thread></xml>"
             return NetCommand(CMD_THREAD_SUSPEND, 0, cmdText)
         except:
             return self.makeErrorMessage(0, str(sys.exc_info()[0]))
@@ -240,6 +256,12 @@ class NetCommandFactory:
             return NetCommand(CMD_THREAD_RUN, 0, str(id) + "\t" + str(reason))
         except:
             return self.makeErrorMessage(0, sys.exc_info()[0])
+
+    def makeGetVariableMessage(self, seq, payload):
+        try:
+            return NetCommand(CMD_GET_VARIABLE, seq, payload)
+        except Exception, e:
+            return self.makeErrorMessage(seq, str(e))
 
 INTERNAL_TERMINATE_THREAD = 1
 INTERNAL_SUSPEND_THREAD = 2
@@ -267,6 +289,36 @@ class InternalTerminateThread:
         dbg.writer.addCommand(cmd)
         time.sleep(0.1)
         sys.exit()
+
+class InternalGetVariable:
+    """ gets the value of a variable """
+    def __init__(self, seq, thread, frame_id, scope, attrs):
+        self.sequence = seq
+        self.thread = thread
+        self.frame_id = frame_id
+        self.scope = scope
+        self.attributes = attrs
+     
+    def doIt(self, dbg):
+        """ Converts request into python variable """
+        try:
+           print >>sys.stderr, "getVar::doIt"
+           xml = "<xml>"
+           valDict = pydevd_vars.resolveCompoundVariable(self.thread, self.frame_id, self.scope, self.attributes)
+           print >>sys.stderr, "resolved variable"
+           keys = valDict.keys()
+           keys.sort()
+           for k in keys:
+               xml += pydevd_vars.varToXML(valDict[k], str(k))
+           xml += "</xml>"
+           print >>sys.stderr, "done to xml"
+           cmd = dbg.cmdFactory.makeGetVariableMessage(self.sequence, xml)
+           print >>sys.stderr, "sending command"
+           dbg.writer.addCommand(cmd)
+        except Exception, e:
+           print >>sys.stderr, "ERROR RESOLVING", str(e)
+           cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables" + str(e))
+           dbg.writer.addCommand(cmd)
 
 def findThreadById(thread_id):
     try:
@@ -308,6 +360,7 @@ class PyDB:
         self.quitting = None
         self.cmdFactory = NetCommandFactory() 
         self.cmdQueue = {}     # the hash of Queues. Key is thread id, value is thread
+        self.breakpoints = {}
 
     def initializeNetwork(self, sock):
         sock.settimeout(None) # infinite, no timeouts from now on
@@ -405,20 +458,61 @@ class PyDB:
                 else: print >>sys.stderr, "Could not find thread ", t
             elif (id  == CMD_THREAD_RUN):
                 t = findThreadById(text)
-                if t: t.pydev_state = PyDB.STATE_RUN
+                if t: 
+                    t.pydev_state = PyDB.STATE_RUN
+                    t.pydev_step_cmd = None
             elif (id == CMD_STEP_INTO or id == CMD_STEP_OVER or id == CMD_STEP_RETURN):
                 t = findThreadById(text)
                 if t:
                     t.pydev_state = PyDB.STATE_RUN
-                    t.pydev_step_cmd = id         
+                    t.pydev_step_cmd = id
+            elif (id == CMD_GET_VARIABLE):
+                 # text is: thread\tstackframe\tLOCAL|GLOBAL\tattributes*
+                 (thread_id, frame_id, scopeattrs) = text.split('\t', 2)
+                 if scopeattrs.find('\t') != -1: # there are attibutes beyond scope
+                     (scope, attrs) = scopeattrs.split('\t', 1)
+                 else:
+                     (scope, attrs) = (scopeattrs, None)
+                 t = findThreadById(thread_id)
+                 if t:
+                     int_cmd = InternalGetVariable(seq, t, frame_id, scope, attrs)
+                     self.postInternalCommand(int_cmd, thread_id)
+                 else:
+                     cmd = self.cmdFactory.makeErrorMessage(seq, "could not find thread for variable")
+            elif (id == CMD_SET_BREAK):
+                # text is file\tline. Add to breakpoints dictionary
+                (file, line) = text.split('\t', 1)
+                print "line is ", line
+                print "file is ", file
+                if self.breakpoints.has_key(file):
+                    breakDict = self.breakpoints[file]
+                else:
+                    breakDict = {}
+                breakDict[int(line)] = True
+                self.breakpoints[file] = breakDict
+                print >>sys.stderr, "Set breakpoint at ", file, line
+            elif (id == CMD_REMOVE_BREAK):
+                # text is file\tline. Remove from breakpoints dictionary
+                (file, line) = text.split('\t', 1)
+                line = int(line)
+                if self.breakpoints.has_key(file):
+                    if self.breakpoints[file].has_key(line):
+                        del self.breakpoints[file][line]
+                        keys = self.breakpoints[file].keys()
+                        if len(keys) is 0:
+                            del self.breakpoints[file]
+                    else:
+                       print sys.stderr, "breakpoint not found", file, str(line)
             else:
                 cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(id))
             print >>sys.stderr, "processed command", id
             if cmd: 
                 self.writer.addCommand(cmd)
-        except:
-            print >>sys.stderr, "Unexpected exception in processNetCommand"
-            print >>sys.stderr, sys.exc_info()[0]
+        except Exception, e:
+            import traceback
+            traceback.print_exc(e)
+            cmd = self.cmdFactory.makeErrorMessage(seq, "Unexpected exception in processNetCommand:" + str(e))
+            self.writer.addCommand(cmd)
 
     def processThreadNotAlive(self, thread):
         """ if thread is not alive, cancel trace_dispatch processing """
@@ -455,7 +549,11 @@ class PyDB:
             if (thread.pydev_step_cmd == CMD_STEP_INTO):
                 thread.pydev_step_stop = None
             elif (thread.pydev_step_cmd == CMD_STEP_OVER):
-                thread.pydev_step_stop = frame
+                if (event is 'return'): # if we are returning from the function, stop in parent
+                    print "Stepping back one"
+                    thread.pydev_step_stop = frame.f_back
+                else:
+                    thread.pydev_step_stop = frame
             elif (thread.pydev_step_cmd == CMD_STEP_RETURN):
                 thread.pydev_step_stop = frame.f_back
         except AttributeError:
@@ -477,25 +575,33 @@ class PyDB:
             return None # suspend tracing
         
         wasSuspended = False
+        
+
         try:
+            """ breakpoints """
+            file = frame.f_code.co_filename
+            line = int(frame.f_lineno)
+            if t.pydev_state != PyDB.STATE_SUSPEND and self.breakpoints.has_key(file) and self.breakpoints[file].has_key(line):
+                self.setSuspend(t, CMD_SET_BREAK)
             """ if thread has a suspend flag, we suspend with a busy wait """
             if (t.pydev_state == PyDB.STATE_SUSPEND):
                 wasSuspended = True
                 self.doWaitSuspend(t, frame, event, arg)
                 return self.trace_dispatch
         except AttributeError:
+            print "Attribute ERROR"
             t.pydev_state = PyDB.STATE_RUN # assign it to avoid future exceptions
         except:
             print sys.stderr, "Exception in trace_dispatch"
             print sys.exc_info()[0]
             raise
 
-        if ( not wasSuspended and event == 'line'):
+        if ( not wasSuspended and (event == 'line' or event== 'return')):
             """ step handling. We stop when we hit the right frame"""
             try:
                 if (t.pydev_step_cmd == CMD_STEP_INTO):
                     self.setSuspend(t, CMD_STEP_INTO)
-                    self.doWaitSuspend(t, frame, event, arg)
+                    self.doWaitSuspend(t, frame, event, arg)                    
                 elif (t.pydev_step_cmd == CMD_STEP_OVER or t.pydev_step_cmd == CMD_STEP_RETURN):
                     if (t.pydev_step_stop == frame):
                         self.setSuspend(t, t.pydev_step_cmd)

@@ -13,7 +13,6 @@ import java.util.Hashtable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
@@ -260,7 +259,7 @@ public class RemoteDebugger extends Object {
 				String errorMessage= ip.getStreamsProxy().getErrorStreamMonitor().getContents();
 				if (errorMessage.length() != 0)
 					// not sure if this is really an error
-					throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, "Something got printed in the error stream", null));
+					throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Something got printed in the error stream", null));
 			} catch (IllegalThreadStateException e) {
 				// expected while process is alive
 			}

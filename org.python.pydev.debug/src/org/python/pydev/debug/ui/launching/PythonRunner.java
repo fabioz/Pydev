@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -52,7 +51,7 @@ public class PythonRunner {
 
 		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory);	
 		if (p == null)
-			throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, "Could not execute python process. Was it cancelled?", null));
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,"Could not execute python process. Was it cancelled?", null));
 		
 		IProcess process = registerWithDebugPlugin(config, launch, p);
 
@@ -70,7 +69,7 @@ public class PythonRunner {
 			String message = "Unexpected error setting up the debugger";
 			if (ex instanceof SocketTimeoutException)
 				message = "Timed out after " + Float.toString(config.acceptTimeout/1000) + " seconds while waiting for python script to connect.";
-			throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, message, ex));			
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, message, ex));			
 		}
 		subMonitor.subTask("Done");
 		// hook up debug model, and we are off & running
@@ -102,7 +101,7 @@ public class PythonRunner {
 		subMonitor.subTask("Exec...");		
 		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory);	
 		if (p == null)
-			throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, "Could not execute python process. Was it cancelled?", null));
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not execute python process. Was it cancelled?", null));
 
 		// Register the process with the debug plugin
 		subMonitor.subTask("Done");

@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchListener;
 import org.eclipse.debug.core.model.IBreakpoint;
@@ -33,10 +34,10 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.remote.*;
 
 /**
- *
- * TODO Comment this class
- * Make sure we fire the right org.eclipse.debug.core.DebugEvents
- * What  happens with debug events? see LaunchViewEventHandler
+ * Debugger class that represents a single python process.
+ * 
+ * It deals with events from RemoteDebugger.
+ * Breakpoint updating.
  */
 public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaunchListener {
 
@@ -58,6 +59,8 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 		this.threads = new IThread[0];
 		launch.addDebugTarget(this);
 		debugger.setTarget(this);
+		IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
+		breakpointManager.addBreakpointListener(this);
 		// we have to know when we get removed, so that we can shut off the debugger
 		DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this);
 	}
@@ -74,6 +77,8 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 	public void launchRemoved(ILaunch launch) {
 		// shut down the remote debugger when parent launch
 		if (launch == this.launch) {
+			IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
+			breakpointManager.removeBreakpointListener(this);
 			debugger.dispose();
 			debugger = null;
 		}
@@ -89,7 +94,7 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 
 	// From IDebugElement
 	public String getModelIdentifier() {
-		return PydevDebugPlugin.getPluginID();
+		return PyDebugModelPresentation.PY_DEBUG_MODEL_ID;
 	}
 	// From IDebugElement
 	public IDebugTarget getDebugTarget() {
@@ -191,22 +196,30 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 	}
 
 	public boolean supportsBreakpoint(IBreakpoint breakpoint) {
-		// TODO Auto-generated method stub
-		return false;
+		return breakpoint instanceof PyBreakpoint;
 	}
+	
 	public void breakpointAdded(IBreakpoint breakpoint) {
-		// TODO Auto-generated method stub
-
+		if (breakpoint instanceof PyBreakpoint) {
+			PyBreakpoint b = (PyBreakpoint)breakpoint;
+			SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, b.getFile(), b.getLine());
+			debugger.postCommand(cmd);
+		}
 	}
 
 	public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
-		// TODO Auto-generated method stub
-
+		if (breakpoint instanceof PyBreakpoint) {
+			PyBreakpoint b = (PyBreakpoint)breakpoint;
+			RemoveBreakpointCommand cmd = new RemoveBreakpointCommand(debugger, b.getFile(), b.getLine());
+			debugger.postCommand(cmd);
+		}
 	}
 
 	public void breakpointChanged(IBreakpoint breakpoint, IMarkerDelta delta) {
-		// TODO Auto-generated method stub
-
+		if (breakpoint instanceof PyBreakpoint) {
+			breakpointRemoved(breakpoint, null);
+			breakpointAdded(breakpoint);
+		}
 	}
 
 	public boolean supportsStorageRetrieval() {
@@ -336,6 +349,8 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 				reason = DebugEvent.STEP_END;
 			else if (stopReason_i == AbstractDebuggerCommand.CMD_THREAD_SUSPEND)
 				reason = DebugEvent.CLIENT_REQUEST;
+			else if (stopReason_i == AbstractDebuggerCommand.CMD_SET_BREAK)
+				reason = DebugEvent.BREAKPOINT;
 			else {
 				PydevDebugPlugin.log(IStatus.ERROR, "Unexpected reason for suspension", null);
 				reason = DebugEvent.UNSPECIFIED;

@@ -12,17 +12,19 @@ import java.util.Iterator;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Caches images, releases all on dispose
  */
 public class ImageCache {
 	
+	
 	private HashMap imageHash = new HashMap(10);
+	private URL baseURL; 
 	private Image missing = null;
 	
-	public ImageCache() {
+	public ImageCache(URL baseURL) {
+		this.baseURL = baseURL;
 	}
 	
 	
@@ -64,7 +66,7 @@ public class ImageCache {
 	 * like get, but returns ImageDescription instead of image
 	 */
 	public ImageDescriptor getDescriptor(String key) throws MalformedURLException {
-		URL url = new URL(PydevPlugin.getDefault().getDescriptor().getInstallURL(), key);
+		URL url = new URL(baseURL, key);
 		return ImageDescriptor.createFromURL(url);
 	}
 }

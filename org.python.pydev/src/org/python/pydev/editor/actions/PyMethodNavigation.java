@@ -4,13 +4,12 @@
  * License: Common Public License v1.0
  */
 
-package org.python.pydev.editor.actions.navigation;
+package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.model.*;
 
 /**

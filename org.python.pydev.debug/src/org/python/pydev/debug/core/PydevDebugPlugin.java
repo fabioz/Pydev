@@ -6,6 +6,7 @@ import org.eclipse.ui.plugin.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.python.pydev.ui.ImageCache;
 /**
  * The main plugin for Python Debugger.
  * 
@@ -14,10 +15,13 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 public class PydevDebugPlugin extends AbstractUIPlugin {
 	//The shared instance.
 	private static PydevDebugPlugin plugin;
-		
+	
+	public ImageCache imageCache;
+	
 	public PydevDebugPlugin(IPluginDescriptor descriptor) {
 		super(descriptor);
 		plugin = this;
+		imageCache = new ImageCache(getDescriptor().getInstallURL());
 	}
 
 	public static PydevDebugPlugin getDefault() {
@@ -30,6 +34,10 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
 	
 	public static IWorkspace getWorkspace() {
 		return ResourcesPlugin.getWorkspace();
+	}
+	
+	public static ImageCache getImageCache() {
+		return plugin.imageCache;
 	}
 	
 	protected void initializeDefaultPluginPreferences() {
@@ -58,7 +66,7 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
 		IWorkbenchWindow window = getDefault().getWorkbench().getActiveWorkbenchWindow();
 		Shell shell = window == null ? null : window.getShell();	
 		if (shell != null) {
-			IStatus status= new Status(IStatus.ERROR, getPluginID(), 0, "Error logged from Pydev Debug: ", t);	
+			IStatus status= makeStatus(IStatus.ERROR, "Error logged from Pydev Debug: ", t);	
 			ErrorDialog.openError(shell, "Its an error", message, status);
 		}
 	}

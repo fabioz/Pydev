@@ -7,7 +7,6 @@ package org.python.pydev.debug.model.remote;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
@@ -29,7 +28,7 @@ public class GetVariableCommand extends AbstractDebuggerCommand {
 	}
 
 	public String getOutgoing() {
-		return makeCommand(Integer.toString(CMD_GET_VARIABLE), sequence, locator);
+		return makeCommand(CMD_GET_VARIABLE, sequence, locator);
 	}
 
 	public boolean needResponse() {
@@ -55,9 +54,7 @@ public class GetVariableCommand extends AbstractDebuggerCommand {
 	public String getResponse() throws CoreException {
 		if (isError) 
 			throw new CoreException(
-				new Status(IStatus.ERROR, 
-							PydevDebugPlugin.getPluginID(),
-							0, 
+							PydevDebugPlugin.makeStatus(IStatus.ERROR,
 							"pydevd error:" + payload , 
 							 null));
 		else
