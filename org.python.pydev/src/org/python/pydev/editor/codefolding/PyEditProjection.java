@@ -66,8 +66,9 @@ public abstract class PyEditProjection extends TextEditor implements
                     });
             fProjectionSupport.install();
 
-            if (isFoldingEnabled())
+            if (isFoldingEnabled()){
                 projectionViewer.doOperation(ProjectionViewer.TOGGLE);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
