@@ -151,7 +151,7 @@ public class XMLUtils {
 			// Try to recycle old stack objects
 			currentFrame = thread.findStackFrameByID(id);;
 			if (currentFrame == null)
-			currentFrame = new PyStackFrame(thread, id, name, filePath, Integer.parseInt(line));
+				currentFrame = new PyStackFrame(thread, id, name, filePath, Integer.parseInt(line));
 			else { 
 				currentFrame.setName(name);
 				currentFrame.setPath(filePath);
@@ -160,14 +160,17 @@ public class XMLUtils {
 			stack.add(currentFrame);
 		}
 		
+		private void initializeLocals() {
+			locals = new ArrayList();
+			PyVariableCollection global = new PyVariableCollection(target, "Globals", "frame.f_global", "Global variables", currentFrame.getGlobalLocator());
+			locals.add(global);	// locals always include global as the top
+		}
+		
 		// local variables belong to the stack frame
 		// when 
 		private void startVar(Attributes attributes) {
-			if (locals == null) {
-				locals = new ArrayList();
-				PyVariableCollection global = new PyVariableCollection(target, "Globals", "frame.f_global", "Global variables", currentFrame.getGlobalLocator());
-				locals.add(global);	// locals always include global as the top
-			}
+			if (locals == null)
+				initializeLocals();
 			// create a local variable, and add it to locals
 			PyVariable newLocal = createVariable(target, currentFrame.getLocalsLocator(), attributes);
 			locals.add(newLocal);
@@ -200,6 +203,8 @@ public class XMLUtils {
 			throws SAXException {
 			if (qName.equals("frame")) {
 				// when frame ends, we need to assign all the local variables
+				if (locals == null)
+					initializeLocals();
 				IVariable[] locArry = new IVariable[locals.size()];
 				for (int i=0; i < locArry.length; i++)
 					locArry[i] = (IVariable)locals.get(i);
