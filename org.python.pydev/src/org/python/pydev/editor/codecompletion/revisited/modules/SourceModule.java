@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion.revisited;
+package org.python.pydev.editor.codecompletion.revisited.modules;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -14,6 +14,11 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
+import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
+import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.
@@ -108,14 +113,15 @@ public class SourceModule extends AbstractModule {
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.AbstractModule#getGlobalTokens(java.lang.String)
+     * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(String token, ASTManager manager) {
+    public IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col) {
         IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
         if(t instanceof SourceToken[]){
 	        SourceToken[] tokens = (SourceToken[]) t;
 	        for (int i = 0; i < tokens.length; i++) {
 	            if(tokens[i].getRepresentation().equals(token)){
+	                
 	                SimpleNode a = tokens[i].getAst();
 	                try {
 	                    
@@ -142,7 +148,7 @@ public class SourceModule extends AbstractModule {
 	                                //    
 	                                //    def b(self):
 	                                //        pass
-	                                final IToken[] comps = manager.getCompletionsForModule(base, "", this);
+	                                final IToken[] comps = manager.getCompletionsForModule(base, "", this, line, col);
                                     modToks.addAll(Arrays.asList(comps));
 	                            }
                             }
@@ -160,5 +166,14 @@ public class SourceModule extends AbstractModule {
         }
         return new IToken[0];
     }
+
+    public AssignDefinition[] findDefinition(String token, int line, int col) throws Exception{
+        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(token, line, col);
+        if (ast != null){
+            ast.accept(visitor);
+        }
+        return (AssignDefinition[]) visitor.definitions.toArray(new AssignDefinition[0]);
+    }
+
 
 }

@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion.revisited;
+package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Assign;
@@ -13,6 +13,7 @@ import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 /**
  * This class visits only the global context. Other visitors should visit contexts inside of this one.

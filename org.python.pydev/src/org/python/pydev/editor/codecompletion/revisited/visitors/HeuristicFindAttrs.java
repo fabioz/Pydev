@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion.revisited;
+package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Assign;

@@ -148,6 +148,8 @@ public class PyCodeCompletion {
                 if(theActivationToken.endsWith(".")){
                     theActivationToken = theActivationToken.substring(0, theActivationToken.length()-1);
                 }
+                
+                //Ok, looking for a token in globals.
 	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" );
 	            theList.addAll(Arrays.asList(comps));
             }
@@ -155,10 +157,9 @@ public class PyCodeCompletion {
         
         } else { //go to globals
             List completions = new ArrayList();
-            System.out.println("Globals - "+theActivationToken);
             
             IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" );
-
+            
             theList.addAll(Arrays.asList(comps));
         }
         return theList;

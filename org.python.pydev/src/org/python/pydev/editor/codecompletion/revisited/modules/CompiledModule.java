@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion.revisited;
+package org.python.pydev.editor.codecompletion.revisited.modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +12,9 @@ import java.util.List;
 
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PythonShell;
+import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -92,9 +95,9 @@ public class CompiledModule extends AbstractModule{
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.AbstractModule#getGlobalTokens(java.lang.String)
+     * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(String token, ASTManager manager) {
+    public IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col) {
         Object v = cache.get(token);
         if(v != null){
             return (IToken[]) v;
@@ -121,6 +124,13 @@ public class CompiledModule extends AbstractModule{
             PydevPlugin.log(e);
         }
         return toks;
+    }
+
+    /**
+     * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
+     */
+    public AssignDefinition[] findDefinition(String token, int line, int col) throws Exception {
+        return new AssignDefinition[0];
     }
 
 }

@@ -3,17 +3,20 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion.revisited;
+package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.Call;
 import org.python.parser.ast.Expr;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.stmtType;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.utils.REF;
 
 /**
@@ -42,7 +45,7 @@ public abstract class AbstractVisitor extends VisitorBase{
      * @param node
      * @return
      */
-    protected String getRepresentationString(SimpleNode node) {
+    public static String getRepresentationString(SimpleNode node) {
         if (REF.hasAttr(node, "name")) {
             return REF.getAttrObj(node, "name").toString();
             
@@ -54,6 +57,9 @@ public abstract class AbstractVisitor extends VisitorBase{
 
         }else if (REF.hasAttr(node, "arg")) {
             return REF.getAttrObj(node, "arg").toString();
+            
+        }else if (node instanceof Call){
+            return getRepresentationString(((Call)node).func);
         }
         return null;
     }
@@ -123,5 +129,5 @@ public abstract class AbstractVisitor extends VisitorBase{
             return new SourceToken[0];
         }
     }
-
+    
 }

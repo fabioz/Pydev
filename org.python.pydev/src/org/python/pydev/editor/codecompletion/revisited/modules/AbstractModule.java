@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion.revisited;
+package org.python.pydev.editor.codecompletion.revisited.modules;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,6 +14,10 @@ import java.io.Serializable;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
+import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -42,6 +46,18 @@ public abstract class AbstractModule implements Serializable{
     public abstract IToken[] getGlobalTokens();
     
     /**
+     * This function can be called to find possible definitions of a token, based on its name, line and
+     * column.
+     * 
+     * @param token name
+     * @param line 
+     * @param col
+     * @return array of definitions.
+     * @throws Exception
+     */
+    public abstract AssignDefinition[] findDefinition(String token, int line, int col) throws Exception;
+
+    /**
      * This function should return all tokens that are global for a given token.
      * E.g. if we have a class declared in the module, we return all tokens that are 'global'
      * for the class (methods and attributes).
@@ -50,7 +66,7 @@ public abstract class AbstractModule implements Serializable{
      * @param manager
      * @return
      */
-    public abstract IToken[] getGlobalTokens(String token, ASTManager manager);
+    public abstract IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col);
     
     /**
      * 

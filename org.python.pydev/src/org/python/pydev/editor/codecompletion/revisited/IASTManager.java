@@ -10,6 +10,7 @@ import java.io.File;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 
 /**
  * @author Fabio Zadrozny

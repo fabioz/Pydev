@@ -3,7 +3,9 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion.revisited;
+package org.python.pydev.editor.codecompletion.revisited.modules;
+
+import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 
 /**
  * @author Fabio Zadrozny

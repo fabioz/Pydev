@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion.revisited;
+package org.python.pydev.editor.codecompletion.revisited.modules;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Attribute;
@@ -14,6 +14,7 @@ import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.keywordType;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 
 /**
  * @author Fabio Zadrozny
