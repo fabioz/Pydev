@@ -78,11 +78,20 @@ public abstract class PyRefactorAction extends PyAction {
      */
     protected String getInput(PyEdit edit, String msg) {
         InputDialog d = new InputDialog(getPyEditShell(), "Refactoring", msg,
-                "", null);
+                getDefaultValue(), null);
+        
+        
         int retCode = d.open();
         if (retCode == InputDialog.OK) {
             return d.getValue();
         }
+        return "";
+    }
+
+    /**
+     * @return
+     */
+    protected String getDefaultValue() {
         return "";
     }
 

@@ -38,6 +38,12 @@ public class PyRename extends PyRefactorAction {
         return "Please inform the new name.";
     }
 
+    /**
+     * @return
+     */
+    protected String getDefaultValue() {
+        return ps.textSelection.getText();
+    }
 
     
 

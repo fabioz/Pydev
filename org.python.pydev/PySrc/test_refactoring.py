@@ -2,7 +2,7 @@
 Refactoring tests.
 '''
 
-from coilib import unittest
+import unittest
 import refactoring
 import os
 
@@ -93,9 +93,19 @@ c = C()
 
         self.assertEquals(self.getRefactoredFile(), contents)
 
-    def testRename(self):
+#    def testRename(self):
+#        r = refactoring.Refactoring()
+#        s = r.renameByCoordinates(FILE, 1+1, 6, 'G')
+#
+#        f = file(FILE, 'r')
+#        contents = f.read()
+#        f.close()
+#
+#        self.assertEquals(getRenameRefactored(), contents)
+
+    def testRename2(self):
         r = refactoring.Refactoring()
-        s = r.renameByCoordinates(FILE, 1+1, 6, 'G')
+        s = r.renameByCoordinates(FILE, 7+1, 4, 'G')
 
         f = file(FILE, 'r')
         contents = f.read()
@@ -131,8 +141,7 @@ c.aaa()
     return s
         
 if __name__ == '__main__':
-#    unittest.main()
-    unittest.TestMethod(Test, 'Test.testFind')
+    unittest.main()
     
     
     

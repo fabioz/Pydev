@@ -67,16 +67,6 @@ public class PyCodeCompletion {
      */
     public List autoComplete(PyEdit edit, IDocument doc, int documentOffset,
             java.lang.String theActivationToken) {
-        return serverCompletion(theActivationToken, edit, doc, documentOffset);
-    }
-
-    /**
-     * @param edit
-     * @param doc
-     * @param documentOffset
-     */
-    private List serverCompletion(String theActivationToken, PyEdit edit,
-            IDocument doc, int documentOffset) {
         List theList = new ArrayList();
         PythonShell serverShell = null;
         try {
@@ -84,49 +74,49 @@ public class PyCodeCompletion {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
+        
         String docToParse = getDocToParse(doc, documentOffset);
-
+        
         String trimmed = theActivationToken.replace('.', ' ').trim();
-
-        String importsTipper = useImportsTipper(theActivationToken, edit, doc, documentOffset);
+        
+        String importsTipper = getImportsTipperStr(theActivationToken, edit, doc, documentOffset);
         if (importsTipper.length()!=0) { //may be space.
-
+        
             List completions = serverShell.getImportCompletions(importsTipper);
             theList.addAll(completions);
         
         } else if (trimmed.equals("") == false
                 && theActivationToken.indexOf('.') != -1) {
-
+        
             List completions;
             if (trimmed.equals("self")) {
                 Location loc = Location.offsetToLocation(doc, documentOffset);
                 AbstractNode closest = ModelUtils.getLessOrEqualNode(edit
                         .getPythonModel(), loc);
-
+        
                 if(closest == null){
                     completions = serverShell.getTokenCompletions(trimmed,
                             docToParse);
                 }else{
-	                Scope scope = closest.getScope().findContainingClass();
-	                String token = scope.getStartNode().getName();
-	                completions = serverShell
-	                        .getClassCompletions(token, docToParse);
+                    Scope scope = closest.getScope().findContainingClass();
+                    String token = scope.getStartNode().getName();
+                    completions = serverShell
+                            .getClassCompletions(token, docToParse);
                 }
             } else {
                 completions = serverShell.getTokenCompletions(trimmed,
                         docToParse);
             }
             theList.addAll(completions);
-
+        
         } else { //go to globals
             List completions = serverShell.getGlobalCompletions(docToParse);
             theList.addAll(completions);
-
+        
         }
         return theList;
-
     }
+
 
     /**
      * @param theActivationToken
@@ -135,7 +125,7 @@ public class PyCodeCompletion {
      * @param documentOffset
      * @return
      */
-    private String useImportsTipper(String theActivationToken, PyEdit edit,
+    public String getImportsTipperStr(String theActivationToken, PyEdit edit,
             IDocument doc, int documentOffset) {
         String importMsg = "";
         try {
@@ -144,6 +134,7 @@ public class PyCodeCompletion {
             String string = doc.get(region.getOffset(), documentOffset-region.getOffset());
             int fromIndex = string.indexOf("from");
             int importIndex = string.indexOf("import");
+
             if(fromIndex  != -1 || importIndex != -1){
                 string = string.replaceAll("#.*", ""); //remove comments 
                 String[] strings = string.split(" ");
@@ -183,7 +174,7 @@ public class PyCodeCompletion {
      * @param documentOffset
      * @return
      */
-    private String getDocToParse(IDocument doc, int documentOffset) {
+    public String getDocToParse(IDocument doc, int documentOffset) {
         String wholeDoc = doc.get();
         String newDoc = "";
         try {

@@ -36,10 +36,20 @@ public class CompletionCache {
      * @param codeCompletion
      * @return
      */
-    public List getAllProposals(PyEdit edit, IDocument doc, String partialDoc,
+    public List getAllProposals(PyEdit edit, IDocument doc,
             String activationToken, int documentOffset, int qlen,
             PyCodeCompletion codeCompletion) {
 
+        String importsTipperStr = codeCompletion.getImportsTipperStr(activationToken, edit, doc, documentOffset);
+        
+        String partialDoc = "";
+        if (importsTipperStr.length() != 0){
+            partialDoc = importsTipperStr;
+        }else{
+            partialDoc = codeCompletion.getDocToParse(doc, documentOffset);
+            partialDoc += activationToken;
+        }
+        
         List allProposals = getCacheProposals(partialDoc, documentOffset, qlen);
 
         if(allProposals == null){ //no cache proposals
@@ -65,6 +75,16 @@ public class CompletionCache {
      * @param allProposals
      */
     private void addProposalsToCache(String partialDoc, List allProposals) {
+        for (Iterator iter = allProposals.iterator(); iter.hasNext();) {
+            CompletionProposal element = (CompletionProposal) iter.next();
+            
+            String displayString = element.getDisplayString();
+            //we don't add to cache if there is an error here...
+            if(displayString.startsWith("ERROR") || displayString.startsWith("SERVER_ERROR")){
+                return;
+            }
+        }
+        
         cacheEntries.add(partialDoc);
         cache.put(partialDoc, allProposals);
         //we don't want this to get huge...

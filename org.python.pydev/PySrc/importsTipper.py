@@ -32,6 +32,15 @@ def ParseDir(d):
                 if f.endswith('.pyc'):
                     m = stripExtension(f, ret, '.pyc')
 
+                if f.endswith('.pyd'):
+                    m = stripExtension(f, ret, '.pyd')
+
+                if f.endswith('.dll'):
+                    m = stripExtension(f, ret, '.dll')
+
+                if f.endswith('.pyo'):
+                    m = stripExtension(f, ret, '.pyo')
+
                 if m is not None and isModuleWithinList(m, ret) is None:
                     ret.append((m,absolute))
                     

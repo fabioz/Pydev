@@ -53,64 +53,56 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
     }
 
-    public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer,
-            int documentOffset) {
-        
+    public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int documentOffset) {
+
         IDocument doc = viewer.getDocument();
-        
 
         Point selectedRange = viewer.getSelectedRange();
         // there may not be a selected range
-        java.lang.String theDoc = doc.get();
-        codeCompletion.calcDocBoundary(theDoc, documentOffset);
+        java.lang.String completeDoc = doc.get();
+        codeCompletion.calcDocBoundary(completeDoc, documentOffset);
 
-        String activationToken = codeCompletion.getActivationToken(theDoc,
-                documentOffset);
+        String activationToken = codeCompletion.getActivationToken(completeDoc, documentOffset);
 
         java.lang.String qualifier = "";
-        
-        //we complete on '.' and '('. 
+
+        //we complete on '.' and '('.
         //' ' gets globals
         //and any other char gets globals on token and templates.
 
         //we have to get the qualifier. e.g. bla.foo = foo is the qualifier.
-        if(activationToken.indexOf('.')!= -1){
-	        while (endsWithSomeChar(new char[]{'.'}, activationToken) == false
-	                && activationToken.length() > 0) {
-	
-	            qualifier = activationToken.charAt(activationToken.length() - 1)
-	                    + qualifier;
-	            activationToken = activationToken.substring(0, activationToken
-	                    .length() - 1);
-	        }
-        }else{ //everything is a part of the qualifier.
+        if (activationToken.indexOf('.') != -1) {
+            while (endsWithSomeChar(new char[] { '.' }, activationToken) == false
+                    && activationToken.length() > 0) {
+
+                qualifier = activationToken.charAt(activationToken.length() - 1) + qualifier;
+                activationToken = activationToken.substring(0, activationToken.length() - 1);
+            }
+        } else { //everything is a part of the qualifier.
             qualifier = activationToken.trim();
             activationToken = "";
         }
 
-        theDoc = codeCompletion.partialDocument(theDoc, documentOffset);
-
         int qlen = qualifier.length();
-        theDoc += "\n" + activationToken;
 
-        
         try {
             PythonShell.getServerShell().sendGoToDirMsg(edit.getEditorFile());
         } catch (Exception e) {
-            //if we don't suceed, we don't have to fail... just go on and try to complete...
+            //if we don't suceed, we don't have to fail... just go on and try
+            // to complete...
             e.printStackTrace();
-        }        
-        
-        List pythonProposals = getPythonProposals(documentOffset, doc, theDoc, activationToken, qlen);
+        }
 
-        List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier, pythonProposals);
+        List pythonProposals = getPythonProposals(documentOffset, doc, activationToken, qlen);
+        List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier,
+                pythonProposals);
 
         ArrayList pythonAndTemplateProposals = new ArrayList();
         pythonAndTemplateProposals.addAll(pythonProposals);
         pythonAndTemplateProposals.addAll(templateProposals);
 
         ArrayList returnProposals = new ArrayList();
-        
+
         for (Iterator iter = pythonAndTemplateProposals.iterator(); iter.hasNext();) {
             ICompletionProposal proposal = (ICompletionProposal) iter.next();
             if (proposal.getDisplayString().startsWith(qualifier)) {
@@ -122,7 +114,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
         // and fill with list elements
         returnProposals.toArray(proposals);
-        
+
         Arrays.sort(proposals, proposalsComparator);
         // Return the proposals
         return proposals;
@@ -137,9 +129,9 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @param qlen
      * @return
      */
-    private List getPythonProposals(int documentOffset, IDocument doc, java.lang.String theDoc, String activationToken, int qlen) {
-        List allProposals = this.completionCache.getAllProposals(edit, doc, theDoc,
-                activationToken, documentOffset, qlen, codeCompletion);
+    private List getPythonProposals(int documentOffset, IDocument doc, String activationToken, int qlen) {
+        List allProposals = this.completionCache.getAllProposals(edit, doc, activationToken, documentOffset,
+                qlen, codeCompletion);
         return allProposals;
     }
 
@@ -150,13 +142,13 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @param qualifier
      * @param allProposals
      */
-    private List getTemplateProposals(ITextViewer viewer, int documentOffset, String activationToken, java.lang.String qualifier, List allProposals) {
+    private List getTemplateProposals(ITextViewer viewer, int documentOffset, String activationToken,
+            java.lang.String qualifier, List allProposals) {
         List propList = new ArrayList();
-        if(activationToken.trim().equals("") == false || qualifier.trim().equals("") == false){
+        if (activationToken.trim().equals("") == false || qualifier.trim().equals("") == false) {
             //templates proposals are added here.
-	        this.templatesCompletion.addTemplateProposals(viewer, documentOffset,
-	                propList);
-	
+            this.templatesCompletion.addTemplateProposals(viewer, documentOffset, propList);
+
         }
         return propList;
     }
@@ -167,8 +159,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeContextInformation(org.eclipse.jface.text.ITextViewer,
      *      int)
      */
-    public IContextInformation[] computeContextInformation(ITextViewer viewer,
-            int documentOffset) {
+    public IContextInformation[] computeContextInformation(ITextViewer viewer, int documentOffset) {
         return null;
     }
 

@@ -2,7 +2,7 @@
 @author Fabio Zadrozny 
 '''
 
-from coilib import unittest
+import unittest
 import simpleTipper
 import importsTipper
 
@@ -96,15 +96,18 @@ class C(object):
 
         
     def testImports(self):
-        importsTipper.GenerateTip('qt.') 
-        importsTipper.GenerateTip('scbr.') 
+        '''
+        You can print the results to check...
+        '''
+        importsTipper.GenerateTip('inspect.') 
+        importsTipper.GenerateTip('compiler.') 
         importsTipper.GenerateImportsTip(['scbr']) 
         importsTipper.GenerateImportsTip([ ] ) 
         importsTipper.GenerateImportsTip(['os']) 
         importsTipper.GenerateImportsTip(['os','path']) 
         importsTipper.GenerateImportsTip(['unittest']) 
-        importsTipper.GenerateImportsTip(['scbr', 'app', 'actions', 'db']) 
-        importsTipper.GenerateImportsTip(['scbr', 'app', 'actions', 'db', 'EditCont']) 
+        importsTipper.GenerateImportsTip(['compiler', 'ast']) 
+        importsTipper.GenerateImportsTip(['compiler', 'ast', 'Node']) 
         
         
     def testEnv3(self):
@@ -126,7 +129,5 @@ class TestLocals(object):
 
 if __name__ == '__main__':
     
-    from coilib import unittest
-#    unittest.TestMethod(Test, 'Test.testEnv3')
     unittest.main()
     
