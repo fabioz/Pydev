@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="org.python.pydev" default="javadoc">
+
+	<property name="bootclasspath" value=""/>
+	
+	<path id="project.class.path">
+		<pathelement location="bin"/>
+		<fileset dir="D:\eclipse\plugins\">
+        	<include name="**/*.jar"/>
+    	</fileset>
+    </path>
+
+    <target name="javadoc">
+        <javadoc destdir="doc/javadoc" access="private" use="true"
+            notree="false" nonavbar="false" noindex="false"
+            splitindex="false" author="true" version="true"
+            nodeprecatedlist="false" nodeprecated="false"
+            classpathref="project.class.path"
+            overview="src\overview.html"
+            stylesheetfile="doc\javadoc.css"
+            doctitle="Pydev javadoc" additionalparam="-quiet -link &quot;http://help.eclipse.org/help21/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/api&quot;">
+		<packageset dir="src">
+		</packageset>
+		<packageset dir="../org.python.pydev.debug/src">
+		</packageset>
+        </javadoc>
+    </target>
+</project>

@@ -1,307 +1,318 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin
-	id="org.python.pydev"
-	name="Pydev - Python Development Environment"
-	version="0.3.0"
-	provider-name="AleksTotic"
-	class="org.python.pydev.plugin.PydevPlugin">
+   id="org.python.pydev"
+   name="Pydev - Python Development Environment"
+   version="0.3.0"
+   provider-name="AleksTotic"
+   class="org.python.pydev.plugin.PydevPlugin">
 
-	<runtime>
-		<library name="pydev.jar"/>
-	</runtime>
-	<requires>
-		<import plugin="org.eclipse.core.resources"/>
-		<import plugin="org.eclipse.core.runtime"/>
-		<import plugin="org.eclipse.ui"/>
-		<import plugin="org.eclipse.ui.editors"/>
-		<import plugin="org.eclipse.ui.views"/>
-		<import plugin="org.eclipse.ui.workbench.texteditor"/>
-		<import plugin="org.eclipse.jface.text"/>
-	</requires>
+   <runtime>
+      <library name="pydev.jar"/>
+   </runtime>
+   <requires>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.jdt.ui"/>
+   </requires>
 
 
 <!-- Python editor -->
-	<extension point="org.eclipse.ui.editors">
-		<editor
-				name="Python Editor"
-				icon="icons/sample.gif"
-				extensions="py"
-				contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
-				class="org.python.pydev.editor.PyEdit"
-				id="org.python.pydev.editor.PythonEditor">
-		</editor>
-	</extension>
-
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="Python Editor"
+            icon="icons/python.gif"
+            extensions="py"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            class="org.python.pydev.editor.PyEdit"
+            id="org.python.pydev.editor.PythonEditor">
+      </editor>
+   </extension>
 <!-- Python nature -->
-	<extension point="org.eclipse.core.resources.natures"
-		id="pythonNature"
-		name="Python Nature">
-		<runtime>
-			<run class="org.python.pydev.plugin.PythonNature"/>
-		</runtime>
-	</extension>
-
-	<extension point="org.eclipse.ui.projectNatureImages">
-		<image
-			icon="icons/pythonNature.gif"
-			natureId="org.python.pydev.pythonNature"
-			id="org.python.pydev.ui.projectNatureImage">
-		</image>
-	</extension>
-
+   <extension
+         id="pythonNature"
+         name="Python Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.python.pydev.plugin.PythonNature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.ui.projectNatureImages">
+      <image
+            icon="icons/pythonNature.gif"
+            natureId="org.python.pydev.pythonNature"
+            id="org.python.pydev.ui.projectNatureImage">
+      </image>
+   </extension>
 <!-- Python project properties -->
-	<extension point="org.eclipse.ui.propertyPages">
-		<page
-			objectClass="org.eclipse.core.resources.IProject"
-			name="Python"
-			class="org.python.pydev.ui.ProjectProperties"
-			id="org.python.pydev.ui.projectProperties">
-			<filter
-				name="projectNature"
-				value="org.python.pydev.pythonNature">
-			</filter>
-		</page>
-	</extension>
-
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            objectClass="org.eclipse.core.resources.IProject"
+            name="Python"
+            class="org.python.pydev.ui.ProjectProperties"
+            id="org.python.pydev.ui.projectProperties">
+         <filter
+               name="projectNature"
+               value="org.python.pydev.pythonNature">
+         </filter>
+      </page>
+   </extension>
 <!-- Preference page -->
-	<extension
-			point="org.eclipse.ui.preferencePages">
-		<page
-				name="Pydev"
-				class="org.python.pydev.plugin.PydevPrefs"
-				id="org.python.pydev.prefs">
-		</page>
-	</extension>
-
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="Pydev"
+            class="org.python.pydev.plugin.PydevPrefs"
+            id="org.python.pydev.prefs">
+      </page>
+   </extension>
 <!-- Editor menus -->
-	<extension
-			point="org.eclipse.ui.editorActions">
-		<editorContribution
-				targetID="org.python.pydev.editor.PythonEditor"
-				id="org.python.pydev.editor.editorContribution">
-			<menu
-					label="Source"
-					path="edit"
-					id="org.python.pydev.editor.actions.sourceMenu">
-				<separator
-						name="editGroup">
-				</separator>
-				<separator
-						name="addGroup">
-				</separator>
-			</menu>
-			<action
-					definitionId="org.python.pydev.editor.actions.firstChar"
-					label="Goto first char"
-					class="org.python.pydev.editor.actions.FirstCharAction"
-					menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
-					id="org.python.pydev.editor.actions.firstChar">
-			</action>
-			<action
-					definitionId="org.python.pydev.editor.actions.uncomment"
-					label="Uncomment"
-					class="org.python.pydev.editor.actions.PyUncomment"
-					menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
-					id="org.python.pydev.editor.actions.uncomment">
-			</action>
-			<action
-					definitionId="org.python.pydev.editor.actions.comment"
-					label="Comment"
-					class="org.python.pydev.editor.actions.PyComment"
-					menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
-					id="org.python.pydev.editor.actions.comment">
-			</action>
-			<action
-					definitionId="org.python.pydev.editor.actions.addBlockComment"
-					label="Add comment block"
-					class="org.python.pydev.editor.actions.PyAddBlockComment"
-					menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
-					id="org.python.pydev.editor.actions.addBlockComment">
-			</action>
-			<action
-					definitionId="org.python.pydev.editor.actions.navigation.nextMethod"
-					label="Goto next method or class"
-					class="org.python.pydev.editor.actions.navigation.PyNextMethod"
-					menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
-					id="org.python.pydev.editor.actions.navigation.nextMethod">
-			</action>
-			<action
-					definitionId="org.python.pydev.editor.actions.navigation.previousMethod"
-					label="Goto previous method or class"
-					class="org.python.pydev.editor.actions.navigation.PyPreviousMethod"
-					menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
-					id="org.python.pydev.editor.actions.navigation.previousMethod">
-			</action>
-		</editorContribution>
-	</extension>
-<!-- NOTE: EditorContext part of the targetID was deduced, that is just what Eclipse expects -->
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            targetID="org.python.pydev.editor.PythonEditor"
+            id="org.python.pydev.editor.editorContribution">
+         <menu
+               label="Source"
+               path="edit"
+               id="org.python.pydev.editor.actions.sourceMenu">
+            <separator
+                  name="editGroup">
+            </separator>
+            <separator
+                  name="addGroup">
+            </separator>
+         </menu>
+         <action
+               definitionId="org.python.pydev.editor.actions.firstChar"
+               label="Goto first char"
+               class="org.python.pydev.editor.actions.FirstCharAction"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
+               id="org.python.pydev.editor.actions.firstChar">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.uncomment"
+               label="Uncomment"
+               class="org.python.pydev.editor.actions.PyUncomment"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
+               id="org.python.pydev.editor.actions.uncomment">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.comment"
+               label="Comment"
+               class="org.python.pydev.editor.actions.PyComment"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
+               id="org.python.pydev.editor.actions.comment">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.addBlockComment"
+               label="Add comment block"
+               class="org.python.pydev.editor.actions.PyAddBlockComment"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.addBlockComment">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.navigation.nextMethod"
+               label="Goto next method or class"
+               class="org.python.pydev.editor.actions.navigation.PyNextMethod"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.navigation.nextMethod">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.navigation.previousMethod"
+               label="Goto previous method or class"
+               class="org.python.pydev.editor.actions.navigation.PyPreviousMethod"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.navigation.previousMethod">
+         </action>
+      </editorContribution>
+   </extension>
 <!-- Editor popup menus-->
-	<extension
-			point="org.eclipse.ui.popupMenus">
-		<viewerContribution
-				targetID="org.python.pydev.editor.PythonEditor.EditorContext"
-				id="org.python.pydev.editor.popup">
-			<menu
-					label="Source"
-					id="org.python.pydev.editor.actions.editorPopup">
-				<separator
-						name="editGroup">
-				</separator>
-				<separator
-						name="addGroup">
-				</separator>
-			</menu>
-			<action
-					label="Uncomment"
-					class="org.python.pydev.editor.actions.PyUncomment"
-					menubarPath="org.python.pydev.editor.actions.editorPopup/editGroup"
-					id="org.python.pydev.editor.actions.uncomment">
-			</action>
-			<action
-					label="Comment"
-					class="org.python.pydev.editor.actions.PyComment"
-					menubarPath="org.python.pydev.editor.actions.editorPopup/editGroup"
-					id="org.python.pydev.editor.actions.comment">
-			</action>
-			<action
-					label="Add comment block"
-					class="org.python.pydev.editor.actions.PyAddBlockComment"
-					menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
-					id="org.python.pydev.editor.actions.addBlockComment">
-			</action>
-			<action
-					label="Navigate to next method / class"
-					class="org.python.pydev.editor.actions.navigation.PyNextMethod"
-					menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
-					id="org.python.pydev.editor.actions.navigation.nextMethod">
-			</action>
-			<action
-					label="Navigate to previous method / class"
-					class="org.python.pydev.editor.actions.navigation.PyPreviousMethod"
-					menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
-					id="org.python.pydev.editor.actions.navigation.previousMethod">
-			</action>
-		</viewerContribution>
-	</extension>
-<!-- associates commands with keyboard shortcuts -->
+<!-- NOTE: EditorContext part of the targetID was deduced, that is just what Eclipse expects -->
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            targetID="org.python.pydev.editor.PythonEditor.EditorContext"
+            id="org.python.pydev.editor.popup">
+         <menu
+               label="Source"
+               id="org.python.pydev.editor.actions.editorPopup">
+            <separator
+                  name="editGroup">
+            </separator>
+            <separator
+                  name="addGroup">
+            </separator>
+         </menu>
+         <action
+               label="Uncomment"
+               class="org.python.pydev.editor.actions.PyUncomment"
+               menubarPath="org.python.pydev.editor.actions.editorPopup/editGroup"
+               id="org.python.pydev.editor.actions.uncomment">
+         </action>
+         <action
+               label="Comment"
+               class="org.python.pydev.editor.actions.PyComment"
+               menubarPath="org.python.pydev.editor.actions.editorPopup/editGroup"
+               id="org.python.pydev.editor.actions.comment">
+         </action>
+         <action
+               label="Add comment block"
+               class="org.python.pydev.editor.actions.PyAddBlockComment"
+               menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
+               id="org.python.pydev.editor.actions.addBlockComment">
+         </action>
+         <action
+               label="Navigate to next method / class"
+               class="org.python.pydev.editor.actions.navigation.PyNextMethod"
+               menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
+               id="org.python.pydev.editor.actions.navigation.nextMethod">
+         </action>
+         <action
+               label="Navigate to previous method / class"
+               class="org.python.pydev.editor.actions.navigation.PyPreviousMethod"
+               menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
+               id="org.python.pydev.editor.actions.navigation.previousMethod">
+         </action>
+      </viewerContribution>
+   </extension>
 <!-- Commands -->
-	<extension
-			point="org.eclipse.ui.commands">
-		<scope
-				name="Pydev editor scope"
-				parent="org.eclipse.ui.textEditorScope"
-				description="Pydev commands"
-				id="org.python.pydev.ui.editor.scope">
-		</scope>
-		<category
-				name="Pydev editor commands"
-				description="Pydev editor category"
-				id="org.python.pydev.ui.category.source">
-		</category>
+<!-- associates commands with keyboard shortcuts -->
+   <extension
+         point="org.eclipse.ui.commands">
+      <scope
+            name="Pydev editor scope"
+            parent="org.eclipse.ui.textEditorScope"
+            description="Pydev commands"
+            id="org.python.pydev.ui.editor.scope">
+      </scope>
+      <category
+            name="Pydev editor commands"
+            description="Pydev editor category"
+            id="org.python.pydev.ui.category.source">
+      </category>
 <!-- command: next method / class-->
-		<command
-				name="First char"
-				description="Goes to the first non space char or first char of the line depending on the cursor position."
-				category="org.python.pydev.ui.category.source"
-				id="org.python.pydev.editor.actions.firstChar">
-		</command>
-		<keyBinding
-				string="Home"
-				scope="org.python.pydev.ui.editor.scope"
-				command="org.python.pydev.editor.actions.firstChar"
-				configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-		</keyBinding>
+      <command
+            name="First char"
+            description="Goes to the first non space char or first char of the line depending on the cursor position."
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.firstChar">
+      </command>
+      <keyBinding
+            string="Home"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.firstChar"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
 <!-- command: next method / class-->
-		<command
-				name="Next Method or Class"
-				description="Navigates to the next method or class declaration"
-				category="org.python.pydev.ui.category.source"
-				id="org.python.pydev.editor.actions.navigation.nextMethod">
-		</command>
-		<keyBinding
-				string="Ctrl+Shift+Arrow_Down"
-				scope="org.python.pydev.ui.editor.scope"
-				command="org.python.pydev.editor.actions.navigation.nextMethod"
-				configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-		</keyBinding>
+      <command
+            name="Next Method or Class"
+            description="Navigates to the next method or class declaration"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.navigation.nextMethod">
+      </command>
+      <keyBinding
+            string="Ctrl+Shift+Arrow_Down"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.navigation.nextMethod"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
 <!-- command: previous method / class-->
-		<command
-				name="Previous Method or Class"
-				description="Navigates to the previous method or class declaration"
-				category="org.python.pydev.ui.category.source"
-				id="org.python.pydev.editor.actions.navigation.previousMethod">
-		</command>
-		<keyBinding
-				string="Ctrl+Shift+Arrow_Up"
-				scope="org.python.pydev.ui.editor.scope"
-				command="org.python.pydev.editor.actions.navigation.previousMethod"
-				configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-		</keyBinding>
+      <command
+            name="Previous Method or Class"
+            description="Navigates to the previous method or class declaration"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.navigation.previousMethod">
+      </command>
+      <keyBinding
+            string="Ctrl+Shift+Arrow_Up"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.navigation.previousMethod"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
 <!-- command: block-->
-		<command
-				name="Add Comment Block"
-				description="Creates a python comment block"
-				category="org.python.pydev.ui.category.source"
-				id="org.python.pydev.editor.actions.addBlockComment">
-		</command>
-		<keyBinding
-				string="Ctrl+4"
-				scope="org.python.pydev.ui.editor.scope"
-				command="org.python.pydev.editor.actions.addBlockComment"
-				configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-		</keyBinding>
+      <command
+            name="Add Comment Block"
+            description="Creates a python comment block"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.addBlockComment">
+      </command>
+      <keyBinding
+            string="Ctrl+4"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.addBlockComment"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
 <!-- command: uncomment-->
-		<command
-				name="Python Uncomment"
-				description="Uncomments a python line (Removes # from the beggining of the line)"
-				category="org.python.pydev.ui.category.source"
-				id="org.python.pydev.editor.actions.uncomment">
-		</command>
-		<keyBinding
-				string="Ctrl+\"
-				scope="org.python.pydev.ui.editor.scope"
-				command="org.python.pydev.editor.actions.uncomment"
-				configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-		</keyBinding>
-		<keyBinding
-				string="Ctrl+Shift+3"
-				scope="org.python.pydev.ui.editor.scope"
-				command="org.python.pydev.editor.actions.uncomment"
-				configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-		</keyBinding>
+      <command
+            name="Python Uncomment"
+            description="Uncomments a python line (Removes # from the beggining of the line)"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.uncomment">
+      </command>
+      <keyBinding
+            string="Ctrl+\"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.uncomment"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+      <keyBinding
+            string="Ctrl+Shift+3"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.uncomment"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
 <!-- command: comment-->
-		<command
-				name="Python Comment"
-				description="Comments a python line (Adds # to beggining of the line)"
-				category="org.python.pydev.ui.category.source"
-				id="org.python.pydev.editor.actions.comment">
-		</command>
-		<keyBinding
-				string="Ctrl+/"
-				scope="org.python.pydev.ui.editor.scope"
-				command="org.python.pydev.editor.actions.comment"
-				configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-		</keyBinding>
-		<keyBinding
-				string="Ctrl+3"
-				scope="org.python.pydev.ui.editor.scope"
-				command="org.python.pydev.editor.actions.comment"
-				configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-		</keyBinding>
-	</extension>
+      <command
+            name="Python Comment"
+            description="Comments a python line (Adds # to beggining of the line)"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.comment">
+      </command>
+      <keyBinding
+            string="Ctrl+/"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.comment"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+      <keyBinding
+            string="Ctrl+3"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.comment"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+   </extension>
 <!-- file type extensions for the team (CVS) -->
-	<extension
-			point="org.eclipse.team.core.fileTypes">
-		<fileTypes
-				type="text"
-				extension="py">
-		</fileTypes>
-	</extension>
-	<extension
-			point="org.eclipse.team.core.ignore">
-		<ignore
-				enabled="true"
-				pattern="*.pyc">
-		</ignore>
-	</extension>
+   <extension
+         point="org.eclipse.team.core.fileTypes">
+      <fileTypes
+            type="text"
+            extension="py">
+      </fileTypes>
+   </extension>
+   <extension
+         point="org.eclipse.team.core.ignore">
+      <ignore
+            enabled="true"
+            pattern="*.pyc">
+      </ignore>
+   </extension>
+<!-- filter out .pyc files in the navigation view -->
+   <extension
+         point="org.eclipse.ui.resourceFilters">
+      <filter
+            selected="True"
+            pattern="*.pyc">
+      </filter>
+   </extension>
+
 </plugin>

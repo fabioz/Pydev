@@ -9,5 +9,11 @@ New features:
 - Added Python nature, and nature icon. Nature get automatically added to any project
 that opens a python editor.
 - Added Python properties to projects that have Python nature
+- Editor now has a python icon. Icon is ugly, help!
+- .pyc files are filtered in the resource view
+- Parsing now happens either immediately on return, or a second after the last typing.
+This makes error notifications nicer and more predictable
 
 Bug fixes:
+- Moved parsing so that all pydev parsers use single thread
+-
