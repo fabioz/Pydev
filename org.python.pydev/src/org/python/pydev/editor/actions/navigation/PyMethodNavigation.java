@@ -128,7 +128,7 @@ public abstract class PyMethodNavigation extends PyAction {
 		SelectionPosition select = getSelect(v);
 //		print("select = " + select);
 		if (select != null) {
-			pyEdit.selectSelectionInEditor(select);
+			pyEdit.setSelection(select);
 		}
 		model.dispose();
 	}

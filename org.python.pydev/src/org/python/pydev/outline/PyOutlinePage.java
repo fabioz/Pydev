@@ -207,7 +207,7 @@ public class PyOutlinePage extends ContentOutlinePage  {
 				SelectionPosition newSel = model.getSelectionPosition(sel);
 				if (newSel == null)
 					return;
-				editorView.selectSelectionInEditor(newSel);
+				editorView.setSelection(newSel);
 			}
 		};
 		tree.addSelectionChangedListener(selectionListener);		

@@ -194,7 +194,10 @@ public class PyEdit extends TextEditor implements IParserListener {
 		sourceViewer.revealRange(offset, length);
 	}
 
-	public void selectSelectionInEditor(SelectionPosition newSel) {
+	/**
+	 * Reveals the selection
+	 */
+	public void setSelection(SelectionPosition newSel) {
 		if (newSel.r != null) {
 			setSelection(newSel.r.getOffset(), newSel.r.getLength());
 		}
