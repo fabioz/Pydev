@@ -109,12 +109,12 @@ public class PythonCompletionProcessor extends TemplateCompletionProcessor
                 .getActivationToken(theDoc, documentOffset);
         
         java.lang.String qualifier = "";
-
         while(activationToken.endsWith(".") == false && activationToken.length() > 0){
-            qualifier += activationToken.charAt(activationToken.length()-1);
+            qualifier = activationToken.charAt(activationToken.length()-1) + qualifier;
             activationToken = activationToken.substring(0, activationToken.length()-1);
         }
-        
+        System.out.println("qualifier = "+qualifier);
+        System.out.println("activationToken = "+activationToken);
 
         theDoc = partialDocument(theDoc, documentOffset);
         
