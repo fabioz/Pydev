@@ -31,7 +31,7 @@ public class PythonShell {
 
     private static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 500;
     /**
-     * Reference to a 'global python shell'
+     * Reference to 'global python shells'
      */
     private static Map shells = new HashMap();
     
@@ -166,15 +166,22 @@ public class PythonShell {
             int attempts = 0;
             
             sleepALittle(300);
+            socketToWrite = null;
+            serverSocket = new ServerSocket(pRead); //read in this port 
             while(!connected && attempts < 20){
                 attempts += 1;
 	            try {
-                    socketToWrite = new Socket("127.0.0.1",pWrite); //we should write in this port
-                    serverSocket = new ServerSocket(pRead);         //and read in this port 
+	                if(socketToWrite == null || socketToWrite.isConnected() == false){
+	                    socketToWrite = new Socket("127.0.0.1",pWrite); //we should write in this port
+	                }
                     socketToRead = serverSocket.accept();
                     connected = true;
                 } catch (IOException e1) {
-                    PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of 20 failed, trying again...", e1);
+	                if(socketToWrite != null && socketToWrite.isConnected() == true){
+	                    PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of 20 failed, trying again...(socketToWrite already binded)", e1);
+	                }else{
+	                    PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of 20 failed, trying again...", e1);
+	                }
                 }
                 
                 //if not connected, let's sleep a little for another attempt
