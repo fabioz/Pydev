@@ -67,9 +67,10 @@ public class PythonShellTest extends TestCase {
 
     public void testErrorOnCompletions() throws IOException, CoreException {
         List list = shell.getImportCompletions("dfjslkfjds\n\n");
-        assertEquals(1, list.size());
-        Object object[] = (Object[]) list.get(0);
-        assertEquals("ERROR:", object[0]);
+        assertEquals(0, list.size());
+        //don't show completion errors!
+//        Object object[] = (Object[]) list.get(0);
+//        assertEquals("ERROR:", object[0]);
     }
 
 }

@@ -227,16 +227,24 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     public static IEditorPart doOpenEditor(IPath path, boolean activate) {
         if (path == null)
             return null;
-        IWorkspace w = ResourcesPlugin.getWorkspace();
-        IFile file = w.getRoot().getFileForLocation(path);
-        IWorkbenchPage wp = plugin.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+
         try {
+	        IWorkspace w = ResourcesPlugin.getWorkspace();
+	        
+	        IFile file = w.getRoot().
+	        	getFileForLocation(path);
+	        
+	        IWorkbenchPage wp = plugin.getWorkbench().
+	        	getActiveWorkbenchWindow().
+	        		getActivePage();
+        
             if (file != null && file.exists()) {
                 // File is inside the workspace
                 return IDE.openEditor(wp, file, activate);
             } else {
                 return openExternalFile(path, wp, activate);
             }
+            
         } catch (Exception e) {
             log(IStatus.ERROR, "Unexpected error opening path " + path.toString(), e);
             return null;

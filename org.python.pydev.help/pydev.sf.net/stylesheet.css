@@ -49,6 +49,11 @@ a:active {
 	font-size: small;
 	color: #666666;
 }
+.menu_links_normal {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: normal;
+	color: #666666;
+}
 .menu_headings {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: small;

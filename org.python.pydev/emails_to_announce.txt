@@ -3,9 +3,6 @@ python-list@python.org
 pydev-code@lists.sourceforge.net
 pydev-users@lists.sourceforge.net
 
-groups:
-comp.lang.python
-
 
 
 ANN: PyDev XXXXX released
@@ -14,19 +11,7 @@ Hi All,
 
 PyDev - Python IDE (Python development enviroment for Eclipse) version XXXXXXX has just been released.
 
-You can check the homepage (http://pydev.sourceforge.net/) or my blog (http://pydev.blogspot.com/) for more details.
-
-------------------------------------------------------
-COMMENTS ON RELEASE:
-
-XXXXXXXXX
-------------------------------------------------------
+You can check the homepage (http://pydev.sourceforge.net/) for more details.
 
 Regards,
-
-Fabio Zadrozny
-------------------------------------------------------
-Software Developer
-ESSS - Engineering Simulation and Scientific Software
-www.esss.com.br
 

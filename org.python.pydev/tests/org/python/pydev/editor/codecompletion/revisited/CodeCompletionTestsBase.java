@@ -17,6 +17,8 @@ public class CodeCompletionTestsBase extends TestCase {
 
     //NOTE: this should be gotten from some variable to point to the python lib (less system dependence, but still, some).
     public static final String PYTHON_INSTALL="C:/bin/Python24/";
+    public static final String PYTHON_SITE_PACKAGES="C:/bin/Python24/Lib/site-packages/";
+    
     //NOTE: this should set to the tests pysrc location, so that it can be added to the pythonpath.
     public static final String TEST_PYSRC_LOC="D:/dev_programs/eclipse_3/eclipse/workspace/org.python.pydev/tests/pysrc/";
 
@@ -39,14 +41,21 @@ public class CodeCompletionTestsBase extends TestCase {
     }
     
     
-    
-    public void restorePythonPath(boolean force){
+    public void restorePythonPath(boolean force, String path){
         if(restored == null || restored != this.getClass() || force){
             restored = this.getClass();
     	    nature = new PythonNature();
     	    nature.setAstManager(new ASTManager());
-    	    ((ASTManager)nature.getAstManager()).changePythonPath(PYTHON_INSTALL+"lib|"+TEST_PYSRC_LOC, null, new NullProgressMonitor());
+    	    ((ASTManager)nature.getAstManager()).changePythonPath(path, null, new NullProgressMonitor());
         }
+    }
+    
+    public void restorePythonPathWithSitePackages(boolean force){
+        restorePythonPath(force, PYTHON_INSTALL+"lib|"+TEST_PYSRC_LOC+"|"+PYTHON_SITE_PACKAGES);
+    }
+    
+    public void restorePythonPath(boolean force){
+        restorePythonPath(force, PYTHON_INSTALL+"lib|"+TEST_PYSRC_LOC);
     }
    
 

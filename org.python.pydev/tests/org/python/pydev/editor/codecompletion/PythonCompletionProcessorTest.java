@@ -27,10 +27,11 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(PythonCompletionProcessorTest.class);
+        
 //      try {
 //          PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
 //	      test.setUp();
-//	      test.testCompleteImportBuiltin();
+//	      test.testCompleteImportBuiltinReference();
 //	      test.tearDown();
 //	  } catch (Exception e) {
 //	      e.printStackTrace();
@@ -173,12 +174,41 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
     	    "";
     	    requestCompl(s, s.length(), -1, new String[]{"RuntimeError"});
 
+        } finally {
+            shell.endIt();
+        }
+	}
+
+	
+	
+	
+
+	public void testCompleteImportBuiltinReference() throws BadLocationException, IOException, CoreException{
+        CompiledModule.COMPILED_MODULES_ENABLED = true;
+        this.restorePythonPathWithSitePackages(true);
+        codeCompletion = new PyCodeCompletion(false);
+
+        PythonShell shell = PythonShellTest.startShell();
+        PythonShell.putServerShell(PythonShell.COMPLETION_SHELL, shell);
+        
+        try {
+            String s;
+
+    	    //check for builtins with reference..3
+    	    s = "" +
+			"from qt import *\n"+
+			"                \n"+   
+			"q = QLabel()    \n"+     
+			"q.";         
+    	    requestCompl(s, s.length(), -1, new String[]{"AlignAuto"});
+
         
         } finally {
             shell.endIt();
         }
 	}
 	
+
 	
     public void testGetActTok(){
         String strs[];

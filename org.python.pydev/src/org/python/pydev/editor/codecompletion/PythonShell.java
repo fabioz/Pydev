@@ -510,7 +510,9 @@ public class PythonShell {
 //            System.out.println(token);
 //            System.out.println(description);
 
-            list.add(new String[]{token, description, args, type});
+            if(!token.equals("ERROR:")){
+                list.add(new String[]{token, description, args, type});
+            }
         }
         return list;
     }

@@ -40,6 +40,8 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
      */
     public static final String PYLINT_PROBLEM_MARKER = "org.python.pydev.pylintproblemmarker";
 
+    public static List pyLintThreads = new ArrayList();
+    
     /**
      * This class runs as a thread to get the markers, and only stops the IDE when the markers are being added.
      * 
@@ -60,36 +62,48 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         }
         
         /**
+         * @return
+         */
+        private boolean canPassPyLint() {
+            if(pyLintThreads.size() < 4){
+                pyLintThreads.add(this);
+                return true;
+            }
+            return false;
+        }
+
+        /**
          * @see java.lang.Thread#run()
          */
         public void run() {
             try {
-                passPyLint();
-                
-                new Job("Adding markers"){
-                
-                    protected IStatus run(IProgressMonitor monitor) {
-                        try {
-                            resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-                        } catch (CoreException e3) {
-                            PydevPlugin.log(e3);
-                        }
-
-                        for (Iterator iter = markers.iterator(); iter.hasNext();) {
-                            Object[] el = (Object[]) iter.next();
-                            
-                            String tok   = (String) el[0];
-                            String type  = (String) el[1];
-                            int priority = ((Integer)el[2]).intValue();
-                            String id    = (String) el[3];
-                            int line     = ((Integer)el[4]).intValue();
-        		            createMarker(resource, "ID:"+id+" "+tok , line,  type, priority);
-                        }
-
-                        return PydevPlugin.makeStatus(Status.OK, "", null);
-                    }
-                }.schedule();
-
+                if(canPassPyLint()){
+	                passPyLint();
+	                
+	                new Job("Adding markers"){
+	                
+	                    protected IStatus run(IProgressMonitor monitor) {
+	                        try {
+	                            resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+	                        } catch (CoreException e3) {
+	                            PydevPlugin.log(e3);
+	                        }
+	
+	                        for (Iterator iter = markers.iterator(); iter.hasNext();) {
+	                            Object[] el = (Object[]) iter.next();
+	                            
+	                            String tok   = (String) el[0];
+	                            String type  = (String) el[1];
+	                            int priority = ((Integer)el[2]).intValue();
+	                            String id    = (String) el[3];
+	                            int line     = ((Integer)el[4]).intValue();
+	        		            createMarker(resource, "ID:"+id+" "+tok , line,  type, priority);
+	                        }
+	
+	                        return PydevPlugin.makeStatus(Status.OK, "", null);
+	                    }
+	                }.schedule();
+                }
                 
             } catch (final CoreException e) {
                 new Job("Error reporting"){
@@ -98,8 +112,15 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                         return PydevPlugin.makeStatus(Status.OK, "", null);
                     }
                 }.schedule();
+            }finally{
+                try {
+                    pyLintThreads.remove(this);
+                } catch (Exception e) {
+                    PydevPlugin.log(e);
+                }
             }
         }
+
 
         /**
          * @param tok
