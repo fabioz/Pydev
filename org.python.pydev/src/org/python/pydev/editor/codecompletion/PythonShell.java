@@ -160,17 +160,26 @@ public class PythonShell {
             if(process != null)
                 endIt();
             String interpreter = getDefaultInterpreter();
-            String execMsg = interpreter+" \""+serverFile.getAbsolutePath()+"\" "+pWrite+" "+pRead;
+            String osName = System.getProperty("os.name");
+            
+            String execMsg;
+            if(osName.toLowerCase().indexOf("win") != -1){ //in windows, we have to put python "path_to_file.py"
+                execMsg = interpreter+" \""+serverFile.getAbsolutePath()+"\" "+pWrite+" "+pRead;
+            }else{ //however in mac, this gives an error...
+                execMsg = interpreter+" "+serverFile.getAbsolutePath()+" "+pWrite+" "+pRead;
+            }
+
             process = SimplePythonRunner.createProcess(execMsg, serverFile.getParentFile());
             
             sleepALittle(200);
             if(process == null){
-                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error creating python process - got null process("+execMsg+")", new Exception("Error creating python process - got null process.")));
+                String msg = "Error creating python process - got null process("+execMsg+") - os:"+osName;
+                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
             }
             try {
                 int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
-                //if no exception is thrown, we have an error...
-                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error creating python process - exited before creating sockets - exitValue = ("+exitVal+")("+execMsg+")", new Exception("Error creating python process - exited before creating sockets - exitValue = ("+exitVal+").")));
+                String msg = "Error creating python process - exited before creating sockets - exitValue = ("+exitVal+")("+execMsg+") - os:"+osName;
+                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
             } catch (IllegalThreadStateException e2) { //this is ok
             }
             
