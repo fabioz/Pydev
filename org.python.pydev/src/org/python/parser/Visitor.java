@@ -6,7 +6,7 @@ public class Visitor extends VisitorBase {
 
 	/**
 	 * Visit each of the children one by one.
-	 * @args node The node whose children will be visited.
+	 * @param node The node whose children will be visited.
 	 */
 	public void traverse(SimpleNode node) throws Exception {
 		node.traverse(this);
