@@ -8,7 +8,6 @@ package org.python.pydev.editor.correctionassist;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jdt.internal.corext.util.Strings;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
