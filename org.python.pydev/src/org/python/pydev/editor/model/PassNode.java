@@ -23,7 +23,7 @@ public class PassNode extends AbstractNode {
 		super(parent);	
 		this.astNode = astNode;
 		this.setStart(new Location(astNode.beginLine-1, astNode.beginColumn-1));
-		this.setEnd(new Location(astNode.beginLine-1, astNode.beginColumn + 22));
+		this.setEnd(new Location(astNode.beginLine-1, astNode.beginColumn + 4));
 	}
 	
 
