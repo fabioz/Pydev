@@ -89,7 +89,6 @@ public class PythonRunSubsetActionDelegate extends ActionDelegate implements IOb
 	
 	                    for (Iterator iter = list.iterator(); iter.hasNext();) {
 	                        Object n = iter.next();
-	                        System.out.println("Executing:"+n);
 	                        ILaunchConfiguration configuration = createDefaultLaunchConfiguration(selectedFolder, n.toString(),  workingDir,  arguments,  interpreter);
 	                        Launch launch = new Launch(configuration,runMode, null );
 	                	    

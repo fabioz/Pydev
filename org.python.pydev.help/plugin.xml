@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev.help"
    name="Pydev Online Help"
-   version="0.8.6"
+   version="0.8.7"
    provider-name="Aleks Totic / Fabio Zadrozny">
 
    <runtime>

@@ -7,7 +7,6 @@ package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 
@@ -25,7 +24,6 @@ import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
 import org.python.pydev.debug.unittest.PyUnitTestRunner;
-import org.python.pydev.debug.unittest.ITestRunListener;
 
 /**
  * Launches Python process, and connects it to Eclipse's debugger.

@@ -11,17 +11,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.plugin.SocketUtil;
-import org.python.pydev.debug.unittest.ITestRunListener;
 
 public class PyUnitTestRunner {
 

@@ -171,7 +171,7 @@ public class PythonMainTab extends AbstractLaunchConfigurationTab {
 
 	public void setDefaults(ILaunchConfigurationWorkingCopy arg0) {
 		// As far as I know, this has never been called
-		System.out.println("setDefaults");
+//		System.out.println("setDefaults");
 	}
 
 	/** The original AbstractLaunchConfigurationTab does
