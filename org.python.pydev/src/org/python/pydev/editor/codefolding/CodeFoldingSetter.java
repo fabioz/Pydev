@@ -199,6 +199,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                 if (position <= start){
                     return i;
                 }
+                end = i+1;
             }
         } catch (BadLocationException e) {
             e.printStackTrace();

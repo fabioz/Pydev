@@ -21,26 +21,28 @@ import org.eclipse.ui.texteditor.ITextEditor;
  */
 public class PySelection
 {
-	/* The document this is a part of */
+	/** The document this is a part of */
 	public IDocument doc;
-	/* The line number of the first line */
+	/** The line number of the first line */
 	public int startLineIndex;
-	/* The line number of the last line */
+	/** The line number of the last line */
 	public int endLineIndex;
-	/* Length of selected text */
+	/** Length of selected text */
 	public int selLength;
-	/* The selected text */
+	/** The selected text */
 	public String selection;
-	/* End line delimiter */
+	/** End line delimiter */
 	public String endLineDelim;
-	/* Start line region */
+	/** Start line region */
 	public IRegion startLine;
-	/* End line region */
+	/** End line region */
 	public IRegion endLine;
-	/* Original cursor line */
+	/** Original cursor line */
 	public int cursorLine;
-	/* Text editor */
+	/** Text editor */
     public ITextEditor textEditor;
+    /** Cursor offset. */
+    public int absoluteCursorOffset;
 
 	/**
 	 * Default constructor for PySelection.  Simply defaults all the values.
@@ -75,6 +77,7 @@ public class PySelection
 			// Grab the selection
 			ITextSelection selection = getITextSelection();
 			
+			this.absoluteCursorOffset   = selection.getOffset();
 			// Set data
 			this.startLine 		= doc.getLineInformation ( selection.getStartLine ( ) );
 			this.endLine 		= doc.getLineInformation ( selection.getEndLine ( ) );
