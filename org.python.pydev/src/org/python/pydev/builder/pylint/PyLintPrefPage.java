@@ -13,13 +13,13 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
-import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.editor.codecompletion.LabelFieldEditor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.utils.CustomizableFieldEditor;
+import org.python.pydev.utils.LabelFieldEditor;
 
 /**
  * @author Fabio Zadrozny
@@ -30,7 +30,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     private static final String USE_PYLINT = "USE_PYLINT";
 
-    private static final boolean DEFAULT_USE_PYLINT = true;
+    private static final boolean DEFAULT_USE_PYLINT = false;
 
     private static final String USE_ERRORS = "USE_ERRORS";
 
@@ -54,7 +54,10 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     private static final String PYLINT_ARGS = "PYLINT_ARGS";
 
-    private static final String DEFAULT_PYLINT_ARGS = "--persistent=n --comment=n --disable-msg=W0103,W0131,C0103,W0312,C0301,C0101,C0324,W0511";
+    private static final String DEFAULT_PYLINT_ARGS = "--persistent=n --comment=n --disable-msg=W0103,W0131,C0103,W0312,W0511";
+//    													"--persistent=n --comment=n --disable-all --enable-basic=y --enable-classes=y --enable-design=y --enable-exceptions=y \n"+
+//    													"--enable-format=y --enable-imports=y \n"+
+//    													"--disable-msg=W0103,W0131,C0103,W0312,C0301,C0101,C0324,W0511";
 
     public PyLintPrefPage() {
         super(GRID);
@@ -96,8 +99,11 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         addField(new BooleanFieldEditor(USE_CODING_STANDARD, "Communicate coding standard warnings?", p));
         addField(new BooleanFieldEditor(USE_REFACTOR, "Communicate refactor warnings?", p));
 
-        addField(new StringFieldEditor(PYLINT_ARGS, "Arguments to pass to pylint (customize its output).\n"
-                + "The  --include-ids=y is always included and does not appear here..", p));
+        
+        
+        CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(PYLINT_ARGS, "Arguments to pass to pylint (customize its output).\n"
+                + "The  --include-ids=y is always included and does not appear here..", p);
+        addField(stringFieldEditor);
 
         String w = "\n\nTo ignore some warning on a line in a file, you can put the comment: \n" +
         		"#IGNORE:ID, so that the id is the warning that you want to ignore. \n" +

@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.utils;
 
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.swt.widgets.Composite;

@@ -256,6 +256,10 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
      */
     public static final String PYLINT_PROBLEM_MARKER = "org.python.pydev.pylintproblemmarker";
     public boolean visitResource(IResource resource, IDocument document) {
+        if(PyLintPrefPage.usePyLint() == false){
+            return true;
+        }
+        
         IProject project = resource.getProject();
         if (project != null && resource instanceof IFile) {
 
@@ -268,11 +272,12 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
 	            File arg = new File(location.toOSString());
 
 	            String lintargs = " --include-ids=y ";
-	            lintargs += PyLintPrefPage.getPylintArgs();
+	            lintargs += PyLintPrefPage.getPylintArgs().replaceAll("\r","").replaceAll("\n"," ");
 	            lintargs += " ";
 	            
 	            String output = SimplePythonRunner.runAndGetOutput(script.getAbsolutePath(), lintargs+arg.getAbsolutePath(), script.getParentFile());
 
+	            System.out.println(output);
 	            StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
 	            
 	            boolean useW = PyLintPrefPage.useWarnings();

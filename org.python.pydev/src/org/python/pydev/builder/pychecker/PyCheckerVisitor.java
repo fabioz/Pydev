@@ -19,7 +19,7 @@ public class PyCheckerVisitor extends PyDevBuilderVisitor {
      */
     public boolean visitResource(IResource resource, IDocument document) {
         if (PyCheckerPrefPage.usePyChecker() == false) {
-            return false;
+            return true;
         }
 
 //        PyCheckerLauncher.pycheck(resource);
