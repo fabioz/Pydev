@@ -166,4 +166,52 @@
       </attribute>
    </extension>
 
+<!-- Begin Run->Run... extensions -->
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            name="Python"
+            delegate="org.eclipse.ui.externaltools.internal.program.launchConfigurations.ProgramLaunchDelegate"
+            modes="run"
+            id="org.python.pydev.debug.ui.launching.launchConfigurationType1">
+         <fileExtension
+               extension="py">
+         </fileExtension>
+         <fileExtension
+               extension="pyc">
+         </fileExtension>
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            type="org.python.pydev.debug.ui.launching.launchConfigurationType1"
+            helpContextId="foo"
+            class="org.python.pydev.debug.ui.launching.PythonDebugTabGroup"
+            id="org.python.pydev.debug.ui.launching.PythonDebugTabGroup">
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension
+         id="org.python.debug.ui.image"
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            icon="icons/python.gif"
+            configTypeID="org.python.pydev.debug.ui.launching.launchConfigurationType1"
+            id="org.python.pydev.debug.ui.launching.launchConfigurationTypeImage1">
+      </launchConfigurationTypeImage>
+   </extension>
+   <extension
+         id="org.python.debug.ui.lineTracker"
+         point="org.eclipse.debug.ui.consoleLineTrackers">
+      <consoleLineTracker
+            class="org.python.pydev.debug.ui.PythonConsoleLineTracker"
+            processType="python"
+            id="org.python.pydev.debug.ui.PythonConsoleLineTracker">
+      </consoleLineTracker>
+   </extension>
+<!-- End Run->Run... extensions -->
+
+
+
+
 </plugin>
