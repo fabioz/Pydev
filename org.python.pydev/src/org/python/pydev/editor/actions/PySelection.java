@@ -220,8 +220,8 @@ public class PySelection {
      * Beep...humm... yeah....beep....ehehheheh
      */
     protected static void beep(Exception e) {
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
         e.printStackTrace();
+        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
     }
 
     /**

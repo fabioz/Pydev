@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.correctionassist;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -29,6 +30,7 @@ import org.python.pydev.editor.model.ClassNode;
 import org.python.pydev.editor.model.FunctionNode;
 import org.python.pydev.editor.model.ModelUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PythonNature;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
 
@@ -125,7 +127,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
         }else if (sel.indexOf("def ") != -1){
             
             try {
-                results.addAll(getOverrideProps(ps));
+                results.addAll(getOverrideProps(ps, imageCache, edit.getEditorFile(), edit.getPythonNature()));
 	        } catch (BadLocationException e) {
 	        }
             
@@ -154,7 +156,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
      * @param ps
      * @return
      */
-    private List getOverrideProps(PySelection ps) throws BadLocationException {
+    public static List getOverrideProps(PySelection ps,  ImageCache imageCache, File f, PythonNature nature) throws BadLocationException {
         ArrayList l = new ArrayList();
         String sel = getLine(ps);
         int j = sel.indexOf("def ");
@@ -173,8 +175,8 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
         String tok = strs[1];
         
         
-        CompletionState state = new CompletionState(ps.startLineIndex, ps.absoluteCursorOffset - ps.startLine.getOffset(), null, edit.getPythonNature());
-        CompletionRequest request = new CompletionRequest(edit, ps.doc, "self", ps.absoluteCursorOffset, 0, new PyCodeCompletion(true), "");
+        CompletionState state = new CompletionState(ps.startLineIndex, ps.absoluteCursorOffset - ps.startLine.getOffset(), null, nature);
+        CompletionRequest request = new CompletionRequest(f, nature, ps.doc, "self", ps.absoluteCursorOffset, 0, new PyCodeCompletion(true), "");
         IToken[] selfCompletions = PyCodeCompletion.getSelfCompletions(request, new ArrayList(), state, true);
         for (int i = 0; i < selfCompletions.length; i++) {
             IToken token = selfCompletions[i];
@@ -542,7 +544,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
     /**
      * 
      */
-    private String getLine(PySelection ps) {
+    private static String getLine(PySelection ps) {
         return ps.selection.replaceAll("#.*", "");
     }
     

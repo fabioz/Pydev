@@ -124,12 +124,16 @@ public class PythonMainTab extends AbstractLaunchConfigurationTab {
 
 	
 	private boolean isValid(String interpreter) {
-		if (!InterpreterEditor.validateInterpreterPath(interpreter)) {
-			setErrorMessage("Can't find Python interpreter '" + interpreter +"'"+
-			"\nUse the Pydev/Debug preferences to specify additional editors.");
+	    boolean b;
+		try {
+            b = InterpreterEditor.validateInterpreterPath(interpreter);
+        } catch (Exception e) {
+			setErrorMessage("Python interpreter '" + interpreter +"'not valid.\n" +
+					"Additional interpreters may be set in PyDev/Python Interpreters.\n" +
+					"Error received: "+e.getMessage());
 			return false;
-		}
-		return true;
+        }
+		return b;
 	}
 	public boolean isValid(ILaunchConfiguration launchConfig) {
 		setErrorMessage(null);

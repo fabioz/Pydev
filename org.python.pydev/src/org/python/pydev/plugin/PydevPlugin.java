@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -260,7 +261,12 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
         IFile file = project.getFile(location.lastSegment());
-        file.createLink(location, IResource.NONE, null);
+        try {
+            file.createLink(location, IResource.NONE, null);
+        } catch (ResourceException e) {
+            //That's OK
+            //org.eclipse.core.internal.resources.ResourceException: Resource /External Files/GUITest.py already exists.
+        }
         if (wp != null)
             return IDE.openEditor(wp, file, activate);
         return null;

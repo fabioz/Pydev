@@ -142,37 +142,46 @@ public class InterpreterEditor extends ListEditor {
 	 */
 	static String cachedExecutable = null;
 	static boolean cachedExecutableValid = false;
-	public static boolean validateInterpreterPath(String executable) {
+	public static boolean validateInterpreterPath(String executable) throws Exception{
 		// we cache the last query because this gets called a lot
-		// i do not want to launch 
-		if (cachedExecutable != null && cachedExecutable.equals(executable))
+		// i do not want to launch
+	    // may throw exception with the error received...
+		if (cachedExecutable != null && cachedExecutable.equals(executable) && cachedExecutableValid == true)
 			return cachedExecutableValid;
-		boolean retVal = true;
+		
 		try {
 			String versionOption = " -V";
 			// Jython command line option is --version, not -V
 			if (isJython(executable))
 				versionOption = " --version";
-			Process pr = Runtime.getRuntime().exec(executable + versionOption);
+			
+			String complete = executable + versionOption;
+            Process pr = Runtime.getRuntime().exec(complete);
 			StreamConsumer outputs = new StreamConsumer(pr.getInputStream());
 			outputs.start();
 			StreamConsumer errors = new StreamConsumer(pr.getErrorStream());
 			errors.start();
 			pr.waitFor();
+			
 			int ret = pr.exitValue();
-			if (ret == 0)
-				retVal = !errorsInOutput(executable, outputs, errors);
-			else
-				retVal = false;
+			if (ret == 0){
+				if(errorsInOutput(executable, outputs, errors)){
+				    throw new Exception("Unable to find interpreter: "+executable);
+				}
+			}else{
+			    throw new Exception("Unable to execute: "+complete+" (returned value "+ret+" when executed).");
+			}
+			
 		} catch (InterruptedException e) {
-			retVal = false;
+			throw e;
 		} catch (IOException e) {
-			// launching which failed, assume browser executable is present
-			retVal = false;
+			throw e;
 		}
+		
+		//only cache if suceeded (otherwise, exception has already been thrown)...
 		cachedExecutable = executable;
-		cachedExecutableValid = retVal;
-		return retVal;
+		cachedExecutableValid = true;
+		return true;
 	}
 	
 	/* (non-Javadoc)

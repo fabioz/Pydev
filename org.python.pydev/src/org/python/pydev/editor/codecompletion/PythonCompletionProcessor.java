@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
@@ -17,6 +16,7 @@ import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Dmoore
@@ -45,6 +45,11 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * Edit.
      */
     private PyEdit edit;
+
+    /**
+     * Some error...
+     */
+    private Throwable error;
 
 
 
@@ -89,14 +94,16 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 	                e.printStackTrace();
 	            }
 	
-	            try {
-                    Object[] objects = getPythonProposals(documentOffset, doc);
-                    List pythonProposals = (List) objects[0];
-                    showTemplates = ((Boolean)objects[1]).booleanValue();
-                    pythonAndTemplateProposals.addAll(pythonProposals);
-                } catch (BadLocationException e1) {
-                    e1.printStackTrace();
+                Object[] objects = new Object[]{new ArrayList(), new Boolean(true)};
+                try {
+                    objects = getPythonProposals(documentOffset, doc);
+                } catch (Throwable e) {
+                    setError(e);
                 }
+
+                List pythonProposals = (List) objects[0];
+                showTemplates = ((Boolean)objects[1]).booleanValue();
+                pythonAndTemplateProposals.addAll(pythonProposals);
             }
             
             
@@ -119,9 +126,8 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             ICompletionProposal[] proposals = codeCompletion.onlyValidSorted(pythonAndTemplateProposals, qualifier);
             // Return the proposals
             return proposals;
-        } catch (CoreException e) {
-            
-            ErrorDialog.openError(null,"Error", "Error", e.getStatus());
+        } catch (RuntimeException e) {
+            setError(e);
         }
         return new ICompletionProposal[0]; //if error happens, return no completions.
     }
@@ -129,6 +135,15 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     
     
     
+
+
+    /**
+     * @param e
+     */
+    private void setError(Throwable e) {
+        this.error = e;
+        PydevPlugin.log(e);
+    }
 
 
     /**
@@ -217,7 +232,12 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getErrorMessage()
      */
     public java.lang.String getErrorMessage() {
-        return null;
+        String msg = null;
+        if(this.error != null){
+            msg = this.error.getMessage();
+            this.error = null;
+        }
+        return msg;
     }
 
     /**
