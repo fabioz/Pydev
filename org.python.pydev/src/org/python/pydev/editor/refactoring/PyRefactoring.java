@@ -184,6 +184,55 @@ public class PyRefactoring {
         
     }
     
+    /**
+     * @param editorFile
+     * @param beginLine
+     * @param beginCol
+     * @param operation
+     * @return
+     */
+    public String inlineLocalVariable(File editorFile, int beginLine, int beginCol, Operation operation) {
+        String s = "@@BIKE";
+        s+=        "inlineLocalVariable";
+        s+=        " "+editorFile.getAbsolutePath();
+        s+=        " "+beginLine;
+        s+=        " "+beginCol;
+        s+=        "END@@";
+//        System.out.println("Inline: "+s);
+        String string = makeAction(s, operation);
+        
+//        System.out.println("REFACTOR RESULT:"+string);
+        communicateRefactorResult(string);
+        return string;
+    }
+    
+    /**
+     * @param editorFile
+     * @param beginLine
+     * @param beginCol
+     * @param endLine
+     * @param endCol
+     * @param name
+     * @param operation
+     * @return
+     */
+    public String extractLocalVariable(File editorFile, int beginLine, int beginCol, int endLine, int endCol, String name, Operation operation) {
+        String s = "@@BIKE";
+        s+=        "extractLocalVariable";
+        s+=        " "+editorFile.getAbsolutePath();
+        s+=        " "+beginLine;
+        s+=        " "+beginCol;
+        s+=        " "+endLine;
+        s+=        " "+endCol;
+        s+=        " "+name;
+        s+=        "END@@";
+//        System.out.println("Extract: "+s);
+        String string = makeAction(s, operation);
+//        System.out.println("REFACTOR RESULT:"+string);
+        
+        communicateRefactorResult(string);
+        return string;
+    }
     
     /**
      * @param string
@@ -253,5 +302,7 @@ public class PyRefactoring {
     public Object getLastRefactorResults() {
         return lastRefactorResults;
     }
+
+
 
 }

@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.6.2.2"
+   version="0.7"
    provider-name="AleksTotic"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -271,6 +271,18 @@
                class="org.python.pydev.editor.actions.refactoring.PyRename"
                menubarPath="org.python.pydev.refactoring/refactorings"
                id="org.python.pydev.refactoring.rename">
+         </action>
+         <action
+               label="Inline Local Variable"
+               class="org.python.pydev.editor.actions.refactoring.PyInlineLocalVariable"
+               menubarPath="org.python.pydev.refactoring/refactorings"
+               id="org.python.pydev.refactoring.inlinelocalvariable">
+         </action>
+         <action
+               label="Extract Local Variable"
+               class="org.python.pydev.editor.actions.refactoring.PyExtractLocalVariable"
+               menubarPath="org.python.pydev.refactoring/refactorings"
+               id="org.python.pydev.refactoring.extractlocalvariable">
          </action>
          <action
                label="Convert space-tabs to tabs"

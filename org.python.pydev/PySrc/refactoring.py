@@ -70,6 +70,7 @@ class Refactoring(object):
         savedfiles = self.brmctx.save()
         return str(savedfiles)
 
+
     def renameByCoordinates(self, filename, line, column, newname):
         '''
         Receives all as a string and changes to correct type.
@@ -79,7 +80,30 @@ class Refactoring(object):
         return str(savedfiles)
 
 
+    def inlineLocalVariable(self, filename, line, column):
+        '''
+        Receives all as a string and changes to correct type.
+        '''
+        self.brmctx.inlineLocalVariable(filename, int(line), int(column))
+        savedfiles = self.brmctx.save()
+        return str(savedfiles)
+        
+
+    def extractLocalVariable(self,filename, begin_line, begin_col,
+                             end_line, end_col, newname):
+        '''
+        Receives all as a string and changes to correct type.
+        '''
+        self.brmctx.extractLocalVariable(filename, int(begin_line), int(begin_col),
+                             int(end_line), int(end_col), newname)
+        savedfiles = self.brmctx.save()
+        return str(savedfiles)
+
+    
     def findDefinition(self, filename, line, column):
+        '''
+        Receives all as a string and changes to correct type.
+        '''
         defns = self.brmctx.findDefinitionByCoordinates(filename, int(line), int(column))
         
         ret = ''
