@@ -137,10 +137,17 @@
          </action>
          <action
                definitionId="org.python.pydev.editor.actions.navigation.previousMethod"
-               label="Goto previous method or class"
-               class="org.python.pydev.editor.actions.PyPreviousMethod"
-               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
-               id="org.python.pydev.editor.actions.navigation.previousMethod">
+               label=       "Goto previous method or class"
+               class=       "org.python.pydev.editor.actions.PyPreviousMethod"
+               menubarPath= "org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id=          "org.python.pydev.editor.actions.navigation.previousMethod">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.navigation.pyGoToDefinition"
+               label=       "Go to Definition"
+               class=       "org.python.pydev.editor.actions.PyGoToDefinition"
+               menubarPath= "org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id=          "org.python.pydev.editor.actions.navigation.pyGoToDefinition">
          </action>
       </editorContribution>
    </extension>
@@ -296,6 +303,19 @@
             string="Ctrl+3"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.comment"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: Go To Defition-->
+      <command
+            name="Python Go To Declaration"
+            description="Goes to the declaration of a python element"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.navigation.pyGoToDefinition">
+      </command>
+      <keyBinding
+            string="F3"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.navigation.pyGoToDefinition"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
    </extension>
