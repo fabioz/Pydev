@@ -3,7 +3,7 @@
 <plugin
 	id="org.python.pydev.debug"
 	name="Pydev debug"
-	version="0.6.2.2"
+	version="0.7"
 	provider-name="Aleks Totic"
 	class="org.python.pydev.debug.core.PydevDebugPlugin">
 
@@ -127,7 +127,7 @@
         nameFilter="*"
         id="org.python.pydev.debug.RunPythonFolder">
 			<menu
-				label="Python (many)"
+				label="Python (run subset)"
 				path="additions2"
 				id="org.python.pydev.debug.WorkspaceMenu">
 				<separator name="group2"/>

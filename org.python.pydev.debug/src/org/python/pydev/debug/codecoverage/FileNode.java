@@ -49,7 +49,7 @@ public class FileNode {
             str = ".. "+str;
         }
         while (str.length() < 40){
-            str += " ";
+            str = " "+str;
         }
         return str;
     }
@@ -57,7 +57,7 @@ public class FileNode {
     public static String getStmts(int stmts){
         String str = stmts+"";
         while (str.length() < 4){
-            str += " ";
+            str = " "+str;
         }
         return str;
     }
@@ -65,7 +65,7 @@ public class FileNode {
     public static String getExec(int exec){
         String str = exec+"";
         while (str.length() < 4){
-            str += " ";
+            str = " "+str;
         }
         return str;
     }
@@ -79,7 +79,7 @@ public class FileNode {
         String str = format.format(v);
         str += "%";
         while (str.length() < 5){
-            str += " ";
+            str = " "+str;
         }
         return str;
     }
