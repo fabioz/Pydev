@@ -25,10 +25,16 @@ public class ParsedModel implements IOutlineModel {
 	
 	ParsedItem root = null;	// A list of top nodes in this document. Used as a tree root
 
+	/**
+	 * @param outline - If not null, view to notify when parser changes
+	 * @param parser
+	 */
 	public ParsedModel(PyOutlinePage outline, PyParser parser) {
 		this.parser = parser;
 		this.outline = outline;
 
+		// The notifications are only propagated to the outline page
+		//
 		// Tell parser that we want to know about all the changes
 		// make sure that the changes are propagated on the main thread
 		parserListener = new IParserListener() {
@@ -52,11 +58,11 @@ public class ParsedModel implements IOutlineModel {
 			}
 		};
 		parser.addParseListener(parserListener);
-
+			
 		root = new ParsedItem(null, parser.getRoot());
 	}
 
-	public void dispose() {		
+	public void dispose() {
 		parser.removeParseListener(parserListener);
 	}
 	
@@ -103,8 +109,10 @@ public class ParsedModel implements IOutlineModel {
 			ArrayList itemsToRefresh = new ArrayList();
 			ArrayList itemsToUpdate = new ArrayList();
 			patchRootHelper(root, newRoot, itemsToRefresh, itemsToUpdate, true);
-			outline.updateItems(itemsToUpdate.toArray());
-			outline.refreshItems(itemsToRefresh.toArray());
+			if (outline != null) {
+				outline.updateItems(itemsToUpdate.toArray());
+				outline.refreshItems(itemsToRefresh.toArray());
+			}
 		}
 		else
 		{
@@ -118,8 +126,8 @@ public class ParsedModel implements IOutlineModel {
 	
 	/*
 	 */
-	public IOutlineModel.SelectThis selectionChanged(StructuredSelection sel) {
-		IOutlineModel.SelectThis position = null;
+	public SelectionPosition getSelectionPosition(StructuredSelection sel) {
+		SelectionPosition position = null;
 		if(sel.size() == 1) { // only sync the editing view if it is a single-selection
 			ParsedItem p = (ParsedItem)sel.getFirstElement();
 			position = p.getPosition();

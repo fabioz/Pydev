@@ -56,7 +56,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 	 * This method returns the delimiter for the document
 	 * @param doc
 	 * @param startLineIndex
-	 * @return
+	 * @return  delimiter for the document (\n|\r\|r\n)
 	 * @throws BadLocationException
 	 */
 	protected String getDelimiter(IDocument doc, int startLineIndex)
@@ -70,7 +70,6 @@ public abstract class PyAction implements IEditorActionDelegate {
 
 	/**
 	 * This function returns the text editor.
-	 * @return
 	 */
 	protected ITextEditor getTextEditor() {
 		if (targetEditor instanceof ITextEditor) {
@@ -132,7 +131,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 	 * Returns the position of the first char.
 	 * @param doc
 	 * @param cursorOffset
-	 * @return
+	 * @return position of the first character of the line
 	 * @throws BadLocationException
 	 */
 	protected int getFirstCharPosition(IDocument doc, int cursorOffset)
@@ -196,7 +195,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 	// HELPER FOR DEBBUGING... 
 	//================================================================
 
-	/**
+	/*
 	 * Beep...humm... yeah....beep....ehehheheh
 	 */
 	protected void beep(Exception e) {

@@ -21,6 +21,7 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
@@ -31,6 +32,7 @@ import org.python.parser.TokenMgrError;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.outline.PyOutlinePage;
+import org.python.pydev.outline.SelectionPosition;
 import org.python.pydev.parser.IParserListener;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.ui.ColorCache;
@@ -190,6 +192,27 @@ public class PyEdit extends TextEditor implements IParserListener {
 		ISourceViewer sourceViewer= getSourceViewer();
 		sourceViewer.setSelectedRange(offset, length);
 		sourceViewer.revealRange(offset, length);
+	}
+
+	public void selectSelectionInEditor(SelectionPosition newSel) {
+		if (newSel.r != null) {
+			setSelection(newSel.r.getOffset(), newSel.r.getLength());
+		}
+		else {
+			IDocumentProvider provider = getDocumentProvider();
+			IDocument document = provider.getDocument(getEditorInput());
+			try {
+				IRegion r = document.getLineInformation(newSel.line - 1);
+				// if selecting the whole line, just use the information
+				if (newSel.column == SelectionPosition.WHOLE_LINE) {
+					newSel.column = 0;
+					newSel.length = r.getLength();
+				}
+				setSelection(r.getOffset() + newSel.column, newSel.length);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**

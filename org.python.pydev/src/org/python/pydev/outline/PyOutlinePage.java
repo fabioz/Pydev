@@ -10,9 +10,7 @@ import java.net.MalformedURLException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -206,35 +204,14 @@ public class PyOutlinePage extends ContentOutlinePage  {
 		selectionListener = new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				StructuredSelection sel = (StructuredSelection)tree.getSelection();
-				IOutlineModel.SelectThis newSel = model.selectionChanged(sel);
+				SelectionPosition newSel = model.getSelectionPosition(sel);
 				if (newSel == null)
 					return;
-				selectSelectionInEditor(newSel,editorView);
+				editorView.selectSelectionInEditor(newSel);
 			}
 		};
 		tree.addSelectionChangedListener(selectionListener);		
 		createActions();
-	}
-	
-	public static void selectSelectionInEditor(IOutlineModel.SelectThis newSel, PyEdit editorView) {
-		if (newSel.r != null) {
-			editorView.setSelection(newSel.r.getOffset(), newSel.r.getLength());
-		}
-		else {
-			IDocumentProvider provider = editorView.getDocumentProvider();
-			IDocument document = provider.getDocument(editorView.getEditorInput());
-			try {
-				IRegion r = document.getLineInformation(newSel.line - 1);
-				// if selecting the whole line, just use the information
-				if (newSel.column == IOutlineModel.SelectThis.WHOLE_LINE) {
-					newSel.column = 0;
-					newSel.length = r.getLength();
-				}
-				editorView.setSelection(r.getOffset() + newSel.column, newSel.length);
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 }

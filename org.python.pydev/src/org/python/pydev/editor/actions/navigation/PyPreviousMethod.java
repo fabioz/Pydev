@@ -7,14 +7,14 @@
 package org.python.pydev.editor.actions.navigation;
 
 import org.python.pydev.outline.ParsedItem;
-import org.python.pydev.outline.IOutlineModel.SelectThis;
+import org.python.pydev.outline.SelectionPosition;
 
 /**
  * @author Fabio Zadrozny
  */
 public class PyPreviousMethod extends PyMethodNavigation{
 
-	public SelectThis getSelect(Visitor v) {
+	public SelectionPosition getSelect(Visitor v) {
 		if (v.prevNode != null){
 			return ParsedItem.getPosition(v.prevNode);
 		}

@@ -112,13 +112,13 @@ class RawPartitionModel implements IOutlineModel {
 	}
 
 	// IOutlineModel API
-	public IOutlineModel.SelectThis selectionChanged(StructuredSelection sel) {
+	public SelectionPosition getSelectionPosition(StructuredSelection sel) {
 		Region r = null;
 		if(sel.size() == 1) { // only sync the editing view if it is a single-selection
 			Position p = (Position)sel.getFirstElement();
 			r = new Region(p.offset, p.length);
 		}
-		return new IOutlineModel.SelectThis(r);
+		return new SelectionPosition(r);
 	}
 
 	public int compare(Object e1, Object e2) {

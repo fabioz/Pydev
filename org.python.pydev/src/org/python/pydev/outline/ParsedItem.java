@@ -110,14 +110,14 @@ public class ParsedItem  {
 	/*
 	 * @return where in the document is this item located
 	 */
-	public IOutlineModel.SelectThis getPosition() {
+	public SelectionPosition getPosition() {
 		return getPosition(token);
 	}
 
 	/*
 	 * @return where in the document is this item located
 	 */
-	public static IOutlineModel.SelectThis getPosition(SimpleNode token) {
+	public static SelectionPosition getPosition(SimpleNode token) {
 		int startOffset = 0;
 		boolean wholeLine = false;
 		if (token instanceof ClassDef) {
@@ -134,10 +134,10 @@ public class ParsedItem  {
 			wholeLine = true;
 		}
 		
-		IOutlineModel.SelectThis position = new IOutlineModel.SelectThis(token.beginLine, token.beginColumn+startOffset, toString(token).length());
+		SelectionPosition position = new SelectionPosition(token.beginLine, token.beginColumn+startOffset, toString(token).length());
 
 		if (wholeLine)
-			position.column = IOutlineModel.SelectThis.WHOLE_LINE;		
+			position.column = SelectionPosition.WHOLE_LINE;		
 		return position;
 	}
 	

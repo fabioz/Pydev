@@ -9,16 +9,15 @@ package org.python.pydev.editor.actions.navigation;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.VisitorBase;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.outline.IOutlineModel;
 import org.python.pydev.outline.ParsedItem;
-import org.python.pydev.outline.PyOutlinePage;
+import org.python.pydev.outline.ParsedModel;
+import org.python.pydev.outline.SelectionPosition;
 
 /**
  * The trick here is getting the outline... To do that, some refactorings had
@@ -114,21 +113,24 @@ public abstract class PyMethodNavigation extends PyAction {
 			pyEdit.getDocumentProvider().getDocument(pyEdit.getEditorInput());
 		ITextSelection selection =
 			(ITextSelection) pyEdit.getSelectionProvider().getSelection();
-
-		PyOutlinePage out =
-			(PyOutlinePage) pyEdit.getAdapter(IContentOutlinePage.class);
-		ParsedItem item = (ParsedItem) out.getParsedModel().getRoot();
+		
+		ParsedModel model = new ParsedModel(null, pyEdit.getParser());
+		ParsedItem item = (ParsedItem)model.getRoot();
 		SimpleNode node = item.getToken();
+
+		if (node == null)
+			return;
 
 		int startLine = selection.getStartLine();
 		Visitor v = whereAmI(startLine, node);
 		
 //		print (v.nextNode);
-		IOutlineModel.SelectThis select = getSelect(v);
+		SelectionPosition select = getSelect(v);
 //		print("select = " + select);
 		if (select != null) {
-			PyOutlinePage.selectSelectionInEditor(select,pyEdit);
+			pyEdit.selectSelectionInEditor(select);
 		}
+		model.dispose();
 	}
 
 	/**
@@ -158,6 +160,6 @@ public abstract class PyMethodNavigation extends PyAction {
 	 * @param v
 	 * @return
 	 */
-	public abstract IOutlineModel.SelectThis getSelect(Visitor v);
+	public abstract SelectionPosition getSelect(Visitor v);
 
 }
