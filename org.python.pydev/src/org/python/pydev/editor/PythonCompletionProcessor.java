@@ -139,34 +139,42 @@ public class PythonCompletionProcessor extends TemplateCompletionProcessor
      */
     protected void addTemplateProposals(ITextViewer viewer, int documentOffset,
             List propList) {
-        String str = "";
-        int i = documentOffset - 1;
-        if (i <= 0)
-            return;
+        String str = extractPrefix(viewer, documentOffset);
 
+        ICompletionProposal[] templateProposals = super
+                .computeCompletionProposals(viewer, documentOffset);
+
+        for (int j = 0; j < templateProposals.length; j++) {
+            if ( templateProposals[j].getDisplayString().startsWith(str)){
+                propList.add(templateProposals[j]);
+            }
+        }
+
+    }
+
+    protected String extractPrefix(ITextViewer viewer, int offset) {
+        String str ="";
+        int i = offset - 1;
+        if (i == -1){
+            return "";
+        }
+        
         char c;
         try {
             c = viewer.getDocument().getChar(i);
-            while (c != ' ' && c != '\n' && c != '\r' && i > 0) {
+            while (c != ' ' && c != '\n' && c != '\r') {
                 str = c + str;
                 i--;
-                c = viewer.getDocument().getChar(i);
+                if(i < 0){
+                    break;
+                }else{
+                    c = viewer.getDocument().getChar(i);
+                }
             }
-            char [] chars = getCompletionProposalAutoActivationCharacters();
-            
-            //we don't want templates on autocompletion proposals.
-            for (int j = 0; j < chars.length; j++) {
-                if(str.endsWith(chars[j]+""))
-                	return;
-            }
-            
-            ICompletionProposal[] templateProposals = super
-                    .computeCompletionProposals(viewer, documentOffset);
-            propList.addAll(Arrays.asList(templateProposals));
-
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
+        return str;
     }
 
     private Vector autoComplete(java.lang.String theCode,
@@ -294,9 +302,11 @@ public class PythonCompletionProcessor extends TemplateCompletionProcessor
         if (this.docBoundary < 0) {
             calcDocBoundary(theDoc, documentOffset);
         }
-
-        String before = theDoc.substring(0, this.docBoundary);
-        return before;
+        if(this.docBoundary != -1){
+	        String before = theDoc.substring(0, this.docBoundary);
+	        return before;
+        }
+        return "";
 
     }
 
