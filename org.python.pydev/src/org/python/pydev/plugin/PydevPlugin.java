@@ -5,6 +5,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -43,6 +44,8 @@ import org.python.pydev.builder.todo.PyTodoPrefPage;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.templates.PyContextType;
+import org.python.pydev.pyunit.ITestRunListener;
+import org.python.pydev.pyunit.PyUnitTestRunner;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
@@ -61,6 +64,9 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 
     /** Key to store custom templates. */
     private static final String CUSTOM_TEMPLATES_PY_KEY = "org.python.pydev.editor.templates.PyTemplatePreferencesPage";
+
+	/** Listener list **/
+    private List listeners = new ArrayList();
 
     /**
      * The constructor.
@@ -372,5 +378,49 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return new List[] { filesToReturn, folders };
 
     }
+
+	public void addTestListener(ITestRunListener listener) {
+		listeners.add(listener);
+	}
+	
+	public void removeTestListener(ITestRunListener listener) {
+		listeners.remove(listener);
+	}
+
+	public List getListeners() {
+		return listeners;
+	}
+	
+	public void runTests(String moduleDir, String moduleName, IProject project) throws IOException, CoreException {
+		new PyUnitTestRunner().runTests(moduleDir, moduleName, project);
+	}
+	
+	public void fireTestsStarted(int count) {
+		for (Iterator all=getListeners().iterator(); all.hasNext();) {
+			ITestRunListener each = (ITestRunListener) all.next();
+			each.testsStarted(count);
+		}
+	}
+
+	public void fireTestsFinished() {
+		for (Iterator all=getListeners().iterator(); all.hasNext();) {
+			ITestRunListener each = (ITestRunListener) all.next();
+			each.testsFinished();
+		}
+	}
+
+	public void fireTestStarted(String klass, String methodName) {
+		for (Iterator all=getListeners().iterator(); all.hasNext();) {
+			ITestRunListener each = (ITestRunListener) all.next();
+			each.testStarted(klass, methodName);
+		}
+	}
+
+	public void fireTestFailed(String klass, String methodName, String trace) {
+		for (Iterator all=getListeners().iterator(); all.hasNext();) {
+			ITestRunListener each = (ITestRunListener) all.next();
+			each.testFailed(klass, methodName, trace);
+		}
+	}
 
 }

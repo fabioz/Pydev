@@ -82,6 +82,23 @@
 				id="org.python.pydev.debug.WorkspaceMenu">
 				<separator name="group1"/>
 			</menu>
+   <action
+         enablesFor="1"
+         label="Unit Test..."
+         tooltip="Run pyUnit test"
+         icon="icons/python.gif"
+         class="org.python.pydev.debug.ui.actions.PythonTestActionDelegate"
+         menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
+         id="org.python.pydev.debug.TestPythonAction"/>
+			<action
+				label="Coverage..."
+				icon="icons/python.gif"
+				tooltip="Make code coverage for a python script"
+				class="org.python.pydev.debug.ui.actions.PythonRunActionDelegate"
+				menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
+				enablesFor="1"
+				id="org.python.pydev.debug.CoveragePythonAction">
+			</action>
 			<action
 				label="Debug..."
 				icon="icons/python.gif"
@@ -99,15 +116,6 @@
 				menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
 				enablesFor="1"
 				id="org.python.pydev.debug.RunPythonAction">
-			</action>
-			<action
-				label="Coverage..."
-				icon="icons/python.gif"
-				tooltip="Make code coverage for a python script"
-				class="org.python.pydev.debug.ui.actions.PythonRunActionDelegate"
-				menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
-				enablesFor="1"
-				id="org.python.pydev.debug.CoveragePythonAction">
 			</action>
 <!-- Disabled until it works better...
 	   <action

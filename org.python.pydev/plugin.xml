@@ -760,6 +760,18 @@ ${cursor}
             category="org.python.pydev"
             name="Refactor Results View"
             id="org.python.pydev.views.PyRefactorView"/>
+      <view
+            icon="icons/sample.gif"
+            class="org.python.pydev.views.TestResultView"
+            category="org.python.pydev"
+            name="Test Result View"
+            id="org.python.pydev.views.testResultView"/>
+      <view
+            icon="icons/sample.gif"
+            class="org.python.pydev.views.TestReportView"
+            category="org.python.pydev"
+            name="Test Report View"
+            id="org.python.pydev.testReportView"/>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
