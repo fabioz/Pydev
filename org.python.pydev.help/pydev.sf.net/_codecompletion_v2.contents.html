@@ -1,0 +1,49 @@
+This is the design for the new code completion and the way I would like it to work.
+
+The structure we need would have to take into consideration:
+ - Refactoring
+ - Find definition
+ - Find references
+ - Code completion
+(bicycle repair man is good, but I'd rather have this in the plugin)
+
+So, the structure would need:
+ - Find definition
+ - Find references
+ - Gives us classes (with its methods and attributes - attributes could be customized. e.g.: properties.create())
+ - Gives us modules (with its variables, methods and classes)
+ - Gives us docstrings.
+
+This structure should be in memory, so that it acts very quicly. Probably an hierarchical structure where
+modules are the roots and they 'link' to other modules or other definitions, would be what we want.
+
+The approach would have to be a 'mixed' approach, as we would want to get completions not only from source
+code, but also from compiled modules (as dlls)
+
+Python nature is also important here, as we want to be able to choose the pythonpath. By default, the
+pythonpath specified by the system is used, but the user should be able to override it for a specific project.
+
+And we DON'T want to execute code in python (at most, we might need to import compiled modules).
+
+Code completion should be automatic on the following tokens:
+.
+(
+
+The builder would be trusted for source code in the current project, but we might want to get completion from
+modules that are changed externally, so, some way to refresh the structure on those would be needed (we might 
+need to make a cache with md5 of those files, so we don't always regenerate everything - if that proves to be
+faster than parsing the file!). 
+
+Code completion would work something like:
+ - Find definition of upper scope. If we are in a module and it starts typing but does not get to write a '.',
+   that's the module itself, if it writes a '.', then it is the token before the dot, if many dots are in there,
+   we have to find the first, then go to the second inside of the scope of the first and so on... 
+   After we find the definition, that's the easy part, just get the tokens it links to.
+   
+ - Code completion on imports would work in the same stucture, just the parsing would have to be smart so 
+   we know we are completing for imports.
+   
+ - If we do all correctly, we might do what java does, that is, when code completion suceeds, we import the 
+   related module.
+   
+ - The information we have should be serialized, so that when eclipse exits, we don't have to reparse everything again.
