@@ -51,6 +51,10 @@ public class PythonShell {
         shells.clear();
     }
 
+    public synchronized static void putServerShell(int id, PythonShell shell) {
+        shells.put(new Integer(id), shell);
+    }
+    
     /**
      * @return
      * @throws CoreException

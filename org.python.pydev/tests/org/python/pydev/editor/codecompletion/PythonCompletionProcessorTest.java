@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -29,7 +30,8 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 //      try {
 //          PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
 //	      test.setUp();
-//	      test.testCompleteCompletion();
+//	      test.testCompleteImportBuiltin();
+//	      test.testCompleteImportCompletion();
 //	      test.tearDown();
 //	  } catch (Exception e) {
 //	      e.printStackTrace();
@@ -55,8 +57,9 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();
     }
-    
 
+
+    
     public void requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
         if(documentOffset == -1)
             documentOffset = strDoc.length();
@@ -87,7 +90,13 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
                 return ;
             }
         }
-        fail("The string "+string+" was not found in the returned completions.");
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < codeCompletionProposals.length; i++) {
+            buffer.append(codeCompletionProposals[i].getDisplayString());
+            buffer.append("\n");
+        }
+        
+        fail("The string "+string+" was not found in the returned completions.\nAvailable:\n"+buffer);
     }
 
     public void requestCompl(String strDoc, String []retCompl) throws CoreException, BadLocationException{
@@ -112,7 +121,25 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 	    requestCompl(s, s.length(), -1, new String[]{"anothertest", "guitestcase", "testcase", "__init__"});
     }
 
-	
+	public void testCompleteImportBuiltin() throws BadLocationException, IOException, CoreException{
+        CompiledModule.COMPILED_MODULES_ENABLED = true;
+        this.restorePythonPath(true);
+        codeCompletion = new PyCodeCompletion(false);
+
+        PythonShell shell = PythonShellTest.startShell();
+        PythonShell.putServerShell(PythonShell.COMPLETION_SHELL, shell);
+        
+        try {
+            String s;
+            s = "from datetime import datetime, date, MINYEAR,";
+            requestCompl(s, s.length(), -1, new String[] { "date", "datetime", "MINYEAR", "MAXYEAR", "timedelta" });
+            
+            s = "from datetime.datetime import ";
+            requestCompl(s, s.length(), -1, new String[] { "today", "now", "utcnow" });
+        } finally {
+            shell.endIt();
+        }
+	}
 	
 	
     public void testGetActTok(){

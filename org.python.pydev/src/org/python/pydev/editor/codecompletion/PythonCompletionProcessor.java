@@ -109,7 +109,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
             
             //THIRD: Get template proposals (if asked for)
-            if(showTemplates){
+            if(showTemplates && (activationToken == null || activationToken.trim().length() == 0)){
                 List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier);
                 pythonAndTemplateProposals.addAll(templateProposals);
             }

@@ -91,6 +91,10 @@ public abstract class AbstractModule implements Serializable{
      */
     protected String name;
    
+    public String getName(){
+        return name;
+    }
+    
     /**
      * Constructor
      * 

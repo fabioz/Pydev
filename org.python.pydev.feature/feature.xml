@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.python.pydev.feature"
-      label="org.python.pydev.feature"
-      version="0.9.1"
+      label="PyDev for Eclipse"
+      version="0.9.1.4"
       provider-name="Aleks Totic / Fabio Zadrozny">
 
    <description>
@@ -42,12 +42,6 @@ Aleks and Fabio
    </requires>
 
    <plugin
-         id="org.python.pydev"
-         download-size="0"
-         install-size="0"
-         version="0.9.1"/>
-
-   <plugin
          id="org.python.pydev.debug"
          download-size="0"
          install-size="0"
@@ -58,5 +52,11 @@ Aleks and Fabio
          download-size="0"
          install-size="0"
          version="0.9.1"/>
+
+   <plugin
+         id="org.python.pydev"
+         download-size="0"
+         install-size="0"
+         version="0.9.1.4"/>
 
 </feature>

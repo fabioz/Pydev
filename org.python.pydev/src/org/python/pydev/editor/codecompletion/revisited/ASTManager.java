@@ -57,7 +57,12 @@ public class ASTManager implements Serializable, IASTManager {
      */
     PythonPathHelper pythonPathHelper = new PythonPathHelper();
 
-    public static String [] BUILTINS = new String []{"sys", "__builtin__","math"};
+    public static String [] BUILTINS = new String []{"sys", "__builtin__","math", "datetime"};
+    
+    /**
+     * these exist in the filesystem, but still, are treated as compiled modules
+     */
+    public static String [] REPLACED_BUILTINS = new String []{"os"}; 
 
     
     
@@ -249,12 +254,12 @@ public class ASTManager implements Serializable, IASTManager {
         //set to hold the completion (no duplicates allowed).
         Set set = new HashSet();
 
-        //first we get the imports...
+        //first we get the imports... that complete for the token.
         for (Iterator iter = modules.keySet().iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
 
             String element = key.name;
-            
+
             if (element.toLowerCase().startsWith(initial)) {
                 element = element.substring(initial.length());
 
@@ -263,6 +268,7 @@ public class ASTManager implements Serializable, IASTManager {
                 //modules that start with the same name).
                 //e.g. we want xml.dom
                 //and not xmlrpclib
+                //if we have xml token (not using the qualifier here) 
                 if (initial.length() != 0) {
                     if (element.startsWith(".")) {
                         element = element.substring(1);
@@ -291,11 +297,22 @@ public class ASTManager implements Serializable, IASTManager {
                 nameInCache = nameInCache.substring(0, nameInCache.length() - 1);
             }
 
-            Object object = getModule(nameInCache, nature);
+            Object[] modTok = findModuleFromPath(nameInCache, nature);
+            
+            
+            Object object = modTok[0];
+            String tok = (String) modTok[1];
+            
             if (object instanceof AbstractModule) {
                 AbstractModule m = (AbstractModule) object;
 
-                IToken[] globalTokens = m.getGlobalTokens();
+                IToken[] globalTokens;
+                if(tok != null && tok.length() > 0){
+                    globalTokens = m.getGlobalTokens(tok, this, -1, -1, nature);
+                }else{
+                    globalTokens = m.getGlobalTokens();
+                }
+                
                 for (int i = 0; i < globalTokens.length; i++) {
                     IToken element = globalTokens[i];
                     //this is the completion
@@ -344,17 +361,36 @@ public class ASTManager implements Serializable, IASTManager {
             n = (AbstractModule) modules.get(new ModulesKey(name+".__init__", null));
         }
         
+        
+        
+        if(n instanceof SourceModule){
+            //ok, module exists, let's check if it is synched with the filesystem version...
+            SourceModule s = (SourceModule) n;
+            if(! s.isSynched() ){
+                //change it for an empty and proceed as usual.
+                n = new EmptyModule(s.getName(), s.getFile());
+                this.modules.put(new ModulesKey(s.getName(), s.getFile()), n);
+            }
+        }
+        
         if (n instanceof EmptyModule){
             EmptyModule e = (EmptyModule)n;
 
             //let's treat os as a special extension, since many things it has are too much
             //system dependent, and being so, many of its useful completions are not goten
             //e.g. os.path is defined correctly only on runtime.
-            if(name.equals("os") && e.f != null){ //it has to be defined in a file.
-                n = new CompiledModule(name);
+            
+            boolean found = false;
+            if(e.f != null){
+	            for (int i = 0; i < REPLACED_BUILTINS.length; i++) {
+	                if(name.equals(REPLACED_BUILTINS[i])){
+	                    n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN);
+	                    found = true;
+	                }   
+	            }
+            }
                 
-                
-            } else if(e.f != null){
+            if(!found && e.f != null){
                 try{
                     n = AbstractModule.createModule(name, e.f, nature, -1);
                 }catch(FileNotFoundException exc){

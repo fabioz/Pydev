@@ -31,10 +31,18 @@ public class PythonShellTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        File f = new File("PySrc/pycompletionserver.py");
-        shell = new PythonShell(f);
+        this.shell = startShell();
+    }
 
+    /**
+     * @throws IOException
+     * @throws CoreException
+     */
+    public static PythonShell startShell() throws IOException, CoreException {
+        File f = new File("PySrc/pycompletionserver.py");
+        PythonShell shell = new PythonShell(f);
         shell.startIt();
+        return shell;
     }
 
     /*

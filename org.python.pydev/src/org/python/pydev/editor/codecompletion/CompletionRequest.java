@@ -30,7 +30,6 @@ public class CompletionRequest{
         this.qlen = qlen;
         this.codeCompletion = codeCompletion;
         this.qualifier = qualifier;
-        
     }
 
     public CompletionRequest(File editorFile, PythonNature nature, IDocument doc,
@@ -68,7 +67,6 @@ public class CompletionRequest{
         
     }
 
-    
     File editorFile;
     PythonNature nature;
     IDocument doc;

@@ -53,6 +53,11 @@ public class SourceModule extends AbstractModule {
     private File file;
 
     /**
+     * This is the time when the file was last modified.
+     */
+    private long lastModified;
+
+    /**
      * @return a reference to all the modules that are imported from this one in the global context as a from xxx import *
      * 
      * This modules are treated specially, as we don't care which tokens were imported. When this is requested, the module is prompted for
@@ -124,6 +129,8 @@ public class SourceModule extends AbstractModule {
         super(name);
         this.ast = n;
         this.file = f;
+        if(f != null)
+            this.lastModified = f.lastModified();
     }
 
     
@@ -227,5 +234,12 @@ public class SourceModule extends AbstractModule {
             e.printStackTrace();
             return new IToken[0];
         }
+    }
+
+    /**
+     * @return if the file we have is the same file in the cache.
+     */
+    public boolean isSynched() {
+        return this.file.lastModified() == this.lastModified;
     }
 }

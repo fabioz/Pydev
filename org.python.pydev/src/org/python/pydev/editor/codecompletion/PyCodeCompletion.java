@@ -297,11 +297,24 @@ public class PyCodeCompletion {
      *         string with current module (e.g. foo.bar.
      */
     public String getImportsTipperStr(CompletionRequest request) {
+        
+        IDocument doc = request.doc;
+        int documentOffset = request.documentOffset;
+        
+        return getImportsTipperStr(doc, documentOffset);
+    }
+
+    /**
+     * @param doc
+     * @param documentOffset
+     * @return
+     */
+    String getImportsTipperStr(IDocument doc, int documentOffset) {
         String importMsg = "";
         try {
             
-            IRegion region = request.doc.getLineInformationOfOffset(request.documentOffset);
-            String string = request.doc.get(region.getOffset(), request.documentOffset-region.getOffset());
+            IRegion region = doc.getLineInformationOfOffset(documentOffset);
+            String string = doc.get(region.getOffset(), documentOffset-region.getOffset());
             int fromIndex = string.indexOf("from");
             int importIndex = string.indexOf("import");
 
@@ -337,12 +350,19 @@ public class PyCodeCompletion {
         //now, we may still have something like 'unittest.test,' or 'unittest.test.,'
         //so, we have to remove this comma (s).
         int i;
-        if ( ( i = importMsg.indexOf(',')) != -1){
+        while ( ( i = importMsg.indexOf(',')) != -1){
+            if(importMsg.charAt(i-1) == '.'){
+                int j = importMsg.lastIndexOf('.');
+                importMsg = importMsg.substring(0, j);
+            }
+            
             int j = importMsg.lastIndexOf('.');
             importMsg = importMsg.substring(0, j);
         }
 
-        if (importMsg.length() > 0 && importMsg.endsWith(".") == false && importMsg.indexOf('.') != -1){
+        //if it is something like aaa.sss.bb : removes the bb because it is the qualifier
+        //if it is something like aaa.sss.   : removes only the last point
+        if (importMsg.length() > 0 && importMsg.indexOf('.') != -1){
             importMsg = importMsg.substring(0, importMsg.lastIndexOf('.'));
         }
         
