@@ -122,7 +122,10 @@ public abstract class PyRefactorAction extends PyAction {
                 if (ed instanceof PyEdit) {
                     PyEdit e = (PyEdit) ed;
                     if (e != edit) {
-                        refreshEditor(e);
+                        try {
+                            refreshEditor(e);
+                        } catch (Exception e1) {
+                        }
                     }
                 }
             }
