@@ -5,6 +5,7 @@
 import unittest
 import pycompletionserver
 import socket
+import os
 
 class Test(unittest.TestCase):
 
@@ -87,6 +88,31 @@ class C(object):
         completions2 = connToRead.recv(4086)
         self.assert_(len(completions) != len(completions2))
 
+        
+        #reload modules test
+#        sToWrite.send('@@RELOAD_MODULES_END@@')
+#        ok = connToRead.recv(4086)
+#        self.assertEquals('@@MSG_OK_END@@' , ok)
+#        this test is not executed because it breaks our current enviroment.
+        
+        
+        
+        #change dir test
+        curr = os.getcwd( ) 
+        newDir = None
+        
+        if curr.find('/') != -1:
+            newDir = curr[0:curr.rindex('/')]
+        elif curr.find('\\') != -1:
+            newDir = curr[0:curr.rindex('\\')]
+        
+        self.assert_(newDir != None)
+        sToWrite.send('@@CHANGE_DIR:%sEND@@'%newDir)
+        ok = connToRead.recv(4086)
+        self.assertEquals('@@MSG_OK_END@@' , ok)
+        sToWrite.send('@@TOKEN_GLOBALS(math acos):import math\nEND@@') 
+        completions = connToRead.recv(4086)
+
         self.sendKillMsg(sToWrite)
         
 
@@ -103,3 +129,4 @@ class C(object):
     
 if __name__ == '__main__':
     unittest.main()
+

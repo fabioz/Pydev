@@ -14,15 +14,36 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.plugin.SocketUtil;
 
 /**
- * TODO: Still only a test!!
  * @author Fabio Zadrozny
  */
 public class PythonShell {
 
+    /**
+     * Reference to a 'global python shell'
+     */
+    private static PythonShell pytonShell;
+
+
+    /**
+     * @return
+     * @throws CoreException
+     * @throws IOException
+     * 
+     */
+    public static PythonShell getServerShell() throws IOException, CoreException {
+        if(pytonShell == null){
+            pytonShell = new PythonShell();
+            pytonShell.startIt();
+        }
+        return pytonShell;
+        
+    }
+
     
-    public static final int BUFFER_SIZE = 1024;
+    public static final int BUFFER_SIZE = 1024 * 4;
     /**
      * Python server process.
      */
@@ -104,12 +125,18 @@ public class PythonShell {
      */
     public void startIt() throws IOException{
         try {
-            process = Runtime.getRuntime().exec("python "+serverFile.getAbsolutePath()+" 50007 50008");
+
+            int pWrite = SocketUtil.findUnusedLocalPort("127.0.0.1", 50000, 55000);
+            int pRead = SocketUtil.findUnusedLocalPort("127.0.0.1", 55001, 60000);
+
+            if(process != null)
+                endIt();
+            process = Runtime.getRuntime().exec("python "+serverFile.getAbsolutePath()+" "+pWrite+" "+pRead);
             
             sleepALittle();
             
-            socketToWrite = new Socket("127.0.0.1",50007);       //we should write in port 50007 
-            serverSocket = new ServerSocket(50008); //and read in port 50008
+            socketToWrite = new Socket("127.0.0.1",pWrite); //we should write in this port  
+            serverSocket = new ServerSocket(pRead);         //and read in this port 
             socketToRead = serverSocket.accept();
         } catch (IOException e) {
             
@@ -129,19 +156,23 @@ public class PythonShell {
     public String read() throws IOException {
         String str = "";
 
-        while(str.indexOf("END@@") == -1 ){
+        int j = 0;
+        while(str.indexOf("END@@") == -1 && j != 100){
 	        byte[] b = new byte[PythonShell.BUFFER_SIZE];
 
             this.socketToRead.getInputStream().read(b);
+//            System.out.println("READ:"+new String(b));
+
             String s = new String(b);
             
             str += s;
+            j++;
         }
         
         //remove @@COMPLETIONS
         str = str.replaceFirst("@@COMPLETIONS","");
         //remove END@@
-        return str.substring(0, str.indexOf("END@@"));
+        return str.substring(0, str.lastIndexOf("END@@"));
     }
     
 
@@ -150,6 +181,7 @@ public class PythonShell {
      * @throws IOException
      */
     public void write(String str) throws IOException {
+//        System.out.println("WRITING:"+str);
         this.socketToWrite.getOutputStream().write(str.getBytes());
     }
 
@@ -180,7 +212,7 @@ public class PythonShell {
      * Kill our sub-process.
      * @throws IOException
      */
-    void endIt() throws IOException {
+    void endIt() {
         
         try {
             closeConn();
@@ -188,20 +220,29 @@ public class PythonShell {
             e.printStackTrace();
         }
         if (process!= null){
-            int i = process.getErrorStream().available();
-            byte b[] = new byte[i];
-            process.getErrorStream().read(b);
-            System.out.println(new String(b));
-            
-            i = process.getInputStream().available();
-            b = new byte[i];
-            process.getErrorStream().read(b);
-            System.out.println(new String(b));
-            
-            process.destroy();
+            try {
+                int i = process.getErrorStream().available();
+                byte b[] = new byte[i];
+                process.getErrorStream().read(b);
+                System.out.println(new String(b));
+                
+                i = process.getInputStream().available();
+                b = new byte[i];
+                process.getErrorStream().read(b);
+                System.out.println(new String(b));
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+                
+            try {
+                process.destroy();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+
             try {
                 process.waitFor();
-            } catch (InterruptedException e1) {
+            } catch (Exception e1) {
                 e1.printStackTrace();
             }
             process = null;
@@ -209,34 +250,36 @@ public class PythonShell {
         
     }
 
-
+    public void sendGoToDirMsg(File file){
+        try {
+            if(file.isDirectory() == false){
+                file = file.getParentFile();
+            }
+            System.out.println("changing dir:"+file.getAbsolutePath());
+            this.write("@@CHANGE_DIR:"+file.getAbsolutePath()+"END@@");
+            String ok = this.read(); //this should be the ok message...
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void sendReloadModulesMsg(){
+        try {
+            this.write("@@RELOAD_MODULES_END@@");
+            String ok = this.read(); //this should be the ok message...
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * @param str
      * @throws IOException
      */
     public List getGlobalCompletions(String str) {
-        try {
-            this.write("@@GLOBALS:"+str+"\nEND@@");
- 
-            return getCompletions();
-        } catch (IOException e) {
-            e.printStackTrace();
-            try {
-                this.endIt();
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            try {
-                this.startIt();
-            } catch (IOException e2) {
-                // TODO Auto-generated catch block
-                e2.printStackTrace();
-            }
-            return getInvalidCompletion();
-        }
-        
+        return this.getTheCompletions("@@GLOBALS:"+str+"\nEND@@");
     }
 
     /**
@@ -245,26 +288,7 @@ public class PythonShell {
      */
     public List getTokenCompletions(String token, String str)  {
         String s = "@@TOKEN_GLOBALS("+token+"):"+str+"\nEND@@";
-        try {
-            this.write(s);
- 
-            return getCompletions();
-        } catch (IOException e) {
-            e.printStackTrace();
-            try {
-                this.endIt();
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            try {
-                this.startIt();
-            } catch (IOException e2) {
-                // TODO Auto-generated catch block
-                e2.printStackTrace();
-            }
-            return getInvalidCompletion();
-        }
+        return this.getTheCompletions(s);
     }
 
     /**
@@ -274,28 +298,27 @@ public class PythonShell {
      */
     public List getClassCompletions(String token, String str) {
         String s = "@@CLASS_GLOBALS("+token+"):"+str+"\nEND@@";
+        return this.getTheCompletions(s);
+    }
+
+    private List getTheCompletions(String str){
         try {
-            this.write(s);
+            this.write(str);
  
             return getCompletions();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            try {
-                this.endIt();
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
+
+            this.endIt();
             try {
                 this.startIt();
             } catch (IOException e2) {
-                // TODO Auto-generated catch block
                 e2.printStackTrace();
             }
             return getInvalidCompletion();
         }
     }
-
+    
     /**
      * @return
      */

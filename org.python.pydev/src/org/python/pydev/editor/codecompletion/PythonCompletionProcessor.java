@@ -5,6 +5,7 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -32,6 +33,8 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     private CompletionCache completionCache = new CompletionCache();
 
     private PyEdit edit;
+
+    private ProposalsComparator proposalsComparator = new ProposalsComparator();
 
     /**
      * @param edit
@@ -65,7 +68,6 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
                 documentOffset);
 
         java.lang.String qualifier = "";
-        char[] cs = new char[]{'.', '(', ' '}; 
         
         //we complete on '.' and '('. 
         //' ' gets globals
@@ -73,7 +75,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
         //we have to get the qualifier. e.g. bla.foo = foo is the qualifier.
         if(activationToken.indexOf('.')!= -1){
-	        while (endsWithSomeChar(cs, activationToken) == false
+	        while (endsWithSomeChar(new char[]{'.'}, activationToken) == false
 	                && activationToken.length() > 0) {
 	
 	            qualifier = activationToken.charAt(activationToken.length() - 1)
@@ -81,6 +83,9 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 	            activationToken = activationToken.substring(0, activationToken
 	                    .length() - 1);
 	        }
+        }else{ //everything is a part of the qualifier.
+            qualifier = activationToken;
+            activationToken = "";
         }
 
         theDoc = codeCompletion.partialDocument(theDoc, documentOffset);
@@ -88,6 +93,14 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
         int qlen = qualifier.length();
         theDoc += "\n" + activationToken;
 
+        
+        try {
+            PythonShell.getServerShell().sendGoToDirMsg(edit.getEditorFile());
+        } catch (Exception e) {
+            //if we don't suceed, we don't have to fail... just go on and try to complete...
+            e.printStackTrace();
+        }        
+        
         List pythonProposals = getPythonProposals(documentOffset, doc, theDoc, activationToken, qlen);
 
         List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier, pythonProposals);
@@ -109,6 +122,8 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
         // and fill with list elements
         returnProposals.toArray(proposals);
+        
+        Arrays.sort(proposals, proposalsComparator);
         // Return the proposals
         return proposals;
 

@@ -2,7 +2,35 @@
 @author Fabio Zadrozny 
 '''
 import compiler
+import sys
 
+__eraseThisCurrDirModule = None
+
+def CompleteFromDir(dir):
+    '''
+    This is necessary so that we get the imports from the same dir where the file
+    we are completing is located.
+    '''
+    global __eraseThisCurrDirModule
+    if __eraseThisCurrDirModule is not None:
+        del sys.path[__eraseThisCurrDirModule]
+
+    sys.path.insert(0, dir)
+
+def GenerateImportsTip(theDoc):
+    pass
+    
+def ReloadModules():
+    '''
+    Reload all the modules in sys.modules
+    '''
+    import sys
+    for m,n in sys.modules.items():
+        try:
+            reload(n)
+        except: #some errors may arise because some modules may not be reloaded...
+            pass
+    
 def GenerateTip (theDoc, token, checkForSelf):
     '''
     Put in the doc the code so that we get the locals.
@@ -36,19 +64,23 @@ import inspect
 
 for d in dir(%s):
     __eraseThisTips.append([d,inspect.getdoc(getattr(%s, d))])
-''' % (token,token)
+''' % (token.replace(' ','.'),token.replace(' ','.'))
     
     
     
     import simpleinspect
+    __eraseThisMsg = ''
     try:
+        __eraseThisMsg += 'Compiling \n%s\n'%theDoc
         __eraseThis = compiler.compile(theDoc, 'temporary_file_completion.py', 'exec')
+        __eraseThisMsg += 'Compiled'
         
         simpleinspect.__eraseThisTips = []
         simpleinspect.GenerateTip (__eraseThis, token)
         toReturn = simpleinspect.__eraseThisTips
         simpleinspect.__eraseThisTips = []
         
+        __eraseThisMsg += 'Getting self variables \n%s\n' % originalDoc
         if checkForSelf:
             toReturn += GetSelfVariables(originalDoc, token)
         
@@ -56,8 +88,7 @@ for d in dir(%s):
     except :
         import sys
         s = str(sys.exc_info()[1])
-        print s
-        return [('ERROR_COMPLETING',s)]
+        return [('ERROR_COMPLETING','%s\nerror tracing:\n%s'%(s,__eraseThisMsg))]
     
 class Visitor(compiler.visitor.ASTVisitor):
 

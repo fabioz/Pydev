@@ -43,8 +43,7 @@ public class CompletionCache {
         List allProposals = getCacheProposals(partialDoc, documentOffset, qlen);
 
         if(allProposals == null){ //no cache proposals
-            List theList = codeCompletion.autoComplete(edit, doc,
-                    documentOffset, partialDoc, activationToken);
+            List theList = codeCompletion.autoComplete(edit, doc, documentOffset, activationToken);
 
             allProposals = new ArrayList();
 
@@ -55,16 +54,24 @@ public class CompletionCache {
                         documentOffset - qlen, qlen, element[0].length(),null, null, null, element[1]);
                 allProposals.add(proposal);
             }
-            cacheEntries.add(partialDoc);
-            cache.put(partialDoc, allProposals);
-            //we don't want this to get huge...
-            if (cacheEntries.size() > 2) {
-                Object entry = cacheEntries.remove(0);
-                cache.remove(entry);
-            }
+            addProposalsToCache(partialDoc, allProposals);
         }
         return allProposals;
 
+    }
+
+    /**
+     * @param partialDoc
+     * @param allProposals
+     */
+    private void addProposalsToCache(String partialDoc, List allProposals) {
+        cacheEntries.add(partialDoc);
+        cache.put(partialDoc, allProposals);
+        //we don't want this to get huge...
+        if (cacheEntries.size() > 4) {
+            Object entry = cacheEntries.remove(0);
+            cache.remove(entry);
+        }
     }
 
     /**

@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Bicyclerepairman Design</title>
+  </head>
+
+  <body>
+    <h1>Bicyclerepairman Design</h1>
+
+This information is correct at 27th Jan 2004.
+
+
+	<h2> Bike Component Interface </h2>
+	<pre>
+import bike
+
+ctx = bike.init()
+ctx.renameByCoordinates("/home/joe/src/foo/bah.py",52,8,"bah")
+ctx.save()
+ctx.undo()
+	</pre>
+
+
+<h2>File System Dependency:</h2>
+
+Bicyclerepair man operates off of the file system. Modules are loaded
+from the file system, and saved back after a refactoring. Integration
+with IDEs currently relies on the IDE ensuring that the files on disk
+are up-to-date before performing a query or refactoring, and is
+responsible for reloading the modified files after the operation.
+
+
+<!--
+<h2>Example: - findDefinition</h2>
+Client code calls findDefinition via the context object in
+bikefacade.py. The client passes in a filename and coordinates of a reference she wants to find the definition of. 
+
+The bikefacade module sets a search path (based on PYTHONPATH and the
+position of the file in a package hierarchy) and then calls
+the findDefinition module in the query package.
+
+The findDefinition module loads the file into a Module object via the
+getModule() call in the parsing package. 
+-->
+
+<h2>Parsing and Fastparsing - the <em>parser</em> package</h2>
+<p>
+BRM originally did all its parsing using the Python compiler package
+(see python docs). This parser generates very accurate
+AST. Unfortunately this proved to be far too slow for interactive use,
+and so I built a seperate parser which does a basic job of parsing,
+but very fast. BRM uses this basic parser to locate and navigate round
+the code, and then applies the compiler package to small bits of code
+where necessary.
+</p>
+
+<p>
+The fastparser module in the parsing package operates on a single
+module at a time. It generates a simple tree containing Class and
+Function nodes, with a Module node at the root. This tree is called
+the 'fastparserast', and it's nodes (Module,Class,Function) are
+defined in the fastparserast module. Each fastparserast node contains
+a pointer to the start and end lines of the node in the source text,
+and basic information (e.g. name). It also contains methods for
+navigating between nodes (e.g. getChildNodes(), getParent()
+</p>
+
+<h3>BRM Tricks - masking the code</h3>
+
+<p>
+The fastparser is very fast because it leverages the power of the
+regex package, and has been carefully profiled and optimised. Before
+parsing a file it applies a number of regexes over the source to mask
+out all the comments and strings. This then allows it to scan the
+source very quickly for functions and classes using python keywords
+('class', 'def') without fear of getting confused by occurences of
+keywords in strings. It builds up a tree of functions and classes in a
+module, storing their start and end positions (lines) in the source
+text.
+</p>
+
+
+<h3> BRM Tricks2 - logical lines and doctored lines</h3>
+
+<p>
+As mentioned above, the compiler module is very accurate but very
+slow. Because of this, BRM uses it sparingly, choosing only to parse
+lines of code when it is reasonably confident that the line contains
+something important.
+</p>
+<p>
+In order to parse a single line of source code, the line must
+sometimes be doctored to make it parsable. Take for example the
+following:
+<pre>
+def foo(a, b, c):
+</pre>
+This line cannot be parsed on its own, but may contain some
+interesting code. BRM overcomes this constraint via the
+	makeLineParseable() function in the parserutils module. This
+	function decorates the line with noops that make it parsable. For
+	the above example it generates the following code:
+<pre>
+def foo(a, b, c):
+    pass
+</pre>
+
+Which parses fine.
+</p>
+
+<p>
+The other problem with parsing single lines of code is that python
+statements often span multiple lines. e.g.
+<pre>
+myref =  foo(arg1, arg2, 
+             arg3, arg4)
+</pre>
+
+To combat this problem, BRM has a neat function called
+generateLogicalLines() (also on the parserutils module). This function
+takes a list of (masked) physical lines as input, and generates
+complete 'logical' lines as output.
+
+
+<h2>Querying the code - The <em>query</em> Package</h2>
+
+<p>
+As mentioned above, the relative slow speed of the compiler module
+prohibits BRM from building up an AST of the entire file and then
+navigating it. Instead the query package uses text searches to narrow
+down the search and then parses single 'logical lines' using the
+compiler.
+</p>
+
+
+<h3>logical lines and doctored lines</h3> 
+<p>
+In order to parse a single line of source code, the line must
+sometimes be doctored to make it parsable. Take for example the
+	  following:
+
+<pre>
+a = myfunc(arg1, arg2,
+           arg3, arg4)
+</pre>
+
+<pre>
+def foo(a, b, c):
+</pre>
+
+
+
+The first problem is
+multiline lines.
+</p>
+
+<h3>Example - findDefinition</h3>
+<p>
+For example, when searching for the definition of a reference (see
+findDefinition.py), BRM first takes the input coordinates and locates
+the fastparserast node denoting the class/function scope containing
+the reference (by checking the coords against the start/end coords of
+the fastparserast nodes). This provides the initial search scope for
+the query.
+</p>
+
+<p>
+BRM then obtains the sourcecode of the scope with strings/comments
+	  masked out. It searches 
+</p>
+
+<p>
+</p>
+<p>
+</p>
+<p>
+</p>
+
+
+
+    <hr>
+    <address><a href="mailto:pdawes@users.sourceforge.net">Phil Dawes</a></address>
+<!-- Created: Mon Jan 26 17:43:32 GMT 2004 -->
+<!-- hhmts start -->
+Last modified: Mon Jan 26 18:40:51 GMT 2004
+<!-- hhmts end -->
+  </body>
+</html>

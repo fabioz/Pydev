@@ -7,7 +7,6 @@ import simpleTipper
 
 HOST = '127.0.0.1'               # Symbolic name meaning the local host
 
-
 MSG_KILL_SERVER     = '@@KILL_SERVER_END@@'
 MSG_COMPLETIONS     = '@@COMPLETIONS'
 MSG_END             = 'END@@'
@@ -15,8 +14,11 @@ MSG_GLOBALS         = '@@GLOBALS:'
 MSG_TOKEN_GLOBALS   = '@@TOKEN_GLOBALS('
 MSG_CLASS_GLOBALS   = '@@CLASS_GLOBALS('
 MSG_INVALID_REQUEST = '@@INVALID_REQUEST'
+MSG_RELOAD_MODULES  = '@@RELOAD_MODULES_END@@'
+MSG_CHANGE_DIR      = '@@CHANGE_DIR:'
+MSG_OK              = '@@MSG_OK_END@@'
 
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 1024 * 4
 
 class T(threading.Thread):
 
@@ -61,6 +63,9 @@ class T(threading.Thread):
     def sendReceivedInvalidMessage(self):
         self.socket.send(MSG_INVALID_REQUEST)
     
+    def sendOkMsg(self):
+        self.socket.send(MSG_OK)
+
     def getTokenAndData(self, data):
         '''
         When we receive this, we have 'token):data'
@@ -98,36 +103,44 @@ class T(threading.Thread):
         while 1:
             data = ''
             while not data.endswith(MSG_END):
-                data += conn.recv(BUFFER_SIZE)
+                data+=conn.recv(BUFFER_SIZE)
             
             if MSG_KILL_SERVER in data:
                 #break if we received kill message.
                 break;
-            else:
-                data = data.rstrip(MSG_END)
-            
-            if MSG_GLOBALS in data:
-                data = data.replace(MSG_GLOBALS, '')
-                comps = simpleTipper.GenerateTip(data, None, False)
-                self.sendCompletionsMessage(comps)
-            
-            elif MSG_TOKEN_GLOBALS in data:
-                data = data.replace(MSG_TOKEN_GLOBALS, '')
-                token, data = self.getTokenAndData(data)                
-                comps = simpleTipper.GenerateTip(data, token, False)
-                self.sendCompletionsMessage(comps)
 
-            elif MSG_CLASS_GLOBALS in data:
-                data = data.replace(MSG_CLASS_GLOBALS, '')
-                token, data = self.getTokenAndData(data)                
-                comps = simpleTipper.GenerateTip(data, token, True)
-                self.sendCompletionsMessage(comps)
+            elif MSG_RELOAD_MODULES in data:
+                simpleTipper.ReloadModules()
+                self.sendOkMsg()
 
             else:
-                self.sendReceivedInvalidMessage()
+                data = data[:data.find(MSG_END)]
             
+                if MSG_GLOBALS in data:
+                    data = data.replace(MSG_GLOBALS, '')
+                    comps = simpleTipper.GenerateTip(data, None, False)
+                    self.sendCompletionsMessage(comps)
+                
+                elif MSG_TOKEN_GLOBALS in data:
+                    data = data.replace(MSG_TOKEN_GLOBALS, '')
+                    token, data = self.getTokenAndData(data)                
+                    comps = simpleTipper.GenerateTip(data, token, False)
+                    self.sendCompletionsMessage(comps)
+    
+                elif MSG_CLASS_GLOBALS in data:
+                    data = data.replace(MSG_CLASS_GLOBALS, '')
+                    token, data = self.getTokenAndData(data)                
+                    comps = simpleTipper.GenerateTip(data, token, True)
+                    self.sendCompletionsMessage(comps)
+                
+                elif MSG_CHANGE_DIR in data:
+                    data = data.replace(MSG_CHANGE_DIR, '')
+                    simpleTipper.CompleteFromDir(data)
+                    self.sendOkMsg()
+                    
+                else:
+                    self.sendReceivedInvalidMessage()
             
-            conn.send(data)
             
         conn.close()
         self.ended = True

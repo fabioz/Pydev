@@ -1,0 +1,70 @@
+Bicycle Repair Man - a Python Refactoring Browser
+=================================================
+
+Copyright (c) 2000 by Shae Erisson <shae@lapland.fi>
+Copyright (c) 2001-3 by Phil Dawes <pdawes@users.sourceforge.net>
+
+All rights reserved, see COPYING for details.
+
+$Id: README,v 1.7 2003/08/24 19:48:43 pdawes Exp $
+
+-----------------------------------------------------------------------------
+
+Bicycle Repair Man is the Python Refactoring Browser, helping
+Pythonistas everywhere glide over the gory details of refactoring their
+code. Watch him extract jumbled code into well ordered classes. Gasp, as
+he renames all occurrences of a method. Thank You, Bicycle Repair Man!
+
+execute ./testall.py to run all the tests
+
+see INSTALL for installation instructions (uses distutils).
+
+see README.idle, README.emacs etc.. for instructions on how to
+integrate bicyclerepairman into supported IDEs.
+
+-----------------------------------------------------------------------------
+
+
+What's Python? 
+
+Python is a programming language. To find out more
+about it, go to the Python Homepage at http://www.python.org/
+  
+
+What's a Refactoring Browser? 
+
+A Refactoring Browser is an editor that automates Refactorings. The
+first Refactoring Browser was written by Dr. Don Roberts and Dr. John
+Brant at the University of Illinois in Urbana-Champagne. Dr. Don
+Roberts wrote his Ph.D. thesis on the design and implementation of the
+Refactoring Browser. For more detail, read the aforementioned thesis
+at http://st-www.cs.uiuc.edu/~droberts/thesis.pdf
+  
+
+What's a Refactoring? 
+
+A Refactoring is a behaviour preserving change to source code. Some
+Refactorings are RenameVariable, RenameClass, RenameMethod,
+PullUpMethod, and PushDownVariable. Lots of people say it's very easy
+to just type a different name in where your class, method, or variable
+is defined. That's not always a refactoring though.  The Refactoring
+Browser is smart enough to rename every reference to your class,
+method or variable. If you've ever renamed a variable and broken
+classes in widely scattered parts of your system, you might be happier
+using a Refactoring Browser. A Refactoring Browser operates on any of
+method, function, class, or variable. It can add, delete, rename, move
+up down or sideways, inline and abstract. There are some operations
+that are specific to one of the three types, such as abstracting a
+variable into accessors, or turing several lines of code into a
+separate method.
+
+For more information on Refactoring, check out the websites of Martin
+Fowler at http://www.martinfowler.com/ and his Refactoring Site at
+http://www.refactoring.com/ .  
+
+
+Why Bicycle Repair Man?
+
+The Bicycle Repair Man was a superhero in a Monty Python skit, his
+special power was repairing bicycles. 
+

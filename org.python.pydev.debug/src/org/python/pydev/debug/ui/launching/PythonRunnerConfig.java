@@ -23,6 +23,7 @@ import org.osgi.framework.Bundle;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.plugin.SocketUtil;
 
 /**
  * Holds configuration for PythonRunner.

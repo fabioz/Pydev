@@ -5,14 +5,10 @@
  */
 package org.python.pydev.editor.codecompletion;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -63,17 +59,12 @@ public class PyCodeCompletion {
      * @param doc
      * @param documentOffset
      * 
-     * @param theCode
      * @param theActivationToken
      * @return
      */
-    public List autoComplete(PyEdit edit, IDocument doc, int documentOffset, java.lang.String theCode,
+    public List autoComplete(PyEdit edit, IDocument doc, int documentOffset,
             java.lang.String theActivationToken) {
-        if(PyCodeCompletionPreferencesPage.useServerTipEnviroment()){
-            return serverCompletion(theActivationToken, edit, doc, documentOffset, theCode);
-        }else{
-            return consoleCompletion(theCode);
-        }
+        return serverCompletion(theActivationToken, edit, doc, documentOffset);
     }
 
 
@@ -81,14 +72,12 @@ public class PyCodeCompletion {
      * @param edit
      * @param doc
      * @param documentOffset
-     * @param theCode
-     * @param theCode
      */
-    private List serverCompletion(String theActivationToken, PyEdit edit, IDocument doc, int documentOffset, String theCode) {
+    private List serverCompletion(String theActivationToken, PyEdit edit, IDocument doc, int documentOffset) {
         List theList = new ArrayList();
         PythonShell serverShell = null;
         try {
-            serverShell = getServerShell();
+            serverShell = PythonShell.getServerShell();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -97,7 +86,7 @@ public class PyCodeCompletion {
         String docToParse = getDocToParse(doc, documentOffset);
 
         String trimmed = theActivationToken.replace('.',' ').trim();
-        if (trimmed.equals("") == false){
+        if (trimmed.equals("") == false && theActivationToken.indexOf('.') != -1){
             
             List completions;
             if (trimmed.equals("self")){
@@ -114,7 +103,6 @@ public class PyCodeCompletion {
             
         }
         else{ //go to globals
-//            System.out.println("simpleCompletion - ''");
             List completions = serverShell.getGlobalCompletions(docToParse);
             theList.addAll(completions);
             
@@ -150,99 +138,13 @@ public class PyCodeCompletion {
             newDoc += spaces+"pass\n";
             newDoc += wholeDoc.substring(lineInformation.getOffset() + lineInformation.getLength(), docLength);
             
-//            System.out.println("DOC:"+newDoc);
-            
         } catch (BadLocationException e1) {
             e1.printStackTrace();
         }
         return newDoc;
     }
 
-    /**
-     * @return
-     * @throws CoreException
-     * @throws IOException
-     * 
-     */
-    private PythonShell getServerShell() throws IOException, CoreException {
-        if(pytonShell == null){
-            pytonShell = new PythonShell();
-            pytonShell.startIt();
-        }
-        return pytonShell;
-        
-    }
 
-    /**
-     * @param theCode
-     */
-    private List consoleCompletion(java.lang.String theCode) {
-        List theList = new ArrayList();
-        File tipperFile=null;
-        try {
-            
-        tipperFile = getAutoCompleteScript(false);
-
-        } catch (CoreException e) {
-
-            e.printStackTrace();
-        }
-
-        try {
-            Process p = Runtime.getRuntime().exec(new String[]{"python"});
-            
-            //we have the process...
-            OutputStreamWriter writer = new OutputStreamWriter(p.getOutputStream());
-            BufferedReader in = new BufferedReader(new InputStreamReader(p
-                    .getInputStream()));
-            BufferedReader eIn = new BufferedReader(new InputStreamReader(
-                    p.getErrorStream()));
-            
-            //we have to put the tipper in sys.path
-            writer.write("import sys\n");
-            writer.write("sys.path.insert(0,r'"+tipperFile.getParent()+"')\n");
-            
-            writer.write("from tipper import GenerateTip\n");
-            
-            theCode = theCode.replaceAll("\r","");
-            theCode = theCode.replaceAll("\n","\\\\n");
-
-            theCode = theCode.replaceAll("'","@l@l@*"); //TODO: that's a really bad way to do it...
-
-            writer.write("s = '"+theCode+"'\n");
-            writer.write("s = s.replace('@l@l@*', '\\'')\n");
-
-            writer.write("GenerateTip(s)\n\n\n");
-            writer.flush();
-            writer.close();
-            
-            String str;
-            while ((str = in.readLine()) != null) {
-                if (!str.startsWith("tip: ")){
-//                    System.out.println("std output: " + str);
-                    continue;
-                }
-                
-                str = str.substring(5);
-
-                theList.add(new String[]{str,""});
-            }
-            in.close();
-
-            while ((str = eIn.readLine()) != null) {
-//                System.out.println("error output: " + str);
-            }
-            eIn.close();
-            p.waitFor();
-        } catch (IOException e) {
-
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-
-            e.printStackTrace();
-        }
-        return theList;
-    }
 
     /**
      * 
@@ -251,12 +153,8 @@ public class PyCodeCompletion {
      * 
      * @throws CoreException
      */
-    public static File getAutoCompleteScript(boolean useSimpleTipper) throws CoreException {
-        if(useSimpleTipper){
-            return getScriptWithinPySrc("simpleTipper.py");
-        }else{
-            return getScriptWithinPySrc("tipper.py");
-        }
+    public static File getAutoCompleteScript() throws CoreException {
+        return getScriptWithinPySrc("simpleTipper.py");
     }
 
     /**

@@ -4,7 +4,8 @@
 
 import unittest
 import simpleTipper
-    
+import importsTipper
+
 class Test(unittest.TestCase):
 
     def setUp(self):
@@ -94,6 +95,17 @@ class C(object):
 #        self.assert_(('a',' ') in comps)
         
 
+    def getDoc3(self):
+        pass
         
+    def testImports(self):
+        raise RuntimeError('not implemented')
+        importsTipper.GenerateImportsTip(0)
+        
+        
+        
+        
+        
+    
 if __name__ == '__main__':
     unittest.main()

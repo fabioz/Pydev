@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.5.9.1"
+   version="0.5.9.4"
    provider-name="AleksTotic"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -169,6 +169,13 @@
                class="org.python.pydev.editor.actions.PyAddBlockComment"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.addBlockComment">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.pyReloadCodeCompletionModules"
+               label="Reload the modules used for code completion"
+               class="org.python.pydev.editor.actions.PyReloadCodeCompletionModules"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.pyReloadCodeCompletionModules">
          </action>
          <action
                definitionId="org.python.pydev.editor.actions.navigation.nextMethod"
@@ -403,6 +410,19 @@
             string="Ctrl+5"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.removeBlockComment"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: reload modules -->
+      <command
+            name="Reload the code completion modules"
+            description="Creates a python comment block"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pyReloadCodeCompletionModules">
+      </command>
+      <keyBinding
+            string="Ctrl+Shift+Space"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.pyReloadCodeCompletionModules"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
 <!-- command: block-->

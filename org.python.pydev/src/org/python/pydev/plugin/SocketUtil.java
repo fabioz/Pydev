@@ -3,7 +3,7 @@
  * Created on Mar 22, 2004
  * License: Common Public License v1.0
  */
-package org.python.pydev.debug.ui.launching;
+package org.python.pydev.plugin;
 
 import java.io.IOException;
 import java.net.ConnectException;

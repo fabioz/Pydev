@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -30,6 +31,7 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ILocationProvider;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
@@ -188,8 +190,25 @@ public class PyEdit extends PyEditProjection {
 		PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
 
 	}
-	
-	// cleanup
+
+
+	/**
+	 * @return
+     * 
+     */
+    public File getEditorFile() {
+        File f = null;
+	    IEditorInput editorInput = this.getEditorInput();
+	    if (editorInput instanceof FileEditorInput){
+	        IFile file = (IFile) ((FileEditorInput)editorInput).getAdapter(IFile.class);
+	        
+			IPath path = file.getLocation().makeAbsolute();
+			f = path.toFile();
+	    }
+	    return f;
+    }
+
+    // cleanup
 	public void dispose() {
 		PydevPrefs.getPreferences().removePropertyChangeListener(prefListener);
 		parser.dispose();
