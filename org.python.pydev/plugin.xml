@@ -2,7 +2,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev"
-   version="0.1.0"
+   version="0.2.0"
    provider-name="AleksTotic"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -12,6 +12,8 @@
    <requires>
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.core.runtime"/>
    </requires>
 
 
@@ -21,13 +23,12 @@
       <editor
             name="Python Editor"
             icon="icons/sample.gif"
-            extensions="py,pytest"
+            extensions="py"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             class="org.python.pydev.editor.PyEdit"
             id="org.python.pydev.editor.PyEdit">
       </editor>
    </extension>
-
 <!-- preference page -->
    <extension
          point="org.eclipse.ui.preferencePages">
