@@ -1,71 +1,134 @@
 '''
-Echoing server.
-
-TODO: THIS IS ONLY A TEST.
+@author Fabio Zadrozny 
 '''
 import threading
 import time
-        
-from tipper import GenerateTip
+import simpleTipper
+
+HOST = '127.0.0.1'               # Symbolic name meaning the local host
+
+
+MSG_KILL_SERVER     = '@@KILL_SERVER_END@@'
+MSG_COMPLETIONS     = '@@COMPLETIONS'
+MSG_END             = 'END@@'
+MSG_GLOBALS         = '@@GLOBALS:'
+MSG_TOKEN_GLOBALS   = '@@TOKEN_GLOBALS('
+MSG_INVALID_REQUEST = '@@INVALID_REQUEST'
+
+BUFFER_SIZE = 1024
 
 class T(threading.Thread):
+
+    def __init__(self, thisPort, serverPort):
+        threading.Thread.__init__(self)
+        self.thisPort   = thisPort
+        self.serverPort = serverPort
+        self.socket = None #socket to send messages.
+        
+
+    def connectToServer(self):
+        import socket
+        
+        self.socket = s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((HOST, self.serverPort))
+
+    def removeInvalidChars(self, msg):
+        return msg.replace(',','').replace('(','').replace(')','')
+    
+    def formatCompletionMessage(self, completionsList):
+        '''
+        Format the completions suggestions in the following format:
+        @@COMPLETIONS((token,description),(token,description),(token,description))END@@
+        '''
+        compMsg = ''
+        for tup in completionsList:
+            if compMsg != '':
+                compMsg += ','
+                
+            compMsg += '(%s,%s)' % (self.removeInvalidChars(tup[0]),self.removeInvalidChars(tup[1]))
+            
+        return '%s(%s)%s'%(MSG_COMPLETIONS, compMsg, MSG_END)
+    
+    def sendCompletionsMessage(self, completionsList):
+        '''
+        Send message with completions.
+        '''
+        self.socket.send(self.formatCompletionMessage(completionsList))
+    
+    def sendReceivedInvalidMessage(self):
+        self.socket.send(MSG_INVALID_REQUEST)
+    
+    def getTokenAndData(self, data):
+        '''
+        When we receive this, we have 'token):data'
+        '''
+        token = ''
+        for c in data:
+            if c != ')':
+                token += c
+            else:
+                break;
+        
+        return token, data.lstrip(token+'):')
+
     
     def run(self):
         # Echo server program
         import socket
         
-        HOST = ''                 # Symbolic name meaning the local host
-        PORT = 50007              # Arbitrary non-privileged port
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind((HOST, PORT))
-        s.listen(1)
-        conn, addr = s.accept()
+        s.bind((HOST, self.thisPort))
+        s.listen(1) #socket to receive messages.
         
-        #print 'Connected by', addr
+
+        #we stay here until we are connected.
+        #we only accept 1 client. 
+        #the exit message for the server is @@KILL_SERVER_END@@
+        conn, addr = s.accept()
+
+        #after being connected, create a socket as a client.
+        self.connectToServer()
+        
+#        print 'pycompletionserver Connected by', addr
+        
+        
         while 1:
-            data = conn.recv(1024)
-            if not data: 
-                break
+            data = ''
+            while not data.endswith(MSG_END):
+                data += conn.recv(BUFFER_SIZE)
             
-            r = ''
-            for d in GenerateTip(data):
-                r += d
-                r += '|'
+            if MSG_KILL_SERVER in data:
+                #break if we received kill message.
+                break;
+            else:
+                data = data.rstrip(MSG_END)
             
-            #print 'sending data:' , data
-            conn.send(r)
+            if MSG_GLOBALS in data:
+                data = data.replace(MSG_GLOBALS, '')
+                comps = simpleTipper.GenerateTip(data, None)
+                self.sendCompletionsMessage(comps)
+            
+            elif MSG_TOKEN_GLOBALS in data:
+                data = data.replace(MSG_TOKEN_GLOBALS, '')
+                token, data = self.getTokenAndData(data)                
+                comps = simpleTipper.GenerateTip(data, token)
+                self.sendCompletionsMessage(comps)
+
+            else:
+                self.sendReceivedInvalidMessage()
+            
+            
+            conn.send(data)
             
         conn.close()
         self.ended = True
 
 if __name__ == '__main__':
-    t = T()
+    
+    import sys
+    thisPort = int(sys.argv[1])  #this is from where we want to receive messages.
+    serverPort = int(sys.argv[2])#this is where we want to write messages.
+    
+    t = T(thisPort, serverPort)
     t.start()
- 
-    while(hasattr(t, 'ended') == False):
-        time.sleep(1)
 
-        
-#  # Echo client program
-#    import socket
-#    
-#    HOST = '127.0.0.1'    # The remote host
-#    PORT = 50007              # The same port as used by the server
-#    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#    s.connect((HOST, PORT))
-#    s.send('Hello, world')
-#    data = s.recv(1024)
-#    print 'Received', `data`
-#
-#
-#    s.send('Hello, world again ')
-#    data = s.recv(1024)
-#    print 'Received', `data`
-#
-#    s.send('Hello, world once more')
-#    data = s.recv(1024)
-#    print 'Received', `data`
-#
-#    s.close()
-#    time.sleep(5)
-        
