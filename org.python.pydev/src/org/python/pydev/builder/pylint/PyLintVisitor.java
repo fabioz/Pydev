@@ -249,7 +249,7 @@ import org.python.pydev.utils.SimplePythonRunner;
  *    an error occured which prevented pylint from doing further processing.
  * @author Fabio Zadrozny
  */
-public class PyLintVisitor  extends PyDevBuilderVisitor {
+public class PyLintVisitor extends PyDevBuilderVisitor {
 
     /* (non-Javadoc)
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitResource(org.eclipse.core.resources.IResource)
