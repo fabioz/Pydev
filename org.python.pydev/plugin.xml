@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.4.2"
+   version="0.5"
    provider-name="AleksTotic"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -17,10 +18,9 @@
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.ui.editors"/>
       <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.jface.text"/>
-      <import plugin="org.eclipse.jdt.ui"/>
-      <import plugin="org.pydev.jython"/>
    </requires>
 
 
@@ -48,7 +48,7 @@
       </runtime>
    </extension>
    <extension
-         point="org.eclipse.ui.projectNatureImages">
+         point="org.eclipse.ui.ide.projectNatureImages">
       <image
             icon="icons/pythonNature.gif"
             natureId="org.python.pydev.pythonNature"
@@ -447,7 +447,7 @@
    </extension>
 <!-- filter out .pyc files in the navigation view -->
    <extension
-         point="org.eclipse.ui.resourceFilters">
+         point="org.eclipse.ui.ide.resourceFilters">
       <filter
             selected="True"
             pattern="*.pyc">

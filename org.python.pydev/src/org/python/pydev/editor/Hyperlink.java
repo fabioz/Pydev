@@ -19,7 +19,7 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextInputListener;
 import org.eclipse.jface.text.ITextViewerExtension2;
-import org.eclipse.jface.text.ITextViewerExtension3;
+import org.eclipse.jface.text.ITextViewerExtension5;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -236,8 +236,8 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 				viewer.invalidateTextPresentation();
 
 			// remove underline				
-			if (viewer instanceof ITextViewerExtension3) {
-				ITextViewerExtension3 extension= (ITextViewerExtension3) viewer;
+			if (viewer instanceof ITextViewerExtension5) {
+				ITextViewerExtension5 extension= (ITextViewerExtension5) viewer;
 				offset= extension.modelOffset2WidgetOffset(offset);
 			} else {
 				offset -= viewer.getVisibleRegion().getOffset();
@@ -333,8 +333,8 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 			Point relativePosition= text.toControl(absolutePosition);
 				
 			int widgetOffset= text.getOffsetAtLocation(relativePosition);
-			if (viewer instanceof ITextViewerExtension3) {
-				ITextViewerExtension3 extension= (ITextViewerExtension3) viewer;
+			if (viewer instanceof ITextViewerExtension5) {
+				ITextViewerExtension5 extension= (ITextViewerExtension5) viewer;
 				return extension.widgetOffset2ModelOffset(widgetOffset);
 			} else {
 				return widgetOffset + viewer.getVisibleRegion().getOffset();
@@ -360,8 +360,8 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		int offset= 0;
 		int length= 0;
 			
-		if (viewer instanceof ITextViewerExtension3) {
-			ITextViewerExtension3 extension= (ITextViewerExtension3) viewer;
+		if (viewer instanceof ITextViewerExtension5) {
+			ITextViewerExtension5 extension= (ITextViewerExtension5) viewer;
 			IRegion widgetRange= extension.modelRange2WidgetRange(region);
 			if (widgetRange == null)
 				return;
@@ -633,9 +633,9 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		int offset= 0;
 		int length= 0;
 
-		if (viewer instanceof ITextViewerExtension3) {
+		if (viewer instanceof ITextViewerExtension5) {
 				
-			ITextViewerExtension3 extension= (ITextViewerExtension3) viewer;
+			ITextViewerExtension5 extension= (ITextViewerExtension5) viewer;
 			IRegion widgetRange= extension.modelRange2WidgetRange(new Region(offset, length));
 			if (widgetRange == null)
 				return;

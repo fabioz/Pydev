@@ -4,20 +4,23 @@
  * To change the template for this generated file go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-package org.python.pydev.editor.actions;
+package test;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.editor.actions.PyConvertTabToSpace;
+import org.python.pydev.editor.actions.PySelection;
+import org.python.pydev.editor.actions.PyStripTrailingWhitespace;
 
 import junit.framework.TestCase;
 
 /**
  * @author Dreamer
  *
- * Tests the 'Convert Space To Tab' editor feature.  It performs 3 checks.  
+ * Tests the 'Convert Tab to Space' editor feature.  It performs 3 checks.  
  * 
  * The first fakes a selection of a couple lines in a fake document, and checks
- * to see that the proper spaces are converted to tabs.  
+ * to see that the proper tabs are converted to spaces.  
  * 
  * The second fakes a selection but stops in the middle of a line, to make sure that the 
  * whole line is considered.  
@@ -25,20 +28,20 @@ import junit.framework.TestCase;
  * The third selects nothing, and makes sure that the whole document is affected by 
  * the conversion.
  */
-public class PyConvertSpaceToTabTest extends TestCase
+public class PyConvertTabToSpaceTest extends TestCase
 {
 	/* The document that will fake an editor environment */
 	IDocument document;
 	/* Lines of 'code' in the fake document */
 	String [] documentLines;
 	/* For my own debugging edification, to output the name later */
-	static final String TestFileName = "PyConvertSpaceToTabTest";
+	static final String TestFileName = "PyConvertTabToSpaceTest";
 
 	/**
-	 * Constructor for PyConvertSpaceToTabTest.
+	 * Constructor for PyConvertTabToSpaceTest.
 	 * @param arg0
 	 */
-	public PyConvertSpaceToTabTest(String arg0)
+	public PyConvertTabToSpaceTest(String arg0)
 	{
 		super(arg0);
 	}
@@ -92,7 +95,7 @@ public class PyConvertSpaceToTabTest extends TestCase
 	 */
 	public String from ( )
 	{
-		return PyConvertSpaceToTab.getTabSpace ( );
+		return "\t";
 	}
 	
 	
@@ -103,7 +106,7 @@ public class PyConvertSpaceToTabTest extends TestCase
 	 */
 	public String to ( )
 	{
-		return "\t";
+		return PyConvertTabToSpace.getTabSpace ( );
 	}
 	
 	
@@ -115,7 +118,7 @@ public class PyConvertSpaceToTabTest extends TestCase
 	 */
 	public int getTabWidth ( )
 	{
-		return PyConvertSpaceToTab.getTabWidth ( );
+		return PyConvertTabToSpace.getTabWidth ( );
 	}
 
 	/*
@@ -175,7 +178,7 @@ public class PyConvertSpaceToTabTest extends TestCase
 		document.set ( document.get ( ).replaceAll ( "X", from ( ) ) );
 		long begin = System.currentTimeMillis ( );
 		PySelection ps = new PySelection ( document, startLineIndex, endLineIndex, selLength, true );
-		PyConvertSpaceToTab.perform ( ps );
+		PyConvertTabToSpace.perform ( ps );
 		long end = System.currentTimeMillis ( );
 
 		// Timing result
@@ -232,7 +235,7 @@ public class PyConvertSpaceToTabTest extends TestCase
 		document.set ( document.get ( ).replaceAll ( "X", from ( ) ) );
 		long begin = System.currentTimeMillis ( );
 		PySelection ps = new PySelection ( document, startLineIndex, endLineIndex, selLength, true );
-		PyConvertSpaceToTab.perform ( ps );
+		PyConvertTabToSpace.perform ( ps );
 		long end = System.currentTimeMillis ( );
 
 		// Timing result
@@ -269,7 +272,7 @@ public class PyConvertSpaceToTabTest extends TestCase
 		document.set ( document.get ( ).replaceAll ( "X", from ( ) ) );
 		long begin = System.currentTimeMillis ( );
 		PySelection ps = new PySelection ( document, startLineIndex, endLineIndex, selLength, true );
-		PyConvertSpaceToTab.perform ( ps );
+		PyConvertTabToSpace.perform ( ps );
 		long end = System.currentTimeMillis ( );
 
 		// Timing result

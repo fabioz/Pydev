@@ -4,10 +4,12 @@
  * To change the template for this generated file go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-package org.python.pydev.editor.actions;
+package test;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.editor.actions.PyComment;
+import org.python.pydev.editor.actions.PySelection;
 
 import junit.framework.TestCase;
 

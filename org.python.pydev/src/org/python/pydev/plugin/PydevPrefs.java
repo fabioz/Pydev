@@ -50,9 +50,6 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	protected static final String DEFAULT_INTERPRETER_PATH = "python";
 	public static final String HYPERLINK_COLOR = "HYPERLINK_COLOR";
 	private static final RGB DEFAULT_HYPERLINK_COLOR = new RGB(0, 0, 238);
-	// TODO Handle changes to block separator string?
-	// If user changes this, it needs to update all files with that in it, because the 
-	// undo-er replaces that string, not the first and last lines of a comment block
 	public static final String BLOCK_COMMENT = "BLOCK_COMMENT";
 	public static final String DEFAULT_BLOCK_COMMENT_STRING = "=======================================";
 	public static final boolean DEFAULT_BLOCK_COMMENT = true;
@@ -91,8 +88,6 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		// you can't restrict widget width on IntegerFieldEditor for now
 		addField(ife);
 		
-		StringFieldEditor sfe = new StringFieldEditor ( BLOCK_COMMENT, "Block comment separator", p );
-		addField(sfe);
 				
 		addField(new ColorFieldEditor(
 			CODE_COLOR, "Code", p));
@@ -102,6 +97,9 @@ public class PydevPrefs extends FieldEditorPreferencePage
 			STRING_COLOR, "Strings", p));
 		addField(new ColorFieldEditor(
 			COMMENT_COLOR, "Comments", p));
+
+		StringFieldEditor sfe = new StringFieldEditor ( BLOCK_COMMENT, "Block comment separator", p );
+		addField(sfe);
 	}
 
 	
@@ -112,11 +110,11 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		prefs.setDefault(SUBSTITUTE_TABS, DEFAULT_SUBSTITUTE_TABS);
 		prefs.setDefault(GUESS_TAB_SUBSTITUTION, DEFAULT_GUESS_TAB_SUBSTITUTION);
 		prefs.setDefault(TAB_WIDTH, DEFAULT_TAB_WIDTH);
-		prefs.setDefault(BLOCK_COMMENT, DEFAULT_BLOCK_COMMENT_STRING);
 		prefs.setDefault(CODE_COLOR,StringConverter.asString(DEFAULT_CODE_COLOR));
 		prefs.setDefault(KEYWORD_COLOR,StringConverter.asString(DEFAULT_KEYWORD_COLOR));
 		prefs.setDefault(STRING_COLOR,StringConverter.asString(DEFAULT_STRING_COLOR));
 		prefs.setDefault(COMMENT_COLOR,StringConverter.asString(DEFAULT_COMMENT_COLOR));
 		prefs.setDefault(HYPERLINK_COLOR, StringConverter.asString(DEFAULT_HYPERLINK_COLOR));
+		prefs.setDefault(BLOCK_COMMENT, DEFAULT_BLOCK_COMMENT_STRING);
 	}
 }

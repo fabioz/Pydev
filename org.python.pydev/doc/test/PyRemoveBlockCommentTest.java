@@ -4,17 +4,20 @@
  * To change the template for this generated file go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-package org.python.pydev.editor.actions;
+package test;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.editor.actions.PyAddBlockComment;
+import org.python.pydev.editor.actions.PyRemoveBlockComment;
+import org.python.pydev.editor.actions.PySelection;
 
 import junit.framework.TestCase;
 
 /**
  * @author Dreamer
  *
- * Tests the 'Uncomment' editor feature.  It performs 3 checks.  
+ * Tests the 'Remove Block Comment' editor feature.  It performs 3 checks.  
  * 
  * The first fakes a selection of a couple lines in a fake document, and checks to see that the 
  * code is properly un-commented.  
@@ -22,23 +25,23 @@ import junit.framework.TestCase;
  * The second fakes a selection but stops in the middle of a line, to make sure that the proper
  * lines are un-commented, including the beginning of partial lines.
  * 
- * The third selects nothing, and makes sure that the only line affected is the one the cursor
- * is on.
+ * The third selects nothing, and makes sure that the no lines are otherwise affected.  
+ * TODO Maybe in the future, selecting anything within a comment block and calling the action will remove the entire surrounding block comment
  */
-public class PyUncommentTest extends TestCase
+public class PyRemoveBlockCommentTest extends TestCase
 {
 	/* The document that will fake an editor environment */
 	IDocument document;
 	/* Lines of 'code' in the fake document */
 	String [] documentLines;
 	/* For my own debugging edification, to output the name later */
-	static final String TestFileName = "PyUncommentTest";
+	static final String TestFileName = "PyRemoveBlockCommentTest";
 
 	/**
-	 * Constructor for PyUncommentTest.
+	 * Constructor for PyAddBlockCommentTest.
 	 * @param arg0
 	 */
-	public PyUncommentTest(String arg0)
+	public PyRemoveBlockCommentTest(String arg0)
 	{
 		super(arg0);
 	}
@@ -85,14 +88,25 @@ public class PyUncommentTest extends TestCase
 
 
 	/*
-	 * Just to shorten the lines in the later tests, this calls the action's uncomment function
+	 * Just to shorten the lines in the later tests, this calls the action's get comment line 
+	 * function
+	 * 
+	 * @return String Comment line 
+	 */
+	public String getFullCommentLine ( )
+	{
+		return PyAddBlockComment.getFullCommentLine ( );
+	}
+
+	/*
+	 * Just to shorten the lines in the later tests, this calls the action's comment function
 	 * 
 	 * @param in Line of 'code' to be commented
 	 * @return String Commented 'code' line
 	 */
 	public boolean callComment ( PySelection ps )
 	{
-		return PyUncomment.perform ( ps );
+		return PyRemoveBlockComment.perform ( ps );
 	}
 
 
@@ -110,17 +124,19 @@ public class PyUncommentTest extends TestCase
 		int selLength = 0;
 		
 		// 'Select' the entire last def
-		result.append ( documentLines[++i] + "\n" );		// "def bar ( self ):\n"
-		result.append ( documentLines[++i] + "\n" );		// "\tprint \"foo1\"\t \n"
-		result.append ( documentLines[++i] + "\n" );		// "\tprint \"bar1\"\n"
-		result.append ( documentLines[++i] + "\n" );		// "\n   \n"
+		result.append ( documentLines[++i] + "\n" );			// "def bar ( self ):\n"
+		result.append ( documentLines[++i] + "\n" );			// "\tprint \"foo1\"\t \n"
+		result.append ( documentLines[++i] + "\n" );			// "\tprint \"bar1\"\n"
+		result.append ( documentLines[++i] + "\n" );			// "\n   \n"
 			startLineIndex = i + 1;
 			selBegin = result.toString ( ).length ( );
-		result.append ( "#" + documentLines[++i] + "\n" );	// "def foo ( self ):      \n"
-		result.append ( "#" + documentLines[++i] + "\n" );	// "\tprint \"foo2\"\t \n"
-		result.append ( "#" + documentLines[++i] );			// "\tprint \"bar2\"  \n"
-			endLineIndex = i;
-			selLength = document.get ( ).length ( ) - selBegin;
+		result.append ( "#" + getFullCommentLine ( ) + "\n" );
+		result.append ( "#" + documentLines[++i] + "\n" );		// "def foo ( self ):      \n"
+		result.append ( "#" + documentLines[++i] + "\n" );		// "\tprint \"foo2\"\t \n"
+		result.append ( "#" + documentLines[++i] + "\n" );		// "\tprint \"bar2\"  \n"
+		result.append ( "#" + getFullCommentLine ( ) );
+			endLineIndex = i + 2;
+			selLength = result.toString ( ).length ( ) - selBegin;
 			
 		// Our expected result
 		IDocument resultDoc = new Document ( result.toString ( ) );
@@ -128,7 +144,7 @@ public class PyUncommentTest extends TestCase
 		// For timing data
 		long begin = System.currentTimeMillis ( );
 		PySelection ps = new PySelection ( resultDoc, startLineIndex, endLineIndex, selLength, false );
-		PyUncomment.perform ( ps );
+		PyRemoveBlockComment.perform ( ps );
 		long end = System.currentTimeMillis ( );
 
 		// Timing result
@@ -154,17 +170,19 @@ public class PyUncommentTest extends TestCase
 		int selLength = 0;
 		
 		// 'Select' part of the last def
-		result.append ( documentLines[++i] + "\n" );		// "def bar ( self ):\n"
-		result.append ( documentLines[++i] + "\n" );		// "\tprint \"foo1\"\t \n"
-		result.append ( documentLines[++i] + "\n" );		// "\tprint \"bar1\"\n"
-		result.append ( documentLines[++i] + "\n" );		// "\n   \n"
+		result.append ( documentLines[++i] + "\n" );			// "def bar ( self ):\n"
+		result.append ( documentLines[++i] + "\n" );			// "\tprint \"foo1\"\t \n"
+		result.append ( documentLines[++i] + "\n" );			// "\tprint \"bar1\"\n"
+		result.append ( documentLines[++i] + "\n" );			// "\n   \n"
 			startLineIndex = i + 1;
 			selBegin = result.toString ( ).length ( );
-		result.append ( "#" + documentLines[++i] + "\n" );	// "def foo ( self ):      \n"
-		result.append ( "#" + documentLines[++i] + "\n" );	// "\tprint \"foo2\"\t \n"
-		result.append ( "#" + documentLines[++i] );			// "\tprint \"bar2\"  \n"
-			endLineIndex = i;
-			selLength = document.get ( ).length ( ) - selBegin - 6;
+		result.append ( "#" + getFullCommentLine ( ) + "\n" );
+		result.append ( "#" + documentLines[++i] + "\n" );		// "def foo ( self ):      \n"
+		result.append ( "#" + documentLines[++i] + "\n" );		// "\tprint \"foo2\"\t \n"
+		result.append ( "#" + documentLines[++i] + "\n" );		// "\tprint \"bar2\"  \n"
+		result.append ( "#" + getFullCommentLine ( ) );
+			endLineIndex = i + 2;
+			selLength = result.toString ( ).length ( ) - selBegin - 6;
 			
 		// Our expected result
 		IDocument resultDoc = new Document ( result.toString ( ) );
@@ -172,9 +190,9 @@ public class PyUncommentTest extends TestCase
 		// For timing data
 		long begin = System.currentTimeMillis ( );
 		PySelection ps = new PySelection ( resultDoc, startLineIndex, endLineIndex, selLength, false );
-		PyUncomment.perform ( ps );
+		PyRemoveBlockComment.perform ( ps );
 		long end = System.currentTimeMillis ( );
-		
+
 		// Timing result
 		System.err.print ( TestFileName + " :: " );
 		System.err.println ( "testPerform2: " + ( end - begin ) + "ms" );
@@ -185,7 +203,7 @@ public class PyUncommentTest extends TestCase
 
 
 	/*
-	 * Checks empty selection to affect cursor line.
+	 * Checks multiple-line selection with the last line partially selected.
 	 */
 	public void testPerform3 ( )
 	{
@@ -197,17 +215,19 @@ public class PyUncommentTest extends TestCase
 		int selBegin = 0;
 		int selLength = 0;
 		
-		// 'Select' in middle of one line, show that it blocks that whole line only
-		result.append ( documentLines[++i] + "\n" );		// "def bar ( self ):\n"
-		result.append ( documentLines[++i] + "\n" );		// "\tprint \"foo1\"\t \n"
-		result.append ( documentLines[++i] + "\n" );		// "\tprint \"bar1\"\n"
-		result.append ( documentLines[++i] + "\n" );		// "\n   \n"
-		result.append ( documentLines[++i] + "\n" );		// "def foo ( self ):      \n"
+		// 'Select' in middle of one line, show that it blocks that whole line
+		result.append ( documentLines[++i] + "\n" );			// "def bar ( self ):\n"
+		result.append ( documentLines[++i] + "\n" );			// "\tprint \"foo1\"\t \n"
+		result.append ( documentLines[++i] + "\n" );			// "\tprint \"bar1\"\n"
+		result.append ( documentLines[++i] + "\n" );			// "\n   \n"
+		result.append ( documentLines[++i] + "\n" );			// "def foo ( self ):      \n"
 			selBegin = result.toString ( ).length ( ) + 5;
-		result.append ( "#" + documentLines[++i] + "\n" );	// "\tprint \"foo2\"\t \n"
-			startLineIndex = i;
+		result.append ( "#" + getFullCommentLine ( ) + "\n" );
+		result.append ( "#" + documentLines[++i] + "\n" );		// "\tprint \"foo2\"\t \n"
+			startLineIndex = i + 1;
 			endLineIndex = startLineIndex;
-		result.append ( documentLines[++i] );				// "\tprint \"bar2\"  \n"
+		result.append ( "#" + getFullCommentLine ( ) + "\n" );
+		result.append ( documentLines[++i] );					// "\tprint \"bar2\"  \n"
 			
 		// Our expected result
 		IDocument resultDoc = new Document ( result.toString ( ) );
@@ -215,7 +235,7 @@ public class PyUncommentTest extends TestCase
 		// For timing data
 		long begin = System.currentTimeMillis ( );
 		PySelection ps = new PySelection ( resultDoc, startLineIndex, endLineIndex, selLength, false );
-		PyUncomment.perform ( ps );
+		PyRemoveBlockComment.perform ( ps );
 		long end = System.currentTimeMillis ( );
 		
 		// Timing result
@@ -223,7 +243,7 @@ public class PyUncommentTest extends TestCase
 		System.err.println ( "testPerform3: " + ( end - begin ) + "ms" );
 
 		// Document affected properly?
-		assertEquals ( document.get ( ), resultDoc.get ( ) );
+		assertEquals ( result.toString ( ), resultDoc.get ( ) );
 	}
 
 }

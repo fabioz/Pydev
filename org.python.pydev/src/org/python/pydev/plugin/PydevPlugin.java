@@ -7,14 +7,20 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ui.*;
+import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorRegistry;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.BundleContext;
+import org.eclipse.ui.ide.IDE;
 
 /**
  * The main plugin class
@@ -31,13 +37,13 @@ public class PydevPlugin extends AbstractUIPlugin
 	/**
 	 * The constructor.
 	 */
-	public PydevPlugin(IPluginDescriptor descriptor) {
-		super(descriptor);
+	public PydevPlugin() {
+		super();
 		plugin = this;
 	}
 	
-	public void startup() throws CoreException {
-		super.startup();
+	public void start(BundleContext context) throws Exception {
+		super.start(context);
 		try {
 			resourceBundle= ResourceBundle.getBundle("org.python.pydev.PyDevPluginResources");
 		} catch (MissingResourceException x) {
@@ -47,10 +53,10 @@ public class PydevPlugin extends AbstractUIPlugin
 		preferences.addPropertyChangeListener(this);		
 	}
 	
-	public void shutdown() throws CoreException {
+	public void stop(BundleContext context) throws Exception {
 		Preferences preferences = plugin.getPluginPreferences();
 		preferences.removePropertyChangeListener(this);
-		super.shutdown();
+		super.stop(context);
 	}
 
 	public static PydevPlugin getDefault() {
@@ -58,7 +64,7 @@ public class PydevPlugin extends AbstractUIPlugin
 	}
 	
 	public static String getPluginID() {
-		return getDefault().getDescriptor().getUniqueIdentifier();
+		return getDefault().getBundle().getSymbolicName();
 	}
 
 	/**
@@ -118,13 +124,13 @@ public class PydevPlugin extends AbstractUIPlugin
 		try {
 			if (file != null && file.exists()) {
 				// File is inside the workspace
-				return wp.openEditor(file, null, activate);
+				return IDE.openEditor(wp, file, activate);
 			} else {
 				IStorage storage = new FileStorage(path);
 				IEditorRegistry registry = PlatformUI.getWorkbench().getEditorRegistry();
 				IEditorDescriptor desc = registry.getDefaultEditor(path.lastSegment());
 				if (desc == null)
-					desc = registry.getDefaultEditor();
+					desc = registry.findEditor(IEditorRegistry.SYSTEM_EXTERNAL_EDITOR_ID);
 				IEditorInput input = new ExternalEditorInput(storage);
 				return wp.openEditor(input, desc.getId());
 			}

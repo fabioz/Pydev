@@ -277,7 +277,9 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 	 * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
 	 */
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-		final String   PY_SINGLELINE_STRING = "__python_singleline_string";
+		return null;
+/*
+ 		final String   PY_SINGLELINE_STRING = "__python_singleline_string";
 		final String   PY_MULTILINE_STRING = "__python_multiline_string";
 		// create a content assistant:
 		ContentAssistant assistant = new ContentAssistant();
@@ -294,7 +296,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		Color bgColor = colorCache.getColor(new RGB(230,255,230));
 		assistant.setProposalSelectorBackground(bgColor);
 		return assistant;
-		
+		*/
 	}
 
 

@@ -29,6 +29,7 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
@@ -292,11 +293,15 @@ public class PyEdit extends TextEditor implements IParserListener {
 		else if (input instanceof IStorageEditorInput)
 			try {
 				filePath = ((IStorageEditorInput)input).getStorage().getFullPath();
-				filePath = ((IPath)filePath).makeAbsolute();
+				filePath = filePath.makeAbsolute();
 			} catch (CoreException e2) {
 				PydevPlugin.log(IStatus.ERROR, "unexpected error getting path", e2);
 			}
-		else 
+		else if (input instanceof ILocationProvider) {
+			filePath = ((ILocationProvider)input).getPath(input);
+			filePath = filePath.makeAbsolute();
+		}
+		else
 			PydevPlugin.log(IStatus.ERROR, "unexpected type of editor input " + input.getClass().toString(), null);
 			
 		try {

@@ -4,7 +4,7 @@
  * To change the template for this generated file go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-package org.python.pydev.editor.actions;
+package test;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;

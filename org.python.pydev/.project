@@ -3,11 +3,6 @@
 	<name>org.python.pydev</name>
 	<comment></comment>
 	<projects>
-		<project>org.eclipse.core.resources</project>
-		<project>org.eclipse.jdt.ui</project>
-		<project>org.eclipse.ui</project>
-		<project>org.eclipse.ui.views</project>
-		<project>org.pydev.jython</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
