@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.5"
+   version="0.5.1"
    provider-name="AleksTotic"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -187,6 +187,20 @@
                class="org.python.pydev.editor.actions.PyGoToDefinition"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.pyGoToDefinition">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.navigation.pyCollapse"
+               label="Collapse code"
+               class="org.python.pydev.editor.actions.PyCollapse"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.navigation.pyCollapse">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.navigation.pyUnCollapse"
+               label="Un Collapse code"
+               class="org.python.pydev.editor.actions.PyUnCollapse"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.navigation.pyUnCollapse">
          </action>
       </editorContribution>
    </extension>
@@ -447,6 +461,32 @@
             string="F3"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.navigation.pyGoToDefinition"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: Collapse-->
+      <command
+            name="Python Collapse"
+            description="Collapse block of code"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.navigation.pyCollapse">
+      </command>
+      <keyBinding
+            string="Ctrl+-"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.navigation.pyCollapse"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: Un Collapse-->
+      <command
+            name="Python Un Collapse"
+            description="Un Collapse block of code"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.navigation.pyUnCollapse">
+      </command>
+      <keyBinding
+            string="Ctrl+="
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.navigation.pyUnCollapse"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
    </extension>
