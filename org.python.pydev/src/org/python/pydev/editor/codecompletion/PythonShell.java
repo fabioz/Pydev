@@ -13,6 +13,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -38,6 +39,16 @@ public class PythonShell {
     public static final int COMPLETION_SHELL = 1; 
     public static final int OTHERS_SHELL = 2; 
 
+    public synchronized static void stopAllShells(){
+        
+        for (Iterator iter = shells.values().iterator(); iter.hasNext();) {
+            PythonShell element = (PythonShell) iter.next();
+            if(element != null){
+                element.endIt();
+            }
+        }
+        shells.clear();
+    }
 
     /**
      * @return

@@ -33,6 +33,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.templates.PyContextType;
 
 /**
@@ -76,6 +77,7 @@ public class PydevPlugin extends AbstractUIPlugin
 	public void stop(BundleContext context) throws Exception {
 		Preferences preferences = plugin.getPluginPreferences();
 		preferences.removePropertyChangeListener(this);
+		PythonShell.stopAllShells();
 		super.stop(context);
 	}
 
@@ -240,6 +242,8 @@ public class PydevPlugin extends AbstractUIPlugin
             throw new CoreException(makeStatus(IStatus.ERROR,
                     "Can't find image", null));
         }
+        
     }
 
+    
 }
