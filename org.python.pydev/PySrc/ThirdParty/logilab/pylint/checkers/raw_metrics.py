@@ -16,7 +16,7 @@
 Raw metrics checker
 """
 
-__revision__ = "$Id: raw_metrics.py,v 1.4 2005-02-16 16:45:47 fabioz Exp $"
+__revision__ = "$Id: raw_metrics.py,v 1.5 2005-02-24 18:28:48 fabioz Exp $"
 
 import tokenize
 

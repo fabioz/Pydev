@@ -15,7 +15,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """functional/non regression tests for pylint"""
 
-__revision__ = '$Id: func_test.py,v 1.2 2005-02-16 16:45:43 fabioz Exp $'
+__revision__ = '$Id: func_test.py,v 1.3 2005-02-24 18:28:47 fabioz Exp $'
 
 import unittest
 import sys

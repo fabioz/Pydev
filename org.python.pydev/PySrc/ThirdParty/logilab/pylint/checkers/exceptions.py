@@ -16,7 +16,7 @@
 exceptions checkers for Python code
 """
 
-__revision__ = '$Id: exceptions.py,v 1.4 2005-02-16 16:45:47 fabioz Exp $'
+__revision__ = '$Id: exceptions.py,v 1.5 2005-02-24 18:28:48 fabioz Exp $'
 
 from logilab.common import astng
 
@@ -96,7 +96,6 @@ class ExceptionsChecker(BaseChecker):
                             lineno = root.globals[name].source_line()
                     else:
                         lineno = value.source_line()
-                    print value
                     self.add_message('W0706', node=node, args=(
                         node.expr1.as_string(), value.as_string(),
                         lineno))

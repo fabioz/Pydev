@@ -16,7 +16,7 @@
 variables checkers for Python code
 """
 
-__revision__ = "$Id: variables.py,v 1.4 2005-02-16 16:45:47 fabioz Exp $"
+__revision__ = "$Id: variables.py,v 1.5 2005-02-24 18:28:48 fabioz Exp $"
 
 from copy import copy
 
@@ -24,8 +24,8 @@ from logilab.common import astng
 
 from logilab.pylint.interfaces import IASTNGChecker
 from logilab.pylint.checkers import BaseChecker
-from logilab.pylint.checkers.utils import is_interface, is_abstract, \
-     is_builtin, is_native_builtin, is_error, are_exclusive
+from logilab.pylint.checkers.utils import is_interface, is_error, is_builtin, \
+     is_native_builtin, is_abstract, are_exclusive, get_nodes_from_class
 
     
 MSGS = {
@@ -194,16 +194,14 @@ __init__ files.'}),
         # if the name node is used as a function default argument's value, then
         # start from the parent frame of the function instead of the function
         # frame
-        if is_func_default(node):
+        if is_func_default(node) or is_ancestor_name(frame, node):
             start_index = len(self._to_consume) - 2
         else:
             start_index = len(self._to_consume) - 1
         # iterates through the parent scope, from the inner to the outer
+        frame_type = isinstance(frame, astng.Class) and 'class' or 'other'
         for i in range(start_index, -1, -1):
             to_consume, consumed, scope_type = self._to_consume[i]
-            # the name has already been consumed, ends
-            if consumed.has_key(name):
-                break
             # if the current scope is a class scope but it's not the inner scope
             # ignore it
             #
@@ -211,6 +209,9 @@ __init__ files.'}),
             # function members when there are some common names
             if scope_type == 'class' and i != start_index:
                 continue
+            # the name has already been consumed, ends
+            if consumed.has_key(name):
+                break
             # mark the name as consumed if it's defined in this scope
             # (ie no KeyError is raise by "to_consume[name]"
             try:
@@ -244,7 +245,19 @@ def is_func_default(node):
         return 1
     return is_func_default(parent)
     
-    
+def is_ancestor_name(frame, node):
+    """return True if `frame` is a astng.Class node with `node` in the
+    subtree of its bases attribute
+    """
+    try:
+        bases = frame.bases
+    except AttributeError:
+        return False
+    for base in bases:
+        if node in get_nodes_from_class(base, astng.Name):
+            return True
+    return False
+
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(VariablesChecker(linter))

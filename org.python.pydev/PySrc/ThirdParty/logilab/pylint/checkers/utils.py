@@ -18,7 +18,7 @@
 """some functions that may be usefull for checkers
 """
 
-__revision__ = '$Id: utils.py,v 1.4 2005-02-16 16:45:47 fabioz Exp $'
+__revision__ = '$Id: utils.py,v 1.5 2005-02-24 18:28:48 fabioz Exp $'
 
 from logilab.common import astng
 from logilab.common.astng.utils import is_exception, is_interface, \

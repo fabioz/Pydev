@@ -8,19 +8,19 @@ Master
 
 Description
 ~~~~~~~~~~~
-lint Python modules using external checkers.                            
-                                                                               
-This is the main checker controling the other ones and the reports         
-generation. It is itself both a raw checker and an astng checker in order  
-to:                                                                        
-* handle message activation / deactivation at the module level             
+lint Python modules using external checkers.
+
+This is the main checker controling the other ones and the reports
+generation. It is itself both a raw checker and an astng checker in order
+to:
+* handle message activation / deactivation at the module level
 * handle some basic but necessary stats'data (number of classes, methods...)
-                                                                                
-This checker also defines the following reports:                                    
-  * R0001: Total errors / warnings                                              
-  * R0002: % errors / warnings by module                                        
-  * R0003: Messages                                                             
-  * R0004: Global evaluation                                                    
+
+This checker also defines the following reports:
+* R0001: Total errors / warnings
+* R0002: % errors / warnings by module
+* R0003: Messages
+* R0004: Global evaluation
 
 Messages
 ~~~~~~~~
@@ -57,6 +57,59 @@ F0002:
   This is usually accomopagned by a traceback. Please report such errors ! This
   message belongs to the master checker.
 
+F0003:
+  Used to indicate that the user asked to analyze a builtin module which has
+  been skipped. This message belongs to the master checker.
+
+
+
+Variables
+---------
+
+Description
+~~~~~~~~~~~
+checks for
+* unused variables / imports
+* undefined variables
+* redefinition of variable from builtins or from an outer scope
+* use of variable before assigment
+
+
+Messages
+~~~~~~~~
+W0601:
+  Used when a variable is defined through the "global" statement but the
+  variable is not defined in the static global scope. This message belongs to
+  the variables checker.
+
+W0611:
+  Used when an imported module or variable is not used. This message belongs to
+  the variables checker.
+
+W0612:
+  Used when a variable is defined but not used. This message belongs to the
+  variables checker.
+
+W0613:
+  Used when a function or method argument is not used. This message belongs to
+  the variables checker.
+
+W0621:
+  Used when a variable's name hide a name defined in the outer scope. This
+  message belongs to the variables checker.
+
+W0622:
+  Used when a variable or function override a built-in. This message belongs to
+  the variables checker.
+
+E0601:
+  Used when a local variable is accessed before it's assigment. This message
+  belongs to the variables checker.
+
+E0602:
+  Used when an undefined variable is accessed. This message belongs to the
+  variables checker.
+
 
 
 Basic
@@ -64,18 +117,18 @@ Basic
 
 Description
 ~~~~~~~~~~~
-checks for :                                                            
-    * doc strings                                                              
-    * modules / classes / functions / methods / arguments / variables name     
-    * number of arguments, local variables, branchs, returns and statements in
-functions, methods                                                       
-    * required module attributes                                             
-    * dangerous default values as arguments                                    
-    * redefinition of function / method / class                                
-    * uses of the global statement                                             
-                                                                                
-This checker also defines the following reports:                                    
-  * R0101: Statistics by type                                                   
+checks for :
+* doc strings
+* modules / classes / functions / methods / arguments / variables name
+* number of arguments, local variables, branchs, returns and statements in
+  functions, methods
+* required module attributes
+* dangerous default values as arguments
+* redefinition of function / method / class
+* uses of the global statement
+
+This checker also defines the following reports:
+* R0101: Statistics by type
 
 Messages
 ~~~~~~~~
@@ -141,114 +194,20 @@ E0102:
 
 
 
-Variables
----------
-
-Description
-~~~~~~~~~~~
-checks for                                                              
-    * unused variables / imports                                               
-    * undefined variables                                                      
-    * redefinition of variable from builtins or from an outer scope            
-    * use of variable before assigment                                         
-    
-Messages
-~~~~~~~~
-W0601:
-  Used when a variable is defined through the "global" statement but the
-  variable is not defined in the static global scope. This message belongs to
-  the variables checker.
-
-W0611:
-  Used when an imported module or variable is not used. This message belongs to
-  the variables checker.
-
-W0612:
-  Used when a variable is defined but not used. This message belongs to the
-  variables checker.
-
-W0613:
-  Used when a function or method argument is not used. This message belongs to
-  the variables checker.
-
-W0621:
-  Used when a variable's name hide a name defined in the outer scope. This
-  message belongs to the variables checker.
-
-W0622:
-  Used when a variable or function override a built-in. This message belongs to
-  the variables checker.
-
-E0601:
-  Used when a local variable is accessed before it's assigment. This message
-  belongs to the variables checker.
-
-E0602:
-  Used when an undefined variable is accessed. This message belongs to the
-  variables checker.
-
-
-
-Imports
--------
-
-Description
-~~~~~~~~~~~
-checks for                                                              
-    * external modules dependencies                                            
-    * relative / wildcard imports                                                         
-    * cyclic imports                                                           
-    * uses of deprecated modules
-                                                                                
-This checker also defines the following reports:                                    
-  * R0401: External dependencies                                                
-  * R0402: Modules dependencies graph                                           
-
-Messages
-~~~~~~~~
-R0401:
-  Used when a cyclic import between two or more modules is detected. This
-  message belongs to the imports checker.
-
-W0401:
-  Used when `from module import *` is detected. This message belongs to the
-  imports checker.
-
-W0402:
-  Used a module marked as deprecated is imported. This message belongs to the
-  imports checker.
-
-W0403:
-  Used when an import relative to the package directory is detected. This
-  message belongs to the imports checker.
-
-W0404:
-  Used when a module is reimported multiple times. This message belongs to the
-  imports checker.
-
-W0406:
-  Used when a module is importing itself. This message belongs to the imports
-  checker.
-
-F0401:
-  Used when pylint has been unable to import a module. This message belongs to
-  the imports checker.
-
-
-
 Classes
 -------
 
 Description
 ~~~~~~~~~~~
-checks for :                                                            
-    * methods without self as first argument                                   
-    * overriden methods signature                                              
-    * access only to existant members via self                                 
-    * attributes not defined in the __init__ method                            
-    * supported interfaces implementation                                      
-    * unreachable code                                                         
-    
+checks for :
+* methods without self as first argument
+* overriden methods signature
+* access only to existant members via self
+* attributes not defined in the __init__ method
+* supported interfaces implementation
+* unreachable code
+
+
 Messages
 ~~~~~~~~
 W0201:
@@ -342,10 +301,11 @@ Design
 
 Description
 ~~~~~~~~~~~
-checks for sign of poor/misdesign:                                      
-    * number of methods, attributes, local variables...                        
-    * size, complexity of functions, methods                                   
-    
+checks for sign of poor/misdesign:
+* number of methods, attributes, local variables...
+* size, complexity of functions, methods
+
+
 Messages
 ~~~~~~~~
 R0901:
@@ -398,15 +358,63 @@ R0923:
 
 
 
+Imports
+-------
+
+Description
+~~~~~~~~~~~
+checks for
+* external modules dependencies
+* relative / wildcard imports
+* cyclic imports
+* uses of deprecated modules
+
+This checker also defines the following reports:
+* R0401: External dependencies
+* R0402: Modules dependencies graph
+
+Messages
+~~~~~~~~
+R0401:
+  Used when a cyclic import between two or more modules is detected. This
+  message belongs to the imports checker.
+
+W0401:
+  Used when `from module import *` is detected. This message belongs to the
+  imports checker.
+
+W0402:
+  Used a module marked as deprecated is imported. This message belongs to the
+  imports checker.
+
+W0403:
+  Used when an import relative to the package directory is detected. This
+  message belongs to the imports checker.
+
+W0404:
+  Used when a module is reimported multiple times. This message belongs to the
+  imports checker.
+
+W0406:
+  Used when a module is importing itself. This message belongs to the imports
+  checker.
+
+F0401:
+  Used when pylint has been unable to import a module. This message belongs to
+  the imports checker.
+
+
+
 Exceptions
 ----------
 
 Description
 ~~~~~~~~~~~
-checks for                                                              
-    * excepts without exception filter                                         
-    * string exceptions                                                        
-    
+checks for
+* excepts without exception filter
+* string exceptions
+
+
 Messages
 ~~~~~~~~
 W0701:
@@ -442,11 +450,11 @@ Similarities
 Description
 ~~~~~~~~~~~
 checks for similarities and duplicated code. This computation may be
-    memory / CPU intensive, so you should disable it if you experiments some
-    problems.
-                                                                                
-This checker also defines the following reports:                                    
-  * R0801: Duplication                                                          
+memory / CPU intensive, so you should disable it if you experiments some
+problems.
+
+This checker also defines the following reports:
+* R0801: Duplication
 
 Messages
 ~~~~~~~~
@@ -462,25 +470,26 @@ Metrics
 
 Description
 ~~~~~~~~~~~
-does not check anything but gives some raw metrics :                    
-    * total number of lines                                                    
-    * total number of code lines                                               
-    * total number of docstring lines                                          
-    * total number of comments lines                                           
-    * total number of empty lines                                              
-                                                                                
-This checker also defines the following reports:                                    
-  * R0701: Raw metrics                                                          
+does not check anything but gives some raw metrics :
+* total number of lines
+* total number of code lines
+* total number of docstring lines
+* total number of comments lines
+* total number of empty lines
+
+This checker also defines the following reports:
+* R0701: Raw metrics
 
 Miscellaneous
 -------------
 
 Description
 ~~~~~~~~~~~
-checks for:                                                             
-    * warning notes in the code like FIXME, XXX                                
-    * PEP 263: source code with non ascii character but no encoding declaration
-    
+checks for:
+* warning notes in the code like FIXME, XXX
+* PEP 263: source code with non ascii character but no encoding declaration
+
+
 Messages
 ~~~~~~~~
 W0511:
@@ -507,12 +516,13 @@ Format
 
 Description
 ~~~~~~~~~~~
-checks for :                                                            
-    * unauthorized constructions                                               
-    * strict indentation                                                       
-    * line length                                                              
-    * use of <> instead of !=
-    
+checks for :
+* unauthorized constructions
+* strict indentation
+* line length
+* use of <> instead of !=
+
+
 Messages
 ~~~~~~~~
 C0301:

@@ -14,7 +14,7 @@
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
-__revision__ = '$Id: unittest_checkers_utils.py,v 1.2 2005-02-16 16:45:43 fabioz Exp $'
+__revision__ = '$Id: unittest_checkers_utils.py,v 1.3 2005-02-24 18:28:47 fabioz Exp $'
 
 import unittest
 import sys

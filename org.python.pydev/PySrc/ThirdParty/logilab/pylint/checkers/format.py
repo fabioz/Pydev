@@ -22,7 +22,7 @@ http://www.python.org/doc/essays/styleguide.html
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
-__revision__ = "$Id: format.py,v 1.4 2005-02-16 16:45:47 fabioz Exp $"
+__revision__ = "$Id: format.py,v 1.5 2005-02-24 18:28:48 fabioz Exp $"
 
 from os import linesep
 import re
@@ -275,9 +275,13 @@ class FormatChecker(BaseRawChecker):
         self._visited_lines[line] = 1
         #print 'checking line', self._lines[line]
         #print node
-        msg_def = check_line(self._lines[line], self)
-        if msg_def:
-            self.add_message(msg_def[0], node = node, args=msg_def[1])
+        try:
+            msg_def = check_line(self._lines[line], self)
+            if msg_def:
+                self.add_message(msg_def[0], node = node, args=msg_def[1])
+        except KeyError:
+            # FIXME: internal error !
+            pass
 
     def check_lines(self, lines, start):
         """check lines againt bad construction regexp

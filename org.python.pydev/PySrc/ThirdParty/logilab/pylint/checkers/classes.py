@@ -17,7 +17,7 @@
 """
 from __future__ import generators
 
-__revision__ = "$Id: classes.py,v 1.5 2005-02-16 16:45:47 fabioz Exp $"
+__revision__ = "$Id: classes.py,v 1.6 2005-02-24 18:28:48 fabioz Exp $"
 
 from logilab.common import astng
 

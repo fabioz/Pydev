@@ -1,5 +1,5 @@
-# Copyright (c) 2002-2005 Sylvain Thenault (syt@logilab.fr).
-# Copyright (c) 2002-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2005 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -18,7 +18,9 @@
 main pylint class
 """
 
-__revision__ = "$Id: utils.py,v 1.2 2005-02-16 16:45:37 fabioz Exp $"
+__revision__ = "$Id: utils.py,v 1.3 2005-02-24 18:28:47 fabioz Exp $"
+
+from os import linesep
 
 from logilab.common.astng import Module
 from logilab.common.textutils import normalize_text
@@ -253,7 +255,8 @@ class MessagesHandlerMixIn:
             print
             print 'Description'
             print '~~~~~~~~~~~'
-            print checker.__doc__
+            print linesep.join([line.strip() for line in checker.__doc__.splitlines()])
+            print
             if not checker.msgs:
                 continue
             print 'Messages'

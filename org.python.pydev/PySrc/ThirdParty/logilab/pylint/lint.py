@@ -1,5 +1,5 @@
-# Copyright (c) 2002-2005 Sylvain Thenault (syt@logilab.fr).
-# Copyright (c) 2002-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2005 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -27,7 +27,7 @@
   Display help messages about given message identifiers and exit.
 """
 
-__revision__ = "$Id: lint.py,v 1.7 2005-02-16 16:45:42 fabioz Exp $"
+__revision__ = "$Id: lint.py,v 1.8 2005-02-24 18:28:47 fabioz Exp $"
 
 from __future__ import nested_scopes
 
@@ -39,11 +39,13 @@ sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0]), "../../../ThirdPar
 # import this first to avoid further builtins pollution possibilities
 from logilab.pylint.checkers import utils
 
+import sys
+import os
 import re
 import tokenize
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
-from logilab.common.configuration import OptionsManagerMixIn
+from logilab.common.configuration import OptionsManagerMixIn, check_yn
 from logilab.common.astng import ASTNGManager
 from logilab.common.modutils import modpath_from_file, get_module_files, \
      file_from_modpath
@@ -57,13 +59,18 @@ from logilab.pylint.utils import UnknownMessage, MessagesHandlerMixIn, \
 from logilab.pylint.interfaces import ILinter, IRawChecker, IASTNGChecker
 from logilab.pylint.checkers import BaseRawChecker, EmptyReport, \
      table_lines_from_stats
-from logilab.pylint.reporters.text import TextReporter
+from logilab.pylint.reporters.text import TextReporter, TextReporter2, \
+     ColorizedTextReporter
+from logilab.pylint.reporters.html import HTMLReporter
 from logilab.pylint import config
 
 from logilab.pylint.__pkginfo__ import version
 
 
 OPTION_RGX = re.compile('#*\s*pylint:(.*)')
+REPORTER_OPT_MAP = {'html': HTMLReporter,
+                    'parseable': TextReporter2,
+                    'color': ColorizedTextReporter}
 
 # Python Linter class #########################################################
     
@@ -273,24 +280,12 @@ This is used by the global evaluation report (R0004).'}),
         if opt_name in self._options_methods:
             if value:
                 meth = self._options_methods[opt_name]
-                for _id in value:
+                for _id in get_csv(value):
                     meth(_id)
-            else:
-                value = ()
-        elif opt_name == 'html':
-            if value:
-                from logilab.pylint.reporters.html import HTMLReporter
-                self.set_reporter(HTMLReporter())
-        elif opt_name == 'parseable':
-            if value:
-                from logilab.pylint.reporters.text import TextReporter2
-                self.set_reporter(TextReporter2())
-        elif opt_name == 'color':
-            if value:
-                from logilab.pylint.reporters.text import ColorizedTextReporter
-                self.set_reporter(ColorizedTextReporter())
         elif opt_name == 'cache-size':
             self.manager.set_cache_size(int(value))
+        elif opt_name in REPORTER_OPT_MAP and check_yn(None, opt_name, value):
+            self.set_reporter(REPORTER_OPT_MAP[opt_name]())
         BaseRawChecker.set_option(self, opt_name, value, action, opt_dict)
 
     # checkers manipulation methods ###########################################

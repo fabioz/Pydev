@@ -1,6 +1,15 @@
 ChangeLog for PyLint
 ====================
 
+-- 
+    * fix scope problem which may cause false positive and true negative
+      on E0602
+
+    * fix problem with some options such as disable-msg causing error when
+      they are coming from the configuration file
+
+	
+	
 2005-02-16  --  0.6.2
     * fix false positive on E0201 ("access to undefined member") with
       metaclasses 

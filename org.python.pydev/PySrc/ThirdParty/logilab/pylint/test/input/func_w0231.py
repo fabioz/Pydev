@@ -2,7 +2,7 @@
 """test for __init__ not called
 """
 
-__revision__ = '$Id: func_w0231.py,v 1.2 2005-02-16 16:45:45 fabioz Exp $'
+__revision__ = '$Id: func_w0231.py,v 1.3 2005-02-24 18:28:49 fabioz Exp $'
 
 class AAAA:
     """ancestor 1"""

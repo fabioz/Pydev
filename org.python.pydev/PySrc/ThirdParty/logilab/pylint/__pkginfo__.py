@@ -16,16 +16,17 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """pylint packaging information"""
 
-__revision__ = '$Id: __pkginfo__.py,v 1.4 2005-02-16 16:45:37 fabioz Exp $'
+__revision__ = '$Id: __pkginfo__.py,v 1.5 2005-02-24 18:28:47 fabioz Exp $'
 
 
 modname = 'pylint'
 
-numversion = (0, 6, 2)
+numversion = (0, 6, 3)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
-copyright = '''Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
+copyright = '''Copyright (c) 2003-2005 Sylvain Thenault (thenault@gmail.com).
+Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr'''
 
 short_desc = "python code static checker"
