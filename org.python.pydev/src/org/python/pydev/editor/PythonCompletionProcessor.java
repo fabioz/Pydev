@@ -1,8 +1,6 @@
 /*
  * Created on Mar 29, 2004
  *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 package org.python.pydev.editor;
 
@@ -15,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -25,23 +24,51 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+import org.eclipse.jface.text.templates.Template;
+import org.eclipse.jface.text.templates.TemplateCompletionProcessor;
+import org.eclipse.jface.text.templates.TemplateContextType;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.osgi.framework.Bundle;
+import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Dmoore
+ * @author Fabio Zadrozny - added template completion.
  * 
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * This class is responsible for code completion / template completion.
  */
-public class PythonCompletionProcessor implements IContentAssistProcessor {
+public class PythonCompletionProcessor  extends TemplateCompletionProcessor implements IContentAssistProcessor {
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getTemplates(java.lang.String)
+     */
+    protected Template[] getTemplates(String contextTypeId) {
+        return PydevPlugin.getDefault().getTemplateStore().getTemplates();
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getContextType(org.eclipse.jface.text.ITextViewer, org.eclipse.jface.text.IRegion)
+     */
+    protected TemplateContextType getContextType(ITextViewer viewer, IRegion region) {
+        return PydevPlugin.getDefault().getContextTypeRegistry().getContextType(PyContextType.PY_CONTEXT_TYPE);
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getImage(org.eclipse.jface.text.templates.Template)
+     */
+    protected Image getImage(Template template) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 	/*
 	 * (non-Javadoc)
@@ -81,7 +108,12 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 					documentOffset - qlen, qlen, element.length());
 			propList.add(proposal);
 		}
-
+		
+		//templates proposals are added here.
+		ICompletionProposal[] templateProposals = super.computeCompletionProposals(viewer, documentOffset);
+		propList.addAll(Arrays.asList(templateProposals));
+		
+		
 		ICompletionProposal[] proposals = new ICompletionProposal[propList
 				.size()];
 		// and fill with list elements
