@@ -25,10 +25,11 @@ public class FileTreeContentProvider implements ITreeContentProvider {
         }
 
         if (element instanceof File) {
-            ((File) element).getParent();
-
+            return ((File) element).getParent();
+        }else if(element instanceof String){
+            return new File((String) element).getParent();
         }
-        System.out.println("element not instance of File: " + element.getClass().getName() + " "
+        System.out.println("element not instance of File of String: " + element.getClass().getName() + " "
                 + element.toString());
         return null;
     }

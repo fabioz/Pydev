@@ -56,6 +56,7 @@ public class PythonRunnerConfig {
 		IPath workingPath = ExternalToolsUtil.getWorkingDirectory(conf);
 		workingDirectory = workingPath == null ? null : workingPath.toFile();
 		acceptTimeout = PydevPrefs.getPreferences().getInt(PydevPrefs.CONNECT_TIMEOUT);
+		
 		if (isDebug) {
 			debugScript = getDebugScript();
 		}else if(isProfile){

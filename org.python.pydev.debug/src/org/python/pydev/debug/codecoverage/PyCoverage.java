@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPrefs;
@@ -47,8 +49,11 @@ public class PyCoverage {
      * 
      * @param file should be the root folder from where we want cache info.
      */
-    public void refreshCoverageInfo(File file) {
+    public void refreshCoverageInfo(File file, IProgressMonitor monitor) {
         cache.clear();
+        if(file == null){
+            return;
+        }
         try {
             if(file.isDirectory() == false){
                 throw new RuntimeException("We can only get information on a dir.");
@@ -57,7 +62,7 @@ public class PyCoverage {
             List pyFilesBelow[] = new List[]{new ArrayList(), new ArrayList()};
             
             if (file.exists()) {
-                pyFilesBelow = getPyFilesBelow(file);
+                pyFilesBelow = getPyFilesBelow(file, monitor, true);
             } 
 
             if(pyFilesBelow[0].size() == 0){ //no files
@@ -98,35 +103,37 @@ public class PyCoverage {
             cmdLine[1] = profileScript;
             cmdLine[2] = "-waitfor";
 
-
+            monitor.setTaskName("Starting shell to get info...");
+            monitor.worked(1);
             Process p=null;
             
             try {
                 
                 p = execute(cmdLine);
                 //we have the process...
-                int bufsize = 64; // small bufsize so that we can see the progress
+                int bufsize = 32; // small bufsize so that we can see the progress
                 BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()), bufsize);
-                BufferedReader eIn = new BufferedReader(new InputStreamReader(p.getErrorStream()), bufsize);
 
                 String files = "";
                 
                 for (Iterator iter = pyFilesBelow[0].iterator(); iter.hasNext();) {
-                    files += iter.next().toString()+" ";
+                    String fStr = iter.next().toString();
+                    files += fStr+"|";
                 }
                 files += "\r";
+                monitor.setTaskName("Writing to shell...");
+                monitor.worked(1);
                 p.getOutputStream().write(files.getBytes());
 
                 p.getOutputStream().close();
                 String str = "";
-                while ((str = eIn.readLine()) != null) {
-//                    System.out.println("STDERR: " + str); //ignore this...
-                }
-                eIn.close();
+                monitor.setTaskName("Getting coverage info...(please wait, this could take a while)");
+                monitor.worked(1);
                 while ((str = in.readLine()) != null) {
 //                    System.out.println("STDOUT: " + str);//get the data...
                     StringTokenizer tokenizer = new StringTokenizer(str);
-                    if(tokenizer.countTokens() ==5){
+                    int nTokens = tokenizer.countTokens();
+                    if(nTokens == 5 || nTokens == 4){
 
                         String []strings = new String[5];
                         int k = 0;
@@ -135,18 +142,30 @@ public class PyCoverage {
                             k++;
                         }
                         
-                        if(strings[1].equals("Stmts") == false){
+                        if(strings[1].equals("Stmts") == false && strings[0].equals("TOTAL") == false){
                             //information in the format: D:\dev_programs\test\test1.py      11      0     0%   1,2,4-23
 //                            System.out.println("VALID: " + str);//get the data...
                             File f = new File(strings[0]);
-                            cache.addFile(f, f.getParentFile(), Integer.parseInt(strings[1]), Integer.parseInt(strings[2]), strings[4]);
+                            if(nTokens == 4){
+                                cache.addFile(f, f.getParentFile(), Integer.parseInt(strings[1]), Integer.parseInt(strings[2]), "");
+                            }else{
+                                cache.addFile(f, f.getParentFile(), Integer.parseInt(strings[1]), Integer.parseInt(strings[2]), strings[4]);
+                            }
+                            String[] strs = f.toString().replaceAll("/", " ").replaceAll("\\\\"," ").split(" ");
+                            if (strs.length > 1){
+                                monitor.setTaskName("Getting coverage info..."+strs[strs.length -1]);
+                            }else{
+                                monitor.setTaskName("Getting coverage info..."+f.toString());
+                            }
+                            monitor.worked(1);
                         }
                     }
                 }
                 in.close();
-                System.out.println("waiting");
+                monitor.setTaskName("Waiting for process to finish...");
+                monitor.worked(1);
                 p.waitFor();
-                System.out.println("finished");
+                monitor.setTaskName("Finished");
             } catch (Exception e) {
                 if(p!=null){
                     p.destroy();
@@ -204,7 +223,10 @@ public class PyCoverage {
      * @param file
      * @return tuple with files in pos 0 and folders in pos 1
      */
-    public static List[] getPyFilesBelow(File file , FileFilter filter) {
+    public static List[] getPyFilesBelow(File file , FileFilter filter, IProgressMonitor monitor) {
+        if(monitor == null){
+            monitor = new NullProgressMonitor();
+        }
         List filesToReturn = new ArrayList();
         List folders = new ArrayList();
 
@@ -221,12 +243,15 @@ public class PyCoverage {
                 }
                 
                 for (int i = 0; i < files.length; i++) {
-                    List[] below = getPyFilesBelow(files[i]);
+                    List[] below = getPyFilesBelow(files[i], filter, monitor);
                     filesToReturn.addAll(below[0]);
                     folders.addAll(below[1]);
+                    monitor.worked(1);
                 }
             } else if (file.isFile()) {
                 filesToReturn.add(file);
+                monitor.worked(1);
+                monitor.setTaskName("Found:"+file.toString());
             }
         }
         return new List[]{filesToReturn, folders};
@@ -239,15 +264,18 @@ public class PyCoverage {
      * @param file
      * @return tuple with files in pos 0 and folders in pos 1
      */
-    public static List[] getPyFilesBelow(File file) {
+    public static List[] getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs) {
         FileFilter filter = new FileFilter() {
 
             public boolean accept(File pathname) {
-                return pathname.isDirectory() || pathname.toString().endsWith(".py");
+                if(includeDirs)
+                    return pathname.isDirectory() || pathname.toString().endsWith(".py");
+                else
+                    return pathname.isDirectory() == false || pathname.toString().endsWith(".py");
             }
 
         };
-        return getPyFilesBelow(file, filter);
+        return getPyFilesBelow(file, filter, monitor);
     }
 
     private static PyCoverage pyCoverage;

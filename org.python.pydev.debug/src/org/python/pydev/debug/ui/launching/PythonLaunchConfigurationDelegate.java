@@ -44,11 +44,10 @@ public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDe
 		monitor.beginTask("Preparing configuration", 3);
 
 		PythonRunnerConfig runConfig = new PythonRunnerConfig(conf, mode);
-		PythonRunner runner = new PythonRunner();
 		
 		monitor.worked(1);
 		try {
-			runner.run(runConfig, launch, monitor);
+			PythonRunner.run(runConfig, launch, monitor);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected IO Exception in Pydev debugger", null));

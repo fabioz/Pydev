@@ -35,7 +35,7 @@ public class CoverageCacheTest extends TestCase {
         super.tearDown();
     }
 
-    public void testAddRoot(){
+    public void testAddRoot() throws NodeNotFoudException{
         String folder1 = "a";     //all files
         String folder2 = "a.b";   //no files
         String folder3 = "a.c";   //file3 and file4 + file5

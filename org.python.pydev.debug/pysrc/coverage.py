@@ -548,9 +548,10 @@ if __name__ == '__main__':
             s = raw_input()
             s = s.replace('\r', '')
             s = s.replace('\n', '')
-            files = s.split(' ')
+            files = s.split('|')
+            files = [v for v in files if len(v) > 0]
             sys.argv += files
-            
+    
     the_coverage.command_line()
 
 
@@ -628,4 +629,4 @@ if __name__ == '__main__':
 #
 #
 #
-# $Id: coverage.py,v 1.3 2004-10-15 19:53:27 fabioz Exp $
+# $Id: coverage.py,v 1.4 2004-10-18 19:13:13 fabioz Exp $

@@ -3,7 +3,7 @@
 <plugin
 	id="org.python.pydev.debug"
 	name="Pydev debug"
-	version="0.6"
+	version="0.6.2"
 	provider-name="Aleks Totic"
 	class="org.python.pydev.debug.core.PydevDebugPlugin">
 
@@ -133,13 +133,22 @@
 				<separator name="group2"/>
 			</menu>
 			<action
-				label="Coverage many..."
+				label="Coverage subset..."
 				icon="icons/python.gif"
 				tooltip="Make code coverage for many python files at once."
 				class="org.python.pydev.debug.ui.actions.PythonRunSubsetActionDelegate"
 				menubarPath="org.python.pydev.debug.WorkspaceMenu/group2"
 				enablesFor="1"
-				id="org.python.pydev.debug.PythonRunSubsetActionDelegate">
+				id="org.python.pydev.debug.PythonCoverageSubset">
+			</action>
+			<action
+				label="Run subset..."
+				icon="icons/python.gif"
+				tooltip="Run many python files at once."
+				class="org.python.pydev.debug.ui.actions.PythonRunSubsetActionDelegate"
+				menubarPath="org.python.pydev.debug.WorkspaceMenu/group2"
+				enablesFor="1"
+				id="org.python.pydev.debug.PythonRunSubset">
 			</action>
 		</objectContribution>
 	</extension>

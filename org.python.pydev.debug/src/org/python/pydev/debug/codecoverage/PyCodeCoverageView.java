@@ -39,6 +39,8 @@ import org.python.pydev.editor.model.Location;
 import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
 import org.python.pydev.tree.FileTreePyFilesProvider;
+import org.python.pydev.utils.ProgressAction;
+import org.python.pydev.utils.ProgressOperation;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view
@@ -59,7 +61,7 @@ public class PyCodeCoverageView extends ViewPart {
     private static final String NOT_EXECUTED_MARKER = "org.python.pydev.debug.notexecuted";
 
     //layout stuff
-    private Composite rComposite;
+    private Composite leftComposite;
 
     //actions
     /**
@@ -75,17 +77,17 @@ public class PyCodeCoverageView extends ViewPart {
     /**
      * choose new dir
      */
-    private Action chooseAction = new ChooseAction();
+    private ProgressAction chooseAction = new ChooseAction();
 
     /**
      * clear the results (and erase .coverage file)
      */
-    protected Action clearAction = new ClearAction();;
+    protected ProgressAction clearAction = new ClearAction();
 
     /**
      * get the new results from the .coverage file
      */
-    protected Action refreshAction = new RefreshAction();;
+    protected RefreshAction refreshAction = new RefreshAction();
 
     //buttons
     private Button clearButton;
@@ -106,7 +108,8 @@ public class PyCodeCoverageView extends ViewPart {
     private File lastChosenFile;
 
     private SashForm s;
-
+    
+    
     //Actions ------------------------------
     /**
      * In this action we have to go and refresh all the info based on the chosen
@@ -114,9 +117,10 @@ public class PyCodeCoverageView extends ViewPart {
      * 
      * @author Fabio Zadrozny
      */
-    private final class RefreshAction extends Action {
+    private final class RefreshAction extends ProgressAction {
         public void run() {
-            PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenFile);
+            PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenFile, this.monitor);
+            
             viewer.setInput(lastChosenFile); //new files may have been added.
             text.setText("Refreshed info.");
         }
@@ -126,7 +130,7 @@ public class PyCodeCoverageView extends ViewPart {
      * 
      * @author Fabio Zadrozny
      */
-    private final class ClearAction extends Action {
+    private final class ClearAction extends ProgressAction {
         public void run() {
 
             PyCoverage.getPyCoverage().clearInfo();
@@ -172,7 +176,7 @@ public class PyCodeCoverageView extends ViewPart {
      * 
      * @author Fabio Zadrozny
      */
-    private final class DoubleClickTreeAction extends Action {
+    private final class DoubleClickTreeAction extends ProgressAction {
 
         public void run() {
             run(viewer.getSelection());
@@ -191,7 +195,6 @@ public class PyCodeCoverageView extends ViewPart {
 
                 File realFile = new File(obj.toString());
                 if (realFile.exists() && !realFile.isDirectory()) {
-                    System.out.println("opening file:" + obj.toString());
                     ItemPointer p = new ItemPointer(realFile, new Location(-1, -1), null);
                     PyOpenAction act = new PyOpenAction();
                     act.run(p);
@@ -216,7 +219,6 @@ public class PyCodeCoverageView extends ViewPart {
                         for(Iterator it = cache.notExecutedIterator();it.hasNext();){
                             MarkerAttributeMap map = new MarkerAttributeMap();
                             int errorLine = ((Integer)it.next()).intValue()-1;
-//                            System.out.println("adding at:"+errorLine);
 
                             IRegion region = document.getLineInformation(errorLine);
                             int errorEnd = region.getOffset();
@@ -246,7 +248,7 @@ public class PyCodeCoverageView extends ViewPart {
      * 
      * @author Fabio Zadrozny
      */
-    private final class ChooseAction extends Action {
+    private final class ChooseAction extends ProgressAction {
         public void run() {
             DirectoryDialog dialog = new DirectoryDialog(getSite().getShell());
             if (lastChosenFile != null && lastChosenFile.exists()) {
@@ -256,6 +258,7 @@ public class PyCodeCoverageView extends ViewPart {
             if (string != null) {
                 File file = new File(string);
                 lastChosenFile = file;
+                refreshAction.monitor = this.monitor;
                 refreshAction.run();
             }
         }
@@ -297,7 +300,7 @@ public class PyCodeCoverageView extends ViewPart {
 
         parent = s;
 
-        rComposite = new Composite(parent, SWT.MULTI);
+        leftComposite = new Composite(parent, SWT.MULTI);
         layout = new GridLayout();
         layout.numColumns = 1;
         layout.verticalSpacing = 2;
@@ -308,10 +311,11 @@ public class PyCodeCoverageView extends ViewPart {
         layoutData.grabExcessVerticalSpace = true;
         layoutData.horizontalAlignment = GridData.FILL;
         layoutData.verticalAlignment = GridData.FILL;
-        rComposite.setLayoutData(layoutData);
-        rComposite.setLayout(layout);
+        leftComposite.setLayoutData(layoutData);
+        leftComposite.setLayout(layout);
 
-        text = new Text(parent, SWT.MULTI);
+        
+        text = new Text(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
         try {
             text.setFont(new Font(null, "Courier new", 10, 0));
         } catch (Exception e) {
@@ -324,7 +328,10 @@ public class PyCodeCoverageView extends ViewPart {
         layoutData.verticalAlignment = GridData.FILL;
         text.setLayoutData(layoutData);
 
-        parent = rComposite;
+        
+        
+        
+        parent = leftComposite;
 
         //choose button
         chooseButton = new Button(parent, SWT.PUSH);
@@ -366,13 +373,13 @@ public class PyCodeCoverageView extends ViewPart {
      * @param button
      * @param string
      */
-    private void createButton(Composite parent, Button button, String txt, final Action action) {
+    private void createButton(Composite parent, Button button, String txt, final ProgressAction action) {
         GridData layoutData;
         button.setText(txt);
         button.addSelectionListener(new SelectionListener() {
 
             public void widgetSelected(SelectionEvent e) {
-                action.run();
+                ProgressOperation.startAction(getSite().getShell(),action );
             }
 
             public void widgetDefaultSelected(SelectionEvent e) {

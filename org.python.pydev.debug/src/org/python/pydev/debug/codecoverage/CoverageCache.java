@@ -93,7 +93,7 @@ public class CoverageCache {
         FolderNode folderNode = (FolderNode) getFolder(parent);
         
         if (folderNode == null){
-            throw new RuntimeException("A file node MUST have a related folder node.");
+            throw new RuntimeException("A file node ("+node.toString()+")MUST have a related folder node.");
         }
         
         FileNode fileNode = new FileNode();
@@ -106,12 +106,12 @@ public class CoverageCache {
         files.put(node, fileNode);
     }
 
-    public List getFiles(Object node){
+    public List getFiles(Object node) throws NodeNotFoudException{
         FolderNode folderNode = (FolderNode) getFolder(node);
         if (folderNode == null){
             FileNode fileNode = (FileNode) getFile(node);
             if (fileNode == null){
-                throw new RuntimeException("The node has not been found: "+node.toString());
+                throw new NodeNotFoudException("The node has not been found: "+node.toString());
             }
             ArrayList list = new ArrayList();
             list.add(fileNode);
@@ -159,26 +159,30 @@ public class CoverageCache {
     public String getStatistics(Object node) {
         
 
-        List list = getFiles(node);  //array of FileNode
-        
         StringBuffer buffer = new StringBuffer();
-        //40 chars for name.
-        buffer.append("Name                                    Stmts     Exec     Cover  Missing\n");
-        buffer.append("-----------------------------------------------------------------------------\n");
-        
-        int totalExecuted = 0;
-        int totalStmts = 0;
-        
-        for (Iterator it = list.iterator(); it.hasNext();) {
-            FileNode element = (FileNode) it.next();
-            buffer.append(element.toString()+"\n");
-            totalExecuted += element.exec;
-            totalStmts += element.stmts;
+        try {
+            List list = getFiles(node);  //array of FileNode
+            
+            //40 chars for name.
+            buffer.append("Name                                    Stmts     Exec     Cover  Missing\n");
+            buffer.append("-----------------------------------------------------------------------------\n");
+            
+            int totalExecuted = 0;
+            int totalStmts = 0;
+            
+            for (Iterator it = list.iterator(); it.hasNext();) {
+                FileNode element = (FileNode) it.next();
+                buffer.append(element.toString()+"\n");
+                totalExecuted += element.exec;
+                totalStmts += element.stmts;
+            }
+            
+            buffer.append("-----------------------------------------------------------------------------\n");
+            buffer.append(FileNode.toString("TOTAL",totalStmts, totalExecuted, "")+"\n");
+            
+        } catch (NodeNotFoudException e) {
+            buffer.append("File has no statistics.");
         }
-        
-        buffer.append("-----------------------------------------------------------------------------\n");
-        buffer.append(FileNode.toString("TOTAL",totalStmts, totalExecuted, "")+"\n");
-        
         return buffer.toString();
     }
 

@@ -38,7 +38,7 @@ public class PythonRunner {
      * 
      * The code is modeled after Ant launching example.
 	 */
-	public void run(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
+	public static void run(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
 		if (config.isDebug) {
 		    runDebug(config, launch, monitor);
 		    
@@ -57,7 +57,7 @@ public class PythonRunner {
 	 * 
 	 * Loosely modeled upon Ant launcher.
 	 */
-	public void runDebug(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
+	public static void runDebug(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
