@@ -28,11 +28,35 @@ public class SimplePythonRunner {
 
     private static int BUFSIZE = 128;
 
+    /**
+     * Just execute the string. do nothing else...
+     * @param executionString
+     * @param workingDir
+     * @return
+     * @throws IOException
+     */
     public static Process createProcess(String executionString, File workingDir) throws IOException {
         return Runtime.getRuntime().exec(executionString, null, workingDir);
     }
 
+    /**
+     * Execute the string and format for windows if we have spaces...
+     * 
+     * @param script
+     * @param args
+     * @param workingDir
+     * @return
+     */
     public static String runAndGetOutput(String script, String args, File workingDir) {
+        String osName = System.getProperty("os.name");
+        
+        String execMsg;
+        if(osName.toLowerCase().indexOf("win") != -1){ //in windows, we have to put python "path_to_file.py"
+            if(script.startsWith("\"") == false){
+                script = "\""+script+"\"";
+            }
+        }
+
         String executionString = PydevPrefs.getDefaultInterpreter() + " -u " + script + " " + args;
         return runAndGetOutput(executionString, workingDir);
     }

@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.7.2"
+   version="0.8"
    provider-name="Aleks Totic / Fabio Zadrozny"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -94,11 +94,13 @@
             category="org.python.pydev.prefs"
             name="Code Completion"
             id="org.python.pydev.prefs.PyCodeCompletionPage"/>
+<!--
       <page
             class="org.python.pydev.builder.pychecker.PyCheckerPrefPage"
             category="org.python.pydev.prefs"
             name="Pychecker"
             id="org.python.pydev.prefs.pychecker"/>
+-->
       <page
             class="org.python.pydev.builder.pylint.PyLintPrefPage"
             category="org.python.pydev.prefs"

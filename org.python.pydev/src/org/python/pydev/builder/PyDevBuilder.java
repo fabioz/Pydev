@@ -126,14 +126,30 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         double inc = (visitors.size() * 100) / (double)resourcesToParse.size();
         
         double total = 0;
+        int totalResources = resourcesToParse.size();
+        int i = 0;
+        
         for (Iterator iter = resourcesToParse.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
+            i+=1;
             total += inc;
             IResource r = (IResource) iter.next();
 
             IDocument doc = getDocFromResource(r);
             for (Iterator it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
                 PyDevBuilderVisitor element = (PyDevBuilderVisitor) it.next();
-                monitor.subTask("Visiting... "+r.getName()+" ("+element.getClass().getName()+")");
+                
+                StringBuffer msgBuf = new StringBuffer();
+                msgBuf.append("Visiting... (");
+                msgBuf.append(i);
+                msgBuf.append(" of ");
+                msgBuf.append(totalResources);
+                msgBuf.append(") - ");
+                msgBuf.append(r.getProjectRelativePath());
+                msgBuf.append(" - visitor: ");
+                msgBuf.append(element.getClass().getName());
+                
+                
+                monitor.subTask(msgBuf.toString());
                 element.visitResource(r, doc);
             }
 

@@ -105,7 +105,10 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         		"from foo import * #IGNORE:W0401\n\n" +
         		"The wildcard import will be ignored.\n\n" +
         		"NOTE:for warnings to appear in the problems view, you have\n" +
-        		"to set your filter to accept the org.python.pydev.pylintproblem type!";
+        		"to set your filter to accept the org.python.pydev.pylintproblem type!\n\n" +
+        		"NOTE2: Make sure that your file is a valid module in the PYTHONPATH, because\n" +
+        		"pylint doesn't analyze the file itself, but the module itself (you should\n" +
+        		"be able to import it from python without giving the file path).";
 
         FieldEditor fe = new LabelFieldEditor("Warning", w, p);
         addField(fe);
