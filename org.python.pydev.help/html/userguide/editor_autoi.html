@@ -33,8 +33,8 @@
 			heads[i] 	= 'PyDev User Guide';
 			links[i++] 	= 'index.html';
 
-			heads[i] 	= 'Features';
-			links[i++] 	= '';
+			heads[i] 	= 'Editor';
+			links[i++] 	= 'editor.html';
 
 			heads[i] 	= 'Auto Indentation';
 			links[i++] 	= 'editor_autoi.html';
@@ -42,9 +42,50 @@
 			writeHeading ( heads, links );
 		</script>
 
-		<p>
-		...
-		</p>
+		<!-- Description -->
+		<script language="javascript">
+			var headline = 	'Description';
+			var desc	= 	'Indentation is important in programming in general, but more so in Python, ' +
+							'which uses indentation to separate logical blocks of code.  The PyDev ' +
+							'editor intelligently indents after if, else, etc. statements, as well as ' +
+							'after method and class declarations.<br><br>' +
+							'The PyDev editor similarly offers smart indent/dedent (through Tab and ' +
+							'Shift+Tab), that will preserve and utilize correct indentation of ' +
+							'selected code.';
+
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Invocation -->
+		<script language="javascript">
+			var rows = new Array ( );
+			var hotkeys = new Array ( );
+
+			var desc	= '';
+
+			writeInvocation ( rows, hotkeys, desc );
+		</script>
+
+		<!-- Process -->
+		<script language="javascript">
+			var headline = 	'Process';
+			var desc = 		'Pressing enter with the cursor as shown below:<br><br>' +
+							'<img src="images/editor_tab_01.jpg"><br><br>' +
+							'Will result in the cursor intelligently indenting to this:<br><br>' +
+							'<img src="images/editor_tab_02.jpg"><br><br>' +
+							'This will similarly function after class, if, else, etc. declarations, ' +
+							'and maintain indentation while the code continues.';
+
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Selection -->
+		<script language="javascript">
+			var headline = 	'Selection';
+			var desc = 		'';
+
+			writeGeneric ( headline, desc );
+		</script>
 
 	</body>
 

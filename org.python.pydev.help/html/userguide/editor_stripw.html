@@ -33,8 +33,8 @@
 			heads[i] 	= 'PyDev User Guide';
 			links[i++] 	= 'index.html';
 
-			heads[i] 	= 'Features';
-			links[i++] 	= '';
+			heads[i] 	= 'Editor';
+			links[i++] 	= 'editor.html';
 
 			heads[i] 	= 'Strip Trailing Whitespace';
 			links[i++]	= 'editor_stripw.html';
@@ -42,16 +42,47 @@
 			writeHeading ( heads, links );
 		</script>
 
-		<p>
-		Trailing whitespace is any tab, space, etc characters at the end of a line.
-		<br><br>
-		In order to strip whitespace, you can highlight a body of text in the editor, or select nothing and it will strip whitespace in the entire document.  Do one of the following:<br>
-		<ul>
-		<li>Source Menu -> Strip Trailing Whitespace
-		<li>Right-Click -> Source -> Strip Trailing Whitespace
-		<li>Shift+Space
-		</p>
+		<!-- Description -->
+		<script language="javascript">
+			var headline = 	'Description';
+			var desc	= 	'This action strips trailing whitespace (space, tab) from the end ' +
+							'of selected lines.';
 
+			writeGeneric ( headline, desc );
+		</script>
+		
+		<!-- Invocation -->
+		<script language="javascript">
+			var rows = new Array ( );
+			var hotkeys = new Array ( );
+
+			rows[0] 	= 9;
+
+			hotkeys[0] 	= 'Shift+Space';
+			
+			var desc	= '';
+
+			writeInvocation ( rows, hotkeys, desc );
+		</script>
+
+		<!-- Process -->
+		<script language="javascript">
+			var headline = 	'Process';
+			var desc = 		'';
+		
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Selection -->
+		<script language="javascript">
+			var headline = 	'Selection';
+			var desc = 		'Highlight a body of text in the editor to strip trailing whitespace ' +
+							'from selected lines.  If no lines are selected, the entire document ' +
+							'is stripped of trailing whitespace.';
+		
+			writeGeneric ( headline, desc );
+		</script>
+		
 	</body>
 
 </html>

@@ -33,8 +33,8 @@
 			heads[i] 	= 'PyDev User Guide';
 			links[i++] 	= 'index.html';
 
-			heads[i] 	= 'Features';
-			links[i++] 	= '';
+			heads[i] 	= 'Editor';
+			links[i++] 	= 'editor.html';
 
 			heads[i] 	= 'Convert Space To Tab';
 			links[i++] 	= 'editor_convertstt.html';
@@ -42,9 +42,47 @@
 			writeHeading ( heads, links );
 		</script>
 
-		<p>
-		...
-		</p>
+		<!-- Description -->
+		<script language="javascript">
+			var headline = 	'Description';
+			var desc	= 	'This action allows one to convert lines of code from using a set ' +
+							'number of spaces for indentation to code using tab indentation.' +
+							'The number of spaces used can be changed in the ' +
+							'<a href="preferences.html">Preferences</a> page.';
+
+			writeGeneric ( headline, desc );
+		</script>
+		
+		<!-- Invocation -->
+		<script language="javascript">
+			var rows = new Array ( );
+			var hotkeys = new Array ( );
+
+			rows[0] 	= 11;
+
+			hotkeys[0] 	= 'Ctrl+Shift+Tab';
+			
+			var desc	= '';
+
+			writeInvocation ( rows, hotkeys, desc );
+		</script>
+
+		<!-- Process -->
+		<script language="javascript">
+			var headline = 	'Process';
+			var desc = 		'';
+		
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Selection -->
+		<script language="javascript">
+			var headline = 	'Selection';
+			var desc = 		'Highlight a body of text in the editor to transform all included ' +
+							'lines from using set space indentation to using tab indentation.';
+		
+			writeGeneric ( headline, desc );
+		</script>
 
 	</body>
 

@@ -33,8 +33,8 @@
 			heads[i] 	= 'PyDev User Guide';
 			links[i++] 	= 'index.html';
 
-			heads[i] 	= 'Features';
-			links[i++] 	= '';
+			heads[i] 	= 'Editor';
+			links[i++] 	= 'editor.html';
 
 			heads[i] 	= 'Go to Next Method/Class';
 			links[i++]	 = 'editor_gotonmc.html';
@@ -42,9 +42,53 @@
 			writeHeading ( heads, links );
 		</script>
 
-		<p>
-		...
-		</p>
+		<!-- Description -->
+		<script language="javascript">
+			var headline = 	'Description';
+			var desc	= 	'...';
+
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Invocation -->
+		<script language="javascript">
+			var rows = new Array ( );
+			var hotkeys = new Array ( );
+
+			rows[0] 	= 6;
+
+			hotkeys[0] 	= 'Ctrl+Shift+Arrow_Down';
+
+			var desc	= '';
+
+			writeInvocation ( rows, hotkeys, desc );
+		</script>
+
+		<!-- Process -->
+		<script language="javascript">
+			var headline = 	'Process';
+			var desc = 		'From the location your cursor is positioned, invoking this action will ' +
+							'cause the cursor to jump to and highlight the next method or class in ' +
+							'the document.<br><br>' +
+							'Invoking the action with the cursor here within method foobar:<br><br>' +
+							'<img src="images/editor_gotomc_01.jpg"><br><br>' +
+							'Jumps to and highlights method barfoo:<br><br>' +
+							'<img src="images/editor_gotomc_02.jpg"><br><br>' +
+							'From here, invoking the action again jumps to class blah:<br><br>' +
+							'<img src="images/editor_gotomc_03.jpg">';
+
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Selection -->
+		<script language="javascript">
+			var headline = 	'Selection';
+			var desc = 		'Highlighting or locating the cursor in a region within a method or class ' +
+							'and invoking this action causes the cursor to jump to the next method or ' +
+							'class.';
+
+			writeGeneric ( headline, desc );
+		</script>
 
 	</body>
 

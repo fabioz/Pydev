@@ -25,6 +25,7 @@
 
 	<body class = BlueGray>
 
+		<!-- Header -->
 		<script language="javascript">
 			var heads 	= new Array ( );
 			var links 	= new Array ( );
@@ -33,8 +34,8 @@
 			heads[i] 	= 'PyDev User Guide';
 			links[i++] 	= 'index.html';
 
-			heads[i] 	= 'Features';
-			links[i++] 	= '';
+			heads[i] 	= 'Editor';
+			links[i++] 	= 'editor.html';
 
 			heads[i] 	= 'Block Comment';
 			links[i++]	= 'editor_blockc.html';
@@ -42,31 +43,57 @@
 			writeHeading ( heads, links );
 		</script>
 
-		<p>
-		Block Comments are lines of code with the <strong>#</strong> token preceding them, and with separators to make them stand out.<br>
-		<br>
-		From this:<br>
-		<br>
-		<img src="images/editor_blockc_06.jpg"><br>
-		<br>
-		To this:<br>
-		<br>
-		<img src="images/editor_blockc_01.jpg"><br>
-		<br>
-		In order to make block comments, highlight a body of text in the editor, and do one of the following:<br>
-		<ul>
-		<li>Source Menu -> Add Comment Block
-		<li>Right-Click -> Source -> Add Comment Block
-		<li>Ctrl+4
-		</ul>
-		You may remove a selected comment block with:<br>
-		<ul>
-		<li>Source -> Remove Comment Block
-		<li>Right-Click -> Source -> Remove Comment Block
-		<li>Ctrl+5
-		</ul>
-		The separator string (the =====) can be changed in the <a href="preferences.html">Preferences page</a>. <br>
-		</p>
+		<!-- Description -->
+		<script language="javascript">
+			var headline = 	'Description';
+			var desc	= 	'Block Comments are lines of code with the <strong>#</strong> token ' +
+							'preceding them, and with separators to make them stand out.  This ' +
+							'is similar to Bulk Commenting, but with the addition of the ' +
+							'separator lines, which can be useful in viewing clarity.  The ' +
+							'separator string (=====) can be changed in the ' +
+							'<a href="preferences.html">Preferences</a> page.';
+
+			writeGeneric ( headline, desc );
+		</script>
+		
+		<!-- Invocation -->
+		<script language="javascript">
+			var rows = new Array ( );
+			var hotkeys = new Array ( );
+
+			rows[0] 	= 7;
+			rows[1] 	= 8;
+
+			hotkeys[0] 	= 'Ctrl+4';
+			hotkeys[1] 	= 'Ctrl+5';
+			
+			var desc	= '';
+
+			writeInvocation ( rows, hotkeys, desc );
+		</script>
+
+		<!-- Process -->
+		<script language="javascript">
+			var headline = 	'Process';
+			var desc = 		'Will convert a selected body of text from this:<br><br>' +
+							'<img src="images/editor_blockc_06.jpg"><br><br>' +
+							'To this:<br><br>' +
+							'<img src="images/editor_blockc_01.jpg"><br><br>' +
+							'And vice-versa (through the Remove Block Comment command).';
+		
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Selection -->
+		<script language="javascript">
+			var headline = 	'Selection';
+			var desc = 		'Highlight a body of text in the editor to transform all included ' +
+							'lines into a Block Comment region.  If you select no lines, the ' +
+							'line the cursor is on will be turned into a Block Comment region. ' +
+							'This works the same in reverse with the Remove Block Comment action.';
+		
+			writeGeneric ( headline, desc );
+		</script>
 
 	</body>
 

@@ -33,8 +33,8 @@
 			heads[i] 	= 'PyDev User Guide';
 			links[i++] 	= 'index.html';
 
-			heads[i] 	= 'Features';
-			links[i++] 	= '';
+			heads[i] 	= 'Editor';
+			links[i++] 	= 'editor.html';
 
 			heads[i] 	= 'Error Parsing';
 			links[i++] 	= 'editor_parsing.html';
@@ -42,9 +42,47 @@
 			writeHeading ( heads, links );
 		</script>
 
-		<p>
-		...
-		</p>
+		<!-- Description -->
+		<script language="javascript">
+			var headline = 	'Description';
+			var desc	= 	'The PyDev editor performs real-time error parsing.  As you enter code, ' +
+							'the parser will inform you of errors which are displayed with red markings.';
+
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Invocation -->
+		<script language="javascript">
+			var rows = new Array ( );
+			var hotkeys = new Array ( );
+
+			var desc	= '';
+
+			writeInvocation ( rows, hotkeys, desc );
+		</script>
+
+		<!-- Process -->
+		<script language="javascript">
+			var headline = 	'Process';
+			var desc = 		'Errors are parsed as code is entered.  For example, the following code ' +
+							'lacks proper indentation and expression after the method declaration ' +
+							'for barfoo:<br><br>' +
+							'<img src="images/editor_error_01.jpg"><br><br>' +
+							'Markers will demonstrate the location of the error by underlining ' +
+							'problem areas and showing the error symbol on the editor frame, as well ' +
+							'as giving detailed descriptions in Eclipse\'s Task/Error list:<br><br>' +
+							'<img src="images/editor_error_02.jpg">';
+
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Selection -->
+		<script language="javascript">
+			var headline = 	'Selection';
+			var desc = 		'';
+
+			writeGeneric ( headline, desc );
+		</script>
 
 	</body>
 

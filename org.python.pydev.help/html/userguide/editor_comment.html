@@ -33,8 +33,8 @@
 			heads[i] 	= 'PyDev User Guide';
 			links[i++] 	= 'index.html';
 
-			heads[i] 	= 'Features';
-			links[i++] 	= '';
+			heads[i] 	= 'Editor';
+			links[i++] 	= 'editor.html';
 
 			heads[i] 	= 'Bulk Comment';
 			links[i++] 	= 'editor_comment.html';
@@ -42,31 +42,55 @@
 			writeHeading ( heads, links );
 		</script>
 
-		<p>
-		Besides regular commenting, PyDev allows you to comment out sections of code easily.<br>
-		<br>
-		From this:<br>
-		<br>
-		<img src="images/editor_blockc_06.jpg"><br>
-		<br>
-		To this:<br>
-		<br>
-		<img src="images/editor_blockc_05.jpg"><br>
-		<br>
-		In order to make bulk comments, highlight a body of text in the editor, and do one of the following:<br>
-		<ul>
-		<li>Source Menu -> Comment
-		<li>Right-Click -> Source -> Comment
-		<li>Ctrl+/
-		</ul>
-		You may remove a selected bulk comment with:<br>
-		<ul>
-		<li>Source -> Comment
-		<li>Right-Click -> Source -> Uncomment
-		<li>Ctrl+\
-		</ul>
-		</p>
+		<!-- Description -->
+		<script language="javascript">
+			var headline = 	'Description';
+			var desc	= 	'Bulk Comments are lines of code with the <strong>#</strong> token ' +
+							'preceding them, which can be formed by selecting lines of code ' +
+							'and calling the Comment action within the editor.';
 
+			writeGeneric ( headline, desc );
+		</script>
+		
+		<!-- Invocation -->
+		<script language="javascript">
+			var rows = new Array ( );
+			var hotkeys = new Array ( );
+
+			rows[0] 	= 1;
+			rows[1] 	= 2;
+
+			hotkeys[0] 	= 'Ctrl+/';
+			hotkeys[1] 	= 'Ctrl+\\';
+			
+			var desc	= '';
+
+			writeInvocation ( rows, hotkeys, desc );
+		</script>
+
+		<!-- Process -->
+		<script language="javascript">
+			var headline = 	'Process';
+			var desc = 		'Will convert a selected body of text from this:<br><br>' +
+							'<img src="images/editor_blockc_06.jpg"><br><br>' +
+							'To this:<br><br>' +
+							'<img src="images/editor_blockc_05.jpg"><br><br>' +
+							'And vice-versa (through the Uncomment command).';
+		
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Selection -->
+		<script language="javascript">
+			var headline = 	'Selection';
+			var desc = 		'Highlight a body of text in the editor to transform all included ' +
+							'lines into a Comment region.  If you select no lines, the ' +
+							'line the cursor is on will be turned into a Comment region.  This ' +
+							'works the same in reverse, with the Uncomment action.';
+		
+			writeGeneric ( headline, desc );
+		</script>
+		
 	</body>
 
 </html>

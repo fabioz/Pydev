@@ -33,8 +33,8 @@
 			heads[i] 	= 'PyDev User Guide';
 			links[i++] 	= 'index.html';
 
-			heads[i] 	= 'Features';
-			links[i++] 	= '';
+			heads[i] 	= 'Editor';
+			links[i++] 	= 'editor.html';
 
 			heads[i] 	= 'Outline View';
 			links[i++] 	= 'editor_outline.html';
@@ -42,9 +42,50 @@
 			writeHeading ( heads, links );
 		</script>
 
-		<p>
-		...
-		</p>
+		<!-- Description -->
+		<script language="javascript">
+			var headline = 	'Description';
+			var desc	= 	'Outline view displays a hierarchal structure of classes, methods, and imports ' +
+							'within the active file, and is updated real-time as code is entered.  ' +
+							'Selecting a class or method within the outline view jumps to and highlights ' +
+							'that particular class or method in the file.';
+
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Invocation -->
+		<script language="javascript">
+			var rows = new Array ( );
+			var hotkeys = new Array ( );
+
+			var desc	= 	'If the Outline view is not showing, you may open it through the ' +
+							'Eclipse menu via Window -> Show View -> Outline.';
+
+			writeInvocation ( rows, hotkeys, desc );
+		</script>
+
+		<!-- Process -->
+		<script language="javascript">
+			var headline = 	'Process';
+			var desc = 		'The Outline View shows a hierarchal view of your code\'s classes, methods, ' +
+							'and imports, and is updated while you enter in code.<br><br>' +
+							'Suppose the code and outline initially looks as follows:<br><br>' +
+							'<img src="images/editor_outline_01.jpg"><br><br>' +
+							'If I decided to dedent method barfoo, shortly after the dedent the ' +
+							'outline would update to reflect that barfoo is no longer a method within ' +
+							'class foo, and change to the following:<br><br>' +
+							'<img src="images/editor_outline_02.jpg">';
+
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Selection -->
+		<script language="javascript">
+			var headline = 	'Selection';
+			var desc = 		'';
+
+			writeGeneric ( headline, desc );
+		</script>
 
 	</body>
 

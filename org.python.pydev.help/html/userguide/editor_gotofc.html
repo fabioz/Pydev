@@ -33,8 +33,8 @@
 			heads[i] 	= 'PyDev User Guide';
 			links[i++] 	= 'index.html';
 
-			heads[i] 	= 'Features';
-			links[i++] 	= '';
+			heads[i] 	= 'Editor';
+			links[i++] 	= 'editor.html';
 
 			heads[i] 	= 'Go to First Character';
 			links[i++] 	= 'editor_gotofc.html';
@@ -42,9 +42,60 @@
 			writeHeading ( heads, links );
 		</script>
 
-		<p>
-		...
-		</p>
+		<!-- Description -->
+		<script language="javascript">
+			var headline = 	'Description';
+			var desc	= 	'This action allows the user to go to the first non-whitespace character ' +
+							'on the line their cursor is on.  If the cursor is already at that ' +
+							'character, it jumps to the first character on the line (including ' +
+							'whitespace.';
+
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Invocation -->
+		<script language="javascript">
+			var rows = new Array ( );
+			var hotkeys = new Array ( );
+
+			rows[0] 	= 3;
+
+			hotkeys[0] 	= 'Home';
+
+			var desc	= '';
+
+			writeInvocation ( rows, hotkeys, desc );
+		</script>
+
+		<!-- Process -->
+		<script language="javascript">
+			var headline = 	'Process';
+			var desc = 		'From the location your cursor is positioned, invoking this action will ' +
+							'cause the cursor to jump to the first non-whitespace character in that ' +
+							'line.<br><br>' +
+							'Invoking the action with the cursor here within method foobar:<br><br>' +
+							'<img src="images/editor_gotomc_01.jpg"><br><br>' +
+							'Or with the cursor on whitespace on the same line:<br><br>' +
+							'<img src="images/editor_gotofc_01.jpg"><br><br>' +
+							'Jumps the cursor to the first non-whitespace:<br><br>' +
+							'<img src="images/editor_gotofc_02.jpg"><br><br>' +
+							'Invoking the action again jumps to the first character in the line:<br><br>' +
+							'<img src="images/editor_gotofc_03.jpg">';
+
+			writeGeneric ( headline, desc );
+		</script>
+
+		<!-- Selection -->
+		<script language="javascript">
+			var headline = 	'Selection';
+			var desc = 		'If the cursor is on a single line, highlighted or otherwise, it will ' +
+							'jump to the first non-whitespace character on that line.  If the cursor ' +
+							'is already at that character, it will jump to the first character on the ' +
+							'line.  If a group of lines are highlighted, the cursor will act as if ' +
+							'only the first line in the group has been selected.';
+
+			writeGeneric ( headline, desc );
+		</script>
 
 	</body>
 
