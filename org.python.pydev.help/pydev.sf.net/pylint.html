@@ -14,8 +14,8 @@
 <tr align="center" bgcolor="#eeeeee" valign="middle">
 <td colspan="7" nowrap="nowrap">
 <center>
-<p class="header_text">Last Site Update: 25 January 2005 |
-Latest Version: 0.8.5</p>
+<p class="header_text">Last Site Update: 03 February 2005 |
+Latest Version: 0.9.0</p>
 </center>
 </td>
 </tr>
@@ -222,7 +222,6 @@ cellspacing="0" width="200">
 </tr>
 
 
-
 <tr>
 <td colspan="2"><a class="menu_links" href=
 "credits.html">Credits</a> </td>
@@ -234,6 +233,17 @@ cellspacing="0" width="200">
 <td colspan="2"><span class="menu_headings">More info</span>
 </td>
 </tr>
+
+
+
+
+
+<tr>
+<td colspan="2"><a class="menu_links" href=
+"faq.html">FAQ / BUGS</a> </td>
+</tr>
+
+
 
 <tr>
 <td colspan="2">
@@ -339,11 +349,11 @@ alt="" src="images/paypal.gif" alt=
 <td valign="top" align="left"><!-- begin main.text -->
 <h2><a href="http://www.logilab.org/projects/pylint">PyLint</a> (0.6.0) is integrated in PyDev! </h2>
 <br>
-I REALLY recommend upgrading to this version, and it is MUCH more stable than previous versions!<br>
+I REALLY recommend upgrading to this version, and it is MUCH more stable than previous versions (and really worth using)!<br>
 <br>
 NOTE: <a href="http://www.logilab.org/projects/pylint">Pylint</a> is <b>disabled by default</b>, so, if you want to activate it, you should
-go to the pylint preferences page and activate it (note: after activating it, you have to clean your project on the project menu
-so that the files are checked with pylint).
+go to the pylint preferences page and activate it (note: after activating it, you can clean your project on the project menu
+so that the files are checked with pylint, or you can do it on deltas as you go and change your files).
 <br>
 <p><img src="images/pylint_prefs.png" border=1/> </p>
 <br>
@@ -358,12 +368,11 @@ at any time if you want) - you should expect that it takes some secs. for each
 file it analyzes, so, if you are working with about 700 files - like I am - it can
 take a long time - more than 40 minutes to get all the info on the project...<br>
 <br>
-As this can be quite annoying sometimes, I would recommend not using automatic build, so that it only
-builds when you do a full build (Ctrl+B - see project menu).<br>
+For this cases, I have provided an option on the maximum delta to use PyLint on. So, if you have all of
+the sudden 100 changed files because of a cvs update, PyLint will not be run unless the limit you specify 
+allows it.
 <br>
-Anyway if you do a full build only once and then just work with the deltas, there should be no problem...<br>
-<br>
-And if you don't see the problems on your problems view, don't forget to enable it in the problems view filter.
+Oh, if you don't see the problems on your problems view, don't forget to enable it in the problems view filter.
 <br>
 <p><img src="images/pylint.png" border=1/> </p>
 <br>

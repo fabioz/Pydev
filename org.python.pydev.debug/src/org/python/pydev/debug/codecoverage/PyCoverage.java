@@ -116,8 +116,6 @@ public class PyCoverage {
                 files += "\r";
                 monitor.setTaskName("Writing to shell...");
 
-//                System.out.println("Writing to shell... " + files);
-
                 monitor.worked(1);
                 p.getOutputStream().write(files.getBytes());
 
@@ -126,9 +124,6 @@ public class PyCoverage {
                 monitor.setTaskName("Getting coverage info...(please wait, this could take a while)");
                 monitor.worked(1);
                 while ((str = in.readLine()) != null) {
-
-//                    System.out.println("STDOUT: " + str);//get the data...
-
                     analyzeReadLine(monitor, str);
                 }
                 in.close();

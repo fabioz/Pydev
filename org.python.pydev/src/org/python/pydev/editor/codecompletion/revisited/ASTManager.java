@@ -343,13 +343,9 @@ public class ASTManager implements Serializable, IASTManager {
         if (n == null){
             n = (AbstractModule) modules.get(new ModulesKey(name+".__init__", null));
         }
-        if(n == null){
-//            System.out.println("The module "+name+" could not be found!");
-        }
         
         if (n instanceof EmptyModule){
             EmptyModule e = (EmptyModule)n;
-            //System.out.println("Loading module: "+name+ " file "+e.f);
 
             //let's treat os as a special extension, since many things it has are too much
             //system dependent, and being so, many of its useful completions are not goten
@@ -378,7 +374,6 @@ public class ASTManager implements Serializable, IASTManager {
             }
             
             if(n != null){
-	            //System.out.println("Loaded");
 	            this.modules.put(new ModulesKey(name, e.f), n);
             }else{
                 System.err.println("The module "+name+" could not be found nor created!");
@@ -482,7 +477,7 @@ public class ASTManager implements Serializable, IASTManager {
                         if(completionsForModule.length > 0)
                             return completionsForModule;
                     } else {
-//                        System.out.println("Module not found:" + name.getRepresentation());
+                        //"Module not found:" + name.getRepresentation()
                     }
                 }
 
@@ -511,7 +506,7 @@ public class ASTManager implements Serializable, IASTManager {
 
             
         }else{
-            System.out.println("Module passed in is null!!");
+            System.err.println("Module passed in is null!!");
         }
         
         return new IToken[0];
@@ -604,7 +599,7 @@ public class ASTManager implements Serializable, IASTManager {
                     completions.add(completionsForModule[j]);
                 }
             } else {
-//                System.out.println("Module not found:" + name.getRepresentation());
+                //"Module not found:" + name.getRepresentation()
             }
         }
 
@@ -705,7 +700,6 @@ public class ASTManager implements Serializable, IASTManager {
                         tok = tok1;
                     }
                 }
-//                System.out.println(tok);
                 
                 if(tok.length() == 0){
                     //the activation token corresponds to an imported module. We have to get its global tokens and return them.

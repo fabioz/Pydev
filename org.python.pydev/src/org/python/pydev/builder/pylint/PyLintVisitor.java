@@ -61,7 +61,6 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 	            
 	            String output = SimplePythonRunner.runAndGetOutput(script.getAbsolutePath(), lintargs+arg.getAbsolutePath(), script.getParentFile());
 
-//	            System.out.println(output);
 	            StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
 	            
 	            boolean useW = PyLintPrefPage.useWarnings();
@@ -130,11 +129,10 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                 createMarker(resource, "ID:"+id+" "+tok , line,  type, priority);
                             }
                         } catch (RuntimeException e2) {
-//                            System.out.println("ERROR - "+initial);
-//                            e2.printStackTrace();
+                            e2.printStackTrace();
                         }
                     } catch (Exception e1) {
-//                        e1.printStackTrace();
+                        e1.printStackTrace();
                     }
 	            }
             } catch (CoreException e) {

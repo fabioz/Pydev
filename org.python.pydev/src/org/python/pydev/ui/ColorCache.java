@@ -71,7 +71,7 @@ public class ColorCache {
 					color = getColor(new RGB(0,0,0));
 				}
 				else {
-					System.out.println("Unknown color:" + name);
+					System.err.println("Unknown color:" + name);
 					color = getColor(new RGB(255,0,0));
 				}
 			}

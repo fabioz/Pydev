@@ -133,6 +133,7 @@ def Main():
     channelPydevFeatures     = '1935586933'
     channelPydevFeaturesMain = '9124732182'
     channelPydevIndex        = '0232202381'
+    channelPydevFaq          = '9395062605'
     
     
     Template( '_template.html', 'index'                   , 'Pydev'                    ,None             , channelPydevIndex        , None)
@@ -141,7 +142,7 @@ def Main():
     Template( '_template.html', 'download'                , 'Download'                 ,None             , channelPydev             , None)
     Template( '_template.html', 'roadmap'                 , 'Roadmap'                  ,None             , channelPydev             , None)
     Template( '_template.html', 'codecompletionsnapshots' , 'Code Completion Snapshots',None             , channelPydevFeatures     , None)
-    Template( '_template.html', 'faq'                     , 'FAQ'                      ,None             , channelPydev             , None)
+    Template( '_template.html', 'faq'                     , 'FAQ'                      ,None             , channelPydevFaq          , None)
     Template( '_template.html', 'credits'                 , 'Credits'                  ,None             , channelPydev             , None)
     Template( '_template.html', 'run'                     , 'Run'                      ,None             , channelPydev             , None)
     Template( '_template.html', 'debug_prefs'             , 'Debug Preferences'        ,None             , channelPydev             , None)

@@ -90,7 +90,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         Composite p = getFieldEditorParent();
 
         addField(new BooleanFieldEditor(USE_PYLINT, "Use pylint?", p));
-        addField(new IntegerFieldEditor(MAX_PYLINT_DELTA, "Maximun delta to run PyLint?", p));
+        addField(new IntegerFieldEditor(MAX_PYLINT_DELTA, "Max delta to run PyLint?", p));
         FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of pylint:", true, p);
         addField(fileField);
 

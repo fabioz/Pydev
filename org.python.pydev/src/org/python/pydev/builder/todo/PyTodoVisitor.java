@@ -37,7 +37,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
 	            try {
 	                resource.deleteMarkers(IMarker.TASK, false, IResource.DEPTH_ZERO);
 	
-	                int line = 1;
+	                int line = 0;
 	                while (line < numberOfLines) {
 	                    IRegion region = document.getLineInformation(line);
 	                    String tok = document.get(region.getOffset(), region.getLength());
