@@ -10,13 +10,21 @@ New features:
 that opens a python editor.
 - Added Python properties to projects that have Python nature
 - Editor now has a python icon. Icon is ugly, help!
-- .pyc files are filtered in the resource view
-- Parsing now happens either immediately on return, or a second after the last typing.
+- .pyc files are filtered out in the resource view
+- Parsing now happens either immediately on return, or a second after input
 This makes error notifications nicer and more predictable
 - New double-clicking strategy, copied from Java
 - Moved debug preferences into main plugin. We need them for import paths parsing
 - Hyperlinks on simple imports now work. For them to find system includes, you'll need to
-set up the python interpreter in the preferences
+set up the python interpreter in the preferences.
+	active hyperlinks are:
+		[imports] import sys: you can click on sys, and sys.py will open
+		[local function calls]: functions defined in the same file
+		[class constructors]: a = SomeClass() takes you to class definition
+		[self.method calls]: self.method_name works if method is defined in the same file
+- When you are editing in the tab mode, paste will replace spaces with tabs
+- tabs/spaces conversion only takes place inside code, not inside comments
+
 Bug fixes:
 - Moved parsing so that all pydev parsers use single thread
 -
