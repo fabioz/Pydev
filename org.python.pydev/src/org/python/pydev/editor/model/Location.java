@@ -38,9 +38,7 @@ public class Location {
 	}
 
 	/**
-	 * @param location
-	 * @param location2
-	 * @return
+	 * @return true if location is completely enclosed between start & end.
 	 */
 	public boolean contained(Location start, Location end) {
 		boolean startOk = (line > start.line || line == start.line && column >= start.column);

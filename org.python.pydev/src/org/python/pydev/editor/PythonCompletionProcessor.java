@@ -94,7 +94,6 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 	/**
 	 * @param doc
 	 * @param documentOffset
-	 * @return
 	 */
 	private String getQualifier(IDocument doc, int documentOffset) {
 		// use a StringBuffer to collect the bunch of proposals

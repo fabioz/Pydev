@@ -709,7 +709,7 @@ class EditorUtility {
  * manner as #findModifier.
  * 
  * @return the SWT modifier bit, or <code>0</code> if no match was found
- * @see findModifier
+ *
  * @since 2.1.1
  */
 public static int findLocalizedModifier(String token) {

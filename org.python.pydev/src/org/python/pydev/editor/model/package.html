@@ -1,11 +1,11 @@
 <body>
 The model represents the structure of the python file.
 
-<p>{@link org.python.pydev.model.ModelMaker ModelMaker} 
+<p>{@link ModelMaker ModelMaker} 
 creates the model from AST by traversing the tree.
-<p>{@link org.python.pydev.model.ModelUtils ModelUtils}
+<p>{@link  ModelUtils}
 have various utility functions for model traversal, etc.
-<p>{@link org.python.pydev.model.AbstractNode AbstractNode}
+<p>{@link org.python.pydev.editor.model.AbstractNode AbstractNode}
 is the main node API. Subclasses modify it as needed. See
 ClassNode, FunctionCallNode, etc...
 <p>The definitions of local variables are inferred. The first

@@ -20,6 +20,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 public class PyAddBlockComment extends PyAction {
 
 	/**
+	 * .
 	 * Insert a comment block.
 	 *                #===...
 	 * 				  #

@@ -103,8 +103,8 @@ public class Scope {
 	}
 	
 	/**
-	 * @param name: function name
-	 * @param c: comparator to test for.
+	 * @param token : function name
+	 * @param c : comparator to test for.
 	 * @return an ArrayList of AbstractNode to the function/class definitions. 
 	 * each returned item will test as equal in c.compare(token, item);
 	 * null is never returned, there will be an empty array if none were found.
@@ -143,7 +143,7 @@ public class Scope {
 	
 	/**
 	 * get all the import files
-	 * @param startingPoint: a file to start searching from 
+	 * @param startingPoint : a file to start searching from 
 	 * @return an ordered ArrayList of File of all import paths for the project.
 	 */
 	private ArrayList getImportPaths(IPath startingPoint) {

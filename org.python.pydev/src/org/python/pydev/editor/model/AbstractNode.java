@@ -119,14 +119,11 @@ public abstract class AbstractNode {
 	 */
 	public void fixColumnLocation(Location loc, String lineText) {
 		int where = 0;
-		int tabCount = 0;
 		where = lineText.indexOf("\t", where);
 		while (where != -1 && where <= loc.column) {
 			where = lineText.indexOf("\t", where+1);
-			tabCount++;
+			loc.column -= 7;
 		}
-		if (tabCount > 0)
-			loc.column = loc.column - tabCount * 7;
 		if (loc.column < 0) {
 			loc.column = 0;
 			PydevPlugin.log(IStatus.ERROR, "Unexpected columnFixLocation error", null);

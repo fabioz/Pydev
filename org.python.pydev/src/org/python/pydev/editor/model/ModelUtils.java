@@ -51,10 +51,9 @@ public class ModelUtils {
 
 	/**
 	 * Depth-first search for a node that spans given location.
-	 * @param root: node to start the search with
-	 * @param loc: location we are looking for
-	 * @param properties: properties node must match. Pass in PROP_ANY for all nodes
-	 * @return
+	 * @param root : node to start the search with
+	 * @param loc : location we are looking for
+	 * @param properties : properties node must match. Pass in PROP_ANY for all nodes
 	 */	
 	public static AbstractNode getElement(AbstractNode root, Location loc, int properties) {
 		if (root == null)
@@ -122,7 +121,6 @@ public class ModelUtils {
 	 * This gets the previous node by position. The nodes are ordered,
 	 * and each parent is smaller than its children.
 	 * The siblings after me are greater, the ones before are smaller
-	 * @return
 	 */
 	public static AbstractNode getPreviousNode(AbstractNode node) {
 		if (node == null)

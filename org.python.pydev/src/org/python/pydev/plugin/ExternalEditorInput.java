@@ -18,6 +18,11 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * An EditorInput for an external file.
+ * 
+ * From Eclipse: EditorInput is like a file name, but more abstract
+ * It gets passed in to EditorPart. FileStorageEditorInput exposes the 
+ * file, and that's how documents get their bytes. StorageEditorInput
+ * exposes the InputStream.
  */
 public class ExternalEditorInput implements IStorageEditorInput {
 

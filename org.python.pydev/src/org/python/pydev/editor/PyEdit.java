@@ -283,9 +283,14 @@ public class PyEdit extends TextEditor implements IParserListener {
 		// Remove all the error markers
 		IEditorInput input = getEditorInput();
 		IPath filePath = null;
-		if (input instanceof IStorageEditorInput)
+		if (input instanceof IFileEditorInput) {
+			IFile file = ((IFileEditorInput)input).getFile();
+			filePath = file.getLocation();
+		}
+		else if (input instanceof IStorageEditorInput)
 			try {
 				filePath = ((IStorageEditorInput)input).getStorage().getFullPath();
+				filePath = ((IPath)filePath).makeAbsolute();
 			} catch (CoreException e2) {
 				PydevPlugin.log(IStatus.ERROR, "unexpected error getting path", e2);
 			}

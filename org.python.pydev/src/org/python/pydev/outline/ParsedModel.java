@@ -27,7 +27,6 @@ public class ParsedModel implements IOutlineModel {
 
 	/**
 	 * @param outline - If not null, view to notify when parser changes
-	 * @param parser
 	 */
 	public ParsedModel(PyOutlinePage outline, PyEdit editor) {
 		this.editor = editor;
