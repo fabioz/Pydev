@@ -14,5 +14,5 @@
 http://www.logilab.fr/ -- mailto:contact@logilab.fr  
 """
 
-__revision__ = '$Id: __init__.py,v 1.2 2004-10-26 14:18:32 fabioz Exp $'
+__revision__ = '$Id: __init__.py,v 1.3 2005-01-21 17:42:01 fabioz Exp $'
 

@@ -17,7 +17,7 @@ Define a logger interface and two concrete loggers : one which prints
 everything on stdout, the other using syslog.
 """
 
-__revision__ = "$Id: logger.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
+__revision__ = "$Id: logger.py,v 1.3 2005-01-21 17:42:05 fabioz Exp $"
 
 
 import sys
@@ -101,13 +101,16 @@ class PrintLogger(AbstractLogger):
     log everything to a file, using the standard output by default
     """
     
-    def __init__(self, threshold, output=sys.stdout, sid=None):
+    def __init__(self, threshold, output=sys.stdout, sid=None, encoding='UTF-8'):
         AbstractLogger.__init__(self, threshold)
         self.output = output
         self.sid = sid
+        self.encoding = encoding
         
     def _writelog(self, priority, message):
         """overriden from AbstractLogger"""
+        if isinstance(message, unicode):
+            message = message.encode(self.encoding, 'replace')
         if self.sid is not None:
             self.output.write('[%s] [%s] %s\n' % (time.asctime(), self.sid,
                                                   message))
@@ -122,15 +125,18 @@ class SysLogger(AbstractLogger):
     use the LOCAL_7 facility
     """
 
-    def __init__(self, threshold, sid):
+    def __init__(self, threshold, sid=None, encoding='UTF-8'):
         import syslog
         AbstractLogger.__init__(self, threshold)
         if sid is None:
             sid = 'syslog'
+        self.encoding = encoding
         syslog.openlog(sid, syslog.LOG_PID)
         
     def _writelog(self, priority, message):
         """overriden from AbstractLogger"""
         import syslog
+        if isinstance(message, unicode):
+            message = message.encode(self.encoding, 'replace')
         syslog.syslog(priority | syslog.LOG_LOCAL7, message)
 

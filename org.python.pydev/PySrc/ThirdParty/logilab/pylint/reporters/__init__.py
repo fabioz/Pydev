@@ -16,7 +16,7 @@
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
-__revision__ = "$Id: __init__.py,v 1.2 2004-10-26 14:18:37 fabioz Exp $"
+__revision__ = "$Id: __init__.py,v 1.3 2005-01-21 17:42:10 fabioz Exp $"
 
 import sys
 
@@ -53,10 +53,6 @@ class BaseReporter:
     def writeln(self, string=''):
         """write a line in the output buffer"""
         print >> self.out, string
-
-    def write(self, string=''):
-        """write a line in the output buffer"""
-        print >> self.out, string,
         
     def display_results(self, layout):
         """display results encapsulated in the layout tree"""

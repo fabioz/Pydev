@@ -10,11 +10,51 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2002-2003 LOGILAB S.A. (Paris, FRANCE).
+""" Copyright (c) 2002-2004 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
+
+Sample usage
+````````````
+
+import sys
+from logilab.common.configuration import Configuration
+
+options = [('dothis', {'type':'yn', 'default': True, 'metavar': '<y or n>'}),
+           ('value', {'type': 'string', 'metavar': '<string>'}),
+           ('multiple', {'type': 'csv', 'default': ('yop',),
+                         'metavar': '<comma separated values>',
+                         'help': 'you can also document the option'}),
+           ('number', {'type': 'int', 'default':2, 'metavar':'<int>'}),
+           ]
+config = Configuration(options=options, name='My config')
+print config['dothis']
+print config['value']
+print config['multiple']
+print config['number']
+
+config.help()
+
+f = open('myconfig.ini', 'w')
+f.write('''[MY CONFIG]
+number = 3
+dothis = no
+multiple = 1,2,3
+''')
+f.close()
+config.load_file_configuration('myconfig.ini')
+print config['dothis']
+print config['value']
+print config['multiple']
+print config['number']
+
+sys.argv = ['mon prog', '--value', 'bacon', '--multiple', '4,5,6', 'nonoptionargument']
+print config.load_command_line_configuration()
+print config['value']
+
+config.generate_config()
 """
 
-__revision__ = "$Id: configuration.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
+__revision__ = "$Id: configuration.py,v 1.3 2005-01-21 17:42:03 fabioz Exp $"
 
 import sys
 import re
@@ -24,7 +64,7 @@ from copy import copy
 from ConfigParser import ConfigParser, NoOptionError, NoSectionError
 
 from logilab.common.optik_ext import OptionParser, OptionGroup, Values, \
-     OptionValueError, check_yn, check_csv
+     OptionValueError, check_yn, check_csv, check_file, check_color
 from logilab.common.textutils import normalize_text, unquote
 
 class UnsupportedAction(Exception):
@@ -58,10 +98,22 @@ def yn_validator(opt_dict, name, value):
     """validate and return a converted value for option of type 'yn'
     """
     return check_yn(None, name, value)
-   
+
+def file_validator(opt_dict, name, value):
+    """validate and return a filepath for option of type 'file'"""
+    return check_file(None, name, value)
+
+def color_validator(opt_dict, name, value):
+    """validate and return a filepath for option of type 'file'"""
+    return check_color(None, name, value)
+
+
 VALIDATORS = {'string' : unquote,
               'int' : int,
               'float': float,
+              'file': file_validator,
+              'font': unquote,
+              'color': color_validator,
               'regexp': re.compile,
               'csv': csv_validator,
               'yn': yn_validator,
@@ -69,7 +121,7 @@ VALIDATORS = {'string' : unquote,
               'multiple_choice': multiple_choice_validator,
               }
 
-def convert(value, opt_dict, name = ''):
+def convert(value, opt_dict, name=''):
     """return a validated value for an option according to its type
     
     optional argument name is only used for error message formatting
@@ -106,8 +158,10 @@ def format_section(stream, section, options, doc=None):
             value = value.pattern
         elif opt_dict.get('type') == 'yn':
             value = value and 'yes' or 'no'
-        else:
-            value = repr(value)
+        elif isinstance(value, (str, unicode)) and value.isspace():
+            value = "'%s'" % value
+        #else:
+        #    value = repr(value)
         help_msg = opt_dict.get('help')
         if help_msg:
             print >> stream, normalize_text(help_msg, indent='# ')
@@ -134,7 +188,7 @@ class OptionsManagerMixIn:
         self.quiet = quiet
         
     def register_options_provider(self, provider, own_group=1):
-        """register an options provider """
+        """register an options provider"""
         assert provider.priority <= 0, "provider's priority can't be >= 0"
         for i in range(len(self.options_providers)):
             if provider.priority > self.options_providers[i].priority:
@@ -262,7 +316,7 @@ class OptionsManagerMixIn:
                     # type casting
                     value = convert(value, opt_dict, opt_name)
                     provider.set_option(opt_name, value)
-                except (NoSectionError, NoOptionError):
+                except (NoSectionError, NoOptionError), ex:
                     continue
 
     def load_configuration(self, **kwargs):
@@ -380,23 +434,30 @@ class OptionsProviderMixIn:
                 opt_name, self.name))
         
 class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
-    
+    """basic mixin for simple configurations which don't need the
+    manager / providers model
+    """
     def __init__(self, *args, **kwargs):
         if not args:
             kwargs.setdefault('usage', '')
         kwargs.setdefault('quiet', 1)
         OptionsManagerMixIn.__init__(self, *args, **kwargs)
         OptionsProviderMixIn.__init__(self)
-        self.register_options_provider(self)
+        self.register_options_provider(self, own_group=0)
 
 class Configuration(ConfigurationMixIn):
+    """class for simple configurations which don't need the
+    manager / providers model and prefer delegation to inheritance
 
-    def __init__(self, config_file=None, options=None, name=None):
+    configuration values are accessible through a dict like interface
+    """
+
+    def __init__(self, config_file=None, options=None, name=None, usage=None):
         if options is not None:
             self.options = options
         if name is not None:
             self.name = name
-        ConfigurationMixIn.__init__(self, config_file=config_file)
+        ConfigurationMixIn.__init__(self, config_file=config_file, usage=usage)
 
     def __getitem__(self, key):
         try:

@@ -1,6 +1,6 @@
 """A set of utility function to ease the use of OmniORBpy."""
 
-__revision__ = '$Id: corbautils.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $'
+__revision__ = '$Id: corbautils.py,v 1.3 2005-01-21 17:42:05 fabioz Exp $'
 
 from omniORB import CORBA,PortableServer
 import CosNaming

@@ -17,25 +17,29 @@
 Some text manipulation utilities
 """
 
-__revision__ = "$Id: textutils.py,v 1.2 2004-10-26 14:18:33 fabioz Exp $"
+__revision__ = "$Id: textutils.py,v 1.3 2005-01-21 17:42:03 fabioz Exp $"
 
 import re
 from os import linesep
+from warnings import warn
 
-NORM_SPACES = re.compile('\s+')
+NORM_SPACES = re.compile('[ \t\f]+')
 
 def unquote(string):
     """return the unquoted string"""
+    if not string:
+        return string
     if string[0] in '"\'':
         string = string[1:]
     if string[-1] in '"\'':
         string = string[:-1]
     return string
 
-
 def searchall(rgx, data):
     """apply a regexp using "search" until no more match is found
     """
+    warn('logilab.common.textutils.searchall() is deprecated, use '
+         're.finditer() instead', DeprecationWarning)
     result = []
     match = rgx.search(data)
     while match is not None:
@@ -62,15 +66,15 @@ def normalize_paragraph(text, line_len=80, indent=''):
     lines = []
     while text:
         text = text.strip()
-        pos = min(len(indent) + len(text) - 1, line_len)
-        if pos == line_len:
+        pos = min(len(indent) + len(text), line_len)
+        if pos == line_len and len(text) > line_len:
             pos = pos - len(indent)
-            while text[pos] not in (' ', '\t'):
+            while pos > 0 and text[pos] != ' ':
                 pos -= 1
             if pos == 0:
-                pos = min(len(indent) + len(text) - 1, line_len)
+                pos = min(len(indent) + len(text), line_len)
                 pos = pos - len(indent)
-                while text[pos] not in (' ', '\t'):
+                while text[pos] != ' ':
                     pos += 1
         lines.append(indent + text[:pos])
         text = text[pos+1:]

@@ -1,7 +1,7 @@
 # pylint: disable-msg=W0611
 #
-# Copyright (c) 2003 Sylvain Thenault (thenault@nerim.net)
-# Copyright (c) 2003-2004 Logilab
+# Copyright (c) 2003-2005 Sylvain Thenault (thenault@gmail.com)
+# Copyright (c) 2003-2005 Logilab (contact@logilab.fr)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -84,18 +84,25 @@ on From and Import :
  .get_module_object,
  
 """
+
 from __future__ import generators
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: astng.py,v 1.4 2004-11-03 10:44:45 fabioz Exp $"
+__revision__ = "$Id: astng.py,v 1.5 2005-01-21 17:42:09 fabioz Exp $"
 
+import __builtin__
 from compiler.ast import *
 from inspect import isclass
+
+import re
+ID_RGX = re.compile('^[a-zA-Z_][a-zA-Z_0-9]*$')
+del re
 
 from logilab.common.modutils import get_module_part, load_module_from_name
 from logilab.common.astng import ResolveError, NotFoundError, ASTNGManager, \
      ASTNGBuildingException
 from logilab.common.compat import chain        
+
 
 # Node  ######################################################################
 
@@ -162,6 +169,30 @@ def previous_sibling(node):
 
 Node.previous_sibling = previous_sibling
 
+def source_line(node):
+    """return the line number where the given node appears
+
+    we need this method since not all node as the lineno attribute
+    correctly set...
+    """
+    line = node.lineno
+    if line is None:
+        # FIXME: log node with the missing line no
+        _node = node
+        try:
+            while line is None:
+                _node = _node.getChildNodes()[0]
+                line = _node.lineno
+        except IndexError:
+            _node = node.parent
+            while _node and line is None:
+                line = _node.lineno
+                _node = _node.parent
+        node.lineno = line
+    return line
+
+Node.source_line = source_line
+
 def set_local(node, name, stmt):
     """define <name> in locals (<stmt> is the node defining the name)
     if the node is a Module node (i.e. has globals), add the name to globals
@@ -175,89 +206,6 @@ def set_local(node, name, stmt):
             
 Node.set_local = set_local
 
-import re
-ID_RGX = re.compile('^[a-zA-Z_][a-zA-Z_0-9]*$')
-del re
-
-import __builtin__
-
-def resolve(node, name):
-    """try to resolve the value (astng node) associated to an
-    identifier <name>.
-
-    Raises ResolveError if it has been unable to resolve the name.
-    """
-    assert ID_RGX.match(name), '%r is not a valid identifier' % name
-    frame = node.get_frame()
-    try:
-        stmt = frame.locals[name]
-    except KeyError:
-        try:
-            stmt = frame.root().globals[name]
-        except KeyError:
-            try:
-                object = getattr(__builtin__, name)
-            except AttributeError:
-                try:
-                    import qt
-                    object = getattr(qt, name)
-                except:
-                    raise ResolveError(name)
-                    
-            if name in ('None', 'True', 'False'):
-                return Const(eval(name))
-            module = getattr(object, '__module__', '__builtin__')
-            # the first test avoid infinite loops
-            if frame.name.split('.')[-1] == module or not isclass(object):
-                raise ResolveError(name)
-            # FIXME: may not be a class
-            return ASTNGManager().astng_from_class(object, module)
-    # nodes with "object" attribute are final objects such as class / function
-    # definitions
-    if hasattr(stmt, 'object'):
-        return stmt
-    if isinstance(stmt, AssName):
-        assigned = stmt.get_assigned_value()
-        if isinstance(assigned, Name):
-            return resolve(stmt.get_frame(), assigned.name)
-        return assigned
-        # FIXME
-    elif isinstance(stmt, Import) or isinstance(stmt, From):
-        context_file = node.root().file
-        try:
-            modname, obj = stmt.get_module_object(name, context_file)
-        # FIXME: log error...
-        except ImportError:
-            raise ResolveError(name)
-        except Exception, ex:
-            raise ResolveError(name)
-#            raise
-        # check that get_module_object seems to have worked correctly...
-        if obj is not None and obj.find('.') > -1:
-            raise ResolveError(name)
-        # handle special case where we are on a package node importing a module
-        # using the same name as the package, which may end in an infinite loop
-        # on relative imports
-        if modname == getattr(node, 'name', None):
-            # FIXME: I don't know what to do here...
-            raise ResolveError(name)
-        try:
-            module = ASTNGManager().astng_from_module_name(modname)
-        except SyntaxError:
-            # FIXME
-            raise ResolveError(name)
-            
-        assert not (module is node and obj == name), \
-               str((node.file, node.name, name))
-        if obj:
-            return module.resolve(obj)
-        return module
-    elif isinstance(stmt, Global):
-        return stmt.root().resolve(name)
-    return stmt
-    
-Node.resolve = resolve
-
 def resolve_dotted(node, name):
     """resolve a dotted names"""
     parts = name.split('.')
@@ -268,7 +216,6 @@ def resolve_dotted(node, name):
 
 Node.resolve_dotted = resolve_dotted
 
-
 def resolve_all(node, names):
     """return an iterator the resolved names"""
     for name in names:
@@ -276,8 +223,102 @@ def resolve_all(node, names):
             yield node.resolve_dotted(name)
         except (ResolveError, NotFoundError):
             continue
-
+        
 Node.resolve_all = resolve_all
+
+def resolve(node, name):
+    """try to resolve the value (astng node) associated to an
+    identifier <name>.
+
+    Raises ResolveError if it has been unable to resolve the name.
+
+    FIXME: refactor !!
+    """
+    assert ID_RGX.match(name), '%r is not a valid identifier' % name
+    frame = node.get_frame()
+    #print 'resolving', name, 'from', frame.__class__.__name__, frame.name, frame.locals.keys()
+    try:
+        stmt = frame.locals[name]
+    except KeyError:
+        try:
+            stmt = frame.root().globals[name]
+        except KeyError:
+            if isinstance(frame, Module) and frame.package:
+                modname = '%s.%s' % (frame.name, name)
+                try:
+                    return ASTNGManager().astng_from_module_name(modname)
+                except:
+                    pass
+            try:
+                object = getattr(__builtin__, name)
+            except AttributeError:
+                raise ResolveError(name)
+            if name in ('None', 'True', 'False'):
+                return Const(eval(name))
+            module = getattr(object, '__module__', '__builtin__')
+            # the first test avoid infinite loops
+            if frame.name.split('.')[-1] == module or not isclass(object):
+                raise ResolveError(name)
+            # FIXME: may not be a class
+            return ASTNGManager().astng_from_class(object, module)
+    return stmt.self_resolve(name)
+    
+Node.resolve = resolve
+
+def self_resolve(node, name):
+    """self resolve return the node itself by default"""
+    return node
+Node.self_resolve = self_resolve
+
+def assname_self_resolve(node, name):
+    """self resolve on AssName try to return the assigned value"""
+    # FIXME
+    assigned = node.get_assigned_value() or node
+    # FIXME: check name != assigned.name to avoid infinite loop
+    # if this is the case, we probably want to look for that name
+    # in globals/builtins, but this is not easlily feasible right now...
+    if isinstance(assigned, Name) and name != assigned.name:
+        return resolve(node.get_frame(), assigned.name)
+    return assigned
+AssName.self_resolve = assname_self_resolve
+
+def import_self_resolve(node, name):
+    """self resolve on From / Import nodes return the imported module/object"""
+    context_file = node.root().file
+    try:
+        modname, obj = node.get_module_object(name, context_file)
+    # FIXME: log error...
+    except ImportError:
+        raise ResolveError(name)
+    except Exception, ex:
+        raise ResolveError(name)
+    # check that get_module_object seems to have worked correctly...
+    if obj is not None and obj.find('.') > -1:
+        raise ResolveError(name)
+    # handle special case where we are on a package node importing a module
+    # using the same name as the package, which may end in an infinite loop
+    # on relative imports
+    if modname == getattr(node.root(), 'name', None):
+        # FIXME: I don't know what to do here...
+        raise ResolveError(name)
+    try:
+        module = ASTNGManager().astng_from_module_name(modname)
+    except (ASTNGBuildingException, SyntaxError):
+        # FIXME
+        raise ResolveError(name)
+
+    assert not (module is node and obj == name), \
+           str((node.file, node.name, name))
+    if obj:
+        return module.resolve(obj)
+    return module
+Import.self_resolve = import_self_resolve
+From.self_resolve = import_self_resolve
+
+def global_self_resolve(node, name):
+    """self resolve on Global is equivalent to resolve at the module level"""
+    return node.root().resolve(name)
+Global.self_resolve = global_self_resolve
 
 
 # module class dict/iterator interface ########################################
@@ -305,6 +346,7 @@ def module_values(node):
     return node.locals.values()
 def module_items(node):
     return node.locals.items()
+
 Module.__getitem__ = node_getitem
 Module.__iter__ = node_iter
 Module.keys = node_keys
@@ -323,27 +365,76 @@ Function.keys = node_keys
 Function.values = node_values
 Function.items = node_items
 
+def module_append_node(node, child_node):
+    """append a child to the given node"""
+    node.node.nodes.append(child_node)
+    child_node.parent = node
+    
+Module.append_node = module_append_node
+
+def base_append_node(node, child_node):
+    """append a child which should alter locals to the given node"""
+    node.code.nodes.append(child_node)
+    child_node.parent = node
+    
+Class.append_node = base_append_node
+Function.append_node = base_append_node
+
+def add_local_node(node, child_node):
+    """append a child which should alter locals to the given node"""
+    node.append_node(child_node)
+    node.set_local(child_node.name, child_node)
+    
+Module.add_local_node = add_local_node
+Function.add_local_node = add_local_node
+Class.add_local_node = add_local_node
+
+def class_set_parents(node, basenames):
+    """set the given name as class parents"""
+    bases = [Name(base) for base in basenames]
+    for base in bases:
+        base.parent = node
+    node.basenames = basenames
+    node.bases = bases
+    
+Class.set_parents = class_set_parents
+
 # Module  #####################################################################
 
 def module_get_statement(node):
-    """return the first parent node marked as statement node
-    """
+    """return the first parent node marked as statement node"""
     return node
 
 Module.get_statement = module_get_statement
 
+def module_wildcard_import_names(node):
+    """return the list of imported names when this module is 'wildard imported'
+
+    FIXME: should i include '__builtins__' which is added by the actual
+           cpython implementation ?
+    """
+    try:
+        explicit = node.locals['__all__'].get_assigned_value()
+    except KeyError:
+        return [n for n in node.locals.keys() if not n.startswith('_')]
+    else:
+        # should be a tuple of constant string
+        return [const.value for const in explicit.nodes]
+
+Module.wildcard_import_names = module_wildcard_import_names
+
 # Function  ###################################################################
 
+Function.type = None # 'staticmethod' / 'classmethod'
+
 def is_method(node):
-    """return true if the function should be considered as a method
-    """
+    """return true if the function should be considered as a method"""
     return isinstance(node.parent.get_frame(), Class)
 
 Function.is_method = is_method
 
 def is_class_method(node):
-    """return true if the function should be considered as a method
-    """
+    """return true if the function should be considered as a method"""
     return node.type == 'classmethod'
 
 Function.is_class_method = is_class_method
@@ -483,13 +574,15 @@ Class.resolve_method = resolve_method
 # From #######################################################################
 
 def get_real_name(node, asname):
-    """get name from as name
+    """get name from 'as' name
     """
     for index in range(len(node.names)):
         name, _asname = node.names[index]
         if name == '*':
             return asname
-        _asname = _asname or name
+        if not _asname:
+            name = name.split('.', 1)[0]
+            _asname = name
         if asname == _asname:
             return name
     raise NotFoundError(asname)
@@ -499,6 +592,7 @@ From.get_real_name = get_real_name
 def from_get_module_object(node, asname, context_file=None):
     """given a name which has been introduced by this statement,
     return the name of the module and the name of the object in the module
+    
     if the name is a module, object will be None        
     """
     real_name = node.get_real_name(asname)
@@ -520,6 +614,7 @@ Import.get_real_name = get_real_name
 def import_get_module_object(node, asname, context_file=None):
     """given a name which has been introduced by this statement,
     return the name of the module and the name of the object in the module
+    
     if the name is a module, object will be None        
     """
     return node.get_real_name(asname), None
@@ -639,7 +734,7 @@ def class_as_string(node):
     bases =  ', '.join([n.as_string() for n in node.bases])
     bases = bases and '(%s)' % bases or ''
     docs = node.doc and '\n    """%s"""' % node.doc or ''
-    return 'class %s%s:%s\n    %s' % (node.name, bases, docs,
+    return 'class %s%s:%s\n    %s\n' % (node.name, bases, docs,
                                       node.code.as_string())
 Class.as_string = class_as_string
 
@@ -961,4 +1056,3 @@ def _import_string(names):
         else:
             _names.append(name)
     return  ', '.join(_names)
-

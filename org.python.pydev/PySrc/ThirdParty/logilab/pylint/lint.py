@@ -1,5 +1,5 @@
-# Copyright (c) 2002-2004 Sylvain Thenault (syt@logilab.fr).
-# Copyright (c) 2002-2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2002-2005 Sylvain Thenault (syt@logilab.fr).
+# Copyright (c) 2002-2005 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -27,97 +27,56 @@
   Display help messages about given message identifiers and exit.
 """
 
-__revision__ = "$Id: lint.py,v 1.3 2004-12-01 16:59:15 fabioz Exp $"
+__revision__ = "$Id: lint.py,v 1.4 2005-01-21 17:42:02 fabioz Exp $"
 
 from __future__ import nested_scopes
 
+#patched -- Fabio
 import sys
 import os
-
 sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0]), "../../../ThirdParty"))
 
-# import this to avoid further builtins pollution possibilities
+# import this first to avoid further builtins pollution possibilities
 from logilab.pylint.checkers import utils
 
+import sys
+import os
 import re
 import tokenize
 from os.path import dirname, basename, splitext, exists, isdir, join
 
-
 from logilab.common.configuration import OptionsManagerMixIn
-from logilab.common.astng import ASTNGManager, ASTNGBuildingException, Module
+from logilab.common.astng import ASTNGManager
 from logilab.common.modutils import modpath_from_file, get_module_files, \
-     load_module_from_name
+     file_from_modpath
 from logilab.common.interface import implements
-from logilab.common.textutils import normalize_text, get_csv
-from logilab.common.ureports import Section, Table, Text
+from logilab.common.textutils import get_csv
+from logilab.common.fileutils import norm_open
+from logilab.common.ureports import Table, Text
 
+from logilab.pylint.utils import UnknownMessage, MessagesHandlerMixIn, \
+     ReportsHandlerMixIn, MSG_TYPES, sort_checkers
 from logilab.pylint.interfaces import ILinter, IRawChecker, IASTNGChecker
-from logilab.pylint.checkers import CheckerHandler, BaseRawChecker, EmptyReport
-from logilab.pylint import config
+from logilab.pylint.checkers import BaseRawChecker, EmptyReport, \
+     table_lines_from_stats
 from logilab.pylint.reporters.text import TextReporter
+from logilab.pylint import config
 
 from logilab.pylint.__pkginfo__ import version
 
 
 OPTION_RGX = re.compile('#*\s*pylint:(.*)')
 
-MSG_TYPES = {
-    'I' : 'info',
-    'C' : 'convention',
-    'R' : 'refactor',
-    'W' : 'warning',
-    'E' : 'error',
-    'F' : 'fatal'
-    }
-MSG_CATEGORIES = MSG_TYPES.keys()
-
-class UnknownMessage(Exception):
-    """raised when a unregistered message id is encountered"""
-
-# utility functions ###########################################################
-
-def sort_checkers(checkers, enabled_only=1):
-    """return a list of enabled checker sorted by priority"""
-    if enabled_only:
-        checkers = [(-checker.priority, checker) for checker in checkers
-                    if checker.is_enabled()]
-    else:
-        checkers = [(-checker.priority, checker) for checker in checkers]
-    checkers.sort()
-    return [item[1] for item in checkers]
-
-def get_module_and_frameid(node):
-    """return the module name and the frame id in the module"""
-    frame = node.get_frame()
-    module, obj = '', []
-    while frame:
-        if isinstance(frame, Module):
-            module = frame.name
-        else:
-            obj.append(frame.name)
-        try:
-            frame = frame.parent.get_frame()
-        except AttributeError:
-            frame = None
-    obj.reverse()
-    return module, '.'.join(obj)
-
-
 # Python Linter class #########################################################
     
 MSGS = {
     'F0001': ('%s',
-              'Used when an error occured while building the ASTNG \
-              representation.'),
+              'Used when an error occured preventing the analyzing of a \
+              module (unable to find it for instance).'),
     'F0002': ('%s: %s',
               'Used when an unexpected error occured while building the ASTNG \
               representation. This is usually accomopagned by a traceback. \
               Please report such errors !'),
-## 'F0003': ('Unable to load file %s (%s)',
-##           'Used when an OSError is raised when trying to open a module. \
-##           It may occurs if the .py for a .pyc file doen\'t exists. In \
-##           this case raw checkers won\'t be executed on that file.'),
     
     'I0001': ('Unable to run raw checkers on built-in module %s',
               'Used to inform that a built-in module has not been checked \
@@ -125,6 +84,9 @@ MSGS = {
     
     'I0011': ('Locally disabling %r',
               'Used when an inline option disable a message or a messages \
+              category.'),
+    'I0012': ('Locally enabling %r',
+              'Used when an inline option enable a message or a messages \
               category.'),
     
     'E0001': ('%s',
@@ -136,13 +98,15 @@ MSGS = {
               'Used when an bad value for an inline option is encountered.'),
     }
 
-class PyLinter(OptionsManagerMixIn, BaseRawChecker, CheckerHandler):
-    """the main pylint classes :
-    lint Python modules using external checkers
-
-    This class is itself both a raw checker and an astng checker in order to:
+class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
+               BaseRawChecker):
+    """lint Python modules using external checkers.                            
+                                                                               
+    This is the main checker controling the other ones and the reports         
+    generation. It is itself both a raw checker and an astng checker in order  
+    to:                                                                        
+    * handle message activation / deactivation at the module level             
     * handle some basic but necessary stats'data (number of classes, methods...)
-    * handle message activation / deactivation at the module level
     """
 
     __implements__ = (ILinter, IRawChecker, IASTNGChecker)
@@ -155,9 +119,8 @@ class PyLinter(OptionsManagerMixIn, BaseRawChecker, CheckerHandler):
     options = (("ignore",
                 {'type' : "csv", 'metavar' : "<file>",
                  'dest' : "black_list", "default" : ('CVS',),
-                 'help' : """Add <file> (may be a directory) to the black list\
-. It should be a base name, not a path. You may set this option multiple times\
-."""}),
+                 'help' : "Add <file or directory> to the black list. It \
+should be a base name, not a path. You may set this option multiple times."}),
                ("persistent",
                 {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help' : 'Pickle collected data for later comparisons.'}),
@@ -252,24 +215,13 @@ This is used by the global evaluation report (R0004).'}),
         ('Reports', 'Options related to messages / statistics reporting'),
         )
     
-    def __init__(self, options=(), reporter=TextReporter(),
-                 option_groups=()):
+    def __init__(self, options=(), reporter=None, option_groups=()):
         # some stuff has to be done before ancestors initialization...
-        self.manager = ASTNGManager()
+        #
+        # checkers / reporter / astng manager
         self.reporter = None
-        # helpers
-        self.set_reporter(reporter)
-        # dictionary of registered messages
-        self._messages = {}
-        self._messages_help = {}
-        self._msgs_state = {}
-        self._module_msgs_state = None
-        self._msg_cats_state = {}
-        self._module_msg_cats_state = None    
-        # reports variables
-        self._reports = []
-        self._reports_state = {}
-        # checkers
+        self.set_reporter(reporter or TextReporter())
+        self.manager = ASTNGManager()
         self._checkers = {}
         # visit variables
         self.base_name = None
@@ -292,23 +244,25 @@ This is used by the global evaluation report (R0004).'}),
         OptionsManagerMixIn.__init__(self, usage=__doc__,
                                      version=full_version,
                                      config_file=config.PYLINTRC)
+        MessagesHandlerMixIn.__init__(self)
+        ReportsHandlerMixIn.__init__(self)
         BaseRawChecker.__init__(self)
-        CheckerHandler.__init__(self)
         # provided reports
-        self.reports = (('R0001', 'Global evaluation',
-                         self.report_evaluation),
+        self.reports = (('R0001', 'Total errors / warnings',
+                         self.report_error_warning_stats),
                         ('R0002', '% errors / warnings by module',
                          self.report_error_warning_by_module_stats),
-                        ('R0003', 'Total errors / warnings',
-                         self.report_error_warning_stats),
-                        ('R0004', 'Messages',
+                        ('R0003', 'Messages',
                          self.report_messages_stats),
+                        ('R0004', 'Global evaluation',
+                         self.report_evaluation),
                         )
-        # set this variable since some modules may have to know they are
-        # imported by pylint (i.e. logilab.constraint)
-        os.environ['PYLINT_IMPORT'] = '1'
-        # PyLinter is itself a checker, register it
         self.register_checker(self)
+
+    def set_reporter(self, reporter):
+        """set the reporter used to display messages and reports"""
+        self.reporter = reporter
+        reporter.linter = self
             
     def set_option(self, opt_name, value, action=None, opt_dict=None):
         """overriden from configuration.OptionsProviderMixin to handle some
@@ -346,12 +300,20 @@ This is used by the global evaluation report (R0004).'}),
         """
         assert checker.priority <= 0, 'checker priority can\'t be >= 0'
         self._checkers[checker] = 1
-        self.register_options_provider(checker)
-        if hasattr(checker, 'msgs'):
-            self.register_messages(checker)
         if hasattr(checker, 'reports'):
             for r_id, r_title, r_cb in checker.reports:
                 self.register_report(r_id, r_title, r_cb, checker)
+            need_space = 80 - (len(checker.__doc__.splitlines()[-1]) % 80)
+            checker.__doc__ += """%s
+This checker also defines the following reports:                                    
+  * %s
+""" % (' ' * need_space,
+       '\n  * '.join(['% -76s' % ('%s: %s' % report[:2])
+                      for report in checker.reports]))
+        self.register_options_provider(checker)
+        if hasattr(checker, 'msgs'):
+            self.register_messages(checker)
+            
                 
     def disable_all_checkers(self):
         """disable all possible checkers """
@@ -359,229 +321,34 @@ This is used by the global evaluation report (R0004).'}),
             checker.enable(False)
 
 
-    # messages handling #######################################################
-
-    def register_messages(self, checker):
-        """register a dictionary of messages
-
-        Keys are message ids, values are a 2-uple with the message type and the
-        message itself
-
-        message ids should be a string of len 4, where the to first characters
-        are the checker id and the two last the message id in this checker
-        """
-        msgs_dict = checker.msgs
-        chk_id = None
-        for msg_id, (msg, msg_help) in msgs_dict.items():
-            # avoid duplicate / malformed ids
-            assert not self._messages.has_key(msg_id), \
-                   'Message id %r is already defined' % msg_id
-            assert len(msg_id) == 5, 'Invalid message id %s' % msg_id
-            assert chk_id is None or chk_id == msg_id[1:3], \
-                   'Inconsistent checker part in message id %r' %msg_id
-            assert msg_id[0] in MSG_CATEGORIES, \
-                   'Bad message type %s in %r' % (msg_id[0], msg_id)
-            chk_id = msg_id[1:3]
-            if checker is not None:
-                add = ' This message belongs to the %s checker.' % checker.name
-                msg_help += add
-            self._messages_help[msg_id] = msg_help
-            self._messages[msg_id] = msg
-
-    def get_message_help(self, msg_id):
-        """return the help string for the given message id"""
-        msg_id = self.check_message_id(msg_id)
-        try:
-            msg = self._messages_help[msg_id]
-            msg = normalize_text(' '.join(msg.split()), indent='  ')
-        except KeyError:
-            msg = 'No help available for message %s' % msg_id
-        return '%s:\n%s' % (msg_id, msg)
-
-    def disable_message(self, msg_id, scope='package', line=None):
-        """don't output message of the given id"""
-        assert scope in ('package', 'module')
-        msg_id = self.check_message_id(msg_id)
-        if scope == 'module':
-            self.add_message('I0011', line=line, args=msg_id)
-            self._module_msgs_state[msg_id] = False
-        else:
-            self._msgs_state[msg_id] = False
-            
-    def enable_message(self, msg_id, scope='package', line=None):
-        """reenable message of the given id"""
-        assert scope in ('package', 'module')
-        msg_id = self.check_message_id(msg_id)
-        if scope == 'module':
-            self._module_msgs_state[msg_id] = True
-        else:
-            self._msgs_state[msg_id] = True
-            
-    def disable_message_category(self, msg_cat_id, scope='package', line=None):
-        """don't output message in the given category"""
-        assert scope in ('package', 'module')
-        msg_cat_id = msg_cat_id[0].upper()
-        if scope == 'module':
-            self.add_message('I0011', line=line, args=msg_cat_id)
-            self._module_msg_cats_state[msg_cat_id] = False
-        else:
-            self._msg_cats_state[msg_cat_id] = False
-        
-    def enable_message_category(self, msg_cat_id, scope='package', line=None):
-        """reenable message of the given category"""
-        assert scope in ('package', 'module')
-        msg_cat_id = msg_cat_id[0].upper()
-        if scope == 'module':
-            self._module_msg_cats_state[msg_cat_id] = True
-        else:
-            self._msg_cats_state[msg_cat_id] = True
-            
-    def check_message_id(self, msg_id):
-        """raise UnknownMessage if the message id is not defined"""
-        msg_id = msg_id.upper()
-        if not self._messages.has_key(msg_id):
-            raise UnknownMessage('No such message id %s' % msg_id)
-        return msg_id
-
-    def is_message_enabled(self, msg_id):
-        """return true if the message associated to the given message id is
-        enabled
-        """
-        try:
-            if not self._module_msg_cats_state[msg_id[0]]:
-                return False
-        except KeyError:
-            if not self._msg_cats_state.get(msg_id[0], True):
-                return False
-        try:
-            return self._module_msgs_state[msg_id]
-        except KeyError:
-            return self._msgs_state.get(msg_id, True)
-        
-    def add_message(self, msg_id, line=None, node=None, args=None):
-        """add the message corresponding to the given id.
-
-        If provided, msg is expanded using args
-        
-        astng checkers should provide the node argument, raw checkers should
-        provide the line argument.
-        """
-        # should this message be displayed
-        if not self.is_message_enabled(msg_id):
-            return        
-        # update stats
-        msg_cat = MSG_TYPES[msg_id[0]]
-        self.stats[msg_cat] += 1
-        self.stats['by_module'][self.current_name][msg_cat] += 1
-        try:
-            self.stats['by_msg'][msg_id] += 1
-        except KeyError:
-            self.stats['by_msg'][msg_id] = 1
-        msg = self._messages[msg_id]
-        # expand message ?
-        if args:
-            msg %= args
-        if line is None and node is not None:
-            line = node.lineno or node.get_statement().lineno
-            #if not isinstance(node, Module):
-            #    assert line > 0, node.__class__
-        # get module and object
-        if node is None:
-            module, obj = self.current_name, ''
-            path = self.current_file
-        else:
-            module, obj = get_module_and_frameid(node)
-            path = node.root().file
-        # add the message
-        self.reporter.add_message(msg_id, (path, module, obj, line or 0), msg)
-
-        
     def process_tokens(self, tokens):
         """process tokens from the current module to search for module level
         options
         """
         comment = tokenize.COMMENT
         newline = tokenize.NEWLINE
-        line_num = 0
+        #line_num = 0
         for (tok_type, _, start, _, line) in tokens:
             if tok_type not in (comment, newline):
                 break
-            if start[0] == line_num:
-                continue
-            line_num = start[0]
+            #if start[0] == line_num:
+            #    continue
             match = OPTION_RGX.match(line)
             if match is None:
                 continue
             opt, value = match.group(1).split('=', 1)
             opt = opt.strip()
+            #line_num = start[0]
             if opt in self._options_methods and not opt.endswith('-report'):
                 meth = self._options_methods[opt]
                 for msg_id in get_csv(value):
                     try:
-                        meth(msg_id, 'module', line_num)
+                        meth(msg_id, 'module', start[0])
                     except UnknownMessage:
-                        self.add_message('E0012', args=msg_id, line=line_num)
+                        self.add_message('E0012', args=msg_id, line=start[0])
             else:
-                self.add_message('E0011', args=opt, line=line_num)
-
-    def set_reporter(self, reporter):
-        """set the reporter used to display messages"""
-        self.reporter = reporter
-        reporter.linter = self
+                self.add_message('E0011', args=opt, line=start[0])
         
-    # reports / stats manipulation method #####################################
-    
-    def register_report(self, r_id, r_title, r_cb, checker):
-        """register a report
-        
-        r_id is the unique identifier for the report
-        r_title the report's title
-        r_cb the method to call to make the report
-        checker is the checker defining the report
-        """
-        r_id = r_id.upper()
-        self._reports.insert(0, (r_id, r_title, r_cb, checker) )
-        
-    def enable_report(self, r_id):
-        """disable the report of the given id"""
-        r_id = r_id.upper()
-        self._reports_state[r_id] = 1
-        
-    def disable_report(self, r_id):
-        """disable the report of the given id"""
-        r_id = r_id.upper()
-        self._reports_state[r_id] = 0
-        
-    def make_reports(self, stats, old_stats):
-        """render registered reports"""
-        if self.config.files_output:
-            filename = 'pylint_global.' + self.reporter.extension
-            self.reporter.set_output(open(filename, 'w'))
-        sect = Section('Report',
-                       '%s statements analysed.'% (self.stats['statement']))
-        for r_id, r_title, r_cb, checker in self._reports:
-            if not (self._reports_state.get(r_id, 1) and checker.is_enabled()):
-                continue
-            report_sect = Section(r_title)
-            try:
-                r_cb(report_sect, stats, old_stats)
-            except EmptyReport:
-                continue
-            report_sect.report_id = r_id
-            sect.append(report_sect)
-        self.reporter.display_results(sect)
-            
-    def add_stats(self, **kwargs):
-        """add some stats entries to the statistic dictionary
-        raise an AssertionError if there is a key conflict
-        """
-        for key, value in kwargs.items():
-            if key[-1] == '_':
-                key = key[:-1]
-            assert not self.stats.has_key(key)
-            self.stats[key] = value
-        return self.stats
-
     # code checking methods ###################################################
 
     def check(self, files_or_modules):
@@ -614,14 +381,13 @@ This is used by the global evaluation report (R0004).'}),
                 # suppose it's a module or package
                 modname = something
                 try:
-                    filepath = load_module_from_name(modname).__file__
-                except SyntaxError, ex:
-                    self.set_current_module(modname)
-                    self.add_message('E0001', line=ex.lineno, args=ex.msg)
-                    continue
+                    filepath = file_from_modpath(modname.split('.'))
                 except Exception, ex:
+                    #if __debug__:
+                    #    import traceback
+                    #    traceback.print_exc()
                     self.set_current_module(modname)
-                    self.add_message('F0001', args=ex)
+                    self.add_message('F0001', args=str(ex))
                     continue
             if self.config.files_output:
                 reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
@@ -687,20 +453,12 @@ This is used by the global evaluation report (R0004).'}),
             return self.manager.astng_from_file(filepath, modname)
         except SyntaxError, ex:
             self.add_message('E0001', line=ex.lineno, args=ex.msg)
-        except ASTNGBuildingException, ex:
-            # try to get it from
-            try:
-                return self.manager.astng_from_module_name(modname)
-            except SyntaxError, ex:
-                self.add_message('E0001', line=ex.lineno, args=ex.msg)
-            except ASTNGBuildingException, ex:
-                self.add_message('F0001', args=ex)
         except KeyboardInterrupt:
             raise
         except Exception, ex:
-            if __debug__:
-                import traceback
-                traceback.print_exc()
+            #if __debug__:
+            #    import traceback
+            #    traceback.print_exc()
             self.add_message('F0002', args=(ex.__class__, ex))
         
 
@@ -713,14 +471,12 @@ This is used by the global evaluation report (R0004).'}),
             if not astng.pure_python:
                 self.add_message('I0001', args=astng.name)
             else:
-##                 try:
-                stream = open(astng.file.replace('.pyc', '.py'))
+                assert astng.file.endswith('.py')
+                stream = norm_open(astng.file)
                 for checker in checkers:
                     if implements(checker, IRawChecker):
                         stream.seek(0)
                         checker.process_module(stream)
-##                 except IOError, e:
-##                     self.add_message('F0003', args=(file, e))
             # generate events to astng checkers
             self.astng_events(astng, [checker for checker in checkers
                                       if implements(checker, IASTNGChecker)])
@@ -774,14 +530,12 @@ This is used by the global evaluation report (R0004).'}),
     def report_error_warning_stats(self, sect, stats, old_stats):
         """make total errors / warnings report"""
         lines = ['type', 'number', 'previous', 'difference']
-        lines += self.table_lines_from_stats(stats, old_stats,
-                                             ('convention',
-                                              'refactor',
-                                              'warning',
-                                              'error'))
+        lines += table_lines_from_stats(stats, old_stats,
+                                        ('convention', 'refactor',
+                                         'warning', 'error'))
         sect.append(Table(children=lines, cols=4, rheaders=1))
     
-    def report_messages_stats(self, sect, stats, old_stats):
+    def report_messages_stats(self, sect, stats, _):
         """make messages type report"""
         if not stats['by_msg']:
             # don't print this report when we didn't detected any errors
@@ -796,7 +550,7 @@ This is used by the global evaluation report (R0004).'}),
             lines += (msg_id, str(value))
         sect.append(Table(children=lines, cols=2, rheaders=1))
         
-    def report_error_warning_by_module_stats(self, sect, stats, old_stats):
+    def report_error_warning_by_module_stats(self, sect, stats, _):
         """make errors / warnings by modules report"""
         if len(stats['by_module']) == 1:
             # don't print this report when we are analysing a single module
@@ -870,9 +624,13 @@ class Run:
     run(*sys.argv[1:])
     """
     
-    def __init__(self, args, reporter=TextReporter(), quiet=0):
+    def __init__(self, args, reporter=None, quiet=0):
         from logilab.pylint import checkers
         self.linter = linter = PyLinter((
+            ("zope",
+            {'action' : "callback", 'callback' : self.cb_init_zope,
+             'help' : "Initialize Zope products before starting."}),
+            
             ("disable-all",
              {'action' : "callback",
               'callback' : self.cb_disable_all_checkers,
@@ -885,15 +643,21 @@ class Run:
               'help' : '''Display a help message for the given message id and \
 exit. This option may be a comma separated list.'''}),
 
-            ("zope",
-            {'action' : "callback", 'callback' : self.cb_init_zope,
-             'help' : "Initialize Zope products before starting."}),
-            
+            ("list-msgs",
+             {'action' : "callback", 'metavar': '<msg-id>',
+              'callback' : self.cb_list_messages,
+              'help' : 'List and explain every available messages.'}),
+
             ("generate-rcfile",
              {'action' : "callback", 'callback' : self.cb_generate_config,
               'help' : '''Generate a sample configuration file according to \
 the current configuration. You can put other options before this one to use \
 them in the configuration. This option causes the program to exit'''}),
+            
+            ("profile",
+             {'action' : "store_true",
+              'help' : 'Profiled execution.'}),
+
             ), reporter=reporter)
         linter.quiet = quiet
         # register checkers
@@ -903,59 +667,67 @@ them in the configuration. This option causes the program to exit'''}),
         linter.add_help_section('Output', '''
 Using the default text output, the message format is :                         
         MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE                               
-There are 3 kind of message types :                                            
-    * (W) warning and (E) error                                                
-    these message types are used to distinguish the gravity of the detected    
-problem.                                                                       
-    * (F) fatal                                                                
-    an error occured which prevented pylint from doing further processing.     
+There are 5 kind of message types :                                            
+    * (C) convention, for programming standard violation                       
+    * (R) refactor, for bad code smell                                         
+    * (W) warning, for python specific problems                                
+    * (E) error, for much probably bugs in the code                                                
+    * (F) fatal, if an error occured which prevented pylint from doing further \
+processing.     
         ''')
         # load configuration
         linter.load_file_configuration()
         args = linter.load_command_line_configuration(args)
         if not args:
-            print linter.help()
+            linter.help()
+            sys.exit(1)
         # insert current working directory to the python path to have a correct
         # behaviour
         sys.path.insert(0, os.getcwd())
-#        modnames = []
-#        for modname in args:
-#            if modname[-3:] == '.py' or modname.find(os.sep) > -1:
-#                modname = '.'.join(modpath_from_file(modname))
-#            modnames.append(modname)
-        linter.check(args)
+        if self.linter.config.profile:
+            print >> sys.stderr, '** profiled run'
+            from hotshot import Profile, stats
+            prof = Profile("stones.prof")
+            prof.runcall(linter.check, args)
+            prof.close()
+            stats = stats.load("stones.prof")
+            stats.strip_dirs()
+            stats.sort_stats('time', 'calls')
+            stats.print_stats(30)
+        else:
+            linter.check(args)
         sys.path.pop(0)
 
-    def cb_generate_config(self, *args, **kwargs):
-        """optik callback for sample config file generation"""
-        self.linter.generate_config()
-        sys.exit(0)
-         
     def cb_init_zope(self, *args, **kwargs):
         """optik callback for Zope products initialization"""
-        import Zope
-        if hasattr(Zope, 'startup'):
-            # Zope >= 2.6
-            Zope.startup()
+        print >> sys.stderr, 'this option is deprecated since pylint is not \
+importing analyzed code now'
+        #import Zope
+        #if hasattr(Zope, 'startup'):
+        #    # Zope >= 2.6
+        #    Zope.startup()
 
     def cb_disable_all_checkers(self, *args, **kwargs):
         """optik callback for disabling all checkers"""
         self.linter.disable_all_checkers()
             
+    def cb_generate_config(self, *args, **kwargs):
+        """optik callback for sample config file generation"""
+        self.linter.generate_config()
+        sys.exit(0)
+         
     def cb_help_message(self, option, opt_name, value, parser):
         """optik callback for printing some help about a particular message"""
-        for msg_id in get_csv(value):
-            try:
-                print self.linter.get_message_help(msg_id)
-                print
-            except UnknownMessage, ex:
-                print ex
-                print
-                continue
+        self.linter.help_message(get_csv(value))
         sys.exit(0)
         
+    def cb_list_messages(self, option, opt_name, value, parser):
+        """optik callback for printing available messages"""
+        self.linter.list_messages()
+        sys.exit(0)
 
 
 if __name__ == "__main__":
+    #patched -- Fabio
     sys.stderr = sys.stdout
     Run(sys.argv[1:])

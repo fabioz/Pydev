@@ -1,0 +1,11 @@
+R:  0: Similar lines in 2 files
+==input.w0801_same:0
+==input.func_w0801:0
+"""test code similarities
+
+"""
+__revision__ = 'id'
+a = 2
+b = 3
+c = a + b
+# all this should be detected

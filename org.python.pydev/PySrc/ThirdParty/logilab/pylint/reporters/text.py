@@ -16,7 +16,7 @@
 Plain text reporter
 """
 
-__revision__ = "$Id: text.py,v 1.2 2004-10-26 14:18:37 fabioz Exp $"
+__revision__ = "$Id: text.py,v 1.3 2005-01-21 17:42:10 fabioz Exp $"
 
 import sys
 
@@ -48,7 +48,7 @@ class TextReporter(BaseReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
-        path, module, obj, line = location
+        module, obj, line = location[1:]
         if not self._modules.has_key(module):
             self.writeln('************* Module %s' % module)
             self._modules[module] = 1
@@ -75,7 +75,7 @@ class TextReporter2(TextReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
-        path, module, obj, line = location
+        path, _, obj, line = location
         if obj:
             obj = ', %s' % obj
         if self.include_ids:
@@ -122,7 +122,7 @@ class ColorizedTextReporter(TextReporter):
         """manage message of different types, and colorize output
         using ansi escape codes
         """
-        path, module, obj, line = location
+        module, obj, line = location[1:]
         if not self._modules.has_key(module):
             color, style = self._get_decoration('S')
             modsep = colorize_ansi('************* Module %s' % module,

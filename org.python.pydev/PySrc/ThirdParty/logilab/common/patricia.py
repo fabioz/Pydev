@@ -21,11 +21,12 @@ PATRICIA - Practical Algorithm to Retrieve Information Coded in Alphanumeric
 See http://www.csse.monash.edu.au/~lloyd/tildeAlgDS/Tree/PATRICIA.html if you
 want to know what's a PATRICIA tree...
 
+TODO: _ advanced search
       _ profile code
       _ use mxTextTools ?
 """
 
-__revision__ = "$Id: patricia.py,v 1.3 2004-12-01 16:59:13 fabioz Exp $"
+__revision__ = "$Id: patricia.py,v 1.4 2005-01-21 17:42:04 fabioz Exp $"
 
 def prefix(prfx, string):
     """return the index of the first character from string which differs from

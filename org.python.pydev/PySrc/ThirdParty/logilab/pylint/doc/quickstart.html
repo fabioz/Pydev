@@ -1,0 +1,347 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta name="language" content="fr">
+<meta name="author" content="Logilab">
+<meta name="organization" content="Logilab S.A.">
+<meta name="generator" content="Logilab Powerful Stylesheets">
+<title>Pylint Quickstart</title>
+<meta name="keywords" content="logilab">
+<link rel="stylesheet" href="http://www.logilab.fr/lglb-dcbk.css" type="text/css">
+ <!--[if IE]>
+ <style type="text/css">
+div.sidebar { width: expression((document.body.clientWidth/3.5)+"px"); }
+</style>
+ <![endif]-->
+ </head>
+<body>
+<table class="body-head" width="100%"><tr>
+<td class="body-logo"><img src="http://www.logilab.fr/images/logilab.png" width="150" border="0" alt="Logilab"></td>
+<td class="body-title"><h3 class="body-title">Pylint Quickstart</h3></td>
+</tr></table>
+<table class="body-main" width="100%"><tr>
+<td class="body-menu"> </td>
+<td class="body-content">
+<div class="component-title-block"><h1 class="component-title">Pylint Quickstart</h1></div>
+
+
+<p class="para">This document is meant to get you started with Pylint. It assumes that
+you have installed pylint following the instructions in the README
+document found in the source documentation.</p>
+<h2 class="sect1-title">
+<a name="what-is-pylint"></a>1. What is pylint?</h2>
+
+<p class="para">Pylint is a tool that checks for errors in python code, tries to
+enforce a coding standard and looks for smelling code . This is
+similar but nevertheless different from what <a href="http://pychecker.sf.net">pychecker</a> provides,
+especially since pychecker explicitely does not bother with coding
+style. The default coding style used by pylint is close to 
+<a href="http://www.python.org/doc/essays/styleguide.html">Guido's style guide</a>. For more information about code smells, refer
+to Martin Fowler's <a href="http://www.refactoring.com/">refactoring book</a></p>
+<p class="para">Pylint will display a number of errors and warnings as it analyzes the
+code, as well as some statistics about the number of warnings and
+errors found in different files. If you run pylint twice, it will
+display the statistics from the previous run together with the ones
+from the current run, so that you can see if the code has improved or
+not.</p>
+<p class="para">Last but not least, the code is given an overall mark, based on the
+number an severity of the warnings and errors. This has proven to
+be very motivating for programmers.</p>
+
+<h2 class="sect1-title">
+<a name="invoking-pylint"></a>2. Invoking pylint</h2>
+
+<p class="para">Pylint is meant to be called from the commant line. The usage is</p>
+<div class="programlisting">
+pylint [options] module_or_package</div>
+<p class="para">You should give pylint the name of a Python package or module. Pylint
+will <span style="font-family: monospace">import</span> this package or module, so you should pay attention to
+your <span style="font-family: monospace">PYTHONPATH</span>, since it is a common error to analyze an
+installed version of a module instead of the development version.</p>
+<p class="para">It is also possible to analyze python files, with a few
+restriction. The thing to keep in mind is that pylint will try to 
+convert the file name to a module name, and only be able to process
+the file if it succeeds.</p>
+<div class="programlisting">
+pylint mymodule.py </div>
+<p class="para">should always works since the current working
+directory is automatically added on top  of the python path</p>
+<div class="programlisting">
+pylint directory/mymodule.py</div>
+<p class="para">will work if "directory" is a python package (i.e. has an __init__.py
+file) or if "directory" is in the python path.</p>
+<p class="para">For more details on this see the <a href="FAQ.html">FAQ</a>.</p>
+<p class="para">You can also start a thin gui around pylint (require TkInter) by
+typing</p>
+<div class="programlisting">
+pylint-gui</div>
+<p class="para">This should open a window where you can enter the name of the package
+or module to check, at pylint messages will be displayed in the user
+interface.</p>
+
+<h2 class="sect1-title">
+<a name="pylint-output"></a>3. Pylint output</h2>
+
+<p class="para">The default format for the output is raw text. But passing pylint the
+<span style="font-family: monospace">--html</span> option will produce an HTML document.</p>
+<p class="para">There are several sections in pylint's output.</p>
+<h3 class="sect2-title">
+<a name="source-code-analysis-section"></a>3.1. Source code analysis section</h3>
+
+<p class="para">For each python module,
+pylint will first display a few '*' characters followed by the name
+of the module. Then, a number of messages with the following
+format:</p>
+<div class="programlisting">
+MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE</div>
+<p class="para">You can get another output format, useful since it's recognized by
+most editors or other development tools using the <span style="font-family: monospace">--parseable=y</span>
+option.</p>
+<p class="para">The message type can be:</p>
+<div class="blockquote">
+<ul class="list" style="list-style-type: disc">
+<li class="listitem">
+<p class="para">[R]efactor for a "good practice" metric violation</p>
+</li>
+<li class="listitem">
+<p class="para">[C]onvention for coding standard violation</p>
+</li>
+<li class="listitem">
+<p class="para">[W]arning for stylistic problems, or minor programming issues</p>
+</li>
+<li class="listitem">
+<p class="para">[E]rror for important programming issues (i.e. most probably bug)</p>
+</li>
+<li class="listitem">
+<p class="para">[F]atal for errors which prevented further processing</p>
+</li>
+</ul>
+</div>
+<p class="para">Sometimes the line of code which caused the error is displayed with
+a caret pointing to the error. This may be generalized in future
+versions of pylint.</p>
+<p class="para">Example (extracted from a run of pylint on itself...):</p>
+<div class="programlisting">
+************* Module logilab.pylint.checkers.format
+W: 50: Too long line (86/80)
+W:108: Operator not followed by a space
+     print &gt;&gt;sys.stderr, 'Unable to match %r', line
+            ^
+W:141: Too long line (81/80)
+W: 74:searchall: Unreachable code
+W:171:FormatChecker.process_tokens: Redefining built-in (type)
+W:150:FormatChecker.process_tokens: Too many local variables (20/15)
+W:150:FormatChecker.process_tokens: Too many branchs (13/12)</div>
+
+<h3 class="sect2-title">
+<a name="reports-section"></a>3.2. Reports section</h3>
+
+<p class="para">Following the analysis message, pylint will display a set of report,
+each one focusing on a particular aspect of the project, such as number
+of messages by categories, modules dependancies...</p>
+<p class="para">For instance, the metrics report displays summaries gathered from the
+current 
+run.</p>
+<div class="blockquote">
+<ul class="list" style="list-style-type: disc">
+<li class="listitem">
+<p class="para">the number of processed modules</p>
+</li>
+<li class="listitem">
+<p class="para">for each module, the percentage of errors and warnings</p>
+</li>
+<li class="listitem">
+<p class="para">the total number of errors and warnings</p>
+</li>
+<li class="listitem">
+<p class="para">percentage of classes, functions and modules with docstrings, and
+a comparison from the previous run</p>
+</li>
+<li class="listitem">
+<p class="para">percentage of classes, functions and modules with correct name</p>
+</li>
+<li class="listitem">
+<p class="para">(according the the coding standard), and a comparison from the
+previous run</p>
+</li>
+<li class="listitem">
+<p class="para">a list of external dependencies found in the code, and where they appear</p>
+</li>
+</ul>
+</div>
+<p class="para">Also, a global evaluation for the code is computed, and an
+optional witty comment is displayed (if <span style="font-family: monospace">--comment=y</span> was
+specified on the command line).</p>
+
+
+<h2 class="sect1-title">
+<a name="command-line-options"></a>4. Command line options</h2>
+
+<p class="para">First of all, we have two basic (but useful) options.</p>
+<a name="id2276403"></a><table class="table">
+<tr>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: middle; border-bottom-style: solid; border-bottom-width: 1pt; border-right-style: solid; border-right-width: 1pt; text-align: center"><b>Option</b></td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: middle; border-bottom-style: solid; border-bottom-width: 1pt; text-align: center"><b>Description</b></td>
+</tr>
+<tr>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; border-right-style: solid; border-right-width: 1pt; text-align: left">
+<span style="font-family: monospace">
+--version</span>
+</td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; text-align: left">
+<p class="para">show program's version number and exit</p>
+</td>
+</tr>
+<tr style="background-color: #EEEEEE">
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; border-right-style: solid; border-right-width: 1pt; text-align: left">
+<span style="font-family: monospace">
+-h</span><span style="font-family: monospace">
+, --help</span>
+</td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; text-align: left">
+<p class="para">show help about the command line options</p>
+</td>
+</tr>
+</table>
+<p class="para">Pylint is architectured around several checkers. By default all
+checkers are enabled. You can disable a specific checker by specifying
+<span style="font-family: monospace">--enable-&lt;checker&gt;=n</span>, or disable all checkers using
+<span style="font-family: monospace">--disable-all</span> and afterwards enable specific checkers with
+<span style="font-family: monospace">--enable-&lt;checker&gt;=y</span>. See the list of available <a href="features.html">features</a> for a
+description of provided checkers with their functionalities.</p>
+<p class="para">Each checker has some specific options, which can take either a yes/no
+value, an integer, a python regular expression, or a comma separated
+list of values (which are generally used to override a regular
+expression in special cases). For a full list of options, use <span style="font-family: monospace">--help</span></p>
+<p class="para">Specifying all the options suitable for your setup and coding
+standards can be tedious, so it is possible to use a rc file to
+specify the default values. Pylint looks for /etc/pylintrc and
+~/.pylintrc. The <span style="font-family: monospace">--generate-rcfile</span> option will generate a
+commented configuration file according to the current configuration on
+standard output and exit. You can put other options before this one to
+use them in the configuration, or start with the default values and
+hand tune the configuration.</p>
+<p class="para">Other useful global options include:</p>
+<a name="id2276531"></a><table class="table">
+<tr>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: middle; border-bottom-style: solid; border-bottom-width: 1pt; border-right-style: solid; border-right-width: 1pt; text-align: center"><b>Option</b></td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: middle; border-bottom-style: solid; border-bottom-width: 1pt; text-align: center"><b>Description</b></td>
+</tr>
+<tr>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; border-right-style: solid; border-right-width: 1pt; text-align: left">
+<span style="font-family: monospace">
+--zope</span>
+</td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; text-align: left">
+<p class="para">Initialize Zope products before starting</p>
+</td>
+</tr>
+<tr style="background-color: #EEEEEE">
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; border-right-style: solid; border-right-width: 1pt; text-align: left">
+<span style="font-family: monospace">
+--ignore=<span style="font-family: monospace; font-style: italic">file</span></span>
+</td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; text-align: left">
+<p class="para">Add &lt;file&gt; (may be a directory) to the black
+list. It should be a base name, not a path. 
+You may set this option multiple times.</p>
+</td>
+</tr>
+<tr>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; border-right-style: solid; border-right-width: 1pt; text-align: left">
+<span style="font-family: monospace">
+--statistics=<span style="font-family: monospace; font-style: italic">y_or_n</span></span>
+</td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; text-align: left">
+<p class="para">Compute statistics on collected data.</p>
+</td>
+</tr>
+<tr style="background-color: #EEEEEE">
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; border-right-style: solid; border-right-width: 1pt; text-align: left">
+<span style="font-family: monospace">
+--persistent=<span style="font-family: monospace; font-style: italic">y_or_n</span></span>
+</td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; text-align: left">
+<p class="para">Pickle collected data for later comparisons.</p>
+</td>
+</tr>
+<tr>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; border-right-style: solid; border-right-width: 1pt; text-align: left">
+<span style="font-family: monospace">
+--comment=<span style="font-family: monospace; font-style: italic">y_or_n</span></span>
+</td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; text-align: left">
+<p class="para">Add a comment according to your evaluation note.</p>
+</td>
+</tr>
+<tr style="background-color: #EEEEEE">
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; border-right-style: solid; border-right-width: 1pt; text-align: left">
+<span style="font-family: monospace">
+--parseable=<span style="font-family: monospace; font-style: italic">y_or_n</span></span>
+</td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; text-align: left">
+<p class="para">Use a parseable output format.</p>
+</td>
+</tr>
+<tr>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; border-right-style: solid; border-right-width: 1pt; text-align: left">
+<span style="font-family: monospace">
+--html=<span style="font-family: monospace; font-style: italic">y_or_n</span></span>
+</td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; text-align: left">
+<p class="para">Use HTML as output format instead of text.</p>
+</td>
+</tr>
+<tr style="background-color: #EEEEEE">
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; border-right-style: solid; border-right-width: 1pt; text-align: left">
+<span style="font-family: monospace">
+--enable-msg=<span style="font-family: monospace; font-style: italic">msgids</span></span>
+</td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; text-align: left">
+<p class="para">Enable the given messages.</p>
+</td>
+</tr>
+<tr>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; border-right-style: solid; border-right-width: 1pt; text-align: left">
+<span style="font-family: monospace">
+--disable-msg=<span style="font-family: monospace; font-style: italic">msgids</span></span>
+</td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; text-align: left">
+<p class="para">Disable the given messages.</p>
+</td>
+</tr>
+<tr style="background-color: #EEEEEE">
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; border-right-style: solid; border-right-width: 1pt; text-align: left">
+<span style="font-family: monospace">
+--enable-msg-cat=<span style="font-family: monospace; font-style: italic">cats</span></span>
+</td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; text-align: left">
+<p class="para">Enable all messages in the given categories.</p>
+</td>
+</tr>
+<tr>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; border-right-style: solid; border-right-width: 1pt; text-align: left">
+<span style="font-family: monospace">
+--disable-msg-cat=<span style="font-family: monospace; font-style: italic">cats</span></span>
+</td>
+<td rowspan="1" colspan="1" style="width: 50%; vertical-align: top; text-align: left">
+<p class="para">Disable all messages in the given categories.</p>
+</td>
+</tr>
+</table>
+
+<h2 class="sect1-title">
+<a name="bug-reports"></a>5. Bug reports</h2>
+
+<p class="para">You think you have found a bug in Pylint? Well, this may be the case
+since Pylint is under development. Please take the time to send a bug
+report to <a href="mailto:python-projects@logilab.org">python-projects@logilab.org</a>. This mailing list is also a
+nice place to discuss Pylint issues.</p>
+
+<table class="footnote"></table>
+</td>
+</tr></table>
+<p class="body-foot"></p>
+</body>
+</html>

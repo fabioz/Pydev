@@ -16,7 +16,7 @@
 Logilab common libraries
 """
 
-__revision__ = "$Id: __init__.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
+__revision__ = "$Id: __init__.py,v 1.3 2005-01-21 17:42:05 fabioz Exp $"
 
 # FIXME: move all those functions in a separated module
 
@@ -126,8 +126,11 @@ def _get_cycles(graph_dict, vertice=None, path=None, result=None):
             result.append(cycle)
         return
     path.append(vertice)
-    for node in graph_dict[vertice]:
-        _get_cycles(graph_dict, node, path, result)
+    try:
+        for node in graph_dict[vertice]:
+            _get_cycles(graph_dict, node, path, result)
+    except KeyError:
+        pass
     path.pop()
 
 

@@ -1,5 +1,5 @@
 # pylint: disable-msg=W0622
-# Copyright (c) 2003-2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -16,21 +16,21 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """pylint packaging information"""
 
-__revision__ = '$Id: __pkginfo__.py,v 1.2 2004-10-26 14:18:33 fabioz Exp $'
+__revision__ = '$Id: __pkginfo__.py,v 1.3 2005-01-21 17:42:02 fabioz Exp $'
 
 
 modname = 'pylint'
 
-numversion = (0, 5, 0)
+numversion = (0, 6, 0)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
-copyright = '''Copyright (c) 2003-2004 LOGILAB S.A. (Paris, FRANCE).
+copyright = '''Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr'''
 
 short_desc = "python code static checker"
 long_desc = """\
- Pylint is a Python source code analizer which looks for programming
+ Pylint is a Python source code analyzer which looks for programming
  errors, helps enforcing a coding standard and sniffs for some code
  smells (as defined in Martin Fowler's Refactoring book)
  .
@@ -41,8 +41,7 @@ long_desc = """\
  standard, or checking if declared interfaces are truly implemented,
  and much more.
  .
- Additionnaly, it is possible to write plugins to add your own
- checks, using a plugin mechanism."""
+ Additionally, it is possible to write plugins to add your own checks."""
 
 author = "Sylvain Thenault"
 author_email = "sylvain.thenault@logilab.fr"
@@ -59,7 +58,7 @@ subpackage_of = 'logilab'
 
 include_dirs = [join('test', 'input'), join('test', 'messages')]
 
-pyversions = ["2.2", "2.3"]
+pyversions = ["2.2", "2.3", "2.4"]
 
 debian_maintainer = 'Alexandre Fayolle'
 debian_maintainer_email = 'afayolle@debian.org'

@@ -10,22 +10,22 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2000-2003 LOGILAB S.A. (Paris, FRANCE).
+""" Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 variables checkers for Python code
 """
 
-__revision__ = "$Id: variables.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $"
+__revision__ = "$Id: variables.py,v 1.3 2005-01-21 17:42:08 fabioz Exp $"
 
 from copy import copy
 
 from logilab.common import astng
 
 from logilab.pylint.interfaces import IASTNGChecker
-from logilab.pylint.checkers import BaseChecker, CheckerHandler
+from logilab.pylint.checkers import BaseChecker
 from logilab.pylint.checkers.utils import is_interface, is_abstract, \
-     is_builtin, is_native_builtin, is_error
+     is_builtin, is_native_builtin, is_error, are_exclusive
 
     
 MSGS = {
@@ -51,7 +51,7 @@ MSGS = {
               'Used when a variable or function override a built-in.'),
     }
 
-class VariablesChecker(BaseChecker, CheckerHandler):
+class VariablesChecker(BaseChecker):
     """checks for                                                              
     * unused variables / imports                                               
     * undefined variables                                                      
@@ -77,7 +77,6 @@ __init__ files.'}),
                )
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
-        CheckerHandler.__init__(self)
         self._to_consume = None
         
     def visit_module(self, node):
@@ -99,9 +98,12 @@ __init__ files.'}),
             return
         for name, stmt in not_consumed.items():
             # the latest test avoid warning on __builtins__ which is 
-            # implicitly added by wildcard import 
-            if name == '__builtins__':
-                continue
+            # implicitly added by wildcard import
+            # update 20 janv 2005: no more necessary since we are no more
+            # exec'ing "from module import *" and so __builtins__ is no more
+            # added to the global scope
+            #if name == '__builtins__':
+            #    continue
             if isinstance(stmt, astng.Import) or (
                 isinstance(stmt, astng.From) and stmt.modname != '__future__'):
                 self.add_message('W0611', args=name, node=stmt)
@@ -112,7 +114,7 @@ __init__ files.'}),
         """
         self._to_consume.append((copy(node.locals), {}, 'class'))
             
-    def leave_class(self, node):
+    def leave_class(self, _):
         """leave class: update consumption analysis variable
         """
         # do not check for not used locals here (no sense)
@@ -123,7 +125,7 @@ __init__ files.'}),
         """
         self._to_consume.append((copy(node.locals), {}, 'class'))
             
-    def leave_lambda(self, node):
+    def leave_lambda(self, _):
         """leave lambda: update consumption analysis variable
         """
         # do not check for not used locals here
@@ -215,8 +217,11 @@ __init__ files.'}),
                 consumed[name] = def_stmt = to_consume[name].get_statement()
                 del to_consume[name]
                 # checks for use before assigment
+                # FIXME: the last condition should just check attribute access
+                # is protected by a try: except NameError:
                 if def_stmt and frame is consumed[name].get_frame() and \
-                       stmt.lineno < def_stmt.lineno:
+                       stmt.source_line() < def_stmt.source_line() and \
+                       not are_exclusive(stmt, def_stmt):
                     self.add_message('E0601', args=name, node=stmt)
                 break
             except KeyError:

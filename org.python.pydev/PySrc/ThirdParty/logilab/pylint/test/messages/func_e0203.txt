@@ -1,0 +1,2 @@
+E: 12:Abcd.abcd: Class method should have "cls" as first argument
+

@@ -16,6 +16,7 @@
 """
  bases class for interfaces
 
+ TODO:
   _ implements a check method which check that an object implements the
     interface
   _ Attribute objects
@@ -23,7 +24,7 @@
   This module requires at least python 2.2
 """
 
-__revision__ = "$Id: interface.py,v 1.3 2004-12-01 16:59:13 fabioz Exp $"
+__revision__ = "$Id: interface.py,v 1.4 2005-01-21 17:42:03 fabioz Exp $"
 
 from types import ListType, TupleType
 

@@ -1,12 +1,12 @@
 Metadata-Version: 1.0
 Name: pylint
-Version: 0.5.0
+Version: 0.6.0
 Summary: python code static checker
 Home-page: http://www.logilab.org/projects/pylint
 Author: Sylvain Thenault
 Author-email: sylvain.thenault@logilab.fr
 License: GPL
-Description: Pylint is a Python source code analizer which looks for programming
+Description: Pylint is a Python source code analyzer which looks for programming
         errors, helps enforcing a coding standard and sniffs for some code
         smells (as defined in Martin Fowler's Refactoring book)
         .
@@ -17,6 +17,5 @@ Description: Pylint is a Python source code analizer which looks for programming
         standard, or checking if declared interfaces are truly implemented,
         and much more.
         .
-        Additionnaly, it is possible to write plugins to add your own
-        checks, using a plugin mechanism.
+        Additionally, it is possible to write plugins to add your own checks.
 Platform: UNKNOWN

@@ -17,7 +17,7 @@
 Some file / file path manipulation utilities
 """
 
-__revision__ = "$Id: fileutils.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
+__revision__ = "$Id: fileutils.py,v 1.3 2005-01-21 17:42:05 fabioz Exp $"
 
 from __future__ import nested_scopes
 import sys
@@ -32,7 +32,7 @@ from sys import version_info
 
 HAS_UNIV_OPEN = version_info[:2] >= (2, 3)
 
-LINE_RGX = re.compile('\r\n|\r|\n')
+LINE_RGX = re.compile('\r\n|\r+|\n')
 
 def first_level_directory(path):
     """return the first level directory of a path"""
@@ -144,6 +144,13 @@ def lines(path, comments=None):
     stream.close()
     return result
 
+def file_content(filepath, mode='r'):
+    """returns <filepath>'s content"""
+    stream = file(filepath, mode)
+    data = stream.read()
+    stream.close()
+    return data
+
 def stream_lines(stream, comments=None):
     """return a list of non empty lines in <stream>"""
     result = []
@@ -208,7 +215,7 @@ def get_by_ext(directory, include_exts=(), exclude_exts=()):
                     break
             else:
                 if isdir(absfile):
-                    if fname == 'CVS':
+                    if fname in ('CVS', '.svn'):
                         continue
                     result += get_by_ext(absfile,
                                          include_exts, exclude_exts)

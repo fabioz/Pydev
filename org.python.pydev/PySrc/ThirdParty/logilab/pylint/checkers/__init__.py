@@ -16,29 +16,37 @@
 """utilities methods and classes for checkers
 """
 
-__revision__ = "$Id: __init__.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $"
+__revision__ = "$Id: __init__.py,v 1.3 2005-01-21 17:42:08 fabioz Exp $"
 
 import tokenize
 from os import listdir
-from os.path import join, isdir, splitext
+from os.path import dirname, join, isdir, splitext
 
 from logilab.common.astng import ASTWalker
 from logilab.common.configuration import OptionsProviderMixIn
 
 from logilab.pylint.reporters import diff_string, EmptyReport
 
-class CheckerHandler:
-    """implements IChecker methods"""
-    
-    def __init__(self):
-        pass
-    
-    def open(self):
-        """called before visiting project (i.e set of modules)"""
-        
-    def close(self):
-        """called after visiting project (i.e set of modules)"""
-        
+def table_lines_from_stats(stats, old_stats, columns):
+    """get values listed in <columns> from <stats> and <old_stats>,
+    and return a formated list of values, designed to be given to a
+    ureport.Table object
+    """
+    lines = []
+    for m_type in columns:
+        new = stats[m_type]
+        format = str
+        if isinstance(new, float):
+            format = lambda num: '%.3f' % num
+        old = old_stats.get(m_type)
+        if old is not None:
+            diff_str = diff_string(old, new)
+            old = format(old)
+        else:
+            old, diff_str = 'NC', 'NC'
+        lines += (m_type.replace('_', ' '), format(new), old, diff_str)
+    return lines
+
     
 class BaseChecker(OptionsProviderMixIn, ASTWalker):
     """base class for checkers"""
@@ -82,25 +90,19 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
         if self.may_be_disabled:
             setattr(self.config, 'enable_' + self.name, enable)
         
-    def table_lines_from_stats(self, stats, old_stats, columns):
-        """get values listed in <columns> from <stats> and <old_stats>,
-        and return a formated list of values, designed to be given to a
-        ureport.Table object
-        """
-        lines = []
-        for m_type in columns:
-            new = stats[m_type]
-            format = str
-            if isinstance(new, float):
-                format = lambda num: '%.3f' % num
-            old = old_stats.get(m_type)
-            if old is not None:
-                diff_str = diff_string(old, new)
-                old = format(old)
-            else:
-                old, diff_str = 'NC', 'NC'
-            lines += (m_type.replace('_', ' '), format(new), old, diff_str)
-        return lines
+    def package_dir(self):
+        """return the base directory for the analysed package"""
+        return dirname(self.linter.base_file)
+
+
+    # dummy methods implementing the IChecker interface
+    
+    def open(self):
+        """called before visiting project (i.e set of modules)"""
+        
+    def close(self):
+        """called after visiting project (i.e set of modules)"""
+
 
 class BaseRawChecker(BaseChecker):
     """base class for raw checkers"""

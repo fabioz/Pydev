@@ -10,19 +10,19 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2002-2004 LOGILAB S.A. (Paris, FRANCE).
+""" Copyright (c) 2002-2005 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
  basic checker for Python code
 """
 from __future__ import generators
 
-__revision__ = "$Id: classes.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $"
+__revision__ = "$Id: classes.py,v 1.3 2005-01-21 17:42:08 fabioz Exp $"
 
 from logilab.common import astng
 
 from logilab.pylint.interfaces import IASTNGChecker
-from logilab.pylint.checkers import BaseChecker, CheckerHandler
+from logilab.pylint.checkers import BaseChecker
 from logilab.pylint.checkers.utils import is_abstract, is_interface, \
      is_exception, is_metaclass, get_nodes_from_class
 
@@ -32,18 +32,22 @@ MSGS = {
               'Used when PyLint has been unable to fetch a method declared in \
               an interface (either in the class or in the interface) and so to\
               check its implementation.'),
-    'F0202': ('Unable to check method (%s)',
-              'Used when PyLint has been unable to check a method for an \
-              unexpected raison. Please report this kind of error.'),
-    'F0203': ('Unable to resolve (%s)',
+    'F0202': ('Unable to check methods signature (%s / %s)',
+              'Used when PyLint has been unable to check methods signature \
+              compatibility for an unexpected raison. Please report this kind \
+              if you don\'t make sense of it.'),
+    'F0203': ('Unable to resolve %s',
               'Used when PyLint has been unable to resolve a name.'),
 
     'E0201': ('Access to undefined member %r',
-              'Used when an instance member not defined in the instante, its\
+              'Used when an instance member not defined in the instance, its\
               class or its ancestors is accessed.'),
     'E0202': ('Method hide an inherited attribute from %s',
               'Used when a class defines a method which hide an attribute from \
               an ancestor class.'),
+    'E0203': ('Access to member %r before its definition line %s',
+              'Used when an instance member is accessed before it\'s actually\
+              assigned.'),
     'W0201': ('Attribute %r defined outside __init__',
               'Used when an instance attribute is defined outside the __init__\
               method.'),
@@ -95,7 +99,7 @@ MSGS = {
     }
 
 
-class ClassChecker(BaseChecker, CheckerHandler):
+class ClassChecker(BaseChecker):
     """checks for :                                                            
     * methods without self as first argument                                   
     * overriden methods signature                                              
@@ -140,7 +144,6 @@ class should be ignored. A mixin class is detected if its name ends with \
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
-        CheckerHandler.__init__(self)
         self._accessed = []
         self._first_attrs = []
         
@@ -149,8 +152,8 @@ class should be ignored. A mixin class is detected if its name ends with \
         """        
         self._accessed.append({})
         node.metaclass = is_metaclass(node)
-        self.check_bases_classes(node)
-        self.check_interfaces(node)
+        self._check_bases_classes(node)
+        self._check_interfaces(node)
         if not (is_interface(node) or is_exception(node) or node.metaclass):
             try:
                 node.get_method('__init__')
@@ -178,29 +181,27 @@ class should be ignored. A mixin class is detected if its name ends with \
         accessed = self._accessed.pop()
         if not self.config.ignore_mixin_members or \
                class_node.name[-5:].lower() != 'mixin':
-            self.check_accessed_members(class_node, accessed)
+            self._check_accessed_members(class_node, accessed)
             
     def visit_function(self, node):
         """check method arguments, overriding"""
         # check first argument is self if this is actually a method
         if node.is_method():
             klass = node.parent.get_frame()
-            self.check_first_arg_for_type(node, klass.metaclass)
+            self._check_first_arg_for_type(node, klass.metaclass)
             if node.name == '__init__':
-                self.check_init(node)
+                self._check_init(node)
                 return
             # check signature if the method overrload an herited method
             try:
                 overriden = klass.get_ancestor_for_method(node.name)
-            except astng.NotFoundError:
+            except (astng.NotFoundError, astng.ASTNGBuildingException):
                 pass
-            except astng.ASTNGBuildingException:
-                return
             else:
                 # get astng for the searched method
                 try:
                     meth_node = overriden.locals[node.name]
-                    self.check_signature(node, meth_node, 'overriden')
+                    self._check_signature(node, meth_node, 'overriden')
                 except KeyError:
                     # we have found the method but it's not in the local
                     # dictionnary.
@@ -228,7 +229,7 @@ class should be ignored. A mixin class is detected if its name ends with \
                 self._accessed[-1].setdefault(node.attrname, []).append(node)
 
                 
-    def check_accessed_members(self, node, accessed):
+    def _check_accessed_members(self, node, accessed):
         """check that accessed members are defined"""
         for attr, nodes in accessed.items():
             # is it a builtin attribute
@@ -236,6 +237,14 @@ class should be ignored. A mixin class is detected if its name ends with \
                 continue
             # is it an instance attribute ?
             if node.instance_attrs.has_key(attr):
+                frame = node.instance_attrs[attr].get_frame()
+                lineno = node.instance_attrs[attr].source_line()
+                # check that if the node is accessed in the same method as
+                # it's defined, it's accessed after the initial assigment
+                for _node in nodes:
+                    if _node.get_frame() is frame and _node.lineno < lineno:
+                        self.add_message('E0203', node=_node,
+                                         args=(attr, lineno))
                 continue
             # or a class attribute ?
             if node.locals.has_key(attr):
@@ -245,8 +254,6 @@ class should be ignored. A mixin class is detected if its name ends with \
                 node.get_ancestor_for_method(attr)
             except astng.NotFoundError:
                 pass
-            except astng.ASTNGBuildingException:
-                continue
             else:
                 continue
             try:
@@ -258,7 +265,7 @@ class should be ignored. A mixin class is detected if its name ends with \
             for _node in nodes:
                 self.add_message('E0201', node=_node, args=attr)
         
-    def check_first_arg_for_type(self, node, metaclass=0):
+    def _check_first_arg_for_type(self, node, metaclass=0):
         """check the name of first argument, expect:
         
         * 'self' for a regular method
@@ -290,7 +297,7 @@ class should be ignored. A mixin class is detected if its name ends with \
         elif self._first_attrs[-1] != 'self':
             self.add_message('E0213', node=node)
 
-    def check_bases_classes(self, node):
+    def _check_bases_classes(self, node):
         """check that the given class node implements abstract methods from
         base classes
         """
@@ -303,7 +310,7 @@ class should be ignored. A mixin class is detected if its name ends with \
                 self.add_message('W0223', node=node,
                                  args=(method.name, owner.name))
                     
-    def check_interfaces(self, node):
+    def _check_interfaces(self, node):
         """check that the given class node really implements declared
         interfaces
         """
@@ -321,9 +328,7 @@ class should be ignored. A mixin class is detected if its name ends with \
                 self.add_message('F0203', node=node,
                                  args=(iface_node.as_string()))
                 
-        implements = astng.utils.get_interfaces(node,
-                                                manager=self.linter.manager,
-                                                handler_func=iface_handler)
+        implements = astng.utils.get_interfaces(node, handler_func=iface_handler)
         for iface in implements:
             for imethod in iface.methods():
                 name = imethod.name
@@ -345,14 +350,15 @@ class should be ignored. A mixin class is detected if its name ends with \
                 if not method.parent.get_frame() is node:
                     continue
                 # check signature
-                self.check_signature(method, imethod,
+                self._check_signature(method, imethod,
                                      '%s interface' % iface.name)
 
-    def check_init(self, node):
+    def _check_init(self, node):
         """check that the __init__ method call super or ancestors'__init__
         method
         """
-        to_call, unresolved = self._ancestors_to_call(node)
+        klass_node = node.parent.get_frame()        
+        to_call, unresolved = self._ancestors_to_call(node, klass_node)
         for stmt in get_nodes_from_class(node, astng.CallFunc):
             expr = stmt.node
             if not (isinstance(expr, astng.Name) or
@@ -364,7 +370,8 @@ class should be ignored. A mixin class is detected if its name ends with \
                 try:
                     del to_call[klass_name]
                 except KeyError:
-                    if unresolved.has_key(klass_name):
+                    if unresolved.has_key(klass_name) \
+                           or klass_name in klass_node.basenames:
                         continue
                     if klass_name.startswith('super('):
                         return
@@ -372,16 +379,14 @@ class should be ignored. A mixin class is detected if its name ends with \
         for klass_name in to_call.keys():
             self.add_message('W0231', args=klass_name, node=node)
 
-    def check_signature(self, method1, method2, class_type):
+    def _check_signature(self, method1, method2, class_type):
         """check that the signature of the two given methods match
         
         class_type is in 'class', 'interface'
         """
-        if not isinstance(method1, astng.Function):
-            self.add_message('F0222', args=method1, node=method1)
-            return
-        if not isinstance(method2, astng.Function):
-            self.add_message('F0222', args=method2, node=method1)
+        if not (isinstance(method1, astng.Function)
+                and isinstance(method2, astng.Function)):
+            self.add_message('F0202', args=(method1, method2), node=method1)
             return
         # don't care about functions with unknown argument (builtins)
         if method1.argnames is None or method2.argnames is None:
@@ -402,7 +407,7 @@ class should be ignored. A mixin class is detected if its name ends with \
                 self.add_message('F0201', args=(method_name, node.name),
                                  node=node)
             
-    def _ancestors_to_call(self, node, method='__init__'):
+    def _ancestors_to_call(self, node, klass_node, method='__init__'):
         """return two dictionarys :
         
         * one where keys are the list of base classes names with the given
@@ -412,7 +417,6 @@ class should be ignored. A mixin class is detected if its name ends with \
         """
         to_call = {}
         unresolved = {}
-        klass_node = node.parent.get_frame()
         for base in klass_node.basenames:
             parts = base.split('.')
             cbase = parts[0]
@@ -426,8 +430,10 @@ class should be ignored. A mixin class is detected if its name ends with \
                 try:
                     cbase = '%s.%s' % (cbase, part)
                     baseastng = baseastng.resolve(part)
-                except KeyError:
+                except astng.ResolveError:
                     unresolved[base] = 1
+                    #import traceback
+                    #traceback.print_exc()
                     self.add_message('F0203', node=node, args=cbase)
                     break
             else:

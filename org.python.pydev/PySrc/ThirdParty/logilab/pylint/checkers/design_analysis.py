@@ -20,13 +20,13 @@
  FIXME: missing 13, 15, 16
 """
 
-__revision__ = "$Id: design_analysis.py,v 1.1 2004-10-26 14:18:35 fabioz Exp $"
+__revision__ = "$Id: design_analysis.py,v 1.2 2005-01-21 17:42:08 fabioz Exp $"
 
 from logilab.common.astng import Function
 from logilab.common.astng.utils import get_interfaces
 
 from logilab.pylint.interfaces import IASTNGChecker
-from logilab.pylint.checkers import BaseChecker, CheckerHandler
+from logilab.pylint.checkers import BaseChecker
 from logilab.pylint.checkers.utils import is_interface, is_exception, \
      is_abstract, is_metaclass
 
@@ -73,10 +73,10 @@ MSGS = {
     }
 
 
-class MisdesignChecker(BaseChecker, CheckerHandler):
+class MisdesignChecker(BaseChecker):
     """checks for sign of poor/misdesign:                                      
-    * number of methods, attributes, local variables...
-    * size, complexity of functions, methods
+    * number of methods, attributes, local variables...                        
+    * size, complexity of functions, methods                                   
     """
     
     __implements__ = (IASTNGChecker,)
@@ -140,7 +140,6 @@ class MisdesignChecker(BaseChecker, CheckerHandler):
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
-        CheckerHandler.__init__(self)
         self.stats = None
         self._returns = None
         self._branchs = None
@@ -175,7 +174,7 @@ class MisdesignChecker(BaseChecker, CheckerHandler):
     def visit_class(self, node):
         """check size of inheritance hierarchy and number of instance attributes
         """
-        self.inc_branch()
+        self._inc_branch()
         # Is the total inheritance hierarchy is 7 or less?
         nb_parents = len(list(node.ancestors()))
         if nb_parents > self.config.max_parents:
@@ -229,7 +228,7 @@ class MisdesignChecker(BaseChecker, CheckerHandler):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
-        self.inc_branch()
+        self._inc_branch()
         # init branch and returns counters
         self._returns.append(0)
         self._branchs.append(0)
@@ -263,11 +262,11 @@ class MisdesignChecker(BaseChecker, CheckerHandler):
             self.add_message('R0915', node=node,
                              args=(self._stmts, self.config.max_statements))
 
-    def visit_return(self, node):
+    def visit_return(self, _):
         """count number of returns/yields"""
         self._returns[-1] += 1
         
-    def visit_yield(self, node):
+    def visit_yield(self, _):
         """count number of returns/yields"""
         self._returns[-1] += 1
         
@@ -283,12 +282,12 @@ class MisdesignChecker(BaseChecker, CheckerHandler):
         branchs = len(node.handlers)
         if node.else_:
             branchs += 1
-        self.inc_branch(branchs)
+        self._inc_branch(branchs)
         self._stmts += branchs
         
-    def visit_tryfinally(self, node):
+    def visit_tryfinally(self, _):
         """increments the branchs counter"""
-        self.inc_branch(2)
+        self._inc_branch(2)
         self._stmts += 2
         
     def visit_if(self, node):
@@ -296,7 +295,7 @@ class MisdesignChecker(BaseChecker, CheckerHandler):
         branchs = len(node.tests)
         if node.else_:
             branchs += 1
-        self.inc_branch(branchs)
+        self._inc_branch(branchs)
         self._stmts += branchs
         
     def visit_while(self, node):
@@ -304,11 +303,11 @@ class MisdesignChecker(BaseChecker, CheckerHandler):
         branchs = 1
         if node.else_:
             branchs += 1
-        self.inc_branch(branchs)
+        self._inc_branch(branchs)
         
     visit_for = visit_while
 
-    def inc_branch(self, branchsnum=1):
+    def _inc_branch(self, branchsnum=1):
         """increments the branchs counter"""
         branchs = self._branchs
         for i in range(len(branchs)):

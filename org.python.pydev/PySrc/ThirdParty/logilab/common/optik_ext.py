@@ -28,7 +28,7 @@ It also defines three new types for optik/optparse command line parser :
 
 """
 
-__revision__ = '$Id: optik_ext.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $'
+__revision__ = '$Id: optik_ext.py,v 1.3 2005-01-21 17:42:03 fabioz Exp $'
 
 try:
     # python >= 2.3
@@ -41,6 +41,7 @@ except Exception, ex:
     
 import re
 from copy import copy
+import os.path
 
 from logilab.common.textutils import get_csv
 
@@ -87,18 +88,45 @@ def check_named(option, opt, value):
 <NAME>:<VALUE>"
     raise OptionValueError(msg % (opt, value))
 
+def check_file(option, opt, value):
+    """check a file value
+    return the filepath
+    """
+    if os.path.exists(value):
+        return value
+    msg = "option %s: file %r does not exist"
+    raise OptionValueError(msg % (opt, value))
+
+def check_color(option, opt, value):
+    """check a color value and returns it
+    /!\ does *not* check color labels (like 'red', 'green'), only
+    checks hexadecimal forms
+    """
+    # Case (1) : color label, we trust the end-user
+    if re.match('[a-z0-9 ]+$', value, re.I):
+        return value
+    # Case (2) : only accepts hexadecimal forms
+    if re.match('#[a-f0-9]{6}', value, re.I):
+        return value
+    # Else : not a color label neither a valid hexadecimal form => error
+    msg = "option %s: invalid color : %r, should be either hexadecimal \
+    value or predefinied color"
+    raise OptionValueError(msg % (opt, value))
+
 import types
 
 class Option(BaseOption):
     """override optik.Option to add some new option types
     """
-    TYPES = BaseOption.TYPES + ("regexp", "csv", 'yn', 'named', "multiple_choice")
+    TYPES = BaseOption.TYPES + ("regexp", "csv", 'yn', 'named', "multiple_choice", "file", "font", "color")
     TYPE_CHECKER = copy(BaseOption.TYPE_CHECKER)
     TYPE_CHECKER["regexp"] = check_regexp
     TYPE_CHECKER["csv"] = check_csv
     TYPE_CHECKER["yn"] = check_yn
     TYPE_CHECKER["named"] = check_named
     TYPE_CHECKER["multiple_choice"] = check_csv
+    TYPE_CHECKER["file"] = check_file
+    TYPE_CHECKER["color"] = check_color
 
     def _check_choice(self):
         """FIXME: need to override this due to optik misdesign"""

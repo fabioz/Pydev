@@ -1,6 +1,33 @@
 ChangeLog for PyLint
 ====================
 
+2005-01-20  --  0.6.0
+    * refix pylint emacs mode
+	
+    * no more traceback when just typing "pylint"
+
+    * fix a bug which may cause crashes on resolving parent classes
+
+    * fix problems with the format checker: don't chock on files
+      containing multiple CR, avoid C0322, C0323, C0324 false positives
+      with triple quoted string with quote inside 
+
+    * correctly detect access to member defined latter in __init__ method
+	
+    * now depends on common 0.8.1 to fix problem with interface resolution
+      (close #8606)	
+	  
+    * new --list-msgs option describing available checkers and their
+      messages
+
+    * added windows specific documentation to the README file, contributed
+      by Brian van den Broek
+
+    * updated doc/features.txt (actually this file is now generated using
+      the --list-msgs option), more entries into the FAQ
+
+    * improved tests coverage
+	
 2004-10-19  --  0.5.0
     * avoid to import analyzed modules !
 

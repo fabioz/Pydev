@@ -1,5 +1,5 @@
-# Copyright (c) 2003 Sylvain Thenault (thenault@nerim.net)
-# Copyright (c) 2003-2004 Logilab
+# Copyright (c) 2003-2005 Sylvain Thenault (thenault@nerim.net)
+# Copyright (c) 2003-2005 Logilab
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -13,24 +13,35 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""The ASTNGBuilder makes astng from living object and / or from compiler.ast 
+"""The ASTNGBuilder makes astng from living object and / or from compiler.ast
 
+The builder is not thread safe and can't be used to parse different sources
+at the same time.
+
+TODO:
  - more complet representation on inspect build
    (imported modules ? use dis.dis ?)
 """
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: builder.py,v 1.3 2004-12-01 16:59:14 fabioz Exp $"
+__revision__ = "$Id: builder.py,v 1.4 2005-01-21 17:42:09 fabioz Exp $"
 
 import sys
 from compiler import parse
 from inspect import isfunction, ismethod, ismethoddescriptor, isclass, \
      getargspec
-from os.path import splitext, exists
+from os.path import splitext, basename, dirname, exists
 
 from logilab.common.fileutils import norm_read
 from logilab.common.modutils import modpath_from_file
 from logilab.common import astng
+from logilab.common.astng.raw_building import register_arguments, \
+     build_module, build_function, build_class
+
+def _init_module(node):
+    """init a module node"""
+    node.parent = None
+    node.globals = node.locals = {}
 
 # ast NG builder ##############################################################
 
@@ -38,7 +49,8 @@ class ASTNGBuilder:
     """provide astng building methods
     """
     
-    def __init__(self):
+    def __init__(self, manager):
+        self._manager = manager
         self._module = None
         self._done = None
         self._stack = None
@@ -51,9 +63,9 @@ class ASTNGBuilder:
         path = getattr(module, '__file__', None)
         self._module = module
         if path is not None:
-            path, ext = splitext(module.__file__)
-            if ext in ('.py', '.pyc', '.pyo') and exists(path + '.py'):
-                path = path + '.py'
+            path_, ext = splitext(module.__file__)
+            if ext in ('.py', '.pyc', '.pyo') and exists(path_ + '.py'):
+                path = path_ + '.py'
                 node = self.file_build(path)
         if node is None:
             # this is a built-in module
@@ -76,16 +88,24 @@ class ASTNGBuilder:
             msg = 'Unable to load file %r (%s)' % (path, ex)
             raise astng.ASTNGBuildingException(msg)
         # build astng representation
-        node = self.string_build(data)
-        node.file = path
-        node.name = modname or '.'.join(modpath_from_file(path))
+        try:
+            sys.path.insert(0, dirname(path))
+            node = self.string_build(data)
+        finally:
+            sys.path.pop(0)
+        node.file = node.path = path
+        if modname is None:
+            try:
+                modname = '.'.join(modpath_from_file(path))
+            except:
+                modname = splitext(basename(path))[0]
+        node.name = modname 
         node.package = path.find('__init__') > -1
         return node
     
     def string_build(self, data):
         """build astng from a source code stream (i.e. from an ast)"""
-        data = data.rstrip()
-        return self.ast_build(parse(data))
+        return self.ast_build(parse(data + '\n'))
 
 
     # astng from ast ##########################################################
@@ -104,7 +124,7 @@ class ASTNGBuilder:
         self._stack = [self._module]
         self._par_stack = [node]
         node.object = self._module
-        init_module(node)
+        _init_module(node)
 
     def leave_module(self, node):
         """leave a stmt.Module node -> pop the last item on the stack and check
@@ -120,9 +140,9 @@ class ASTNGBuilder:
         """visit a stmt.Class node -> init node and push the corresponding
         object or None on the top of the stack
         """
+        self.visit_default(node)
         node.instance_attrs = {}
         node.basenames = [b_node.as_string() for b_node in node.bases]
-        self.visit_default(node)
         self._push(node)
         
     def leave_class(self, node):
@@ -135,12 +155,10 @@ class ASTNGBuilder:
         """visit a stmt.Function node -> init node and push the corresponding
         object or None on the top of the stack
         """
+        self.visit_default(node)
         node.argnames = list(node.argnames)
         if node.name == '__new__':
             node.type = 'classmethod'
-        else:
-            node.type = None
-        self.visit_default(node)
         self._push(node)
         obj = node.object
         if hasattr(obj, 'im_func'):
@@ -158,9 +176,9 @@ class ASTNGBuilder:
     def visit_lambda(self, node):
         """visit a stmt.Lambda node -> init node locals
         """
+        self.visit_default(node)
         node.argnames = list(node.argnames)
         node.locals = {}
-        self.visit_default(node)
         register_arguments(node, node.argnames)
         
     def visit_global(self, node):
@@ -185,14 +203,16 @@ class ASTNGBuilder:
         # add names imported by wildcard import
         for (name, asname) in node.names:
             if name == '*':
-                imported = {}
                 try:
-                    exec 'from %s import *' % node.modname in imported
-                    for name in imported.keys():
+                    imported = self._manager.astng_from_module_name(node.modname)
+                    for name in imported.wildcard_import_names():
                         node.parent.set_local(name, node)
                 except:
+                    import traceback
+                    traceback.print_exc()
                     print >> sys.stderr, \
-                          'Unable to exec "from %s import *"' % node.modname
+                          'Unable to get imported names for %r line %s"' % (
+                        node.modname, node.lineno)
             else:
                 node.parent.set_local(asname or name, node)
         
@@ -236,18 +256,18 @@ class ASTNGBuilder:
         frame = node.get_frame()
         if isinstance(frame, astng.Function) and frame.is_method():
             klass = frame.parent.get_frame()
-            try:
-                # are we assigning to a (new ?) instance attribute ?
-                _self = frame.argnames[0]
-                if isinstance(node.expr, astng.Name) and node.expr.name == _self:
-                    # always assign in __init__
-                    if frame.name == '__init__':
-                        klass.instance_attrs[node.attrname] = node
-                    # but only if not yet existant in others
-                    elif not klass.instance_attrs.has_key(node.attrname):
-                        klass.instance_attrs[node.attrname] = node
-            except:
-                pass
+            # are we assigning to a (new ?) instance attribute ?
+            _self = frame.argnames[0]
+            if isinstance(node.expr, astng.Name) and node.expr.name == _self:
+                iattrs = klass.instance_attrs
+                # assign if not yet existant in others
+                if not iattrs.has_key(node.attrname):
+                    iattrs[node.attrname] = node
+                # but always assign in __init__, except if previous assigment
+                # already come from __init__
+                elif frame.name == '__init__' and not \
+                         iattrs[node.attrname].get_frame().name == '__init__':
+                    klass.instance_attrs[node.attrname] = node
                     
     def visit_default(self, node):
         """default visit method, handle the parent attribute
@@ -280,14 +300,15 @@ class ASTNGBuilder:
         this is used when there is no python source code available (either
         because it's a built-in module or because the .py is not available)
         """
-        node = astng.Module(module.__doc__, astng.Stmt([]))
-        node.node.parent = node
+        node = build_module(module.__name__, module.__doc__)
         node.object = module
-        node.name = module.__name__
-        node.pure_python = 0
-        init_module(node)
         self._done = {}
-        self._member_build(node.node, module)
+        if module.__name__ == 'qt':
+            #print 'hanlding qt !'
+            #print module.QWidget.__name__, module.QWidget.__module__
+            self._qt_member_build(node, module)
+        else:
+            self._member_build(node, module)
         return node
 
     def _member_build(self, node, obj):
@@ -297,6 +318,8 @@ class ASTNGBuilder:
         if self._done.has_key(obj):
             return node
         self._done[obj] = 1
+        modname = self._module.__name__
+        modfile = getattr(self._module, '__file__', None)
         for name in dir(obj):
             try:
                 member = getattr(obj, name)
@@ -307,88 +330,88 @@ class ASTNGBuilder:
                 member = member.im_func
             if isfunction(member):
                 # verify this is not an imported function
-                modfile = getattr(self._module, '__file__', None)
                 if member.func_code.co_filename != modfile:
                     continue
-                args, varargs, varkw, defaults = getargspec(member)
-                if varargs is not None:
-                    args.append(varargs)
-                if varkw is not None:
-                    args.append(varkw)
-                func = astng.Function(name, args, defaults or [],
-                                      member.func_code.co_flags, member.__doc__,
-                                      astng.Stmt([]))
-                func.code.parent = func
-                func.locals = {}
-                register_arguments(func, args)
-                func.object = member
-                _append(node, func)
+                self._function_member_build(node, member)
             elif ismethoddescriptor(member):
-                # FIXME get arguments ?
-                func = astng.Function(member.__name__, None, None,
-                                      0, member.__doc__,
-                                      astng.Stmt([]))
-                func.code.parent = func
-                func.locals = {}
-                func.object = member
-                _append(node, func)
+                self._methoddescriptor_member_build(node, member)
             elif isclass(member):
                 # verify this is not an imported class
                 #
                 # /!\ some classes like ExtensionClass doesn't have a 
                 # __module__ attribute !
-                if getattr(member, '__module__', None) != self._module.__name__:
+                if not getattr(member, '__module__', None) == modname:
                     continue
-                bases = []
-                basenames = []
-                for base in member.__bases__:
-                    bases.append(astng.Name(base.__name__))
-                    basenames.append(base.__name__)
-                klass = astng.Class(member.__name__, bases, member.__doc__,
-                                    astng.Stmt([]))
-                for base in bases:
-                    base.parent = klass
-                klass.code.parent = klass
-                klass.basenames = basenames
-                klass.object = member
-                klass.locals = {}
-                klass.instance_attrs = {}
-                _append(node, klass)
+                klass = self._class_member_build(node, member)
                 # recursion
                 self._member_build(klass, member)
 
-
-# misc utilities ##############################################################
-
-def init_module(node):
-    """init a module node
-    """
-    node.parent = None
-    node.globals = node.locals = {}
-
-def register_arguments(node, args):
-    """add given arguments to local
+    def _class_member_build(self, node, member):
+        """create astng for a living class object"""
+        basenames = [base.__name__ for base in member.__bases__]
+        klass = build_class(member.__name__, basenames, member.__doc__)
+        klass.object = member
+        node.add_local_node(klass)
+        return klass
     
-    args is a list that may contains nested lists
-    (i.e. def func(a, (b, c, d)): ...)
-    """
-    for arg in args:
-        if type(arg) is type(''):
-            node.set_local(arg, node)
-        else:
-            register_arguments(node, arg)
+    def _function_member_build(self, node, member):
+        """create astng for a living function object"""
+        args, varargs, varkw, defaults = getargspec(member)
+        if varargs is not None:
+            args.append(varargs)
+        if varkw is not None:
+            args.append(varkw)
+        func = build_function(member.__name__, args, defaults,
+                              member.func_code.co_flags, member.__doc__)
+        func.object = member
+        node.add_local_node(func)
     
-def _append(node, child):
-    """append child to the given node, which is expected to be a Stmt (ie a
-    Module) or either a Function or a Class
-    """
-    if hasattr(node, 'nodes'):
-        # node is a module (hey, actually a statement)
-        node.nodes.append(child)
-    else:
-        # node is a class
-        node.code.nodes.append(child)
-    child.parent = node
-    node.set_local(child.name, child)
+    def _methoddescriptor_member_build(self, node, member):
+        """create astng for a living method descriptor object"""
+        # FIXME get arguments ?
+        func = build_function(member.__name__, doc=member.__doc__)
+        func.object = member
+        node.add_local_node(func)    
+    
 
-
+    def _qt_member_build(self, node, obj):
+        """recursive method which create a partial ast from real objects
+         (only function, class, and method are handled)
+        """
+        if self._done.has_key(obj):
+            return node
+        self._done[obj] = 1
+        # added __main__ to the list to fix problem with qt
+        # (qt.QWidget.__module__ == '__main__') !
+        # and finally also added modutils since __module__ attribute on qt
+        # classes seems to take the name of the importing module
+        # FIXME: bug report on pyqt to remove this special handling...
+        modules = (self._module.__name__, '__main__', 'logilab.common.modutils')
+        modfile = getattr(self._module, '__file__', None)
+        for name in dir(obj):
+            try:
+                member = getattr(obj, name)
+            except AttributeError:
+                # damned ExtensionClass.Base, I know you're there !
+                continue
+            if ismethod(member):
+                member = member.im_func
+            if isfunction(member):
+                # verify this is not an imported function
+                if member.func_code.co_filename != modfile:
+                    continue
+                self._function_member_build(node, member)
+            elif ismethoddescriptor(member):
+                self._methoddescriptor_member_build(node, member)
+            elif isclass(member):
+                # verify this is not an imported class
+                #
+                # /!\ some classes like ExtensionClass doesn't have a 
+                # __module__ attribute !
+                if not getattr(member, '__module__', None) in modules:
+                    continue
+                # grrr: qt.QWidget.__name__ == 'qt.QWidget' !
+                member.__name__ = member.__name__.split('.')[-1]
+                klass = self._class_member_build(node, member)
+                # recursion
+                self._qt_member_build(klass, member)

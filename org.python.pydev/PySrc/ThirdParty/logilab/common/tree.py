@@ -17,7 +17,7 @@
  base class to represent tree structure
 """
 
-__revision__ = "$Id: tree.py,v 1.2 2004-10-26 14:18:34 fabioz Exp $"
+__revision__ = "$Id: tree.py,v 1.3 2005-01-21 17:42:04 fabioz Exp $"
 
 from logilab.common.visitor import VisitedMixIn, FilteredIterator, no_filter
 import sys

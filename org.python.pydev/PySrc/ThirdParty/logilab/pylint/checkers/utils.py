@@ -18,7 +18,7 @@
 """some functions that may be usefull for checkers
 """
 
-__revision__ = '$Id: utils.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $'
+__revision__ = '$Id: utils.py,v 1.3 2005-01-21 17:42:08 fabioz Exp $'
 
 from logilab.common import astng
 from logilab.common.astng.utils import is_exception, is_interface, \
@@ -29,35 +29,36 @@ def is_error(node):
     """return true if the function does nothing but raising an exception"""
     for child_node in node.code.getChildNodes():
         if isinstance(child_node, astng.Raise):
-            return 1
-        return 0
+            return True
+        return False
 
 def is_empty(node):
     """return true if the given node does nothing but 'pass'"""
     for child_node in node.getChildNodes():
         if isinstance(child_node, astng.Pass):
-            return 1
+            return True
         else:
-            return 0
+            return False
 
 builtins = __builtins__.copy()
+SPECIAL_BUILTINS = ('__builtins__', '__path__', '__file__')
 
 def is_native_builtin(name):
     """return true if <name> could be considered as a builtin defined by python
     """
     if builtins.has_key(name):
-        return 1
-    elif name in ('__path__', '__file__'):
-        return 1
-    return 0
+        return True
+    if name in SPECIAL_BUILTINS:
+        return True
+    return False
 
 def is_builtin(name):
     """return true if <name> could be considered as a builtin"""
     if __builtins__.has_key(name):
-        return 1
-    elif name in ('__builtins__', '__path__', '__file__'):
-        return 1
-    return 0
+        return True
+    if name in SPECIAL_BUILTINS:
+        return True
+    return False
 
 def are_exclusive(stmt1, stmt2):
     """return true if the two given statement are mutually exclusive
@@ -100,4 +101,3 @@ def are_exclusive(stmt1, stmt2):
         previous = node
         node = node.parent
     return result
-    

@@ -1,6 +1,6 @@
 """Tkinker gui for pylint"""
 
-__revision__ = '$Id: gui.py,v 1.2 2004-10-26 14:18:33 fabioz Exp $'
+__revision__ = '$Id: gui.py,v 1.3 2005-01-21 17:42:02 fabioz Exp $'
 
 from Tkinter import Tk, Frame, Listbox, Entry, Label, Button, Scrollbar
 from Tkinter import TOP, LEFT, RIGHT, BOTTOM, END, X, Y, BOTH

@@ -10,7 +10,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2002-2004 LOGILAB S.A. (Paris, FRANCE).
+""" Copyright (c) 2002-2005 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
  basic checker for Python code
@@ -18,20 +18,20 @@
  FIXME : should check constant names !
 """
 
-__revision__ = "$Id: base.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $"
+__revision__ = "$Id: base.py,v 1.3 2005-01-21 17:42:08 fabioz Exp $"
 
 from logilab.common import astng
 from logilab.common.ureports import Table
 
 from logilab.pylint.interfaces import IASTNGChecker
 from logilab.pylint.reporters import diff_string
-from logilab.pylint.checkers import BaseChecker, CheckerHandler
+from logilab.pylint.checkers import BaseChecker
 from logilab.pylint.checkers.utils import are_exclusive
 
 import re
 
 # regex for class/function/variable/constant nane
-CLASS_NAME_RGX = re.compile('[A-Z][a-zA-Z0-9]+$')
+CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
 FUNC_NAME_RGX = re.compile('[a-z_][a-z0-9_]*$')
 METH_NAME_RGX = re.compile('[a-z_][a-z0-9_]*$')
 VAR_NAME_RGX = re.compile('[a-z_][a-z0-9_]*$')
@@ -48,12 +48,12 @@ def in_nested_list(nested_list, obj):
     list
     """
     for elmt in nested_list:
-        if type(obj) is type([]):
-            if in_nested_list(nested_list, obj):
-                return 1
-        if elmt == obj:
-            return 1
-    return 0
+        if isinstance(elmt, (list, tuple)):
+            if in_nested_list(elmt, obj):
+                return True
+        elif elmt == obj:
+            return True
+    return False
 
 MSGS = {
     'E0101': ('Explicit return in __init__',
@@ -92,9 +92,9 @@ MSGS = {
               like map, or filter , where Python offers now some cleaner \
               alternative like list comprehension.'),
     'W0142': ('Used * or ** magic',
-              'Used when a function or method is called using *args or **kwargs\
-              to dispatch arguments. This doesn\'t improve readility and should\
-              be used with care.'),
+              'Used when a function or method is called using `*args` or \
+              `**kwargs` to dispatch arguments. This doesn\'t improve readility\
+               and should be used with care.'),
 
     'C0101': ('Too short name "%s"',
               'Used when a variable has a too short name.'),
@@ -107,7 +107,7 @@ MSGS = {
     
     }
 
-class BasicChecker(BaseChecker, CheckerHandler):
+class BasicChecker(BaseChecker):
     """checks for :                                                            
     * doc strings                                                              
     * modules / classes / functions / methods / arguments / variables name     
@@ -200,7 +200,6 @@ functions, methods
 
     def __init__(self, linter):
         BaseChecker.__init__(self, linter)
-        CheckerHandler.__init__(self)
         self.stats = None
         self._returns = None
         self.reports = (('R0101', 'Statistics by type',
@@ -226,19 +225,19 @@ functions, methods
         """check module name, docstring and required arguments
         """
         self.stats['module'] += 1
-        self.check_name('module', node.name.split('.')[-1], node)
-        self.check_docstring('module', node)
-        self.check_required_attributes(node, self.config.required_attributes)
+        self._check_name('module', node.name.split('.')[-1], node)
+        self._check_docstring('module', node)
+        self._check_required_attributes(node, self.config.required_attributes)
             
     def visit_class(self, node):
         """check module name, docstring and redefinition
         increment branch counter
         """
         self.stats['class'] += 1
-        self.check_name('class', node.name, node)
+        self._check_name('class', node.name, node)
         if self.config.no_docstring_rgx.match(node.name) is None:
-            self.check_docstring('class', node)
-        self.check_redefinition('class', node)
+            self._check_docstring('class', node)
+        self._check_redefinition('class', node)
             
     def visit_function(self, node):
         """check function name, docstring, arguments, redefinition,
@@ -249,15 +248,15 @@ functions, methods
         f_type = is_method and 'method' or 'function'
         self.stats[f_type] += 1
         # function name
-        self.check_name(f_type, node.name, node)
+        self._check_name(f_type, node.name, node)
         # docstring
         if self.config.no_docstring_rgx.match(node.name) is None:
-            self.check_docstring(f_type, node)
+            self._check_docstring(f_type, node)
         # check default arguments'value
-        self.check_defaults(node)
+        self._check_defaults(node)
         # check arguments name
         args = node.argnames
-        self.recursive_check_names(args, node)
+        self._recursive_check_names(args, node)
         # check local variable, avoiding argument, imported names, global names
         # and current class name if the function is actually a method
         for var, stmt in node.locals.items():
@@ -267,9 +266,9 @@ functions, methods
                 and not isinstance(stmt, astng.Global) 
                 and not isinstance(stmt, astng.Class) 
                 and not (is_method and var == node.parent.get_frame().name)):
-                self.check_name('variable', var, stmt)
+                self._check_name('variable', var, stmt)
         # check for redefinition
-        self.check_redefinition(is_method and 'method' or 'function', node)
+        self._check_redefinition(is_method and 'method' or 'function', node)
 
     def leave_function(self, node):
         """most of the work is done here on close:
@@ -284,9 +283,9 @@ functions, methods
         code)
         """
         self._returns[-1] += 1
-        self.check_unreachable(node)
+        self._check_unreachable(node)
         
-    def visit_yield(self, node):
+    def visit_yield(self, _):
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
@@ -296,19 +295,19 @@ functions, methods
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
-        self.check_unreachable(node)
+        self._check_unreachable(node)
 
     def visit_break(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
-        self.check_unreachable(node)
+        self._check_unreachable(node)
 
     def visit_raise(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
-        self.check_unreachable(node)
+        self._check_unreachable(node)
 
     def visit_global(self, node):
         """just print a warning on global statements"""
@@ -334,20 +333,20 @@ functions, methods
             self.add_message('W0142', node=node.node)
             
 
-    def check_unreachable(self, node):
+    def _check_unreachable(self, node):
         """check unreachable code"""
         unreach_stmt = node.next_sibling()
         if unreach_stmt is not None:
             self.add_message('W0101', node=unreach_stmt)
         
-    def check_redefinition(self, redef_type, node):
+    def _check_redefinition(self, redef_type, node):
         """check for redefinition of a function / method / class name"""
         defined_self = node.parent.get_frame().locals[node.name]
         if defined_self is not node and not are_exclusive(node, defined_self):
             self.add_message('E0102', node=node,
                              args=(redef_type, defined_self.lineno))
         
-    def check_docstring(self, node_type, node):
+    def _check_docstring(self, node_type, node):
         """check the node has a non empty docstring"""
         docstring = node.doc
         if docstring is None:
@@ -357,15 +356,15 @@ functions, methods
             self.stats['undocumented_'+node_type] += 1
             self.add_message('W0132', node=node)
             
-    def recursive_check_names(self, args, node):
+    def _recursive_check_names(self, args, node):
         """check names in a possibly recursive list <arg>"""
         for arg in args:
             if type(arg) is type(''):
-                self.check_name('argument', arg, node)
+                self._check_name('argument', arg, node)
             else:
-                self.recursive_check_names(arg, node)
+                self._recursive_check_names(arg, node)
     
-    def check_name(self, node_type, name, node):
+    def _check_name(self, node_type, name, node):
         """check for a name using the type's regexp"""
         if name in self.config.good_names:
             return
@@ -381,14 +380,13 @@ functions, methods
             self.add_message('C0101', node=node, args=name)
             self.stats['badname_' + node_type] += 1
 
-    def check_defaults(self, node):
+    def _check_defaults(self, node):
         """check for dangerous default values as arguments"""
         for default in node.defaults:
             if default.__class__ is astng.Name:
                 try:
                     value = node.resolve(default.name)
                 except astng.ResolveError:
-                    # FIXME: log error ?
                     continue
             else:
                 value = default
@@ -399,7 +397,7 @@ functions, methods
                     msg = '%s (%s)' % (default.as_string(), value.as_string())
                 self.add_message('W0102', node=node, args=(msg,))
         
-    def check_required_attributes(self, node, attributes):
+    def _check_required_attributes(self, node, attributes):
         """check for required attributes"""
         locs = node.locals
         for attr in attributes:
@@ -428,15 +426,15 @@ functions, methods
             nice_stats[node_type]['percent_documented'] = doc_percent
             nice_stats[node_type]['percent_badname'] = badname_percent
         
-        for node_type in ('constant', ):#'variable', 'argument'):
-            nice_stats[node_type] = {}
-            total = stats[node_type]
-            if total == 0:
-                badname_percent = 0
-            else:
-                badname = stats['badname_'+node_type]
-                badname_percent = float((badname)*100) / total
-            nice_stats[node_type]['percent_badname'] = badname_percent
+##         for node_type in ('constant', ):#'variable', 'argument'):
+##             nice_stats[node_type] = {}
+##             total = stats[node_type]
+##             if total == 0:
+##                 badname_percent = 0
+##             else:
+##                 badname = stats['badname_'+node_type]
+##                 badname_percent = float((badname)*100) / total
+##             nice_stats[node_type]['percent_badname'] = badname_percent
         lines = ('type', 'number', 'old number', 'difference',
                  '%documented', '%badname')
         for node_type in ('module', 'class', 'method', 'function'):

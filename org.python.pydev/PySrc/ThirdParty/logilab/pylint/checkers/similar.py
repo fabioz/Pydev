@@ -18,7 +18,7 @@
 """
 from __future__ import generators
 
-__revision__ = '$Id: similar.py,v 1.1 2004-10-26 14:18:35 fabioz Exp $'
+__revision__ = '$Id: similar.py,v 1.2 2005-01-21 17:42:08 fabioz Exp $'
 
 import sys
 
@@ -26,7 +26,7 @@ from logilab.common.compat import Set, izip, sum, enumerate
 from logilab.common.ureports import Table
 
 from logilab.pylint.interfaces import IRawChecker
-from logilab.pylint.checkers import BaseChecker, CheckerHandler
+from logilab.pylint.checkers import BaseChecker, table_lines_from_stats
 
 
 class Similar:
@@ -45,12 +45,12 @@ class Similar:
         
     def run(self):
         """start looking for similarities and display results on stdout"""
-        self.display_sims(self.compute_sims())
+        self._display_sims(self._compute_sims())
         
-    def compute_sims(self):
+    def _compute_sims(self):
         """compute similarities in appended files"""
         no_duplicates = {}
-        for num, lineset1, idx1, lineset2, idx2 in self.iter_sims():
+        for num, lineset1, idx1, lineset2, idx2 in self._iter_sims():
             duplicate = no_duplicates.setdefault(num, [])
             for couples in duplicate:
                 if (lineset1, idx1) in couples or (lineset2, idx2) in couples:
@@ -67,31 +67,32 @@ class Similar:
         sims.reverse()
         return sims
     
-    def display_sims(self, sims):
+    def _display_sims(self, sims):
         """display computed similarities on stdout"""
         nb_lignes_dupliquees = 0
         for num, couples in sims:
             print 
             print num, "similar lines in", len(couples), "files"
+            couples = list(couples)
+            couples.sort()
             for lineset, idx in couples:
                 print "==%s:%s" % (lineset.name, idx)
             for line in lineset._real_lines[idx:idx+num]:
-                print "  ", line
+                print "  ", line,
             nb_lignes_dupliquees += num * (len(couples)-1)
         nb_total_lignes = sum([len(lineset) for lineset in self.linesets])
         print "TOTAL lines=%s duplicates=%s percent=%s" \
             % (nb_total_lignes, nb_lignes_dupliquees,
                nb_lignes_dupliquees*1. / nb_total_lignes)
 
-    def find_common(self, lineset1, lineset2):
+    def _find_common(self, lineset1, lineset2):
         """find similarities in the two given linesets"""
         lines1 = lineset1.enumerate_stripped
         lines2 = lineset2.enumerate_stripped
         find = lineset2.find
         index1 = 0
-        nb_lines1 = len(lineset1)
         min_lines = self.min_lines
-        while index1 < nb_lines1:
+        while index1 < len(lineset1):
             skip = 1
             num = 0
             for index2 in find( lineset1[index1] ):
@@ -113,13 +114,13 @@ class Similar:
                     skip = max(skip, num)
             index1 += skip
  
-    def iter_sims(self):
+    def _iter_sims(self):
         """iterate on similarities among all files, by making a cartesian
         product
         """
         for idx, lineset in enumerate(self.linesets[:-1]):
             for lineset2 in self.linesets[idx+1:]:
-                for sim in self.find_common(lineset, lineset2):
+                for sim in self._find_common(lineset, lineset2):
                     yield sim
 
 
@@ -148,6 +149,12 @@ class LineSet:
     def __getitem__(self, index):
         return self._stripped_lines[index]
 
+    def __cmp__(self, other):
+        return cmp(self.name, other.name)
+    
+    def __hash__(self):
+        return id(self)
+    
     def enumerate_stripped(self, start_at=0):
         """return an iterator on stripped lines, starting from a given index
         if specified, else 0
@@ -181,7 +188,7 @@ MSGS = {'R0801': ('Similar lines in %s files\n%s',
                   be refactored to avoid this duplication.')}
 
 # wrapper to get a pylint checker from the similar class
-class SimilarChecker(BaseChecker, CheckerHandler, Similar):
+class SimilarChecker(BaseChecker, Similar):
     """checks for similarities and duplicated code. This computation may be
     memory / CPU intensive, so you should disable it if you experiments some
     problems.
@@ -205,7 +212,6 @@ class SimilarChecker(BaseChecker, CheckerHandler, Similar):
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
-        CheckerHandler.__init__(self)
         Similar.__init__(self, min_lines=4, ignore_comments=True)
         self.stats = None
         # provided reports
@@ -244,7 +250,7 @@ class SimilarChecker(BaseChecker, CheckerHandler, Similar):
         total = sum([len(lineset) for lineset in self.linesets])
         duplicated = 0
         stats = self.stats
-        for num, couples in self.compute_sims():
+        for num, couples in self._compute_sims():
             msg = []
             for lineset, idx in couples:
                 msg.append("==%s:%s" % (lineset.name, idx))
@@ -258,9 +264,9 @@ class SimilarChecker(BaseChecker, CheckerHandler, Similar):
     def report_similarities(self, sect, stats, old_stats):
         """return a layout with some stats about duplication"""
         lines = ['', 'now', 'previous', 'difference']
-        lines += self.table_lines_from_stats(stats, old_stats,
-                                             ('nb_duplicated_lines',
-                                              'percent_duplicated_lines'))
+        lines += table_lines_from_stats(stats, old_stats,
+                                        ('nb_duplicated_lines',
+                                         'percent_duplicated_lines'))
         sect.append(Table(children=lines, cols=4, rheaders=1, cheaders=1))
 
 
@@ -292,6 +298,8 @@ def run(argv=None):
             usage()
         elif opt == '--ignore-comments':
             ignore_comments = True
+    if not args:
+        usage(1)
     sim = Similar(min_lines, ignore_comments)
     for filename in args:
         sim.append_stream(filename, open(filename))

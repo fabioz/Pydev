@@ -10,7 +10,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2002-2003 LOGILAB S.A. (Paris, FRANCE).
+""" Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
   utilities for PyLint configuration :
@@ -18,7 +18,7 @@
    _ pylint.d (PYLINT_HOME)
 """
 
-__revision__ = "$Id: config.py,v 1.2 2004-10-26 14:18:33 fabioz Exp $"
+__revision__ = "$Id: config.py,v 1.3 2005-01-21 17:42:02 fabioz Exp $"
 
 import pickle
 import os
@@ -31,7 +31,7 @@ if os.environ.has_key('PYLINTHOME'):
     PYLINT_HOME = os.environ['PYLINTHOME']
 else:
     USER_HOME = expanduser('~')
-    if USER_HOME == '~' or USER_HOME == '/root':
+    if USER_HOME == '~':
         PYLINT_HOME = ".pylint.d"
     else:
         PYLINT_HOME = join(USER_HOME, '.pylint.d')
@@ -46,6 +46,7 @@ def get_pdata_path(base_name, recurs):
     """return the path of the file which should contain old search data for the
     given base_name with the given options values
     """
+    base_name = base_name.replace(os.sep, '_')
     return join(PYLINT_HOME, "%s%s%s"%(base_name, recurs, '.stats'))
     
 def load_results(base):
@@ -93,10 +94,7 @@ directory) . The current PYLINTHOME is %(PYLINT_HOME)s.
     * PYLINTRC                                                                 
     path to the configuration file. If not found, it will use the first        
 existant file in ~/.pylintrc, /etc/pylintrc. The current PYLINTRC is
-%(PYLINTRC)s .                                                                 
-    * PYLINT_IMPORT                                                            
-    this variable is set by pylint since some packages may want to known when
-they are imported by pylint.    
+%(PYLINTRC)s.                                                                 
 ''' % globals()
 
 # evaluation messages #########################################################

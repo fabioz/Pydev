@@ -1,6 +1,62 @@
 ChangeLog for logilab.common
 ============================
 
+2005-01-20  --  0.9.0
+    * astng:
+	
+      - refactoring of some huge methods
+      - fix interface resolving when __implements__ is defined in a parent
+        class in another module
+      - add special code in the builder to fix problem with qt
+      - new source_line method on Node
+      - fix sys.path during parsing to avoid some failure when trying
+        to get imported names by `from module import *`, and use an astng
+        building instead of exec'ing the statement
+      - fix possible AttributeError with Function.type 
+      - manager.astng_from_file fallback to astng_from_module if possible
+	
+    * textutils: fix bug in normalize_paragraph, unquote handle empty string
+      correctly
+
+    * modutils:
+      - use a cache in has_module to speed up things when heavily used
+      - fix file_from_modpath to handle pyxml and os.path
+
+    * configuration: fix problem with serialization/deserialization of empty
+      string
+
+
+	  
+2005-01-04  --  0.8.0
+    * modutils: a lot of fixes/rewrite on various functions to avoid
+      unnecessary imports, sys.path pollution, and other bugs (notably
+      making plylint reporting wrong modules name/path)
+
+    * astng: new "inspector" module, initially taken from pyreverse code
+      (http://www.logilab.org/projects/pyreverse), miscellaneous bug fixes
+
+    * configuration: new 'usage' parameter on the Configuration
+      initializer
+
+    * logger: unicode support
+
+    * fileutils: get_by_ext also ignore ".svn" directories, not only "CVS"
+
+
+
+2004-11-03  --  0.7.1
+    * astng:
+	
+      - don't raise a syntax error on files missing a trailing \n.
+      - fix utils.is_abstract (was causing an unexpected exception if a
+        string exception was raised).
+      - fix utils.get_implemented.
+      - fix file based manager's cache problem.
+
+    * textutils: fixed normalize_text / normalize_paragraph functions
+
+
+
 2004-10-11  --  0.7.0
     * astng: new methods on the manager, returning astng with nodes for
       packages (ie recursive structure instead of the flat one), with
@@ -264,6 +320,3 @@ ChangeLog for logilab.common
 
 2003-02-17  --  0.1.0
     * initial revision
-
-
-

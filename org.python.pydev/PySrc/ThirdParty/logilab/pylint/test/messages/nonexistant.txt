@@ -1,0 +1,1 @@
+F:  0: No module 'nonexistant' in /home/syt/cvs_work/public/soft/logilab/pylint/test/input

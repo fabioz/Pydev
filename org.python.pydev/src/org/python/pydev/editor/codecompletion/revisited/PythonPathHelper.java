@@ -84,6 +84,7 @@ public class PythonPathHelper implements Serializable{
            path.endsWith(".pyw")   ||     
 //           path.endsWith(".pyc")  || - we don't want pyc files, only source files and compiled extensions
            path.endsWith(".pyd")  ||
+           path.endsWith(".so")  ||
            path.endsWith(".dll")  
 //           path.endsWith(".pyo") - we don't want pyo files, only source files and compiled extensions
            ){

@@ -10,26 +10,28 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2000-2003 LOGILAB S.A. (Paris, FRANCE).
+""" Copyright (c) 2002-2005 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
-Raw metrics checker :
+Raw metrics checker
 """
 
-__revision__ = "$Id: raw_metrics.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $"
+__revision__ = "$Id: raw_metrics.py,v 1.3 2005-01-21 17:42:08 fabioz Exp $"
 
 import tokenize
-if not hasattr(tokenize, 'NL'):
-    raise ValueError("tokenize.NL doesn't exist -- tokenize module too old")
+
+# pylint now requires pylint >= 2.2, so this is no longer necessary
+#if not hasattr(tokenize, 'NL'):
+#    raise ValueError("tokenize.NL doesn't exist -- tokenize module too old")
 
 from logilab.common.ureports import Table
 
 from logilab.pylint.interfaces import IRawChecker
-from logilab.pylint.checkers import BaseRawChecker, CheckerHandler, EmptyReport
+from logilab.pylint.checkers import BaseRawChecker, EmptyReport
 from logilab.pylint.reporters import diff_string
 
  
-class RawMetricsChecker(BaseRawChecker, CheckerHandler):
+class RawMetricsChecker(BaseRawChecker):
     """does not check anything but gives some raw metrics :                    
     * total number of lines                                                    
     * total number of code lines                                               
@@ -44,10 +46,11 @@ class RawMetricsChecker(BaseRawChecker, CheckerHandler):
     name = 'metrics'
     # configuration options
     options = ( )
-
+    # messages
+    msgs = {}
+    
     def __init__(self, linter):
         BaseRawChecker.__init__(self, linter)
-        CheckerHandler.__init__(self)
         self.stats = None
         self.reports = (('R0701', 'Raw metrics', self.report_raw_stats),
                         )

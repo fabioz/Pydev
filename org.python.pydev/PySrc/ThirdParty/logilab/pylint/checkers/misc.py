@@ -17,19 +17,19 @@
 Check source code is ascii only or has an encoding declaration (PEP 263)
 """
 
-__revision__ = '$Id: misc.py,v 1.2 2004-10-26 14:18:35 fabioz Exp $'
+__revision__ = '$Id: misc.py,v 1.3 2005-01-21 17:42:08 fabioz Exp $'
 
 import re
 
 from logilab.pylint.interfaces import IRawChecker
-from logilab.pylint.checkers import BaseChecker, CheckerHandler
+from logilab.pylint.checkers import BaseChecker
 
 def is_ascii(string):
     """return true if non ascii characters are detected in the given string
     """
     if string:
         return max([ord(char) for char in string]) < 128
-    return False
+    return True
     
 
 EMACS_ENCODING_RGX = re.compile('[^#]*[#\s]*-\*-\s*coding: ([^\s]*)\s*-\*-\s*')
@@ -40,10 +40,6 @@ def guess_encoding(string):
     return None if not found
     """
     assert type(string) is type(''), type(string)
-    # default to ascii on empty string
-    if not string:
-        return 'ascii'
-    
     # check for UTF-8 byte-order mark
     if string.startswith('\xef\xbb\xbf'):
         return 'UTF-8'
@@ -71,11 +67,10 @@ MSGS = {
               'Used when a warning note as FIXME or XXX is detected.'),
     }
 
-class EncodingChecker(BaseChecker, CheckerHandler):
+class EncodingChecker(BaseChecker):
     """checks for:                                                             
-    * source code with non ascii characters but no encoding declaration (PEP
-      263)                                                                     
-    * warning notes in the code like FIXME, XXX
+    * warning notes in the code like FIXME, XXX                                
+    * PEP 263: source code with non ascii character but no encoding declaration
     """
     __implements__ = IRawChecker
 
@@ -93,7 +88,6 @@ separated by a comma. Default to FIXME, XXX, TODO'
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
-        CheckerHandler.__init__(self)
     
     def process_module(self, stream):
         """inspect the source file to found encoding problem or fixmes like

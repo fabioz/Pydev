@@ -19,9 +19,9 @@
 from __future__ import generators
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: utils.py,v 1.2 2004-10-26 14:18:36 fabioz Exp $"
+__revision__ = "$Id: utils.py,v 1.3 2005-01-21 17:42:09 fabioz Exp $"
 
-from logilab.common.astng import NotFoundError
+from logilab.common.astng import NotFoundError, manager
 
 
 def get_nodes_from_class(node, klass):
@@ -97,6 +97,35 @@ class ASTWalker:
             method(node)
 
 
+class LocalsVisitor(ASTWalker):
+    """visit a project by traversing the locals dictionnary"""
+    def __init__(self):
+        ASTWalker.__init__(self, self)
+        self._visited = {}
+        
+    def visit(self, astng):
+        """launch the visit starting from the given node"""
+        if self._visited.has_key(astng):
+            return
+        self._visited[astng] = 1
+        methods = self.get_callbacks(astng)
+        recurse = 1
+        if methods[0] is not None:
+            try:
+                methods[0](astng)
+            except IgnoreChild:
+                recurse = 0
+        if recurse:
+            if hasattr(astng, 'locals'):
+                for node in astng.locals.values():
+                    self.visit(node)
+            elif isinstance(astng, manager.Project):
+                for node in astng.modules:
+                    self.visit(node)
+        if methods[1] is not None:
+            return methods[1](astng)
+
+
 def is_metaclass(klass):
     """return true if the given class may be considered as a meta-class"""
     if klass.name == 'type':
@@ -131,9 +160,10 @@ def is_abstract(node, pass_is_abstract=True):
     from logilab.common.astng import Raise, Pass, Function
     assert isinstance(node, Function)
     for child_node in node.code.getChildNodes():
-        if (isinstance(child_node, Raise) and child_node.expr1 and
-              get_names(child_node.expr1)[0] == 'NotImplementedError'):
-            return True
+        if isinstance(child_node, Raise) and child_node.expr1:
+            names = get_names(child_node.expr1)
+            if names and names[0] == 'NotImplementedError':
+                return True
         if pass_is_abstract and isinstance(child_node, Pass):
             return True
         return False
@@ -148,8 +178,11 @@ def iface_hdlr(klass, iface_node):
     except Exception, ex:
         return
     
-def get_interfaces(klass, herited=True, manager=None, handler_func=iface_hdlr):
-    """return an iterator on interfaces implemented by the given klass node"""
+def get_interfaces(klass, herited=True, handler_func=iface_hdlr):
+    """return an iterator on interfaces implemented by the given klass node
+
+    FIXME: what if __implements__ = (MyIFace, MyParent.__implements__)...
+    """
     try:
         implements = klass.locals['__implements__']
     except KeyError:
@@ -157,12 +190,12 @@ def get_interfaces(klass, herited=True, manager=None, handler_func=iface_hdlr):
             try:
                 parent = klass.get_ancestor_for_class_attribute('__implements__')
                 implements = parent.locals['__implements__']
+                klass = parent
             except NotFoundError:
                 return
+        else:
+            return
     from logilab.common.astng import Class
-    if manager is None:
-        from logilab.common.astng.manager import ASTNGManager
-        manager = ASTNGManager()
     implements = implements.get_assigned_value()
     if hasattr(implements, 'nodes'):
         implements = implements.nodes
