@@ -7,6 +7,8 @@
 		<topic label="Content Assist" href="pydev.sf.net/_contentassist.contents.html"/>
 		<topic label="Refactoring" href="pydev.sf.net/_refactoring.contents.html"/>
 		<topic label="Running python file" href="pydev.sf.net/_run.contents.html"/>
+		<topic label="TODO Tasks" href="pydev.sf.net/_tasks.contents.html"/>
+		<topic label="PyLint" href="pydev.sf.net/_pylint.contents.html"/>
 	</topic>
 	
 	<topic label="Debugger" href="pydev.sf.net/_debug.contents.html">

@@ -31,6 +31,9 @@ def Main():
     Template( '_template.html', 'debug' )
     Template( '_template.html', 'debug_prefs' )
     Template( '_template.html', 'editor_prefs' )
+    Template( '_template.html', 'pylint' )
+    Template( '_template.html', 'pychecker' )
+    Template( '_template.html', 'tasks' )
     
     
 Main()
