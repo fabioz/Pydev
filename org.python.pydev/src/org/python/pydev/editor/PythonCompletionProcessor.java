@@ -113,8 +113,6 @@ public class PythonCompletionProcessor extends TemplateCompletionProcessor
             qualifier = activationToken.charAt(activationToken.length()-1) + qualifier;
             activationToken = activationToken.substring(0, activationToken.length()-1);
         }
-        System.out.println("qualifier = "+qualifier);
-        System.out.println("activationToken = "+activationToken);
 
         theDoc = partialDocument(theDoc, documentOffset);
         
