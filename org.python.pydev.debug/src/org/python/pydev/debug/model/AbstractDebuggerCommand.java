@@ -30,18 +30,26 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
  * 		cmd.processErrorResponse()
  * 
  */
-public abstract class RemoteDebuggerCommand {
+public abstract class AbstractDebuggerCommand {
 	
 	static final int CMD_LIST_THREADS = 102;
 	static final int CMD_THREAD_CREATED = 103;
-	static final int CMD_ERROR = 501;
-	static final int CMD_VERSION = 901;
-	static final int CMD_RETURN = 902;
+	static final int CMD_THREAD_KILL = 104;
+	static final int CMD_THREAD_SUSPEND = 105;
+	static final int CMD_THREAD_RUN = 106;
+	static final int CMD_STEP_INTO = 107;
+	static final int CMD_STEP_OVER = 108;
+	static final int CMD_STEP_RETURN = 109;
+	static final int CMD_ERROR = 901;
+	static final int CMD_VERSION = 501;
+	static final int CMD_RETURN = 502;
 	
 	protected RemoteDebugger debugger;
+	int sequence;
 	
-	public RemoteDebuggerCommand(RemoteDebugger debugger) {
+	public AbstractDebuggerCommand(RemoteDebugger debugger) {
 		this.debugger = debugger;
+		sequence = debugger.getNextSequence();
 	}
 
 	/**
@@ -69,10 +77,8 @@ public abstract class RemoteDebuggerCommand {
 	/**
 	 * returns Sequence # 
 	 */
-	public int getSequence() {
-		System.err.println("Fatal: must override getSequence");
-		PydevDebugPlugin.log(IStatus.ERROR, "getSequence must be overridden", null);
-		return 0;
+	public final int getSequence() {
+		return sequence;
 	}
 	
 	/**
@@ -83,6 +89,10 @@ public abstract class RemoteDebuggerCommand {
 		PydevDebugPlugin.log(IStatus.ERROR, "Debugger command ignored response " + getClass().toString() + payload, null);
 	}
 	
+	/**
+	 * notification of the response to the command.
+	 * You'll get either processResponse or processErrorResponse
+	 */
 	public void processErrorResponse(int cmdCode, String payload) {
 		PydevDebugPlugin.log(IStatus.ERROR, "Debugger command ignored error response " + getClass().toString() + payload, null);
 	}

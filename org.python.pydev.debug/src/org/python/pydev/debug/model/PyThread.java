@@ -23,19 +23,39 @@ public class PyThread implements IThread {
 	private PyDebugTarget target;
 	private String name;
 	private String id;
+	boolean isPydevThread;	// true if this is a debugger thread, that can't be killed/suspended
+
+	boolean isSuspended = false;
+	boolean isStepping = false;
+	IStackFrame[] stack;
 
 	public PyThread(PyDebugTarget target, String name, String id) {
 		this.target = target;
 		this.name = name;
-		this.id = id;		
+		this.id = id;
+		isPydevThread = id.equals("-1");	// use a special id for pydev threads
 	}
 	
+	/**
+	 * If a thread is entering a suspended state, pass in the stack
+	 */
+	public void setSuspended(boolean state, IStackFrame[] stack) {
+		isSuspended = state;
+		this.stack = stack;
+		if (stack != null) 
+			for (int i=0; i<stack.length; i++)
+				((PyStackFrame)stack[i]).setThread(this);
+	}
+
 	public String getName() throws DebugException {
 		return name;
 	}
+	
+	public String getId() {
+		return id;
+	}
 
 	public int getPriority() throws DebugException {
-		// TODO maybe daemon status of the threads?
 		return 0;
 	}
 
@@ -52,7 +72,7 @@ public class PyThread implements IThread {
 	}
 
 	public boolean canTerminate() {
-		return true;
+		return !isPydevThread;
 	}
 
 	public boolean isTerminated() {
@@ -60,81 +80,91 @@ public class PyThread implements IThread {
 	}
 
 	public void terminate() throws DebugException {
-		System.out.print("Terminating thread");
+		if (!isPydevThread) {
+			RemoteDebugger d = target.getDebugger();
+			d.postCommand(new ThreadKillCommand(d, id));
+		}
 	}
 
 	public boolean canResume() {
-		// TODO Auto-generated method stub
-		return false;
+		return !isPydevThread && isSuspended;
 	}
 
 	public boolean canSuspend() {
-		// TODO Auto-generated method stub
-		return true;
+		return !isPydevThread && !isSuspended;
 	}
 
 	public boolean isSuspended() {
-		// TODO Auto-generated method stub
-		return false;
+		return isSuspended;
 	}
 
 	public void resume() throws DebugException {
-		// TODO Auto-generated method stub
+		if (!isPydevThread) {
+			isStepping = false;
+			RemoteDebugger d = target.getDebugger();
+			d.postCommand(new ThreadRunCommand(d, id));
+		}
 	}
 
 	public void suspend() throws DebugException {
-		// TODO Auto-generated method stub
-
+		if (!isPydevThread) {
+			RemoteDebugger d = target.getDebugger();
+			d.postCommand(new ThreadSuspendCommand(d, id));
+		}
 	}
 
 	public boolean canStepInto() {
-		// TODO Auto-generated method stub
-		return false;
+		return !isPydevThread && isSuspended;
 	}
 
 	public boolean canStepOver() {
-		// TODO Auto-generated method stub
-		return false;
+		return !isPydevThread && isSuspended;
 	}
 
 	public boolean canStepReturn() {
-		// TODO Auto-generated method stub
-		return false;
+		return !isPydevThread && isSuspended;
 	}
 
 	public boolean isStepping() {
-		// TODO Auto-generated method stub
-		return false;
+		return isStepping;
 	}
 
 	public void stepInto() throws DebugException {
-		// TODO Auto-generated method stub
+		if (!isPydevThread) {
+			isStepping = true;
+			RemoteDebugger d = target.getDebugger();
+			d.postCommand(new StepCommand(d, AbstractDebuggerCommand.CMD_STEP_INTO, id));
+		}		
 	}
 
 	public void stepOver() throws DebugException {
-		// TODO Auto-generated method stub
-
+		if (!isPydevThread) {
+			isStepping = true;
+			RemoteDebugger d = target.getDebugger();
+			d.postCommand(new StepCommand(d, AbstractDebuggerCommand.CMD_STEP_OVER, id));
+		}		
 	}
 
 	public void stepReturn() throws DebugException {
-		// TODO Auto-generated method stub
-
+		if (!isPydevThread) {
+			isStepping = true;
+			RemoteDebugger d = target.getDebugger();
+			d.postCommand(new StepCommand(d, AbstractDebuggerCommand.CMD_STEP_RETURN, id));
+		}		
 	}
 
 	public IStackFrame[] getStackFrames() throws DebugException {
-		// TODO Auto-generated method stub
-		return null;
+		return stack;
 	}
 
 	public boolean hasStackFrames() throws DebugException {
-		// TODO Auto-generated method stub
-		return false;
+		return (stack != null && stack.length > 0);
 	}
 
 	public IStackFrame getTopStackFrame() throws DebugException {
-		// TODO Auto-generated method stub
-		return null;
+		return stack == null ? stack[0] : null;
 	}
+
 	public IBreakpoint[] getBreakpoints() {
 		// TODO Auto-generated method stub
 		return null;

@@ -83,7 +83,7 @@ public class RemoteDebugger extends Object {
 	 */
 	protected class Writer implements Runnable {
 		ArrayList cmdQueue;	// a list of RemoteDebuggerCommands
-		PrintWriter out;
+		OutputStreamWriter out;
 		boolean done;
 
 		public Writer(Socket s) throws IOException {
@@ -91,13 +91,13 @@ public class RemoteDebugger extends Object {
 			cmdQueue = new ArrayList();
 			OutputStream sout;
 			sout = s.getOutputStream();
-			out = new PrintWriter(new OutputStreamWriter(sout));
+			out = new OutputStreamWriter(sout);
 		}
 		
 		/**
 		 * Add command for processing
 		 */
-		public void postCommand(RemoteDebuggerCommand cmd) {
+		public void postCommand(AbstractDebuggerCommand cmd) {
 			synchronized(cmdQueue) {
 				cmdQueue.add(cmd);
 			}
@@ -112,23 +112,24 @@ public class RemoteDebugger extends Object {
 		 */
 		public void run() {
 			while (!done) {
-				RemoteDebuggerCommand cmd = null;
+				AbstractDebuggerCommand cmd = null;
 				synchronized (cmdQueue) {
 					if (cmdQueue.size() > 0)
-						cmd = (RemoteDebuggerCommand) cmdQueue.remove(0);
-				}
-				if (cmd != null) {
-					cmd.aboutToSend();
-					out.write(cmd.getOutgoing());
-					out.write("\n");
-					out.flush();
+						cmd = (AbstractDebuggerCommand) cmdQueue.remove(0);
 				}
 				try {
+					if (cmd != null) {
+						cmd.aboutToSend();
+							out.write(cmd.getOutgoing());
+							out.write("\n");
+							out.flush();
+					}
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}			
+					done = true;
+				} catch (IOException e1) {
+					done = true;
+				}	
 			}
 		}
 	}
@@ -152,10 +153,9 @@ public class RemoteDebugger extends Object {
 			this.done = true;
 		}
 		
-		public void addToResponseQueue(RemoteDebuggerCommand cmd) {
+		public void addToResponseQueue(AbstractDebuggerCommand cmd) {
 			responseQueue.put(new Integer(cmd.getSequence()), cmd);
 			Object o = responseQueue.remove(new Integer(cmd.getSequence()));
-			System.out.println(o.toString());
 			responseQueue.put(new Integer(cmd.getSequence()), cmd);
 		}
 		
@@ -169,12 +169,12 @@ public class RemoteDebugger extends Object {
 			String[] cmdParsed = cmdLine.split("\t", 3);
 			cmdCode = Integer.parseInt(cmdParsed[0]);
 			seqCode = Integer.parseInt(cmdParsed[1]);
-			payload = cmdParsed[2];
+			payload = URLDecoder.decode(cmdParsed[2]);
 			// is there a response waiting
-			RemoteDebuggerCommand cmd = (RemoteDebuggerCommand)responseQueue.remove(new Integer(seqCode));
+			AbstractDebuggerCommand cmd = (AbstractDebuggerCommand)responseQueue.remove(new Integer(seqCode));
 			if (cmd == null)
 				if (target != null)
-					target.processCommand(cmdParsed[0], cmdParsed[1], cmdParsed[2]);
+					target.processCommand(cmdParsed[0], cmdParsed[1], payload);
 				else
 					PydevDebugPlugin.log(IStatus.ERROR, "internal error, command received no target", null);
 			else {
@@ -194,12 +194,16 @@ public class RemoteDebugger extends Object {
 					}
 					Thread.sleep(100);
 				} catch (IOException e) {
-					PydevDebugPlugin.log(IStatus.WARNING, "Unexpected termination of remote dbg input stream", e);
+					done = true;
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}
-				if (socket.isConnected() == false)
-					System.err.println("no longer connected");
+				if ((socket == null) || !socket.isConnected()) {
+					if (target != null) {
+						target.debuggerDisconnected();
+					}
+					done = true;
+				}
 			}
 		}
 	}
@@ -210,6 +214,17 @@ public class RemoteDebugger extends Object {
 	
 	public void setTarget(PyDebugTarget target) {
 		this.target = target;
+	}
+	
+	public void startTransmission() throws IOException {
+		this.reader = new Reader(socket);
+		this.writer = new Writer(socket);
+		Thread t = new Thread(reader, "pydevd.reader");
+		t.start();
+		t = new Thread(writer, "pydevd.writer");
+		t.start();
+		writer.postCommand(new VersionCommand(this));
+
 	}
 
 	/**
@@ -268,38 +283,51 @@ public class RemoteDebugger extends Object {
 	 */
 	public void connected(Socket socket) throws IOException  {
 		this.socket = socket;
-		this.reader = new Reader(socket);
-		this.writer = new Writer(socket);
-		Thread t = new Thread(reader, "pydevd.reader");
-		t.start();
-		t = new Thread(writer, "pydevd.writer");
-		t.start();
-		writer.postCommand(new VersionCommand(this));
 	}
+	
+	public void disconnect() {
+		try {
+			if (socket != null) {
+				socket.shutdownInput();	// trying to make my pydevd notice that the socket is gone
+				socket.shutdownOutput();	
+				socket.close();
+			}
+			} catch (IOException e) {
+				e.printStackTrace();
+				// it is going away
+			}
+		socket = null;
+		if (target != null)
+			target.debuggerDisconnected();
+	}
+	
 	/**
 	 * Dispose must be called to clean up.
+	 * Because we call this from PyDebugTarget.terminate, we can be called multiple times
+	 * But, once dispose() is called, no other calls will be made.
 	 */
 	public void dispose() {
-		if (connector != null)
+		if (connector != null) {
 			connector.stopListening();
-		if (reader != null)
-			reader.done();
-		if (writer != null)
+			connector = null;
+		}
+		if (writer != null) {
 			writer.done();
-		if (socket != null && socket.isConnected())
-			try {
-				socket.close();
-			} catch (IOException e) {
-				// other end might have closed first
-			}
+			writer = null;
+		}
+		if (reader != null) {
+			reader.done();
+			reader = null;
+		}
+		disconnect();
 		target = null;
 	}
 	
-	public void addToResponseQueue(RemoteDebuggerCommand cmd) {
+	public void addToResponseQueue(AbstractDebuggerCommand cmd) {
 		reader.addToResponseQueue(cmd);
 	}
 	
-	public void postCommand(RemoteDebuggerCommand cmd) {
+	public void postCommand(AbstractDebuggerCommand cmd) {
 		writer.postCommand(cmd);
 	}
 

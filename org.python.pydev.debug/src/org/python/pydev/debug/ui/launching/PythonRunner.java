@@ -21,6 +21,7 @@ import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
+import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.RemoteDebugger;
 
 /**
@@ -75,6 +76,8 @@ public class PythonRunner {
 		// hook up debug model, and we are off & running
 		PyDebugTarget t = new PyDebugTarget(launch, process, 
 									config.file, debugger);
+		launch.setSourceLocator(new PySourceLocator());
+		debugger.startTransmission(); // this starts reading/writing from sockets
 	}
 
 	/**

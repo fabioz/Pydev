@@ -15,17 +15,15 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
  * 
  * See protocol for more info
  */
-public class ListThreadsCommand extends RemoteDebuggerCommand {
+public class ThreadListCommand extends AbstractDebuggerCommand {
 
-	int sequence;
 	boolean done;
 	PyDebugTarget target;
 	IThread[] threads;
 	
-	public ListThreadsCommand(RemoteDebugger debugger, PyDebugTarget target) {
+	public ThreadListCommand(RemoteDebugger debugger, PyDebugTarget target) {
 		super(debugger);
 		this.target = target;
-		sequence = debugger.getNextSequence();
 		done = false;
 	}
 
@@ -40,10 +38,6 @@ public class ListThreadsCommand extends RemoteDebuggerCommand {
 	
 	public IThread[] getThreads() {
 		return threads;
-	}
-	
-	public int getSequence() {
-		return sequence;
 	}
 	
 	public String getOutgoing() {
@@ -62,7 +56,7 @@ public class ListThreadsCommand extends RemoteDebuggerCommand {
 			PydevDebugPlugin.log(IStatus.ERROR, "Unexpected response to LIST THREADS"  + payload, null);
 			return;
 		}
-		threads = ModelUtils.ThreadsFromXML(target, payload);
+		threads = XMLUtils.ThreadsFromXML(target, payload);
 		done = true;
 	}
 

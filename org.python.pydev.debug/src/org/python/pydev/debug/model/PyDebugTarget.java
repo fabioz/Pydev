@@ -5,6 +5,9 @@
  */
 package org.python.pydev.debug.model;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResource;
@@ -20,6 +23,7 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
@@ -35,6 +39,7 @@ public class PyDebugTarget implements IDebugTarget, ILaunchListener {
 	RemoteDebugger debugger;
 	IPath file;
 	IThread[] threads;
+	boolean disconnected = false;
 
 	public PyDebugTarget(ILaunch launch, 
 							IProcess process, 
@@ -49,6 +54,15 @@ public class PyDebugTarget implements IDebugTarget, ILaunchListener {
 		debugger.setTarget(this);
 		// we have to know when we get removed, so that we can shut off the debugger
 		DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this);
+	}
+	
+	public RemoteDebugger getDebugger() {
+		return debugger;
+	}
+
+	public void debuggerDisconnected() {
+		disconnected = true;
+		fireEvent(new DebugEvent(this, DebugEvent.CHANGE));
 	}
 
 	public void launchRemoved(ILaunch launch) {
@@ -92,7 +106,7 @@ public class PyDebugTarget implements IDebugTarget, ILaunchListener {
 	}
 
 	public boolean canTerminate() {
-		// We can always terminate, it makes no harm
+		// We can always terminate, it does no harm
 		return true;
 	}
 
@@ -101,53 +115,57 @@ public class PyDebugTarget implements IDebugTarget, ILaunchListener {
 	}
 
 	public void terminate() throws DebugException {
+		if (debugger != null)
+			debugger.disconnect();
 		process.terminate();
 	}
 	
 	public boolean canDisconnect() {
-		// TODO NOW Auto-generated method stub
-		return true;
+		return !disconnected;
 	}
 
 	public void disconnect() throws DebugException {
-		// TODO Auto-generated method stub
-
+		if (debugger != null) {
+			debugger.disconnect();
+		}
 	}
 
 	public boolean isDisconnected() {
-		// TODO NOW Auto-generated method stub
-		return false;
+		return disconnected;
 	}
 
 
 	public boolean canResume() {
-		// TODO NOW Auto-generated method stub
+		for (int i=0; i< threads.length; i++)
+			if (threads[i].canResume())
+				return true;
 		return false;
 	}
 
 	public boolean canSuspend() {
-		// TODO NOW Auto-generated method stub
-		return true;
+		for (int i=0; i< threads.length; i++)
+			if (threads[i].canSuspend())
+				return true;
+		return false;
 	}
 
 	public boolean isSuspended() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	public void resume() throws DebugException {
-		// TODO Auto-generated method stub
-
+		for (int i=0; i< threads.length; i++)
+			threads[i].resume();
 	}
 
 	public void suspend() throws DebugException {
-		// TODO Auto-generated method stub
-
+		for (int i=0; i< threads.length; i++)
+			threads[i].suspend();
 	}
 
 	public IThread[] getThreads() throws DebugException {
 		if (threads == null) {
-			ListThreadsCommand cmd = new ListThreadsCommand(debugger, this);
+			ThreadListCommand cmd = new ThreadListCommand(debugger, this);
 			debugger.postCommand(cmd);
 			try {
 				cmd.waitUntilDone(1000);
@@ -183,18 +201,16 @@ public class PyDebugTarget implements IDebugTarget, ILaunchListener {
 	}
 
 	public boolean supportsStorageRetrieval() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	public IMemoryBlock getMemoryBlock(long startAddress, long length)
 		throws DebugException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Object getAdapter(Class adapter) {
-		// TODO Auto-generated method stub
+		// Not really sure what to do here, but I am trying
 		if (adapter.equals(ILaunch.class))
 			return launch;
 		else if (adapter.equals(IResource.class)) {
@@ -218,8 +234,14 @@ public class PyDebugTarget implements IDebugTarget, ILaunchListener {
 	public void processCommand(String sCmdCode, String sSeqCode, String payload) {
 		int cmdCode = Integer.parseInt(sCmdCode);
 		int seqCode = Integer.parseInt(sSeqCode);
-		if (cmdCode == RemoteDebuggerCommand.CMD_THREAD_CREATED)
+		if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_CREATED)
 			processThreadCreated(payload);
+		else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_KILL)
+			processThreadKilled(payload);
+		else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_SUSPEND)
+			processThreadSuspended(payload);
+		else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_RUN)
+			processThreadRun(payload);
 		else
 			PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command" + sCmdCode, null);	
 	}
@@ -231,8 +253,21 @@ public class PyDebugTarget implements IDebugTarget, ILaunchListener {
 		}
 	}
 
+	/**
+	 * @return an existing thread with a given id (null if none)
+	 */
+	private IThread findThreadByID(String thread_id) throws DebugException {
+		for (int i = 0; i < threads.length; i++)
+			if (thread_id.equals(((PyThread)threads[i]).getId()))
+				return threads[i];
+		return null;
+	}
+	
+	/**
+	 * Add it to the list of threads
+	 */
 	private void processThreadCreated(String payload) {
-		IThread[] newThreads = ModelUtils.ThreadsFromXML(this, payload);
+		IThread[] newThreads = XMLUtils.ThreadsFromXML(this, payload);
 		if (threads == null)
 			threads = newThreads;
 		else {
@@ -247,5 +282,91 @@ public class PyDebugTarget implements IDebugTarget, ILaunchListener {
 		// Now notify debugger that new threads were added
 		for (int i =0; i< newThreads.length; i++) 
 			fireEvent(new DebugEvent(newThreads[i], DebugEvent.CREATE));
+	}
+	
+	// Remote this from our thread list
+	private void processThreadKilled(String thread_id) {
+		try {
+			IThread threadToDelete = findThreadByID(thread_id);
+			if (threadToDelete != null) {
+				int j = 0;
+				IThread[] newThreads = new IThread[threads.length - 1];
+				for (int i=0; i < threads.length; i++)
+					if (threads[i] != threadToDelete) 
+						newThreads[j++] = threads[i];
+				threads = newThreads;
+				fireEvent(new DebugEvent(threadToDelete, DebugEvent.TERMINATE));
+			}
+		} catch (DebugException e) {
+			PydevDebugPlugin.log(IStatus.ERROR, "Unexpected error thread kill", e);
+		}
+	}
+
+	private void processThreadSuspended(String payload) {
+		try {
+			Object[] threadNstack = XMLUtils.XMLToStack(payload);
+			PyThread t = (PyThread)findThreadByID((String)threadNstack[0]);
+			int reason = DebugEvent.UNSPECIFIED;
+			String stopReason = (String) threadNstack[1];
+			if (stopReason != null) {
+				int stopReason_i = Integer.parseInt(stopReason);
+				if (stopReason_i == AbstractDebuggerCommand.CMD_STEP_OVER ||
+					stopReason_i == AbstractDebuggerCommand.CMD_STEP_INTO ||
+					stopReason_i == AbstractDebuggerCommand.CMD_STEP_RETURN)
+					reason = DebugEvent.STEP_END;
+				else if (stopReason_i == AbstractDebuggerCommand.CMD_THREAD_SUSPEND)
+					reason = DebugEvent.CLIENT_REQUEST;
+				else {
+					PydevDebugPlugin.log(IStatus.ERROR, "Unexpected reason for suspension", null);
+					reason = DebugEvent.UNSPECIFIED;
+				}
+			}
+			if (t != null) {
+				t.setSuspended(true, (IStackFrame[])threadNstack[2]);
+				fireEvent(new DebugEvent(t, DebugEvent.SUSPEND, reason));
+			}
+		} catch (DebugException e) {
+			PydevDebugPlugin.log(IStatus.ERROR, "Unexpected error thread suspended", e);
+		}
+	}
+
+	static Pattern threadRunPattern = Pattern.compile("(\\d+)\\t(\\w*)");
+	private void processThreadRun(String payload) {
+		try {
+			String threadID = "";
+			int resumeReason = DebugEvent.UNSPECIFIED;
+			Matcher m = threadRunPattern.matcher(payload);
+			if (m.matches()) {
+				threadID = m.group(1);
+				try {
+					int raw_reason = Integer.parseInt(m.group(2));
+					if (raw_reason == AbstractDebuggerCommand.CMD_STEP_OVER)
+						resumeReason = DebugEvent.STEP_OVER;
+					else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_RETURN)
+						resumeReason = DebugEvent.STEP_RETURN;
+					else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_INTO)
+						resumeReason = DebugEvent.STEP_INTO;
+					else if (raw_reason == AbstractDebuggerCommand.CMD_THREAD_RUN)
+						resumeReason = DebugEvent.CLIENT_REQUEST;
+					else {
+						PydevDebugPlugin.log(IStatus.ERROR, "Unexpected resume reason code", null);
+						resumeReason = DebugEvent.UNSPECIFIED;
+					}				}
+				catch (NumberFormatException e) {
+					// expected, when pydevd reports "None"
+					resumeReason = DebugEvent.UNSPECIFIED;
+				}
+			}
+			else
+				PydevDebugPlugin.log(IStatus.ERROR, "Unexpected treadRun payload " + payload, null);
+			
+			PyThread t = (PyThread)findThreadByID(threadID);
+			if (t != null) {
+				t.setSuspended(false, null);
+				fireEvent(new DebugEvent(t, DebugEvent.RESUME, resumeReason));
+			}
+		} catch (DebugException e) {
+			PydevDebugPlugin.log(IStatus.ERROR, "Unexpected error thread run", e);
+		}
 	}
 }
