@@ -99,7 +99,7 @@ public class PyCodeCompletion {
                     completions = serverShell.getTokenCompletions(trimmed,
                             docToParse);
                 }else{
-                    Scope scope = closest.getScope().findContainingClass();
+                    Scope scope = closest.getScope().findContainingClass(); //null returned if self. within a method and not in a class.
                     String token = scope.getStartNode().getName();
                     completions = serverShell
                             .getClassCompletions(token, docToParse);
