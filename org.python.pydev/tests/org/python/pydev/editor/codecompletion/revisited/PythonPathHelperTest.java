@@ -30,22 +30,23 @@ public class PythonPathHelperTest extends TestCase {
 	public int col;
 	public String sDoc = "";
 
-	public static void main(String[] args) {
-	    //IMPORTANT: I don't want to test the compiled modules, only the source modules.
-        CompiledModule.COMPILED_MODULES_ENABLED = false;
-        
-        junit.textui.TestRunner.run(PythonPathHelperTest.class);
-    }
 
 
     /**
      * @see junit.framework.TestCase#setUp()
      */
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
 	    manager = new ASTManager();
 	    nature = new PythonNature();
 	    manager.changePythonPath(PYTHON_INSTALL+"lib|"+TEST_PYSRC_LOC, null, new NullProgressMonitor());
+    }
+    
+    /**
+     * @see junit.framework.TestCase#tearDown()
+     */
+    public void tearDown() throws Exception {
+        super.tearDown();
     }
 
     public void testResolvePath(){
@@ -157,4 +158,83 @@ public class PythonPathHelperTest extends TestCase {
         ASTManagerTest.assertIsIn("assertAlmostEquals", comps);
         ASTManagerTest.assertIsIn("another", comps);
     }
+    
+    public void testImportAs(){
+        token = "t";
+        line = 3;
+        col = 2;
+        
+		sDoc = ""+
+		"from testlib import unittest as t \n"+ 
+		"                                  \n"+  
+		"t.                                \n";
+		
+        IToken[] comps = null;
+        Document doc = new Document(sDoc);
+        CompletionState state = new CompletionState(line,col, token, nature);
+        comps = manager.getCompletionsForToken(doc, state);
+        assertEquals(6, comps.length);
+
+        ASTManagerTest.assertIsIn("TestCase", comps);
+        ASTManagerTest.assertIsIn("main", comps);
+        ASTManagerTest.assertIsIn("TestCaseAlias", comps);
+        ASTManagerTest.assertIsIn("GUITest", comps);
+        ASTManagerTest.assertIsIn("testcase", comps);
+        ASTManagerTest.assertIsIn("AnotherTest", comps);
+    }
+    
+    public void testImportAs2(){
+		token = "t";
+		line = 3;
+		col = 2;
+      
+		sDoc = ""+
+		"from testlib.unittest import AnotherTest as t \n"+ 
+		"                                              \n"+  
+		"t.                                            \n";
+
+		IToken[] comps = null;
+        Document doc = new Document(sDoc);
+        CompletionState state = new CompletionState(line,col, token, nature);
+		comps = manager.getCompletionsForToken(doc, state);
+		assertTrue(comps.length > 5);
+        ASTManagerTest.assertIsIn("assertEquals", comps);
+        ASTManagerTest.assertIsIn("assertNotEquals", comps);
+        ASTManagerTest.assertIsIn("assertAlmostEquals", comps);
+        ASTManagerTest.assertIsIn("another", comps);
+
+    }
+    
+	public static void main(String[] args) {
+	    //IMPORTANT: I don't want to test the compiled modules, only the source modules.
+        CompiledModule.COMPILED_MODULES_ENABLED = false;
+        
+        junit.textui.TestRunner.run(PythonPathHelperTest.class);
+//        try {
+//            PythonPathHelperTest test = new PythonPathHelperTest();
+//            test.setUp();
+//            test.testImportAs2();
+//            test.tearDown();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } catch(Error e){
+//            e.printStackTrace();
+//        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

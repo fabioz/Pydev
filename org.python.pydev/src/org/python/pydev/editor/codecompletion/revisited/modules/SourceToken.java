@@ -21,6 +21,8 @@ import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
  */
 public class SourceToken extends AbstractToken{
 
+    private SimpleNode ast;
+
     /**
      * @param node
      */
@@ -28,7 +30,14 @@ public class SourceToken extends AbstractToken{
         super(rep, doc, parentPackage, getType(node));
         this.ast = node;
     }
-    private SimpleNode ast;
+
+    /**
+     * @param node
+     */
+    public SourceToken(SimpleNode node, String rep, String doc, String parentPackage, String originalRep) {
+        super(rep, doc, parentPackage, getType(node), originalRep);
+        this.ast = node;
+    }
     
     /**
      * 

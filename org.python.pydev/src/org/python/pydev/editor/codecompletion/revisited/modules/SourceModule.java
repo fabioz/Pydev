@@ -118,11 +118,13 @@ public class SourceModule extends AbstractModule {
         this.file = f;
     }
 
+    
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
     public IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col, PythonNature nature) {
         IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
+        
         if(t instanceof SourceToken[]){
 	        SourceToken[] tokens = (SourceToken[]) t;
 	        for (int i = 0; i < tokens.length; i++) {

@@ -98,11 +98,12 @@ public class GlobalModelVisitor extends AbstractVisitor {
             if (node.names.length > 0) {
                 for (int i = 0; i < node.names.length; i++) {
                     String name = node.names[i].name;
+                    String original = node.names[i].name;
                     if(node.names[i].asname != null){
                         name = node.names[i].asname;
                     }
                     
-	                this.tokens.add(new SourceToken(node, name, "", node.module));
+	                this.tokens.add(new SourceToken(node, name, "", node.module, original));
                 }
             }
         }
@@ -118,10 +119,11 @@ public class GlobalModelVisitor extends AbstractVisitor {
             if (node.names.length > 0) {
                 for (int i = 0; i < node.names.length; i++) {
                     String name = node.names[i].name;
+                    String original = node.names[i].name;
                     if(node.names[i].asname != null){
                         name = node.names[i].asname;
-                    }
-	                this.tokens.add(new SourceToken(node, name, "", moduleName));
+                    } 
+	                this.tokens.add(new SourceToken(node, name, "", moduleName, original));
                 }
             }
         }

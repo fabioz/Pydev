@@ -13,15 +13,23 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 public abstract class AbstractToken implements IToken{
 
     private String rep;
+    private String originalRep;
     private String doc;
     private String parentPackage;
     private int type;
 
+    public AbstractToken(String rep, String doc, String parentPackage, int type, String originalRep){
+        this(rep, doc, parentPackage, type);
+        this.originalRep = originalRep;
+    }
+    
     public AbstractToken(String rep, String doc, String parentPackage, int type){
         if (rep != null)
             this.rep = rep;
         else
             this.rep = "";
+        
+        this.originalRep = this.rep;
         
         if (doc != null)
             this.doc = doc;
@@ -150,9 +158,9 @@ public abstract class AbstractToken implements IToken{
     public String getCompletePath() {
         String p = getParentPackage();
         if( p != null && p.length()>0){
-            return p+"."+getRepresentation();
+            return p+"."+originalRep;
         }
-        return getRepresentation();
+        return originalRep;
     }
 
 }

@@ -428,6 +428,7 @@ public class ASTManager implements Serializable, IASTManager {
         return getCompletionsForModule( module, state);
     }
 
+    
     /**
      * @param file
      * @param activationToken
@@ -669,7 +670,11 @@ public class ASTManager implements Serializable, IASTManager {
                         if (mod2 != null) {
                             state.recursing = true;
                             //the token to find is already specified.
-                            IToken[] completionsForModule = getCompletionsForModule(mod2, state);
+                            CompletionState copy = state.getCopy();
+                            if(tok != null){
+                                copy.activationToken = tok;
+                            }
+                            IToken[] completionsForModule = getCompletionsForModule(mod2, copy);
                             return completionsForModule;
                         }
                             
