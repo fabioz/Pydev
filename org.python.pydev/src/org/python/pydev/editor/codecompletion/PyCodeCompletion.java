@@ -127,21 +127,25 @@ public class PyCodeCompletion {
                         .getPythonModel(), loc);
         
                 if(closest == null){
-//                    completions = serverShell.getTokenCompletions(trimmed,
-//                            docToParse);
+                    if(theActivationToken.endsWith(".")){
+                        theActivationToken = theActivationToken.substring(0, theActivationToken.length()-1);
+                    }
+    	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" );
+    	            theList.addAll(Arrays.asList(comps));
+
                 }else{
                     Scope scope = closest.getScope().findContainingClass(); //null returned if self. within a method and not in a class.
                     String token = scope.getStartNode().getName();
-//                    completions = serverShell
-//                            .getClassCompletions(token, docToParse);
+                    
+    	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), token, "" );
+    	            theList.addAll(Arrays.asList(comps));
                 }
+                
             } else {
                 if(theActivationToken.endsWith(".")){
                     theActivationToken = theActivationToken.substring(0, theActivationToken.length()-1);
                 }
 	            IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" );
-//                completions = serverShell.getTokenCompletions(trimmed,
-//                        docToParse);
 	            theList.addAll(Arrays.asList(comps));
             }
             theList.addAll(completions);
@@ -153,9 +157,6 @@ public class PyCodeCompletion {
             IToken[] comps = astManager.getCompletionsForToken(edit.getEditorFile(), doc, line, documentOffset - region.getOffset(), theActivationToken, "" );
 
             theList.addAll(Arrays.asList(comps));
-//            completions = serverShell.getGlobalCompletions(docToParse);
-//            theList.addAll(completions);
-        
         }
         return theList;
     }

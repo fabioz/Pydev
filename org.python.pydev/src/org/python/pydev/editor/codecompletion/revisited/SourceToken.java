@@ -6,11 +6,13 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.Attribute;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.keywordType;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 
 /**
@@ -43,6 +45,12 @@ public class SourceToken extends AbstractToken{
             
         }else if (ast instanceof Import || ast instanceof ImportFrom){
             return PyCodeCompletion.TYPE_IMPORT; 
+
+        }else if (ast instanceof keywordType){
+            return PyCodeCompletion.TYPE_ATTR; 
+        
+        }else if (ast instanceof Attribute){
+            return PyCodeCompletion.TYPE_ATTR; 
         }
         
         return  PyCodeCompletion.TYPE_UNKNOWN;

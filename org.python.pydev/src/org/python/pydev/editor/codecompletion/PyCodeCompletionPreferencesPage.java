@@ -31,17 +31,18 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static final String ATTEMPTS_CODECOMPLETION = "ATTEMPTS_CODECOMPLETION";
     public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 25;
 
-    	public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
-    	public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
-    
-    	public static final String USE_AUTOCOMPLETE = "USE_AUTOCOMPLETE";
-    	public static final boolean DEFAULT_USE_AUTOCOMPLETE = true;
-    
-    	public static final String AUTOCOMPLETE_DELAY = "AUTOCOMPLETE_DELAY";
-    	public static final int DEFAULT_AUTOCOMPLETE_DELAY = 250;
-    
-    	public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
-    	public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
+	public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
+	public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
+
+	public static final String USE_AUTOCOMPLETE = "USE_AUTOCOMPLETE";
+	public static final boolean DEFAULT_USE_AUTOCOMPLETE = true;
+
+	public static final String AUTOCOMPLETE_DELAY = "AUTOCOMPLETE_DELAY";
+	public static final int DEFAULT_AUTOCOMPLETE_DELAY = 250;
+
+	public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
+	public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
+	
     private Label labelWarning;
 
     /**
@@ -77,8 +78,8 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
         addField(fe);
 
 
-        addField(new BooleanFieldEditor(
-		        USE_AUTOCOMPLETE, "Use autocompletion?", p));
+//        addField(new BooleanFieldEditor(
+//		        USE_AUTOCOMPLETE, "Use autocompletion?", p));
 
 		addField(new IntegerFieldEditor(
 		        AUTOCOMPLETE_DELAY, "Autocompletion delay: ", p));

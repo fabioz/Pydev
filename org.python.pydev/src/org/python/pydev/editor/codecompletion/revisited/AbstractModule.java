@@ -20,7 +20,15 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public abstract class AbstractModule implements Serializable{
 
+    /**
+     * @return tokens for the wild imports.
+     */
     public abstract IToken[] getWildImportedModules();
+    
+    /**
+     * @return tokens for the imports in the format from xxx import yyy
+     * or import xxx 
+     */
     public abstract IToken[] getTokenImportedModules();
     
     /**
@@ -30,10 +38,34 @@ public abstract class AbstractModule implements Serializable{
      * @return
      */
     public abstract IToken[] getGlobalTokens();
+    
+    /**
+     * This function should return all tokens that are global for a given token.
+     * E.g. if we have a class declared in the module, we return all tokens that are 'global'
+     * for the class (methods and attributes).
+     * 
+     * @param token
+     * @return
+     */
+    public abstract IToken[] getGlobalTokens(String token);
+    
+    /**
+     * 
+     * @return the docstring for a module.
+     */
     public abstract String getDocString();
     
-    protected String name;
     
+    /**
+     * Name of the module
+     */
+    protected String name;
+   
+    /**
+     * Constructor
+     * 
+     * @param name - name of the module
+     */
     protected AbstractModule(String name){
         this.name = name;
     }

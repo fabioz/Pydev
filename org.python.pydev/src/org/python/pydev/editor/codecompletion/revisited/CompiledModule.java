@@ -20,7 +20,7 @@ public class CompiledModule extends AbstractModule{
     /**
      * These are the tokens the compiled module has.
      */
-    private IToken[] tokens = new IToken[0];
+    private CompiledToken[] tokens = new CompiledToken[0];
 
     /**
      * 
@@ -41,7 +41,7 @@ public class CompiledModule extends AbstractModule{
                 array.add(t);
                 
             }
-            tokens = (IToken[]) array.toArray(new IToken[0]);
+            tokens = (CompiledToken[]) array.toArray(new CompiledToken[0]);
         } catch (Exception e) {
             e.printStackTrace();
             PydevPlugin.log(e);
@@ -77,6 +77,13 @@ public class CompiledModule extends AbstractModule{
      */
     public String getDocString() {
         return "compiled extension";
+    }
+
+    /**
+     * @see org.python.pydev.editor.codecompletion.revisited.AbstractModule#getGlobalTokens(java.lang.String)
+     */
+    public IToken[] getGlobalTokens(String token) {
+        throw new RuntimeException("TODO: finish them!");
     }
 
 }

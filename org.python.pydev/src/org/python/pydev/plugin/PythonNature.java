@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.python.pydev.editor.codecompletion.revisited.ASTManagerFactory;
+import org.python.pydev.editor.codecompletion.revisited.ASTManagerIO;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.ui.PyProjectProperties;
 import org.python.pydev.utils.JobProgressComunicator;
@@ -173,7 +173,7 @@ public class PythonNature implements IProjectNature {
                     } catch (CoreException e) {
                         e.printStackTrace();
                     }
-                    astManager = ASTManagerFactory.restoreASTManager(project, pythonpath, monitor);
+                    astManager = ASTManagerIO.restoreASTManager(project, pythonpath, monitor);
 
                     return Status.OK_STATUS;
                 }

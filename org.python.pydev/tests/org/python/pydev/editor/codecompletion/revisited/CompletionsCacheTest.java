@@ -6,7 +6,6 @@
 package org.python.pydev.editor.codecompletion.revisited;
 import junit.framework.TestCase;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 
 /**
@@ -22,16 +21,17 @@ public class CompletionsCacheTest extends TestCase {
         if(true){
 	        ASTManager cache = new ASTManager();
 	        
-	        cache.changePythonPath("C:\\bin\\Python23\\lib\\", null, new NullProgressMonitor());
+//	        cache.changePythonPath("C:\\bin\\Python23\\lib\\", null, new NullProgressMonitor());
 	        IToken[] completions = null;
-	        System.out.println("import 0 ----------------------");
-	        ModulesKey[] imports = cache.getAllModules();
-	        for (int i = 0; i < imports.length; i++) {
-                
-	            if(imports[i].name.startsWith("xml"))
-	                System.out.println(imports[i].name);
-            }
-	
+	        Document doc = null;
+//	        System.out.println("import 0 ----------------------");
+//	        ModulesKey[] imports = cache.getAllModules();
+//	        for (int i = 0; i < imports.length; i++) {
+//                
+//	            if(imports[i].name.startsWith("xml"))
+//	                System.out.println(imports[i].name);
+//            }
+//	
 //	        System.out.println("import 1 ----------------------");
 //	        completions = cache.getCompletionsForImport("");
 //	        for (int i = 0; i < completions.length; i++) {
@@ -49,32 +49,40 @@ public class CompletionsCacheTest extends TestCase {
 //	        for (int i = 0; i < completions.length; i++) {
 //                System.out.println(completions[i]);
 //            }
+//	        
+//	        System.out.println(" token ----------------------");
+//	        doc = getTestDoc();
+//
+//            completions = cache.getCompletionsForToken(doc,1,10,"","");
+//	        for (int i = 0; i < completions.length; i++) {
+//                System.out.println(completions[i]);
+//            }
+//
+//	        System.out.println(" token 2 ----------------------");
+//	        completions = cache.getCompletionsForToken(doc,1,10,"xml","");
+//	        for (int i = 0; i < completions.length; i++) {
+//                System.out.println(completions[i]);
+//            }
+//	        
+//	        System.out.println(" token 3 ----------------------");
+//	        completions = cache.getCompletionsForToken(doc,1,10,"xml.dom","");
+//	        assertEquals(0, completions.length);
+//	        
+//	        System.out.println(" token 4 ----------------------");
+//	        doc = getTestDoc2();
+//	        completions = cache.getCompletionsForToken(doc,1,10,"xml.dom","");
+//	        for (int i = 0; i < completions.length; i++) {
+//                System.out.println(completions[i]);
+//            }
 	        
-	        System.out.println(" token ----------------------");
-	        Document doc = getTestDoc();
-
-            completions = cache.getCompletionsForToken(doc,1,10,"","");
+	        doc = getTestDoc3();
+	        completions = cache.getCompletionsForToken(doc,1,10,"C","");
+	        System.out.println(" token 5 ----------------------");
 	        for (int i = 0; i < completions.length; i++) {
                 System.out.println(completions[i]);
             }
-
-	        System.out.println(" token 2 ----------------------");
-	        completions = cache.getCompletionsForToken(doc,1,10,"xml","");
-	        for (int i = 0; i < completions.length; i++) {
-                System.out.println(completions[i]);
-            }
 	        
-	        System.out.println(" token 3 ----------------------");
-	        completions = cache.getCompletionsForToken(doc,1,10,"xml.dom","");
-	        assertEquals(0, completions.length);
-	        
-	        System.out.println(" token 4 ----------------------");
-	        doc = getTestDoc2();
-	        completions = cache.getCompletionsForToken(doc,1,10,"xml.dom","");
-	        for (int i = 0; i < completions.length; i++) {
-                System.out.println(completions[i]);
-            }
-	        
+	        //TODO: COMPLETION: finish it! - hierarchy
         }        
     }
 
@@ -98,6 +106,26 @@ public class CompletionsCacheTest extends TestCase {
         String str = "";
         str += "import xml.dom \n";
         str += "print \n";
+        str += "\n";
+        Document doc = new Document(str);
+        return doc;
+    }
+    
+    /**
+     * @return
+     */
+    private Document getTestDoc3() {
+        String str = "";
+        str += "class C(object):\n";
+        str += "	properties.create(x=0)\n";
+        str += "\n";
+        str += "\n";
+        str += "	def __init__(self):\n";
+        str += "		print b\n";
+        str += "		self.a = 1\n";
+        str += "\n";
+        str += "	def getA(self):\n";
+        str += "		return self.a\n";
         str += "\n";
         Document doc = new Document(str);
         return doc;

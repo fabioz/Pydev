@@ -65,6 +65,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 //	private ColorManager colorManager;
 	private String[] indentPrefixes = { "    ", "\t", ""};
 	private PyEdit edit;
+    public PyContentAssistant pyContentAssistant = new PyContentAssistant();
 	
 	public PyEditConfiguration(ColorCache colorManager, PyEdit edit) {
 		colorCache = colorManager;
@@ -291,24 +292,22 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
  		final String   PY_SINGLELINE_STRING = "__python_singleline_string";
 		final String   PY_MULTILINE_STRING = "__python_multiline_string";
 		
-		// create a content assistant:
-		ContentAssistant assistant = new PyContentAssistant();
-		
 		// next create a content assistant processor to populate the completions window
 		IContentAssistProcessor processor = new PythonCompletionProcessor(this.getEdit());
 		
 		// No code completion in strings
-		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_SINGLELINE_STRING );
- 		assistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_MULTILINE_STRING );
-		assistant.setContentAssistProcessor(processor,IDocument.DEFAULT_CONTENT_TYPE );
-		assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
+		pyContentAssistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_SINGLELINE_STRING );
+ 		pyContentAssistant.setContentAssistProcessor(processor,PyPartitionScanner.PY_MULTILINE_STRING );
+		pyContentAssistant.setContentAssistProcessor(processor,IDocument.DEFAULT_CONTENT_TYPE );
+		pyContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
+		pyContentAssistant.enableAutoActivation(true);
 		
 		//delay and auto activate set on PyContentAssistant constructor.
 		
 		Color bgColor = colorCache.getColor(new RGB(230,255,230));
-		assistant.setProposalSelectorBackground(bgColor);
+		pyContentAssistant.setProposalSelectorBackground(bgColor);
 		
-		return assistant;
+		return pyContentAssistant;
 	}
 
 

@@ -50,4 +50,11 @@ public class EmptyModule extends AbstractModule {
         throw new RuntimeException("Not intended to be called");
     }
 
+    /**
+     * @see org.python.pydev.editor.codecompletion.revisited.AbstractModule#getGlobalTokens(java.lang.String)
+     */
+    public IToken[] getGlobalTokens(String token) {
+        throw new RuntimeException("Not intended to be called");
+    }
+
 }
