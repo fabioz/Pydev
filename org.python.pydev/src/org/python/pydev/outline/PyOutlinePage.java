@@ -30,11 +30,12 @@ import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
 
 /**
- * Outline page, displays the structure of the document in the editor window 
+ * Outline page, displays the structure of the document in the editor window. 
  *
- * Partition outlining:
- * PyDocumentProvider already partitions the document into strings/comments/other
- * RawPartition is the simplest outline that shows this "raw" document partitioning
+ * Partition outlining:<p>
+ * PyDocumentProvider already partitions the document into strings/comments/other<p>
+ * RawPartition is the simplest outline that shows this "raw" document partitioning<p>
+ * raw partition was only used as an example, not useful in production<p>
  *
  * Design notes:
  * a good (and only one that subclasses ContentOutlinePage) 
@@ -80,7 +81,7 @@ public class PyOutlinePage extends ContentOutlinePage  {
 	 * 
 	 * here we implement all the event handlers for the viewer (selection, document updates)
 	 */
-	public void createRawPartitionOutline() { // TODO public to suppress the warnings, otherwise not currently used
+	public void createRawPartitionOutline() { // public to suppress the warnings, otherwise not currently used
 		final TreeViewer tree = getTreeViewer();
 		IDocumentProvider provider = editorView.getDocumentProvider();
 		document = provider.getDocument(editorView.getEditorInput());
