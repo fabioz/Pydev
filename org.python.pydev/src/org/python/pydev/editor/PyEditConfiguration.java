@@ -296,7 +296,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		assistant.setContentAssistProcessor(processor,IDocument.DEFAULT_CONTENT_TYPE );
 		assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 		// Allow automatic activation after 500 msec
-		assistant.enableAutoActivation(false);
+		assistant.enableAutoActivation(true);
 		assistant.setAutoActivationDelay(500);
 		Color bgColor = colorCache.getColor(new RGB(230,255,230));
 		assistant.setProposalSelectorBackground(bgColor);
