@@ -20,7 +20,6 @@ import org.eclipse.ui.texteditor.ITextEditor;
 public class PyAddBlockComment extends PyAction {
 
 	/**
-	 * Hi.
 	 * Insert a comment block.
 	 *                #===...
 	 * 				  #
@@ -39,31 +38,48 @@ public class PyAddBlockComment extends PyAction {
 					.getSelectionProvider()
 					.getSelection();
 
+			//strange things happen when we try to get the line information on the last line of the
+			//document (it doesn't return the end line delimiter correctly), so we always get on position
+			//0 and check to see if we are not in the last line. 
+			if (doc.getNumberOfLines() <= 1)
+				return;
+				
 			IRegion startLine = null;
 
 			int startLineIndex = selection.getStartLine();
 
-			String endLineDelim = getDelimiter(doc, startLineIndex);
+			String endLineDelim = getDelimiter(doc, 0);
 			startLine = doc.getLineInformation(startLineIndex);
 
 			IRegion line = doc.getLineInformation(startLineIndex);
+			int lineLenght = line.getLength();
 			int pos = line.getOffset();
+			
+			String content = doc.get(pos, lineLenght);
+			String comment = getFullCommentLine();
+			
 			StringBuffer strBuf = new StringBuffer();
+			
 			strBuf.append(endLineDelim);
-			strBuf.append(
-				"#===============================================================================");
+			strBuf.append(comment); //#=========...
 			strBuf.append(endLineDelim);
+			
 			strBuf.append("# ");
+			strBuf.append(content);
+			
 			strBuf.append(endLineDelim);
-			strBuf.append(
-				"#===============================================================================");
+			strBuf.append(comment); //#=========...
 			strBuf.append(endLineDelim);
-			strBuf.append(endLineDelim);
-
-			doc.replace(pos, 0, strBuf.toString());
+			
+			doc.replace(pos, lineLenght, strBuf.toString());
+			textEditor.selectAndReveal(pos+strBuf.length()-comment.length()-4,0);
 
 		} catch (Exception e) {
 			beep(e);
 		}
+	}
+	
+	private String getFullCommentLine(){
+		return "#===============================================================================";
 	}
 }
