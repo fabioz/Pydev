@@ -85,7 +85,13 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         Preferences preferences = plugin.getPluginPreferences();
         preferences.addPropertyChangeListener(this);
     }
+    
 
+    /**
+     * This is called when the plugin is being stopped.
+     * 
+     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+     */
     public void stop(BundleContext context) throws Exception {
         
         try {
@@ -98,7 +104,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
                 IProjectNature n = projects[i].getNature(PythonNature.PYTHON_NATURE_ID);
                 if(n instanceof PythonNature){
                     PythonNature nature = (PythonNature) n;
-                    nature.saveIt();
                 }
             }
         } finally{
@@ -166,7 +171,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     public static void log(Throwable e) {
-        log(IStatus.ERROR, e.getMessage(), e);
+        log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten.", e);
     }
 
     /**

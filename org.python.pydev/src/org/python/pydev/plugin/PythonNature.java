@@ -19,8 +19,12 @@ import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.python.pydev.editor.javacodecompletion.ASTManager;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.ui.PyProjectProperties;
+import org.python.pydev.utils.JobProgressComunicator;
 
 /**
  * PythonNature is currently used as a marker class.
@@ -28,7 +32,7 @@ import org.python.pydev.ui.PyProjectProperties;
  * When python nature is present, project gets extra properties. Project gets assigned python nature when: - a python file is edited - a
  * python project wizard is created
  * 
- * 
+ *  
  */
 public class PythonNature implements IProjectNature {
 
@@ -142,6 +146,7 @@ public class PythonNature implements IProjectNature {
 
     /**
      * Utility to know if the pydev builder is in one of the commands passed.
+     * 
      * @param commands
      */
     private static boolean hasBuilder(ICommand[] commands) {
@@ -161,72 +166,112 @@ public class PythonNature implements IProjectNature {
     public void init() {
         if (initialized == false) {
             initialized = true;
-            File file = getCompletionsCacheFile();
-            
-            if (file.exists()) {
-                try {
-                    FileInputStream stream = new FileInputStream(file);
-                    try {
-                        astManager = ASTManager.restoreASTManager(stream);
-                    } finally {
-                        stream.close();
+
+            Job myJob = new Job("Pydev code completion") {
+
+                protected IStatus run(IProgressMonitor monitor) {
+                    File file = getCompletionsCacheFile();
+
+                    if (file.exists()) {
+                        try {
+                            FileInputStream stream = new FileInputStream(file);
+                            try {
+                                //no way to end this operation.
+
+                                //this is ok, just set it directly... (it is still null anyway, and it
+                                //might return null if some error happens).
+                                astManager = ASTManager.restoreASTManager(stream, monitor, this);
+                                
+                            } finally {
+                                stream.close();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            PydevPlugin.log(e);
+                        }
                     }
-                } catch (Exception e) {
-                    PydevPlugin.log(e);
+
+                    //failed if still null.
+                    if (astManager == null) {
+                        ASTManager tempAstManager = new ASTManager();
+                        try {
+                            JobProgressComunicator comunicator = new JobProgressComunicator(monitor, "Rebuilding modules", 500, this);
+                            comunicator.worked("Rebuilding modules.", 1);
+                            String pathStr = PyProjectProperties.getProjectPythonPathStr(project);
+                            tempAstManager.rebuildModules(pathStr, comunicator);
+                            astManager = tempAstManager; //only make it available after it is all loaded (better than synchronizing it).
+                            saveIt(); //after rebuilding it, save it.
+                            comunicator.done();
+                        } catch (CoreException e) {
+                            e.printStackTrace();
+                            PydevPlugin.log(e);
+                        }
+                    }
+                    return Status.OK_STATUS;
                 }
-            }
-            
-            if(astManager == null){
-                astManager = new ASTManager();
-                try {
-                    String pathStr = PyProjectProperties.getProjectPythonPathStr(project);
-                    astManager.rebuildModules(pathStr);
-                } catch (CoreException e) {
-                    PydevPlugin.log(e);
-                }
-            }
+            };
+            myJob.schedule();
+
         }
     }
-    
+
     /**
      * @return the file that should be used to store the completions.
      */
     private File getCompletionsCacheFile() {
         IPath location = project.getWorkingLocation(PydevPlugin.getPluginID());
-        IPath path = location.addTrailingSeparator().append(project.getName()+".pydevcompletions");
+        IPath path = location.addTrailingSeparator().append(project.getName() + ".pydevcompletions");
 
         File file = new File(path.toOSString());
         return file;
     }
 
     /**
-     * This method puts the completions cache in a dump file, so that we can restore it later.
-     * We do this ourselves because we don't want this to be stored as a xml, as it is not an
-     * optimized format (the object dump should be much faster).
+     * This method puts the completions cache in a dump file, so that we can restore it later. We do this ourselves because we don't want
+     * this to be stored as a xml, as it is not an optimized format (the object dump should be much faster).
      * 
      * This can be used from time to time to store what we have (you never know when a crash might occur).
      */
-    public void saveIt(){
-        synchronized(astManager){
-	        File file = getCompletionsCacheFile();
-	        //create file if needed
-	        if(file.exists() == false){
-	            try {
-	                file.createNewFile();
-	            } catch (IOException e1) {
-	                PydevPlugin.log(e1);
-	                e1.printStackTrace();
-	            }
-	        }
-	        
-	        //write completions cache to outputstream.
-	        try {
-	            astManager.saveASTManager(new FileOutputStream(file));
-	        } catch (FileNotFoundException e) {
-	            PydevPlugin.log(e);
-	            e.printStackTrace();
-	        }
-        }
+    public void saveIt() {
+        Job myJob = new Job("Pydev code completion (saving tokens)") {
+
+            protected IStatus run(IProgressMonitor monitor) {
+                if (astManager != null) {
+                    //synchronize it!!
+                    synchronized (astManager) {
+                        File file = getCompletionsCacheFile();
+                        //create file if needed
+                        if (file.exists() == false) {
+                            try {
+                                file.createNewFile();
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                                PydevPlugin.log(e1);
+                            }
+                        }
+
+                        //write completions cache to outputstream.
+                        try {
+                            FileOutputStream out = new FileOutputStream(file);
+                            try{
+                                astManager.saveASTManager(out, new JobProgressComunicator(monitor, "Save ast manager", astManager.getSize()+10, this));
+                            }finally{
+                                try {
+                                    out.close();
+                                } catch (IOException e1) {
+                                    //that should be ok.
+                                }
+                            }
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                            PydevPlugin.log(e);
+                        }
+                    }
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        myJob.schedule();
     }
 
     /**
@@ -234,16 +279,21 @@ public class PythonNature implements IProjectNature {
      * cache singleton and update it based on the new pythonpath.
      *  
      */
-    public void rebuildPath(String paths) {
-        astManager.rebuildModules(paths);
+    public void rebuildPath(final String paths) {
+        Job myJob = new Job("Pydev code completion: rebuilding modules") {
+
+            protected IStatus run(IProgressMonitor monitor) {
+                astManager.rebuildModules(paths, new JobProgressComunicator(monitor, "Rebuilding modules", 500, this));
+                if(monitor.isCanceled() == false){
+                    saveIt(); //after rebuilding, save it.
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        myJob.schedule();
+        
     }
 
-    /**
-     * @param completionsCache The completionsCache to set.
-     */
-    public void setAstManager(ASTManager completionsCache) {
-        this.astManager = completionsCache;
-    }
 
     /**
      * @return Returns the completionsCache.

@@ -3,9 +3,12 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.javacodecompletion;
+package org.python.pydev.editor.codecompletion.revisited;
 import java.util.Collection;
 import java.util.Iterator;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 
 import junit.framework.TestCase;
 
@@ -21,7 +24,7 @@ public class CompletionsCacheTest extends TestCase {
     public void testRebuild(){
         ASTManager cache = new ASTManager();
         
-        cache.rebuildModules("C:\\bin\\Python23\\lib\\");
+        cache.rebuildModules("C:\\bin\\Python23\\lib\\", new NullProgressMonitor());
         
         Collection imports = cache.getAllModules();
         for (Iterator iter = imports.iterator(); iter.hasNext();) {

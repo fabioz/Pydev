@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.javacodecompletion;
+package org.python.pydev.editor.codecompletion.revisited;
 
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +12,8 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.python.parser.SimpleNode;
+import org.python.pydev.editor.codecompletion.revisited.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.SourceToken;
 import org.python.pydev.parser.PyParser;
 
 /**

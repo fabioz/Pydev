@@ -1,0 +1,89 @@
+/*
+ * Created on Nov 19, 2004
+ *
+ * @author Fabio Zadrozny
+ */
+package org.python.pydev.utils;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
+
+/**
+ * @author Fabio Zadrozny
+ */
+public class JobProgressComunicator implements IProgressMonitor{
+
+    private IProgressMonitor monitor;
+    private long lastCommunicate = 0;
+    private final int minDif = 250;
+    private Job job;
+
+    public JobProgressComunicator(IProgressMonitor monitor, String main, int total, Job job){
+        this.monitor = monitor;
+        this.job = job;
+        this.monitor.beginTask(main, total);
+    }
+    
+    //recommended to make work.
+    public void worked(String task, int amountDone){
+        this.monitor.worked(amountDone);
+        this.job.setName(task);
+        this.monitor.setTaskName(task);
+    }
+    
+    public void done(){
+        monitor.done();
+    }
+
+    /**
+     * @see org.eclipse.core.runtime.IProgressMonitor#beginTask(java.lang.String, int)
+     */
+    public void beginTask(String name, int totalWork) {
+        this.monitor.beginTask(name, totalWork);
+        this.job.setName(name);
+    }
+
+    /**
+     * @see org.eclipse.core.runtime.IProgressMonitor#internalWorked(double)
+     */
+    public void internalWorked(double work) {
+        this.monitor.internalWorked(work);
+    }
+
+    /**
+     * @see org.eclipse.core.runtime.IProgressMonitor#isCanceled()
+     */
+    public boolean isCanceled() {
+        return this.monitor.isCanceled();
+    }
+
+    /**
+     * @see org.eclipse.core.runtime.IProgressMonitor#setCanceled(boolean)
+     */
+    public void setCanceled(boolean value) {
+        this.monitor.setCanceled(value);
+    }
+
+    /**
+     * @see org.eclipse.core.runtime.IProgressMonitor#setTaskName(java.lang.String)
+     */
+    public void setTaskName(String name) {
+        this.monitor.setTaskName(name);
+        this.job.setName(name);
+    }
+
+    /**
+     * @see org.eclipse.core.runtime.IProgressMonitor#subTask(java.lang.String)
+     */
+    public void subTask(String name) {
+        this.monitor.subTask(name);
+        this.job.setName(name);
+    }
+
+    /**
+     * @see org.eclipse.core.runtime.IProgressMonitor#worked(int)
+     */
+    public void worked(int work) {
+        this.monitor.worked(work);
+    }
+}

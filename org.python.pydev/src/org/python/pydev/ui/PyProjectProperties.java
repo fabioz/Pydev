@@ -327,10 +327,27 @@ public class PyProjectProperties extends PropertyPage {
     }
 
     /**
-	 * Saves values into the project
+     * Apply only saves the new value. does not do code completion update.
+     * 
+     * @see org.eclipse.jface.preference.PreferencePage#performApply()
+     */
+    protected void performApply() {
+		doIt(false);
+    }
+    
+    /**
+	 * Saves values into the project and updates the code completion. 
 	 */
 	public boolean performOk() {
-		if (project != null) {
+		return doIt(true);
+	}
+
+    /**
+     * Save the pythonpath - only updates model if asked to.
+     * @return
+     */
+    private boolean doIt(boolean updatePath) {
+        if (project != null) {
 			try {
 			    String s = "";
 			    TableItem[] items = table.getItems();
@@ -344,15 +361,19 @@ public class PyProjectProperties extends PropertyPage {
                 }
 				project.setPersistentProperty(PYTHONPATH_PROP, s);
 				IProjectNature nature = project.getNature(PythonNature.PYTHON_NATURE_ID);
-				if(nature instanceof PythonNature){
-				    ((PythonNature)nature).rebuildPath(s);
+
+				if(updatePath){
+					if(nature instanceof PythonNature){
+					    ((PythonNature)nature).rebuildPath(s);
+					}
 				}
-                
+				
 			} catch (Exception e) {
 				PydevPlugin.log(IStatus.ERROR, "Unexpected error setting project properties", e);
 			}
 		}
 		return true;
-	}
+    }
 
+	
 }

@@ -15,6 +15,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PythonNature;
 
@@ -73,6 +74,10 @@ public class PyCodeCompletion {
         if(pythonNature == null){
             throw new RuntimeException("Unable to get python nature.");
         }
+        ASTManager astManager = pythonNature.getAstManager();
+        if(astManager == null){ //we're probably still loading it.
+            return new ArrayList();
+        }
 
         List theList = new ArrayList();
         PythonShell serverShell = null;
@@ -98,7 +103,7 @@ public class PyCodeCompletion {
             System.out.println(importsTipper);
 
             importsTipper = importsTipper.trim();
-            Set imports = pythonNature.getAstManager().getCompletionForImport(importsTipper);
+            Set imports = astManager.getCompletionForImport(importsTipper);
             List completions = new ArrayList(imports);
             theList.addAll(completions);
         

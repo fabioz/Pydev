@@ -3,9 +3,11 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.javacodecompletion;
+package org.python.pydev.editor.codecompletion.revisited;
 
 import junit.framework.TestCase;
+
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 
 /**
  * @author Fabio Zadrozny
