@@ -1,0 +1,26 @@
+/*
+ * Author: atotic
+ * Created on Apr 9, 2004
+ * License: Common Public License v1.0
+ */
+package org.python.pydev.editor.model;
+
+import org.python.parser.ast.ImportFrom;
+
+/**
+ * ImportFrom node spans first argument of "from import" statement.
+ * 
+ * from repr import Repr, this node would span "repr".
+ */
+public class ImportFromNode extends AbstractNode {
+
+	public ImportFrom astNode;
+	
+	public ImportFromNode(AbstractNode parent, ImportFrom astNode) {
+		super(parent);
+		this.astNode = astNode;
+		setStart(new Location(astNode.beginLine - 1, astNode.beginColumn - 1));
+		setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn -1 + astNode.module.length()));
+		properties = PROP_CLICKABLE;
+	}
+}

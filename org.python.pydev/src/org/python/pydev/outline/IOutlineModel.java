@@ -6,6 +6,7 @@
 package org.python.pydev.outline;
 
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.python.pydev.editor.model.AbstractNode;
 
 /**
  * all the models in the outline view need to implement this interface
@@ -31,5 +32,5 @@ public interface IOutlineModel {
 	 * @param sel new selection
 	 * @return Point that contains line/column, or item to be selected
 	 */
-	SelectionPosition getSelectionPosition(StructuredSelection sel);
+	AbstractNode getSelectionPosition(StructuredSelection sel);
 }

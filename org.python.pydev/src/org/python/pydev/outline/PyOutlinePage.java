@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
 
@@ -108,7 +109,7 @@ public class PyOutlinePage extends ContentOutlinePage  {
 	 * @return the parsed model, so that it can be used elsewhere (in navigation)
 	 */
 	public ParsedModel getParsedModel() {
-		return new ParsedModel(this, editorView.getParser());
+		return new ParsedModel(this, editorView);
 	}
 	
 		
@@ -204,10 +205,8 @@ public class PyOutlinePage extends ContentOutlinePage  {
 		selectionListener = new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				StructuredSelection sel = (StructuredSelection)tree.getSelection();
-				SelectionPosition newSel = model.getSelectionPosition(sel);
-				if (newSel == null)
-					return;
-				editorView.setSelection(newSel);
+				AbstractNode node = model.getSelectionPosition(sel);
+				editorView.revealModelNode(node);
 			}
 		};
 		tree.addSelectionChangedListener(selectionListener);		

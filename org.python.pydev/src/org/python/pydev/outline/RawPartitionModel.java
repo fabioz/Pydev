@@ -12,9 +12,9 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioningListener;
 import org.eclipse.jface.text.Position;
-import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.rules.DefaultPartitioner;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.python.pydev.editor.model.AbstractNode;
 
 
 /**
@@ -112,13 +112,10 @@ class RawPartitionModel implements IOutlineModel {
 	}
 
 	// IOutlineModel API
-	public SelectionPosition getSelectionPosition(StructuredSelection sel) {
-		Region r = null;
-		if(sel.size() == 1) { // only sync the editing view if it is a single-selection
-			Position p = (Position)sel.getFirstElement();
-			r = new Region(p.offset, p.length);
-		}
-		return new SelectionPosition(r);
+	public AbstractNode getSelectionPosition(StructuredSelection sel) {
+		// we do not have it, broken in Outline rewrite
+		System.err.println("RawOutlineModel can't navigate right now");
+		return null;
 	}
 
 	public int compare(Object e1, Object e2) {

@@ -6,18 +6,22 @@
 
 package org.python.pydev.editor.actions.navigation;
 
-import org.python.pydev.outline.ParsedItem;
-import org.python.pydev.outline.SelectionPosition;
+import org.python.pydev.editor.model.*;
 
 /**
- * @author Fabio Zadrozny
+ * One-trick pony, finds the next method.
  */
 public class PyNextMethod extends PyMethodNavigation{
 
-	public SelectionPosition getSelect(Visitor v) {
-		if (v.nextNode != null){
-			return ParsedItem.getPosition(v.nextNode);
-		}
-		return null;
+	/**
+	 * Gets the next method/class definition
+	 */
+	public AbstractNode getSelect(AbstractNode me ) {
+		AbstractNode current = ModelUtils.getNextNode(me);
+		while (current != null &&
+			!(current instanceof FunctionNode) &&
+			!(current instanceof ClassNode))
+			current = ModelUtils.getNextNode(current);
+		return current;	
 	}
 }

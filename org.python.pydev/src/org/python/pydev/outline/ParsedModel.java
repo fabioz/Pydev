@@ -9,9 +9,9 @@ import java.util.ArrayList;
 
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Display;
-import org.python.parser.SimpleNode;
-import org.python.pydev.parser.IParserListener;
-import org.python.pydev.parser.PyParser;
+import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.editor.model.IModelListener;
 
 /**
  * ParsedModel represents a python file, parsed for OutlineView display
@@ -19,9 +19,9 @@ import org.python.pydev.parser.PyParser;
  */
 public class ParsedModel implements IOutlineModel {
 
-	PyParser parser;
+	PyEdit editor;
 	PyOutlinePage outline;
-	IParserListener parserListener;
+	IModelListener modelListener;
 	
 	ParsedItem root = null;	// A list of top nodes in this document. Used as a tree root
 
@@ -29,41 +29,31 @@ public class ParsedModel implements IOutlineModel {
 	 * @param outline - If not null, view to notify when parser changes
 	 * @param parser
 	 */
-	public ParsedModel(PyOutlinePage outline, PyParser parser) {
-		this.parser = parser;
+	public ParsedModel(PyOutlinePage outline, PyEdit editor) {
+		this.editor = editor;
 		this.outline = outline;
 
 		// The notifications are only propagated to the outline page
 		//
 		// Tell parser that we want to know about all the changes
 		// make sure that the changes are propagated on the main thread
-		parserListener = new IParserListener() {
-			public void parserChanged(SimpleNode pyRoot) {
-				final SimpleNode myRoot = pyRoot;
+		modelListener = new IModelListener() {
+			public void modelChanged(AbstractNode root) {
+				final AbstractNode myRoot = root;
 				Display.getDefault().syncExec( new Runnable() {
 					public void run() {
 						if (myRoot != null)
 							setRoot(new ParsedItem(null, myRoot));
 					}
-				});
-			}
-			public void parserError(Throwable error) {
-				final Throwable myError = error;
-				Display.getDefault().syncExec(new Runnable() {
-				public void run() {
-					setError(myError);
-				}
-			});
-				setError(error);
+				});				
 			}
 		};
-		parser.addParseListener(parserListener);
-			
-		root = new ParsedItem(null, parser.getRoot());
+		root = new ParsedItem(null, editor.getPythonModel());
+		editor.addModelListener(modelListener);
 	}
 
 	public void dispose() {
-		parser.removeParseListener(parserListener);
+		editor.removeModelListener(modelListener);
 	}
 	
 	public Object getRoot() {
@@ -116,7 +106,7 @@ public class ParsedModel implements IOutlineModel {
 		}
 		else
 		{
-			System.out.println("No old root in ParsedModel!");
+			System.out.println("No old model root?");
 		}
 	}
 	
@@ -126,13 +116,12 @@ public class ParsedModel implements IOutlineModel {
 	
 	/*
 	 */
-	public SelectionPosition getSelectionPosition(StructuredSelection sel) {
-		SelectionPosition position = null;
+	public AbstractNode getSelectionPosition(StructuredSelection sel) {
 		if(sel.size() == 1) { // only sync the editing view if it is a single-selection
 			ParsedItem p = (ParsedItem)sel.getFirstElement();
-			position = p.getPosition();
+			return p.getToken();
 		}
-		return position;
+		return null;
 	}
 
 	/* (non-Javadoc)

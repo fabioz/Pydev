@@ -80,8 +80,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 	}
 
 	/**
-	 * This function returns the python editor.
-	 * @return
+	 * @return python editor.
 	 */
 	protected PyEdit getPyEdit() {
 		if (targetEditor instanceof PyEdit) {

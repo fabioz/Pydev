@@ -6,19 +6,21 @@
 
 package org.python.pydev.editor.actions.navigation;
 
-import org.python.pydev.outline.ParsedItem;
-import org.python.pydev.outline.SelectionPosition;
+import org.python.pydev.editor.model.*;
+
 
 /**
  * @author Fabio Zadrozny
  */
-public class PyPreviousMethod extends PyMethodNavigation{
+public class PyPreviousMethod extends PyMethodNavigation {
 
-	public SelectionPosition getSelect(Visitor v) {
-		if (v.prevNode != null){
-			return ParsedItem.getPosition(v.prevNode);
-		}
-		return null;
+	// me is the last node w
+	public AbstractNode getSelect(AbstractNode me) {
+		AbstractNode current = ModelUtils.getPreviousNode(me);
+		while (current != null &&
+			!(current instanceof FunctionNode) &&
+			!(current instanceof ClassNode))
+			current = ModelUtils.getPreviousNode(current);
+		return current;	
 	}
-
 }

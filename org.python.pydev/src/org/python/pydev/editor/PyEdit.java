@@ -5,12 +5,16 @@
  */
 package org.python.pydev.editor;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import org.eclipse.core.internal.resources.MarkerAttributeMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -23,7 +27,6 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
-import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.ui.texteditor.TextOperationAction;
@@ -32,11 +35,12 @@ import org.python.parser.ParseException;
 import org.python.parser.SimpleNode;
 import org.python.parser.Token;
 import org.python.parser.TokenMgrError;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
-import org.python.pydev.editor.dictionary.PyDEditorItem;
+import org.python.pydev.plugin.*;
+import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.editor.model.IModelListener;
+import org.python.pydev.editor.model.Location;
+import org.python.pydev.editor.model.ModelMaker;
 import org.python.pydev.outline.PyOutlinePage;
-import org.python.pydev.outline.SelectionPosition;
 import org.python.pydev.parser.IParserListener;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.ui.ColorCache;
@@ -70,11 +74,16 @@ public class PyEdit extends TextEditor implements IParserListener {
 	private PyAutoIndentStrategy indentStrategy;
 	/** need to hold onto it to support indentPrefix change through preferences */
 	PyEditConfiguration editConfiguration;
-	/** top-level dictionary */
-	PyDEditorItem dictionaryRoot;
-	
+	/** Python model */
+	AbstractNode pythonModel;
+	/** Hyperlinking listener */
+	Hyperlink fMouseListener;
+	/** listeners that get notified of model changes */
+	ArrayList modelListeners;	
+
 	public PyEdit() {
 		super();
+		modelListeners = new ArrayList();
 		colorCache = new ColorCache(PydevPrefs.getPreferences());
 		if (getDocumentProvider() == null) {
 			setDocumentProvider(new PyDocumentProvider());
@@ -146,8 +155,6 @@ public class PyEdit extends TextEditor implements IParserListener {
 		parser.addParseListener(this);
 		parser.setDocument(getDocumentProvider().getDocument(input));
 		
-		dictionaryRoot = new PyDEditorItem(parser);
-		
 		// listen to changes in TAB_WIDTH preference
 		prefListener = new Preferences.IPropertyChangeListener() {
 			public void propertyChange(Preferences.PropertyChangeEvent event) {
@@ -193,6 +200,8 @@ public class PyEdit extends TextEditor implements IParserListener {
 		// Tell the editor to execute this action 
 		// when Ctrl+Spacebar is pressed
 		setActionActivationCode(CONTENTASSIST_PROPOSAL_ID,' ', -1, SWT.CTRL);
+		
+		enableBrowserLikeLinks();
 	}
 
 
@@ -202,6 +211,10 @@ public class PyEdit extends TextEditor implements IParserListener {
 
 	public PyParser getParser() {
 		return parser;
+	}
+	
+	public AbstractNode getPythonModel() {
+		return pythonModel;
 	}
 	
 	/**
@@ -216,7 +229,7 @@ public class PyEdit extends TextEditor implements IParserListener {
 	
 	/**
 	 * implementation copied from 
-	 * @see org.eclipse.ui.externaltools.internal.ant.editor.PlantyEditor#setSelection
+	 * org.eclipse.ui.externaltools.internal.ant.editor.PlantyEditor#setSelection
 	 */
 	public void setSelection(int offset, int length) {
 		ISourceViewer sourceViewer= getSourceViewer();
@@ -225,28 +238,35 @@ public class PyEdit extends TextEditor implements IParserListener {
 	}
 
 	/**
-	 * Reveals the selection
+	 * Selects & reveals the model node
 	 */
-	public void setSelection(SelectionPosition newSel) {
-		if (newSel.r != null) {
-			setSelection(newSel.r.getOffset(), newSel.r.getLength());
-		}
-		else {
-			IDocumentProvider provider = getDocumentProvider();
-			IDocument document = provider.getDocument(getEditorInput());
-			try {
-				IRegion r = document.getLineInformation(newSel.line - 1);
-				// if selecting the whole line, just use the information
-				if (newSel.column == SelectionPosition.WHOLE_LINE) {
-					newSel.column = 0;
-					newSel.length = r.getLength();
-				}
-				setSelection(r.getOffset() + newSel.column, newSel.length);
-			} catch (BadLocationException e) {
-				e.printStackTrace();
+	public void revealModelNode(AbstractNode node) {
+		if (node == null)
+			return;	// nothing to see here
+		boolean wholeLine = false;
+//		if (node instanceof ImportNode)
+//			wholeLine = true;
+		Location start = node.getStart();
+		Location end = node.getEnd();
+		IDocument document = getDocumentProvider().getDocument(getEditorInput());
+		int offset, length;
+		try {
+			if (wholeLine) {
+				IRegion r;
+				r = document.getLineInformation(start.line);
+				offset = r.getOffset();
+				length = r.getLength();
+			} else {
+				offset = start.toOffset(document);
+				length = end.toOffset(document) - offset;
 			}
+		} catch (BadLocationException e) {
+			PydevPlugin.log(IStatus.WARNING, "error trying to revealModelItem" + node.toString(), e);
+			return;
 		}
+		setSelection(offset, length);
 	}
+	
 
 	/**
 	 * this event comes when document was parsed without errors
@@ -262,7 +282,17 @@ public class PyEdit extends TextEditor implements IParserListener {
 				original.deleteMarkers(IMarker.PROBLEM, false, 1);
 		} catch (CoreException e) {
 			// What bad can come from removing markers? Ignore this exception
-			e.printStackTrace();
+			PydevPlugin.log(IStatus.WARNING, "Unexpected error removing markers", e);
+		}
+		IDocument document = getDocumentProvider().getDocument(getEditorInput());
+		int lastLine = document.getNumberOfLines();
+		IRegion r;
+		try {
+			r = document.getLineInformation(lastLine-1);
+			pythonModel = ModelMaker.createModel(root, lastLine , r.getLength());
+			fireModelChanged(pythonModel);
+		} catch (BadLocationException e1) {
+			PydevPlugin.log(IStatus.WARNING, "Unexpected error getting document length. No model!", e1);		
 		}
 	}
 
@@ -332,7 +362,51 @@ public class PyEdit extends TextEditor implements IParserListener {
 			e2.printStackTrace();
 		}
 	}
+	
+	private void enableBrowserLikeLinks() {
+		if (fMouseListener == null) {
+			fMouseListener= new Hyperlink(getSourceViewer(), this);
+			fMouseListener.install();
+		}
+	}
+	
+	/**
+	 * Disables browser like links.
+	 */
+	private void disableBrowserLikeLinks() {
+		if (fMouseListener != null) {
+			fMouseListener.uninstall();
+			fMouseListener= null;
+		}
+	}
 
+	/** stock listener implementation */
+	public void addModelListener(IModelListener listener) {
+		Assert.isNotNull(listener);
+		if (! modelListeners.contains(listener))
+		modelListeners.add(listener);
+	}
+	
+	/** stock listener implementation */	
+	public void removeModelListener(IModelListener listener) {
+		Assert.isNotNull(listener);
+		modelListeners.remove(listener);
+	}
+
+	/** 
+	 * stock listener implementation 
+	 * event is fired whenever we get a new root
+	 */
+	protected void fireModelChanged(AbstractNode root) {
+		if (modelListeners.size() > 0) {
+			ArrayList list= new ArrayList(modelListeners);
+			Iterator e= list.iterator();
+			while (e.hasNext()) {
+				IModelListener l= (IModelListener) e.next();
+				l.modelChanged(root);
+			}
+		}
+	}
 
 
 }
