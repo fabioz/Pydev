@@ -30,7 +30,6 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ILocationProvider;
-import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.MarkerUtilities;
@@ -41,12 +40,13 @@ import org.python.parser.SimpleNode;
 import org.python.parser.Token;
 import org.python.parser.TokenMgrError;
 import org.python.pydev.editor.actions.PyOpenAction;
+import org.python.pydev.editor.codefolding.CodeFoldingSetter;
+import org.python.pydev.editor.codefolding.PyEditProjection;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.editor.model.ModelMaker;
 import org.python.pydev.outline.PyOutlinePage;
-import org.python.pydev.parser.IParserListener;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
@@ -68,7 +68,7 @@ import org.python.pydev.ui.ColorCache;
  * @see <a href="http://dev.eclipse.org/newslists/news.eclipse.tools/msg61594.html">This eclipse article was an inspiration</a>
  * 
  */
-public class PyEdit extends TextEditor implements IParserListener {
+public class PyEdit extends PyEditProjection {
 
 	static public String EDITOR_ID = "org.python.pydev.editor.PythonEditor";
 	static public String ACTION_OPEN = "OpenEditor";
@@ -101,7 +101,10 @@ public class PyEdit extends TextEditor implements IParserListener {
 		setSourceViewerConfiguration(editConfiguration);
 		indentStrategy = (PyAutoIndentStrategy)editConfiguration.getAutoIndentStrategy(null, IDocument.DEFAULT_CONTENT_TYPE);
 		setRangeIndicator(new DefaultRangeIndicator()); // enables standard vertical ruler
-		
+
+		//Added to set the code folding.
+        CodeFoldingSetter codeFoldingSetter = new CodeFoldingSetter(this);
+        this.addModelListener(codeFoldingSetter);
 	}
 	
 	/**
@@ -247,6 +250,7 @@ public class PyEdit extends TextEditor implements IParserListener {
 		sourceViewer.setSelectedRange(offset, length);
 		sourceViewer.revealRange(offset, length);
 	}
+	
 
 	/**
 	 * Selects & reveals the model node

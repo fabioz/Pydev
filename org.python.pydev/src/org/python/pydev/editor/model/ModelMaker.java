@@ -138,17 +138,35 @@ public class ModelMaker {
 			new NameEqualsMainNode(parent, node);
 		}
 
+		void processPass(Pass node) {
+			new PassNode(parent, node);
+		}
+
+		void processStr(Str node) {
+			new StrNode(parent, node);
+		}
+
 		private void processAttribute(Attribute node) {
 			new AttributeNode(parent, node, getLineText(node));
 		}
 
 		protected Object unhandled_node(SimpleNode node) throws Exception {
-//			System.err.println("Unhandled: " + node.getClass().toString() + " L:" + Integer.toString(node.beginLine));
+			System.err.println("Unhandled: " + node.getClass().toString() + " L:" + Integer.toString(node.beginLine));
 			return null;
 		}
 
 		public void traverse(SimpleNode node) throws Exception {
 			node.traverse(this);
+		}
+
+		public Object visitPass(Pass node) throws Exception {
+			processPass(node);
+			return null;
+		}
+
+		public Object visitStr(Str node) throws Exception {
+			processStr(node);
+			return null;
 		}
 
 		public Object visitClassDef(ClassDef node) throws Exception {
