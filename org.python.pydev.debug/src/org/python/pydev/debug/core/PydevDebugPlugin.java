@@ -7,17 +7,22 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.plugin.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.core.resources.*;
-import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.debug.unittest.ITestRunListener;
-import org.python.pydev.debug.unittest.PyUnitTestRunner;
 import org.python.pydev.ui.ImageCache;
 /**
  * The main plugin for Python Debugger.

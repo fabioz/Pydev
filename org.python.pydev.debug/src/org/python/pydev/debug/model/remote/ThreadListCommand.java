@@ -10,8 +10,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.model.IThread;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.debug.model.*;
 import org.python.pydev.debug.model.PyDebugTarget;
+import org.python.pydev.debug.model.XMLUtils;
 
 /**
  * ListThreads command.

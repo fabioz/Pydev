@@ -14,7 +14,6 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.actions.ActionDelegate;
 import org.python.pydev.debug.ui.launching.LaunchShortcut;
-import org.python.pydev.debug.unittest.ITestRunListener;
 
 /**
  * Implements "Run Python..." extension for org.eclipse.ui.popupMenus.

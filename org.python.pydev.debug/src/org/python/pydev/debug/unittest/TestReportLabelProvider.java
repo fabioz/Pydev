@@ -18,7 +18,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.debug.unittest.TestResult;
 
 /**
  * @author ggheorg

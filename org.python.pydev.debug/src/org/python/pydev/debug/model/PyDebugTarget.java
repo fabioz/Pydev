@@ -34,8 +34,13 @@ import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.core.PydevDebugPrefs;
-import org.python.pydev.debug.model.remote.*;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
+import org.python.pydev.debug.model.remote.RemoteDebugger;
+import org.python.pydev.debug.model.remote.RemoveBreakpointCommand;
+import org.python.pydev.debug.model.remote.RunCommand;
+import org.python.pydev.debug.model.remote.SetBreakpointCommand;
+import org.python.pydev.debug.model.remote.ThreadListCommand;
+import org.python.pydev.debug.model.remote.VersionCommand;
 /**
  * Debugger class that represents a single python process.
  * 

@@ -6,28 +6,20 @@
 package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.Vector;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsUtil;
-import org.osgi.framework.Bundle;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.SocketUtil;
-import org.python.pydev.debug.unittest.ITestRunListener;
 
 /**
  * Holds configuration for PythonRunner.

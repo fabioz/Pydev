@@ -14,11 +14,10 @@ import org.eclipse.debug.core.model.IWatchExpressionDelegate;
 import org.eclipse.debug.core.model.IWatchExpressionListener;
 import org.eclipse.debug.core.model.IWatchExpressionResult;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.EvaluateExpressionCommand;
-import org.python.pydev.debug.model.remote.RemoteDebugger;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
+import org.python.pydev.debug.model.remote.RemoteDebugger;
 
 public class PyWatchExpressionDelegate 
 	implements IWatchExpressionDelegate, IWatchExpressionResult,

@@ -5,15 +5,14 @@
  */
 package org.python.pydev.debug.ui.launching;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-// E3 import org.eclipse.core.variables.IStringVariableManager;
-// E3 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -21,16 +20,17 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.ILaunchShortcut;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
-import org.python.pydev.debug.core.*;
+import org.python.pydev.debug.core.Constants;
+import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**

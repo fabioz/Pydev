@@ -16,7 +16,11 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
-import org.python.pydev.debug.model.remote.*;
+import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
+import org.python.pydev.debug.model.remote.RemoteDebugger;
+import org.python.pydev.debug.model.remote.StepCommand;
+import org.python.pydev.debug.model.remote.ThreadRunCommand;
+import org.python.pydev.debug.model.remote.ThreadSuspendCommand;
 
 /**
  * Represents python threads.
