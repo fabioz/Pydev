@@ -334,6 +334,7 @@
             command="org.python.pydev.editor.actions.pybackspace"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
+
 <!-- command: next method / class-->
       <command
             name="Next Method or Class"
@@ -560,10 +561,13 @@
       <template
             name="main"
             icon="icons/template.gif"
-            description="main"
+            description="main function pattern. Season to taste"
             contextTypeId="org.python.pydev.editor.templates.python"
-            id="org.python.pydev.editor.templates.python.pdb">
-         <pattern>if __name__ == 'main':</pattern>
+            id="org.python.pydev.editor.templates.python.main">
+<pattern>
+if __name__ == '__main__':
+    ${cursor}${Run)()
+</pattern>
       </template>
       <template
             name="pd"
@@ -572,6 +576,22 @@
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.pdb">
          <pattern>import pdb;pdb.set_trace()</pattern>
+      </template>
+      <template
+            name="stdout"
+            icon="icons/template.gif"
+            description="Prints to sys.stdout"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.stdout">
+         <pattern>print >> sys.stdout, ${cursor}${data}</pattern>
+      </template>
+      <template
+            name="stderr"
+            icon="icons/template.gif"
+            description="Prints to sys.stdout"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.stderr">
+         <pattern>print >> sys.stderr, ${cursor}${data}</pattern>
       </template>
       <template
             name="eq"
@@ -613,7 +633,31 @@ if ${cursor}${condition}: True
 def ${cursor}${method}(): True
          </pattern>
       </template>
-
+      <template
+            name="debugger"
+            icon="icons/template.gif"
+            description="Creates an in-module debugger"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.debug">
+<pattern>
+import sys
+debugToggle = 1
+def debug(*values):
+    if debugToggle == 0: return
+    print >> sys.stderr, "DBG>", 
+    for v in values: print >> sys.stderr,  v,
+    print >> sys.stderr, '.'
+${cursor}
+</pattern>
+      </template>
+      <template
+            name="dbg"
+            icon="icons/template.gif"
+            description="print a debug line.(use the debugger macro to define an in-module global debug method first!)"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.dbg">
+         <pattern>debug('==>', ${cursor}${data})</pattern>
+      </template>
    </extension>
 
 </plugin>
