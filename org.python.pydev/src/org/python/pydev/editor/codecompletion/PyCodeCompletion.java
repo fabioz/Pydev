@@ -6,12 +6,10 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,12 +61,10 @@ public class PyCodeCompletion {
     public List autoComplete(java.lang.String theCode,
             java.lang.String theActivationToken) {
         List theList = new ArrayList();
-        String s = new String();
-        File tmp = null;
-//        System.out.println("DBG:autoComplete:theActivationToken: "+theActivationToken);
+        File tipperFile=null;
+
         try {
-            // get the inspect.py file from the package:
-            s = getAutoCompleteScript();
+            tipperFile = getAutoCompleteScript();
 
         } catch (CoreException e) {
 
@@ -76,25 +72,37 @@ public class PyCodeCompletion {
         }
 
         try {
-            //We actually write a file with all of our code to a temporary location,
-            //so that we can get its code completion from the typper.py script.
-            //
-            //TODO: there must be a faster strategy...
-            //
-            tmp = bufferContent(theCode);
-
-            if (tmp == null) {
-                System.out.println("DBG:bufferContent() null. No tip for you!!");
-                return theList;
-            }
+            Process p = Runtime.getRuntime().exec(new String[]{"python"});
             
-            String ss = new String("python " + s + " " + tmp.getAbsolutePath());
-
-            Process p = Runtime.getRuntime().exec(ss);
+            //we have the process...
+            OutputStreamWriter writer = new OutputStreamWriter(p.getOutputStream());
             BufferedReader in = new BufferedReader(new InputStreamReader(p
                     .getInputStream()));
+            BufferedReader eIn = new BufferedReader(new InputStreamReader(
+                    p.getErrorStream()));
+            
+            //we have to put the tipper in sys.path
+            writer.write("import sys\n");
+            writer.write("sys.path.insert(0,r'"+tipperFile.getParent()+"')\n");
+            
+            //now we have it in the modules... import and call tipper with the code...
+            writer.write("from tipper import GenerateTip\n");
+            
+            theCode = theCode.replaceAll("\r","");
+            theCode = theCode.replaceAll("\n","\\\\n");
+
+            theCode = theCode.replaceAll("'","@l@l@*"); //TODO: that's a really bad way to do it...
+
+            writer.write("s = '"+theCode+"'\n");
+            writer.write("s = s.replace('@l@l@*', '\\'')\n");
+
+            writer.write("GenerateTip(s)\n\n\n");
+            
+            writer.flush();
+            writer.close();
+            
             String str;
-            while ((str = in.readLine()) != null) {                
+            while ((str = in.readLine()) != null) {
                 if (!str.startsWith("tip: ")){
                     continue;
                 }
@@ -104,13 +112,11 @@ public class PyCodeCompletion {
                 theList.add(str);
             }
             in.close();
-            InputStream eInput = p.getErrorStream();
-            BufferedReader eIn = new BufferedReader(new InputStreamReader(
-                    eInput));
 
             while ((str = eIn.readLine()) != null) {
-                //System.out.println("error output: " + str);
+//                System.out.println("error output: " + str);
             }
+            eIn.close();
             p.waitFor();
         } catch (IOException e) {
 
@@ -122,30 +128,6 @@ public class PyCodeCompletion {
         return theList;
     }
 
-    /**
-     * We actually write a file with all of our code to a temporary location,
-     * so that we can get its code completion from the typper.py script.     
-     * 
-     * @param theCode code to be written to file.
-     */
-    private File bufferContent(java.lang.String theCode) {
-        //
-        try {
-            // Create temp file.
-            File temp = File.createTempFile("PyDev", ".tmp");
-
-            // Delete temp file when program exits.
-            temp.deleteOnExit();
-
-            // Write to temp file
-            BufferedWriter out = new BufferedWriter(new FileWriter(temp));
-            out.write(theCode);
-            out.close();
-            return temp;
-        } catch (IOException e) {
-            return null;
-        }
-    }
 
     /**
      * 
@@ -153,7 +135,7 @@ public class PyCodeCompletion {
      * 
      * @throws CoreException
      */
-    public static String getAutoCompleteScript() throws CoreException {
+    public static File getAutoCompleteScript() throws CoreException {
         String targetExec = "tipper.py";
 
         IPath relative = new Path("PySrc").addTrailingSeparator().append(
@@ -165,9 +147,9 @@ public class PyCodeCompletion {
         URL fileURL;
         try {
             fileURL = Platform.asLocalURL(bundleURL);
-            String filePath = new File(fileURL.getPath()).getAbsolutePath();
+            File f = new File(fileURL.getPath());
 
-            return filePath;
+            return f;
         } catch (IOException e) {
             throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR,
                     "Can't find python debug script", null));
