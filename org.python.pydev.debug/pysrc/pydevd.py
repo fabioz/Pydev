@@ -47,7 +47,7 @@ each command has a format:
 import sys
 import threading
 import types
-from Queue import *
+import Queue
 from socket import *
 import urllib
 import time
@@ -123,7 +123,7 @@ class WriterThread(threading.Thread):
         self.sock = sock
         self.setName("pydevd.Writer")
         self.setDaemon(True)
-        self.cmdQueue = Queue()
+        self.cmdQueue = Queue.Queue()
        
     def addCommand(self, cmd):
         """ cmd is NetCommand """
@@ -408,7 +408,7 @@ class PyDB:
         try:
             return self.cmdQueue[thread_id]
         except KeyError:
-            self.cmdQueue[thread_id] = Queue()
+            self.cmdQueue[thread_id] = Queue.Queue()
             all_threads = threading.enumerate()
             cmd = None
             for t in all_threads:
@@ -437,7 +437,7 @@ class PyDB:
                int_cmd = queue.get(False)
                pydevd_log(2, "processign internal command " + str(int_cmd))
                int_cmd.doIt(self)
-        except Empty:
+        except Queue.Empty:
             pass # this is how we exit
       
     def processNetCommand(self, id, seq, text):
