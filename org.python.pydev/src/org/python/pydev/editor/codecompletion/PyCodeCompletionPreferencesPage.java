@@ -35,9 +35,6 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage
 	public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
 	public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
 
-	public static final String USE_SERVER_TIP = "USE_SERVER_TIP";
-	public static final boolean DEFAULT_USE_SERVER_TIP = false;
-
 	/**
      */
     public PyCodeCompletionPreferencesPage() {
@@ -65,8 +62,6 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage
 		addField(new BooleanFieldEditor(
 		        AUTOCOMPLETE_ON_PAR, "Autocomplete on '('?", p));
 
-		addField(new BooleanFieldEditor(
-		        USE_SERVER_TIP, "Use server tipper enviroment (otherwise console is used)?", p));
     }
 
     /*
@@ -75,7 +70,6 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
     public void init(IWorkbench workbench) {
-        // TODO Auto-generated method stub
         PydevPrefs.getPreferences().addPropertyChangeListener(this);
     }
 	/**
@@ -86,7 +80,6 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage
 		prefs.setDefault(USE_AUTOCOMPLETE, DEFAULT_USE_AUTOCOMPLETE);
 		prefs.setDefault(AUTOCOMPLETE_DELAY, DEFAULT_AUTOCOMPLETE_DELAY);
 		prefs.setDefault(AUTOCOMPLETE_ON_PAR, DEFAULT_AUTOCOMPLETE_ON_PAR);
-		prefs.setDefault(USE_SERVER_TIP, DEFAULT_USE_SERVER_TIP);
 	}
 
     public static boolean isToAutocompleteOnDot() {
@@ -105,9 +98,6 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage
         return PydevPrefs.getPreferences().getInt(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_DELAY);
     }
 
-    public static boolean useServerTipEnviroment() {
-        return PydevPrefs.getPreferences().getBoolean(PyCodeCompletionPreferencesPage.USE_SERVER_TIP);
-    }
 
     /* (non-Javadoc)
      * @see org.eclipse.core.runtime.Preferences.IPropertyChangeListener#propertyChange(org.eclipse.core.runtime.Preferences.PropertyChangeEvent)
