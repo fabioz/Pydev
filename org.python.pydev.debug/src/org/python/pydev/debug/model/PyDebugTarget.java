@@ -163,6 +163,7 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 			debugger.disconnect();
 		threads = new IThread[0];
 		process.terminate();
+		fireEvent(new DebugEvent(this, DebugEvent.TERMINATE));
 	}
 	
 	public boolean canDisconnect() {
