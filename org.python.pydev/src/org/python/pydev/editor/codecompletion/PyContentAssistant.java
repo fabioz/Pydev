@@ -17,19 +17,15 @@ public class PyContentAssistant extends ContentAssistant implements Preferences.
 
     public PyContentAssistant(){
         PydevPrefs.getPreferences().addPropertyChangeListener(this);
-		enableAutoActivation(PyCodeCompletionPreferencesPage.useAutocomplete());
-		setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
+//		enableAutoActivation(PyCodeCompletionPreferencesPage.useAutocomplete());
     }
 
     /* (non-Javadoc)
      * @see org.eclipse.core.runtime.Preferences.IPropertyChangeListener#propertyChange(org.eclipse.core.runtime.Preferences.PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent event) {
-        if(event.getProperty().equals(PyCodeCompletionPreferencesPage.USE_AUTOCOMPLETE)){
-            this.enableAutoActivation( ((Boolean)event.getNewValue()).booleanValue() );
-        }
-        if(event.getProperty().equals(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_DELAY)){
-            this.setAutoActivationDelay( ((Integer)event.getNewValue()).intValue() );
-        }
+//        if(event.getProperty().equals(PyCodeCompletionPreferencesPage.USE_AUTOCOMPLETE)){
+//            this.enableAutoActivation( ((Boolean)event.getNewValue()).booleanValue() );
+//        }
     }
 }

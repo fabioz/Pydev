@@ -29,6 +29,7 @@ import org.python.pydev.plugin.SocketUtil;
  */
 public class PythonShell {
 
+    private static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 100;
     /**
      * Reference to a 'global python shell'
      */
@@ -150,27 +151,42 @@ public class PythonShell {
             String execMsg = interpreter+" \""+serverFile.getAbsolutePath()+"\" "+pWrite+" "+pRead;
             process = Runtime.getRuntime().exec(execMsg);
             
+            sleepALittle(200);
+            if(process == null){
+                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error creating python process - got null process("+execMsg+")", new Exception("Error creating python process - got null process.")));
+            }
+            try {
+                int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
+                //if no exception is thrown, we have an error...
+                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error creating python process - exited before creating sockets - exitValue = ("+exitVal+")("+execMsg+")", new Exception("Error creating python process - exited before creating sockets - exitValue = ("+exitVal+").")));
+            } catch (IllegalThreadStateException e2) { //this is ok
+            }
+            
             boolean connected = false;
             int attempts = 0;
             
-            sleepALittle(200);
+            sleepALittle(300);
             while(!connected && attempts < 20){
                 attempts += 1;
 	            try {
-                    socketToWrite = new Socket("127.0.0.1",pWrite); //we should write in this port  
+                    socketToWrite = new Socket("127.0.0.1",pWrite); //we should write in this port
                     serverSocket = new ServerSocket(pRead);         //and read in this port 
                     socketToRead = serverSocket.accept();
                     connected = true;
                 } catch (IOException e1) {
                     PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of 20 failed, trying again...", e1);
                 }
-	            sleepALittle(milisSleep);            
+                
+                //if not connected, let's sleep a little for another attempt
+                if(!connected){
+                    sleepALittle(milisSleep);
+                }
             }
             
             if(!connected){
                 //what, after all this trouble we are still not connected????!?!?!?!
                 //let's communicate this to the user...
-                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error creating python process ("+execMsg+")", new Exception("Error creating python process.")));
+                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error connecting to python process ("+execMsg+")", new Exception("Error connecting to python process.")));
             }
             
         } catch (IOException e) {
@@ -202,7 +218,7 @@ public class PythonShell {
      * @throws CoreException
      */
     public void startIt() throws IOException, CoreException{
-        this.startIt(25);
+        this.startIt(DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
     }
 
     

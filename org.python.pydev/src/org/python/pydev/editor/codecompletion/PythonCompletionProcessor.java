@@ -89,20 +89,20 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
             int qlen = qualifier.length();
 
-            try {
-                PythonShell.getServerShell(PythonShell.COMPLETION_SHELL).sendGoToDirMsg(edit.getEditorFile());
-            } catch (Exception e) {
-                //if we don't suceed, we don't have to fail... just go on and try
-                // to complete...
-                e.printStackTrace();
-            }
-
-            List pythonProposals = getPythonProposals(documentOffset, doc, activationToken, qlen);
-            List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier,
-                    pythonProposals);
-
             ArrayList pythonAndTemplateProposals = new ArrayList();
-            pythonAndTemplateProposals.addAll(pythonProposals);
+            if(PyCodeCompletionPreferencesPage.useCodeCompletion()){
+	            try {
+	                PythonShell.getServerShell(PythonShell.COMPLETION_SHELL).sendGoToDirMsg(edit.getEditorFile());
+	            } catch (Exception e) {
+	                //if we don't suceed, we don't have to fail... just go on and try
+	                // to complete...
+	                e.printStackTrace();
+	            }
+	
+	            List pythonProposals = getPythonProposals(documentOffset, doc, activationToken, qlen);
+	            pythonAndTemplateProposals.addAll(pythonProposals);
+            }
+            List templateProposals = getTemplateProposals(viewer, documentOffset, activationToken, qualifier);
             pythonAndTemplateProposals.addAll(templateProposals);
 
             ArrayList returnProposals = new ArrayList();
@@ -152,7 +152,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @param allProposals
      */
     private List getTemplateProposals(ITextViewer viewer, int documentOffset, String activationToken,
-            java.lang.String qualifier, List allProposals) {
+            java.lang.String qualifier) {
         List propList = new ArrayList();
         this.templatesCompletion.addTemplateProposals(viewer, documentOffset, propList);
         return propList;
@@ -175,12 +175,12 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
         char[] c = new char[0];
-        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnDot()) {
-            c = addChar(c, '.');
-        }
-        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnPar()) {
-            c = addChar(c, '(');
-        }
+//        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnDot()) {
+//            c = addChar(c, '.');
+//        }
+//        if (PyCodeCompletionPreferencesPage.isToAutocompleteOnPar()) {
+//            c = addChar(c, '(');
+//        }
         return c;
     }
 
