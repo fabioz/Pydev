@@ -1,13 +1,13 @@
 <!--===============================================================================================
 
-	File:		about.html
+	File:		editor_hyperlinks.html
 
 	Author:		Parhaum Toofanian, Copyright 2004
 	Contact:	ptoofani@andrew.cmu.edu
 	Created:	2004-06-14
 	Modified:	2004-06-14
 
-	Part of PyDev User Guide in Eclipse.  Describes information about Bulk Commenting
+	Part of PyDev User Guide in Eclipse.  Describes information about Hyperlinks
 	in the plug-in, along with screenshots and helpful information on hotkeys.
 
 ================================================================================================-->
@@ -23,7 +23,7 @@
 		<title>PyDev User Guide</title>
 	</head>
 
-	<body class = BlueGray>
+	<body>
 
 		<script language="javascript">
 			var heads 	= new Array ( );
@@ -36,36 +36,20 @@
 			heads[i] 	= 'Features';
 			links[i++] 	= '';
 
-			heads[i] 	= 'Bulk Comment';
-			links[i++] 	= 'editor_comment.html';
+			heads[i] 	= 'Hyperlinks';
+			links[i++] 	= 'editor_hyperlinks.html';
 
 			writeHeading ( heads, links );
 		</script>
 
-		<p>
-		Besides regular commenting, PyDev allows you to comment out sections of code easily.<br>
-		<br>
-		From this:<br>
-		<br>
-		<img src="images/editor_blockc_06.jpg"><br>
-		<br>
-		To this:<br>
-		<br>
-		<img src="images/editor_blockc_05.jpg"><br>
-		<br>
-		In order to make bulk comments, highlight a body of text in the editor, and do one of the following:<br>
+		<p>If you press CTRL while mousing over function &amp; import names you'll get a hyperlink to their definition. The hyperlinking only works for:</p>
 		<ul>
-		<li>Source Menu -> Comment
-		<li>Right-Click -> Source -> Comment
-		<li>Ctrl+/
+		  <li>functions defined in the same file</li>
+		  <li>imports that are on your import path. The import path includes python.exe/Lib, if you've defined python executable in your pydev:debug preferences.</li>
 		</ul>
-		You may remove a selected bulk comment with:<br>
-		<ul>
-		<li>Source -> Comment
-		<li>Right-Click -> Source -> Uncomment
-		<li>Ctrl+\
-		</ul>
-		</p>
+		<p><img src="images/hyperanim.gif" width="300" height="170" border="1"> </p>
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
 
 	</body>
 

@@ -1,0 +1,61 @@
+<!--===============================================================================================
+
+	File:		debug.html
+
+	Author:		Parhaum Toofanian, Copyright 2004
+	Contact:	ptoofani@andrew.cmu.edu
+	Created:	2004-06-14
+	Modified:	2004-06-14
+
+	Part of PyDev User Guide in Eclipse.  Describes information about the Debugger.
+
+================================================================================================-->
+
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+
+	<head>
+		<script src = "includes/script.js" language="javascript" type="text/javascript"></script>
+		<link rel = stylesheet href = "includes/style.css" type = "text/css">
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>PyDev User Guide</title>
+	</head>
+
+	<body>
+
+		<script language="javascript">
+			var heads 	= new Array ( );
+			var links 	= new Array ( );
+			var i 		= 0;
+
+			heads[i] 	= 'PyDev User Guide';
+			links[i++] 	= 'index.html';
+
+			heads[i] 	= 'Debug';
+			links[i++] 	= 'debug.html';
+
+			writeHeading ( heads, links );
+		</script>
+
+		<p>Here it is, try it out. You have: </p>
+		<ul>
+		  <li>breakpoints</li>
+		  <li>step in/out/over</li>
+		  <li>multiple threads</li>
+		  <li>variable display</li>
+		</ul>
+		<p>The debugger can be invoked from the standard Eclipse debugger menus in the debug perspective, or through a context menu inside  Navigator:</p>
+		<p><img src="images/debugdialog.jpg" width="274" height="214"> or <img src="images/debug_menu.gif" width="328" height="373"></p>
+		<p>Debug settings are configured in the standard dialog </p>
+		<p><img src="images/debug_dialog.gif" width="612" height="434"> </p>
+		<p>Here you can pick your program arguments, etc. The dialog will try to verify that your python interpreter is present. If it is not, go to Preferences:Pydev:Debug and configure a valid python executable.</p>
+		<p>The program output is displayed in the console, and the errors in the console are hyperlinked back to the file:</p>
+		<p><img src="images/debug_console.gif" width="600" height="498"> </p>
+		<p>If you are running under the debugger, you'll get the standard debug interface:</p>
+		<p><img src="images/debugger.gif" width="816" height="543"> </p>
+		<p>See the <a href="http://pydev.sf.net/">pydev website</a> for the latest debugging info. </p>
+
+	</body>
+
+</html>

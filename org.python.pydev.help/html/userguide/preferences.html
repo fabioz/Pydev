@@ -1,2 +1,96 @@
-<h2>PyDev User Manual</h2>
-<h3>Preferences</h3>
+<!--===============================================================================================
+
+	File:		about.html
+
+	Author:		Parhaum Toofanian, Copyright 2004
+	Contact:	ptoofani@andrew.cmu.edu
+	Created:	2004-06-14
+	Modified:	2004-06-14
+
+	Part of PyDev User Guide in Eclipse.  Describes information about the Preferences
+	in the plug-in.
+
+================================================================================================-->
+
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+
+	<head>
+		<script src = "includes/script.js" language="javascript" type="text/javascript"></script>
+		<link rel = stylesheet href = "includes/style.css" type = "text/css">
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>PyDev User Guide</title>
+	</head>
+
+	<body class = BlueGray>
+
+		<script language="javascript">
+			var heads 	= new Array ( );
+			var links 	= new Array ( );
+			var i 		= 0;
+
+			heads[i] 	= 'PyDev User Guide';
+			links[i++] 	= 'index.html';
+
+			heads[i] 	= 'Preferences';
+			links[i++]	= 'preferences.html';
+
+			writeHeading ( heads, links );
+		</script>
+
+		<p><img src="images/ed_prefs.gif" width="600" height="260"></p>
+
+		<p>
+		<strong><u>Substitute spaces for tabs</u></strong>
+		<br>
+		Whether editor should insert spaces when you hit a tab.
+		</p>
+
+		<br>
+
+		<p>
+		<strong><u>Assume tab spacing when files contain tabs?</u></strong>
+		<br>
+		You'll like this preference if you swing both ways, and mix &amp; match tabs and spaces, When this pref is on, if the file is tab-indented editor will do the right thing and leave your tabs alone.
+		</p>
+
+		<br>
+
+		<p>
+		<strong><u>Tab length</u></strong>
+		<br>
+		In inches.
+		</p>
+
+		<br>
+
+		<p>
+		<strong><u>Block comment separator</u></strong>
+		<br>
+		Used with the Add Block Comment feature (in the Source menu, or by pressing Ctrl+4).  This feature adds a comment separator block to code that changes this:
+		<br><br>
+		print "foo"<br>
+		print "bar"
+		<br><br>
+		Into:
+		<br><br>
+		#======<br>
+		#print "foo"<br>
+		#print "bar"<br>
+		#======<br>
+		<br>
+		The comment separator (in this case ======, but it can be changed by the user's preference) is added to the beginning and end of the comment block.  You can also select the blocked code and remove the block comment format with the Remove Block Comment feature in the Source menu, or by pressing Ctrl+5.
+		</p>
+
+		<br>
+
+		<p>
+		<strong><u>Colors</u></strong>
+		<br>
+		Are self-explanatary. The default colors have been borrowed from IDLE.
+		</p>
+
+	</body>
+
+</html>

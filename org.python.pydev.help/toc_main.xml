@@ -1,4 +1,4 @@
-<toc label="PyDev" topic="html/index.html">
+<toc label="PyDev User Guide" topic="html/index.html">
 	<topic label="Editor" href="html/editor.html">
 		<topic label="Preferences" href="html/ed_prefs.html"/>
 	</topic>
@@ -7,14 +7,22 @@
 	</topic>
 	<topic label="User Guide" href="html/userguide/index.html">
 		<topic label="Editor">
-			<topic label="Syntax Highlighting" href="html/userguide/editor_syntaxh.html"/>
-			<topic label="Auto-Indentation" href="html/userguide/editor_autoi.html"/>
-			<topic label="Comment" href="html/userguide/editor_comment.html"/>
+			<topic label="Auto Indentation" href="html/userguide/editor_autoi.html"/>
 			<topic label="Block Comment" href="html/userguide/editor_blockc.html"/>
+			<topic label="Bulk Comment" href="html/userguide/editor_comment.html"/>
+			<topic label="Error Parsing" href="html/userguide/editor_parsing.html"/>
+			<topic label="Go to First Character" href="html/userguide/editor_gotofc.html"/>
+			<topic label="Go to Previous Method/Class" href="html/userguide/editor_gotopmc.html"/>
+			<topic label="Go to Next Method/Class" href="html/userguide/editor_gotonmc.html"/>
+			<topic label="Hyperlinks" href="html/userguide/editor_hyperlinks.html"/>
+			<topic label="Outline View" href="html/userguide/editor_outline.html"/>
 			<topic label="Strip Trailing Whitespace" href="html/userguide/editor_stripw.html"/>
+			<topic label="Syntax Highlighting" href="html/userguide/editor_syntaxh.html"/>
 		</topic>
 		<topic label="Preferences" href="html/userguide/preferences.html"/>
-		<topic label="Debugger"/>
-		<topic label="Developer Guide" href="html/devguide/index.html"/>
+		<topic label="Debugger" href="html/userguide/debug.html">
+			<topic label="Preferences" href="html/userguide/debug_preferences.html"/>
+		</topic>
+		<topic label="About" href="html/userguide/about.html"/>
 	</topic>
 </toc>
