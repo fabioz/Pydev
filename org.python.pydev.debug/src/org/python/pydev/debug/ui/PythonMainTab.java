@@ -40,11 +40,6 @@ public class PythonMainTab extends AbstractLaunchConfigurationTab {
 	protected ModifyListener modifyListener = new ModifyListener() {
 		
 		public void modifyText(ModifyEvent e) {
-			// the order of these calls is important
-			// if called in the wrong order, the pane would display the wrong error message
-			setErrorMessage(null);
-			String interpreter = interpreterField.getText();
-			isValid(interpreter);
 			updateLaunchConfigurationDialog();
 		}
 	};
