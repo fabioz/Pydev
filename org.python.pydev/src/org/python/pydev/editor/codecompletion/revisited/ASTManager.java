@@ -478,30 +478,12 @@ public class ASTManager implements Serializable, IASTManager {
             }else{ //ok, we have a token, find it and get its completions.
                 
                 //first check if the token is a module... if it is, get the completions for that module.
-                //TODO: COMPLETION: when we get here, we might have the module or something importes
+                //TODO: COMPLETION: when we get here, we might have the module or something imports
                 //from a module, so, first we check if it is a module or module token.
                 
-                for (int i = 0; i < importedModules.length; i++) {
-                    if(importedModules[i].getRepresentation().equals(activationToken)){
-                        String tok = "";
-                        String rep = importedModules[i].getCompletePath();
-                
-                        
-                        AbstractModule mod = getModule(rep);
-                        int index;
-                        while(mod == null && (index = rep.lastIndexOf('.')) != -1){
-                            tok = rep.substring(index+1) + tok;
-                            rep = rep.substring(0,index);
-                            mod = getModule(rep);
-                        }
-                        
-                        if(tok.length() == 0){
-	                        //the activation token corresponds to an imported module. We have to get its global tokens and return them.
-	                        return getCompletionsForModule("", "", mod, true);
-                        }else{
-	                        return mod.getGlobalTokens(tok, this);
-                        }
-                    }
+                final IToken[] t = searchOnImportedMods(activationToken, importedModules);
+                if(t != null && t.length > 0){
+                    return t;
                 }
 
                 //wild imports: recursively go and get those completions and see if any matches it.
@@ -529,7 +511,16 @@ public class ASTManager implements Serializable, IASTManager {
                     return tokens;
                 }
                 
-                
+                //If it was still not found, go to builtins.
+                AbstractModule builtinsMod = getModule("__builtin__");
+                if(builtinsMod != null){
+	                tokens = getCompletionsForModule(activationToken, qualifier, builtinsMod, true);
+	                if (tokens.length > 0){
+	                    if (tokens[0].getRepresentation().equals("ERROR:") == false){
+	                        return tokens;
+	                    }
+	                }
+                }
                  
             }
 
@@ -537,7 +528,78 @@ public class ASTManager implements Serializable, IASTManager {
         }else{
             System.out.println("Module passed in is null!!");
         }
+        
         return (IToken[]) completions.toArray(new IToken[0]);
     }
 
+    /**
+     * @param activationToken
+     * @param importedModules
+     * @return
+     */
+    private IToken[] searchOnImportedMods(String activationToken, IToken[] importedModules) {
+        for (int i = 0; i < importedModules.length; i++) {
+            final String modRep = importedModules[i].getRepresentation();
+            if(modRep.equals(activationToken)){
+                String rep = importedModules[i].getCompletePath();
+                
+                Object [] o = findModuleFromPath(rep);
+                AbstractModule mod = (AbstractModule) o[0];
+                String tok = (String) o[1];
+                
+                if(tok.length() == 0){
+                    //the activation token corresponds to an imported module. We have to get its global tokens and return them.
+                    return getCompletionsForModule("", "", mod, true);
+                }else{
+                    return mod.getGlobalTokens(tok, this);
+                }
+
+                
+            }else if (activationToken.startsWith(modRep)){
+                //this is something like
+                //import qt
+                //
+                //qt.QWidget.| Ctrl+Space
+                //
+                //so, we have to find the qt module and then go for the token.
+                Object [] o = findModuleFromPath(activationToken);
+                AbstractModule mod = (AbstractModule) o[0];
+                String tok = (String) o[1];
+                System.out.println(tok);
+                
+                if(tok.length() == 0){
+                    //the activation token corresponds to an imported module. We have to get its global tokens and return them.
+                    return getCompletionsForModule("", "", mod, true);
+                }else{
+                    return mod.getGlobalTokens(tok, this);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * This function receives a path (rep) and extracts a module from that path.
+     * First it tries with the full path, and them removes a part of the final of
+     * that path until it finds the module or the path is empty.
+     * 
+     * @param rep
+     * @return tuple with found module and the String removed from the path in
+     * order to find the module.
+     */
+    private Object [] findModuleFromPath(String rep){
+        String tok = "";
+        AbstractModule mod = getModule(rep);
+        String mRep = rep;
+        int index;
+        while(mod == null && (index = mRep.lastIndexOf('.')) != -1){
+            tok = mRep.substring(index+1) + "."+tok;
+            mRep = mRep.substring(0,index);
+            mod = getModule(mRep);
+        }
+        if (tok.endsWith(".")){
+            tok = tok.substring(0, tok.length()-1); //remove last point if found.
+        }
+        return new Object[]{mod, tok};
+    }
 }

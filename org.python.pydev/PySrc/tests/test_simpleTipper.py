@@ -17,12 +17,6 @@ import inspect
 
 class Test(unittest.TestCase):
 
-    def setUp(self):
-        unittest.TestCase.setUp(self)
-
-    def tearDown(self):
-        unittest.TestCase.tearDown(self)
-        
     
     def getDoc1(self):
         s = \
@@ -109,7 +103,9 @@ class C(object):
         '''
         You can print the results to check...
         '''
-#        importsTipper.GenerateTip('inspect.') 
+        t =  importsTipper.GenerateTip('qt.QWidget') 
+        for a in t:
+            print a
 #        importsTipper.GenerateTip('compiler.') 
 #        importsTipper.GenerateImportsTip(['compiler']) 
 #        importsTipper.GenerateImportsTip([ ] ) 
@@ -168,5 +164,7 @@ class C(object):
         
         
 if __name__ == '__main__':
-    unittest.main()
+    from coilib import unittest
+    unittest.TestMethod(Test, 'Test.testImports')
+#    unittest.main()
     

@@ -115,7 +115,11 @@ for d in dir(%s):
     __eraseThisMsg += 'Getting self variables \n%s\n' % originalDoc
     if checkForSelf:
         toReturn += GetSelfVariables(originalDoc, token)
-    
+
+    import sys
+    if __eraseThisCurrDirModule is not None:
+        del sys.path[__eraseThisCurrDirModule]
+
     return toReturn
     
 class Visitor(compiler.visitor.ASTVisitor):

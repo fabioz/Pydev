@@ -29,6 +29,9 @@ def ParseDir(d):
                 if f.endswith('.py'):
                     m = stripExtension(f, ret, '.py')
 
+                if f.endswith('.pyw'):
+                    m = stripExtension(f, ret, '.pyw')
+
                 if f.endswith('.pyc'):
                     m = stripExtension(f, ret, '.pyc')
 
@@ -47,7 +50,7 @@ def ParseDir(d):
             elif os.path.isdir(absolute):
                 contents2 = os.listdir(absolute)
                 
-                if '__init__.py' in contents2 or '__init__.pyc' in contents2:
+                if '__init__.py' in contents2 or '__init__.pyc' in contents2 or '__init__.pyw' in contents2:
                     ret.append((f,absolute))
                     
     return ret

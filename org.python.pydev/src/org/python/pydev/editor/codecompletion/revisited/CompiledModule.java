@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -99,30 +100,25 @@ public class CompiledModule extends AbstractModule{
             return (IToken[]) v;
         }
         
-        IToken[] toks = new IToken[0];;
-        for (int i = 0; i < tokens.length; i++) {
-            if(tokens[i].getRepresentation().equals(token)){
+        IToken[] toks = new IToken[0];
 
-                try {
-                    PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
-                    List completions = shell.getImportCompletions(name+"."+token);
-                    
-                    ArrayList array = new ArrayList();
-                    
-                    for (Iterator iter = completions.iterator(); iter.hasNext();) {
-                        String[] element = (String[]) iter.next();
-                        IToken t = new CompiledToken(element[0], element[1], name, -1);
-                        array.add(t);
-                        
-                    }
-                    toks = (CompiledToken[]) array.toArray(new CompiledToken[0]);
-                    cache.put(token, toks);
-                    break;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    PydevPlugin.log(e);
-                }
+        try {
+            PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
+            List completions = shell.getImportCompletions(name+"."+token);
+            
+            ArrayList array = new ArrayList();
+            
+            for (Iterator iter = completions.iterator(); iter.hasNext();) {
+                String[] element = (String[]) iter.next();
+                IToken t = new CompiledToken(element[0], element[1], name, PyCodeCompletion.TYPE_BUILTIN);
+                array.add(t);
+                
             }
+            toks = (CompiledToken[]) array.toArray(new CompiledToken[0]);
+            cache.put(token, toks);
+        } catch (Exception e) {
+            e.printStackTrace();
+            PydevPlugin.log(e);
         }
         return toks;
     }

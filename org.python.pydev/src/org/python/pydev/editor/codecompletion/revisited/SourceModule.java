@@ -119,7 +119,7 @@ public class SourceModule extends AbstractModule {
 	                SimpleNode a = tokens[i].getAst();
 	                try {
 	                    
-	                    //TODO: COMPLETION: get the completions for the whole hierarchy if this is a class!!
+	                    //COMPLETION: get the completions for the whole hierarchy if this is a class!!
 	                    List modToks = new ArrayList(Arrays.asList(GlobalModelVisitor.getTokens(a, GlobalModelVisitor.INNER_DEFS, name)));
 	                    
 	                    if( a instanceof ClassDef){
@@ -128,7 +128,22 @@ public class SourceModule extends AbstractModule {
 	                            if(c.bases[j] instanceof Name){
 	                                Name n = (Name) c.bases[j];
 	                                String base = n.id;
-	                                modToks.addAll(Arrays.asList(manager.getCompletionsForModule(base, "", this)));
+	                                //TODO: this may enter in a loop, as it is recursive.
+	                                //An error in the programming might result in an error.
+	                                //
+	                                //e.g. The case below results in a loop.
+	                                //
+	                                //class A(B):
+	                                //    
+	                                //    def a(self):
+	                                //        pass
+	                                //        
+	                                //class B(A):
+	                                //    
+	                                //    def b(self):
+	                                //        pass
+	                                final IToken[] comps = manager.getCompletionsForModule(base, "", this);
+                                    modToks.addAll(Arrays.asList(comps));
 	                            }
                             }
 	                        
