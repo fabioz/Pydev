@@ -79,8 +79,13 @@ public class PyParser {
 		}
 		documentListener = new IDocumentListener() {
 			public void documentChanged(DocumentEvent event) {
-				if (parseOnThread == true)
-					parsingThread.documentChanged();
+				if (parseOnThread == true) {
+					if (event.getText().indexOf("\n") == -1) 
+						// carriage return in changed text means parse now, anything else means parse later
+						parsingThread.parseLater();
+					else
+						parsingThread.parseNow();
+				}
 				else
 					reparseDocument();
 			}
@@ -90,7 +95,7 @@ public class PyParser {
 		// Reparse document on the initial set
 		parsingThread.start();
 		if (parseOnThread == true)
-			parsingThread.documentChanged();
+			parsingThread.parseNow();
 		else
 			reparseDocument();
 	}
@@ -173,28 +178,49 @@ public class PyParser {
 }
 
 /**
- * Utility thread that reparses document on regular intervals
- * it waits for document to get changed
- * after each reparse, thread waits a bit to avoid flicker
+ * Utility thread that reparses document as needed.
+ * 
+ * Current algorithm is:
+ * - if parseLater is called, parse 10 main loops later
+ * - if parseNow is called, parse immediately
  */
 class ParsingThread extends Thread {
 	PyParser parser;
-	boolean docChanged = false;
 	boolean stayingAlive = true;
+	boolean parseNow = false;
+	/* counter how to parse. 
+	 * 0 means do not parse, > 0 means wait this many loops in main thread
+	 */
+	int parseLater = 0;
+
+	final static int PARSE_LATER_INTERVAL = 20; // 20 = 2 seconds
 		
 	ParsingThread(PyParser parser) {
 		this.parser = parser;
 	}
 
+	/**
+	 * 
+	 * @throws InterruptedException
+	 */
 	public synchronized void waitForChange() throws InterruptedException {
-		if (docChanged == false)
+		if (!parseNow && parseLater == 0)
 			wait();
-		docChanged = false;
 	}
 	
-	public synchronized void documentChanged() {
-		docChanged = true;
+	public synchronized void parseNow() {
+		parseNow = true;
 		notify();
+	}
+	
+	public synchronized void parseLater() {
+		parseLater = PARSE_LATER_INTERVAL; // delay of 1 second
+		notify();
+	}
+	
+	public synchronized void doNotParse() {
+		parseLater = 0;
+		parseNow = false;
 	}
 	
 	public synchronized void diePlease() {
@@ -206,14 +232,16 @@ class ParsingThread extends Thread {
 		// wait for document change, and reparse
 		try {
 			while (stayingAlive) {
+				parseLater--;
+				if (parseLater == 1)
+					parseNow();
+				if (parseNow) {
+					doNotParse();
+					if (stayingAlive)
+						parser.reparseDocument();
+				}
+				sleep(100);  // sleep a bit, to avoid flicker
 				waitForChange();
-				sleep(2000);  // sleep a bit, to avoid flicker
-				synchronized(this) {
-					docChanged = false;
-				}
-				if (stayingAlive == true) { // could have been woken up by diePlease()
-					parser.reparseDocument();
-				}
 			}
 		} catch (InterruptedException e) {
 			return;
