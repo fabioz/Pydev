@@ -644,15 +644,16 @@ class PyDB:
 #        print "E " + str(frame) + " " + str(arg)
         return self.trace_dispatch
 
-    def run(self, cmd, globals=None, locals=None):    
+    def run(self, file, globals=None, locals=None):    
         if globals is None:
             import __main__
             globals = __main__.__dict__
+            globals['__file__'] = file
         if locals is None:
             locals = globals
 
-        if not isinstance(cmd, types.CodeType):
-            cmd = cmd+'\n'
+#        if not isinstance(cmd, types.CodeType):
+#            cmd = cmd+'\n'
 
 # for completness, we'll register the pydevd.reader & pydevd.writer threads
         net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.reader" id="-1"/></xml>')
@@ -665,7 +666,7 @@ class PyDB:
         while not self.readyToRun: time.sleep(0.1) # busy wait until we receive run command
         try:
             try:
-                exec cmd in globals, locals
+                execfile(file, globals, locals);
             except:
                 print >>sys.stderr, "Debugger exiting with exception"
                 raise
@@ -728,5 +729,5 @@ if __name__ == '__main__':
 
     debugger = PyDB()
     debugger.connect(setup['client'], setup['port'])
-    debugger.run('execfile(' + `setup['file']` + ')', None, None)
+    debugger.run(setup['file'], None, None)
     
