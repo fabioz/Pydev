@@ -4,7 +4,7 @@
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
    version="0.7"
-   provider-name="AleksTotic"
+   provider-name="AleksTotic / Fabio Zadrozny"
    class="org.python.pydev.plugin.PydevPlugin">
 
    <runtime>
