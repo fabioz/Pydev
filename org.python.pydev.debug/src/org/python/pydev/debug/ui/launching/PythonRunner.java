@@ -7,6 +7,7 @@ package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 
@@ -23,6 +24,8 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
+import org.python.pydev.debug.unittest.PyUnitTestRunner;
+import org.python.pydev.debug.unittest.ITestRunListener;
 
 /**
  * Launches Python process, and connects it to Eclipse's debugger.
@@ -40,8 +43,9 @@ public class PythonRunner {
 	public static void run(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
 		if (config.isDebug) {
 		    runDebug(config, launch, monitor);
-		    
-		}else{ //default
+		}else if (config.isUnitTest) {
+			runUnitTest(config, launch, monitor);
+		}else { //default
 	        doIt(monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
 		}
 	}
@@ -115,6 +119,39 @@ public class PythonRunner {
         
     }
 
+    public static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException{
+        if (monitor == null)
+        	monitor = new NullProgressMonitor();
+        IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
+        subMonitor.beginTask("Launching python in unittest mode", 1);
+        
+        // Launch & connect to the debugger		
+        subMonitor.subTask("Constructing command_line...");
+        subMonitor.subTask("Exec...");
+		String[] cmdLine = config.getCommandLine();
+
+        Process p = DebugPlugin.exec(cmdLine, config.workingDirectory, config.envp);	
+        if (p == null)
+        	throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not execute python process. Was it cancelled?", null));
+
+        int port = config.getUnitTestPort();
+        String full_path_to_file = config.file.toOSString();
+        PyUnitTestRunner unitTestRunner = new PyUnitTestRunner(subMonitor, port, full_path_to_file);
+		try {
+			unitTestRunner.readTestResults();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} finally {
+	        if(p != null){
+	        	p.destroy();
+	        }
+		}
+        
+        // Register the process with the debug plugin
+        subMonitor.subTask("Done");
+        registerWithDebugPlugin(PythonRunnerConfig.getCommandLineAsString(cmdLine), cmdLine[cmdLine.length-1], launch, p);
+        
+    }
 
     /**
 	 * The debug plugin needs to be notified about our process.

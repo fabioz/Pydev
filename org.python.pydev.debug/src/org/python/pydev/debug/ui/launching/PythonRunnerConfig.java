@@ -6,20 +6,28 @@
 package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Vector;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsUtil;
+import org.osgi.framework.Bundle;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.SocketUtil;
+import org.python.pydev.debug.unittest.ITestRunListener;
 
 /**
  * Holds configuration for PythonRunner.
@@ -43,6 +51,13 @@ public class PythonRunnerConfig {
 	public String debugScript;
 	public String profileScript;
 
+	// unit test specific
+	public boolean isUnitTest;
+	public String unitTestScript;
+	private int unitTestPort = 0;  // use getUnitTestPort
+	private String unitTestModule;
+	private String unitTestModuleDir;
+	
 	/**
 	 * Sets defaults.
 	 */
@@ -50,6 +65,7 @@ public class PythonRunnerConfig {
 	public PythonRunnerConfig(ILaunchConfiguration conf, String mode) throws CoreException {
 		isDebug = mode.equals(ILaunchManager.DEBUG_MODE);
 		isProfile = mode.equals(ILaunchManager.PROFILE_MODE);
+		isUnitTest = mode.equals("unittest");
 		
 		file = ExternalToolsUtil.getLocation(conf);
 		interpreter = conf.getAttribute(Constants.ATTR_INTERPRETER, "python");
@@ -57,16 +73,19 @@ public class PythonRunnerConfig {
 		IPath workingPath = ExternalToolsUtil.getWorkingDirectory(conf);
 		workingDirectory = workingPath == null ? null : workingPath.toFile();
 		acceptTimeout = PydevPrefs.getPreferences().getInt(PydevPrefs.CONNECT_TIMEOUT);
-		
+
 		if (isDebug) {
 			debugScript = getDebugScript();
-		}else if(isProfile){
+		}else if (isProfile){
 		    profileScript = getProfileScript();
+		}else if (isUnitTest){
+		    unitTestScript = getUnitTestScript();
+			setUnitTestInfo();
 		}
+
 		envp = DebugPlugin.getDefault().getLaunchManager().getEnvironment(conf);
 	}
 	
-
     public int getDebugPort() throws CoreException {
 		if (debugPort == 0) {
 			debugPort= SocketUtil.findUnusedLocalPort("", 5000, 15000); //$NON-NLS-1$
@@ -76,7 +95,33 @@ public class PythonRunnerConfig {
 		return debugPort;		
 	}
 
+    public int getUnitTestPort(){
+		return unitTestPort;		
+	}
 
+    public void setUnitTestPort() throws CoreException {
+		unitTestPort = SocketUtil.findUnusedLocalPort("", 5000, 15000); //$NON-NLS-1$
+		if (unitTestPort == -1)
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not find a free socket for unit test run", null));
+	}
+
+    private void setUnitTestInfo() {
+		try {
+			setUnitTestPort();
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+    	// get the test module name and path so that we can import it in Python
+		int segmentCount = file.segmentCount();
+
+		IPath noextPath = file.removeFileExtension();
+		unitTestModule =  noextPath.lastSegment();
+		IPath modulePath = file.uptoSegment(segmentCount-1);
+		unitTestModuleDir = modulePath.toString();
+    }
+    
 	public String getRunningName() {
 		return file.lastSegment();
 	}
@@ -101,6 +146,28 @@ public class PythonRunnerConfig {
      */
     public static String getProfileScript() throws CoreException {
         return PydevDebugPlugin.getScriptWithinPySrc("coverage.py").getAbsolutePath();
+    }
+
+    public static String getUnitTestScript() throws CoreException {
+        return PydevDebugPlugin.getScriptWithinPySrc("SocketTestRunner.py").getAbsolutePath();
+        /*
+    	String target = "SocketTestRunner.py";
+        IPath relative = new Path("pysrc").addTrailingSeparator().append(target);
+
+        Bundle bundle = PydevDebugPlugin.getDefault().getBundle();
+
+        URL bundleURL = Platform.find(bundle, relative);
+        URL fileURL;
+        try {
+            fileURL = Platform.asLocalURL(bundleURL);
+            File f = new File(fileURL.getPath());
+
+            return f.getAbsolutePath();
+        } catch (IOException e) {
+            throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR,
+                    "Can't find python script", null));
+        }
+    	*/
     }
 
     /** 
@@ -153,7 +220,17 @@ public class PythonRunnerConfig {
 			cmdArgs.add(PyCoverage.getCoverageFileLocation());
 			cmdArgs.add("-x");
 		}
-		
+
+		if(isUnitTest){
+			cmdArgs.add(unitTestScript);
+			cmdArgs.add(Integer.toString(getUnitTestPort()));
+			cmdArgs.add(unitTestModuleDir);
+			cmdArgs.add(unitTestModule);
+			String[] retVal = new String[cmdArgs.size()];
+			cmdArgs.toArray(retVal);
+			return retVal;
+		}
+
 		cmdArgs.add(file.toOSString());
 		for (int i=0; arguments != null && i<arguments.length; i++)
 			cmdArgs.add(arguments[i]);

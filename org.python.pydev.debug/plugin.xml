@@ -34,7 +34,7 @@
 		<launchConfigurationType
 			name="Python"
 			delegate="org.python.pydev.debug.ui.launching.PythonLaunchConfigurationDelegate"
-			modes="run, debug, profile"
+			modes="run, debug, profile, unittest"
 			id="org.python.pydev.debug.launchConfigurationType">
 		</launchConfigurationType>
 	</extension>
@@ -62,7 +62,7 @@
 		<shortcut
 			label="Python script"
 			icon="icons/python.gif"
-			modes="run, debug, profile"
+			modes="run, debug, profile, unittest"
 			class="org.python.pydev.debug.ui.launching.LaunchShortcut"
 			id="org.python.pydev.debug.ui.launchShortcut">
 			<perspective id="org.eclipse.debug.ui.DebugPerspective"/>
@@ -117,16 +117,15 @@
 				enablesFor="1"
 				id="org.python.pydev.debug.RunPythonAction">
 			</action>
-<!-- Disabled until it works better...
-	   <action
-         enablesFor="1"
-         label="pyUnit Test..."
-         tooltip="Test a python script with pyUnit"
-         icon="icons/python.gif"
-         class="org.python.pydev.debug.ui.actions.PythonTestActionDelegate"
-         menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
-         id="org.python.pydev.debug.TestPythonAction"/>
--->
+		    <action
+    	     	enablesFor="1"
+	        	 label="Unit Test..."
+			     tooltip="Run pyUnit test"
+    	    	 icon="icons/python.gif"
+				 class="org.python.pydev.debug.ui.actions.PythonRunActionDelegate"
+		         menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
+    		     id="org.python.pydev.debug.UnitTestPythonAction">
+			</action>
 		</objectContribution>
 
 		<objectContribution
@@ -186,6 +185,14 @@
 			image="icons/python.gif"
 			mode="profile"
 			id="org.python.pydev.debug.coverage">
+		</launchGroup>
+		<launchGroup
+			label="Unit Test"
+			bannerImage="icons/python-big.gif"
+			category="org.python.pydev.debug"
+			image="icons/python.gif"
+			mode="unittest"
+			id="org.python.pydev.debug.unittest">
 		</launchGroup>
 	</extension>
 <!--- console line tracking -->
@@ -282,6 +289,12 @@
             category="org.python.pydev"
             name="Code Coverage Results View"
             id="org.python.pydev.views.PyCodeCoverageView"/>
+      <view
+            icon="icons/python.gif"
+            class="org.python.pydev.debug.unittest.TestReportView"
+            category="org.python.pydev"
+            name="Unit Test Report View"
+            id="org.python.pydev.debug.views.TestReportView"/>
    </extension>
 
 </plugin>

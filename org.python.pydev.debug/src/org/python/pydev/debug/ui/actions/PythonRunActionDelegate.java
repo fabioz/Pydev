@@ -14,6 +14,7 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.actions.ActionDelegate;
 import org.python.pydev.debug.ui.launching.LaunchShortcut;
+import org.python.pydev.debug.unittest.ITestRunListener;
 
 /**
  * Implements "Run Python..." extension for org.eclipse.ui.popupMenus.
@@ -32,21 +33,26 @@ public class PythonRunActionDelegate extends ActionDelegate
 		if (part != null && selectedFile != null) {
 			// figure out run or debug mode
 			String runMode = "";
-			if(action.getId().endsWith("RunPythonAction")){
+			String actionID = action.getId();
+			boolean showDialog = true;
+			if(actionID.endsWith("RunPythonAction")){
 			    runMode = ILaunchManager.RUN_MODE;
 			    
-			}else if(action.getId().endsWith("DebugPythonAction")){
+			}else if(actionID.endsWith("DebugPythonAction")){
 			    runMode = ILaunchManager.DEBUG_MODE;
 			    
-			} else if(action.getId().endsWith("CoveragePythonAction")){
+			} else if(actionID.endsWith("CoveragePythonAction")){
 			    runMode = ILaunchManager.PROFILE_MODE;
 			    
+			} else if(actionID.endsWith("UnitTestPythonAction")){
+			    runMode = "unittest";
+			    showDialog = false;
 			} else{
 			    throw new RuntimeException("Unknown ");
 			}
 			
 			LaunchShortcut shortcut = new LaunchShortcut();
-			shortcut.setShowDialog(true);
+			shortcut.setShowDialog(showDialog);
 			shortcut.launch(selectedFile, runMode, null);
 		}
 	}

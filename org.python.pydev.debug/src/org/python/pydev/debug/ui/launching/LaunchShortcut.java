@@ -77,7 +77,8 @@ public class LaunchShortcut implements ILaunchShortcut {
 	protected boolean verifyMode(String mode) {
 		boolean ok = mode.equals(ILaunchManager.RUN_MODE) ||
 					mode.equals(ILaunchManager.DEBUG_MODE) ||
-					mode.equals(ILaunchManager.PROFILE_MODE);
+					mode.equals(ILaunchManager.PROFILE_MODE) ||
+					mode.equals("unittest");
 		if (!ok)
 			reportError("Unknown launch mode: " + mode, null);
 		return ok;
@@ -231,6 +232,8 @@ public class LaunchShortcut implements ILaunchShortcut {
 			        groupID = Constants.PYTHON_DEBUG_LAUNCH_GROUP;
 			    }else if (mode.equals("profile")){
 			        groupID = Constants.PYTHON_COVERAGE_LAUNCH_GROUP;
+			    }else if (mode.equals("unittest")){
+			        groupID = Constants.PYTHON_UNITTEST_LAUNCH_GROUP;
 			    }
 			    
 				DebugUITools.openLaunchConfigurationDialog(PydevDebugPlugin.getActiveWorkbenchWindow().getShell(), conf, groupID, null);
