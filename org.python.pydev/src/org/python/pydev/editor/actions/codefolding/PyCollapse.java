@@ -8,6 +8,7 @@ package org.python.pydev.editor.actions.codefolding;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Position;
@@ -15,6 +16,7 @@ import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codefolding.PyProjectionAnnotation;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Fabio Zadrozny
@@ -56,8 +58,7 @@ public class PyCollapse extends PyAction {
 
             }
         } catch (BadLocationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+            PydevPlugin.log(IStatus.ERROR, "Unexpected error collapsing", e);
+         }
     }
 }
