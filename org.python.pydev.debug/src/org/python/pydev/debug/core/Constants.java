@@ -1,0 +1,33 @@
+/*
+ * Author: atotic
+ * Created: Aug 20, 2003
+ * License: Common Public License v1.0
+ */
+package org.python.pydev.debug.core;
+
+/**
+ * all the public constants for pydev.debug
+ */
+public interface Constants {
+
+	// Icons
+	static final String MAIN_ICON = "icons/python.gif";
+	
+	// Plugin constants
+	static final String PLUGIN_ID = "org.python.pydev.debug";
+	static final String PYTHON_DEBUG_LAUNCH_GROUP = "org.python.pydev.debug.debug";
+	static final String PYTHON_RUN_LAUNCH_GROUP = "org.python.pydev.debug.run";
+	static final String ID_PYTHON_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.launchConfigurationType";
+	static final String PROCESS_TYPE = "PYDEV.PYTHON";
+	
+// LaunchConfiguration properties
+// ATTR_* are copied from IExternalToolConstants, replicated since I have no access to originals
+	static final String ATTR_LOCATION = "org.eclipse.ui.externaltools" + ".ATTR_LOCATION";
+	static final String ATTR_WORKING_DIRECTORY = "org.eclipse.ui.externaltools" + ".ATTR_WORKING_DIRECTORY";
+	static final String ATTR_PROGRAM_ARGUMENTS = "org.eclipse.ui.externaltools" + ".ATTR_TOOL_ARGUMENTS";
+	static final String ATTR_INTERPRETER = PLUGIN_ID + ".ATTR_INTERPRETER";
+	
+	// Preferences
+	public static final String PREF_INTERPRETER_PATH = "INTERPRETER_PATH";
+	
+}

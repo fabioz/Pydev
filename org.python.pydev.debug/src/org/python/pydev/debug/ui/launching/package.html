@@ -1,0 +1,9 @@
+<body>
+Launch configurations: integration with the org.eclipse.debug LaunchConfiguration framework (Debug menus etc).
+
+<p>PythonRunActionDelegate gets called by the popup menu.
+<p>It creates LaunchShortcut, which displays the "How do you want to launch" dialog.
+<p>Finally, LaunchShortcut dells PythonLaunchConfigurationDelegate to launch the file.
+<p>PythonLaunchConfigurationDelegate has the smarts about generating the right command
+line, etc.
+</body>
