@@ -86,6 +86,9 @@ public class PydevPlugin extends AbstractUIPlugin
 	public static IWorkspace getWorkspace() {
 		return ResourcesPlugin.getWorkspace();
 	}
+	public static Status makeStatus(int errorLevel, String message, Throwable e) {
+		return new Status(errorLevel, getPluginID(), errorLevel, message, e);
+	}	
 
 	/**
 	 * Returns the string from the plugin's resource bundle,
