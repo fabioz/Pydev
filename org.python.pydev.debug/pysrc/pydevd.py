@@ -75,16 +75,16 @@ CMD_ERROR = 901
 Debugger = None
 
 __all__ = ();
+    
+pydevd_trace = 0
 
-_trace = 0
-
-def log(level, s):
+def pydevd_log(level, s):
     """ levels are: 
-        0 most serious warnings/errors
+    	0 most serious warnings/errors
         1 warnings/significant events
         2 informational trace
     """
-    if (level <= _trace):
+    if (level <= pydevd_trace):
         print >>sys.stderr, s 
 
 
@@ -107,7 +107,7 @@ class ReaderThread(threading.Thread):
 #                print >>sys.stderr, "received input"
                 while (buffer.find('\n') != -1):
                     [command, buffer] = buffer.split('\n', 1)
-                    log(1, "received command " + command)
+                    pydevd_log(1, "received command " + command)
                     args = command.split('\t', 2)
 #                    print "the args are", args[0], " 2 ", args[1], " 3 ", args[2]
                     PyDB.instance.processNetCommand(int(args[0]), int(args[1]), args[2])
@@ -135,11 +135,13 @@ class WriterThread(threading.Thread):
         try:
             while(True):
                 cmd = self.cmdQueue.get(1)
-                log(1, "sending cmd " + cmd.getOutgoing())
+                pydevd_log(1, "sending cmd " + cmd.getOutgoing())
                 self.sock.sendall(cmd.getOutgoing())
+        except Exception, e:
+            print >>sys.stderr, "Exception in writer thread", str(e)
         except:
-          print >>sys.stderr, "Exception in writer thread"
-          raise
+            print >>sys.stderr, "Exception in writer thread"
+            raise
             
 class NetCommand:
     """ Commands received/sent over the network.
@@ -284,7 +286,7 @@ class InternalTerminateThread:
         self.thread_id = thread_id
     
     def doIt(self, dbg):
-        log(1,  "killing " + str(self.thread_id))
+        pydevd_log(1,  "killing " + str(self.thread_id))
         cmd = dbg.cmdFactory.makeThreadKilledMessage(self.thread_id)
         dbg.writer.addCommand(cmd)
         time.sleep(0.1)
@@ -317,7 +319,7 @@ class InternalGetVariable:
            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + str(e))
            dbg.writer.addCommand(cmd)
 
-def findThreadById(thread_id):
+def pydevd_findThreadById(thread_id):
     try:
         int_id = int(thread_id)
 #        print >>sys.stderr, "enumerating"
@@ -373,19 +375,19 @@ class PyDB:
         """ binds to a port, waits for the debugger to connect """
         # TODO untested
         s = socket(AF_INET, SOCK_STREAM)
-        s.bind(port)
+        s.bind(('', port))
         s.listen(1)
         newSock, addr = s.accept()
         self.initializeNetwork(newSock)
 
     def startClient(self, host, port):
         """ connects to a host/port """
-        log(1, "Connecting to " + host + ":" + str(port))
+        pydevd_log(1, "Connecting to " + host + ":" + str(port))
         try:
             s = socket(AF_INET, SOCK_STREAM);
             s.settimeout(10) # seconds
             s.connect((host, port))
-            log(1, "Connected.")
+            pydevd_log(1, "Connected.")
             self.initializeNetwork(s)
         except timeout, e:
             print "server timed out after 10 seconds, could not connect to " + host + ":" + str(port)
@@ -413,10 +415,10 @@ class PyDB:
                 if id(t) == thread_id:
                     cmd = self.cmdFactory.makeThreadCreatedMessage(t)
             if (cmd):
-                log(2, "found a new thread " + str(thread_id))
+                pydevd_log(2, "found a new thread " + str(thread_id))
                 self.writer.addCommand(cmd)
             else:
-                log(0, "could not find thread by id to register")
+                pydevd_log(0, "could not find thread by id to register")
         return self.cmdQueue[thread_id]
         
     def postInternalCommand(self, int_cmd, thread_id):
@@ -433,7 +435,7 @@ class PyDB:
         try:
             while (True):
                int_cmd = queue.get(False)
-               log(2, "processign internal command " + str(int_cmd))
+               pydevd_log(2, "processign internal command " + str(int_cmd))
                int_cmd.doIt(self)
         except Empty:
             pass # this is how we exit
@@ -452,16 +454,16 @@ class PyDB:
                 self.postInternalCommand(int_cmd, text)
             elif (id == CMD_THREAD_SUSPEND):
 #                print >>sys.stderr, "About to suspend ", text
-                t = findThreadById(text)
+                t = pydevd_findThreadById(text)
                 if t: self.setSuspend(t, CMD_THREAD_SUSPEND)
 #               else: print >>sys.stderr, "Could not find thread ", t
             elif (id  == CMD_THREAD_RUN):
-                t = findThreadById(text)
+                t = pydevd_findThreadById(text)
                 if t: 
                     t.pydev_state = PyDB.STATE_RUN
                     t.pydev_step_cmd = None
             elif (id == CMD_STEP_INTO or id == CMD_STEP_OVER or id == CMD_STEP_RETURN):
-                t = findThreadById(text)
+                t = pydevd_findThreadById(text)
                 if t:
                     t.pydev_state = PyDB.STATE_RUN
                     t.pydev_step_cmd = id
@@ -472,7 +474,7 @@ class PyDB:
                      (scope, attrs) = scopeattrs.split('\t', 1)
                  else:
                      (scope, attrs) = (scopeattrs, None)
-                 t = findThreadById(thread_id)
+                 t = pydevd_findThreadById(thread_id)
                  if t:
                      int_cmd = InternalGetVariable(seq, t, frame_id, scope, attrs)
                      self.postInternalCommand(int_cmd, thread_id)
@@ -487,7 +489,7 @@ class PyDB:
                     breakDict = {}
                 breakDict[int(line)] = True
                 self.breakpoints[file] = breakDict
-                log(1, "Set breakpoint at " + file + " " + line)
+                pydevd_log(1, "Set breakpoint at " + file + " " + line)
             elif (id == CMD_REMOVE_BREAK):
                 # text is file\tline. Remove from breakpoints dictionary
                 (file, line) = text.split('\t', 1)
@@ -502,7 +504,7 @@ class PyDB:
                        print sys.stderr, "breakpoint not found", file, str(line)
             else:
                 cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(id))
-            log( 1, "processed command " + str (id))
+            pydevd_log(1, "processed command " + str (id))
             if cmd: 
                 self.writer.addCommand(cmd)
         except Exception, e:
@@ -519,7 +521,7 @@ class PyDB:
         except AttributeError:
             thread.pydev_notify_kill = False
         if not wasNotified:
-            log(1, "leaving stopped thread " + str(id(thread)))
+            pydevd_log(1, "leaving stopped thread " + str(id(thread)))
             cmd = self.cmdFactory.makeThreadKilledMessage(id(thread))
             self.writer.addCommand(cmd)
             thread.pydev_notify_kill = True
@@ -557,7 +559,7 @@ class PyDB:
             thread.pydev_step_cmd = None # so we do ont thro
             pass
  
-        log(1, "thread resumed " + thread.getName())  
+        pydevd_log(1, "thread resumed " + thread.getName())  
         cmd = self.cmdFactory.makeThreadRunMessage(id(thread), thread.pydev_step_cmd)
         self.writer.addCommand(cmd)
                 
@@ -708,7 +710,7 @@ def usage(doExit=0):
 
       
 def quittingNow():
-    log(1, "Debugger exiting. Over & out....\n")
+    pydevd_log(1, "Debugger exiting. Over & out....\n")
 
 if __name__ == '__main__':
     print >>sys.stderr, "pydev debugger"
@@ -718,8 +720,8 @@ if __name__ == '__main__':
     except ValueError, e:
         print e
         usage(1)
-    log(2, "Executing file " + setup['file'])
-    log(2, "arguments:" + str(sys.argv))
+    pydevd_log(2, "Executing file " + setup['file'])
+    pydevd_log(2, "arguments:" + str(sys.argv))
  
     import atexit
     atexit.register(quittingNow)
