@@ -1,27 +1,24 @@
 /*
- * @author: fabioz
- * Created: January 2004
+ * @author: ptoofani
+ * Created: June 2004
  * License: Common Public License v1.0
  */
 
 package org.python.pydev.editor.actions;
 
-import org.python.pydev.plugin.PydevPrefs;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 
 
 /**
- * Creates a comment block.  Comment blocks are slightly different than regular comments 
- * created in that they provide a distinguishing element at the beginning and end as a 
- * separator.  In this case, it is a string of <code>=======</code> symbols to strongly
- * differentiate this comment block.
+ * Converts tab-width spacing to tab characters in selection or entire document, if nothing
+ * selected.
  * 
- * @author Fabio Zadrozny
  * @author Parhaum Toofanian
  */
-public class PyAddBlockComment extends PyAction 
+public class PyConvertSpaceToTab extends PyAction 
 {
 	/* Selection element */
 	private static PySelection ps;
@@ -35,12 +32,12 @@ public class PyAddBlockComment extends PyAction
 		try 
 		{
 			// Select from text editor
-			ps = new PySelection ( getTextEditor ( ), false );
+			ps = new PySelection ( getTextEditor ( ), true );
 			// Perform the action
 			perform ( );
 
 			// Put cursor at the first area of the selection
-			getTextEditor ( ).selectAndReveal ( ps.endLine.getOffset ( ), 0 );
+			getTextEditor ( ).selectAndReveal ( ps.getCursorOffset ( ), 0 );
 		} 
 		catch ( Exception e ) 
 		{
@@ -48,7 +45,7 @@ public class PyAddBlockComment extends PyAction
 		}		
 	}
 
-	
+
 	/**
 	 * Performs the action with the class' PySelection.
 	 * 
@@ -73,51 +70,65 @@ public class PyAddBlockComment extends PyAction
 		
 		// If they selected a partial line, count it as a full one
 		ps.selectCompleteLines ( );
-
+			
 		int i;
-		try
+	
+		try 
 		{
-			// Start of block
-			strbuf.append ( "#" + getFullCommentLine ( ) + ps.endLineDelim );
-
-			// For each line, comment them out
+			// For each line, strip their whitespace
 			for ( i = ps.startLineIndex; i <= ps.endLineIndex; i++ )
 			{
-				strbuf.append ( "#" + ps.getLine ( i ) + ps.endLineDelim );
+				String line = ps.doc.get ( ps.doc.getLineInformation ( i ).getOffset ( ), ps.doc.getLineInformation ( i ).getLength ( ) );
+				strbuf.append ( line.replaceAll ( getTabSpace ( ), "\t" ) + ( i < ps.endLineIndex ? ps.endLineDelim : "" ) );
 			}
-		
-			// End of block
-			strbuf.append ( "#" + getFullCommentLine ( ) );
 
-			// Replace the text with the modified information
-			ps.doc.replace ( ps.startLine.getOffset ( ), ps.selLength, strbuf.toString ( ) );
-			return true;
+			// If all goes well, replace the text with the modified information	
+			if ( strbuf.toString ( ) != null )
+			{
+				ps.doc.replace ( ps.startLine.getOffset ( ), ps.selLength, strbuf.toString ( ) );
+				return true;
+			}
 		}
-		catch ( Exception e )
+		catch ( Exception e ) 
 		{
-			beep ( e );
-		}
-
+			beep( e );
+		}	
+			
 		// In event of problems, return false
-		return false;
+		return false;		
 	}
 	
 	
 	/**
-	 * Currently returns a string with the comment block.  
+	 * Currently returns an int of the Preferences' Tab Width.  
 	 * 
-	 * @return Comment line string, or a default one if Preferences are null
+	 * @return Tab width in preferences
 	 */
-	protected static String getFullCommentLine ( )
+	protected static String getTabSpace ( )
+	{
+		StringBuffer sbuf = new StringBuffer ( );
+		for ( int i = 0; i < getTabWidth ( ); i++ )
+		{
+			sbuf.append ( " " );
+		}
+		return sbuf.toString ( );
+	}		
+	
+	/**
+	 * Currently returns an int of the Preferences' Tab Width.  
+	 * 
+	 * @return Tab width in preferences
+	 */
+	protected static int getTabWidth ( )
 	{
 		try
 		{
 			Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
-			return prefs.getString(PydevPrefs.BLOCK_COMMENT);
+			return prefs.getInt(PydevPrefs.TAB_WIDTH);
 		}
 		catch ( Exception e )
 		{
-			return "=========================";
+			return 4;
 		}
-	}
+	}	
 }

@@ -6,6 +6,8 @@
 
 package org.python.pydev.editor.actions;
 
+import org.eclipse.jface.action.IAction;
+
 
 /**
  * Removes a comment block.  Comment blocks are slightly different than regular comments 
@@ -18,28 +20,87 @@ package org.python.pydev.editor.actions;
  * 
  * @author Parhaum Toofanian
  */
-public class PyRemoveBlockComment extends PyAddBlockComment {
+public class PyRemoveBlockComment extends PyAddBlockComment 
+{
+	/* Selection element */
+	private static PySelection ps;
+
 
 	/**
-	 * This method is called to return the text that should be replaced
-	 * by the text passed as a parameter.
-	 * 
-	 * The text passed as a parameter represents the text from the whole
-	 * lines of the selection.
-	 * 
-	 * @param str the string to be replaced.
-	 * @param endLineDelim delimiter used.
-	 * @return the new string.
+	 * Grabs the selection information and performs the action.
 	 */
-	protected String replaceStr(String str, String endLineDelim) {
-		str = str.replaceAll(endLineDelim+"#", endLineDelim );
-		if (str.startsWith("#")){
-			str = str.substring(1);
-		}
-		str = str.replaceAll(getFullCommentLine()+endLineDelim, "");
-		str = str.replaceAll(endLineDelim+getFullCommentLine(), "");
+	public void run ( IAction action ) 
+	{
+		try 
+		{
+			// Select from text editor
+			ps = new PySelection ( getTextEditor ( ), false );
+			// Perform the action
+			perform ( );
 
-		return str;
+			// Put cursor at the first area of the selection
+			getTextEditor ( ).selectAndReveal ( ps.endLine.getOffset ( ), 0 );
+		} 
+		catch ( Exception e ) 
+		{
+			beep ( e );
+		}		
+	}
+
+	
+	/**
+	 * Performs the action with the class' PySelection.
+	 * 
+	 * @return boolean The success or failure of the action
+	 */
+	public static boolean perform ( )
+	{
+		return perform ( ps );
+	}
+
+
+	/**
+	 * Performs the action with a given PySelection
+	 * 
+	 * @param ps Given PySelection
+	 * @return boolean The success or failure of the action
+	 */
+	public static boolean perform ( PySelection ps ) 
+	{
+		// What we'll be replacing the selected text with
+		StringBuffer strbuf = new StringBuffer ( );
+		
+		// If they selected a partial line, count it as a full one
+		ps.selectCompleteLines ( );
+
+		int i;
+		try
+		{
+			// Start of block, if not block, don't bother
+			if ( ! ps.getLine ( ps.startLineIndex ).equals ( "#" + getFullCommentLine ( ) ) )
+				return false;
+			// End of block, if not block, don't bother
+			if ( ! ps.getLine ( ps.endLineIndex ).equals ( "#" + getFullCommentLine ( ) ) )
+				return false;
+			
+			// For each line, comment them out
+			for ( i = ps.startLineIndex + 1; i < ps.endLineIndex; i++ )
+			{
+				if ( ps.getLine ( i ).startsWith ( "#" ) && ! ps.getLine ( i ).substring ( 1 ).equals ( getFullCommentLine ( ) ) )
+					strbuf.append ( ps.getLine ( i ).substring ( 1 ) + ( i < ps.endLineIndex - 1 ? ps.endLineDelim : "" ) );
+			}
+
+			// Replace the text with the modified information
+			ps.doc.replace ( ps.startLine.getOffset ( ), ps.selLength, strbuf.toString ( ) );
+			return true;
+		}
+		catch ( Exception e )
+		{
+			beep ( e );
+		}
+
+		// In event of problems, return false
+		return false;
 	}
 
 }

@@ -112,6 +112,20 @@
                id="org.python.pydev.editor.actions.firstChar">
          </action>
          <action
+               definitionId="org.python.pydev.editor.actions.convertSpaceToTab"
+               label="Convert space-tabs to tabs"
+               class="org.python.pydev.editor.actions.PyConvertSpaceToTab"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/whitespaceGroup"
+               id="org.python.pydev.editor.actions.convertSpaceToTab">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.convertTabToSpace"
+               label="Convert tabs to space-tabs"
+               class="org.python.pydev.editor.actions.PyConvertTabToSpace"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/whitespaceGroup"
+               id="org.python.pydev.editor.actions.convertTabToSpace">
+         </action>
+         <action
                definitionId="org.python.pydev.editor.actions.stripTrailingWhitespace"
                label="Strip trailing whitespace"
                class="org.python.pydev.editor.actions.PyStripTrailingWhitespace"
@@ -189,6 +203,18 @@
             	  name="whitespaceGroup">
             </separator>
          </menu>
+         <action
+               label="Convert space-tabs to tabs"
+               class="org.python.pydev.editor.actions.PyConvertSpaceToTab"
+               menubarPath="org.python.pydev.editor.actions.editorPopup/whitespaceGroup"
+               id="org.python.pydev.editor.actions.convertSpaceToTab">
+         </action>
+         <action
+               label="Convert tabs to space-tabs"
+               class="org.python.pydev.editor.actions.PyConvertTabToSpace"
+               menubarPath="org.python.pydev.editor.actions.editorPopup/whitespaceGroup"
+               id="org.python.pydev.editor.actions.convertTabToSpace">
+         </action>
          <action
                label="Strip trailing whitespace"
                class="org.python.pydev.editor.actions.PyStripTrailingWhitespace"
@@ -285,6 +311,32 @@
             string="Ctrl+Shift+Arrow_Up"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.navigation.previousMethod"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: space to tab-->
+      <command
+            name="Convert space-tabs to tabs"
+            description="Converts tab-width space groups to tabs from selected region or whole document if nothing selected"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.convertSpaceToTab">
+      </command>
+      <keyBinding
+            string="Shift+Ctrl+Tab"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.convertSpaceToTab"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: tab to space-->
+      <command
+            name="Convert tabs to space-tabs"
+            description="Converts tabs to tab-width space groups from selected region or whole document if nothing selected"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.convertTabToSpace">
+      </command>
+      <keyBinding
+            string="Ctrl+Tab"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.convertTabToSpace"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
 <!-- command: whitespace-->

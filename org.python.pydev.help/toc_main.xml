@@ -10,6 +10,8 @@
 			<topic label="Auto Indentation" href="html/userguide/editor_autoi.html"/>
 			<topic label="Block Comment" href="html/userguide/editor_blockc.html"/>
 			<topic label="Bulk Comment" href="html/userguide/editor_comment.html"/>
+			<topic label="Convert Space to Tab" href="html/userguide/editor_convertstt.html"/>
+			<topic label="Convert Tab to Space" href="html/userguide/editor_converttts.html"/>
 			<topic label="Error Parsing" href="html/userguide/editor_parsing.html"/>
 			<topic label="Go to First Character" href="html/userguide/editor_gotofc.html"/>
 			<topic label="Go to Previous Method/Class" href="html/userguide/editor_gotopmc.html"/>

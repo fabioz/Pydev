@@ -1,6 +1,6 @@
 /*
- * @author: fabioz
- * Created: January 2004
+ * @author: ptoofani
+ * Created: June 2004
  * License: Common Public License v1.0
  */
 
@@ -8,13 +8,14 @@ package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.action.IAction;
 
+
 /**
- * Creates a bulk comment.  Comments all selected lines
+ * Converts tab-width spacing to tab characters in selection or entire document, if nothing
+ * selected.
  * 
- * @author Fabio Zadrozny
  * @author Parhaum Toofanian
  */
-public class PyComment extends PyAction 
+public class PyConvertTabToSpace extends PyConvertSpaceToTab 
 {
 	/* Selection element */
 	private static PySelection ps;
@@ -28,12 +29,12 @@ public class PyComment extends PyAction
 		try 
 		{
 			// Select from text editor
-			ps = new PySelection ( getTextEditor ( ), false );
+			ps = new PySelection ( getTextEditor ( ), true );
 			// Perform the action
 			perform ( );
 
 			// Put cursor at the first area of the selection
-			getTextEditor ( ).selectAndReveal ( ps.endLine.getOffset ( ), 0 );
+			getTextEditor ( ).selectAndReveal ( ps.getCursorOffset ( ), 0 );
 		} 
 		catch ( Exception e ) 
 		{
@@ -41,7 +42,7 @@ public class PyComment extends PyAction
 		}		
 	}
 
-	
+
 	/**
 	 * Performs the action with the class' PySelection.
 	 * 
@@ -66,28 +67,31 @@ public class PyComment extends PyAction
 		
 		// If they selected a partial line, count it as a full one
 		ps.selectCompleteLines ( );
-
+		
 		int i;
-		try
+	
+		try 
 		{
-			// For each line, comment them out
-			for ( i = ps.startLineIndex; i < ps.endLineIndex; i++ )
+			// For each line, strip their whitespace
+			for ( i = ps.startLineIndex; i <= ps.endLineIndex; i++ )
 			{
-				strbuf.append ( "#" + ps.getLine ( i ) + ps.endLineDelim );
+				String line = ps.doc.get ( ps.doc.getLineInformation ( i ).getOffset ( ), ps.doc.getLineInformation ( i ).getLength ( ) );
+				strbuf.append ( line.replaceAll ( "\t", getTabSpace ( ) ) + ( i < ps.endLineIndex ? ps.endLineDelim : "" ) );
 			}
-			// Last line shouldn't add the delimiter
-			strbuf.append ( "#" + ps.getLine ( i ) );
 
-			// Replace the text with the modified information
-			ps.doc.replace ( ps.startLine.getOffset ( ), ps.selLength, strbuf.toString ( ) );
-			return true;
+			// If all goes well, replace the text with the modified information	
+			if ( strbuf.toString ( ) != null )
+			{
+				ps.doc.replace ( ps.startLine.getOffset ( ), ps.selLength, strbuf.toString ( ) );
+				return true;
+			}
 		}
-		catch ( Exception e )
+		catch ( Exception e ) 
 		{
-			beep ( e );
-		}
-
+			beep( e );
+		}	
+			
 		// In event of problems, return false
-		return false;
+		return false;		
 	}
 }
