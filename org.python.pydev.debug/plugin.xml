@@ -3,7 +3,7 @@
 <plugin
 	id="org.python.pydev.debug"
 	name="Pydev debug"
-	version="0.7.1"
+	version="0.7.2"
 	provider-name="Aleks Totic / Fabio Zadrozny"
 	class="org.python.pydev.debug.core.PydevDebugPlugin">
 
@@ -242,7 +242,6 @@
 	id="pyStopBreakpointMarker">
 	<super type="org.eclipse.debug.core.lineBreakpointMarker"/>
 	<persistent value="true"/>
-	<attribute name="org.eclipse.cdt.debug.core.condition"/>
 </extension>
 <extension 
 	point="org.eclipse.debug.core.breakpoints">

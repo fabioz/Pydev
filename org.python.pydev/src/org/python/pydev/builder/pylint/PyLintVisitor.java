@@ -256,7 +256,7 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
     public boolean visitResource(IResource resource) {
         IProject project = resource.getProject();
         if (project != null && resource instanceof IFile) {
-            System.out.println("pylint visiting = "+ resource);
+
             IFile file = (IFile) resource;
             IPath location = PydevPlugin.getLocation(file.getFullPath());
             
@@ -264,14 +264,13 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
             try {
                 script = PydevPlugin.getScriptWithinPySrc("ThirdParty/logilab/pylint/lint.py");
 	            File arg = new File(location.toOSString());
-	            System.out.println("pylint executing ... ");
+
 	            String lintargs = " --include-ids=y ";
 	            lintargs += PyLintPrefPage.getPylintArgs();
 	            lintargs += " ";
 	            
 	            String output = SimplePythonRunner.runAndGetOutput(script.getAbsolutePath(), lintargs+arg.getAbsolutePath(), script.getParentFile());
-	            System.out.println("pylint ended ");
-	            System.out.println("output = "+ output);
+
 	            StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
 	            
 	            boolean useW = PyLintPrefPage.useWarnings();
@@ -324,11 +323,11 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
                                 createMarker(resource, "ID:"+id+" "+tok , line,  type, priority);
                             }
                         } catch (RuntimeException e2) {
-                            System.out.println("ERROR - "+initial);
-                            e2.printStackTrace();
+//                            System.out.println("ERROR - "+initial);
+//                            e2.printStackTrace();
                         }
                     } catch (Exception e1) {
-                        e1.printStackTrace();
+//                        e1.printStackTrace();
                     }
 	            }
             } catch (CoreException e) {

@@ -14,6 +14,7 @@ import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**
@@ -26,6 +27,7 @@ public class PyTodoPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     public PyTodoPrefPage() {
         super(GRID);
+        setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         setDescription("Task tags");
     }
 

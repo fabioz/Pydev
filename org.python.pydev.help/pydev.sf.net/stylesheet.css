@@ -12,7 +12,7 @@ div.sidebar
 {
 	position:static;
     float: left;
-    width: 180px;
+    width: 150px;
     height: 150%;
     background-color: lightyellow;
     color: white;
@@ -23,12 +23,12 @@ div.sidebar
     margin-left: 0px;
     margin-top: 3px;
     padding: 0px;
+    color:lightyellow;
 }    
 
 div.contents
 {
     width: 100%;
-    padding-left: 15px;
 }
 
 li
@@ -52,3 +52,28 @@ a:hover
     font-size: medium;
 }
 
+
+
+
+
+div.rightsidebar
+{
+	position:static;
+    float: right;
+    width: 150px;
+    height: 150%;
+    background-color: white;
+    color: black;
+    vertical-align: top;
+    margin-left:20px;
+    
+}
+  
+.rightsidebar li
+{
+    margin-left: 0px;
+    margin-top: 3px;
+    padding: 0px;
+    color:white;
+}    
+  
