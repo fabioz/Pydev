@@ -13,6 +13,7 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -29,31 +30,29 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
     private static final String PYLINT_FILE_LOCATION = "PYLINT_FILE_LOCATION";
 
     private static final String USE_PYLINT = "USE_PYLINT";
-
     private static final boolean DEFAULT_USE_PYLINT = false;
 
     private static final String USE_ERRORS = "USE_ERRORS";
-
     private static final boolean DEFAULT_USE_ERRORS = true;
 
     private static final String USE_WARNINGS = "USE_WARNINGS";
-
     private static final boolean DEFAULT_USE_WARNINGS = false;
 
     private static final String USE_FATAL = "USE_FATAL";
-
     private static final boolean DEFAULT_USE_FATAL = true;
 
     private static final String USE_CODING_STANDARD = "USE_CODING_STANDARD";
-
     private static final boolean DEFAULT_USE_CODING_STANDARD = false;
 
     private static final String USE_REFACTOR = "USE_REFACTOR";
-
     private static final boolean DEFAULT_USE_REFACTOR = false;
 
     private static final String PYLINT_ARGS = "PYLINT_ARGS";
 
+    private static final String MAX_PYLINT_DELTA = "MAX_PYLINT_DELTA";
+    private static final int DEFAULT_MAX_PYLINT_DELTA = 999;
+    
+    
     private static final String DEFAULT_PYLINT_ARGS = "--persistent=n --comment=n --disable-msg=W0103,W0131,C0103,W0312,W0511";
 //    													"--persistent=n --comment=n --disable-all --enable-basic=y --enable-classes=y --enable-design=y --enable-exceptions=y \n"+
 //    													"--enable-format=y --enable-imports=y \n"+
@@ -76,6 +75,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
             prefs.setDefault(USE_CODING_STANDARD, DEFAULT_USE_CODING_STANDARD);
             prefs.setDefault(USE_REFACTOR, DEFAULT_USE_REFACTOR);
             prefs.setDefault(PYLINT_ARGS, DEFAULT_PYLINT_ARGS);
+            prefs.setDefault(MAX_PYLINT_DELTA, DEFAULT_MAX_PYLINT_DELTA);
         } catch (CoreException e) {
             e.printStackTrace();
         }
@@ -90,6 +90,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         Composite p = getFieldEditorParent();
 
         addField(new BooleanFieldEditor(USE_PYLINT, "Use pylint?", p));
+        addField(new IntegerFieldEditor(MAX_PYLINT_DELTA, "Maximun delta to run PyLint?", p));
         FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of pylint:", true, p);
         addField(fileField);
 
@@ -184,6 +185,10 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     public static String getPylintArgs() {
         return PydevPrefs.getPreferences().getString(PYLINT_ARGS);
+    }
+
+    public static int getMaxPyLintDelta() {
+        return PydevPrefs.getPreferences().getInt(MAX_PYLINT_DELTA);
     }
 
 }

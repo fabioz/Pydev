@@ -152,10 +152,8 @@ public class PyRefactoring {
         s+=        "|"+beginCol;
         s+=        "END@@";
 
-        System.out.println("Find: "+s);
         String string = makeAction(s, operation);
         
-        System.out.println("REFACTOR RESULT:"+string);
         List l = new ArrayList();
 
         

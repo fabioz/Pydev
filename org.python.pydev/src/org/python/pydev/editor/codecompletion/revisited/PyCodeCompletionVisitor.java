@@ -31,7 +31,6 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
     public boolean visitResource(IResource resource, IDocument document) {
-        System.out.println("Visiting delta");
         
         IProject project = resource.getProject();
         PythonNature pythonNature = PythonNature.getPythonNature(project);
@@ -49,7 +48,6 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
     public boolean visitRemovedResource(IResource resource, IDocument document) {
-        System.out.println("Visiting removed delta");
 
         IProject project = resource.getProject();
         PythonNature pythonNature = PythonNature.getPythonNature(project);

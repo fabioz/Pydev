@@ -20,7 +20,7 @@ import org.eclipse.ui.texteditor.MarkerUtilities;
  */
 public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 
-
+    public static final int MAX_TO_VISIT_INFINITE = -1;
 
 	/**
 	 * Visits the resource delta tree determining which files to rebuild (*.py).
@@ -71,6 +71,15 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 		return true;
 	}
 
+	/**
+	 * 
+	 * @return the maximun number of resources that it is allowed to visit (if this
+	 * number is higher than the number of resources changed, this visitor is not called).
+     */
+    public int maxResourcesToVisit() {
+        return MAX_TO_VISIT_INFINITE;
+    }
+	
     /**
      * @param resource to be visited.
      */

@@ -17,7 +17,7 @@
 """
 from __future__ import generators
 
-__revision__ = "$Id: classes.py,v 1.3 2005-01-21 17:42:08 fabioz Exp $"
+__revision__ = "$Id: classes.py,v 1.4 2005-01-31 17:23:22 fabioz Exp $"
 
 from logilab.common import astng
 
@@ -217,7 +217,7 @@ class should be ignored. A mixin class is detected if its name ends with \
     def leave_function(self, node):
         """check method arguments, overriding"""
         # check first argument is self if this is actually a method
-        if node.is_method():
+        if node.is_method() and node.argnames is not None:
             self._first_attrs.pop()
 
     def visit_getattr(self, node):

@@ -26,6 +26,7 @@ class MyChecker(BaseChecker):
         for param in node.args:
             in_class.locals[param.name] = node
 
+        in_class.locals["__properties__"] = node
     
 def register(linter):
     """required method to auto register this checker"""

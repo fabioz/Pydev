@@ -18,7 +18,7 @@
  FIXME : should check constant names !
 """
 
-__revision__ = "$Id: base.py,v 1.3 2005-01-21 17:42:08 fabioz Exp $"
+__revision__ = "$Id: base.py,v 1.4 2005-01-31 17:23:24 fabioz Exp $"
 
 from logilab.common import astng
 from logilab.common.ureports import Table
@@ -256,11 +256,12 @@ functions, methods
         self._check_defaults(node)
         # check arguments name
         args = node.argnames
-        self._recursive_check_names(args, node)
+        if args is not None:
+            self._recursive_check_names(args, node)
         # check local variable, avoiding argument, imported names, global names
         # and current class name if the function is actually a method
         for var, stmt in node.locals.items():
-            if (not in_nested_list(args, var)
+            if (not in_nested_list(args or (), var)
                 and not isinstance(stmt, astng.Import) 
                 and not isinstance(stmt, astng.From) 
                 and not isinstance(stmt, astng.Global) 

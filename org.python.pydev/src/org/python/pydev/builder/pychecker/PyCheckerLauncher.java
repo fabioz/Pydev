@@ -190,7 +190,6 @@ public class PyCheckerLauncher {
      */
     private static void parse(String line, String resourceLocation, IResource resource) {
 
-        System.out.println("Parsing:" + line);
         if (line.startsWith(resourceLocation)) {
             line = line.substring(resourceLocation.length() + 1); /* remove path of project and first ':' */
             int index = line.indexOf(':');

@@ -111,7 +111,6 @@ public class PyCodeCompletion {
             //get the project and make the code completion!!
             //so, we want to do a code completion for imports...
             //let's see what we have...
-            System.out.println(importsTipper);
 
             importsTipper = importsTipper.trim();
             IToken[] imports = astManager.getCompletionsForImport(importsTipper, edit.getPythonNature());

@@ -81,7 +81,6 @@ public class ASTManager implements Serializable, IASTManager {
      * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#changePythonPath(java.lang.String, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
     public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
-        System.out.println("rebuildModules " + pythonpath);
 
         List pythonpathList = pythonPathHelper.setPythonPath(pythonpath);
 
@@ -341,7 +340,7 @@ public class ASTManager implements Serializable, IASTManager {
             n = (AbstractModule) modules.get(new ModulesKey(name+".__init__", null));
         }
         if(n == null){
-            System.out.println("The module "+name+" could not be found!");
+//            System.out.println("The module "+name+" could not be found!");
         }
         
         if (n instanceof EmptyModule){
@@ -481,7 +480,7 @@ public class ASTManager implements Serializable, IASTManager {
                         if(completionsForModule.length > 0)
                             return completionsForModule;
                     } else {
-                        System.out.println("Module not found:" + name.getRepresentation());
+//                        System.out.println("Module not found:" + name.getRepresentation());
                     }
                 }
 
@@ -592,7 +591,7 @@ public class ASTManager implements Serializable, IASTManager {
                     completions.add(completionsForModule[j]);
                 }
             } else {
-                System.out.println("Module not found:" + name.getRepresentation());
+//                System.out.println("Module not found:" + name.getRepresentation());
             }
         }
 
@@ -643,7 +642,7 @@ public class ASTManager implements Serializable, IASTManager {
                 Object [] o = findModuleFromPath(importedModules[i].getCompletePath() + subst, nature);
                 AbstractModule mod = (AbstractModule) o[0];
                 String tok = (String) o[1];
-                System.out.println(tok);
+//                System.out.println(tok);
                 
                 if(tok.length() == 0){
                     //the activation token corresponds to an imported module. We have to get its global tokens and return them.

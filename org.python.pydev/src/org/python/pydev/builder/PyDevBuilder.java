@@ -40,20 +40,25 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      */
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
 
-        System.out.println("Build");
         if (kind == IncrementalProjectBuilder.FULL_BUILD) {
             // Do a Full Build: Use a ResourceVisitor to process the tree.
             performFullBuild(monitor);
         } else { // Build it with a delta
             
             IResourceDelta delta = getDelta(getProject());
+            PyDevDeltaCounter counterVisitor = new PyDevDeltaCounter();
+            delta.accept(counterVisitor);
+            
             if (delta == null) {
                 performFullBuild(monitor);
             } else {
                 
                 for (Iterator it = getVisitors().iterator(); it.hasNext();) {
                     PyDevBuilderVisitor element = (PyDevBuilderVisitor) it.next();
-                    delta.accept(element);
+                    
+                    if(element.maxResourcesToVisit() == -1 || element.maxResourcesToVisit() >= counterVisitor.getNVisited()){
+                        delta.accept(element);
+                    }
                 }
                 
             }

@@ -34,13 +34,13 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
     public static final String PYLINT_PROBLEM_MARKER = "org.python.pydev.pylintproblemmarker";
     
     public boolean visitResource(IResource resource, IDocument document) {
-        try {
-            resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-        } catch (CoreException e3) {
-            PydevPlugin.log(e3);
-        }
         
         if(PyLintPrefPage.usePyLint() == false){
+            try {
+                resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+            } catch (CoreException e3) {
+                PydevPlugin.log(e3);
+            }
             return true;
         }
         
@@ -61,7 +61,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 	            
 	            String output = SimplePythonRunner.runAndGetOutput(script.getAbsolutePath(), lintargs+arg.getAbsolutePath(), script.getParentFile());
 
-	            System.out.println(output);
+//	            System.out.println(output);
 	            StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
 	            
 	            boolean useW = PyLintPrefPage.useWarnings();
@@ -70,6 +70,11 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 	            boolean useC = PyLintPrefPage.useCodingStandard();
 	            boolean useR = PyLintPrefPage.useRefactorTips();
 	            
+	            try {
+	                resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+	            } catch (CoreException e3) {
+	                PydevPlugin.log(e3);
+	            }
 	            
 	            while(tokenizer.hasMoreTokens()){
 	                String tok = tokenizer.nextToken();
@@ -145,4 +150,14 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         return false;
     }
 
+    /**
+     * @see org.python.pydev.builder.PyDevBuilderVisitor#maxResourcesToVisit()
+     */
+    public int maxResourcesToVisit() {
+        int i = PyLintPrefPage.getMaxPyLintDelta();
+        if (i < 0){
+            i = 0;
+        }
+        return i;
+    }
 }

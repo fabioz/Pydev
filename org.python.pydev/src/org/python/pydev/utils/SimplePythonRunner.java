@@ -70,7 +70,6 @@ public class SimplePythonRunner {
     public static String runAndGetOutput(String executionString, File workingDir) {
         Process process = null;
         try {
-            System.out.println(executionString);
             process = Runtime.getRuntime().exec(executionString, null, workingDir);
         } catch (Exception e) {
             throw new RuntimeException(e);

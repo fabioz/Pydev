@@ -44,7 +44,6 @@ public class CompiledModule extends AbstractModule{
      */
     public CompiledModule(String name, int tokenTypes){
         super(name);
-        System.out.println("creating compiled module: "+name);
         try {
             PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
             List completions = shell.getImportCompletions(name);

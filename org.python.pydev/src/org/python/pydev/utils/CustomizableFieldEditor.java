@@ -142,7 +142,6 @@ public class CustomizableFieldEditor extends FieldEditor {
 //        GridData gd = (GridData) textField.getLayoutData();
 //        gd.horizontalSpan = 30;//numColumns - 1;
 
-        System.out.println("adjustForNumColumns");
         GridData gd = (GridData) textField.getLayoutData();
         gd.horizontalSpan = numColumns - 1;
         // We only grab excess space if we have to

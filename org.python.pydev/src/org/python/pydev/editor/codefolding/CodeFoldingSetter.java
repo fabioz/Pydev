@@ -266,7 +266,6 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      */
     public void propertyChanged(Object source, int propId) {
         if(propId == PyEditProjection.PROP_FOLDING_CHANGED){
-            System.out.println("PyEditProjection.PROP_FOLDING_CHANGED");
             modelChanged(editor.getPythonModel());
         }
     }

@@ -173,7 +173,7 @@ public class SourceModule extends AbstractModule {
 	            }
 	        }
         }else{
-            System.out.println("Expecting SourceToken, got: "+t.getClass().getName());
+            System.err.println("Expecting SourceToken, got: "+t.getClass().getName());
         }
         return new IToken[0];
     }

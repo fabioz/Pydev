@@ -586,7 +586,6 @@ public class PyEdit extends PyEditProjection {
         IPreferenceStore edprefs = getPreferenceStore();
     	
         if(edprefs == null){
-            System.out.println("setting new pref store");
             edprefs = new PreferenceStore();
             this.setPreferenceStore(edprefs);
         }

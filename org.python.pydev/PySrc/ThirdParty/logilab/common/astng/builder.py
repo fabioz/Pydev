@@ -24,7 +24,7 @@ TODO:
 """
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: builder.py,v 1.5 2005-01-26 18:09:57 fabioz Exp $"
+__revision__ = "$Id: builder.py,v 1.6 2005-01-31 17:23:10 fabioz Exp $"
 
 import sys
 from compiler import parse
@@ -375,6 +375,9 @@ class ASTNGBuilder:
         """create astng for a living method descriptor object"""
         # FIXME get arguments ?
         func = build_function(member.__name__, doc=member.__doc__)
+        # set argnames to None to notice that we have no information, not
+        # and empty argument list
+        func.argnames = None 
         func.object = member
         node.add_local_node(func)    
     _builtin_member_build = _methoddescriptor_member_build
