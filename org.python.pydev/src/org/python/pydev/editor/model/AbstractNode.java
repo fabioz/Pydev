@@ -7,6 +7,10 @@ package org.python.pydev.editor.model;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IStatus;
+import org.python.pydev.plugin.PydevPlugin;
+
 /**
  * ModelNode is a superclass of all nodes.
  * It knows its location, parent & children.
@@ -14,7 +18,7 @@ import java.util.ArrayList;
  * Nodes can have properties that are useful when querying
  * For example, clickable nodes have PROP_CLICKABLE set.
  */
-public class AbstractNode {
+public abstract class AbstractNode {
 
 	static ArrayList emptyChildList = new ArrayList(); // we keep an empty list around for efficiency
 	public static int PROP_CLICKABLE = 1;	// if the node can be hyperlinked
@@ -89,5 +93,43 @@ public class AbstractNode {
 	
 	public String toString() {
 		return getClass().toString() + " " + start.toString() + end.toString();
+	}
+
+	/**
+	 * Subclasses should override. This gets the python string.
+	 */
+	public abstract String getName();
+
+	public IFile getFile() {
+		return parent.getFile();
+	}
+	
+	/**
+	 * This function is a heuristic solution for the way jython & TextEditor
+	 * deal with column numbers.
+	 * 
+	 * jython's parser converts tabs to spaces internally. 
+	 * When it reports the column, it reports the column after the spaces
+	 * have been converted to tabs. So in "\tFunc()", func starts in column
+	 * 5 according to jython's parser, and in column 1 according to text editor.
+	 * 
+	 * This fix tries to convert jython's column numbers to those that work for editor.
+	 * To do this, we get the whole line where location was defined, and
+	 * substract the spaces assumed by jython (8 per tab).
+	 */
+	public void fixColumnLocation(Location loc, String lineText) {
+		int where = 0;
+		int tabCount = 0;
+		where = lineText.indexOf("\t", where);
+		while (where != -1 && where <= loc.column) {
+			where = lineText.indexOf("\t", where+1);
+			tabCount++;
+		}
+		if (tabCount > 0)
+			loc.column = loc.column - tabCount * 7;
+		if (loc.column < 0) {
+			loc.column = 0;
+			PydevPlugin.log(IStatus.ERROR, "Unexpected columnFixLocation error", null);
+		}
 	}
 }

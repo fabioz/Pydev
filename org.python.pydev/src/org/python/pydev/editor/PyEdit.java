@@ -36,6 +36,7 @@ import org.python.parser.SimpleNode;
 import org.python.parser.Token;
 import org.python.parser.TokenMgrError;
 import org.python.pydev.plugin.*;
+import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.editor.model.Location;
@@ -64,6 +65,8 @@ import org.eclipse.jface.action.IAction;
  */
 public class PyEdit extends TextEditor implements IParserListener {
 
+	static public String ACTION_OPEN = "OpenEditor";
+	
 	/** color cache */
 	private ColorCache colorCache;
 	/** lexical parser that continuously reparses the document on a thread */
@@ -189,9 +192,9 @@ public class PyEdit extends TextEditor implements IParserListener {
 	 */
 	protected void createActions() {
 		super.createActions();
+
 		// This action will fire a CONTENTASSIST_PROPOSALS operation
-		// when executed
-		
+		// when executed		
 		IAction action= new TextOperationAction(PydevPlugin.getDefault().getResourceBundle(), 
 		"ContentAssistProposal",this,SourceViewer.CONTENTASSIST_PROPOSALS);
 		action.setActionDefinitionId(CONTENTASSIST_PROPOSAL_ID);
@@ -201,6 +204,8 @@ public class PyEdit extends TextEditor implements IParserListener {
 		// when Ctrl+Spacebar is pressed
 		setActionActivationCode(CONTENTASSIST_PROPOSAL_ID,' ', -1, SWT.CTRL);
 		
+		IAction openAction = new PyOpenAction();
+		setAction(ACTION_OPEN, openAction);
 		enableBrowserLikeLinks();
 	}
 
@@ -289,7 +294,7 @@ public class PyEdit extends TextEditor implements IParserListener {
 		IRegion r;
 		try {
 			r = document.getLineInformation(lastLine-1);
-			pythonModel = ModelMaker.createModel(root, lastLine , r.getLength());
+			pythonModel = ModelMaker.createModel(root, document, original);
 			fireModelChanged(pythonModel);
 		} catch (BadLocationException e1) {
 			PydevPlugin.log(IStatus.WARNING, "Unexpected error getting document length. No model!", e1);		
@@ -324,8 +329,11 @@ public class PyEdit extends TextEditor implements IParserListener {
 						: parseErr.currentToken;
 				IRegion startLine =
 					document.getLineInformation(errorToken.beginLine - 1);
-				IRegion endLine =
-					document.getLineInformation(errorToken.endLine - 1);
+				IRegion endLine;
+				if (errorToken.endLine == 0)
+					endLine = startLine;
+				else
+					endLine = document.getLineInformation(errorToken.endLine - 1);
 				errorStart = startLine.getOffset() + errorToken.beginColumn - 1;
 				errorEnd = endLine.getOffset() + errorToken.endColumn;
 				errorLine = errorToken.beginLine;
@@ -351,7 +359,7 @@ public class PyEdit extends TextEditor implements IParserListener {
 			map.put(IMarker.LINE_NUMBER, new Integer(errorLine));
 			map.put(IMarker.CHAR_START, new Integer(errorStart));
 			map.put(IMarker.CHAR_END, new Integer(errorEnd));
-			map.put(IMarker.TRANSIENT, new Boolean(true));
+			map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
 			MarkerUtilities.createMarker(original, map, IMarker.PROBLEM);
 
 		} catch (CoreException e1) {

@@ -13,7 +13,10 @@ that opens a python editor.
 - .pyc files are filtered in the resource view
 - Parsing now happens either immediately on return, or a second after the last typing.
 This makes error notifications nicer and more predictable
-
+- New double-clicking strategy, copied from Java
+- Moved debug preferences into main plugin. We need them for import paths parsing
+- Hyperlinks on simple imports now work. For them to find system includes, you'll need to
+set up the python interpreter in the preferences
 Bug fixes:
 - Moved parsing so that all pydev parsers use single thread
 -

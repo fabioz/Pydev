@@ -26,7 +26,7 @@ import org.python.pydev.plugin.PydevPlugin;
 public class ProjectProperties extends PropertyPage {
 
 	Text pathText;
-	public static QualifiedName INCLUDE_PATH_PROP = new QualifiedName("test", "INCLUDE_PATH");
+	public static QualifiedName SRC_PATH_PROP = new QualifiedName(PydevPlugin.getPluginID(), "SOURCE_PATH");
 	
 	/**
 	 * Sample 
@@ -60,7 +60,7 @@ public class ProjectProperties extends PropertyPage {
 		IProject project = (IProject)getElement().getAdapter(IProject.class);
 		if (project != null) {
 			try {
-				project.setPersistentProperty(INCLUDE_PATH_PROP, pathText.getText());
+				project.setPersistentProperty(SRC_PATH_PROP, pathText.getText());
 			} catch (CoreException e) {
 				PydevPlugin.log(IStatus.ERROR, "Unexpected error setting project properties", e);
 			}

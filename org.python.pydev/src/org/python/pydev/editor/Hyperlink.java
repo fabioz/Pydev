@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IStatus;
@@ -46,7 +47,10 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
+import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.ModelUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -78,6 +82,7 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 	 */
 	private ISourceViewer fSourceViewer;
 	private PyEdit fEditor;
+	private AbstractNode fClickedNode;
 	
 	public Hyperlink(ISourceViewer sourceViewer, PyEdit editor) {
 		fSourceViewer = sourceViewer;
@@ -333,10 +338,9 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		int offset= getCurrentTextOffset(viewer);				
 		if (offset == -1)
 			return null;
-
-		AbstractNode node = ModelUtils.getElement(fEditor.getPythonModel(), 
+		fClickedNode = ModelUtils.getElement(fEditor.getPythonModel(), 
 									offset, viewer.getDocument(), AbstractNode.PROP_CLICKABLE);
-		if (node == null)
+		if (fClickedNode == null)
 			return null;
 
 //		try {
@@ -525,7 +529,12 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		deactivate();
 
 		if (wasActive) {
-			System.out.println("Clicked for action");
+			PyOpenAction action = (PyOpenAction)fEditor.getAction(PyEdit.ACTION_OPEN);
+			ArrayList where = ModelUtils.findDefinition(fClickedNode);
+			if (where.size() > 0)
+				action.run((ItemPointer)where.get(0));
+			else
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
 //			IAction action= getAction("OpenEditor");  //$NON-NLS-1$
 //			if (action != null)
 //				action.run();

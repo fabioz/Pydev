@@ -168,7 +168,8 @@ public class PyParser {
 		IFile original= (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
 		try {
 			SimpleNode newRoot = grammar.file_input(); // parses the file
-			original.deleteMarkers(IMarker.PROBLEM, false, 1);
+			if (original != null)
+				original.deleteMarkers(IMarker.PROBLEM, false, 1);
 			fireParserChanged(newRoot);
 		} catch (ParseException parseErr) {
 			fireParserError(parseErr);
@@ -248,12 +249,14 @@ class ParsingThread extends Thread {
 							parseUs.add(p);
 					}		
 				}
-
+				
+				// Now parse the queue
 				Iterator i = parseUs.iterator();
 				while (i.hasNext()) {
 					PyParser p = (PyParser)i.next();
 					if (p.parseNow) {
 						p.parseNow = false;
+						p.parseLater = 0;
 						p.reparseDocument();
 					}
 				}

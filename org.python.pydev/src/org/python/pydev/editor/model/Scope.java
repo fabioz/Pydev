@@ -5,11 +5,19 @@
  */
 package org.python.pydev.editor.model;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
+import org.python.pydev.plugin.PydevPrefs;
+
+
 /**
- * Scope represents scope where local variables belong to.
+ * Scope is where definitions of locals/classes/functions go in a namespace.
+ * Every AbstractNode has a scope.
  * 
  * There is a scope hierarchy:
  * ModuleNode scope
@@ -22,7 +30,10 @@ public class Scope {
 	private AbstractNode start;
 	private AbstractNode end;
 	private Scope parent;
-	private ArrayList children;
+	
+	// Lists of elements defined inside this this scope.
+	private ArrayList children;		// array of LocalNodes
+	private ArrayList functions;	// array of FunctionCallNodes
 	
 	public Scope(AbstractNode start) {
 		this.start = start;
@@ -61,6 +72,12 @@ public class Scope {
 			locals.add(newLocal);
 	}
 
+	void addFunctionDefinition(FunctionNode newDef) {
+		if (functions == null)
+			functions = new ArrayList();
+		functions.add(newDef);
+	}
+	
 	public Location getStart() {
 		return start.getStart();
 	}
@@ -84,5 +101,77 @@ public class Scope {
 		int size = children.size();
 		AbstractNode trueEndNode = size > 0 ? (AbstractNode)children.get(size-1) : end;	
 		this.end = trueEndNode;
+	}
+	
+	/**
+	 * @param name: function name
+	 * @param c: comparator to test for.
+	 * @return an ArrayList of ItemPointers to the function definitions. 
+	 * each returned item will test as equal in c.compare(token, item);
+	 * null is never returned, there will be an empty array if none were found.
+	 * 
+	 * Usage:
+	   scope.findFunctionCalls("FunctionName", true, 
+			new Comparator() {
+				public int compare(Object token, Object funcCall) {
+					return ((String)token).compareTo(((AbstractNode)funcCall).getName());
+
+	 */
+	
+	public ArrayList findFunctionCalls(Object token, boolean recursive, Comparator c) {
+		ArrayList retVal = new ArrayList();
+		// traverse our definitions
+		if (functions != null) {	
+			Iterator i = functions.iterator();
+			while (i.hasNext()) {
+				Object item = i.next();
+				if (c.compare(token, item) == 0)
+					retVal.add(item);
+			}
+		}
+		// now traverse parents
+		ArrayList ancestors = null;
+		if (recursive)
+			if (parent != null) 
+				ancestors = parent.findFunctionCalls(token, recursive, c);
+		if (ancestors != null)
+			retVal.addAll(ancestors);
+		return retVal;
+	}
+	
+	/**
+	 * get all the import files
+	 * @param startingPoint: a file to start searching from 
+	 * @return an ordered ArrayList of File of all import paths for the project.
+	 */
+	private ArrayList getImportPaths(IFile startingPoint) {
+		ArrayList retVal = new ArrayList();
+		// 1) the directory where the file is
+		if (startingPoint != null) {
+			IPath fileDir = startingPoint.getLocation().removeLastSegments(1);
+			retVal.add(fileDir.toFile());
+		}
+		// 2) interpreter/Lib
+		String interpreter = PydevPrefs.getInterpreters()[0];
+		File interpreterFile = new File(interpreter);
+		String parent = interpreterFile.getParent();
+		if (parent != null)
+			retVal.add(new File(parent, "Lib"));
+		return retVal;
+	}
+
+	/**
+	 * Find a file "name.py", searching the import include path
+	 * @return ArrayList of File objects that match.
+	 */
+	public File findImport(String name, IFile startAt) {
+		ArrayList importPaths = getImportPaths(startAt);
+		for (Iterator i= importPaths.iterator();i.hasNext();) {
+			File dir = (File)i.next();
+			File testFile = new File(dir, name + ".py");
+			if (testFile.exists())
+				return testFile;
+		}
+		return null;
 	}
 }

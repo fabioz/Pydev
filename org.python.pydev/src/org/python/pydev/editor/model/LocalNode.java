@@ -24,19 +24,22 @@ public class LocalNode extends AbstractNode {
 	/**
 	 * @param parent
 	 */
-	public LocalNode(AbstractNode parent, Name astNode) {
+	public LocalNode(AbstractNode parent, Name astNode, String lineText) {
 		super(parent);
 		this.astNode = astNode;
-		this.setStart(new Location(astNode.beginLine - 1, astNode.beginColumn));
-		this.setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn + astNode.id.length()));
+		this.setStart(new Location(astNode.beginLine - 1, astNode.beginColumn-1));
+		this.setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn -1+ astNode.id.length()));
+		fixColumnLocation(start, lineText);
+		fixColumnLocation(end, lineText);
 		parent.getScope().addLocalDefinition(this);
 		properties = PROP_CLICKABLE;
 	}
 
+	public String getName() {
+		return astNode.id;
+	}
+	
 	public String toString() {
 		return super.toString() + astNode.id;
-	}
-		
-	public class PredefinedNameException extends Exception {
 	}
 }

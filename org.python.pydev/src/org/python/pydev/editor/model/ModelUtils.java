@@ -5,9 +5,12 @@
  */
 package org.python.pydev.editor.model;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -15,10 +18,26 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
- * Utility functions: querying/conversion
+ * Utility functions: querying/conversion of the model.
+ * 
+ * The model is ordered by position in the file, and can be traversed
+ * with {@link #getNextNode} and {@link #getPreviousNode}.
+ * 
+ * The ordering looks like this:
+ * <pre>
+ *                          0                                           
+ *                        /  \                                           
+ *                       /    \                                          
+ *                       1     4                                         
+ *                      / \    /\                                          
+ *                     2   3  5  6                                        
+ * </pre>
  */
 public class ModelUtils {
 
+	/**
+	 * See the getElement(AbstractNode root, Location loc, int properties) comment.
+	 */
 	public static AbstractNode getElement(AbstractNode root, int offset, IDocument doc, int properties) {
 		try {
 			int line = doc.getLineOfOffset(offset);
@@ -31,7 +50,7 @@ public class ModelUtils {
 	}
 
 	/**
-	 * Depth-first search for a node that spans given location
+	 * Depth-first search for a node that spans given location.
 	 * @param root: node to start the search with
 	 * @param loc: location we are looking for
 	 * @param properties: properties node must match. Pass in PROP_ANY for all nodes
@@ -144,6 +163,9 @@ public class ModelUtils {
 		}
 	}
 	
+	/**
+	 * Tree traversal, get next node.
+	 */
 	public static AbstractNode getNextNode(AbstractNode node) {
 		if (node == null)
 			return null;
@@ -152,5 +174,40 @@ public class ModelUtils {
 			return (AbstractNode)children.get(0);
 		else
 			return getNextNodeHelper(node.getParent(), node);
+	}
+	
+	/**
+	 * Finds where the given node is defined.
+	 * @return TRICKY: null if nothing found. Otherwise, an array list of
+	 * If found first element is the IFile
+	 * second element is start of the
+	 */
+	public static ArrayList findDefinition(AbstractNode node) {
+		IFile file;
+		ArrayList retVal = new ArrayList();
+		// simple function calls
+		// ex: simpleCall()
+		if (node instanceof LocalNode &&
+			node.getParent() instanceof FunctionCallNode) {
+			ArrayList funcCalls = node.getScope().findFunctionCalls(node.getName(), true, 
+				new Comparator() {
+					public int compare(Object token, Object funcCall) {
+						return ((String)token).compareTo(((AbstractNode)funcCall).getName());
+					}		
+				});
+			for (Iterator i = funcCalls.iterator(); i.hasNext();) {
+				FunctionNode funcNode = (FunctionNode)i.next();
+				retVal.add(new ItemPointer(funcNode.getFile(), funcNode.getStart(), funcNode.getEnd()));
+			}
+		} else if (node instanceof ImportAlias) {
+			// imports:
+			// import sys
+			File myImport = node.getScope().findImport(node.getName(), node.getFile());
+			if (myImport != null)
+				retVal.add(new ItemPointer(myImport));
+		}else if (node instanceof AttributeNode)	{
+			// method calls. ex: self.break_here()
+		}
+		return retVal;
 	}
 }

@@ -15,6 +15,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.ui.InterpreterEditor;
 
 /**
  * Pydev preference page.
@@ -44,6 +45,8 @@ public class PydevPrefs extends FieldEditorPreferencePage
 	private static final RGB DEFAULT_STRING_COLOR = new RGB(120, 130, 61);
 	public static final String COMMENT_COLOR = "COMMENT_COLOR";
 	private static final RGB DEFAULT_COMMENT_COLOR = new RGB(178, 34, 34);
+	public static final String INTERPRETER_PATH = "INTERPRETER_PATH";
+	protected static final String DEFAULT_INTERPRETER_PATH = "python";
 	
 	/**
 	 * Initializer sets the preference store
@@ -57,6 +60,11 @@ public class PydevPrefs extends FieldEditorPreferencePage
 		return 	PydevPlugin.getDefault().getPluginPreferences();
 	}
 	
+	public static String[] getInterpreters() {
+		String interpreters = getPreferences().getString(PydevPrefs.INTERPRETER_PATH);
+		return InterpreterEditor.getInterpreterList(interpreters);
+	}
+
 	public void init(IWorkbench workbench) {		
 	}
 	

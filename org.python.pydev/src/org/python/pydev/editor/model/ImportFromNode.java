@@ -16,11 +16,17 @@ public class ImportFromNode extends AbstractNode {
 
 	public ImportFrom astNode;
 	
-	public ImportFromNode(AbstractNode parent, ImportFrom astNode) {
+	public ImportFromNode(AbstractNode parent, ImportFrom astNode, String lineText) {
 		super(parent);
 		this.astNode = astNode;
 		setStart(new Location(astNode.beginLine - 1, astNode.beginColumn - 1));
 		setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn -1 + astNode.module.length()));
+		fixColumnLocation(start, lineText);
+		fixColumnLocation(end, lineText);
 		properties = PROP_CLICKABLE;
+	}
+	
+	public String getName() {
+		return astNode.module;
 	}
 }

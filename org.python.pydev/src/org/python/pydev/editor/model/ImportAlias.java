@@ -16,11 +16,17 @@ public class ImportAlias extends AbstractNode {
 
 	aliasType astNode;
 	
-	public ImportAlias(AbstractNode parent, aliasType astNode) {
+	public ImportAlias(AbstractNode parent, aliasType astNode, String lineText) {
 		super(parent);
 		this.astNode = astNode;
 		setStart(new Location(astNode.beginLine - 1, astNode.beginColumn - 1));
 		setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn - 1 + astNode.name.length()));
+		fixColumnLocation(start, lineText);
+		fixColumnLocation(end, lineText);
 		properties = PROP_CLICKABLE;
+	}
+	
+	public String getName() {
+		return astNode.name;
 	}
 }

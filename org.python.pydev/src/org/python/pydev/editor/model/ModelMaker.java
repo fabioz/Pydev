@@ -5,13 +5,18 @@
  */
 package org.python.pydev.editor.model;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.*;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Creates the model from the AST tree.
+ * uses PopulateModel visitor pattern to create the tree.
  */
 public class ModelMaker {
 
@@ -20,9 +25,17 @@ public class ModelMaker {
 	 * For each Item found, call foundItem.
 	 * 
 	 */
-	public static ModuleNode createModel(SimpleNode root, int lines, int cols) {
-		ModuleNode n = new ModuleNode(null, lines, cols);
-		PopulateModel populator = new PopulateModel(root, n);
+	public static ModuleNode createModel(SimpleNode root, IDocument doc, IFile file) {
+		int lastLine = doc.getNumberOfLines();
+		int lineLength = 255;
+		try {
+			IRegion r = doc.getLineInformation(lastLine-1);
+			lineLength = r.getLength();
+		} catch (BadLocationException e1) {
+			PydevPlugin.log(IStatus.ERROR, "Unexpected error getting last line", e1);
+		}
+		ModuleNode n = new ModuleNode(file, lastLine, lineLength);
+		PopulateModel populator = new PopulateModel(root, n, doc);
 		try {
 			root.accept(populator);
 		} catch (Exception e) {
@@ -33,36 +46,51 @@ public class ModelMaker {
 	}
 	
 	/**
-	 * Problems this class is trying to solve:
-	 * 
-	 * - figuring out the end position of the node. AST only has starting position,
-	 * so we need to heuristically find the end of it
+	 * Create the model by traversing AST tree.
 	 *
-	 *
+	 * visit* functions are required by visitor patters.
+	 * When the pattern finds something interesting, it calls process* which
+	 * create the model.
 	 */
 	static class PopulateModel extends VisitorBase {
 
 		SimpleNode root;
 		AbstractNode parent;
+		IDocument doc;
 		
-		public PopulateModel(SimpleNode root, AbstractNode parent) {
+		public PopulateModel(SimpleNode root, AbstractNode parent, IDocument doc) {
 			this.root = root;
 			this.parent = parent;
+			this.doc = doc;
 		}
 		
+		private String getLineText(SimpleNode node) {
+			try {
+				IRegion lineInfo = doc.getLineInformation(node.beginLine -1);
+				return doc.get(lineInfo.getOffset(), lineInfo.getLength());
+			} catch (BadLocationException e) {
+				PydevPlugin.log(IStatus.ERROR, "Unexpected getLineText error", e);
+			}
+			return "";
+		}
+		
+		/** 
+		 * processAliases creates Import tokens. 
+		 * import os, sys would create 2 aliases
+		 */
 		void processAliases(AbstractNode parent, aliasType[] nodes) {
 			for (int i=0; i<nodes.length; i++)
-				new ImportAlias(parent, nodes[i]);
+				new ImportAlias(parent, nodes[i], getLineText(nodes[i]));
 		}
 
 		void processImport(Import node) {
-			ImportNode newNode = new ImportNode(parent, node);
+			ImportNode newNode = new ImportNode(parent, node, getLineText(node));
 			// have to traverse children manually to find all imports
 			processAliases(newNode, node.names);
 		}
 		
 		void processImportFrom(ImportFrom node) {
-			ImportFromNode newNode = new ImportFromNode(parent, node);
+			ImportFromNode newNode = new ImportFromNode(parent, node, getLineText(node));
 			// have to traverse children manually to find all imports
 			processAliases(newNode, node.names);		
 		}
@@ -70,7 +98,7 @@ public class ModelMaker {
 		void processClassDef(ClassDef node) {
 			ClassNode newNode = new ClassNode(parent, node);
 			// traverse inside the class definition			
-			PopulateModel populator = new PopulateModel(node, newNode);
+			PopulateModel populator = new PopulateModel(node, newNode, doc);
 			try {
 				node.traverse(populator);
 			} catch (Exception e) {
@@ -80,9 +108,9 @@ public class ModelMaker {
 		}
 
 		void processFunctionDef(FunctionDef node) {
-			FunctionNode newNode = new FunctionNode(parent, node);
+			FunctionNode newNode = new FunctionNode(parent, node, getLineText(node));
 			// traverse inside the function definition			
-			PopulateModel populator = new PopulateModel(node, newNode);
+			PopulateModel populator = new PopulateModel(node, newNode, doc);
 			try {
 				node.traverse(populator);
 			} catch (Exception e) {
@@ -93,12 +121,12 @@ public class ModelMaker {
 
 		void processLocal(Name node) {
 			if (!LocalNode.isBuiltin(node.id))
-				new LocalNode(parent, node);
+				new LocalNode(parent, node, getLineText(node));
 		}
 
 		void processFunctionCall(Call node) {
-			FunctionCallNode newNode = new FunctionCallNode(parent, node);
-			PopulateModel populator = new PopulateModel(node, newNode);
+			FunctionCallNode newNode = new FunctionCallNode(parent, node, getLineText(node));
+			PopulateModel populator = new PopulateModel(node, newNode, doc);
 			try {
 				node.traverse(populator);
 			} catch (Exception e) {
@@ -107,10 +135,15 @@ public class ModelMaker {
 		}
 
 		void processMain(If node) {
-			NameEqualsMainNode newNode = new NameEqualsMainNode(parent, node);
+			new NameEqualsMainNode(parent, node);
+		}
+
+		private void processAttribute(Attribute node) {
+			new AttributeNode(parent, node, getLineText(node));
 		}
 
 		protected Object unhandled_node(SimpleNode node) throws Exception {
+//			System.err.println("Unhandled: " + node.getClass().toString() + " L:" + Integer.toString(node.beginLine));
 			return null;
 		}
 
@@ -165,9 +198,14 @@ public class ModelMaker {
 					&& compareNode.comparators[0] instanceof Str 
 					&& ((Str)compareNode.comparators[0]).s.equals("__main__"))
 					processMain(node);
-					return null;	
 			}
 			return super.visitIf(node);
+		}
+	
+		public Object visitAttribute(Attribute node) throws Exception {
+			processAttribute(node);
+			super.visitAttribute(node);
+			return null;	// do not want to visit its children?
 		}
 	}
 }

@@ -84,6 +84,7 @@ class JJTPythonGrammarState {
         SimpleNode n = (SimpleNode) peekNode();
         n.beginLine = lines.pop();
         n.beginColumn = columns.pop();
+//        System.out.println(n.getClass().toString() + " L:" + Integer.toString(n.beginLine) + " C:" + Integer.toString(n.beginColumn));
     }
 
 

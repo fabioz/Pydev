@@ -24,6 +24,10 @@ public class ClassNode extends AbstractNode {
 		properties = PROP_CLICKABLE;
 	}
 	
+	public String getName() {
+		return astNode.name;
+	}
+	
 	public Scope getScope() {
 		return scope;
 	}

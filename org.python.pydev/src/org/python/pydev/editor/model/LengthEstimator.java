@@ -67,7 +67,7 @@ public class LengthEstimator extends VisitorBase {
 
 
 	public Object visitBinOp(BinOp node) throws Exception {
-		System.out.println("lenVisitBinOp:" + node.toString(""));
+//		System.out.println("lenVisitBinOp:" + node.toString(""));
 		return null;
 	}
 
@@ -215,7 +215,7 @@ public class LengthEstimator extends VisitorBase {
 	}
 
 	public Object visitNum(Num node) throws Exception {
-		System.out.println("lenVisitNum:" + node.toString(""));
+//		System.out.println("lenVisitNum:" + node.toString(""));
 		return null;
 	}
 
@@ -257,13 +257,13 @@ public class LengthEstimator extends VisitorBase {
 
 
 	public Object visitStr(Str node) throws Exception {
-		System.out.println("lenVisitStr:" + node.toString(""));
+//		System.out.println("lenVisitStr:" + node.toString(""));
 		return null;
 	}
 
 
 	public Object visitSubscript(Subscript node) throws Exception {
-		System.out.println("lenVisitSubscript:" + node.toString(""));
+//		System.out.println("lenVisitSubscript:" + node.toString(""));
 		return null;
 	}
 
@@ -287,7 +287,7 @@ public class LengthEstimator extends VisitorBase {
 
 
 	public Object visitTuple(Tuple node) throws Exception {
-		System.out.println("lenVisitTuple:" + node.toString(""));
+//		System.out.println("lenVisitTuple:" + node.toString(""));
 		return null;
 	}
 

@@ -20,4 +20,8 @@ public class NameEqualsMainNode extends AbstractNode {
 		this.setStart(new Location(astNode.beginLine, astNode.beginColumn-1));
 		this.setEnd(new Location(astNode.beginLine, astNode.beginColumn + 22));
 	}
+	
+	public String getName() {
+		return "if __name__  equals main";
+	}
 }

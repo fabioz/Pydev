@@ -53,7 +53,7 @@ public class PyComment extends PyAction {
 			startLine = doc.getLineInformation(startLineIndex);
 			endLine = doc.getLineInformation(endLineIndex);
 
-			String str = new String(doc.get(initialPos, length));
+			String str = doc.get(initialPos, length);
 
 			str = replaceStr(str, endLineDelim);
 			doc.replace(initialPos, length, str);

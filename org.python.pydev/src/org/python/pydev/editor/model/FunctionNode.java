@@ -15,15 +15,23 @@ public class FunctionNode extends AbstractNode {
 	public FunctionDef astNode;
 	Scope scope;
 	
-	public FunctionNode(AbstractNode parent, FunctionDef node) {
+	public FunctionNode(AbstractNode parent, FunctionDef node, String lineText) {
 		super(parent);
 		this.astNode = node;
 		scope = new Scope(this);
+		parent.getScope().addFunctionDefinition(this);
+
 		setStart(new Location(astNode.beginLine - 1, astNode.beginColumn + 3));
 		setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn + 3 + astNode.name.length()));
+		fixColumnLocation(start, lineText);
+		fixColumnLocation(end, lineText);
 		properties = PROP_CLICKABLE;
 	}
 	
+	public String getName() {
+		return astNode.name;
+	}
+
 	public Scope getScope() {
 		return scope;
 	}
