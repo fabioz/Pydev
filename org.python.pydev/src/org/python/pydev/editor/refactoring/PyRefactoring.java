@@ -33,11 +33,7 @@ import org.python.pydev.editor.model.Location;
  */
 public class PyRefactoring {
     
-    /**
-     * Reference to a 'global python shell'
-     */
-    private static PythonShell pytonShell;
-    
+
     /**
      * Instead of making all static, let's use a singleton... it may be useful...
      */
@@ -59,25 +55,12 @@ public class PyRefactoring {
 
     private PyRefactoring(){
         try {
-            getServerShell(); //when we initialize, initialize the server.
+            PythonShell.getServerShell(PythonShell.OTHERS_SHELL); //when we initialize, initialize the server.
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * @return
-     * @throws CoreException
-     * @throws IOException
-     * 
-     */
-    private synchronized PythonShell getServerShell() throws IOException, CoreException {
-        if(pytonShell == null){
-            pytonShell = new PythonShell();
-            pytonShell.startIt();
-        }
-        return pytonShell;
-    }
     
     public void addPropertyListener(IPropertyListener l) {
     	propChangeListeners.add(l);
@@ -93,7 +76,7 @@ public class PyRefactoring {
     private String makeAction(String str, Operation operation){
         PythonShell pytonShell;
         try {
-            pytonShell = getServerShell();
+            pytonShell = PythonShell.getServerShell(PythonShell.OTHERS_SHELL);
 	        try {
 	            pytonShell.write(str);
 	 
@@ -249,7 +232,7 @@ public class PyRefactoring {
      */
     public void restartShell() {
         try {
-            getServerShell().restartShell();
+            PythonShell.getServerShell(PythonShell.OTHERS_SHELL).restartShell();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (CoreException e) {

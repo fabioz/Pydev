@@ -38,6 +38,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
     private ProposalsComparator proposalsComparator = new ProposalsComparator();
 
+
     /**
      * @param edit
      */
@@ -89,7 +90,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             int qlen = qualifier.length();
 
             try {
-                PythonShell.getServerShell().sendGoToDirMsg(edit.getEditorFile());
+                PythonShell.getServerShell(PythonShell.COMPLETION_SHELL).sendGoToDirMsg(edit.getEditorFile());
             } catch (Exception e) {
                 //if we don't suceed, we don't have to fail... just go on and try
                 // to complete...

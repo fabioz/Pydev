@@ -12,7 +12,9 @@ import java.net.Socket;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
@@ -30,7 +32,10 @@ public class PythonShell {
     /**
      * Reference to a 'global python shell'
      */
-    private static PythonShell pytonShell;
+    private static Map shells = new HashMap();
+    
+    public static final int COMPLETION_SHELL = 1; 
+    public static final int OTHERS_SHELL = 2; 
 
 
     /**
@@ -39,9 +44,12 @@ public class PythonShell {
      * @throws IOException
      * 
      */
-    public synchronized static PythonShell getServerShell() throws IOException, CoreException {
+    public synchronized static PythonShell getServerShell(int id) throws IOException, CoreException {
+        PythonShell pytonShell = (PythonShell) shells.get(new Integer(id));
+        
         if(pytonShell == null){
             pytonShell = new PythonShell();
+            shells.put(new Integer(id), pytonShell);
             pytonShell.startIt();
         }
         return pytonShell;

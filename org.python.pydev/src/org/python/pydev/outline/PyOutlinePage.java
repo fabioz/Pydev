@@ -6,10 +6,7 @@
 package org.python.pydev.outline;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -26,7 +23,6 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
-import org.osgi.framework.Bundle;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.plugin.PydevPlugin;
@@ -63,8 +59,6 @@ public class PyOutlinePage extends ContentOutlinePage  {
 	public PyOutlinePage(PyEdit editorView) {
 		super();
 		this.editorView = editorView;
-		Bundle bundle = PydevPlugin.getDefault().getBundle();
-		URL bundleURL = Platform.find( bundle, new Path("/"));
 		imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
 	}
 	

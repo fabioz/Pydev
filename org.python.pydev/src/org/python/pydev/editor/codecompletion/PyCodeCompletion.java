@@ -28,8 +28,6 @@ public class PyCodeCompletion {
 
     int docBoundary = -1; // the document prior to the activation token
 
-    private PythonShell pytonShell;
-
     /**
      * @param theDoc:
      *            the whole document as a string.
@@ -64,7 +62,7 @@ public class PyCodeCompletion {
         List theList = new ArrayList();
         PythonShell serverShell = null;
         try {
-            serverShell = PythonShell.getServerShell();
+            serverShell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

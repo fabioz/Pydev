@@ -20,4 +20,11 @@ public class UIConstants {
 // Actions
 	public static final String ALPHA_SORT = "icons/alphab_sort_co.gif";
 	public static final String COLLAPSE_ALL = "icons/collapseall.gif";
+	
+//file content
+	public static final String FILE_ICON = "icons/file.gif";
+	public static final String FOLDER_ICON = "icons/folder.gif";
+	public static final String COPY_ICON = "icons/copy.gif";
+	public static final String CLOSE_ICON = "icons/close.gif";
+
 }

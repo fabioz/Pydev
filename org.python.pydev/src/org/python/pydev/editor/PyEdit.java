@@ -50,7 +50,6 @@ import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.editor.model.ModelMaker;
-import org.python.pydev.editor.refactoring.PyRefactoring;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
@@ -138,11 +137,11 @@ public class PyEdit extends PyEditProjection {
             public void run() {
                 try {
                     try {
-                        PyRefactoring.getPyRefactoring();
+                        PythonShell.getServerShell(PythonShell.OTHERS_SHELL);
                     } catch (RuntimeException e1) {
                     }
                     try {
-                        PythonShell.getServerShell();
+                        PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
                     } catch (RuntimeException e1) {
                     }
                 } catch (Exception e) {

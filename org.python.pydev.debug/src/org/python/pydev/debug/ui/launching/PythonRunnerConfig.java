@@ -182,11 +182,20 @@ public class PythonRunnerConfig {
 	
 	public String getCommandLineAsString() {
 		String[] args = getCommandLine();
-		StringBuffer s = new StringBuffer();
+		return getCommandLineAsString(args);
+	}
+
+
+    /**
+     * @param args
+     * @return
+     */
+    public static String getCommandLineAsString(String[] args) {
+        StringBuffer s = new StringBuffer();
 		for (int i=0; i< args.length; i++) {
 			s.append(args[i]);
 			s.append(" ");
 		}
 		return s.toString();
-	}
+    }
 }

@@ -368,7 +368,7 @@ class coverage:
             else:
                 return "%d-%d" % (start, end)
         import string
-        return string.join(map(stringify, pairs), ", ")
+        return string.join(map(stringify, pairs), ",")
 
     def analysis(self, morf):
         filename, statements = self.analyze_morf(morf)
@@ -429,8 +429,8 @@ class coverage:
                     pc = 100.0 * m / n
                 else:
                     pc = 100.0
-                args = (name, n, m, pc)
-                ret.append( (name, n, m, pc, readable))
+                args = (morf, n, m, pc)
+                ret.append( (morf, n, m, pc, readable))
                 if show_missing:
                     args = args + (readable,)
                 print >> out,  fmt_coverage % args
@@ -441,7 +441,7 @@ class coverage:
             except:
                 if not ignore_errors:
                     type, msg = sys.exc_info()[0:2]
-                    print >> out,  fmt_err % (name, type, msg)
+                    print >> out,  fmt_err % (morf, type, msg)
         if len(morfs) > 1:
             print >> out,  "-" * len(header)
             if total_statements > 0:
@@ -610,4 +610,4 @@ if __name__ == '__main__':
 #
 #
 #
-# $Id: coverage.py,v 1.1 2004-10-08 16:44:40 fabioz Exp $
+# $Id: coverage.py,v 1.2 2004-10-13 19:49:37 fabioz Exp $

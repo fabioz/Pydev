@@ -21,7 +21,7 @@ public class PyReloadCodeCompletionModules extends PyAction{
      */
     public void run(IAction action) {
         try {
-            PythonShell.getServerShell().sendReloadModulesMsg();
+            PythonShell.getServerShell(PythonShell.COMPLETION_SHELL).sendReloadModulesMsg();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
