@@ -466,9 +466,12 @@ public class ASTManager implements Serializable, IASTManager {
 
                 if(!recursing){
 	                //last thing: get completions from module __builtin__
-	                IToken[] toks = getModule("__builtin__").getGlobalTokens();
-	                for (int i = 0; i < toks.length; i++) {
-	                    completions.add(toks[i]);
+	                AbstractModule builtMod = getModule("__builtin__");
+	                if(builtMod != null){
+	                    IToken[] toks = builtMod.getGlobalTokens();
+		                for (int i = 0; i < toks.length; i++) {
+		                    completions.add(toks[i]);
+		                }
 	                }
                 }
                 

@@ -62,9 +62,13 @@ public class PyProjectProperties extends PropertyPage {
         try {
             String persistentProperty = getProjectPythonPathStr(project);
 
-        	String[] strings = persistentProperty.split("\\|");
+            if(persistentProperty != null){
+                String[] strings = persistentProperty.split("\\|");
         	
-            paths = new ArrayList(Arrays.asList(strings));
+                paths = new ArrayList(Arrays.asList(strings));
+            }else{
+                paths = new ArrayList();
+            }
         } catch (Exception e) {
 
             PydevPlugin.log(e);
