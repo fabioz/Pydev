@@ -549,7 +549,7 @@ class PyDB:
                 thread.pydev_step_stop = None
             elif (thread.pydev_step_cmd == CMD_STEP_OVER):
                 if (event is 'return'): # if we are returning from the function, stop in parent
-                    print "Stepping back one"
+#                    print "Stepping back one"
                     thread.pydev_step_stop = frame.f_back
                 else:
                     thread.pydev_step_stop = frame

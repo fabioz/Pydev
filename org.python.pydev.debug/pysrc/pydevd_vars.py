@@ -117,8 +117,11 @@ def frameVarsToXML(frame):
 	keys = frame.f_locals.keys()
 	keys.sort()
 	for k in keys:
-		 v = frame.f_locals[k]
-		 xml += varToXML(v, str(k))
+		try:
+			v = frame.f_locals[k]
+			xml += varToXML(v, str(k))
+		except Exception, e:
+			print >>sys.stderr,"unexpected error, recovered safely", str(e)
 	return xml
 
 def findFrame(thread, frame_id):
