@@ -19,9 +19,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceStore;
-import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -36,8 +33,6 @@ import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
-import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
@@ -124,17 +119,6 @@ public class PyEdit extends PyEditProjection {
         modelListeners = new ArrayList();
         Preferences pluginPrefs = PydevPrefs.getPreferences();
         colorCache = new ColorCache(pluginPrefs);
-        
-        //call updatePyDevPluginPrefs() when Pydev prefs are modified
-        //TODO: update the syntax highlighting colors too
-        Preferences.IPropertyChangeListener listener = new Preferences.IPropertyChangeListener() {
-        	public void propertyChange(Preferences.PropertyChangeEvent event) {
-        		updatePyDevPluginPrefs();
-        	}
-        };
-        pluginPrefs.addPropertyChangeListener(listener);
-        
-        updatePyDevPluginPrefs();
         
         if (getDocumentProvider() == null) {
             setDocumentProvider(new PyDocumentProvider());
@@ -569,38 +553,10 @@ public class PyEdit extends PyEditProjection {
         return PythonNature.getPythonNature(project);
     }
 
-//TODO: REMOVED: when not using it, some things are not editable (I guess that we have to move all that
-//to the plugin in order to get this kind of 'independence'.
-//    protected void initializeEditor()
-//    {
-//    	//Use a fresh PreferenceStore to avoid modifying the default TextEditor PreferenceStore
-//    	//All the TextEditor defaults will be used unless explicitly set in this PreferenceStore
-//    	super.initializeEditor();
-//    	this.setPreferenceStore(new PreferenceStore());
-//    }
-    
-    private void updatePyDevPluginPrefs()
+    protected void initializeEditor()
     {
-    	Preferences pluginPrefs = PydevPrefs.getPreferences();
-    	colorCache = new ColorCache(pluginPrefs);
-        IPreferenceStore edprefs = getPreferenceStore();
-    	
-        if(edprefs == null){
-            edprefs = new PreferenceStore();
-            this.setPreferenceStore(edprefs);
-        }
-        
-    	edprefs.setValue(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE, 
-    			pluginPrefs.getBoolean(PydevPrefs.EDITOR_CURRENT_LINE));
-        edprefs.setValue(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE_COLOR, 
-        		StringConverter.asString(colorCache.getNamedColor(
-        				PydevPrefs.EDITOR_CURRENT_LINE_COLOR).getRGB()));
-        
-        edprefs.setValue(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT, 
-        		!pluginPrefs.getBoolean(PydevPrefs.EDITOR_USE_CUSTOM_BACKGROUND_COLOR));
-        edprefs.setValue(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND, 
-        		StringConverter.asString(colorCache.getNamedColor(
-        				PydevPrefs.EDITOR_BACKGROUND_COLOR).getRGB()));
+    	super.initializeEditor();    	
+    	this.setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
     }
 }
 

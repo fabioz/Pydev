@@ -159,7 +159,7 @@ public class PythonShell {
 
             if(process != null)
                 endIt();
-            String interpreter = getDefaultInterpreter();
+            String interpreter = PydevPrefs.getDefaultInterpreter();
             String osName = System.getProperty("os.name");
             
             String execMsg;
@@ -231,18 +231,6 @@ public class PythonShell {
         }
     }
     
-    /**
-     * @return
-     */
-    protected String getDefaultInterpreter() {
-        try {
-            return PydevPrefs.getDefaultInterpreter();
-        } catch (RuntimeException e) {
-            return "python";
-        }
-    }
-
-
     /**
      * This method creates the python server process and starts the sockets, so that we
      * can talk with the server.
