@@ -98,12 +98,9 @@ public class PythonRunnerConfig {
 		URL bundleURL = Platform.find( bundle, relative);
 		URL fileURL;
 		try {
-			fileURL = Platform.resolve( bundleURL);
-			String fixmePath = fileURL.getPath(); // this gets you /D:/eclipse3/workspace/org.python.pydev.debug/pysrc/pydevd.py
-			if (fixmePath.charAt(2) == ':')	// Windows path, fix remove the front slash
-				fixmePath = fixmePath.substring(1);
-			IPath fullPath = new Path(fixmePath);
-			return fullPath.toOSString();
+			fileURL = Platform.asLocalURL( bundleURL);	 
+			String filePath = new File(fileURL.getPath()).getAbsolutePath();
+			return filePath;
 		} catch (IOException e) {
 			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Can't find python debug script", null));
 		}
