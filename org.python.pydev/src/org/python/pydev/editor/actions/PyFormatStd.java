@@ -32,13 +32,18 @@ public class PyFormatStd extends PyAction{
 		    String endLineDelim = ps.endLineDelim;
 			IDocument doc = ps.doc;
 			
-			if(ps.textSelection.getLength() == 0){
+			int startLine = ps.startLineIndex;
+            if(ps.textSelection.getLength() == 0){
 			    performFormatAll(doc);
 			}else{
-			    performFormatSelection(doc, ps.startLineIndex, ps.endLineIndex);
+			    performFormatSelection(doc, startLine, ps.endLineIndex);
 			}
-			TextSelection sel = new TextSelection(doc, doc.getLineOffset(ps.startLineIndex), 0);
-			getTextEditor().getSelectionProvider().setSelection(sel);
+			
+            if(startLine >= doc.getNumberOfLines()){
+                startLine = doc.getNumberOfLines()-1;
+            }
+            TextSelection sel = new TextSelection(doc, doc.getLineOffset(startLine), 0);
+            getTextEditor().getSelectionProvider().setSelection(sel);
 		} 
 		catch ( Exception e ) 
 		{
@@ -103,7 +108,13 @@ public class PyFormatStd extends PyAction{
         for (int i = 0; i < cs.length; i++) {
             char c = cs[i];
             
-            if(c == ','){
+            if(c == '\'' || c == '"'){ //ignore comments or multiline comments...
+                i = eatLiterals(std, cs, buf, i);
+                
+            }else if(c == '#'){
+                i = eatComments(std, cs, buf, i);
+                
+            }else if(c == ','){
 		        i = formatForComma(std, cs, buf, i);
 		        
             }else if(c == '('){
@@ -116,6 +127,87 @@ public class PyFormatStd extends PyAction{
             }
         }
         return buf.toString();
+    }
+
+    /**
+     * @param std
+     * @param cs
+     * @param buf
+     * @param i
+     * @return
+     */
+    private static int eatComments(FormatStd std, char[] cs, StringBuffer buf, int i) {
+        while(i < cs.length && cs[i] != '\n' && cs[i] != '\r'){
+            buf.append(cs[i]);
+            i++;
+        }
+        if(i < cs.length)
+            buf.append(cs[i]);
+
+        return i;
+    }
+
+    /**
+     * @param std
+     * @param cs
+     * @param buf
+     * @param i
+     * @return
+     */
+    private static int eatLiterals(FormatStd std, char[] cs, StringBuffer buf, int i) {
+        //ok, current pos is ' or "
+        //check if we're starting a single or multiline comment...
+        char curr = cs[i];
+        
+        boolean multi = isMultiLiteral(cs, i, curr);
+        
+        int j;
+        if(multi){
+            j = findNextMulti(cs, i+3, curr);
+        }else{
+            j = findNextSingle(cs, i+1, curr);
+        }
+        
+        for (int k = i; k < cs.length && k <= j; k++) {
+            buf.append(cs[k]);
+        }
+        return j;
+        
+    }
+    
+    /**
+     * @param cs
+     * @param i
+     */
+    private static int findNextSingle(char[] cs, int i, char curr) {
+        while(i < cs.length && cs[i] != curr){
+            i++;
+        }
+        return i;
+    }
+
+    /**
+     * @param cs
+     * @param i
+     */
+    private static int findNextMulti(char[] cs, int i, char curr) {
+        while(i < cs.length && cs[i] != curr){
+            i++;
+        }
+        if(cs.length < i+2){
+            return cs.length;
+        }
+        return i+2;
+    }
+
+    private static boolean isMultiLiteral(char cs[], int i, char curr){
+        if(cs.length <= i + 2){
+            return false;
+        }
+        if(cs[i+1] == curr && cs[i+2] == curr){
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -173,7 +265,7 @@ public class PyFormatStd extends PyAction{
      */
     private static int formatForComma(FormatStd std, char[] cs, StringBuffer buf, int i) {
         char c;
-        while(i < cs.length && (c = cs[i+1]) == ' '){
+        while(i < cs.length-1 && (c = cs[i+1]) == ' '){
             i++;
         }
         

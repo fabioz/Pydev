@@ -159,6 +159,53 @@ public class PyFormatStdTest extends TestCase {
     }
 
     
+    public void testFormatNotInsideStrings(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = true;
+
+        String s = ""+
+"a = ''' test()\n"+
+"nothing changes() ((aa) )\n"+
+"'''";
+        
+        assertEquals(s, PyFormatStd.formatStr(s, std));
+
+        s = ""+
+"a = ''' test()\n"+
+"nothing changes() ((aa) )\n"+
+"";
+        
+        assertEquals(s, PyFormatStd.formatStr(s, std));
+
+        s = ""+
+"a = ' test()'\n"+
+"'nothing changes() ((aa) )'\n"+
+"";
+        
+        assertEquals(s, PyFormatStd.formatStr(s, std));
+
+        s = ""+
+"a = ' test()'\n"+
+"'nothing changes() ((aa) )\n"+
+"";
+        
+        assertEquals(s, PyFormatStd.formatStr(s, std));
+    }
+
+    
+    public void testFormatNotInsideComments(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = true;
+
+        String s = ""+
+"#a = ''' test()\n"+
+"#nothing changes() ((aa) )\n"+
+"#'''";
+        
+        assertEquals(s, PyFormatStd.formatStr(s, std));
+    }
+
+    
     
 
 }

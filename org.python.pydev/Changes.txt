@@ -17,12 +17,14 @@ c. | triggers completion with bla,foo
 - code completion: reference to update completions for other project. Some kind of 'broadcast' could be used for these changes.
 - code completion: some thread could check for completions from time to time to make sure they're up-to-date (check timestamp)/changes in structure.
 - code completion: ClassC().| should bring suggestions for class 'ClassC'
-- Ctrl+Shift+O: if text is selected, organize selection.
+
+
+Bug:
+PyLint does not work if we have spaces in the path
 
 
 
-
-after 0.9.0
+Done after 0.9.0
 
 Content assistant improvements:
 - assign content assistant when assigned to variable strips the "get";
@@ -33,13 +35,24 @@ not to top of file;
 Others:
 - Ctrl+Shift+O: if no selection: Organizes all global imports from the file (sorts alphabetically);
 - Ctrl+Shift+O: if some line selection: sorts alphabetically the lines selected;
+- Ctrl+Shift+F: if no selection: Formats all code;
+- Ctrl+Shift+F: if some line selection: Formats selected code;
 - PyLint only blocks interface on "update results";
+- the namespace in debug mode is not polluted anymore (Scott Schleiser provided the patch);
+- The PYTHONPATH used for debug now should be the same used in run.
 
 Code Completion:
 - get parameters in code completion;
-- builtins like '', {}, [] should bring correct suggestions;
+- builtins like ' ', {}, [] should bring correct suggestions;
 - relative imports;
 - other bug-fixes;
+
+
+
+
+
+
+
 
 
 
