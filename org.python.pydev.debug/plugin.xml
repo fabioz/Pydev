@@ -4,7 +4,7 @@
    name="Pydev debug"
    version="0.3.0"
    provider-name="Aleks Totic"
-   class="org.python.pydev.debug.core.DebugPlugin">
+   class="org.python.pydev.debug.core.PydevDebugPlugin">
 
    <runtime>
       <library name="pydev-debug.jar"/>
@@ -21,6 +21,7 @@
       <import plugin="org.eclipse.debug.core"/>
       <import plugin="org.eclipse.debug.ui"/>
       <import plugin="org.python.pydev"/>
+      <import plugin="org.apache.xerces"/>
    </requires>
 
 
@@ -60,8 +61,9 @@
             label="Python script"
             icon="icons/python.gif"
             modes="run, debug"
-            class="org.python.pydev.debug.ui.launching.LaunchShortcut"
+            class="org.python.pydev.debug.launching.LaunchShortcut"
             id="org.python.pydev.debug.launchShortcut">
+            <perspective id="org.eclipse.debug.ui.DebugPerspective"/>
       </shortcut>
    </extension>
 <!--- launcher pop up over a python file -->
@@ -121,10 +123,7 @@
             mode="debug"
             id="org.python.pydev.debug.debug">
       </launchGroup>
-   </extension>
-   <extension
-         point="org.eclipse.debug.ui.launchGroups">
-      <launchGroup
+       <launchGroup
             label="Run"
             bannerImage="icons/python-big.gif"
             category="org.python.pydev.debug"
@@ -141,6 +140,30 @@
             processType="PYDEV.PYTHON"
             id="org.python.pydev.debug.ui.PythonConsoleLineTracker">
       </consoleLineTracker>
+   </extension>
+<!--- breakpoint marker -->
+<!--- TODO just a placeholder for now -->
+   <extension
+         id="pyBreakpointMarker"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.debug.core.breakpointMarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+      <attribute
+            name="org.eclipse.cdt.debug.core.condition">
+      </attribute>
+      <attribute
+            name="org.eclipse.cdt.debug.core.ignoreCount">
+      </attribute>
+      <attribute
+            name="org.eclipse.cdt.debug.core.threadId">
+      </attribute>
+      <attribute
+            name="org.eclipse.cdt.debug.core.installCount">
+      </attribute>
    </extension>
 
 </plugin>
