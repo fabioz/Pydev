@@ -37,7 +37,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 	/**
 	 * Hyperlink error lines to the editor.
 	 * 
-	 * @see org.eclipse.debug.ui.console.IConsoleLineTracker#lineAppended(org.eclipse.jface.text.IRegion)
+	 * Based on org.eclipse.debug.ui.console.IConsoleLineTracker#lineAppended(org.eclipse.jface.text.IRegion)
 	 */
 	public void lineAppended(IRegion line) {
 		int lineOffset = line.getOffset();

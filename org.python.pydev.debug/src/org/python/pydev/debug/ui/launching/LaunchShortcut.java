@@ -31,6 +31,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.debug.core.*;
+import org.python.pydev.plugin.PydevPrefs;
 
 /**
  * Called when "Run Script..." popup menu item is selected.
@@ -38,7 +39,7 @@ import org.python.pydev.debug.core.*;
  * <p>Manages configurations (store/load/default)
  * <p>Launches the "Run python..." window
  * <p>code almost all copied from AntLaunchShortcut:
- * @see org.eclipse.ui.externaltools.internal.ant.launchConfigurations.AntLaunchShortcut
+ * Based on org.eclipse.ui.externaltools.internal.ant.launchConfigurations.AntLaunchShortcut
  */
 public class LaunchShortcut implements ILaunchShortcut {
 
@@ -153,7 +154,7 @@ public class LaunchShortcut implements ILaunchShortcut {
 // E3			String baseDirectory = varManager.generateVariableExpression("workspace_loc",file.getRawLocation().removeLastSegments(1).toString());
 			String baseDirectory = file.getRawLocation().removeLastSegments(1).toString();
 			String arguments = "";
-			String interpreter = PydevDebugPlugin.getDefault().getInterpreters()[0];
+			String interpreter = PydevPrefs.getInterpreters()[0];
 			workingCopy.setAttribute(Constants.ATTR_LOCATION,location);
 			workingCopy.setAttribute(Constants.ATTR_WORKING_DIRECTORY,baseDirectory);
 			workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS,arguments);

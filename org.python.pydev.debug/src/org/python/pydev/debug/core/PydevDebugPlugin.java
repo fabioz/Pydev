@@ -4,8 +4,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
-import org.python.pydev.debug.ui.InterpreterEditor;
-
 /**
  * The main plugin for Python Debugger.
  * 
@@ -37,11 +35,6 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
 	 */
 	public static IWorkbenchWindow getActiveWorkbenchWindow() {
 		return getDefault().getWorkbench().getActiveWorkbenchWindow();
-	}
-	
-	public String[] getInterpreters() {
-		String interpreters = getPreferenceStore().getString(Constants.PREF_INTERPRETER_PATH);
-		return InterpreterEditor.getInterpreterList(interpreters);
 	}
 	
 	/**

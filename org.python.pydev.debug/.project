@@ -3,6 +3,10 @@
 	<name>org.python.pydev.debug</name>
 	<comment></comment>
 	<projects>
+		<project>org.apache.xerces</project>
+		<project>org.eclipse.core.boot</project>
+		<project>org.eclipse.core.resources</project>
+		<project>org.eclipse.core.runtime</project>
 		<project>org.python.pydev</project>
 	</projects>
 	<buildSpec>

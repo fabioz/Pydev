@@ -27,7 +27,5 @@ public interface Constants {
 	static final String ATTR_PROGRAM_ARGUMENTS = "org.eclipse.ui.externaltools" + ".ATTR_TOOL_ARGUMENTS";
 	static final String ATTR_INTERPRETER = PLUGIN_ID + ".ATTR_INTERPRETER";
 	
-	// Preferences
-	public static final String PREF_INTERPRETER_PATH = "INTERPRETER_PATH";
 	
 }

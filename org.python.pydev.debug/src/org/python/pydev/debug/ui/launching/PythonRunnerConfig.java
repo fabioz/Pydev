@@ -20,7 +20,6 @@ import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsU
 import org.eclipse.ui.externaltools.internal.variable.ExpandVariableContext;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.debug.ui.InterpreterEditor;
 
 /**
  * Holds configuration for PythonRunner.
@@ -107,7 +106,7 @@ public class PythonRunnerConfig {
 		Vector cmdArgs = new Vector(10);
 		cmdArgs.add(interpreter);
 		// Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
-		cmdArgs.add(InterpreterEditor.isJython(interpreter) ? "-i" : "-u");
+		cmdArgs.add(org.python.pydev.ui.InterpreterEditor.isJython(interpreter) ? "-i" : "-u");
 		if (isDebug) {
 //	rpdb		cmdArgs.add(debugScript);
 //			cmdArgs.add("-c");

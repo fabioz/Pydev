@@ -22,6 +22,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.python.pydev.debug.core.*;
+import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.ui.InterpreterEditor;
 
 /**
  * The main Python debug setup tab.
@@ -105,7 +107,7 @@ public class PythonMainTab extends AbstractLaunchConfigurationTab {
 
 
 		interpreterField = new Combo (comp, SWT.DROP_DOWN);
-		interpreterField.setItems (PydevDebugPlugin.getDefault().getInterpreters());
+		interpreterField.setItems (PydevPrefs.getInterpreters());
 		interpreterField.select(0);
 		data = new GridData ();
 		data.horizontalAlignment = GridData.FILL;

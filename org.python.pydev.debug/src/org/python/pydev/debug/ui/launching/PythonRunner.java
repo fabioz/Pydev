@@ -71,14 +71,7 @@ public class PythonRunner {
 		}
 	}
 
-	/**
-	 * launches the debug configuration
-	 * @param config
-	 * @param launch
-	 * @param monitor
-	 * @throws CoreException
-	 */
-	public void run(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
+	public void runDebug(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
@@ -96,17 +89,13 @@ public class PythonRunner {
 		connectThread.start();
 		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory);	
 		if (p == null)
-			// TODO this might not be an error
 			throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, "Could not execute python process. Was it cancelled?", null));
+		
+		IProcess process = registerWithDebugPlugin(config, launch, p);
 
 		// Register the process with the debug plugin
 		subMonitor.worked(2);
 		subMonitor.subTask("Starting debugger...");
-		HashMap processAttributes = new HashMap();
-		processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
-		processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
-		IProcess process = DebugPlugin.newProcess(launch,p, config.file.lastSegment(), processAttributes);
-
 		// Launch the debug listener on a thread, and wait until it completes
 		while (connectThread.isAlive()) {
 			if (monitor.isCanceled()) {
@@ -147,6 +136,49 @@ public class PythonRunner {
 									config.getRunningName(), debugger);
 		Thread dt = new Thread(debugger, "Pydev remote debug connection");
 		dt.start();
+	}
+
+	/**
+	 * launches the debug configuration
+	 * @param config
+	 * @param launch
+	 * @param monitor
+	 * @throws CoreException
+	 */
+	public void run(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
+		if (config.isDebug) {
+			runDebug(config, launch, monitor);
+			return;
+		}
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
+		IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
+		subMonitor.beginTask("Launching python", 1);
+		
+		// Launch & connect to the debugger		
+		subMonitor.subTask("Constructing command_line...");
+		String[] cmdLine = config.getCommandLine();
+		subMonitor.worked(1);
+		
+		subMonitor.subTask("Exec...");		
+		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory);	
+		if (p == null)
+			throw new CoreException(new Status(IStatus.ERROR, PydevDebugPlugin.getPluginID(), 0, "Could not execute python process. Was it cancelled?", null));
+
+		// Register the process with the debug plugin
+		subMonitor.worked(2);
+		subMonitor.subTask("Done");
+		registerWithDebugPlugin(config, launch, p);
+	}
+
+	/**
+	 * TODO document
+	 */
+	private IProcess registerWithDebugPlugin(PythonRunnerConfig config, ILaunch launch, Process p) {
+		HashMap processAttributes = new HashMap();
+		processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
+		processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
+		return DebugPlugin.newProcess(launch,p, config.file.lastSegment(), processAttributes);
 	}
 	
 	protected void checkErrorMessage(IProcess process) throws CoreException {

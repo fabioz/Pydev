@@ -4,3 +4,7 @@ http://www.eclipse.org/articles/Article-Launch-Framework/launch.html
 Applet launcher source;
 http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.launching/launching/org/eclipse/jdt/internal/launching/JavaAppletLaunchConfigurationDelegate.java?rev=HEAD&content-type=text/vnd.viewcvs-markup
 
+org.eclipse.cdt.debug.core.CDebugModel 
+ * Provides utility methods for creating debug sessions, targets and 
+ * breakpoints specific to the CDI debug model.
+ 

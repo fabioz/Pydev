@@ -28,7 +28,7 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
  * <p>The code is pretty much copied from ExternalTools' ProgramLaunchDelegate.
  * <p>I would have subclassed, but ProgramLaunchDelegate hides important internals
  * 
- * @see org.eclipse.ui.externaltools.internal.program.launchConfigurations.ProgramLaunchDelegate
+ * Based on org.eclipse.ui.externaltools.internal.program.launchConfigurations.ProgramLaunchDelegate
  */
 public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDelegate
 	{
