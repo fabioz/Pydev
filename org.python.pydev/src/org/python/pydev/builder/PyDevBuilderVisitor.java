@@ -27,7 +27,15 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 	 * @see org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse.core.resources.IResourceDelta)
 	 */
 	public boolean visit(IResourceDelta delta) throws CoreException {
+		if(delta == null){
+		    return true;
+		}
+
 		IResource resource = delta.getResource();
+		if(resource == null || resource.getFileExtension() == null){ //resource.getFileExtension() may return null if it has none.
+		    return true;
+		}
+		
 		int type = resource.getType();
 		if (type == IResource.FILE) {
 			if (resource.getFileExtension().equals("py")) {
