@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.5.8.5"
+   version="0.5.8.7"
    provider-name="AleksTotic"
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -563,7 +563,7 @@
             description="main"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.pdb">
-         <pattern>if __name __ == 'main':</pattern>
+         <pattern>if __name__ == 'main':</pattern>
       </template>
       <template
             name="pd"
