@@ -2,11 +2,13 @@
 
 package org.python.parser;
 
+import java.io.Serializable;
+
 /* All AST nodes must implement this interface.  It provides basic
    machinery for constructing the parent and child relationships
    between nodes. */
 
-public interface Node {
+public interface Node extends Serializable {
 
 }
 

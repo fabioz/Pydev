@@ -67,6 +67,15 @@ public class CompletionCache {
         switch(type){
         	case PyCodeCompletion.TYPE_IMPORT: 
         	    return imageCache.get(UIConstants.COMPLETION_IMPORT_ICON);
+        	
+        	case PyCodeCompletion.TYPE_CLASS: 
+        	    return imageCache.get(UIConstants.COMPLETION_CLASS_ICON);
+        	
+        	case PyCodeCompletion.TYPE_FUNCTION: 
+        	    return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
+
+        	case PyCodeCompletion.TYPE_ATTR: 
+        	    return imageCache.get(UIConstants.PRIVATE_METHOD_ICON);
         	default:
         	    return null;
         }

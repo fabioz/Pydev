@@ -32,19 +32,19 @@ public class CompletionsCacheTest extends TestCase {
         }
 
         System.out.println("----------------------");
-        imports = cache.getImports("");
+        imports = cache.getCompletionForImport("");
         for (Iterator iter = imports.iterator(); iter.hasNext();) {
             System.out.println(((Object[])iter.next())[0]);
         }
        
         System.out.println("----------------------");
-        imports = cache.getImports("xml");
+        imports = cache.getCompletionForImport("xml");
         for (Iterator iter = imports.iterator(); iter.hasNext();) {
             System.out.println(((Object[])iter.next())[0]);
         }
 
         System.out.println("----------------------");
-        imports = cache.getImports("xml.dom.");
+        imports = cache.getCompletionForImport("xml.dom.");
         for (Iterator iter = imports.iterator(); iter.hasNext();) {
             System.out.println(((Object[])iter.next())[0]);
         }

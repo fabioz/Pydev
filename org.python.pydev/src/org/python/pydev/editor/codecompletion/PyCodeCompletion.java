@@ -7,7 +7,6 @@ package org.python.pydev.editor.codecompletion;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -24,6 +23,11 @@ import org.python.pydev.plugin.PythonNature;
  * @author Fabio Zadrozny
  */
 public class PyCodeCompletion {
+
+    /**
+     * Type for unknown.
+     */
+    public static final int TYPE_UNKNOWN = -1;
 
     /**
      * Type for import (used to decide the icon)
@@ -94,8 +98,7 @@ public class PyCodeCompletion {
             System.out.println(importsTipper);
 
             importsTipper = importsTipper.trim();
-            Set imports = new HashSet();
-            imports = pythonNature.getAstManager().getImports(importsTipper);
+            Set imports = pythonNature.getAstManager().getCompletionForImport(importsTipper);
             List completions = new ArrayList(imports);
             theList.addAll(completions);
         
@@ -211,7 +214,8 @@ public class PyCodeCompletion {
         if(lineOfOffset!=-1){
             String docToParseFromLine = getDocToParseFromLine(doc, lineOfOffset);
             if(docToParseFromLine != null)
-                return "\n"+docToParseFromLine;
+                return docToParseFromLine;
+//                return "\n"+docToParseFromLine;
             else
                 return "";
         }else{

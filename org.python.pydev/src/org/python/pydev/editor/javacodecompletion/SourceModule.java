@@ -5,86 +5,101 @@
  */
 package org.python.pydev.editor.javacodecompletion;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.python.parser.SimpleNode;
-
+import org.python.parser.ast.Str;
 
 /**
- * The module should have all the information we need for code completion, find definition, and
- * refactoring on a module.
+ * The module should have all the information we need for code completion, find definition, and refactoring on a module.
  * 
- * Note: A module may be represented by a folder if it has an __init__.py file that represents the
- * module or a python file.
+ * Note: A module may be represented by a folder if it has an __init__.py file that represents the module or a python file.
  * 
  * Any of those must be a valid python token to be recognized (from the PYTHONPATH).
  * 
- * We don't reuse the ModelUtils already created as we still have to transport a lot of logic to it
- * to make it workable, so, the attempt here is to use a thin tier.  
+ * We don't reuse the ModelUtils already created as we still have to transport a lot of logic to it to make it workable, so, the attempt
+ * here is to use a thin tier.
  * 
+ * NOTE: When using it, don't forget to use the superclass abstraction.
+ *  
  * @author Fabio Zadrozny
  */
-public class SourceModule extends AbstractModule{
+public class SourceModule extends AbstractModule {
 
     /**
      * This is the abstract syntax tree based on the jython parser output.
      */
     private SimpleNode ast;
-    
+
     /**
-     * @return a reference to all the modules that are imported from this one in the global context as a
-     * from xxx import *
-     * 
-     * This modules are treated specially, as we don't care which tokens were imported. When this is requested,
-     * the module is prompted for its tokens. 
+     * File that originated the syntax tree.
      */
-    public List getWildImportedModules(){
+    private File file;
+
+    /**
+     * @return a reference to all the modules that are imported from this one in the global context as a from xxx import *
+     * 
+     * This modules are treated specially, as we don't care which tokens were imported. When this is requested, the module is prompted for
+     * its tokens.
+     */
+    public List getWildImportedModules() {
         return getTokens(GlobalModelVisitor.WILD_MODULES);
     }
-    
+
     /**
-     * @return a reference to all the modules that are imported from this one in the global context in the 
-     * following constructions:
+     * @return a reference to all the modules that are imported from this one in the global context in the following constructions:
      * 
-     * from xxx import xxx
-     * import xxx
-     * import xxx as ...
-     * from xxx import xxx as .... 
+     * from xxx import xxx import xxx import xxx as ... from xxx import xxx as ....
      */
-    public List getTokenImportedModules(){
+    public List getTokenImportedModules() {
         return getTokens(GlobalModelVisitor.ALIAS_MODULES);
     }
-   
+
     /**
      * @return the tokens that are present in the global scope.
      * 
-     * The tokens can be class definitions, method definitions and attributes. 
+     * The tokens can be class definitions, method definitions and attributes.
      */
-    public List getGlobalTokens(){
+    public List getGlobalTokens() {
         return getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
     }
-    
+
+    /**
+     * @return a string representing the module docstring.
+     */
+    public String getDocString() {
+        List l = getTokens(GlobalModelVisitor.MODULE_DOCSTRING);
+        if (l.size() > 0) {
+            SimpleNode a = ((SourceToken) l.get(0)).getAst();
+
+            return ((Str) a).s;
+        }
+        return "";
+    }
+
     /**
      * @param which
      * @return
      */
     private List getTokens(int which) {
         try {
-            GlobalModelVisitor modelVisitor = new GlobalModelVisitor(which);
-            ast.accept(modelVisitor);
-            return modelVisitor.tokens;
+            return GlobalModelVisitor.getTokens(ast, which);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return new ArrayList();
     }
-
-
 
     /**
+     * private constructor.
+     * 
      * @param n
      */
-    public SourceModule(SimpleNode n) {
+    public SourceModule(File f, SimpleNode n) {
         this.ast = n;
+        this.file = f;
     }
+
 }

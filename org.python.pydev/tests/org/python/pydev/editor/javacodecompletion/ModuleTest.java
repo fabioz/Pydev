@@ -5,6 +5,9 @@
  */
 package org.python.pydev.editor.javacodecompletion;
 
+import java.util.Iterator;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -23,18 +26,31 @@ public class ModuleTest extends TestCase {
     public void testMod1(){
         Object[] obj = PyParser.reparseDocument(new Document(getDoc1()), false);
         SimpleNode n = (SimpleNode)obj[0];
-        SourceModule module = new SourceModule(n);
+        AbstractModule module = AbstractModule.createModule(n);
        
         assertEquals(5, module.getGlobalTokens().size());
+        List list = module.getGlobalTokens();
+        for (Iterator iter = list.iterator(); iter.hasNext();) {
+            SourceToken element = (SourceToken) iter.next();
+//            System.out.println(element);
+//            System.out.println(element.docStr);
+//            System.out.println(element.getCompletionType());
+        }
 
         assertEquals(1, module.getWildImportedModules().size());
 
         assertEquals(4, module.getTokenImportedModules().size());
+
+        assertEquals("docstring for module", module.getDocString());
+        
     }
     
     public String getDoc1(){
         //damn, I really miss python when writing this...
         return
+"'''" +
+"docstring for module" +
+"'''\n" +
 "from m1 import a1\n" +
 "from mm import aa as xx , gg as yy\n" + //this is only 1 import, but it has 2 'aliasType'.
 "from m2 import a2 as aa\n" +
@@ -53,6 +69,10 @@ public class ModuleTest extends TestCase {
 "\n" +
 "d = D()\n" +
 "\n" +
-"def a():return 1";
+"def a():\n" +
+"    '''\n" +
+"    method a" +
+"    '''\n" +
+"    return 1";
     }
 }

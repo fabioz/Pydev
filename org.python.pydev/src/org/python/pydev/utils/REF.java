@@ -5,6 +5,8 @@
  */
 package org.python.pydev.utils;
 
+import java.lang.reflect.Field;
+
 /**
  * @author Fabio Zadrozny
  */
@@ -21,7 +23,7 @@ public class REF {
         return true;
     }
 
-    public static Object getAttr(Object o, String attr){
+    public static Field getAttr(Object o, String attr){
         try {
             return o.getClass().getDeclaredField(attr);
         } catch (SecurityException e) {
@@ -30,4 +32,21 @@ public class REF {
             return null;
         }
     }
+    
+    public static Object getAttrObj(Object o, String attr){
+        if (REF.hasAttr(o, attr)) {
+            Field field = REF.getAttr(o, attr);
+            try {
+                Object obj = field.get(o);
+                return obj;
+            }catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
+    }
+    
+    
+    
 }
+

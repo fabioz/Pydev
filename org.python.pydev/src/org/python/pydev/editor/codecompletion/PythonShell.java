@@ -480,8 +480,9 @@ public class PythonShell {
     }
 
     /**
+     * 
      * @param importsTipper
-     * @return
+     * @return list with tuples: new String[]{token, description}
      * @throws CoreException
      */
     public List getImportCompletions(String str) throws CoreException {
