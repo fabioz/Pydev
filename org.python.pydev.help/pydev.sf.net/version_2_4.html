@@ -5,7 +5,7 @@
 <meta name="generator" content="HTML Tidy, see www.w3.org" />
 <meta http-equiv="Content-Type" content=
 "text/html; charset=iso-8859-1" />
-<title>PyChecker</title>
+<title>Python 2.4 Support</title>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -247,6 +247,28 @@ alt="" src="images/paypal.gif" alt=
 
 <td valign="top" align="left" width="30">&nbsp;</td>
 <td valign="top" align="left"><!-- begin main.text -->
+To activate python 2.4 support in PyDev, you should right click on you project root, choose properties, go for
+the Pydev details and choose version 2.4.<br>
+<br>
+
+<IMG src="images/python_version.png" border="1" >
+<br>
+<br>
+
+<strong>NOTE: </strong>
+Pydev now has some support for the new python syntax (version 2.4 - not really full support, but
+it should do until the jython grammar used is updated - it also depends on the python adsl module - 
+an attempt to unify both grammars...)
+<br>
+<br>
+<strong>HOW IT WORKS: </strong>
+Basically, it changes lines that have a syntax error on '@' to a 'pass' and reanalyzes the file. - I know this is really, 
+but REALLY far from perfect, but it should do for those that are eager to use python 2.4 decorators new syntax and still have no support.
+<br>
+<br>
+I would like to put some color support for that too (decorators), but this is going to depend on the grammar support...
+<br>
+<br>
 
 </td>
 <!-- end main.text -->
@@ -269,7 +291,7 @@ google_ad_client = "pub-0781609843524821";
 google_ad_width = 160;
 google_ad_height = 600;
 google_ad_format = "160x600_as";
-google_ad_channel ="1935586933";
+google_ad_channel ="6798751939";
 //--></script>
 <script type="text/javascript"
   src="http://pagead2.googlesyndication.com/pagead/show_ads.js">

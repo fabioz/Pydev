@@ -348,15 +348,25 @@ public class ASTManager implements Serializable, IASTManager {
             EmptyModule e = (EmptyModule)n;
             System.out.println("Loading module: "+name+ " file "+e.f);
 
-            if(e.f != null){
+            //let's treat os as a special extension, since many things it has are too much
+            //system dependent, and being so, many of its useful completions are not goten
+            //e.g. os.path is defined correctly only on runtime.
+            if(name.equals("os") && e.f != null){ //it has to be defined in a file.
+                n = new CompiledModule(name);
+                
+                
+            } else if(e.f != null){
                 try{
                     n = AbstractModule.createModule(name, e.f, nature);
                 }catch(FileNotFoundException exc){
                     this.modules.remove(new ModulesKey(name, e.f));
                     n = null;
                 }
+                
+                
             }else{
                 //check for supported builtins
+                //these don't have files associated.
                 if(name.equals("__builtin__")){
                     n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN);
                 }else if(name.equals("sys")){

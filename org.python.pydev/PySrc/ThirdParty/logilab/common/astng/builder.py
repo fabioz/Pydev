@@ -24,12 +24,12 @@ TODO:
 """
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: builder.py,v 1.4 2005-01-21 17:42:09 fabioz Exp $"
+__revision__ = "$Id: builder.py,v 1.5 2005-01-26 18:09:57 fabioz Exp $"
 
 import sys
 from compiler import parse
 from inspect import isfunction, ismethod, ismethoddescriptor, isclass, \
-     getargspec
+     isbuiltin, getargspec
 from os.path import splitext, basename, dirname, exists
 
 from logilab.common.fileutils import norm_read
@@ -335,12 +335,17 @@ class ASTNGBuilder:
                 self._function_member_build(node, member)
             elif ismethoddescriptor(member):
                 self._methoddescriptor_member_build(node, member)
+            elif isbuiltin(member):
+                # verify this is not an imported member
+                if getattr(member, '__module__', None) != modname:
+                    continue
+                self._builtin_member_build(node, member)                
             elif isclass(member):
                 # verify this is not an imported class
                 #
                 # /!\ some classes like ExtensionClass doesn't have a 
                 # __module__ attribute !
-                if not getattr(member, '__module__', None) == modname:
+                if getattr(member, '__module__', None) != modname:
                     continue
                 klass = self._class_member_build(node, member)
                 # recursion
@@ -372,6 +377,13 @@ class ASTNGBuilder:
         func = build_function(member.__name__, doc=member.__doc__)
         func.object = member
         node.add_local_node(func)    
+    _builtin_member_build = _methoddescriptor_member_build
+##     def _builtin_member_build(self, node, member):
+##         """create astng for a living method descriptor object"""
+##         # FIXME get arguments ?
+##         func = build_function(member.__name__, doc=member.__doc__)
+##         func.object = member
+##         node.add_local_node(func)    
     
 
     def _qt_member_build(self, node, obj):
@@ -386,7 +398,8 @@ class ASTNGBuilder:
         # and finally also added modutils since __module__ attribute on qt
         # classes seems to take the name of the importing module
         # FIXME: bug report on pyqt to remove this special handling...
-        modules = (self._module.__name__, '__main__', 'logilab.common.modutils')
+        modname = self._module.__name__
+        modules = (modname, '__main__', 'logilab.common.modutils')
         modfile = getattr(self._module, '__file__', None)
         for name in dir(obj):
             try:
@@ -403,12 +416,15 @@ class ASTNGBuilder:
                 self._function_member_build(node, member)
             elif ismethoddescriptor(member):
                 self._methoddescriptor_member_build(node, member)
+            elif isbuiltin(member):
+                # verify this is not an imported member
+                if not (member.__module__ is None or member.__module__ in modules):
+                    print 'skipping', member, member.__module__, modules
+                    continue
+                self._builtin_member_build(node, member)
             elif isclass(member):
                 # verify this is not an imported class
-                #
-                # /!\ some classes like ExtensionClass doesn't have a 
-                # __module__ attribute !
-                if not getattr(member, '__module__', None) in modules:
+                if not member.__module__ in modules:
                     continue
                 # grrr: qt.QWidget.__name__ == 'qt.QWidget' !
                 member.__name__ = member.__name__.split('.')[-1]

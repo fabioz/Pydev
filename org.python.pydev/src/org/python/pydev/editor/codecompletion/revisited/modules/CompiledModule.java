@@ -35,7 +35,7 @@ public class CompiledModule extends AbstractModule{
      * @param module - module from where to get completions.
      */
     public CompiledModule(String name){
-        this(name, -1);
+        this(name, PyCodeCompletion.TYPE_BUILTIN);
     }
 
     /**
