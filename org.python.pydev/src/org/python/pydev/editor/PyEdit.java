@@ -15,6 +15,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
@@ -24,6 +26,7 @@ import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.MarkerUtilities;
+import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.parser.ParseException;
 import org.python.parser.SimpleNode;
@@ -37,6 +40,7 @@ import org.python.pydev.outline.SelectionPosition;
 import org.python.pydev.parser.IParserListener;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.ui.ColorCache;
+import org.eclipse.jface.action.IAction;
 
 
 /**
@@ -169,6 +173,26 @@ public class PyEdit extends TextEditor implements IParserListener {
 		parser.dispose();
 		colorCache.dispose();
 		super.dispose();
+	}
+	private static final String CONTENTASSIST_PROPOSAL_ID = 
+						 "org.python.pydev.editors.PyEdit.ContentAssistProposal"; 
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.texteditor.AbstractTextEditor#createActions()
+	 */
+	protected void createActions() {
+		super.createActions();
+		// This action will fire a CONTENTASSIST_PROPOSALS operation
+		// when executed
+		
+		IAction action= new TextOperationAction(PydevPlugin.getDefault().getResourceBundle(), 
+		"ContentAssistProposal",this,SourceViewer.CONTENTASSIST_PROPOSALS);
+		action.setActionDefinitionId(CONTENTASSIST_PROPOSAL_ID);
+		// Tell the editor about this new action
+		setAction(CONTENTASSIST_PROPOSAL_ID, action);
+		// Tell the editor to execute this action 
+		// when Ctrl+Spacebar is pressed
+		setActionActivationCode(CONTENTASSIST_PROPOSAL_ID,' ', -1, SWT.CTRL);
 	}
 
 
