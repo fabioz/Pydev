@@ -12,7 +12,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
-import org.eclipse.jface.text.source.IAnnotationModel;
+import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.ui.IPropertyListener;
@@ -43,7 +43,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * @see org.python.pydev.editor.model.IModelListener#modelChanged(org.python.pydev.editor.model.AbstractNode)
      */
     public synchronized void modelChanged(AbstractNode root) {
-        IAnnotationModel model = (IAnnotationModel) editor
+        ProjectionAnnotationModel model = (ProjectionAnnotationModel) editor
                 .getAdapter(ProjectionAnnotationModel.class);
         
         if (model == null){
@@ -53,9 +53,9 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
             //even if it looks like a hack...)
             new Thread(){
                 public void run(){
-                    IAnnotationModel modelT = null;
+                    ProjectionAnnotationModel modelT = null;
                     for(int i=0 ; i < 10 && modelT == null; i++){
-	                    modelT = (IAnnotationModel) editor
+	                    modelT = (ProjectionAnnotationModel) editor
 	                    .getAdapter(ProjectionAnnotationModel.class);
 	                    try {
                             sleep(50);
@@ -78,7 +78,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * @param root
      * @param model
      */
-    private void addMarksToModel(AbstractNode root, IAnnotationModel model) {
+    private void addMarksToModel(AbstractNode root, ProjectionAnnotationModel model) {
         try{
 	        if (model != null) {
 	            ArrayList collapsed = new ArrayList();
@@ -130,7 +130,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * @param collapsed
      * @param model
      */
-    private void addMarks(ArrayList nodes, IAnnotationModel model, ArrayList collapsed) {
+    private void addMarks(ArrayList nodes, ProjectionAnnotationModel model, ArrayList collapsed) {
         int i=0;
         
         IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
@@ -214,7 +214,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * @param model
      * @throws BadLocationException
      */
-    private void addFoldingMark(AbstractNode node, int start, int end, IAnnotationModel model, ArrayList collapsed) throws BadLocationException {
+    private void addFoldingMark(AbstractNode node, int start, int end, ProjectionAnnotationModel model, ArrayList collapsed) throws BadLocationException {
 
         try {
             IDocument document = editor.getDocumentProvider().getDocument(
@@ -224,7 +224,12 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
             Position position = new Position(offset, endOffset - offset);
             
             
-            model.addAnnotation(getAnnotationToAdd(position, node, model, collapsed), position);
+            Annotation anottation = getAnnotationToAdd(position, node, model, collapsed);
+            if(model.getPosition(anottation)!= null && model.getPosition(anottation).equals(position) == false){
+                model.modifyAnnotationPosition(anottation, position);
+            }else{
+                model.addAnnotation(anottation, position);
+            }
             
             
         } catch (BadLocationException x) {
@@ -242,7 +247,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * @param collapsed
      * @return
      */
-    private ProjectionAnnotation getAnnotationToAdd(Position position, AbstractNode node, IAnnotationModel model, ArrayList collapsed){
+    private ProjectionAnnotation getAnnotationToAdd(Position position, AbstractNode node, ProjectionAnnotationModel model, ArrayList collapsed){
         for (Iterator iter = collapsed.iterator(); iter.hasNext();) {
             PyProjectionAnnotation element = (PyProjectionAnnotation) iter.next();
             if (element.appearsSame(node)){
