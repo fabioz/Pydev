@@ -256,6 +256,12 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
      */
     public static final String PYLINT_PROBLEM_MARKER = "org.python.pydev.pylintproblemmarker";
     public boolean visitResource(IResource resource, IDocument document) {
+        try {
+            resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+        } catch (CoreException e3) {
+            PydevPlugin.log(e3);
+        }
+        
         if(PyLintPrefPage.usePyLint() == false){
             return true;
         }
@@ -286,7 +292,6 @@ public class PyLintVisitor  extends PyDevBuilderVisitor {
 	            boolean useC = PyLintPrefPage.useCodingStandard();
 	            boolean useR = PyLintPrefPage.useRefactorTips();
 	            
-	            resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 	            
 	            while(tokenizer.hasMoreTokens()){
 	                String tok = tokenizer.nextToken();
