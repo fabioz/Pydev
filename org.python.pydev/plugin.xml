@@ -8,8 +8,8 @@
 
    <runtime>
       <library name="pydev.jar">
-      	<export name="*"/>
- 	  </library>
+         <export name="*"/>
+      </library>
    </runtime>
    <requires>
       <import plugin="org.eclipse.core.resources"/>
@@ -20,6 +20,7 @@
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.jface.text"/>
       <import plugin="org.eclipse.jdt.ui"/>
+      <import plugin="org.pydev.jython"/>
    </requires>
 
 
@@ -83,7 +84,7 @@
             id="org.python.pydev.prefs.debugPage">
       </page>
    </extension>
- <!-- Editor menus -->
+<!-- Editor menus -->
    <extension
          point="org.eclipse.ui.editorActions">
       <editorContribution
@@ -137,22 +138,22 @@
          </action>
          <action
                definitionId="org.python.pydev.editor.actions.navigation.previousMethod"
-               label=       "Goto previous method or class"
-               class=       "org.python.pydev.editor.actions.PyPreviousMethod"
-               menubarPath= "org.python.pydev.editor.actions.sourceMenu/addGroup"
-               id=          "org.python.pydev.editor.actions.navigation.previousMethod">
+               label="Goto previous method or class"
+               class="org.python.pydev.editor.actions.PyPreviousMethod"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.navigation.previousMethod">
          </action>
          <action
                definitionId="org.python.pydev.editor.actions.navigation.pyGoToDefinition"
-               label=       "Go to Definition"
-               class=       "org.python.pydev.editor.actions.PyGoToDefinition"
-               menubarPath= "org.python.pydev.editor.actions.sourceMenu/addGroup"
-               id=          "org.python.pydev.editor.actions.navigation.pyGoToDefinition">
+               label="Go to Definition"
+               class="org.python.pydev.editor.actions.PyGoToDefinition"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.navigation.pyGoToDefinition">
          </action>
       </editorContribution>
    </extension>
-<!-- Editor popup menus-->
 <!-- NOTE: EditorContext part of the targetID was deduced, that is just what Eclipse expects -->
+<!-- Editor popup menus-->
    <extension
          point="org.eclipse.ui.popupMenus">
       <viewerContribution
@@ -200,8 +201,8 @@
          </action>
       </viewerContribution>
    </extension>
-<!-- Commands -->
 <!-- associates commands with keyboard shortcuts -->
+<!-- Commands -->
    <extension
          point="org.eclipse.ui.commands">
       <scope
