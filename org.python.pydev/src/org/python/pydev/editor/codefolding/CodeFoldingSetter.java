@@ -204,15 +204,6 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
             e.printStackTrace();
         }
         
-//        for (int j = i+1; j < nodes.size(); j++) {
-//            AbstractNode curr = (AbstractNode) nodes.get(j);
-//            System.out.println("getStartColumn(curr) "+getStartColumn(curr)+" start "+start);
-//            if (getStartColumn(curr) <= start){
-//                end = curr.getEnd().line;
-//                return end;
-//            }
-//        }
-        
         return end;
     }
 
