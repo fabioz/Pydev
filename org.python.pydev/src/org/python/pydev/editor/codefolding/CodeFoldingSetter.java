@@ -14,7 +14,8 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
-import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.IPropertyListener;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.ClassNode;
 import org.python.pydev.editor.model.FunctionNode;
@@ -26,11 +27,11 @@ import org.python.pydev.editor.model.ModelUtils;
  * 
  * This class is used to set the code folding markers.
  */
-public class CodeFoldingSetter implements IModelListener {
+public class CodeFoldingSetter implements IModelListener, IPropertyListener {
 
-    private TextEditor editor;
+    private PyEdit editor;
 
-    public CodeFoldingSetter(TextEditor editor) {
+    public CodeFoldingSetter(PyEdit editor) {
         this.editor = editor;
     }
 
@@ -39,11 +40,43 @@ public class CodeFoldingSetter implements IModelListener {
      * 
      * @see org.python.pydev.editor.model.IModelListener#modelChanged(org.python.pydev.editor.model.AbstractNode)
      */
-    public void modelChanged(AbstractNode root) {
+    public synchronized void modelChanged(AbstractNode root) {
         IAnnotationModel model = (IAnnotationModel) editor
                 .getAdapter(ProjectionAnnotationModel.class);
         
-        
+        if (model == null){
+            //we have to get the model to do it... so, start a thread and try until get it...
+            //this had to be done because sometime we get here and we still are unable to get the 
+            //projection annotation model. (there should be a better way, but this solves it...
+            //even if it looks like a hack...)
+            new Thread(){
+                public void run(){
+                    IAnnotationModel modelT = null;
+                    for(int i=0 ; i < 10 && modelT == null; i++){
+	                    modelT = (IAnnotationModel) editor
+	                    .getAdapter(ProjectionAnnotationModel.class);
+	                    try {
+                            sleep(50);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (modelT != null){
+                        addMarksToModel(editor.getPythonModel(), modelT);
+                    }
+                }
+            }.start();
+        }else{
+            addMarksToModel(root, model);
+        }   
+
+    }
+
+    /**
+     * @param root
+     * @param model
+     */
+    private void addMarksToModel(AbstractNode root, IAnnotationModel model) {
         try{
 	        if (model != null) {
 	            ArrayList collapsed = new ArrayList();
@@ -74,7 +107,6 @@ public class CodeFoldingSetter implements IModelListener {
         }catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -127,6 +159,16 @@ public class CodeFoldingSetter implements IModelListener {
             }
         }
         return new PyProjectionAnnotation(node );
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.ui.IPropertyListener#propertyChanged(java.lang.Object, int)
+     */
+    public void propertyChanged(Object source, int propId) {
+        if(propId == PyEditProjection.PROP_FOLDING_CHANGED){
+            System.out.println("PyEditProjection.PROP_FOLDING_CHANGED");
+            modelChanged(editor.getPythonModel());
+        }
     }
 
 }

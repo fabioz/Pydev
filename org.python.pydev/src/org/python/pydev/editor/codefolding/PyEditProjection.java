@@ -30,7 +30,8 @@ public abstract class PyEditProjection extends TextEditor implements
 
     private ProjectionSupport fProjectionSupport;
 
-    
+    public static final int PROP_FOLDING_CHANGED = -999;	
+
 
     /*
      * (non-Javadoc)
