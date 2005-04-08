@@ -44,4 +44,6 @@ public class UIConstants {
 	    
 	public static final String ASSIST_ASSIGN_TO_LOCAL = "icons/methpub_obj.gif";
 	public static final String ASSIST_ASSIGN_TO_CLASS = "icons/methpub_obj.gif";
+	
+	public static final String ASSIST_DOCSTRING = "icons/template.gif";
 }

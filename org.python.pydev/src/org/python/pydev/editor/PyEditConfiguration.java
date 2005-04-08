@@ -90,6 +90,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		}
 		return autoIndentStrategy;
 	 }
+	 
 	
 	 /**
 	  * Recalculates indent prefixes based upon preferences

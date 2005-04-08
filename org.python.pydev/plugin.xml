@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.9.21"
+   version="0.9.25"
    provider-name="Fabio Zadrozny / Aleks Totic "
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -290,6 +290,18 @@
                class="org.python.pydev.editor.actions.PyFormatStd"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.pyFormatStd">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.pyOpenPar"
+               label="Open parentesis"
+               class="org.python.pydev.editor.actions.PyOpenPar"
+               id="org.python.pydev.editor.actions.navigation.pyOpenPar">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.pyClosePar"
+               label="Close parentesis"
+               class="org.python.pydev.editor.actions.PyClosePar"
+               id="org.python.pydev.editor.actions.navigation.pyClosePar">
          </action>
       </editorContribution>
    </extension>
@@ -665,6 +677,32 @@
             string="Ctrl+Shift+F"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.pyFormatStd"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: Open parentesis-->
+      <command
+            name="Python Open Parentesis"
+            description="Open parentesis"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pyOpenPar">
+      </command>
+      <keyBinding
+            string="("
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.pyOpenPar"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+<!-- command: Close parentesis-->
+      <command
+            name="Python Close Parentesis"
+            description="Close parentesis"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pyClosePar">
+      </command>
+      <keyBinding
+            string=")"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.pyClosePar"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
 

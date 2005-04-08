@@ -247,22 +247,38 @@ public class PyFormatStd extends PyAction{
         
         if(c == ')'){
             
+            char c1;
+            StringBuffer buf1 = new StringBuffer();
+            
+            if(locBuf.indexOf("\n") != -1){
+	            for (int k = locBuf.length(); k > 0 && (c1 = locBuf.charAt(k-1))!= '\n'; k--) {
+	                buf1.insert(0, c1);
+	            }
+            }
+            
 	        String formatStr = formatStr(trim(locBuf), std);
 	        formatStr = trim(new StringBuffer(formatStr));
 	        
+	        String closing = ")";
+	        if(buf1.length() > 0 && PyAction.containsOnlyWhitespaces(buf1.toString())){
+	            formatStr += buf1.toString();
+	        }else if(std.parametersWithSpace){
+	            closing = " )";
+	        }
+	        
 	        if(std.parametersWithSpace){
 	            if(formatStr.length() == 0){
-		            buf.append( "( )" );
+		            buf.append( "()" );
 	                
 	            }else{
 		            buf.append( "( " );
 		            buf.append( formatStr );
-		            buf.append( " )" );
+		            buf.append( closing );
 	            }
 	        }else{
 	            buf.append( "(" );
 	            buf.append( formatStr );
-	            buf.append( ")" );
+	            buf.append( closing );
 	        }
 	        return j;
         }else{

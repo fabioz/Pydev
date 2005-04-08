@@ -184,7 +184,7 @@ public class PyBackspace extends PyAction {
 
         ITextSelection textSelection = ps.getITextSelection();
 
-        int length = getDelimiter(ps.doc, 1).length();
+        int length = getDelimiter(ps.doc).length();
         int offset = textSelection.getOffset() - length;
 
         //System.out.println("Replacing offset: "+(offset) +" lenght: "+

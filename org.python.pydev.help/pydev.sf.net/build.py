@@ -6,11 +6,9 @@ def _topicDefault():
 <table  border="1" cellpadding="0" cellspacing="0" width="100%(perc)s">
 <tbody>
 <tr>
-<td bgcolor="#eeeeee" align="center" valign="middle" >
-<h1>PyDev</h1>
 
--- A new way of making software development in Python -- <br /><br/>
-
+<td bgcolor="#d9d8d2" align="center" valign="middle" >
+<IMG src="images/pydev_logo6.gif" border="0" >
 
 </td>
 </tr>
@@ -19,7 +17,6 @@ def _topicDefault():
 </td>
 '''
 
-#(<a href="http://www.python.org">Python</a> development enviroment for <a href="http://www.eclipse.org">Eclipse</a>)<br /><br/>
     return s
 
 def _getTopicTd(link, name):

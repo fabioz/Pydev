@@ -7,6 +7,7 @@ package org.python.pydev.editor.correctionassist;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -96,7 +97,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
         PySelection ps = new PySelection(edit, false);
 
         List results = new ArrayList();
-        String sel = getLine(ps);
+        String sel = PyAction.getLineWithoutComments(ps);
         
         
         //at least some text must be selected 
@@ -118,6 +119,8 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 
         }else if (sel.indexOf("class ") != -1){
             
+            results.addAll(getDocStringProps(ps, imageCache));
+
             try {
                 results.addAll(getClassProps(ps));
 	        } catch (BadLocationException e) {
@@ -126,10 +129,13 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
             
         }else if (sel.indexOf("def ") != -1){
             
-            try {
+            results.addAll(getDocStringProps(ps, imageCache));
+
+	        try {
                 results.addAll(getOverrideProps(ps, imageCache, edit.getEditorFile(), edit.getPythonNature()));
 	        } catch (BadLocationException e) {
 	        }
+            
             
             
         }else {
@@ -154,16 +160,54 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
     
     /**
      * @param ps
+     * @param imageCache2
+     * @return
+     */
+    private List getDocStringProps(PySelection ps, ImageCache imageCache2) {
+        ArrayList l = new ArrayList();
+        List params = PyAction.getInsideParentesisToks(ps.selection, false);
+        
+        StringBuffer buf = new StringBuffer();
+	    String initial = PyAction.getIndentationFromLine(ps.selection);
+        String delimiter = PyAction.getDelimiter(ps.doc);
+        String indentation = PyBackspace.getStaticIndentationString();
+	    String inAndIndent = delimiter+initial+indentation;
+	    
+        buf.append(inAndIndent+"'''");
+	    int newOffset = buf.length();
+	    
+        if (ps.selection.indexOf("def ") != -1 && params.size()>0){
+	        buf.append(inAndIndent);
+		    for (Iterator iter = params.iterator(); iter.hasNext();) {
+	            String element = (String) iter.next();
+	            buf.append(inAndIndent+"@param ");
+	            buf.append(element);
+	            buf.append(":");
+	        }
+        }
+	    buf.append(inAndIndent+"'''");
+	    buf.append(inAndIndent);
+
+	    String comp = buf.toString();
+        l.add(new CompletionProposal(comp, ps.startLine.getOffset()+ps.startLine.getLength(), 0, newOffset , imageCache.get(UIConstants.ASSIST_DOCSTRING),
+                "Make docstring", null, null));
+	    return l;
+    }
+
+    
+    /**
+     * @param ps
      * @return
      */
     public static List getOverrideProps(PySelection ps,  ImageCache imageCache, File f, PythonNature nature) throws BadLocationException {
         ArrayList l = new ArrayList();
-        String sel = getLine(ps);
-        int j = sel.indexOf("def ");
+        String sel = PyAction.getLineWithoutComments(ps);
         
         String indentation = PyBackspace.getStaticIndentationString();
-        String delimiter = PyAction.getDelimiter(ps.doc, 0);
+        String delimiter = PyAction.getDelimiter(ps.doc);
+
         String indStart = "";
+        int j = sel.indexOf("def ");
 
         for (int i = 0; i < j; i++) {
             indStart += " ";
@@ -214,7 +258,6 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
                 
                 String comp = buffer.toString();
 
-                System.out.println("comp ="+comp);
                 l.add(new CompletionProposal(comp, ps.startLine.getOffset(), ps.startLine.getLength(), comp.length() , imageCache.get(UIConstants.ASSIST_NEW_CLASS),
                         rep+" (Override)", null, null));
             }
@@ -231,10 +274,10 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
         ArrayList l = new ArrayList();
 
         String indentation = PyBackspace.getStaticIndentationString();
-        String delimiter = PyAction.getDelimiter(ps.doc, 0);
+        String delimiter = PyAction.getDelimiter(ps.doc);
         
         
-        String sel = getLine(ps);
+        String sel = PyAction.getLineWithoutComments(ps);
         int beg = sel.indexOf('(');
         int end = sel.indexOf(')');
         
@@ -305,7 +348,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
         int end = ps.endLine.getOffset()+ps.endLine.getLength();
         
         String string = ps.doc.get(start, end-start);
-        String delimiter = PyAction.getDelimiter(ps.doc, 0);
+        String delimiter = PyAction.getDelimiter(ps.doc);
         
         int firstCharPosition = PyAction.getFirstCharRelativePosition(ps.doc, start);
         String startIndent = "";
@@ -344,14 +387,14 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
      */
     private List getMoveImports(PySelection ps) throws BadLocationException {
         ArrayList l = new ArrayList();
-        String sel = getLine(ps).trim();
+        String sel = PyAction.getLineWithoutComments(ps).trim();
 
         int i = sel.indexOf("import");
         if(ps.startLineIndex != ps.endLineIndex)
             return l;
         
         
-        String delimiter = PyAction.getDelimiter(ps.doc, 0);
+        String delimiter = PyAction.getDelimiter(ps.doc);
         
         int lineToMoveImport = 0;
         int lines = ps.doc.getNumberOfLines();
@@ -380,7 +423,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
      */
     private List getCreations(PySelection ps) throws BadLocationException {
         List l = new ArrayList();
-        String sel = getLine(ps);
+        String sel = PyAction.getLineWithoutComments(ps);
 
 
         if (sel.trim().length() == 0) {
@@ -396,13 +439,13 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
             return l;
         }
 
-        String params = getInsideParentesisTok(ps);
+        String params = PyAction.getInsideParentesisTok(ps);
         int firstCharPosition = PyAction.getFirstCharRelativePosition(ps.doc, ps.absoluteCursorOffset);
         
         String indentation = PyBackspace.getStaticIndentationString();
 
         
-        String delim = PyAction.getDelimiter(ps.doc, 0);
+        String delim = PyAction.getDelimiter(ps.doc);
         String cls = "class "+callName+"(object):"+delim+delim;
         
         String self = "self";
@@ -542,19 +585,12 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 
 
     /**
-     * 
-     */
-    private static String getLine(PySelection ps) {
-        return ps.selection.replaceAll("#.*", "");
-    }
-    
-    /**
      * @param ps
      * @throws BadLocationException
      */
     private List getAssignToResults(PySelection ps) throws BadLocationException {
         List l = new ArrayList();
-        String sel = getLine(ps);
+        String sel = PyAction.getLineWithoutComments(ps);
         if (sel.trim().length() == 0) {
             return l;
         }
@@ -623,7 +659,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
             return beforeParentesisTok;
         }
         //otherwise, try to find . (ignore code after #)
-        String string = getLine(ps);
+        String string = PyAction.getLineWithoutComments(ps);
         String callName = "";
         //get parentesis position and go backwards
 
@@ -638,24 +674,13 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
         return callName;
     }
 
-    /**
-     * @param ps
-     * @return
-     */
-    private String getInsideParentesisTok(PySelection ps) {
-        String sel = getLine(ps);
-
-        int beg = sel.indexOf('(')+1;
-        int end = sel.indexOf(')');
-        return sel.substring(beg, end);
-    }
-
+    
     /**
      * @param ps
      * @return string with the token or empty token if not found.
      */
     private String getBeforeParentesisTok(PySelection ps) {
-        String string = getLine(ps);
+        String string = PyAction.getLineWithoutComments(ps);
 
         int i;
 

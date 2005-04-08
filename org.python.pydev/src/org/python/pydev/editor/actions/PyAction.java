@@ -6,6 +6,10 @@
  
 package org.python.pydev.editor.actions;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -17,6 +21,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Fabio Zadrozny
@@ -52,6 +57,10 @@ public abstract class PyAction implements IEditorActionDelegate {
 		action.setEnabled( targetEditor instanceof ITextEditor);
 	}
 
+	public static String getDelimiter(IDocument doc){
+	    return getDelimiter(doc, 0);
+	}
+	
 	/**
 	 * This method returns the delimiter for the document
 	 * @param doc
@@ -59,13 +68,21 @@ public abstract class PyAction implements IEditorActionDelegate {
 	 * @return  delimiter for the document (\n|\r\|r\n)
 	 * @throws BadLocationException
 	 */
-	public static String getDelimiter(IDocument doc, int startLineIndex)
-		throws BadLocationException {
-		String endLineDelim = doc.getLineDelimiter(startLineIndex);
-		if (endLineDelim == null) {
-			endLineDelim = doc.getLegalLineDelimiters()[0];
-		}
-		return endLineDelim;
+	public static String getDelimiter(IDocument doc, int line){
+		String endLineDelim;
+        try {
+			if (doc.getNumberOfLines() > 1){
+			    endLineDelim = doc.getLineDelimiter(line);
+		        if (endLineDelim == null) {
+					endLineDelim = doc.getLegalLineDelimiters()[0];
+				}
+				return endLineDelim;
+			}
+        } catch (BadLocationException e) {
+            PydevPlugin.log(e);
+        }
+		return System.getProperty("line.separator"); 
+		
 	}
 
 	/**
@@ -179,7 +196,15 @@ public abstract class PyAction implements IEditorActionDelegate {
         int offset = region.getOffset();
 		String src = doc.get(offset, region.getLength());
 
-		int i = 0;
+		return getFirstCharPosition(src);
+    }
+
+    /**
+     * @param src
+     * @return
+     */
+    public static int getFirstCharPosition(String src) {
+        int i = 0;
 		boolean breaked = false;
 		while (i < src.length()) {
 		    if (   Character.isWhitespace(src.charAt(i)) == false && src.charAt(i) != '\t'  ) {
@@ -290,4 +315,190 @@ public abstract class PyAction implements IEditorActionDelegate {
 	private void print(int i) {
 		System.out.println(i);
 	}
+
+    /**
+     * 
+     */
+    public static String getLineWithoutComments(String sel) {
+        return sel.replaceAll("#.*", "");
+    }
+    
+    /**
+     * 
+     */
+    public static String getLineWithoutComments(PySelection ps) {
+        return getLineWithoutComments(ps.selection);
+    }
+
+    /**
+     * @param ps
+     * @return
+     */
+    public static String getInsideParentesisTok(String sel) {
+        sel = getLineWithoutComments(sel);
+        
+        int beg = sel.indexOf('(')+1;
+        int end = sel.indexOf(')');
+        return sel.substring(beg, end);
+    }
+    
+    /**
+     * @param ps
+     * @return
+     */
+    public static String getInsideParentesisTok(PySelection ps) {
+        return getInsideParentesisTok(ps.selection);
+    }
+    
+    public static List getInsideParentesisToks(IDocument doc, int offset){
+        List l = new ArrayList();
+        try {
+            int lineOfOffset = doc.getLineOfOffset(offset);
+            IRegion lineInformation = doc.getLineInformation(lineOfOffset);
+            String sel = doc.get(lineInformation.getOffset(), lineInformation.getLength());
+            l = getInsideParentesisToks(sel);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        return l;
+    }
+
+    
+    
+    /**
+     * @param l
+     * @param sel
+     */
+    public static List getInsideParentesisToks(String sel, boolean addSelf) {
+        List l = new ArrayList();
+        String insideParentesisTok = getInsideParentesisTok(sel);
+        
+        StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");
+        while(tokenizer.hasMoreTokens()){
+            String tok = tokenizer.nextToken();
+            String trimmed = tok.split("=")[0].trim();
+            if(!addSelf && trimmed.equals("self")){
+                //don't add self...
+            }else{
+                l.add(trimmed);
+            }
+        }
+        return l;
+    }
+    
+    /**
+     * @param l
+     * @param sel
+     */
+    public static List getInsideParentesisToks(String sel) {
+        return getInsideParentesisToks(sel, true);
+    }
+
+    /**
+     * @param document
+     * @param offset
+     * @param string
+     * @return
+     */
+    public static boolean lineContains(IDocument document, int offset, String tok) {
+        try {
+            IRegion lineInformation = getRegionOfOffset(document, offset);
+            return regionContains(document, tok, lineInformation);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * @param document
+     * @param tok
+     * @param lineInformation
+     * @return
+     * @throws BadLocationException
+     */
+    private static boolean regionContains(IDocument document, String tok, IRegion lineInformation) throws BadLocationException {
+        String line = document.get(lineInformation.getOffset(), lineInformation.getLength());
+        return line.indexOf(tok) != -1;
+    }
+
+    /**
+     * @param document
+     * @param offset
+     * @return
+     * @throws BadLocationException
+     */
+    private static IRegion getRegionOfOffset(IDocument document, int offset) throws BadLocationException {
+        int lineOfOffset = document.getLineOfOffset(offset);
+        IRegion lineInformation = document.getLineInformation(lineOfOffset);
+        return lineInformation;
+    }
+
+    /**
+     * @param document
+     * @param offset
+     * @param string
+     * @return
+     */
+    public static boolean nextLineContains(IDocument document, int offset, String tok) {
+        try {
+            int lineOfOffset = document.getLineOfOffset(offset);
+            IRegion lineInformation = document.getLineInformation(lineOfOffset+1);
+            return regionContains(document, tok, lineInformation);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * @param selection
+     * @return
+     */
+    public static String getIndentationFromLine(String selection) {
+        int firstCharPosition = getFirstCharPosition(selection);
+        return selection.substring(0, firstCharPosition);
+    }
+
+    /**
+     * @param c
+     * @param string
+     */
+    public static boolean containsOnlyWhitespaces(String string) {
+        for (int i = 0; i < string.length(); i++) {
+            if(Character.isWhitespace(string.charAt(i)) == false){
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * @param c
+     * @param string
+     */
+    public static boolean containsOnly(char c, String string) {
+        for (int i = 0; i < string.length(); i++) {
+            if(string.charAt(i) != c){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @param c
+     * @param line
+     */
+    public static int countChars(char c, String line) {
+        int ret = 0;
+        for (int i = 0; i < line.length(); i++) {
+            if(line.charAt(i) == c){
+                ret += 1;
+            }
+        }
+        return ret;
+    }
 }

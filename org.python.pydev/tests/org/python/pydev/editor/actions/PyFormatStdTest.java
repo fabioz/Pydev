@@ -19,6 +19,16 @@ public class PyFormatStdTest extends TestCase {
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(PyFormatStdTest.class);
+        
+//        try {
+//	        PyFormatStdTest n = new PyFormatStdTest();
+//            n.setUp();
+//            n.testFormatInnerParams2();
+//            n.tearDown();
+//        } catch (Throwable e) {
+//            e.printStackTrace();
+//        }
+        
     }
 
     
@@ -65,7 +75,7 @@ public class PyFormatStdTest extends TestCase {
 "    pass   \n";
         
         String s1 = ""+
-"def a( ):\n"+
+"def a():\n"+
 "    pass   \n";
         
         assertEquals(s1, PyFormatStd.formatStr(s, std));
@@ -153,7 +163,7 @@ public class PyFormatStdTest extends TestCase {
         
         String s1 = ""+
 "def a( a, b ):\n"+
-"    return ( callA( ) + callB( b+b ) )   \n";
+"    return ( callA() + callB( b+b ) )   \n";
         
         assertEquals(s1, PyFormatStd.formatStr(s, std));
     }
@@ -213,13 +223,13 @@ public class PyFormatStdTest extends TestCase {
 "''' test()\n"+
 "nothing 'changes() ((aa) )\n"+
 "'''\n" +
-"thisChanges()";
+"thisChanges(a+b + (a+b))";
         
         String s2 = ""+
 "''' test()\n"+
 "nothing 'changes() ((aa) )\n"+
 "'''\n" +
-"thisChanges( )";
+"thisChanges( a+b + ( a+b ) )";
         
         assertEquals(s2, PyFormatStd.formatStr(s, std));
         
@@ -266,6 +276,20 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = true;
 
         String s = "r = re.compile( \"(?P<latitude>\\d*\\.\\d*)\" )";
+
+        
+        String formatStr = PyFormatStd.formatStr(s, std);
+        assertEquals(s, formatStr);
+    }
+
+    public void testFormatNotLinesOnlyWithParentesis(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = true;
+
+        String s = "" +
+		"methodCall( a, \n"+
+		"            b \n"+
+		"           ) ";
 
         
         String formatStr = PyFormatStd.formatStr(s, std);

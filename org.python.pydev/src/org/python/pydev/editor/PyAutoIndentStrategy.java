@@ -148,13 +148,17 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 					throws BadLocationException 
 	{
 		if (length == 0 && text != null && endsWithNewline(document, text)) {
-			if (offset > 0 && document.getChar(offset - 1) == ':')
-				text = text + getIndentationString();
+		    
+			if (offset > 0 && document.getChar(offset - 1) == ':'){
+			    String initial = text;
+				
+			    text = initial + getIndentationString();
+			}
 		}
 		return text;
 	}
 
-	/**
+    /**
 	 * True if text ends with a newline delimiter
 	 */
 	private boolean endsWithNewline(IDocument document, String text) {
@@ -178,15 +182,21 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 		try {
 			command.text = autoIndentNewline(
 					document, command.length, command.text, command.offset);
+			
+			
 			if (PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS)){
 				command.text = convertTabs(
 					document, command.length, command.text, command.offset,
 					getIndentationString());
-			}else {
+			}
+			
+			else {
 			    command.text = convertSpaces(
 				document, command.length, command.text, command.offset,
 				getIndentationString());
 			}
+			
+			
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
