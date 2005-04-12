@@ -86,7 +86,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
      */
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
 
-        PySelection ps = new PySelection(edit, false);
+        PySelection ps = new PySelection(edit);
 
         List results = new ArrayList();
         String sel = PyAction.getLineWithoutComments(ps);

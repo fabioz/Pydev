@@ -28,15 +28,15 @@ public class PyFormatStd extends PyAction{
     public void run(IAction action) {
 		try 
 		{
-			PySelection ps = new PySelection ( getTextEditor ( ), false );
-		    String endLineDelim = ps.endLineDelim;
-			IDocument doc = ps.doc;
+			PySelection ps = new PySelection ( getTextEditor ( ));
+		    String endLineDelim = ps.getEndLineDelim();
+			IDocument doc = ps.getDoc();
 			
-			int startLine = ps.startLineIndex;
-            if(ps.textSelection.getLength() == 0){
+			int startLine = ps.getStartLineIndex();
+            if(ps.getTextSelection().getLength() == 0){
 			    performFormatAll(doc);
 			}else{
-			    performFormatSelection(doc, startLine, ps.endLineIndex);
+			    performFormatSelection(doc, startLine, ps.getEndLineIndex());
 			}
 			
             if(startLine >= doc.getNumberOfLines()){

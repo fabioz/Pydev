@@ -28,12 +28,12 @@ public class PyComment extends PyAction
 		try 
 		{
 			// Select from text editor
-			ps = new PySelection ( getTextEditor ( ), false );
+			ps = new PySelection ( getTextEditor ( ));
 			// Perform the action
 			perform ( );
 
 			// Put cursor at the first area of the selection
-			getTextEditor ( ).selectAndReveal ( ps.endLine.getOffset ( ), 0 );
+			getTextEditor ( ).selectAndReveal ( ps.getEndLine().getOffset ( ), 0 );
 		} 
 		catch ( Exception e ) 
 		{
@@ -65,21 +65,21 @@ public class PyComment extends PyAction
 		StringBuffer strbuf = new StringBuffer ( );
 		
 		// If they selected a partial line, count it as a full one
-		ps.selectCompleteLines ( );
+		ps.selectCompleteLine ( );
 
 		int i;
 		try
 		{
 			// For each line, comment them out
-			for ( i = ps.startLineIndex; i < ps.endLineIndex; i++ )
+			for ( i = ps.getStartLineIndex(); i < ps.getEndLineIndex(); i++ )
 			{
-				strbuf.append ( "#" + ps.getLine ( i ) + ps.endLineDelim );
+				strbuf.append ( "#" + ps.getLine ( i ) + ps.getEndLineDelim() );
 			}
 			// Last line shouldn't add the delimiter
 			strbuf.append ( "#" + ps.getLine ( i ) );
 
 			// Replace the text with the modified information
-			ps.doc.replace ( ps.startLine.getOffset ( ), ps.selLength, strbuf.toString ( ) );
+			ps.getDoc().replace ( ps.getStartLine().getOffset ( ), ps.getSelLength(), strbuf.toString ( ) );
 			return true;
 		}
 		catch ( Exception e )

@@ -21,12 +21,12 @@ public class PyOpenPar extends PyAction{
     public void run(IAction action) {
 		try 
 		{
-			PySelection ps = new PySelection ( getTextEditor ( ), false );
-		    String endLineDelim = ps.endLineDelim;
-			IDocument doc = ps.doc;
-			performOpenPar(doc, ps.cursorLine, ps.absoluteCursorOffset);
+			PySelection ps = new PySelection ( getTextEditor ( ));
+		    String endLineDelim = ps.getEndLineDelim();
+			IDocument doc = ps.getDoc();
+			performOpenPar(doc, ps.getCursorLine(), ps.getAbsoluteCursorOffset());
 
-			TextSelection sel = new TextSelection(doc, ps.absoluteCursorOffset+1, 0);
+			TextSelection sel = new TextSelection(doc, ps.getAbsoluteCursorOffset()+1, 0);
             getTextEditor().getSelectionProvider().setSelection(sel);
 		} 
 		catch ( Exception e ) 

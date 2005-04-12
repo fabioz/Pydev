@@ -327,7 +327,7 @@ public abstract class PyAction implements IEditorActionDelegate {
      * 
      */
     public static String getLineWithoutComments(PySelection ps) {
-        return getLineWithoutComments(ps.selection);
+        return getLineWithoutComments(ps.getSelection());
     }
 
     /**
@@ -347,7 +347,7 @@ public abstract class PyAction implements IEditorActionDelegate {
      * @return
      */
     public static String getInsideParentesisTok(PySelection ps) {
-        return getInsideParentesisTok(ps.selection);
+        return getInsideParentesisTok(ps.getSelection());
     }
     
     public static List getInsideParentesisToks(IDocument doc, int offset){

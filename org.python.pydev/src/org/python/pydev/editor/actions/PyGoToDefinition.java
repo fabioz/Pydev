@@ -40,7 +40,7 @@ public class PyGoToDefinition extends PyRefactorAction {
     public void run(IAction action) {
         try {
 
-            ps = new PySelection(getTextEditor(), false);
+            ps = new PySelection(getTextEditor());
             PyEdit pyEdit = getPyEdit();
             areRefactorPreconditionsOK(pyEdit);
 

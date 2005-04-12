@@ -26,7 +26,7 @@ public class PyCollapseAll extends PyAction {
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
-		PySelection ps = new PySelection ( getTextEditor ( ), false );
+		PySelection ps = new PySelection ( getTextEditor ( ) );
 
 		ProjectionAnnotationModel model = (ProjectionAnnotationModel) getTextEditor ( )
                 .getAdapter(ProjectionAnnotationModel.class);

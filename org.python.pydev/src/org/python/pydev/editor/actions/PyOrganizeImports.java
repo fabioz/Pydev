@@ -26,14 +26,14 @@ public class PyOrganizeImports extends PyAction{
     public void run(IAction action) {
 		try 
 		{
-			PySelection ps = new PySelection ( getTextEditor ( ), false );
-		    String endLineDelim = ps.endLineDelim;
-			IDocument doc = ps.doc;
+			PySelection ps = new PySelection ( getTextEditor ( ));
+		    String endLineDelim = ps.getEndLineDelim();
+			IDocument doc = ps.getDoc();
 			
-			if(ps.startLineIndex == ps.endLineIndex){
+			if(ps.getStartLineIndex() == ps.getEndLineIndex()){
 			    performArrangeImports(doc, endLineDelim);
 			}else{
-			    performSimpleSort(doc, endLineDelim, ps.startLineIndex, ps.endLineIndex);
+			    performSimpleSort(doc, endLineDelim, ps.getStartLineIndex(), ps.getEndLineIndex());
 			}
 		} 
 		catch ( Exception e ) 

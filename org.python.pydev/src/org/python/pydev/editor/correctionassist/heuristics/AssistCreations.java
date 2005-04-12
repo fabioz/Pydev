@@ -58,18 +58,18 @@ public class AssistCreations implements IAssistProps {
 
             //so, first thing is checking the global 
             int newPos = 0;
-            int lineOfOffset = ps.doc.getLineOfOffset(ps.absoluteCursorOffset);
+            int lineOfOffset = ps.getDoc().getLineOfOffset(ps.getAbsoluteCursorOffset());
             
             if(lineOfOffset > 0){
-                newPos = ps.doc.getLineInformation(lineOfOffset).getOffset();
+                newPos = ps.getDoc().getLineInformation(lineOfOffset).getOffset();
             }
             
             l.add(new FixCompletionProposal(cls, newPos, 0, cls.length()+1, imageCache.get(UIConstants.ASSIST_NEW_CLASS),
-                    "Make this a new class", null, null, ps.startLineIndex+4));
+                    "Make this a new class", null, null, ps.getStartLineIndex()+4));
 
             method = method.replaceFirst("%s", "");
             l.add(new FixCompletionProposal(method, newPos, 0, method.length()+1, imageCache.get(UIConstants.ASSIST_NEW_METHOD),
-                    "Make this a new method", null, null, ps.startLineIndex+2));
+                    "Make this a new method", null, null, ps.getStartLineIndex()+2));
 
         }else{ //we are in a method or class context
 
@@ -78,7 +78,7 @@ public class AssistCreations implements IAssistProps {
 	        }
 	        
 	        //now, discover in which node we are right now...
-	        AbstractNode current = ModelUtils.getLessOrEqualNode(root, ps.absoluteCursorOffset, ps.doc);
+	        AbstractNode current = ModelUtils.getLessOrEqualNode(root, ps.getAbsoluteCursorOffset(), ps.getDoc());
 	        while (current != null) {
 	            if (current instanceof FunctionNode
 	                    || current instanceof ClassNode) {
@@ -97,7 +97,7 @@ public class AssistCreations implements IAssistProps {
 	                int lineOfOffset = node.getStart().line;
 	                
 	                if(lineOfOffset > 0){
-	                    newPos = ps.doc.getLineInformation(lineOfOffset).getOffset();
+	                    newPos = ps.getDoc().getLineInformation(lineOfOffset).getOffset();
 	                }
 	                
 	                int col = node.getStart().column;
@@ -131,7 +131,7 @@ public class AssistCreations implements IAssistProps {
 	                int lineOfOffset = node.getStart().line;
 	                
 	                if(lineOfOffset > 0){
-	                    newPos = ps.doc.getLineInformation(lineOfOffset).getOffset();
+	                    newPos = ps.getDoc().getLineInformation(lineOfOffset).getOffset();
 	                }
 	                String finalMethod = method+delim;
 	                
@@ -149,10 +149,10 @@ public class AssistCreations implements IAssistProps {
 	                
 	                //now get the attempt to make this a new method ------------------------------------------
 	                newPos = 0;
-	                lineOfOffset = ps.doc.getLineOfOffset(ps.absoluteCursorOffset);
+	                lineOfOffset = ps.getDoc().getLineOfOffset(ps.getAbsoluteCursorOffset());
 	                
 	                if(lineOfOffset > 0){
-	                    newPos = ps.doc.getLineInformation(lineOfOffset).getOffset();
+	                    newPos = ps.getDoc().getLineInformation(lineOfOffset).getOffset();
 	                }
 
 	                int col = firstCharPosition;
@@ -171,7 +171,7 @@ public class AssistCreations implements IAssistProps {
 	                    method = method.replaceFirst("%s", "self");
 	                }
 	                l.add(new FixCompletionProposal(method, newPos, 0, method.length()+1, imageCache.get(UIConstants.ASSIST_NEW_METHOD),
-	                        "Make this a new method (in class)", null, null, ps.startLineIndex+3));
+	                        "Make this a new method (in class)", null, null, ps.getStartLineIndex()+3));
 
 	            }
 	        }
@@ -193,12 +193,12 @@ public class AssistCreations implements IAssistProps {
 
 
         params = PyAction.getInsideParentesisTok(ps);
-        firstCharPosition = PyAction.getFirstCharRelativePosition(ps.doc, ps.absoluteCursorOffset);
+        firstCharPosition = PyAction.getFirstCharRelativePosition(ps.getDoc(), ps.getAbsoluteCursorOffset());
         
         indentation = PyBackspace.getStaticIndentationString();
 
         
-        delim = PyAction.getDelimiter(ps.doc);
+        delim = PyAction.getDelimiter(ps.getDoc());
         cls = "class "+callName+"(object):"+delim+delim;
         
         self = "self";
@@ -217,7 +217,7 @@ public class AssistCreations implements IAssistProps {
      */
     public boolean isValid(PySelection ps, String sel) {
         return sel.indexOf("class ") == -1 && sel.indexOf("def ") == -1 && sel.indexOf("import ") == -1 && 
-        ps.textSelection.getLength() == 0;
+        ps.getTextSelection().getLength() == 0;
     }
 
 }

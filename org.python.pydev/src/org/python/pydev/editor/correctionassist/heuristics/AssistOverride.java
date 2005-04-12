@@ -36,7 +36,7 @@ public class AssistOverride implements IAssistProps {
         String sel = PyAction.getLineWithoutComments(ps);
         
         String indentation = PyBackspace.getStaticIndentationString();
-        String delimiter = PyAction.getDelimiter(ps.doc);
+        String delimiter = PyAction.getDelimiter(ps.getDoc());
 
         String indStart = "";
         int j = sel.indexOf("def ");
@@ -47,12 +47,12 @@ public class AssistOverride implements IAssistProps {
         
         String start = sel.substring(0, j+4);
         
-        String[] strs = PyCodeCompletion.getActivationTokenAndQual(ps.doc, ps.absoluteCursorOffset);
+        String[] strs = PyCodeCompletion.getActivationTokenAndQual(ps.getDoc(), ps.getAbsoluteCursorOffset());
         String tok = strs[1];
         
         
-        CompletionState state = new CompletionState(ps.startLineIndex, ps.absoluteCursorOffset - ps.startLine.getOffset(), null, nature);
-        CompletionRequest request = new CompletionRequest(f, nature, ps.doc, "self", ps.absoluteCursorOffset, 0, new PyCodeCompletion(true), "");
+        CompletionState state = new CompletionState(ps.getStartLineIndex(), ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset(), null, nature);
+        CompletionRequest request = new CompletionRequest(f, nature, ps.getDoc(), "self", ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(true), "");
         IToken[] selfCompletions = PyCodeCompletion.getSelfCompletions(request, new ArrayList(), state, true);
         for (int i = 0; i < selfCompletions.length; i++) {
             IToken token = selfCompletions[i];
@@ -90,7 +90,7 @@ public class AssistOverride implements IAssistProps {
                 
                 String comp = buffer.toString();
 
-                l.add(new CompletionProposal(comp, ps.startLine.getOffset(), ps.startLine.getLength(), comp.length() , imageCache.get(UIConstants.ASSIST_NEW_CLASS),
+                l.add(new CompletionProposal(comp, ps.getStartLine().getOffset(), ps.getStartLine().getLength(), comp.length() , imageCache.get(UIConstants.ASSIST_NEW_CLASS),
                         rep+" (Override)", null, null));
             }
         }

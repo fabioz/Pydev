@@ -179,28 +179,28 @@ public abstract class PyRefactorAction extends PyAction {
      * @return
      */
     protected int getEndCol() {
-        return ps.absoluteCursorOffset + ps.selLength - ps.endLine.getOffset();
+        return ps.getAbsoluteCursorOffset() + ps.getSelLength() - ps.getEndLine().getOffset();
     }
 
     /**
      * @return
      */
     protected int getEndLine() {
-        return ps.endLineIndex + 1;
+        return ps.getEndLineIndex() + 1;
     }
 
     /**
      * @return
      */
     protected int getStartCol() {
-        return ps.absoluteCursorOffset - ps.startLine.getOffset();
+        return ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset();
     }
 
     /**
      * @return
      */
     protected int getStartLine() {
-        return ps.startLineIndex + 1;
+        return ps.getStartLineIndex() + 1;
     }
 
     /*
@@ -210,7 +210,7 @@ public abstract class PyRefactorAction extends PyAction {
      */
     public void run(final IAction action) {
         // Select from text editor
-        ps = new PySelection(getTextEditor(), false);
+        ps = new PySelection(getTextEditor());
 
         if (areRefactorPreconditionsOK(getPyEdit()) == false) {
             return;
@@ -261,7 +261,7 @@ public abstract class PyRefactorAction extends PyAction {
         }
 
         // Put cursor at the first area of the selection
-        getTextEditor().selectAndReveal(ps.endLine.getOffset(), 0);
+        getTextEditor().selectAndReveal(ps.getEndLine().getOffset(), 0);
 
     }
 

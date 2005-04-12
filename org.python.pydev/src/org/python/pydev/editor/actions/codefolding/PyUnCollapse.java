@@ -23,13 +23,13 @@ public class PyUnCollapse extends PyAction {
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
-        PySelection ps = new PySelection(getTextEditor(), false);
+        PySelection ps = new PySelection(getTextEditor());
 
         ProjectionAnnotationModel model = (ProjectionAnnotationModel) getTextEditor()
                 .getAdapter(ProjectionAnnotationModel.class);
 
         if (model != null) {
-            model.expandAll(ps.absoluteCursorOffset, ps.selLength);
+            model.expandAll(ps.getAbsoluteCursorOffset(), ps.getSelLength());
         }
 
     }

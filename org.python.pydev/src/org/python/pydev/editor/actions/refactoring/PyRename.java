@@ -42,7 +42,7 @@ public class PyRename extends PyRefactorAction {
      * @return
      */
     protected String getDefaultValue() {
-        return ps.textSelection.getText();
+        return ps.getTextSelection().getText();
     }
 
     

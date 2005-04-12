@@ -34,12 +34,12 @@ public class PyRemoveBlockComment extends PyAddBlockComment
 		try 
 		{
 			// Select from text editor
-			ps = new PySelection ( getTextEditor ( ), false );
+			ps = new PySelection ( getTextEditor ( ));
 			// Perform the action
 			perform ( );
 
 			// Put cursor at the first area of the selection
-			getTextEditor ( ).selectAndReveal ( ps.endLine.getOffset ( ), 0 );
+			getTextEditor ( ).selectAndReveal ( ps.getEndLine().getOffset ( ), 0 );
 		} 
 		catch ( Exception e ) 
 		{
@@ -71,27 +71,27 @@ public class PyRemoveBlockComment extends PyAddBlockComment
 		StringBuffer strbuf = new StringBuffer ( );
 		
 		// If they selected a partial line, count it as a full one
-		ps.selectCompleteLines ( );
+		ps.selectCompleteLine ( );
 
 		int i;
 		try
 		{
 			// Start of block, if not block, don't bother
-			if ( ! ps.getLine ( ps.startLineIndex ).equals ( "#" + getFullCommentLine ( ) ) )
+			if ( ! ps.getLine ( ps.getStartLineIndex() ).equals ( "#" + getFullCommentLine ( ) ) )
 				return false;
 			// End of block, if not block, don't bother
-			if ( ! ps.getLine ( ps.endLineIndex ).equals ( "#" + getFullCommentLine ( ) ) )
+			if ( ! ps.getLine ( ps.getEndLineIndex() ).equals ( "#" + getFullCommentLine ( ) ) )
 				return false;
 			
 			// For each line, comment them out
-			for ( i = ps.startLineIndex + 1; i < ps.endLineIndex; i++ )
+			for ( i = ps.getStartLineIndex() + 1; i < ps.getEndLineIndex(); i++ )
 			{
 				if ( ps.getLine ( i ).startsWith ( "#" ) && ! ps.getLine ( i ).substring ( 1 ).equals ( getFullCommentLine ( ) ) )
-					strbuf.append ( ps.getLine ( i ).substring ( 1 ) + ( i < ps.endLineIndex - 1 ? ps.endLineDelim : "" ) );
+					strbuf.append ( ps.getLine ( i ).substring ( 1 ) + ( i < ps.getEndLineIndex() - 1 ? ps.getEndLineDelim() : "" ) );
 			}
 
 			// Replace the text with the modified information
-			ps.doc.replace ( ps.startLine.getOffset ( ), ps.selLength, strbuf.toString ( ) );
+			ps.getDoc().replace ( ps.getStartLine().getOffset ( ), ps.getSelLength(), strbuf.toString ( ) );
 			return true;
 		}
 		catch ( Exception e )

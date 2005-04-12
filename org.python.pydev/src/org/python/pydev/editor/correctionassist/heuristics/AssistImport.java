@@ -31,14 +31,14 @@ public class AssistImport implements IAssistProps {
         String sel = PyAction.getLineWithoutComments(ps).trim();
 
         int i = sel.indexOf("import");
-        if(ps.startLineIndex != ps.endLineIndex)
+        if(ps.getStartLineIndex() != ps.getEndLineIndex())
             return l;
         
         
-        String delimiter = PyAction.getDelimiter(ps.doc);
+        String delimiter = PyAction.getDelimiter(ps.getDoc());
         
         int lineToMoveImport = 0;
-        int lines = ps.doc.getNumberOfLines();
+        int lines = ps.getDoc().getNumberOfLines();
         for (int line = 0; line < lines; line++) {
             String str = ps.getLine(line);
             if(str.startsWith("import ") || str.startsWith("from ")){
@@ -47,12 +47,12 @@ public class AssistImport implements IAssistProps {
             }
         }
         
-        int offset = ps.doc.getLineOffset(lineToMoveImport);
+        int offset = ps.getDoc().getLineOffset(lineToMoveImport);
         
         
         if(i >= 0){
-            l.add(new FixCompletionProposal(sel+delimiter, offset, 0, ps.startLine.getOffset(), imageCache.get(UIConstants.ASSIST_MOVE_IMPORT),
-                    "Move import to global scope", null, null, ps.startLineIndex+1));
+            l.add(new FixCompletionProposal(sel+delimiter, offset, 0, ps.getStartLine().getOffset(), imageCache.get(UIConstants.ASSIST_MOVE_IMPORT),
+                    "Move import to global scope", null, null, ps.getStartLineIndex()+1));
         }
         return l;
     }

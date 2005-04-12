@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IRegion;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionProposal;
@@ -70,7 +69,7 @@ public class AssistAssign implements IAssistProps {
                 callName = "result";
             }
 
-            int firstCharPosition = PyAction.getFirstCharPosition(ps.doc, ps.absoluteCursorOffset);
+            int firstCharPosition = PyAction.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset());
             callName += " = ";
             l.add(new CompletionProposal(callName, firstCharPosition, 0, 0, imageCache.get(UIConstants.ASSIST_ASSIGN_TO_LOCAL),
                     "Assign to new local variable", null, null));
@@ -86,12 +85,10 @@ public class AssistAssign implements IAssistProps {
      */
     public boolean isValid(PySelection ps, String sel) {
         try {
-            if(! (ps.textSelection.getLength() == 0))
+            if(! (ps.getTextSelection().getLength() == 0))
                 return false;
 
-            int lineOfOffset = ps.doc.getLineOfOffset(ps.absoluteCursorOffset);
-            IRegion lineInformation = ps.doc.getLineInformation(lineOfOffset);
-            String lineToCursor = ps.doc.get(lineInformation.getOffset(), ps.absoluteCursorOffset - lineInformation.getOffset());
+            String lineToCursor = ps.getLineContentsToCursor();
 
             if( ! ( sel.indexOf("class ") == -1 && sel.indexOf("def ") == -1 && sel.indexOf("import ") == -1))
                 return false;

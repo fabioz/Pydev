@@ -29,7 +29,7 @@ public class PyCollapse extends PyAction {
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
-        PySelection ps = new PySelection(getTextEditor(), false);
+        PySelection ps = new PySelection(getTextEditor());
 
         ProjectionAnnotationModel model = (ProjectionAnnotationModel) getTextEditor().getAdapter(
                 ProjectionAnnotationModel.class);
@@ -43,10 +43,10 @@ public class PyCollapse extends PyAction {
                             .next();
                     Position position = model.getPosition(element);
 
-                    int line = ps.doc.getLineOfOffset(position.offset);
+                    int line = ps.getDoc().getLineOfOffset(position.offset);
 
-                    int start = ps.startLineIndex;
-                    int end = ps.endLineIndex;
+                    int start = ps.getStartLineIndex();
+                    int end = ps.getEndLineIndex();
 
                     for (int i = start; i <= end; i++) {
                         if (i == line) {

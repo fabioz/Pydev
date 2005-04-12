@@ -33,22 +33,22 @@ public class PyBackspace extends PyAction {
      */
     public void run(IAction action) {
         // Select from text editor
-        PySelection ps = new PySelection(getTextEditor(), false);
+        PySelection ps = new PySelection(getTextEditor());
 
         // Perform the action
         try {
-            ITextSelection textSelection = ps.getITextSelection();
+            ITextSelection textSelection = ps.getTextSelection();
 
             if (textSelection.getLength() != 0) {
                 eraseSelection(ps);
                 return;
             }
 
-            int lastCharPosition = getLastCharPosition(ps.doc, ps.getCursorOffset());
+            int lastCharPosition = getLastCharPosition(ps.getDoc(), ps.getCursorOffset());
 
             int cursorOffset = textSelection.getOffset();
 
-            IRegion lastCharRegion = ps.doc.getLineInformationOfOffset(lastCharPosition + 1);
+            IRegion lastCharRegion = ps.getDoc().getLineInformationOfOffset(lastCharPosition + 1);
             //System.out.println("cursorOffset: "+ cursorOffset);
             //System.out.println("lastCharPosition: "+lastCharPosition);
             //System.out.println("lastCharRegion.getOffset(): "
@@ -110,7 +110,7 @@ public class PyBackspace extends PyAction {
      */
     private void eraseToPreviousIndentation(PySelection ps, boolean hasOnlyWhitespaces)
             throws BadLocationException {
-        ITextSelection textSelection = ps.getITextSelection();
+        ITextSelection textSelection = ps.getTextSelection();
         int indentation = getPreviousIndentation(ps, textSelection.getStartLine());
         if (indentation == -1) {
             //System.out.println("erasing single char");
@@ -154,9 +154,9 @@ public class PyBackspace extends PyAction {
             return -1;
         } else {
             for (int i = currentLine - 1; i >= 0; i++) {
-                int currentLineOffset = ps.doc.getLineOffset(i);
-                if (ps.doc.getChar(currentLineOffset + 1) != '#') {
-                    int currentLineFirstCharPos = getFirstCharRelativePosition(ps.doc, currentLineOffset);
+                int currentLineOffset = ps.getDoc().getLineOffset(i);
+                if (ps.getDoc().getChar(currentLineOffset + 1) != '#') {
+                    int currentLineFirstCharPos = getFirstCharRelativePosition(ps.getDoc(), currentLineOffset);
                     return currentLineFirstCharPos;
                 }
             }
@@ -170,9 +170,9 @@ public class PyBackspace extends PyAction {
      * @throws BadLocationException
      */
     private void eraseSingleChar(PySelection ps) throws BadLocationException {
-        ITextSelection textSelection = ps.getITextSelection();
+        ITextSelection textSelection = ps.getTextSelection();
 
-        ps.doc.replace(textSelection.getOffset() - 1, 1, "");
+        ps.getDoc().replace(textSelection.getOffset() - 1, 1, "");
     }
 
     /**
@@ -182,14 +182,14 @@ public class PyBackspace extends PyAction {
      */
     private void eraseLineDelimiter(PySelection ps) throws BadLocationException {
 
-        ITextSelection textSelection = ps.getITextSelection();
+        ITextSelection textSelection = ps.getTextSelection();
 
-        int length = getDelimiter(ps.doc).length();
+        int length = getDelimiter(ps.getDoc()).length();
         int offset = textSelection.getOffset() - length;
 
         //System.out.println("Replacing offset: "+(offset) +" lenght: "+
         // (length));
-        ps.doc.replace(offset, length, "");
+        ps.getDoc().replace(offset, length, "");
     }
 
     /**
@@ -198,9 +198,9 @@ public class PyBackspace extends PyAction {
      * @throws BadLocationException
      */
     private void eraseSelection(PySelection ps) throws BadLocationException {
-        ITextSelection textSelection = ps.getITextSelection();
+        ITextSelection textSelection = ps.getTextSelection();
 
-        ps.doc.replace(textSelection.getOffset(), textSelection.getLength(), "");
+        ps.getDoc().replace(textSelection.getOffset(), textSelection.getLength(), "");
     }
 
     /**
@@ -209,14 +209,14 @@ public class PyBackspace extends PyAction {
      * @throws BadLocationException
      */
     private void eraseUntilLastChar(PySelection ps, int lastCharPosition) throws BadLocationException {
-        ITextSelection textSelection = ps.getITextSelection();
+        ITextSelection textSelection = ps.getTextSelection();
         int cursorOffset = textSelection.getOffset();
 
         int offset = lastCharPosition + 1;
         int length = cursorOffset - lastCharPosition - 1;
         //System.out.println("Replacing offset: "+(offset) +" lenght: "+
         // (length));
-        ps.doc.replace(offset, length, "");
+        ps.getDoc().replace(offset, length, "");
     }
 
     /**
@@ -229,14 +229,14 @@ public class PyBackspace extends PyAction {
      * @throws BadLocationException
      */
     private void eraseToIndentation(PySelection ps, int indentation) throws BadLocationException {
-        ITextSelection textSelection = ps.getITextSelection();
+        ITextSelection textSelection = ps.getTextSelection();
         int cursorOffset = textSelection.getOffset();
 
         String indentationString = getIndentationString();
         int length = indentationString.length();
         int offset = cursorOffset - length;
 
-        IRegion region = ps.doc.getLineInformationOfOffset(cursorOffset);
+        IRegion region = ps.getDoc().getLineInformationOfOffset(cursorOffset);
         int dif = region.getOffset() - offset;
         //System.out.println("dif = "+dif);
         if (dif > 0) {
@@ -246,7 +246,7 @@ public class PyBackspace extends PyAction {
         //we have to be careful not to erase more than the current line.
         //System.out.println("Replacing offset: "+(offset) +" lenght: "+
         // (length));
-        ps.doc.replace(offset, length, "");
+        ps.getDoc().replace(offset, length, "");
     }
 
     //CODE BELOW GOTTEN FROM PyAutoIndentStrategy.java.

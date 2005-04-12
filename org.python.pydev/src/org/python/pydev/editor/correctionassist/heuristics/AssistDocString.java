@@ -30,18 +30,18 @@ public class AssistDocString implements IAssistProps {
      */
     public List getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, AbstractNode root) throws BadLocationException {
         ArrayList l = new ArrayList();
-        List params = PyAction.getInsideParentesisToks(ps.selection, false);
+        List params = PyAction.getInsideParentesisToks(ps.getSelection(), false);
         
         StringBuffer buf = new StringBuffer();
-	    String initial = PyAction.getIndentationFromLine(ps.selection);
-        String delimiter = PyAction.getDelimiter(ps.doc);
+	    String initial = PyAction.getIndentationFromLine(ps.getSelection());
+        String delimiter = PyAction.getDelimiter(ps.getDoc());
         String indentation = PyBackspace.getStaticIndentationString();
 	    String inAndIndent = delimiter+initial+indentation;
 	    
         buf.append(inAndIndent+"'''");
 	    int newOffset = buf.length();
 	    
-        if (ps.selection.indexOf("def ") != -1 && params.size()>0){
+        if (ps.getSelection().indexOf("def ") != -1 && params.size()>0){
 	        buf.append(inAndIndent);
 		    for (Iterator iter = params.iterator(); iter.hasNext();) {
 	            String element = (String) iter.next();
@@ -54,7 +54,7 @@ public class AssistDocString implements IAssistProps {
 	    buf.append(inAndIndent);
 
 	    String comp = buf.toString();
-        l.add(new CompletionProposal(comp, ps.startLine.getOffset()+ps.startLine.getLength(), 0, newOffset , imageCache.get(UIConstants.ASSIST_DOCSTRING),
+        l.add(new CompletionProposal(comp, ps.getStartLine().getOffset()+ps.getStartLine().getLength(), 0, newOffset , imageCache.get(UIConstants.ASSIST_DOCSTRING),
                 "Make docstring", null, null));
 	    return l;
     }

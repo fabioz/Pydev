@@ -32,7 +32,8 @@ public class PyConvertSpaceToTab extends PyAction
 		try 
 		{
 			// Select from text editor
-			ps = new PySelection ( getTextEditor ( ), true );
+			ps = new PySelection ( getTextEditor ( ));
+			ps.selectAll(true);
 			// Perform the action
 			perform ( );
 
@@ -69,23 +70,23 @@ public class PyConvertSpaceToTab extends PyAction
 		StringBuffer strbuf = new StringBuffer ( );
 		
 		// If they selected a partial line, count it as a full one
-		ps.selectCompleteLines ( );
+		ps.selectCompleteLine ( );
 			
 		int i;
 	
 		try 
 		{
 			// For each line, strip their whitespace
-			for ( i = ps.startLineIndex; i <= ps.endLineIndex; i++ )
+			for ( i = ps.getStartLineIndex(); i <= ps.getEndLineIndex(); i++ )
 			{
-				String line = ps.doc.get ( ps.doc.getLineInformation ( i ).getOffset ( ), ps.doc.getLineInformation ( i ).getLength ( ) );
-				strbuf.append ( line.replaceAll ( getTabSpace ( ), "\t" ) + ( i < ps.endLineIndex ? ps.endLineDelim : "" ) );
+				String line = ps.getDoc().get ( ps.getDoc().getLineInformation ( i ).getOffset ( ), ps.getDoc().getLineInformation ( i ).getLength ( ) );
+				strbuf.append ( line.replaceAll ( getTabSpace ( ), "\t" ) + ( i < ps.getEndLineIndex() ? ps.getEndLineDelim() : "" ) );
 			}
 
 			// If all goes well, replace the text with the modified information	
 			if ( strbuf.toString ( ) != null )
 			{
-				ps.doc.replace ( ps.startLine.getOffset ( ), ps.selLength, strbuf.toString ( ) );
+				ps.getDoc().replace ( ps.getStartLine().getOffset ( ), ps.getSelLength(), strbuf.toString ( ) );
 				return true;
 			}
 		}

@@ -33,13 +33,13 @@ public class AssistTry implements IAssistProps {
         ArrayList l = new ArrayList();
         String indentation = PyBackspace.getStaticIndentationString();
         
-        int start = ps.startLine.getOffset();
-        int end = ps.endLine.getOffset()+ps.endLine.getLength();
+        int start = ps.getStartLine().getOffset();
+        int end = ps.getEndLine().getOffset()+ps.getEndLine().getLength();
         
-        String string = ps.doc.get(start, end-start);
-        String delimiter = PyAction.getDelimiter(ps.doc);
+        String string = ps.getDoc().get(start, end-start);
+        String delimiter = PyAction.getDelimiter(ps.getDoc());
         
-        int firstCharPosition = PyAction.getFirstCharRelativePosition(ps.doc, start);
+        int firstCharPosition = PyAction.getFirstCharRelativePosition(ps.getDoc(), start);
         String startIndent = "";
         int i = 0;
         while(i < firstCharPosition){
@@ -74,7 +74,7 @@ public class AssistTry implements IAssistProps {
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.editor.actions.PySelection)
      */
     public boolean isValid(PySelection ps, String sel) {
-        return ps.textSelection.getLength() > 0;
+        return ps.getTextSelection().getLength() > 0;
     }
     
     
