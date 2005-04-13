@@ -585,16 +585,8 @@ public class ASTManager implements Serializable, IASTManager {
                 }
 
                 //it was not a module (would have returned already), so, try to get the completions for a global token defined.
-                if (state.activationToken.equals("Derived")){
-                    System.out.println("here");
-                }
                 IToken[] tokens = null;
-                try {
-                    tokens = module.getGlobalTokens(state, this);
-                } catch (Exception e) {
-                    System.out.println("here");
-                    tokens = module.getGlobalTokens(state, this);
-                }
+                tokens = module.getGlobalTokens(state, this);
                 if (tokens.length > 0){
                     return tokens;
                 }
@@ -647,7 +639,7 @@ public class ASTManager implements Serializable, IASTManager {
         if (module instanceof SourceModule) {
             SourceModule s = (SourceModule) module;
             try {
-                Definition[] defs = s.findDefinition(state.activationToken, state.line, state.col, this);
+                Definition[] defs = s.findDefinition(state.activationToken, state.line, state.col, state.nature);
                 for (int i = 0; i < defs.length; i++) {
                     
                     CompletionState copy = state.getCopy();
@@ -723,8 +715,9 @@ public class ASTManager implements Serializable, IASTManager {
         }
         return completions;
     }
+
     private IToken[] searchOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current) {
-        Object [] o = findOnImportedMods(importedModules, state, current);
+        Object [] o = findOnImportedMods(importedModules, state.nature, state.activationToken, current);
         
         if(o == null)
             return null;
@@ -760,10 +753,24 @@ public class ASTManager implements Serializable, IASTManager {
      * 1: tok
      * 2: (optional) completions if they've already been gotten 
      */
-    private Object[] findOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current) {
+    public Object[] findOnImportedMods( PythonNature nature, String activationToken, AbstractModule current) {
+        IToken[] importedModules = current.getTokenImportedModules();
+        return findOnImportedMods(importedModules, nature, activationToken, current);
+    }
+    
+    /**
+     * @param activationToken
+     * @param importedModules
+     * @param module
+     * @return tuple with:
+     * 0: mod
+     * 1: tok
+     * 2: (optional) completions if they've already been gotten 
+     */
+    private Object[] findOnImportedMods( IToken[] importedModules, PythonNature nature, String activationToken, AbstractModule current) {
         for (int i = 0; i < importedModules.length; i++) {
             final String modRep = importedModules[i].getRepresentation();
-            if(modRep.equals(state.activationToken)){
+            if(modRep.equals(activationToken)){
                 String rep = importedModules[i].getCompletePath();
                 
                 Object [] o = null;
@@ -779,7 +786,7 @@ public class ASTManager implements Serializable, IASTManager {
                             full = full.substring(0, full.lastIndexOf('.'));
                             if (full != null) {
                                 full += "." + rep;
-                                o = findModuleFromPath(full, state.nature);
+                                o = findModuleFromPath(full, nature);
                                 mod = (AbstractModule) o[0];
                                 tok = (String) o[1];
                             }
@@ -790,7 +797,7 @@ public class ASTManager implements Serializable, IASTManager {
                 }
                 
                 if(o == null || mod == null || tok == null || current == mod || tok.equals(rep)){  
-	                o = findModuleFromPath(rep, state.nature);
+	                o = findModuleFromPath(rep, nature);
 	                mod = (AbstractModule) o[0];
 	                tok = (String) o[1];
                 }
@@ -800,19 +807,22 @@ public class ASTManager implements Serializable, IASTManager {
                     return new Object[]{ mod, ""};
                     
                 }else if (mod != null){
-                    CompletionState state2 = state.getCopy();
-                    state2.activationToken = tok;
-                    IToken[] globalTokens = mod.getGlobalTokens(state2, this);
-                    if(globalTokens.length > 0){
-                        return new Object[]{ mod, tok, globalTokens};
+                    if(mod.isInGlobalTokens(tok)){
+                        return new Object[]{ mod, tok};
                     }
+//                    CompletionState state2 = getCopy();
+//                    state2.activationToken = tok;
+//                    IToken[] globalTokens = mod.getGlobalTokens(state2, this);
+//                    if(globalTokens.length > 0){
+//                        return new Object[]{ mod, tok, globalTokens};
+//                    }
                     
                     //ok, it was not a global token, still, it might be some import from that module.
                     IToken[] tokenImportedModules = mod.getTokenImportedModules();
                     for (int j = 0; j < tokenImportedModules.length; j++) {
-                        if(tokenImportedModules[j].getRepresentation().equals(state.activationToken)){
+                        if(tokenImportedModules[j].getRepresentation().equals(activationToken)){
                             String path = tokenImportedModules[j].getCompletePath();
-                            Object [] o2 = findModuleFromPath(path , state.nature);
+                            Object [] o2 = findModuleFromPath(path , nature);
                             AbstractModule mod2 = (AbstractModule) o2[0];
                             String tok2 = (String) o2[1];
                             
@@ -821,10 +831,10 @@ public class ASTManager implements Serializable, IASTManager {
                     }
                     IToken[] wildImportedModules = mod.getWildImportedModules();
                     for (int j = 0; j < wildImportedModules.length; j++) {
-                        AbstractModule mod2 = getModule(wildImportedModules[j].getCompletePath(), state.nature);
+                        AbstractModule mod2 = getModule(wildImportedModules[j].getCompletePath(), nature);
                         
                         if (mod2 == null) {
-                            mod2 = getModule(wildImportedModules[j].getRepresentation(), state.nature);
+                            mod2 = getModule(wildImportedModules[j].getRepresentation(), nature);
                         }
                         
                         if (mod2 != null) {
@@ -832,7 +842,7 @@ public class ASTManager implements Serializable, IASTManager {
                             if(tok != null){
 	                            return new Object[]{ mod2, tok};
                             }else{
-	                            return new Object[]{ mod2, state.activationToken};
+	                            return new Object[]{ mod2, activationToken};
                             }
                         }
                             
@@ -842,20 +852,20 @@ public class ASTManager implements Serializable, IASTManager {
                 }
 
                 
-            }else if (state.activationToken.startsWith(modRep)){
+            }else if (activationToken.startsWith(modRep)){
                 //this is something like
                 //import qt
                 //
                 //qt.QWidget.| Ctrl+Space
                 //
                 //so, we have to find the qt module and then go for the token.
-                String subst = state.activationToken.substring(modRep.length());
-                Object [] o = findModuleFromPath(importedModules[i].getCompletePath() + subst, state.nature);
+                String subst = activationToken.substring(modRep.length());
+                Object [] o = findModuleFromPath(importedModules[i].getCompletePath() + subst, nature);
                 AbstractModule mod = (AbstractModule) o[0];
                 String tok = (String) o[1];
                 
                 if(mod == current){
-                    Object[] o1 = findModuleFromPath(importedModules[i].getRepresentation() + subst, state.nature);
+                    Object[] o1 = findModuleFromPath(importedModules[i].getRepresentation() + subst, nature);
                     AbstractModule mod1 = (AbstractModule) o1[0];
                     String tok1 = (String) o1[1];
                     if(mod1 != null){

@@ -115,6 +115,14 @@ public interface IASTManager {
      * @param nature
      * @return the module with the specified name.
      */
-    public AbstractModule getModule(String name, PythonNature nature);
+    public abstract AbstractModule getModule(String name, PythonNature nature);
+
+    
+    /**
+     * @return tuple with:
+     * 0: mod
+     * 1: tok
+     */
+    public abstract Object[] findOnImportedMods( PythonNature nature, String activationToken, AbstractModule current);
 
 }

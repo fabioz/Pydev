@@ -46,9 +46,14 @@ public abstract class AbstractVisitor extends VisitorBase{
     protected String moduleName;
     
     public static String getFullRepresentationString(SimpleNode node) {
-        if (REF.hasAttr(node, "value") && REF.hasAttr(node, "attr")) {
-            return getRepresentationString((SimpleNode) REF.getAttrObj(node, "value")) + "." +REF.getAttrObj(node, "attr").toString();
+        if(node instanceof Call){
+            Call c = (Call) node;
+            node = c.func;
+	        if (REF.hasAttr(node, "value") && REF.hasAttr(node, "attr")) {
+	            return getRepresentationString((SimpleNode) REF.getAttrObj(node, "value")) + "." +REF.getAttrObj(node, "attr").toString();
+	        }
         }
+        
         
 	    if (node instanceof Attribute){
 	        Attribute a = (Attribute)node;

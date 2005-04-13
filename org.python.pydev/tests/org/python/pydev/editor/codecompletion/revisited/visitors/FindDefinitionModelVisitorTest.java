@@ -45,15 +45,16 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
 
 		Document doc = new Document(d);
 		AbstractModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
-		Definition[] defs = module.findDefinition("ex", 2, 2, nature.getAstManager());
+		Definition[] defs = module.findDefinition("ex", 2, 2, nature);
 		
 		assertEquals(1, defs.length);
 		assertEquals("ex", ((AssignDefinition)defs[0]).target);
 		assertEquals("assist.ExistingClass", defs[0].value);
 		assertSame(module, defs[0].module);
 		
-		defs = module.findDefinition("assist.ExistingClass", 1, 5, nature.getAstManager());
+		defs = module.findDefinition("assist.ExistingClass", 1, 5, nature);
 		assertEquals(1, defs.length);
+		assertEquals("ExistingClass", defs[0].value);
 		assertNotSame(module, defs[0].module);
 		
     }

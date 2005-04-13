@@ -136,7 +136,7 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		"        ";
 		assertEquals(res, p.getReplacementStr());
 		assertEquals("testAssist.assist", p.module.getName());
-		assertEquals("ExistingClass", p.className);
+		assertEquals("ExistingClass", p.definition.value);
 		assertEquals(SourceModuleProposal.ADD_TO_LAST_CLASS_LINE, p.addTo);
     }
 }

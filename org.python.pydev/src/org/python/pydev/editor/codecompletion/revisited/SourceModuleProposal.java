@@ -7,8 +7,10 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -16,6 +18,7 @@ import org.eclipse.ui.IEditorPart;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.CompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.utils.REF;
 
@@ -29,7 +32,7 @@ public class SourceModuleProposal extends CompletionProposal {
     public final SourceModule module;
     public PyEdit edit;
     public IDocument doc;
-    public String className;
+    public Definition definition;
     
     public static final int ADD_TO_DEFAULT = -1;
     public static final int ADD_TO_LAST_LINE = 0;
@@ -60,6 +63,19 @@ public class SourceModuleProposal extends CompletionProposal {
         }
         if(addTo == ADD_TO_LAST_LINE){ 
             fReplacementOffset = doc.getLength();
+            
+        }else if(addTo == ADD_TO_LAST_CLASS_LINE){
+            int i = module.findAstEnd(definition.ast)-2;
+            
+            if(i == -1){
+                i = doc.getNumberOfLines();
+            }
+            try {
+                IRegion lineInformation = doc.getLineInformation(i);
+                fReplacementOffset = lineInformation.getOffset()+lineInformation.getLength();
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
         }
         super.apply(doc);
     }

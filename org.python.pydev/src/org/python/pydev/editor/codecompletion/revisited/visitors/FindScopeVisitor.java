@@ -51,7 +51,7 @@ public class FindScopeVisitor extends AbstractVisitor {
        this.line = line;
        this.col = col;
     }
-    
+
     /**
      * @see org.python.parser.ast.VisitorBase#unhandled_node(org.python.parser.SimpleNode)
      */
@@ -64,6 +64,10 @@ public class FindScopeVisitor extends AbstractVisitor {
 	            found = true;
 	            scope = new Scope(this.stackScope);
 	        }
+        }else{
+            if(scope.scopeEndLine == -1 && line < node.beginLine && col >= node.beginColumn){
+                scope.scopeEndLine = node.beginLine; 
+            }
         }
         return null;
     }

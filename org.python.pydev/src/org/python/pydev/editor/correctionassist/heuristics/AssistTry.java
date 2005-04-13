@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionProposal;
 import org.python.pydev.editor.model.AbstractNode;

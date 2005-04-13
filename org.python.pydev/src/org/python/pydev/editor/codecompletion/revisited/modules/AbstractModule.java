@@ -19,10 +19,10 @@ import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
-import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PythonNature;
@@ -62,6 +62,21 @@ public abstract class AbstractModule implements Serializable{
     }
 
     /**
+     * @param tok
+     * @return whether the passed token is part of the global tokens of this module.
+     */
+    public boolean isInGlobalTokens(String tok){
+        IToken[] tokens = getGlobalTokens();
+        
+        for (int i = 0; i < tokens.length; i++) {
+            if(tokens[i].getRepresentation().equals(tok)){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * This function can be called to find possible definitions of a token, based on its name, line and
      * column.
      * 
@@ -71,7 +86,7 @@ public abstract class AbstractModule implements Serializable{
      * @return array of definitions.
      * @throws Exception
      */
-    public abstract Definition[] findDefinition(String token, int line, int col, IASTManager manager) throws Exception;
+    public abstract Definition[] findDefinition(String token, int line, int col, PythonNature nature) throws Exception;
 
     /**
      * This function should return all tokens that are global for a given token.

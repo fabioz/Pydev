@@ -18,7 +18,6 @@ import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
-import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
@@ -26,6 +25,8 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PythonNature;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.
@@ -202,7 +203,7 @@ public class SourceModule extends AbstractModule {
         return new IToken[0];
     }
 
-    public Definition[] findDefinition(String token, int line, int col, IASTManager manager) throws Exception{
+    public Definition[] findDefinition(String token, int line, int col, PythonNature nature) throws Exception{
         //the line passed in starts at 1 and the lines for the visitor start at 0
         ArrayList toRet = new ArrayList();
         FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
@@ -217,8 +218,14 @@ public class SourceModule extends AbstractModule {
         
         if(visitor.definitions.size() == 0){
             //ok, it is not an assign, so, let's search the global tokens (and imports)
-            
-            
+            Object[] o = nature.getAstManager().findOnImportedMods(nature, token, this);
+            if(o != null){
+	            SourceModule mod =  (SourceModule) o[0];
+	            String tok = (String) o[1];
+	            Definition d = mod.findGlobalTokDef(tok);
+	            if(d != null)
+	                toRet.add(d);
+            }
         }else{
 	        for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {
 	            AssignDefinition element = (AssignDefinition) iter.next();
@@ -230,6 +237,32 @@ public class SourceModule extends AbstractModule {
         return (Definition[]) toRet.toArray(new Definition[0]);
     }
 
+
+    /**
+     * @param tok
+     * @return
+     */
+    public Definition findGlobalTokDef(String tok) {
+        SourceToken[] tokens = (SourceToken[]) getGlobalTokens();
+        
+        for (int i = 0; i < tokens.length; i++) {
+            if(tokens[i].getRepresentation().equals(tok)){
+                SimpleNode a = tokens[i].getAst();
+                
+                FindScopeVisitor scopeVisitor = new FindScopeVisitor(a.beginLine, a.beginColumn);
+                if (ast != null){
+                    try {
+                        ast.accept(scopeVisitor);
+                    } catch (Exception e) {
+                        PydevPlugin.log(e);
+                    }
+                }
+                
+                return new Definition(a.beginLine, a.beginColumn, tok, a, scopeVisitor.scope, this);
+            }
+        }
+        return null;
+    }
 
     public IToken[] getLocalTokens(int line, int col){
         try {
@@ -254,5 +287,24 @@ public class SourceModule extends AbstractModule {
     
     public SimpleNode getAst(){
         return ast;
+    }
+
+    /**
+     * 
+     */
+    public int findAstEnd(SimpleNode node) {
+        try {
+            int line = node.beginLine;
+            int col = node.beginColumn;
+	        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
+	        if (ast != null){
+                ast.accept(scopeVisitor);
+	        }
+	        
+	        return scopeVisitor.scope.scopeEndLine;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 }

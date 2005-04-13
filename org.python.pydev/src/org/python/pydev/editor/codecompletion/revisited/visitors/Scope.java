@@ -23,6 +23,8 @@ public class Scope {
 
     public Stack scope = new Stack();
     
+    public int scopeEndLine = -1;
+    
     public Scope(Stack scope){
         this.scope.addAll(scope);
     }
