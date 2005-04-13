@@ -35,7 +35,7 @@ public class AssistDocString implements IAssistProps {
         StringBuffer buf = new StringBuffer();
 	    String initial = PyAction.getIndentationFromLine(ps.getSelection());
         String delimiter = PyAction.getDelimiter(ps.getDoc());
-        String indentation = PyBackspace.getStaticIndentationString();
+        String indentation = PyAction.getStaticIndentationString();
 	    String inAndIndent = delimiter+initial+indentation;
 	    
         buf.append(inAndIndent+"'''");

@@ -31,7 +31,7 @@ public class AssistTry implements IAssistProps {
     public List getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, AbstractNode root) throws BadLocationException {
         
         ArrayList l = new ArrayList();
-        String indentation = PyBackspace.getStaticIndentationString();
+        String indentation = PyAction.getStaticIndentationString();
         
         int start = ps.getStartLine().getOffset();
         int end = ps.getEndLine().getOffset()+ps.getEndLine().getLength();

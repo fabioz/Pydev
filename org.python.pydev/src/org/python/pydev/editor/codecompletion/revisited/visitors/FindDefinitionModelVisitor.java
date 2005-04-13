@@ -13,6 +13,7 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.Assign;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 
 /**
  * @author Fabio Zadrozny
@@ -34,6 +35,8 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
      */
     private Stack defsStack = new Stack();
     
+    private AbstractModule module;
+    
     /**
      * Constructor 
      * 
@@ -41,8 +44,9 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
      * @param line
      * @param col
      */
-    public FindDefinitionModelVisitor(String token, int line, int col){
+    public FindDefinitionModelVisitor(String token, int line, int col, AbstractModule module){
         this.tokenToFind = token;
+        this.module = module;
     }
     
     /**
@@ -90,7 +94,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
             if(rep != null && rep.equals(tokenToFind)){
 	            String value = getFullRepresentationString(node.value);
 	            
-	            AssignDefinition definition = new AssignDefinition(value, rep, i, node, node.beginLine, node.beginColumn, new Scope(this.defsStack));
+	            AssignDefinition definition = new AssignDefinition(value, rep, i, node, node.beginLine, node.beginColumn, new Scope(this.defsStack), module);
 	            definitions.add(definition);
 	        }
         }

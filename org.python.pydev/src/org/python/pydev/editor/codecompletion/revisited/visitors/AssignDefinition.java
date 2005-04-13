@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import org.python.parser.ast.Assign;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 
 
 public class AssignDefinition extends Definition{
@@ -38,6 +39,11 @@ public class AssignDefinition extends Definition{
     public int targetPos;
     
     /**
+     * This is the module where the definition is.
+     */
+    public AbstractModule module;
+    
+    /**
      * Assign ast.
      */
     public Assign ast;
@@ -62,12 +68,13 @@ public class AssignDefinition extends Definition{
      * @param line
      * @param col
      */
-    public AssignDefinition(String value, String target, int targetPos, Assign ast, int line, int col, Scope scope){
+    public AssignDefinition(String value, String target, int targetPos, Assign ast, int line, int col, Scope scope, AbstractModule module){
         super(line, col);
         this.target = target;
         this.targetPos = targetPos;
         this.value = value;
         this.ast = ast;
         this.scope = scope;
+        this.module = module;
     }
 }

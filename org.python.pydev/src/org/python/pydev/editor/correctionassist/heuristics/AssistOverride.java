@@ -31,29 +31,28 @@ public class AssistOverride implements IAssistProps {
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.editor.actions.PySelection, org.python.pydev.ui.ImageCache)
      */
-    public List getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, AbstractNode root) throws BadLocationException {
+    public List getProps(PySelection ps, ImageCache imageCache, File file, PythonNature nature, AbstractNode root) throws BadLocationException {
         ArrayList l = new ArrayList();
         String sel = PyAction.getLineWithoutComments(ps);
-        
-        String indentation = PyBackspace.getStaticIndentationString();
+        String indentation = PyAction.getStaticIndentationString();
         String delimiter = PyAction.getDelimiter(ps.getDoc());
 
         String indStart = "";
         int j = sel.indexOf("def ");
-
         for (int i = 0; i < j; i++) {
             indStart += " ";
         }
-        
         String start = sel.substring(0, j+4);
+
         
+        //code completion to see members of class...
         String[] strs = PyCodeCompletion.getActivationTokenAndQual(ps.getDoc(), ps.getAbsoluteCursorOffset());
         String tok = strs[1];
-        
-        
         CompletionState state = new CompletionState(ps.getStartLineIndex(), ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset(), null, nature);
-        CompletionRequest request = new CompletionRequest(f, nature, ps.getDoc(), "self", ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(true), "");
+        CompletionRequest request = new CompletionRequest(file, nature, ps.getDoc(), "self", ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(true), "");
         IToken[] selfCompletions = PyCodeCompletion.getSelfCompletions(request, new ArrayList(), state, true);
+
+        
         for (int i = 0; i < selfCompletions.length; i++) {
             IToken token = selfCompletions[i];
             String rep = token.getRepresentation();

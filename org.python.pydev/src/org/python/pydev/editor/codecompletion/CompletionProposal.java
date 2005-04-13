@@ -13,24 +13,24 @@ import org.eclipse.swt.graphics.Point;
 /**
  * The standard implementation of the <code>ICompletionProposal</code> interface.
  */
-public final class CompletionProposal implements ICompletionProposal {
+public class CompletionProposal implements ICompletionProposal {
 	
 	/** The string to be displayed in the completion proposal popup. */
-	private String fDisplayString;
+	protected String fDisplayString;
 	/** The replacement string. */
-	private String fReplacementString;
+	protected String fReplacementString;
 	/** The replacement offset. */
-	private int fReplacementOffset;
+	protected int fReplacementOffset;
 	/** The replacement length. */
-	private int fReplacementLength;
+	protected int fReplacementLength;
 	/** The cursor position after this proposal has been applied. */
-	private int fCursorPosition;
+	protected int fCursorPosition;
 	/** The image to be displayed in the completion proposal popup. */
-	private Image fImage;
+	protected Image fImage;
 	/** The context information of this proposal. */
-	private IContextInformation fContextInformation;
+	protected IContextInformation fContextInformation;
 	/** The additional info of this proposal. */
-	private String fAdditionalProposalInfo;
+	protected String fAdditionalProposalInfo;
 
 	/**
 	 * Creates a new completion proposal based on the provided information. The replacement string is

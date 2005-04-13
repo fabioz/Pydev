@@ -18,6 +18,8 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
+import org.python.pydev.editor.correctionassist.heuristics.AssistCreateClassInModule;
+import org.python.pydev.editor.correctionassist.heuristics.AssistCreateMethodInModule;
 import org.python.pydev.editor.correctionassist.heuristics.AssistCreations;
 import org.python.pydev.editor.correctionassist.heuristics.AssistDocString;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
@@ -98,16 +100,23 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
                 new AssistDocString(),
                 new AssistOverride(),
                 new AssistAssign(),
-                new AssistCreations()
+                new AssistCreations(),
+                new AssistCreateMethodInModule(),
+                new AssistCreateClassInModule()
                 };
         
         for (int i = 0; i < assists.length; i++) {
-            if(assists[i].isValid(ps, sel)){
-                try {
-                    results.addAll(assists[i].getProps(ps, imageCache, edit.getEditorFile(), edit.getPythonNature(), edit.getPythonModel()));
-                } catch (BadLocationException e) {
-                    PydevPlugin.log(e);
+            try {
+                if (assists[i].isValid(ps, sel)) {
+                    try {
+                        results.addAll(assists[i].getProps(ps, imageCache, edit.getEditorFile(), edit.getPythonNature(), edit
+                                .getPythonModel()));
+                    } catch (BadLocationException e) {
+                        PydevPlugin.log(e);
+                    }
                 }
+            } catch (Exception e) {
+                PydevPlugin.log(e);
             }
         }
 

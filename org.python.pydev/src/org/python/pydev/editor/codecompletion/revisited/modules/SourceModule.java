@@ -18,6 +18,7 @@ import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
@@ -200,14 +201,14 @@ public class SourceModule extends AbstractModule {
         return new IToken[0];
     }
 
-    public AssignDefinition[] findDefinition(String token, int line, int col) throws Exception{
+    public AssignDefinition[] findDefinition(String token, int line, int col, IASTManager manager) throws Exception{
         //the line passed in starts at 1 and the lines for the visitor start at 0
         FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
         if (ast != null){
             ast.accept(scopeVisitor);
         }
         
-        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(token, line, col);
+        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(token, line, col, this);
         if (ast != null){
             ast.accept(visitor);
         }
@@ -242,5 +243,9 @@ public class SourceModule extends AbstractModule {
      */
     public boolean isSynched() {
         return this.file.lastModified() == this.lastModified;
+    }
+    
+    public SimpleNode getAst(){
+        return ast;
     }
 }

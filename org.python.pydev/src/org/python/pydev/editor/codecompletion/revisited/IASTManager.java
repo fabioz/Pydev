@@ -10,6 +10,7 @@ import java.io.File;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.plugin.PythonNature;
 
@@ -107,4 +108,13 @@ public interface IASTManager {
      * @return
      */
     public abstract IToken[] getCompletionsForToken(File file, IDocument doc, CompletionState state);
+    
+    /**
+     * 
+     * @param name
+     * @param nature
+     * @return the module with the specified name.
+     */
+    public AbstractModule getModule(String name, PythonNature nature);
+
 }

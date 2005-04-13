@@ -52,8 +52,8 @@ public abstract class AbstractVisitor extends VisitorBase{
 	    } else {
 	        return getRepresentationString(node);
 	    }
-        
     }
+
     /**
      * @param node
      * @return
@@ -63,6 +63,9 @@ public abstract class AbstractVisitor extends VisitorBase{
 	    if (REF.hasAttr(node, "name")) {
             return REF.getAttrObj(node, "name").toString();
             
+        }else if (REF.hasAttr(node, "value") && REF.hasAttr(node, "attr")) {
+            return getRepresentationString((SimpleNode) REF.getAttrObj(node, "value")) + "." +REF.getAttrObj(node, "attr").toString();
+
         }else if (REF.hasAttr(node, "id")) {
             return REF.getAttrObj(node, "id").toString();
 
@@ -73,7 +76,8 @@ public abstract class AbstractVisitor extends VisitorBase{
             return REF.getAttrObj(node, "arg").toString();
             
         }else if (node instanceof Call){
-            return getRepresentationString(((Call)node).func);
+            Call call = ((Call)node);
+            return getRepresentationString(call.func);
             
         }else if (node instanceof org.python.parser.ast.List || node instanceof ListComp){
             return "[]";

@@ -5,6 +5,8 @@
  */
 package org.python.pydev.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.lang.reflect.Field;
 
 /**
@@ -44,6 +46,21 @@ public class REF {
             }
         }
         return null;
+    }
+
+    /**
+     * @param file
+     */
+    public static String getFileContents(File file) {
+        try {
+            FileInputStream stream = new FileInputStream(file);
+            int i = stream.available();
+            byte[] b = new byte[i];
+            stream.read(b);
+            return new String(b);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     
     

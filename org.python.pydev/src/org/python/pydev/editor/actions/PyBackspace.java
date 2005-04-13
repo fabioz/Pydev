@@ -284,29 +284,4 @@ public class PyBackspace extends PyAction {
         return identString;
     }
     //END TODO.
-
-
-    private static String createStaticSpaceString(int width, int tabWidth) {
-        StringBuffer b = new StringBuffer(width);
-        while (tabWidth-- > 0)
-            b.append(" ");
-        return b.toString();
-    }
-
-    /**
-     * 
-     * @return indentation string (always recreated) 
-     */
-    public static String getStaticIndentationString() {
-        int tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
-        boolean useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
-        boolean forceTabs = false;
-        String identString;
-
-        if (useSpaces && !forceTabs)
-            identString = createStaticSpaceString(tabWidth, tabWidth);
-        else
-            identString = "\t";
-        return identString;
-    }
 }

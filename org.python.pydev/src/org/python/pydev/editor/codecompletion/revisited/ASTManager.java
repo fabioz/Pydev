@@ -356,7 +356,7 @@ public class ASTManager implements Serializable, IASTManager {
      * @param name
      * @return the module represented by this name
      */
-    private AbstractModule getModule(String name, PythonNature nature) {
+    public AbstractModule getModule(String name, PythonNature nature) {
         AbstractModule n = (AbstractModule) modules.get(new ModulesKey(name, null));
         if (n == null){
             n = (AbstractModule) modules.get(new ModulesKey(name+".__init__", null));
@@ -638,19 +638,17 @@ public class ASTManager implements Serializable, IASTManager {
         if (module instanceof SourceModule) {
             SourceModule s = (SourceModule) module;
             try {
-                AssignDefinition[] defs = s.findDefinition(state.activationToken, state.line, state.col);
-                if(defs.length > 0){
-                    for (int i = 0; i < defs.length; i++) {
-                        
-                        CompletionState copy = state.getCopy();
-                        copy.activationToken = defs[i].value;
-                        copy.line = defs[i].line;
-                        copy.col = defs[i].col;
+                AssignDefinition[] defs = s.findDefinition(state.activationToken, state.line, state.col, this);
+                for (int i = 0; i < defs.length; i++) {
+                    
+                    CompletionState copy = state.getCopy();
+                    copy.activationToken = defs[i].value;
+                    copy.line = defs[i].line;
+                    copy.col = defs[i].col;
 
-                        IToken[] tks = getCompletionsForModule(module, copy);
-                        if(tks.length > 0)
-                            return tks;
-                    }
+                    IToken[] tks = getCompletionsForModule(module, copy);
+                    if(tks.length > 0)
+                        return tks;
                 }
                 
             } catch (Exception e) {

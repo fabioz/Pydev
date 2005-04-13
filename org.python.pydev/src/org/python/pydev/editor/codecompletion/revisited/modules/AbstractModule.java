@@ -19,6 +19,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
@@ -70,7 +71,7 @@ public abstract class AbstractModule implements Serializable{
      * @return array of definitions.
      * @throws Exception
      */
-    public abstract AssignDefinition[] findDefinition(String token, int line, int col) throws Exception;
+    public abstract AssignDefinition[] findDefinition(String token, int line, int col, IASTManager manager) throws Exception;
 
     /**
      * This function should return all tokens that are global for a given token.

@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionProposal;
 import org.python.pydev.editor.correctionassist.FixCompletionProposal;
@@ -195,7 +194,7 @@ public class AssistCreations implements IAssistProps {
         params = PyAction.getInsideParentesisTok(ps);
         firstCharPosition = PyAction.getFirstCharRelativePosition(ps.getDoc(), ps.getAbsoluteCursorOffset());
         
-        indentation = PyBackspace.getStaticIndentationString();
+        indentation = PyAction.getStaticIndentationString();
 
         
         delim = PyAction.getDelimiter(ps.getDoc());

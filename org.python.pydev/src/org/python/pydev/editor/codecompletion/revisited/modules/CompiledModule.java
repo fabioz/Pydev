@@ -14,6 +14,7 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.plugin.PydevPlugin;
@@ -140,7 +141,7 @@ public class CompiledModule extends AbstractModule{
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
-    public AssignDefinition[] findDefinition(String token, int line, int col) throws Exception {
+    public AssignDefinition[] findDefinition(String token, int line, int col, IASTManager manager) throws Exception {
         return new AssignDefinition[0];
     }
 
