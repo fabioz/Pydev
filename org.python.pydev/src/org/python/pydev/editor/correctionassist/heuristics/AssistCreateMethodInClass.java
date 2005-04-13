@@ -6,18 +6,14 @@
 package org.python.pydev.editor.correctionassist.heuristics;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
-import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PythonNature;
 import org.python.pydev.ui.ImageCache;
@@ -45,7 +41,7 @@ public class AssistCreateMethodInClass extends AbstractAssistCreate {
             int line = ps.getStartLineIndex();
             int col = offset - ps.getStartLine().getOffset();
             
-            AssignDefinition[] defs = module.findDefinition(actTok, line, col, nature.getAstManager());
+            Definition[] defs = module.findDefinition(actTok, line, col, nature.getAstManager());
             if(defs.length >  0){
                 actTok = defs[0].value;
             }else{

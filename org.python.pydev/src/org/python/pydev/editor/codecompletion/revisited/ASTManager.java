@@ -28,7 +28,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PythonNature;
@@ -585,7 +585,16 @@ public class ASTManager implements Serializable, IASTManager {
                 }
 
                 //it was not a module (would have returned already), so, try to get the completions for a global token defined.
-                IToken[] tokens = module.getGlobalTokens(state, this);
+                if (state.activationToken.equals("Derived")){
+                    System.out.println("here");
+                }
+                IToken[] tokens = null;
+                try {
+                    tokens = module.getGlobalTokens(state, this);
+                } catch (Exception e) {
+                    System.out.println("here");
+                    tokens = module.getGlobalTokens(state, this);
+                }
                 if (tokens.length > 0){
                     return tokens;
                 }
@@ -638,14 +647,14 @@ public class ASTManager implements Serializable, IASTManager {
         if (module instanceof SourceModule) {
             SourceModule s = (SourceModule) module;
             try {
-                AssignDefinition[] defs = s.findDefinition(state.activationToken, state.line, state.col, this);
+                Definition[] defs = s.findDefinition(state.activationToken, state.line, state.col, this);
                 for (int i = 0; i < defs.length; i++) {
                     
                     CompletionState copy = state.getCopy();
                     copy.activationToken = defs[i].value;
                     copy.line = defs[i].line;
                     copy.col = defs[i].col;
-
+                    module = defs[i].module;
                     IToken[] tks = getCompletionsForModule(module, copy);
                     if(tks.length > 0)
                         return tks;
@@ -714,14 +723,44 @@ public class ASTManager implements Serializable, IASTManager {
         }
         return completions;
     }
+    private IToken[] searchOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current) {
+        Object [] o = findOnImportedMods(importedModules, state, current);
+        
+        if(o == null)
+            return null;
+        
+        if(o.length > 2)
+            return (IToken[]) o[2];
+        
+        AbstractModule mod = (AbstractModule) o[0];
+        String tok = (String) o[1];
+
+        if(tok.length() == 0){
+            //the activation token corresponds to an imported module. We have to get its global tokens and return them.
+            CompletionState copy = state.getCopy();
+            copy.activationToken = "";
+            return getCompletionsForModule(mod, copy);
+        }else if (mod != null){
+            CompletionState copy = state.getCopy();
+            copy.activationToken = tok;
+            copy.col = -1;
+            copy.line = -1;
+            
+            return getCompletionsForModule(mod, copy);
+        }
+        return null;
+    }
 
     /**
      * @param activationToken
      * @param importedModules
      * @param module
-     * @return
+     * @return tuple with:
+     * 0: mod
+     * 1: tok
+     * 2: (optional) completions if they've already been gotten 
      */
-    private IToken[] searchOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current) {
+    private Object[] findOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current) {
         for (int i = 0; i < importedModules.length; i++) {
             final String modRep = importedModules[i].getRepresentation();
             if(modRep.equals(state.activationToken)){
@@ -758,15 +797,14 @@ public class ASTManager implements Serializable, IASTManager {
                 
                 if(tok.length() == 0){
                     //the activation token corresponds to an imported module. We have to get its global tokens and return them.
-                    CompletionState copy = state.getCopy();
-                    copy.activationToken = "";
-                    return getCompletionsForModule(mod, copy);
+                    return new Object[]{ mod, ""};
+                    
                 }else if (mod != null){
                     CompletionState state2 = state.getCopy();
                     state2.activationToken = tok;
                     IToken[] globalTokens = mod.getGlobalTokens(state2, this);
                     if(globalTokens.length > 0){
-                        return globalTokens;
+                        return new Object[]{ mod, tok, globalTokens};
                     }
                     
                     //ok, it was not a global token, still, it might be some import from that module.
@@ -778,11 +816,7 @@ public class ASTManager implements Serializable, IASTManager {
                             AbstractModule mod2 = (AbstractModule) o2[0];
                             String tok2 = (String) o2[1];
                             
-                            state2 = state.getCopy();
-                            state2.activationToken = tok2;
-                            if (mod2 != null){
-                                return mod2.getGlobalTokens(state2, this);
-                            }      
+                            return new Object[]{ mod2, tok2};
                         }
                     }
                     IToken[] wildImportedModules = mod.getWildImportedModules();
@@ -795,12 +829,11 @@ public class ASTManager implements Serializable, IASTManager {
                         
                         if (mod2 != null) {
                             //the token to find is already specified.
-                            CompletionState copy = state.getCopy();
                             if(tok != null){
-                                copy.activationToken = tok;
+	                            return new Object[]{ mod2, tok};
+                            }else{
+	                            return new Object[]{ mod2, state.activationToken};
                             }
-                            IToken[] completionsForModule = getCompletionsForModule(mod2, copy);
-                            return completionsForModule;
                         }
                             
                         
@@ -831,21 +864,7 @@ public class ASTManager implements Serializable, IASTManager {
                     }
                 }
                 
-                if(tok.length() == 0){
-                    //the activation token corresponds to an imported module. We have to get its global tokens and return them.
-                    CompletionState copy = state.getCopy();
-                    copy.activationToken = "";
-                    return getCompletionsForModule(mod, copy);
-                }else if (mod != null){
-//                    return mod.getGlobalTokens(tok, this, state.line, state.col, state.nature);
-                    CompletionState copy = state.getCopy();
-                    copy.activationToken = tok;
-                    copy.col = -1;
-                    copy.line = -1;
-                    
-                    return getCompletionsForModule(mod, copy);
-                    
-                }
+                return new Object[]{mod, tok};
             }
         }
         return null;

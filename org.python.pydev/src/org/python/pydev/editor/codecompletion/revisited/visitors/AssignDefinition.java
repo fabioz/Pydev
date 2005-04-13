@@ -12,16 +12,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 public class AssignDefinition extends Definition{
     
     /**
-     * Name of the token.
-     * 
-     * e.g.
-     * tok = ClassA()
-     * 
-     * the value equals ClassA
-     */
-    public String value;
-    
-    /**
      * This is the token name.
      */
     public String target;
@@ -39,28 +29,6 @@ public class AssignDefinition extends Definition{
     public int targetPos;
     
     /**
-     * This is the module where the definition is.
-     */
-    public AbstractModule module;
-    
-    /**
-     * Assign ast.
-     */
-    public Assign ast;
-    
-    /**
-     * Node with the path of classes / funcs to get to an assign.
-     */
-    public Scope scope; 
-    
-    /**
-     * Default constructor.
-     */
-    public AssignDefinition(){
-        
-    }
-
-    /**
      * Constructor.
      * 
      * @param assign
@@ -69,12 +37,8 @@ public class AssignDefinition extends Definition{
      * @param col
      */
     public AssignDefinition(String value, String target, int targetPos, Assign ast, int line, int col, Scope scope, AbstractModule module){
-        super(line, col);
+        super(line, col, value, ast, scope, module);
         this.target = target;
         this.targetPos = targetPos;
-        this.value = value;
-        this.ast = ast;
-        this.scope = scope;
-        this.module = module;
     }
 }

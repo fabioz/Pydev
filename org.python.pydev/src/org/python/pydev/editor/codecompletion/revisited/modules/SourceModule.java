@@ -22,6 +22,7 @@ import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
@@ -201,8 +202,9 @@ public class SourceModule extends AbstractModule {
         return new IToken[0];
     }
 
-    public AssignDefinition[] findDefinition(String token, int line, int col, IASTManager manager) throws Exception{
+    public Definition[] findDefinition(String token, int line, int col, IASTManager manager) throws Exception{
         //the line passed in starts at 1 and the lines for the visitor start at 0
+        ArrayList toRet = new ArrayList();
         FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
         if (ast != null){
             ast.accept(scopeVisitor);
@@ -213,14 +215,19 @@ public class SourceModule extends AbstractModule {
             ast.accept(visitor);
         }
         
-        ArrayList toRet = new ArrayList();
-        for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {
-            AssignDefinition element = (AssignDefinition) iter.next();
-            if(element.scope.isOuterOrSameScope(scopeVisitor.scope)){
-                toRet.add(element);
-            }
+        if(visitor.definitions.size() == 0){
+            //ok, it is not an assign, so, let's search the global tokens (and imports)
+            
+            
+        }else{
+	        for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {
+	            AssignDefinition element = (AssignDefinition) iter.next();
+	            if(element.scope.isOuterOrSameScope(scopeVisitor.scope)){
+	                toRet.add(element);
+	            }
+	        }
         }
-        return (AssignDefinition[]) toRet.toArray(new AssignDefinition[0]);
+        return (Definition[]) toRet.toArray(new Definition[0]);
     }
 
 

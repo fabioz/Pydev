@@ -222,7 +222,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 		col = 8;
       
 		sDoc = ""+
-		"from testlib.unittest.relative.testrelative import  Derived \n"+ 
+		"from testlib.unittest.relative.testrelative import Derived \n"+ 
 		"                                                            \n"+  
 		"Derived.                                                    \n";
 
@@ -230,9 +230,9 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         Document doc = new Document(sDoc);
         CompletionState state = new CompletionState(line,col, token, nature);
 		comps = ((ASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
-		assertEquals(2, comps.length);
         ASTManagerTest.assertIsIn("test1", comps);
         ASTManagerTest.assertIsIn("test2", comps);
+		assertEquals(2, comps.length);
 
         
     }
