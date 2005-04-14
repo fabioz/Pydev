@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.9.25"
+   version="0.9.27.3"
    provider-name="Fabio Zadrozny / Aleks Totic "
    class="org.python.pydev.plugin.PydevPlugin">
 

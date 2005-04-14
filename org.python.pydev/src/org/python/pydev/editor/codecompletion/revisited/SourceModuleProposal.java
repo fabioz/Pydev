@@ -35,9 +35,9 @@ public class SourceModuleProposal extends CompletionProposal {
     public Definition definition;
     
     public static final int ADD_TO_DEFAULT = -1;
-    public static final int ADD_TO_LAST_LINE = 0;
+    public static final int ADD_TO_LAST_LINE_BEFORE_MAIN = 0;
     public static final int ADD_TO_LAST_CLASS_LINE = 1;
-    public int addTo = ADD_TO_LAST_LINE;
+    public int addTo = ADD_TO_LAST_LINE_BEFORE_MAIN;
     
     public SourceModuleProposal(String replacementString, int replacementOffset, 
             int replacementLength, int cursorPosition, Image image, 
@@ -51,33 +51,57 @@ public class SourceModuleProposal extends CompletionProposal {
      * @see org.python.pydev.editor.codecompletion.CompletionProposal#apply(org.eclipse.jface.text.IDocument)
      */
     public void apply(IDocument dummy) {
-        IPath path = new Path(module.getFile().getAbsolutePath());
-        IEditorPart part = PydevPlugin.doOpenEditor(path, true);
-
-        if(part instanceof PyEdit){
-            edit = (PyEdit) part;
-            doc = edit.getDocumentProvider().getDocument(edit.getEditorInput());
-        }else{
-            String contents = REF.getFileContents(module.getFile());
-            doc = new Document(contents);
-        }
-        if(addTo == ADD_TO_LAST_LINE){ 
-            fReplacementOffset = doc.getLength();
+        //OK, module can really be another or could be same...
+        
+        if(doc == null){ //doc can be preset
             
-        }else if(addTo == ADD_TO_LAST_CLASS_LINE){
-            int i = module.findAstEnd(definition.ast)-2;
-            
-            if(i == -1){
-                i = doc.getNumberOfLines();
-            }
-            try {
-                IRegion lineInformation = doc.getLineInformation(i);
-                fReplacementOffset = lineInformation.getOffset()+lineInformation.getLength();
-            } catch (BadLocationException e) {
-                e.printStackTrace();
-            }
+            //if not preset, let's find it.
+	        if(module.getFile() == null){ //its same
+	            doc = dummy;
+	            
+	        }else{//another
+		        IPath path = new Path(module.getFile().getAbsolutePath());
+		        IEditorPart part = PydevPlugin.doOpenEditor(path, true);
+		
+		        if(part instanceof PyEdit){
+		            edit = (PyEdit) part;
+		            doc = edit.getDocumentProvider().getDocument(edit.getEditorInput());
+		        }else{
+		            String contents = REF.getFileContents(module.getFile());
+		            doc = new Document(contents);
+		        }
+	        }        
         }
+        
+        fReplacementOffset = getReplacementOffset();
         super.apply(doc);
+    }
+
+    /**
+     * @return
+     * 
+     */
+    public int getReplacementOffset() {
+        //Replacement
+        int i = -1;
+        if(addTo == ADD_TO_LAST_LINE_BEFORE_MAIN){
+            i = module.findIfMain()-2;
+        }else if(addTo == ADD_TO_LAST_CLASS_LINE){
+            i = module.findAstEnd(definition.ast)-2;
+        }
+
+        if(i < 0){
+            i = doc.getNumberOfLines();
+        }
+        try {
+            IRegion lineInformation = doc.getLineInformation(i);
+            return lineInformation.getOffset()+lineInformation.getLength();
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+
+        //return original...
+	    return fReplacementOffset; 
     }
 
     /**
@@ -85,6 +109,10 @@ public class SourceModuleProposal extends CompletionProposal {
      */
     public Point getSelection(IDocument dummy) {
         Point sel = super.getSelection(doc);
+        if(module.getFile() == null){ //its same
+            return sel;
+        }
+
         edit.setSelection(sel.x, sel.y);
         return null;
     }

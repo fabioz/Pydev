@@ -35,15 +35,21 @@ public abstract class AbstractAssistCreate implements IAssistProps{
         
         //ok, check line to see if it maps to some import
         String lineContentsToCursor = ps.getLineContentsToCursor();
-        int i = lineContentsToCursor.indexOf('.')+1;
+        
+        int len = lineContentsToCursor.length();
+        if(lineContentsToCursor.indexOf("=") != -1){
+            lineContentsToCursor = lineContentsToCursor.split("=")[1].trim();
+        }
+        
+        int indexOfPoint = lineContentsToCursor.indexOf('.');
+        int i = indexOfPoint+1;
+        if(lineContentsToCursor.length() != len){
+            i += len - lineContentsToCursor.length();
+        }
+        
         int offset = ps.getStartLine().getOffset()+i;
         
-        String[] strs = PyCodeCompletion.getActivationTokenAndQual(ps.getDoc(), offset);
-        
-        String actTok = strs[0];
-        if(actTok.endsWith(".")){
-            actTok = actTok.substring(0, actTok.length()-1);
-        }
+        String actTok = getActTok(ps, offset);
         
         //now, check if the actTok is part of some import...
                 
@@ -57,6 +63,22 @@ public abstract class AbstractAssistCreate implements IAssistProps{
 
     
     /**
+     * @param ps
+     * @param offset
+     * @return
+     */
+    private String getActTok(PySelection ps, int offset) {
+        String[] strs = PyCodeCompletion.getActivationTokenAndQual(ps.getDoc(), offset);
+        
+        String actTok = strs[0];
+        if(actTok.endsWith(".")){
+            actTok = actTok.substring(0, actTok.length()-1);
+        }
+        return actTok;
+    }
+
+
+    /**
      * 
      * This function might be overriden. It is called before getProposal() 
      * 
@@ -69,6 +91,11 @@ public abstract class AbstractAssistCreate implements IAssistProps{
      * @param module
      */
     protected void getProposalFromModule(PySelection ps, ImageCache imageCache, PythonNature nature, List l, int offset, String actTok, SourceModule module) {
+        if(actTok.trim().length() == 0){
+            l.add(getProposal(ps, imageCache, offset, module)); //same module as doc
+            return;
+        }
+        
         IToken[] tokenImportedModules = module.getTokenImportedModules();
         for (int k = 0; k < tokenImportedModules.length; k++) {
             if(tokenImportedModules[k].getRepresentation().endsWith(actTok)){
@@ -79,7 +106,7 @@ public abstract class AbstractAssistCreate implements IAssistProps{
                 final SourceModule s = (SourceModule) m;
                 final File modFile = s.getFile();
                 if(modFile.exists() && modFile.isFile()){
-                    l.add(getProposal(ps, imageCache, offset, m, s));
+                    l.add(getProposal(ps, imageCache, offset, s));
                 }
             }
         }
@@ -90,7 +117,7 @@ public abstract class AbstractAssistCreate implements IAssistProps{
      * @param offset that's the offset where the '.' was found
      * @return
      */
-    protected abstract CompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, AbstractModule currentModule, final SourceModule definedModule);
+    protected abstract CompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, final SourceModule definedModule);
 
 
     /**
@@ -99,13 +126,14 @@ public abstract class AbstractAssistCreate implements IAssistProps{
     public boolean isValid(PySelection ps, String sel) {
         try {
             String lineToCursor = ps.getLineContentsToCursor();
-	        return lineToCursor.indexOf('.') != -1 && lineToCursor.indexOf('(') != -1 &&
+	        return lineToCursor.indexOf('(') != -1 &&
 	        lineToCursor.indexOf(')') != -1;
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
         return false;
     }
+    
 
 
 }

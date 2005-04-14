@@ -50,11 +50,11 @@ public class PySelectionTest extends TestCase {
      */
     public void testGeneral() throws BadLocationException {
         ps = new PySelection(doc, new TextSelection(doc, 0,0));
-        assertEquals("",ps.getSelection());
+        assertEquals("TestLine1",ps.getCursorLineContents());
         assertEquals("",ps.getLineContentsToCursor());
         ps.selectCompleteLine();
         
-        assertEquals("TestLine1",ps.getSelection());
+        assertEquals("TestLine1",ps.getCursorLineContents());
         assertEquals("TestLine1",ps.getLine(0));
         assertEquals("TestLine2#comm2",ps.getLine(1));
         
@@ -69,16 +69,16 @@ public class PySelectionTest extends TestCase {
      */
     public void testSelectAll() {
         ps = new PySelection(doc, new TextSelection(doc, 0,0));
-        ps.selectAll(false);
-        assertEquals(docContents, ps.getSelection());
+        ps.selectAll(true);
+        assertEquals(docContents, ps.getCursorLineContents()+"\n");
         
         ps = new PySelection(doc, new TextSelection(doc, 0,9)); //first line selected
-        ps.selectAll(false); //changes
-        assertEquals(docContents, ps.getSelection());
+        ps.selectAll(true); //changes
+        assertEquals(docContents, ps.getCursorLineContents()+"\n");
         
         ps = new PySelection(doc, new TextSelection(doc, 0,9)); //first line selected
-        ps.selectAll(true); //nothing changes
-        assertEquals(ps.getLine(0), ps.getSelection());
+        ps.selectAll(false); //nothing changes
+        assertEquals(ps.getLine(0), ps.getCursorLineContents());
         
         
     }

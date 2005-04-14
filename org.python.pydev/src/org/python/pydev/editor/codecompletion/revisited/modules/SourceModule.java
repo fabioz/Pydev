@@ -289,6 +289,7 @@ public class SourceModule extends AbstractModule {
         return ast;
     }
 
+    
     /**
      * 
      */
@@ -302,6 +303,23 @@ public class SourceModule extends AbstractModule {
 	        }
 	        
 	        return scopeVisitor.scope.scopeEndLine;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    /**
+     * @return
+     */
+    public int findIfMain() {
+        try {
+	        FindScopeVisitor scopeVisitor = new FindScopeVisitor(-1,-1);
+	        if (ast != null){
+                ast.accept(scopeVisitor);
+	        }
+	        
+	        return scopeVisitor.scope.ifMainLine;
         } catch (Exception e) {
             e.printStackTrace();
             return -1;

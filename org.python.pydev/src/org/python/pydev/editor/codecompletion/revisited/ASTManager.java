@@ -793,7 +793,7 @@ public class ASTManager implements Serializable, IASTManager {
                         }
                     }
                 } catch (RuntimeException e) {
-                    e.printStackTrace();//that's ok...
+                    //e.printStackTrace();//that's ok...
                 }
                 
                 if(o == null || mod == null || tok == null || current == mod || tok.equals(rep)){  

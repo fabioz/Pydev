@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.swt.graphics.Image;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionProposal;
@@ -23,6 +24,12 @@ import org.python.pydev.ui.UIConstants;
  */
 public class AssistAssign implements IAssistProps {
 
+    private Image getImage(ImageCache imageCache, String c){
+        if(imageCache != null)
+            return imageCache.get(c);
+        return null;
+    }
+    
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.editor.actions.PySelection, org.python.pydev.ui.ImageCache, java.io.File, org.python.pydev.plugin.PythonNature)
      */
@@ -71,10 +78,10 @@ public class AssistAssign implements IAssistProps {
 
             int firstCharPosition = PyAction.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset());
             callName += " = ";
-            l.add(new CompletionProposal(callName, firstCharPosition, 0, 0, imageCache.get(UIConstants.ASSIST_ASSIGN_TO_LOCAL),
+            l.add(new CompletionProposal(callName, firstCharPosition, 0, 0, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_LOCAL),
                     "Assign to new local variable", null, null));
             
-            l.add(new CompletionProposal("self." + callName, firstCharPosition, 0, 5, imageCache.get(UIConstants.ASSIST_ASSIGN_TO_CLASS),
+            l.add(new CompletionProposal("self." + callName, firstCharPosition, 0, 5, getImage(imageCache,UIConstants.ASSIST_ASSIGN_TO_CLASS),
                     "Assign to new field", null, null));
         }
         return l;

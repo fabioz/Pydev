@@ -77,11 +77,11 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
      * @throws BadLocationException
      * 
      */
-    public void testAssistClass() throws BadLocationException {
-        assist = new AssistCreateClassInModule();
+    public void testAssistMethod2() throws BadLocationException {
+        assist = new AssistCreateMethodInModule();
 		String d = ""+
 		"from testAssist import assist\n" +
-		"assist.NewClass(a,b)";
+		"NewMethod(a,b)";
 
 		Document doc = new Document(d);
 		PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
@@ -90,6 +90,57 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		assertEquals(true, assist.isValid(ps, sel));
 		List props = assist.getProps(ps, null, null, nature, null);
 		assertEquals(1, props.size());
+		SourceModuleProposal p = (SourceModuleProposal) props.get(0);
+		
+		String res = "\n" +
+		"def NewMethod(a,b):\n" +
+		"    '''\n"+
+		"    @param a:\n"+
+		"    @param b:\n"+
+		"    '''\n"+
+		"    ";
+		
+		assertEquals(res, p.getReplacementStr());
+		assertEquals(null, p.module.getFile());
+		assertEquals("", p.module.getName());
+    }
+
+    /**
+     * @throws BadLocationException
+     * 
+     */
+    public void testAssistClass() throws BadLocationException {
+		String docStr = ""+
+		"from testAssist import assist\n" +
+		"assist.NewClass(a,b)";
+		String moduleName = "testAssist.assist";
+		int nProps = 1;
+		assist = new AssistCreateClassInModule();
+		checkAssistClass(docStr, moduleName, nProps);
+		
+
+		nProps = 1;
+		moduleName = "";
+		docStr = ""+
+		"from testAssist import assist\n" +
+		"newClass = NewClass(a,b)";
+		checkAssistClass(docStr, moduleName, nProps);
+    }
+
+    /**
+     * @param docStr
+     * @param moduleName
+     * @param nProps
+     * @throws BadLocationException
+     */
+    private void checkAssistClass(String docStr, String moduleName, int nProps) throws BadLocationException {
+        Document doc = new Document(docStr);
+		PySelection ps = new PySelection(doc, new TextSelection(doc, docStr.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+
+		assertEquals(true, assist.isValid(ps, sel));
+		List props = assist.getProps(ps, null, null, nature, null);
+        assertEquals(nProps, props.size());
 		SourceModuleProposal p = (SourceModuleProposal) props.get(0);
 		
 		String res = "\n" +
@@ -104,7 +155,7 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		"        '''\n"+
 		"        ";
 		assertEquals(res, p.getReplacementStr());
-		assertEquals("testAssist.assist", p.module.getName());
+        assertEquals(moduleName, p.module.getName());
     }
 
     /**

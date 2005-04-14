@@ -21,7 +21,6 @@ import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.editor.correctionassist.heuristics.AssistCreateClassInModule;
 import org.python.pydev.editor.correctionassist.heuristics.AssistCreateMethodInClass;
 import org.python.pydev.editor.correctionassist.heuristics.AssistCreateMethodInModule;
-import org.python.pydev.editor.correctionassist.heuristics.AssistCreations;
 import org.python.pydev.editor.correctionassist.heuristics.AssistDocString;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
 import org.python.pydev.editor.correctionassist.heuristics.AssistOverride;
@@ -101,7 +100,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
                 new AssistDocString(),
                 new AssistOverride(),
                 new AssistAssign(),
-                new AssistCreations(),
+//                new AssistCreations(),
                 new AssistCreateMethodInModule(),
                 new AssistCreateClassInModule(),
                 new AssistCreateMethodInClass(),

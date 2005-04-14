@@ -181,11 +181,11 @@ public class PySelection {
     /**
      * Readjust the selection so that the whole document is selected.
      * 
-     * @param onlyIfNothingSelected: If true, check if we already have a selection. If we
-     * have a selection, it is not changed, however, if it is false, it always selects everything.
+     * @param onlyIfNothingSelected: If false, check if we already have a selection. If we
+     * have a selection, it is not changed, however, if it is true, it always selects everything.
      */
-    public void selectAll(boolean onlyIfNothingSelected) {
-        if (onlyIfNothingSelected){
+    public void selectAll(boolean forceNewSelection) {
+        if (!forceNewSelection){
             if(getSelLength() > 0)
                 return;
         }
@@ -227,9 +227,11 @@ public class PySelection {
     /**
      * @return Returns the selection.
      */
-    public String getSelection() {
+    public String getCursorLineContents() {
         try {
-            return this.doc.get(this.getTextSelection().getOffset(), getSelLength());
+            int start = getStartLine().getOffset();
+            int end = getEndLine().getOffset() + getEndLine().getLength();
+            return this.doc.get(start, end-start);
         } catch (BadLocationException e) {
             PydevPlugin.log(e);
         }

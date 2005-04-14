@@ -14,7 +14,6 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.Compare;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.If;
 import org.python.parser.ast.Import;
@@ -24,6 +23,7 @@ import org.python.parser.ast.Pass;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.aliasType;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -214,20 +214,8 @@ public class ModelMaker {
 		}
 		
 		public Object visitIf(If node) throws Exception {
-			if (node.test instanceof Compare) {
-				Compare compareNode = (Compare)node.test;
-				// handcrafted structure walking
-				if (compareNode.left instanceof Name 
-					&& ((Name)compareNode.left).id.equals("__name__")
-					&& compareNode.ops != null
-					&& compareNode.ops.length == 1 
-					&& compareNode.ops[0] == Compare.Eq)
-					if ( true
-					&& compareNode.comparators != null
-					&& compareNode.comparators.length == 1
-					&& compareNode.comparators[0] instanceof Str 
-					&& ((Str)compareNode.comparators[0]).s.equals("__main__"))
-					processMain(node);
+			if(AbstractVisitor.isIfMAinNode(node)){ 
+			    processMain(node);
 			}
 			return super.visitIf(node);
 		}

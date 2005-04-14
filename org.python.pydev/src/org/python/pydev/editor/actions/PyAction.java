@@ -328,7 +328,7 @@ public abstract class PyAction implements IEditorActionDelegate {
      * 
      */
     public static String getLineWithoutComments(PySelection ps) {
-        return getLineWithoutComments(ps.getSelection());
+        return getLineWithoutComments(ps.getCursorLineContents());
     }
 
     /**
@@ -348,8 +348,9 @@ public abstract class PyAction implements IEditorActionDelegate {
      * @return
      */
     public static String getInsideParentesisTok(PySelection ps) {
-        if(ps.getSelection().indexOf("(") != -1 && ps.getSelection().indexOf(")") != -1) 
-            return getInsideParentesisTok(ps.getSelection());
+        String cursorLineContents = ps.getCursorLineContents();
+        if(cursorLineContents.indexOf("(") != -1 && cursorLineContents.indexOf(")") != -1) 
+            return getInsideParentesisTok(cursorLineContents);
         else
             return "";
     }

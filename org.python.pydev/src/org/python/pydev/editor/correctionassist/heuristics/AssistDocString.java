@@ -28,11 +28,11 @@ public class AssistDocString implements IAssistProps {
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.editor.actions.PySelection, org.python.pydev.ui.ImageCache)
      */
     public List getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, AbstractNode root) throws BadLocationException {
-        ArrayList l = new ArrayList();
-        List params = PyAction.getInsideParentesisToks(ps.getSelection(), false);
+        ArrayList l = new ArrayList(); 
+        List params = PyAction.getInsideParentesisToks(ps.getCursorLineContents(), false);
         
         StringBuffer buf = new StringBuffer();
-	    String initial = PyAction.getIndentationFromLine(ps.getSelection());
+	    String initial = PyAction.getIndentationFromLine(ps.getCursorLineContents());
         String delimiter = PyAction.getDelimiter(ps.getDoc());
         String indentation = PyAction.getStaticIndentationString();
 	    String inAndIndent = delimiter+initial+indentation;
@@ -40,7 +40,7 @@ public class AssistDocString implements IAssistProps {
         buf.append(inAndIndent+"'''");
 	    int newOffset = buf.length();
 	    
-        if (ps.getSelection().indexOf("def ") != -1 && params.size()>0){
+        if (ps.getCursorLineContents().indexOf("def ") != -1 && params.size()>0){
 	        buf.append(inAndIndent);
 		    for (Iterator iter = params.iterator(); iter.hasNext();) {
 	            String element = (String) iter.next();

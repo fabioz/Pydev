@@ -33,7 +33,7 @@ public class AssistCreateMethodInClass extends AbstractAssistCreate {
     private String getDeclToCreate(PySelection ps, int offset){
         try {
             int len = ps.getStartLine().getOffset() + ps.getStartLine().getLength() - offset;
-            String met = ps.getDoc().get(offset, len);
+            String met = ps.getDoc().get(offset, len).trim();
             List toks = PyAction.getInsideParentesisToks(met);
             met = met.substring(0, met.indexOf('('));
             
@@ -125,7 +125,7 @@ public class AssistCreateMethodInClass extends AbstractAssistCreate {
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.AbstractAssistCreate#getProposal(org.python.pydev.editor.actions.PySelection, org.python.pydev.ui.ImageCache, int, org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.modules.SourceModule)
      */
-    protected CompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, AbstractModule currentModule, SourceModule definedModule) {
+    protected CompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, SourceModule definedModule) {
         throw new RuntimeException("Should not be called.");
     }
 

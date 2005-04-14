@@ -12,9 +12,12 @@ import java.util.List;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.Call;
+import org.python.parser.ast.Compare;
 import org.python.parser.ast.Expr;
 import org.python.parser.ast.FunctionDef;
+import org.python.parser.ast.If;
 import org.python.parser.ast.ListComp;
+import org.python.parser.ast.Name;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.VisitorBase;
@@ -189,6 +192,30 @@ public abstract class AbstractVisitor extends VisitorBase{
         }else{
             return new SourceToken[0];
         }
+    }
+
+    /**
+     * @param node
+     */
+    public static boolean isIfMAinNode(If node) {
+        if (node.test instanceof Compare) {
+    		Compare compareNode = (Compare)node.test;
+    		// handcrafted structure walking
+    		if (compareNode.left instanceof Name 
+    			&& ((Name)compareNode.left).id.equals("__name__")
+    			&& compareNode.ops != null
+    			&& compareNode.ops.length == 1 
+    			&& compareNode.ops[0] == Compare.Eq)
+    			if ( true
+    			&& compareNode.comparators != null
+    			&& compareNode.comparators.length == 1
+    			&& compareNode.comparators[0] instanceof Str 
+    			&& ((Str)compareNode.comparators[0]).s.equals("__main__"))
+    		{
+    			return true;
+    		}
+    	}
+        return false;
     }
     
 }

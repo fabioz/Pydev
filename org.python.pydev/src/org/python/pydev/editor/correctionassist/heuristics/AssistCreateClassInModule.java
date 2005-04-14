@@ -14,7 +14,6 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.SourceModuleProposal;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
@@ -29,7 +28,7 @@ public class AssistCreateClassInModule extends AbstractAssistCreate {
             int len = ps.getStartLine().getOffset() + ps.getStartLine().getLength() - offset;
             String cls = ps.getDoc().get(offset, len);
             List toks = PyAction.getInsideParentesisToks(cls);
-            cls = cls.substring(0, cls.indexOf('('));
+            cls = cls.substring(0, cls.indexOf('(')).trim();
             
             String delim = PyAction.getDelimiter(ps.getDoc());
             String indent = PyAction.getStaticIndentationString();
@@ -67,13 +66,12 @@ public class AssistCreateClassInModule extends AbstractAssistCreate {
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.AbstractAssistCreate#getProposal(org.python.pydev.editor.actions.PySelection, org.python.pydev.ui.ImageCache, int, org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.modules.SourceModule)
      */
-    protected CompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, AbstractModule m, SourceModule s) {
+    protected CompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, SourceModule s) {
         Image img=null;
         if(imageCache != null)
             img = imageCache.get(UIConstants.ASSIST_NEW_CLASS);
         String methodToCreate = getDeclToCreate(ps, offset);
-        CompletionProposal proposal = new SourceModuleProposal(methodToCreate, 0, 0, methodToCreate.length(), img, "Create class in module "+m.getName(), null, null, s);
+        CompletionProposal proposal = new SourceModuleProposal(methodToCreate, 0, 0, methodToCreate.length(), img, "Create class in module "+s.getName(), null, null, s);
         return proposal;
     }
-
 }

@@ -14,7 +14,6 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.SourceModuleProposal;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
@@ -28,7 +27,7 @@ public class AssistCreateMethodInModule extends AbstractAssistCreate {
     private String getDeclToCreate(PySelection ps, int offset){
         try {
             int len = ps.getStartLine().getOffset() + ps.getStartLine().getLength() - offset;
-            String met = ps.getDoc().get(offset, len);
+            String met = ps.getDoc().get(offset, len).trim();
             
             String delim = PyAction.getDelimiter(ps.getDoc());
             String indent = PyAction.getStaticIndentationString();
@@ -61,14 +60,15 @@ public class AssistCreateMethodInModule extends AbstractAssistCreate {
      * @param s
      * @return
      */
-    protected CompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, AbstractModule m, final SourceModule s) {
+    protected CompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, final SourceModule s) {
         Image img=null;
         if(imageCache != null)
             img = imageCache.get(UIConstants.ASSIST_NEW_METHOD);
         String methodToCreate = getDeclToCreate(ps, offset);
-        CompletionProposal proposal = new SourceModuleProposal(methodToCreate, 0, 0, methodToCreate.length(), img, "Create method in module "+m.getName(), null, null, s);
+        CompletionProposal proposal = new SourceModuleProposal(methodToCreate, 0, 0, methodToCreate.length(), img, "Create method in module "+s.getName(), null, null, s);
         return proposal;
     }
+
 
 
 }
