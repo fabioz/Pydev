@@ -71,14 +71,17 @@ public class PySelectionTest extends TestCase {
         ps = new PySelection(doc, new TextSelection(doc, 0,0));
         ps.selectAll(true);
         assertEquals(docContents, ps.getCursorLineContents()+"\n");
+        assertEquals(docContents, ps.getSelectedText());
         
         ps = new PySelection(doc, new TextSelection(doc, 0,9)); //first line selected
         ps.selectAll(true); //changes
         assertEquals(docContents, ps.getCursorLineContents()+"\n");
+        assertEquals(docContents, ps.getSelectedText());
         
         ps = new PySelection(doc, new TextSelection(doc, 0,9)); //first line selected
         ps.selectAll(false); //nothing changes
         assertEquals(ps.getLine(0), ps.getCursorLineContents());
+        assertEquals(ps.getLine(0), ps.getSelectedText());
         
         
     }

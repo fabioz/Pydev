@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
@@ -52,15 +53,6 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		"from testAssist import assist\n" +
 		"assist.NewMethod(a,b)";
 
-		Document doc = new Document(d);
-		PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
-        String sel = PyAction.getLineWithoutComments(ps);
-
-		assertEquals(true, assist.isValid(ps, sel));
-		List props = assist.getProps(ps, null, null, nature, null);
-		assertEquals(1, props.size());
-		SourceModuleProposal p = (SourceModuleProposal) props.get(0);
-		
 		String res = "\n" +
 		"def NewMethod(a,b):\n" +
 		"    '''\n"+
@@ -68,42 +60,58 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		"    @param b:\n"+
 		"    '''\n"+
 		"    ";
-		
-		assertEquals(res, p.getReplacementStr());
-		assertEquals("testAssist.assist", p.module.getName());
-    }
 
-    /**
-     * @throws BadLocationException
-     * 
-     */
-    public void testAssistMethod2() throws BadLocationException {
-        assist = new AssistCreateMethodInModule();
-		String d = ""+
+		checkCreateMethod(d, res, "testAssist.assist", true, -1);
+
+		d = ""+
 		"from testAssist import assist\n" +
 		"NewMethod(a,b)";
+		checkCreateMethod(d, res, "", true, -1);
 
-		Document doc = new Document(d);
-		PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+		d = ""+
+		"class NewClass(object): \n" +
+		"                        \n" +
+		"   def NewMethod(a,b):  \n" +
+		"        pass            \n";
+		checkCreateMethod(d, res, "", false, 0);
+		checkCreateMethod(d, res, "", false, 2);
+    }
+
+    
+    /**
+     * @param docStr
+     * @param res
+     * @param moduleName
+     * @param isValid
+     * @param line: offset is set to the end of the passed line
+     * @throws BadLocationException
+     */
+    private void checkCreateMethod(String docStr, String res, String moduleName, boolean isValid, int line) throws BadLocationException {
+        Document doc = new Document(docStr);
+        
+		int offset = 0;
+		if (line == -1){
+		    offset = docStr.length();
+		}else{
+		    IRegion lineInformation = doc.getLineInformation(line);
+		    offset = lineInformation.getOffset() + lineInformation.getLength();
+		}
+		
+        PySelection ps = new PySelection(doc, new TextSelection(doc, offset, 0));
         String sel = PyAction.getLineWithoutComments(ps);
 
-		assertEquals(true, assist.isValid(ps, sel));
-		List props = assist.getProps(ps, null, null, nature, null);
-		assertEquals(1, props.size());
-		SourceModuleProposal p = (SourceModuleProposal) props.get(0);
-		
-		String res = "\n" +
-		"def NewMethod(a,b):\n" +
-		"    '''\n"+
-		"    @param a:\n"+
-		"    @param b:\n"+
-		"    '''\n"+
-		"    ";
-		
-		assertEquals(res, p.getReplacementStr());
-		assertEquals(null, p.module.getFile());
-		assertEquals("", p.module.getName());
+        assertEquals(isValid, assist.isValid(ps, sel));
+        if(isValid){
+			List props = assist.getProps(ps, null, null, nature, null);
+			assertEquals(1, props.size());
+			SourceModuleProposal p = (SourceModuleProposal) props.get(0);
+			
+			
+			assertEquals(res, p.getReplacementStr());
+	        assertEquals(moduleName, p.module.getName());
+        }
     }
+
 
     /**
      * @throws BadLocationException
@@ -116,7 +124,7 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		String moduleName = "testAssist.assist";
 		int nProps = 1;
 		assist = new AssistCreateClassInModule();
-		checkAssistClass(docStr, moduleName, nProps);
+		checkAssistClass(docStr, moduleName, nProps,-1,0);
 		
 
 		nProps = 1;
@@ -124,7 +132,13 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		docStr = ""+
 		"from testAssist import assist\n" +
 		"newClass = NewClass(a,b)";
-		checkAssistClass(docStr, moduleName, nProps);
+		checkAssistClass(docStr, moduleName, nProps,-1,0);
+
+		//same as before... different sel
+		docStr = ""+
+		"from testAssist import assist\n" + //30 chars
+		"assist.Ignore(NewClass(a,b))   ";  //from 14 to +13  
+		checkAssistClass(docStr, moduleName, nProps,30+14,13);
     }
 
     /**
@@ -133,9 +147,11 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
      * @param nProps
      * @throws BadLocationException
      */
-    private void checkAssistClass(String docStr, String moduleName, int nProps) throws BadLocationException {
+    private void checkAssistClass(String docStr, String moduleName, int nProps, int selStart, int selLength) throws BadLocationException {
+        if (selStart == -1)
+            selStart = docStr.length();
         Document doc = new Document(docStr);
-		PySelection ps = new PySelection(doc, new TextSelection(doc, docStr.length(), 0));
+		PySelection ps = new PySelection(doc, new TextSelection(doc, selStart, selLength));
         String sel = PyAction.getLineWithoutComments(ps);
 
 		assertEquals(true, assist.isValid(ps, sel));

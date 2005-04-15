@@ -33,21 +33,20 @@ public abstract class AbstractAssistCreate implements IAssistProps{
     public List getProps(PySelection ps, ImageCache imageCache, File file, PythonNature nature, AbstractNode root) throws BadLocationException {
         List l = new ArrayList();
         
+        String lineContentsToCursor = ps.getCursorLineContents();
         //ok, check line to see if it maps to some import
-        String lineContentsToCursor = ps.getLineContentsToCursor();
+        String validText = getValidText(ps);
         
-        int len = lineContentsToCursor.length();
-        if(lineContentsToCursor.indexOf("=") != -1){
-            lineContentsToCursor = lineContentsToCursor.split("=")[1].trim();
+        if(validText.indexOf("=") != -1){
+            validText = validText.split("=")[1].trim();
         }
         
-        int indexOfPoint = lineContentsToCursor.indexOf('.');
+        int indexOfPoint = validText.indexOf('.');
         int i = indexOfPoint+1;
-        if(lineContentsToCursor.length() != len){
-            i += len - lineContentsToCursor.length();
-        }
         
-        int offset = ps.getStartLine().getOffset()+i;
+        int offset = ps.getStartLine().getOffset();
+        offset += lineContentsToCursor.indexOf(validText);
+        offset += i;
         
         String actTok = getActTok(ps, offset);
         
@@ -125,13 +124,34 @@ public abstract class AbstractAssistCreate implements IAssistProps{
      */
     public boolean isValid(PySelection ps, String sel) {
         try {
-            String lineToCursor = ps.getLineContentsToCursor();
-	        return lineToCursor.indexOf('(') != -1 &&
-	        lineToCursor.indexOf(')') != -1;
+            String lineToCursor = getValidText(ps);
+
+            if(lineToCursor.indexOf("class ") != -1 || lineToCursor.indexOf("def ") != -1)
+                return false;
+            
+	        return lineToCursor.indexOf('(') != -1 && lineToCursor.indexOf(')') != -1;
+	        
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+
+    /**
+     * @param ps
+     * @return
+     * @throws BadLocationException
+     */
+    protected String getValidText(PySelection ps) throws BadLocationException {
+        String lineToCursor;
+        if(ps.getSelLength() == 0){
+            lineToCursor = ps.getLineContentsToCursor();
+            
+        }else{
+            lineToCursor = ps.getSelectedText();
+        }
+        return lineToCursor;
     }
     
 

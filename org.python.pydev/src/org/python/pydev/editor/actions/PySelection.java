@@ -290,5 +290,19 @@ public class PySelection {
     public ITextSelection getTextSelection() {
         return textSelection;
     }
+
+
+    /**
+     * @return the Selected text
+     */
+    public String getSelectedText() {
+        int start = getTextSelection().getOffset();
+        int len = getTextSelection().getLength();
+        try {
+            return this.doc.get(start, len);
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
+    }
     
 }
