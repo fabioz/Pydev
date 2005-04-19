@@ -17,7 +17,7 @@
 """
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: raw_building.py,v 1.2 2005-02-16 16:45:44 fabioz Exp $"
+__revision__ = "$Id: raw_building.py,v 1.3 2005-04-19 14:39:11 fabioz Exp $"
 
 import sys
 from logilab.common.astng import astng

@@ -15,7 +15,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Some file / file path manipulation utilities.
 
-:version:   $Revision: 1.4 $  
+:version:   $Revision: 1.5 $  
 :author:    Logilab
 :copyright: 2003-2005 LOGILAB S.A. (Paris, FRANCE)
 :contact:   http://www.logilab.fr/ -- mailto:python-projects@logilab.org
@@ -40,7 +40,7 @@ write_open_mode, ensure_fs_mode, export
 
 from __future__ import nested_scopes
 
-__revision__ = "$Id: fileutils.py,v 1.4 2005-02-16 16:45:43 fabioz Exp $"
+__revision__ = "$Id: fileutils.py,v 1.5 2005-04-19 14:39:09 fabioz Exp $"
 __docformat__ = "restructuredtext en"
 
 import sys
@@ -48,7 +48,7 @@ import shutil
 import mimetypes
 from os.path import isabs, isdir, split, exists, walk, normpath, join
 from os import sep, linesep, mkdir, remove, listdir, stat, chmod
-from stat import ST_MODE
+from stat import ST_MODE, S_IWRITE
 from cStringIO import StringIO
 from warnings import warn
 
@@ -134,6 +134,51 @@ def ensure_fs_mode(filepath, desired_mode):
         chmod(filepath, mode | desired_mode)
         
 ensure_mode = ensure_fs_mode # backward compat
+
+class ProtectedFile(file):
+    """a special file-object class that automatically that automatically
+    does a 'chmod +w' when needed
+
+    XXX: for now, the way it is done allows 'normal file-objects' to be
+    created during the ProtectedFile object lifetime.
+    One way to circumvent this would be to chmod / unchmod on each
+    write operation.
+    
+    One other way would be to :
+    
+    - catch the IOError in the __init__
+    
+    - if IOError, then create a StringIO object
+    
+    - each write operation writes in this StringIO obejct
+    
+    - on close()/del(), write/append the StringIO content to the file and
+      do the chmod only once
+    """
+    def __init__(self, filepath, mode):
+        self.original_mode = stat(filepath)[ST_MODE]
+        self.mode_changed = False
+        if mode in ('w', 'a', 'wb', 'ab'):
+            if not self.original_mode & S_IWRITE:
+                chmod(filepath, self.original_mode | S_IWRITE)
+                self.mode_changed = True
+        file.__init__(self, filepath, mode)
+
+    def _restore_mode(self):
+        """restores the original mode if needed"""
+        if self.mode_changed:
+            chmod(self.name, self.original_mode)
+            # Don't re-chmod in case of several restore
+            self.mode_changed = False
+    
+    def close(self):
+        """restore mode before closing"""
+        self._restore_mode()
+        file.close(self)
+
+    def __del__(self):
+        if not self.closed:
+            self.close()
 
 
 class UnresolvableError(Exception):

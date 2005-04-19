@@ -26,7 +26,7 @@ TODO: _ advanced search
       _ use mxTextTools ?
 """
 
-__revision__ = "$Id: patricia.py,v 1.5 2005-02-16 16:45:43 fabioz Exp $"
+__revision__ = "$Id: patricia.py,v 1.6 2005-04-19 14:39:09 fabioz Exp $"
 
 def prefix(prfx, string):
     """return the index of the first character from string which differs from

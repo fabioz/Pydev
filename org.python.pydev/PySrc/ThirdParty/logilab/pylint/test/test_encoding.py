@@ -16,7 +16,7 @@
 Check source code is ascii only or has an encoding declaration (PEP 263)
 """
 
-__revision__ = '$Id: test_encoding.py,v 1.3 2005-02-24 18:28:47 fabioz Exp $'
+__revision__ = '$Id: test_encoding.py,v 1.4 2005-04-19 14:39:10 fabioz Exp $'
 
 import unittest
 import sys

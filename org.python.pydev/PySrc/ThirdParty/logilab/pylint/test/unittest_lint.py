@@ -14,7 +14,7 @@
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
-__revision__ = '$Id: unittest_lint.py,v 1.3 2005-02-24 18:28:47 fabioz Exp $'
+__revision__ = '$Id: unittest_lint.py,v 1.4 2005-04-19 14:39:10 fabioz Exp $'
 
 import unittest
 import sys
@@ -38,6 +38,7 @@ class SortMessagesTC(unittest.TestCase):
                                          'W0321', 'W0540',
                                          'E0501', 'E0503',
                                          'F0002', 'F0203'])
+
 try:
     optimized = True
     raise AssertionError
@@ -55,19 +56,29 @@ class GetNoteMessageTC(unittest.TestCase):
             self.assertRaises(AssertionError, get_note_message, 11)
             
 class RunTC(unittest.TestCase):
-    
-    def test_no_args(self):
+
+    def _test_run(self, args, exit_code=1, no_exit_fail=True):
         sys.stdout = StringIO()
+        sys.sterr = StringIO()
         try:
             try:
-                Run([])
+                Run(args)
             except SystemExit, ex:
-                self.assertEquals(ex.code, 1)
+                self.assertEquals(ex.code, exit_code)
             else:
-                self.fail()
+                if no_exit_fail:
+                    self.fail()
         finally:
             sys.stdout = sys.__stdout__
-            
+            sys.stderr = sys.__stderr__
+        
+    def test_no_args(self):
+        self._test_run([], 1)
+        
+    def test_no_ext_file(self):
+        self._test_run([join('input', 'noext')], no_exit_fail=False)
+
+        
 class PyLinterTC(unittest.TestCase):
     
     def setUp(self):

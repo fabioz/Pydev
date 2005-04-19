@@ -1,6 +1,17 @@
 ChangeLog for logilab.common
 ============================
 
+2005-04-14  --  0.9.3
+    * optik_ext: add man page generation based on optik/optparse options
+      definition
+
+    * modutils: new arguments to get_source_file to handle files without
+      extensions
+
+    * astng: fix problem with the manager and python 2.2 (optik related)
+
+
+	
 2005-02-16  --  0.9.2
     * textutils:
 	

@@ -1,7 +1,34 @@
 ChangeLog for PyLint
 ====================
 
--- 
+2005-04-14  --  0.6.4
+    * allow to parse files without extension when a path is given on the
+      command line (test noext)
+	
+    * don't fail if we are unable to read an inline option  (e.g. inside a
+      module), just produce an information message (test func_i0010)
+
+    * new message E0103 for break or continue outside loop (close #8883,
+      test func_continue_not_in_loop)
+
+    * fix bug in the variables checker, causing non detection of some
+      actual name error (close #8884, test
+      func_nameerror_on_string_substitution)
+	
+    * fix bug in the classes checker which was making pylint crash if
+      "object" is assigned in a class inheriting from it (test 
+      func_noerror_object_as_class_attribute)
+	
+    * fix problem with the similar checker when related options are
+      defined in a configuration file
+
+    * new --generate-man option to generate pylint's man page (require the
+      latest logilab.common (>= 0.9.3)
+
+    * packaged (generated...) man page
+
+	
+2005-02-24  --  0.6.3
     * fix scope problem which may cause false positive and true negative
       on E0602
 
@@ -295,6 +322,3 @@ ChangeLog for PyLint
 
 2003-05-19  --  0.1
     * initial release
-
-
-

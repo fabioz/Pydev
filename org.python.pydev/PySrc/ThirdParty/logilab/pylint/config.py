@@ -18,7 +18,7 @@
    _ pylint.d (PYLINT_HOME)
 """
 
-__revision__ = "$Id: config.py,v 1.5 2005-02-24 18:28:47 fabioz Exp $"
+__revision__ = "$Id: config.py,v 1.6 2005-04-19 14:39:07 fabioz Exp $"
 
 import pickle
 import os

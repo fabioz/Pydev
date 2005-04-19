@@ -75,8 +75,9 @@ Look in the doc/ subdirectory.
 
 Comments, support, bug reports
 ------------------------------
-Use the python-projects@logilab.org mailing list. Since we do not have publicly
-available bug tracker yet, bug reports should be emailed there too.
+Use the python-projects@logilab.org mailing list. Since we do not have
+publicly available bug tracker yet, bug reports should be emailed
+there too. 
 
 You can subscribe to this mailing list at
 http://www.logilab.org/mailinglists/python_projects/mailinglist_register_form
@@ -84,6 +85,8 @@ http://www.logilab.org/mailinglists/python_projects/mailinglist_register_form
 Archives are available at 
 http://lists.logilab.org/pipermail/python-projects/
 
+If you prefer speaking french instead of english, you can use the
+generic forum-fr@logilab.org mailing list.
 
 Contributors
 ------------

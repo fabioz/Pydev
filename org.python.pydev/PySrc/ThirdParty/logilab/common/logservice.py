@@ -4,7 +4,7 @@ Copyright (c) 2003-2004 LOGILAB S.A. (Paris, FRANCE), all rights reserved.
 http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
-__revision__ = "$Id: logservice.py,v 1.3 2005-02-16 16:45:42 fabioz Exp $"
+__revision__ = "$Id: logservice.py,v 1.4 2005-04-19 14:39:09 fabioz Exp $"
 
 from logilab.common.logger import make_logger, LOG_ERR, LOG_WARN, LOG_NOTICE, \
      LOG_INFO, LOG_DEBUG

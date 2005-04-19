@@ -16,7 +16,7 @@
 """functional tests using the sample configuration file, should behave exactly
 as with the default configuration
 """
-__revision__ = '$Id: func_test_sample_config.py,v 1.3 2005-02-24 18:28:47 fabioz Exp $'
+__revision__ = '$Id: func_test_sample_config.py,v 1.4 2005-04-19 14:39:10 fabioz Exp $'
 
 from func_test import *
 

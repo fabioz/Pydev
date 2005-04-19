@@ -1,7 +1,7 @@
 """Table management module
 """
 
-__revision__ = '$Id: table.py,v 1.4 2005-02-16 16:45:43 fabioz Exp $'
+__revision__ = '$Id: table.py,v 1.5 2005-04-19 14:39:09 fabioz Exp $'
 
 from logilab.common.compat import enumerate, sum
 

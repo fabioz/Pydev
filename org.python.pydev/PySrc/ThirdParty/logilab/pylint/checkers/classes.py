@@ -17,7 +17,7 @@
 """
 from __future__ import generators
 
-__revision__ = "$Id: classes.py,v 1.6 2005-02-24 18:28:48 fabioz Exp $"
+__revision__ = "$Id: classes.py,v 1.7 2005-04-19 14:39:14 fabioz Exp $"
 
 from logilab.common import astng
 
@@ -425,7 +425,7 @@ class should be ignored. A mixin class is detected if its name ends with \
             parts = base.split('.')
             cbase = parts[0]
             try:
-                baseastng = klass_node.resolve(cbase)
+                baseastng = klass_node.parent.resolve(cbase)
             except (astng.ResolveError, astng.NotFoundError, AssertionError):
                 unresolved[base] = 1
                 self.add_message('F0203', node=node, args=cbase)

@@ -18,7 +18,7 @@
  their names to values provided in a dictionnary
 """
 
-__revision__ = '$Id: bind.py,v 1.5 2005-02-16 16:45:43 fabioz Exp $'
+__revision__ = '$Id: bind.py,v 1.6 2005-04-19 14:39:09 fabioz Exp $'
 
 # TODO: unit tests
 # * this module provide a function bind(func,vars) which replaces every

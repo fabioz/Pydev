@@ -64,13 +64,13 @@ print config['value']
 config.generate_config()
 
 
-:version:   $Revision: 1.4 $  
+:version:   $Revision: 1.5 $  
 :author:    Logilab
 :copyright: 2003-2005 LOGILAB S.A. (Paris, FRANCE)
 :contact:   http://www.logilab.fr/ -- mailto:python-projects@logilab.org
 """
 
-__revision__ = "$Id: configuration.py,v 1.4 2005-02-16 16:45:42 fabioz Exp $"
+__revision__ = "$Id: configuration.py,v 1.5 2005-04-19 14:39:09 fabioz Exp $"
 __docformat__ = "restructuredtext en"
 __all__ = ('OptionsManagerMixIn', 'OptionsProviderMixIn',
            'ConfigurationMixIn', 'Configuration',
@@ -86,7 +86,7 @@ from ConfigParser import ConfigParser, NoOptionError, NoSectionError
 
 from logilab.common.optik_ext import OptionParser, OptionGroup, Values, \
      OptionValueError, OptionError, check_yn, check_csv, check_file, \
-     check_color, check_named
+     check_color, check_named, generate_manpage
 from logilab.common.textutils import normalize_text, unquote
 
 class UnsupportedAction(Exception):
@@ -170,7 +170,7 @@ def convert(value, opt_dict, name=''):
         except OptionValueError:
             raise
         except:
-            raise OptionValueError('%s value (%s) should be of type %s' %
+            raise OptionValueError('%s value (%r) should be of type %s' %
                                    (name, value, _type))
 
 def comment(string):
@@ -331,6 +331,13 @@ class OptionsManagerMixIn:
             for section, options in sections.items():
                 format_section(stream, section, options)
 
+    def generate_manpage(self, pkginfo, section=1, stream=None):
+        """write a man page for the current configuration into the given
+        stream or stdout
+        """
+        generate_manpage(self._optik_parser, pkginfo,
+                         section, stream=stream or sys.stdout)
+        
     # initialization methods ##################################################
 
     def load_file_configuration(self, config_file=None):

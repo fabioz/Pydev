@@ -18,7 +18,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """ Generic Setup script, takes package info from __pkginfo__.py file """
 
-__revision__ = '$Id: setup.py,v 1.5 2005-02-24 18:28:47 fabioz Exp $'
+__revision__ = '$Id: setup.py,v 1.6 2005-04-19 14:39:08 fabioz Exp $'
 
 from __future__ import nested_scopes
 import os

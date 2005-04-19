@@ -2,7 +2,7 @@
 
 Some file / path manipulation utilities
 """
-__revision__ = "$Id: unittest_fileutils.py,v 1.2 2005-02-16 16:45:45 fabioz Exp $"
+__revision__ = "$Id: unittest_fileutils.py,v 1.3 2005-04-19 14:39:13 fabioz Exp $"
 
 import unittest
 import sys, os, tempfile, shutil
@@ -32,10 +32,10 @@ class IsBinaryTC(unittest.TestCase):
         
 class GetModeTC(unittest.TestCase):
     def test(self):
-        self.assertEqual(get_mode('toto.txt'), 'w')
-        #self.assertEqual(get_mode('toto.xml'), 'w')
-        self.assertEqual(get_mode('toto.bin'), 'wb')
-        self.assertEqual(get_mode('toto.sxi'), 'wb')
+        self.assertEqual(write_open_mode('toto.txt'), 'w')
+        #self.assertEqual(write_open_mode('toto.xml'), 'w')
+        self.assertEqual(write_open_mode('toto.bin'), 'wb')
+        self.assertEqual(write_open_mode('toto.sxi'), 'wb')
 
 class NormReadTC(unittest.TestCase):
     def test_known_values_norm_read(self):
@@ -69,7 +69,11 @@ class GetByExtTC(unittest.TestCase):
         files = files_by_ext(DATA_DIR, exclude_exts=('.py', '.pyc'))
         files.sort()
         self.assertEquals(files,
-                          [join('data', f) for f in ['newlines.txt', join('sub', 'doc.txt')]])
+                          [join('data', f) for f in ['newlines.txt',
+                                                     'normal_file.txt',
+                                                     join('sub', 'doc.txt'),
+                                                     'write_protected_file.txt',
+                                                     ]])
 
     def test_exclude_base_dir(self):
         self.assertEquals(files_by_ext(DATA_DIR, include_exts=('.py',), exclude_dirs=(DATA_DIR)),
@@ -89,6 +93,44 @@ class ExportTC(unittest.TestCase):
         
     def tearDown(self):
         shutil.rmtree(self.tempdir)
+
+class ProtectedFileTC(unittest.TestCase):
+    def setUp(self):
+        self.rpath = 'data/write_protected_file.txt'
+        self.rwpath = 'data/normal_file.txt'
+        # Make sure rwpath is writable !
+        os.chmod(self.rwpath, 33188)
+
+    def test_mode_change(self):
+        """tests that mode is changed when needed"""
+        # test on non-writable file
+        self.assertEquals(os.stat(self.rpath)[0], 33060)
+        wp_file = ProtectedFile(self.rpath, 'w')
+        self.assertEquals(os.stat(self.rpath)[0], 33188)
+        # test on writable-file
+        self.assertEquals(os.stat(self.rwpath)[0], 33188)
+        wp_file = ProtectedFile(self.rwpath, 'w')
+        self.assertEquals(os.stat(self.rwpath)[0], 33188)
+
+    def test_restore_on_close(self):
+        """tests original mode is restored on close"""
+        # test on non-writable file
+        self.assertEquals(os.stat(self.rpath)[0], 33060)
+        ProtectedFile(self.rpath, 'w').close()
+        self.assertEquals(os.stat(self.rpath)[0], 33060)
+        # test on writable-file
+        self.assertEquals(os.stat(self.rwpath)[0], 33188)
+        ProtectedFile(self.rwpath, 'w').close()
+        self.assertEquals(os.stat(self.rwpath)[0], 33188)
+
+    def test_mode_change_on_append(self):
+        """tests that mode is changed when file is opened in 'a' mode"""
+        self.assertEquals(os.stat(self.rpath)[0], 33060)
+        wp_file = ProtectedFile(self.rpath, 'a')
+        self.assertEquals(os.stat(self.rpath)[0], 33188)
+        wp_file.close()
+        self.assertEquals(os.stat(self.rpath)[0], 33060)
+        
 
 from logilab.common.testlib import DocTest
 class ModuleDocTest(DocTest):

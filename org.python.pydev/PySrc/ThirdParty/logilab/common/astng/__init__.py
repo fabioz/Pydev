@@ -19,7 +19,7 @@ Look at the astng submodule for more info.
 """
 
 __author__ = u"Sylvain Thenault"
-__revision__ = "$Id: __init__.py,v 1.4 2005-02-16 16:45:44 fabioz Exp $"
+__revision__ = "$Id: __init__.py,v 1.5 2005-04-19 14:39:11 fabioz Exp $"
 
 class ASTNGError(Exception):
     """base exception class for all astng related exceptions

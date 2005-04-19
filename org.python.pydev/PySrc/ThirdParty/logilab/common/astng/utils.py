@@ -19,13 +19,16 @@
 from __future__ import generators
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: utils.py,v 1.4 2005-02-16 16:45:44 fabioz Exp $"
+__revision__ = "$Id: utils.py,v 1.5 2005-04-19 14:39:11 fabioz Exp $"
 
 from logilab.common.astng import NotFoundError, manager
 
 
 def get_nodes_from_class(node, klass):
-    """return an iterator on nodes which are instance of the given class"""
+    """return an iterator on nodes which are instance of the given class(es)
+
+    klass may be a class object or a tuple of class objects
+    """
     if isinstance(node, klass):
         yield node
     for child_node in node.getChildNodes():

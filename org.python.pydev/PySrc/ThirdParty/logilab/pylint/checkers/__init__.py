@@ -16,7 +16,7 @@
 """utilities methods and classes for checkers
 """
 
-__revision__ = "$Id: __init__.py,v 1.5 2005-02-24 18:28:48 fabioz Exp $"
+__revision__ = "$Id: __init__.py,v 1.6 2005-04-19 14:39:14 fabioz Exp $"
 
 import tokenize
 from os import listdir

@@ -15,7 +15,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Some text manipulation utility functions.
 
-:version:   $Revision: 1.5 $  
+:version:   $Revision: 1.6 $  
 :author:    Logilab
 :copyright: 2003-2005 LOGILAB S.A. (Paris, FRANCE)
 :contact:   http://www.logilab.fr/ -- mailto:python-projects@logilab.org
@@ -46,7 +46,7 @@ unquote, colorize_ansi
   ANSI terminal code reseting format defined by a previous ANSI escape sequence
 """
 
-__revision__ = "$Id: textutils.py,v 1.5 2005-02-24 19:10:36 fabioz Exp $"
+__revision__ = "$Id: textutils.py,v 1.6 2005-04-19 14:39:09 fabioz Exp $"
 __docformat__ = "restructuredtext en"
 
 import re
@@ -176,14 +176,7 @@ def get_csv(string, sep=','):
     :rtype: str or unicode
     :return: the unquoted string (or the input string if it wasn't quoted)    
     """
-    #patched: Fabio - not pretty, but Sylvain should correct it in the next release.
-    if isinstance(string , list):
-        return string
-    try:
-        return [word.strip() for word in string.split(sep) if word.strip()]
-    except:
-        print 'ERROR with word:', string, string.__class__
-        raise
+    return [word.strip() for word in string.split(sep) if word.strip()]
 
 
 _LINE_RGX = re.compile('\r\n|\r+|\n')

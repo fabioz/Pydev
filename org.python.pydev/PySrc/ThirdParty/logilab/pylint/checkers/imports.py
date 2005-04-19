@@ -16,7 +16,7 @@
 imports checkers for Python code
 """
 
-__revision__ = "$Id: imports.py,v 1.5 2005-02-24 18:28:48 fabioz Exp $"
+__revision__ = "$Id: imports.py,v 1.6 2005-04-19 14:39:14 fabioz Exp $"
 
 from logilab.common import get_cycles, astng
 from logilab.common.modutils import is_standard_module, is_relative, \

@@ -1,6 +1,6 @@
 """unittest module for logilab.comon.testlib"""
 
-__revision__ = '$Id: unittest_testlib.py,v 1.1 2005-02-16 16:45:45 fabioz Exp $'
+__revision__ = '$Id: unittest_testlib.py,v 1.2 2005-04-19 14:39:13 fabioz Exp $'
 
 import unittest
 from logilab.common import testlib

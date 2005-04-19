@@ -16,7 +16,7 @@
 variables checkers for Python code
 """
 
-__revision__ = "$Id: variables.py,v 1.5 2005-02-24 18:28:48 fabioz Exp $"
+__revision__ = "$Id: variables.py,v 1.6 2005-04-19 14:39:13 fabioz Exp $"
 
 from copy import copy
 
@@ -189,7 +189,7 @@ __init__ files.'}),
         redefine a built-in
         """
         name = node.name
-        stmt = node
+        stmt = node.get_statement()
         frame = stmt.get_frame()
         # if the name node is used as a function default argument's value, then
         # start from the parent frame of the function instead of the function
@@ -199,7 +199,6 @@ __init__ files.'}),
         else:
             start_index = len(self._to_consume) - 1
         # iterates through the parent scope, from the inner to the outer
-        frame_type = isinstance(frame, astng.Class) and 'class' or 'other'
         for i in range(start_index, -1, -1):
             to_consume, consumed, scope_type = self._to_consume[i]
             # if the current scope is a class scope but it's not the inner scope
@@ -221,9 +220,10 @@ __init__ files.'}),
                 # FIXME: the last condition should just check attribute access
                 # is protected by a try: except NameError:
                 if def_stmt and frame is consumed[name].get_frame() and \
-                       stmt.source_line() < def_stmt.source_line() and \
+                       stmt.source_line() <= def_stmt.source_line() and \
+                       not list_comp_var(node) and \
                        not are_exclusive(stmt, def_stmt):
-                    self.add_message('E0601', args=name, node=stmt)
+                    self.add_message('E0601', args=name, node=node)
                 break
             except KeyError:
                 continue
@@ -233,6 +233,26 @@ __init__ files.'}),
             if not is_builtin(name):
                 self._to_consume[-1][1][name] = 1
                 self.add_message('E0602', args=name, node=stmt)
+
+try:
+    # python >= 2.4
+    COMP_NODE_TYPES = (astng.ListComp, astng.GenExpr)
+except AttributeError:
+    COMP_NODE_TYPES = astng.ListComp
+    
+def list_comp_var(var_node, comp_node_types=COMP_NODE_TYPES):
+    """return True if the variable node is defined by a parent list
+    comprehension
+    """
+    _node = var_node.parent
+    # FIXME: to finish !!!
+    while _node:
+        if isinstance(_node, comp_node_types):
+            for ass_node in get_nodes_from_class(_node, astng.AssName):
+                if ass_node.name == var_node.name:
+                    return True
+        _node = _node.parent
+    return False
 
 def is_func_default(node):
     """return true if the name is used in function default argument's value

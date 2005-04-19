@@ -1,7 +1,7 @@
 
 # modified copy of some functions from test/regrtest.py from PyXml
 
-""" Copyright (c) 2002-2003 LOGILAB S.A. (Paris, FRANCE).
+""" Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr  
 
 Run tests.
@@ -23,7 +23,7 @@ If no non-option arguments are present, prefixes used are 'test',
 
 """
 
-__revision__ = "$Id: testlib.py,v 1.4 2005-02-16 16:45:43 fabioz Exp $"
+__revision__ = "$Id: testlib.py,v 1.5 2005-04-19 14:39:09 fabioz Exp $"
 
 import sys
 import os

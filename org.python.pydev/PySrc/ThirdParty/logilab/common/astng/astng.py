@@ -88,7 +88,7 @@ on From and Import :
 from __future__ import generators
 
 __author__ = "Sylvain Thenault"
-__revision__ = "$Id: astng.py,v 1.6 2005-02-16 16:45:44 fabioz Exp $"
+__revision__ = "$Id: astng.py,v 1.7 2005-04-19 14:39:11 fabioz Exp $"
 
 import __builtin__
 from compiler.ast import *

@@ -15,11 +15,12 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """functional/non regression tests for pylint"""
 
-__revision__ = '$Id: func_test.py,v 1.3 2005-02-24 18:28:47 fabioz Exp $'
+__revision__ = '$Id: func_test.py,v 1.4 2005-04-19 14:39:10 fabioz Exp $'
 
 import unittest
 import sys
 import re
+import new
 from os import linesep
 from os.path import exists
 
@@ -50,8 +51,12 @@ else:
 
 INFO_TEST_RGX = re.compile('^func_i\d\d\d\d$')
 
+def exception_str(ex):
+    """function used to replace default __str__ method of exception instances"""
+    return 'in %s\n:: %s' % (ex.file, ', '.join(ex.args))
+
 class LintTest(testlib.TestCase):            
-                
+
     def test_functionality(self):
         tocheck = ['input.'+self.module]
         if self.depends:
@@ -64,8 +69,14 @@ class LintTest(testlib.TestCase):
             linter.enable_message_category('I')
         else:
             linter.disable_message_category('I')
-        
-        linter.check(tocheck)
+        try:
+            linter.check(tocheck)
+        except Exception, ex:
+            # need finalization to restore a correct state
+            linter.reporter.finalize()
+            ex.file = tocheck
+            ex.__str__ = new.instancemethod(exception_str, ex)
+            raise
         if self.module.startswith('func_noerror_'):
             expected = ''
         else:
@@ -76,7 +87,9 @@ class LintTest(testlib.TestCase):
         try:
             self.assertLinesEquals(got, expected)
         except Exception, ex:
-            raise AssertionError('%s: %r\n!=\n%r\n\n%s' % (self.module, got, expected, ex))
+            ex.file = tocheck
+            ex.__str__ = new.instancemethod(exception_str, ex)
+            raise # AssertionError('%s: %r\n!=\n%r\n\n%s' % (self.module, got, expected, ex))
 
 class LintTest2(LintTest):            
                 
@@ -100,16 +113,22 @@ class TestTests(unittest.TestCase):
             self.assertEqual(todo, ['F0002', 'F0201', 'F0202', 'F0203', 'F0321', 'I0001'])
 
         
-def make_tests():
+def make_tests(filter_rgx):
     """generate tests classes from test info
     
     return the list of generated test classes
     """
+    if filter_rgx:
+        is_to_run = re.compile(filter_rgx).match
+    else:
+        is_to_run = lambda x: 1
     tests = []
     for module_file, messages_file in get_tests_info('func_', '.py') + [('nonexistant', 'messages/nonexistant.txt')]:
         # skip those tests with python >= 2.3 since py2.3 detects them by itself
         if PY23 and module_file  in ("func_unknown_encoding.py",
                                      ):#"func_nonascii_noencoding.py"):
+            continue
+        if not is_to_run(module_file):
             continue
         base = module_file.replace('func_', '').replace('.py', '')
         dependancies = get_tests_info(base, '.py')
@@ -133,25 +152,31 @@ def make_tests():
 ##         output = messages_file
 ##         depends = dependancies or None
 ##     tests.append(LintTestSubclass)
-        
-    class LintBuiltinModuleTest(LintTest):
-        output = 'messages/builtin_module.txt'
-        module = 'sys'
-        def test_functionality(self):
-            self._test(['sys'])
-            
-    tests.append(LintBuiltinModuleTest)
-    
-    # test all features are tested :)    
-    tests.append(TestTests)
+
+    if not filter_rgx:
+        class LintBuiltinModuleTest(LintTest):
+            output = 'messages/builtin_module.txt'
+            module = 'sys'
+            def test_functionality(self):
+                self._test(['sys'])
+
+        tests.append(LintBuiltinModuleTest)
+
+        # test all features are tested :)    
+        tests.append(TestTests)
 
     return tests
 
+FILTER_RGX = None
+
 def suite():
     return unittest.TestSuite([unittest.makeSuite(test)
-                               for test in make_tests()])
+                               for test in make_tests(FILTER_RGX)])
 
 if __name__=='__main__':
+    if len(sys.argv) > 1:
+        FILTER_RGX = sys.argv[1]
+        del sys.argv[1]
     unittest.main(defaultTest='suite')
 
 

@@ -18,14 +18,14 @@
 possible by providing a class responsible to get astng representation
 from various source and using a cache of built modules)
 
-:version:   $Revision: 1.5 $  
+:version:   $Revision: 1.6 $  
 :author:    Sylvain Thenault
 :copyright: 2003-2005 LOGILAB S.A. (Paris, FRANCE)
 :copyright: 2003-2005 Sylvain Thenault
 :contact:   http://www.logilab.fr/ -- mailto:python-projects@logilab.org
 """
 
-__revision__ = "$Id: manager.py,v 1.5 2005-02-16 16:45:44 fabioz Exp $"
+__revision__ = "$Id: manager.py,v 1.6 2005-04-19 14:39:10 fabioz Exp $"
 __doctype__ = "restructuredtext en"
 
 import sys
@@ -68,7 +68,7 @@ class ASTNGManager(OptionsProviderMixIn):
     """
     name = 'astng loader'
     options = (("ignore",
-                {'action' :"append", 'type' : "string", 'metavar' : "<file>",
+                {'type' : "csv", 'metavar' : "<file>",
                  'dest' : "black_list", "default" : ('CVS',),
                  'help' : "add <file> (may be a directory) to the black list\
 . It should be a base name, not a path. You may set this option multiple times\
@@ -99,7 +99,7 @@ class ASTNGManager(OptionsProviderMixIn):
     def astng_from_file(self, filepath, modname=None, fallback=True):
         """given a module name, return the astng object"""
         try:
-            filepath = get_source_file(filepath)
+            filepath = get_source_file(filepath, include_no_ext=True)
             source = True
         except NoSourceFile:
             source = False
@@ -120,6 +120,8 @@ class ASTNGManager(OptionsProviderMixIn):
                     raise ASTNGBuildingException(msg)
             elif fallback and modname:
                 return self.astng_from_module_name(modname)
+            else:
+                raise ASTNGBuildingException('unable to get astng for file %s' % filepath)
         self._cache[filepath] = astng
         return astng
     

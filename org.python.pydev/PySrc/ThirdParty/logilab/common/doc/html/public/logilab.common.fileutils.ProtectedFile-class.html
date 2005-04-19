@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>logilab.common.fileutils.ProtectedFile</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" align="right" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+      <tr><th class="navbar" align="center">
+        <p class="nomargin">
+          Logilab's&nbsp;common&nbsp;library
+      </p></th></tr></table>
+    </th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        Package&nbsp;logilab ::
+        Package&nbsp;common ::
+        <a href="logilab.common.fileutils-module.html">Module&nbsp;fileutils</a> ::
+        Class&nbsp;ProtectedFile
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<a href="../private/logilab.common.fileutils.ProtectedFile-class.html">show&nbsp;private</a>&nbsp;|&nbsp;hide&nbsp;private]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="logilab.common.fileutils.ProtectedFile-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Type ProtectedFile</h2>
+
+<pre class="base-tree">
+<a href="__builtin__.object-class.html"><code>object</code></a> --+    
+         |    
+      <a href="__builtin__.file-class.html"><code>file</code></a> --+
+             |
+            <b>ProtectedFile</b>
+</pre><br />
+
+<hr/>
+
+<p>a special file-object class that automatically that automatically
+does a 'chmod +w' when needed</p>
+<p>XXX: for now, the way it is done allows 'normal file-objects' to be
+created during the ProtectedFile object lifetime.
+One way to circumvent this would be to chmod / unchmod on each
+write operation.</p>
+<p>One other way would be to :</p>
+<ul class="rst-simple">
+<li>catch the IOError in the __init__</li>
+<li>if IOError, then create a StringIO object</li>
+<li>each write operation writes in this StringIO obejct</li>
+<li>on close()/del(), write/append the StringIO content to the file and
+do the chmod only once</li>
+</ul>
+<hr/>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="__init__"></a><span class="summary-sig"><span class="summary-sig-name">__init__</span>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>filepath</span>,
+          <span class=summary-sig-arg>mode</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="__del__"></a><span class="summary-sig"><span class="summary-sig-name">__del__</span>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="logilab.common.fileutils.ProtectedFile-class.html#close" class="summary-sig-name"><code>close</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+restore mode before closing</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from file</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#__iter__" class="summary-sig-name"><code>__iter__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__iter__() &lt;==&gt; iter(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#__repr__" class="summary-sig-name"><code>__repr__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__repr__() &lt;==&gt; repr(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">integer &quot;file descriptor&quot;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#fileno" class="summary-sig-name"><code>fileno</code></a>()</span></code>
+<br />
+This is needed for lower-level file interfaces, such os.read().</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#flush" class="summary-sig-name"><code>flush</code></a>()</span></code>
+<br />
+flush() -&gt; None.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">true or false</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#isatty" class="summary-sig-name"><code>isatty</code></a>()</span></code>
+<br />
+isatty() -&gt; true or false.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#next" class="summary-sig-name"><code>next</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.next() -&gt; the next value, or raise StopIteration</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">read at most size bytes, returned as a string</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#read" class="summary-sig-name"><code>read</code></a>(<span class=summary-sig-arg>size</span>)</span></code>
+<br />
+If the size argument is negative or omitted, read until EOF is 
+reached.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">Undocumented</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#readinto" class="summary-sig-name"><code>readinto</code></a>()</span></code>
+<br />
+readinto() -&gt; Undocumented.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">next line from the file, as a string</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#readline" class="summary-sig-name"><code>readline</code></a>(<span class=summary-sig-arg>size</span>)</span></code>
+<br />
+Retain newline.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">list of strings, each a line from the file</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#readlines" class="summary-sig-name"><code>readlines</code></a>(<span class=summary-sig-arg>size</span>)</span></code>
+<br />
+Call readline() repeatedly and return a list of the lines so read.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#seek" class="summary-sig-name"><code>seek</code></a>(<span class=summary-sig-arg>offset</span>,
+          <span class=summary-sig-arg>whence</span>)</span></code>
+<br />
+Argument offset is a byte count.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">current file position, an integer (may be a long integer).</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#tell" class="summary-sig-name"><code>tell</code></a>()</span></code>
+<br />
+tell() -&gt; current file position, an integer (may be a long 
+integer).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#truncate" class="summary-sig-name"><code>truncate</code></a>(<span class=summary-sig-arg>size</span>)</span></code>
+<br />
+Size defaults to the current file position, as returned by tell().</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#write" class="summary-sig-name"><code>write</code></a>(<span class=summary-sig-arg>str</span>)</span></code>
+<br />
+Note that due to buffering, flush() or close() may be needed before 
+the file on disk reflects the data written.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#writelines" class="summary-sig-name"><code>writelines</code></a>(<span class=summary-sig-arg>sequence_of_strings</span>)</span></code>
+<br />
+Note that newlines are not added.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">returns self</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.file-class.html#xreadlines" class="summary-sig-name"><code>xreadlines</code></a>()</span></code>
+<br />
+For backward compatibility.</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__str__" class="summary-sig-name"><code>__str__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__str__() &lt;==&gt; str(x)</td></tr>
+</table><br />
+
+
+<!-- =========== START OF CLASS VARIABLE SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Class Variable Summary</th></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from file</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>getset_descriptor</code></font></td>
+<td><b><a href="__builtin__.file-class.html#closed"><code>closed</code></a></b> = <span title="&lt;attribute 'closed' of 'file' objects&gt;"><code>&lt;attribute&nbsp;'closed'&nbsp;of&nbsp;'file'&nbsp;objects&gt;          </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>member_descriptor</code></font></td>
+<td><b><a href="__builtin__.file-class.html#encoding"><code>encoding</code></a></b> = <span title="&lt;member 'encoding' of 'file' objects&gt;"><code>&lt;member&nbsp;'encoding'&nbsp;of&nbsp;'file'&nbsp;objects&gt;         </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>member_descriptor</code></font></td>
+<td><b><a href="__builtin__.file-class.html#mode"><code>mode</code></a></b> = <span title="&lt;member 'mode' of 'file' objects&gt;"><code>&lt;member&nbsp;'mode'&nbsp;of&nbsp;'file'&nbsp;objects&gt;                 </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>member_descriptor</code></font></td>
+<td><b><a href="__builtin__.file-class.html#name"><code>name</code></a></b> = <span title="&lt;member 'name' of 'file' objects&gt;"><code>&lt;member&nbsp;'name'&nbsp;of&nbsp;'file'&nbsp;objects&gt;                 </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>getset_descriptor</code></font></td>
+<td><b><a href="__builtin__.file-class.html#newlines"><code>newlines</code></a></b> = <span title="&lt;attribute 'newlines' of 'file' objects&gt;"><code>&lt;attribute&nbsp;'newlines'&nbsp;of&nbsp;'file'&nbsp;objects&gt;      </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>member_descriptor</code></font></td>
+<td><b><a href="__builtin__.file-class.html#softspace"><code>softspace</code></a></b> = <span title="&lt;member 'softspace' of 'file' objects&gt;"><code>&lt;member&nbsp;'softspace'&nbsp;of&nbsp;'file'&nbsp;objects&gt;       </code>
+</span></td></tr>
+</table><br />
+
+
+<!-- =========== START OF METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Method Details</th></tr>
+</table>
+
+<a name="close"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">close</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+<p>restore mode before closing</p>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="__builtin__.file-class.html#close"><code>__builtin__.file.close</code></a></dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" align="right" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+      <tr><th class="navbar" align="center">
+        <p class="nomargin">
+          Logilab's&nbsp;common&nbsp;library
+      </p></th></tr></table>
+    </th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Thu Apr 14 11:37:32 2005</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

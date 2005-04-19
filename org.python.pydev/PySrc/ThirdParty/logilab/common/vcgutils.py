@@ -24,7 +24,7 @@ See the documentation of vcg for explanation about the different value that
 maybe used for the functions parameters
 """
 
-__revision__ = "$Id: vcgutils.py,v 1.4 2005-02-16 16:45:42 fabioz Exp $"
+__revision__ = "$Id: vcgutils.py,v 1.5 2005-04-19 14:39:09 fabioz Exp $"
 
 import string
 

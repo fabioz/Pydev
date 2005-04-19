@@ -16,7 +16,7 @@
 a daemon mix-in class
 """
 
-__revision__ = '$Id: daemon.py,v 1.4 2005-02-16 16:45:43 fabioz Exp $'
+__revision__ = '$Id: daemon.py,v 1.5 2005-04-19 14:39:09 fabioz Exp $'
 
 import os, signal, sys, time
 from logilab.common.logger import make_logger, LOG_ALERT, LOG_NOTICE

@@ -18,7 +18,7 @@
 main pylint class
 """
 
-__revision__ = "$Id: utils.py,v 1.3 2005-02-24 18:28:47 fabioz Exp $"
+__revision__ = "$Id: utils.py,v 1.4 2005-04-19 14:39:07 fabioz Exp $"
 
 from os import linesep
 
@@ -255,7 +255,8 @@ class MessagesHandlerMixIn:
             print
             print 'Description'
             print '~~~~~~~~~~~'
-            print linesep.join([line.strip() for line in checker.__doc__.splitlines()])
+            print linesep.join([line.strip()
+                                for line in checker.__doc__.splitlines()])
             print
             if not checker.msgs:
                 continue

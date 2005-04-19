@@ -120,8 +120,7 @@ Description
 checks for :
 * doc strings
 * modules / classes / functions / methods / arguments / variables name
-* number of arguments, local variables, branchs, returns and statements in
-  functions, methods
+* number of arguments, local variables, branchs, returns and statements in functions or methods
 * required module attributes
 * dangerous default values as arguments
 * redefinition of function / method / class

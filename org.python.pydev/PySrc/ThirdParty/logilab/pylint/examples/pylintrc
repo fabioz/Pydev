@@ -58,24 +58,6 @@ comment=no
 # Include message's id in output
 include-ids=no
 
-# Enable all messages in the listed categories.
-enable-msg-cat=
-
-# Disable all messages in the listed categories.
-disable-msg-cat=
-
-# Enable the message with the given id.
-enable-msg=
-
-# Disable the message with the given id.
-disable-msg=
-
-# Enable the report with the given id.
-enable-report=
-
-# Disable the report with the given id.
-disable-report=
-
 
 
 # checks for                                                              
@@ -93,37 +75,6 @@ init-import=no
 
 # List of variable names used for dummy variables (i.e. not used).
 dummy-variables=_,dummy
-
-
-
-# checks for                                                              
-#     * external modules dependencies                                            
-#     * relative / wildcard imports                                                         
-#     * cyclic imports                                                           
-#     * uses of deprecated modules
-#                                                                                 
-# This checker also defines the following reports:                                    
-#   * R0401: External dependencies                                                
-#   * R0402: Modules dependencies graph                                           
-# 
-[IMPORTS]
-# Enable / disable this checker
-enable-imports=yes
-
-# Deprecated modules which should not be used, separated by a comma
-deprecated-modules=regsub,string,TERMIOS,Bastion,rexec
-
-# Create a graph of every (i.e. internal and external) dependencies in the given
-# file (report R0402 must not be disabled)
-#import-graph=
-
-# Create a graph of external dependencies in the given file (report R0402 must
-# not be disabled)
-#ext-import-graph=
-
-# Create a graph of internal dependencies in the given file (report R0402 must
-# not be disabled)
-#int-import-graph=
 
 
 
@@ -218,6 +169,37 @@ min-public-methods=2
 
 # Maximum number of public methods for a class (see R0904).
 max-public-methods=20
+
+
+
+# checks for                                                              
+#     * external modules dependencies                                            
+#     * relative / wildcard imports                                                         
+#     * cyclic imports                                                           
+#     * uses of deprecated modules
+#                                                                                 
+# This checker also defines the following reports:                                    
+#   * R0401: External dependencies                                                
+#   * R0402: Modules dependencies graph                                           
+# 
+[IMPORTS]
+# Enable / disable this checker
+enable-imports=yes
+
+# Deprecated modules which should not be used, separated by a comma
+deprecated-modules=regsub,string,TERMIOS,Bastion,rexec
+
+# Create a graph of every (i.e. internal and external) dependencies in the given
+# file (report R0402 must not be disabled)
+import-graph=
+
+# Create a graph of external dependencies in the given file (report R0402 must
+# not be disabled)
+ext-import-graph=
+
+# Create a graph of internal dependencies in the given file (report R0402 must
+# not be disabled)
+int-import-graph=
 
 
 

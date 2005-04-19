@@ -14,7 +14,7 @@
 unit tests for module modutils (module manipulation utilities)
 """
 
-__revision__ = "$Id: unittest_modutils.py,v 1.2 2005-02-16 16:45:45 fabioz Exp $"
+__revision__ = "$Id: unittest_modutils.py,v 1.3 2005-04-19 14:39:13 fabioz Exp $"
 
 import unittest
 import sys

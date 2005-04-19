@@ -15,7 +15,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Python modules manipulation utility functions.
 
-:version:   $Revision: 1.5 $  
+:version:   $Revision: 1.6 $  
 :author:    Logilab
 :copyright: 2003-2005 LOGILAB S.A. (Paris, FRANCE)
 :contact:   http://www.logilab.fr/ -- mailto:python-projects@logilab.org
@@ -34,7 +34,7 @@
 
 from __future__ import nested_scopes
 
-__revision__ = "$Id: modutils.py,v 1.5 2005-02-16 16:45:43 fabioz Exp $"
+__revision__ = "$Id: modutils.py,v 1.6 2005-04-19 14:39:09 fabioz Exp $"
 __docformat__ = "restructuredtext en"
 
 import sys
@@ -84,7 +84,7 @@ def load_module_from_name(dotted_name, path=None, use_sys=1):
     :rtype: module
     :return: the loaded module
     """
-    return load_module_from_parts(dotted_name.split('.'), path, use_sys)
+    return load_module_from_modpath(dotted_name.split('.'), path, use_sys)
 
 
 def load_module_from_modpath(parts, path=None, use_sys=1, _prefix=None):
@@ -125,7 +125,7 @@ def load_module_from_modpath(parts, path=None, use_sys=1, _prefix=None):
     module = load_module(name, mp_file, mp_filename, mp_desc)
     if len(parts) == 1:
         return module
-    return load_module_from_parts(parts[1:], [dirname(module.__file__)],
+    return load_module_from_modpath(parts[1:], [dirname(module.__file__)],
                                   use_sys, name)
 
 load_module_from_parts = load_module_from_modpath # backward compat
@@ -309,7 +309,7 @@ def get_modules(package, src_directory, blacklist=('CVS', '.svn', 'debian')):
 
 
 
-def get_module_files(src_directory, blacklist = ('CVS','debian')):
+def get_module_files(src_directory, blacklist=('CVS','.svn', 'debian')):
     """given a package directory return a list of all available python
     module's files in the package and its subpackages
 
@@ -317,7 +317,7 @@ def get_module_files(src_directory, blacklist = ('CVS','debian')):
     :param src_directory:
       path of the directory corresponding to the package
 
-    :type blacklist: iterable(str)
+    :type blacklist: list(str) or tuple(str) 
     :param blacklist:
       optional list of files or directory to ignore, default to 'CVS',
       '.svn' and 'debian'
@@ -350,7 +350,7 @@ def get_module_files(src_directory, blacklist = ('CVS','debian')):
     return files
 
 
-def get_source_file(filename):
+def get_source_file(filename, include_no_ext=False):
     """given a python module's file name return the matching source file
     name (the filename will be returned identically if it's a already an
     absolute path to a python source file...)
@@ -364,11 +364,13 @@ def get_source_file(filename):
     :rtype: str
     :return: the absolute path of the source file if it exists
     """
-    base = splitext(abspath(filename))[0]
+    base, orig_ext = splitext(abspath(filename))
     for ext in PY_SOURCE_EXTS:
         source_path = '%s.%s' % (base, ext)
         if exists(source_path):
             return source_path
+    if include_no_ext and not orig_ext and exists(base):
+        return base
     raise NoSourceFile(filename)
 
 

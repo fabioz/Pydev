@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: pylint
-Version: 0.6.3
+Version: 0.6.4
 Summary: python code static checker
 Home-page: http://www.logilab.org/projects/pylint
 Author: Sylvain Thenault

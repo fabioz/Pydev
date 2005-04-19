@@ -18,7 +18,7 @@
  FIXME : should check constant names !
 """
 
-__revision__ = "$Id: base.py,v 1.6 2005-02-24 18:28:48 fabioz Exp $"
+__revision__ = "$Id: base.py,v 1.7 2005-04-19 14:39:13 fabioz Exp $"
 
 from logilab.common import astng
 from logilab.common.ureports import Table
@@ -61,6 +61,8 @@ MSGS = {
               return value.'),    
     'E0102': ('%s already defined line %s',
               'Used when a function / class / method is redefined.'),
+    'E0103': ('%r not properly in loop',
+              'Used when break or continue keywords are used outside a loop.'),
 
     'W0101': ('Unreachable code',
               'Used when there is some code behind a "return" or "raise" \
@@ -297,12 +299,14 @@ functions, methods
         code)
         """
         self._check_unreachable(node)
+        self._check_in_loop(node, 'continue')
 
     def visit_break(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
+        self._check_in_loop(node, 'break')
 
     def visit_raise(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
@@ -339,6 +343,16 @@ functions, methods
         unreach_stmt = node.next_sibling()
         if unreach_stmt is not None:
             self.add_message('W0101', node=unreach_stmt)
+            
+    def _check_in_loop(self, node, node_name):
+        """check that a node is inside a for or while loop"""
+        _node = node.parent
+        while _node:
+            if isinstance(_node, (astng.For, astng.While)):
+                break
+            _node = _node.parent
+        else:
+            self.add_message('E0103', node=node, args=node_name)
         
     def _check_redefinition(self, redef_type, node):
         """check for redefinition of a function / method / class name"""

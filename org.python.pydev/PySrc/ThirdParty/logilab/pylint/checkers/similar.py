@@ -18,7 +18,7 @@
 """
 from __future__ import generators
 
-__revision__ = '$Id: similar.py,v 1.4 2005-02-24 18:28:48 fabioz Exp $'
+__revision__ = '$Id: similar.py,v 1.5 2005-04-19 14:39:14 fabioz Exp $'
 
 import sys
 
@@ -113,7 +113,7 @@ class Similar:
                         yield num, lineset1, index1, lineset2, index2
                     skip = max(skip, num)
             index1 += skip
- 
+        
     def _iter_sims(self):
         """iterate on similarities among all files, by making a cartesian
         product
@@ -226,9 +226,9 @@ class SimilarChecker(BaseChecker, Similar):
         """
         BaseChecker.set_option(self, opt_name, value, action, opt_dict)
         if opt_name == 'min-similarity-lines':
-            self.min_lines = value
+            self.min_lines = self.config.min_similarity_lines
         elif opt_name == 'ignore-comments':
-            self.ignore_comments = value
+            self.ignore_comments = self.config.ignore_comments
         
     def open(self):
         """init the checkers: reset linesets and statistics information"""

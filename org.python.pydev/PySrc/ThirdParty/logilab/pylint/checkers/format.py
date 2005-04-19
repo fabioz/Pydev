@@ -22,7 +22,7 @@ http://www.python.org/doc/essays/styleguide.html
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
-__revision__ = "$Id: format.py,v 1.5 2005-02-24 18:28:48 fabioz Exp $"
+__revision__ = "$Id: format.py,v 1.6 2005-04-19 14:39:13 fabioz Exp $"
 
 from os import linesep
 import re

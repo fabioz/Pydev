@@ -16,7 +16,7 @@
 """A generic function to get a database connection.
 """
 
-__revision__ = "$Id: db.py,v 1.4 2005-02-16 16:45:42 fabioz Exp $"
+__revision__ = "$Id: db.py,v 1.5 2005-04-19 14:39:09 fabioz Exp $"
 
 import sys
 
@@ -30,7 +30,7 @@ class UnknownDriver(Exception):
 
 
 PREFERED_DRIVERS = {
-    "postgres" : ['psycopg', 'pgdb', 'pyPgSQL.PgSQL'],
+    "postgres" : [ 'psycopg', 'pgdb', 'pyPgSQL.PgSQL', ],
     "mysql" : ['MySQLdb'], # , 'pyMySQL.MySQL],
     }
 
@@ -343,3 +343,64 @@ def get_connexion(driver='postgres', host='', database='', user='',
         adapted_module = adapter(module, pywrap)
     return adapted_module.connect(host, database, user, password)
 
+
+def sql_repr( type, val ):
+    if type=='s':
+        return "'%s'" % (val,)
+    else:
+        return val
+
+class BaseTable:
+    # table_name = "default"
+    # supported types are s/i/d
+    # table_fields = ( ('first_field','s'), )
+    # primary_key = 'first_field'
+
+    def __init__(self, table_name, table_fields, primary_key=None ):
+        if primary_key is None:
+            self._primary_key = table_fields[0][0]
+        else:
+            self._primary_key = primary_key
+
+        self._table_fields = table_fields
+        self._table_name = table_name
+        info = {
+            'key' : self._primary_key,
+            'table' : self._table_name,
+            'columns' : ",".join( [ f for f,t in self._table_fields ] ),
+            'values' : ",".join( [ sql_repr( t, "%%(%s)s" % f ) for f,t in self._table_fields ] ),
+            'updates' : ",".join( [ "%s=%s" % ( f, sql_repr( t, "%%(%s)s" % f) ) for f,t in self._table_fields] ),
+            }
+        self._insert_stmt = "INSERT into %(table)s (%(columns)s) VALUES (%(values)s) WHERE %(key)s=%%(key)s" % info
+        self._update_stmt = "UPDATE %(table)s SET (%(updates)s) VALUES WHERE %(key)s=%%(key)s" % info
+        self._select_stmt = "SELECT %(columns)s FROM %(table)s WHERE %(key)s=%%(key)s" % info
+        self._delete_stmt = "DELETE FROM %(table)s WHERE %(key)s=%%(key)s" % info
+
+        for k,t in table_fields:
+            if hasattr(self,k):
+                raise ValueError("Cannot use %s as a table field" % k)
+            setattr(self,k,None)
+
+
+    def as_dict( self ):
+        d = {}
+        for k,t in self._table_fields:
+            d[k] = getattr(self,k)
+        return d
+
+    def select( self, curs ):
+        d = { 'key' : getattr(self,self._primary_key) }
+        curs.execute( self._select_stmt % d )
+        rows = curs.fetchall()
+        if len(rows)!=1:
+            raise ValueError("Select: ambiguous query returned %d rows" % len(rows) )
+        for (f,t),v in zip(self._table_fields,rows[0]):
+            setattr(self,f,v)
+
+    def update( self, curs ):
+        d = self.as_dict()
+        curs.execute( self._update_stmt % d )
+
+    def delete( self, curs ):
+        d = { 'key' : getattr(self,self._primary_key) }
+        

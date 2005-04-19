@@ -27,7 +27,7 @@
   Display help messages about given message identifiers and exit.
 """
 
-__revision__ = "$Id: lint.py,v 1.8 2005-02-24 18:28:47 fabioz Exp $"
+__revision__ = "$Id: lint.py,v 1.9 2005-04-19 14:39:08 fabioz Exp $"
 
 from __future__ import nested_scopes
 
@@ -35,6 +35,7 @@ from __future__ import nested_scopes
 import sys
 import os
 sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0]), "../../../ThirdParty"))
+#end patch
 
 # import this first to avoid further builtins pollution possibilities
 from logilab.pylint.checkers import utils
@@ -89,6 +90,10 @@ MSGS = {
     'I0001': ('Unable to run raw checkers on built-in module %s',
               'Used to inform that a built-in module has not been checked \
               using the raw checkers.'),
+    
+    'I0010': ('Unable to consider inline option %r',
+              'Used when an inline option is either badly formatted or can\'t \
+be used inside modules.'),
     
     'I0011': ('Locally disabling %r',
               'Used when an inline option disable a message or a messages \
@@ -229,7 +234,7 @@ This is used by the global evaluation report (R0004).'}),
         #
         # checkers / reporter / astng manager
         self.reporter = None
-        self.set_reporter(reporter or TextReporter())
+        self.set_reporter(reporter or TextReporter(sys.stdout))
         self.manager = ASTNGManager()
         self._checkers = {}
         # visit variables
@@ -280,7 +285,10 @@ This is used by the global evaluation report (R0004).'}),
         if opt_name in self._options_methods:
             if value:
                 meth = self._options_methods[opt_name]
-                for _id in get_csv(value):
+                if isinstance(value, list) :
+                    for _id in value :
+                        meth(_id)
+                else :
                     meth(_id)
         elif opt_name == 'cache-size':
             self.manager.set_cache_size(int(value))
@@ -335,7 +343,12 @@ This checker also defines the following reports:
             match = OPTION_RGX.match(line)
             if match is None:
                 continue
-            opt, value = match.group(1).split('=', 1)
+            try:
+                opt, value = match.group(1).split('=', 1)
+            except ValueError:
+                self.add_message('I0010', args=match.group(1).strip(),
+                                 line=start[0])                
+                continue
             opt = opt.strip()
             #line_num = start[0]
             if opt in self._options_methods and not opt.endswith('-report'):
@@ -405,8 +418,9 @@ This checker also defines the following reports:
         """check a module or package from its name
         if modname is a package, recurse on its subpackages / submodules
         """
-        # normalize the file path to parse the python source file
-        filepath = splitext(filepath)[0] + '.py'
+##         print 'CHECKING', filepath, modname
+##         # normalize the file path to parse the python source file
+##         filepath = splitext(filepath)[0] + '.py'
         # get the given module representation
         self.base_name = modname
         self.base_file = normpath(filepath)
@@ -475,7 +489,7 @@ This checker also defines the following reports:
             if not astng.pure_python:
                 self.add_message('I0001', args=astng.name)
             else:
-                assert astng.file.endswith('.py')
+                #assert astng.file.endswith('.py')
                 stream = norm_open(astng.file)
                 for checker in checkers:
                     if implements(checker, IRawChecker):
@@ -668,6 +682,11 @@ exit. This option may be a comma separated list.'''}),
 the current configuration. You can put other options before this one to use \
 them in the configuration. This option causes the program to exit'''}),
             
+            ('generate-man',
+             {'action' : 'callback', 'callback' : self.cb_generate_manpage,
+              'help' : '''Generate a man page for pylint. This option causes \
+the program to exit'''}),
+            
             ('profile',
              {'action' : 'store_true',
               'help' : 'Profiled execution.'}),
@@ -712,7 +731,7 @@ processing.
         else:
             linter.check(args)
         sys.path.pop(0)
-
+        
     def cb_init_zope(self, *args, **kwargs):
         """optik callback for Zope products initialization"""
         print >> sys.stderr, 'this option is deprecated since pylint is not \
@@ -731,6 +750,12 @@ importing analyzed code now'
         self.linter.generate_config()
         sys.exit(0)
          
+    def cb_generate_manpage(self, *args, **kwargs):
+        """optik callback for sample config file generation"""
+        from logilab.pylint import __pkginfo__
+        self.linter.generate_manpage(__pkginfo__)
+        sys.exit(0)
+         
     def cb_help_message(self, option, opt_name, value, parser):
         """optik callback for printing some help about a particular message"""
         self.linter.help_message(get_csv(value))
@@ -746,4 +771,5 @@ if __name__ == '__main__':
     #patched
     import sys
     sys.stderr = sys.stdout
+    #end patch
     Run(sys.argv[1:])

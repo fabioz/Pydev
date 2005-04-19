@@ -21,7 +21,7 @@ formatted as text and html
 
 from __future__ import generators
 
-__revision__ = "$Id: __init__.py,v 1.4 2005-02-16 16:45:48 fabioz Exp $"
+__revision__ = "$Id: __init__.py,v 1.5 2005-04-19 14:39:15 fabioz Exp $"
 
 import sys
 from os import linesep
