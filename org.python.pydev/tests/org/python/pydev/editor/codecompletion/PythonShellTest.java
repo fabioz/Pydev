@@ -38,7 +38,7 @@ public class PythonShellTest extends TestCase {
      * @throws IOException
      * @throws CoreException
      */
-    public static PythonShell startShell() throws IOException, CoreException {
+    public static PythonShell startShell() throws IOException, Exception {
         File f = new File("PySrc/pycompletionserver.py");
         PythonShell shell = new PythonShell(f);
         shell.startIt();

@@ -26,7 +26,7 @@ public class CompletionState {
     public Map wildImportMemory = new HashMap();
 
     
-    public boolean recursing=false;
+    public boolean builtinsGotten=false;
     
     /**
      * @param line2
@@ -51,7 +51,7 @@ public class CompletionState {
         state.activationToken = activationToken;
         state.line = line;
         state.col = col;
-        state.recursing = recursing;
+        state.builtinsGotten = builtinsGotten;
         state.nature = nature;
         state.memory = memory;
         state.wildImportMemory = wildImportMemory;

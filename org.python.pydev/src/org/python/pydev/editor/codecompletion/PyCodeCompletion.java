@@ -406,7 +406,7 @@ public class PyCodeCompletion {
      * @param documentOffset
      * @return
      */
-    String getImportsTipperStr(IDocument doc, int documentOffset) {
+    public static String getImportsTipperStr(IDocument doc, int documentOffset) {
         String importMsg = "";
         try {
             

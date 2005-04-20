@@ -31,7 +31,7 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 //      try {
 //          PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
 //	      test.setUp();
-//	      test.testCompleteImportBuiltinReference();
+//	      test.testCompleteImportBuiltin();
 //	      test.tearDown();
 //	  } catch (Exception e) {
 //	      e.printStackTrace();
@@ -72,11 +72,14 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
         List props = codeCompletion.getCodeCompletionProposals(request);
         ICompletionProposal[] codeCompletionProposals = codeCompletion.onlyValidSorted(props, request.qualifier);
         
-        if(returned > -1)
-            assertEquals(returned, codeCompletionProposals.length);
         
         for (int i = 0; i < retCompl.length; i++) {
             assertContains(retCompl[i], codeCompletionProposals);
+        }
+
+        if(returned > -1){
+	        StringBuffer buffer = getAvailableAsStr(codeCompletionProposals);
+            assertEquals("Expected "+returned+" received: "+codeCompletionProposals.length+"\n"+buffer, returned, codeCompletionProposals.length);
         }
     }
     
@@ -90,13 +93,22 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
                 return ;
             }
         }
+        StringBuffer buffer = getAvailableAsStr(codeCompletionProposals);
+        
+        fail("The string "+string+" was not found in the returned completions.\nAvailable:\n"+buffer);
+    }
+
+    /**
+     * @param codeCompletionProposals
+     * @return
+     */
+    private StringBuffer getAvailableAsStr(ICompletionProposal[] codeCompletionProposals) {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < codeCompletionProposals.length; i++) {
             buffer.append(codeCompletionProposals[i].getDisplayString());
             buffer.append("\n");
         }
-        
-        fail("The string "+string+" was not found in the returned completions.\nAvailable:\n"+buffer);
+        return buffer;
     }
 
     public void requestCompl(String strDoc, String []retCompl) throws CoreException, BadLocationException{
@@ -117,14 +129,26 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 	    requestCompl("from testlib import unittest , __in" , new String[]{"__init__"});
 	    requestCompl("from testlib import unittest , "     , new String[]{"__init__", "unittest"});
 	    
-	    String s = "from testlib.unittest import  ";
-	    requestCompl(s, s.length(), -1, new String[]{"anothertest", "guitestcase", "testcase", "__init__"});
+	    requestCompl("from testlib.unittest import  ", 
+	            new String[]{
+	              "__init__"
+	            , "anothertest"
+	            , "AnotherTest"
+	            , "GUITest"
+	            , "guitestcase"
+	            , "main"
+	            , "relative"
+	            , "TestCase"
+	            , "testcase"
+	            , "TestCaseAlias"
+	            });
 
 	    requestCompl("from testlib.unittest.testcase.TestCase import  assertImagesNotE", new String[]{"assertImagesNotEqual"});
+	    requestCompl("from testlib.unittest.testcase.TestCase import  assertBM", new String[]{"assertBMPsNotEqual","assertBMPsEqual"});
     }
     
 
-	public void testCompleteImportBuiltin() throws BadLocationException, IOException, CoreException{
+	public void testCompleteImportBuiltin() throws BadLocationException, IOException, Exception{
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(true);
         codeCompletion = new PyCodeCompletion(false);
@@ -174,6 +198,11 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
     	    "";
     	    requestCompl(s, s.length(), -1, new String[]{"RuntimeError"});
 
+    	    //check for builtins..3 (builtins should not be available because it is an import request for completions)
+    	    requestCompl("from testlib.unittest import  ", new String[]{"__init__", "anothertest"
+    	            , "AnotherTest", "GUITest", "guitestcase", "main", "relative", "TestCase", "testcase", "TestCaseAlias"
+    	            });
+
         } finally {
             shell.endIt();
         }
@@ -183,7 +212,7 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 	
 	
 
-	public void testCompleteImportBuiltinReference() throws BadLocationException, IOException, CoreException{
+	public void testCompleteImportBuiltinReference() throws BadLocationException, IOException, Exception{
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPathWithSitePackages(true);
         codeCompletion = new PyCodeCompletion(false);
@@ -201,6 +230,12 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 			"q = QLabel()    \n"+     
 			"q.";         
     	    requestCompl(s, s.length(), -1, new String[]{"AlignAuto"});
+
+    	    //check for builtins with reference..3
+    	    s = "" +
+			"from testlib.unittest import anothertest\n"+
+			"anothertest.";         
+    	    requestCompl(s, s.length(), 2, new String[]{"AnotherTest","testcase"});
 
         
         } finally {
@@ -256,6 +291,9 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
         strs = PyCodeCompletion.getActivationTokenAndQual(new Document("ClassA.someMethod( a, b ).ap"), 28);
         assertEquals("ClassA.someMethod()." , strs[0]);
         assertEquals("ap", strs[1]);
+        
+        String importsTipperStr = PyCodeCompletion.getImportsTipperStr(new Document("from coilib.decorators import "), 30);
+        assertEquals("coilib.decorators" , importsTipperStr);
         
         
     }

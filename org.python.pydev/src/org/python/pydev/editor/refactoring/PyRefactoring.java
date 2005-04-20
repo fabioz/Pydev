@@ -6,14 +6,12 @@
 package org.python.pydev.editor.refactoring;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.IPropertyListener;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.codecompletion.PythonShell;
@@ -280,11 +278,9 @@ public class PyRefactoring {
     public void restartShell() {
         try {
             PythonShell.getServerShell(PythonShell.OTHERS_SHELL).restartShell();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (CoreException e) {
-            e.printStackTrace();
-        }
+        } 
     }
 
     /**

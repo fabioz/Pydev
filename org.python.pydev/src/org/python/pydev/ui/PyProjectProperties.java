@@ -6,7 +6,6 @@
 package org.python.pydev.ui;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -317,11 +316,9 @@ public class PyProjectProperties extends PropertyPage {
                     
                     fillTableWithPath(new ArrayList(p));
 
-                } catch (CoreException e1) {
+                } catch (Exception e1) {
                     PydevPlugin.log(e1);
-                } catch (IOException e1) {
-                    PydevPlugin.log(e1);
-                }
+                } 
             }
 
             public void widgetDefaultSelected(SelectionEvent e) {

@@ -309,9 +309,12 @@ public class ASTManager implements Serializable, IASTManager {
                 IToken[] globalTokens;
                 if(tok != null && tok.length() > 0){
                     CompletionState state2 = new CompletionState(-1,-1,tok,nature);
+                    state2.builtinsGotten = true; //we don't want to get builtins here
                     globalTokens = m.getGlobalTokens(state2, this);
                 }else{
-                    globalTokens = m.getGlobalTokens();
+                    CompletionState state2 = new CompletionState(-1,-1,"",nature);
+                    state2.builtinsGotten = true; //we don't want to get builtins here
+                    globalTokens = getCompletionsForModule(m, state2);
                 }
                 
                 for (int i = 0; i < globalTokens.length; i++) {
@@ -702,8 +705,8 @@ public class ASTManager implements Serializable, IASTManager {
             }
         }
 
-        if(!state.recursing){
-            state.recursing = true;
+        if(!state.builtinsGotten){
+            state.builtinsGotten = true;
             //last thing: get completions from module __builtin__
             AbstractModule builtMod = getModule("__builtin__", state.nature);
             if(builtMod != null){
@@ -732,6 +735,7 @@ public class ASTManager implements Serializable, IASTManager {
             //the activation token corresponds to an imported module. We have to get its global tokens and return them.
             CompletionState copy = state.getCopy();
             copy.activationToken = "";
+            copy.builtinsGotten = true; //we don't want builtins... 
             return getCompletionsForModule(mod, copy);
         }else if (mod != null){
             CompletionState copy = state.getCopy();

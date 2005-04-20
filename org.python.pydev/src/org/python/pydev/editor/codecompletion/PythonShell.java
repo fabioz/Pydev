@@ -20,6 +20,7 @@ import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
@@ -61,7 +62,7 @@ public class PythonShell {
      * @throws IOException
      * 
      */
-    public synchronized static PythonShell getServerShell(int id) throws IOException, CoreException {
+    public synchronized static PythonShell getServerShell(int id) throws IOException, Exception {
         PythonShell pytonShell = (PythonShell) shells.get(new Integer(id));
         
         if(pytonShell == null){
@@ -155,7 +156,7 @@ public class PythonShell {
      * @throws IOException is some error happens creating the sockets - the process is terminated.
      * @throws CoreException
      */
-    public void startIt(int milisSleep) throws IOException, CoreException{
+    public void startIt(int milisSleep) throws IOException, Exception{
         try {
 
             int pWrite = SocketUtil.findUnusedLocalPort("127.0.0.1", 50000, 55000);
@@ -173,6 +174,7 @@ public class PythonShell {
                 execMsg = interpreter+" "+serverFile.getAbsolutePath()+" "+pWrite+" "+pRead;
             }
 
+            //System.out.println(execMsg);
             process = SimplePythonRunner.createProcess(execMsg, serverFile.getParentFile());
             
             sleepALittle(200);
@@ -222,7 +224,13 @@ public class PythonShell {
             if(!connected){
                 //what, after all this trouble we are still not connected????!?!?!?!
                 //let's communicate this to the user...
-                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error connecting to python process ("+execMsg+")", new Exception("Error connecting to python process.")));
+                Exception exception = new Exception("Error connecting to python process.");
+                try {
+                    Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Error connecting to python process (" + execMsg + ")", exception);
+	                throw new CoreException(status);
+                } catch (Exception e) {
+                    throw exception;
+                }
             }
             
         } catch (IOException e) {
@@ -241,7 +249,7 @@ public class PythonShell {
      * @throws IOException
      * @throws CoreException
      */
-    public void startIt() throws IOException, CoreException{
+    public void startIt() throws IOException, Exception{
         this.startIt(DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
     }
 
@@ -471,7 +479,7 @@ public class PythonShell {
         }
         try {
             this.startIt();
-        } catch (IOException e) {
+        } catch (Exception e) {
             PydevPlugin.log(IStatus.ERROR, "ERROR restarting shell.", e);
         }
     }
