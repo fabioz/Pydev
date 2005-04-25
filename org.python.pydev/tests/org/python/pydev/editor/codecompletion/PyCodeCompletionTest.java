@@ -23,7 +23,7 @@ public class PyCodeCompletionTest extends TestCase {
     public void doTest(String s, String expected){
         Document doc = new Document(s);
         int length = s.length();
-        String tipperStr = completion.getImportsTipperStr(doc, length);
+        String tipperStr = PyCodeCompletion.getImportsTipperStr(doc, length);
         assertEquals(expected, tipperStr);
         
     }

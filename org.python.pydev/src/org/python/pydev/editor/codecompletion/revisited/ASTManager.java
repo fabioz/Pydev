@@ -638,7 +638,7 @@ public class ASTManager implements Serializable, IASTManager {
      * @param col
      * @return
      */
-    private IToken[] getAssignCompletions( AbstractModule module, CompletionState state) {
+    public IToken[] getAssignCompletions( AbstractModule module, CompletionState state) {
         if (module instanceof SourceModule) {
             SourceModule s = (SourceModule) module;
             try {

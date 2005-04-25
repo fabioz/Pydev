@@ -219,18 +219,26 @@ public class SourceModule extends AbstractModule {
         if(visitor.definitions.size() == 0){
             //ok, it is not an assign, so, let's search the global tokens (and imports)
             Object[] o = nature.getAstManager().findOnImportedMods(nature, token, this);
+            String tok = token;
+            SourceModule mod = this;
+            
             if(o != null){
-	            SourceModule mod =  (SourceModule) o[0];
-	            String tok = (String) o[1];
-	            Definition d = mod.findGlobalTokDef(tok);
-	            if(d != null)
-	                toRet.add(d);
+	            mod =  (SourceModule) o[0];
+	            tok = (String) o[1];
             }
+            Definition d = mod.findGlobalTokDef(tok);
+            if(d != null)
+                toRet.add(d);
+            
         }else{
 	        for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {
 	            AssignDefinition element = (AssignDefinition) iter.next();
-	            if(element.scope.isOuterOrSameScope(scopeVisitor.scope)){
-	                toRet.add(element);
+	            if(element.target.startsWith("self") == false){
+		            if(element.scope.isOuterOrSameScope(scopeVisitor.scope)){
+		                toRet.add(element);
+		            }
+	            }else{
+		            toRet.add(element);
 	            }
 	        }
         }

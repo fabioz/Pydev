@@ -5,7 +5,6 @@
  */
 package org.python.pydev.editor.codefolding;
 
-import org.eclipse.jdt.internal.ui.text.JavaPairMatcher;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
@@ -18,6 +17,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
+import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.parser.IParserListener;
 import org.python.pydev.plugin.PydevPrefs;
@@ -66,7 +66,7 @@ public abstract class PyEditProjection extends TextEditor implements
 	}
 
 	protected final static char[] BRACKETS= { '{', '}', '(', ')', '[', ']' };
-	protected JavaPairMatcher fBracketMatcher= new JavaPairMatcher(BRACKETS);
+	protected PythonPairMatcher fBracketMatcher= new PythonPairMatcher(BRACKETS);
 
 	protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
 		support.setCharacterPairMatcher(fBracketMatcher);

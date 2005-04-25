@@ -58,4 +58,37 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
 		assertNotSame(module, defs[0].module);
 		
     }
+
+    /**
+     * @throws Exception
+     * 
+     */
+    public void testFind2() throws Exception {
+        String d;
+        d = "class C:            \n" +
+			"    def met1(self): \n" +
+			"        pass        \n" +
+			"                    \n" +
+			"class B:            \n" +
+			"    def met2(self): \n" +
+			"        self.c = C()\n" +
+			"                    \n" +
+			"    def met3(self): \n" +
+			"        self.c.";
+
+		Document doc = new Document(d);
+		AbstractModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 9);
+		Definition[] defs = module.findDefinition("self.c", 2, 2, nature);
+		
+		assertEquals(1, defs.length);
+		assertEquals("self.c", ((AssignDefinition)defs[0]).target);
+		assertEquals("C", defs[0].value);
+		assertSame(module, defs[0].module);
+		
+		defs = module.findDefinition("C", 6, 17, nature);
+		assertEquals(1, defs.length);
+		assertEquals("C", defs[0].value);
+		assertSame(module, defs[0].module);
+		
+    }
 }

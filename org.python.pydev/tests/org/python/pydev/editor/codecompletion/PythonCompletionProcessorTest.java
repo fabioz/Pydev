@@ -26,18 +26,18 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
     private PyCodeCompletion codeCompletion;
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(PythonCompletionProcessorTest.class);
+//        junit.textui.TestRunner.run(PythonCompletionProcessorTest.class);
         
-//      try {
-//          PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
-//	      test.setUp();
-//	      test.testCompleteImportBuiltin();
-//	      test.tearDown();
-//	  } catch (Exception e) {
-//	      e.printStackTrace();
-//	  } catch(Error e){
-//	      e.printStackTrace();
-//	  }
+      try {
+          PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
+	      test.setUp();
+	      test.testSelfReference();
+	      test.tearDown();
+	  } catch (Exception e) {
+	      e.printStackTrace();
+	  } catch(Error e){
+	      e.printStackTrace();
+	  }
     }
 
     /*
@@ -146,7 +146,22 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 	    requestCompl("from testlib.unittest.testcase.TestCase import  assertImagesNotE", new String[]{"assertImagesNotEqual"});
 	    requestCompl("from testlib.unittest.testcase.TestCase import  assertBM", new String[]{"assertBMPsNotEqual","assertBMPsEqual"});
     }
-    
+
+	
+	public void testSelfReference() throws CoreException, BadLocationException{
+        String s;
+        s = "class C:            \n" +
+			"    def met1(self): \n" +
+			"        pass        \n" +
+			"                    \n" +
+			"class B:            \n" +
+			"    def met2(self): \n" +
+			"        self.c = C()\n" +
+			"                    \n" +
+			"    def met3(self): \n" +
+			"        self.c.";
+        requestCompl(s, s.length(), -1, new String[] { "met1()"});
+	}
 
 	public void testCompleteImportBuiltin() throws BadLocationException, IOException, Exception{
         CompiledModule.COMPILED_MODULES_ENABLED = true;
