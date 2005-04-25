@@ -3,5 +3,5 @@
       autobuild="false"
       scrub-output="false"
       use-console="true">
-   <feature id="org.python.pydev.feature" version="0.9.27.92"/>
+   <feature id="org.python.pydev.feature" version="0.9.3"/>
 </site-build>

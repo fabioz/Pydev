@@ -9,13 +9,13 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.swt.graphics.Image;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
-import org.python.pydev.editor.codecompletion.CompletionProposal;
+import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
+import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.SourceModuleProposal;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -30,55 +30,56 @@ import org.python.pydev.ui.UIConstants;
  * @author Fabio Zadrozny
  */
 public class AssistCreateMethodInClass extends AbstractAssistCreate {
-    private String getDeclToCreate(PySelection ps, int offset){
-        try {
-            int len = ps.getStartLine().getOffset() + ps.getStartLine().getLength() - offset;
-            String met = ps.getDoc().get(offset, len).trim();
-            List toks = PyAction.getInsideParentesisToks(met);
-            met = met.substring(0, met.indexOf('('));
-            
-            String delim = PyAction.getDelimiter(ps.getDoc());
-            String indent = PyAction.getStaticIndentationString();
-            
-            String ret = delim;
-            ret += indent+"def "+met+"(self";
-            
-            
-            for (Iterator iter = toks.iterator(); iter.hasNext();) {
-                ret += ", ";
-                String element = (String) iter.next();
-                ret += element;
-            }
-            ret += "):"+delim;
-            
-            ret += indent+indent+"'''"+delim;
-            for (Iterator iter = toks.iterator(); iter.hasNext();) {
-                String element = (String) iter.next();
-                ret += indent+indent+"@param "+element+":"+delim;
-            }
-            ret += indent+indent+"'''"+delim;
-            ret += indent+indent;
-            
-            
-            return ret;
+    private String getDeclToCreate(PySelection ps, int offset, String met){
+        List toks = PyAction.getInsideParentesisToks(met);
+        met = met.substring(0, met.indexOf('('));
         
-        } catch (BadLocationException e) {
-            throw new RuntimeException(e);
+        String delim = PyAction.getDelimiter(ps.getDoc());
+        String indent = PyAction.getStaticIndentationString();
+        
+        String ret = delim;
+        ret += indent+"def "+met+"(self";
+        
+        
+        for (Iterator iter = toks.iterator(); iter.hasNext();) {
+            ret += ", ";
+            String element = (String) iter.next();
+            ret += element;
         }
+        ret += "):"+delim;
+        
+        ret += indent+indent+"'''"+delim;
+        for (Iterator iter = toks.iterator(); iter.hasNext();) {
+            String element = (String) iter.next();
+            ret += indent+indent+"@param "+element+":"+delim;
+        }
+        ret += indent+indent+"'''"+delim;
+        ret += indent+indent;
+        
+        
+        return ret;
+        
     }
 
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.AbstractAssistCreate#getProposal(org.python.pydev.editor.actions.PySelection, org.python.pydev.ui.ImageCache, int, org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.modules.SourceModule)
      */
-    protected CompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, AbstractModule m, SourceModule s, Definition d) {
-        Image img=null;
-        if(imageCache != null)
-            img = imageCache.get(UIConstants.ASSIST_NEW_CLASS);
-        String methodToCreate = getDeclToCreate(ps, offset);
-        SourceModuleProposal proposal = new SourceModuleProposal(methodToCreate, 0, 0, methodToCreate.length(), img, "Create method in class "+m.getName()+"."+d.value, null, null, s);
-        proposal.definition = d;
-        proposal.addTo = SourceModuleProposal.ADD_TO_LAST_CLASS_LINE;
-        return proposal;
+    protected PyCompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, AbstractModule m, SourceModule s, Definition d) {
+        try {
+            Image img = null;
+            if (imageCache != null)
+                img = imageCache.get(UIConstants.ASSIST_NEW_CLASS);
+            int len = ps.getStartLine().getOffset() + ps.getStartLine().getLength() - offset;
+            String met = ps.getDoc().get(offset, len).trim();
+            String methodToCreate = getDeclToCreate(ps, offset, met);
+            SourceModuleProposal proposal = new SourceModuleProposal(methodToCreate, 0, 0, methodToCreate.length(), img,
+                    "Create method "+met+" in class " + m.getName() + "." + d.value, null, null, s, IPyCompletionProposal.PRIORITY_DEFAULT);
+            proposal.definition = d;
+            proposal.addTo = SourceModuleProposal.ADD_TO_LAST_CLASS_LINE;
+            return proposal;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -125,7 +126,7 @@ public class AssistCreateMethodInClass extends AbstractAssistCreate {
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.AbstractAssistCreate#getProposal(org.python.pydev.editor.actions.PySelection, org.python.pydev.ui.ImageCache, int, org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.modules.SourceModule)
      */
-    protected CompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, SourceModule definedModule) {
+    protected PyCompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, SourceModule definedModule) {
         throw new RuntimeException("Should not be called.");
     }
 

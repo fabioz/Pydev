@@ -12,7 +12,8 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
-import org.python.pydev.editor.codecompletion.CompletionProposal;
+import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
+import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.plugin.PythonNature;
 import org.python.pydev.ui.ImageCache;
@@ -60,11 +61,11 @@ public class AssistTry implements IAssistProps {
         finRelNewPos = finall.length();
         finall += "pass";
 
-        l.add(new CompletionProposal(except, start, end-start, excRelNewPos, imageCache.get(UIConstants.ASSIST_TRY_EXCEPT),
-                "Surround with try..except", null, null));
+        l.add(new PyCompletionProposal(except, start, end-start, excRelNewPos, imageCache.get(UIConstants.ASSIST_TRY_EXCEPT),
+                "Surround with try..except", null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
         
-        l.add(new CompletionProposal(finall, start, end-start, finRelNewPos, imageCache.get(UIConstants.ASSIST_TRY_FINNALLY),
-                "Surround with try..finally", null, null));
+        l.add(new PyCompletionProposal(finall, start, end-start, finRelNewPos, imageCache.get(UIConstants.ASSIST_TRY_FINNALLY),
+                "Surround with try..finally", null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
 
         return l;
     }

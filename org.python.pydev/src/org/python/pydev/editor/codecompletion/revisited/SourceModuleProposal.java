@@ -16,7 +16,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.CompletionProposal;
+import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.plugin.PydevPlugin;
@@ -27,7 +27,7 @@ import org.python.pydev.utils.REF;
  * 
  * @author Fabio Zadrozny
  */
-public class SourceModuleProposal extends CompletionProposal {
+public class SourceModuleProposal extends PyCompletionProposal {
 
     public final SourceModule module;
     public PyEdit edit;
@@ -39,16 +39,23 @@ public class SourceModuleProposal extends CompletionProposal {
     public static final int ADD_TO_LAST_CLASS_LINE = 1;
     public int addTo = ADD_TO_LAST_LINE_BEFORE_MAIN;
     
-    public SourceModuleProposal(String replacementString, int replacementOffset, 
-            int replacementLength, int cursorPosition, Image image, 
-            String displayString, IContextInformation contextInformation, 
-            String additionalProposalInfo, SourceModule s) {
-        super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo);
+    public SourceModuleProposal(
+            String replacementString, 
+            int replacementOffset, 
+            int replacementLength, 
+            int cursorPosition, 
+            Image image, 
+            String displayString,
+            IContextInformation contextInformation, 
+            String additionalProposalInfo, 
+            SourceModule s,
+            int priority) {
+        super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority);
         this.module = s;
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.CompletionProposal#apply(org.eclipse.jface.text.IDocument)
+     * @see org.python.pydev.editor.codecompletion.PyCompletionProposal#apply(org.eclipse.jface.text.IDocument)
      */
     public void apply(IDocument dummy) {
         //OK, module can really be another or could be same...
@@ -105,7 +112,7 @@ public class SourceModuleProposal extends CompletionProposal {
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.CompletionProposal#getSelection(org.eclipse.jface.text.IDocument)
+     * @see org.python.pydev.editor.codecompletion.PyCompletionProposal#getSelection(org.eclipse.jface.text.IDocument)
      */
     public Point getSelection(IDocument dummy) {
         Point sel = super.getSelection(doc);

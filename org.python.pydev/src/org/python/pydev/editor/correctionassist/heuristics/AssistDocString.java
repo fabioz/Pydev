@@ -13,7 +13,8 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
-import org.python.pydev.editor.codecompletion.CompletionProposal;
+import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
+import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.plugin.PythonNature;
 import org.python.pydev.ui.ImageCache;
@@ -53,8 +54,8 @@ public class AssistDocString implements IAssistProps {
 	    buf.append(inAndIndent);
 
 	    String comp = buf.toString();
-        l.add(new CompletionProposal(comp, ps.getStartLine().getOffset()+ps.getStartLine().getLength(), 0, newOffset , imageCache.get(UIConstants.ASSIST_DOCSTRING),
-                "Make docstring", null, null));
+        l.add(new PyCompletionProposal(comp, ps.getStartLine().getOffset()+ps.getStartLine().getLength(), 0, newOffset , imageCache.get(UIConstants.ASSIST_DOCSTRING),
+                "Make docstring", null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
 	    return l;
     }
 

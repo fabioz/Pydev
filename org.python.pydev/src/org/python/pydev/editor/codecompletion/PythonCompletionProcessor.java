@@ -37,11 +37,6 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
     private PyCodeCompletion codeCompletion = new PyCodeCompletion();
 
     /**
-     * This is the cache, so that we can get it if we want it later.
-     */
-    private CompletionCache completionCache = new CompletionCache();
-
-    /**
      * Edit.
      */
     private PyEdit edit;
@@ -154,13 +149,20 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @throws BadLocationException
      */
     private Object[] getPythonProposals(int documentOffset, IDocument doc) throws CoreException, BadLocationException {
-        //we always ask the completions cache... even if it is not in the cache (cache takes care of asking them
-        //and putting them in it for later calls).
-        return  this.completionCache.getProposals(
-                new CompletionRequest(edit.getEditorFile(), 
-                        edit.getPythonNature(), doc, documentOffset,
-                        codeCompletion)
-                );
+        CompletionRequest request = new CompletionRequest(edit.getEditorFile(), 
+                edit.getPythonNature(), doc, documentOffset,
+                codeCompletion);
+        boolean showTemplates = true;
+        
+        //if non empty string, we're in imports section.
+        String importsTipperStr = request.codeCompletion.getImportsTipperStr(request);
+        
+        if (importsTipperStr.length() != 0){
+            showTemplates = false; //don't show templates if we are in the imports section.
+        }
+        
+        List allProposals = request.codeCompletion.getCodeCompletionProposals(request);
+        return new Object[]{allProposals, new Boolean(showTemplates)};
     }
 
     

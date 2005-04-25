@@ -17,7 +17,7 @@ public abstract class AbstractToken implements IToken{
     private String doc;
     private String args;
     private String parentPackage;
-    private int type;
+    public int type;
 
     public AbstractToken(String rep, String doc, String args, String parentPackage, int type, String originalRep){
         this(rep, doc, args, parentPackage, type);
@@ -135,6 +135,12 @@ public abstract class AbstractToken implements IToken{
         int otherT = comp.getType();
         
         if(thisT != otherT){
+            if (thisT == PyCodeCompletion.TYPE_PARAM)
+                return -1;
+
+            if (otherT == PyCodeCompletion.TYPE_PARAM)
+                return 1;
+
             if (thisT == PyCodeCompletion.TYPE_IMPORT)
                 return -1;
 

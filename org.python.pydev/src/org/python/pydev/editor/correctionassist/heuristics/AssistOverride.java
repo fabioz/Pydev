@@ -12,7 +12,8 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
-import org.python.pydev.editor.codecompletion.CompletionProposal;
+import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
+import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
@@ -88,8 +89,8 @@ public class AssistOverride implements IAssistProps {
                 
                 String comp = buffer.toString();
 
-                l.add(new CompletionProposal(comp, ps.getStartLine().getOffset(), ps.getStartLine().getLength(), comp.length() , imageCache.get(UIConstants.ASSIST_NEW_CLASS),
-                        rep+" (Override)", null, null));
+                l.add(new PyCompletionProposal(comp, ps.getStartLine().getOffset(), ps.getStartLine().getLength(), comp.length() , imageCache.get(UIConstants.ASSIST_NEW_CLASS),
+                        rep+" (Override)", null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
             }
         }
         

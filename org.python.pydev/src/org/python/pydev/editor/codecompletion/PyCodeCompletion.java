@@ -214,7 +214,6 @@ public class PyCodeCompletion {
                 theList.addAll(completions);
 
             } else { //go to globals
-                List completions = new ArrayList();
 
                 state.activationToken = request.activationToken;
                 IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
@@ -348,9 +347,13 @@ public class PyCodeCompletion {
                 String docStr = element.getDocStr();
                 int type = element.getType();
                 
+                int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
+                if(type == PyCodeCompletion.TYPE_PARAM){
+                    priority = IPyCompletionProposal.PRIORITY_LOCALS;
+                }
                     
-                CompletionProposal proposal = new CompletionProposal(name+args,
-                        request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, null, docStr);
+                PyCompletionProposal proposal = new PyCompletionProposal(name+args,
+                        request.documentOffset - request.qlen, request.qlen, l, getImageForType(type), null, null, docStr, priority);
                 
                 convertedProposals.add(proposal);
             
@@ -364,8 +367,14 @@ public class PyCodeCompletion {
                 if(element.length > 2){
                     type = ((Integer) element [2]).intValue();
                 }
-                CompletionProposal proposal = new CompletionProposal(name,
-                        request.documentOffset - request.qlen, request.qlen, name.length(), getImageForType(type), null, null, docStr);
+
+                int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
+                if(type == PyCodeCompletion.TYPE_PARAM){
+                    priority = IPyCompletionProposal.PRIORITY_LOCALS;
+                }
+                
+                PyCompletionProposal proposal = new PyCompletionProposal(name,
+                        request.documentOffset - request.qlen, request.qlen, name.length(), getImageForType(type), null, null, docStr, priority);
                 
                 convertedProposals.add(proposal);
             }

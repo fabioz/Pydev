@@ -13,7 +13,7 @@ import org.eclipse.swt.graphics.Point;
 /**
  * The standard implementation of the <code>ICompletionProposal</code> interface.
  */
-public class CompletionProposal implements ICompletionProposal {
+public class PyCompletionProposal implements ICompletionProposal, IPyCompletionProposal {
 	
 	/** The string to be displayed in the completion proposal popup. */
 	protected String fDisplayString;
@@ -31,6 +31,8 @@ public class CompletionProposal implements ICompletionProposal {
 	protected IContextInformation fContextInformation;
 	/** The additional info of this proposal. */
 	protected String fAdditionalProposalInfo;
+	/** The priority for showing the proposal */
+    protected int priority;
 
 	/**
 	 * Creates a new completion proposal based on the provided information. The replacement string is
@@ -41,8 +43,8 @@ public class CompletionProposal implements ICompletionProposal {
 	 * @param replacementLength the length of the text to be replaced
 	 * @param cursorPosition the position of the cursor following the insert relative to replacementOffset
 	 */
-	public CompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition) {
-		this(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null);
+	public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, int priority) {
+		this(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null, priority);
 	}
 
 	/**
@@ -57,7 +59,7 @@ public class CompletionProposal implements ICompletionProposal {
 	 * @param contextInformation the context information associated with this proposal
 	 * @param additionalProposalInfo the additional information associated with this proposal
 	 */
-	public CompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo) {
+	public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo,int priority) {
 		Assert.isNotNull(replacementString);
 		Assert.isTrue(replacementOffset >= 0);
 		Assert.isTrue(replacementLength >= 0);
@@ -71,6 +73,7 @@ public class CompletionProposal implements ICompletionProposal {
 		fDisplayString= displayString;
 		fContextInformation= contextInformation;
 		fAdditionalProposalInfo= additionalProposalInfo;
+		this.priority = priority;
 	}
 
 	/*
@@ -133,13 +136,20 @@ public class CompletionProposal implements ICompletionProposal {
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object obj) {
-        if (!(obj instanceof CompletionProposal)){
+        if (!(obj instanceof PyCompletionProposal)){
             return false;
         }
-        CompletionProposal c = (CompletionProposal) obj;
+        PyCompletionProposal c = (PyCompletionProposal) obj;
         if (!(getDisplayString().equals(c.getDisplayString()))){
             return false;
         }
         return true;
+    }
+
+    /**
+     * @see org.python.pydev.editor.codecompletion.IPyCompletionProposal#getPriority()
+     */
+    public int getPriority() {
+        return priority;
     }
 }

@@ -144,12 +144,13 @@ public class ASTManagerTest extends TestCase {
 		sDoc = ""+
 		"class Classe1:       \n" +       
 		"                     \n" +         
-		"    def foo(self):   \n" +          
+		"    def foo(self):   \n" +
+		"        ignoreThis=0 \n" +          
 		"        self.a = 1   \n" +      
 		"        self.        \n" +      
 		"                     \n";
 		
-		line = 5;
+		line = 6;
 		col = 13;
 		token = "Classe1";
 		doc = new Document(sDoc);
@@ -251,6 +252,45 @@ public class ASTManagerTest extends TestCase {
         assertIsIn("par2", comps);
         assertIsIn("self", comps);
         assertIsIn("C", comps);
+
+        
+        token = "";
+        line = 4;
+        col = 13;
+        sDoc = ""+
+        		"class C:                         \n" +    
+        		"    def met(self, par1, par2):   \n" +
+        		"        loc1 = 10                \n" +    
+        		"        print                    \n";
+        doc = new Document(sDoc);
+        state = new CompletionState(line,col, token, nature);
+        comps = manager.getCompletionsForToken(doc, state);
+        assertEquals(5, comps.length );
+        assertIsIn("par1", comps);
+        assertIsIn("loc1", comps);
+        assertIsIn("par2", comps);
+        assertIsIn("self", comps);
+        assertIsIn("C", comps);
+
+        
+        token = "";
+        line = 4;
+        col = 13;
+        sDoc = ""+
+        		"class C:                         \n" +    
+        		"    def met(self, par1, par2):   \n" +
+        		"        loc1 = 10                \n" +    
+        		"        print                    \n" +
+        		"        ignoreLineAfter = 5      \n";
+        doc = new Document(sDoc);
+        state = new CompletionState(line,col, token, nature);
+        comps = manager.getCompletionsForToken(doc, state);
+        assertEquals(5, comps.length );
+        assertIsIn("par1", comps);
+        assertIsIn("loc1", comps);
+        assertIsIn("par2", comps);
+        assertIsIn("self", comps);
+        assertIsIn("C", comps);
     }
     
     /**
@@ -275,9 +315,9 @@ public class ASTManagerTest extends TestCase {
 //        try {
 //            ASTManagerTest test = new ASTManagerTest();
 //            test.setUp();
-//            test.testRecursion();
+//            test.testCompletion();
 //            test.tearDown();
-//        } catch (Exception e) {
+//        } catch (Throwable e) {
 //            e.printStackTrace();
 //        }
     }

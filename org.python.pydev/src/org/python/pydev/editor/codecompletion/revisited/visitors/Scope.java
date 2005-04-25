@@ -5,9 +5,10 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import org.python.parser.SimpleNode;
@@ -91,7 +92,7 @@ public class Scope {
     }
     
     public IToken[] getLocalTokens(int line, int col){
-        List comps = new ArrayList();
+        Set comps = new HashSet();
         
         for (Iterator iter = this.scope.iterator(); iter.hasNext();) {
             SimpleNode element = (SimpleNode) iter.next();
@@ -101,6 +102,26 @@ public class Scope {
                 for (int i = 0; i < f.args.args.length; i++) {
                     String s = AbstractVisitor.getRepresentationString(f.args.args[i]);
                     comps.add(new SourceToken(f.args.args[i], s, "", "", "", PyCodeCompletion.TYPE_PARAM));
+                }
+                
+                try {
+                    for (int i = 0; i < f.body.length; i++) {
+		                GlobalModelVisitor visitor = new GlobalModelVisitor(GlobalModelVisitor.GLOBAL_TOKENS, "");
+                        f.body[i].accept(visitor);
+                        List t = visitor.tokens;
+                        for (Iterator iterator = t.iterator(); iterator.hasNext();) {
+                            SourceToken tok = (SourceToken) iterator.next();
+                            
+                            //if it is found here, it is a local type
+                            tok.type = PyCodeCompletion.TYPE_PARAM;
+                            if(tok.getAst().beginLine <= line){
+                                comps.add(tok);
+                            }
+                            
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }

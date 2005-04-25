@@ -61,20 +61,20 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		"    '''\n"+
 		"    ";
 
-		checkCreateMethod(d, res, "testAssist.assist", true, -1);
+		checkCreateMethod(d, res, "testAssist.assist", true, -1, "NewMethod");
 
 		d = ""+
 		"from testAssist import assist\n" +
 		"NewMethod(a,b)";
-		checkCreateMethod(d, res, "", true, -1);
+		checkCreateMethod(d, res, "", true, -1, "NewMethod");
 
 		d = ""+
 		"class NewClass(object): \n" +
 		"                        \n" +
 		"   def NewMethod(a,b):  \n" +
 		"        pass            \n";
-		checkCreateMethod(d, res, "", false, 0);
-		checkCreateMethod(d, res, "", false, 2);
+		checkCreateMethod(d, res, "", false, 0, "");
+		checkCreateMethod(d, res, "", false, 2, "");
     }
 
     
@@ -86,7 +86,7 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
      * @param line: offset is set to the end of the passed line
      * @throws BadLocationException
      */
-    private void checkCreateMethod(String docStr, String res, String moduleName, boolean isValid, int line) throws BadLocationException {
+    private void checkCreateMethod(String docStr, String res, String moduleName, boolean isValid, int line, String tok) throws BadLocationException {
         Document doc = new Document(docStr);
         
 		int offset = 0;
@@ -109,6 +109,7 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 			
 			assertEquals(res, p.getReplacementStr());
 	        assertEquals(moduleName, p.module.getName());
+	        assertTrue(p.getDisplayString().indexOf(tok) != -1);
         }
     }
 
@@ -124,7 +125,7 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		String moduleName = "testAssist.assist";
 		int nProps = 1;
 		assist = new AssistCreateClassInModule();
-		checkAssistClass(docStr, moduleName, nProps,-1,0);
+		checkAssistClass(docStr, moduleName, nProps,-1,0, "NewClass", true);
 		
 
 		nProps = 1;
@@ -132,22 +133,28 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		docStr = ""+
 		"from testAssist import assist\n" +
 		"newClass = NewClass(a,b)";
-		checkAssistClass(docStr, moduleName, nProps,-1,0);
+		checkAssistClass(docStr, moduleName, nProps,-1,0, "NewClass", true);
+
+		docStr = ""+
+		"from testAssist import assist\n" +
+		"newClass = NewClass()";
+		checkAssistClass(docStr, moduleName, nProps,-1,0, "NewClass", false);
 
 		//same as before... different sel
 		docStr = ""+
 		"from testAssist import assist\n" + //30 chars
 		"assist.Ignore(NewClass(a,b))   ";  //from 14 to +13  
-		checkAssistClass(docStr, moduleName, nProps,30+14,13);
+		checkAssistClass(docStr, moduleName, nProps,30+14,13, "NewClass", true);
     }
 
     /**
      * @param docStr
      * @param moduleName
      * @param nProps
+     * @param t
      * @throws BadLocationException
      */
-    private void checkAssistClass(String docStr, String moduleName, int nProps, int selStart, int selLength) throws BadLocationException {
+    private void checkAssistClass(String docStr, String moduleName, int nProps, int selStart, int selLength, String tok, boolean hasParams) throws BadLocationException {
         if (selStart == -1)
             selStart = docStr.length();
         Document doc = new Document(docStr);
@@ -163,15 +170,21 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		"class NewClass(object):\n" +
 		"    '''\n"+
 		"    '''\n"+
-		"    \n"+
-		"    def __init__(self, a, b):\n"+
-		"        '''\n"+
-		"        @param a:\n"+
-		"        @param b:\n"+
-		"        '''\n"+
-		"        ";
+		"    \n";
+		
+		if (hasParams){
+		    res += ""+
+			"    def __init__(self, a, b):\n"+
+			"        '''\n"+
+			"        @param a:\n"+
+			"        @param b:\n"+
+			"        '''\n"+
+			"        ";
+		}
+		
 		assertEquals(res, p.getReplacementStr());
         assertEquals(moduleName, p.module.getName());
+        assertTrue(p.getDisplayString().indexOf(tok) != -1);
     }
 
     /**
@@ -205,5 +218,6 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		assertEquals("testAssist.assist", p.module.getName());
 		assertEquals("ExistingClass", p.definition.value);
 		assertEquals(SourceModuleProposal.ADD_TO_LAST_CLASS_LINE, p.addTo);
+        assertTrue(p.getDisplayString().indexOf("newMethod") != -1);
     }
 }

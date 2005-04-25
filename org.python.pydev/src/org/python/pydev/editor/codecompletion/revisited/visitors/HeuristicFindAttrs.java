@@ -50,6 +50,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
     private boolean entryPointCorrect = false;
     
     private boolean inAssing = false;
+    private boolean inFuncDef = false;
     
     /**
      * This is the method that can be used to declare them (e.g. properties.create)
@@ -110,6 +111,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
         
         if(entryPointCorrect == false){
 	        entryPointCorrect = true;
+	        inFuncDef = true;
 	        
 	        if(where == WHITIN_ANY){
 	            node.traverse(this);
@@ -118,6 +120,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
 	            node.traverse(this);
 	        }
 	        entryPointCorrect = false;
+	        inFuncDef = false;
         } 
         
         
@@ -141,7 +144,8 @@ public class HeuristicFindAttrs extends AbstractVisitor {
                 if(node.targets[i] instanceof Attribute){
                     visitAttribute((Attribute)node.targets[i]);
                     
-                }else if(node.targets[i] instanceof Name){
+                }
+                else if(node.targets[i] instanceof Name && inFuncDef == false){
                     String id = ((Name)node.targets[i]).id;
                     if(id != null){
                         addToken(node.targets[i]);

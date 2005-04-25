@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.actions.PySelection;
-import org.python.pydev.editor.codecompletion.CompletionProposal;
+import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -116,7 +116,7 @@ public abstract class AbstractAssistCreate implements IAssistProps{
      * @param offset that's the offset where the '.' was found
      * @return
      */
-    protected abstract CompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, final SourceModule definedModule);
+    protected abstract PyCompletionProposal getProposal(PySelection ps, ImageCache imageCache, int offset, final SourceModule definedModule);
 
 
     /**

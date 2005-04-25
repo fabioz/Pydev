@@ -12,7 +12,8 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
-import org.python.pydev.editor.codecompletion.CompletionProposal;
+import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
+import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.correctionassist.FixCompletionProposal;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.ClassNode;
@@ -111,8 +112,8 @@ public class AssistCreations implements IAssistProps {
 	                
 	                method = method.replaceFirst("%s", self);
 	                
-		            l.add(new CompletionProposal(method, newPos, 0, method.length()-4, imageCache.get(UIConstants.ASSIST_NEW_METHOD),
-		                    "Create new method (in class)", null, null));
+		            l.add(new PyCompletionProposal(method, newPos, 0, method.length()-4, imageCache.get(UIConstants.ASSIST_NEW_METHOD),
+		                    "Create new method (in class)", null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
 	            }
 	            
 	        }else{ //we are going for a class or a global method.
@@ -136,13 +137,13 @@ public class AssistCreations implements IAssistProps {
 	                
 	                finalMethod = finalMethod.replaceFirst("%s", "" );
 	                
-		            l.add(new CompletionProposal(finalMethod, newPos, 0, finalMethod.length(), imageCache.get(UIConstants.ASSIST_NEW_METHOD),
-		                    "Create new method (in global context)", null, null));
+		            l.add(new PyCompletionProposal(finalMethod, newPos, 0, finalMethod.length(), imageCache.get(UIConstants.ASSIST_NEW_METHOD),
+		                    "Create new method (in global context)", null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
 
 	                cls = cls+delim;
 
-	                l.add(new CompletionProposal(cls, newPos, 0, cls.length(), imageCache.get(UIConstants.ASSIST_NEW_CLASS),
-		                    "Create new class (in global context)", null, null));
+	                l.add(new PyCompletionProposal(cls, newPos, 0, cls.length(), imageCache.get(UIConstants.ASSIST_NEW_CLASS),
+		                    "Create new class (in global context)", null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
 	                
 
 	                

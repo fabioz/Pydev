@@ -13,7 +13,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
-import org.python.pydev.editor.codecompletion.CompletionProposal;
+import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
+import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.plugin.PythonNature;
 import org.python.pydev.ui.ImageCache;
@@ -78,11 +79,11 @@ public class AssistAssign implements IAssistProps {
 
             int firstCharPosition = PyAction.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset());
             callName += " = ";
-            l.add(new CompletionProposal(callName, firstCharPosition, 0, 0, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_LOCAL),
-                    "Assign to new local variable", null, null));
+            l.add(new PyCompletionProposal(callName, firstCharPosition, 0, 0, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_LOCAL),
+                    "Assign to new local variable", null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
             
-            l.add(new CompletionProposal("self." + callName, firstCharPosition, 0, 5, getImage(imageCache,UIConstants.ASSIST_ASSIGN_TO_CLASS),
-                    "Assign to new field", null, null));
+            l.add(new PyCompletionProposal("self." + callName, firstCharPosition, 0, 5, getImage(imageCache,UIConstants.ASSIST_ASSIGN_TO_CLASS),
+                    "Assign to new field", null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
         }
         return l;
     }
