@@ -360,6 +360,10 @@ public class ASTManager implements Serializable, IASTManager {
      * @return the module represented by this name
      */
     public AbstractModule getModule(String name, PythonNature nature) {
+//        for (Iterator iter = modules.keySet().iterator(); iter.hasNext();) {
+//            System.out.println(((ModulesKey) iter.next()).name);
+//        }
+        
         AbstractModule n = (AbstractModule) modules.get(new ModulesKey(name, null));
         if (n == null){
             n = (AbstractModule) modules.get(new ModulesKey(name+".__init__", null));
@@ -814,23 +818,24 @@ public class ASTManager implements Serializable, IASTManager {
                     if(mod.isInGlobalTokens(tok)){
                         return new Object[]{ mod, tok};
                     }
-//                    CompletionState state2 = getCopy();
-//                    state2.activationToken = tok;
-//                    IToken[] globalTokens = mod.getGlobalTokens(state2, this);
-//                    if(globalTokens.length > 0){
-//                        return new Object[]{ mod, tok, globalTokens};
-//                    }
                     
                     //ok, it was not a global token, still, it might be some import from that module.
                     IToken[] tokenImportedModules = mod.getTokenImportedModules();
                     for (int j = 0; j < tokenImportedModules.length; j++) {
-                        if(tokenImportedModules[j].getRepresentation().equals(activationToken)){
+                        if(tokenImportedModules[j].getRepresentation().equals(tok)){
                             String path = tokenImportedModules[j].getCompletePath();
                             Object [] o2 = findModuleFromPath(path , nature);
                             AbstractModule mod2 = (AbstractModule) o2[0];
                             String tok2 = (String) o2[1];
                             
-                            return new Object[]{ mod2, tok2};
+                            if(mod2 == null){
+                                path = mod.getName()+"."+tokenImportedModules[j].getCompletePath();
+                                o2 = findModuleFromPath(path , nature);
+                                mod2 = (AbstractModule) o2[0];
+                                tok2 = (String) o2[1];
+                            }
+                            
+                            return new Object[]{ mod, tok};
                         }
                     }
                     IToken[] wildImportedModules = mod.getWildImportedModules();

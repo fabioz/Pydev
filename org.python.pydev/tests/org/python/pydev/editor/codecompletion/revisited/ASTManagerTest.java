@@ -5,8 +5,6 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.PythonNature;
@@ -16,11 +14,9 @@ import org.python.pydev.plugin.PythonNature;
  * 
  * @author Fabio Zadrozny
  */
-public class ASTManagerTest extends TestCase {
+public class ASTManagerTest extends CodeCompletionTestsBase {
 
     private CompletionState state;
-    private ASTManager manager;
-    private PythonNature nature;
     private String token;
     private int line;
     private int col;
@@ -29,14 +25,21 @@ public class ASTManagerTest extends TestCase {
     private IToken[] comps = null;
 
 
+    /**
+     * @return Returns the manager.
+     */
+    private ASTManager getManager() {
+        return (ASTManager) nature.getAstManager();
+    }
+
     /*
      * @see TestCase#setUp()
      */
     protected void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        manager = new ASTManager();
         nature = new PythonNature();
+        nature.setAstManager(new ASTManager());
     }
 
     /*
@@ -63,7 +66,7 @@ public class ASTManagerTest extends TestCase {
         		"        pass         \n";
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(1, comps.length);
         assertEquals("makeit", comps[0].getRepresentation());
         
@@ -84,7 +87,7 @@ public class ASTManagerTest extends TestCase {
 		token = "";
 		doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(3, comps.length);
         assertIsIn("unittest", comps);
         assertIsIn("Classe1", comps);
@@ -109,7 +112,7 @@ public class ASTManagerTest extends TestCase {
 		token = "";
 		doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(4, comps.length);
         assertIsIn("unittest", comps);
         assertIsIn("Classe1", comps);
@@ -135,7 +138,7 @@ public class ASTManagerTest extends TestCase {
 		token = "";
 		doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(3, comps.length);
         assertIsIn("unittest", comps);
         assertIsIn("Classe1", comps);
@@ -155,7 +158,7 @@ public class ASTManagerTest extends TestCase {
 		token = "Classe1";
 		doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(2, comps.length);
         assertIsIn("a", comps);
         assertIsIn("foo", comps);
@@ -175,7 +178,7 @@ public class ASTManagerTest extends TestCase {
 		token = "Classe1";
 		doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(3, comps.length);
         assertIsIn("foo", comps);
         assertIsIn("a", comps);
@@ -200,7 +203,7 @@ public class ASTManagerTest extends TestCase {
 		token = "LinkedList";
 		doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = getManager().getCompletionsForToken(doc, state);
         assertIsIn("first", comps);
         assertIsIn("last", comps);
         assertIsIn("content", comps);
@@ -216,8 +219,24 @@ public class ASTManagerTest extends TestCase {
 			"class B(A):pass          \n";
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(1, comps.length);
+        
+    }
+    
+    public void testRelative(){
+        super.restorePythonPath(false);
+        token = "Test1";
+        line = 1;
+        col = 0;
+        sDoc = ""+
+			"from testlib.unittest.relative import Test1 \n" +    
+			"\n";
+        doc = new Document(sDoc);
+        state = new CompletionState(line,col, token, nature);
+        comps = getManager().getCompletionsForToken(doc, state);
+        assertEquals(1, comps.length);
+        assertIsIn("test1", comps);
         
     }
     
@@ -230,7 +249,7 @@ public class ASTManagerTest extends TestCase {
         		"    print                     \n";
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(3, comps.length );
         assertIsIn("par1", comps);
         assertIsIn("par2", comps);
@@ -246,7 +265,7 @@ public class ASTManagerTest extends TestCase {
         		"        print                    \n";
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(4, comps.length );
         assertIsIn("par1", comps);
         assertIsIn("par2", comps);
@@ -264,7 +283,7 @@ public class ASTManagerTest extends TestCase {
         		"        print                    \n";
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(5, comps.length );
         assertIsIn("par1", comps);
         assertIsIn("loc1", comps);
@@ -284,7 +303,7 @@ public class ASTManagerTest extends TestCase {
         		"        ignoreLineAfter = 5      \n";
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
-        comps = manager.getCompletionsForToken(doc, state);
+        comps = getManager().getCompletionsForToken(doc, state);
         assertEquals(5, comps.length );
         assertIsIn("par1", comps);
         assertIsIn("loc1", comps);
