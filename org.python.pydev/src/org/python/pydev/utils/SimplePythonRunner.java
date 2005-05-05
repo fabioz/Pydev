@@ -9,11 +9,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.ui.PyProjectProperties;
+import org.eclipse.core.resources.IProject;
 
 /**
  * 
@@ -39,6 +42,11 @@ public class SimplePythonRunner {
         return Runtime.getRuntime().exec(executionString, null, workingDir);
     }
 
+    
+    public static String runAndGetOutput(String script, String args, File workingDir) {
+    	return runAndGetOutput(script, args, workingDir, null);
+    }
+    
     /**
      * Execute the string and format for windows if we have spaces...
      * 
@@ -47,7 +55,7 @@ public class SimplePythonRunner {
      * @param workingDir
      * @return
      */
-    public static String runAndGetOutput(String script, String args, File workingDir) {
+    public static String runAndGetOutput(String script, String args, File workingDir, IProject project) {
         String osName = System.getProperty("os.name");
         
         String execMsg;
@@ -59,19 +67,42 @@ public class SimplePythonRunner {
 
         String executionString = PydevPrefs.getDefaultInterpreter() + " -u " + script + " " + args;
         //System.out.println(executionString);
-        return runAndGetOutput(executionString, workingDir);
+        return runAndGetOutput(executionString, workingDir, project);
     }
 
+    public static String runAndGetOutput(String executionString, File workingDir) {
+    	return runAndGetOutput(executionString, workingDir, null);
+    }
+    
     /**
      * 
      * @param executionString
      * @return the process output.
      * @throws CoreException
      */
-    public static String runAndGetOutput(String executionString, File workingDir) {
+    public static String runAndGetOutput(String executionString, File workingDir, IProject project) {
         Process process = null;
         try {
-            process = Runtime.getRuntime().exec(executionString, null, workingDir);
+        	if (project != null) {
+		    	List paths = PyProjectProperties.getProjectPythonPath(project);
+		    	int envSize = paths.size();
+		    	if (envSize < 1) {
+		    		process = Runtime.getRuntime().exec(executionString, null, workingDir);
+		    	} else {
+			    	String path = "PYTHONPATH=";
+			    	for (int i = 0; i < envSize; i++) {
+			    		if (i > 0)
+			    			path = path.concat(";");//XXX Need to be platform specific 
+			    		path = path.concat(paths.get(i).toString());
+			    	}
+			    	
+			    	String[] envp = new String[1];
+			    	envp[0] = path;
+			        process = Runtime.getRuntime().exec(executionString, envp, workingDir);
+		    	}
+        	} else {
+        		process = Runtime.getRuntime().exec(executionString, null, workingDir);
+        	}
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

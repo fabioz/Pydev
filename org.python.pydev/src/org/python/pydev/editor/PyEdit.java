@@ -170,7 +170,7 @@ public class PyEdit extends PyEditProjection {
         if (doc == null)
             return;
         if (!PydevPrefs.getPreferences().getBoolean(PydevPrefs.GUESS_TAB_SUBSTITUTION)) {
-            indentStrategy.setForceTabs(false);
+            indentStrategy.getIndentPrefs().setForceTabs(false);
             return;
         }
 
@@ -196,7 +196,7 @@ public class PyEdit extends PyEditProjection {
             }
             i++;
         }
-        indentStrategy.setForceTabs(forceTabs);
+        indentStrategy.getIndentPrefs().setForceTabs(forceTabs);
         editConfiguration.resetIndentPrefixes();
         // display a message in the status line
         if (forceTabs) {

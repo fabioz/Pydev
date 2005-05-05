@@ -10,7 +10,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultAutoIndentStrategy;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.plugin.PydevPrefs;
 
 /**
  * Implements indenting behavior.
@@ -21,120 +20,33 @@ import org.python.pydev.plugin.PydevPrefs;
  */
 public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 
-	/** indentation string */
-	String identString = null;
-	//	should tab be converted to spaces?
-	boolean useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);	
-	int tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
-	boolean forceTabs = false;
-	
-	public void setForceTabs(boolean forceTabs) {
-		this.forceTabs = forceTabs;
-	}
-	
-	private String createSpaceString(int width) {
+    
+    private IIndentPrefs prefs;
+    
+    public void setIndentPrefs(IIndentPrefs prefs){
+        this.prefs = prefs;
+    }
+    public IIndentPrefs getIndentPrefs(){
+        if(this.prefs==null){
+            this.prefs = new DefaultIndentPrefs(); //create the default if this is still not done.
+        }
+        return this.prefs;
+    }
+    
+	public static String createSpaceString(int width) {
 		StringBuffer b = new StringBuffer(width);
-						while (tabWidth-- > 0)
-							b.append(" ");
+		while (width-- > 0)
+			b.append(" ");
 		return b.toString();
 	}
 
-	/** returns correct single-step indentation */
-	private String getIndentationString() {
-		if (identString == null ||
-			tabWidth != PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH) ||
-			useSpaces != PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS))
-		{
-			tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
-			useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
-			if (useSpaces && !forceTabs)
-				identString = createSpaceString(tabWidth);
-			else
-				identString = "\t";
-		}
-		return identString;
-	}
 	
-	private boolean isWhitespace(String s) {
-		for (int i = s.length() - 1; i > -1 ; i--)
-			if (!Character.isWhitespace(s.charAt(i)))
-				return false;
-		return true;
-	}
+
+
 
 
 	/**
-	 * Replaces tabs if needed by ident string or just a space depending of the
-	 * tab location
-	 * 
-	 */
-	protected String convertTabs(
-		IDocument document, int length, String text, int offset, 
-		String indentString) throws BadLocationException 
-	{
-		// only interresting if it contains a tab (also if it is a tab only)
-		if (text.indexOf("\t") >= 0) {
-			// get some text infos
-			int lineStart = 
-				document.getLineInformationOfOffset(offset).getOffset();
-			String line = document.get(lineStart, offset - lineStart);
-			// only a single tab?
-			if (text.equals("\t")) {
-				deleteWhitespaceAfter(document, offset);
-				if (isWhitespace(line))
-					text = indentString;
-				else
-					text = indentString;
-				// contains a char (pasted text)
-			} else {
-				byte[] byteLine = text.getBytes();
-				StringBuffer newText = new StringBuffer();
-				for (int count = 0; count < byteLine.length; count++) {
-					if (byteLine[count] == '\t')
-						newText.append(indentString);
-						// if it is not a tab add the char
-					else
-						newText.append((char) byteLine[count]);
-				}
-				text = newText.toString();
-			}
-		}
-		return text;
-	}
-	
-	/**
-	 * Converts spaces to strings. Useful when pasting
-	 */
-	protected String convertSpaces(
-		IDocument document, int length, String text, int offset, 
-		String indentString) throws BadLocationException 
-	{
-		if (text.length() > 2)
-			return text;
-		return text.replaceAll(createSpaceString(tabWidth), "\t");
-	}
-
-	/**
-	 * When hitting TAB, delete the whitespace after the cursor in the line
-	 */
-	protected void deleteWhitespaceAfter(IDocument document, int offset)
-		throws BadLocationException {
-		if (offset < document.getLength()
-			&& !endsWithNewline(document, document.get(offset, 1))) {
-			int lineLength =
-				document.getLineInformationOfOffset(offset).getLength();
-			int lineStart =
-				document.getLineInformationOfOffset(offset).getOffset();
-			String textAfter =
-				document.get(offset, (lineStart + lineLength) - offset);
-			if (textAfter.length() > 0
-				&& isWhitespace(textAfter)) {
-				document.replace(offset, textAfter.length(), "");
-			}
-		}
-	}
-
-	/**
+	 * Set indentation automatically after newline.
 	 * 
 	 * @param document
 	 * @param length
@@ -143,33 +55,120 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 	 * @return String
 	 * @throws BadLocationException
 	 */
-	protected String autoIndentNewline(
+	private String autoIndentNewline(
 						IDocument document, int length, String text, int offset)
 					throws BadLocationException 
 	{
-		if (length == 0 && text != null && endsWithNewline(document, text)) {
+		if (length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text)) {
 		    
-			if (offset > 0 && document.getChar(offset - 1) == ':'){
-			    String initial = text;
+			if (offset > 0) {
+				char lastChar = document.getChar(offset - 1);
 				
-			    text = initial + getIndentationString();
+				if (lastChar == ':'){
+				    String initial = text;
+					
+				    text = initial + prefs.getIndentationString();
+				
+				} else if (lastChar == ',') {
+					text = indentAfterCommaNewline(document, text, offset);
+				}
 			}
 		}
 		return text;
 	}
-
-    /**
-	 * True if text ends with a newline delimiter
+	
+	/**
+	 * Create the indentation string after comma and a newline.
+	 * 
+	 * @param document
+	 * @param text
+	 * @param offset
+	 * @return Indentation String
+	 * @throws BadLocationException
 	 */
-	private boolean endsWithNewline(IDocument document, String text) {
-		String[] newlines = document.getLegalLineDelimiters();
-		boolean ends = false;
-		for (int i = 0; i < newlines.length; i++) {
-			String delimiter = newlines[i];
-			if (text.indexOf(delimiter) != -1)
-				ends = true;
+	private String indentAfterCommaNewline(IDocument document, String text, int offset)
+			throws BadLocationException
+	{
+		int smartIndent = totalIndentAmountAfterCommaNewline(document, offset);
+		if (smartIndent > 0) {
+			String initial = text;
+			
+			// Discard everything but the newline from initial, since we'll
+			// build the smart indent from scratch anyway.
+			int initialLength = initial.length();
+			for (int i = 0; i < initialLength; i++) {
+				char theChar = initial.charAt(i);
+				// This covers all cases I know of, but if there is any platform 
+				// with weird newline then this would need to be smarter.
+				if (theChar != '\r' && theChar != '\n') {
+					if (i > 0) {
+						initial = initial.substring(0, i);
+						smartIndent -= --i;
+					}
+					break;
+				}
+			}
+			
+			// Create the actual indentation string
+			String indentationString = prefs.getIndentationString();
+			int indentationSteps = smartIndent/prefs.getTabWidth();
+			int spaceSteps = smartIndent % prefs.getTabWidth();
+			StringBuffer b = new StringBuffer(smartIndent);
+			while (indentationSteps-- > 0)
+				b.append(indentationString);
+			while (spaceSteps-- > 0)
+				b.append(" ");
+			
+			return initial + b.toString();
 		}
-		return ends;
+		return text;
+	}
+	
+    /**
+	 * Return smart indent amount for new line. This should be done for multiline
+	 * structures like function parameters, tuples, lists and dictionaries.
+	 * 
+	 * Example:
+	 * 
+	 * a=foo(1,
+	 *       #
+	 * 
+	 * We would return the indentation needed to place the caret at the # position. 
+	 * 
+	 * @param document The document
+	 * @param offset The document offset of the last character on the previous line
+	 * @return indent, or -1 if smart indent could not be determined (fall back to default)
+	 */
+	private int totalIndentAmountAfterCommaNewline(IDocument document, int offset) 
+				throws BadLocationException 
+	{
+		int lineStart = document.getLineInformationOfOffset(offset).getOffset();
+		String line = document.get(lineStart, offset - lineStart);
+		int lineLength = line.length();
+		
+		for (int i = lineLength - 1; i > 0; i--) {
+			char theChar = line.charAt(i);
+			
+			// This covers all cases I know of, but if there is any platform 
+			// with weird newline then this would need to be smarter.
+			if (theChar == '\r' || theChar == '\n')
+				break;
+			
+			if (theChar == '(' || theChar == '[' || theChar == '{'){
+			    //ok, it's not just returning the line now, we have to check for tabs and make each 
+			    //tab count for the tabWidth.
+			    int smartIndent = lineLength - (lineLength - i) + 1;
+			    String string = line.substring(0, smartIndent-1);
+			    for (int j = 0; j < string.length(); j++) {
+                    char c = string.charAt(j);
+                    if(c == '\t'){
+                        smartIndent += prefs.getTabWidth()-1;
+                    }
+                }
+				return smartIndent;
+			}
+		}
+		return -1;
 	}
 	
 	/**
@@ -183,19 +182,7 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 			command.text = autoIndentNewline(
 					document, command.length, command.text, command.offset);
 			
-			
-			if (PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS)){
-				command.text = convertTabs(
-					document, command.length, command.text, command.offset,
-					getIndentationString());
-			}
-			
-			else {
-			    command.text = convertSpaces(
-				document, command.length, command.text, command.offset,
-				getIndentationString());
-			}
-			
+			prefs.convertToStd(document, command);
 			
 		} catch (BadLocationException e) {
 			e.printStackTrace();

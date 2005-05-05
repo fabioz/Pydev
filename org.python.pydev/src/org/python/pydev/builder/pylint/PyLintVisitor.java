@@ -78,7 +78,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         public void run() {
             try {
                 if(canPassPyLint()){
-	                passPyLint();
+	                passPyLint(resource);
 	                
 	                new Job("Adding markers"){
 	                
@@ -139,7 +139,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
          * @param location
          * @throws CoreException
          */
-        private void passPyLint() throws CoreException {
+        private void passPyLint(IResource resource) throws CoreException {
             File script;
             script = PydevPlugin.getScriptWithinPySrc("ThirdParty/logilab/pylint/lint.py");
             File arg = new File(location.toOSString());
@@ -148,7 +148,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             lintargs += PyLintPrefPage.getPylintArgs().replaceAll("\r","").replaceAll("\n"," ");
             lintargs += " ";
             
-            String output = SimplePythonRunner.runAndGetOutput(script.getAbsolutePath(), lintargs+arg.getAbsolutePath(), script.getParentFile());
+            IProject project = resource.getProject();
+            
+            String output = SimplePythonRunner.runAndGetOutput(script.getAbsolutePath(), lintargs+arg.getAbsolutePath(), script.getParentFile(), project);
 
             StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
             

@@ -104,10 +104,14 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 		Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
 		int tabWidth = prefs.getInt(PydevPrefs.TAB_WIDTH);
 		StringBuffer spaces = new StringBuffer(8);
-		for (int i = 0; i < tabWidth; i++)
+		
+		for (int i = 0; i < tabWidth; i++){
 			spaces.append(" ");
-		boolean spacesFirst = prefs.getBoolean(PydevPrefs.SUBSTITUTE_TABS) && 
-				!((PyAutoIndentStrategy)getAutoIndentStrategy(null, null)).forceTabs;
+		}
+		
+		boolean spacesFirst = prefs.getBoolean(PydevPrefs.SUBSTITUTE_TABS) &&
+							  !((PyAutoIndentStrategy)getAutoIndentStrategy(null, null)).getIndentPrefs().getForceTabs();
+		
 		if (spacesFirst) {
 			indentPrefixes[0] = spaces.toString();
 			indentPrefixes[1] = "\t";
