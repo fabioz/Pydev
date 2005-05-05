@@ -18,6 +18,18 @@ c. | triggers completion with bla,foo
 - code completion: ClassC().| should bring suggestions for class 'ClassC'
 
 
+
+After 0.9.3
+
+- Integrated Heikki Toivonen patch for PyLint using the project pythonpath (only tested on windows). Please, keep an eye for
+errors and report them.
+- Integrated Heikki Toivonen patch for indentation after '(', '[' and '{' (if the line ends with a comma)
+
+
+
+
+
+
 Bug:
 PyLint does not work if we have spaces in the path
 
