@@ -26,7 +26,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
-import org.python.pydev.editor.refactoring.PyRefactoring;
+import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.IPyRefactoring;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view
@@ -101,10 +102,10 @@ public class PyRefactorView extends ViewPart implements IPropertyListener,
 
         hookDoubleClickAction();
         
-        PyRefactoring.getPyRefactoring().addPropertyListener(this);
+        AbstractPyRefactoring.getPyRefactoring().addPropertyListener(this);
         
         //now try to load the last results.
-        this.propertyChanged(PyRefactoring.getPyRefactoring().getLastRefactorResults(), PyRefactoring.REFACTOR_RESULT);
+        this.propertyChanged(AbstractPyRefactoring.getPyRefactoring().getLastRefactorResults(), IPyRefactoring.REFACTOR_RESULT_PROP);
         this.refresh();
     }
 
@@ -147,8 +148,8 @@ public class PyRefactorView extends ViewPart implements IPropertyListener,
             return;
         }
         
-        if (sources[0] == PyRefactoring.getPyRefactoring()
-                && propId == PyRefactoring.REFACTOR_RESULT) {
+        if (sources[0] == AbstractPyRefactoring.getPyRefactoring()
+                && propId == IPyRefactoring.REFACTOR_RESULT_PROP) {
             
             elements.clear();
             elements.addAll((Collection) sources[1]);

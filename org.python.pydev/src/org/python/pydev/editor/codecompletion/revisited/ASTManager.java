@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.FunctionDef;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -648,19 +649,24 @@ public class ASTManager implements Serializable, IASTManager {
             try {
                 Definition[] defs = s.findDefinition(state.activationToken, state.line, state.col, state.nature);
                 for (int i = 0; i < defs.length; i++) {
-                    
-                    CompletionState copy = state.getCopy();
-                    copy.activationToken = defs[i].value;
-                    copy.line = defs[i].line;
-                    copy.col = defs[i].col;
-                    module = defs[i].module;
-                    IToken[] tks = getCompletionsForModule(module, copy);
-                    if(tks.length > 0)
-                        return tks;
+                    if(!(defs[0].ast instanceof FunctionDef)){
+                        //we might want to extend that later to check the return of some function...
+	                    CompletionState copy = state.getCopy();
+	                    copy.activationToken = defs[i].value;
+	                    copy.line = defs[i].line;
+	                    copy.col = defs[i].col;
+	                    module = defs[i].module;
+	                    IToken[] tks = getCompletionsForModule(module, copy);
+	                    if(tks.length > 0)
+	                        return tks;
+                    }
                 }
+                
                 
             } catch (Exception e) {
                 e.printStackTrace();
+            } catch (Throwable t) {
+                t.printStackTrace();
             }
         }
         return new IToken[0];

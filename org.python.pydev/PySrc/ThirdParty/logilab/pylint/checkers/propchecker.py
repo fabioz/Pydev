@@ -28,20 +28,31 @@ class MyChecker(BaseChecker):
     priority = -1 
 
     def visit_callfunc(self, node):
-        if not (isinstance(node.node, astng.Getattr)
-                and isinstance(node.node.expr, astng.Name)
-                and node.node.expr.name == 'properties'
-                and node.node.attrname == 'create'):
-            return
-        in_class = node.get_frame()
-        for param in node.args:
-            in_class.locals[param.name] = node
-            in_class.locals['_'+param.name] = node
-            in_class.locals[make_set_name(param.name)] = node
-            in_class.locals[make_get_name(param.name)] = node
-            node._customPropertyDefinition = True
+        if (isinstance(node.node, astng.Getattr)
+            and isinstance(node.node.expr, astng.Name)
+            and node.node.expr.name == 'properties'
+            and node.node.attrname == 'create'):
+            in_class = node.get_frame()
+            for param in node.args:
+                in_class.locals[param.name] = node
+                in_class.locals['_'+param.name] = node
+                in_class.locals[make_set_name(param.name)] = node
+                in_class.locals[make_get_name(param.name)] = node
+                node._customPropertyDefinition = True
 
-        in_class.locals["__properties__"] = node
+        if (isinstance(node.node, astng.Getattr)
+            and isinstance(node.node.expr, astng.Name)
+            and node.node.expr.name == 'Subject'
+            and node.node.attrname == 'Properties'):
+            in_class = node.get_frame()
+            for param in node.args:
+                in_class.locals[param.name] = node
+                in_class.locals['_'+param.name] = node
+                in_class.locals['on_'+param.name] = node
+                in_class.locals[make_set_name(param.name)] = node
+                in_class.locals[make_get_name(param.name)] = node
+                in_class.locals[make_get_name(param.name)] = node
+                node._customPropertyDefinition = True 
 
 
 def _check_redefinition(self, redef_type, node):

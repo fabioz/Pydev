@@ -31,7 +31,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
-import org.python.pydev.editor.refactoring.PyRefactoring;
+import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.views.PyRefactorView;
 
@@ -271,7 +271,7 @@ public abstract class PyRefactorAction extends PyAction {
     private void restartRefactorShell() {
         new Thread() {
             public void run() {
-                PyRefactoring.getPyRefactoring().restartShell();
+                AbstractPyRefactoring.getPyRefactoring().restartShell();
             }
         }.start();
 

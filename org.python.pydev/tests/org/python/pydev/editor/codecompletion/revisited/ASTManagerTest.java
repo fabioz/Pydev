@@ -312,6 +312,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         assertIsIn("C", comps);
     }
     
+    
     /**
      * @param string
      * @param comps

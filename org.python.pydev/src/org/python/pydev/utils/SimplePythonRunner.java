@@ -10,13 +10,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Properties;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.PyProjectProperties;
-import org.eclipse.core.resources.IProject;
 
 /**
  * 
@@ -71,38 +72,25 @@ public class SimplePythonRunner {
     }
 
     public static String runAndGetOutput(String executionString, File workingDir) {
-    	return runAndGetOutput(executionString, workingDir, null);
+    	return runAndGetOutput(executionString, workingDir, (List)null);
     }
     
+    public static String runAndGetOutput(String executionString, File workingDir, IProject project) {
+    	List paths = PyProjectProperties.getProjectPythonPath(project);
+    	return runAndGetOutput(executionString, workingDir, paths);
+    }
+
     /**
      * 
      * @param executionString
      * @return the process output.
      * @throws CoreException
      */
-    public static String runAndGetOutput(String executionString, File workingDir, IProject project) {
+    public static String runAndGetOutput(String executionString, File workingDir, List paths) {
         Process process = null;
         try {
-        	if (project != null) {
-		    	List paths = PyProjectProperties.getProjectPythonPath(project);
-		    	int envSize = paths.size();
-		    	if (envSize < 1) {
-		    		process = Runtime.getRuntime().exec(executionString, null, workingDir);
-		    	} else {
-			    	String path = "PYTHONPATH=";
-			    	for (int i = 0; i < envSize; i++) {
-			    		if (i > 0)
-			    			path = path.concat(";");//XXX Need to be platform specific 
-			    		path = path.concat(paths.get(i).toString());
-			    	}
-			    	
-			    	String[] envp = new String[1];
-			    	envp[0] = path;
-			        process = Runtime.getRuntime().exec(executionString, envp, workingDir);
-		    	}
-        	} else {
-        		process = Runtime.getRuntime().exec(executionString, null, workingDir);
-        	}
+	    	String[] envp = getEnv(paths);
+	        process = Runtime.getRuntime().exec(executionString, envp, workingDir);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -147,5 +135,40 @@ public class SimplePythonRunner {
 
         }
         return contents.toString();
+    }
+
+
+
+
+    /**
+     * @param envp
+     * @param paths
+     * @return
+     */
+    private static String[] getEnv(List paths) {
+        String[] envp = null;
+        if(paths != null){
+	        int envSize = paths.size();
+	        
+	        if (envSize >= 1) {
+	            Properties properties = System.getProperties();
+	            String path = "PATH="+properties.get("java.library.path").toString();
+	            String pythonpath = "PYTHONPATH=";
+
+	            for (int i = 0; i < envSize; i++) {
+	        		if (i > 0){
+	        			pythonpath = pythonpath.concat(";");//XXX Need to be platform specific
+	        		}
+	        		
+	        		pythonpath = pythonpath.concat(paths.get(i).toString());
+	        	}
+	        	
+	        	
+	        	envp = new String[2];
+	        	envp[0] = pythonpath;
+	        	envp[1] = path;
+	        }
+        }
+        return envp;
     }
 }

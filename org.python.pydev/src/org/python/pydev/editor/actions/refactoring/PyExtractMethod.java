@@ -5,12 +5,10 @@
  */
 package org.python.pydev.editor.actions.refactoring;
 
-import java.io.File;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.editor.refactoring.PyRefactoring;
+import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 
 /**
  * @author Fabio Zadrozny
@@ -29,7 +27,6 @@ public class PyExtractMethod extends PyRefactorAction {
      * @throws CoreException
      */
     protected String perform(IAction action, String name, Operation operation) throws BadLocationException, CoreException {
-        File editorFile = getPyEdit().getEditorFile();
         
         //testing first with whole lines.
         int beginLine = getStartLine();
@@ -40,7 +37,7 @@ public class PyExtractMethod extends PyRefactorAction {
         
         String res = "";
         if(name.equals("") == false){
-	        res = PyRefactoring.getPyRefactoring().extract(editorFile, beginLine, beginCol, endLine, endCol, name, operation);
+	        res = AbstractPyRefactoring.getPyRefactoring().extract(getPyEdit(), beginLine, beginCol, endLine, endCol, name, operation);
         }
         return res;
 

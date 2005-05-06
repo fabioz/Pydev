@@ -5,10 +5,8 @@
  */
 package org.python.pydev.editor.actions.refactoring;
 
-import java.io.File;
-
 import org.eclipse.jface.action.IAction;
-import org.python.pydev.editor.refactoring.PyRefactoring;
+import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 
 /**
  * @author Fabio Zadrozny
@@ -21,7 +19,6 @@ public class PyRename extends PyRefactorAction {
      *     renameByCoordinates(filename, line, column, newname)
      */
     protected String perform(IAction action, String name, Operation operation) throws Exception {
-        File editorFile = getPyEdit().getEditorFile();
         
         //testing first with whole lines.
         int beginLine = getStartLine();
@@ -29,7 +26,7 @@ public class PyRename extends PyRefactorAction {
 
         String res = "";
         if(name.equals("") == false){
-	        res = PyRefactoring.getPyRefactoring().rename(editorFile, beginLine, beginCol, name, operation);
+	        res = AbstractPyRefactoring.getPyRefactoring().rename(getPyEdit(), beginLine, beginCol, name, operation);
         }
         return res;
     }

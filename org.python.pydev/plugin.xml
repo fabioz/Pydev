@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.9.3.1"
+   version="0.9.3.3"
    provider-name="Fabio Zadrozny / Aleks Totic "
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -302,6 +302,33 @@
                class="org.python.pydev.editor.actions.PyClosePar"
                id="org.python.pydev.editor.actions.navigation.pyClosePar">
          </action>
+
+		<!-- This is for the refactoring having the existing action (definition) -->
+         <action
+               definitionId="org.python.pydev.refactoring.extractmethod"
+               label="Extract Method"
+               class="org.python.pydev.editor.actions.refactoring.PyExtractMethod"
+               id="org.python.pydev.refactoring.extractmethod">
+         </action>
+         <action
+               definitionId="org.python.pydev.refactoring.extractlocalbariable"
+               label="Extract Local Variable"
+               class="org.python.pydev.editor.actions.refactoring.PyExtractLocalVariable"
+               id="org.python.pydev.refactoring.extractlocalbariable">
+         </action>
+         <action
+               definitionId="org.python.pydev.refactoring.inlinelocalbariable"
+               label="Inline Local Variable"
+               class="org.python.pydev.editor.actions.refactoring.PyInlineLocalVariable"
+               id="org.python.pydev.refactoring.inlinelocalbariable">
+         </action>
+         <action
+               definitionId="org.python.pydev.refactoring.rename"
+               label="Rename"
+               class="org.python.pydev.editor.actions.refactoring.PyRename"
+               id="org.python.pydev.refactoring.rename">
+         </action>
+
       </editorContribution>
    </extension>
 <!-- NOTE: EditorContext part of the targetID was deduced, that is just what Eclipse expects -->
@@ -329,6 +356,7 @@
                id="org.python.pydev.refactoring">
             <separator name="refactorings"/>
          </menu>
+         <!--This is for making the refactor action accessible in the editor pop-up -->
          <action
                label="Extract Method"
                class="org.python.pydev.editor.actions.refactoring.PyExtractMethod"
@@ -413,11 +441,23 @@
             description="Pydev commands"
             id="org.python.pydev.ui.editor.scope">
       </scope>
+
+
+<!--category: Editor Commands-->
       <category
             name="Pydev editor commands"
             description="Pydev editor category"
             id="org.python.pydev.ui.category.source">
       </category>
+<!--category: Refactor-->
+      <category
+            name="Refactor category"
+            description="Python refactor category"
+            id="org.python.pydev.ui.category.refactoring"> 
+      </category>
+      
+      
+      
 <!-- command: goto first char-->
       <command
             name="First char"
@@ -705,24 +745,62 @@
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
 
-<!-- category: Refactor
-      <category
-            name="Refactor category"
-            description="Python refactor category"
-            id="org.python.pydev.ui.category.refactor"/>
- command: Extract Method
+
+
+      <!-- This is for making a keybinding for it-->
+      <!-- Extract Method -->
       <command
-            category="org.python.pydev.ui.category.refactor"
             name="Python Extract Method"
-            id="org.python.pydev.refactor.extractmethod"/>
+            description="Extract Method"
+            category="org.python.pydev.ui.category.refactoring"
+            id="org.python.pydev.refactoring.extractmethod"/>
       <keyBinding
             string="Shift+Alt+M"
             scope="org.python.pydev.ui.editor.scope"
-            command="org.python.pydev.refactor.extractmethod"
+            command="org.python.pydev.refactoring.extractmethod"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
--->
+      <!-- Extract Local Variable -->
+      <command
+            name="Python Extract Local Variable"
+            description="Extract Local Variable"
+            category="org.python.pydev.ui.category.refactoring"
+            id="org.python.pydev.refactoring.extractlocalbariable"/>
+      <keyBinding
+            string="Shift+Alt+L"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.refactoring.extractlocalbariable"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+      <!-- Inline Local Variable -->
+      <command
+            name="Python Inline Local Variable"
+            description="Inline Local Variable"
+            category="org.python.pydev.ui.category.refactoring"
+            id="org.python.pydev.refactoring.inlinelocalbariable"/>
+      <keyBinding
+            string="Shift+Alt+I"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.refactoring.inlinelocalbariable"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+      <!-- Rename -->
+      <command
+            name="Python Rename"
+            description="Rename"
+            category="org.python.pydev.ui.category.refactoring"
+            id="org.python.pydev.refactoring.rename"/>
+      <keyBinding
+            string="Shift+Alt+R"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.refactoring.rename"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
    </extension>
+
+
+
+
 <!-- file type extensions for the team (CVS) -->
    <extension
          point="org.eclipse.team.core.fileTypes">

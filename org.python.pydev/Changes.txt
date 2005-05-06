@@ -21,9 +21,13 @@ c. | triggers completion with bla,foo
 
 After 0.9.3
 
+- Integrated Scott Schleiser patch for the debugger (you won't see any 'implement me' anymore!).
 - Integrated Heikki Toivonen patch for PyLint using the project pythonpath (only tested on windows). Please, keep an eye for
 errors and report them.
-- Integrated Heikki Toivonen patch for indentation after '(', '[' and '{' (if the line ends with a comma)
+- Integrated Heikki Toivonen patch for indentation after '(', '[' and '{' (if the line ends with a comma).
+- Some StackOverflow errors were removed from code completion.
+- Keybindings added for Refactoring (powered by bycicle repair man) - check the <a href="faq.html">FAQ</a>.
+    
 
 
 

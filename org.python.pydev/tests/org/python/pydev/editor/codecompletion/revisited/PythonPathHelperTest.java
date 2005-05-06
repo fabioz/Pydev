@@ -104,6 +104,25 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
     }
     
+    public void testRecursion2(){
+        token = "i";
+        line = 3;
+        col = 2;
+        
+		sDoc = ""+
+		"from testrec.imp3 import MethodReturn1 \n"+ 
+		"i = MethodReturn1()                    \n" +
+		"i.";
+		
+        IToken[] comps = null;
+        Document doc = new Document(sDoc);
+        CompletionState state = new CompletionState(line,col, token, nature);
+        ASTManager a = (ASTManager)nature.getAstManager();
+        comps = a.getCompletionsForToken(doc, state);
+        assertEquals(0, comps.length);
+
+    }
+    
     
     public void testClassHierarchyCompletion(){
         
@@ -249,7 +268,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 //        try {
 //            PythonPathHelperTest test = new PythonPathHelperTest();
 //            test.setUp();
-//            test.testRecursionModuleCompletion();
+//            test.testRecursion2();
 //            test.tearDown();
 //        } catch (Exception e) {
 //            e.printStackTrace();

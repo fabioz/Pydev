@@ -8,11 +8,10 @@ package org.python.pydev.editor.refactoring;
 import java.io.File;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.eclipse.ui.IPropertyListener;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.model.ItemPointer;
@@ -29,29 +28,12 @@ import org.python.pydev.editor.model.Location;
  * 
  * @author Fabio Zadrozny
  */
-public class PyRefactoring {
+public class PyRefactoring extends AbstractPyRefactoring {
     
-
     /**
-     * Instead of making all static, let's use a singleton... it may be useful...
+     * Default constructor. Initializes the refactoring shell.
      */
-    private static PyRefactoring pyRefactoring;
-
-    private List propChangeListeners = new ArrayList();
-
-    public static final int REFACTOR_RESULT = 1;
-
-    private Object lastRefactorResults;
-
-    
-    public synchronized static PyRefactoring getPyRefactoring(){
-        if (pyRefactoring == null){
-            pyRefactoring = new PyRefactoring();
-        }
-        return pyRefactoring;
-    }
-
-    private PyRefactoring(){
+    public PyRefactoring(){
         try {
             PythonShell.getServerShell(PythonShell.OTHERS_SHELL); //when we initialize, initialize the server.
         } catch (Exception e) {
@@ -59,11 +41,28 @@ public class PyRefactoring {
         }
     }
 
-    
-    public void addPropertyListener(IPropertyListener l) {
-    	propChangeListeners.add(l);
+    /**
+     * Restarts the shell if some error happened.
+     */
+    public void restartShell() {
+        try {
+            PythonShell.getServerShell(PythonShell.OTHERS_SHELL).restartShell();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } 
     }
-
+    
+    /**
+     * @see org.python.pydev.editor.refactoring.IPyRefactoring#killShell()
+     */
+    public void killShell() {
+        try {
+            PythonShell.getServerShell(PythonShell.OTHERS_SHELL).endIt();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     /**
      * This method can be used to write something to the server and get its answer.
      * 
@@ -100,7 +99,8 @@ public class PyRefactoring {
      * @param name
      * @param operation
      */
-    public String extract(File editorFile, int beginLine, int beginCol, int endLine, int endCol, String name, Operation operation) {
+    public String extract(PyEdit editor, int beginLine, int beginCol, int endLine, int endCol, String name, Operation operation) {
+        File editorFile = editor.getEditorFile();
         String s = "@@BIKE";
         s+=        "extractMethod";
         s+=        "|"+editorFile.getAbsolutePath();
@@ -125,7 +125,8 @@ public class PyRefactoring {
      * @param name
      * @param operation
      */
-    public String rename(File editorFile, int beginLine, int beginCol, String name, Operation operation) {
+    public String rename(PyEdit editor, int beginLine, int beginCol, String name, Operation operation) {
+        File editorFile = editor.getEditorFile();
         String s = "@@BIKE";
         s+=        "renameByCoordinates";
         s+=        "|"+editorFile.getAbsolutePath();
@@ -142,7 +143,8 @@ public class PyRefactoring {
         
     }
 
-    public List findDefinition(File editorFile, int beginLine, int beginCol, Operation operation) {
+    public ItemPointer[] findDefinition(PyEdit editor, int beginLine, int beginCol, Operation operation) {
+        File editorFile = editor.getEditorFile();
         String s = "@@BIKE";
         s+=        "findDefinition";
         s+=        "|"+editorFile.getAbsolutePath();
@@ -154,7 +156,6 @@ public class PyRefactoring {
         
         List l = new ArrayList();
 
-        
         if (string.startsWith("BIKE_OK:")){
             string = string.replaceFirst("BIKE_OK:", "").replaceAll("\\[","").replaceAll("'","");
 	        string = string.substring(0, string.lastIndexOf(']'));    
@@ -176,7 +177,7 @@ public class PyRefactoring {
         }
 
         
-        return l;
+        return (ItemPointer[]) l.toArray(new ItemPointer[0]);
         
     }
     
@@ -187,7 +188,8 @@ public class PyRefactoring {
      * @param operation
      * @return
      */
-    public String inlineLocalVariable(File editorFile, int beginLine, int beginCol, Operation operation) {
+    public String inlineLocalVariable(PyEdit editor, int beginLine, int beginCol, Operation operation) {
+        File editorFile = editor.getEditorFile();
         String s = "@@BIKE";
         s+=        "inlineLocalVariable";
         s+=        "|"+editorFile.getAbsolutePath();
@@ -212,7 +214,8 @@ public class PyRefactoring {
      * @param operation
      * @return
      */
-    public String extractLocalVariable(File editorFile, int beginLine, int beginCol, int endLine, int endCol, String name, Operation operation) {
+    public String extractLocalVariable(PyEdit editor, int beginLine, int beginCol, int endLine, int endCol, String name, Operation operation) {
+        File editorFile = editor.getEditorFile();
         String s = "@@BIKE";
         s+=        "extractLocalVariable";
         s+=        "|"+editorFile.getAbsolutePath();
@@ -230,73 +233,40 @@ public class PyRefactoring {
         return string;
     }
     
+    
     /**
      * @param string
+     * @return list of strings affected by the refactoring.
      */
-    private void communicateRefactorResult(String string) {
-   
-        List l = refactorResultAsList(string);
-        
-        Object o=null;
-        
-        for (Iterator iter = this.propChangeListeners.iterator(); iter.hasNext();) {
-            IPropertyListener element = (IPropertyListener) iter.next();
-            o = new Object[]{this, l};
-            element.propertyChanged(o, REFACTOR_RESULT);
-        }
-        
-        this.lastRefactorResults = o;
-    }
-    
-    
-    
-
-
-
-    /**
-     * @param string
-     * @return
-     */
-    public List refactorResultAsList(String string) {
+    private List refactorResultAsList(String string) {
         List l = new ArrayList();
         
+        if (string == null){
+            return l;
+        }
+        
         if (string.startsWith("BIKE_OK:")){
-	        string = string.replaceFirst("BIKE_OK:", "").replaceAll("\\[","").replaceAll("'","");
-	        string = string.substring(0, string.lastIndexOf(']'));
-	        StringTokenizer tokenizer = new StringTokenizer(string, ", ");
-	        
-	        while(tokenizer.hasMoreTokens()){
-	            l.add(tokenizer.nextToken());
-	        }
+            string = string.replaceFirst("BIKE_OK:", "").replaceAll("\\[","").replaceAll("'","");
+            string = string.substring(0, string.lastIndexOf(']'));
+            StringTokenizer tokenizer = new StringTokenizer(string, ", ");
+            
+            while(tokenizer.hasMoreTokens()){
+                l.add(tokenizer.nextToken());
+            }
         }
         return l;
     }
 
+
     /**
+     * Sets the last refactor results.
      * 
+     * @param string
      */
-    public void restartShell() {
-        try {
-            PythonShell.getServerShell(PythonShell.OTHERS_SHELL).restartShell();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } 
+    private void communicateRefactorResult(String string) {
+        List l = refactorResultAsList(string);
+        setLastRefactorResults(new Object[]{this, l});
     }
-
-    /**
-     * @param lastRefactorResults The lastRefactorResults to set.
-     */
-    public void setLastRefactorResults(Object lastRefactorResults) {
-        this.lastRefactorResults = lastRefactorResults;
-    }
-
-    /**
-     * @return Returns the lastRefactorResults.
-     */
-    public Object getLastRefactorResults() {
-        return lastRefactorResults;
-    }
-
 
 
 }
