@@ -5,6 +5,8 @@
  */
 package org.python.pydev.utils;
 
+import java.util.ArrayList;
+
 import junit.framework.TestCase;
 
 /**
@@ -35,9 +37,8 @@ public class SimplePythonRunnerTest extends TestCase {
      */
     public void testEnv() {
         
-        //ArrayList list = new ArrayList();
-        //list.add("x:\\scbr15\\source\\python");
-        //String string = SimplePythonRunner.runAndGetOutput("python c:\\test.py", null, list);
-        //System.out.println(string);
+        ArrayList list = new ArrayList();
+        String string = SimplePythonRunner.runAndGetOutput("python D:/dev_programs/eclipse_3/eclipse/workspace/org.python.pydev/PySrc/interpreterInfo.py", null);
+        System.out.println(string);
     }
 }

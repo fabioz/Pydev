@@ -71,6 +71,29 @@ public class SimplePythonRunner {
         return runAndGetOutput(executionString, workingDir, project);
     }
 
+    /**
+     * Execute the string and format for windows if we have spaces...
+     * 
+     * @param script
+     * @param args
+     * @param workingDir
+     * @return
+     */
+    public static String runAndGetOutputWithInterpreter(String interpreter, String script, String args, File workingDir, IProject project) {
+        String osName = System.getProperty("os.name");
+        
+        String execMsg;
+        if(osName.toLowerCase().indexOf("win") != -1){ //in windows, we have to put python "path_to_file.py"
+            if(script.startsWith("\"") == false){
+                script = "\""+script+"\"";
+            }
+        }
+
+        String executionString = interpreter + " -u " + script + " " + args;
+        //System.out.println(executionString);
+        return runAndGetOutput(executionString, workingDir, project);
+    }
+
     public static String runAndGetOutput(String executionString, File workingDir) {
     	return runAndGetOutput(executionString, workingDir, (List)null);
     }
@@ -86,7 +109,7 @@ public class SimplePythonRunner {
      * @return the process output.
      * @throws CoreException
      */
-    public static String runAndGetOutput(String executionString, File workingDir, List paths) {
+    private static String runAndGetOutput(String executionString, File workingDir, List paths) {
         Process process = null;
         try {
 	    	String[] envp = getEnv(paths);
