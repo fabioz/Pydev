@@ -142,24 +142,6 @@ public class PythonRunnerConfig {
 
     public static String getUnitTestScript() throws CoreException {
         return PydevDebugPlugin.getScriptWithinPySrc("SocketTestRunner.py").getAbsolutePath();
-        /*
-    	String target = "SocketTestRunner.py";
-        IPath relative = new Path("pysrc").addTrailingSeparator().append(target);
-
-        Bundle bundle = PydevDebugPlugin.getDefault().getBundle();
-
-        URL bundleURL = Platform.find(bundle, relative);
-        URL fileURL;
-        try {
-            fileURL = Platform.asLocalURL(bundleURL);
-            File f = new File(fileURL.getPath());
-
-            return f.getAbsolutePath();
-        } catch (IOException e) {
-            throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR,
-                    "Can't find python script", null));
-        }
-    	*/
     }
 
     /** 
@@ -167,20 +149,6 @@ public class PythonRunnerConfig {
 	 */
 	public static String getDebugScript() throws CoreException {
 	    return PydevDebugPlugin.getScriptWithinPySrc("pydevd.py").getAbsolutePath();
-
-//	    IPath relative = new Path("pysrc").addTrailingSeparator().append("pydevd.py");
-//		IPath relative = new Path("pysrc").addTrailingSeparator().append("jpydaemon.py");
-//		IPath relative = new Path("pysrc").addTrailingSeparator().append("rpdb.py");
-//		Bundle bundle = PydevDebugPlugin.getDefault().getBundle();
-//		URL bundleURL = Platform.find( bundle, relative);
-//		URL fileURL;
-//		try {
-//			fileURL = Platform.asLocalURL( bundleURL);	 
-//			String filePath = new File(fileURL.getPath()).getAbsolutePath();
-//			return filePath;
-//		} catch (IOException e) {
-//			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Can't find python debug script", null));
-//		}
 	}
 
 	/**
@@ -193,12 +161,6 @@ public class PythonRunnerConfig {
 		// Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
 		cmdArgs.add(org.python.pydev.ui.InterpreterEditor.isJython(interpreter) ? "-i" : "-u");
 		if (isDebug) {
-//	rpdb		cmdArgs.add(debugScript);
-//			cmdArgs.add("-c");
-//			cmdArgs.add("-p"+Integer.toString(debugPort));		
-// jpydebug	cmdArgs.add(debugScript);
-//			cmdArgs.add("localhost");
-//			cmdArgs.add(Integer.toString(debugPort));
 			cmdArgs.add(debugScript);
 			cmdArgs.add("--client");
 			cmdArgs.add("localhost");

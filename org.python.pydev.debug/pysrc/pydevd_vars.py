@@ -7,6 +7,9 @@ import threading
 import sys
 import inspect
 
+#types does not include a MethodWrapperType
+MethodWrapperType = type([].__str__)
+
 class VariableError(Exception):
     def __init__(self, message):
         Exception.__init__(self, message)
@@ -38,7 +41,7 @@ class Resolver(object):
                         continue
                 
                 if filterFunction:
-                    if inspect.ismethod(attr) or inspect.isfunction(attr):
+                    if inspect.isroutine(attr) or isinstance(attr, MethodWrapperType):
                         continue
                 
                 nametemp.append(n)
@@ -84,7 +87,6 @@ typeMap = {NoneType : (NoneType, NoneType.__name__, None), \
     DictType : (DictType, DictType.__name__, dictResolver) }
 
 def getType(o):
-    global typeMap
     """ returns a triple (typeObject, typeString, resolver
         resolver != None means that variable is a container, 
         and should be displayed as a hierarchy.
@@ -92,10 +94,12 @@ def getType(o):
         
         All container objects should have a resolver.
     """
-    if type(o) in typeMap:
-        return typeMap[type(o)]
-    else:
-        return (type(o), type(o).__name__, defaultResolver)
+    for t in typeMap:
+        if isinstance(o, t):
+            return typeMap[t]
+        
+    #no match return default        
+    return (type(o), type(o).__name__, defaultResolver)
 
 def varToXML(v, name):
     """ single variable or dictionary to xml representation """

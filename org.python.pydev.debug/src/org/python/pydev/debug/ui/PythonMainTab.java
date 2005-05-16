@@ -5,6 +5,7 @@
  */
 package org.python.pydev.debug.ui;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -29,6 +30,7 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.InterpreterEditor;
+import org.python.pydev.ui.StreamConsumer;
 
 /**
  * The main Python debug setup tab.
@@ -121,12 +123,91 @@ public class PythonMainTab extends AbstractLaunchConfigurationTab {
 		interpreterField.addModifyListener(modifyListener);
 	}
 
+	
+	
+	/**
+	 * returns true if interpreter was launched successfully
+	 */
+	static String cachedExecutable = null;
+	static boolean cachedExecutableValid = false;
+	public static boolean validateInterpreterPath(String executable) throws Exception{
+		// we cache the last query because this gets called a lot
+		// i do not want to launch
+	    // may throw exception with the error received...
+		if (cachedExecutable != null && cachedExecutable.equals(executable) && cachedExecutableValid == true)
+			return cachedExecutableValid;
+		
+		try {
+			String versionOption = " -V";
+			// Jython command line option is --version, not -V
+			if (InterpreterEditor.isJython(executable))
+				versionOption = " --version";
+			
+			String complete = executable + versionOption;
+            Process pr = Runtime.getRuntime().exec(complete);
+			StreamConsumer outputs = new StreamConsumer(pr.getInputStream());
+			outputs.start();
+			StreamConsumer errors = new StreamConsumer(pr.getErrorStream());
+			errors.start();
+			pr.waitFor();
+			
+			int ret = pr.exitValue();
+			if (ret == 0){
+				if(errorsInOutput(executable, outputs, errors)){
+				    throw new Exception("Unable to find interpreter: "+executable);
+				}
+			}else{
+			    throw new Exception("Unable to execute: "+complete+" (returned value "+ret+" when executed).");
+			}
+			
+		} catch (InterruptedException e) {
+			throw e;
+		} catch (IOException e) {
+			throw e;
+		}
+		
+		//only cache if suceeded (otherwise, exception has already been thrown)...
+		cachedExecutable = executable;
+		cachedExecutableValid = true;
+		return true;
+	}
 
+	/**
+	 * Lifted from org.eclipse.help.internal.browser.MozillaFactory
+	 * On some OSes 0 is always returned by "which" command
+	 * it is necessary to examine ouput to find out failure.
+	 * @param outputs
+	 * @param errors
+	 * @return true if there are errors
+	 * @throws InterruptedException
+	 */
+	static private boolean errorsInOutput(
+		String executable,
+		StreamConsumer outputs,
+		StreamConsumer errors) {
+		try {
+			outputs.join(1000);
+			if (outputs.getLastLine() != null
+				&& outputs.getLastLine().indexOf("no " + executable + " in")
+					>= 0) {
+				return true;
+			}
+			errors.join(1000);
+			if (errors.getLastLine() != null
+				&& errors.getLastLine().indexOf("no " + executable + " in")
+					>= 0) {
+				return true;
+			}
+		} catch (InterruptedException ie) {
+			// ignore
+		}
+		return false;
+	}
 	
 	private boolean isValid(String interpreter) {
 	    boolean b;
 		try {
-            b = InterpreterEditor.validateInterpreterPath(interpreter);
+            b = validateInterpreterPath(interpreter);
         } catch (Exception e) {
 			setErrorMessage("Python interpreter '" + interpreter +"'not valid.\n" +
 					"Additional interpreters may be set in PyDev/Python Interpreters.\n" +

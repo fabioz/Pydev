@@ -5,7 +5,6 @@
  */
 package org.python.pydev.editor.model;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -220,9 +219,9 @@ public class ModelUtils {
 		} else if (node instanceof ImportAlias || node instanceof ImportFromNode) {
 			// imports:
 			// import sys
-			File myImport = node.getScope().findImport(node.getName(), node.getPath());
-			if (myImport != null)
-				retVal.add(new ItemPointer(myImport));
+//			File myImport = node.getScope().findImport(node.getName(), node.getPath());
+//			if (myImport != null)
+//				retVal.add(new ItemPointer(myImport));
 		} else if (node instanceof AttributeNode &&
 					node.parent instanceof FunctionCallNode &&
 					((AttributeNode)node).astNode.value instanceof Name &&

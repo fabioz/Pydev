@@ -3,7 +3,6 @@ package org.python.pydev.plugin;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,7 +24,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
@@ -38,7 +36,6 @@ import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.pychecker.PyCheckerPrefPage;
@@ -124,7 +121,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     public static String getPluginID() {
-        return getDefault().getBundle().getSymbolicName();
+        return BundleInfo.getBundleInfo().getPluginID();
     }
 
     /**
@@ -320,6 +317,8 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return fRegistry;
     }
 
+    
+    
     /**
      * 
      * @return the script to get the variables.
@@ -327,9 +326,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @throws CoreException
      */
     public static File getScriptWithinPySrc(String targetExec) throws CoreException {
-
         IPath relative = new Path("PySrc").addTrailingSeparator().append(targetExec);
-
         return getRelativePath(relative);
     }
 
@@ -338,20 +335,11 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @return
      * @throws CoreException
      */
-    private static File getRelativePath(IPath relative) throws CoreException {
-        Bundle bundle = getDefault().getBundle();
-
-        URL bundleURL = Platform.find(bundle, relative);
-        URL fileURL;
-        try {
-            fileURL = Platform.asLocalURL(bundleURL);
-            File f = new File(fileURL.getPath());
-
-            return f;
-        } catch (IOException e) {
-            throw new CoreException(makeStatus(IStatus.ERROR, "Can't find python debug script", null));
-        }
+    public static File getRelativePath(IPath relative) throws CoreException {
+        return BundleInfo.getBundleInfo().getRelativePath(relative);
     }
+    
+    
 
     public static File getImageWithinIcons(String icon) throws CoreException {
 

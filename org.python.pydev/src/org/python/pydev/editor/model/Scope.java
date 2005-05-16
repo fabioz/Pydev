@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IPath;
-import org.python.pydev.plugin.PydevPrefs;
 
 
 /**
@@ -148,39 +147,11 @@ public class Scope {
 	}
 	
 	/**
-	 * get all the import files
-	 * @param startingPoint : a file to start searching from 
-	 * @return an ordered ArrayList of File of all import paths for the project.
-	 */
-	private ArrayList getImportPaths(IPath startingPoint) {
-		ArrayList retVal = new ArrayList();
-		// 1) the directory where the file is
-		if (startingPoint != null) {
-			IPath fileDir = startingPoint.removeLastSegments(1);
-			retVal.add(fileDir.toFile());
-		}
-		// 2) interpreter/Lib
-		String interpreter = PydevPrefs.getInterpreters()[0];
-		File interpreterFile = new File(interpreter);
-		String parent = interpreterFile.getParent();
-		if (parent != null)
-			retVal.add(new File(parent, "Lib"));
-		return retVal;
-	}
-
-	/**
 	 * Find a file "name.py", searching the import include path
 	 * @return ArrayList of File objects that match.
 	 */
 	public File findImport(String name, IPath startAt) {
-		ArrayList importPaths = getImportPaths(startAt);
-		for (Iterator i= importPaths.iterator();i.hasNext();) {
-			File dir = (File)i.next();
-			File testFile = new File(dir, name + ".py");
-			if (testFile.exists())
-				return testFile;
-		}
-		return null;
+        return null;
 	}
 	
 	public Scope findContainingClass() {

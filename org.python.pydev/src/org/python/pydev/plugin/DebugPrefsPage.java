@@ -32,12 +32,6 @@ public class DebugPrefsPage extends FieldEditorPreferencePage
 	}
 
 	public void init(IWorkbench workbench) {
-		String interpreterPath = getPreferenceStore().getString(PydevPrefs.INTERPRETER_PATH);
-		// If the interpreter path is empty, always try to come up with something
-		if (interpreterPath == null || interpreterPath.length() == 0) {
-			getPreferenceStore().setDefault(PydevPrefs.INTERPRETER_PATH, getDefaultInterpreterPath());
-			getPreferenceStore().setToDefault(PydevPrefs.INTERPRETER_PATH);
-		}
 	}
 	
 	/**
@@ -48,45 +42,17 @@ public class DebugPrefsPage extends FieldEditorPreferencePage
 		InterpreterEditor pathEditor = new InterpreterEditor (
 		PydevPrefs.INTERPRETER_PATH, "Python interpreters (for example python.exe)", p);
 		addField(pathEditor);
-		IntegerFieldEditor ife = new IntegerFieldEditor(PydevPrefs.CONNECT_TIMEOUT, "Connect timeout (ms)", p, 10);
+		IntegerFieldEditor ife = new IntegerFieldEditor(PydevPrefs.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p, 10);
 //		ife.setValidateStrategy(StringFieldEditor.VALIDATE_ON_FOCUS_LOST);
 //		ife.setValidRange(0, 200000);	
 		addField(ife);
 	}
 
-	/**
-	 * Return the default python executable
-	 * I tried making this smarter, but you can't do much without getenv(PATH)
-	 */
-	private String getDefaultInterpreterPath() {
-		String executable = "python";
-		return executable;
-// ideally, I'd search the system path here, but getenv has been disabled
-// some code on finding the binary
-//		java.util.Properties p = System.getProperties();
-//		java.util.Enumeration keys = p.keys();
-//		while( keys.hasMoreElements() ) {
-//			System.out.println( keys.nextElement() );
-//		}
-//		StringBuffer retVal = new StringBuffer();
-//		String sysPath = System.getProperty("sys.path");
-//		if (sysPath == null) 
-//			sysPath = System.getenv("PATH");
-//		if (sysPath != null) {
-//			StringTokenizer st = new StringTokenizer(sysPath, File.pathSeparator + "\n\r");
-//			while (st.hasMoreElements()) {
-//				String path =st.nextToken();
-//				System.out.println(path);
-//			}
-//		}
-//		return retVal.toString();
-	}
 	
 
 	/**
 	 * Sets default preference values
 	 */
 	protected void initializeDefaultPreferences(Preferences prefs) {
-		prefs.setDefault(PydevPrefs.INTERPRETER_PATH, getDefaultInterpreterPath());
 	}
 }
