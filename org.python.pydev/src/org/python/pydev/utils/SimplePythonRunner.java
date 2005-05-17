@@ -16,7 +16,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.PyProjectProperties;
 
 /**
@@ -66,7 +65,7 @@ public class SimplePythonRunner {
             }
         }
 
-        String executionString = PydevPrefs.getDefaultInterpreter() + " -u " + script + " " + args;
+        String executionString = PydevPlugin.interpreterManager.getDefaultInterpreter() + " -u " + script + " " + args;
         //System.out.println(executionString);
         return runAndGetOutput(executionString, workingDir, project);
     }

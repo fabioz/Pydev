@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.utils.SimplePythonRunner;
 
@@ -164,7 +163,7 @@ public class PythonShell {
 
             if(process != null)
                 endIt();
-            String interpreter = PydevPrefs.getDefaultInterpreter();
+            String interpreter = PydevPlugin.interpreterManager.getDefaultInterpreter();
             String osName = System.getProperty("os.name");
             
             String execMsg;

@@ -31,7 +31,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Called when "Run Script..." popup menu item is selected.
@@ -156,7 +156,7 @@ public class LaunchShortcut implements ILaunchShortcut {
 // E3			String baseDirectory = varManager.generateVariableExpression("workspace_loc",file.getRawLocation().removeLastSegments(1).toString());
 			String baseDirectory = file.getRawLocation().removeLastSegments(1).toString();
 			String arguments = "";
-			String interpreter = PydevPrefs.getDefaultInterpreter();
+			String interpreter = PydevPlugin.interpreterManager.getDefaultInterpreter();
 			workingCopy.setAttribute(Constants.ATTR_LOCATION,location);
 			workingCopy.setAttribute(Constants.ATTR_WORKING_DIRECTORY,baseDirectory);
 			workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS,arguments);

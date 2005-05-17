@@ -14,7 +14,6 @@
 package org.python.pydev.plugin;
 
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,9 +47,6 @@ import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
 import org.eclipse.ui.help.WorkbenchHelp;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
-import org.python.pydev.ui.InterpreterEditor;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-import org.python.pydev.utils.SimplePythonRunner;
 
 
 
@@ -135,8 +131,6 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final boolean DEFAULT_EDITOR_SELECTION_BACKGROUND_DEFAULT_COLOR = true;
 	public static final boolean DEFAULT_EDITOR_SELECTION_FOREGROUND_DEFAULT_COLOR = true;
 	
-	//no UI
-	public static final String INTERPRETER_PATH = "INTERPRETER_PATH";
 	
 	public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
 	public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
@@ -708,10 +702,10 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		//no UI
 		prefs.setDefault(CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
 		prefs.setDefault(RUN_MANY_SCRIPT_LOCATION, DEFAULT_RUN_MANY_SCRIPT_LOCATION);		
-		prefs.setDefault(INTERPRETER_PATH, getDefaultInterpreterPath().toString());
 	}
 	
-	/**
+
+    /**
 	 * @return the place where this plugin preferences are stored.
 	 */
 	public static Preferences getPreferences() {
@@ -722,37 +716,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	 * @return an array of strings with the available interpreters.
 	 */
 	public static String[] getInterpreters() {
-		String interpreters = getPreferences().getString(PydevPrefs.INTERPRETER_PATH);
-		return InterpreterEditor.getInterpreterList(interpreters);
+		return PydevPlugin.interpreterManager.getInterpreters();
 	}
 
-	/**
-	 * @return a string with the location to the python interpreter that should be used.
-	 */
-	public static String getDefaultInterpreter() {
-        try {
-            return getInterpreters()[0];
-        } catch (Exception e) {
-            return getDefaultInterpreterPath().executable;
-        }
-	        
-	}
-	
-	/**
-	 * Return the default system python executable with its available info
-	 */
-	private static InterpreterInfo getDefaultInterpreterPath() {
-	    return getInfoFromExecutable("python");
-	}
-	
-	public static InterpreterInfo getInfoFromExecutable(String executable){
-		try {
-            File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
-            String string = SimplePythonRunner.runAndGetOutputWithInterpreter(executable, script.getAbsolutePath(), null, null, null);
-            return InterpreterInfo.fromString(string);
-		
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-	}
 }

@@ -9,6 +9,7 @@ import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.python.pydev.ui.ImageCache;
 
 /**
  * @author Fabio Zadrozny
@@ -25,4 +26,7 @@ public interface IBundleInfo {
     File getRelativePath(IPath relative) throws CoreException;
     
     String getPluginID();
+    
+    ImageCache getImageCache();
+
 }

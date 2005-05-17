@@ -5,12 +5,13 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
 
-public class InterpreterInfo{
+public class InterpreterInfo implements Serializable{
     public String executable;
     public java.util.List libs = new ArrayList();
     

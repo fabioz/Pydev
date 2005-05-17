@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
 
 /**
  * This class is used to make the code coverage.
@@ -91,7 +90,7 @@ public class PyCoverage {
             //python coverage.py -r -m files....
 
             String[] cmdLine = new String[4];
-            cmdLine[0] = PydevPrefs.getDefaultInterpreter();
+            cmdLine[0] = PydevPlugin.interpreterManager.getDefaultInterpreter();
             cmdLine[1] = profileScript;
             cmdLine[2] = getCoverageFileLocation();
             cmdLine[3] = "-waitfor";
@@ -225,7 +224,7 @@ public class PyCoverage {
             String profileScript;
             profileScript = PythonRunnerConfig.getProfileScript();
             String[] cmdLine = new String[4];
-            cmdLine[0] = PydevPrefs.getDefaultInterpreter();
+            cmdLine[0] = PydevPlugin.interpreterManager.getDefaultInterpreter();
             cmdLine[1] = profileScript;
             cmdLine[2] = getCoverageFileLocation();
             cmdLine[3] = "-e";

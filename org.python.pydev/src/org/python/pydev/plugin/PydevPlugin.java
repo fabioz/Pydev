@@ -46,14 +46,19 @@ import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.pyunit.ITestRunListener;
 import org.python.pydev.pyunit.PyUnitTestRunner;
+import org.python.pydev.ui.IInterpreterManager;
+import org.python.pydev.ui.ImageCache;
+import org.python.pydev.ui.InterpreterManager;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
  */
 public class PydevPlugin extends AbstractUIPlugin implements Preferences.IPropertyChangeListener {
 
-    private static PydevPlugin plugin; //The shared instance.
+    public static IInterpreterManager interpreterManager;
 
+    private static PydevPlugin plugin; //The shared instance.
+    
     private ResourceBundle resourceBundle; //Resource bundle.
 
     /** The template store. */
@@ -83,6 +88,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         }
         Preferences preferences = plugin.getPluginPreferences();
         preferences.addPropertyChangeListener(this);
+        interpreterManager = new InterpreterManager(preferences);
     }
     
 
@@ -173,6 +179,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
      */
     public static void log(int errorLevel, String message, Throwable e) {
+        e.printStackTrace();
         try {
 	        Status s = new Status(errorLevel, getPluginID(), errorLevel, message, e);
 	        getDefault().getLog().log(s);
@@ -339,6 +346,9 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return BundleInfo.getBundleInfo().getRelativePath(relative);
     }
     
+    public static ImageCache getImageCache(){
+        return BundleInfo.getBundleInfo().getImageCache();
+    }
     
 
     public static File getImageWithinIcons(String icon) throws CoreException {
@@ -420,6 +430,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     
 	/** Listener list **/
     private List listeners = new ArrayList();
+
 
 	public void addTestListener(ITestRunListener listener) {
 		listeners.add(listener);

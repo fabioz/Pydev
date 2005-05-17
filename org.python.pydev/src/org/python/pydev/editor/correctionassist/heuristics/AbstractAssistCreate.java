@@ -11,8 +11,8 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.actions.PySelection;
-import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;

@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**
@@ -169,7 +170,7 @@ public class RunManyDialog extends Dialog implements Listener {
         layoutData.horizontalAlignment = GridData.FILL;
         layoutData.verticalAlignment = GridData.FILL;
         textInterpreter = new Text(composite, SWT.SINGLE);
-        textInterpreter.setText(PydevPrefs.getDefaultInterpreter());
+        textInterpreter.setText(PydevPlugin.interpreterManager.getDefaultInterpreter());
         textInterpreter.setLayoutData(layoutData);
 
         //-------
