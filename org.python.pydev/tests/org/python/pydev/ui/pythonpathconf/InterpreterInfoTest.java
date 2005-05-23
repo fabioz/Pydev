@@ -45,11 +45,33 @@ public class InterpreterInfoTest extends TestCase {
         l4.add("l4");
         InterpreterInfo info4 = new InterpreterInfo("test", l4);
         
+        List dlls = new ArrayList();
+        dlls.add("dll1");
+        InterpreterInfo info5 = new InterpreterInfo("test", l4, dlls);
+        
+        List forced = new ArrayList();
+        forced.add("forced1");
+        InterpreterInfo info6 = new InterpreterInfo("test", l4, dlls, forced);
+        
         assertEquals(info, info2);
         assertFalse(info.equals(info3));
         assertFalse(info.equals(info4));
+        assertFalse(info4.equals(info5));
+        assertFalse(info4.equals(info6));
+        assertFalse(info5.equals(info6));
+        assertEquals(info6, info6);
         
-        assertEquals(info, InterpreterInfo.fromString(info.toString()));
+        String toString1 = info.toString();
+        assertEquals(info, InterpreterInfo.fromString(toString1));
+        
+        String toString4 = info4.toString();
+        assertEquals(info4, InterpreterInfo.fromString(toString4));
+        
+        String toString5 = info5.toString();
+        assertEquals(info5, InterpreterInfo.fromString(toString5));
+        
+        String toString6 = info6.toString();
+        assertEquals(info6, InterpreterInfo.fromString(toString6));
         
     }
 }

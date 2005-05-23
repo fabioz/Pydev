@@ -57,6 +57,10 @@ public class PyProjectProperties extends PropertyPage {
      * @return
      */
     public static List getProjectPythonPath(IProject project) {
+        if(project == null){
+            return null;
+        }
+        
         List paths;
         try {
             String persistentProperty = getProjectPythonPathStr(project);

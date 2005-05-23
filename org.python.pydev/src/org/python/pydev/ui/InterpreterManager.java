@@ -17,7 +17,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.SimplePythonRunner;
@@ -40,7 +44,8 @@ public class InterpreterManager implements IInterpreterManager {
      */
     public InterpreterManager(Preferences prefs) {
         this.prefs = prefs;
-        prefs.setDefault(INTERPRETER_PATH, getStringToPersist(new String[]{"python"}));
+//        prefs.setDefault(INTERPRETER_PATH, getStringToPersist(new String[]{"python"}));
+        prefs.setDefault(INTERPRETER_PATH, "");
     }
     
     /**
@@ -51,7 +56,7 @@ public class InterpreterManager implements IInterpreterManager {
             return getInterpreters()[0];
         } catch (Exception e) {
             PydevPlugin.log(e);
-            return getInterpreterInfo("python").executable;
+            return getInterpreterInfo("python", new NullProgressMonitor()).executable;
         }
     }
 
@@ -65,19 +70,32 @@ public class InterpreterManager implements IInterpreterManager {
     /**
      * @see org.python.pydev.ui.IInterpreterManager#getInterpreterInfo(java.lang.String)
      */
-    public InterpreterInfo getInterpreterInfo(String executable) {
+    public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
         InterpreterInfo info = (InterpreterInfo) exeToInfo.get(executable);
         if(info == null){
+            monitor.worked(5);
             //ok, we have to get the info from the executable (and let's cache results for future use...
     		try {
     	        File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
-    	        String string = SimplePythonRunner.runAndGetOutputWithInterpreter(executable, script.getAbsolutePath(), null, null, null);
+    	        String string = SimplePythonRunner.runAndGetOutputWithInterpreter(executable, script.getAbsolutePath(), null, null, null, monitor);
     	        info = InterpreterInfo.fromString(string);
+    	        info.restoreCompiledLibs(monitor);
     	    } catch (Exception e) {
     	        PydevPlugin.log(e);
+    	        //TODO: make dialog: unable to get info for file... 
     	        throw new RuntimeException(e);
     	    }
-            exeToInfo.put(executable, info);
+    	    if(info.executable != null && info.executable.trim().length() > 0){
+    	        exeToInfo.put(info.executable, info);
+    	        
+    	    }else{
+                String title = "Invalid interpreter:"+executable;
+                String msg = "Unable to get information on interpreter!";
+    	        String reason = "The interpreter: '"+executable+"' is not a valid python executable.";
+    	        
+                ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(),0 ,reason, null ));
+    	        throw new RuntimeException(reason);
+    	    }
         }
         return info;
     }
@@ -85,8 +103,8 @@ public class InterpreterManager implements IInterpreterManager {
     /**
      * @see org.python.pydev.ui.IInterpreterManager#addInterpreter(java.lang.String)
      */
-    public String addInterpreter(String executable) {
-        InterpreterInfo info = getInterpreterInfo(executable);
+    public String addInterpreter(String executable, IProgressMonitor monitor) {
+        InterpreterInfo info = getInterpreterInfo(executable, monitor);
         return info.executable;
     }
 
@@ -99,6 +117,10 @@ public class InterpreterManager implements IInterpreterManager {
      */
     public String[] getInterpretersFromPersistedString(String persisted) {
 
+        if(persisted == null || persisted.trim().length() == 0){
+            return new String[0];
+        }
+        
         if(persistedCache == null || persistedCache.equals(persisted) == false){
 	        List ret = new ArrayList();
 	        BASE64Decoder decoder = new BASE64Decoder();
@@ -118,7 +140,7 @@ public class InterpreterManager implements IInterpreterManager {
                 PydevPlugin.log(e);
                 
                 //ok, some error happened, let's get the default
-                InterpreterInfo info = getInterpreterInfo("python");
+                InterpreterInfo info = getInterpreterInfo("python", new NullProgressMonitor());
                 persisted = getStringToPersist(new String[]{info.executable});
                 prefs.setValue(INTERPRETER_PATH, persisted);
                 ret.add(info.executable);

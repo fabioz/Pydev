@@ -14,7 +14,9 @@ import java.util.Properties;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.PyProjectProperties;
 
@@ -78,7 +80,9 @@ public class SimplePythonRunner {
      * @param workingDir
      * @return
      */
-    public static String runAndGetOutputWithInterpreter(String interpreter, String script, String args, File workingDir, IProject project) {
+    public static String runAndGetOutputWithInterpreter(String interpreter, String script, String args, File workingDir, IProject project, IProgressMonitor monitor) {
+        monitor.setTaskName("Mounting executable string...");
+        monitor.worked(5);
         String osName = System.getProperty("os.name");
         
         String execMsg;
@@ -89,17 +93,26 @@ public class SimplePythonRunner {
         }
 
         String executionString = interpreter + " -u " + script + " " + args;
+        monitor.worked(1);
         //System.out.println(executionString);
-        return runAndGetOutput(executionString, workingDir, project);
+        return runAndGetOutput(executionString, workingDir, project, monitor);
     }
 
+    public static String runAndGetOutput(String executionString, File workingDir, IProgressMonitor monitor) {
+    	return runAndGetOutput(executionString, workingDir, (List)null, monitor);
+    }
+    
     public static String runAndGetOutput(String executionString, File workingDir) {
-    	return runAndGetOutput(executionString, workingDir, (List)null);
+    	return runAndGetOutput(executionString, workingDir, (List)null, new NullProgressMonitor());
     }
     
     public static String runAndGetOutput(String executionString, File workingDir, IProject project) {
+    	return runAndGetOutput(executionString, workingDir, project, new NullProgressMonitor());
+    }
+
+    public static String runAndGetOutput(String executionString, File workingDir, IProject project, IProgressMonitor monitor) {
     	List paths = PyProjectProperties.getProjectPythonPath(project);
-    	return runAndGetOutput(executionString, workingDir, paths);
+    	return runAndGetOutput(executionString, workingDir, paths, monitor);
     }
 
     /**
@@ -108,7 +121,9 @@ public class SimplePythonRunner {
      * @return the process output.
      * @throws CoreException
      */
-    private static String runAndGetOutput(String executionString, File workingDir, List paths) {
+    private static String runAndGetOutput(String executionString, File workingDir, List paths, IProgressMonitor monitor) {
+        monitor.setTaskName("Executing: "+executionString);
+        monitor.worked(5);
         Process process = null;
         try {
 	    	String[] envp = getEnv(paths);
@@ -125,6 +140,8 @@ public class SimplePythonRunner {
             } catch (IOException e2) {
             }
 
+            monitor.setTaskName("Reading output...");
+            monitor.worked(5);
             BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()), BUFSIZE);
 
 
@@ -133,6 +150,7 @@ public class SimplePythonRunner {
                 int c;
                 while ((c = in.read()) != -1) {
                     contents.append((char) c);
+		            monitor.worked(1);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -140,6 +158,8 @@ public class SimplePythonRunner {
 
             
             try {
+                monitor.setTaskName("Waiting for process to finish.");
+                monitor.worked(5);
                 process.waitFor(); //wait until the process completion.
             } catch (InterruptedException e1) {
                 throw new RuntimeException(e1);

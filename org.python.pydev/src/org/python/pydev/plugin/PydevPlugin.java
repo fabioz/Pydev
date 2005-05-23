@@ -376,15 +376,22 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             }
     
         };
-        return getPyFilesBelow(file, filter, monitor);
+        return getPyFilesBelow(file, filter, monitor, true);
     }
+
+
+    public static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor) {
+        return getPyFilesBelow(file, filter, monitor, true);
+    }
+    
     /**
      * Returns the directories and python files in a list.
      * 
      * @param file
+     * @param addSubFolders: indicates if sub-folders should be added
      * @return tuple with files in pos 0 and folders in pos 1
      */
-    public static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor) {
+    public static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders) {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
@@ -404,7 +411,13 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
                 }
 
                 for (int i = 0; i < files.length; i++) {
-                    List[] below = getPyFilesBelow(files[i], filter, monitor);
+                    
+                    if(!addSubFolders){ //don't get subfolders 
+                        if(files[i].isDirectory())
+                            continue;
+                    }
+                    
+                    List[] below = getPyFilesBelow(files[i], filter, monitor, addSubFolders);
                     filesToReturn.addAll(below[0]);
                     folders.addAll(below[1]);
                     monitor.worked(1);

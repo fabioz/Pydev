@@ -13,10 +13,12 @@ import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Preferences;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.plugin.IBundleInfo;
+import org.python.pydev.ui.pythonpathconf.InterpreterEditor;
 
 /**
  * @author Fabio Zadrozny
@@ -57,7 +59,7 @@ public class InterpreterEditorTest extends TestCase {
             public ImageCache getImageCache() {
                 try {
                     if(imageCache == null){
-                        imageCache = new ImageCache(new URL("file://D:\\dev_programs\\eclipse_3\\eclipse\\workspace\\org.python.pydev"));
+                        imageCache = new ImageCache(new URL("file://D:\\dev_programs\\eclipse_3\\eclipse\\workspace\\org.python.pydev\\"));
                     }
                     return imageCache;
                 } catch (MalformedURLException e) {
@@ -95,7 +97,7 @@ public class InterpreterEditorTest extends TestCase {
     public void testIt() throws MalformedURLException {
         shell.open();
 
-        InterpreterEditor editor = new InterpreterEditor("label", shell);
+        InterpreterEditor editor = new InterpreterEditor("label", shell, new InterpreterManager(new Preferences()));
         shell.pack();
         shell.setSize(new org.eclipse.swt.graphics.Point(300, 300));
         goToManual(display);

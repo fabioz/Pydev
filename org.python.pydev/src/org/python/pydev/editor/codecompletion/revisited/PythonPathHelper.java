@@ -79,22 +79,33 @@ public class PythonPathHelper implements Serializable{
     }
     
 
+    public static boolean isValidDll(String path){
+        if( path.endsWith(".pyd")  ||
+	        path.endsWith(".so")  ||
+	        path.endsWith(".dll")){
+            return true;
+        }
+        return false;
+    }
+    
     /**
      * 
      * @param path
      * @return if the paths maps to a valid python module (depending on its extension).
      */
     public static boolean isValidFileMod(String path){
-        if(path.endsWith(".py")   || 
-           path.endsWith(".pyw")   ||     
 //           path.endsWith(".pyc")  || - we don't want pyc files, only source files and compiled extensions
-           path.endsWith(".pyd")  ||
-           path.endsWith(".so")  ||
-           path.endsWith(".dll")  
 //           path.endsWith(".pyo") - we don't want pyo files, only source files and compiled extensions
-           ){
+
+        if( path.endsWith(".py") || 
+            path.endsWith(".pyw")){
              return true;
         }
+        
+        else if(isValidDll(path)){
+            return true;
+        }
+        
         return false;
     }
     
@@ -107,7 +118,7 @@ public class PythonPathHelper implements Serializable{
      * DAMN... when I started thinking this up, it seemed much better... (and easier)
      * 
      * @param module - this is the full path of the module. Only for directories or py,pyd,dll,pyo files.
-     * @return a String with the module that the file or folder should represent.
+     * @return a String with the module that the file or folder should represent. E.g.: compiler.ast
      */
     public String resolveModule(String fullPath, boolean requireFileToExist){
         fullPath = getDefaultPathStr(fullPath, true);
