@@ -29,8 +29,8 @@ import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
-import org.python.pydev.ui.InterpreterEditor;
 import org.python.pydev.ui.StreamConsumer;
+import org.python.pydev.ui.pythonpathconf.InterpreterEditor;
 
 /**
  * The main Python debug setup tab.
