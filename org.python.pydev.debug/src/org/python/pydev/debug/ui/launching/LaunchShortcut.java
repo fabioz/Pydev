@@ -156,7 +156,7 @@ public class LaunchShortcut implements ILaunchShortcut {
 // E3			String baseDirectory = varManager.generateVariableExpression("workspace_loc",file.getRawLocation().removeLastSegments(1).toString());
 			String baseDirectory = file.getRawLocation().removeLastSegments(1).toString();
 			String arguments = "";
-			String interpreter = PydevPlugin.interpreterManager.getDefaultInterpreter();
+			String interpreter = PydevPlugin.getInterpreterManager().getDefaultInterpreter();
 			workingCopy.setAttribute(Constants.ATTR_LOCATION,location);
 			workingCopy.setAttribute(Constants.ATTR_WORKING_DIRECTORY,baseDirectory);
 			workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS,arguments);

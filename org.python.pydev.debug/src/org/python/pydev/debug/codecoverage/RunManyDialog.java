@@ -170,7 +170,7 @@ public class RunManyDialog extends Dialog implements Listener {
         layoutData.horizontalAlignment = GridData.FILL;
         layoutData.verticalAlignment = GridData.FILL;
         textInterpreter = new Text(composite, SWT.SINGLE);
-        textInterpreter.setText(PydevPlugin.interpreterManager.getDefaultInterpreter());
+        textInterpreter.setText(PydevPlugin.getInterpreterManager().getDefaultInterpreter());
         textInterpreter.setLayoutData(layoutData);
 
         //-------
