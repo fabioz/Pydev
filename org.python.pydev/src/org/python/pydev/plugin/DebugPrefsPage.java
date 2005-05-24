@@ -11,7 +11,6 @@ import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.ui.pythonpathconf.InterpreterEditor;
 
 /**
  * Debug preferences.
@@ -27,7 +26,7 @@ public class DebugPrefsPage extends FieldEditorPreferencePage
 	 * Initializer sets the preference store
 	 */
 	public DebugPrefsPage() {
-		super("Python Interpreters", GRID);
+		super("Debug", GRID);
 		setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
 	}
 
@@ -39,11 +38,7 @@ public class DebugPrefsPage extends FieldEditorPreferencePage
 	 */
 	protected void createFieldEditors() {
 		Composite p = getFieldEditorParent();
-		InterpreterEditor pathEditor = new InterpreterEditor ("Python interpreters (e.g.: python.exe)", p, PydevPlugin.interpreterManager);
-		addField(pathEditor);
 		IntegerFieldEditor ife = new IntegerFieldEditor(PydevPrefs.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p, 10);
-//		ife.setValidateStrategy(StringFieldEditor.VALIDATE_ON_FOCUS_LOST);
-//		ife.setValidRange(0, 200000);	
 		addField(ife);
 	}
 

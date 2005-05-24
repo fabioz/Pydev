@@ -15,8 +15,10 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.plugin.PydevPlugin;
@@ -33,7 +35,13 @@ public class PythonPathHelper implements Serializable{
      * This is a list of Files containg the pythonpath.
      */
     public List pythonpath = new ArrayList();
-    
+
+    /**
+     * Modules that we have in memory. This is persisted when saved.
+     * 
+     * Keys are strings with the name of the module. Values are AbstractModule objects.
+     */
+    Map modules = new HashMap();    
     
     /**
      * Returns the default path given from the string.

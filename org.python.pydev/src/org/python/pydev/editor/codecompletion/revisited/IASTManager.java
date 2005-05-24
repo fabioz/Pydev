@@ -11,7 +11,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.plugin.PythonNature;
 
 /**
@@ -48,27 +47,7 @@ public interface IASTManager {
      */
     public abstract void removeModule(final File file, final IProject project, IProgressMonitor monitor);
     
-    /**
-     * This method synchs the modules from this manager with the filesystem. This means that
-     * the modules that don't exist anymore are removed from the memory and from the files that
-     * represent a cache.
-     * 
-     * Modules changed in the filesystem are changed to Empty modules in memory, so that we reload
-     * them when requested again.
-     * 
-     * @param project: this is the project that is associated with this manager.
-     * @param monitor: monitor for progress.
-     */
-    public abstract void syncModules(final IProject project, IProgressMonitor monitor);
 
-    /**
-     * Remove all modules below a module represented by a folder.
-     * 
-     * @param file
-     * @param project
-     * @param monitor
-     */
-    public void removeModulesBelow(File file, IProject project, IProgressMonitor monitor);
 
     //----------------------------------- COMPLETIONS
 
@@ -80,15 +59,15 @@ public interface IASTManager {
      */
     public abstract IToken[] getCompletionsForImport(final String original, PythonNature nature);
 
-    /**
-     * @return a Set of strings with all the modules.
-     */
-    public abstract ModulesKey[] getAllModules();
-
-    /**
-     * @return the number of modules.
-     */
-    public abstract int getSize();
+//    /**
+//     * @return a Set of strings with all the modules.
+//     */
+//    public abstract ModulesKey[] getAllModules();
+//
+//    /**
+//     * @return the number of modules.
+//     */
+//    public abstract int getSize();
 
     /**
      * The completion should work in the following way:

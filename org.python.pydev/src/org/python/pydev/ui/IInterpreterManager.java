@@ -35,6 +35,12 @@ public interface IInterpreterManager {
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor);
 
     /**
+     * @param monitor
+     * @return the default interpreter info.
+     */
+    public InterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor);
+    
+    /**
      * This function should be used to add an interpreter to the system. Note that it should not be
      * really added to the system here.
      * 

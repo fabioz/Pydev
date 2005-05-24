@@ -67,7 +67,7 @@ public class SimplePythonRunner {
             }
         }
 
-        String executionString = PydevPlugin.interpreterManager.getDefaultInterpreter() + " -u " + script + " " + args;
+        String executionString = PydevPlugin.getInterpreterManager().getDefaultInterpreter() + " -u " + script + " " + args;
         //System.out.println(executionString);
         return runAndGetOutput(executionString, workingDir, project);
     }

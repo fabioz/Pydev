@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 
 
@@ -25,6 +27,7 @@ public class InterpreterInfo implements Serializable{
     public java.util.List libs = new ArrayList(); //folders
     public java.util.List dllLibs = new ArrayList(); //.pyd, .dll, etc.
     public Set forcedLibs = new HashSet(); //__builtin__, os, math
+    public SystemModulesManager modulesManager = new SystemModulesManager();
     
     public InterpreterInfo(String exe, Collection c, Collection dlls){
         this(exe, c);
@@ -194,5 +197,25 @@ public class InterpreterInfo implements Serializable{
 	    forcedLibs.add("__builtin__");
 	    forcedLibs.add("sys");
 	    forcedLibs.add("datetime");
+    }
+
+    /**
+     * @param path
+     */
+    public void restorePythonpath(String path) {
+        modulesManager.changePythonPath(path, null, new NullProgressMonitor());
+    }
+    
+    /**
+     * @param path
+     */
+    public void restorePythonpath() {
+        StringBuffer buffer = new StringBuffer();
+        for (Iterator iter = libs.iterator(); iter.hasNext();) {
+            String folder = (String) iter.next();
+            buffer.append(folder);
+            buffer.append("|");
+        }
+        modulesManager.changePythonPath(buffer.toString(), null, new NullProgressMonitor());
     }
 }

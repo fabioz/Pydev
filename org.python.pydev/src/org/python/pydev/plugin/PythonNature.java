@@ -12,16 +12,9 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
-import org.python.pydev.editor.codecompletion.revisited.ASTManager;
-import org.python.pydev.editor.codecompletion.revisited.ASTManagerIO;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
-import org.python.pydev.ui.PyProjectProperties;
 import org.python.pydev.ui.PyProjectPythonDetails;
-import org.python.pydev.utils.JobProgressComunicator;
 
 /**
  * PythonNature is currently used as a marker class.
@@ -166,22 +159,22 @@ public class PythonNature implements IProjectNature {
 
             astManager = null;
             
-            Job myJob = new Job("Pydev code completion") {
-
-                protected IStatus run(IProgressMonitor monitor) {
-
-                    String pythonpath = null;
-                    try {
-                        pythonpath = PyProjectProperties.getProjectPythonPathStr(project);
-                    } catch (CoreException e) {
-                        e.printStackTrace();
-                    }
-                    astManager = ASTManagerIO.restoreASTManager(project, pythonpath, monitor);
-
-                    return Status.OK_STATUS;
-                }
-            };
-            myJob.schedule();
+//            Job myJob = new Job("Pydev code completion") {
+//
+//                protected IStatus run(IProgressMonitor monitor) {
+//
+//                    String pythonpath = null;
+//                    try {
+//                        pythonpath = PyProjectProperties.getProjectPythonPathStr(project);
+//                    } catch (CoreException e) {
+//                        e.printStackTrace();
+//                    }
+//                    astManager = ASTManagerIO.restoreASTManager(project, pythonpath, monitor);
+//
+//                    return Status.OK_STATUS;
+//                }
+//            };
+//            myJob.schedule();
 
         }
     }
@@ -194,18 +187,18 @@ public class PythonNature implements IProjectNature {
      *  
      */
     public void rebuildPath(final String paths) {
-        Job myJob = new Job("Pydev code completion: rebuilding modules") {
-
-            protected IStatus run(IProgressMonitor monitor) {
-                if(astManager == null){
-                    astManager = new ASTManager();
-                }
-                astManager.changePythonPath(paths, project, new JobProgressComunicator(monitor, "Rebuilding modules", 500, this));
-                return Status.OK_STATUS;
-            }
-        };
-        myJob.schedule();
-        
+//        Job myJob = new Job("Pydev code completion: rebuilding modules") {
+//
+//            protected IStatus run(IProgressMonitor monitor) {
+//                if(astManager == null){
+//                    astManager = new ASTManager();
+//                }
+//                astManager.changePythonPath(paths, project, new JobProgressComunicator(monitor, "Rebuilding modules", 500, this));
+//                return Status.OK_STATUS;
+//            }
+//        };
+//        myJob.schedule();
+//        
     }
     
     /**

@@ -6,32 +6,23 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.FunctionDef;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PythonNature;
 
 /**
@@ -44,170 +35,35 @@ import org.python.pydev.plugin.PythonNature;
  * 
  * @author Fabio Zadrozny
  */
-public class ASTManager implements Serializable, IASTManager {
+public class ASTManager implements IASTManager {
 
-    /**
-     * Modules that we have in memory. This is persisted when saved.
-     * 
-     * Keys are strings with the name of the module. Values are AbstractModule objects.
-     */
-    Map modules = new HashMap();
-
-    /**
-     * Helper for using the pythonpath. Also persisted.
-     */
-    PythonPathHelper pythonPathHelper = new PythonPathHelper();
-
-    public static String [] BUILTINS = new String []{"sys", "__builtin__","math", "datetime"};
-    
-    /**
-     * these exist in the filesystem, but still, are treated as compiled modules
-     */
-    public static String [] REPLACED_BUILTINS = new String []{"os"}; 
-
-    
-    
-    
+    ProjectModulesManager modulesManager = new ProjectModulesManager();
     
     //----------------------- AUXILIARIES
 
-    /**
-     * Returns the directory that should store completions.
-     * 
-     * @param p
-     * @return
-     */
-    static File getCompletionsCacheDir(IProject p) {
-        IPath location = p.getWorkingLocation(PydevPlugin.getPluginID());
-        IPath path = location;
-    
-        File file = new File(path.toOSString());
-        return file;
-    }
 
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#changePythonPath(java.lang.String, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
     public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
-
-        List pythonpathList = pythonPathHelper.setPythonPath(pythonpath);
-
-        Map mods = new HashMap();
-
-        List completions = new ArrayList();
-
-        int total = 0;
-
-        //first thing: get all files available from the python path and sum them up.
-        for (Iterator iter = pythonpathList.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
-            String element = (String) iter.next();
-
-            //the slow part is getting the files... not much we can do (I think).
-            List[] below = pythonPathHelper.getModulesBelow(new File(element), monitor);
-            completions.addAll(below[0]);
-            total += below[0].size();
-        }
-
-        int j = 0;
-        
-        //now, create in memory modules for all the loaded files (empty modules).
-        for (Iterator iterator = completions.iterator(); iterator.hasNext() && monitor.isCanceled() == false; j++) {
-            Object o = iterator.next();
-            if (o instanceof File) {
-                File f = (File) o;
-                String m = pythonPathHelper.resolveModule(f.getAbsolutePath());
-
-                monitor.setTaskName(new StringBuffer("Module resolved: ").append(j).append(" of ").append(total).append(" (").append(m)
-                        .append(")").toString());
-                monitor.worked(1);
-                if (m != null) {
-					//we don't load them at this time.
-                    mods.put(new ModulesKey(m, f), AbstractModule.createEmptyModule(m, f));
-                }
-            }
-        }
-        
-        //create the builtin modules
-        
-        for (int i = 0; i < BUILTINS.length; i++) {
-            String name = BUILTINS[i];
-            mods.put(new ModulesKey(name, null), AbstractModule.createEmptyModule(name, null));
-        }
-
-        //assign to instance variable 
-        this.modules = mods;
-        
-        final ASTManager m = this;
-        if(project != null){
-	        new Thread(){
-	            /**
-	             * @see java.lang.Thread#run()
-	             */
-	            public void run() {
-	                try{
-	                    ASTManagerIO.savePythonPath(getCompletionsCacheDir(project), new NullProgressMonitor(), m);
-	                }catch(Exception e){
-	                    //we're not in the eclipse enviroment
-	                    e.printStackTrace();
-	                }
-	            }
-	        }.start();
-        }
+        modulesManager.changePythonPath(pythonpath, project, monitor);
     }
 
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#rebuildModule(java.io.File, org.eclipse.jface.text.IDocument, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
     public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature) {
-        final String m = pythonPathHelper.resolveModule(f.getAbsolutePath());
-        if (m != null) {
-            final AbstractModule value = AbstractModule.createModuleFromDoc(m, f, doc, nature, -1);
-            final ModulesKey key = new ModulesKey(m, f);
-            modules.put(key, value);
-
-        }
+        modulesManager.rebuildModule(f, doc, project, monitor, nature);
     }
-
-
 
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
     public void removeModule(File file, IProject project, IProgressMonitor monitor) {
-        String m = pythonPathHelper.resolveModule(file.getAbsolutePath(), false);
-        m = PythonPathHelper.stripExtension(m);
-        if (m != null) {
-            modules.remove(new ModulesKey(m, file));
-        }
+        modulesManager.removeModule(file, project, monitor);
     }
 
-    /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public void removeModulesBelow(File file, IProject project, IProgressMonitor monitor) {
-        String m = pythonPathHelper.resolveModule(file.getAbsolutePath(), false);
-        List toRem = new ArrayList();
-        if (m != null) {
-            for (Iterator iter = modules.keySet().iterator(); iter.hasNext();) {
-                ModulesKey key = (ModulesKey) iter.next();
-                if(key.name.startsWith(m)){
-                    toRem.add(key);
-                }
-            }
-        }
-        
-        //really remove them here.
-        for (Iterator iter = toRem.iterator(); iter.hasNext();) {
-            modules.remove(iter.next());
-            
-        }
-    }
 
-    /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#syncModules(org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public void syncModules(IProject project, IProgressMonitor monitor) {
-    }
 
 
     
@@ -256,7 +112,7 @@ public class ASTManager implements Serializable, IASTManager {
         Set set = new HashSet();
 
         //first we get the imports... that complete for the token.
-        for (Iterator iter = modules.keySet().iterator(); iter.hasNext();) {
+        for (Iterator iter = modulesManager.keySet().iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
 
             String element = key.name;
@@ -329,19 +185,19 @@ public class ASTManager implements Serializable, IASTManager {
         return (IToken[]) set.toArray(new IToken[0]);
     }
 
-    /**
-     * @return a Set of strings with all the modules.
-     */
-    public ModulesKey[] getAllModules() {
-        return (ModulesKey[]) modules.keySet().toArray(new ModulesKey[0]);
-    }
-
-    /**
-     * @return
-     */
-    public int getSize() {
-        return modules.size();
-    }
+//    /**
+//     * @return a Set of strings with all the modules.
+//     */
+//    public ModulesKey[] getAllModules() {
+//        return modulesManager.getAllModules();
+//    }
+//
+//    /**
+//     * @return
+//     */
+//    public int getSize() {
+//        return modulesManager.getSize();
+//    }
 
     /**
      * This method returns the module that corresponds to the path passed as a parameter.
@@ -350,7 +206,7 @@ public class ASTManager implements Serializable, IASTManager {
      * @return the module represented by the file.
      */
     private AbstractModule getModule(File file, PythonNature nature) {
-        String name = pythonPathHelper.resolveModule(file.getAbsolutePath());
+        String name = modulesManager.resolveModule(file.getAbsolutePath());
         return getModule(name, nature);
     }
 
@@ -361,75 +217,7 @@ public class ASTManager implements Serializable, IASTManager {
      * @return the module represented by this name
      */
     public AbstractModule getModule(String name, PythonNature nature) {
-//        for (Iterator iter = modules.keySet().iterator(); iter.hasNext();) {
-//            System.out.println(((ModulesKey) iter.next()).name);
-//        }
-        
-        AbstractModule n = (AbstractModule) modules.get(new ModulesKey(name, null));
-        if (n == null){
-            n = (AbstractModule) modules.get(new ModulesKey(name+".__init__", null));
-        }
-        
-        
-        
-        if(n instanceof SourceModule){
-            //ok, module exists, let's check if it is synched with the filesystem version...
-            SourceModule s = (SourceModule) n;
-            if(! s.isSynched() ){
-                //change it for an empty and proceed as usual.
-                n = new EmptyModule(s.getName(), s.getFile());
-                this.modules.put(new ModulesKey(s.getName(), s.getFile()), n);
-            }
-        }
-        
-        if (n instanceof EmptyModule){
-            EmptyModule e = (EmptyModule)n;
-
-            //let's treat os as a special extension, since many things it has are too much
-            //system dependent, and being so, many of its useful completions are not goten
-            //e.g. os.path is defined correctly only on runtime.
-            
-            boolean found = false;
-            if(e.f != null){
-	            for (int i = 0; i < REPLACED_BUILTINS.length; i++) {
-	                if(name.equals(REPLACED_BUILTINS[i])){
-	                    n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN);
-	                    found = true;
-	                }   
-	            }
-            }
-                
-            if(!found && e.f != null){
-                try{
-                    n = AbstractModule.createModule(name, e.f, nature, -1);
-                }catch(FileNotFoundException exc){
-                    this.modules.remove(new ModulesKey(name, e.f));
-                    n = null;
-                }
-                
-                
-            }else{
-                //check for supported builtins
-                //these don't have files associated.
-                for (int i = 0; i < BUILTINS.length; i++) {
-                    if(name.equals(BUILTINS[i])){
-                        n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN);
-                    }   
-                }
-            }
-            
-            if(n != null){
-	            this.modules.put(new ModulesKey(name, e.f), n);
-            }else{
-                System.err.println("The module "+name+" could not be found nor created!");
-            }
-        }
-        
-        if( n instanceof EmptyModule){
-            throw new RuntimeException("Should not be an empty module anymore!");
-        }
-        return n;
-
+        return modulesManager.getModule(name, nature);
     }
 
     /**
@@ -796,7 +584,7 @@ public class ASTManager implements Serializable, IASTManager {
                         File f = ((SourceModule) current).getFile();
                         if (f != null) {
                             String full = f.toString();
-                            full = this.pythonPathHelper.resolveModule(full);
+                            full = this.modulesManager.resolveModule(full);
                             full = full.substring(0, full.lastIndexOf('.'));
                             if (full != null) {
                                 full += "." + rep;
@@ -887,8 +675,11 @@ public class ASTManager implements Serializable, IASTManager {
                         mod = mod1;
                         tok = tok1;
                     }
+                    
+                    else{
+                        return null; //we don't want to recurse...
+                    }
                 }
-                
                 return new Object[]{mod, tok};
             }
         }
@@ -918,6 +709,13 @@ public class ASTManager implements Serializable, IASTManager {
             tok = tok.substring(0, tok.length()-1); //remove last point if found.
         }
         return new Object[]{mod, tok};
+    }
+
+    /**
+     * @return
+     */
+    public int getSize() {
+        return modulesManager.getSize();
     }
 
 }

@@ -68,6 +68,14 @@ public class InterpreterManager implements IInterpreterManager {
     }
     
     /**
+     * @see org.python.pydev.ui.IInterpreterManager#getDefaultInterpreterInfo(org.eclipse.core.runtime.IProgressMonitor)
+     */
+    public InterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor) {
+        String interpreter = getDefaultInterpreter();
+        return getInterpreterInfo(interpreter, monitor);
+    }
+    
+    /**
      * @see org.python.pydev.ui.IInterpreterManager#getInterpreterInfo(java.lang.String)
      */
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {

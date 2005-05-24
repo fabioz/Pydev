@@ -5,19 +5,14 @@
  */
 package org.python.pydev.ui;
 
-import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import junit.framework.TestCase;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.plugin.BundleInfo;
-import org.python.pydev.plugin.IBundleInfo;
 import org.python.pydev.ui.pythonpathconf.InterpreterEditor;
 
 /**
@@ -41,31 +36,7 @@ public class InterpreterEditorTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        BundleInfo.setBundleInfo(new IBundleInfo(){
-
-            private ImageCache imageCache;
-
-            public File getRelativePath(IPath relative) throws CoreException {
-                if(relative.toString().indexOf("interpreterInfo.py") != -1){
-                    return new File("./PySrc/interpreterInfo.py");
-                }
-                throw new RuntimeException("Not available info on: "+relative);
-            }
-
-            public String getPluginID() {
-                return "plugin_id";
-            }
-
-            public ImageCache getImageCache() {
-                try {
-                    if(imageCache == null){
-                        imageCache = new ImageCache(new URL("file://D:\\dev_programs\\eclipse_3\\eclipse\\workspace\\org.python.pydev\\"));
-                    }
-                    return imageCache;
-                } catch (MalformedURLException e) {
-                    throw new RuntimeException(e);
-                }
-            }});
+        BundleInfo.setBundleInfo(new BundleInfoStub());
         display = new Display();
         createSShell();
     }

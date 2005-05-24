@@ -474,4 +474,12 @@ public class InterpreterEditor extends PythonListEditor {
         }
         
     }
+    
+    /**
+     * @see org.python.copiedfromeclipsesrc.PythonListEditor#doLoadDefault()
+     */
+    protected void doLoadDefault() {
+        super.doLoadDefault();
+        updateTree();
+    }
 }

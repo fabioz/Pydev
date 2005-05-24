@@ -163,7 +163,7 @@ public class PythonShell {
 
             if(process != null)
                 endIt();
-            String interpreter = PydevPlugin.interpreterManager.getDefaultInterpreter();
+            String interpreter = PydevPlugin.getInterpreterManager().getDefaultInterpreter();
             String osName = System.getProperty("os.name");
             
             String execMsg;

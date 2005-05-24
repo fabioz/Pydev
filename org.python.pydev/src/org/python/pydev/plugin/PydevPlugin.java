@@ -5,6 +5,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -55,8 +56,15 @@ import org.python.pydev.ui.InterpreterManager;
  */
 public class PydevPlugin extends AbstractUIPlugin implements Preferences.IPropertyChangeListener {
 
-    public static IInterpreterManager interpreterManager;
+    private static IInterpreterManager interpreterManager;
+    public static void setInterpreterManager(IInterpreterManager interpreterManager) {
+        PydevPlugin.interpreterManager = interpreterManager;
+    }
+    public static IInterpreterManager getInterpreterManager() {
+        return interpreterManager;
+    }
 
+    
     private static PydevPlugin plugin; //The shared instance.
     
     private ResourceBundle resourceBundle; //Resource bundle.
@@ -88,7 +96,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         }
         Preferences preferences = plugin.getPluginPreferences();
         preferences.addPropertyChangeListener(this);
-        interpreterManager = new InterpreterManager(preferences);
+        setInterpreterManager(new InterpreterManager(preferences));
     }
     
 
@@ -384,6 +392,9 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return getPyFilesBelow(file, filter, monitor, true);
     }
     
+    public static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders) {
+        return getPyFilesBelow(file, filter, monitor, addSubFolders, 0);
+    }
     /**
      * Returns the directories and python files in a list.
      * 
@@ -391,7 +402,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @param addSubFolders: indicates if sub-folders should be added
      * @return tuple with files in pos 0 and folders in pos 1
      */
-    public static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders) {
+    private static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, int level) {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
@@ -401,7 +412,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         if (file.exists() == true) {
 
             if (file.isDirectory()) {
-                folders.add(file);
                 File[] files = null;
 
                 if (filter != null) {
@@ -410,22 +420,47 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
                     files = file.listFiles();
                 }
 
+                boolean hasInit = false;
+
+                List foldersLater = new LinkedList();
+                
                 for (int i = 0; i < files.length; i++) {
+                    File file2 = files[i];
                     
-                    if(!addSubFolders){ //don't get subfolders 
-                        if(files[i].isDirectory())
-                            continue;
+                    if(file2.isFile()){
+	                    filesToReturn.add(file2);
+	                    monitor.worked(1);
+	                    monitor.setTaskName("Found:" + file2.toString());
+	                    
+	                    if(file2.getName().equals("__init__.py")){
+	                        hasInit = true;
+	                    }
+	                    
+                    }else{
+                        foldersLater.add(file2);
                     }
-                    
-                    List[] below = getPyFilesBelow(files[i], filter, monitor, addSubFolders);
-                    filesToReturn.addAll(below[0]);
-                    folders.addAll(below[1]);
-                    monitor.worked(1);
                 }
+                
+                if(hasInit || level == 0){
+	                folders.add(file);
+
+	                for (Iterator iter = foldersLater.iterator(); iter.hasNext();) {
+	                    File file2 = (File) iter.next();
+	                    if(file2.isDirectory() && addSubFolders){
+		                    List[] below = getPyFilesBelow(file2, filter, monitor, addSubFolders, level+1);
+		                    filesToReturn.addAll(below[0]);
+		                    folders.addAll(below[1]);
+		                    monitor.worked(1);
+	                    }
+	                }
+                }
+
+                
             } else if (file.isFile()) {
                 filesToReturn.add(file);
-                monitor.worked(1);
-                monitor.setTaskName("Found:" + file.toString());
+                
+            } else{
+                throw new RuntimeException("Not dir nor file... what is it?");
             }
         }
         return new List[] { filesToReturn, folders };
@@ -433,12 +468,26 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     
-    
-    
-    
-    
-    
-    
+    /**
+     * @param files
+     * @return
+     */
+    private static boolean hasInitPy(File[] files) {
+        for (int i = 0; i < files.length; i++) {
+            if(files[i].getName().equals("__init__.py")){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
+
+
+
+
+
     //PyUnit integration
     
 	/** Listener list **/

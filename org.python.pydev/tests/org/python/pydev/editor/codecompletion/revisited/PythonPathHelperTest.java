@@ -268,7 +268,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 //        try {
 //            PythonPathHelperTest test = new PythonPathHelperTest();
 //            test.setUp();
-//            test.testRecursion2();
+//            test.testClassHierarchyCompletion();
 //            test.tearDown();
 //        } catch (Exception e) {
 //            e.printStackTrace();

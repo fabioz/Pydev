@@ -716,7 +716,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	 * @return an array of strings with the available interpreters.
 	 */
 	public static String[] getInterpreters() {
-		return PydevPlugin.interpreterManager.getInterpreters();
+		return PydevPlugin.getInterpreterManager().getInterpreters();
 	}
 
 }
