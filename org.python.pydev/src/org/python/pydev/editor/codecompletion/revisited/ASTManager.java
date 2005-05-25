@@ -42,23 +42,12 @@ public class ASTManager implements IASTManager {
     //----------------------- AUXILIARIES
 
 
-    /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#changePythonPath(java.lang.String, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
-        modulesManager.changePythonPath(pythonpath, project, monitor);
+    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, List managersInvolved) {
+        modulesManager.changePythonPath(pythonpath, project, monitor,managersInvolved);
     }
-
-    /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#rebuildModule(java.io.File, org.eclipse.jface.text.IDocument, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
-     */
     public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature) {
         modulesManager.rebuildModule(f, doc, project, monitor, nature);
     }
-
-    /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
-     */
     public void removeModule(File file, IProject project, IProgressMonitor monitor) {
         modulesManager.removeModule(file, project, monitor);
     }

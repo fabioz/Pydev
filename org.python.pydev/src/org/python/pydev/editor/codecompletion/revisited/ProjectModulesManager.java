@@ -5,16 +5,15 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PythonNature;
-import org.python.pydev.ui.IInterpreterManager;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * @author Fabio Zadrozny
@@ -59,14 +58,13 @@ public class ProjectModulesManager extends ModulesManager{
         return super.resolveModule(full);
     }
 
-    /**
-     * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#changePythonPath(java.lang.String, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor) {
-        super.changePythonPath(pythonpath, project, monitor);
-        IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
-        InterpreterInfo info = iMan.getDefaultInterpreterInfo(monitor);
-        this.managersInvolved = new ModulesManager[]{info.modulesManager};
+    public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor, List managersInvolved) {
+        super.changePythonPath(pythonpath, project, monitor, managersInvolved);
+        
+        if(managersInvolved.size() == 0){
+            throw new RuntimeException("This class must receive at least a system module manager to work.");
+        }
+        this.managersInvolved = (ModulesManager[]) managersInvolved.toArray(new ModulesManager[0]);
     }
     
     /**
@@ -78,5 +76,19 @@ public class ProjectModulesManager extends ModulesManager{
             size += this.managersInvolved[i].getSize();
         }
         return size;
+    }
+
+    /**
+     * Forced builtins are only specified in the system.
+     * 
+     * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#getBuiltins()
+     */
+    public String[] getBuiltins() {
+        HashSet set = new HashSet();
+        for (int i = 0; i < this.managersInvolved.length; i++) {
+            String[] builtins = this.managersInvolved[i].getBuiltins();
+            set.addAll(Arrays.asList(builtins));
+        }
+        return (String[]) set.toArray(new String[0]);
     }
 }

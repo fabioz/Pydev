@@ -5,6 +5,8 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.util.ArrayList;
+
 import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -101,32 +103,53 @@ public class CodeCompletionTestsBase extends TestCase {
     
     private void restoreProjectPythonPath(boolean force, String path){
         if(restored == null || restored != this.getClass() || force){
+            //cache
             restored = this.getClass();
     	    nature = new PythonNature();
     	    nature.setAstManager(new ASTManager());
-    	    ((ASTManager)nature.getAstManager()).changePythonPath(path, null, new NullProgressMonitor());
+    	    
+
+            IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
+            InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
+            ArrayList list = new ArrayList();
+            list.add(info.modulesManager);
+    	    ((ASTManager)nature.getAstManager()).changePythonPath(path, null, new NullProgressMonitor(),list);
         }
     }
     
     private void restoreSystemPythonPath(boolean force, String path){
         if(restoredSystem == null || restoredSystem != this.getClass() || force){
+            //restore manager and cache
             PydevPlugin.setInterpreterManager(new InterpreterManagerStub(preferences));
             restoredSystem = this.getClass();
             
+            //get default and restore the pythonpath
             IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
             InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
-            info.restorePythonpath(path);
-            nature = null; //has to be restored
-            assertTrue(info.modulesManager.getSize() > 0);
+            info.restoreCompiledLibs(new NullProgressMonitor());
+            info.restorePythonpath(path, new NullProgressMonitor());
 
-            IInterpreterManager iMan2 = PydevPlugin.getInterpreterManager();
-            InterpreterInfo info2 = iMan2.getDefaultInterpreterInfo(new NullProgressMonitor());
-	        assertTrue(info2 == info);
-	        assertTrue(info2.modulesManager.getSize() > 0);
+            //postconditions
+            afterRestorSystemPythonPath(info);
 
         }
     }
     
+    /**
+     * @param info
+     */
+    private void afterRestorSystemPythonPath(InterpreterInfo info) {
+        nature = null; //has to be restored
+        assertTrue(info.modulesManager.getSize() > 0);
+
+        IInterpreterManager iMan2 = PydevPlugin.getInterpreterManager();
+        InterpreterInfo info2 = iMan2.getDefaultInterpreterInfo(new NullProgressMonitor());
+        assertTrue(info2 == info);
+        assertTrue(info2.modulesManager.getSize() > 0);
+        assertTrue(info2.modulesManager.getBuiltins().length > 0);
+        
+    }
+
     public void restorePythonPathWithSitePackages(boolean force){
         restoreSystemPythonPath(force, PYTHON_LIB+"|"+PYTHON_SITE_PACKAGES);
         restoreProjectPythonPath(force, TEST_PYSRC_LOC);

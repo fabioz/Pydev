@@ -26,19 +26,20 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
     private PyCodeCompletion codeCompletion;
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(PythonCompletionProcessorTest.class);
+//        junit.textui.TestRunner.run(PythonCompletionProcessorTest.class);
         
-//      try {
-//          PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
-//	      test.setUp();
+      try {
+          PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
+	      test.setUp();
 //	      test.testSelfReference();
 //	      test.testCompleteImportCompletion();
-//	      test.tearDown();
-//	  } catch (Exception e) {
-//	      e.printStackTrace();
-//	  } catch(Error e){
-//	      e.printStackTrace();
-//	  }
+	      test.testCompleteImportBuiltin();
+	      test.tearDown();
+	  } catch (Exception e) {
+	      e.printStackTrace();
+	  } catch(Error e){
+	      e.printStackTrace();
+	  }
     }
 
     /*

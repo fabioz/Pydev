@@ -53,10 +53,10 @@ public class InterpreterEditorTest extends TestCase {
      * @param display
      */
     private void goToManual(Display display) {
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch())
-                display.sleep();
-        }
+//        while (!shell.isDisposed()) {
+//            if (!display.readAndDispatch())
+//                display.sleep();
+//        }
         System.out.println("finishing...");
         display.dispose();
     }

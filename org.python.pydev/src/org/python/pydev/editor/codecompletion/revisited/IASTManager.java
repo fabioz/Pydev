@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -26,7 +27,7 @@ public interface IASTManager {
      * @param project: this is the project that is associated with this manager.
      * @param monitor: monitor for progress.
      */
-    public abstract void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor);
+    public abstract void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor,List managersInvolved);
 
     /**
      * This method provides a way to rebuild a module (new delta).

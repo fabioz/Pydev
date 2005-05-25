@@ -5,7 +5,11 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
+import java.lang.reflect.InvocationTargetException;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
@@ -73,12 +77,27 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
     }
     
     /**
-     * 
+     * Restores the modules.
      */
     private void restoreModules() {
-        IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
-        String interpreter = iMan.getDefaultInterpreter();
-        iMan.getInterpreterInfo(interpreter, new NullProgressMonitor());
+        ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
+
+        monitorDialog.setBlockOnOpen(false);
+        try {
+            IRunnableWithProgress operation = new IRunnableWithProgress(){
+
+                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                    IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
+                    InterpreterInfo info = iMan.getDefaultInterpreterInfo(monitor);
+                    info.restorePythonpath(monitor);
+                }};
+                
+            monitorDialog.run(true, true, operation);
+            
+        }catch (Exception e) {
+            PydevPlugin.log(e);
+        }            
+
         
     }
 

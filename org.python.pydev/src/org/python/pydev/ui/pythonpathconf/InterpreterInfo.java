@@ -16,31 +16,37 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 
 
 public class InterpreterInfo implements Serializable{
-    public String executable;
-    public java.util.List libs = new ArrayList(); //folders
-    public java.util.List dllLibs = new ArrayList(); //.pyd, .dll, etc.
-    public Set forcedLibs = new HashSet(); //__builtin__, os, math
-    public SystemModulesManager modulesManager = new SystemModulesManager();
     
-    public InterpreterInfo(String exe, Collection c, Collection dlls){
-        this(exe, c);
+    //these are transient, they can be gotten for persistence on toString and fromString
+    //(it is needed because some of these info is gotten in a python shell and restored here).
+    public transient String executable;
+    public transient java.util.List libs = new ArrayList(); //folders
+    public transient java.util.List dllLibs = new ArrayList(); //.pyd, .dll, etc.
+    public transient Set forcedLibs = new HashSet(); //__builtin__, os, math
+    
+    /**
+     * module management for the system is always binded to an interpreter (binded in this class)
+     */
+    public SystemModulesManager modulesManager = new SystemModulesManager(forcedLibs);
+    
+    public InterpreterInfo(String exe, Collection libs0){
+        this.executable = exe;
+        libs.addAll(libs0);
+    }
+    
+    public InterpreterInfo(String exe, Collection libs0, Collection dlls){
+        this(exe, libs0);
         dllLibs.addAll(dlls);
     }
     
-    public InterpreterInfo(String exe, Collection c){
-        this.executable = exe;
-        libs.addAll(c);
-    }
-    
-    public InterpreterInfo(String exe, List libs, List dlls, List forced) {
-        this(exe, libs, dlls);
+    public InterpreterInfo(String exe, List libs0, List dlls, List forced) {
+        this(exe, libs0, dlls);
         forcedLibs.addAll(forced);
     }
 
@@ -200,22 +206,26 @@ public class InterpreterInfo implements Serializable{
     }
 
     /**
+     * Restores the path given non-standard libraries
      * @param path
      */
-    public void restorePythonpath(String path) {
-        modulesManager.changePythonPath(path, null, new NullProgressMonitor());
+    public void restorePythonpath(String path, IProgressMonitor monitor) {
+        //no managers involved here...
+        modulesManager.setBuiltins(forcedLibs);
+        modulesManager.changePythonPath(path, null, monitor, new ArrayList());
     }
     
     /**
+     * Restores the path with the discovered libs
      * @param path
      */
-    public void restorePythonpath() {
+    public void restorePythonpath(IProgressMonitor monitor) {
         StringBuffer buffer = new StringBuffer();
         for (Iterator iter = libs.iterator(); iter.hasNext();) {
             String folder = (String) iter.next();
             buffer.append(folder);
             buffer.append("|");
         }
-        modulesManager.changePythonPath(buffer.toString(), null, new NullProgressMonitor());
+        restorePythonpath(buffer.toString(), monitor);
     }
 }

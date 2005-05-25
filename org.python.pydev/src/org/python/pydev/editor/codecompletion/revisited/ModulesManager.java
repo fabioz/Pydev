@@ -61,13 +61,17 @@ public abstract class ModulesManager implements Serializable{
     private PythonPathHelper pythonPathHelper = new PythonPathHelper();
 
     
-    public transient static String [] BUILTINS = new String []{"sys", "__builtin__","math", "datetime"};
+//    public transient static String [] BUILTINS = new String []{"sys", "__builtin__","math", "datetime"};
     
     /**
      * these exist in the filesystem, but still, are treated as compiled modules
      */
-    public transient static String [] REPLACED_BUILTINS = new String []{"os"}; 
+//    public transient static String [] REPLACED_BUILTINS = new String []{"os"}; 
 
+    /**
+     * Must be overriden so that the available builtins (forced or not) are returned.
+     */
+    public abstract String [] getBuiltins();
 
     /**
      * 
@@ -75,8 +79,7 @@ public abstract class ModulesManager implements Serializable{
      * @param project may be null if there is no associated project.
      * @param monitor
      */
-    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
-
+    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, List managersInvolved) {
         List pythonpathList = pythonPathHelper.setPythonPath(pythonpath);
 
         Map mods = new HashMap();
@@ -115,9 +118,9 @@ public abstract class ModulesManager implements Serializable{
         }
         
         //create the builtin modules
-        
-        for (int i = 0; i < BUILTINS.length; i++) {
-            String name = BUILTINS[i];
+        String[] builtins = getBuiltins();
+        for (int i = 0; i < builtins.length; i++) {
+            String name = builtins[i];
             mods.put(new ModulesKey(name, null), AbstractModule.createEmptyModule(name, null));
         }
 
@@ -231,10 +234,13 @@ public abstract class ModulesManager implements Serializable{
             //system dependent, and being so, many of its useful completions are not goten
             //e.g. os.path is defined correctly only on runtime.
             
+            String[] builtins = null;
             boolean found = false;
+
             if(e.f != null){
-	            for (int i = 0; i < REPLACED_BUILTINS.length; i++) {
-	                if(name.equals(REPLACED_BUILTINS[i])){
+                builtins = getBuiltins();
+	            for (int i = 0; i < builtins.length; i++) {
+	                if(name.equals(builtins[i])){
 	                    n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN);
 	                    found = true;
 	                }   
@@ -253,8 +259,11 @@ public abstract class ModulesManager implements Serializable{
             }else{
                 //check for supported builtins
                 //these don't have files associated.
-                for (int i = 0; i < BUILTINS.length; i++) {
-                    if(name.equals(BUILTINS[i])){
+                if(builtins == null){
+	                builtins = getBuiltins();
+                }
+                for (int i = 0; i < builtins.length; i++) {
+                    if(name.equals(builtins[i])){
                         n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN);
                     }   
                 }
