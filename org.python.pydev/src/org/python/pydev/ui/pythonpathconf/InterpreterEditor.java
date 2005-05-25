@@ -100,6 +100,10 @@ public class InterpreterEditor extends PythonListEditor {
 
     private List listBuiltins;
 
+    public List getExesList(){
+        return listControl;
+    }
+    
     /**
      * Creates a path field editor.
      * 

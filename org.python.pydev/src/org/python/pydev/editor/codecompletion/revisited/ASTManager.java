@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,15 +36,18 @@ import org.python.pydev.plugin.PythonNature;
  * 
  * @author Fabio Zadrozny
  */
-public class ASTManager implements IASTManager {
+public class ASTManager implements IASTManager, Serializable {
 
     ProjectModulesManager modulesManager = new ProjectModulesManager();
     
     //----------------------- AUXILIARIES
 
 
-    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, List managersInvolved) {
-        modulesManager.changePythonPath(pythonpath, project, monitor,managersInvolved);
+    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
+        modulesManager.changePythonPath(pythonpath, project, monitor);
+    }
+    public void setAditionalModulesManagers(List managersInvolved){
+        modulesManager.setAditionalModulesManagers(managersInvolved);
     }
     public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature) {
         modulesManager.rebuildModule(f, doc, project, monitor, nature);

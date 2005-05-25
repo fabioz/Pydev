@@ -5,12 +5,7 @@
  */
 package org.python.pydev.ui;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,10 +19,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+import org.python.pydev.utils.REF;
 import org.python.pydev.utils.SimplePythonRunner;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 /**
  * Does not write directly in INTERPRETER_PATH, just loads from it and works with it.
@@ -131,19 +125,15 @@ public class InterpreterManager implements IInterpreterManager {
         
         if(persistedCache == null || persistedCache.equals(persisted) == false){
 	        List ret = new ArrayList();
-	        BASE64Decoder decoder = new BASE64Decoder();
 
 	        try {
-	            InputStream input = new ByteArrayInputStream(decoder.decodeBuffer(persisted));
-	            ObjectInputStream in = new ObjectInputStream(input);
-	            List list = (List) in.readObject();
+		        List list = (List) REF.getStrAsObj(persisted);
+	            
 	            for (Iterator iter = list.iterator(); iter.hasNext();) {
 	                InterpreterInfo info = (InterpreterInfo) iter.next();
 	                this.exeToInfo.put(info.executable, info);
 	                ret.add(info.executable);
 	            }
-	            in.close();
-                input.close();
             } catch (Exception e) {
                 PydevPlugin.log(e);
                 
@@ -171,18 +161,7 @@ public class InterpreterManager implements IInterpreterManager {
                 list.add(info);
             }
         }
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            ObjectOutputStream stream = new ObjectOutputStream(out);
-            stream.writeObject(list);
-            stream.close();
-        } catch (Exception e) {
-            PydevPlugin.log(e);
-            throw new RuntimeException(e);
-        }
-
-        BASE64Encoder encoder = new BASE64Encoder();
-        return encoder.encode(out.toByteArray());
+        return REF.getObjAsStr(list);
     }
 
 

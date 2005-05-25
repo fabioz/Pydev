@@ -5,9 +5,22 @@
  */
 package org.python.pydev.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
+
+import org.python.pydev.plugin.PydevPlugin;
+
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 /**
  * @author Fabio Zadrozny
@@ -60,6 +73,81 @@ public class REF {
             return new String(b);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @param list
+     * @return
+     */
+    public static String getObjAsStr(Object list) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream stream = new ObjectOutputStream(out);
+            stream.writeObject(list);
+            stream.close();
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+            throw new RuntimeException(e);
+        }
+    
+        BASE64Encoder encoder = new BASE64Encoder();
+        return encoder.encode(out.toByteArray());
+    }
+
+    /**
+     * @param persisted
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public static Object getStrAsObj(String persisted) throws IOException, ClassNotFoundException {
+        BASE64Decoder decoder = new BASE64Decoder();
+        InputStream input = new ByteArrayInputStream(decoder.decodeBuffer(persisted));
+        ObjectInputStream in = new ObjectInputStream(input);
+        Object list = in.readObject();
+        in.close();
+        input.close();
+        return list;
+    }
+
+    /**
+     * @param file
+     * @param astManager
+     */
+    public static void writeToFile(Object o, File file) {
+        try {
+            OutputStream out = new FileOutputStream(file);
+            try {
+                ObjectOutputStream stream = new ObjectOutputStream(out);
+                stream.writeObject(o);
+                stream.close();
+            } catch (Exception e) {
+                PydevPlugin.log(e);
+                throw new RuntimeException(e);
+            } finally{
+                out.close();
+            }
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }
+    }
+
+    /**
+     * @param astOutputFile
+     * @return
+     */
+    public static Object readFromFile(File astOutputFile) {
+        try {
+            InputStream input = new FileInputStream(astOutputFile);
+            ObjectInputStream in = new ObjectInputStream(input);
+            Object o = in.readObject();
+            in.close();
+            input.close();
+            return o;
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+            return null;
         }
     }
     

@@ -23,12 +23,10 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class InterpreterInfo implements Serializable{
     
-    //these are transient, they can be gotten for persistence on toString and fromString
-    //(it is needed because some of these info is gotten in a python shell and restored here).
-    public transient String executable;
-    public transient java.util.List libs = new ArrayList(); //folders
-    public transient java.util.List dllLibs = new ArrayList(); //.pyd, .dll, etc.
-    public transient Set forcedLibs = new HashSet(); //__builtin__, os, math
+    public String executable;
+    public java.util.List libs = new ArrayList(); //folders
+    public java.util.List dllLibs = new ArrayList(); //.pyd, .dll, etc.
+    public Set forcedLibs = new HashSet(); //__builtin__, os, math
     
     /**
      * module management for the system is always binded to an interpreter (binded in this class)
@@ -212,7 +210,7 @@ public class InterpreterInfo implements Serializable{
     public void restorePythonpath(String path, IProgressMonitor monitor) {
         //no managers involved here...
         modulesManager.setBuiltins(forcedLibs);
-        modulesManager.changePythonPath(path, null, monitor, new ArrayList());
+        modulesManager.changePythonPath(path, null, monitor);
     }
     
     /**

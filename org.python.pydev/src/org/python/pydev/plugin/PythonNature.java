@@ -6,15 +6,28 @@
 
 package org.python.pydev.plugin;
 
+import java.io.File;
+import java.util.ArrayList;
+
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
+import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
+import org.python.pydev.ui.IInterpreterManager;
 import org.python.pydev.ui.PyProjectPythonDetails;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+import org.python.pydev.utils.JobProgressComunicator;
+import org.python.pydev.utils.REF;
 
 /**
  * PythonNature is currently used as a marker class.
@@ -159,27 +172,46 @@ public class PythonNature implements IProjectNature {
 
             astManager = null;
             
-//            Job myJob = new Job("Pydev code completion") {
-//
-//                protected IStatus run(IProgressMonitor monitor) {
-//
-//                    String pythonpath = null;
-//                    try {
-//                        pythonpath = PyProjectProperties.getProjectPythonPathStr(project);
-//                    } catch (CoreException e) {
-//                        e.printStackTrace();
-//                    }
-//                    astManager = ASTManagerIO.restoreASTManager(project, pythonpath, monitor);
-//
-//                    return Status.OK_STATUS;
-//                }
-//            };
-//            myJob.schedule();
+            Job myJob = new Job("Pydev code completion") {
+
+                protected IStatus run(IProgressMonitor monitor) {
+
+                    astManager = (IASTManager) REF.readFromFile(getAstOutputFile());
+                    restoreAditionalManagers();
+                    return Status.OK_STATUS;
+                }
+            };
+            myJob.schedule();
 
         }
     }
 
 
+    /**
+     * Returns the directory that should store completions.
+     * 
+     * @param p
+     * @return
+     */
+    public static File getCompletionsCacheDir(IProject p) {
+        IPath location = p.getWorkingLocation(PydevPlugin.getPluginID());
+        IPath path = location;
+    
+        File file = new File(path.toOSString());
+        return file;
+    }
+    
+    public File getCompletionsCacheDir() {
+        return getCompletionsCacheDir(getProject());
+    }
+
+    /**
+     * @param dir: parent directory where file should be.
+     * @return the file where the python path helper should be saved.
+     */
+    private File getAstOutputFile() {
+        return new File(getCompletionsCacheDir(), "asthelper.completions");
+    }
 
     /**
      * This method is called whenever the pythonpath for the project with this nature is changed. It should then get the Completion Code
@@ -187,18 +219,36 @@ public class PythonNature implements IProjectNature {
      *  
      */
     public void rebuildPath(final String paths) {
-//        Job myJob = new Job("Pydev code completion: rebuilding modules") {
-//
-//            protected IStatus run(IProgressMonitor monitor) {
-//                if(astManager == null){
-//                    astManager = new ASTManager();
-//                }
-//                astManager.changePythonPath(paths, project, new JobProgressComunicator(monitor, "Rebuilding modules", 500, this));
-//                return Status.OK_STATUS;
-//            }
-//        };
-//        myJob.schedule();
-//        
+        Job myJob = new Job("Pydev code completion: rebuilding modules") {
+
+            protected IStatus run(IProgressMonitor monitor) {
+                if(astManager == null){
+                    astManager = new ASTManager();
+                }
+
+                astManager.changePythonPath(paths, project, new JobProgressComunicator(monitor, "Rebuilding modules", 500, this));
+                REF.writeToFile(astManager, getAstOutputFile());
+                restoreAditionalManagers();
+
+                return Status.OK_STATUS;
+            }
+        };
+        myJob.schedule();
+        
+    }
+
+    /**
+     * 
+     */
+    private void restoreAditionalManagers() {
+        //TODO: add managers involved (not only system pythonpath)
+        if(astManager != null){
+	        IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
+	        InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
+	        ArrayList list = new ArrayList();
+	        list.add(info.modulesManager);
+	        astManager.setAditionalModulesManagers(list);
+        }
     }
     
     /**

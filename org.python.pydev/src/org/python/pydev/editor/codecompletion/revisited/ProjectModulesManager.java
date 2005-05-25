@@ -58,15 +58,20 @@ public class ProjectModulesManager extends ModulesManager{
         return super.resolveModule(full);
     }
 
-    public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor, List managersInvolved) {
-        super.changePythonPath(pythonpath, project, monitor, managersInvolved);
-        
+    public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor) {
+        super.changePythonPath(pythonpath, project, monitor);
+    }
+
+    /**
+     * @param managersInvolved2
+     */
+    public void setAditionalModulesManagers(List managersInvolved) {
         if(managersInvolved.size() == 0){
             throw new RuntimeException("This class must receive at least a system module manager to work.");
         }
         this.managersInvolved = (ModulesManager[]) managersInvolved.toArray(new ModulesManager[0]);
     }
-    
+
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#getSize()
      */
@@ -91,4 +96,5 @@ public class ProjectModulesManager extends ModulesManager{
         }
         return (String[]) set.toArray(new String[0]);
     }
+
 }

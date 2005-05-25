@@ -27,7 +27,9 @@ public interface IASTManager {
      * @param project: this is the project that is associated with this manager.
      * @param monitor: monitor for progress.
      */
-    public abstract void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor,List managersInvolved);
+    public abstract void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor);
+    
+    public abstract void setAditionalModulesManagers(List managersInvolved);
 
     /**
      * This method provides a way to rebuild a module (new delta).

@@ -23,6 +23,7 @@ import org.python.pydev.ui.IInterpreterManager;
 public class InterpreterPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
 
 	private String initialInterpreterPath;
+    private InterpreterEditor pathEditor;
 
     /**
 	 * Initializer sets the preference store
@@ -35,7 +36,7 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
 
 	
 	private boolean hasChanged(){
-		String currentInterpreterPath = getInterpreterPath();
+		String currentInterpreterPath = getCurrentInterpreterPath();
 		if(initialInterpreterPath.equals(currentInterpreterPath)){
 		    return false;
 		}else{
@@ -45,6 +46,15 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
 	}
 	
 	/**
+     * @return
+     */
+    private String getCurrentInterpreterPath() {
+        String s = pathEditor.createList(pathEditor.getExesList().getItems());
+        return s;
+    }
+
+
+    /**
      * @return
      */
     private String getInterpreterPath() {
@@ -60,44 +70,41 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
 	 */
 	protected void createFieldEditors() {
 		Composite p = getFieldEditorParent();
-		InterpreterEditor pathEditor = new InterpreterEditor ("Python interpreters (e.g.: python.exe)", p, PydevPlugin.getInterpreterManager());
+		pathEditor = new InterpreterEditor ("Python interpreters (e.g.: python.exe)", p, PydevPlugin.getInterpreterManager());
 		addField(pathEditor);
 	}
 
 	
 
-	/**
-     * @see org.eclipse.jface.preference.PreferencePage#performApply()
-     */
-    protected void performApply() {
-        super.performApply();
-        if(hasChanged()){
-            restoreModules();
-        }
-    }
-    
     /**
      * Restores the modules.
      */
     private void restoreModules() {
-        ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
 
-        monitorDialog.setBlockOnOpen(false);
-        try {
-            IRunnableWithProgress operation = new IRunnableWithProgress(){
+        if(pathEditor.getExesList().getItemCount() <= 0){
+            return;
 
-                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                    IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
-                    InterpreterInfo info = iMan.getDefaultInterpreterInfo(monitor);
-                    info.restorePythonpath(monitor);
-                }};
-                
-            monitorDialog.run(true, true, operation);
-            
-        }catch (Exception e) {
-            PydevPlugin.log(e);
-        }            
-
+        } else{
+            final String item = pathEditor.getExesList().getItem(0);
+        
+	        ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
+	
+	        monitorDialog.setBlockOnOpen(false);
+	        try {
+	            IRunnableWithProgress operation = new IRunnableWithProgress(){
+	
+	                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+	                    IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
+	                    final InterpreterInfo info = iMan.getInterpreterInfo(item, monitor);
+	                    info.restorePythonpath(monitor);
+	                }};
+	                
+	            monitorDialog.run(true, true, operation);
+	            
+	        }catch (Exception e) {
+	            PydevPlugin.log(e);
+	        }            
+        }
         
     }
 
@@ -106,11 +113,10 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
      * @see org.eclipse.jface.preference.IPreferencePage#performOk()
      */
     public boolean performOk() {
-        boolean ok = super.performOk();
         if(hasChanged()){
             restoreModules();
         }
-        return ok;
+        return super.performOk();
     }
 
 }

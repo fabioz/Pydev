@@ -39,6 +39,11 @@ public abstract class ModulesManager implements Serializable{
      */
     private Map modules = new HashMap();
 
+    
+    /**
+     * Helper for using the pythonpath. Also persisted.
+     */
+    private PythonPathHelper pythonPathHelper = new PythonPathHelper();
 
     /**
      * @param modules The modules to set.
@@ -56,19 +61,6 @@ public abstract class ModulesManager implements Serializable{
 
     
     /**
-     * Helper for using the pythonpath. Also persisted.
-     */
-    private PythonPathHelper pythonPathHelper = new PythonPathHelper();
-
-    
-//    public transient static String [] BUILTINS = new String []{"sys", "__builtin__","math", "datetime"};
-    
-    /**
-     * these exist in the filesystem, but still, are treated as compiled modules
-     */
-//    public transient static String [] REPLACED_BUILTINS = new String []{"os"}; 
-
-    /**
      * Must be overriden so that the available builtins (forced or not) are returned.
      */
     public abstract String [] getBuiltins();
@@ -79,7 +71,7 @@ public abstract class ModulesManager implements Serializable{
      * @param project may be null if there is no associated project.
      * @param monitor
      */
-    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, List managersInvolved) {
+    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
         List pythonpathList = pythonPathHelper.setPythonPath(pythonpath);
 
         Map mods = new HashMap();
