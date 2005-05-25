@@ -201,6 +201,8 @@ public class InterpreterInfo implements Serializable{
 	    forcedLibs.add("__builtin__");
 	    forcedLibs.add("sys");
 	    forcedLibs.add("datetime");
+	    forcedLibs.add("OpenGL");
+	    forcedLibs.add("wxPython");
     }
 
     /**

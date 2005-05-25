@@ -5,14 +5,16 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PythonNature;
 
 /**
@@ -20,23 +22,25 @@ import org.python.pydev.plugin.PythonNature;
  */
 public class ProjectModulesManager extends ModulesManager{
 
-    protected transient ModulesManager[] managersInvolved = new ModulesManager[0];
+    //these attributes must be set whenever this class is restored.
+    private transient ModulesManager systemModulesManager;
+    private transient IProject project;
     
     /**
      * @return
      */
     public Set keySet() {
         Set s = new HashSet();
-        for (int i = 0; i < this.managersInvolved.length; i++) {
-            s.addAll(this.managersInvolved[i].getModules().keySet());
+        for (int i = 0; i < this.getManagersInvolved().length; i++) {
+            s.addAll(this.getManagersInvolved()[i].getModules().keySet());
         }
         s.addAll(getModules().keySet());
         return s;
     }
     
     public AbstractModule getModule(String name, PythonNature nature) {
-        for (int i = 0; i < this.managersInvolved.length; i++) {
-            AbstractModule module = this.managersInvolved[i].getModule(name, nature);
+        for (int i = 0; i < this.getManagersInvolved().length; i++) {
+            AbstractModule module = this.getManagersInvolved()[i].getModule(name, nature);
             if(module != null){
                 return module;
             }
@@ -49,8 +53,8 @@ public class ProjectModulesManager extends ModulesManager{
      * @return
      */
     public String resolveModule(String full) {
-        for (int i = 0; i < this.managersInvolved.length; i++) {
-            String mod = this.managersInvolved[i].resolveModule(full);
+        for (int i = 0; i < this.getManagersInvolved().length; i++) {
+            String mod = this.getManagersInvolved()[i].resolveModule(full);
             if(mod != null){
                 return mod;
             }
@@ -65,11 +69,9 @@ public class ProjectModulesManager extends ModulesManager{
     /**
      * @param managersInvolved2
      */
-    public void setAditionalModulesManagers(List managersInvolved) {
-        if(managersInvolved.size() == 0){
-            throw new RuntimeException("This class must receive at least a system module manager to work.");
-        }
-        this.managersInvolved = (ModulesManager[]) managersInvolved.toArray(new ModulesManager[0]);
+    public void setSystemModuleManager(SystemModulesManager systemManager, IProject project) {
+        this.systemModulesManager = systemManager;
+        this.project = project;
     }
 
     /**
@@ -77,8 +79,8 @@ public class ProjectModulesManager extends ModulesManager{
      */
     public int getSize() {
         int size = super.getSize();
-        for (int i = 0; i < this.managersInvolved.length; i++) {
-            size += this.managersInvolved[i].getSize();
+        for (int i = 0; i < this.getManagersInvolved().length; i++) {
+            size += this.getManagersInvolved()[i].getSize();
         }
         return size;
     }
@@ -90,11 +92,44 @@ public class ProjectModulesManager extends ModulesManager{
      */
     public String[] getBuiltins() {
         HashSet set = new HashSet();
-        for (int i = 0; i < this.managersInvolved.length; i++) {
-            String[] builtins = this.managersInvolved[i].getBuiltins();
+        for (int i = 0; i < this.getManagersInvolved().length; i++) {
+            String[] builtins = this.getManagersInvolved()[i].getBuiltins();
             set.addAll(Arrays.asList(builtins));
         }
         return (String[]) set.toArray(new String[0]);
+    }
+
+
+    /**
+     * @return Returns the managersInvolved.
+     */
+    protected ModulesManager[] getManagersInvolved() {
+        try {
+            ArrayList list = new ArrayList();
+            if(systemModulesManager != null){
+                list.add(systemModulesManager);
+            }
+            if(project != null){
+	            IProject[] referencedProjects = project.getReferencedProjects();
+	            for (int i = 0; i < referencedProjects.length; i++) {
+	                PythonNature nature = PythonNature.getPythonNature(referencedProjects[i]);
+	                if(nature!=null){
+	                    ProjectModulesManager projectModulesManager = nature.getAstManager().getProjectModulesManager();
+	                    if(projectModulesManager != null){
+	                        list.add(projectModulesManager);
+	                    }
+	                }
+	            }
+            }
+            return (ModulesManager[]) list.toArray(new ModulesManager[list.size()]);
+        } catch (CoreException e) {
+            PydevPlugin.log(e);
+            if(systemModulesManager != null){
+                return new ModulesManager[]{systemModulesManager};
+            }else{
+                return new ModulesManager[]{};
+            }
+        }
     }
 
 }

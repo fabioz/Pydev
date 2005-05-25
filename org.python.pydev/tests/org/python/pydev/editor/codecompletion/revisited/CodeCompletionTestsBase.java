@@ -5,8 +5,6 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import java.util.ArrayList;
-
 import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -111,11 +109,9 @@ public class CodeCompletionTestsBase extends TestCase {
 
             IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
             InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
-            ArrayList list = new ArrayList();
-            list.add(info.modulesManager);
     	    ASTManager astManager = ((ASTManager)nature.getAstManager());
             astManager.changePythonPath(path, null, new NullProgressMonitor());
-            astManager.setAditionalModulesManagers(list);
+            astManager.setSystemModuleManager(info.modulesManager, null);
         }
     }
     

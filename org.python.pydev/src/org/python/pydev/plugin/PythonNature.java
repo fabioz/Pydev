@@ -7,7 +7,6 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
@@ -214,9 +213,7 @@ public class PythonNature implements IProjectNature {
     }
 
     /**
-     * This method is called whenever the pythonpath for the project with this nature is changed. It should then get the Completion Code
-     * cache singleton and update it based on the new pythonpath.
-     *  
+     * This method is called whenever the pythonpath for the project with this nature is changed. 
      */
     public void rebuildPath(final String paths) {
         Job myJob = new Job("Pydev code completion: rebuilding modules") {
@@ -238,16 +235,13 @@ public class PythonNature implements IProjectNature {
     }
 
     /**
-     * 
+     * This must be called so that 
      */
     private void restoreAditionalManagers() {
-        //TODO: add managers involved (not only system pythonpath)
         if(astManager != null){
 	        IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
 	        InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
-	        ArrayList list = new ArrayList();
-	        list.add(info.modulesManager);
-	        astManager.setAditionalModulesManagers(list);
+	        astManager.setSystemModuleManager(info.modulesManager, getProject());
         }
     }
     
@@ -269,9 +263,11 @@ public class PythonNature implements IProjectNature {
     public static PythonNature getPythonNature(IProject project) {
         if(project != null){
             try {
-                IProjectNature n = project.getNature(PYTHON_NATURE_ID);
-                if(n instanceof PythonNature){
-                    return (PythonNature) n;
+                if(project.hasNature(PYTHON_NATURE_ID)){
+	                IProjectNature n = project.getNature(PYTHON_NATURE_ID);
+	                if(n instanceof PythonNature){
+	                    return (PythonNature) n;
+	                }
                 }
             } catch (CoreException e) {
                 PydevPlugin.log(e);

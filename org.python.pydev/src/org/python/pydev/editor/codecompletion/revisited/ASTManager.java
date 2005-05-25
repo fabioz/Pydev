@@ -38,22 +38,25 @@ import org.python.pydev.plugin.PythonNature;
  */
 public class ASTManager implements IASTManager, Serializable {
 
-    ProjectModulesManager modulesManager = new ProjectModulesManager();
-    
+    public ProjectModulesManager projectModulesManager = new ProjectModulesManager();
+    public ProjectModulesManager getProjectModulesManager(){
+        return projectModulesManager;
+    }
+
     //----------------------- AUXILIARIES
 
 
     public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
-        modulesManager.changePythonPath(pythonpath, project, monitor);
+        projectModulesManager.changePythonPath(pythonpath, project, monitor);
     }
-    public void setAditionalModulesManagers(List managersInvolved){
-        modulesManager.setAditionalModulesManagers(managersInvolved);
+    public void setSystemModuleManager(SystemModulesManager systemManager, IProject project){
+        projectModulesManager.setSystemModuleManager(systemManager,project);
     }
     public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature) {
-        modulesManager.rebuildModule(f, doc, project, monitor, nature);
+        projectModulesManager.rebuildModule(f, doc, project, monitor, nature);
     }
     public void removeModule(File file, IProject project, IProgressMonitor monitor) {
-        modulesManager.removeModule(file, project, monitor);
+        projectModulesManager.removeModule(file, project, monitor);
     }
 
 
@@ -105,7 +108,7 @@ public class ASTManager implements IASTManager, Serializable {
         Set set = new HashSet();
 
         //first we get the imports... that complete for the token.
-        for (Iterator iter = modulesManager.keySet().iterator(); iter.hasNext();) {
+        for (Iterator iter = projectModulesManager.keySet().iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
 
             String element = key.name;
@@ -199,7 +202,7 @@ public class ASTManager implements IASTManager, Serializable {
      * @return the module represented by the file.
      */
     private AbstractModule getModule(File file, PythonNature nature) {
-        String name = modulesManager.resolveModule(file.getAbsolutePath());
+        String name = projectModulesManager.resolveModule(file.getAbsolutePath());
         return getModule(name, nature);
     }
 
@@ -210,7 +213,7 @@ public class ASTManager implements IASTManager, Serializable {
      * @return the module represented by this name
      */
     public AbstractModule getModule(String name, PythonNature nature) {
-        return modulesManager.getModule(name, nature);
+        return projectModulesManager.getModule(name, nature);
     }
 
     /**
@@ -577,7 +580,7 @@ public class ASTManager implements IASTManager, Serializable {
                         File f = ((SourceModule) current).getFile();
                         if (f != null) {
                             String full = f.toString();
-                            full = this.modulesManager.resolveModule(full);
+                            full = this.projectModulesManager.resolveModule(full);
                             full = full.substring(0, full.lastIndexOf('.'));
                             if (full != null) {
                                 full += "." + rep;
@@ -708,7 +711,7 @@ public class ASTManager implements IASTManager, Serializable {
      * @return
      */
     public int getSize() {
-        return modulesManager.getSize();
+        return projectModulesManager.getSize();
     }
 
 }

@@ -7,6 +7,9 @@ package org.python.pydev.ui.pythonpathconf;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -15,6 +18,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PythonNature;
 import org.python.pydev.ui.IInterpreterManager;
 
 /**
@@ -94,9 +98,24 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
 	            IRunnableWithProgress operation = new IRunnableWithProgress(){
 	
 	                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+	                    monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
 	                    IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
 	                    final InterpreterInfo info = iMan.getInterpreterInfo(item, monitor);
 	                    info.restorePythonpath(monitor);
+	                    
+	                    //pass all project natures and restore the module manager
+	                    IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+	                    IProject[] projects = root.getProjects();
+	                    for (int i = 0; i < projects.length; i++) {
+                            IProject p = projects[i];
+                            if(p.isOpen()){
+                                PythonNature nature = PythonNature.getPythonNature(p);
+                                if(nature != null){
+                                    nature.getAstManager().setSystemModuleManager(info.modulesManager, p);
+                                }
+                            }
+                        }
+	                    monitor.done();
 	                }};
 	                
 	            monitorDialog.run(true, true, operation);

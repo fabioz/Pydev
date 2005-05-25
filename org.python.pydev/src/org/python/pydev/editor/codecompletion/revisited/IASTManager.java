@@ -6,7 +6,6 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
-import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -29,7 +28,7 @@ public interface IASTManager {
      */
     public abstract void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor);
     
-    public abstract void setAditionalModulesManagers(List managersInvolved);
+    public abstract void setSystemModuleManager(SystemModulesManager systemManager, IProject project);
 
     /**
      * This method provides a way to rebuild a module (new delta).
@@ -50,6 +49,7 @@ public interface IASTManager {
      */
     public abstract void removeModule(final File file, final IProject project, IProgressMonitor monitor);
     
+    public abstract ProjectModulesManager getProjectModulesManager();
 
 
     //----------------------------------- COMPLETIONS

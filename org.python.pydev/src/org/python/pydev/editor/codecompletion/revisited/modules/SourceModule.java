@@ -159,7 +159,6 @@ public class SourceModule extends AbstractModule {
                             if(c.bases[j] instanceof Name){
                                 Name n = (Name) c.bases[j];
                                 String base = n.id;
-                                //TODO: this may enter in a loop, as it is recursive.
                                 //An error in the programming might result in an error.
                                 //
                                 //e.g. The case below results in a loop.
