@@ -26,7 +26,7 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Name;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
-import org.python.pydev.editor.codecompletion.revisited.CompletionRecustionException;
+import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
@@ -222,7 +222,7 @@ public class PyCodeCompletion {
             }
 
             changeItokenToCompletionPropostal(request, ret, theList, importsTip);
-        } catch (CompletionRecustionException e) {
+        } catch (CompletionRecursionException e) {
             ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
         }
 

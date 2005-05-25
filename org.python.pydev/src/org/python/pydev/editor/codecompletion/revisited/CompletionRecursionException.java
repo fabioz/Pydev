@@ -8,12 +8,12 @@ package org.python.pydev.editor.codecompletion.revisited;
 /**
  * @author Fabio Zadrozny
  */
-public class CompletionRecustionException extends RuntimeException {
+public class CompletionRecursionException extends RuntimeException {
 
     /**
      * @param string
      */
-    public CompletionRecustionException(String string) {
+    public CompletionRecursionException(String string) {
         super(string);
     }
 

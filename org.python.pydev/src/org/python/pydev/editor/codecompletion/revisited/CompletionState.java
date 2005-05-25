@@ -67,7 +67,7 @@ public class CompletionState {
         if (this.wildImportMemory.containsKey(caller)){
             l = (List) this.wildImportMemory.get(caller);
             if(l.contains(wild)){
-                throw new CompletionRecustionException("Recursion found (caller: "+caller.getName()+", import: "+wild.getName()+" )");
+                throw new CompletionRecursionException("Recursion found (caller: "+caller.getName()+", import: "+wild.getName()+" )");
             }
         }else{
             l = new ArrayList();
@@ -87,7 +87,7 @@ public class CompletionState {
         if (this.memory.containsKey(module)){
             l = (List) this.memory.get(module);
             if(l.contains(base)){
-                throw new CompletionRecustionException("Recursion found (token: "+base+")");
+                throw new CompletionRecursionException("Recursion found (token: "+base+")");
             }
         }else{
             l = new ArrayList();

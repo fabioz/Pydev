@@ -255,7 +255,7 @@ public class ASTManager implements IASTManager, Serializable {
         
             completionsForModule = getCompletionsForModule(module, state);
 
-        } catch (CompletionRecustionException e) {
+        } catch (CompletionRecursionException e) {
             completionsForModule = new IToken[]{ new ConcreteToken(e.getMessage(), e.getMessage(), "","", PyCodeCompletion.TYPE_UNKNOWN)};
         }
         
