@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -279,11 +278,15 @@ public class PythonPathHelper implements Serializable{
      * @return
      */
     public List setPythonPath(String string) {
+        pythonpath.clear();
         String[] strings = string.split("\\|");
         for (int i = 0; i < strings.length; i++) {
-            pythonpath.add(getDefaultPathStr(strings[i]));
+            String defaultPathStr = getDefaultPathStr(strings[i]);
+            if(defaultPathStr != null && defaultPathStr.trim().length() > 0){
+                pythonpath.add(defaultPathStr);
+            }
         }
-        return Arrays.asList(strings);
+        return new ArrayList(pythonpath);
     }
 
     /**

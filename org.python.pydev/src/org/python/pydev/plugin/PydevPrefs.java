@@ -86,7 +86,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String GUESS_TAB_SUBSTITUTION = "GUESS_TAB_SUBSTITUTION";
 	public static final boolean DEFAULT_GUESS_TAB_SUBSTITUTION = true;
 	
-	public static final boolean DEFAULT_EDITOR_OVERVIEW_RULER = false;
+	public static final boolean DEFAULT_EDITOR_OVERVIEW_RULER = true;
 	public static final boolean DEFAULT_EDITOR_LINE_NUMBER_RULER = false;
 	private static final boolean DEFAULT_EDITOR_CURRENT_LINE = true;
 	public static final boolean DEFAULT_EDITOR_PRINT_MARGIN = true;

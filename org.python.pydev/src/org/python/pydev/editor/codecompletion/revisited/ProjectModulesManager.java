@@ -114,9 +114,12 @@ public class ProjectModulesManager extends ModulesManager{
 	            for (int i = 0; i < referencedProjects.length; i++) {
 	                PythonNature nature = PythonNature.getPythonNature(referencedProjects[i]);
 	                if(nature!=null){
-	                    ProjectModulesManager projectModulesManager = nature.getAstManager().getProjectModulesManager();
-	                    if(projectModulesManager != null){
-	                        list.add(projectModulesManager);
+	                    IASTManager otherProjectAstManager = nature.getAstManager();
+	                    if(otherProjectAstManager != null){
+	                        ProjectModulesManager projectModulesManager = otherProjectAstManager.getProjectModulesManager();
+		                    if(projectModulesManager != null){
+		                        list.add(projectModulesManager);
+		                    }
 	                    }
 	                }
 	            }
