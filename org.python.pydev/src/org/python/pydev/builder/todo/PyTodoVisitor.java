@@ -27,7 +27,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
      * 
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitResource(org.eclipse.core.resources.IResource)
      */
-    public boolean visitResource(IResource resource, IDocument document) {
+    public boolean visitChangedResource(IResource resource, IDocument document) {
         if (document != null) {
             List todoTags = PyTodoPrefPage.getTodoTags();
             if(todoTags.size() > 0){

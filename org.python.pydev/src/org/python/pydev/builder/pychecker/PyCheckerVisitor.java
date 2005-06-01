@@ -17,7 +17,7 @@ public class PyCheckerVisitor extends PyDevBuilderVisitor {
     /* (non-Javadoc)
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitResource(org.eclipse.core.resources.IResource)
      */
-    public boolean visitResource(IResource resource, IDocument document) {
+    public boolean visitChangedResource(IResource resource, IDocument document) {
         if (PyCheckerPrefPage.usePyChecker() == false) {
             return true;
         }

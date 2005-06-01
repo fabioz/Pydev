@@ -78,7 +78,7 @@ public class PyProjectProperties extends PropertyPage {
      * @return
      * @throws CoreException
      */
-    private static String getProjectPythonPathStr(IProject project) throws CoreException {
+    public static String getProjectPythonPathStr(IProject project) throws CoreException {
         String source = project.getPersistentProperty(PROJECT_SOURCE_PATH);
         String external = project.getPersistentProperty(PROJECT_EXTERNAL_SOURCE_PATH);
         if(source == null){

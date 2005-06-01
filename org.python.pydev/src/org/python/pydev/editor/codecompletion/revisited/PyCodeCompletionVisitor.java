@@ -23,14 +23,21 @@ import org.python.pydev.plugin.PythonNature;
 public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
 
     /**
+     * @see org.python.pydev.builder.PyDevBuilderVisitor#shouldVisitInitDependency()
+     */
+    public boolean shouldVisitInitDependency() {
+        return true;
+    }
+    
+    /**
      * The code completion visitor is responsible for checking the changed resources in order to
      * update the code completion cache for the project. 
      * 
      * This visitor just passes one resource and updates the code completion cache for it.
      * 
-     * @see org.python.pydev.builder.PyDevBuilderVisitor#visitResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
+     * @see org.python.pydev.builder.PyDevBuilderVisitor#visitChangedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    public boolean visitResource(IResource resource, IDocument document) {
+    public boolean visitChangedResource(IResource resource, IDocument document) {
         
         IProject project = resource.getProject();
         PythonNature pythonNature = PythonNature.getPythonNature(project);

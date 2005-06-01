@@ -17,6 +17,7 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PythonNature;
 import org.python.pydev.ui.IInterpreterManager;
@@ -111,7 +112,10 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
                             if(p.isOpen()){
                                 PythonNature nature = PythonNature.getPythonNature(p);
                                 if(nature != null){
-                                    nature.getAstManager().setSystemModuleManager(info.modulesManager, p);
+                                    IASTManager astManager = nature.getAstManager();
+                                    if(astManager != null){
+                                        astManager.setSystemModuleManager(info.modulesManager, p);
+                                    }
                                 }
                             }
                         }

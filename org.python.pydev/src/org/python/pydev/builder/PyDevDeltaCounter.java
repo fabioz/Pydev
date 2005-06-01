@@ -16,9 +16,9 @@ public class PyDevDeltaCounter extends PyDevBuilderVisitor{
     private int nVisited = 0;
     
     /**
-     * @see org.python.pydev.builder.PyDevBuilderVisitor#visitResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
+     * @see org.python.pydev.builder.PyDevBuilderVisitor#visitChangedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    public boolean visitResource(IResource resource, IDocument document) {
+    public boolean visitChangedResource(IResource resource, IDocument document) {
         nVisited += 1;
         return true;
     }

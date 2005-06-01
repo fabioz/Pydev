@@ -47,8 +47,11 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         if (kind == IncrementalProjectBuilder.FULL_BUILD) {
             // Do a Full Build: Use a ResourceVisitor to process the tree.
             performFullBuild(monitor);
-        } else { // Build it with a delta
             
+        } else { 
+            // Build it with a delta
+            
+            //first step is just counting them
             IResourceDelta delta = getDelta(getProject());
             PyDevDeltaCounter counterVisitor = new PyDevDeltaCounter();
             delta.accept(counterVisitor);
@@ -56,11 +59,12 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             if (delta == null) {
                 performFullBuild(monitor);
             } else {
-                
                 for (Iterator it = getVisitors().iterator(); it.hasNext();) {
                     PyDevBuilderVisitor element = (PyDevBuilderVisitor) it.next();
                     
-                    if(element.maxResourcesToVisit() == -1 || element.maxResourcesToVisit() >= counterVisitor.getNVisited()){
+                    //some visitors cannot visit too many elements because they do a lot of processing
+                    if(element.maxResourcesToVisit() == PyDevBuilderVisitor.MAX_TO_VISIT_INFINITE || 
+                       element.maxResourcesToVisit() >= counterVisitor.getNVisited()){
                         delta.accept(element);
                     }
                 }
@@ -179,7 +183,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 
                 
                 monitor.subTask(msgBuf.toString());
-                visitor.visitResource(r, doc);
+                visitor.visitChangedResource(r, doc);
             }
 
             if(total > 1){

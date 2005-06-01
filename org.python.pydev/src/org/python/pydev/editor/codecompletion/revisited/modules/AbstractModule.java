@@ -11,7 +11,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
 import org.eclipse.jface.text.Document;
@@ -29,7 +28,7 @@ import org.python.pydev.plugin.PythonNature;
 /**
  * @author Fabio Zadrozny
  */
-public abstract class AbstractModule implements Serializable{
+public abstract class AbstractModule {
 
     /**
      * @return tokens for the wild imports.

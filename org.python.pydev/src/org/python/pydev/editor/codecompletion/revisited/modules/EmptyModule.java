@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited.modules;
 
 import java.io.File;
+import java.io.Serializable;
 
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
@@ -16,7 +17,7 @@ import org.python.pydev.plugin.PythonNature;
 /**
  * @author Fabio Zadrozny
  */
-public class EmptyModule extends AbstractModule {
+public class EmptyModule extends AbstractModule implements Serializable {
 
     public File f;
 

@@ -23,6 +23,7 @@ import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.ui.IInterpreterManager;
+import org.python.pydev.ui.PyProjectProperties;
 import org.python.pydev.ui.PyProjectPythonDetails;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.JobProgressComunicator;
@@ -176,7 +177,19 @@ public class PythonNature implements IProjectNature {
                 protected IStatus run(IProgressMonitor monitor) {
 
                     astManager = (IASTManager) REF.readFromFile(getAstOutputFile());
-                    restoreAditionalManagers();
+                    //errors can happen when restoring it
+                    if(astManager != null){
+	                    restoreAditionalManagers();
+	                    
+                    }else{
+                        try {
+                            String pythonPathStr = PyProjectProperties.getProjectPythonPathStr(project);
+                            rebuildPath(pythonPathStr);
+                        } catch (CoreException e) {
+                            PydevPlugin.log(e);
+                        }
+                        
+                    }
                     return Status.OK_STATUS;
                 }
             };
@@ -192,7 +205,7 @@ public class PythonNature implements IProjectNature {
      * @param p
      * @return
      */
-    public static File getCompletionsCacheDir(IProject p) {
+    private static File getCompletionsCacheDir(IProject p) {
         IPath location = p.getWorkingLocation(PydevPlugin.getPluginID());
         IPath path = location;
     
@@ -200,7 +213,7 @@ public class PythonNature implements IProjectNature {
         return file;
     }
     
-    public File getCompletionsCacheDir() {
+    private File getCompletionsCacheDir() {
         return getCompletionsCacheDir(getProject());
     }
 
@@ -224,8 +237,8 @@ public class PythonNature implements IProjectNature {
                 }
 
                 astManager.changePythonPath(paths, project, new JobProgressComunicator(monitor, "Rebuilding modules", 500, this));
-                REF.writeToFile(astManager, getAstOutputFile());
                 restoreAditionalManagers();
+                saveAstManager(false);
 
                 return Status.OK_STATUS;
             }
@@ -281,5 +294,13 @@ public class PythonNature implements IProjectNature {
      */
     public String getVersion() {
         return PyProjectPythonDetails.getPythonVersion();
+    }
+
+    /**
+     * 
+     */
+    public void saveAstManager(boolean saveNow) {
+        //TODO: put into a save list...
+        REF.writeToFile(astManager, getAstOutputFile());
     }
 }

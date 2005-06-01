@@ -231,7 +231,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
     }
     
-    public boolean visitResource(IResource resource, IDocument document) {
+    public boolean visitChangedResource(IResource resource, IDocument document) {
         
         if(PyLintPrefPage.usePyLint() == false){
             try {

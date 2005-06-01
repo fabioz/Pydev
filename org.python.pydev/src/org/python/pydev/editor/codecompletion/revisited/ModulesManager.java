@@ -7,6 +7,9 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,20 +33,42 @@ import org.python.pydev.plugin.PythonNature;
 /**
  * @author Fabio Zadrozny
  */
-public abstract class ModulesManager implements Serializable{
+public abstract class ModulesManager implements Serializable {
 
     /**
      * Modules that we have in memory. This is persisted when saved.
      * 
-     * Keys are strings with the name of the module. Values are AbstractModule objects.
+     * Keys are ModulesKey with the name of the module. Values are AbstractModule objects.
      */
-    private Map modules = new HashMap();
+    private transient Map modules = new HashMap();
 
-    
     /**
      * Helper for using the pythonpath. Also persisted.
      */
     private PythonPathHelper pythonPathHelper = new PythonPathHelper();
+
+    /**
+     * Custom deserialization is needed.
+     */
+    private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
+        modules = new HashMap();
+        aStream.defaultReadObject();
+        Set set = (Set) aStream.readObject();
+        for (Iterator iter = set.iterator(); iter.hasNext();) {
+            ModulesKey key = (ModulesKey) iter.next();
+            //restore with empty modules.
+            modules.put(key, AbstractModule.createEmptyModule(key.name, key.file));
+        }
+    }
+
+    /**
+     * Custom serialization is needed.
+     */
+    private void writeObject(ObjectOutputStream aStream) throws IOException {
+        aStream.defaultWriteObject();
+        //write only the keys
+        aStream.writeObject(new HashSet(this.modules.keySet()));
+    }
 
     /**
      * @param modules The modules to set.
@@ -59,11 +84,10 @@ public abstract class ModulesManager implements Serializable{
         return modules;
     }
 
-    
     /**
      * Must be overriden so that the available builtins (forced or not) are returned.
      */
-    public abstract String [] getBuiltins();
+    public abstract String[] getBuiltins();
 
     /**
      * 
@@ -91,7 +115,7 @@ public abstract class ModulesManager implements Serializable{
         }
 
         int j = 0;
-        
+
         //now, create in memory modules for all the loaded files (empty modules).
         for (Iterator iterator = completions.iterator(); iterator.hasNext() && monitor.isCanceled() == false; j++) {
             Object o = iterator.next();
@@ -103,12 +127,12 @@ public abstract class ModulesManager implements Serializable{
                         .append(")").toString());
                 monitor.worked(1);
                 if (m != null) {
-					//we don't load them at this time.
+                    //we don't load them at this time.
                     mods.put(new ModulesKey(m, f), AbstractModule.createEmptyModule(m, f));
                 }
             }
         }
-        
+
         //create the builtin modules
         String[] builtins = getBuiltins();
         for (int i = 0; i < builtins.length; i++) {
@@ -116,13 +140,14 @@ public abstract class ModulesManager implements Serializable{
             mods.put(new ModulesKey(name, null), AbstractModule.createEmptyModule(name, null));
         }
 
-        //assign to instance variable 
+        //assign to instance variable
         this.setModules(mods);
-        
+
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#rebuildModule(java.io.File, org.eclipse.jface.text.IDocument, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
+     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#rebuildModule(java.io.File, org.eclipse.jface.text.IDocument,
+     *      org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
     public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature) {
         final String m = pythonPathHelper.resolveModule(f.getAbsolutePath());
@@ -131,43 +156,92 @@ public abstract class ModulesManager implements Serializable{
             final ModulesKey key = new ModulesKey(m, f);
             getModules().put(key, value);
 
+            
+        }else if (f != null){ //ok, remove the module that has a key with this file, as it can no longer be resolved
+            Set toRemove = new HashSet();
+            for (Iterator iter = getModules().keySet().iterator(); iter.hasNext();) {
+                ModulesKey key = (ModulesKey) iter.next();
+                if(key.file != null && key.file.equals(f)){
+                    toRemove.add(key);
+                }
+            }
+            
+            for (Iterator iter = toRemove.iterator(); iter.hasNext();) {
+                getModules().remove(iter.next());
+            }
         }
     }
 
+    /**
+     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject,
+     *      org.eclipse.core.runtime.IProgressMonitor)
+     */
+    public void removeModule(File file, IProject project, IProgressMonitor monitor) {
+        if(file == null){
+            return;
+        }
+        
+        if (file.isDirectory()) {
+            removeModulesBelow(file, project, monitor);
+
+        } else {
+            if(file.getName().startsWith("__init__.")){
+                removeModulesBelow(file.getParentFile(), project, monitor);
+            }else{
+                removeModulesWithFile(file);
+            }
+        }
+    }
+
+    /**
+     * @param file
+     */
+    private void removeModulesWithFile(File file) {
+        if(file == null){
+            return;
+        }
+        
+        List toRem = new ArrayList();
+        for (Iterator iter = getModules().keySet().iterator(); iter.hasNext();) {
+            ModulesKey key = (ModulesKey) iter.next();
+            if (key.file != null && key.file.equals(file)) {
+                toRem.add(key);
+            }
+        }
+
+        removeThem(toRem);
+    }
+
+    /**
+     * removes all the modules that have the module starting with the name of the module from
+     * the specified file.
+     */
+    private void removeModulesBelow(File file, IProject project, IProgressMonitor monitor) {
+        if(file == null){
+            return;
+        }
+        
+        String absolutePath = file.getAbsolutePath();
+        List toRem = new ArrayList();
+        
+        for (Iterator iter = getModules().keySet().iterator(); iter.hasNext();) {
+            ModulesKey key = (ModulesKey) iter.next();
+            if (key.file != null && key.file.getAbsolutePath().startsWith(absolutePath)) {
+                toRem.add(key);
+            }
+        }
+
+        removeThem(toRem);
+    }
 
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
+     * @param toRem
      */
-    public void removeModule(File file, IProject project, IProgressMonitor monitor) {
-        if (file.isDirectory()){
-            removeModulesBelow(file, project, monitor);
-
-        }else{
-	        String m = pythonPathHelper.resolveModule(file.getAbsolutePath(), false);
-	        m = PythonPathHelper.stripExtension(m);
-	        if (m != null) {
-	            getModules().remove(new ModulesKey(m, file));
-	        }
-        }
-    }
-
-    private void removeModulesBelow(File file, IProject project, IProgressMonitor monitor) {
-        String m = pythonPathHelper.resolveModule(file.getAbsolutePath(), false);
-        List toRem = new ArrayList();
-        if (m != null) {
-            for (Iterator iter = getModules().keySet().iterator(); iter.hasNext();) {
-                ModulesKey key = (ModulesKey) iter.next();
-                if(key.name.startsWith(m)){
-                    toRem.add(key);
-                }
-            }
-        }
-        
+    private void removeThem(List toRem) {
         //really remove them here.
         for (Iterator iter = toRem.iterator(); iter.hasNext();) {
             getModules().remove(iter.next());
-            
         }
     }
 
@@ -179,14 +253,14 @@ public abstract class ModulesManager implements Serializable{
         s.addAll(getModules().keySet());
         return s;
     }
-    
-//    /**
-//     * @return a Set of strings with all the modules.
-//     */
-//    public ModulesKey[] getAllModules() {
-//        return (ModulesKey[]) getModules().keySet().toArray(new ModulesKey[0]);
-//    }
-//
+
+    /**
+     * @return a Set of strings with all the modules.
+     */
+    public ModulesKey[] getAllModules() {
+        return (ModulesKey[]) getModules().keySet().toArray(new ModulesKey[0]);
+    }
+
     /**
      * @return
      */
@@ -201,74 +275,71 @@ public abstract class ModulesManager implements Serializable{
      * @return the module represented by this name
      */
     public AbstractModule getModule(String name, PythonNature nature) {
-        
+
         AbstractModule n = (AbstractModule) getModules().get(new ModulesKey(name, null));
-        if (n == null){
-            n = (AbstractModule) getModules().get(new ModulesKey(name+".__init__", null));
+        if (n == null) {
+            n = (AbstractModule) getModules().get(new ModulesKey(name + ".__init__", null));
         }
-        
-        
-        
-        if(n instanceof SourceModule){
+
+        if (n instanceof SourceModule) {
             //ok, module exists, let's check if it is synched with the filesystem version...
             SourceModule s = (SourceModule) n;
-            if(! s.isSynched() ){
+            if (!s.isSynched()) {
                 //change it for an empty and proceed as usual.
                 n = new EmptyModule(s.getName(), s.getFile());
                 this.getModules().put(new ModulesKey(s.getName(), s.getFile()), n);
             }
         }
-        
-        if (n instanceof EmptyModule){
-            EmptyModule e = (EmptyModule)n;
+
+        if (n instanceof EmptyModule) {
+            EmptyModule e = (EmptyModule) n;
 
             //let's treat os as a special extension, since many things it has are too much
             //system dependent, and being so, many of its useful completions are not goten
             //e.g. os.path is defined correctly only on runtime.
-            
+
             String[] builtins = null;
             boolean found = false;
 
-            if(e.f != null){
+            if (e.f != null) {
                 builtins = getBuiltins();
-	            for (int i = 0; i < builtins.length; i++) {
-	                if(name.equals(builtins[i])){
-	                    n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN);
-	                    found = true;
-	                }   
-	            }
+                for (int i = 0; i < builtins.length; i++) {
+                    if (name.equals(builtins[i])) {
+                        n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN);
+                        found = true;
+                    }
+                }
             }
-                
-            if(!found && e.f != null){
-                try{
+
+            if (!found && e.f != null) {
+                try {
                     n = AbstractModule.createModule(name, e.f, nature, -1);
-                }catch(FileNotFoundException exc){
+                } catch (FileNotFoundException exc) {
                     this.getModules().remove(new ModulesKey(name, e.f));
                     n = null;
                 }
-                
-                
-            }else{
+
+            } else {
                 //check for supported builtins
                 //these don't have files associated.
-                if(builtins == null){
-	                builtins = getBuiltins();
+                if (builtins == null) {
+                    builtins = getBuiltins();
                 }
                 for (int i = 0; i < builtins.length; i++) {
-                    if(name.equals(builtins[i])){
+                    if (name.equals(builtins[i])) {
                         n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN);
-                    }   
+                    }
                 }
             }
-            
-            if(n != null){
-	            this.getModules().put(new ModulesKey(name, e.f), n);
-            }else{
-                System.err.println("The module "+name+" could not be found nor created!");
+
+            if (n != null) {
+                this.getModules().put(new ModulesKey(name, e.f), n);
+            } else {
+                System.err.println("The module " + name + " could not be found nor created!");
             }
         }
-        
-        if( n instanceof EmptyModule){
+
+        if (n instanceof EmptyModule) {
             throw new RuntimeException("Should not be an empty module anymore!");
         }
         return n;

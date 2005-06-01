@@ -5,8 +5,12 @@
  */
 package org.python.pydev.builder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
@@ -22,7 +26,55 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 
     public static final int MAX_TO_VISIT_INFINITE = -1;
 
+    /**
+     * Method to return whether a resource is an __init__
+     * 
+     * this is needed because when we create an __init__, all sub-folders 
+     * and files on the same folder become valid modules.
+     * 
+     * @return whether the resource is an init resource
+     */
+    protected boolean isInitFile(IResource resource){
+        return resource.getName().startsWith("__init__.");
+    }
+    
+    /**
+     * @param initResource
+     * @return all the IFiles that are below the folder where initResource is located.
+     */
+    protected IResource[] getInitDependents(IResource initResource){
+        
+        List toRet = new ArrayList();
+        IContainer parent = initResource.getParent();
+        
+        try {
+            fillWithMembers(toRet, parent);
+            return (IResource[]) toRet.toArray(new IResource[0]);
+        } catch (CoreException e) {
+            //that's ok, it might not exist anymore
+            return new IResource[0];
+        }
+    }
+    
 	/**
+     * @param toRet
+     * @param parent
+     * @throws CoreException
+     */
+    private void fillWithMembers(List toRet, IContainer parent) throws CoreException {
+        IResource[] resources = parent.members();
+        
+        for (int i = 0; i < resources.length; i++) {
+            if(resources[i].getType() == IResource.FILE){
+                toRet.add(resources[i]);
+            }else if(resources[i].getType() == IResource.FOLDER){
+                fillWithMembers(toRet, (IFolder)resources[i]);
+            }
+        }
+    }
+
+
+    /**
 	 * Visits the resource delta tree determining which files to rebuild (*.py).
 	 * @see org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse.core.resources.IResourceDelta)
 	 */
@@ -43,6 +95,8 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 				case IResourceDelta.REMOVED:
 				    visitRemovedResource(resource, null);
 					break;
+				//for folders, we don't have to do anything if added or changed (we just treat their children, that should
+				//resolve for modules -- we do, however have to treat __init__.py differently).
 			}
 		}
 		
@@ -54,17 +108,27 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 			}
 			
 			if (ext.equals("py") || ext.equals("pyw")) {
+			    boolean isAddOrChange = false;
 				switch (delta.getKind()) {
 					case IResourceDelta.ADDED :
-					    visitResource(resource, PyDevBuilder.getDocFromResource(resource));
+					    visitAddedResource(resource, PyDevBuilder.getDocFromResource(resource));
+					    isAddOrChange = true;
 						break;
 					case IResourceDelta.CHANGED:
-					    visitResource(resource, PyDevBuilder.getDocFromResource(resource));
+					    visitChangedResource(resource, PyDevBuilder.getDocFromResource(resource));
+					    isAddOrChange = true;
 						break;
 					case IResourceDelta.REMOVED:
 					    visitRemovedResource(resource, null);
 						break;
 				}
+
+			    if(isAddOrChange && shouldVisitInitDependency() && isInitFile(resource)){
+			        IResource[] initDependents = getInitDependents(resource);
+			        for (int i = 0; i < initDependents.length; i++) {
+			            visitChangedResource(initDependents[i], PyDevBuilder.getDocFromResource(initDependents[i]));
+                    }
+			    }
 			}
 		}
 		
@@ -81,11 +145,36 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
     }
 	
     /**
-     * @param resource to be visited.
+     * if all the files below a folder that has an __init__.py just added or removed should 
+     * be visited, this method should return true, otherwise it should return false 
+     * 
+     * @return false by default, but may be reimplemented in subclasses. 
      */
-    public abstract boolean visitResource(IResource resource, IDocument document);
+    public boolean shouldVisitInitDependency(){
+        return false;
+    }
 
     /**
+     * Called when a resource is changed
+     * 
+     * @param resource to be visited.
+     */
+    public abstract boolean visitChangedResource(IResource resource, IDocument document);
+
+    
+    /**
+     * Called when a resource is added. Default implementation calls the same method
+     * used for change.
+     * 
+     * @param resource to be visited.
+     */
+    public boolean visitAddedResource(IResource resource, IDocument document){
+        return visitChangedResource(resource, document);
+    }
+
+    /**
+     * Called when a resource is removed
+     * 
      * @param resource to be visited.
      */
     public abstract boolean visitRemovedResource(IResource resource, IDocument document);
