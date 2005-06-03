@@ -19,7 +19,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.IInterpreterManager;
 
 /**

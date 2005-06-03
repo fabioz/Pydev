@@ -4,6 +4,10 @@
 import sys
 _sys_path = [p for p in sys.path]
 
+_sys_modules = {}
+for name,mod in sys.modules.items():
+    _sys_modules[name] = mod
+    
 import threading
 import time
 import refactoring
@@ -25,6 +29,7 @@ MSG_PROCESSING          = '@@PROCESSING_END@@'
 MSG_PROCESSING_PROGRESS = '@@PROCESSING:%sEND@@'
 MSG_IMPORTS             = '@@IMPORTS:'
 MSG_PYTHONPATH          = '@@PYTHONPATH_END@@'
+MSG_CHANGE_PYTHONPATH   = '@@CHANGE_PYTHONPATH:'
 
 BUFFER_SIZE = 1024
 
@@ -48,13 +53,23 @@ def ReloadModules():
     '''
     Reload all the modules in sys.modules
     '''
-    for dummy,n in sys.modules.items():
-        try:
-            reload(n)
-        except: #some errors may arise because some modules should not be reloaded...
-            pass
+    sys.modules.clear()
+    for name,mod in _sys_modules.items():
+        sys.modules[name] = mod
 
-
+def ChangePythonPath(pythonpath):
+    '''Changes the pythonpath (clears all the previous pythonpath)
+    
+    @param pythonpath: string with paths separated by |
+    '''
+    
+    split = pythonpath.split('|')
+    sys.path = []
+    for path in split:
+        path = path.strip()
+        if len(path) > 0:
+            sys.path.append(path)
+    
 class KeepAliveThread( threading.Thread ):
     def __init__( self, socket ):
         threading.Thread.__init__( self )
@@ -198,6 +213,12 @@ class T( threading.Thread ):
                             data = urllib.unquote_plus( data )
                             comps = importsTipper.GenerateTip( data )
                             returnMsg = self.getCompletionsMessage( comps )
+    
+                        elif data.startswith( MSG_CHANGE_PYTHONPATH ):
+                            data = data.replace( MSG_CHANGE_PYTHONPATH, '' )
+                            data = urllib.unquote_plus( data )
+                            ChangePythonPath( data )
+                            returnMsg = MSG_OK
     
                         elif data.startswith( MSG_CHANGE_DIR ):
                             data = data.replace( MSG_CHANGE_DIR, '' )

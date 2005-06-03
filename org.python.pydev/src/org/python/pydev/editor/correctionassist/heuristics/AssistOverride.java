@@ -19,7 +19,7 @@ import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.model.AbstractNode;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
 

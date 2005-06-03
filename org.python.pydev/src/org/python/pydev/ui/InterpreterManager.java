@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -43,14 +42,15 @@ public class InterpreterManager implements IInterpreterManager {
     }
     
     /**
+     * @throws NotConfiguredInterpreterException
      * @see org.python.pydev.ui.IInterpreterManager#getDefaultInterpreter()
      */
-    public String getDefaultInterpreter() {
-        try {
-            return getInterpreters()[0];
-        } catch (Exception e) {
-            PydevPlugin.log(e);
-            return getInterpreterInfo("python", new NullProgressMonitor()).executable;
+    public String getDefaultInterpreter() throws NotConfiguredInterpreterException {
+        String[] interpreters = getInterpreters();
+        if(interpreters.length > 0){
+            return interpreters[0];
+        }else{
+            throw new NotConfiguredInterpreterException("Interpreter is not properly configured! Please go to window->preferences->PyDev->Python Interpreters and configure it.");
         }
     }
 
@@ -79,7 +79,7 @@ public class InterpreterManager implements IInterpreterManager {
             //ok, we have to get the info from the executable (and let's cache results for future use...
     		try {
     	        File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
-    	        String string = SimplePythonRunner.runAndGetOutputWithInterpreter(executable, script.getAbsolutePath(), null, null, null, monitor);
+    	        String string = SimplePythonRunner.runAndGetOutputWithInterpreter(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
     	        info = InterpreterInfo.fromString(string);
     	        info.restoreCompiledLibs(monitor);
     	    } catch (Exception e) {
@@ -137,11 +137,8 @@ public class InterpreterManager implements IInterpreterManager {
             } catch (Exception e) {
                 PydevPlugin.log(e);
                 
-                //ok, some error happened, let's get the default
-                InterpreterInfo info = getInterpreterInfo("python", new NullProgressMonitor());
-                persisted = getStringToPersist(new String[]{info.executable});
-                prefs.setValue(INTERPRETER_PATH, persisted);
-                ret.add(info.executable);
+                //ok, some error happened (maybe it's not configured)
+                return new String[0];
             }
             
 	        persistedCache = persisted;

@@ -55,7 +55,7 @@ import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.ColorCache;
 
 /**

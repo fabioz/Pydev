@@ -23,7 +23,8 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.utils.REF;
 
 /**
  * @author Fabio Zadrozny
@@ -130,7 +131,7 @@ public abstract class AbstractModule {
      * @throws FileNotFoundException
      */
     public static AbstractModule createModule(String name, File f, PythonNature nature, int currLine) throws FileNotFoundException {
-        String path = f.getAbsolutePath();
+        String path = REF.getFileAbsolutePath(f);
         if(PythonPathHelper.isValidFileMod(path)){
 	        if(isValidSourceFile(path)){
 	            FileInputStream stream = new FileInputStream(f);
@@ -172,7 +173,7 @@ public abstract class AbstractModule {
                 return createModuleFromDoc(name, f, doc, nature, currLine);
 	
 	        }else{ //this should be a compiled extension... we have to get completions from the python shell.
-	            return new CompiledModule(name);
+	            return new CompiledModule(name, nature.getAstManager());
 	        }
         }
         
@@ -199,7 +200,7 @@ public abstract class AbstractModule {
         //for doc, we are only interested in python files.
         
         if(f != null){
-	        String absolutePath = f.getAbsolutePath();
+	        String absolutePath = REF.getFileAbsolutePath(f);
 	        if(isValidSourceFile(absolutePath)){
 		        Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine));
 		        SimpleNode n = (SimpleNode) obj[0];

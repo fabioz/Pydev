@@ -21,7 +21,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
 

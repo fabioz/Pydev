@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
+import org.python.pydev.utils.REF;
 
 public class PyUnitTestRunner {
 
@@ -139,7 +140,7 @@ public class PyUnitTestRunner {
 		} catch (CoreException e1) {
 			e1.printStackTrace();
 		}
-		String command = "python "+serverFile.getAbsolutePath()+" "+pRead+" ";
+		String command = "python "+REF.getFileAbsolutePath(serverFile)+" "+pRead+" ";
         command += testModuleDir + " " + testModuleName;
         
         process = Runtime.getRuntime().exec(command);

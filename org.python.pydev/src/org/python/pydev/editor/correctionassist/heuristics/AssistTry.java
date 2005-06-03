@@ -15,7 +15,7 @@ import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.model.AbstractNode;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
 

@@ -24,7 +24,8 @@ import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.utils.REF;
 
 /**
  * This structure should be in memory, so that it acts very quickly.
@@ -202,7 +203,7 @@ public class ASTManager implements IASTManager, Serializable {
      * @return the module represented by the file.
      */
     private AbstractModule getModule(File file, PythonNature nature) {
-        String name = projectModulesManager.resolveModule(file.getAbsolutePath());
+        String name = projectModulesManager.resolveModule(REF.getFileAbsolutePath(file));
         return getModule(name, nature);
     }
 

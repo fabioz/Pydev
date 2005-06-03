@@ -30,7 +30,7 @@ import org.python.parser.TokenMgrError;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * PyParser uses org.python.parser to parse the document (lexical analysis) It

@@ -67,7 +67,7 @@ public class SourceModuleProposal extends PyCompletionProposal {
 	            doc = dummy;
 	            
 	        }else{//another
-		        IPath path = new Path(module.getFile().getAbsolutePath());
+		        IPath path = new Path(REF.getFileAbsolutePath(module.getFile()));
 		        IEditorPart part = PydevPlugin.doOpenEditor(path, true);
 		
 		        if(part instanceof PyEdit){

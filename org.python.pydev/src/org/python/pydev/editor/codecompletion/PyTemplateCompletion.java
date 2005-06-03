@@ -18,6 +18,7 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.utils.REF;
 
 /**
  * @author Fabio Zadrozny
@@ -53,7 +54,7 @@ public class PyTemplateCompletion extends TemplateCompletionProcessor{
     protected Image getImage(Template template) {
         try {
             File file = PydevPlugin.getImageWithinIcons("template.gif");
-            return new Image(null, file.getAbsolutePath());
+            return new Image(null, REF.getFileAbsolutePath(file));
         } catch (CoreException e) {
             e.printStackTrace();
         }

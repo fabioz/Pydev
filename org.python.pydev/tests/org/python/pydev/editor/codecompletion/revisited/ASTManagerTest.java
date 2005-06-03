@@ -7,7 +7,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * Tests here have no dependency on the pythonpath.

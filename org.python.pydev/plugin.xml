@@ -3,7 +3,7 @@
 <plugin
    id="org.python.pydev"
    name="Pydev - Python Development Environment"
-   version="0.9.3.5"
+   version="0.9.3.8"
    provider-name="Fabio Zadrozny / Aleks Totic "
    class="org.python.pydev.plugin.PydevPlugin">
 
@@ -21,6 +21,8 @@
       <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.debug.core"/>
+      <import plugin="org.eclipse.core.variables"/>
    </requires>
 
 
@@ -43,7 +45,7 @@
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="org.python.pydev.plugin.PythonNature">
+               class="org.python.pydev.plugin.nature.PythonNature">
          </run>
       </runtime>
       <builder id="org.python.pydev.builder"/>

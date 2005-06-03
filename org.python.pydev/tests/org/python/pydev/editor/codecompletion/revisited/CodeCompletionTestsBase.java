@@ -12,7 +12,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.BundleInfoStub;
 import org.python.pydev.ui.IInterpreterManager;
 import org.python.pydev.ui.InterpreterManager;

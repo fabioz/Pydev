@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.Status;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
+import org.python.pydev.utils.REF;
 import org.python.pydev.utils.SimplePythonRunner;
 
 /**
@@ -168,9 +169,9 @@ public class PythonShell {
             
             String execMsg;
             if(osName.toLowerCase().indexOf("win") != -1){ //in windows, we have to put python "path_to_file.py"
-                execMsg = interpreter+" \""+serverFile.getAbsolutePath()+"\" "+pWrite+" "+pRead;
+                execMsg = interpreter+" \""+REF.getFileAbsolutePath(serverFile)+"\" "+pWrite+" "+pRead;
             }else{ //however in mac, this gives an error...
-                execMsg = interpreter+" "+serverFile.getAbsolutePath()+" "+pWrite+" "+pRead;
+                execMsg = interpreter+" "+REF.getFileAbsolutePath(serverFile)+" "+pWrite+" "+pRead;
             }
 
             //System.out.println(execMsg);
@@ -423,7 +424,7 @@ public class PythonShell {
                 file = file.getParentFile();
             }
             
-            String str = file.getAbsolutePath();
+            String str = REF.getFileAbsolutePath(file);
             str = URLEncoder.encode(str);
             this.write("@@CHANGE_DIR:"+str+"END@@");
             String ok = this.read(); //this should be the ok message...
@@ -440,9 +441,25 @@ public class PythonShell {
      * @return list with tuples: new String[]{token, description}
      * @throws CoreException
      */
-    public List getImportCompletions(String str) throws CoreException {
+    public List getImportCompletions(String str, List pythonpath) throws CoreException {
+        changePythonPath(pythonpath);
+        
         str = URLEncoder.encode(str);
         return this.getTheCompletions("@@IMPORTS:"+str+"\nEND@@");
+    }
+
+    /**
+     * @param pythonpath
+     * @throws CoreException
+     */
+    public void changePythonPath(List pythonpath) throws CoreException {
+        StringBuffer buffer = new StringBuffer();
+        for (Iterator iter = pythonpath.iterator(); iter.hasNext();) {
+            String path = (String) iter.next();
+            buffer.append(path);
+            buffer.append("|");
+        }
+        getTheCompletions("@@CHANGE_PYTHONPATH:" + URLEncoder.encode(buffer.toString()) + "\nEND@@");
     }
 
     /**
@@ -504,6 +521,9 @@ public class PythonShell {
         
         while(tokenizer.hasMoreTokens()){
             String token       = URLDecoder.decode(tokenizer.nextToken());
+            if(!tokenizer.hasMoreTokens()){
+                return list;
+            }
             String description = URLDecoder.decode(tokenizer.nextToken());
             
             String args = "";

@@ -20,6 +20,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.utils.REF;
 
 /**
  * Opens an editor and selects text in it.
@@ -56,13 +57,15 @@ public class PyOpenAction extends Action {
 
 	public void run(ItemPointer p) {
 		editor = null;
-		if (p.file instanceof IFile)
-			editor = PydevPlugin.doOpenEditor(((IFile)p.file).getFullPath(), true);
-		else if (p.file instanceof IPath) {
-			editor = PydevPlugin.doOpenEditor((IPath)p.file, true);
+		Object file = p.file;
+		
+        if (file instanceof IFile)
+			editor = PydevPlugin.doOpenEditor(((IFile)file).getFullPath(), true);
+		else if (file instanceof IPath) {
+			editor = PydevPlugin.doOpenEditor((IPath)file, true);
 		}
-		else if (p.file instanceof File) {
-			Path path = new Path(((File)p.file).getAbsolutePath());
+		else if (file instanceof File) {
+			Path path = new Path(REF.getFileAbsolutePath((File)file));
 			editor = PydevPlugin.doOpenEditor(path, true);
 		}
 		if (editor instanceof ITextEditor && p.start.line >= 0) {

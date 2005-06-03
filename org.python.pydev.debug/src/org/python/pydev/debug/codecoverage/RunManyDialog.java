@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Widget;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.utils.REF;
 
 /**
  * @author Fabio Zadrozny
@@ -202,7 +203,7 @@ public class RunManyDialog extends Dialog implements Listener {
             String defaultV = PydevPrefs.getPreferences().getString(PydevPrefs.RUN_MANY_SCRIPT_LOCATION);
             if(defaultV.length() < 1){
 	            File file = PydevDebugPlugin.getScriptWithinPySrc("runfiles.py");
-	            defaultV = file.getAbsolutePath();
+	            defaultV = REF.getFileAbsolutePath(file);
 	            PydevPrefs.getPreferences().setValue(PydevPrefs.RUN_MANY_SCRIPT_LOCATION, defaultV);
             }
             textScriptLocation.setText(defaultV);

@@ -248,7 +248,7 @@ public class PyCodeCoverageView extends ViewPart {
                     IPath p = (IPath) objects[0];
 
                     
-                    p = PydevPlugin.getLocation(p);
+                    p = PydevPlugin.getLocationFromWorkspace(p);
                     File file = p.toFile().getAbsoluteFile();
                     lastChosenFile = file;
                     refreshAction.monitor = this.monitor;

@@ -26,7 +26,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionM
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.

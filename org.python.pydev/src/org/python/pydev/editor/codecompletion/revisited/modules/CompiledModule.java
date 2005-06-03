@@ -14,10 +14,11 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Fabio Zadrozny
@@ -37,20 +38,20 @@ public class CompiledModule extends AbstractModule{
      * 
      * @param module - module from where to get completions.
      */
-    public CompiledModule(String name){
-        this(name, PyCodeCompletion.TYPE_BUILTIN);
+    public CompiledModule(String name, IASTManager manager){
+        this(name, PyCodeCompletion.TYPE_BUILTIN, manager);
     }
 
     /**
      * 
      * @param module - module from where to get completions.
      */
-    public CompiledModule(String name, int tokenTypes){
+    public CompiledModule(String name, int tokenTypes, IASTManager manager){
         super(name);
         if(COMPILED_MODULES_ENABLED){
 	        try {
 	            PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
-	            List completions = shell.getImportCompletions(name);
+	            List completions = shell.getImportCompletions(name, manager.getProjectModulesManager().getCompletePythonPath());
 	            
 	            ArrayList array = new ArrayList();
 	            
@@ -116,7 +117,7 @@ public class CompiledModule extends AbstractModule{
         if(COMPILED_MODULES_ENABLED){
 	        try {
 	            PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
-	            List completions = shell.getImportCompletions(name+"."+state.activationToken);
+	            List completions = shell.getImportCompletions(name+"."+state.activationToken, manager.getProjectModulesManager().getCompletePythonPath());
 	            
 	            ArrayList array = new ArrayList();
 	            

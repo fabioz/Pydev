@@ -28,7 +28,8 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.utils.REF;
 
 /**
  * @author Fabio Zadrozny
@@ -45,7 +46,7 @@ public abstract class ModulesManager implements Serializable {
     /**
      * Helper for using the pythonpath. Also persisted.
      */
-    private PythonPathHelper pythonPathHelper = new PythonPathHelper();
+    protected PythonPathHelper pythonPathHelper = new PythonPathHelper();
 
     /**
      * Custom deserialization is needed.
@@ -121,7 +122,7 @@ public abstract class ModulesManager implements Serializable {
             Object o = iterator.next();
             if (o instanceof File) {
                 File f = (File) o;
-                String m = pythonPathHelper.resolveModule(f.getAbsolutePath());
+                String m = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(f));
 
                 monitor.setTaskName(new StringBuffer("Module resolved: ").append(j).append(" of ").append(total).append(" (").append(m)
                         .append(")").toString());
@@ -150,7 +151,7 @@ public abstract class ModulesManager implements Serializable {
      *      org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
     public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature) {
-        final String m = pythonPathHelper.resolveModule(f.getAbsolutePath());
+        final String m = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(f));
         if (m != null) {
             final AbstractModule value = AbstractModule.createModuleFromDoc(m, f, doc, nature, -1);
             final ModulesKey key = new ModulesKey(m, f);
@@ -221,12 +222,12 @@ public abstract class ModulesManager implements Serializable {
             return;
         }
         
-        String absolutePath = file.getAbsolutePath();
+        String absolutePath = REF.getFileAbsolutePath(file);
         List toRem = new ArrayList();
         
         for (Iterator iter = getModules().keySet().iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
-            if (key.file != null && key.file.getAbsolutePath().startsWith(absolutePath)) {
+            if (key.file != null && REF.getFileAbsolutePath(key.file).startsWith(absolutePath)) {
                 toRem.add(key);
             }
         }
@@ -305,7 +306,7 @@ public abstract class ModulesManager implements Serializable {
                 builtins = getBuiltins();
                 for (int i = 0; i < builtins.length; i++) {
                     if (name.equals(builtins[i])) {
-                        n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN);
+                        n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
                         found = true;
                     }
                 }
@@ -327,7 +328,7 @@ public abstract class ModulesManager implements Serializable {
                 }
                 for (int i = 0; i < builtins.length; i++) {
                     if (name.equals(builtins[i])) {
-                        n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN);
+                        n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
                     }
                 }
             }

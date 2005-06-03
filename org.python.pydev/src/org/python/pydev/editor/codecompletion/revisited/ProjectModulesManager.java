@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -15,7 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Fabio Zadrozny
@@ -25,6 +26,10 @@ public class ProjectModulesManager extends ModulesManager{
     //these attributes must be set whenever this class is restored.
     private transient ModulesManager systemModulesManager;
     private transient IProject project;
+    
+    public IProject getProject(){
+        return project;
+    }
     
     /**
      * @return
@@ -101,7 +106,7 @@ public class ProjectModulesManager extends ModulesManager{
 
 
     /**
-     * @return Returns the managersInvolved.
+     * @return Returns the managersInvolved (does not include itself).
      */
     protected ModulesManager[] getManagersInvolved() {
         try {
@@ -135,4 +140,13 @@ public class ProjectModulesManager extends ModulesManager{
         }
     }
 
+    public List getCompletePythonPath(){
+        ArrayList l = new ArrayList();
+        ModulesManager[] managersInvolved = getManagersInvolved();
+        for (int i = 0; i < managersInvolved.length; i++) {
+            l.addAll(managersInvolved[i].pythonPathHelper.pythonpath);
+        }
+        l.addAll(this.pythonPathHelper.pythonpath);
+        return l;
+    }
 }

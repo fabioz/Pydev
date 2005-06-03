@@ -29,6 +29,7 @@ import org.python.pydev.builder.pylint.PyLintVisitor;
 import org.python.pydev.builder.todo.PyTodoVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.utils.REF;
 
 /**
  * @author Fabio Zadrozny
@@ -124,7 +125,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                             List l = PydevPlugin.getPyFilesBelow(folder, null, true)[0];
                             for (Iterator iter = l.iterator(); iter.hasNext();) {
                                 File element = (File) iter.next();
-                                IPath path = PydevPlugin.getPath(new Path(element.getAbsolutePath()));
+                                IPath path = PydevPlugin.getPath(new Path(REF.getFileAbsolutePath(element)));
                                 IResource resource = project.findMember(path);
                                 if (resource != null) {
                                     resourcesToParse.add(resource);

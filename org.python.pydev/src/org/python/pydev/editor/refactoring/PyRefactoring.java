@@ -16,6 +16,7 @@ import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
+import org.python.pydev.utils.REF;
 
 /**
  * This class is used to make the refactorings.
@@ -68,13 +69,15 @@ public class PyRefactoring extends AbstractPyRefactoring {
      * 
      * @param str
      * @param operation
+     * @param editor
      * @return
      */
-    private String makeAction(String str, Operation operation){
+    private String makeAction(String str, Operation operation, PyEdit editor){
         PythonShell pytonShell;
         try {
             pytonShell = PythonShell.getServerShell(PythonShell.OTHERS_SHELL);
 	        try {
+		        pytonShell.changePythonPath(editor.getPythonNature().getPythonPathNature().getCompleteProjectPythonPath());
 	            pytonShell.write(str);
 	 
 	            return URLDecoder.decode(pytonShell.read(operation));
@@ -103,7 +106,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         File editorFile = editor.getEditorFile();
         String s = "@@BIKE";
         s+=        "extractMethod";
-        s+=        "|"+editorFile.getAbsolutePath();
+        s+=        "|"+REF.getFileAbsolutePath(editorFile);
         s+=        "|"+beginLine;
         s+=        "|"+beginCol;
         s+=        "|"+endLine;
@@ -111,7 +114,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         s+=        "|"+name;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
-        String string = makeAction(s, operation);
+        String string = makeAction(s, operation, editor);
 //        System.out.println("REFACTOR RESULT:"+string);
         
         communicateRefactorResult(string);
@@ -129,13 +132,13 @@ public class PyRefactoring extends AbstractPyRefactoring {
         File editorFile = editor.getEditorFile();
         String s = "@@BIKE";
         s+=        "renameByCoordinates";
-        s+=        "|"+editorFile.getAbsolutePath();
+        s+=        "|"+REF.getFileAbsolutePath(editorFile);
         s+=        "|"+beginLine;
         s+=        "|"+beginCol;
         s+=        "|"+name;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
-        String string = makeAction(s, operation);
+        String string = makeAction(s, operation, editor);
         
 //        System.out.println("REFACTOR RESULT:"+string);
         communicateRefactorResult(string);
@@ -147,12 +150,12 @@ public class PyRefactoring extends AbstractPyRefactoring {
         File editorFile = editor.getEditorFile();
         String s = "@@BIKE";
         s+=        "findDefinition";
-        s+=        "|"+editorFile.getAbsolutePath();
+        s+=        "|"+REF.getFileAbsolutePath(editorFile);
         s+=        "|"+beginLine;
         s+=        "|"+beginCol;
         s+=        "END@@";
 
-        String string = makeAction(s, operation);
+        String string = makeAction(s, operation, editor);
         
         List l = new ArrayList();
 
@@ -192,12 +195,12 @@ public class PyRefactoring extends AbstractPyRefactoring {
         File editorFile = editor.getEditorFile();
         String s = "@@BIKE";
         s+=        "inlineLocalVariable";
-        s+=        "|"+editorFile.getAbsolutePath();
+        s+=        "|"+REF.getFileAbsolutePath(editorFile);
         s+=        "|"+beginLine;
         s+=        "|"+beginCol;
         s+=        "END@@";
 //        System.out.println("Inline: "+s);
-        String string = makeAction(s, operation);
+        String string = makeAction(s, operation, editor);
         
 //        System.out.println("REFACTOR RESULT:"+string);
         communicateRefactorResult(string);
@@ -218,7 +221,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         File editorFile = editor.getEditorFile();
         String s = "@@BIKE";
         s+=        "extractLocalVariable";
-        s+=        "|"+editorFile.getAbsolutePath();
+        s+=        "|"+REF.getFileAbsolutePath(editorFile);
         s+=        "|"+beginLine;
         s+=        "|"+beginCol;
         s+=        "|"+endLine;
@@ -226,7 +229,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         s+=        "|"+name;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
-        String string = makeAction(s, operation);
+        String string = makeAction(s, operation, editor);
 //        System.out.println("REFACTOR RESULT:"+string);
         
         communicateRefactorResult(string);

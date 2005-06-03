@@ -19,7 +19,7 @@ import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.ClassNode;
 import org.python.pydev.editor.model.FunctionNode;
 import org.python.pydev.editor.model.ModelUtils;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
 

@@ -1,10 +1,11 @@
 /*
- * Author: atotic
- * Created on Mar 11, 2004
  * License: Common Public License v1.0
+ * Created on Mar 11, 2004
+ * 
+ * @author Fabio Zadrozny
+ * @author atotic
  */
-
-package org.python.pydev.plugin;
+package org.python.pydev.plugin.nature;
 
 import java.io.File;
 
@@ -22,8 +23,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.IInterpreterManager;
-import org.python.pydev.ui.PyProjectProperties;
 import org.python.pydev.ui.PyProjectPythonDetails;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.JobProgressComunicator;
@@ -70,6 +71,11 @@ public class PythonNature implements IProjectNature {
     private boolean initialized;
 
     /**
+     * Manages pythonpath things
+     */
+    private IPythonPathNature pythonPathNature = new PythonPathNature();
+
+    /**
      * This method is called only when the project has the nature added..
      * 
      * @see org.eclipse.core.resources.IProjectNature#configure()
@@ -99,6 +105,7 @@ public class PythonNature implements IProjectNature {
      */
     public void setProject(IProject project) {
         this.project = project;
+        this.pythonPathNature.setProject(project);
     }
 
     /**
@@ -183,9 +190,10 @@ public class PythonNature implements IProjectNature {
 	                    
                     }else{
                         try {
-                            String pythonPathStr = PyProjectProperties.getProjectPythonPathStr(project);
+                            String pythonPathStr = pythonPathNature.getOnlyProjectPythonPathStr();
                             rebuildPath(pythonPathStr);
                         } catch (CoreException e) {
+                            
                             PydevPlugin.log(e);
                         }
                         
@@ -269,6 +277,14 @@ public class PythonNature implements IProjectNature {
         this.astManager = astManager;
     }
 
+    public IPythonPathNature getPythonPathNature() {
+        return pythonPathNature;
+    }
+    
+    public static IPythonPathNature getPythonPathNature(IProject project) {
+        PythonNature pythonNature = getPythonNature(project);
+        return pythonNature.pythonPathNature;
+    }
     /**
      * @param project
      * @return

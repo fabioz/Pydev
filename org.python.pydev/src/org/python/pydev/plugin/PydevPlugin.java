@@ -45,6 +45,7 @@ import org.python.pydev.builder.todo.PyTodoPrefPage;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.templates.PyContextType;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.pyunit.ITestRunListener;
 import org.python.pydev.pyunit.PyUnitTestRunner;
 import org.python.pydev.ui.IInterpreterManager;
@@ -221,17 +222,38 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return null;
     }
 
-    public static IPath getLocation(IPath path) {
+    /**
+     * This one should only be used if the root (project) is unknown.
+     * 
+     * @see PydevPlugin.getLocation#IPath, IContainer
+     * @param path
+     * @return
+     */
+    public static IPath getLocationFromWorkspace(IPath path) {
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
-        IWorkspaceRoot root = workspace.getRoot();
+        IContainer root = workspace.getRoot();
+        return getLocation(path, root);
+    }
+
+    /**
+     * Returns the location in the filesystem for the given path
+     * 
+     * @param path
+     * @param root the path must be inside this root
+     * @return
+     */
+    public static IPath getLocation(IPath path, IContainer root) {
         IResource resource = root.findMember(path);
         IPath location = null;
         if (resource != null) {
             location = resource.getLocation();
         }
+        
+        if(location == null){
+            location = getLocationFromWorkspace(path);
+        }
         return location;
     }
-
     /**
      * Utility function that opens an editor on a given path.
      * 

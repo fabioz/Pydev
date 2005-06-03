@@ -1,6 +1,7 @@
 /*
+ * License: Common Public License v1.0
  * Created on Oct 25, 2004
- *
+ * 
  * @author Fabio Zadrozny
  */
 package org.python.pydev.builder.pylint;
@@ -25,6 +26,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.utils.REF;
 import org.python.pydev.utils.SimplePythonRunner;
 
 /**
@@ -150,7 +152,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             
             IProject project = resource.getProject();
             
-            String output = SimplePythonRunner.runAndGetOutput(script.getAbsolutePath(), lintargs+arg.getAbsolutePath(), script.getParentFile(), project);
+            String output = SimplePythonRunner.runAndGetOutput(REF.getFileAbsolutePath(script), lintargs+REF.getFileAbsolutePath(arg), script.getParentFile(), project);
 
             StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
             
@@ -160,7 +162,11 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             boolean useC = PyLintPrefPage.useCodingStandard();
             boolean useR = PyLintPrefPage.useRefactorTips();
             
-            
+            //System.out.println(output);
+            if(output.indexOf("Traceback (most recent call last):") != -1){
+                PydevPlugin.log(new RuntimeException("PyLint ERROR: \n"+output));
+                return;
+            }
             while(tokenizer.hasMoreTokens()){
                 String tok = tokenizer.nextToken();
                 
@@ -171,25 +177,34 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                     //W0611:  3: Unused import finalize
                     //F0001:  0: Unable to load module test.test2 (list index out of range)
                     //C0321: 25:fdfd: More than one statement on a single line
-                    if(tok.startsWith("C")&& useC && tok.indexOf(":") != -1){
-                        type = PYLINT_PROBLEM_MARKER;
-                        priority = Marker.SEVERITY_WARNING;
-                    }
-                    else if(tok.startsWith("R")  && useR && tok.indexOf(":") != -1){
-                        type = PYLINT_PROBLEM_MARKER;
-                        priority = Marker.SEVERITY_WARNING;
-                    }
-                    else if(tok.startsWith("W")  && useW && tok.indexOf(":") != -1){
-                        type = PYLINT_PROBLEM_MARKER;
-                        priority = Marker.SEVERITY_WARNING;
-                    }
-                    else if(tok.startsWith("E") && useE && tok.indexOf(":") != -1){
-                        type = PYLINT_PROBLEM_MARKER;
-                        priority = Marker.SEVERITY_ERROR;
-                    }
-                    else if(tok.startsWith("F") && useF && tok.indexOf(":") != -1){
-                        type = PYLINT_PROBLEM_MARKER;
-                        priority = Marker.SEVERITY_ERROR;
+                    int indexOfDoublePoints = tok.indexOf(":");
+                    if(indexOfDoublePoints != -1){
+                        
+	                    if(tok.startsWith("C")&& useC){
+	                        type = PYLINT_PROBLEM_MARKER;
+	                        priority = Marker.SEVERITY_WARNING;
+	                    }
+	                    else if(tok.startsWith("R")  && useR ){
+	                        type = PYLINT_PROBLEM_MARKER;
+	                        priority = Marker.SEVERITY_WARNING;
+	                    }
+	                    else if(tok.startsWith("W")  && useW ){
+	                        type = PYLINT_PROBLEM_MARKER;
+	                        priority = Marker.SEVERITY_WARNING;
+	                    }
+	                    else if(tok.startsWith("E") && useE ){
+	                        type = PYLINT_PROBLEM_MARKER;
+	                        priority = Marker.SEVERITY_ERROR;
+	                    }
+	                    else if(tok.startsWith("F") && useF ){
+	                        type = PYLINT_PROBLEM_MARKER;
+	                        priority = Marker.SEVERITY_ERROR;
+	                    }else{
+	                        continue;
+	                    }
+	                    
+                    }else{
+                        continue;
                     }
                     
                     String initial = tok;
@@ -197,8 +212,17 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                         if(type != null){
                             String id = tok.substring(0, tok.indexOf(":")).trim();
                             
-                            tok = tok.substring(tok.indexOf(":")+1);
-                            int line = Integer.parseInt(tok.substring(0, tok.indexOf(":")).trim() );
+                            int i = tok.indexOf(":");
+                            if(i == -1)
+                                continue;
+                            
+                            tok = tok.substring(i+1);
+
+                            i = tok.indexOf(":");
+                            if(i == -1)
+                                continue;
+                            
+                            int line = Integer.parseInt(tok.substring(0, i).trim() );
                             
                             IRegion region = null;
                             try {
@@ -216,14 +240,18 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                 }
                             }
                             
-                            tok = tok.substring(tok.indexOf(":")+1);
+                            i = tok.indexOf(":");
+                            if(i == -1)
+                                continue;
+
+                            tok = tok.substring(i+1);
                             addToMarkers(tok, type, priority, id, line);
                         }
                     } catch (RuntimeException e2) {
-                        e2.printStackTrace();
+                        PydevPlugin.log(e2);
                     }
                 } catch (Exception e1) {
-                    e1.printStackTrace();
+                    PydevPlugin.log(e1);
                 }
             }
         }
@@ -246,7 +274,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         if (project != null && resource instanceof IFile) {
 
             IFile file = (IFile) resource;
-            IPath location = PydevPlugin.getLocation(file.getFullPath());
+            IPath location = PydevPlugin.getLocation(file.getFullPath(), project);
             
             PyLintThread thread = new PyLintThread(resource, document, location);
             thread.start();

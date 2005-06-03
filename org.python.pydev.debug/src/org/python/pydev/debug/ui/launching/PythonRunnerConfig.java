@@ -6,20 +6,32 @@
 package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Vector;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.internal.ui.launchConfigurations.EnvironmentVariable;
+import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsUtil;
+import org.eclipse.ui.externaltools.internal.model.IExternalToolConstants;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.SocketUtil;
+import org.python.pydev.utils.REF;
+import org.python.pydev.utils.SimplePythonRunner;
 
 /**
  * Holds configuration for PythonRunner.
@@ -75,7 +87,39 @@ public class PythonRunnerConfig {
 			setUnitTestInfo();
 		}
 
-		envp = DebugPlugin.getDefault().getLaunchManager().getEnvironment(conf);
+		//find the project
+        IFile file2 = conf.getFile();
+        if(file2 == null){
+            IWorkspace w = ResourcesPlugin.getWorkspace();
+            file2 = w.getRoot().getFileForLocation(file);
+        }
+
+        IProject project = file2.getProject();
+
+        //make the environment
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+        envp = launchManager.getEnvironment(conf);
+        if(envp == null){
+            //ok, the user has done nothing to the environment, just get all the default environment and
+            //put the pythonpath in it
+            envp = SimplePythonRunner.getEnvironment(project);
+        }else{
+            //ok, the user has done something to configure it, so, just add the pythonpath to the
+            //current env
+            String pythonpath = SimplePythonRunner.makePythonPathEnvString(project);
+            for (int i = 0; i < envp.length; i++) {
+                if(envp[i].toUpperCase().startsWith("PYTHONPATH")){
+                    envp[i] = "PYTHONPATH="+pythonpath;
+                    //OK, finish it.
+                    return;
+                }
+            }
+            
+            //there was no pythonpath, let's set it
+            String[] s = new String[envp.length+1];
+            System.arraycopy(envp, 0, s, 0, envp.length);
+            s[s.length-1] = "PYTHONPATH="+pythonpath;
+        }
 	}
 	
     public int getDebugPort() throws CoreException {
@@ -137,18 +181,18 @@ public class PythonRunnerConfig {
 	 * @throws CoreException
      */
     public static String getProfileScript() throws CoreException {
-        return PydevDebugPlugin.getScriptWithinPySrc("coverage.py").getAbsolutePath();
+        return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("coverage.py"));
     }
 
     public static String getUnitTestScript() throws CoreException {
-        return PydevDebugPlugin.getScriptWithinPySrc("SocketTestRunner.py").getAbsolutePath();
+        return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("SocketTestRunner.py"));
     }
 
     /** 
 	 * gets location of jpydaemon.py
 	 */
 	public static String getDebugScript() throws CoreException {
-	    return PydevDebugPlugin.getScriptWithinPySrc("pydevd.py").getAbsolutePath();
+	    return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("pydevd.py"));
 	}
 
 	/**

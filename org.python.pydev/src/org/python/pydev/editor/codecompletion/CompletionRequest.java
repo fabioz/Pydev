@@ -9,7 +9,7 @@ import java.io.File;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.PythonNature;
+import org.python.pydev.plugin.nature.PythonNature;
 
 
 /**

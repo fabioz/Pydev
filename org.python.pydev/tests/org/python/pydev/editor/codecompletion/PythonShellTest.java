@@ -7,6 +7,7 @@ package org.python.pydev.editor.codecompletion;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -54,7 +55,7 @@ public class PythonShellTest extends TestCase {
     }
 
     public void testGetGlobalCompletions() throws IOException, CoreException {
-        List list = shell.getImportCompletions("math");
+        List list = shell.getImportCompletions("math", new ArrayList());
 
         Object[] element = null;
         
@@ -66,7 +67,7 @@ public class PythonShellTest extends TestCase {
 
 
     public void testErrorOnCompletions() throws IOException, CoreException {
-        List list = shell.getImportCompletions("dfjslkfjds\n\n");
+        List list = shell.getImportCompletions("dfjslkfjds\n\n", new ArrayList());
         assertEquals(0, list.size());
         //don't show completion errors!
 //        Object object[] = (Object[]) list.get(0);

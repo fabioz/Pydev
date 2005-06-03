@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.utils.REF;
 
 
 public class InterpreterInfo implements Serializable{
@@ -172,7 +173,7 @@ public class InterpreterInfo implements Serializable{
             
 	        public boolean accept(File pathname) {
 	            if(pathname.isFile()){
-	                return PythonPathHelper.isValidDll(pathname.getAbsolutePath());
+	                return PythonPathHelper.isValidDll(REF.getFileAbsolutePath(pathname));
 	            }else{
 	                return false;
 	            }
@@ -192,7 +193,7 @@ public class InterpreterInfo implements Serializable{
 	    for (Iterator iter = dlls.iterator(); iter.hasNext();) {
             File f = (File) iter.next();
             
-            this.dllLibs.add(f.getAbsolutePath());
+            this.dllLibs.add(REF.getFileAbsolutePath(f));
         }
 	    
 	    forcedLibs.clear();

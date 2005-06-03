@@ -150,6 +150,18 @@ public class REF {
             return null;
         }
     }
+
+    /**
+     * @param f
+     * @return
+     */
+    public static String getFileAbsolutePath(File f) {
+        try {
+            return f.getCanonicalPath();
+        } catch (IOException e) {
+            return f.getAbsolutePath();
+        }
+    }
     
     
     

@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.utils.REF;
 
 /**
  * This is not a singleton because we may have a different pythonpath for each project (even though
@@ -73,7 +74,7 @@ public class PythonPathHelper implements Serializable{
             
 	        public boolean accept(File pathname) {
 	            if(pathname.isFile()){
-	                return isValidFileMod(pathname.getAbsolutePath());
+	                return isValidFileMod(REF.getFileAbsolutePath(pathname));
 	            }else if(pathname.isDirectory()){
 	                return isFileOrFolderWithInit(pathname);
 	            }else{
@@ -138,7 +139,7 @@ public class PythonPathHelper implements Serializable{
         }
         if(moduleFile.isFile()){
             
-            if(isValidFileMod(moduleFile.getAbsolutePath()) == false){
+            if(isValidFileMod(REF.getFileAbsolutePath(moduleFile)) == false){
                 return null;
             }
         }
@@ -188,14 +189,14 @@ public class PythonPathHelper implements Serializable{
                             
                             //check if file is in root...
                             if(isValidFileMod(modulesParts[i])){
-                                root = new File(root.getAbsolutePath() + "/" + modulesParts[i]);
+                                root = new File(REF.getFileAbsolutePath(root) + "/" + modulesParts[i]);
                                 if(root.exists() && root.isFile()){
                                     break;
                                 }
                                 
                             }else{
                                 //this part is a folder part... check if it is a valid module (has init).
-	                            root = new File(root.getAbsolutePath() + "/" + modulesParts[i]);
+	                            root = new File(REF.getFileAbsolutePath(root) + "/" + modulesParts[i]);
 	                            if(isFileOrFolderWithInit(root) == false){
 	                                isValid = false;
 	                                break;
@@ -274,7 +275,7 @@ public class PythonPathHelper implements Serializable{
     }
 
     /**
-     * @param string
+     * @param string with paths separated by |
      * @return
      */
     public List setPythonPath(String string) {
@@ -283,7 +284,12 @@ public class PythonPathHelper implements Serializable{
         for (int i = 0; i < strings.length; i++) {
             String defaultPathStr = getDefaultPathStr(strings[i]);
             if(defaultPathStr != null && defaultPathStr.trim().length() > 0){
-                pythonpath.add(defaultPathStr);
+                File file = new File(defaultPathStr);
+                if(file.exists()){
+                    //we have to get it with the appropriate cases and in a canonical form
+                    String path = REF.getFileAbsolutePath(file);
+                    pythonpath.add(path);
+                }
             }
         }
         return new ArrayList(pythonpath);
