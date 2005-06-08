@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.ui.IEditorPart;
@@ -98,6 +99,28 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         Preferences preferences = plugin.getPluginPreferences();
         preferences.addPropertyChangeListener(this);
         setInterpreterManager(new InterpreterManager(preferences));
+        
+
+        //restore the nature for all python projects
+        new Job("PyDev: Restoring projects python nature"){
+
+            protected IStatus run(IProgressMonitor monitor) {
+                IProject[] projects = getWorkspace().getRoot().getProjects();
+                for (int i = 0; i < projects.length; i++) {
+                    IProject project = projects[i];
+                    try {
+                        if (project.isOpen() && project.hasNature(PythonNature.PYTHON_NATURE_ID)) {
+                            PythonNature.addNature(project, monitor);
+                        }
+                    } catch (Exception e) {
+                        PydevPlugin.log(e);
+                    }
+                }
+                return Status.OK_STATUS;
+            }
+            
+        }.schedule();
+
     }
     
 
@@ -111,22 +134,26 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         try {
             Preferences preferences = plugin.getPluginPreferences();
             preferences.removePropertyChangeListener(this);
-            PythonShell.stopAllShells();
             
+            //save the natures (code completion stuff).
             IProject[] projects = getWorkspace().getRoot().getProjects();
             for (int i = 0; i < projects.length; i++) {
                 try {
-                    if (projects[i].isOpen()){
-	                    IProjectNature n = projects[i].getNature(PythonNature.PYTHON_NATURE_ID);
+                    IProject project = projects[i];
+                    if (project.isOpen()){
+	                    IProjectNature n = project.getNature(PythonNature.PYTHON_NATURE_ID);
 	                    if(n instanceof PythonNature){
 	                        PythonNature nature = (PythonNature) n;
 	                        nature.saveAstManager(true);
 	                    }
                     }
                 } catch (CoreException e) {
-                    e.printStackTrace();
+                    PydevPlugin.log(e);
                 }
             }
+
+            //stop the running shells
+            PythonShell.stopAllShells();
         } finally{
 	        super.stop(context);
         }

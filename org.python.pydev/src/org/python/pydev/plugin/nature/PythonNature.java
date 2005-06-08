@@ -115,6 +115,9 @@ public class PythonNature implements IProjectNature {
         if (project == null) {
             return;
         }
+        if(monitor == null){
+            monitor = new NullProgressMonitor();
+        }
 
         IProjectDescription desc = project.getDescription();
 
@@ -186,7 +189,7 @@ public class PythonNature implements IProjectNature {
                     astManager = (IASTManager) REF.readFromFile(getAstOutputFile());
                     //errors can happen when restoring it
                     if(astManager != null){
-	                    restoreAditionalManagers();
+	                    restoreSystemManager();
 	                    
                     }else{
                         try {
@@ -245,8 +248,8 @@ public class PythonNature implements IProjectNature {
                 }
 
                 astManager.changePythonPath(paths, project, new JobProgressComunicator(monitor, "Rebuilding modules", 500, this));
-                restoreAditionalManagers();
                 saveAstManager(false);
+                restoreSystemManager();
 
                 return Status.OK_STATUS;
             }
@@ -256,13 +259,17 @@ public class PythonNature implements IProjectNature {
     }
 
     /**
-     * This must be called so that 
+     * This must be called so that the system manager is restored.
      */
-    private void restoreAditionalManagers() {
-        if(astManager != null){
-	        IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
-	        InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
-	        astManager.setSystemModuleManager(info.modulesManager, getProject());
+    private void restoreSystemManager() {
+        try {
+            if (astManager != null) {
+                IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
+                InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
+                astManager.setSystemModuleManager(info.modulesManager, getProject());
+            }
+        } catch (Exception e) {
+            PydevPlugin.log(e);
         }
     }
     

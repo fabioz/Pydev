@@ -14,8 +14,8 @@
 <tr align="center" bgcolor="#eeeeee" valign="middle">
 <td colspan="7" nowrap="nowrap">
 <center>
-<p class="header_text">Last Site Update: 25 April 2005 |
-Latest Version: 0.9.3</p>
+<p class="header_text">Last Site Update: 08 June 2005 |
+Latest Version: 0.9.4</p>
 </center>
 </td>
 </tr>
@@ -349,14 +349,28 @@ ESSS - Engineering Simulation and Scientific Software
 
 <td valign="top" align="left" width="30">&nbsp;</td>
 <td valign="top" align="left"><!-- begin main.text -->
+
+<table border="1" cellpadding="0" cellspacing="0" width="100%">
+<tbody>
+<tr bgcolor="#eeeeee" valign="middle">
+<td colspan="1" >
+
+Appreciate PyDev? Why not give a small 
+<a style="font-size:100%" href="http://sourceforge.net/donate/index.php?group_id=85796">donation? (paypal)</a>
+
+</td>
+</tr>
+<tbody>
+</table>
+
+<br/>
 <H3>Code Completion</H3>
 
 <br>
-<strong> Notes for release 0.8.5 </strong>
+<strong> Notes for release 0.9.4 </strong>
 
 <p>
-Code completion is slowly getting to where I want. It is still not finished (missing parameters on methods),
-but aside from that, I think it has already come to a very good level.
+Code completion is finished for now (and it is already pretty complete). Only bug-fixes until 1.0!
 </p>
 
 <br>
@@ -369,26 +383,17 @@ Autocomplete on '.').
 <br><br>
 <IMG src="images/codecompletionpreferences.png" border="1" >
 <br><br>
-After setting the preferences, you have to set the PYTHONPATH you want to use for a certain project. Right click on the
-project root on the navigator and choose properties. The screen below should show. You can click on Restore
-PYTHONPATH to get the default PYTHONPATH in your machine (if it does not run, please file a bug report).<br><br>
-
-<strong>NOTE: In the JAVA package explorer the PyDev properties do not show, so, you really MUST use the NAVIGATOR.</strong>
-<BR><BR>
-<IMG src="images/codecompletionproperties.png" border="1" >
-<br><br>
-That's it, now the code completion should be ready for use. It is activated with Ctrl+Space and when writing '.' (if you 
-selected the Autocomplete on '.' !
-<br><br>
-
-
-If you want to see code completion in action, <a href="codecompletionsnapshots.html">here are some snapshots on the current uses.</a>
-<br><br>
-
-Explanation: Code completion is now (almost) all in JAVA. Based on the PYTHONPATH provided, each file is assumed a module and parsed (on
-request) for its code completion tokens, and lots of heuristics are used to get definitions of variables, hierarchies, attributes, etc.<br><br>
-The only thing that still requires a python process for the completion is the search for compiled modules like qt (or other .dll, .pyd, etc) 
-and builtins (e.g. object, sys, etc.). It is still far from perfect, but I think that much has already been achieved (wait for more in the next release).
+After setting the preferences, you have to set the PYTHONPATH you want to use for a certain project. 
+To instructions on how to do it, check the <a href="faq.html">FAQ</a>.
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 </td>
 <!-- end main.text -->
 

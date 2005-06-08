@@ -8,7 +8,6 @@ package org.python.pydev.ui;
 
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -16,6 +15,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.IPythonPathNature;
@@ -63,13 +63,32 @@ public class PyProjectProperties extends PropertyPage {
 
 		if(project != null){
 		    try {
-                String sourcePath = PythonNature.getPythonPathNature(project).getProjectSourcePath();
+		    	String sourcePath = PythonNature.getPythonPathNature(project).getProjectSourcePath();
                 String externalSourcePath = PythonNature.getPythonPathNature(project).getProjectExternalSourcePath();
+
+                Label l2 = new Label(topComp, SWT.None);
+		    	l2.setText("Source Folders.");
+		    	gd = new GridData();
+		    	gd.grabExcessHorizontalSpace = true;
+		    	gd.grabExcessVerticalSpace = false;
+		    	l2.setLayoutData(gd);
+
+		    	
                 treeSourceFolders = new TreeWithAddRemove(topComp, 0, project, sourcePath);
                 data = new GridData(GridData.FILL_BOTH);
                 data.grabExcessHorizontalSpace = true;
                 data.grabExcessVerticalSpace = true;
                 treeSourceFolders.setLayoutData(data);
+
+
+                
+                
+		    	l2 = new Label(topComp, SWT.None);
+		    	l2.setText("External Source Folders.");
+		    	gd = new GridData();
+		    	gd.grabExcessHorizontalSpace = true;
+		    	gd.grabExcessVerticalSpace = false;
+		    	l2.setLayoutData(gd);
 
                 treeExternalLibs = new TreeWithAddRemove(topComp, 0, project, externalSourcePath) {
                     protected String getImageConstant() {
