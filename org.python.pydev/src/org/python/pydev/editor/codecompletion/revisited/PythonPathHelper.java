@@ -53,11 +53,7 @@ public class PythonPathHelper implements Serializable{
         if((str.indexOf("\\.") != -1 || str.indexOf(".") == 1) && acceptPoint == false){
             throw new RuntimeException("The pythonpath can only have full paths without . or .. ("+str+") is not valid.");
         }
-        if(str.indexOf(':') == 1){
-            String drive = str.substring(0,1).toLowerCase();
-            str = drive + str.substring(1);
-        }
-        return str.trim().replaceAll("\\\\","/");//.toLowerCase();
+        return str.trim().replaceAll("\\\\","/");
     }
     
     public String getDefaultPathStr(String str){

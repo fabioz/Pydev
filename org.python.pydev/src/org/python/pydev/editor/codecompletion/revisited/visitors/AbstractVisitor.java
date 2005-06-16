@@ -24,6 +24,7 @@ import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.stmtType;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.utils.REF;
 
 /**
@@ -98,7 +99,8 @@ public abstract class AbstractVisitor extends VisitorBase{
             return ((Num)node).n.toString();
             
         }
-        System.err.println("Unable to get representation to:"+node);
+        
+        PydevPlugin.log("Unable to get representation to node with class: "+node.getClass()+"\nNode repr:"+node);
         return null;
     }
     

@@ -5,13 +5,23 @@ pydev-users@lists.sourceforge.net
 
 
 
-ANN: PyDev XXXXX released
+ANN: PyDev 0.9.4 released
 
 Hi All,
 
-PyDev - Python IDE (Python development enviroment for Eclipse) version XXXXXXX has just been released.
+PyDev - Python IDE (Python Development Enviroment for Eclipse) version 0.9.4 has just been released.
 
-You can check the homepage (http://pydev.sourceforge.net/) for more details.
+Check the homepage (http://pydev.sourceforge.net/) for more details.
+
+Release Highlights:
+
+- New PYTHONPATH configuration (for the whole ambient), used for running your files, PyLint, code completion...
+- Integrated Scott Schleiser patches for the debugger (you won't see any 'implement me' anymore!).
+- Integrated Heikki Toivonen patch for PyLint using the project pythonpath.
+- Integrated Heikki Toivonen patch for indentation after '(', '[' and '{' (if the line ends with a comma).
+- Some StackOverflow errors were removed from code completion.
+- Keybindings added for Refactoring (powered by bycicle repair man) - check the FAQ.
+- Some bug-fixes as usual...
+
 
 Regards,
-

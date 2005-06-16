@@ -229,6 +229,13 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten.", e);
     }
 
+    public static CoreException log(String msg) {
+        IStatus s = PydevPlugin.makeStatus(IStatus.ERROR, msg, new RuntimeException(msg));
+        CoreException e = new CoreException(s);
+        PydevPlugin.log(e);
+        return e;
+    }
+
     /**
      *  
      */
@@ -587,5 +594,4 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 			each.testFailed(klass, methodName, trace);
 		}
 	}
-
 }

@@ -62,6 +62,11 @@ public interface IInterpreterManager {
      * @return string to persist with the passed executables.
      */
     public String getStringToPersist(String[] executables);
+
+    /**
+     * 
+     */
+    public boolean hasInfoOnDefaultInterpreter();
     
     
 }

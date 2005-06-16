@@ -201,36 +201,42 @@ public class SimplePythonRunner {
 	public static String[] getEnvironment(IProject project) throws CoreException {
 	    String pythonPathEnvStr = "";
 		try {
-	        PydevPlugin.getInterpreterManager().getDefaultInterpreter(); //check if we have a default interpreter (throws exception if not configured).
-            pythonPathEnvStr = makePythonPathEnvString(project);
+	        if (PydevPlugin.getInterpreterManager().hasInfoOnDefaultInterpreter()){ //check if we have a default interpreter.
+	            pythonPathEnvStr = makePythonPathEnvString(project);
+	        }
         } catch (Exception e) {
             return null; //we cannot get it
         }
 
-		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-
-	    // build base environment
-		Map env = new HashMap();
-		env.putAll(launchManager.getNativeEnvironment());
-		
-		// Add variables from config
-		boolean win32= Platform.getOS().equals(Constants.OS_WIN32);
-		for(Iterator iter= env.entrySet().iterator(); iter.hasNext(); ) {
-			Map.Entry entry= (Map.Entry) iter.next();
-			String key= (String) entry.getKey();
-			if (win32) {
-				// Win32 vars are case insensitive. Uppercase everything so
-				// that (for example) "pAtH" will correctly replace "PATH"
-				key= key.toUpperCase();
-			}
-			String value = (String) entry.getValue();
-			// translate any string substitution variables
-			String translated = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(value);
-			env.put(key, translated);
-		}		
-
-		env.put("PYTHONPATH", pythonPathEnvStr); //put the environment
-		return getMapEnvAsArray(env);
+		DebugPlugin defaultPlugin = DebugPlugin.getDefault();
+		if(defaultPlugin != null){
+	        ILaunchManager launchManager = defaultPlugin.getLaunchManager();
+	
+		    // build base environment
+			Map env = new HashMap();
+			env.putAll(launchManager.getNativeEnvironment());
+			
+			// Add variables from config
+			boolean win32= Platform.getOS().equals(Constants.OS_WIN32);
+			for(Iterator iter= env.entrySet().iterator(); iter.hasNext(); ) {
+				Map.Entry entry= (Map.Entry) iter.next();
+				String key= (String) entry.getKey();
+				if (win32) {
+					// Win32 vars are case insensitive. Uppercase everything so
+					// that (for example) "pAtH" will correctly replace "PATH"
+					key= key.toUpperCase();
+				}
+				String value = (String) entry.getValue();
+				// translate any string substitution variables
+				String translated = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(value);
+				env.put(key, translated);
+			}		
+	
+			env.put("PYTHONPATH", pythonPathEnvStr); //put the environment
+			return getMapEnvAsArray(env);
+		}else{
+		    return null;
+		}
 	}
 
 

@@ -53,6 +53,7 @@ public class CodeCompletionTestsBase extends TestCase {
          * @see org.python.pydev.ui.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
          */
         public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
+            
             InterpreterInfo info = super.getInterpreterInfo(executable, monitor);
             PYTHON_EXE = info.executable;
             return info;
@@ -63,7 +64,7 @@ public class CodeCompletionTestsBase extends TestCase {
     //NOTE: this should be gotten from some variable to point to the python lib (less system dependence, but still, some).
     public static String PYTHON_EXE="C:/bin/Python24/python.exe";
     public static final String PYTHON_INSTALL="C:/bin/Python24/";
-    public static final String PYTHON_LIB="C:/bin/Python24/lib/";
+    public static final String PYTHON_LIB="C:/bin/Python24/Lib/";
     public static final String PYTHON_SITE_PACKAGES="C:/bin/Python24/Lib/site-packages/";
     
     //NOTE: this should set to the tests pysrc location, so that it can be added to the pythonpath.

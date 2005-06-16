@@ -162,4 +162,13 @@ public class InterpreterManager implements IInterpreterManager {
     }
 
 
+    /**
+     * @see org.python.pydev.ui.IInterpreterManager#hasInfoOnDefaultInterpreter()
+     */
+    public boolean hasInfoOnDefaultInterpreter() {
+        InterpreterInfo info = (InterpreterInfo) exeToInfo.get(getDefaultInterpreter());
+        return info != null;
+    }
+
+
 }

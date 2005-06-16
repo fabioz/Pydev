@@ -22,6 +22,7 @@ import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsU
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.utils.REF;
@@ -83,11 +84,36 @@ public class PythonRunnerConfig {
 
 		//find the project
         IFile file2 = conf.getFile();
+        IWorkspace w = ResourcesPlugin.getWorkspace();
+        
         if(file2 == null){
-            IWorkspace w = ResourcesPlugin.getWorkspace();
             file2 = w.getRoot().getFileForLocation(file);
         }
 
+        if(file2 == null){ 
+            IFile[] files = w.getRoot().findFilesForLocation(file);
+            if(files != null){
+	            if(files.length == 1){
+	                file2 = files[0];
+	            }else if(files.length > 1 ){
+	                CoreException e = PydevPlugin.log("Too many internal eclipse representations for file "+file+"\n" +
+	                		"Cannot run file referenced\n" +
+	                		"in more that one project right now!\n" +
+	                		"\n" +
+	                		"This happens when files are shared across projects\n" +
+	                		"with external links - check feature request:\n" +
+	                		"http://sourceforge.net/tracker/index.php?func=detail&aid=1219682&group_id=85796&atid=577332).");
+	                throw e;
+	            }
+            }
+            
+        }
+
+        if(file2 == null){ //Ok, we could not find it out
+            CoreException e = PydevPlugin.log("Could not get internal eclipse representation for file: "+file);
+            throw e;
+        }
+        
         IProject project = file2.getProject();
 
         //make the environment
