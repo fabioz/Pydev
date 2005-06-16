@@ -33,7 +33,8 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 	      test.setUp();
 //	      test.testSelfReference();
 //	      test.testCompleteImportCompletion();
-	      test.testCompleteImportBuiltin();
+//	      test.testCompleteImportBuiltin();
+	      test.testFor();
 	      test.tearDown();
 	  } catch (Exception e) {
 	      e.printStackTrace();
@@ -315,5 +316,19 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
         
     }
 
+    /**
+     * @throws BadLocationException
+     * @throws CoreException
+     * 
+     */
+    public void testFor() throws CoreException, BadLocationException {
+        String s;
+        s = "" +
+    		"for event in a:   \n" +
+    		"    print event   \n" +
+    		"                  \n" +
+			"event.";
+        requestCompl(s, s.length(), -1, new String[] {});
+    }
 
 }
