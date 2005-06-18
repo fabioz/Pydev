@@ -35,7 +35,7 @@ public class PyConvertTabToSpace extends PyConvertSpaceToTab
 			perform ( );
 
 			// Put cursor at the first area of the selection
-			getTextEditor ( ).selectAndReveal ( ps.getCursorOffset ( ), 0 );
+			getTextEditor ( ).selectAndReveal ( ps.getLineOffset ( ), 0 );
 		} 
 		catch ( Exception e ) 
 		{

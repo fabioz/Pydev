@@ -44,7 +44,7 @@ public class PyBackspace extends PyAction {
                 return;
             }
 
-            int lastCharPosition = getLastCharPosition(ps.getDoc(), ps.getCursorOffset());
+            int lastCharPosition = getLastCharPosition(ps.getDoc(), ps.getLineOffset());
 
             int cursorOffset = textSelection.getOffset();
 

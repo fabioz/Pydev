@@ -37,25 +37,25 @@ public class PyOpenPar extends PyAction{
     }
 
     /**
-     * @param doc
+     * @param document
      * @param 
      * @param 
      * @throws BadLocationException
      */
-    public void performOpenPar(IDocument doc, int cursorLine, int cursorOffset) throws BadLocationException {
-        String line = PySelection.getLine(doc, cursorLine);
+    public void performOpenPar(IDocument document, int cursorLine, int cursorOffset) throws BadLocationException {
+        String line = PySelection.getLine(document, cursorLine);
         
         if(shouldClose(line)){
         
 	        if(line.indexOf(":") == -1 && (line.indexOf("class") != -1 || line.indexOf("def") != -1)){
-	            doc.replace(cursorOffset, 0, "():");
+	            document.replace(cursorOffset, 0, "():");
 	        }else{
-	            doc.replace(cursorOffset, 0, "()");
+	            document.replace(cursorOffset, 0, "()");
 	        }
         }
         else{
             
-            doc.replace(cursorOffset, 0, "(");
+            document.replace(cursorOffset, 0, "(");
         }
     }
 

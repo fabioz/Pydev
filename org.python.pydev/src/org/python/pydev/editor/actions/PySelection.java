@@ -53,6 +53,15 @@ public class PySelection {
     }
 
     /**
+     * @param document
+     * @param selection
+     */
+    public PySelection(IDocument doc, int offset) {
+        this.doc = doc;
+        this.textSelection = new TextSelection(doc, offset, 0);
+    }
+
+    /**
      * In event of partial selection, used to select the full lines involved.
      */
     public void selectCompleteLine() {
@@ -66,6 +75,16 @@ public class PySelection {
         PydevPlugin.log(e);
         PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
     }
+
+    /**
+     * Gets current line from document.
+     * 
+     * @return String line in String form
+     */
+    public String getLine() {
+        return getLine(getDoc(), getCursorLine());
+    }
+    
 
     /**
      * Gets line from document.
@@ -96,7 +115,7 @@ public class PySelection {
      * 
      * @return int Offset to put cursor at
      */
-    public int getCursorOffset() {
+    public int getLineOffset() {
         try {
             return getDoc().getLineInformation(getCursorLine()).getOffset();
         } catch (Exception e) {
@@ -164,6 +183,20 @@ public class PySelection {
         } catch (BadLocationException e) {
             e.printStackTrace();
         } 
+    }
+
+    /**
+     * @param ps
+     * @return the line where the cursor is (from the beggining of the line to the cursor position).
+     * @throws BadLocationException
+     */
+    public String getLineContentsFromCursor() throws BadLocationException {
+        int lineOfOffset = getDoc().getLineOfOffset(getAbsoluteCursorOffset());
+        IRegion lineInformation = getDoc().getLineInformation(lineOfOffset);
+        
+        
+        String lineToCursor = getDoc().get(getAbsoluteCursorOffset(),   lineInformation.getOffset() + lineInformation.getLength() - getAbsoluteCursorOffset());
+        return lineToCursor;
     }
 
     /**
@@ -303,6 +336,15 @@ public class PySelection {
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    /**
+     * @return
+     * @throws BadLocationException
+     */
+    public char getCharAfterCurrentOffset() throws BadLocationException {
+        return getDoc().getChar(getAbsoluteCursorOffset()+1);
     }
     
 }
