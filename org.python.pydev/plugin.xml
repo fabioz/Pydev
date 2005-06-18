@@ -13,16 +13,18 @@
       </library>
    </runtime>
    <requires>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.jface.text"/>
       <import plugin="org.eclipse.ui.editors"/>
       <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
-      <import plugin="org.eclipse.jface.text"/>
       <import plugin="org.eclipse.debug.core"/>
       <import plugin="org.eclipse.core.variables"/>
+      <import plugin="org.python.pydev.core"/>
+      <import plugin="org.python.pydev.parser"/>
    </requires>
 
 
@@ -297,18 +299,6 @@
                class="org.python.pydev.editor.actions.PyFormatStd"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.pyFormatStd">
-         </action>
-         <action
-               definitionId="org.python.pydev.editor.actions.pyOpenPar"
-               label="Open parentesis"
-               class="org.python.pydev.editor.actions.PyOpenPar"
-               id="org.python.pydev.editor.actions.navigation.pyOpenPar">
-         </action>
-         <action
-               definitionId="org.python.pydev.editor.actions.pyClosePar"
-               label="Close parentesis"
-               class="org.python.pydev.editor.actions.PyClosePar"
-               id="org.python.pydev.editor.actions.navigation.pyClosePar">
          </action>
 
 		<!-- This is for the refactoring having the existing action (definition) -->

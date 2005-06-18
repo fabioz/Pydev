@@ -68,7 +68,8 @@ public class CodeCompletionTestsBase extends TestCase {
     public static final String PYTHON_SITE_PACKAGES="C:/bin/Python24/Lib/site-packages/";
     
     //NOTE: this should set to the tests pysrc location, so that it can be added to the pythonpath.
-    public static final String TEST_PYSRC_LOC="D:/dev_programs/eclipse_3/eclipse/workspace/org.python.pydev/tests/pysrc/";
+//    public static final String TEST_PYSRC_LOC="D:/dev_programs/eclipse_3/eclipse/workspace/org.python.pydev/tests/pysrc/";
+    public static final String TEST_PYSRC_LOC="D:/eclipse_workspace/org.python.pydev/tests/pysrc/";
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(CodeCompletionTestsBase.class);
