@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor;
+package org.python.pydev.editor.autoedit;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
@@ -28,7 +28,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
      * Naive implementation. Always redoes the indentation string based in the
      * spaces and tabs settings. 
      * 
-     * @see org.python.pydev.editor.IIndentPrefs#getIndentationString()
+     * @see org.python.pydev.editor.autoedit.IIndentPrefs#getIndentationString()
      */
     public String getIndentationString() {
         if (getUseSpaces() && !getForceTabs())

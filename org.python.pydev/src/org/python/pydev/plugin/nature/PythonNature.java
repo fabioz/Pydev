@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IASTManager;
 import org.python.pydev.plugin.PydevPlugin;
@@ -38,7 +39,7 @@ import org.python.pydev.utils.REF;
  * 
  *  
  */
-public class PythonNature implements IProjectNature {
+public class PythonNature implements IProjectNature, IPythonNature {
 
     /**
      * This is the nature ID

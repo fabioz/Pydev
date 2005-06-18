@@ -3,11 +3,11 @@
  * 
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor;
+package org.python.pydev.editor.autoedit;
 
 import org.python.pydev.plugin.PydevPrefs;
 
-class DefaultIndentPrefs extends AbstractIndentPrefs {
+public class DefaultIndentPrefs extends AbstractIndentPrefs {
     /** 
      * Cache for indentation string 
      */
@@ -49,5 +49,13 @@ class DefaultIndentPrefs extends AbstractIndentPrefs {
 
         return indentString;
     }
+
+    /** 
+     * @see org.python.pydev.editor.autoedit.IIndentPrefs#getAutoParentesis()
+     */
+    public boolean getAutoParentesis() {
+        return PydevPrefs.getPreferences().getBoolean(PydevPrefs.AUTO_PAR);
+    }
+
 
 }

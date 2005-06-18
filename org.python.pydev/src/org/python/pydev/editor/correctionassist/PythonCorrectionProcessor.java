@@ -27,6 +27,7 @@ import org.python.pydev.editor.correctionassist.heuristics.AssistOverride;
 import org.python.pydev.editor.correctionassist.heuristics.AssistTry;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.ImageCache;
 
 /**
@@ -110,7 +111,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
             try {
                 if (assists[i].isValid(ps, sel)) {
                     try {
-                        results.addAll(assists[i].getProps(ps, imageCache, edit.getEditorFile(), edit.getPythonNature(), edit
+                        results.addAll(assists[i].getProps(ps, imageCache, edit.getEditorFile(), (PythonNature)edit.getPythonNature(), edit
                                 .getPythonModel()));
                     } catch (BadLocationException e) {
                         PydevPlugin.log(e);

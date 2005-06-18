@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Display;
+import org.python.parser.SimpleNode;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.IModelListener;
@@ -37,7 +38,7 @@ public class ParsedModel implements IOutlineModel {
 		// Tell parser that we want to know about all the changes
 		// make sure that the changes are propagated on the main thread
 		modelListener = new IModelListener() {
-			public void modelChanged(AbstractNode root) {
+			public void modelChanged(AbstractNode root, SimpleNode ast) {
 				final AbstractNode myRoot = root;
 				Display.getDefault().syncExec( new Runnable() {
 					public void run() {

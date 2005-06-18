@@ -436,11 +436,15 @@ public class ASTManager implements IASTManager, Serializable {
                 for (int i = 0; i < defs.length; i++) {
                     if(!(defs[0].ast instanceof FunctionDef)){
                         //we might want to extend that later to check the return of some function...
+                                
 	                    CompletionState copy = state.getCopy();
 	                    copy.activationToken = defs[i].value;
 	                    copy.line = defs[i].line;
 	                    copy.col = defs[i].col;
 	                    module = defs[i].module;
+
+	                    state.checkDefinitionMemory(module, defs[i]);
+	                            
 	                    IToken[] tks = getCompletionsForModule(module, copy);
 	                    if(tks.length > 0)
 	                        return tks;

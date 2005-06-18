@@ -58,5 +58,47 @@ public class Definition {
         this.scope = scope;
         this.module = module;
     }
+    
+    /** 
+     * @see java.lang.Object#toString()
+     */
+    public String toString() {
+        StringBuffer buffer = new StringBuffer("Definition=");
+        buffer.append(value);
+        buffer.append(" line=");
+        buffer.append(line);
+        buffer.append(" col=");
+        buffer.append(col);
+        return buffer.toString();
+    }
 
+    /** 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Definition)){
+            return false;
+        }
+        
+        Definition d = (Definition) obj;
+
+        if(!value.equals(d.value)){
+            return false;
+        }
+        
+        if(col != d.col){
+            return false;
+        }
+        
+        if(line != d.line){
+            return false;
+        }
+
+        if(!scope.equals(d.scope)){
+            return false;
+        }
+        
+        
+        return true;
+    }
 }

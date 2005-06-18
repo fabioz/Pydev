@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor;
+package org.python.pydev.editor.autoedit;
 
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
@@ -17,7 +17,6 @@ public interface IIndentPrefs {
      * @return True if we should substitute tabs for spaces.
      */
     public boolean getUseSpaces();
-    //public void setUseSpaces(boolean useSpaces);
     
     /**
      * Sets the forceTabs preference for auto-indentation.
@@ -37,7 +36,6 @@ public interface IIndentPrefs {
      * @return the width a tab should have.
      */
     public int getTabWidth();
-    //public void setTabWidth(int tabWidth);
     
     /**
      * @return the indentation string based on the current settings.
@@ -48,4 +46,10 @@ public interface IIndentPrefs {
 	 * Given the current settings, convert the current string to tabs or spaces.
 	 */
 	public void convertToStd(IDocument document, DocumentCommand command);
+	
+	/**
+	 * @return whether we should auto-close parentesis
+	 */
+	public boolean getAutoParentesis();
+
 }

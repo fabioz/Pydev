@@ -17,6 +17,7 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Dmoore
@@ -150,7 +151,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      */
     private Object[] getPythonProposals(int documentOffset, IDocument doc) throws CoreException, BadLocationException {
         CompletionRequest request = new CompletionRequest(edit.getEditorFile(), 
-                edit.getPythonNature(), doc, documentOffset,
+                (PythonNature)edit.getPythonNature(), doc, documentOffset,
                 codeCompletion);
         boolean showTemplates = true;
         

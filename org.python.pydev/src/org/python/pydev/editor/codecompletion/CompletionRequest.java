@@ -23,7 +23,7 @@ public class CompletionRequest{
             PyCodeCompletion codeCompletion, 
             String qualifier){
         this.editorFile = edit.getEditorFile();
-        this.nature = edit.getPythonNature();
+        this.nature = (PythonNature) edit.getPythonNature();
         this.doc = doc;
         this.activationToken  = activationToken;
         this.documentOffset = documentOffset;

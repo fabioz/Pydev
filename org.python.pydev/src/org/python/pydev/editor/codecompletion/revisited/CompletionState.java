@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
@@ -23,6 +24,7 @@ public class CompletionState {
     public int col;
     public PythonNature nature;
     public Map memory = new HashMap();
+    public Map definitionMemory = new HashMap();
     public Map wildImportMemory = new HashMap();
 
     
@@ -55,6 +57,7 @@ public class CompletionState {
         state.nature = nature;
         state.memory = memory;
         state.wildImportMemory = wildImportMemory;
+        state.definitionMemory = definitionMemory;
         return state;
     }
 
@@ -78,6 +81,25 @@ public class CompletionState {
         
     }
     
+    /**
+     * @param module
+     * @param definition
+     */
+    public void checkDefinitionMemory(AbstractModule module, Definition definition) {
+        List l;
+        if (this.definitionMemory.containsKey(module)){
+            l = (List) this.definitionMemory.get(module);
+            if(l.contains(definition)){
+                throw new CompletionRecursionException("Recursion found (token: "+definition+")");
+            }
+        }else{
+            l = new ArrayList();
+        }
+        
+        l.add(definition);
+        definitionMemory.put(module, l);
+            
+    }
     /**
      * @param module
      * @param base

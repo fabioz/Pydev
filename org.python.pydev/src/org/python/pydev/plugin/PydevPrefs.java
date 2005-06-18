@@ -67,6 +67,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	//declaration of fAppearanceColorListModel if it is a color
 	//constants (here)
 	
+	public static final String AUTO_PAR = "AUTO_PAR";
+	public static final boolean DEFAULT_AUTO_PAR = true;
+
 	//text
 	public static final String TAB_WIDTH = "TAB_WIDTH";
 	public static final int DEFAULT_TAB_WIDTH = 4;
@@ -218,6 +221,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		
 		//text
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_PAR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, BLOCK_COMMENT));
 		
@@ -299,6 +303,8 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		Composite appearanceComposite= new Composite(parent, SWT.NONE);
 		GridLayout layout= new GridLayout(); layout.numColumns= 2;
 		appearanceComposite.setLayout(layout);
+
+		addTextField(appearanceComposite, "Auto parentesis:", AUTO_PAR, 3, 0, true);
 
 		addTextField(appearanceComposite, "Tab length:", TAB_WIDTH, 3, 0, true);
 
@@ -663,6 +669,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	 */
 	protected static void initializeDefaultPreferences(Preferences prefs) {
 		//text
+		prefs.setDefault(AUTO_PAR, DEFAULT_AUTO_PAR);
 		prefs.setDefault(TAB_WIDTH, DEFAULT_TAB_WIDTH);
 		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN, DEFAULT_EDITOR_PRINT_MARGIN_COLUMN);
 		prefs.setDefault(BLOCK_COMMENT, DEFAULT_BLOCK_COMMENT_STRING);

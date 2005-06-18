@@ -6,7 +6,7 @@
 package org.python.pydev.editor.codefolding;
 
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
-import org.python.pydev.editor.model.AbstractNode;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 /**
  * This class was created so that we can check if some annotation reappears
@@ -16,9 +16,9 @@ import org.python.pydev.editor.model.AbstractNode;
  */
 public class PyProjectionAnnotation extends ProjectionAnnotation{
 
-    public AbstractNode node;
+    public ASTEntry node;
 
-    public PyProjectionAnnotation(AbstractNode node){
+    public PyProjectionAnnotation(ASTEntry node){
         this.node = node;
     }
 
@@ -26,7 +26,7 @@ public class PyProjectionAnnotation extends ProjectionAnnotation{
      * @param node2
      * @return
      */
-    public boolean appearsSame(AbstractNode node2) {
+    public boolean appearsSame(ASTEntry node2) {
         
         if(node2.getClass().equals(node.getClass()) == false)
             return false;
@@ -40,13 +40,13 @@ public class PyProjectionAnnotation extends ProjectionAnnotation{
     /**
      * @param node2
      */
-    private String getCompleteName(AbstractNode node2) {
+    private String getCompleteName(ASTEntry node2) {
         
         String ret = node2.getName();
         
-        while(node2.getParent() != null){
-            ret = node2.getParent().getName() + "."+ ret;
-            node2 = node2.getParent();
+        while(node2.parent != null){
+            ret = node2.parent.getName() + "."+ ret;
+            node2 = node2.parent;
         }
         
         return ret;

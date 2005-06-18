@@ -5,6 +5,8 @@
  */
 package org.python.pydev.editor.model;
 
+import org.python.parser.SimpleNode;
+
 /**
  * PyEdit will broadcast model changes to IModelListeners.
  * 
@@ -14,6 +16,7 @@ public interface IModelListener {
 	/**
 	 * every time document gets parsed, it generates a new parse tree
 	 * @param root - the root of the new model
+	 * @param root2
 	 */
-	void modelChanged(AbstractNode root);
+	void modelChanged(AbstractNode root, SimpleNode root2);
 }

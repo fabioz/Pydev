@@ -29,8 +29,7 @@ import org.python.pydev.plugin.PydevPrefs;
  *  
  * http://download2.eclipse.org/downloads/drops/S-3.0M9-200405211200/buildnotes/buildnotes_text.html 
  */
-public abstract class PyEditProjection extends TextEditor implements
-        IParserListener {
+public abstract class PyEditProjection extends TextEditor implements IParserListener {
 
     private ProjectionSupport fProjectionSupport;
 	private PyCorrectionAssistant fCorrectionAssistant;

@@ -43,7 +43,10 @@ import org.python.parser.ParseException;
 import org.python.parser.SimpleNode;
 import org.python.parser.Token;
 import org.python.parser.TokenMgrError;
+import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.actions.PyOpenAction;
+import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
@@ -84,7 +87,7 @@ import org.python.pydev.ui.ColorCache;
  *      eclipse article was an inspiration </a>
  *  
  */
-public class PyEdit extends PyEditProjection {
+public class PyEdit extends PyEditProjection implements IPyEdit{
 
     static public String EDITOR_ID = "org.python.pydev.editor.PythonEditor";
 
@@ -107,6 +110,11 @@ public class PyEdit extends PyEditProjection {
 
     /** Python model */
     AbstractNode pythonModel;
+    
+    /**
+     * AST that created python model
+     */
+    SimpleNode ast;
 
     /** Hyperlinking listener */
     Hyperlink fMouseListener;
@@ -442,8 +450,9 @@ public class PyEdit extends PyEditProjection {
         IRegion r;
         try {
             r = document.getLineInformation(lastLine - 1);
+            ast = root;
             pythonModel = ModelMaker.createModel(root, document, filePath);
-            fireModelChanged(pythonModel);
+            fireModelChanged(pythonModel, ast);
         } catch (BadLocationException e1) {
             PydevPlugin.log(IStatus.WARNING, "Unexpected error getting document length. No model!", e1);
         }
@@ -548,14 +557,15 @@ public class PyEdit extends PyEditProjection {
 
     /**
      * stock listener implementation event is fired whenever we get a new root
+     * @param root2
      */
-    protected void fireModelChanged(AbstractNode root) {
+    protected void fireModelChanged(AbstractNode root, SimpleNode root2) {
         if (modelListeners.size() > 0) {
             ArrayList list = new ArrayList(modelListeners);
             Iterator e = list.iterator();
             while (e.hasNext()) {
                 IModelListener l = (IModelListener) e.next();
-                l.modelChanged(root);
+                l.modelChanged(root, root2);
             }
         }
     }
@@ -564,7 +574,7 @@ public class PyEdit extends PyEditProjection {
      * @return
      * 
      */
-    public PythonNature getPythonNature() {
+    public IPythonNature getPythonNature() {
         IProject project = getProject();
         return PythonNature.getPythonNature(project);
     }
@@ -573,6 +583,13 @@ public class PyEdit extends PyEditProjection {
     {
     	super.initializeEditor();    	
     	this.setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
+    }
+
+    /**
+     * @return
+     */
+    public SimpleNode getAST() {
+        return ast;
     }
 }
 

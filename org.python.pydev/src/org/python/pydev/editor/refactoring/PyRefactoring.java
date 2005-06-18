@@ -16,6 +16,7 @@ import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.utils.REF;
 
 /**
@@ -77,7 +78,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         try {
             pytonShell = PythonShell.getServerShell(PythonShell.OTHERS_SHELL);
 	        try {
-		        pytonShell.changePythonPath(editor.getPythonNature().getPythonPathNature().getCompleteProjectPythonPath());
+		        pytonShell.changePythonPath(((PythonNature)editor.getPythonNature()).getPythonPathNature().getCompleteProjectPythonPath());
 	            pytonShell.write(str);
 	 
 	            return URLDecoder.decode(pytonShell.read(operation));
