@@ -7,6 +7,8 @@ package org.python.pydev.editor;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentCommand;
+import org.python.pydev.editor.autoedit.AbstractIndentPrefs;
+import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 
 import junit.framework.TestCase;
 
@@ -152,15 +154,65 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(expected, docCmd.text);
     }        
     
+    /**
+     * 
+     */
+    public void testAutoPar() {
+        strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
+        String doc = "class c";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "(object):";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "class c:\n" +
+    		  "    def met";
+        docCmd = new DocCmd(doc.length(), 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "(self):";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "class c(object): #";
+        docCmd = new DocCmd(doc.length(), 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "()";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "def a";
+        docCmd = new DocCmd(doc.length(), 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "():";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "a";
+        docCmd = new DocCmd(doc.length(), 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "()";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "a()";
+        docCmd = new DocCmd(doc.length()-1, 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "(";
+        assertEquals(expected, docCmd.text);
+        
+        
+    }
     
     private final class TestIndentPrefs extends AbstractIndentPrefs {
         
         private boolean useSpaces;
         private int tabWidth;
+        boolean autoPar = true;
 
         public TestIndentPrefs(boolean useSpaces, int tabWidth){
             this.useSpaces = useSpaces;
             this.tabWidth = tabWidth;
+        }
+
+        public TestIndentPrefs(boolean useSpaces, int tabWidth, boolean autoPar){
+            this(useSpaces,tabWidth);
+            this.autoPar = autoPar;
         }
         
         public boolean getUseSpaces() {
@@ -169,6 +221,10 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
         public int getTabWidth() {
             return tabWidth;
+        }
+
+        public boolean getAutoParentesis() {
+            return autoPar;
         }
 
     }

@@ -328,7 +328,12 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
     		"    print event   \n" +
     		"                  \n" +
 			"event.";
-        requestCompl(s, s.length(), -1, new String[] {});
+        try {
+            requestCompl(s, s.length(), -1, new String[] {});
+        } catch (StackOverflowError e) {
+            System.out.println("here");
+            throw new RuntimeException(e);
+        }
     }
 
 }

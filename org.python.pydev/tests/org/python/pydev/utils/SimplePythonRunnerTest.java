@@ -5,7 +5,15 @@
  */
 package org.python.pydev.utils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
+import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.plugin.BundleInfo;
+import org.python.pydev.ui.BundleInfoStub;
 
 import junit.framework.TestCase;
 
@@ -23,6 +31,7 @@ public class SimplePythonRunnerTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
+        BundleInfo.setBundleInfo(new BundleInfoStub());
     }
 
     /*
@@ -33,12 +42,15 @@ public class SimplePythonRunnerTest extends TestCase {
     }
 
     /**
+     * @throws CoreException
+     * @throws IOException
      * 
      */
-    public void testEnv() {
+    public void testEnv() throws CoreException, IOException {
         
         ArrayList list = new ArrayList();
-        String string = SimplePythonRunner.runAndGetOutput("python D:/dev_programs/eclipse_3/eclipse/workspace/org.python.pydev/PySrc/interpreterInfo.py", null);
+        File relativePath = BundleInfo.getBundleInfo().getRelativePath(new Path("PySrc/interpreterInfo.py"));
+        String string = SimplePythonRunner.runAndGetOutput(CodeCompletionTestsBase.PYTHON_EXE+" "+relativePath.getCanonicalPath(), null);
         System.out.println(string);
     }
 }
