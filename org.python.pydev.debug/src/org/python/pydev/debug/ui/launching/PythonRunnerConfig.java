@@ -96,9 +96,9 @@ public class PythonRunnerConfig {
 	            if(files.length == 1){
 	                file2 = files[0];
 	            }else if(files.length > 1 ){
-	                CoreException e = PydevPlugin.log("Too many internal eclipse representations for file "+file+"\n" +
+	                CoreException e = PydevPlugin.log("Too many internal eclipse representations for file "+file+".\n" +
 	                		"Cannot run file referenced\n" +
-	                		"in more that one project right now!\n" +
+	                		"in more than one project right now!\n" +
 	                		"\n" +
 	                		"This happens when files are shared across projects\n" +
 	                		"with external links - check feature request:\n" +
