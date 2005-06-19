@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.MissingResourceException;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.internal.resources.ResourceException;
@@ -94,7 +96,17 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         try {
             resourceBundle = ResourceBundle.getBundle("org.python.pydev.PyDevPluginResources");
         } catch (MissingResourceException x) {
-            resourceBundle = null;
+            resourceBundle = new ResourceBundle(){
+
+                public Enumeration getKeys() {
+                    return null;
+                }
+
+                protected Object handleGetObject(String key) {
+                    return null;
+                }
+                
+            };
         }
         Preferences preferences = plugin.getPluginPreferences();
         preferences.addPropertyChangeListener(this);
