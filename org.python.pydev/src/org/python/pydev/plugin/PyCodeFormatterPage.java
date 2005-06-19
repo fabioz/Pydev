@@ -42,7 +42,7 @@ implements IWorkbenchPreferencePage{
 		        USE_SPACE_AFTER_COMMA, "Use space after commas?", p));
 
         addField(new BooleanFieldEditor(
-		        USE_SPACE_FOR_PARENTESIS, "Use space before and after parentesis?", p));
+		        USE_SPACE_FOR_PARENTESIS, "Use space before and after parenthesis?", p));
     }
 
     /**

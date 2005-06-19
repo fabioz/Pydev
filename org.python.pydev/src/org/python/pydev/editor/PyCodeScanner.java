@@ -41,7 +41,7 @@ public class PyCodeScanner extends RuleBasedScanner {
 	 */
 	static private class GreatWhite implements IWhitespaceDetector {
 		public boolean isWhitespace(char c) {return Character.isWhitespace(c);}
-	};
+	}
 	
 	/**
 	 * Python keyword detector

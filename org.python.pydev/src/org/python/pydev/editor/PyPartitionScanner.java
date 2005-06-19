@@ -58,8 +58,8 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
 	private void addMultilineStringRule(List rules) {
 		IToken multiLineString = new Token(PY_MULTILINE_STRING);
 		// deal with ''' and """ strings
-		rules.add(new MultiLineRule("'''", "'''", multiLineString));
-		rules.add(new MultiLineRule("\"\"\"", "\"\"\"", multiLineString));
+		rules.add(new MultiLineRule("'''", "'''", multiLineString, '\\'));
+		rules.add(new MultiLineRule("\"\"\"", "\"\"\"", multiLineString,'\\'));
 	}
 
 	private void addCommentRule(List rules) {
