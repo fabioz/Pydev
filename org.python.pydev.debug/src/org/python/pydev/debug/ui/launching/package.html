@@ -1,0 +1,13 @@
+<body>
+This package handles processing after user presses "Run" button on launch until
+the program gets launched.<p>
+
+<p>It integrates with the org.eclipse.debug LaunchConfiguration framework (Debug menus etc).
+<p>PythonRunActionDelegate gets called by the popup menu.
+<p>It creates LaunchShortcut, which displays the "How do you want to launch" dialog.
+<p>Finally, LaunchShortcut tells PythonLaunchConfigurationDelegate to launch the file.
+<p>PythonLaunchConfigurationDelegate passes all the parameters to PythonRunnerConfig,
+<p>and creates PythonRunner.
+<p>PythonRunner launches the executable and connects it to internal debug model.
+<p>
+</body>
