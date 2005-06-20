@@ -304,14 +304,15 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		GridLayout layout= new GridLayout(); layout.numColumns= 2;
 		appearanceComposite.setLayout(layout);
 
-		addTextField(appearanceComposite, "Auto parentesis:", AUTO_PAR, 3, 0, true);
 
 		addTextField(appearanceComposite, "Tab length:", TAB_WIDTH, 3, 0, true);
 
 		addTextField(appearanceComposite, "Print margin column:", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN, 3, 0, true);
 		
-		addTextField(appearanceComposite, "Block comment seperator:", BLOCK_COMMENT, 50, 0, false);
+		addTextField(appearanceComposite, "Block comment separator:", BLOCK_COMMENT, 50, 0, false);
 				
+		addCheckBox(appearanceComposite, "Auto parentesis?", AUTO_PAR, 0);
+
 		addCheckBox(appearanceComposite, "Substitute spaces for tabs?", SUBSTITUTE_TABS, 0);
 		
 		addCheckBox(appearanceComposite, "Assume tab spacing when files contain tabs?", GUESS_TAB_SUBSTITUTION, 0);

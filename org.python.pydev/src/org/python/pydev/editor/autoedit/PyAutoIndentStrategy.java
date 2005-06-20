@@ -172,7 +172,7 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 
             prefs.convertToStd(document, command);
             
-            if(command.text.equals("(")){
+            if(command.text.equals("(") && prefs.getAutoParentesis()){
                 PySelection ps = new PySelection(document, command.offset);
 		        String line = ps.getLine();
                 

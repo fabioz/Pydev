@@ -6,6 +6,8 @@
 package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Vector;
 
 import org.eclipse.core.resources.IFile;
@@ -15,6 +17,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
@@ -124,24 +127,72 @@ public class PythonRunnerConfig {
             //put the pythonpath in it
             envp = SimplePythonRunner.getEnvironment(project);
         }else{
-            //ok, the user has done something to configure it, so, just add the pythonpath to the
-            //current env
-            String pythonpath = SimplePythonRunner.makePythonPathEnvString(project);
-            for (int i = 0; i < envp.length; i++) {
-                if(envp[i].toUpperCase().startsWith("PYTHONPATH")){
-                    envp[i] = "PYTHONPATH="+pythonpath;
-                    //OK, finish it.
-                    return;
-                }
-            }
-            
-            //there was no pythonpath, let's set it
-            String[] s = new String[envp.length+1];
-            System.arraycopy(envp, 0, s, 0, envp.length);
-            s[s.length-1] = "PYTHONPATH="+pythonpath;
+    		boolean win32= Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
+
+    		//ok, the user has done something to configure it, so, just add the pythonpath to the
+            //current env (if he still didn't do so)
+    		Map envMap = conf.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, (Map)null);
+
+    		if(!specifiedPythonpath(envMap)){
+	    		
+	            String pythonpath = SimplePythonRunner.makePythonPathEnvString(project);
+	            //override it if it was the ambient pythonpath
+	            for (int i = 0; i < envp.length; i++) {
+	                if(win32){
+		                if(envp[i].toUpperCase().startsWith("PYTHONPATH")){
+		                    //OK, finish it.
+				            envp[i] = "PYTHONPATH="+pythonpath;
+		                    return;
+		                }
+	                }else{
+		                if(envp[i].startsWith("PYTHONPATH")){
+		                    //OK, finish it.
+				            envp[i] = "PYTHONPATH="+pythonpath;
+		                    return;
+		                }
+	                }
+	                
+	            }
+	            
+	            //there was no pythonpath, let's set it
+	            String[] s = new String[envp.length+1];
+	            System.arraycopy(envp, 0, s, 0, envp.length);
+	            s[s.length-1] = "PYTHONPATH="+pythonpath;
+		            
+    		}
         }
 	}
 	
+    /**
+     * @param envMap
+     * @return
+     */
+    private boolean specifiedPythonpath(Map envMap) {
+        if(envMap == null){
+            return false;
+            
+        }else{
+    		boolean win32= Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
+
+            for (Iterator iter = envMap.keySet().iterator(); iter.hasNext();) {
+                String s = (String) iter.next();
+
+                if(win32){
+                    if(s.toUpperCase().equals("PYTHONPATH")){
+                        return true;
+                    }
+                }else{
+                    if(s.equals("PYTHONPATH")){
+                        return true;
+                    }
+                }
+                
+            }
+        }
+        
+        return false;
+    }
+
     public int getDebugPort() throws CoreException {
 		if (debugPort == 0) {
 			debugPort= SocketUtil.findUnusedLocalPort("", 5000, 15000); //$NON-NLS-1$

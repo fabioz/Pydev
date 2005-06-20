@@ -8,6 +8,7 @@ package org.python.pydev.editor;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.ListResourceBundle;
 
 import org.eclipse.core.internal.resources.MarkerAttributeMap;
 import org.eclipse.core.resources.IFile;
@@ -304,6 +305,17 @@ public class PyEdit extends PyEditProjection implements IPyEdit{
 
     public static final int CORRECTIONASSIST_PROPOSALS = 999777;
 
+    private static class MyResources extends ListResourceBundle {
+        public Object[][] getContents() {
+            return contents;
+        }
+        static final Object[][] contents = {
+            {"CorrectionAssist", "CorrectionAssist"}, 
+            {"ContentAssistProposal", "ContentAssistProposal"}, 
+            {"TemplateProposals", "TemplateProposals"},         
+        };
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -312,8 +324,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit{
     protected void createActions() {
         super.createActions();
 
+        MyResources resources = new MyResources();
+        
         //quick fix in editor.
-        IAction action = new TextOperationAction(PydevPlugin.getDefault().getResourceBundle(),
+        IAction action = new TextOperationAction(resources,
                 "CorrectionAssist", this, CORRECTIONASSIST_PROPOSALS); //$NON-NLS-1$
 
         action.setActionDefinitionId(CORRECTIONASSIST_PROPOSAL_ID);
@@ -325,7 +339,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit{
         // This action will fire a CONTENTASSIST_PROPOSALS operation
         // when executed
         // -------------------------------------------------------------------------------------
-        action = new TextOperationAction(PydevPlugin.getDefault().getResourceBundle(),
+        action = new TextOperationAction(resources,
                 "ContentAssistProposal", this, SourceViewer.CONTENTASSIST_PROPOSALS);
 
         action.setActionDefinitionId(CONTENTASSIST_PROPOSAL_ID);
@@ -337,7 +351,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit{
 
         //template proposals
         // ---------------------------------------------------------------------------------
-        action = new TextOperationAction(PydevPlugin.getDefault().getResourceBundle(),
+        action = new TextOperationAction(resources,
                 "TemplateProposals", this, ISourceViewer.CONTENTASSIST_PROPOSALS);
 
         action.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
