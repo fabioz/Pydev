@@ -33,6 +33,7 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ILocationProvider;
+import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
@@ -130,7 +131,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit{
         colorCache = new ColorCache(pluginPrefs);
         
         if (getDocumentProvider() == null) {
-            setDocumentProvider(new PyDocumentProvider());
+            setDocumentProvider(new TextFileDocumentProvider(new PyDocumentProvider()));
         }
         editConfiguration = new PyEditConfiguration(colorCache, this);
         setSourceViewerConfiguration(editConfiguration);
