@@ -6,7 +6,6 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,16 +35,19 @@ public class ProjectModulesManager extends ModulesManager{
      */
     public Set keySet() {
         Set s = new HashSet();
-        for (int i = 0; i < this.getManagersInvolved().length; i++) {
-            s.addAll(this.getManagersInvolved()[i].getModules().keySet());
-        }
         s.addAll(getModules().keySet());
+
+        ModulesManager[] managersInvolved = this.getManagersInvolved();
+        for (int i = 0; i < managersInvolved.length; i++) {
+            s.addAll(managersInvolved[i].getModules().keySet());
+        }
         return s;
     }
     
     public AbstractModule getModule(String name, PythonNature nature) {
-        for (int i = 0; i < this.getManagersInvolved().length; i++) {
-            AbstractModule module = this.getManagersInvolved()[i].getModule(name, nature);
+        ModulesManager[] managersInvolved = this.getManagersInvolved();
+        for (int i = 0; i < managersInvolved.length; i++) {
+            AbstractModule module = managersInvolved[i].getModule(name, nature);
             if(module != null){
                 return module;
             }
@@ -58,8 +60,9 @@ public class ProjectModulesManager extends ModulesManager{
      * @return
      */
     public String resolveModule(String full) {
-        for (int i = 0; i < this.getManagersInvolved().length; i++) {
-            String mod = this.getManagersInvolved()[i].resolveModule(full);
+        ModulesManager[] managersInvolved = this.getManagersInvolved();
+        for (int i = 0; i < managersInvolved.length; i++) {
+            String mod = managersInvolved[i].resolveModule(full);
             if(mod != null){
                 return mod;
             }
@@ -83,9 +86,10 @@ public class ProjectModulesManager extends ModulesManager{
      * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#getSize()
      */
     public int getSize() {
-        int size = super.getSize();
-        for (int i = 0; i < this.getManagersInvolved().length; i++) {
-            size += this.getManagersInvolved()[i].getSize();
+        int size = getModules().size();
+        ModulesManager[] managersInvolved = this.getManagersInvolved();
+        for (int i = 0; i < managersInvolved.length; i++) {
+            size += managersInvolved[i].getModules().size();
         }
         return size;
     }
@@ -96,12 +100,11 @@ public class ProjectModulesManager extends ModulesManager{
      * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#getBuiltins()
      */
     public String[] getBuiltins() {
-        HashSet set = new HashSet();
-        for (int i = 0; i < this.getManagersInvolved().length; i++) {
-            String[] builtins = this.getManagersInvolved()[i].getBuiltins();
-            set.addAll(Arrays.asList(builtins));
+        String[] builtins = null;
+        if(systemModulesManager != null){
+            builtins = systemModulesManager.getBuiltins();
         }
-        return (String[]) set.toArray(new String[0]);
+        return builtins;
     }
 
 
