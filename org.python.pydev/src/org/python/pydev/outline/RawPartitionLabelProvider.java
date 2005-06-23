@@ -44,4 +44,4 @@ class RawPartitionLabelProvider extends LabelProvider {
 			return "";
 		}
 	}
-};
+}

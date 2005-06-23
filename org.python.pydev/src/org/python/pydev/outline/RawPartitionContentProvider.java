@@ -24,4 +24,4 @@ class RawPartitionContentProvider implements ITreeContentProvider {
 	public Object getParent(Object element) {return null;}
 	public boolean hasChildren(Object element) {return false;}
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
-};
+}

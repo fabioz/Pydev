@@ -16,6 +16,7 @@ import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -93,6 +94,8 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
                 Object[] objects = new Object[]{new ArrayList(), new Boolean(true)};
                 try {
                     objects = getPythonProposals(documentOffset, doc);
+                } catch (CompletionRecursionException e) {
+                    //thats ok
                 } catch (Throwable e) {
                     setError(e);
                 }

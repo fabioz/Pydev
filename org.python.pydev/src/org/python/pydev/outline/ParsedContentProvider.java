@@ -32,4 +32,4 @@ public class ParsedContentProvider implements ITreeContentProvider {
 		}
 		
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
-};
+}

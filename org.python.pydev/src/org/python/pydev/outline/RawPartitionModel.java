@@ -123,4 +123,4 @@ class RawPartitionModel implements IOutlineModel {
 		String title2 = getText((Position)e2);
 		return title1.compareTo(title2);
 	}
-};
+}

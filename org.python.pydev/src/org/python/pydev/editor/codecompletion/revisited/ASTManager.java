@@ -452,6 +452,8 @@ public class ASTManager implements IASTManager, Serializable {
                 }
                 
                 
+            } catch (CompletionRecursionException e) {
+                //thats ok
             } catch (Exception e) {
                 e.printStackTrace();
             } catch (Throwable t) {

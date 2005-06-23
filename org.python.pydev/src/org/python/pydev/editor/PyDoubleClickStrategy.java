@@ -273,7 +273,7 @@ public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
 		
 			return EOF;
 		}
-	};
+	}
 
 	
 	/**
