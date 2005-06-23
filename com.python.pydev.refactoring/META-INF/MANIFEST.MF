@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-Name: PyDev Refactoring Plug-in
+Bundle-SymbolicName: com.python.pydev.refactoring
+Bundle-Version: 0.9.5
+Bundle-ClassPath: refactoring.jar
+Bundle-Activator: com.python.pydev.refactoring.RefactoringPlugin
+Bundle-Vendor: Fabio Zadrozny
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.jface.text,
+ org.python.pydev,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.views,
+ org.eclipse.ui.workbench.texteditor,
+ org.python.pydev.core,
+ org.python.pydev.parser
+Eclipse-AutoStart: true
+Provide-Package: com.python.pydev.refactoring,
+ com.python.pydev.refactoring.core
