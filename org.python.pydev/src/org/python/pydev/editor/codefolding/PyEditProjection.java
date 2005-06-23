@@ -8,6 +8,7 @@ package org.python.pydev.editor.codefolding;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
+import org.eclipse.jface.text.source.IOverviewRuler;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.projection.ProjectionSupport;
@@ -24,77 +25,73 @@ import org.python.pydev.plugin.PydevPrefs;
 
 /**
  * @author Fabio Zadrozny
- *
+ * 
  * The code below has been implemented after the following build notes:
- *  
- * http://download2.eclipse.org/downloads/drops/S-3.0M9-200405211200/buildnotes/buildnotes_text.html 
+ * 
+ * http://download2.eclipse.org/downloads/drops/S-3.0M9-200405211200/buildnotes/buildnotes_text.html
  */
 public abstract class PyEditProjection extends TextEditor implements IParserListener {
 
     private ProjectionSupport fProjectionSupport;
-	private PyCorrectionAssistant fCorrectionAssistant;
 
-    public static final int PROP_FOLDING_CHANGED = -999;	
+    private PyCorrectionAssistant fCorrectionAssistant;
 
+    public static final int PROP_FOLDING_CHANGED = -999;
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.eclipse.ui.texteditor.AbstractDecoratedTextEditor#createSourceViewer(org.eclipse.swt.widgets.Composite,
-     *      org.eclipse.jface.text.source.IVerticalRuler, int)
+     * @see org.eclipse.ui.texteditor.AbstractDecoratedTextEditor#createSourceViewer(org.eclipse.swt.widgets.Composite, org.eclipse.jface.text.source.IVerticalRuler, int)
      */
-    protected ISourceViewer createSourceViewer(Composite parent,
-            IVerticalRuler ruler, int styles) {
-        PySourceViewer viewer = new PySourceViewer(parent, ruler, getOverviewRuler(), isOverviewRulerVisible(), styles, this);
-        getSourceViewerDecorationSupport(viewer);
+    protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
+        IOverviewRuler overviewRuler = getOverviewRuler();
+        PySourceViewer viewer = new PySourceViewer(parent, ruler, overviewRuler, isOverviewRulerVisible(), styles, this);
+        SourceViewerDecorationSupport sourceViewerDecorationSupport = getSourceViewerDecorationSupport(viewer);
+        sourceViewerDecorationSupport.install(getPreferenceStore());
         return viewer;
     }
 
-	/**
-	 * Returns the source viewer decoration support.
-	 * 
-	 * @param viewer the viewer for which to return a decoration support
-	 * @return the source viewer decoration support
-	 */
-	protected SourceViewerDecorationSupport getSourceViewerDecorationSupport(ISourceViewer viewer) {
-		if (fSourceViewerDecorationSupport == null) {
-			fSourceViewerDecorationSupport= new SourceViewerDecorationSupport(viewer, getOverviewRuler(), getAnnotationAccess(), getSharedColors());
-			configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
-		}
-		return fSourceViewerDecorationSupport;
-	}
+    /**
+     * Returns the source viewer decoration support.
+     * 
+     * @param viewer the viewer for which to return a decoration support
+     * @return the source viewer decoration support
+     */
+    protected SourceViewerDecorationSupport getSourceViewerDecorationSupport(ISourceViewer viewer) {
+        if (fSourceViewerDecorationSupport == null) {
+            fSourceViewerDecorationSupport = new SourceViewerDecorationSupport(viewer, getOverviewRuler(), getAnnotationAccess(), getSharedColors());
+            configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
+        }
+        return fSourceViewerDecorationSupport;
+    }
 
-	protected final static char[] BRACKETS= { '{', '}', '(', ')', '[', ']' };
-	protected PythonPairMatcher fBracketMatcher= new PythonPairMatcher(BRACKETS);
+    protected final static char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
 
-	protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
-		support.setCharacterPairMatcher(fBracketMatcher);
-		support.setMatchingCharacterPainterPreferenceKeys(PydevPrefs.USE_MATCHING_BRACKETS, PydevPrefs.MATCHING_BRACKETS_COLOR);
-		
-		super.configureSourceViewerDecorationSupport(support);
-	}
-	
+    protected PythonPairMatcher fBracketMatcher = new PythonPairMatcher(BRACKETS);
+
+    protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
+        support.setCharacterPairMatcher(fBracketMatcher);
+        support.setMatchingCharacterPainterPreferenceKeys(PydevPrefs.USE_MATCHING_BRACKETS, PydevPrefs.MATCHING_BRACKETS_COLOR);
+
+        super.configureSourceViewerDecorationSupport(support);
+    }
+
     public void createPartControl(Composite parent) {
         super.createPartControl(parent);
         try {
             ProjectionViewer projectionViewer = (ProjectionViewer) getSourceViewer();
 
-            fProjectionSupport = new ProjectionSupport(projectionViewer,
-                    getAnnotationAccess(), getSharedColors());
-            fProjectionSupport
-                    .addSummarizableAnnotationType("org.eclipse.ui.workbench.texteditor.error");
-            fProjectionSupport
-                    .addSummarizableAnnotationType("org.eclipse.ui.workbench.texteditor.warning");
-            fProjectionSupport
-                    .setHoverControlCreator(new IInformationControlCreator() {
-                        public IInformationControl createInformationControl(
-                                Shell shell) {
-                            return new DefaultInformationControl(shell);
-                        }
-                    });
+            fProjectionSupport = new ProjectionSupport(projectionViewer, getAnnotationAccess(), getSharedColors());
+            fProjectionSupport.addSummarizableAnnotationType("org.eclipse.ui.workbench.texteditor.error");
+            fProjectionSupport.addSummarizableAnnotationType("org.eclipse.ui.workbench.texteditor.warning");
+            fProjectionSupport.setHoverControlCreator(new IInformationControlCreator() {
+                public IInformationControl createInformationControl(Shell shell) {
+                    return new DefaultInformationControl(shell);
+                }
+            });
             fProjectionSupport.install();
 
-            if (isFoldingEnabled()){
+            if (isFoldingEnabled()) {
                 projectionViewer.doOperation(ProjectionViewer.TOGGLE);
             }
         } catch (Exception e) {
@@ -111,8 +108,7 @@ public abstract class PyEditProjection extends TextEditor implements IParserList
 
     public Object getAdapter(Class required) {
         if (fProjectionSupport != null) {
-            Object adapter = fProjectionSupport.getAdapter(getSourceViewer(),
-                    required);
+            Object adapter = fProjectionSupport.getAdapter(getSourceViewer(), required);
             if (adapter != null)
                 return adapter;
         }
@@ -120,16 +116,15 @@ public abstract class PyEditProjection extends TextEditor implements IParserList
         return super.getAdapter(required);
     }
 
-	/**
-	 * Sets the given message as error message to this editor's status line.
-	 * 
-	 * @param msg message to be set
-	 */
-	public void setStatusLineErrorMessage(String msg) {
-		IEditorStatusLine statusLine= (IEditorStatusLine) getAdapter(IEditorStatusLine.class);
-		if (statusLine != null)
-			statusLine.setMessage(true, msg, null);	
-	}
-
+    /**
+     * Sets the given message as error message to this editor's status line.
+     * 
+     * @param msg message to be set
+     */
+    public void setStatusLineErrorMessage(String msg) {
+        IEditorStatusLine statusLine = (IEditorStatusLine) getAdapter(IEditorStatusLine.class);
+        if (statusLine != null)
+            statusLine.setMessage(true, msg, null);
+    }
 
 }

@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -32,9 +33,11 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
@@ -597,7 +600,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit{
     protected void initializeEditor()
     {
     	super.initializeEditor();    	
-    	this.setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
+    	IPreferenceStore general = EditorsUI.getPreferenceStore();
+    	ChainedPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[]{PydevPlugin.getDefault().getPreferenceStore(), general});
+    	this.setPreferenceStore(store);
     }
 
     /**
