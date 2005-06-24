@@ -1,0 +1,1 @@
+java -Duser.home=. -cp C:\eclipse\eclipse/startup.jar org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dpde.build.scripts=C:\eclipse\eclipse/plugins/org.eclipse.pde.build_3.0.1/scripts -DbaseLocation=C:\eclipse\eclipse -DjavacFailOnError=true

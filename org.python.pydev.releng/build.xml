@@ -1,0 +1,38 @@
+<project default="main">
+
+	
+	<target name="init">
+		<touch file="${user.home}/.cvspass" />
+		<tstamp/>
+		<property name="timestamp" value="${DSTAMP}${TSTAMP}" />
+		<property name="buildDirectory" value="${basedir}/results" />
+		<property name="baseLocation" value="${buildDirectory}/eclipse"/>
+		<property name="pde.build.scripts" value="C:\eclipse\eclipse\plugins\org.eclipse.pde.build_3.0.1/scripts"/>
+		<property name="collectingFolder" value="eclipse"/>
+		<property name="archivePrefix" value="eclipse"/>
+		<property name="buildType" value="I" />
+		<property name="buildId" value="${buildType}${timestamp}"/>
+		<property name="zipsdir" value="${buildDirectory}/${buildType}.${buildId}"/>
+		<property name="buildingOSGi" value="true"/>
+	</target>
+
+
+	<target name="main" depends="init">
+		<ant antfile="build.xml" dir="${pde.build.scripts}">
+			<property name="builder" value="${basedir}" />
+		</ant>
+	</target>
+	
+	<!-- Needed for SRPM builds -->
+	<target name="fetch" depends="init">
+		
+		<ant antfile="build.xml" dir="${pde.build.scripts}" target="preBuild">
+			<property name="builder" value="${basedir}" />
+		</ant>
+		
+		<ant antfile="build.xml" dir="${pde.build.scripts}" target="fetch">
+			<property name="builder" value="${basedir}" />
+		</ant>
+		
+	</target>
+</project>

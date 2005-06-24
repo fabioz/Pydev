@@ -1,0 +1,4 @@
+plugin@org.python.pydev=HEAD,:pserver:anonymous@cvs.sourceforge.net:/cvsroot/pydev,,
+plugin@org.python.pydev.debug=HEAD,:pserver:anonymous@cvs.sourceforge.net:/cvsroot/pydev,,
+plugin@org.python.pydev.help=HEAD,:pserver:anonymous@cvs.sourceforge.net:/cvsroot/pydev,,
+feature@org.python.pydev.feature=HEAD,:pserver:anonymous@cvs.sourceforge.net:/cvsroot/pydev,,
