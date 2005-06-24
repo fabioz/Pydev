@@ -1,0 +1,160 @@
+<project name="Build specific targets and properties" default="noDefault" basedir=".">
+
+<property name="basews" value="gtk" />
+<property name="baseos" value="linux" />
+<property name="basearch" value="x86" />
+<property name="basenl" value="en_US" />
+
+<!-- ===================================================================== -->
+<!-- Run a given ${target} on all elements being built -->
+<!-- Add on <ant> task for each top level element being built. -->
+<!-- ===================================================================== -->
+
+<target name="allElements">
+	<antcall target="${target}ForAllElements"/>
+</target>
+
+<target name="fetchElementForAllElements" unless="dontFetchAnything">
+	<antcall target="genericAllElements"/>
+</target>
+
+<target name="generateScriptForAllElements">
+	<antcall target="genericAllElements"/>
+</target>
+
+<target name="processElementForAllElements">
+	<antcall target="genericAllElements"/>
+</target>
+
+<target name="assembleElementForAllElements">
+	<antcall target="genericAllElements"/>
+</target>
+
+<target name="cleanElementForAllElements">
+	<antcall target="genericAllElements"/>
+</target>
+
+<target name="gatherLogsForAllElements">
+   <antcall target="genericAllElements"/>
+</target>
+
+<target name="genericAllElements">
+	<ant antfile="${genericTargets}" target="${target}" >
+		<property name="type" value="feature" />
+		<property name="id" value="org.python.pydev.feature" />
+	</ant>
+</target>
+
+
+<!-- ===================================================================== -->
+<!-- Targets to assemble the built elements for particular configurations  -->
+<!-- These generally call the generated assemble scripts (named in -->
+<!-- ${assembleScriptName}) but may also add pre and post processing -->
+<!-- Add one target for each root element and each configuration -->
+<!-- ===================================================================== -->
+
+<target name="assemble.org.python.pydev.feature">
+	<ant antfile="${assembleScriptName}" dir="${buildDirectory}"/>
+</target>
+
+<!-- ===================================================================== -->
+<!-- Check out map files from correct repository -->
+<!-- Replace values for cvsRoot, package and mapVersionTag as desired. -->
+<!-- ===================================================================== -->
+<target name="getMapFiles">
+	<copy todir="${buildDirectory}/maps">
+		<fileset dir="${builder}/maps"/>
+	</copy>
+</target>
+
+<!-- ===================================================================== -->
+<!-- Steps to do before setup -->
+<!-- ===================================================================== -->
+<target name="preSetup">
+</target>
+
+<!-- ===================================================================== -->
+<!-- Steps to do after setup but before starting the build proper -->
+<!-- ===================================================================== -->
+<target name="postSetup">
+</target>
+
+<!-- ===================================================================== -->
+<!-- Steps to do before fetching the build elements -->
+<!-- ===================================================================== -->
+<target name="preFetch">
+</target>
+
+<!-- ===================================================================== -->
+<!-- Steps to do after fetching the build elements -->
+<!-- ===================================================================== -->
+<target name="postFetch">
+</target>
+
+<!-- ===================================================================== -->
+<!-- Steps to do before generating the build scripts. -->
+<!-- ===================================================================== -->
+<target name="preGenerate">
+</target>
+
+<!-- ===================================================================== -->
+<!-- Steps to do after generating the build scripts. -->
+<!-- ===================================================================== -->
+<target name="postGenerate">
+</target>
+
+
+<!-- ===================================================================== -->
+<!-- Steps to do before running the build.xmls for the elements being built. -->
+<!-- ===================================================================== -->
+<target name="preProcess">
+	<replace dir="${buildDirectory}/plugins" value="${timestamp}" token="@build@">
+		<include name="**/about.mappings" />
+	</replace>
+</target>
+
+<!-- ===================================================================== -->
+<!-- Steps to do after running the build.xmls for the elements being built. -->
+<!-- ===================================================================== -->
+<target name="postProcess">
+</target>
+
+
+<!-- ===================================================================== -->
+<!-- Steps to do before running assemble. -->
+<!-- ===================================================================== -->
+<target name="preAssemble">
+</target>
+
+<!-- ===================================================================== -->
+<!-- Steps to do after  running assemble. -->
+<!-- ===================================================================== -->
+<target name="postAssemble">
+</target>
+
+<!-- ===================================================================== -->
+<!-- Steps to do after the build is done. -->
+<!-- ===================================================================== -->
+<target name="postBuild">
+</target>
+
+<!-- ===================================================================== -->
+<!-- Steps to do to test the build results -->
+<!-- ===================================================================== -->
+<target name="test">
+</target>
+
+<!-- ===================================================================== -->
+<!-- Steps to do to publish the build results -->
+<!-- ===================================================================== -->
+<target name="publish">
+</target>
+
+<!-- ===================================================================== -->
+<!-- Default target                                                        -->
+<!-- ===================================================================== -->
+<target name="noDefault">
+	<echo message="You must specify a target when invoking this file" />
+</target>
+
+</project>
