@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
-<plugin>
+<plugin
+   id="org.python.pydev.help"
+   name="Pydev Online Help"
+   version="0.9.4.1"
+   provider-name="Fabio Zadrozny / Aleks Totic ">
+
+   <runtime>
+   </runtime>
 
 <!-- ============================================== -->
 <!-- Define the main book                           -->

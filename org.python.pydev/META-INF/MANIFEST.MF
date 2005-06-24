@@ -48,4 +48,5 @@ Provide-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.ui.editors,
  org.python.pydev.ui.pythonpathconf,
  org.python.pydev.utils,
- org.python.pydev.views
+ org.python.pydev.views,
+ org.python.pydev.editor.autoedit
