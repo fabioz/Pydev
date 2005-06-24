@@ -134,7 +134,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit{
         colorCache = new ColorCache(pluginPrefs);
         
         if (getDocumentProvider() == null) {
-            setDocumentProvider(new TextFileDocumentProvider(new PyDocumentProvider()));
+            setDocumentProvider(new PyTextFileDocumentProvider());
         }
         editConfiguration = new PyEditConfiguration(colorCache, this);
         setSourceViewerConfiguration(editConfiguration);
