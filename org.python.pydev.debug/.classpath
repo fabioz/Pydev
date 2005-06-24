@@ -4,6 +4,6 @@
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/cvs_completo_4/lib/junit.jar"/>
+	<classpathentry kind="lib" path="/org.python.pydev.core/lib/junit.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
