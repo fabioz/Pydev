@@ -1,7 +1,7 @@
 <project name="Build specific targets and properties" default="noDefault" basedir=".">
 
 <property name="basews" value="gtk" />
-<property name="baseos" value="linux" />
+<property name="baseos" value="win32" />
 <property name="basearch" value="x86" />
 <property name="basenl" value="en_US" />
 
