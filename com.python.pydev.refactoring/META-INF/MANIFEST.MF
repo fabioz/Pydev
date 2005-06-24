@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-Name: PyDev Refactoring Plug-in
 Bundle-SymbolicName: com.python.pydev.refactoring
-Bundle-Version: 0.9.5
+Bundle-Version: 0.9.4.1
 Bundle-ClassPath: refactoring.jar
 Bundle-Activator: com.python.pydev.refactoring.RefactoringPlugin
 Bundle-Vendor: Fabio Zadrozny
