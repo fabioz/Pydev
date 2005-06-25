@@ -9,6 +9,9 @@ package org.python.pydev.editor;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentPartitioner;
+import org.eclipse.jface.text.rules.DefaultPartitioner;
 import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
@@ -73,4 +76,19 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
 	static public String[] getTypes() {
 		return types;
 	}
+
+    /**
+     * @param element
+     * @param document
+     */
+    public static void addPartitionScanner(IDocument document) {
+        if (document != null) {
+            IDocumentPartitioner partitioner2 = document.getDocumentPartitioner();
+            if(partitioner2 == null){
+    		    DefaultPartitioner partitioner = new DefaultPartitioner(new PyPartitionScanner(), getTypes());
+                partitioner.connect(document);
+                document.setDocumentPartitioner(partitioner);
+            }
+        }
+    }
 }
