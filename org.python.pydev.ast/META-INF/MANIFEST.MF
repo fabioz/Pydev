@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-Name: Ast Plug-in
+Bundle-SymbolicName: org.python.pydev.ast
+Bundle-Version: 0.9.4.1
+Bundle-ClassPath: ast.jar
+Bundle-Activator: org.python.pydev.ast.AstPlugin
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jface.text,
+ org.python.pydev.core
+Eclipse-AutoStart: true
+Provide-Package: org.python.pydev.ast,
+ org.python.pydev.ast.management

@@ -14,7 +14,7 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
-import org.python.pydev.editor.codecompletion.revisited.IASTManager;
+import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.plugin.PydevPlugin;
@@ -38,7 +38,7 @@ public class CompiledModule extends AbstractModule{
      * 
      * @param module - module from where to get completions.
      */
-    public CompiledModule(String name, IASTManager manager){
+    public CompiledModule(String name, ICodeCompletionASTManager manager){
         this(name, PyCodeCompletion.TYPE_BUILTIN, manager);
     }
 
@@ -46,7 +46,7 @@ public class CompiledModule extends AbstractModule{
      * 
      * @param module - module from where to get completions.
      */
-    public CompiledModule(String name, int tokenTypes, IASTManager manager){
+    public CompiledModule(String name, int tokenTypes, ICodeCompletionASTManager manager){
         super(name);
         if(COMPILED_MODULES_ENABLED){
 	        try {

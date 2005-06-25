@@ -41,7 +41,7 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
         
         IProject project = resource.getProject();
         PythonNature pythonNature = PythonNature.getPythonNature(project);
-        IASTManager astManager = pythonNature.getAstManager();
+        ICodeCompletionASTManager astManager = pythonNature.getAstManager();
         
         if (astManager != null){
             IPath location = resource.getLocation(); 
@@ -58,7 +58,7 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
 
         IProject project = resource.getProject();
         PythonNature pythonNature = PythonNature.getPythonNature(project);
-        IASTManager astManager = pythonNature.getAstManager();
+        ICodeCompletionASTManager astManager = pythonNature.getAstManager();
         
         if (astManager != null){
             IPath location = resource.getLocation(); 

@@ -147,7 +147,7 @@ public abstract class ModulesManager implements Serializable {
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#rebuildModule(java.io.File, org.eclipse.jface.text.IDocument,
+     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager#rebuildModule(java.io.File, org.eclipse.jface.text.IDocument,
      *      org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
     public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature) {
@@ -174,7 +174,7 @@ public abstract class ModulesManager implements Serializable {
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject,
+     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject,
      *      org.eclipse.core.runtime.IProgressMonitor)
      */
     public void removeModule(File file, IProject project, IProgressMonitor monitor) {

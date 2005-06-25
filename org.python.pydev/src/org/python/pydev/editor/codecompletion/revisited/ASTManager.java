@@ -37,7 +37,7 @@ import org.python.pydev.utils.REF;
  * 
  * @author Fabio Zadrozny
  */
-public class ASTManager implements IASTManager, Serializable {
+public class ASTManager implements ICodeCompletionASTManager, Serializable {
 
     public ProjectModulesManager projectModulesManager = new ProjectModulesManager();
     public ProjectModulesManager getProjectModulesManager(){

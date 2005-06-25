@@ -10,13 +10,14 @@ import java.io.File;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.ast.management.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Fabio Zadrozny
  */
-public interface IASTManager {
+public interface ICodeCompletionASTManager extends IASTManager{
     
     /**
      * This method rebuilds the paths that can be used for the code completion.
@@ -27,6 +28,7 @@ public interface IASTManager {
      * @param monitor: monitor for progress.
      */
     public abstract void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor);
+    
     
     public abstract void setSystemModuleManager(SystemModulesManager systemManager, IProject project);
 
@@ -49,6 +51,9 @@ public interface IASTManager {
      */
     public abstract void removeModule(final File file, final IProject project, IProgressMonitor monitor);
     
+    /**
+     * @return the modules manager associated with this manager.
+     */
     public abstract ProjectModulesManager getProjectModulesManager();
 
 
@@ -62,15 +67,6 @@ public interface IASTManager {
      */
     public abstract IToken[] getCompletionsForImport(final String original, PythonNature nature);
 
-//    /**
-//     * @return a Set of strings with all the modules.
-//     */
-//    public abstract ModulesKey[] getAllModules();
-//
-//    /**
-//     * @return the number of modules.
-//     */
-//    public abstract int getSize();
 
     /**
      * The completion should work in the following way:

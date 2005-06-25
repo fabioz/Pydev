@@ -29,7 +29,7 @@ import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
-import org.python.pydev.editor.codecompletion.revisited.IASTManager;
+import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -156,7 +156,7 @@ public class PyCodeCompletion {
             if (pythonNature == null) {
                 throw new RuntimeException("Unable to get python nature.");
             }
-            IASTManager astManager = pythonNature.getAstManager();
+            ICodeCompletionASTManager astManager = pythonNature.getAstManager();
             if (astManager == null) { //we're probably still loading it.
                 return new ArrayList();
             }

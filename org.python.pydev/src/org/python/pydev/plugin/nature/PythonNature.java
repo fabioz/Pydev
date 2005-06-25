@@ -26,7 +26,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
-import org.python.pydev.editor.codecompletion.revisited.IASTManager;
+import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.IInterpreterManager;
 import org.python.pydev.ui.PyProjectPythonDetails;
@@ -67,7 +67,7 @@ public class PythonNature implements IProjectNature, IPythonNature {
     /**
      * This is the completions cache for the nature represented by this object (it is associated with a project).
      */
-    private IASTManager astManager;
+    private ICodeCompletionASTManager astManager;
 
     /**
      * We have to know if it has already been initialized.
@@ -203,7 +203,7 @@ public class PythonNature implements IProjectNature, IPythonNature {
 
                 protected IStatus run(IProgressMonitor monitor) {
 
-                    astManager = (IASTManager) REF.readFromFile(getAstOutputFile());
+                    astManager = (ICodeCompletionASTManager) REF.readFromFile(getAstOutputFile());
                     //errors can happen when restoring it
                     if(astManager != null){
 	                    restoreSystemManager();
@@ -293,11 +293,11 @@ public class PythonNature implements IProjectNature, IPythonNature {
     /**
      * @return Returns the completionsCache.
      */
-    public IASTManager getAstManager() {
+    public ICodeCompletionASTManager getAstManager() {
         return astManager;
     }
     
-    public void setAstManager(IASTManager astManager){
+    public void setAstManager(ICodeCompletionASTManager astManager){
         this.astManager = astManager;
     }
 
