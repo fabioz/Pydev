@@ -57,16 +57,25 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
         if (length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text)) {
 
             if (offset > 0) {
-                char lastChar = document.getChar(offset - 1);
+	            char lastChar = document.getChar(offset - 1);
+	            
+	            //we dont want whitespaces
+	            while (offset > 0 && lastChar == ' ') {
+	                offset--;
+	                lastChar = document.getChar(offset - 1);
+	            }
+	            
+	            if (offset > 0) {
 
-                if (lastChar == ':') {
-                    String initial = text;
-
-                    text = initial + prefs.getIndentationString();
-
-                } else if (lastChar == ',') {
-                    text = indentAfterCommaNewline(document, text, offset);
-                }
+	                if (lastChar == ':') {
+	                    String initial = text;
+	
+	                    text = initial + prefs.getIndentationString();
+	
+	                } else if (lastChar == ',') {
+	                    text = indentAfterCommaNewline(document, text, offset);
+	                }
+	            }
             }
         }
         return text;

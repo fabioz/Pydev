@@ -129,6 +129,15 @@ public class PyAutoIndentStrategyTest extends TestCase {
         		          "\t";
         assertEquals(expected, docCmd.text);
         
+        //test after class xxx:  \n
+        strategy.setIndentPrefs(new TestIndentPrefs(false, 4));
+        doc = "class c:  ";
+        docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "\n" +
+		           "\t";
+        assertEquals(expected, docCmd.text);
+        
         //test regular
         doc = "\ta = 2";
         docCmd = new DocCmd(doc.length(), 0, "\n");
@@ -152,6 +161,14 @@ public class PyAutoIndentStrategyTest extends TestCase {
         expected = "\n" +
                    "\t\t ";
         assertEquals(expected, docCmd.text);
+
+        //test after \t[ a,\n
+        doc = "\tm = [a,  ";
+        docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "\n" +
+                   "\t\t ";
+        assertEquals(expected, docCmd.text);
     }        
     
     /**
@@ -162,7 +179,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         String doc = "class c";
         DocCmd docCmd = new DocCmd(doc.length(), 0, "(");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
-        String expected = "(object):";
+        String expected = "():";
         assertEquals(expected, docCmd.text);
         
         doc = "class c:\n" +
