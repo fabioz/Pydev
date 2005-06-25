@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.io.StringBufferInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.utils.REF;
 
@@ -291,30 +293,48 @@ public class PythonPathHelper implements Serializable{
         return new ArrayList(pythonpath);
     }
 
+    public static String getPythonFileEncoding(IDocument doc) {
+        InputStreamReader inputStreamReader = new InputStreamReader(new StringBufferInputStream(doc.get()));
+        return getPythonFileEncoding(inputStreamReader);
+    }
+    
     /**
      * @param f
      * @return
      */
     public static String getPythonFileEncoding(File f) {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
-            try{
-                
-                String l1 = reader.readLine();
-                String l2 = reader.readLine();
-                
-                String lEnc = null;
-                //encoding must be specified in first or second line...
-                if (l1 != null && l1.toLowerCase().indexOf("coding") != -1){
-                    lEnc = l1; 
-                }
-                else if (l2 != null && l2.toLowerCase().indexOf("coding") != -1){
-                    lEnc = l2; 
-                }
-                else{
-                    return null;
-                }
-                
+            InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(f));
+            return getPythonFileEncoding(inputStreamReader);
+        } catch (FileNotFoundException e) {
+            return null;
+        }
+    }
+
+    /**
+     * @param inputStreamReader
+     */
+    private static String getPythonFileEncoding(InputStreamReader inputStreamReader) {
+        String ret = null;
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+        try{
+            
+            String l1 = reader.readLine();
+            String l2 = reader.readLine();
+            
+            String lEnc = null;
+            //encoding must be specified in first or second line...
+            if (l1 != null && l1.toLowerCase().indexOf("coding") != -1){
+                lEnc = l1; 
+            }
+            else if (l2 != null && l2.toLowerCase().indexOf("coding") != -1){
+                lEnc = l2; 
+            }
+            else{
+                ret = null;
+            }
+            
+            if(lEnc != null){
                 //ok, the encoding line is in lEnc
                 lEnc = lEnc.substring(lEnc.indexOf("coding")+6);
                 
@@ -330,16 +350,13 @@ public class PythonPathHelper implements Serializable{
                     lEnc = lEnc.substring(1);
                 }
 
-                return buffer.toString();
-                
-            } catch (IOException e) {
-                e.printStackTrace();
-            }finally{
-                try {reader.close();} catch (IOException e1) {}
+                ret = buffer.toString();
             }
-        } catch (FileNotFoundException e) {
-            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally{
+            try {reader.close();} catch (IOException e1) {}
         }
-        return null;
+        return ret;
     }
 }

@@ -17,8 +17,11 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.Assert;
@@ -53,6 +56,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PythonShell;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
 import org.python.pydev.editor.model.AbstractNode;
@@ -128,7 +132,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         colorCache = new ColorCache(pluginPrefs);
 
         if (getDocumentProvider() == null) {
-            setDocumentProvider(new TextFileDocumentProvider());
+            setDocumentProvider(new PyDocumentProvider());
         }
         editConfiguration = new PyEditConfiguration(colorCache, this);
         setSourceViewerConfiguration(editConfiguration);
@@ -221,7 +225,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         parser = new PyParser(this);
         parser.addParseListener(this);
 
-        IDocument document = getDocumentProvider().getDocument(input);
+        IDocument document = getDocument(input);
         
         // set the document partitioner
         PyPartitionScanner.addPartitionScanner(document);
@@ -233,6 +237,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         
         //set the parser for the document
         parser.setDocument(document);
+
+        fixEncoding(input, document);
 
         // listen to changes in TAB_WIDTH preference
         prefListener = new Preferences.IPropertyChangeListener() {
@@ -260,6 +266,67 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         resetForceTabs();
         PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
 
+    }
+
+    
+    /**
+     * @param input
+     * @return
+     */
+    private IDocument getDocument(final IEditorInput input) {
+        return getDocumentProvider().getDocument(input);
+    }
+
+    /**
+     * @param input
+     * @return
+     */
+    private IDocument getDocument() {
+        return getDocumentProvider().getDocument(getEditorInput());
+    }
+
+    /** 
+     * @see org.eclipse.ui.texteditor.AbstractTextEditor#performSave(boolean, org.eclipse.core.runtime.IProgressMonitor)
+     */
+    protected void performSave(boolean overwrite, IProgressMonitor progressMonitor) {
+        fixEncoding(getEditorInput(), getDocument());
+        super.performSave(overwrite, progressMonitor);
+    }
+    /**
+     * Forces the encoding to the one specified in the file
+     * 
+     * @param input
+     * @param document
+     */
+    private void fixEncoding(final IEditorInput input, IDocument document) {
+        if (input instanceof FileEditorInput) {
+            final IFile file = (IFile) ((FileEditorInput) input).getAdapter(IFile.class);
+            final String encoding = PythonPathHelper.getPythonFileEncoding(document);
+            if (encoding != null) {
+                try {
+                    if (encoding.equals(file.getCharset()) == false) {
+
+                        new Job("Change encoding") {
+
+                            protected IStatus run(IProgressMonitor monitor) {
+                                try {
+                                    file.setCharset(encoding, monitor);
+                                    ((TextFileDocumentProvider) getDocumentProvider()).setEncoding(input, encoding);
+                                    //refresh it...
+                                    file.refreshLocal(IResource.DEPTH_INFINITE, null);
+                                } catch (CoreException e) {
+                                    PydevPlugin.log(e);
+                                }
+                                return Status.OK_STATUS;
+                            }
+
+                        }.schedule();
+                    }
+                } catch (CoreException e) {
+                    PydevPlugin.log(e);
+                }
+            }
+        }
     }
 
     public IProject getProject() {
@@ -448,7 +515,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             // What bad can come from removing markers? Ignore this exception
             PydevPlugin.log(IStatus.WARNING, "Unexpected error removing markers", e);
         }
-        IDocument document = getDocumentProvider().getDocument(input);
+        IDocument document = getDocument(input);
         int lastLine = document.getNumberOfLines();
         IRegion r;
         try {

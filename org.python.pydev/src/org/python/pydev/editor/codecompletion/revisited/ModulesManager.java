@@ -136,9 +136,11 @@ public abstract class ModulesManager implements Serializable {
 
         //create the builtin modules
         String[] builtins = getBuiltins();
-        for (int i = 0; i < builtins.length; i++) {
-            String name = builtins[i];
-            mods.put(new ModulesKey(name, null), AbstractModule.createEmptyModule(name, null));
+        if(builtins != null){
+	        for (int i = 0; i < builtins.length; i++) {
+	            String name = builtins[i];
+	            mods.put(new ModulesKey(name, null), AbstractModule.createEmptyModule(name, null));
+	        }
         }
 
         //assign to instance variable
