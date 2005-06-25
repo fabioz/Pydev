@@ -115,7 +115,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "\n" +
-                   "     ";
+                   "      ";
         assertEquals(expected, docCmd.text);
     }        
     
@@ -151,7 +151,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "\n" +
-                   "\t ";
+                   "\t  ";
         assertEquals(expected, docCmd.text);
 
         //test after \t[ a,\n
@@ -159,7 +159,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "\n" +
-                   "\t\t ";
+                   "\t\t  ";
         assertEquals(expected, docCmd.text);
 
         //test after \t[ a,\n
@@ -167,7 +167,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "\n" +
-                   "\t\t ";
+                   "\t\t  ";
         assertEquals(expected, docCmd.text);
     }        
     

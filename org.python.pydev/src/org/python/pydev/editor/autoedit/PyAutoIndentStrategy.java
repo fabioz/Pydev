@@ -118,7 +118,7 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
             StringBuffer b = new StringBuffer(smartIndent);
             while (indentationSteps-- > 0)
                 b.append(indentationString);
-            while (spaceSteps-- > 0)
+            while (spaceSteps-- >= 0)
                 b.append(" ");
 
             return initial + b.toString();
