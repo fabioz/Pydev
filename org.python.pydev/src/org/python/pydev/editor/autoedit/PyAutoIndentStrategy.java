@@ -186,7 +186,8 @@ public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
 	                command.shiftsCaret = false;
                     if(hasNoDoublePoint && (hasClass || hasClassMethodDef || hasMethodDef)){
                         if(hasClass){
-                            command.text = "(object):";
+//                            command.text = "(object):"; //TODO: put some option in the interface for that
+                            command.text = "():";
 			                command.caretOffset = command.offset + 7;
                         }else if (hasClassMethodDef){
                             command.text = "(self):";
