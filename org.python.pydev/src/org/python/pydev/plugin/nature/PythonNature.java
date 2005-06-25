@@ -10,6 +10,7 @@ package org.python.pydev.plugin.nature;
 import java.io.File;
 
 import org.eclipse.core.resources.ICommand;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
@@ -20,6 +21,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
@@ -107,6 +110,19 @@ public class PythonNature implements IProjectNature, IPythonNature {
     public void setProject(IProject project) {
         this.project = project;
         this.pythonPathNature.setProject(project);
+    }
+
+    public static synchronized void addNature(IEditorInput element) {
+        if(element instanceof FileEditorInput){
+			IFile file = (IFile)((FileEditorInput)element).getAdapter(IFile.class);
+			if (file != null){
+				try {
+	                PythonNature.addNature(file.getProject(), null);
+	            } catch (CoreException e) {
+	                PydevPlugin.log(e);
+	            }
+			}
+		}
     }
 
     /**
