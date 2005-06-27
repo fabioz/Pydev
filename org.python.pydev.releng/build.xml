@@ -22,6 +22,14 @@
 
 		<property name="eclipseResults"           value="${basedir}/results/tmp/eclipse" />
 		<property name="destFeats"            value="D:\dev_programs\eclipse_3\eclipse\workspace\org.python.pydev.site" />
+
+		<property name="fol0"  value="/features/org.python.pydev.feature_${pydev.version}"/>
+		<property name="fol1"  value="/plugins/org.python.pydev_${pydev.version}"         />
+		<property name="fol2"  value="/plugins/org.python.pydev.core_${pydev.version}"    />
+		<property name="fol3"  value="/plugins/org.python.pydev.parser_${pydev.version}"  />
+		<property name="fol4"  value="/plugins/org.python.pydev.ast_${pydev.version}"     />
+		<property name="fol5"  value="/plugins/org.python.pydev.debug_${pydev.version}"   />
+		<property name="fol6"  value="/plugins/org.python.pydev.help_${pydev.version}"    />
 	</target>
 
 

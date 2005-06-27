@@ -142,14 +142,15 @@
 <!-- Steps to do after the build is done. -->
 <!-- ===================================================================== -->
 <target name="postBuild"> 
-    <echo message="Making jars in update site:"/> 
-	<jar jarfile="${destFeats}/features/org.python.pydev.feature_${pydev.version}.jar" basedir="${eclipseResults}/features/org.python.pydev.feature_${pydev.version}"/>
-	<jar jarfile="${destFeats}/plugins/org.python.pydev_${pydev.version}.jar"          basedir="${eclipseResults}/plugins/org.python.pydev_${pydev.version}"/>
-	<jar jarfile="${destFeats}/plugins/org.python.pydev.core_${pydev.version}.jar"     basedir="${eclipseResults}/plugins/org.python.pydev.core_${pydev.version}"/>
-	<jar jarfile="${destFeats}/plugins/org.python.pydev.parser_${pydev.version}.jar"   basedir="${eclipseResults}/plugins/org.python.pydev.parser_${pydev.version}"/>
-	<jar jarfile="${destFeats}/plugins/org.python.pydev.ast_${pydev.version}.jar"      basedir="${eclipseResults}/plugins/org.python.pydev.ast_${pydev.version}"/>
-	<jar jarfile="${destFeats}/plugins/org.python.pydev.debug_${pydev.version}.jar"    basedir="${eclipseResults}/plugins/org.python.pydev.debug_${pydev.version}"/>
-	<jar jarfile="${destFeats}/plugins/org.python.pydev.help_${pydev.version}.jar"     basedir="${eclipseResults}/plugins/org.python.pydev.help_${pydev.version}"/>
+
+    <echo message="Making jars in update site:"/>  
+	<jar jarfile="${destFeats}${fol0}.jar" basedir="${eclipseResults}${fol0}" update="true"  />
+	<jar jarfile="${destFeats}${fol1}.jar" basedir="${eclipseResults}${fol1}" update="true" manifest="${eclipseResults}${fol1}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${destFeats}${fol2}.jar" basedir="${eclipseResults}${fol2}" update="true" manifest="${eclipseResults}${fol2}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${destFeats}${fol3}.jar" basedir="${eclipseResults}${fol3}" update="true" manifest="${eclipseResults}${fol3}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${destFeats}${fol4}.jar" basedir="${eclipseResults}${fol4}" update="true" manifest="${eclipseResults}${fol4}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${destFeats}${fol5}.jar" basedir="${eclipseResults}${fol5}" update="true" manifest="${eclipseResults}${fol5}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${destFeats}${fol6}.jar" basedir="${eclipseResults}${fol6}" update="true" />
     <echo message="Finished making jars in update site!"/>
 </target>
 
