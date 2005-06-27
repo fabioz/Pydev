@@ -6,14 +6,6 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.text.DefaultInformationControl;
-import org.eclipse.jface.text.IInformationControl;
-import org.eclipse.jface.text.IInformationControlCreator;
-import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.information.IInformationProvider;
-import org.eclipse.jface.text.information.InformationPresenter;
-import org.eclipse.swt.widgets.Shell;
 
 /**
  * @author Fabio Zadrozny
@@ -41,58 +33,58 @@ public class PyShowOutline extends PyAction{
 //        System.out.println("Show outline information...OK");
     }
 
-    /**
-     * @return
-     */
-    private IInformationProvider getInformationProvider() {
-        return new IInformationProvider(){
-
-            public IRegion getSubject(ITextViewer textViewer, int offset) {
-                return new IRegion(){
-
-                    public int getLength() {
-                        return 20;
-                    }
-
-                    public int getOffset() {
-                        return 20;
-                    }};
-            }
-
-            public String getInformation(ITextViewer textViewer, IRegion subject) {
-                return "Python Outline Content";
-            }};
-    }
-
-    /**
-     * 
-     * @return
-     */
-    private InformationPresenter getInformationPresenter() {
-         return new InformationPresenter(getInformationControlCreator());
-    }
-
-    /**
-     * @return
-     */
-    private IInformationControlCreator getInformationControlCreator() {
-        return new IInformationControlCreator (){
-
-            public IInformationControl createInformationControl(Shell parent) {
-                return new PyInformationControl(parent);
-            }};
-    }
-    
-    class PyInformationControl extends DefaultInformationControl{
-
-        /**
-         * @param parent
-         */
-        public PyInformationControl(Shell parent) {
-            super(parent);
-            setInformation("Python Outline Content");
-        }
-        
-    }
+//    /**
+//     * @return
+//     */
+//    private IInformationProvider getInformationProvider() {
+//        return new IInformationProvider(){
+//
+//            public IRegion getSubject(ITextViewer textViewer, int offset) {
+//                return new IRegion(){
+//
+//                    public int getLength() {
+//                        return 20;
+//                    }
+//
+//                    public int getOffset() {
+//                        return 20;
+//                    }};
+//            }
+//
+//            public String getInformation(ITextViewer textViewer, IRegion subject) {
+//                return "Python Outline Content";
+//            }};
+//    }
+//
+//    /**
+//     * 
+//     * @return
+//     */
+//    private InformationPresenter getInformationPresenter() {
+//         return new InformationPresenter(getInformationControlCreator());
+//    }
+//
+//    /**
+//     * @return
+//     */
+//    private IInformationControlCreator getInformationControlCreator() {
+//        return new IInformationControlCreator (){
+//
+//            public IInformationControl createInformationControl(Shell parent) {
+//                return new PyInformationControl(parent);
+//            }};
+//    }
+//    
+//    class PyInformationControl extends DefaultInformationControl{
+//
+//        /**
+//         * @param parent
+//         */
+//        public PyInformationControl(Shell parent) {
+//            super(parent);
+//            setInformation("Python Outline Content");
+//        }
+//        
+//    }
 
 }
