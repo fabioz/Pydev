@@ -1,5 +1,10 @@
 <project name="Build specific targets and properties" default="noDefault" basedir=".">
 
+<property name="basews" value="*" />
+<property name="baseos" value="*" />
+<property name="basearch" value="*" />
+<property name="basenl" value="en_US" />
+
 <!-- ===================================================================== -->
 <!-- Run a given ${target} on all elements being built -->
 <!-- Add on <ant> task for each top level element being built. -->
@@ -84,6 +89,11 @@
 <!-- Steps to do after fetching the build elements -->
 <!-- ===================================================================== -->
 <target name="postFetch">
+	<replaceregexp match="Bundle-Version:(.*)" replace="Bundle-Version: ${pydev.version}" byline="true">
+		<fileset dir="${buildDirectory}" includes="**/*.MF"/>
+	</replaceregexp>
+	
+	<replaceregexp file="${buildDirectory}\features\org.python.pydev.feature\feature.xml" match='version="0(.*)"' replace='version="${pydev.version}"' byline="true"/>
 </target>
 
 <!-- ===================================================================== -->

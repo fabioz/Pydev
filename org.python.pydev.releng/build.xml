@@ -2,38 +2,32 @@
 
 	
 	<target name="init">
-		<touch file="${user.home}/.cvspass" />
+        <touch file="${user.home}/.cvspass" />
 		<tstamp/>
-		<property name="timestamp" value="${DSTAMP}${TSTAMP}" />
-		<property name="buildDirectory" value="${basedir}/results" />
-		<property name="baseLocation" value="${buildDirectory}/eclipse"/>
-		<property name="pde.build.scripts" value="D:\dev_programs\eclipse_3\302\eclipse/plugins/org.eclipse.pde.build_3.0.1/scripts"/>
-		<property name="collectingFolder" value="eclipse"/>
-		<property name="archivePrefix" value="eclipse"/>
-		<property name="buildType" value="I" />
-		<property name="buildId" value="${buildType}${timestamp}"/>
-		<property name="zipsdir" value="${buildDirectory}/${buildType}.${buildId}"/>
-		<property name="buildingOSGi" value="true"/>
+
+		<property name = "pydev.version"        value = "0.9.5"/>
+		<property name = "zipargs"              value = "pydev_0_9_5"/>
+		<property name = "buildLabel"           value = "pydev_0_9_5"/>
+
+		<property name="timestamp"              value="${DSTAMP}${TSTAMP}" />
+		<property name="buildDirectory"         value="${basedir}/results" />
+		<property name="baseLocation"           value="${buildDirectory}/eclipse"/>
+		<property name="pde.build.scripts"      value="D:\dev_programs\eclipse_3\302\eclipse/plugins/org.eclipse.pde.build_3.0.1/scripts"/>
+		<property name="collectingFolder"       value="eclipse"/>
+		<property name="archivePrefix"          value="eclipse"/>
+		<property name="buildType"              value="I" />
+		<property name="buildId"                value="${buildType}${timestamp}"/>
+		<property name="zipsdir"                value="${buildDirectory}/${buildType}.${buildId}"/>
+		<property name="buildingOSGi"           value="true"/>
 	</target>
 
 
 	<target name="main" depends="init">
+        <echo message="Initializing build:"/>
 		<ant antfile="build.xml" dir="${pde.build.scripts}">
 			<property name="builder" value="${basedir}" />
 		</ant>
+        <echo message="Finalizing build!"/>
 	</target>
 	
-	<!-- Needed for SRPM builds 
-	<target name="fetch" depends="init">
-		
-		<ant antfile="build.xml" dir="${pde.build.scripts}" target="preBuild">
-			<property name="builder" value="${basedir}" />
-		</ant>
-		
-		<ant antfile="build.xml" dir="${pde.build.scripts}" target="fetch">
-			<property name="builder" value="${basedir}" />
-		</ant>
-		
-	</target>
-	-->
 </project>
