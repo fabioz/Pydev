@@ -7,7 +7,7 @@
 		<property name="timestamp" value="${DSTAMP}${TSTAMP}" />
 		<property name="buildDirectory" value="${basedir}/results" />
 		<property name="baseLocation" value="${buildDirectory}/eclipse"/>
-		<property name="pde.build.scripts" value="C:\eclipse\eclipse\plugins\org.eclipse.pde.build_3.0.1/scripts"/>
+		<property name="pde.build.scripts" value="D:\dev_programs\eclipse_3\302\eclipse/plugins/org.eclipse.pde.build_3.0.1/scripts"/>
 		<property name="collectingFolder" value="eclipse"/>
 		<property name="archivePrefix" value="eclipse"/>
 		<property name="buildType" value="I" />
@@ -23,7 +23,7 @@
 		</ant>
 	</target>
 	
-	<!-- Needed for SRPM builds -->
+	<!-- Needed for SRPM builds 
 	<target name="fetch" depends="init">
 		
 		<ant antfile="build.xml" dir="${pde.build.scripts}" target="preBuild">
@@ -35,4 +35,5 @@
 		</ant>
 		
 	</target>
+	-->
 </project>
