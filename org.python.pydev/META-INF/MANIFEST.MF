@@ -16,9 +16,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.debug.core,
  org.eclipse.core.variables,
- org.python.pydev.core,
+ org.python.pydev.ast,
  org.python.pydev.parser,
- org.python.pydev.ast
+ org.python.pydev.core
 Eclipse-AutoStart: true
 Provide-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,

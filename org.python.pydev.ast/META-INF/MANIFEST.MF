@@ -6,9 +6,7 @@ Bundle-ClassPath: ast.jar
 Bundle-Activator: org.python.pydev.ast.AstPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.eclipse.jface.text,
- org.python.pydev.core
+ org.eclipse.core.runtime
 Eclipse-AutoStart: true
 Provide-Package: org.python.pydev.ast,
  org.python.pydev.ast.management
