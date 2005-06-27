@@ -19,6 +19,9 @@
 		<property name="buildId"                value="${buildType}${timestamp}"/>
 		<property name="zipsdir"                value="${buildDirectory}/${buildType}.${buildId}"/>
 		<property name="buildingOSGi"           value="true"/>
+
+		<property name="eclipseResults"           value="${basedir}/results/tmp/eclipse" />
+		<property name="destFeats"            value="D:\dev_programs\eclipse_3\eclipse\workspace\org.python.pydev.site" />
 	</target>
 
 
@@ -27,7 +30,7 @@
 		<ant antfile="build.xml" dir="${pde.build.scripts}">
 			<property name="builder" value="${basedir}" />
 		</ant>
-        <echo message="Finalizing build!"/>
+        <echo message="Finalized build!"/>
 	</target>
 	
 </project>

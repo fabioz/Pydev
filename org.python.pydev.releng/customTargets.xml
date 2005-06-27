@@ -93,6 +93,7 @@
 		<fileset dir="${buildDirectory}" includes="**/*.MF"/>
 	</replaceregexp>
 	
+	<replaceregexp file="${buildDirectory}\plugins\org.python.pydev.help\plugin.xml" match='version="0(.*)"' replace='version="${pydev.version}"' byline="true"/>
 	<replaceregexp file="${buildDirectory}\features\org.python.pydev.feature\feature.xml" match='version="0(.*)"' replace='version="${pydev.version}"' byline="true"/>
 </target>
 
@@ -140,7 +141,16 @@
 <!-- ===================================================================== -->
 <!-- Steps to do after the build is done. -->
 <!-- ===================================================================== -->
-<target name="postBuild">
+<target name="postBuild"> 
+    <echo message="Making jars in update site:"/> 
+	<jar jarfile="${destFeats}/features/org.python.pydev.feature_${pydev.version}.jar" basedir="${eclipseResults}/features/org.python.pydev.feature_${pydev.version}"/>
+	<jar jarfile="${destFeats}/plugins/org.python.pydev_${pydev.version}.jar"          basedir="${eclipseResults}/plugins/org.python.pydev_${pydev.version}"/>
+	<jar jarfile="${destFeats}/plugins/org.python.pydev.core_${pydev.version}.jar"     basedir="${eclipseResults}/plugins/org.python.pydev.core_${pydev.version}"/>
+	<jar jarfile="${destFeats}/plugins/org.python.pydev.parser_${pydev.version}.jar"   basedir="${eclipseResults}/plugins/org.python.pydev.parser_${pydev.version}"/>
+	<jar jarfile="${destFeats}/plugins/org.python.pydev.ast_${pydev.version}.jar"      basedir="${eclipseResults}/plugins/org.python.pydev.ast_${pydev.version}"/>
+	<jar jarfile="${destFeats}/plugins/org.python.pydev.debug_${pydev.version}.jar"    basedir="${eclipseResults}/plugins/org.python.pydev.debug_${pydev.version}"/>
+	<jar jarfile="${destFeats}/plugins/org.python.pydev.help_${pydev.version}.jar"     basedir="${eclipseResults}/plugins/org.python.pydev.help_${pydev.version}"/>
+    <echo message="Finished making jars in update site!"/>
 </target>
 
 <!-- ===================================================================== -->

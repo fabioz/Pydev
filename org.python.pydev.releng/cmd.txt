@@ -1,3 +1,6 @@
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=58413
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=87151
+
 http://www.eclipse.org/articles/Article-PDE-Automation/automation.html
 http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/pde-build-home/articles/Automated%20Builds/article.html?rev=HEAD&content-type=text/html
 
