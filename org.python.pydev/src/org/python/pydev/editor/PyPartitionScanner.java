@@ -84,8 +84,8 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
     public static void addPartitionScanner(IDocument document) {
         if (document != null) {
             IDocumentPartitioner partitioner2 = document.getDocumentPartitioner();
-            if(partitioner2 == null){
-    		    DefaultPartitioner partitioner = new DefaultPartitioner(new PyPartitionScanner(), getTypes());
+            if(!(partitioner2 instanceof PyPartitioner)){
+    		    DefaultPartitioner partitioner = new PyPartitioner(new PyPartitionScanner(), getTypes());
                 partitioner.connect(document);
                 document.setDocumentPartitioner(partitioner);
             }

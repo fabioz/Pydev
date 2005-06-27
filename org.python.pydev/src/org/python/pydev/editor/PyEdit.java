@@ -238,7 +238,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         //set the parser for the document
         parser.setDocument(document);
 
-        fixEncoding(input, document);
+        //fixEncoding(input, document);
 
         // listen to changes in TAB_WIDTH preference
         prefListener = new Preferences.IPropertyChangeListener() {
