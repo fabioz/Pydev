@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-Name: Pydev Online Help
+Bundle-SymbolicName: org.python.pydev.help; singleton=true
+Bundle-Version: 0.9.4.1
+Bundle-Vendor: Fabio Zadrozny / Aleks Totic
+Bundle-Localization: plugin
+Eclipse-AutoStart: true
+Bundle-ClassPath: help.jar
