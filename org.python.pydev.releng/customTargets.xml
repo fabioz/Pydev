@@ -150,7 +150,7 @@
 	<jar jarfile="${destFeats}${fol3}.jar" basedir="${eclipseResults}${fol3}" update="true" manifest="${eclipseResults}${fol3}/META-INF/MANIFEST.MF" />
 	<jar jarfile="${destFeats}${fol4}.jar" basedir="${eclipseResults}${fol4}" update="true" manifest="${eclipseResults}${fol4}/META-INF/MANIFEST.MF" />
 	<jar jarfile="${destFeats}${fol5}.jar" basedir="${eclipseResults}${fol5}" update="true" manifest="${eclipseResults}${fol5}/META-INF/MANIFEST.MF" />
-	<jar jarfile="${destFeats}${fol6}.jar" basedir="${eclipseResults}${fol6}" update="true" />
+	<jar jarfile="${destFeats}${fol6}.jar" basedir="${eclipseResults}${fol6}" update="true" manifest="${eclipseResults}${fol6}/META-INF/MANIFEST.MF" />
     <echo message="Finished making jars in update site!"/>
 </target>
 
