@@ -10,14 +10,13 @@ import java.io.File;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.ast.management.IASTManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Fabio Zadrozny
  */
-public interface ICodeCompletionASTManager extends IASTManager{
+public interface ICodeCompletionASTManager {
     
     /**
      * This method rebuilds the paths that can be used for the code completion.
