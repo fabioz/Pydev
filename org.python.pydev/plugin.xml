@@ -395,60 +395,42 @@
                id="org.python.pydev.editor.actions.navigation.previousMethod">
          </action>
       </viewerContribution>
-   </extension>
-<!-- associates commands with keyboard shortcuts -->
+    </extension>
 <!-- Commands -->
-   <extension
-         point="org.eclipse.ui.commands">
+    <extension point="org.eclipse.ui.commands">
       <scope
             name="Pydev editor scope"
             parent="org.eclipse.ui.textEditorScope"
             description="Pydev commands"
             id="org.python.pydev.ui.editor.scope">
       </scope>
-
-
 <!--category: Editor Commands-->
       <category
-            name="Pydev editor commands"
+            name="Pydev - Editor"
             description="Pydev editor category"
             id="org.python.pydev.ui.category.source">
       </category>
 <!--category: Refactor-->
       <category
-            name="Refactor category"
+            name="Pydev - Refactor"
             description="Python refactor category"
             id="org.python.pydev.ui.category.refactoring"> 
       </category>
-      
-      
-      
+    
 <!-- command: goto first char-->
       <command
-            name="First char"
             description="Goes to the first non space char or first char of the line depending on the cursor position."
+            id="org.python.pydev.editor.actions.firstChar"
             category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.firstChar">
+            name="First char">
       </command>
-      <keyBinding
-            string="Home"
-            scope="org.python.pydev.ui.editor.scope"
-            command="org.python.pydev.editor.actions.firstChar"
-            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </keyBinding>
 <!-- command: backspace considering indentation-->
       <command
-            name="Python Backspace (with indentation)"
             description="Backspace considering indentation for Python."
+            id="org.python.pydev.editor.actions.pybackspace"
             category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.pybackspace">
+            name="Python Backspace (with indentation)">
       </command>
-      <keyBinding
-            string="Backspace"
-            scope="org.python.pydev.ui.editor.scope"
-            command="org.python.pydev.editor.actions.pybackspace"
-            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </keyBinding>
 
 <!-- command: next method / class-->
       <command
@@ -457,12 +439,6 @@
             category="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.navigation.nextMethod">
       </command>
-      <keyBinding
-            string="Ctrl+Shift+Arrow_Down"
-            scope="org.python.pydev.ui.editor.scope"
-            command="org.python.pydev.editor.actions.navigation.nextMethod"
-            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </keyBinding>
 <!-- command: previous method / class-->
       <command
             name="Previous Method or Class"
@@ -470,12 +446,6 @@
             category="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.navigation.previousMethod">
       </command>
-      <keyBinding
-            string="Ctrl+Shift+Arrow_Up"
-            scope="org.python.pydev.ui.editor.scope"
-            command="org.python.pydev.editor.actions.navigation.previousMethod"
-            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </keyBinding>
 <!-- command: space to tab-->
       <command
             name="Convert space-tabs to tabs"
@@ -483,12 +453,6 @@
             category="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.convertSpaceToTab">
       </command>
-      <keyBinding
-            string="Shift+Ctrl+Tab"
-            scope="org.python.pydev.ui.editor.scope"
-            command="org.python.pydev.editor.actions.convertSpaceToTab"
-            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </keyBinding>
 <!-- command: tab to space-->
       <command
             name="Convert tabs to space-tabs"
@@ -496,12 +460,6 @@
             category="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.convertTabToSpace">
       </command>
-      <keyBinding
-            string="Ctrl+Tab"
-            scope="org.python.pydev.ui.editor.scope"
-            command="org.python.pydev.editor.actions.convertTabToSpace"
-            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </keyBinding>
 <!-- command: unblock-->
       <command
             name="Remove Comment Block"
@@ -509,12 +467,6 @@
             category="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.removeBlockComment">
       </command>
-      <keyBinding
-            string="Ctrl+5"
-            scope="org.python.pydev.ui.editor.scope"
-            command="org.python.pydev.editor.actions.removeBlockComment"
-            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </keyBinding>
 <!-- command: block-->
       <command
             name="Add Comment Block"
@@ -522,12 +474,6 @@
             category="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.addBlockComment">
       </command>
-      <keyBinding
-            string="Ctrl+4"
-            scope="org.python.pydev.ui.editor.scope"
-            command="org.python.pydev.editor.actions.addBlockComment"
-            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </keyBinding>
 <!-- command: uncomment-->
       <command
             name="Python Uncomment"
@@ -535,6 +481,143 @@
             category="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.uncomment">
       </command>
+<!-- command: comment-->
+      <command
+            name="Python Comment"
+            description="Comments a python line (Adds # to beggining of the line)"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.comment">
+      </command>
+<!-- command: Go To Defition-->
+      <command
+            name="Python Go To Declaration"
+            description="Goes to the declaration of a python element"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.navigation.pyGoToDefinition">
+      </command>
+<!-- command: Collapse-->
+      <command
+            name="Python Collapse"
+            description="Collapse block of code"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.navigation.pyCollapse">
+      </command>
+<!-- command: Un Collapse-->
+      <command
+            name="Python Un Collapse"
+            description="Un Collapse block of code"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.navigation.pyUnCollapse">
+      </command>
+<!-- command: Collapse All-->
+      <command
+            name="Python Collapse All"
+            description="Collapse all blocks of code"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.navigation.pyCollapseAll">
+      </command>
+<!-- command: Un Collapse-->
+      <command
+            name="Python Un Collapse All"
+            description="Un Collapse all blocks of code"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.navigation.pyUnCollapseAll">
+      </command>
+<!-- command: Show outline-->
+      <command
+            name="Python Show Outline"
+            description="Show Outline"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pyShowOutline">
+      </command>
+<!-- command: Organize Imports-->
+      <command
+            name="Python Organize Imports"
+            description="Organize Imports"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pyOrganizeImports">
+      </command>
+<!-- command: Format code-->
+      <command
+            name="Python Format Code"
+            description="Format Code"
+            category="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pyFormatStd">
+      </command>
+      <!-- This is for making a keybinding for it-->
+      <!-- Extract Method -->
+      <command
+            name="Python Extract Method"
+            description="Extract Method"
+            category="org.python.pydev.ui.category.refactoring"
+            id="org.python.pydev.refactoring.extractmethod"/>
+      <!-- Extract Local Variable -->
+      <command
+            name="Python Extract Local Variable"
+            description="Extract Local Variable"
+            category="org.python.pydev.ui.category.refactoring"
+            id="org.python.pydev.refactoring.extractlocalbariable"/>
+      <!-- Inline Local Variable -->
+      <command
+            name="Python Inline Local Variable"
+            description="Inline Local Variable"
+            category="org.python.pydev.ui.category.refactoring"
+            id="org.python.pydev.refactoring.inlinelocalbariable"/>
+      <!-- Rename -->
+      <command
+            name="Python Rename"
+            description="Rename"
+            category="org.python.pydev.ui.category.refactoring"
+            id="org.python.pydev.refactoring.rename"/>
+<!-- associates commands with keyboard shortcuts -->
+      <keyBinding
+            string="Home"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.firstChar"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+      <keyBinding
+            string="Backspace"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.pybackspace"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+      <keyBinding
+            string="Ctrl+Shift+Arrow_Down"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.navigation.nextMethod"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+      <keyBinding
+            string="Ctrl+Shift+Arrow_Up"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.navigation.previousMethod"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+      <keyBinding
+            string="Shift+Ctrl+Tab"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.convertSpaceToTab"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+      <keyBinding
+            string="Ctrl+Tab"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.convertTabToSpace"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+      <keyBinding
+            string="Ctrl+5"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.removeBlockComment"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+      <keyBinding
+            string="Ctrl+4"
+            scope="org.python.pydev.ui.editor.scope"
+            command="org.python.pydev.editor.actions.addBlockComment"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
       <keyBinding
             string="Ctrl+\"
             scope="org.python.pydev.ui.editor.scope"
@@ -547,13 +630,6 @@
             command="org.python.pydev.editor.actions.uncomment"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
-<!-- command: comment-->
-      <command
-            name="Python Comment"
-            description="Comments a python line (Adds # to beggining of the line)"
-            category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.comment">
-      </command>
       <keyBinding
             string="Ctrl+/"
             scope="org.python.pydev.ui.editor.scope"
@@ -566,182 +642,72 @@
             command="org.python.pydev.editor.actions.comment"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
-<!-- command: Go To Defition-->
-      <command
-            name="Python Go To Declaration"
-            description="Goes to the declaration of a python element"
-            category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.navigation.pyGoToDefinition">
-      </command>
       <keyBinding
             string="F3"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.navigation.pyGoToDefinition"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
-<!-- command: Collapse-->
-      <command
-            name="Python Collapse"
-            description="Collapse block of code"
-            category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.navigation.pyCollapse">
-      </command>
       <keyBinding
             string="Ctrl+-"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.navigation.pyCollapse"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
-<!-- command: Un Collapse-->
-      <command
-            name="Python Un Collapse"
-            description="Un Collapse block of code"
-            category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.navigation.pyUnCollapse">
-      </command>
       <keyBinding
             string="Ctrl+="
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.navigation.pyUnCollapse"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
-<!-- command: Collapse All-->
-      <command
-            name="Python Collapse All"
-            description="Collapse all blocks of code"
-            category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.navigation.pyCollapseAll">
-      </command>
       <keyBinding
             string="Ctrl+9"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.navigation.pyCollapseAll"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
-<!-- command: Un Collapse-->
-      <command
-            name="Python Un Collapse All"
-            description="Un Collapse all blocks of code"
-            category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.navigation.pyUnCollapseAll">
-      </command>
       <keyBinding
             string="Ctrl+0"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.navigation.pyUnCollapseAll"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
-<!-- command: Show outline-->
-      <command
-            name="Python Show Outline"
-            description="Show Outline"
-            category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.pyShowOutline">
-      </command>
       <keyBinding
             string="Ctrl+O"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.pyShowOutline"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
-<!-- command: Organize Imports-->
-      <command
-            name="Python Organize Imports"
-            description="Organize Imports"
-            category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.pyOrganizeImports">
-      </command>
       <keyBinding
             string="Ctrl+Shift+O"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.pyOrganizeImports"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
-<!-- command: Format code-->
-      <command
-            name="Python Format Code"
-            description="Format Code"
-            category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.pyFormatStd">
-      </command>
       <keyBinding
             string="Ctrl+Shift+F"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.editor.actions.pyFormatStd"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
-<!-- command: Open parentesis-->
-      <command
-            name="Python Open Parentesis"
-            description="Open parentesis"
-            category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.pyOpenPar">
-      </command>
-      <keyBinding
-            string="("
-            scope="org.python.pydev.ui.editor.scope"
-            command="org.python.pydev.editor.actions.pyOpenPar"
-            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </keyBinding>
-<!-- command: Close parentesis-->
-      <command
-            name="Python Close Parentesis"
-            description="Close parentesis"
-            category="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.pyClosePar">
-      </command>
-      <keyBinding
-            string=")"
-            scope="org.python.pydev.ui.editor.scope"
-            command="org.python.pydev.editor.actions.pyClosePar"
-            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </keyBinding>
-
-
-
-      <!-- This is for making a keybinding for it-->
-      <!-- Extract Method -->
-      <command
-            name="Python Extract Method"
-            description="Extract Method"
-            category="org.python.pydev.ui.category.refactoring"
-            id="org.python.pydev.refactoring.extractmethod"/>
       <keyBinding
             string="Shift+Alt+M"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.refactoring.extractmethod"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
-      <!-- Extract Local Variable -->
-      <command
-            name="Python Extract Local Variable"
-            description="Extract Local Variable"
-            category="org.python.pydev.ui.category.refactoring"
-            id="org.python.pydev.refactoring.extractlocalbariable"/>
       <keyBinding
             string="Shift+Alt+L"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.refactoring.extractlocalbariable"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
-      <!-- Inline Local Variable -->
-      <command
-            name="Python Inline Local Variable"
-            description="Inline Local Variable"
-            category="org.python.pydev.ui.category.refactoring"
-            id="org.python.pydev.refactoring.inlinelocalbariable"/>
       <keyBinding
             string="Shift+Alt+I"
             scope="org.python.pydev.ui.editor.scope"
             command="org.python.pydev.refactoring.inlinelocalbariable"
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
-      <!-- Rename -->
-      <command
-            name="Python Rename"
-            description="Rename"
-            category="org.python.pydev.ui.category.refactoring"
-            id="org.python.pydev.refactoring.rename"/>
       <keyBinding
             string="Shift+Alt+R"
             scope="org.python.pydev.ui.editor.scope"
@@ -749,7 +715,6 @@
             configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
       </keyBinding>
    </extension>
-
 
 
 
@@ -903,21 +868,21 @@ ${cursor}
                relative="org.eclipse.ui.views.TaskList"
                id="org.python.pydev.views.PyRefactorView"/>
       </perspectiveExtension>
-   </extension>
-   <extension
+    </extension>
+    <extension
          point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
             class="org.python.pydev.editor.correctionassist.PyQuickFix"
             markerType="org.eclipse.core.resources.problemmarker"/>
-   </extension>
-   <extension
+    </extension>
+    <extension
          id="PyDevBuilder"
          name="Pydev Builder"
          point="org.eclipse.core.resources.builders">
       <builder>
          <run class="org.python.pydev.builder.PyDevBuilder"/>
       </builder>
-   </extension>
+    </extension>
    
 	<extension 
 		point="org.eclipse.core.resources.markers"
@@ -925,5 +890,8 @@ ${cursor}
 	   <super type="org.eclipse.core.resources.problemmarker"/>
 	   <persistent value="true"/>
 	</extension>
+	
+	
+	
 	
 </plugin>

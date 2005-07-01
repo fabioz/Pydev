@@ -31,9 +31,11 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -43,8 +45,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
-import org.eclipse.ui.internal.ide.misc.ContainerContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.DrillDownComposite;
 
@@ -52,6 +52,106 @@ import org.eclipse.ui.part.DrillDownComposite;
  * Workbench-level composite for choosing a container.
  */
 public class ProjectFolderSelectionGroup extends Composite {
+	/**
+	 * Provides content for a tree viewer that shows only containers.
+	 */
+	public static class CopiedContainerContentProvider implements ITreeContentProvider {
+	    private boolean showClosedProjects = true;
+
+	    /**
+	     * Creates a new ContainerContentProvider.
+	     */
+	    public CopiedContainerContentProvider() {
+	    }
+
+	    /**
+	     * The visual part that is using this content provider is about
+	     * to be disposed. Deallocate all allocated SWT resources.
+	     */
+	    public void dispose() {
+	    }
+
+	    /*
+	     * @see org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang.Object)
+	     */
+	    public Object[] getChildren(Object element) {
+	        if (element instanceof IWorkspace) {
+	            // check if closed projects should be shown
+	            IProject[] allProjects = ((IWorkspace) element).getRoot()
+	                    .getProjects();
+	            if (showClosedProjects)
+	                return allProjects;
+
+	            ArrayList accessibleProjects = new ArrayList();
+	            for (int i = 0; i < allProjects.length; i++) {
+	                if (allProjects[i].isOpen()) {
+	                    accessibleProjects.add(allProjects[i]);
+	                }
+	            }
+	            return accessibleProjects.toArray();
+	        } else if (element instanceof IContainer) {
+	            IContainer container = (IContainer) element;
+	            if (container.isAccessible()) {
+	                try {
+	                    List children = new ArrayList();
+	                    IResource[] members = container.members();
+	                    for (int i = 0; i < members.length; i++) {
+	                        if (members[i].getType() != IResource.FILE) {
+	                            children.add(members[i]);
+	                        }
+	                    }
+	                    return children.toArray();
+	                } catch (CoreException e) {
+	                    // this should never happen because we call #isAccessible before invoking #members
+	                }
+	            }
+	        }
+	        return new Object[0];
+	    }
+
+	    /*
+	     * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
+	     */
+	    public Object[] getElements(Object element) {
+	        return getChildren(element);
+	    }
+
+	    /*
+	     * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
+	     */
+	    public Object getParent(Object element) {
+	        if (element instanceof IResource)
+	            return ((IResource) element).getParent();
+	        return null;
+	    }
+
+	    /*
+	     * @see org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang.Object)
+	     */
+	    public boolean hasChildren(Object element) {
+	        return getChildren(element).length > 0;
+	    }
+
+	    /*
+	     * @see org.eclipse.jface.viewers.IContentProvider#inputChanged
+	     */
+	    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+	    }
+
+	    /**
+	     * Specify whether or not to show closed projects in the tree 
+	     * viewer.  Default is to show closed projects.
+	     * 
+	     * @param show boolean if false, do not show closed projects in the tree
+	     */
+	    public void showClosedProjects(boolean show) {
+	        showClosedProjects = show;
+	    }
+
+	}
+
+	
+	
     // The listener to notify of events
     private Listener listener;
 
@@ -68,11 +168,6 @@ public class ProjectFolderSelectionGroup extends Composite {
     private Text containerNameField;
 
     TreeViewer treeViewer;
-
-    // the message to display at the top of this dialog
-    private static final String DEFAULT_MSG_NEW_ALLOWED = IDEWorkbenchMessages.getString("ContainerGroup.message"); //$NON-NLS-1$
-
-    private static final String DEFAULT_MSG_SELECT_ONLY = IDEWorkbenchMessages.getString("ContainerGroup.selectFolder"); //$NON-NLS-1$
 
     // sizing constants
     private static final int SIZING_SELECTION_PANE_WIDTH = 320;
@@ -112,12 +207,7 @@ public class ProjectFolderSelectionGroup extends Composite {
         this.listener = listener;
         this.allowNewContainerName = allowNewContainerName;
         this.showClosedProjects = showClosedProjects;
-        if (message != null)
-            createContents(message, heightHint);
-        else if (allowNewContainerName)
-            createContents(DEFAULT_MSG_NEW_ALLOWED, heightHint);
-        else
-            createContents(DEFAULT_MSG_SELECT_ONLY, heightHint);
+        createContents(message, heightHint);
     }
 
     /**
@@ -202,7 +292,7 @@ public class ProjectFolderSelectionGroup extends Composite {
         //ALL THAT JUST SO THAT WE CAN SET THAT WE JUST WANT THE SPECIFIED PROJECT!!!!!!
         //
         //
-        ContainerContentProvider cp = new ContainerContentProvider(){
+        CopiedContainerContentProvider cp = new CopiedContainerContentProvider(){
             public Object[] getChildren(Object element) {
             	if (element instanceof IWorkspace) {
             		return new Object[]{project};

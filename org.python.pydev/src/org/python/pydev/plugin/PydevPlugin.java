@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -31,9 +30,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.ide.IDE;
@@ -300,12 +299,24 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         try {
 	        IWorkspace w = ResourcesPlugin.getWorkspace();
 	        
-	        IFile file = w.getRoot().
-	        	getFileForLocation(path);
+	        IFile file = w.getRoot().getFileForLocation(path);
 	        
-	        IWorkbenchPage wp = plugin.getWorkbench().
-	        	getActiveWorkbenchWindow().
-	        		getActivePage();
+	        if(plugin == null){
+	        	throw new RuntimeException("plugin cannot be null");
+	        }
+	        
+	        final IWorkbench workbench = plugin.getWorkbench();
+	        if(workbench == null){
+	        	throw new RuntimeException("workbench cannot be null");
+	        }
+
+	        IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
+	        if(activeWorkbenchWindow == null){
+	        	//we have to be in a ui thread for this to work... check how to fix it!
+	        	throw new RuntimeException("activeWorkbenchWindow cannot be null");
+	        }
+	        
+			IWorkbenchPage wp = activeWorkbenchWindow.getActivePage();
         
             if (file != null && file.exists()) {
                 // File is inside the workspace
@@ -335,12 +346,10 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         if (!project.isOpen())
             project.open(null);
 
-        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-
         IFile file = project.getFile(location.lastSegment());
         try {
             file.createLink(location, IResource.NONE, null);
-        } catch (ResourceException e) {
+        } catch (CoreException e) {
             //That's OK
             //org.eclipse.core.internal.resources.ResourceException: Resource /External Files/GUITest.py already exists.
         }
@@ -525,24 +534,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     
-    /**
-     * @param files
-     * @return
-     */
-    private static boolean hasInitPy(File[] files) {
-        for (int i = 0; i < files.length; i++) {
-            if(files[i].getName().equals("__init__.py")){
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-
-
-
-
 
 
     //PyUnit integration

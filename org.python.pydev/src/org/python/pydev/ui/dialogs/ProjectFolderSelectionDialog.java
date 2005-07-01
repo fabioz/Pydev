@@ -34,9 +34,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ISelectionValidator;
 import org.eclipse.ui.dialogs.SelectionDialog;
-import org.eclipse.ui.help.WorkbenchHelp;
-import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
-import org.eclipse.ui.internal.ide.IHelpContextIds;
 
 /**
  * A standard selection dialog which solicits a container resource from the user. The <code>getResult</code> method returns the selected
@@ -85,23 +82,13 @@ public class ProjectFolderSelectionDialog extends SelectionDialog {
      */
     public ProjectFolderSelectionDialog(Shell parentShell, IProject initialRoot, boolean allowNewContainerName, String message) {
         super(parentShell);
-        setTitle(IDEWorkbenchMessages.getString("ContainerSelectionDialog.title")); //$NON-NLS-1$
+        setTitle("Selection dialog"); 
         this.initialSelection = initialRoot;
         this.allowNewContainerName = allowNewContainerName;
-        if (message != null)
-            setMessage(message);
-        else
-            setMessage(IDEWorkbenchMessages.getString("ContainerSelectionDialog.message")); //$NON-NLS-1$
+        setMessage(message);
         setShellStyle(getShellStyle() | SWT.RESIZE);
     }
 
-    /*
-     * (non-Javadoc) Method declared in Window.
-     */
-    protected void configureShell(Shell shell) {
-        super.configureShell(shell);
-        WorkbenchHelp.setHelp(shell, IHelpContextIds.CONTAINER_SELECTION_DIALOG);
-    }
 
     /*
      * (non-Javadoc) Method declared on Dialog.

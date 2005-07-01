@@ -177,7 +177,6 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
             }
 
         } catch (BadLocationException x) {
-            x.printStackTrace();
         }
     }
 
