@@ -6,10 +6,14 @@
 	<extension
 		point="org.eclipse.debug.core.launchConfigurationTypes">
 		<launchConfigurationType
-			name="Python"
-			delegate="org.python.pydev.debug.ui.launching.PythonLaunchConfigurationDelegate"
-			modes="run, debug, profile, unittest"
-			id="org.python.pydev.debug.launchConfigurationType">
+        delegate="org.python.pydev.debug.ui.launching.PythonLaunchConfigurationDelegate"
+        id="org.python.pydev.debug.launchConfigurationType"
+        modes="run, debug, profile, unittest"
+        name="Python"
+        public="true">
+     <fileExtension
+           default="false"
+           extension="py"/>
 		</launchConfigurationType>
 	</extension>
 <!--- the launcher icon -->
@@ -40,6 +44,17 @@
 			class="org.python.pydev.debug.ui.launching.LaunchShortcut"
 			id="org.python.pydev.debug.ui.launchShortcut">
 			<perspective id="org.eclipse.debug.ui.DebugPerspective"/>
+			<!--this adds it to run-as -->
+            <contextualLaunch>
+               <enablement>
+                  <with variable="selection">
+                     <count value="1"/>
+               		 <iterate>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+               		 </iterate>
+                  </with>
+               </enablement>
+            </contextualLaunch>
 		</shortcut>
 	</extension>
 <!--- launcher pop up over a python file -->
