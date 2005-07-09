@@ -19,7 +19,6 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
-import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.parser.IParserListener;
 import org.python.pydev.plugin.PydevPrefs;
 
@@ -33,8 +32,6 @@ import org.python.pydev.plugin.PydevPrefs;
 public abstract class PyEditProjection extends TextEditor implements IParserListener {
 
     private ProjectionSupport fProjectionSupport;
-
-    private PyCorrectionAssistant fCorrectionAssistant;
 
     public static final int PROP_FOLDING_CHANGED = -999;
 

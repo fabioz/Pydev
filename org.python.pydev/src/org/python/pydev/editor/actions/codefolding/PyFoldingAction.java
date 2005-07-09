@@ -84,7 +84,6 @@ public abstract class PyFoldingAction extends PyAction{
         Position pTop = model.getPosition(top);
         
         int p1Offset = p1.getOffset();
-        int p1Len = p1Offset + p1.getLength();
     
         int pTopoffset = pTop.getOffset();
         int pTopLen = pTopoffset + pTop.getLength();

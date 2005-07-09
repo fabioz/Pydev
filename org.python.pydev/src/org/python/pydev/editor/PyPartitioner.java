@@ -6,13 +6,13 @@
  */
 package org.python.pydev.editor;
 
-import org.eclipse.jface.text.rules.DefaultPartitioner;
+import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 
 /**
  * @author Fabio Zadrozny
  */
-public class PyPartitioner extends DefaultPartitioner{
+public class PyPartitioner extends FastPartitioner{
 
     /**
      * @param scanner

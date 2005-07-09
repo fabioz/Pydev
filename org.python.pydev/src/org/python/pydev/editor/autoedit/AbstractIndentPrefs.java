@@ -69,9 +69,6 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
 		// only interresting if it contains a tab (also if it is a tab only)
 		if (text.indexOf("\t") != -1) {
 			// get some text infos
-			int lineStart = document.getLineInformationOfOffset(offset).getOffset();
-			String line = document.get(lineStart, offset - lineStart);
-			
 			
 			if (text.equals("\t")) {
 			    //only a single tab?

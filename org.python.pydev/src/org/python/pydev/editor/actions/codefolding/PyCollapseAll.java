@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
-import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codefolding.PyProjectionAnnotation;
 
 /**
@@ -25,8 +24,6 @@ public class PyCollapseAll extends PyFoldingAction {
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
-		PySelection ps = new PySelection ( getTextEditor ( ) );
-
 		final ProjectionAnnotationModel model = getModel();
         
         if (model != null) {

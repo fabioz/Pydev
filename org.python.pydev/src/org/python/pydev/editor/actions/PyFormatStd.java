@@ -29,7 +29,6 @@ public class PyFormatStd extends PyAction{
 		try 
 		{
 			PySelection ps = new PySelection ( getTextEditor ( ));
-		    String endLineDelim = ps.getEndLineDelim();
 			IDocument doc = ps.getDoc();
 			
 			int startLine = ps.getStartLineIndex();
@@ -311,8 +310,7 @@ public class PyFormatStd extends PyAction{
      * @return
      */
     private static int formatForComma(FormatStd std, char[] cs, StringBuffer buf, int i) {
-        char c;
-        while(i < cs.length-1 && (c = cs[i+1]) == ' '){
+        while(i < cs.length-1 && (cs[i+1]) == ' '){
             i++;
         }
         

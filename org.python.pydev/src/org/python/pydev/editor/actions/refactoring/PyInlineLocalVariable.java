@@ -30,10 +30,6 @@ public class PyInlineLocalVariable extends PyRefactorAction {
         int beginLine = getStartLine();
         int beginCol  = getStartCol();
 
-        int endLine   = getEndLine();
-        int endCol    = getEndCol();
-        
-        
         return AbstractPyRefactoring.getPyRefactoring().inlineLocalVariable(getPyEdit(), beginLine, beginCol, operation);
 
     }

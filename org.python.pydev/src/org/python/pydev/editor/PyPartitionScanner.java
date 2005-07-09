@@ -11,8 +11,8 @@ import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
-import org.eclipse.jface.text.rules.DefaultPartitioner;
 import org.eclipse.jface.text.rules.EndOfLineRule;
+import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.MultiLineRule;
@@ -85,7 +85,7 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
         if (document != null) {
             IDocumentPartitioner partitioner2 = document.getDocumentPartitioner();
             if(!(partitioner2 instanceof PyPartitioner)){
-    		    DefaultPartitioner partitioner = new PyPartitioner(new PyPartitionScanner(), getTypes());
+                FastPartitioner partitioner = new PyPartitioner(new PyPartitionScanner(), getTypes());
                 partitioner.connect(document);
                 document.setDocumentPartitioner(partitioner);
             }

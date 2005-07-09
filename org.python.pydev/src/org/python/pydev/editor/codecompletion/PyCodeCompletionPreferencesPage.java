@@ -10,7 +10,6 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
@@ -41,8 +40,6 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 	public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
 	public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
 	
-    private Label labelWarning;
-
     /**
      */
     public PyCodeCompletionPreferencesPage() {

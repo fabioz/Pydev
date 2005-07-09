@@ -5,7 +5,6 @@
  */
 package org.python.pydev.editor.actions.codefolding;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IStatus;
@@ -35,7 +34,6 @@ public class PyCollapse extends PyAction {
                 ProjectionAnnotationModel.class);
         try {
             if (model != null) {
-                ArrayList collapsed = new ArrayList();
                 //put annotations in array list.
                 Iterator iter = model.getAnnotationIterator();
                 while (iter != null && iter.hasNext()) {

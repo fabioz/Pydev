@@ -169,7 +169,6 @@ public class PySelection {
                 
             }else{
 	            offset = doc.getLineInformation(afterLine).getOffset();
-	            int length = doc.getLineInformation(afterLine).getLength();
             }
             
             

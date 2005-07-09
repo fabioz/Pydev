@@ -7,15 +7,14 @@ package org.python.pydev.utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+
+import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.ui.BundleInfoStub;
-
-import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -48,7 +47,6 @@ public class SimplePythonRunnerTest extends TestCase {
      */
     public void testEnv() throws CoreException, IOException {
         
-        ArrayList list = new ArrayList();
         File relativePath = BundleInfo.getBundleInfo().getRelativePath(new Path("PySrc/interpreterInfo.py"));
         String string = SimplePythonRunner.runAndGetOutput(CodeCompletionTestsBase.PYTHON_EXE+" "+relativePath.getCanonicalPath(), null);
         System.out.println(string);

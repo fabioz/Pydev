@@ -71,7 +71,6 @@ public class SimplePythonRunner {
     public static String runAndGetOutput(String script, String args, File workingDir, IProject project) {
         String osName = System.getProperty("os.name");
         
-        String execMsg;
         if(osName.toLowerCase().indexOf("win") != -1){ //in windows, we have to put python "path_to_file.py"
             if(script.startsWith("\"") == false){
                 script = "\""+script+"\"";
@@ -96,7 +95,6 @@ public class SimplePythonRunner {
         monitor.worked(5);
         String osName = System.getProperty("os.name");
         
-        String execMsg;
         if(osName.toLowerCase().indexOf("win") != -1){ //in windows, we have to put python "path_to_file.py"
             if(script.startsWith("\"") == false){
                 script = "\""+script+"\"";

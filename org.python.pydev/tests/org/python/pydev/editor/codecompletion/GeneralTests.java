@@ -17,7 +17,7 @@ import junit.framework.TestCase;
 public class GeneralTests extends TestCase{
     
     public void testIt() {
-        String string = "from scbr import ddd #tetet";
+//        String string = "from scbr import ddd #tetet";
 //        System.out.println(string.replaceAll("#.*", ""));
     }
     
@@ -27,7 +27,7 @@ public class GeneralTests extends TestCase{
     public void testSyst() {
         Properties properties = System.getProperties();
         for (Iterator iter = properties.keySet().iterator(); iter.hasNext();) {
-            Object key  = iter.next();
+//            Object key  = iter.next();
 //            System.out.println(key+" = "+properties.get(key));
             
         }

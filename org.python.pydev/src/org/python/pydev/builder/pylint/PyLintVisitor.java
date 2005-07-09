@@ -12,8 +12,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.eclipse.core.internal.resources.Marker;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -182,23 +182,23 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                         
 	                    if(tok.startsWith("C")&& useC){
 	                        type = PYLINT_PROBLEM_MARKER;
-	                        priority = Marker.SEVERITY_WARNING;
+	                        priority = IMarker.SEVERITY_WARNING;
 	                    }
 	                    else if(tok.startsWith("R")  && useR ){
 	                        type = PYLINT_PROBLEM_MARKER;
-	                        priority = Marker.SEVERITY_WARNING;
+	                        priority = IMarker.SEVERITY_WARNING;
 	                    }
 	                    else if(tok.startsWith("W")  && useW ){
 	                        type = PYLINT_PROBLEM_MARKER;
-	                        priority = Marker.SEVERITY_WARNING;
+	                        priority = IMarker.SEVERITY_WARNING;
 	                    }
 	                    else if(tok.startsWith("E") && useE ){
 	                        type = PYLINT_PROBLEM_MARKER;
-	                        priority = Marker.SEVERITY_ERROR;
+	                        priority = IMarker.SEVERITY_ERROR;
 	                    }
 	                    else if(tok.startsWith("F") && useF ){
 	                        type = PYLINT_PROBLEM_MARKER;
-	                        priority = Marker.SEVERITY_ERROR;
+	                        priority = IMarker.SEVERITY_ERROR;
 	                    }else{
 	                        continue;
 	                    }
@@ -207,7 +207,6 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                         continue;
                     }
                     
-                    String initial = tok;
                     try {
                         if(type != null){
                             String id = tok.substring(0, tok.indexOf(":")).trim();

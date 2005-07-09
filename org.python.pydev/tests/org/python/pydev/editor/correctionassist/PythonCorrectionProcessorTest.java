@@ -8,8 +8,6 @@ package org.python.pydev.editor.correctionassist;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IDocument;
 
 /**
  * @author Fabio Zadrozny
@@ -35,22 +33,6 @@ public class PythonCorrectionProcessorTest extends TestCase {
     }
 
     public void testGetOverrideProps() throws BadLocationException {
-        int selLength=0;
-        int endLineIndex=2;
-        int startLineIndex=2;
-        
-        IDocument doc = new Document(""+
-"class TestModel(unittest.TestCase):"+             
-"                                   "+        
-"    def set"          //setUp override should be bought. 
-);
-
-//not finished
-//        PySelection ps = new PySelection(doc, startLineIndex, endLineIndex, selLength, false); 
-//        File f = null; 
-//        PythonNature nature = null;
-//        
-//        PythonCorrectionProcessor.getOverrideProps(ps, null, f, nature);
     }
 
 }

@@ -7,9 +7,7 @@ package org.python.pydev.ui.pythonpathconf;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -68,12 +66,6 @@ public class InterpreterEditor extends PythonListEditor {
 	 * Tree to add libs.
 	 */
     private Tree tree;
-    
-    /**
-     * Keys are Strings (pointing to executable) 
-     * and values are InterpreterInfo.
-     */
-    private Map executableToInfs = new HashMap();
 
     /**
      * This is the control where the interpreters are shown

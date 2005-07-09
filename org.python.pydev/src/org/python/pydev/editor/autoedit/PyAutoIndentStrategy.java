@@ -7,7 +7,7 @@
 package org.python.pydev.editor.autoedit;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DefaultAutoIndentStrategy;
+import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.actions.PyAction;
@@ -16,12 +16,9 @@ import org.python.pydev.editor.actions.PySelection;
 /**
  * Implements indenting behavior.
  * 
- * <p>
  * Tabs vs. spaces indentation
- * <p>
- * Borrows heavily from {@link org.eclipse.jface.text.DefaultAutoIndentStrategy}, and the pyeclipse (PythonAutoIndentStrategy).
  */
-public class PyAutoIndentStrategy extends DefaultAutoIndentStrategy {
+public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy{
 
     private IIndentPrefs prefs;
 

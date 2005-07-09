@@ -82,11 +82,6 @@ public class PyCodeCompletion {
     public static final int TYPE_PARAM = 5;
     
     /**
-     * Position in document prior to the activation token
-     */
-    private int docBoundary = -1; 
-    
-    /**
      * 
      */
     public PyCodeCompletion() {
@@ -162,10 +157,9 @@ public class PyCodeCompletion {
             }
 
             List theList = new ArrayList();
-            PythonShell serverShell = null;
             try {
                 if (CompiledModule.COMPILED_MODULES_ENABLED) {
-                    serverShell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
+                    PythonShell.getServerShell(PythonShell.COMPLETION_SHELL); //just start it
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -556,14 +550,6 @@ public class PyCodeCompletion {
         return PydevPlugin.getScriptWithinPySrc("simpleTipper.py");
     }
 
-    /**
-     * The docBoundary should get until the last line before the one we are
-     * editing.
-     */
-    public void calcDocBoundary(String theDoc, int documentOffset) {
-        this.docBoundary = theDoc.substring(0, documentOffset)
-                .lastIndexOf('\n');
-    }
     
 	private static String extractPrefix(IDocument document, int offset) {
 		int i= offset;

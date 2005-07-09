@@ -43,11 +43,6 @@ public class InnerModelVisitor extends AbstractVisitor {
     private static int VISITING_CLASS = 0;
     
     /**
-     * When visiting method, get parameters.
-     */
-    private static int VISITING_METHOD = 1;
-
-    /**
      * Initially, we're visiting nothing.
      */
     private int visiting = VISITING_NOTHING;

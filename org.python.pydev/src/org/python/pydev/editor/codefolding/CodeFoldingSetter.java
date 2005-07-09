@@ -19,8 +19,6 @@ import org.eclipse.ui.IPropertyListener;
 import org.python.parser.SimpleNode;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.AbstractNode;
-import org.python.pydev.editor.model.ClassNode;
-import org.python.pydev.editor.model.FunctionNode;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
@@ -121,8 +119,6 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
         int i = 0;
 
         try {
-            IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
-
             for (Iterator iter = nodes.iterator(); iter.hasNext(); ++i) {
 
                 ASTEntry element = (ASTEntry) iter.next();
@@ -139,21 +135,6 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
             }
         } catch (NullPointerException e) {
         }
-    }
-
-    /**
-     * @param element
-     */
-    private int getStartColumn(AbstractNode element) {
-        int start = element.getStart().column;
-        if (element instanceof FunctionNode) {
-            return start - 4; //this is the 'def ' token
-        } else if (element instanceof ClassNode) {
-            return start - 6; //this is the 'class ' token
-        } else {
-            throw new RuntimeException("Invalid class");
-        }
-
     }
 
     /**

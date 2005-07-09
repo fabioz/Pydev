@@ -6,12 +6,9 @@
 package org.python.pydev.editor;
 
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -39,7 +36,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
@@ -131,24 +127,6 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		text.addPaintListener(this);
 	}
 
-	private int computeStateMask(String modifiers) {
-		if (modifiers == null)
-			return -1;
-		
-		if (modifiers.length() == 0)
-			return SWT.NONE;
-
-		int stateMask= 0;
-		StringTokenizer modifierTokenizer= new StringTokenizer(modifiers, ",;.:+-* "); //$NON-NLS-1$
-		while (modifierTokenizer.hasMoreTokens()) {
-			int modifier= EditorUtility.findLocalizedModifier(modifierTokenizer.nextToken());
-			if (modifier == 0 || (stateMask & modifier) == modifier)
-				return -1;
-			stateMask= stateMask | modifier;
-		}
-		return stateMask;
-	}
-		
 	public void uninstall() {
 
 		if (fColor != null) {
@@ -191,28 +169,6 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		fColor = fColorCache.getNamedColor(PydevPrefs.HYPERLINK_COLOR);
 	}
 
-	/**
-	 * Creates a color from the information stored in the given preference store.
-	 * Returns <code>null</code> if there is no such information available.
-	 */
-	private Color createColor(IPreferenceStore store, String key, Display display) {
-		
-		RGB rgb= null;		
-			
-		if (store.contains(key)) {
-				
-			if (store.isDefault(key))
-				rgb= PreferenceConverter.getDefaultColor(store, key);
-			else
-				rgb= PreferenceConverter.getColor(store, key);
-			
-			if (rgb != null)
-				return new Color(display, rgb);
-		}
-			
-		return null;
-	}		
-	
 	private void repairRepresentation() {			
 		repairRepresentation(false);
 	}

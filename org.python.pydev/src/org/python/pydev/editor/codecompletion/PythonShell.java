@@ -128,13 +128,7 @@ public class PythonShell {
         this(PydevPlugin.getScriptWithinPySrc("pycompletionserver.py"));
     }
 
-    /**
-     * Just wait a little...
-     */
-    private void sleepALittle() {
-        sleepALittle(25); //25 millis
-    }
-
+    
     /**
      * Just wait a little...
      */
@@ -427,7 +421,8 @@ public class PythonShell {
             String str = REF.getFileAbsolutePath(file);
             str = URLEncoder.encode(str);
             this.write("@@CHANGE_DIR:"+str+"END@@");
-            String ok = this.read(); //this should be the ok message...
+//            String ok = this.read(); //this should be the ok message...
+            this.read(); //this should be the ok message...
             
         } catch (IOException e) {
             PydevPlugin.log(IStatus.ERROR, "ERROR sending go to dir msg.", e);

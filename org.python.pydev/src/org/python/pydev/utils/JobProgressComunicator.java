@@ -14,8 +14,6 @@ import org.eclipse.core.runtime.jobs.Job;
 public class JobProgressComunicator implements IProgressMonitor{
 
     private IProgressMonitor monitor;
-    private long lastCommunicate = 0;
-    private final int minDif = 250;
     private Job job;
 
     public JobProgressComunicator(IProgressMonitor monitor, String main, int total, Job job){

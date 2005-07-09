@@ -5,11 +5,9 @@
  */
 package org.python.pydev.builder.todo;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.internal.resources.Marker;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.text.IDocument;
@@ -47,9 +45,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
 	                        String element = (String) iter.next();
 	
 	                        if ((index = tok.indexOf(element)) != -1) {
-	                            HashMap map = new HashMap();
-	
-	                            createMarker(resource, tok.substring(index).trim(), line + 1, Marker.TASK, IMarker.SEVERITY_WARNING, false, false);
+	                            createMarker(resource, tok.substring(index).trim(), line + 1, IMarker.TASK, IMarker.SEVERITY_WARNING, false, false);
 	                        }
 	
 	                    }

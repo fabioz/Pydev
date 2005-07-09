@@ -28,15 +28,6 @@ import org.python.pydev.utils.REF;
 public class PyUnitTestRunner {
 
     public static final int BUFFER_SIZE = 1024 * 4;
-    /**
-     * Full path of directory containing Python test class
-     */
-    private String testModuleDir;
-
-    /**
-     * Name of Python test class to be imported
-     */
-    private String testModuleName;
 
     /**
      * Python server process.
@@ -77,13 +68,6 @@ public class PyUnitTestRunner {
     }
     
     
-    /**
-     * Just wait a little...
-     */
-    private void sleepALittle() {
-        sleepALittle(25); //25 millis
-    }
-
     /**
      * Just wait a little...
      */

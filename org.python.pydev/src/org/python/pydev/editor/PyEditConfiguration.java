@@ -9,7 +9,7 @@ package org.python.pydev.editor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.DefaultUndoManager;
-import org.eclipse.jface.text.IAutoIndentStrategy;
+import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
@@ -87,13 +87,22 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
      * 
      * @return PyAutoIndentStrategy which deals with spaces/tabs
      */
-    public IAutoIndentStrategy getAutoIndentStrategy(ISourceViewer sourceViewer, String contentType) {
+    public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
+        return new IAutoEditStrategy[] {getPyAutoIndentStrategy()};
+    }
+
+    /**
+     * Cache the result, because we'll get asked for it multiple times Now, we always return the PyAutoIndentStrategy. (even on commented lines).
+     * 
+     * @return PyAutoIndentStrategy which deals with spaces/tabs
+     */
+    public PyAutoIndentStrategy getPyAutoIndentStrategy() {
         if (autoIndentStrategy == null) {
             autoIndentStrategy = new PyAutoIndentStrategy();
         }
         return autoIndentStrategy;
     }
-
+    
     /**
      * Recalculates indent prefixes based upon preferences
      * 
@@ -109,7 +118,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
             spaces.append(" ");
         }
 
-        boolean spacesFirst = prefs.getBoolean(PydevPrefs.SUBSTITUTE_TABS) && !((PyAutoIndentStrategy) getAutoIndentStrategy(null, null)).getIndentPrefs().getForceTabs();
+        boolean spacesFirst = prefs.getBoolean(PydevPrefs.SUBSTITUTE_TABS) && !(getPyAutoIndentStrategy()).getIndentPrefs().getForceTabs();
 
         if (spacesFirst) {
             indentPrefixes[0] = spaces.toString();
@@ -199,9 +208,6 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
      * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
      */
     public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-        final String PY_SINGLELINE_STRING = "__python_singleline_string";
-        final String PY_MULTILINE_STRING = "__python_multiline_string";
-
         // next create a content assistant processor to populate the completions window
         IContentAssistProcessor processor = new PythonCompletionProcessor(this.getEdit());
 
@@ -226,9 +232,6 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
      * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
      */
     public PyCorrectionAssistant getCorrectionAssistant(ISourceViewer sourceViewer) {
-        final String PY_SINGLELINE_STRING = "__python_singleline_string";
-        final String PY_MULTILINE_STRING = "__python_multiline_string";
-
         // create a content assistant:
         PyCorrectionAssistant assistant = new PyCorrectionAssistant();
 

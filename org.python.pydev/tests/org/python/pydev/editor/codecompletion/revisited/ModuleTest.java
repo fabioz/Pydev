@@ -54,14 +54,6 @@ public class ModuleTest extends TestCase {
         }
     }
 
-    /**
-     * @param globalTokens
-     */
-    private void printTokens(IToken[] globalTokens) {
-        for (int i = 0; i < globalTokens.length; i++) {
-            System.out.println(globalTokens[i].getRepresentation());
-        }
-    }
 
     public String getDoc1(){
         //damn, I really miss python when writing this...

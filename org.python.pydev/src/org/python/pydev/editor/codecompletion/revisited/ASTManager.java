@@ -25,7 +25,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.utils.REF;
 
 /**
  * This structure should be in memory, so that it acts very quickly.
@@ -195,17 +194,17 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable {
 //    public int getSize() {
 //        return modulesManager.getSize();
 //    }
-
-    /**
-     * This method returns the module that corresponds to the path passed as a parameter.
-     * 
-     * @param file
-     * @return the module represented by the file.
-     */
-    private AbstractModule getModule(File file, PythonNature nature) {
-        String name = projectModulesManager.resolveModule(REF.getFileAbsolutePath(file));
-        return getModule(name, nature);
-    }
+//
+//    /**
+//     * This method returns the module that corresponds to the path passed as a parameter.
+//     * 
+//     * @param file
+//     * @return the module represented by the file.
+//     */
+//    private AbstractModule getModule(File file, PythonNature nature) {
+//        String name = projectModulesManager.resolveModule(REF.getFileAbsolutePath(file));
+//        return getModule(name, nature);
+//    }
 
     /**
      * This method returns the module that corresponds to the path passed as a parameter.
@@ -632,7 +631,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable {
                                 tok2 = (String) o2[1];
                             }
                             
-                            return new Object[]{ mod, tok};
+                            return new Object[]{ mod2, tok2};
                         }
                     }
                     IToken[] wildImportedModules = mod.getWildImportedModules();

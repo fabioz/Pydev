@@ -7,10 +7,11 @@ package org.python.pydev.editor;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListResourceBundle;
+import java.util.Map;
 
-import org.eclipse.core.internal.resources.MarkerAttributeMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -136,7 +137,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
         editConfiguration = new PyEditConfiguration(colorCache, this);
         setSourceViewerConfiguration(editConfiguration);
-        indentStrategy = (PyAutoIndentStrategy) editConfiguration.getAutoIndentStrategy(null, IDocument.DEFAULT_CONTENT_TYPE);
+        indentStrategy = editConfiguration.getPyAutoIndentStrategy();
         setRangeIndicator(new DefaultRangeIndicator()); // enables standard
         // vertical ruler
 
@@ -517,9 +518,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
         IDocument document = getDocument(input);
         int lastLine = document.getNumberOfLines();
-        IRegion r;
         try {
-            r = document.getLineInformation(lastLine - 1);
+            document.getLineInformation(lastLine - 1);
             ast = root;
             pythonModel = ModelMaker.createModel(root, document, filePath);
             fireModelChanged(pythonModel, ast);
@@ -576,7 +576,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                 message = message.replaceAll("\\r", " ");
                 message = message.replaceAll("\\n", " ");
             }
-            MarkerAttributeMap map = new MarkerAttributeMap();
+            Map map = new HashMap();
             map.put(IMarker.MESSAGE, message);
             map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
             map.put(IMarker.LINE_NUMBER, new Integer(errorLine));
@@ -594,7 +594,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
     }
 
-    private void enableBrowserLikeLinks() {
+    public void enableBrowserLikeLinks() {
         if (fMouseListener == null) {
             fMouseListener = new Hyperlink(getSourceViewer(), this, colorCache);
             fMouseListener.install();
@@ -604,7 +604,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     /**
      * Disables browser like links.
      */
-    private void disableBrowserLikeLinks() {
+    public void disableBrowserLikeLinks() {
         if (fMouseListener != null) {
             fMouseListener.uninstall();
             fMouseListener = null;

@@ -313,7 +313,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 	protected void print(boolean b) {
 		System.out.println(b);
 	}
-	private void print(int i) {
+    protected void print(int i) {
 		System.out.println(i);
 	}
 

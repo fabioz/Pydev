@@ -69,13 +69,9 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             //FIRST: discover activation token and qualifier.
             IDocument doc = viewer.getDocument();
 
-            java.lang.String completeDoc = doc.get();
-            
 
             //list for storing the proposals
             ArrayList pythonAndTemplateProposals = new ArrayList();
-
-            
             
             
             

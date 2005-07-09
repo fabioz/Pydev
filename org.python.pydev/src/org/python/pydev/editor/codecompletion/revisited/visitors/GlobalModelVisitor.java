@@ -24,8 +24,6 @@ public class GlobalModelVisitor extends AbstractVisitor {
 
     private int visitWhat;
 
-    private SimpleNode initialAst;
-
     /**
      * @param moduleName
      * @param global_tokens2
@@ -40,7 +38,6 @@ public class GlobalModelVisitor extends AbstractVisitor {
     }
 
     public void traverse(SimpleNode node) throws Exception {
-        initialAst = node;
         node.traverse(this);
     }
 

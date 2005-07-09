@@ -5,16 +5,15 @@
  */
 package org.python.pydev.editor.actions;
 
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
-
 import junit.framework.TestCase;
+
+import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 
 /**
  * @author Fabio Zadrozny
  */
 public class PyFormatStdTest extends TestCase {
 
-    private PyFormatStd format;
     private FormatStd std;
 
     public static void main(String[] args) {
@@ -37,7 +36,6 @@ public class PyFormatStdTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        format = new PyFormatStd();
         std = new PyFormatStd.FormatStd();
     }
     
