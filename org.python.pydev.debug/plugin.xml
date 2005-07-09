@@ -44,7 +44,7 @@
 			class="org.python.pydev.debug.ui.launching.LaunchShortcut"
 			id="org.python.pydev.debug.ui.launchShortcut">
 			<perspective id="org.eclipse.debug.ui.DebugPerspective"/>
-			<!--this adds it to run-as -->
+			<!--this adds it to run-as (taken from \eclipse\plugins\org.eclipse.jdt.junit_3.0.1) -->
             <contextualLaunch>
                <enablement>
                   <with variable="selection">
