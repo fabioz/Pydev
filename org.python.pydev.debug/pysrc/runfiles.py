@@ -3,8 +3,8 @@ Usage:
     
     runfiles.py <dir> [<dir>...]
 
-Run all unit tests found in the current path. An unit test is a file named
-test_*.py and with TestCase-derived classes. 
+Run all unit tests found in the current path. An unit test is a file with 
+TestCase-derived classes. 
 '''
 
 import sys
@@ -91,100 +91,6 @@ def FindFiles( p_Pathes, p_InFilters=None, p_OutFilters=None, p_Recursive = True
 
 
 
-def GrepFiles( p_Pathes, p_Text, p_InFilters, p_OutFilters, p_Recursive = True ):
-    def HasText( p_FileName, p_Text ):
-        if (not os.path.isfile( p_FileName )):
-            return False
-        iss = open( p_FileName )
-        line = iss.readline()
-        while (line):
-            if (line.find( p_Text ) >= 0):
-                return True
-            line = iss.readline()
-        return False
-    result = FindFiles( p_Pathes, p_InFilters, p_OutFilters, p_Recursive )
-    return filter( lambda x: HasText( x, p_Text ), result )
-
-
-
-def CheckForUpdate( p_source, p_target ):
-    '''
-        Returns wether the given source needs to be (re)processed to generate the given target.
-        Check the target existence and date. 
-    '''
-    return \
-        not os.path.isfile( p_target ) or \
-        os.path.getmtime( p_source ) > os.path.getmtime( p_target )
-
-def CheckType( p_object, p_type ):
-    result = isinstance( p_object, p_type )
-    if not result:
-        types_ = [str(x.__name__) for x in make_tuple( p_type )]
-        types_ = '" or "'.join( types_ )
-        raise RuntimeError, 'CheckType: Expecting "%s", got "%s": %s' % \
-            (types_, p_object.__class__.__name__, repr( p_object ) ) 
-    return result
-
-
-def FileNames( p_filename, p_masks ):
-    '''
-        Returns the given masks substituing variables:
-            - Environmetn variables
-            - Extra varibles:
-                - abs_path
-                - platform
-                - PLATFORM
-                - filename
-                - basename
-    '''
-    import coilib
-    CheckType( p_filename, str )
-    abs_path = os.path.abspath( p_filename )
-    filename = os.path.basename( p_filename )
-    basename = filename.split('-')
-    basename = basename[0]
-    d = {
-        'abs_path'  : abs_path,
-        'platform'  : sys.platform,
-        'PLATFORM'  : coilib.Platform(),
-        'filename'  : filename,
-        'basename'  : basename,
-    }
-    d.update( os.environ )
-    return [os.path.normpath( i % d ) for i in p_masks]
-
-
-def FindFileName( p_filenames ):
-    result    = None
-    for i_filename in p_filenames:
-        if os.path.isfile( i_filename ):
-            result = i_filename
-            break
-    if (result is None):
-        import coilib.Exceptions
-        raise coilib.Exceptions.EFileNotFound( '\n - '.join( [''] + p_filenames ) )
-    return result
-
-
-
-#===============================================================================
-# GetShortPathName
-#===============================================================================
-def GetShortPathName(path):
-    '''Returns on windows the short version of the given path.
-    On other platforms, return the path unchanged.
-    '''
-    if sys.platform == 'win32':
-        import win32api
-        return win32api.GetShortPathName(path)
-    else:
-        return path
-
-
-
-
-
-
 
 
 
@@ -205,7 +111,7 @@ def runtests(dirs, verbosity=2):
     print 'Finding files...',dirs
     names = []
     for dir in dirs:
-        names.extend(FindFiles(dir, ['*.py'], '', True))
+        names.extend(FindFiles(dir, ['*.py', '*.pyw'], '', True))
     print 'done.'
     print 'Importing test modules...',
     alltests = []
