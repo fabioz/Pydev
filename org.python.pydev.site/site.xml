@@ -7,6 +7,7 @@
    </description>
    
 <!--start_features-->
+<feature url="features/org.python.pydev.feature_0.9.6.jar" id="org.python.pydev.feature" version="0.9.6"/>
 <feature url="features/org.python.pydev.feature_0.9.5.jar" id="org.python.pydev.feature" version="0.9.5"/>
 <feature url="features/org.python.pydev.feature_0.9.4.jar" id="org.python.pydev.feature" version="0.9.4"/>
 <feature url="features/org.python.pydev.feature_0.9.3.jar" id="org.python.pydev.feature" version="0.9.3"/>
