@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feature
+<feature 
       id="org.python.pydev.feature"
       label="PyDev for Eclipse"
       version="0.9.4.1"
@@ -66,13 +66,13 @@ Aleks and Fabio
          version="0.9.4.1"/>
 
    <plugin
-         id="org.python.pydev.help"
+         id="org.python.pydev.ast"
          download-size="0"
          install-size="0"
          version="0.9.4.1"/>
 
    <plugin
-         id="org.python.pydev.ast"
+         id="org.python.pydev.help"
          download-size="0"
          install-size="0"
          version="0.9.4.1"/>
