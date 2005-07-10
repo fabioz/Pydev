@@ -3,8 +3,7 @@
       id="org.python.pydev.feature"
       label="PyDev for Eclipse"
       version="0.9.4.1"
-      provider-name="Fabio Zadrozny / Aleks Totic "
-      primary="true">
+      provider-name="Fabio Zadrozny / Aleks Totic ">
 
    <description>
       Python development environment

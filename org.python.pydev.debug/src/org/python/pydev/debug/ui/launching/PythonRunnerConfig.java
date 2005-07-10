@@ -10,18 +10,20 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsUtil;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -39,86 +41,173 @@ import org.python.pydev.utils.SimplePythonRunner;
  */
 public class PythonRunnerConfig {
 
-	public IPath file;
+    public static final String RUN_COVERAGE = "RUN_COVERAGE";
+    public static final String RUN_REGULAR = "RUN_REGULAR";
+    public static final String RUN_UNITTEST = "RUN_UNITTEST";
+    
+    
+	public IPath resource;
 	public String interpreter;
 	public String[] arguments;
 	public File workingDirectory;
 	// debugging
 	public boolean isDebug;
-	public boolean isProfile;
 	private int debugPort = 0;  // use getDebugPort
 	public int acceptTimeout = 5000; // miliseconds
 	public String[] envp = null;
 
-	public String debugScript;
-	public String profileScript;
-
 	// unit test specific
-	public boolean isUnitTest;
-	public String unitTestScript;
 	private int unitTestPort = 0;  // use getUnitTestPort
 	private String unitTestModule;
 	private String unitTestModuleDir;
-	
+    private String run;
+    private ILaunchConfiguration configuration;
+
+    public boolean isCoverage(){
+        return this.run.equals(RUN_COVERAGE);
+    }
+    
+    public boolean isUnittest(){
+        return this.run.equals(RUN_UNITTEST);
+    }
+    
+    public boolean isFile() throws CoreException{
+        int resourceType = configuration.getAttribute(Constants.ATTR_RESOURCE_TYPE, -1);
+        return resourceType == IResource.FILE;
+    }
+    
+    
+    /**
+     * Expands and returns the location attribute of the given launch
+     * configuration. The location is
+     * verified to point to an existing file, in the local file system.
+     * 
+     * @param configuration launch configuration
+     * @return an absolute path to a file in the local file system  
+     * @throws CoreException if unable to retrieve the associated launch
+     * configuration attribute, if unable to resolve any variables, or if the
+     * resolved location does not point to an existing file in the local file
+     * system
+     */
+    public static IPath getLocation(ILaunchConfiguration configuration) throws CoreException {
+        String location = configuration.getAttribute(Constants.ATTR_LOCATION, (String) null);
+        if (location == null) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get location for run", null));
+        } else {
+            String expandedLocation = getStringVariableManager().performStringSubstitution(location);
+            if (expandedLocation == null || expandedLocation.length() == 0) {
+                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get expanded location for run", null));
+            } else {
+                return new Path(expandedLocation);
+            }
+        }
+    }
+    
+    /**
+     * Expands and returns the arguments attribute of the given launch
+     * configuration. Returns <code>null</code> if arguments are not specified.
+     * 
+     * @param configuration launch configuration
+     * @return an array of resolved arguments, or <code>null</code> if
+     * unspecified
+     * @throws CoreException if unable to retrieve the associated launch
+     * configuration attribute, or if unable to resolve any variables
+     */
+    public static String[] getArguments(ILaunchConfiguration configuration) throws CoreException {
+        String args = configuration.getAttribute(Constants.ATTR_TOOL_ARGUMENTS, (String) null);
+        if (args != null) {
+            String expanded = getStringVariableManager().performStringSubstitution(args);
+            return parseStringIntoList(expanded);
+        }
+        return null;
+    }
+    /**
+     * Parses the argument text into an array of individual
+     * strings using the space character as the delimiter.
+     * An individual argument containing spaces must have a
+     * double quote (") at the start and end. Two double 
+     * quotes together is taken to mean an embedded double
+     * quote in the argument text.
+     * 
+     * @param arguments the arguments as one string
+     * @return the array of arguments
+     */
+    public static String[] parseStringIntoList(String arguments) {
+        if (arguments == null || arguments.length() == 0) {
+            return new String[0];
+        }
+        String[] res= DebugPlugin.parseArguments(arguments);
+        return res;     
+    }   
+
+    
+    private static IStringVariableManager getStringVariableManager() {
+        return VariablesPlugin.getDefault().getStringVariableManager();
+    }
+    /**
+     * Expands and returns the working directory attribute of the given launch
+     * configuration. Returns <code>null</code> if a working directory is not
+     * specified. If specified, the working is verified to point to an existing
+     * directory in the local file system.
+     * 
+     * @param configuration launch configuration
+     * @return an absolute path to a directory in the local file system, or
+     * <code>null</code> if unspecified
+     * @throws CoreException if unable to retrieve the associated launch
+     * configuration attribute, if unable to resolve any variables, or if the
+     * resolved location does not point to an existing directory in the local
+     * file system
+     */
+    public static IPath getWorkingDirectory(ILaunchConfiguration configuration) throws CoreException {
+        String location = configuration.getAttribute(Constants.ATTR_WORKING_DIRECTORY, (String) null);
+        if (location != null) {
+            String expandedLocation = getStringVariableManager().performStringSubstitution(location);
+            if (expandedLocation.length() > 0) {
+                File path = new File(expandedLocation);
+                if (path.isDirectory()) {
+                    return new Path(expandedLocation);
+                } 
+                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get working location for the run",null));
+            }
+        }
+        return null;
+    }
+
+
 	/**
 	 * Sets defaults.
 	 */
-
-	public PythonRunnerConfig(ILaunchConfiguration conf, String mode) throws CoreException {
+	public PythonRunnerConfig(ILaunchConfiguration conf, String mode, String run) throws CoreException {
+	    this.configuration = conf;
+        this.run = run;
 		isDebug = mode.equals(ILaunchManager.DEBUG_MODE);
-		isProfile = mode.equals(ILaunchManager.PROFILE_MODE);
-		isUnitTest = mode.equals("unittest");
 		
-		file = ExternalToolsUtil.getLocation(conf);
+		resource = getLocation(conf);
 		interpreter = conf.getAttribute(Constants.ATTR_INTERPRETER, "python");
-		arguments = ExternalToolsUtil.getArguments(conf);
-		IPath workingPath = ExternalToolsUtil.getWorkingDirectory(conf);
+		arguments = getArguments(conf);
+		IPath workingPath = getWorkingDirectory(conf);
 		workingDirectory = workingPath == null ? null : workingPath.toFile();
 		acceptTimeout = PydevPrefs.getPreferences().getInt(PydevPrefs.CONNECT_TIMEOUT);
 
-		if (isDebug) {
-			debugScript = getDebugScript();
-		}else if (isProfile){
-		    profileScript = getProfileScript();
-		}else if (isUnitTest){
-		    unitTestScript = getUnitTestScript();
+        if (isUnittest()){
 			setUnitTestInfo();
 		}
 
 		//find the project
-        IFile file2 = conf.getFile();
         IWorkspace w = ResourcesPlugin.getWorkspace();
+        String projName = conf.getAttribute(Constants.ATTR_PROJECT, "");
+        if (projName.length() == 0){
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get project for the run",null));
+        }
         
-        if(file2 == null){
-            file2 = w.getRoot().getFileForLocation(file);
-        }
+        IProject project = w.getRoot().getProject(projName);
+        
 
-        if(file2 == null){ 
-            IFile[] files = w.getRoot().findFilesForLocation(file);
-            if(files != null){
-	            if(files.length == 1){
-	                file2 = files[0];
-	            }else if(files.length > 1 ){
-	                CoreException e = PydevPlugin.log("Too many internal eclipse representations for file "+file+".\n" +
-	                		"Cannot run file referenced\n" +
-	                		"in more than one project right now!\n" +
-	                		"\n" +
-	                		"This happens when files are shared across projects\n" +
-	                		"with external links - check feature request:\n" +
-	                		"http://sourceforge.net/tracker/index.php?func=detail&aid=1219682&group_id=85796&atid=577332).");
-	                throw e;
-	            }
-            }
-            
-        }
-
-        if(file2 == null){ //Ok, we could not find it out
-            CoreException e = PydevPlugin.log("Could not get internal eclipse representation for file: "+file);
+        if(project == null){ //Ok, we could not find it out
+            CoreException e = PydevPlugin.log("Could not get project for resource: "+resource);
             throw e;
         }
         
-        IProject project = file2.getProject();
-
         //make the environment
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         envp = launchManager.getEnvironment(conf);
@@ -212,46 +301,40 @@ public class PythonRunnerConfig {
 			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not find a free socket for unit test run", null));
 	}
 
-    private void setUnitTestInfo() {
-		try {
-			setUnitTestPort();
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    private void setUnitTestInfo() throws CoreException {
+		setUnitTestPort();
 
     	// get the test module name and path so that we can import it in Python
-		int segmentCount = file.segmentCount();
+		int segmentCount = resource.segmentCount();
 
-		IPath noextPath = file.removeFileExtension();
+		IPath noextPath = resource.removeFileExtension();
 		unitTestModule =  noextPath.lastSegment();
-		IPath modulePath = file.uptoSegment(segmentCount-1);
+		IPath modulePath = resource.uptoSegment(segmentCount-1);
 		unitTestModuleDir = modulePath.toString();
     }
     
 	public String getRunningName() {
-		return file.lastSegment();
+		return resource.lastSegment();
 	}
 
 	/**
 	 * @throws CoreException if arguments are inconsistent
 	 */
 	public void verify() throws CoreException {
-		if (file == null
-			|| interpreter == null)
-		throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
-		if (isDebug &&
-			( acceptTimeout < 0
-			|| debugPort < 0
-			|| debugScript == null))
-		throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
+		if (resource == null || interpreter == null){
+		    throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
+        }
+        
+		if (isDebug && ( acceptTimeout < 0|| debugPort < 0) ){
+		    throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
+        }
 	}
 
 	/**
      * @return
 	 * @throws CoreException
      */
-    public static String getProfileScript() throws CoreException {
+    public static String getCoverageScript() throws CoreException {
         return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("coverage.py"));
     }
 
@@ -266,17 +349,22 @@ public class PythonRunnerConfig {
 	    return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("pydevd.py"));
 	}
 
+    private String getRunFilesScript() throws CoreException {
+        return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("runfiles.py"));
+    }
+
 	/**
 	 * Create a command line for launching.
 	 * @return command line ready to be exec'd
+	 * @throws CoreException 
 	 */
-	public String[] getCommandLine() {
+	public String[] getCommandLine() throws CoreException {
 		Vector cmdArgs = new Vector(10);
 		cmdArgs.add(interpreter);
 		// Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
 		cmdArgs.add(org.python.pydev.ui.pythonpathconf.InterpreterEditor.isJython(interpreter) ? "-i" : "-u");
 		if (isDebug) {
-			cmdArgs.add(debugScript);
+			cmdArgs.add(getDebugScript());
 			cmdArgs.add("--client");
 			cmdArgs.add("localhost");
 			cmdArgs.add("--port");
@@ -284,34 +372,53 @@ public class PythonRunnerConfig {
 			cmdArgs.add("--file");
 		}
 		
-		if(isProfile){
-			cmdArgs.add(profileScript);
-			cmdArgs.add(PyCoverage.getCoverageFileLocation());
+		if(isCoverage()){
+			cmdArgs.add(getCoverageScript());
+			String coverageFileLocation = PyCoverage.getCoverageFileLocation();
+            System.out.println("coverageFileLocation "+coverageFileLocation);
+            cmdArgs.add(coverageFileLocation);
 			cmdArgs.add("-x");
+			if (!isFile()){
+			    //run all testcases
+                cmdArgs.add(getRunFilesScript());
+            }
 		}
 
-		if(isUnitTest){
-			cmdArgs.add(unitTestScript);
-			cmdArgs.add(Integer.toString(getUnitTestPort()));
-			cmdArgs.add(unitTestModuleDir);
-			cmdArgs.add(unitTestModule);
-			String[] retVal = new String[cmdArgs.size()];
-			cmdArgs.toArray(retVal);
-			return retVal;
+		if(isUnittest()){
+            if (isFile()){
+    			cmdArgs.add(getUnitTestScript());
+    			cmdArgs.add(Integer.toString(getUnitTestPort()));
+    			cmdArgs.add(unitTestModuleDir);
+    			cmdArgs.add(unitTestModule);
+    			String[] retVal = new String[cmdArgs.size()];
+    			cmdArgs.toArray(retVal);
+    			return retVal;
+
+            }else{ //run all testcases
+                cmdArgs.add(getRunFilesScript());
+            }
 		}
 
-		cmdArgs.add(file.toOSString());
-		for (int i=0; arguments != null && i<arguments.length; i++)
+		cmdArgs.add(resource.toOSString());
+		for (int i=0; arguments != null && i<arguments.length; i++){
 			cmdArgs.add(arguments[i]);
+        }
+        
 		String[] retVal = new String[cmdArgs.size()];
 		cmdArgs.toArray(retVal);
 		return retVal;
 	}
+
 	
 	
 	public String getCommandLineAsString() {
-		String[] args = getCommandLine();
-		return getCommandLineAsString(args);
+		String[] args;
+        try {
+            args = getCommandLine();
+            return getCommandLineAsString(args);
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
 	}
 
 

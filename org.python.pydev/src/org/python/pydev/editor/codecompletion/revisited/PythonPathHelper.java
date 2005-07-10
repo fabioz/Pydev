@@ -81,7 +81,7 @@ public class PythonPathHelper implements Serializable{
 	        }
 	
 	    };
-	    return PydevPlugin.getPyFilesBelow(root, filter, monitor);
+	    return PydevPlugin.getPyFilesBelow(root, filter, monitor, true);
     }
     
 

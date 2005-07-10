@@ -3,196 +3,165 @@
 <plugin>
 
 <!--- launcher -->
-	<extension
-		point="org.eclipse.debug.core.launchConfigurationTypes">
-		<launchConfigurationType
-        delegate="org.python.pydev.debug.ui.launching.PythonLaunchConfigurationDelegate"
-        id="org.python.pydev.debug.launchConfigurationType"
-        modes="run, debug, profile, unittest"
-        name="Python"
+<extension point="org.eclipse.debug.core.launchConfigurationTypes">
+	<launchConfigurationType
+        delegate="org.python.pydev.debug.ui.launching.RegularLaunchConfigurationDelegate"
+        id="org.python.pydev.debug.regularLaunchConfigurationType"
+        modes="run, debug"
+        name="Python Run"
         public="true">
-     <fileExtension
-           default="false"
-           extension="py"/>
-		</launchConfigurationType>
-	</extension>
-<!--- the launcher icon -->
-	<extension
-		point="org.eclipse.debug.ui.launchConfigurationTypeImages">
-		<launchConfigurationTypeImage
-			icon="icons/python.gif"
-			configTypeID="org.python.pydev.debug.launchConfigurationType"
-			id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
-		</launchConfigurationTypeImage>
-	</extension>
+	</launchConfigurationType>
+	<launchConfigurationType
+        delegate="org.python.pydev.debug.ui.launching.CoverageLaunchConfigurationDelegate"
+        id="org.python.pydev.debug.coverageLaunchConfigurationType"
+        modes="run"
+        name="Python Coverage"
+        public="true">
+	</launchConfigurationType>
+	<launchConfigurationType
+        delegate="org.python.pydev.debug.ui.launching.UnittestLaunchConfigurationDelegate"
+        id="org.python.pydev.debug.unittestLaunchConfigurationType"
+        modes="run"
+        name="Python unittest"
+        public="true">
+	</launchConfigurationType>
+</extension>
+<!--- the launcher icon  -->
+<extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+	<launchConfigurationTypeImage
+		icon="icons/python.gif"
+		configTypeID="org.python.pydev.debug.regularLaunchConfigurationType"
+		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
+	</launchConfigurationTypeImage>
+	<launchConfigurationTypeImage
+		icon="icons/python.gif"
+		configTypeID="org.python.pydev.debug.coverageLaunchConfigurationType"
+		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
+	</launchConfigurationTypeImage>
+	<launchConfigurationTypeImage
+		icon="icons/python.gif"
+		configTypeID="org.python.pydev.debug.unittestLaunchConfigurationType"
+		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
+	</launchConfigurationTypeImage>
+</extension>
 <!--- launcher tab group -->
-	<extension
-			point="org.eclipse.debug.ui.launchConfigurationTabGroups">
-		<launchConfigurationTabGroup
-			type="org.python.pydev.debug.launchConfigurationType"
-			class="org.python.pydev.debug.ui.PythonTabGroup"
-			id="org.python.pydev.debug.ui.PythonTabGroup">
-		</launchConfigurationTabGroup>
-	</extension>
-<!--- launch shortcuts -->
-	<extension
-			point="org.eclipse.debug.ui.launchShortcuts">
-		<shortcut
-			label="Python script"
-			icon="icons/python.gif"
-			modes="run, debug, profile, unittest"
-			class="org.python.pydev.debug.ui.launching.LaunchShortcut"
-			id="org.python.pydev.debug.ui.launchShortcut">
-			<perspective id="org.eclipse.debug.ui.DebugPerspective"/>
-			<!--this adds it to run-as (taken from \eclipse\plugins\org.eclipse.jdt.junit_3.0.1) -->
-            <contextualLaunch>
-               <enablement>
-                  <with variable="selection">
-                     <count value="1"/>
-               		 <iterate>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
-               		 </iterate>
-                  </with>
-               </enablement>
-            </contextualLaunch>
-		</shortcut>
-	</extension>
-<!--- launcher pop up over a python file -->
-	<extension
-			point="org.eclipse.ui.popupMenus">
-		<objectContribution
-			objectClass="org.eclipse.core.resources.IFile"
-			adaptable="true"
-			nameFilter="*.py"
-			id="org.python.pydev.debug.RunPython">
-			<menu
-				label="Python"
-				path="additions"
-				id="org.python.pydev.debug.WorkspaceMenu">
-				<separator name="group1"/>
-			</menu>
-   <action
-         enablesFor="1"
-         label="Unit Test..."
-         tooltip="Run pyUnit test"
-         icon="icons/python.gif"
-         class="org.python.pydev.debug.ui.actions.PythonTestActionDelegate"
-         menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
-         id="org.python.pydev.debug.TestPythonAction"/>
-			<action
-				label="Coverage..."
-				icon="icons/python.gif"
-				tooltip="Make code coverage for a python script"
-				class="org.python.pydev.debug.ui.actions.PythonRunActionDelegate"
-				menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
-				enablesFor="1"
-				id="org.python.pydev.debug.CoveragePythonAction">
-			</action>
-			<action
-				label="Debug..."
-				icon="icons/python.gif"
-				tooltip="Debug python script"
-				class="org.python.pydev.debug.ui.actions.PythonRunActionDelegate"
-				menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
-				enablesFor="1"
-				id="org.python.pydev.debug.DebugPythonAction">
-			</action>
-			<action
-				label="Run..."
-				icon="icons/python.gif"
-				tooltip="Run a python script"
-				class="org.python.pydev.debug.ui.actions.PythonRunActionDelegate"
-				menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
-				enablesFor="1"
-				id="org.python.pydev.debug.RunPythonAction">
-			</action>
-		    <action
-    	     	enablesFor="1"
-	        	 label="Unit Test..."
-			     tooltip="Run pyUnit test"
-    	    	 icon="icons/python.gif"
-				 class="org.python.pydev.debug.ui.actions.PythonRunActionDelegate"
-		         menubarPath="org.python.pydev.debug.WorkspaceMenu/group1"
-    		     id="org.python.pydev.debug.UnitTestPythonAction">
-			</action>
-		</objectContribution>
+<extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+	<launchConfigurationTabGroup
+		type="org.python.pydev.debug.regularLaunchConfigurationType"
+		class="org.python.pydev.debug.ui.PythonTabGroup"
+		id="org.python.pydev.debug.ui.PythonTabGroup">
+	</launchConfigurationTabGroup>
+	<launchConfigurationTabGroup
+		type="org.python.pydev.debug.coverageLaunchConfigurationType"
+		class="org.python.pydev.debug.ui.PythonTabGroup"
+		id="org.python.pydev.debug.ui.PythonTabGroup">
+	</launchConfigurationTabGroup>
+	<launchConfigurationTabGroup
+		type="org.python.pydev.debug.unittestLaunchConfigurationType"
+		class="org.python.pydev.debug.ui.PythonTabGroup"
+		id="org.python.pydev.debug.ui.PythonTabGroup">
+	</launchConfigurationTabGroup>
+</extension>
 
-		<objectContribution
-        adaptable="true"
-        objectClass="org.eclipse.core.resources.IFolder"
-        nameFilter="*"
-        id="org.python.pydev.debug.RunPythonFolder">
-			<menu
-				label="Python (run subset)"
-				path="additions2"
-				id="org.python.pydev.debug.WorkspaceMenu">
-				<separator name="group2"/>
-			</menu>
-			<action
-				label="Coverage subset..."
-				icon="icons/python.gif"
-				tooltip="Make code coverage for many python files at once."
-				class="org.python.pydev.debug.ui.actions.PythonRunSubsetActionDelegate"
-				menubarPath="org.python.pydev.debug.WorkspaceMenu/group2"
-				enablesFor="1"
-				id="org.python.pydev.debug.PythonCoverageSubset">
-			</action>
-			<action
-				label="Run subset..."
-				icon="icons/python.gif"
-				tooltip="Run many python files at once."
-				class="org.python.pydev.debug.ui.actions.PythonRunSubsetActionDelegate"
-				menubarPath="org.python.pydev.debug.WorkspaceMenu/group2"
-				enablesFor="1"
-				id="org.python.pydev.debug.PythonRunSubset">
-			</action>
-		</objectContribution>
-	</extension>
-<!--- launch groups for python -->
-	<extension
-		point="org.eclipse.debug.ui.launchGroups">
-		<launchGroup
-			label="Debug"
-			bannerImage="icons/python-big.gif"
-			category="org.python.pydev.debug"
-			image="icons/python.gif"
-			mode="debug"
-			id="org.python.pydev.debug.debug">
-		</launchGroup>
-		<launchGroup
-			label="Run"
-			bannerImage="icons/python-big.gif"
-			category="org.python.pydev.debug"
-			image="icons/python.gif"
-			mode="run"
-			id="org.python.pydev.debug.run">
-		</launchGroup>
-		<launchGroup
-			label="Profile"
-			bannerImage="icons/python-big.gif"
-			category="org.python.pydev.debug"
-			image="icons/python.gif"
-			mode="profile"
-			id="org.python.pydev.debug.coverage">
-		</launchGroup>
-		<launchGroup
-			label="Unit Test"
-			bannerImage="icons/python-big.gif"
-			category="org.python.pydev.debug"
-			image="icons/python.gif"
-			mode="unittest"
-			id="org.python.pydev.debug.unittest">
-		</launchGroup>
-	</extension>
+<!--- launcher pop up over a python file -->
+<!--- launch shortcuts -->
+<extension point="org.eclipse.debug.ui.launchShortcuts">
+	<shortcut
+		label="Python Run"
+		icon="icons/python.gif"
+		modes="run, debug"
+		class="org.python.pydev.debug.ui.launching.LaunchShortcut"
+		id="org.python.pydev.debug.ui.launchShortcut">
+		<perspective id="org.eclipse.debug.ui.DebugPerspective"/>
+		<!--this adds it to run-as (taken from \eclipse\plugins\org.eclipse.jdt.junit_3.0.1) -->
+        <contextualLaunch>
+           <enablement>
+              <with variable="selection">
+                 <count value="1"/>
+           		 <iterate>
+           		 	<or>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+               		</or>
+           		 </iterate>
+              </with>
+           </enablement>
+        </contextualLaunch>
+	</shortcut>
+	<shortcut
+		label="Python Coverage"
+		icon="icons/python.gif"
+		modes="run"
+		class="org.python.pydev.debug.ui.launching.CoverageLaunchShortcut"
+		id="org.python.pydev.debug.ui.launchShortcut">
+		<!--this adds it to run-as (taken from \eclipse\plugins\org.eclipse.jdt.junit_3.0.1) -->
+        <contextualLaunch>
+           <enablement>
+              <with variable="selection">
+                 <count value="1"/>
+           		 <iterate>
+           		 	<or>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+               		    <instanceof value="org.eclipse.core.resources.IFolder" />
+               		</or>
+           		 </iterate>
+              </with>
+           </enablement>
+        </contextualLaunch>
+	</shortcut>
+	<shortcut
+		label="Python unit-test"
+		icon="icons/python.gif"
+		modes="run"
+		class="org.python.pydev.debug.ui.launching.UnitTestLaunchShortcut"
+		id="org.python.pydev.debug.ui.launchShortcut">
+        <contextualLaunch>
+           <enablement>
+              <with variable="selection">
+                 <count value="1"/>
+           		 <iterate>
+           		 	<or>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+               		    <instanceof value="org.eclipse.core.resources.IFolder" />
+               		</or>
+           		 </iterate>
+              </with>
+           </enablement>
+        </contextualLaunch>
+	</shortcut>
+</extension>
+
+<!--- CONTRIBUTED VIEWS -->
+<extension point="org.eclipse.ui.views">
+   <category
+        name="Pydev"
+        id="org.python.pydev.debug"/>
+   <view
+        class="org.python.pydev.debug.codecoverage.PyCodeCoverageView"
+        icon="icons/python.gif"
+        category="org.python.pydev"
+        name="Code Coverage Results View"
+        id="org.python.pydev.views.PyCodeCoverageView"/>
+   <!--- removed until the implementation is improved 
+   <view
+        icon="icons/python.gif"
+        class="org.python.pydev.debug.unittest.TestReportView"
+        category="org.python.pydev"
+        name="Unit Test Report View"
+        id="org.python.pydev.debug.views.TestReportView"/>
+   -->
+</extension>
+
 <!--- console line tracking -->
-	<extension 
-		point="org.eclipse.debug.ui.consoleLineTrackers">
-		<consoleLineTracker
-			class="org.python.pydev.debug.ui.PythonConsoleLineTracker"
-			processType="PYDEV.PYTHON"
-			id="org.python.pydev.debug.ui.PythonConsoleLineTracker">
-		</consoleLineTracker>
-	</extension>
+<extension 
+	point="org.eclipse.debug.ui.consoleLineTrackers">
+	<consoleLineTracker
+		class="org.python.pydev.debug.ui.PythonConsoleLineTracker"
+		processType="PYDEV.PYTHON"
+		id="org.python.pydev.debug.ui.PythonConsoleLineTracker">
+	</consoleLineTracker>
+</extension>
+   
+<!-- DEBUGGING -->
 
 <!-- breakpoint ruler action -->
 <extension point="org.eclipse.ui.editorActions">
@@ -251,15 +220,16 @@
 	point="org.eclipse.debug.core.breakpoints">
 	<breakpoint id="pythonStopBreakpoint"
 		markerType="org.python.pydev.debug.pyStopBreakpointMarker"
-		class="org.python.pydev.debug.model.PyBreakpoint"
-	/>
+		class="org.python.pydev.debug.model.PyBreakpoint"/>
 </extension>
+
 <extension
 	point="org.eclipse.ui.ide.markerImageProviders">
 	<imageprovider id="pythonBreakPointImage"
 		markertype="org.python.pydev.debug.pyStopBreakpointMarker"
 		icon="icons/breakmarker.gif"/>
 </extension>
+
 <extension point = "org.eclipse.debug.ui.debugModelPresentations"> 
 	<debugModelPresentation
 		class = "org.python.pydev.debug.model.PyDebugModelPresentation"
@@ -267,30 +237,11 @@
 	</debugModelPresentation>
 </extension>
 
-   <extension
-         point="org.eclipse.ui.views">
-      <category
-            name="Pydev"
-            id="org.python.pydev.debug"/>
-      <view
-            class="org.python.pydev.debug.codecoverage.PyCodeCoverageView"
-            icon="icons/python.gif"
-            category="org.python.pydev"
-            name="Code Coverage Results View"
-            id="org.python.pydev.views.PyCodeCoverageView"/>
-      <view
-            icon="icons/python.gif"
-            class="org.python.pydev.debug.unittest.TestReportView"
-            category="org.python.pydev"
-            name="Unit Test Report View"
-            id="org.python.pydev.debug.views.TestReportView"/>
-   </extension>
-   
-	<extension point="org.eclipse.debug.core.watchExpressionDelegates">
-		<watchExpressionDelegate 
-			debugModel="org.python.pydev.debug"
-			delegateClass="org.python.pydev.debug.model.PyWatchExpressionDelegate"/>
-	</extension>
+<extension point="org.eclipse.debug.core.watchExpressionDelegates">
+	<watchExpressionDelegate 
+		debugModel="org.python.pydev.debug"
+		delegateClass="org.python.pydev.debug.model.PyWatchExpressionDelegate"/>
+</extension>
 
 </plugin>
 

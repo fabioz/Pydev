@@ -12,11 +12,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -254,8 +251,8 @@ public class TestReportView extends ViewPart {
 		colorLabel.setBackground(gray);
         colorLabel.setLayoutData(labelData);
 
-        Image imageFailures = createImage("icons/testfailures_ovr.gif");
-		Image imageErrors = createImage("icons/testerrors_ovr.gif");
+        Image imageFailures = PydevDebugPlugin.getDefault().imageCache.get("icons/testfailures_ovr.gif");
+		Image imageErrors   = PydevDebugPlugin.getDefault().imageCache.get("icons/testerrors_ovr.gif");
 
         Composite labelComposite = new Composite(parent, SWT.MULTI);
         RowLayout labelLayout = new RowLayout();
@@ -331,16 +328,6 @@ public class TestReportView extends ViewPart {
         });
     }
 
-	private Image createImage(String path) {
-		URL url = PydevDebugPlugin.getDefault().getDescriptor().getInstallURL();
-		ImageDescriptor descriptor = null;
-		try {
-			descriptor = ImageDescriptor.createFromURL(new URL(url, path));
-		} catch (MalformedURLException e) {
-			descriptor = ImageDescriptor.getMissingImageDescriptor();
-		}
-		return descriptor.createImage();
-	}
 	
 	private boolean isDisposed() {
 		return fIsDisposed;

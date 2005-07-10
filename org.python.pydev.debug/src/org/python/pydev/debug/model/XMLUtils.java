@@ -149,7 +149,7 @@ public class XMLUtils {
 			String line = attributes.getValue("line");
 			IPath filePath = new Path(file);
 			// Try to recycle old stack objects
-			currentFrame = thread.findStackFrameByID(id);;
+			currentFrame = thread.findStackFrameByID(id);
 			if (currentFrame == null)
 				currentFrame = new PyStackFrame(thread, id, name, filePath, Integer.parseInt(line));
 			else { 
@@ -219,7 +219,6 @@ public class XMLUtils {
 	 * @return an array of [thread_id, stop_reason, IStackFrame[]]
 	 */
 	public static Object[] XMLToStack(PyDebugTarget target, String payload) throws CoreException {
-		String thread_id;
 		IStackFrame[] stack;
 		Object[] retVal = new Object[3];
 		try {

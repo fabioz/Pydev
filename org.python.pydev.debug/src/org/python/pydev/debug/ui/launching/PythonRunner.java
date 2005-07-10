@@ -41,9 +41,11 @@ public class PythonRunner {
 	public static void run(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
 		if (config.isDebug) {
 		    runDebug(config, launch, monitor);
-		}else if (config.isUnitTest) {
+            
+		}else if (config.isUnittest()) { 
 			runUnitTest(config, launch, monitor);
-		}else { //default
+            
+		}else { //default - just configured by command line (the others need special attention)
 	        doIt(monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
 		}
 	}
@@ -90,7 +92,7 @@ public class PythonRunner {
 		subMonitor.subTask("Done");
 		// hook up debug model, and we are off & running
 		PyDebugTarget t = new PyDebugTarget(launch, process, 
-									config.file, debugger);
+									config.resource, debugger);
 		launch.setSourceLocator(new PySourceLocator());
 		debugger.startTransmission(); // this starts reading/writing from sockets
 		t.initialize();
@@ -118,37 +120,40 @@ public class PythonRunner {
     }
 
     public static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException{
-        if (monitor == null)
-        	monitor = new NullProgressMonitor();
-        IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
-        subMonitor.beginTask("Launching python in unittest mode", 1);
-        
-        // Launch & connect to the debugger		
-        subMonitor.subTask("Constructing command_line...");
-        subMonitor.subTask("Exec...");
-		String[] cmdLine = config.getCommandLine();
-
-        Process p = DebugPlugin.exec(cmdLine, config.workingDirectory, config.envp);	
-        if (p == null)
-        	throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not execute python process. Was it cancelled?", null));
-
-        int port = config.getUnitTestPort();
-        String full_path_to_file = config.file.toOSString();
-        PyUnitTestRunner unitTestRunner = new PyUnitTestRunner(subMonitor, port, full_path_to_file);
-		try {
-			unitTestRunner.readTestResults();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} finally {
-	        if(p != null){
-	        	p.destroy();
-	        }
-		}
-        
-        // Register the process with the debug plugin
-        subMonitor.subTask("Done");
-        registerWithDebugPlugin(PythonRunnerConfig.getCommandLineAsString(cmdLine), cmdLine[cmdLine.length-1], launch, p);
-        
+        if(!config.isFile()){
+            doIt(monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
+        }else{
+            if (monitor == null)
+            	monitor = new NullProgressMonitor();
+            IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
+            subMonitor.beginTask("Launching python in unittest mode", 1);
+            
+            // Launch & connect to the debugger		
+            subMonitor.subTask("Constructing command_line...");
+            subMonitor.subTask("Exec...");
+    		String[] cmdLine = config.getCommandLine();
+    
+            Process p = DebugPlugin.exec(cmdLine, config.workingDirectory, config.envp);	
+            if (p == null)
+            	throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not execute python process. Was it cancelled?", null));
+    
+            int port = config.getUnitTestPort();
+            String full_path_to_file = config.resource.toOSString();
+            PyUnitTestRunner unitTestRunner = new PyUnitTestRunner(subMonitor, port, full_path_to_file);
+    		try {
+    			unitTestRunner.readTestResults();
+    		} catch (IOException e1) {
+    			e1.printStackTrace();
+    		} finally {
+    	        if(p != null){
+    	        	p.destroy();
+    	        }
+    		}
+            
+            // Register the process with the debug plugin
+            subMonitor.subTask("Done");
+            registerWithDebugPlugin(PythonRunnerConfig.getCommandLineAsString(cmdLine), cmdLine[cmdLine.length-1], launch, p);
+        }        
     }
 
     /**
@@ -159,7 +164,7 @@ public class PythonRunner {
 		HashMap processAttributes = new HashMap();
 		processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
 		processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
-		return DebugPlugin.newProcess(launch,p, config.file.lastSegment(), processAttributes);
+		return DebugPlugin.newProcess(launch,p, config.resource.lastSegment(), processAttributes);
 	}
 
     /**

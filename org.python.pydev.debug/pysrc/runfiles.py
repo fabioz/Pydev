@@ -205,7 +205,7 @@ def runtests(dirs, verbosity=2):
     print 'Finding files...',dirs
     names = []
     for dir in dirs:
-        names.extend(FindFiles(dir, ['test_*.py'], '', True))
+        names.extend(FindFiles(dir, ['*.py'], '', True))
     print 'done.'
     print 'Importing test modules...',
     alltests = []

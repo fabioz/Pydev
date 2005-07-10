@@ -55,7 +55,7 @@ public class PyCoverage {
             List pyFilesBelow[] = new List[] { new ArrayList(), new ArrayList() };
 
             if (file.exists()) {
-                pyFilesBelow = PydevPlugin.getPyFilesBelow(file, monitor, true);
+                pyFilesBelow = PydevPlugin.getPyFilesBelow(file, monitor, true, false);
             }
 
             if (pyFilesBelow[0].size() == 0) { //no files
@@ -79,7 +79,7 @@ public class PyCoverage {
             //structure them so that we can get the coverage information in an
             // easy and hierarchical way.
 
-            String profileScript = PythonRunnerConfig.getProfileScript();
+            String profileScript = PythonRunnerConfig.getCoverageScript();
 
             //we have to make a process to execute the script. it should look
             // like:
@@ -149,6 +149,7 @@ public class PyCoverage {
      * @param str
      */
     private void analyzeReadLine(IProgressMonitor monitor, String str) {
+//        System.out.println("read line "+ str);
         boolean added = false;
         StringTokenizer tokenizer = new StringTokenizer(str);
         int nTokens = tokenizer.countTokens();
@@ -223,7 +224,7 @@ public class PyCoverage {
     public void clearInfo() {
         try {
             String profileScript;
-            profileScript = PythonRunnerConfig.getProfileScript();
+            profileScript = PythonRunnerConfig.getCoverageScript();
             String[] cmdLine = new String[4];
             cmdLine[0] = PydevPlugin.getInterpreterManager().getDefaultInterpreter();
             cmdLine[1] = profileScript;

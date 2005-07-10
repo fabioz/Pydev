@@ -19,7 +19,6 @@ public class PyUnitTestRunner {
 
 	public static class ConsoleListener implements ITestRunListener {
 
-		private boolean passed = true;
 		public void testsStarted(int testCount, String testFile) {
 			System.out.println("STARTING TEST RUN: " + 
 					String.valueOf(testCount) + " tests");
@@ -38,7 +37,6 @@ public class PyUnitTestRunner {
 			System.out.print(klass + " " + method + "... ");
 			System.out.println(failureType);
 			System.out.println(trace);
-			passed = false;
 		}
 
 		public void testOK(String klass, String method) {
@@ -65,25 +63,6 @@ public class PyUnitTestRunner {
     	this.monitor = (SubProgressMonitor) monitor;
     	portToReadFrom = port;
     	this.testFile = testFile;
-    }
-    /**
-     * Just wait a little...
-     */
-    private void sleepALittle() {
-        sleepALittle(25); //25 millis
-    }
-
-    /**
-     * Just wait a little...
-     */
-    private void sleepALittle(int t) {
-        try {
-            synchronized(this){
-                wait(t); //millis
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     public void readTestResults() throws IOException{
@@ -124,7 +103,7 @@ public class PyUnitTestRunner {
         try {
         	String line = null;
         	while ((line = reader.readLine()) != null) {
-        		//System.out.println(line);
+        		System.out.println(line);
         		parseMessage(line);
         	}
 		} catch (SocketException e) {

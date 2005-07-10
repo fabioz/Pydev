@@ -6,10 +6,11 @@
 package org.python.pydev.debug.ui.actions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import org.eclipse.core.internal.resources.MarkerAttributeMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -25,7 +26,6 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
@@ -197,14 +197,15 @@ public class BreakpointRulerAction extends Action implements IUpdate {
 			int lineNumber = rulerLine + 1;
 			if (lineNumber < 0)
 				return;
-			IRegion line= document.getLineInformation(lineNumber - 1);
+            //just to validate it
+			document.getLineInformation(lineNumber - 1);
 			IEditorInput editorInput= getTextEditor().getEditorInput();			
 			final IResource resource = (IResource)editorInput.getAdapter(IResource.class);
 			
 			if (resource == null)
 				throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not find resource to create marker on", null));
 
-			final MarkerAttributeMap map = new MarkerAttributeMap();
+			final Map map = new HashMap();
 			
 			String functionName = getFunctionAboveLine(document, lineNumber-1);
 			

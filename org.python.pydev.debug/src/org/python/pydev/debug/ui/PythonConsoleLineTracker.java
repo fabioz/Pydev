@@ -15,10 +15,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.ui.console.FileLink;
 import org.eclipse.debug.ui.console.IConsole;
-import org.eclipse.debug.ui.console.IConsoleHyperlink;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
@@ -38,7 +38,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 	/**
 	 * Opens up a file with a given line
 	 */
-	public class ConsoleLink implements IConsoleHyperlink {
+	public class ConsoleLink implements IHyperlink {
 	
 		ItemPointer pointer;
 	
@@ -88,7 +88,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 				catch (NumberFormatException e) {
 					num = 0;
 				}
-				IConsoleHyperlink link = null;
+                IHyperlink link = null;
 				IFile[] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(new Path(fileName));
 				if (files.length > 0 && files[0].exists())
 					link = new FileLink(files[0], null, -1, -1, num);

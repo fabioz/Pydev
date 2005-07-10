@@ -6,10 +6,6 @@
  */
 package org.python.pydev.debug.unittest;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -32,21 +28,11 @@ implements ITableLabelProvider, IColorProvider {
 	
 	public TestReportLabelProvider() {
 		images = new Image[3];
-		images[TestResult.OK] = createImage("icons/testok.gif");
-		images[TestResult.FAIL] = createImage("icons/testfail.gif");
-		images[TestResult.ERROR] = createImage("icons/testerr.gif");
+		images[TestResult.OK]    = PydevDebugPlugin.getDefault().imageCache.get("icons/testok.gif");
+		images[TestResult.FAIL]  = PydevDebugPlugin.getDefault().imageCache.get("icons/testfail.gif");
+		images[TestResult.ERROR] = PydevDebugPlugin.getDefault().imageCache.get("icons/testerr.gif");
 	}
 	
-	private static Image createImage(String path) {
-		URL url = PydevDebugPlugin.getDefault().getDescriptor().getInstallURL();
-		ImageDescriptor descriptor = null;
-		try {
-			descriptor = ImageDescriptor.createFromURL(new URL(url, path));
-		} catch (MalformedURLException e) {
-			descriptor = ImageDescriptor.getMissingImageDescriptor();
-		}
-		return descriptor.createImage();
-	}
 	
 	public String getColumnText(Object element, int columnIndex) {
 		TestResult result = (TestResult)element;

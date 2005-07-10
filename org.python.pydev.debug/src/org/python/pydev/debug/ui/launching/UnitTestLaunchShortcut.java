@@ -8,9 +8,9 @@ package org.python.pydev.debug.ui.launching;
 import org.python.pydev.debug.core.Constants;
 
 
-public class LaunchShortcut extends AbstractLaunchShortcut {
+public class UnitTestLaunchShortcut extends AbstractLaunchShortcut{
 
     protected String getLaunchConfigurationType() {
-        return Constants.ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE;
+        return Constants.ID_PYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE;
     }
 }

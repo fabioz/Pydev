@@ -440,6 +440,15 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @return tuple with files in pos 0 and folders in pos 1
      */
     public static List[] getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs) {
+        return getPyFilesBelow(file, monitor, true, true);
+    }
+    /**
+     * Returns the directories and python files in a list.
+     * 
+     * @param file
+     * @return tuple with files in pos 0 and folders in pos 1
+     */
+    public static List[] getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs, boolean checkHasInit) {
         FileFilter filter = new FileFilter() {
     
             public boolean accept(File pathname) {
@@ -450,16 +459,16 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             }
     
         };
-        return getPyFilesBelow(file, filter, monitor, true);
+        return getPyFilesBelow(file, filter, monitor, true, checkHasInit);
     }
 
 
-    public static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor) {
-        return getPyFilesBelow(file, filter, monitor, true);
+    public static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean checkHasInit) {
+        return getPyFilesBelow(file, filter, monitor, true, checkHasInit);
     }
     
-    public static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders) {
-        return getPyFilesBelow(file, filter, monitor, addSubFolders, 0);
+    public static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, boolean checkHasInit) {
+        return getPyFilesBelow(file, filter, monitor, addSubFolders, 0, checkHasInit);
     }
     /**
      * Returns the directories and python files in a list.
@@ -468,7 +477,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @param addSubFolders: indicates if sub-folders should be added
      * @return tuple with files in pos 0 and folders in pos 1
      */
-    private static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, int level) {
+    private static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, int level, boolean checkHasInit) {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
@@ -498,22 +507,24 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 	                    monitor.worked(1);
 	                    monitor.setTaskName("Found:" + file2.toString());
 	                    
-	                    if(file2.getName().equals("__init__.py")){
-	                        hasInit = true;
-	                    }
+                        if (checkHasInit){
+    	                    if(file2.getName().equals("__init__.py")){
+    	                        hasInit = true;
+    	                    }
+                        }
 	                    
                     }else{
                         foldersLater.add(file2);
                     }
                 }
                 
-                if(hasInit || level == 0){
+                if(!checkHasInit  || hasInit || level == 0){
 	                folders.add(file);
 
 	                for (Iterator iter = foldersLater.iterator(); iter.hasNext();) {
 	                    File file2 = (File) iter.next();
 	                    if(file2.isDirectory() && addSubFolders){
-		                    List[] below = getPyFilesBelow(file2, filter, monitor, addSubFolders, level+1);
+		                    List[] below = getPyFilesBelow(file2, filter, monitor, addSubFolders, level+1, checkHasInit);
 		                    filesToReturn.addAll(below[0]);
 		                    folders.addAll(below[1]);
 		                    monitor.worked(1);

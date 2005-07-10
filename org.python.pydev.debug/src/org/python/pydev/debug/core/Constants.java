@@ -19,7 +19,9 @@ public interface Constants {
 	static final String PYTHON_RUN_LAUNCH_GROUP = "org.python.pydev.debug.run";
 	static final String PYTHON_COVERAGE_LAUNCH_GROUP = "org.python.pydev.debug.coverage";
 	static final String PYTHON_UNITTEST_LAUNCH_GROUP = "org.python.pydev.debug.unittest";
-	static final String ID_PYTHON_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.launchConfigurationType";
+	static final String ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.regularLaunchConfigurationType";
+	static final String ID_PYTHON_COVERAGE_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.coverageLaunchConfigurationType";
+	static final String ID_PYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.unittestLaunchConfigurationType";
 	static final String PROCESS_TYPE = "PYDEV.PYTHON";
 	
 // LaunchConfiguration properties
@@ -27,7 +29,11 @@ public interface Constants {
 	static final String ATTR_LOCATION = "org.eclipse.ui.externaltools" + ".ATTR_LOCATION";
 	static final String ATTR_WORKING_DIRECTORY = "org.eclipse.ui.externaltools" + ".ATTR_WORKING_DIRECTORY";
 	static final String ATTR_PROGRAM_ARGUMENTS = "org.eclipse.ui.externaltools" + ".ATTR_TOOL_ARGUMENTS";
+    public static final String ATTR_TOOL_ARGUMENTS = PLUGIN_ID + ".ATTR_TOOL_ARGUMENTS"; 
+
 	static final String ATTR_INTERPRETER = PLUGIN_ID + ".ATTR_INTERPRETER";
+	static final String ATTR_PROJECT = PLUGIN_ID + ".ATTR_PROJECT";
+	static final String ATTR_RESOURCE_TYPE = PLUGIN_ID + ".ATTR_RESOURCE_TYPE";
 	
 	
 }

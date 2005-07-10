@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
-import org.eclipse.ui.IWindowListener;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
@@ -26,9 +25,7 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
  * 
  * Based on org.eclipse.ui.externaltools.internal.program.launchConfigurations.ProgramLaunchDelegate
  */
-public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDelegate
-	{
-	private static IWindowListener windowListener;
+public abstract class AbstractLaunchConfigurationDelegate implements ILaunchConfigurationDelegate {
 	
 	/**
 	 * Launches the python process.
@@ -36,14 +33,15 @@ public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDe
 	 * Modelled after Ant & Java runners
 	 * see WorkbenchLaunchConfigurationDelegate::launch
 	 */
-	public void launch(ILaunchConfiguration conf, String mode,
-		ILaunch launch, IProgressMonitor monitor) throws CoreException {
+	public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 
-		if (monitor == null)
+		if (monitor == null){
 			monitor = new NullProgressMonitor();
+        }
+        
 		monitor.beginTask("Preparing configuration", 3);
 
-		PythonRunnerConfig runConfig = new PythonRunnerConfig(conf, mode);
+		PythonRunnerConfig runConfig = new PythonRunnerConfig(conf, mode, getRunnerConfigRun());
 		
 		monitor.worked(1);
 		try {
@@ -52,25 +50,10 @@ public class PythonLaunchConfigurationDelegate implements ILaunchConfigurationDe
 			e.printStackTrace();
 			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected IO Exception in Pydev debugger", null));
 		}
-//		ClassLoader save = cur.getContextClassLoader();
-//		cur.setContextClassLoader(getClass().getClassLoader());
-//		try {
-//			PythonDebugClient test = new PythonDebugClient();
-//			test.init("localhost", 29000, -1, null, null, null); // do whatever needs the
-// contextClassLoader
-//		} catch (PythonDebugException e1) {
-//			DebugPlugin.log(e1);
-//		} finally {
-//		  cur.setContextClassLoader(save);
-//		}
-//		if (CommonTab.isLaunchInBackground(conf)) {
-//		// refresh resources after process finishes
-//			if (RefreshTab.getRefreshScope(conf) != null) {
-//				BackgroundResourceRefresher refresher = new BackgroundResourceRefresher(conf, process);
-//				refresher.startBackgroundRefresh();
-//			}
-//			// refresh resources
-//			RefreshTab.refreshResources(conf, monitor);
-//		}
 	}
+
+    /**
+     * @return
+     */
+    protected abstract String getRunnerConfigRun();
 }

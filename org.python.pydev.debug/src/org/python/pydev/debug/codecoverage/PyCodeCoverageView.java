@@ -1,9 +1,10 @@
 package org.python.pydev.debug.codecoverage;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
-import org.eclipse.core.internal.resources.MarkerAttributeMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IPath;
@@ -207,7 +208,7 @@ public class PyCodeCoverageView extends ViewPart {
 
                         FileNode cache = (FileNode) PyCoverage.getPyCoverage().cache.getFile(realFile);
                         for (Iterator it = cache.notExecutedIterator(); it.hasNext();) {
-                            MarkerAttributeMap map = new MarkerAttributeMap();
+                            Map map = new HashMap();
                             int errorLine = ((Integer) it.next()).intValue() - 1;
 
                             IRegion region = document.getLineInformation(errorLine);
