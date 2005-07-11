@@ -12,7 +12,7 @@
 		<property name = "timestamp"            value = "${DSTAMP}${TSTAMP}" />
 		<property name = "buildDirectory"       value = "${basedir}/results" />
 		<property name = "baseLocation"         value = "${buildDirectory}/eclipse"/>
-		<property name = "pde.build.scripts"    value = "C:\bin\eclipse310\plugins\org.eclipse.pde.build_3.1.0\scripts"/>
+		<property name = "pde.build.scripts"    value = "${ECLIPSE_HOME}\plugins\org.eclipse.pde.build_3.1.0\scripts"/>
 		<property name = "collectingFolder"     value = "eclipse"/>
 		<property name = "archivePrefix"        value = "eclipse"/>
 		<property name = "buildType"            value = "I" />
@@ -21,7 +21,7 @@
 
 		<property name = "zipLocation"          value = "${basedir}/results/${buildId}/org.python.pydev.feature-${buildId}.zip"/>
 		<property name = "eclipseTmpResults"    value = "${basedir}/results/tmp" />
-		<property name = "destFeats"            value = "D:\eclipse_workspace\org.python.pydev.site" />
+		<property name = "destFeats"            value = "${ECLIPSE_WORKSPACE}\org.python.pydev.site" />
 
 		<property name = "fol0"  value = "/features/org.python.pydev.feature_${pydev.version}"/>
 		<property name = "fol1"  value = "/plugins/org.python.pydev_${pydev.version}"         />
