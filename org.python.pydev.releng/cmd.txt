@@ -4,6 +4,16 @@ https://bugs.eclipse.org/bugs/show_bug.cgi?id=87151
 http://www.eclipse.org/articles/Article-PDE-Automation/automation.html
 http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/pde-build-home/articles/Automated%20Builds/article.html?rev=HEAD&content-type=text/html
 
+COMP1
+set ECLIPSE_HOME=C:\bin\eclipse310
+D:
+cd D:\eclipse_workspace\org.python.pydev.releng
+java -cp %ECLIPSE_HOME%\startup.jar org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -Dpde.build.scripts=%ECLIPSE_HOME%\plugins/org.eclipse.pde.build_3.1.0/scripts -DbaseLocation=%ECLIPSE_HOME% -DjavacFailOnError=true
+
+
+
+
+COMP2
 set ECLIPSE_HOME=D:\dev_programs\eclipse_3\302\eclipse
 d:
 cd D:\dev_programs\eclipse_3\eclipse\workspace\org.python.pydev.releng 

@@ -1,42 +1,42 @@
 <project default="main">
 
 	
-	<target name="init">
+	<target name = "init">
         <touch file="${user.home}/.cvspass" />
 		<tstamp/>
 
-		<property name = "pydev.version"        value = "0.9.5"/>
-		<property name = "zipargs"              value = "pydev_0_9_5"/>
-		<property name = "buildLabel"           value = "pydev_0_9_5"/>
+		<property name = "pydev.version"        value = "0.9.6"/>
+		<property name = "buildId"              value = "0_9_6"/>
+		<property name = "buildLabel"           value = "${buildId}"/>
 
-		<property name="timestamp"              value="${DSTAMP}${TSTAMP}" />
-		<property name="buildDirectory"         value="${basedir}/results" />
-		<property name="baseLocation"           value="${buildDirectory}/eclipse"/>
-		<property name="pde.build.scripts"      value="D:\dev_programs\eclipse_3\302\eclipse/plugins/org.eclipse.pde.build_3.0.1/scripts"/>
-		<property name="collectingFolder"       value="eclipse"/>
-		<property name="archivePrefix"          value="eclipse"/>
-		<property name="buildType"              value="I" />
-		<property name="buildId"                value="${buildType}${timestamp}"/>
-		<property name="zipsdir"                value="${buildDirectory}/${buildType}.${buildId}"/>
-		<property name="buildingOSGi"           value="true"/>
+		<property name = "timestamp"            value = "${DSTAMP}${TSTAMP}" />
+		<property name = "buildDirectory"       value = "${basedir}/results" />
+		<property name = "baseLocation"         value = "${buildDirectory}/eclipse"/>
+		<property name = "pde.build.scripts"    value = "C:\bin\eclipse310\plugins\org.eclipse.pde.build_3.1.0\scripts"/>
+		<property name = "collectingFolder"     value = "eclipse"/>
+		<property name = "archivePrefix"        value = "eclipse"/>
+		<property name = "buildType"            value = "I" />
+		<property name = "zipsdir"              value = "${buildDirectory}/${buildType}.${buildId}"/>
+		<property name = "buildingOSGi"         value = "true"/>
 
-		<property name="eclipseResults"           value="${basedir}/results/tmp/eclipse" />
-		<property name="destFeats"            value="D:\dev_programs\eclipse_3\eclipse\workspace\org.python.pydev.site" />
+		<property name = "zipLocation"          value = "${basedir}/results/${buildId}/org.python.pydev.feature-${buildId}.zip"/>
+		<property name = "eclipseTmpResults"    value = "${basedir}/results/tmp" />
+		<property name = "destFeats"            value = "D:\eclipse_workspace\org.python.pydev.site" />
 
-		<property name="fol0"  value="/features/org.python.pydev.feature_${pydev.version}"/>
-		<property name="fol1"  value="/plugins/org.python.pydev_${pydev.version}"         />
-		<property name="fol2"  value="/plugins/org.python.pydev.core_${pydev.version}"    />
-		<property name="fol3"  value="/plugins/org.python.pydev.parser_${pydev.version}"  />
-		<property name="fol4"  value="/plugins/org.python.pydev.ast_${pydev.version}"     />
-		<property name="fol5"  value="/plugins/org.python.pydev.debug_${pydev.version}"   />
-		<property name="fol6"  value="/plugins/org.python.pydev.help_${pydev.version}"    />
+		<property name = "fol0"  value = "/features/org.python.pydev.feature_${pydev.version}"/>
+		<property name = "fol1"  value = "/plugins/org.python.pydev_${pydev.version}"         />
+		<property name = "fol2"  value = "/plugins/org.python.pydev.core_${pydev.version}"    />
+		<property name = "fol3"  value = "/plugins/org.python.pydev.parser_${pydev.version}"  />
+		<property name = "fol4"  value = "/plugins/org.python.pydev.ast_${pydev.version}"     />
+		<property name = "fol5"  value = "/plugins/org.python.pydev.debug_${pydev.version}"   />
+		<property name = "fol6"  value = "/plugins/org.python.pydev.help_${pydev.version}"    />
 	</target>
 
 
-	<target name="main" depends="init">
+	<target name = "main" depends="init">
         <echo message="Initializing build:"/>
 		<ant antfile="build.xml" dir="${pde.build.scripts}">
-			<property name="builder" value="${basedir}" />
+			<property name = "builder" value = "${basedir}" />
 		</ant>
         <echo message="Finalized build!"/>
 	</target>
