@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codefolding;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
@@ -15,11 +16,14 @@ import org.eclipse.jface.text.source.projection.ProjectionSupport;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.parser.IParserListener;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**
@@ -43,10 +47,23 @@ public abstract class PyEditProjection extends TextEditor implements IParserList
     protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
         IOverviewRuler overviewRuler = getOverviewRuler();
         PySourceViewer viewer = new PySourceViewer(parent, ruler, overviewRuler, isOverviewRulerVisible(), styles, this);
-        SourceViewerDecorationSupport sourceViewerDecorationSupport = getSourceViewerDecorationSupport(viewer);
-        sourceViewerDecorationSupport.install(getPreferenceStore());
+//        SourceViewerDecorationSupport sourceViewerDecorationSupport = getSourceViewerDecorationSupport(viewer);
+//        sourceViewerDecorationSupport.install(getPreferenceStore()); - when uncommented, the print margin does not display correctly
+
         return viewer;
     }
+    
+
+    /**
+     * @return a preference store that has the pydev preference store and the default editors text store
+     */
+    protected IPreferenceStore getChainedPrefStore() {
+        IPreferenceStore general = EditorsUI.getPreferenceStore();
+        IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
+        ChainedPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] { general, preferenceStore });
+        return store;
+    }
+
 
     /**
      * Returns the source viewer decoration support.
@@ -67,10 +84,9 @@ public abstract class PyEditProjection extends TextEditor implements IParserList
     protected PythonPairMatcher fBracketMatcher = new PythonPairMatcher(BRACKETS);
 
     protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
+        super.configureSourceViewerDecorationSupport(support);
         support.setCharacterPairMatcher(fBracketMatcher);
         support.setMatchingCharacterPainterPreferenceKeys(PydevPrefs.USE_MATCHING_BRACKETS, PydevPrefs.MATCHING_BRACKETS_COLOR);
-
-        super.configureSourceViewerDecorationSupport(support);
     }
 
     public void createPartControl(Composite parent) {

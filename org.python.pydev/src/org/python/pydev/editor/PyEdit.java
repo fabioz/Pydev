@@ -37,11 +37,10 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.texteditor.ChainedPreferenceStore;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
@@ -129,9 +128,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     public PyEdit() {
         super();
         modelListeners = new ArrayList();
-        Preferences pluginPrefs = PydevPrefs.getPreferences();
-        colorCache = new ColorCache(pluginPrefs);
-
+        colorCache = new ColorCache(getChainedPrefStore());
+        
         if (getDocumentProvider() == null) {
             setDocumentProvider(new PyDocumentProvider());
         }
@@ -257,7 +255,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                     colorCache.reloadNamedColor(property);
                     editConfiguration.updateSyntaxColor(property);
                     getSourceViewer().invalidateTextPresentation();
-                } else if (property.equals(PydevPrefs.HYPERLINK_COLOR)) {
+                } 
+                else if (property.equals(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_HYPERLINK_COLOR)) {
                     colorCache.reloadNamedColor(property);
                     if (fMouseListener != null)
                         fMouseListener.updateColor(getSourceViewer());
@@ -266,7 +265,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         };
         resetForceTabs();
         PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
-
     }
 
     
@@ -651,9 +649,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
     protected void initializeEditor() {
         super.initializeEditor();
-        IPreferenceStore general = EditorsUI.getPreferenceStore();
-        ChainedPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] { PydevPlugin.getDefault().getPreferenceStore(), general });
-        this.setPreferenceStore(store);
+        IPreferenceStore prefStore = getChainedPrefStore();
+        this.setPreferenceStore(prefStore);
     }
 
     /**

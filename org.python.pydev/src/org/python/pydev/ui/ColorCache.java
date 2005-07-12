@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.DataFormatException;
 import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.swt.graphics.Color;
@@ -32,10 +32,11 @@ public class ColorCache {
 
 	private Map fColorTable = new HashMap(10);
 	private Map fNamedColorTable = new HashMap(10);
-	private Preferences preferences;
+	private IPreferenceStore preferences;
 	
-	public ColorCache(Preferences prefs) {
-		preferences = prefs;
+	
+	public ColorCache(IPreferenceStore prefs) {
+	    preferences = prefs;
 	}
 	
 	public void dispose() {

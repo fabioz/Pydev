@@ -44,7 +44,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
-import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 
 
@@ -72,8 +71,6 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String TAB_WIDTH = "TAB_WIDTH";
 	public static final int DEFAULT_TAB_WIDTH = 4;
 	
-	public static final String DEFAULT_EDITOR_PRINT_MARGIN_COLUMN = "80";
-	
 	public static final String BLOCK_COMMENT = "BLOCK_COMMENT";
 	public static final String DEFAULT_BLOCK_COMMENT_STRING = "================================================================================";
 	
@@ -87,10 +84,6 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String GUESS_TAB_SUBSTITUTION = "GUESS_TAB_SUBSTITUTION";
 	public static final boolean DEFAULT_GUESS_TAB_SUBSTITUTION = true;
 	
-	public static final boolean DEFAULT_EDITOR_OVERVIEW_RULER = true;
-	public static final boolean DEFAULT_EDITOR_LINE_NUMBER_RULER = false;
-	private static final boolean DEFAULT_EDITOR_CURRENT_LINE = true;
-	public static final boolean DEFAULT_EDITOR_PRINT_MARGIN = true;
 	public static final boolean DEFAULT_EDITOR_USE_CUSTOM_CARETS = false;
 	public static final boolean DEFAULT_EDITOR_WIDE_CARET = false;
 	
@@ -119,25 +112,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String COMMENT_COLOR = "COMMENT_COLOR";
 	private static final RGB DEFAULT_COMMENT_COLOR = new RGB(192, 192, 192);
 	
-	public static final String HYPERLINK_COLOR = "HYPERLINK_COLOR";
-	private static final RGB DEFAULT_HYPERLINK_COLOR = new RGB(0, 0, 238);
-	
-	private static final RGB DEFAULT_PREFERENCE_COLOR_BACKGROUND = new RGB(255, 255, 255);	
-	public static final boolean DEFAULT_EDITOR_BACKGROUND_COLOR_SYSTEM_DEFAULT = true;
-	private static final RGB DEFAULT_EDITOR_CURRENT_LINE_COLOR = new RGB(244, 255, 255);	
-	public static final RGB DEFAULT_EDITOR_LINE_NUMBER_RULER_COLOR = new RGB(0, 0, 0);
-	public static final RGB DEFAULT_EDITOR_PRINT_MARGIN_COLOR = new RGB(192,192,192);
-	
 	//see initializeDefaultColors for selection defaults
-	public static final boolean DEFAULT_EDITOR_SELECTION_BACKGROUND_DEFAULT_COLOR = true;
-	public static final boolean DEFAULT_EDITOR_SELECTION_FOREGROUND_DEFAULT_COLOR = true;
-	
-	
 	public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
 	public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
-	
-	public static final String RUN_MANY_SCRIPT_LOCATION = "RUN_MANY_SCRIPT_LOCATION";
-	public static final String DEFAULT_RUN_MANY_SCRIPT_LOCATION = "";
 	
 		
 	/**
@@ -151,13 +128,6 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		{"Keywords", KEYWORD_COLOR, null},
 		{"Strings", STRING_COLOR, null},
 		{"Comments", COMMENT_COLOR, null},
-		{"Hyperlink", HYPERLINK_COLOR, null},
-		{"Background", AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT},
-		{"Current line highlight", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE_COLOR, null},
-		{"Line numbers", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_LINE_NUMBER_RULER_COLOR, null},		 
-		{"Print margin", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLOR, null}, 
-		{"Selection foreground", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_FOREGROUND_COLOR, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_FOREGROUND_DEFAULT_COLOR}, 
-		{"Selection background", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_BACKGROUND_COLOR, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_BACKGROUND_DEFAULT_COLOR}, 
 	};
 	
 	private OverlayPreferenceStore fOverlayStore;
@@ -220,7 +190,6 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		//text
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_PAR));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, BLOCK_COMMENT));
 		
 		//matching
@@ -231,10 +200,6 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SUBSTITUTE_TABS));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, GUESS_TAB_SUBSTITUTION));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_CODE_FOLDING));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_OVERVIEW_RULER));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_LINE_NUMBER_RULER));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_USE_CUSTOM_CARETS));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_WIDE_CARET));
 		
@@ -245,16 +210,6 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, KEYWORD_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, STRING_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, COMMENT_COLOR));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, HYPERLINK_COLOR));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE_COLOR));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_LINE_NUMBER_RULER_COLOR));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLOR));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_FOREGROUND_COLOR));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_FOREGROUND_DEFAULT_COLOR));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_BACKGROUND_COLOR));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_BACKGROUND_DEFAULT_COLOR));
 		
 		OverlayPreferenceStore.OverlayKey[] keys= new OverlayPreferenceStore.OverlayKey[overlayKeys.size()];
 		overlayKeys.toArray(keys);
@@ -304,8 +259,6 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 
 		addTextField(appearanceComposite, "Tab length:", TAB_WIDTH, 3, 0, true);
 
-		addTextField(appearanceComposite, "Print margin column:", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN, 3, 0, true);
-		
 		addTextField(appearanceComposite, "Block comment separator:", BLOCK_COMMENT, 50, 0, false);
 				
 		addCheckBox(appearanceComposite, "Auto parentesis?", AUTO_PAR, 0);
@@ -316,14 +269,6 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		
 		addCheckBox(appearanceComposite, "Use code folding?", USE_CODE_FOLDING, 0);
 		
-		addCheckBox(appearanceComposite, "Show overview ruler", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_OVERVIEW_RULER, 0);
-				
-		addCheckBox(appearanceComposite, "Show line numbers", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_LINE_NUMBER_RULER, 0);
-
-		addCheckBox(appearanceComposite, "Highlight current line", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE, 0);
-				
-		addCheckBox(appearanceComposite, "Show print margin", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN, 0);
-
 		Button master= addCheckBox(appearanceComposite, "Use custom caret", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_USE_CUSTOM_CARETS, 0);
 
 		Button slave= addCheckBox(appearanceComposite, "Enable thick caret", AbstractDecoratedTextEditorPreferenceConstants.EDITOR_WIDE_CARET, 0);
@@ -669,17 +614,12 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		//text
 		prefs.setDefault(AUTO_PAR, DEFAULT_AUTO_PAR);
 		prefs.setDefault(TAB_WIDTH, DEFAULT_TAB_WIDTH);
-		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN, DEFAULT_EDITOR_PRINT_MARGIN_COLUMN);
 		prefs.setDefault(BLOCK_COMMENT, DEFAULT_BLOCK_COMMENT_STRING);
 		
 		//checkboxes
 		prefs.setDefault(SUBSTITUTE_TABS, DEFAULT_SUBSTITUTE_TABS);
 		prefs.setDefault(GUESS_TAB_SUBSTITUTION, DEFAULT_GUESS_TAB_SUBSTITUTION);
 		prefs.setDefault(USE_CODE_FOLDING, DEFAULT_USE_CODE_FOLDING);
-		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_OVERVIEW_RULER, StringConverter.asString(DEFAULT_EDITOR_OVERVIEW_RULER));
-		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_LINE_NUMBER_RULER, StringConverter.asString(DEFAULT_EDITOR_LINE_NUMBER_RULER));
-		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE, StringConverter.asString(DEFAULT_EDITOR_CURRENT_LINE));
-		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN, StringConverter.asString(DEFAULT_EDITOR_PRINT_MARGIN));
 		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_USE_CUSTOM_CARETS, StringConverter.asString(DEFAULT_EDITOR_USE_CUSTOM_CARETS));
 		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_WIDE_CARET, StringConverter.asString(DEFAULT_EDITOR_WIDE_CARET));
 		
@@ -694,19 +634,10 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		prefs.setDefault(KEYWORD_COLOR,StringConverter.asString(DEFAULT_KEYWORD_COLOR));
 		prefs.setDefault(STRING_COLOR,StringConverter.asString(DEFAULT_STRING_COLOR));
 		prefs.setDefault(COMMENT_COLOR,StringConverter.asString(DEFAULT_COMMENT_COLOR));
-		prefs.setDefault(HYPERLINK_COLOR, StringConverter.asString(DEFAULT_HYPERLINK_COLOR));
-		prefs.setDefault(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND, StringConverter.asString(DEFAULT_PREFERENCE_COLOR_BACKGROUND));
-		prefs.setDefault(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT, StringConverter.asString(DEFAULT_EDITOR_BACKGROUND_COLOR_SYSTEM_DEFAULT));
-		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE_COLOR, StringConverter.asString(DEFAULT_EDITOR_CURRENT_LINE_COLOR));
-		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_LINE_NUMBER_RULER_COLOR, StringConverter.asString(DEFAULT_EDITOR_LINE_NUMBER_RULER_COLOR));
-		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLOR, StringConverter.asString(DEFAULT_EDITOR_PRINT_MARGIN_COLOR));
 		//for selection colors see initializeDefaultColors()
-		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_BACKGROUND_DEFAULT_COLOR, StringConverter.asString(DEFAULT_EDITOR_SELECTION_BACKGROUND_DEFAULT_COLOR));
-		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SELECTION_FOREGROUND_DEFAULT_COLOR, StringConverter.asString(DEFAULT_EDITOR_SELECTION_FOREGROUND_DEFAULT_COLOR));
 		
 		//no UI
 		prefs.setDefault(CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
-		prefs.setDefault(RUN_MANY_SCRIPT_LOCATION, DEFAULT_RUN_MANY_SCRIPT_LOCATION);		
 	}
 	
 

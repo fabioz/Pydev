@@ -39,12 +39,12 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.ModelUtils;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
 
 /**
@@ -166,7 +166,7 @@ public class Hyperlink implements KeyListener, MouseListener, MouseMoveListener,
 		if (text == null || text.isDisposed())
 			return;
 
-		fColor = fColorCache.getNamedColor(PydevPrefs.HYPERLINK_COLOR);
+		fColor = fColorCache.getNamedColor(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_HYPERLINK_COLOR);
 	}
 
 	private void repairRepresentation() {			
