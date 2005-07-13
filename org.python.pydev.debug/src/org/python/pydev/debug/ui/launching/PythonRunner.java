@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -33,6 +34,27 @@ import org.python.pydev.debug.unittest.PyUnitTestRunner;
  */
 public class PythonRunner {
 
+    /**
+     * @param p
+     * @param process
+     * @throws CoreException
+     */
+    private static void checkProcess(Process p, IProcess process) throws CoreException {
+        if (process == null) {
+            p.destroy();
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not register with debug plugin?", null));
+        }
+    }
+    /**
+     * @param p
+     * @throws CoreException
+     */
+    private static void checkProcess(Process p) throws CoreException {
+        if (p == null)
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,"Could not execute python process. Was it cancelled?", null));
+    }
+
+    
 	/**
 	 * Launches the configuration
      * 
@@ -68,10 +90,10 @@ public class PythonRunner {
 		String[] cmdLine = config.getCommandLine();
 
 		Process p = DebugPlugin.exec(cmdLine, config.workingDirectory, config.envp);	
-		if (p == null)
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,"Could not execute python process. Was it cancelled?", null));
+		checkProcess(p);
 		
 		IProcess process = registerWithDebugPlugin(config, launch, p);
+        checkProcess(p, process);
 
 		subMonitor.subTask("Waiting for connection...");
 		try {
@@ -98,25 +120,34 @@ public class PythonRunner {
 		t.initialize();
 	}
 
+
     public static void doIt(IProgressMonitor monitor, String [] envp, String[] cmdLine, File workingDirectory, ILaunch launch) throws CoreException{
         if (monitor == null)
         	monitor = new NullProgressMonitor();
         IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
+
         subMonitor.beginTask("Launching python", 1);
-        
+
         // Launch & connect to the debugger		
         subMonitor.subTask("Constructing command_line...");
+        String commandLineAsString = PythonRunnerConfig.getCommandLineAsString(cmdLine);
+        Map processAttributes = new HashMap();
+        processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
+        processAttributes.put(IProcess.ATTR_CMDLINE, commandLineAsString);
         
         subMonitor.subTask("Exec...");
         
+        //it was dying before register, so, I made this faster to see if this fixes it
         Process p = DebugPlugin.exec(cmdLine, workingDirectory, envp);	
-        if (p == null)
-        	throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not execute python process. Was it cancelled?", null));
+        checkProcess(p);
 
-        // Register the process with the debug plugin
+        IProcess process = registerWithDebugPlugin(cmdLine[cmdLine.length-1], launch, p, processAttributes);
+        checkProcess(p, process);
+
+        // Registered the process with the debug plugin
         subMonitor.subTask("Done");
-        registerWithDebugPlugin(PythonRunnerConfig.getCommandLineAsString(cmdLine), cmdLine[cmdLine.length-1], launch, p);
-        
+
+
     }
 
     public static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException{
@@ -134,8 +165,13 @@ public class PythonRunner {
     		String[] cmdLine = config.getCommandLine();
     
             Process p = DebugPlugin.exec(cmdLine, config.workingDirectory, config.envp);	
-            if (p == null)
-            	throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not execute python process. Was it cancelled?", null));
+            checkProcess(p);
+
+            IProcess process = registerWithDebugPlugin(PythonRunnerConfig.getCommandLineAsString(cmdLine), cmdLine[cmdLine.length-1], launch, p);
+            checkProcess(p, process);
+            
+            // Register the process with the debug plugin
+            subMonitor.subTask("Done");
     
             int port = config.getUnitTestPort();
             String full_path_to_file = config.resource.toOSString();
@@ -150,9 +186,6 @@ public class PythonRunner {
     	        }
     		}
             
-            // Register the process with the debug plugin
-            subMonitor.subTask("Done");
-            registerWithDebugPlugin(PythonRunnerConfig.getCommandLineAsString(cmdLine), cmdLine[cmdLine.length-1], launch, p);
         }        
     }
 
@@ -164,7 +197,7 @@ public class PythonRunner {
 		HashMap processAttributes = new HashMap();
 		processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
 		processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
-		return DebugPlugin.newProcess(launch,p, config.resource.lastSegment(), processAttributes);
+		return registerWithDebugPlugin(config.resource.lastSegment(), launch,p, processAttributes);
 	}
 
     /**
@@ -175,6 +208,14 @@ public class PythonRunner {
 		HashMap processAttributes = new HashMap();
 		processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
 		processAttributes.put(IProcess.ATTR_CMDLINE, cmdLine);
-		return DebugPlugin.newProcess(launch,p, label, processAttributes);
+		return registerWithDebugPlugin(label, launch,p, processAttributes);
+	}
+	
+	/**
+	 * The debug plugin needs to be notified about our process.
+	 * It'll then display the appropriate UI.
+	 */
+	public static IProcess registerWithDebugPlugin(String label, ILaunch launch, Process p, Map processAttributes) {
+	    return DebugPlugin.newProcess(launch,p, label, processAttributes);
 	}
 }
