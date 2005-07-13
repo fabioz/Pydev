@@ -14,7 +14,7 @@
 	<antcall target="${target}ForAllElements"/>
 </target>
 
-<target name="fetchElementForAllElements"><!-- unless="dontFetchAnything"> -->
+<target name="fetchElementForAllElements" unless="dontFetchAnything"> 
 	<antcall target="genericAllElements"/>
 </target>
 
@@ -93,7 +93,6 @@
 		<fileset dir="${buildDirectory}" includes="**/*.MF"/>
 	</replaceregexp>
 	
-	<replaceregexp file="${buildDirectory}\plugins\org.python.pydev.help\plugin.xml" match='version="0(.*)"' replace='version="${pydev.version}"' byline="true"/>
 	<replaceregexp file="${buildDirectory}\features\org.python.pydev.feature\feature.xml" match='version="0(.*)"' replace='version="${pydev.version}"' byline="true"/>
 </target>
 
@@ -136,6 +135,12 @@
 <!-- Steps to do after  running assemble. -->
 <!-- ===================================================================== -->
 <target name="postAssemble">
+</target>
+
+<!-- ===================================================================== -->
+<!-- Steps to do after the build is done. -->
+<!-- ===================================================================== -->
+<target name="postBuild"> 
     <echo message="Making jars in update site:"/>  
 
 	<mkdir dir="${eclipseTmpResults}"/>
@@ -156,13 +161,6 @@
 	
 	<delete dir="${eclipseTmpResults}"/>
     <echo message="Finished making jars in update site!"/>
-</target>
-
-<!-- ===================================================================== -->
-<!-- Steps to do after the build is done. -->
-<!-- ===================================================================== -->
-<target name="postBuild"> 
-
 </target>
 
 <!-- ===================================================================== -->

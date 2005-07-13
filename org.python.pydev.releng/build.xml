@@ -12,16 +12,16 @@
 		<property name = "timestamp"            value = "${DSTAMP}${TSTAMP}" />
 		<property name = "buildDirectory"       value = "${basedir}/results" />
 		<property name = "baseLocation"         value = "${buildDirectory}/eclipse"/>
-		<property name = "pde.build.scripts"    value = "${ECLIPSE_HOME}\plugins\org.eclipse.pde.build_3.1.0\scripts"/>
+		<property name = "pde.build.scripts"    value = "${EC_HOME}\plugins\org.eclipse.pde.build_3.1.0\scripts"/>
 		<property name = "collectingFolder"     value = "eclipse"/>
 		<property name = "archivePrefix"        value = "eclipse"/>
 		<property name = "buildType"            value = "I" />
 		<property name = "zipsdir"              value = "${buildDirectory}/${buildType}.${buildId}"/>
-		<property name = "buildingOSGi"         value = "true"/>
+		<property name = "buildingOSGi"         value = "false"/> <!--this should not be here, but it is... bug in eclipse https://bugs.eclipse.org/bugs/show_bug.cgi?id=103682-->
 
 		<property name = "zipLocation"          value = "${basedir}/results/${buildId}/org.python.pydev.feature-${buildId}.zip"/>
 		<property name = "eclipseTmpResults"    value = "${basedir}/results/tmp" />
-		<property name = "destFeats"            value = "${ECLIPSE_WORKSPACE}\org.python.pydev.site" />
+		<property name = "destFeats"            value = "${EC_WORKSPACE}\org.python.pydev.site" />
 
 		<property name = "fol0"  value = "/features/org.python.pydev.feature_${pydev.version}"/>
 		<property name = "fol1"  value = "/plugins/org.python.pydev_${pydev.version}"         />
@@ -30,6 +30,11 @@
 		<property name = "fol4"  value = "/plugins/org.python.pydev.ast_${pydev.version}"     />
 		<property name = "fol5"  value = "/plugins/org.python.pydev.debug_${pydev.version}"   />
 		<property name = "fol6"  value = "/plugins/org.python.pydev.help_${pydev.version}"    />
+
+		
+		<echo message="pydev.version = ${pydev.version}"/>
+		<echo message="EC_HOME = ${EC_HOME}"/>
+		<echo message="EC_WORKSPACE = ${EC_WORKSPACE}"/>
 	</target>
 
 
