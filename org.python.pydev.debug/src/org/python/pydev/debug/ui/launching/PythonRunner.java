@@ -132,7 +132,6 @@ public class PythonRunner {
         subMonitor.subTask("Constructing command_line...");
         String commandLineAsString = PythonRunnerConfig.getCommandLineAsString(cmdLine);
         Map processAttributes = new HashMap();
-        processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
         processAttributes.put(IProcess.ATTR_CMDLINE, commandLineAsString);
         
         subMonitor.subTask("Exec...");
@@ -195,7 +194,6 @@ public class PythonRunner {
 	 */
 	public static IProcess registerWithDebugPlugin(PythonRunnerConfig config, ILaunch launch, Process p) {
 		HashMap processAttributes = new HashMap();
-		processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
 		processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
 		return registerWithDebugPlugin(config.resource.lastSegment(), launch,p, processAttributes);
 	}
@@ -206,7 +204,6 @@ public class PythonRunner {
 	 */
 	public static IProcess registerWithDebugPlugin(String cmdLine, String label, ILaunch launch, Process p) {
 		HashMap processAttributes = new HashMap();
-		processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
 		processAttributes.put(IProcess.ATTR_CMDLINE, cmdLine);
 		return registerWithDebugPlugin(label, launch,p, processAttributes);
 	}
@@ -216,6 +213,9 @@ public class PythonRunner {
 	 * It'll then display the appropriate UI.
 	 */
 	public static IProcess registerWithDebugPlugin(String label, ILaunch launch, Process p, Map processAttributes) {
+	    processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
+	    processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
+        processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
 	    return DebugPlugin.newProcess(launch,p, label, processAttributes);
 	}
 }
