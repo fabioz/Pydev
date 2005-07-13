@@ -42,18 +42,6 @@ Aleks and Fabio
    </requires>
 
    <plugin
-         id="org.python.pydev"
-         download-size="0"
-         install-size="0"
-         version="0.9.4.1"/>
-
-   <plugin
-         id="org.python.pydev.debug"
-         download-size="0"
-         install-size="0"
-         version="0.9.4.1"/>
-
-   <plugin
          id="org.python.pydev.core"
          download-size="0"
          install-size="0"
@@ -73,6 +61,18 @@ Aleks and Fabio
 
    <plugin
          id="org.python.pydev.help"
+         download-size="0"
+         install-size="0"
+         version="0.9.4.1"/>
+
+   <plugin
+         id="org.python.pydev"
+         download-size="0"
+         install-size="0"
+         version="0.9.4.1"/>
+
+   <plugin
+         id="org.python.pydev.debug"
          download-size="0"
          install-size="0"
          version="0.9.4.1"/>
