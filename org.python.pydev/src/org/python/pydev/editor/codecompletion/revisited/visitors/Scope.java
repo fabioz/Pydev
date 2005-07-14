@@ -16,6 +16,7 @@ import org.python.parser.ast.FunctionDef;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -84,7 +85,7 @@ public class Scope {
             if(! element.getClass().equals(otElement.getClass()))
                 return false;
             
-            if(! AbstractVisitor.getFullRepresentationString(element).equals( AbstractVisitor.getFullRepresentationString(otElement)))
+            if(! NodeUtils.getFullRepresentationString(element).equals( NodeUtils.getFullRepresentationString(otElement)))
                 return false;
             
         }
@@ -100,7 +101,7 @@ public class Scope {
             if (element instanceof FunctionDef) {
                 FunctionDef f = (FunctionDef) element;
                 for (int i = 0; i < f.args.args.length; i++) {
-                    String s = AbstractVisitor.getRepresentationString(f.args.args[i]);
+                    String s = NodeUtils.getRepresentationString(f.args.args[i]);
                     comps.add(new SourceToken(f.args.args[i], s, "", "", "", PyCodeCompletion.TYPE_PARAM));
                 }
                 

@@ -10,6 +10,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextSelection;
+import org.python.pydev.parser.visitors.ParsingUtils;
 import org.python.pydev.plugin.PyCodeFormatterPage;
 
 /**
@@ -108,10 +109,10 @@ public class PyFormatStd extends PyAction{
             char c = cs[i];
             
             if(c == '\'' || c == '"'){ //ignore comments or multiline comments...
-                i = eatLiterals(std, cs, buf, i);
+                i = ParsingUtils.eatLiterals(cs, buf, i);
                 
             }else if(c == '#'){
-                i = eatComments(std, cs, buf, i);
+                i = ParsingUtils.eatComments(cs, buf, i);
                 
             }else if(c == ','){
 		        i = formatForComma(std, cs, buf, i);
@@ -129,94 +130,6 @@ public class PyFormatStd extends PyAction{
     }
 
     /**
-     * @param std
-     * @param cs
-     * @param buf
-     * @param i
-     * @return
-     */
-    private static int eatComments(FormatStd std, char[] cs, StringBuffer buf, int i) {
-        while(i < cs.length && cs[i] != '\n' && cs[i] != '\r'){
-            buf.append(cs[i]);
-            i++;
-        }
-        if(i < cs.length)
-            buf.append(cs[i]);
-
-        return i;
-    }
-
-    /**
-     * @param std
-     * @param cs
-     * @param buf
-     * @param i
-     * @return
-     */
-    private static int eatLiterals(FormatStd std, char[] cs, StringBuffer buf, int i) {
-        //ok, current pos is ' or "
-        //check if we're starting a single or multiline comment...
-        char curr = cs[i];
-        
-        if(curr != '"' && curr != '\''){
-            throw new RuntimeException("Wrong location to eat literals. Expecting ' or \" ");
-        }
-        
-        boolean multi = isMultiLiteral(cs, i, curr);
-        
-        int j;
-        if(multi){
-            j = findNextMulti(cs, i+3, curr);
-        }else{
-            j = findNextSingle(cs, i+1, curr);
-        }
-        
-        for (int k = i; k < cs.length && k <= j; k++) {
-            buf.append(cs[k]);
-        }
-        return j;
-        
-    }
-    
-    /**
-     * @param cs
-     * @param i
-     */
-    private static int findNextSingle(char[] cs, int i, char curr) {
-        while(i < cs.length && cs[i] != curr){
-            i++;
-        }
-        return i;
-    }
-
-    /**
-     * @param cs
-     * @param i
-     */
-    private static int findNextMulti(char[] cs, int i, char curr) {
-        while(i+2 < cs.length){
-            if (cs[i] == curr && cs[i+1] == curr && cs[i+2] == curr){
-                break;
-            }
-            i++;
-        }
-        if(cs.length < i+2){
-            return cs.length;
-        }
-        return i+2;
-    }
-
-    private static boolean isMultiLiteral(char cs[], int i, char curr){
-        if(cs.length <= i + 2){
-            return false;
-        }
-        if(cs[i+1] == curr && cs[i+2] == curr){
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * @param cs
      * @param i
      */
@@ -230,10 +143,10 @@ public class PyFormatStd extends PyAction{
             j++;
             
             if(c == '\'' || c == '"'){ //ignore comments or multiline comments...
-                j = eatLiterals(std, cs, locBuf, j-1)+1;
+                j = ParsingUtils.eatLiterals( cs, locBuf, j-1)+1;
                 
             }else if(c == '#'){
-                j = eatComments(std, cs, locBuf, j-1)+1;
+                j = ParsingUtils.eatComments(cs, locBuf, j-1)+1;
                 
             }else if( c == '('){ //open another par.
                 j = formatForPar(cs, j-1, std, locBuf)+1;

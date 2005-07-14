@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.utils;
+package org.python.pydev.core;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,7 +17,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
@@ -87,7 +87,7 @@ public class REF {
             stream.writeObject(list);
             stream.close();
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             throw new RuntimeException(e);
         }
     
@@ -123,13 +123,13 @@ public class REF {
                 stream.writeObject(o);
                 stream.close();
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
                 throw new RuntimeException(e);
             } finally{
                 out.close();
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 
@@ -146,7 +146,7 @@ public class REF {
             input.close();
             return o;
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             return null;
         }
     }

@@ -14,6 +14,7 @@ import org.python.parser.ast.Assign;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -89,10 +90,10 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     public Object visitAssign(Assign node) throws Exception {
         
         for (int i = 0; i < node.targets.length; i++) {
-            String rep = getFullRepresentationString(node.targets[i]);
+            String rep = NodeUtils.getFullRepresentationString(node.targets[i]);
 	        
             if(rep != null && rep.equals(tokenToFind)){
-	            String value = getFullRepresentationString(node.value);
+	            String value = NodeUtils.getFullRepresentationString(node.value);
 	            
 	            AssignDefinition definition = new AssignDefinition(value, rep, i, node, node.beginLine, node.beginColumn, new Scope(this.defsStack), module);
 	            definitions.add(definition);

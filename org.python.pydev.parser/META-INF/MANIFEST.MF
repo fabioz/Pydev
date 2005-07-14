@@ -15,4 +15,5 @@ Eclipse-AutoStart: true
 Provide-Package: org.python.parser,
  org.python.parser.ast,
  org.python.pydev.parser,
+ org.python.pydev.parser.visitors,
  org.python.pydev.parser.visitors.scope
