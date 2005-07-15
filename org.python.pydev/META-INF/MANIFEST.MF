@@ -18,8 +18,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.debug.core,
  org.eclipse.core.variables,
  org.python.pydev.ast,
- org.python.pydev.core,
- org.python.pydev.parser
+ org.python.pydev.parser,
+ org.python.pydev.core
 Eclipse-AutoStart: true
 Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,
