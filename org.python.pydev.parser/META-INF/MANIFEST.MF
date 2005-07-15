@@ -16,5 +16,6 @@ Eclipse-AutoStart: true
 Export-Package: org.python.parser,
  org.python.parser.ast,
  org.python.pydev.parser,
+ org.python.pydev.parser.utils,
  org.python.pydev.parser.visitors,
  org.python.pydev.parser.visitors.scope

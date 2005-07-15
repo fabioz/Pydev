@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.utils.SimplePythonRunner;
 
@@ -149,7 +148,6 @@ public class PyCheckerLauncher {
      * @param l: list of resources to be checked.
      * 
      * @param resourceLocation:
-     * @throws CoreException
      */
     private static void pycheck(List l, String resourceLocation) {
         String pycheckerLocation = PyCheckerPrefPage.getPyCheckerLocation();
