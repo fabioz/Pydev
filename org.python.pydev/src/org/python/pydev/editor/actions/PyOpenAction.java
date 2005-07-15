@@ -17,10 +17,10 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.python.pydev.coreutils.REF;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.utils.ref.REF;
 
 /**
  * Opens an editor and selects text in it.

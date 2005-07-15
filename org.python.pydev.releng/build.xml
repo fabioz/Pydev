@@ -30,7 +30,6 @@
 		<property name = "fol4"  value = "/plugins/org.python.pydev.ast_${pydev.version}"     />
 		<property name = "fol5"  value = "/plugins/org.python.pydev.debug_${pydev.version}"   />
 		<property name = "fol6"  value = "/plugins/org.python.pydev.help_${pydev.version}"    />
-		<property name = "fol7"  value = "/plugins/org.python.pydev.coreutils_${pydev.version}"    />
 
 		
 		<echo message="pydev.version = ${pydev.version}"/>

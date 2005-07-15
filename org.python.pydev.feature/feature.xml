@@ -77,11 +77,5 @@ Aleks and Fabio
          install-size="0"
          version="0.9.4.1"/>
 
-   <plugin
-         id="org.python.pydev.coreutils"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
 </feature>

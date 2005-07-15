@@ -25,7 +25,6 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.coreutils.REF;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.plugin.PydevPlugin;
@@ -33,6 +32,7 @@ import org.python.pydev.ui.IInterpreterManager;
 import org.python.pydev.ui.PyProjectPythonDetails;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.JobProgressComunicator;
+import org.python.pydev.utils.ref.REF;
 
 /**
  * PythonNature is currently used as a marker class.
