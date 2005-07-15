@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
 Bundle-Name: PyDev Refactoring Plug-in
-Bundle-SymbolicName: com.python.pydev.refactoring
+Bundle-SymbolicName: com.python.pydev.refactoring; singleton:=true
 Bundle-Version: 0.9.4.1
 Bundle-ClassPath: refactoring.jar
 Bundle-Activator: com.python.pydev.refactoring.RefactoringPlugin
@@ -18,5 +19,5 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.core,
  org.python.pydev.parser
 Eclipse-AutoStart: true
-Provide-Package: com.python.pydev.refactoring,
+Export-Package: com.python.pydev.refactoring,
  com.python.pydev.refactoring.core
