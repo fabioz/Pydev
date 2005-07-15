@@ -21,6 +21,10 @@ import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
  */
 public class SourceToken extends AbstractToken{
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private SimpleNode ast;
 
     /**

@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Num extends exprType {
-	public Object n;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 2382160855863791729L;
+    public Object n;
 
 	public Num(Object n) {
 		this.n = n;

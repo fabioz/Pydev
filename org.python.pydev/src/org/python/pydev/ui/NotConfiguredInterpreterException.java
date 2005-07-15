@@ -14,6 +14,11 @@ public class NotConfiguredInterpreterException extends RuntimeException {
     /**
      * 
      */
+    private static final long serialVersionUID = -7824508734113060512L;
+
+    /**
+     * 
+     */
     public NotConfiguredInterpreterException() {
         super();
     }

@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Tuple extends exprType implements expr_contextType {
-	public exprType[] elts;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 7872424851279715692L;
+    public exprType[] elts;
 	public int ctx;
 
 	public Tuple(exprType[] elts, int ctx) {

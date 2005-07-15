@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
 Bundle-Name: Core Plug-in
-Bundle-SymbolicName: org.python.pydev.core
+Bundle-SymbolicName: org.python.pydev.core; singleton:=true
 Bundle-Version: 0.9.4.1
 Bundle-ClassPath: core.jar
 Bundle-Activator: org.python.pydev.core.CorePlugin
@@ -9,6 +10,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text
 Eclipse-AutoStart: true
-Provide-Package: org.python.pydev.core,
+Export-Package: org.python.pydev.core,
  org.python.pydev.core.docutils,
  org.python.pydev.core.log

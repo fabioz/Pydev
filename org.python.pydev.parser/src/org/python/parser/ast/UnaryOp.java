@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class UnaryOp extends exprType implements unaryopType {
-	public int op;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 3941127213543376915L;
+    public int op;
 	public exprType operand;
 
 	public UnaryOp(int op, exprType operand) {

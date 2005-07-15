@@ -11,6 +11,11 @@ package org.python.pydev.debug.codecoverage;
 public class NodeNotFoudException extends Exception {
 
     /**
+     * 
+     */
+    private static final long serialVersionUID = -1606330855024184641L;
+
+    /**
      * @param string
      */
     public NodeNotFoudException(String string) {

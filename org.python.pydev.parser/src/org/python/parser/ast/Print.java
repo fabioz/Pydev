@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Print extends stmtType {
-	public exprType dest;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -1331087400247027771L;
+    public exprType dest;
 	public exprType[] values;
 	public boolean nl;
 

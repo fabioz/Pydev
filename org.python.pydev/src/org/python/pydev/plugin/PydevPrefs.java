@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.python.pydev.utils.WordUtils;
 
 
 
@@ -63,9 +64,35 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	//initializeDefaultPreferences
 	//declaration of fAppearanceColorListModel if it is a color
 	//constants (here)
+	public static final int TOOLTIP_WIDTH = 80;
+	
+    
+	/*
+	 * If you just want to add some option, you will need to:
+	 * - create fields for it, as seen here
+	 * - add to overlay store in createOverlayStore()
+	 * - add what appears in the Preferences page at createAppearancePage()
+	 * - add the function to the org.python.pydev.editor.autoedit.IIndentPrefs interface
+	 * - probably add that function to org.python.pydev.editor.autoedit.DefaultIndentPrefs
+	 * 
+	 */
 	
 	public static final String AUTO_PAR = "AUTO_PAR";
 	public static final boolean DEFAULT_AUTO_PAR = true;
+	
+	/**
+	 * fields for automatically replacing a colon
+	 * @see  
+	 */
+	public static final String AUTO_COLON = "AUTO_COLON";
+	public static final boolean DEFAULT_AUTO_COLON = true;
+	
+	/**
+	 * fields for automatically skipping braces
+	 * @see  org.python.pydev.editor.autoedit.PyAutoIndentStrategy
+	 */
+	public static final String AUTO_BRACES = "AUTO_BRACES";
+	public static final boolean DEFAULT_AUTO_BRACES = true;
 
 	//text
 	public static final String TAB_WIDTH = "TAB_WIDTH";
@@ -192,7 +219,11 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_PAR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, BLOCK_COMMENT));
 		
-		//matching
+        //Auto eat colon and braces
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_COLON));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_BRACES));
+
+        //matching
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_MATCHING_BRACKETS));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING,  MATCHING_BRACKETS_COLOR));
 		
@@ -256,13 +287,35 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		GridLayout layout= new GridLayout(); layout.numColumns= 2;
 		appearanceComposite.setLayout(layout);
 
+        // simply a holder for the current reference for a Button, so you can input a tooltip
+        Button b;
+        
 
 		addTextField(appearanceComposite, "Tab length:", TAB_WIDTH, 3, 0, true);
 
 		addTextField(appearanceComposite, "Block comment separator:", BLOCK_COMMENT, 50, 0, false);
 				
-		addCheckBox(appearanceComposite, "Auto parentesis?", AUTO_PAR, 0);
+		//auto par
+        b = addCheckBox(appearanceComposite, "Automatic parentheses insertion", AUTO_PAR, 0);
+        b.setToolTipText(WordUtils.wrap("Enabling this option will enable automatic insertion of parentheses.  " +
+                "Specifically, whenever you hit a brace such as '(', '{', or '[', its related peer will be inserted " +
+                "and your cursor will be placed between the two braces.", TOOLTIP_WIDTH));
+        
+        //auto braces
+        b = addCheckBox(appearanceComposite, "Automatically skip matching braces when typing", AUTO_BRACES, 0);
+        b.setToolTipText(WordUtils.wrap("Enabling this option will enable automatically skipping matching braces " +
+                "if you try to insert them.  For example, if you have the following code:\n\n" +
+                "def function(self):\n\n" +
+                "...with your cursor before the end parenthesis (after the 'f' in \"self\"), typing a ')' will " +
+                "simply move the cursor to the position after the ')' without inserting a new one.", TOOLTIP_WIDTH));
+        
+        //auto colon
+        b = addCheckBox(appearanceComposite, "Automatic colon detection", AUTO_COLON, 0);
+        b.setToolTipText(WordUtils.wrap("Enabling this feature will enable the editor to detect if you are trying " +
+                "to enter a colon which is already there.  Instead of inserting another colon, the editor will " +
+                "simply move your cursor to the next position after the colon.", TOOLTIP_WIDTH));
 
+        
 		addCheckBox(appearanceComposite, "Substitute spaces for tabs?", SUBSTITUTE_TABS, 0);
 		
 		addCheckBox(appearanceComposite, "Assume tab spacing when files contain tabs?", GUESS_TAB_SUBSTITUTION, 0);
@@ -613,6 +666,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	protected static void initializeDefaultPreferences(Preferences prefs) {
 		//text
 		prefs.setDefault(AUTO_PAR, DEFAULT_AUTO_PAR);
+        prefs.setDefault(AUTO_COLON, DEFAULT_AUTO_COLON);
+        prefs.setDefault(AUTO_BRACES, DEFAULT_AUTO_BRACES);
+
 		prefs.setDefault(TAB_WIDTH, DEFAULT_TAB_WIDTH);
 		prefs.setDefault(BLOCK_COMMENT, DEFAULT_BLOCK_COMMENT_STRING);
 		

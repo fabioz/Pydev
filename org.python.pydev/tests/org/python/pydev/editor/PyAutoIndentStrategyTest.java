@@ -172,7 +172,8 @@ public class PyAutoIndentStrategyTest extends TestCase {
     }        
     
     /**
-     * 
+     * Tests automatically adding/replacing brackets, colons, and parentheses.
+     * @see PyAutoIndentStrategy
      */
     public void testAutoPar() {
         strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
@@ -212,8 +213,101 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "(";
         assertEquals(expected, docCmd.text);
-        
-        
+		
+		// test very simple ':' detection
+		doc = "def something():";
+		docCmd = new DocCmd(doc.length() - 1, 0, ":");
+		strategy.customizeDocumentCommand(new Document(doc), docCmd);
+		expected = "";
+		assertEquals(expected, docCmd.text);
+		assertEquals(15, docCmd.offset);
+
+		// test inputting ':' when you already have a ':', like at the end of a function declaraction
+		doc = "class c:\n" +
+				"    def __init__(self):";
+		docCmd = new DocCmd(doc.length() - 1, 0, ":");
+		strategy.customizeDocumentCommand(new Document(doc), docCmd);
+		expected = "";
+		assertEquals(expected, docCmd.text);
+		assertEquals(32, docCmd.caretOffset);
+		
+		// test inputting ':' at the end of a document
+		doc = "class c:\n" +
+				"    def __init__(self)";
+		docCmd = new DocCmd(doc.length(), 0, ":");
+		strategy.customizeDocumentCommand(new Document(doc), docCmd);
+		expected = ":";
+		assertEquals(expected, docCmd.text);
+		assertEquals(31, docCmd.offset);
+		
+		// test same as above, but with a comment
+		doc = "class c:\n" +
+				"    def __init__(self): # comment";
+		docCmd = new DocCmd(doc.length() - 11, 0, ":");
+		strategy.customizeDocumentCommand(new Document(doc), docCmd);
+		expected = "";
+		assertEquals(expected, docCmd.text);
+		assertEquals(32, docCmd.caretOffset);
+		
+		// test inputting ')' at the end of a document
+		doc = "class c:\n" +
+				"    def __init__(self)";
+		docCmd = new DocCmd(doc.length(), 0, ")");
+		strategy.customizeDocumentCommand(new Document(doc), docCmd);
+		expected = ")";
+		assertEquals(expected, docCmd.text);
+		assertEquals(0, docCmd.caretOffset);
+		
+		// test inputting ')' at the end of a document when it should replace a ')'
+		doc = "class c:\n" +
+				"    def __init__(self)";
+		docCmd = new DocCmd(doc.length() - 1, 0, ")");
+		strategy.customizeDocumentCommand(new Document(doc), docCmd);
+		expected = "";
+		assertEquals(expected, docCmd.text);
+		assertEquals(31, docCmd.caretOffset);
+		
+		// test inputting ')' in the middle of the document
+		doc = "def __init__(self):\n" + 
+			  "   pass";
+		docCmd = new DocCmd(17, 0, ")");
+		strategy.customizeDocumentCommand(new Document(doc), docCmd);
+		expected = "";
+		assertEquals(expected, docCmd.text);
+		assertEquals(18, docCmd.caretOffset);
+		
+		// check very simple braces insertion
+		doc = "()";
+		docCmd = new DocCmd(1, 0, ")");
+		strategy.customizeDocumentCommand(new Document(doc), docCmd);
+		expected = "";
+		assertEquals(expected, docCmd.text);
+		assertEquals(2, docCmd.caretOffset);
+		
+		// check simple braces insertion not at end of document
+		doc = "() ";
+		docCmd = new DocCmd(1, 0, ")");
+		strategy.customizeDocumentCommand(new Document(doc), docCmd);
+		expected = "";
+		assertEquals(expected, docCmd.text);
+		assertEquals(2, docCmd.caretOffset);
+		
+		// check same stuff for brackets
+		// check simple braces insertion not at end of document
+		doc = "[] ";
+		docCmd = new DocCmd(1, 0, "]");
+		strategy.customizeDocumentCommand(new Document(doc), docCmd);
+		expected = "";
+		assertEquals(expected, docCmd.text);
+		assertEquals(2, docCmd.caretOffset);
+		
+		// two different kinds of braces next to each other
+		doc = "([)";
+		docCmd = new DocCmd(2, 0, "]");
+		strategy.customizeDocumentCommand(new Document(doc), docCmd);
+		expected = "]";
+		assertEquals(expected, docCmd.text);
+		assertEquals(0, docCmd.caretOffset);
     }
     
     private final class TestIndentPrefs extends AbstractIndentPrefs {
@@ -221,6 +315,8 @@ public class PyAutoIndentStrategyTest extends TestCase {
         private boolean useSpaces;
         private int tabWidth;
         boolean autoPar = true;
+        boolean autoColon = true;
+        boolean autoBraces = true;
 
         public TestIndentPrefs(boolean useSpaces, int tabWidth){
             this.useSpaces = useSpaces;
@@ -243,6 +339,15 @@ public class PyAutoIndentStrategyTest extends TestCase {
         public boolean getAutoParentesis() {
             return autoPar;
         }
+
+		public boolean getAutoColon() {
+			return autoColon;
+		}
+
+		public boolean getAutoBraces()
+		{
+			return autoBraces;
+		}
 
     }
 

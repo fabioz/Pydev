@@ -38,6 +38,10 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class ASTManager implements ICodeCompletionASTManager, Serializable {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     public ProjectModulesManager projectModulesManager = new ProjectModulesManager();
     public ProjectModulesManager getProjectModulesManager(){
         return projectModulesManager;

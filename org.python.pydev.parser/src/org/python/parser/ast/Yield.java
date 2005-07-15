@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Yield extends stmtType {
-	public exprType value;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -2261653969445014477L;
+    public exprType value;
 
 	public Yield(exprType value) {
 		this.value = value;

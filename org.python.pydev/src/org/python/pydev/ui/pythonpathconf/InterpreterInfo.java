@@ -24,6 +24,10 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class InterpreterInfo implements Serializable{
     
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     public String executable;
     public java.util.List libs = new ArrayList(); //folders
     public java.util.List dllLibs = new ArrayList(); //.pyd, .dll, etc.

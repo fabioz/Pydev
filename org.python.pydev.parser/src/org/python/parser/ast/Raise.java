@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Raise extends stmtType {
-	public exprType type;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 6187144548618343462L;
+    public exprType type;
 	public exprType inst;
 	public exprType tback;
 

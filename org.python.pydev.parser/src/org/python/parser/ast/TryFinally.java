@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class TryFinally extends stmtType {
-	public stmtType[] body;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -2373800753458128341L;
+    public stmtType[] body;
 	public stmtType[] finalbody;
 
 	public TryFinally(stmtType[] body, stmtType[] finalbody) {

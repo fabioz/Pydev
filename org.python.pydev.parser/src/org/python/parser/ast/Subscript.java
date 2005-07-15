@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Subscript extends exprType implements expr_contextType {
-	public exprType value;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -1470051773678649222L;
+    public exprType value;
 	public sliceType slice;
 	public int ctx;
 

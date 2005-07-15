@@ -19,6 +19,10 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class EmptyModule extends AbstractModule implements Serializable {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     public File f;
 
     /**

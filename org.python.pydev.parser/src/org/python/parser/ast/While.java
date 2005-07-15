@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class While extends stmtType {
-	public exprType test;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -4044896012872390039L;
+    public exprType test;
 	public stmtType[] body;
 	public stmtType[] orelse;
 

@@ -23,7 +23,16 @@ import org.eclipse.jface.text.source.ICharacterPairMatcher;
  */
 public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
 
-	protected static final char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
+	/**
+	 * An array of Python pairs of characters that you will find in any Python code.
+	 * 
+	 * Currently, the set contains:
+	 * <ul>
+	 * <ol>left and right brackets: [, ]</ol>
+	 * <ol>right and right parentheses: (, )
+	 * </ul>
+	 */
+	public static final char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
 	
 	
 	public class JavaCodeReader extends Reader {

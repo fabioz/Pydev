@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Slice extends sliceType {
-	public exprType lower;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 6936466833319461932L;
+    public exprType lower;
 	public exprType upper;
 	public exprType step;
 

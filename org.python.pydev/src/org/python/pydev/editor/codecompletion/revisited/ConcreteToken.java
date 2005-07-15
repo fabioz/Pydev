@@ -16,6 +16,11 @@ public class ConcreteToken extends AbstractToken{
 
     /**
      * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 
      * @param rep
      * @param doc
      * @param parentPackage

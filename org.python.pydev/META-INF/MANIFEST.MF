@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
 Bundle-Name: Pydev - Python Development Environment
-Bundle-SymbolicName: org.python.pydev; singleton=true
+Bundle-SymbolicName: org.python.pydev; singleton:=true
 Bundle-Version: 0.9.4.1
 Bundle-ClassPath: pydev.jar
 Bundle-Activator: org.python.pydev.plugin.PydevPlugin
@@ -20,7 +21,7 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.core,
  org.python.pydev.parser
 Eclipse-AutoStart: true
-Provide-Package: org.python.copiedfromeclipsesrc,
+Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,
  org.python.pydev.builder.pychecker,
  org.python.pydev.builder.pylint,

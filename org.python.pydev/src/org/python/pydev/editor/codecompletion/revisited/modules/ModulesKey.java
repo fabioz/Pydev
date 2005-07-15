@@ -12,6 +12,10 @@ import java.io.Serializable;
  * @author Fabio Zadrozny
  */
 public class ModulesKey implements Comparable, Serializable{
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     public String name;
     public File file;
 

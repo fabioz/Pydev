@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Repr extends exprType {
-	public exprType value;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 7336991640880626499L;
+    public exprType value;
 
 	public Repr(exprType value) {
 		this.value = value;

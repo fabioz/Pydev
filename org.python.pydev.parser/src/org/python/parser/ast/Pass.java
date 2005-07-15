@@ -7,7 +7,12 @@ import org.python.parser.SimpleNode;
 
 public class Pass extends stmtType {
 
-	public Pass() {
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -5699554954123177104L;
+
+    public Pass() {
 	}
 
 	public Pass(SimpleNode parent) {

@@ -7,7 +7,12 @@ import java.io.IOException;
 import org.python.parser.ast.VisitorIF;
 
 public class SimpleNode implements Node {
-	public int beginLine, beginColumn;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -6071607349700208573L;
+
+    public int beginLine, beginColumn;
 
 	public boolean from_future_checked = false; // from __future__ support
 

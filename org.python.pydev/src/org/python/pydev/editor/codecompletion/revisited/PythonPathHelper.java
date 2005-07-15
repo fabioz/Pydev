@@ -34,6 +34,11 @@ import org.python.pydev.plugin.PydevPlugin;
 public class PythonPathHelper implements Serializable{
     
     /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
      * This is a list of Files containg the pythonpath.
      */
     public List pythonpath = new ArrayList();

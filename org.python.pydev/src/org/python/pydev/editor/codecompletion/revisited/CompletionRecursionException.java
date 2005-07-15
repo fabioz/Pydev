@@ -11,6 +11,11 @@ package org.python.pydev.editor.codecompletion.revisited;
 public class CompletionRecursionException extends RuntimeException {
 
     /**
+     * 
+     */
+    private static final long serialVersionUID = 4134633236965099432L;
+
+    /**
      * @param string
      */
     public CompletionRecursionException(String string) {

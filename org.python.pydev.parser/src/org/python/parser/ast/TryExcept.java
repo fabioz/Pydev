@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class TryExcept extends stmtType {
-	public stmtType[] body;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 476208374761897012L;
+    public stmtType[] body;
 	public excepthandlerType[] handlers;
 	public stmtType[] orelse;
 

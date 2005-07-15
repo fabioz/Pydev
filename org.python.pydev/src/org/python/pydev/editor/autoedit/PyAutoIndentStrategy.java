@@ -10,6 +10,9 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
+import org.python.copiedfromeclipsesrc.PythonPairMatcher;
+import org.python.pydev.editor.PyDoubleClickStrategy;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 
@@ -18,7 +21,37 @@ import org.python.pydev.editor.actions.PySelection;
  * 
  * Tabs vs. spaces indentation
  */
-public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy{
+public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
+
+    /**
+     * Field representing a semicolon.
+     */
+    public static final char SEMICOLON = ';';
+
+    /**
+     * Field representing a colon;
+     */
+    public static final char COLON = ':';
+
+    /**
+     * Field representing a comma.
+     */
+    public static final char COMMA = ',';
+
+    /**
+     * Field representing a space.
+     */
+    public static final char SPACE = ' ';
+
+    /**
+     * Field representing a beginning parenthesis, i.e., (
+     */
+    public static final char BEGIN_PARENTHESIS = '(';
+
+    /**
+     * Field representing an ending parenthesis, i.e., )
+     */
+    public static final char END_PARENTHESIS = ')';
 
     private IIndentPrefs prefs;
 
@@ -36,7 +69,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy{
     public static String createSpaceString(int width) {
         StringBuffer b = new StringBuffer(width);
         while (width-- > 0)
-            b.append(" ");
+            b.append(SPACE);
         return b.toString();
     }
 
@@ -50,29 +83,30 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy{
      * @return String
      * @throws BadLocationException
      */
-    private String autoIndentNewline(IDocument document, int length, String text, int offset) throws BadLocationException {
+    private String autoIndentNewline(IDocument document, int length, String text, int offset)
+            throws BadLocationException {
         if (length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text)) {
 
             if (offset > 0) {
-	            char lastChar = document.getChar(offset - 1);
-	            
-	            //we dont want whitespaces
-	            while (offset > 0 && lastChar == ' ') {
-	                offset--;
-	                lastChar = document.getChar(offset - 1);
-	            }
-	            
-	            if (offset > 0) {
+                char lastChar = document.getChar(offset - 1);
 
-	                if (lastChar == ':') {
-	                    String initial = text;
-	
-	                    text = initial + prefs.getIndentationString();
-	
-	                } else if (lastChar == ',') {
-	                    text = indentAfterCommaNewline(document, text, offset);
-	                }
-	            }
+                //we dont want whitespaces
+                while (offset > 0 && lastChar == SPACE) {
+                    offset--;
+                    lastChar = document.getChar(offset - 1);
+                }
+
+                if (offset > 0) {
+
+                    if (lastChar == COLON) {
+                        String initial = text;
+
+                        text = initial + prefs.getIndentationString();
+
+                    } else if (lastChar == COMMA) {
+                        text = indentAfterCommaNewline(document, text, offset);
+                    }
+                }
             }
         }
         return text;
@@ -87,7 +121,8 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy{
      * @return Indentation String
      * @throws BadLocationException
      */
-    private String indentAfterCommaNewline(IDocument document, String text, int offset) throws BadLocationException {
+    private String indentAfterCommaNewline(IDocument document, String text, int offset)
+            throws BadLocationException {
         int smartIndent = totalIndentAmountAfterCommaNewline(document, offset);
         if (smartIndent > 0) {
             String initial = text;
@@ -116,7 +151,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy{
             while (indentationSteps-- > 0)
                 b.append(indentationString);
             while (spaceSteps-- >= 0)
-                b.append(" ");
+                b.append(Character.toString(SPACE));
 
             return initial + b.toString();
         }
@@ -136,7 +171,8 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy{
      * @param offset The document offset of the last character on the previous line
      * @return indent, or -1 if smart indent could not be determined (fall back to default)
      */
-    private int totalIndentAmountAfterCommaNewline(IDocument document, int offset) throws BadLocationException {
+    private int totalIndentAmountAfterCommaNewline(IDocument document, int offset)
+            throws BadLocationException {
         int lineStart = document.getLineInformationOfOffset(offset).getOffset();
         String line = document.get(lineStart, offset - lineStart);
         int lineLength = line.length();
@@ -168,58 +204,172 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy{
 
     /**
      * 
+     * 
      * @see org.eclipse.jface.text.IAutoEditStrategy#customizeDocumentCommand(IDocument, DocumentCommand)
      */
     public void customizeDocumentCommand(IDocument document, DocumentCommand command) {
         // super idents newlines the same amount as the previous line
         super.customizeDocumentCommand(document, command);
+
         try {
             command.text = autoIndentNewline(document, command.length, command.text, command.offset);
 
             prefs.convertToStd(document, command);
-            
-            if(command.text.equals("(") && prefs.getAutoParentesis()){
+
+            if (command.text.equals(Character.toString(BEGIN_PARENTHESIS)) && prefs.getAutoParentesis()) {
                 PySelection ps = new PySelection(document, command.offset);
-		        String line = ps.getLine();
-                
-                if(shouldClose(ps)){
-                
-        	        boolean hasClass = line.indexOf("class ") != -1;
+                String line = ps.getLine();
+
+                if (shouldClose(ps)) {
+
+                    boolean hasClass = line.indexOf("class ") != -1;
                     boolean hasClassMethodDef = line.indexOf(" def ") != -1;
                     boolean hasMethodDef = line.indexOf("def ") != -1;
                     boolean hasNoDoublePoint = line.indexOf(":") == -1;
-                    
-	                command.shiftsCaret = false;
-                    if(hasNoDoublePoint && (hasClass || hasClassMethodDef || hasMethodDef)){
-                        if(hasClass){
-//                          command.text = "(object):"; //TODO: put some option in the interface for that
-//			                command.caretOffset = command.offset + 7;
-                            command.text = "():";
-			                command.caretOffset = command.offset + 1;
-                        }else if (hasClassMethodDef){
-                            command.text = "(self):";
-			                command.caretOffset = command.offset + 5;
-                        }else if (hasMethodDef){
-                            command.text = "():";
-			                command.caretOffset = command.offset + 1;
-                        }else{
-                            throw new RuntimeException("Something went wrong");
-                        }
-        	        }else{
-		                command.text = "()";
-		                command.caretOffset = command.offset + 1;
-        	        }
-                }
-                
-            }
-            
 
-        } catch (BadLocationException e) {
-            e.printStackTrace();
+                    command.shiftsCaret = false;
+                    if (hasNoDoublePoint && (hasClass || hasClassMethodDef || hasMethodDef)) {
+                        if (hasClass) {
+                            //command.text = "(object):"; //TODO: put some option in the interface for that
+                            //command.caretOffset = command.offset + 7;
+                            command.text = "():";
+                            command.caretOffset = command.offset + 1;
+                        } else if (hasClassMethodDef) {
+                            command.text = "(self):";
+                            command.caretOffset = command.offset + 5;
+                        } else if (hasMethodDef) {
+                            command.text = "():";
+                            command.caretOffset = command.offset + 1;
+                        } else {
+                            throw new RuntimeException(getClass().toString() + ": customizeDocumentCommand()");
+                        }
+                    } else {
+                        command.text = "()";
+                        command.caretOffset = command.offset + 1;
+                    }
+                }
+
+            }
+
+            /*
+             * The following code will auto-replace colons in function
+             * declaractions
+             * e.g.,
+             * def something(self):
+             *                    ^ cursor before the end colon
+             * 
+             * Typing another colon (i.e, ':') at that position will not insert
+             * another colon
+             */
+            else if (command.text.equals(Character.toString(COLON)) && prefs.getAutoColon()) {
+                performColonReplacement(document, command);
+            }
+
+            /*
+             * If the command is some kind of parentheses or brace, and there's
+             * already a matching one, don't insert it. Just move the cursor to
+             * the next space.
+             */
+            else if (command.text.length() > 0 && prefs.getAutoBraces()) {
+                // you can only do the replacement if the next character already there is what the user is trying to input
+                if (command.offset < document.getLength()
+                        && document.get(command.offset, 1).equals(command.text)) {
+                    // the following searches through each of the end braces and
+                    // sees if the command has one of them
+                    boolean found = false;
+                    for (int i = 1; i <= PyDoubleClickStrategy.BRACKETS.length && !found; i += 2) {
+                        char c = PyDoubleClickStrategy.BRACKETS[i];
+                        if (c == command.text.charAt(0)) {
+                            found = true;
+                            performPairReplacement(document, command);
+                        }
+                    }
+                }
+            }
+
+        }
+        /*
+         * If something goes wrong, you want to know about it, especially in a
+         * unit test. If you don't rethrow the exception, unit tests will pass
+         * even though you threw an exception.
+         */
+        catch (BadLocationException e) {
+            // screw up command.text so unit tests can pick it up
+            command.text = "BadLocationException";
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /**
+     * Private function to call to perform any replacement of braces.
+     * 
+     * The Eclipse Java editor does this by default, and it is very useful. If
+     * you try to insert some kind of pair, be it a parenthesis or bracket in
+     * Java, the character will not insert and instead the editor just puts your
+     * cursor at the next position.
+     * 
+     * This function performs the equivalent for the Python editor.
+     *  
+     * @param document
+     * @param command if the command does not contain a brace, this function does nothing.
+     */
+    private void performPairReplacement(IDocument document, DocumentCommand command) {
+        PySelection ps = new PySelection(document, command.offset);
+
+        /*
+         * Start matching.
+         */
+        /*
+         * TODO: Might have to optimize and check for less braces if delay
+         * between user's typing characters is too big.
+         * 
+         * You can do this by passing a small array to PythonPairMatcher()
+         */
+        PythonPairMatcher matcher = new PythonPairMatcher(PyDoubleClickStrategy.BRACKETS);
+        IRegion region = matcher.match(ps.getDoc(), command.offset + 1);
+        if (region != null) {
+            command.text = "";
+            command.caretOffset = command.offset + 1;
         }
     }
 
-    
+    /**
+     * Private function which is called when a colon is the command.
+     * 
+     * The following code will auto-replace colons in function declaractions
+     * e.g., def something(self): ^ cursor before the end colon
+     * 
+     * Typing another colon (i.e, ':') at that position will not insert another
+     * colon
+     * 
+     * @param document
+     * @param command
+     * @throws BadLocationException
+     */
+    private void performColonReplacement(IDocument document, DocumentCommand command) {
+        PySelection ps = new PySelection(document, command.offset);
+        int absoluteOffset = ps.getAbsoluteCursorOffset();
+        int documentLength = ps.getDoc().getLength();
+
+        // need to check whether whether we're at the very end of the document
+        if (absoluteOffset < documentLength) {
+            try {
+                char currentCharacter = document.getChar(absoluteOffset);
+
+                if (currentCharacter == COLON) {
+                    command.text = "";
+                    command.caretOffset = command.offset + 1;
+                }
+
+            } catch (BadLocationException e) {
+                // should never happen because I just checked the length 
+                throw new RuntimeException(e);
+            }
+
+        }
+    }
+
     /**
      * @param ps
      * @return
@@ -229,21 +379,20 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy{
         String line = ps.getLine();
 
         String lineContentsFromCursor = ps.getLineContentsFromCursor();
-        
+
         for (int i = 0; i < lineContentsFromCursor.length(); i++) {
-            if(!Character.isWhitespace(lineContentsFromCursor.charAt(i))){
+            if (!Character.isWhitespace(lineContentsFromCursor.charAt(i))) {
                 return false;
             }
         }
-            
-        
-        int i = PyAction.countChars('(', line);
-        int j = PyAction.countChars(')', line);
-        
-        if(j > i){
+
+        int i = PyAction.countChars(BEGIN_PARENTHESIS, line);
+        int j = PyAction.countChars(END_PARENTHESIS, line);
+
+        if (j > i) {
             return false;
         }
-        
+
         return true;
     }
 

@@ -51,5 +51,16 @@ public interface IIndentPrefs {
 	 * @return whether we should auto-close parentesis
 	 */
 	public boolean getAutoParentesis();
-
+	
+	/**
+	 * Get whether or not to do colon detection.
+	 * @return true iff colon detection is turned on
+	 */
+	public boolean getAutoColon();
+	
+	/**
+	 * Get whether or not to auto-skip braces insertion  
+	 * @return iff auto-skip braces is ENABLED
+	 */
+	public boolean getAutoBraces();
 }

@@ -22,6 +22,10 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class ProjectModulesManager extends ModulesManager{
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     //these attributes must be set whenever this class is restored.
     private transient ModulesManager systemModulesManager;
     private transient IProject project;

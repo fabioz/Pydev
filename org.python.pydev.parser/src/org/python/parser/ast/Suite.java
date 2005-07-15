@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Suite extends modType {
-	public stmtType[] body;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 8933904131249336733L;
+    public stmtType[] body;
 
 	public Suite(stmtType[] body) {
 		this.body = body;
