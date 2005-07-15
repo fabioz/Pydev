@@ -22,5 +22,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.console,
  org.python.pydev,
  org.python.pydev.core,
- org.python.pydev.parser
+ org.python.pydev.parser,
+ org.python.pydev.coreutils
 Eclipse-AutoStart: true
