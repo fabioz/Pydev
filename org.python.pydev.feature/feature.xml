@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feature 
+<feature
       id="org.python.pydev.feature"
       label="PyDev for Eclipse"
       version="0.9.4.1"
@@ -27,10 +27,10 @@ Aleks and Fabio
 
    <requires>
       <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.eclipse.ui.editors"/>
       <import plugin="org.eclipse.ui.views"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
@@ -76,5 +76,12 @@ Aleks and Fabio
          download-size="0"
          install-size="0"
          version="0.9.4.1"/>
+
+   <plugin
+         id="org.python.pydev.coreutils"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

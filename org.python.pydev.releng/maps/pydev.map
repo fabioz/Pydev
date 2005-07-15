@@ -1,4 +1,5 @@
 plugin@org.python.pydev.core=HEAD,:extssh:fabioz@cvs.sourceforge.net:/cvsroot/pydev,,
+plugin@org.python.pydev.coreutils=HEAD,:extssh:fabioz@cvs.sourceforge.net:/cvsroot/pydev,,
 plugin@org.python.pydev.ast=HEAD,:extssh:fabioz@cvs.sourceforge.net:/cvsroot/pydev,,
 plugin@org.python.pydev.parser=HEAD,:extssh:fabioz@cvs.sourceforge.net:/cvsroot/pydev,,
 plugin@org.python.pydev.help=HEAD,:extssh:fabioz@cvs.sourceforge.net:/cvsroot/pydev,,
