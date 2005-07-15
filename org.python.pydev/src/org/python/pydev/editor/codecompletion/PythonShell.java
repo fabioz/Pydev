@@ -282,7 +282,7 @@ public class PythonShell {
                 s = s.replaceAll("@@PROCESSING:", "");
                 s = s.replaceAll("END@@", "");
                 j = 0;
-                s = URLDecoder.decode(s);
+                s = URLDecoder.decode(s, "UTF-8");
                 if(s.trim().equals("") == false){
                     communicateWork("Processing: "+s, operation);
                 }else{
@@ -419,7 +419,7 @@ public class PythonShell {
             }
             
             String str = REF.getFileAbsolutePath(file);
-            str = URLEncoder.encode(str);
+            str = URLEncoder.encode(str, "UTF-8");
             this.write("@@CHANGE_DIR:"+str+"END@@");
 //            String ok = this.read(); //this should be the ok message...
             this.read(); //this should be the ok message...
@@ -439,8 +439,12 @@ public class PythonShell {
     public List getImportCompletions(String str, List pythonpath) throws CoreException {
         changePythonPath(pythonpath);
         
-        str = URLEncoder.encode(str);
-        return this.getTheCompletions("@@IMPORTS:"+str+"\nEND@@");
+        try {
+            str = URLEncoder.encode(str, "UTF-8");
+            return this.getTheCompletions("@@IMPORTS:" + str + "\nEND@@");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -454,7 +458,11 @@ public class PythonShell {
             buffer.append(path);
             buffer.append("|");
         }
-        getTheCompletions("@@CHANGE_PYTHONPATH:" + URLEncoder.encode(buffer.toString()) + "\nEND@@");
+        try {
+            getTheCompletions("@@CHANGE_PYTHONPATH:" + URLEncoder.encode(buffer.toString(), "UTF-8") + "\nEND@@");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } 
     }
 
     /**
@@ -515,19 +523,19 @@ public class PythonShell {
         StringTokenizer tokenizer = new StringTokenizer(string, ",");
         
         while(tokenizer.hasMoreTokens()){
-            String token       = URLDecoder.decode(tokenizer.nextToken());
+            String token       = URLDecoder.decode(tokenizer.nextToken(), "UTF-8");
             if(!tokenizer.hasMoreTokens()){
                 return list;
             }
-            String description = URLDecoder.decode(tokenizer.nextToken());
+            String description = URLDecoder.decode(tokenizer.nextToken(), "UTF-8");
             
             String args = "";
             if(tokenizer.hasMoreTokens())
-                args = URLDecoder.decode(tokenizer.nextToken());
+                args = URLDecoder.decode(tokenizer.nextToken(), "UTF-8");
             
             String type =""+PyCodeCompletion.TYPE_UNKNOWN;
             if(tokenizer.hasMoreTokens())
-                type = URLDecoder.decode(tokenizer.nextToken());
+                type = URLDecoder.decode(tokenizer.nextToken(), "UTF-8");
             
 //            System.out.println(token);
 //            System.out.println(description);

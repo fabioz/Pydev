@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class FunctionDef extends stmtType {
-	public String name;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -5071587659591504278L;
+    public String name;
 	public argumentsType args;
 	public stmtType[] body;
 

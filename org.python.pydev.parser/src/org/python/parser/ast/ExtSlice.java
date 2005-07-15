@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class ExtSlice extends sliceType {
-	public sliceType[] dims;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -9116472434909590101L;
+    public sliceType[] dims;
 
 	public ExtSlice(sliceType[] dims) {
 		this.dims = dims;

@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Dict extends exprType {
-	public exprType[] keys;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 2053365516882163365L;
+    public exprType[] keys;
 	public exprType[] values;
 
 	public Dict(exprType[] keys, exprType[] values) {

@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Lambda extends exprType {
-	public argumentsType args;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 5678702156362172697L;
+    public argumentsType args;
 	public exprType body;
 
 	public Lambda(argumentsType args, exprType body) {

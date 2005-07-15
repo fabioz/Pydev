@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Compare extends exprType implements cmpopType {
-	public exprType left;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 3706061503240771887L;
+    public exprType left;
 	public int[] ops;
 	public exprType[] comparators;
 

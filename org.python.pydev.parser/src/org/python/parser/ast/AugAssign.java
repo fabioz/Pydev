@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class AugAssign extends stmtType implements operatorType {
-	public exprType target;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 8261594714503991804L;
+    public exprType target;
 	public int op;
 	public exprType value;
 

@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Call extends exprType {
-	public exprType func;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -2342900565903873057L;
+    public exprType func;
 	public exprType[] args;
 	public keywordType[] keywords;
 	public exprType starargs;

@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class excepthandlerType extends SimpleNode {
-	public exprType type;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -1084866906157845183L;
+    public exprType type;
 	public exprType name;
 	public stmtType[] body;
 

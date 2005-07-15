@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Interactive extends modType {
-	public stmtType[] body;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -1791356152202818479L;
+    public stmtType[] body;
 
 	public Interactive(stmtType[] body) {
 		this.body = body;

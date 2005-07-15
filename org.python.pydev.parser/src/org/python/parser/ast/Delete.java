@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Delete extends stmtType {
-	public exprType[] targets;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 3867695644896717662L;
+    public exprType[] targets;
 
 	public Delete(exprType[] targets) {
 		this.targets = targets;

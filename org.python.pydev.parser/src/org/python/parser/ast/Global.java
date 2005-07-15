@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Global extends stmtType {
-	public String[] names;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -3016853541752907955L;
+    public String[] names;
 
 	public Global(String[] names) {
 		this.names = names;

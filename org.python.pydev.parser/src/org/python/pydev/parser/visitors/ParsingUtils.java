@@ -31,7 +31,7 @@ public class ParsingUtils {
      * @return the end of the token position (end of document or new line char or whitespace)
      */
     public static int eatToken(char[] cs, StringBuffer buf, int i) {
-        while(i < cs.length && Character.isSpace(cs[i])){
+        while(i < cs.length && Character.isWhitespace(cs[i])){
             buf.append(cs[i]);
             i++;
         }

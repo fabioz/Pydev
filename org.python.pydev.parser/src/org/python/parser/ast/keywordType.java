@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class keywordType extends SimpleNode {
-	public String arg;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 1145430158672270282L;
+    public String arg;
 	public exprType value;
 
 	public keywordType(String arg, exprType value) {

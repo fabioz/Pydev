@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class BoolOp extends exprType implements boolopType {
-	public int op;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -3212360223277550916L;
+    public int op;
 	public exprType[] values;
 
 	public BoolOp(int op, exprType[] values) {

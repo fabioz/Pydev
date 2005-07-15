@@ -38,8 +38,6 @@ public class EasyASTIteratorVisitor extends VisitorBase{
 
     private Stack stack = new Stack();
     
-    private int currentIndent = 0;
-
     private SimpleNode lastVisited;
     
     /** 

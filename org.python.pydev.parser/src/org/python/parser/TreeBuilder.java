@@ -606,7 +606,11 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
 }
 
 class DefaultArg extends SimpleNode {
-	public exprType parameter;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 1418974232070424938L;
+    public exprType parameter;
 	public exprType value;
 	DefaultArg(exprType parameter, exprType value) {
 		this.parameter = parameter;
@@ -615,7 +619,11 @@ class DefaultArg extends SimpleNode {
 }
 
 class ExtraArg extends SimpleNode {
-	public String name;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 3113844908094724255L;
+    public String name;
 	public int id;
 	ExtraArg(String name, int id) {
 		this.name = name;
@@ -628,7 +636,11 @@ class ExtraArg extends SimpleNode {
 
 
 class ExtraArgValue extends SimpleNode {
-	public exprType value;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 2346721533832032839L;
+    public exprType value;
 	public int id;
 	ExtraArgValue(exprType value, int id) {
 		this.value = value;
@@ -641,7 +653,11 @@ class ExtraArgValue extends SimpleNode {
 
 
 class IdentityNode extends SimpleNode {
-	public int id;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 4186953588752733261L;
+    public int id;
 	public Object image;
 
 	IdentityNode(int id) {

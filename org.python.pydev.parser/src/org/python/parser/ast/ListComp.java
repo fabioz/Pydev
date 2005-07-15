@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class ListComp extends exprType {
-	public exprType elt;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -6601061070987485916L;
+    public exprType elt;
 	public listcompType[] generators;
 
 	public ListComp(exprType elt, listcompType[] generators) {

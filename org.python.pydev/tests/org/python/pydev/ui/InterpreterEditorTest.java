@@ -9,11 +9,9 @@ import java.net.MalformedURLException;
 
 import junit.framework.TestCase;
 
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.plugin.BundleInfo;
-import org.python.pydev.ui.pythonpathconf.InterpreterEditor;
 
 /**
  * @author Fabio Zadrozny
@@ -21,7 +19,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterEditor;
 public class InterpreterEditorTest extends TestCase {
 
     private Shell shell;
-    private Display display;
+    protected Display display;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(InterpreterEditorTest.class);
@@ -52,7 +50,7 @@ public class InterpreterEditorTest extends TestCase {
     /**
      * @param display
      */
-    private void goToManual(Display display) {
+    protected void goToManual(Display display) {
 //        while (!shell.isDisposed()) {
 //            if (!display.readAndDispatch())
 //                display.sleep();
@@ -68,10 +66,10 @@ public class InterpreterEditorTest extends TestCase {
     public void testIt() throws MalformedURLException {
         shell.open();
 
-        InterpreterEditor editor = new InterpreterEditor("label", shell, new InterpreterManager(new Preferences()));
-        shell.pack();
-        shell.setSize(new org.eclipse.swt.graphics.Point(300, 300));
-        goToManual(display);
+//        InterpreterEditor editor = new InterpreterEditor("label", shell, new InterpreterManager(new Preferences()));
+//        shell.pack();
+//        shell.setSize(new org.eclipse.swt.graphics.Point(300, 300));
+//        goToManual(display);
         
     }
 }

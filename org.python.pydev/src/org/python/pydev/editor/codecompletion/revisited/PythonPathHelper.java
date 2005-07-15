@@ -12,8 +12,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.Serializable;
-import java.io.StringBufferInputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -299,7 +300,7 @@ public class PythonPathHelper implements Serializable{
     }
 
     public static String getPythonFileEncoding(IDocument doc) {
-        InputStreamReader inputStreamReader = new InputStreamReader(new StringBufferInputStream(doc.get()));
+        Reader inputStreamReader = new StringReader(doc.get());
         return getPythonFileEncoding(inputStreamReader);
     }
     
@@ -309,7 +310,7 @@ public class PythonPathHelper implements Serializable{
      */
     public static String getPythonFileEncoding(File f) {
         try {
-            InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(f));
+            Reader inputStreamReader = new InputStreamReader(new FileInputStream(f));
             return getPythonFileEncoding(inputStreamReader);
         } catch (FileNotFoundException e) {
             return null;
@@ -319,7 +320,7 @@ public class PythonPathHelper implements Serializable{
     /**
      * @param inputStreamReader
      */
-    private static String getPythonFileEncoding(InputStreamReader inputStreamReader) {
+    private static String getPythonFileEncoding(Reader inputStreamReader) {
         String ret = null;
         BufferedReader reader = new BufferedReader(inputStreamReader);
         try{

@@ -317,7 +317,7 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 	public void processCommand(String sCmdCode, String sSeqCode, String payload) {
 		try {
             int cmdCode = Integer.parseInt(sCmdCode);
-            int seqCode = Integer.parseInt(sSeqCode);
+//            int seqCode = Integer.parseInt(sSeqCode);
             if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_CREATED)
                 processThreadCreated(payload);
             else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_KILL)

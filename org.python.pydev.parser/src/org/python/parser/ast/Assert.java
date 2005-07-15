@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Assert extends stmtType {
-	public exprType test;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -6282689335156699016L;
+    public exprType test;
 	public exprType msg;
 
 	public Assert(exprType test, exprType msg) {

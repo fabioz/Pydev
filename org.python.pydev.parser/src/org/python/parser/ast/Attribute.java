@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Attribute extends exprType implements expr_contextType {
-	public exprType value;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 6971957912611148829L;
+    public exprType value;
 	public String attr;
 	public int ctx;
 

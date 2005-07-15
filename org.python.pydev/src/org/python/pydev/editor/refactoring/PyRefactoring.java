@@ -81,7 +81,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
 		        pytonShell.changePythonPath(((PythonNature)editor.getPythonNature()).getPythonPathNature().getCompleteProjectPythonPath());
 	            pytonShell.write(str);
 	 
-	            return URLDecoder.decode(pytonShell.read(operation));
+	            return URLDecoder.decode(pytonShell.read(operation), "UTF-8");
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            

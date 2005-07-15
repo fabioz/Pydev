@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class For extends stmtType {
-	public exprType target;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -8403599377373333202L;
+    public exprType target;
 	public exprType iter;
 	public stmtType[] body;
 	public stmtType[] orelse;

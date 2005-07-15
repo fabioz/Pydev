@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class List extends exprType implements expr_contextType {
-	public exprType[] elts;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -1268247877282106762L;
+    public exprType[] elts;
 	public int ctx;
 
 	public List(exprType[] elts, int ctx) {

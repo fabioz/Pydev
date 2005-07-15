@@ -7,7 +7,12 @@ import org.python.parser.SimpleNode;
 
 public class Ellipsis extends sliceType {
 
-	public Ellipsis() {
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 711258733109123534L;
+
+    public Ellipsis() {
 	}
 
 	public Ellipsis(SimpleNode parent) {

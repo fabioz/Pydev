@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class aliasType extends SimpleNode {
-	public String name;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -5801720340226229566L;
+    public String name;
 	public String asname;
 
 	public aliasType(String name, String asname) {

@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Expression extends modType {
-	public exprType body;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 5905803172937830413L;
+    public exprType body;
 
 	public Expression(exprType body) {
 		this.body = body;

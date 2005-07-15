@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Exec extends stmtType {
-	public exprType body;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 6898434678614239161L;
+    public exprType body;
 	public exprType globals;
 	public exprType locals;
 

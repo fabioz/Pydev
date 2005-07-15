@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class BinOp extends exprType implements operatorType {
-	public exprType left;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 5010335047313882770L;
+    public exprType left;
 	public int op;
 	public exprType right;
 

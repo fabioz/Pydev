@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Index extends sliceType {
-	public exprType value;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 6388541717654784021L;
+    public exprType value;
 
 	public Index(exprType value) {
 		this.value = value;

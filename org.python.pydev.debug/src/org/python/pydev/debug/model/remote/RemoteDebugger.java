@@ -165,7 +165,8 @@ public class RemoteDebugger extends Object {
 		
 		public void addToResponseQueue(AbstractDebuggerCommand cmd) {
 			responseQueue.put(new Integer(cmd.getSequence()), cmd);
-			Object o = responseQueue.remove(new Integer(cmd.getSequence()));
+//			Object o = responseQueue.remove(new Integer(cmd.getSequence()));
+			responseQueue.remove(new Integer(cmd.getSequence()));
 			responseQueue.put(new Integer(cmd.getSequence()), cmd);
 		}
 		
@@ -173,22 +174,28 @@ public class RemoteDebugger extends Object {
 		 * Parses & dispatches the command
 		 */
 		private void processCommand(String cmdLine) {
-			int cmdCode;
-			int seqCode;
-			String payload;
-			String[] cmdParsed = cmdLine.split("\t", 3);
-			cmdCode = Integer.parseInt(cmdParsed[0]);
-			seqCode = Integer.parseInt(cmdParsed[1]);
-			payload = URLDecoder.decode(cmdParsed[2]);
-			// is there a response waiting
-			AbstractDebuggerCommand cmd = (AbstractDebuggerCommand)responseQueue.remove(new Integer(seqCode));
-			if (cmd == null)
-				if (target != null)
-					target.processCommand(cmdParsed[0], cmdParsed[1], payload);
-				else
-					PydevDebugPlugin.log(IStatus.ERROR, "internal error, command received no target", null);
-			else 
-				cmd.processResponse(cmdCode, payload);
+			try {
+                int cmdCode;
+                int seqCode;
+                String payload;
+                String[] cmdParsed = cmdLine.split("\t", 3);
+                cmdCode = Integer.parseInt(cmdParsed[0]);
+                seqCode = Integer.parseInt(cmdParsed[1]);
+                payload = URLDecoder.decode(cmdParsed[2], "UTF-8");
+                // is there a response waiting
+                AbstractDebuggerCommand cmd = (AbstractDebuggerCommand) responseQueue.remove(new Integer(
+                        seqCode));
+                if (cmd == null)
+                    if (target != null)
+                        target.processCommand(cmdParsed[0], cmdParsed[1], payload);
+                    else
+                        PydevDebugPlugin.log(IStatus.ERROR, "internal error, command received no target",
+                                null);
+                else
+                    cmd.processResponse(cmdCode, payload);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
 		}
 
 		public void run() {

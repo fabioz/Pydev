@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class argumentsType extends SimpleNode {
-	public exprType[] args;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -8607074652318531528L;
+    public exprType[] args;
 	public String vararg;
 	public String kwarg;
 	public exprType[] defaults;

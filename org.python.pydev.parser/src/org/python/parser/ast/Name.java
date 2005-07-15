@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Name extends exprType implements expr_contextType {
-	public String id;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 3328836682423171208L;
+    public String id;
 	public int ctx;
 
 	public Name(String id, int ctx) {

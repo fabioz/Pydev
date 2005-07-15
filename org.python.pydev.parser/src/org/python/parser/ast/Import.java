@@ -6,7 +6,11 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 
 public class Import extends stmtType {
-	public aliasType[] names;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 2237430543143077065L;
+    public aliasType[] names;
 
 	public Import(aliasType[] names) {
 		this.names = names;

@@ -67,8 +67,12 @@ public class XMLUtils {
 				if (qName.equals("thread")) {
 					String name = attributes.getValue("name");
 					String id = attributes.getValue("id");
-					if (name != null)
-						name = URLDecoder.decode(name);
+					try {
+                        if (name != null)
+                            name = URLDecoder.decode(name, "UTF-8");
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
 					threads.add(new PyThread(target, name, id));
 				}
 		}
@@ -107,8 +111,12 @@ public class XMLUtils {
 		String name = attributes.getValue("name");
 		String type = attributes.getValue("type");
 		String value = attributes.getValue("value");
-		if (value != null)
-			value = URLDecoder.decode(value);
+		try {
+            if (value != null)
+                value = URLDecoder.decode(value, "UTF-8");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 		String isContainer = attributes.getValue("isContainer");
 		if ("True".equals(isContainer))
 			var = new PyVariableCollection(target, name, type, value, locator);
@@ -144,8 +152,12 @@ public class XMLUtils {
 			String name = attributes.getValue("name");
 			String id = attributes.getValue("id");
 			String file = attributes.getValue("file");
-			if (file != null)
-				file = URLDecoder.decode(file);
+			try {
+                if (file != null)
+                    file = URLDecoder.decode(file, "UTF-8");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
 			String line = attributes.getValue("line");
 			IPath filePath = new Path(file);
 			// Try to recycle old stack objects

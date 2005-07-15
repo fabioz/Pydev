@@ -7,7 +7,12 @@ import org.python.parser.SimpleNode;
 
 public class Break extends stmtType {
 
-	public Break() {
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -6511521930867618971L;
+
+    public Break() {
 	}
 
 	public Break(SimpleNode parent) {

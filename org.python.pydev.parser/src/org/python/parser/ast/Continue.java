@@ -7,7 +7,12 @@ import org.python.parser.SimpleNode;
 
 public class Continue extends stmtType {
 
-	public Continue() {
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 8878466327426630059L;
+
+    public Continue() {
 	}
 
 	public Continue(SimpleNode parent) {

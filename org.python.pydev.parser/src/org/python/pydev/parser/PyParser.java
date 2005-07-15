@@ -104,7 +104,7 @@ public class PyParser {
             System.err.println("No document in PyParser::setDocument?");
             return;
         }
-        final PyParser parser = this;
+
         documentListener = new IDocumentListener() {
 
             public void documentChanged(DocumentEvent event) {
