@@ -24,6 +24,7 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.python.pydev.debug.REF;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -31,7 +32,6 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.utils.SimplePythonRunner;
-import org.python.pydev.utils.ref.REF;
 
 /**
  * Holds configuration for PythonRunner.

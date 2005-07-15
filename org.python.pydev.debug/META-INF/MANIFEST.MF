@@ -13,7 +13,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources,
  org.eclipse.jface.text,
  org.eclipse.ui.editors,
- org.eclipse.ui.externaltools,
  org.eclipse.ui.views,
  org.eclipse.debug.core,
  org.eclipse.debug.ui,
@@ -21,6 +20,5 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.variables,
  org.eclipse.ui.console,
  org.python.pydev,
- org.python.pydev.core,
- org.python.pydev.parser
+ org.python.pydev.core
 Eclipse-AutoStart: true
