@@ -14,8 +14,8 @@ import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.stmtType;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.parser.utils.REF;
 
 public class NodeUtils {
 

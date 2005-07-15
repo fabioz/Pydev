@@ -3,23 +3,19 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.parser.utils;
+package org.python.pydev.core;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 
 import org.python.pydev.core.log.Log;
 
-import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 /**
@@ -95,21 +91,6 @@ public class REF {
         return encoder.encode(out.toByteArray());
     }
 
-    /**
-     * @param persisted
-     * @return
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
-    public static Object getStrAsObj(String persisted) throws IOException, ClassNotFoundException {
-        BASE64Decoder decoder = new BASE64Decoder();
-        InputStream input = new ByteArrayInputStream(decoder.decodeBuffer(persisted));
-        ObjectInputStream in = new ObjectInputStream(input);
-        Object list = in.readObject();
-        in.close();
-        input.close();
-        return list;
-    }
 
     /**
      * @param file
@@ -133,23 +114,6 @@ public class REF {
         }
     }
 
-    /**
-     * @param astOutputFile
-     * @return
-     */
-    public static Object readFromFile(File astOutputFile) {
-        try {
-            InputStream input = new FileInputStream(astOutputFile);
-            ObjectInputStream in = new ObjectInputStream(input);
-            Object o = in.readObject();
-            in.close();
-            input.close();
-            return o;
-        } catch (Exception e) {
-            Log.log(e);
-            return null;
-        }
-    }
 
     /**
      * @param f

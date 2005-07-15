@@ -5,7 +5,12 @@
  */
 package org.python.pydev.ui;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,10 +21,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.SimplePythonRunner;
-import org.python.pydev.utils.ref.REF;
+
+import sun.misc.BASE64Decoder;
 
 
 /**
@@ -127,7 +135,7 @@ public class InterpreterManager implements IInterpreterManager {
 	        List ret = new ArrayList();
 
 	        try {
-		        List list = (List) REF.getStrAsObj(persisted);
+		        List list = (List) IOUtils.getStrAsObj(persisted);
 	            
 	            for (Iterator iter = list.iterator(); iter.hasNext();) {
 	                InterpreterInfo info = (InterpreterInfo) iter.next();
@@ -170,5 +178,24 @@ public class InterpreterManager implements IInterpreterManager {
         return info != null;
     }
 
+
+}
+
+class IOUtils {
+    /**
+     * @param persisted
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public static Object getStrAsObj(String persisted) throws IOException, ClassNotFoundException {
+        BASE64Decoder decoder = new BASE64Decoder();
+        InputStream input = new ByteArrayInputStream(decoder.decodeBuffer(persisted));
+        ObjectInputStream in = new ObjectInputStream(input);
+        Object list = in.readObject();
+        in.close();
+        input.close();
+        return list;
+    }
 
 }

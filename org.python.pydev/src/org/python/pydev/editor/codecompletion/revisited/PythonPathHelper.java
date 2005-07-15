@@ -23,8 +23,8 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.utils.ref.REF;
 
 /**
  * This is not a singleton because we may have a different pythonpath for each project (even though

@@ -12,7 +12,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioningListener;
 import org.eclipse.jface.text.Position;
-import org.eclipse.jface.text.rules.DefaultPartitioner;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.python.pydev.editor.model.AbstractNode;
 
@@ -90,7 +89,7 @@ class RawPartitionModel implements IOutlineModel {
 	
 	void updatePositions() {
 		try {
-			Position[] newpositions = document.getPositions(DefaultPartitioner.CONTENT_TYPES_CATEGORY);
+			Position[] newpositions = document.getPositions(IDocument.DEFAULT_CONTENT_TYPE);
 			if (positions == null ) {
 				// initialization
 				positions = newpositions;
