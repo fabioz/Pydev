@@ -43,6 +43,20 @@ public class ParsingUtils {
     
     /**
      * @param cs the char array we are parsing
+     * @param buf used to add the comments contents (out)
+     * @param i the # position
+     * @return the end of the comments position (end of document or new line char)
+     */
+    public static int eatComments(char[] cs, int i) {
+        while(i < cs.length && cs[i] != '\n' && cs[i] != '\r'){
+            i++;
+        }
+        
+        return i;
+    }
+    
+    /**
+     * @param cs the char array we are parsing
      * @param buf used to add the token contents (out)
      * @param i the start of the token
      * @return the end of the token position (end of document or new line char or whitespace)
@@ -82,8 +96,10 @@ public class ParsingUtils {
             j = findNextSingle(cs, i+1, curr);
         }
         
-        for (int k = i; k < cs.length && k <= j; k++) {
-            buf.append(cs[k]);
+        if(buf != null){
+            for (int k = i; k < cs.length && k <= j; k++) {
+                buf.append(cs[k]);
+            }
         }
         return j;
         
@@ -158,6 +174,20 @@ public class ParsingUtils {
             return true;
         }
         return false;
+    }
+
+    public static int eatWhitespaces(char cs[], int i) {
+        while(i < cs.length && Character.isWhitespace(cs[i])){
+            i++;
+        }
+        return i;
+    }
+
+    public static int eatWhitespaces(StringBuffer buf, int i) {
+        while(i < buf.length() && Character.isWhitespace(buf.charAt(i))){
+            i++;
+        }
+        return i;
     }
 
 }
