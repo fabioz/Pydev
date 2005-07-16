@@ -6,6 +6,23 @@ package org.python.pydev.parser.visitors;
 
 
 public class ParsingUtils {
+    
+    /**
+     * @param cs the char array we are parsing
+     * @param buf used to add the comments contents (out)
+     * @param i the position
+     * @return the : position
+     */
+    public static int eatToColon(char[] cs, StringBuffer buf, int i) {
+        while(i < cs.length && cs[i] != ':'){
+            buf.append(cs[i]);
+            i++;
+        }
+        if(i < cs.length)
+            buf.append(cs[i]);
+        
+        return i;
+    }
 
     /**
      * @param cs the char array we are parsing
@@ -31,7 +48,7 @@ public class ParsingUtils {
      * @return the end of the token position (end of document or new line char or whitespace)
      */
     public static int eatToken(char[] cs, StringBuffer buf, int i) {
-        while(i < cs.length && Character.isWhitespace(cs[i])){
+        while(i < cs.length && !Character.isWhitespace(cs[i])){
             buf.append(cs[i]);
             i++;
         }
