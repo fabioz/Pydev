@@ -10,8 +10,11 @@ import java.util.NoSuchElementException;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Expr;
+import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Pass;
+import org.python.parser.ast.Tuple;
 import org.python.parser.ast.VisitorBase;
+import org.python.parser.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 public class MemoVisitor extends VisitorBase{
@@ -27,10 +30,30 @@ public class MemoVisitor extends VisitorBase{
         return null;
     }
 
+    
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
     
+    public Object visitFunctionDef(FunctionDef node) throws Exception {
+        visited.add(node);
+        exprType[] args = node.args.args;
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] != null){
+                if (args[i] instanceof Tuple) {
+                    Tuple t = (Tuple) args[i];
+                    for (int j = 0; j < t.elts.length; j++) {
+                        t.elts[j].accept(this);
+                    }
+                }
+                else{
+                    args[i].accept(this);
+                }
+            }
+        }
+        return null;
+    }
+
     public int size() {
         return visited.size();
     }
@@ -57,16 +80,16 @@ public class MemoVisitor extends VisitorBase{
                 print("n.getClass() != n1.getClass() "+ n.getClass() +" != "+ n1.getClass());
                 return false;
             }
-            if(n.beginColumn != n1.beginColumn){
-                print("n = "+n+" n1 = "+n1);
-                print("n = "+NodeUtils.getFullRepresentationString(n)+" n1 = "+NodeUtils.getFullRepresentationString(n1));
-                print("n.beginColumn != n1.beginColumn "+ n.beginColumn +" != "+ n1.beginColumn);
-                return false;
-            }
-            if(n.beginLine != n1.beginLine){
-                print("n.beginLine != n1.beginLine "+ n.beginLine +" != "+ n1.beginLine);
-                return false;
-            }
+//            if(n.beginColumn != n1.beginColumn){
+//                print("n = "+n+" n1 = "+n1);
+//                print("n = "+NodeUtils.getFullRepresentationString(n)+" n1 = "+NodeUtils.getFullRepresentationString(n1));
+//                print("n.beginColumn != n1.beginColumn "+ n.beginColumn +" != "+ n1.beginColumn);
+//                return false;
+//            }
+//            if(n.beginLine != n1.beginLine){
+//                print("n.beginLine != n1.beginLine "+ n.beginLine +" != "+ n1.beginLine);
+//                return false;
+//            }
             
             String s1 = NodeUtils.getFullRepresentationString(n);
             String s2 = NodeUtils.getFullRepresentationString(n1);
@@ -86,7 +109,7 @@ public class MemoVisitor extends VisitorBase{
     
     
     private void print(Object string) {
-        System.out.println(string);
+//        System.out.println(string);
     }
 
     public String toString() {

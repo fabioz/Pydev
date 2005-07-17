@@ -154,6 +154,16 @@ public class FastparserTest extends TestCase {
         String fileContents = getFileContents(7);
         makeCompAST(fileContents);
     }
+    
+    public void testParseFile8() throws Exception { 
+        String fileContents = getFileContents(8);
+        makeCompAST(fileContents);
+    }
+    
+    public void testParseFile9() throws Exception { 
+        String fileContents = getFileContents(9);
+        makeCompAST(fileContents);
+    }
 
     /**
      * @param fileContents

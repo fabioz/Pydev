@@ -11,11 +11,13 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.Attribute;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Expr;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Module;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.Num;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.argumentsType;
 import org.python.parser.ast.exprType;
@@ -113,8 +115,6 @@ public class FastParser {
         FunctionDef def = new FunctionDef(null,null,null);
         def.args = new argumentsType(null, null, null, new exprType[]{});
         stmts.add(def);
-        def.beginColumn = 1;
-        def.beginLine = getLine(i -3);
 
         StringBuffer buf = new StringBuffer();
         int end = ParsingUtils.eatToColon(cs, buf, i);
@@ -124,48 +124,81 @@ public class FastParser {
         def.name = getName(buf, j);
         
         char c = buf.charAt(j-1);
-        int k = j;
         List args = new ArrayList();
+        List defaults = new ArrayList();
         if(c == '('){ //method params
-            j = ParsingUtils.eatWhitespaces(buf, k);
-            k = j;
-            do{
-                c = buf.charAt(k);
-                if(c == ','){
-                    String s = buf.substring(j, k);
-                    Name name = new Name(s.trim(), expr_contextType.Store);
-                    setBegColLine(name, i+j);
-                    args.add(name);
-                    j = ParsingUtils.eatWhitespaces(cs, k+1);
-                    k = j;
+            buf.delete(0, j);
+            ParsingUtils.removeCommentsAndWhitespaces(buf);
+            ParsingUtils.removeToClosingPar(buf);
+            String[] strings = buf.toString().replaceAll("\\(", "").replaceAll("\\)", "").split(",");
+            for (int k = 0; k < strings.length; k++) {
+                String s = strings[k];
+                if(s.startsWith("**")){
+                    def.args.kwarg = s.substring(2);
+                }else if(s.startsWith("*")){
+                    def.args.vararg = s.substring(1);
+                }else{
+                    int index = s.indexOf('=');
+                    if(index<0){
+                        Name name = new Name(s, expr_contextType.Store);
+                        args.add(name);
+                    }else{
+                        Name name = new Name(s.substring(0, index), expr_contextType.Store);
+                        args.add(name);
+                        String defaultVal = s.substring(index+1);
+                        defaults.add(makeDefault(defaultVal));
+                    }
                 }
-                
-                k++;
-            }while(c != ')' && k < buf.length());
-            String s = buf.substring(j, k-1);
-            Name name = new Name(s.trim(), expr_contextType.Store);
-            setBegColLine(name, i+j);
-            args.add(name);
+            }
 
             def.args.args = (exprType[]) args.toArray(new exprType[0]);
+            def.args.defaults = (exprType[]) defaults.toArray(new exprType[0]);
         }else{
             throw new RuntimeException("expecting '('");
         }
         
         StringBuffer buf2 = new StringBuffer();
-        int[] startEnd = getLiteralDocs(cs, i, end, buf2);
+        int[] startEnd = getLiteralDocs(cs, end, end, buf2);
         end = startEnd[1];
         def.body = getPyDocs(buf2, startEnd[0], end);
 
         return end;
     }
 
+
+
+
+    /**
+     * @param defaultVal
+     * @return
+     */
+    private static SimpleNode makeDefault(String defaultVal) {
+        int index;
+        try {
+            Integer.parseInt(defaultVal);
+            return new Num(defaultVal);
+        } catch (Exception e) {
+        }
+        if(defaultVal.startsWith("'")){
+            defaultVal = removeMarks(defaultVal, '\'');
+            return new Str(defaultVal);
+        }
+        else if(defaultVal.startsWith("\"")){
+            defaultVal = removeMarks(defaultVal, '"');
+            return new Str(defaultVal);
+        }
+        else if((index = defaultVal.indexOf(".")) != -1){
+            String id = defaultVal.substring(0,index);
+            String attr = defaultVal.substring(index+1,defaultVal.length());
+            return new Attribute(new Name(id, Name.Load), attr, Attribute.Load);
+        }
+        return new Str(defaultVal);
+    }
+
     private static int makeClassDef(char[] cs, int i) throws BadLocationException {
         //should be something like class    -->Class1(object):<--
         ClassDef def = new ClassDef(null,new exprType[0],null);
         stmts.add(def);
-        def.beginColumn = 1;
-        def.beginLine = getLine(i -5);
 
         StringBuffer buf = new StringBuffer();
 
@@ -186,7 +219,6 @@ public class FastParser {
                 if(c == ','){
                     String s = buf.substring(j, k);
                     Name name = new Name(s.trim(), expr_contextType.Load);
-                    setBegColLine(name, i+j);
                     args.add(name);
                     j = ParsingUtils.eatWhitespaces(cs, k+1)+1;
                     k = j;
@@ -196,7 +228,6 @@ public class FastParser {
             }while(c != ')' && k < buf.length());
             String s = buf.substring(j, k-1);
             Name name = new Name(s.trim(), expr_contextType.Load);
-            setBegColLine(name, i+j);
             args.add(name);
 
             def.bases = (exprType[]) args.toArray(new exprType[0]);
@@ -255,10 +286,8 @@ public class FastParser {
         stmtType[] s = new stmtType[]{};
         if(buf2.length() > 0){
             Str str = new Str(buf2.toString());
-            setBegColLine(str, i);
 
             Expr expr = new Expr(str);
-            setBegColLine(expr, end);
             
             s = new stmtType[]{expr};
         }
@@ -266,7 +295,7 @@ public class FastParser {
     }
 
 
-    private static void setBegColLine(SimpleNode expr, int abs) throws BadLocationException {
+    protected static void setBegColLine(SimpleNode expr, int abs) throws BadLocationException {
         int[] colLine = getColLine(abs);
         expr.beginColumn = colLine[0];
         expr.beginLine = colLine[1];
@@ -275,7 +304,7 @@ public class FastParser {
 
 
 
-    private static int [] getColLine(int abs) throws BadLocationException{
+    protected static int [] getColLine(int abs) throws BadLocationException{
         int[] r = new int[2];
         int lineOfOffset = doc.getLineOfOffset(abs); //we don't want anything else in this line
         IRegion lineInformation = doc.getLineInformation(lineOfOffset);
@@ -308,12 +337,16 @@ public class FastParser {
     
         if(t != -1){
             end = ParsingUtils.eatLiterals(cs, buf2, lineInformation.getOffset()+t);
-            remove(buf2, c);
+            removeMarks(buf2, c);
         }
         return new int[]{lineInformation.getOffset()+t, end};
     }
 
-    private static void remove(StringBuffer buf2, char c) {
+    private static String removeMarks(String buf, char c) {
+        StringBuffer buffer = new StringBuffer(buf);
+        return removeMarks(buffer, c).toString();
+    }
+    private static StringBuffer removeMarks(StringBuffer buf2, char c) {
         if(buf2.charAt(1) == c && buf2.charAt(2) == c){
             buf2.delete(0, 3);
             buf2.delete(buf2.length()-3, buf2.length());
@@ -321,12 +354,13 @@ public class FastParser {
             buf2.deleteCharAt(0);
             buf2.deleteCharAt(buf2.length()-1);
         }
+        return buf2;
     }
 
 
 
 
-    private static int getLine(int i) throws BadLocationException {
+    protected static int getLine(int i) throws BadLocationException {
         return doc.getLineOfOffset(i)+1;
     }
 
