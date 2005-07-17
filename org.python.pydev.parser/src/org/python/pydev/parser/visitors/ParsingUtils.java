@@ -190,4 +190,42 @@ public class ParsingUtils {
         return i;
     }
 
+    public static void removeCommentsAndWhitespaces(StringBuffer buf) {
+        
+        for (int i = 0; i < buf.length(); i++) {
+            char ch = buf.charAt(i);
+            if(ch == '#'){
+            
+                int j = i;
+                while(j < buf.length() && ch != '\n' && ch != '\r'){
+                    j++;
+                    ch = buf.charAt(j);
+                }
+                buf.delete(i, j);
+            }
+        }
+        
+        int length = buf.length();
+        for (int i = length -1; i >= 0; i--) {
+            char ch = buf.charAt(i);
+            if(Character.isWhitespace(ch)){
+                buf.deleteCharAt(i);
+            }
+        }
+    }
+
+    public static void removeToClosingPar(StringBuffer buf) {
+        int length = buf.length();
+        for (int i = length -1; i >= 0; i--) {
+            char ch = buf.charAt(i);
+            if(ch != ')'){
+                buf.deleteCharAt(i);
+            }else{
+                buf.deleteCharAt(i);
+                return;
+                
+            }
+        }
+    }
+
 }
