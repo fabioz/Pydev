@@ -25,7 +25,7 @@ import org.python.pydev.plugin.PydevPlugin;
 public class InterpreterInfo implements Serializable{
     
     /**
-     * 
+     * check note on http://java.sun.com/j2se/1.5.0/docs/guide/serialization/spec/version.html#6678
      */
     private static final long serialVersionUID = 1L;
     public String executable;
