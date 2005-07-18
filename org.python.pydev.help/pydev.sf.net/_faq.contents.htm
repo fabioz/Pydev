@@ -1,0 +1,290 @@
+
+<h3>
+How do I Report a BUG?
+</h3>
+
+Well, if you don't find anything that helps you, please check if it is a known BUG, if it is not, please, report it.<br>
+The place to search and report BUGS is <a href="http://sourceforge.net/tracker/?group_id=85796&atid=577329">here</a><br>
+When reporting a bug, don't forget to give the following information:<br><br>
+- System (e.g windows XP)<br>
+- Eclipse version (e.g. 3.0.1)<br>
+- PyDev version (e.g. 0.9.2)<br>
+- PyDev error log (if any): go to window->show view->other->PDE Runtime->Error log.<br>
+- Eclipse install location (e.g. D:\eclipse_3\302\eclipse)<br>
+- Project location where the bug appears (e.g. D:\eclipse\workspace\org.python.pydev)<br>
+- <br>
+<br>
+NOTE: the <A href="http://sourceforge.net/forum/forum.php?forum_id=293649">Users Forum</A> may be used for
+some doubts, but if you have a bug, that's not the place to go (even though, it might be useful searching it to
+see if what you have is not really a bug or if someone has already asked about it).
+<br><br>
+
+
+<hr/>
+<strong>
+- How do I configure my PYTHONPATH?
+</strong><br><br>
+There are 3 places where you have to go to configure the PYTHONPATH, and by doing so, 
+PyLint, code completion, running and others should use this configuration.<br/><br/>
+
+<strong>1.</strong>Go to window->preferences->pydev->Python Interpreters and 
+set the python interpreter location. <br/><br/>
+<IMG src="images/interpreter_conf.png" border="1" >
+<br/><br/>
+
+<strong>2.</strong>In the navigator, right click on the project root and choose 'properties'. <br/><br/>
+In <b>PyDev PYTHONPATH</b>, you have to set your <b>source folders</b> (where your sources are within the project) and the 
+<b>external source folders</b> (folders that are not within your eclipse environment).<br/><br/>
+<IMG src="images/properties_conf.png" border="1" >
+<br/><br/>
+
+<strong>3.</strong>Also in the project properties, you have to choose the project references, so that your 
+current projects gets those projects configurations in the PYTHONPATH.  <br/><br/>
+<IMG src="images/references_conf.png" border="1" >
+<br/><br/>
+
+
+<br><br>
+
+
+<strong>
+- What is that 'Forced builtin libs' in the Python Interpreters preferences?
+</strong><br><br>
+Well, some libraries once installed do not really show in code completion because they do
+not have a corresponding module (such as __builtin__ and datetime) or they do have a 
+corresponding module but it cannot be really used in code completion because most of
+its information is only gotten at runtime (such as sys and os), so, in order for code completion
+to get its information, you have to manually add it to those libs (and by doing so, its information
+is gotten with a python shell).
+<br><br>
+
+<!--
+<strong>
+- 
+</strong><br><br>
+<br><br>
+-->
+
+
+<hr/>
+<h3>
+How do I configure a python shell for experimenting with Python?
+</h3>
+Well, for that, you have to configure an external tool.
+Go to the menu->Run->External Tools and configure the location, working dir and don't forget to put the
+-i argument so that you enter in interactive mode! <br/><br/>
+The picture below shows what I mean...<br/><br/>
+<IMG src="images/conf_python_external.png" border="1" >
+
+<br>
+<br>
+Now, the only thing missing is running it! And don't forget to add a keybinding to rerun the last executed external
+tool, so that you don't have to go through the menu every time!
+<br>
+<br>
+
+
+
+<hr/>
+<h3>
+Why don't I get some simple text completion in PyDev?
+</h3>
+We do not provide text completion ourselves in the plugin, as other plugins 
+already provide this. A good suggestion is using the <A href="http://sourceforge.net/projects/lunar-eclipse/">
+lunar eclipse</A> editor-enhancements plugin. It does not only provide text 
+completion, but other very useful enhancements.
+<br><br>
+
+
+
+<hr/>
+<h3>
+The PyDev builder is taking too much of my time, what can I do about it?
+</h3>
+Well, if you have PyLint active, you can disable it, as it is the process that takes most time when building.<br>
+Another alternative is disabling the builder altoghether. To do it you can go to window->preferences->pydev->builder 
+and disable it. <br>
+NOTE: Disabling the builders may have many side-effects, such as code completion not working, pylint, tasks, etc. So,
+if you really want it, you can disable it, but do it with care.
+<br><br>
+
+
+
+
+<hr/>
+
+<h3>
+Why the PyDev properties do not show?
+</h3>
+
+Probably you are in the JAVA package explorer or something similar. You have to use the default navigator so
+that it shows its properties.<br>
+Also note that you have to open a python file with PyDev in the project before it appears in the properties too 
+(the project python nature appears only after you do that).<br><br>
+
+
+
+
+<hr/>
+
+<h3>
+I can see no new Python project, how am I supposed to use PyDev?
+</h3>
+Well, you basically have to do a simple project and use create simple file / folder to create python modules.<br>
+<br>
+You may also have to associate the *.py with the PyDev editor (even though that is probably automatic).<br>
+Anyway, if you need it, go to window->preferences->workbench->file associations and associate *.py with PyDev.<br><br>
+p.s. Don't forget to put it into both of your PYTHONPATHs (enviroment and in the project properties).
+<br><br>
+
+
+
+
+<hr/>
+
+<h3>
+How do I run a module from within eclipse using PyDev? 
+</h3>
+To do that, the easiest way is going to the Run menu (Run->Run As->Python). If it is not available in your current
+eclipse perspective, you can enable it by going to window->customize perspective->commands and checking the "Lauch" item
+(in this way, you can go only with the keyboard).<br><br>
+Another way to run a module is right clicking the module in the navigator and choosing python->run (when a .py file is selected).
+<br><br>
+
+
+<hr/>
+<h3>
+OK, I know that many features are available, but I just don't know how can I access them through my keyboard!!
+</h3>
+
+<table border="1" cellpadding="5"
+cellspacing="0" bgcolor="white">
+<tbody>
+
+<tr>
+<td colspan="2">Keybindings from Pydev</td>
+</tr>
+
+<tr>
+<td><strong>Code Completion</strong></td>
+<td>Ctrl+Space</td>
+</tr>
+
+
+
+<tr>
+<td><strong>Template Completion</strong></td>
+<td>Ctrl+Space  <br></td>
+</tr>
+
+<tr>
+<td><strong>Content Assistant</strong> </td>
+<td>Ctrl+1        </td>
+</tr>
+
+<tr>
+<td><strong>Navigate Up</strong></td>
+<td>Ctrl+Shift+Up       </td>
+</tr>
+
+<tr>
+<td><strong>Navigate Down</strong></td>
+<td>Ctrl+Shift+Down   </td>
+</tr>
+
+<tr>
+<td><strong>Comment</strong></td>
+<td>Ctrl+3                  </td>
+</tr>
+
+<tr>
+<td><strong>UnComment</strong></td>
+<td>Ctrl+Shift+3          </td>
+</tr>
+
+<tr>
+<td><strong>Make block comment</strong></td>
+<td>Ctrl+4       </td>
+</tr>
+
+<tr>
+<td><strong>Go To Definition</strong></td>
+<td>F3             </td>
+</tr>
+
+<tr>
+<td><strong>Collapse All</strong></td>
+<td>Ctrl+9             </td>
+</tr>
+
+<tr>
+<td><strong>UnCollapse All</strong></td>
+<td>Ctrl+0           </td>
+</tr>
+
+<tr>
+<td><strong>Format Code</strong></td>
+<td>Ctrl+Shift+F           </td>
+</tr>
+
+<tr>
+<td><strong>Sort imports alphabetically (or selection)</strong></td>
+<td>Ctrl+Shift+O           </td>
+</tr>
+
+<tr>
+<td><strong>Refactor: Rename</strong></td>
+<td>Shift+Alt+R           </td>
+</tr>
+
+<tr>
+<td><strong>Refactor:Extract Local Variable</strong></td>
+<td>Shift+Alt+L           </td>
+</tr>
+
+<tr>
+<td><strong>Refactor:Extract Method</strong></td>
+<td>Shift+Alt+M           </td>
+</tr>
+
+<tr>
+<td><strong>Refactor:Inline Local Variable</strong></td>
+<td>Shift+Alt+I           </td>
+</tr>
+
+
+
+
+<tr >
+<td colspan="2">Some useful Eclipse provided keybindings</td>
+</tr>
+
+<tr>
+<td><strong>Run last lauch</strong></td>
+<td>Ctrl+F11 (see how to customize perspective)</td>
+</tr>
+
+<tr>
+<td><strong>Debug last lauch</strong></td>
+<td>F11 (see how to customize perspective)</td>
+</tr>
+
+
+</tbody>
+</table>
+
+<br><br>
+Many of them can be customized in the Keybindings menu (window->preferences->workbench->keys).
+
+
+<br><br>
+
+<!--
+<hr/>
+
+<h3>
+
+</h3>
+
+<br><br>
+-->

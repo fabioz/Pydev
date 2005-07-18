@@ -82,7 +82,7 @@ def Template( p_template, p_name, p_title, p_topic , p_channel, p_otherFeatures)
     if p_channel is None:
         raise RuntimeError('Channel not set')
         
-    contents_file = '_%s.contents.html' % p_name
+    contents_file = '_%s.contents.htm' % p_name
     target_file   = '%s.html' % p_name
     
     
