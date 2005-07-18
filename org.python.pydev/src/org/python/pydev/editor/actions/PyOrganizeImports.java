@@ -85,7 +85,9 @@ public class PyOrganizeImports extends PyAction{
             public int compare(Object o1, Object o2) {
                 Object[] c1 = (Object[])o1;
                 Object[] c2 = (Object[])o2;
-                return ((Integer)c2[0]).compareTo(c1[0]);
+                Integer i1 = (Integer) c1[0];
+                Integer i2 = (Integer) c2[0];
+                return i2.compareTo(i1);
             }
 		});
 
@@ -100,7 +102,9 @@ public class PyOrganizeImports extends PyAction{
             public int compare(Object o1, Object o2) {
                 Object[] c1 = (Object[])o1;
                 Object[] c2 = (Object[])o2;
-                return ((String)c1[1]).compareTo(c2[1]);
+                String s1 = (String) c1[1];
+                String s2 = (String) c2[1];
+                return s1.compareTo(s2);
             }
 		});
 		
