@@ -83,12 +83,15 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
      */
     public static void addPartitionScanner(IDocument document) {
         if (document != null) {
-            IDocumentPartitioner partitioner2 = document.getDocumentPartitioner();
-            if(!(partitioner2 instanceof PyPartitioner)){
-                FastPartitioner partitioner = new PyPartitioner(new PyPartitionScanner(), getTypes());
-                partitioner.connect(document);
-                document.setDocumentPartitioner(partitioner);
+            IDocumentPartitioner partitionerOld = document.getDocumentPartitioner();
+            if (partitionerOld != null){
+                //disconnect it first
+                partitionerOld.disconnect();
             }
+            //set the new one
+            FastPartitioner partitioner = new PyPartitioner(new PyPartitionScanner(), getTypes());
+            partitioner.connect(document);
+            document.setDocumentPartitioner(partitioner);
         }
     }
 }
