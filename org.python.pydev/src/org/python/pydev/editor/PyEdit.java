@@ -222,7 +222,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 		//check the document provider (sanity check)        
         IDocumentProvider documentProvider = getDocumentProvider();
         if (!(documentProvider instanceof PyDocumentProvider)) {
-            throw new RuntimeException("PyDocumentProvider expected. Received "+documentProvider);
+            setDocumentProvider(new PyDocumentProvider());
         }
 
         IDocument document = getDocument(input);
