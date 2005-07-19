@@ -84,12 +84,24 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 		}
 
 		IResource resource = delta.getResource();
-		int type = resource.getType();
 
 		if(resource == null){
 		    return true;
 		}
-		
+
+        int type = resource.getType();
+	
+
+        //related bug https://sourceforge.net/tracker/index.php?func=detail&aid=1238850&group_id=85796&atid=577329
+        
+        //the team-support plugins of eclipse use the IResource
+        //method setTeamPrivateMember to indicate resources
+        //that are only in the project for the team-stuff (e.g. .svn or
+        //.cvs or _darcs directories).
+        if (resource.isTeamPrivateMember()){
+            return true;
+        }
+        
 		if (type == IResource.FOLDER) {
 			switch (delta.getKind()) {
 				case IResourceDelta.REMOVED:

@@ -3,15 +3,15 @@
 <plugin>
 
 <!-- Python editor -->
-   <extension
-         point="org.eclipse.ui.editors">
+   <extension point="org.eclipse.ui.editors">
       <editor
-            name="Python Editor"
-            icon="icons/python.gif"
-            extensions="py"
-            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             class="org.python.pydev.editor.PyEdit"
-            id="org.python.pydev.editor.PythonEditor">
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            default="true"
+            extensions="py,pyw"
+            icon="icons/python.gif"
+            id="org.python.pydev.editor.PythonEditor"
+            name="Python Editor">
       </editor>
    </extension>
 <!-- Python nature -->
@@ -729,28 +729,21 @@
 
 
 <!-- file type extensions for the team (CVS) -->
-   <extension
-         point="org.eclipse.team.core.fileTypes">
-      <fileTypes
-            type="text"
-            extension="py">
-      </fileTypes>
+   <extension point="org.eclipse.team.core.fileTypes">
+      <fileTypes type="text" extension="py"/>
+      <fileTypes type="text" extension="pyw"/>
    </extension>
-   <extension
-         point="org.eclipse.team.core.ignore">
-      <ignore
-            enabled="true"
-            pattern="*.pyc">
-      </ignore>
+   <extension point="org.eclipse.team.core.ignore">
+      <ignore enabled="true" pattern="*.pyc"/>
+      <ignore enabled="true" pattern="*.pyo"/>
    </extension>
 <!-- filter out .pyc files in the navigation view -->
    <extension
          point="org.eclipse.ui.ide.resourceFilters">
-      <filter
-            selected="True"
-            pattern="*.pyc">
-      </filter>
+      <filter selected="True" pattern="*.pyc"/>
+      <filter selected="True" pattern="*.pyo"/>
    </extension>
+<!-- templates -->
    <extension
          point="org.eclipse.ui.editors.templates">
       <contextType
@@ -857,6 +850,9 @@ ${cursor}
          <pattern>debug('==>', ${cursor}${data})</pattern>
       </template>
    </extension>
+   
+   
+   
    <extension
          point="org.eclipse.ui.views">
       <category
