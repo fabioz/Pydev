@@ -167,6 +167,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
         if (reconciler == null) {
             reconciler = new PresentationReconciler();
+            reconciler.setDocumentPartitioning(PyPartitionScanner.PYTHON_PARTITION_TYPE);
 
             DefaultDamagerRepairer dr;
 
@@ -222,7 +223,8 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
         Color bgColor = colorCache.getColor(new RGB(230, 255, 230));
         pyContentAssistant.setProposalSelectorBackground(bgColor);
-
+        pyContentAssistant.setDocumentPartitioning(PyPartitionScanner.PYTHON_PARTITION_TYPE);
+        
         return pyContentAssistant;
     }
 
@@ -248,7 +250,8 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
         Color bgColor = colorCache.getColor(new RGB(230, 255, 230));
         assistant.setProposalSelectorBackground(bgColor);
-
+        assistant.setDocumentPartitioning(PyPartitionScanner.PYTHON_PARTITION_TYPE);
+        
         return assistant;
     }
 

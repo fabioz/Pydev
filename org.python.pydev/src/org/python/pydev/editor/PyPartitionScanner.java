@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.FastPartitioner;
@@ -38,6 +39,8 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
 	public final static String PY_MULTILINE_STRING = "__python_multiline_string";
     
     public final static String[] types = {PY_COMMENT, PY_SINGLELINE_STRING, PY_MULTILINE_STRING};
+    public static final String PYTHON_PARTITION_TYPE = "__PYTHON_PARTITION_TYPE";
+    
 	public PyPartitionScanner() {
 		super();
 		List rules = new ArrayList();
@@ -77,21 +80,34 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
 		return types;
 	}
 
+	public static void checkPartitionScanner(IDocument document) {
+        IDocumentExtension3 docExtension= (IDocumentExtension3) document;
+	    IDocumentPartitioner partitioner = docExtension.getDocumentPartitioner(PYTHON_PARTITION_TYPE);
+	    if (partitioner == null){
+            addPartitionScanner(document);
+            //get it again for the next check
+            partitioner = docExtension.getDocumentPartitioner(PYTHON_PARTITION_TYPE);
+        }
+	    if (!(partitioner instanceof PyPartitioner)){
+	        throw new RuntimeException("Partitioner should be subclass of PyPartitioner. It is "+partitioner.getClass());
+	    }
+    }
+    
     /**
+     * @see http://help.eclipse.org/help31/index.jsp?topic=/org.eclipse.platform.doc.isv/guide/editors_documents.htm
+     * @see http://jroller.com/page/bobfoster -  Saturday July 16, 2005
      * @param element
      * @param document
      */
     public static void addPartitionScanner(IDocument document) {
         if (document != null) {
-            IDocumentPartitioner partitionerOld = document.getDocumentPartitioner();
-            if (partitionerOld != null){
-                //disconnect it first
-                partitionerOld.disconnect();
+            IDocumentExtension3 docExtension= (IDocumentExtension3) document;
+            if(docExtension.getDocumentPartitioner(PYTHON_PARTITION_TYPE) == null){
+                //set the new one
+                FastPartitioner partitioner = new PyPartitioner(new PyPartitionScanner(), getTypes());
+                partitioner.connect(document);
+                docExtension.setDocumentPartitioner(PYTHON_PARTITION_TYPE,partitioner);
             }
-            //set the new one
-            FastPartitioner partitioner = new PyPartitioner(new PyPartitionScanner(), getTypes());
-            partitioner.connect(document);
-            document.setDocumentPartitioner(partitioner);
         }
     }
 }

@@ -14,6 +14,20 @@
             name="Python Editor">
       </editor>
    </extension>
+   <extension
+         point="org.eclipse.ui.editors.documentProviders">
+      <provider
+            class="org.python.pydev.editor.PyDocumentProvider"
+            id="org.eclipse.ui.editors.text.StorageDocumentProvider"
+            inputTypes="org.eclipse.ui.IStorageEditorInput"/>
+   </extension>
+   <extension
+         id="PyDocumentSetupParticipant"
+         point="org.eclipse.core.filebuffers.documentSetup">
+      <participant
+            class="org.python.pydev.editor.PyDocumentSetupParticipant"
+            extensions="py,pyw"/>
+   </extension>
 <!-- Python nature -->
    <extension
          id="pythonNature"

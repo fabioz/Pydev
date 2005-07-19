@@ -42,6 +42,7 @@ import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerUtilities;
@@ -130,9 +131,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         modelListeners = new ArrayList();
         colorCache = new ColorCache(getChainedPrefStore());
         
-        if (getDocumentProvider() == null) {
-            setDocumentProvider(new PyDocumentProvider());
-        }
         editConfiguration = new PyEditConfiguration(colorCache, this);
         setSourceViewerConfiguration(editConfiguration);
         indentStrategy = editConfiguration.getPyAutoIndentStrategy();
@@ -221,13 +219,20 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
         super.init(site, input);
 
-        parser = new PyParser(this);
-        parser.addParseListener(this);
+		//check the document provider (sanity check)        
+        IDocumentProvider documentProvider = getDocumentProvider();
+        if (!(documentProvider instanceof PyDocumentProvider)) {
+            throw new RuntimeException("PyDocumentProvider expected. Received "+documentProvider);
+        }
 
         IDocument document = getDocument(input);
         
-        // set the document partitioner
-        PyPartitionScanner.addPartitionScanner(document);
+        // check the document partitioner (sanity check / fix)
+        PyPartitionScanner.checkPartitionScanner(document);
+
+        parser = new PyParser(this);
+        parser.addParseListener(this);
+
 
         // Also adds Python nature to the project.
     	// The reason this is done here is because I want to assign python
@@ -236,8 +241,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         
         //set the parser for the document
         parser.setDocument(document);
-
-        //fixEncoding(input, document);
 
         // listen to changes in TAB_WIDTH preference
         prefListener = new Preferences.IPropertyChangeListener() {
