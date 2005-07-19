@@ -27,8 +27,8 @@ import org.python.pydev.ui.IInterpreterManager;
  */
 public class InterpreterPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
 
-	private String initialInterpreterPath;
     private InterpreterEditor pathEditor;
+    private boolean changed = false;
 
     /**
 	 * Initializer sets the preference store
@@ -36,35 +36,15 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
 	public InterpreterPreferencesPage() {
 		super("Python Interpreters", GRID);
 		setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
-		initialInterpreterPath = getInterpreterPath();
+        changed = false;
 	}
 
 	
 	private boolean hasChanged(){
-		String currentInterpreterPath = getCurrentInterpreterPath();
-		if(initialInterpreterPath.equals(currentInterpreterPath)){
-		    return false;
-		}else{
-		    initialInterpreterPath = currentInterpreterPath;
-		    return true;
-		}
+	    return changed || pathEditor.hasChanged();
 	}
 	
-	/**
-     * @return
-     */
-    private String getCurrentInterpreterPath() {
-        String s = pathEditor.createList(pathEditor.getExesList().getItems());
-        return s;
-    }
 
-
-    /**
-     * @return
-     */
-    private String getInterpreterPath() {
-        return getPreferenceStore().getString(IInterpreterManager.INTERPRETER_PATH);
-    }
 
 
     public void init(IWorkbench workbench) {
@@ -80,7 +60,6 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
 	}
 
 	
-
     /**
      * Restores the modules.
      */
@@ -132,6 +111,23 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
     }
 
 
+    protected void performApply() {
+        restoreModules();
+        changed = false;
+        pathEditor.changed = false;
+        super.performApply();
+    }
+    
+    protected void performDefaults() {
+        changed = true;
+        super.performDefaults();
+    }
+    
+    public boolean performCancel() {
+        changed = false;
+        return super.performCancel();
+    }
+    
     /**
      * @see org.eclipse.jface.preference.IPreferencePage#performOk()
      */

@@ -177,7 +177,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
         String line = document.get(lineStart, offset - lineStart);
         int lineLength = line.length();
 
-        for (int i = lineLength - 1; i > 0; i--) {
+        for (int i = 0; i < lineLength - 1; i++) {
             char theChar = line.charAt(i);
 
             // This covers all cases I know of, but if there is any platform

@@ -92,7 +92,7 @@ public abstract class PythonListEditor extends FieldEditor {
     /**
      * Notifies that the Add button has been pressed.
      */
-    private void addPressed() {
+    protected void addPressed() {
         setPresentsDefaultValue(false);
         String input = getNewInputObject();
 
@@ -242,7 +242,7 @@ public abstract class PythonListEditor extends FieldEditor {
     /**
      * Notifies that the Down button has been pressed.
      */
-    private void downPressed() {
+    protected void downPressed() {
         swap(false);
     }
 
@@ -368,7 +368,7 @@ public abstract class PythonListEditor extends FieldEditor {
     /**
      * Notifies that the list selection has changed.
      */
-    private void selectionChanged() {
+    protected void selectionChanged() {
 
         int index = list.getSelectionIndex();
         int size = list.getItemCount();
@@ -410,7 +410,7 @@ public abstract class PythonListEditor extends FieldEditor {
     /**
      * Notifies that the Up button has been pressed.
      */
-    private void upPressed() {
+    protected void upPressed() {
         swap(true);
     }
 

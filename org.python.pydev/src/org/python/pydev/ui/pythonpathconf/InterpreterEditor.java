@@ -92,6 +92,8 @@ public class InterpreterEditor extends PythonListEditor {
 
     private List listBuiltins;
 
+    boolean changed = false;
+
     public List getExesList(){
         return listControl;
     }
@@ -108,7 +110,14 @@ public class InterpreterEditor extends PythonListEditor {
     	imageSystemLibRoot = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM_ROOT);
     	imageSystemLib = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
         createControl(parent);
+        updateTree();
     }
+
+    protected void doLoad() {
+        super.doLoad();
+        updateTree();
+    }
+
 
     /**
      * @see org.eclipse.jface.preference.FieldEditor#createControl(org.eclipse.swt.widgets.Composite)
@@ -129,6 +138,7 @@ public class InterpreterEditor extends PythonListEditor {
         });
     }
 
+    
     /**
      * @param parent
      * @return
@@ -153,8 +163,25 @@ public class InterpreterEditor extends PythonListEditor {
         super.removePressed();
         //we need that because if we stay without any elements, we want to remove the libs...
         updateTree();
+        changed = true;
     }
 
+    protected void addPressed() {
+        super.addPressed();
+        updateTree();
+        changed = true;
+    }
+
+    protected void upPressed() {
+        super.upPressed();
+        changed = true;
+    }
+    
+    protected void downPressed() {
+        super.downPressed();
+        changed = true;
+    }
+    
     /**
      * @see org.eclipse.jface.preference.ListEditor#doFillIntoGrid(org.eclipse.swt.widgets.Composite, int)
      */
@@ -280,6 +307,7 @@ public class InterpreterEditor extends PythonListEditor {
 	        int retCode = d.open();
 	        if (retCode == InputDialog.OK) {
 		        info.forcedLibs.add(d.getValue());
+                changed = true;
 	        }
 
         }
@@ -296,6 +324,7 @@ public class InterpreterEditor extends PythonListEditor {
             
 	        InterpreterInfo info = interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
 	        info.forcedLibs.remove(builtin);
+	        changed = true;
         }
         updateTree();
     }
@@ -330,6 +359,12 @@ public class InterpreterEditor extends PythonListEditor {
             fillPathItems(s);
         }else{
             fillPathItems(null);
+            if (listControl.getItemCount() > 0){
+                listControl.select(0);
+                selectionChanged();
+                String s = listControl.getSelection()[0];
+                fillPathItems(s);
+            }
         }
     }
 
@@ -477,5 +512,9 @@ public class InterpreterEditor extends PythonListEditor {
     protected void doLoadDefault() {
         super.doLoadDefault();
         updateTree();
+    }
+
+    public boolean hasChanged() {
+        return changed;
     }
 }
