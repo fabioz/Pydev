@@ -47,8 +47,9 @@ public abstract class PyEditProjection extends TextEditor implements IParserList
     protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
         IOverviewRuler overviewRuler = getOverviewRuler();
         PySourceViewer viewer = new PySourceViewer(parent, ruler, overviewRuler, isOverviewRulerVisible(), styles, this);
-//        SourceViewerDecorationSupport sourceViewerDecorationSupport = getSourceViewerDecorationSupport(viewer);
-//        sourceViewerDecorationSupport.install(getPreferenceStore()); - when uncommented, the print margin does not display correctly
+        
+        //ensure decoration support has been created and configured.
+        getSourceViewerDecorationSupport(viewer);
 
         return viewer;
     }
@@ -64,20 +65,6 @@ public abstract class PyEditProjection extends TextEditor implements IParserList
         return store;
     }
 
-
-    /**
-     * Returns the source viewer decoration support.
-     * 
-     * @param viewer the viewer for which to return a decoration support
-     * @return the source viewer decoration support
-     */
-    protected SourceViewerDecorationSupport getSourceViewerDecorationSupport(ISourceViewer viewer) {
-        if (fSourceViewerDecorationSupport == null) {
-            fSourceViewerDecorationSupport = new SourceViewerDecorationSupport(viewer, getOverviewRuler(), getAnnotationAccess(), getSharedColors());
-            configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
-        }
-        return fSourceViewerDecorationSupport;
-    }
 
     protected final static char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
 
