@@ -17,11 +17,11 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
- * Redone the whole class, so that the interface is better defined and no duplication of information is
- * given. 
+ * Redone the whole class, so that the interface is better defined and no
+ * duplication of information is given.
  * 
  * Now, it is just used as 'shortcuts' to document and selection settings.
- *  
+ * 
  * @author Fabio Zadrozny
  * @author Parhaum Toofanian
  */
@@ -32,11 +32,10 @@ public class PySelection {
 
 
     /**
-     * Alt constructor for PySelection. Takes in a text editor from Eclipse, and a boolean that is used to indicate how to handle an empty
-     * selection.
-     * 
-     * @param textEditor The text editor operating in Eclipse
-     */
+	 * Alternate constructor for PySelection. Takes in a text editor from Eclipse.
+	 * 
+	 * @param textEditor The text editor operating in Eclipse
+	 */
     public PySelection(ITextEditor textEditor) {
         this(textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput()), 
                 (ITextSelection) textEditor.getSelectionProvider().getSelection());
