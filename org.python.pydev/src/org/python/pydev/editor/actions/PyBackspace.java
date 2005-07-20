@@ -9,6 +9,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**
@@ -16,18 +17,20 @@ import org.python.pydev.plugin.PydevPrefs;
  * 
  * Makes a backspace happen...
  * 
- * We can: - go to the indentation from some uncommented previous line (if we
- * only have whitespaces in the current line).
- *  - erase all whitespace characters until we find some character.
- *  - erase a single character.
+ * We can:
+ * - go to the indentation from some uncommented previous line (if we
+ *   only have whitespaces in the current line).
+ * - erase all whitespace characters until we find some character.
+ * - erase a single character.
  */
 public class PyBackspace extends PyAction {
 
     /**
      * Makes a backspace happen...
      * 
-     * We can: - go to the indentation from some uncommented previous line (if
-     * we only have whitespaces in the current line).
+     * We can:
+     * - go to the indentation from some uncommented previous line (if
+     *   we only have whitespaces in the current line).
      *  - erase all whitespace characters until we find some character.
      *  - erase a single character.
      */
@@ -263,7 +266,7 @@ public class PyBackspace extends PyAction {
     private String createSpaceString(int width) {
         StringBuffer b = new StringBuffer(width);
         while (tabWidth-- > 0)
-            b.append(" ");
+            b.append(DocUtils.SPACE);
         return b.toString();
     }
 
@@ -279,7 +282,7 @@ public class PyBackspace extends PyAction {
             if (useSpaces && !forceTabs)
                 identString = createSpaceString(tabWidth);
             else
-                identString = "\t";
+                identString = DocUtils.TAB_STRING;
         }
         return identString;
     }
