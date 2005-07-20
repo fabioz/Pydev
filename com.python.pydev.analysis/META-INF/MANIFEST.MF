@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Analysis Plug-in
+Bundle-SymbolicName: com.python.pydev.analysis
+Bundle-Version: 0.9.6
+Bundle-Activator: com.python.pydev.analysis.AnalysisPlugin
+Bundle-Vendor: Fabio Zadrozny
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.junit,
+ org.python.pydev.core,
+ org.python.pydev.ast,
+ org.python.pydev,
+ org.python.pydev.parser,
+ org.eclipse.jface.text,
+ org.eclipse.core.resources
+Eclipse-AutoStart: true
