@@ -11,9 +11,12 @@ import java.util.List;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Compare;
 import org.python.parser.ast.If;
+import org.python.parser.ast.Import;
+import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.VisitorBase;
+import org.python.parser.ast.aliasType;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -51,6 +54,72 @@ public abstract class AbstractVisitor extends VisitorBase{
         this.tokens.add(t);
     }
 
+    
+    /**
+     * This function creates source tokens from a wild import node.
+     * 
+     * @param node the import node
+     * @param tokens OUT used to add the source token
+     * @param moduleName the module name
+     */
+    public static void makeWildImportToken(ImportFrom node, List tokens, String moduleName) {
+        if(isWildImport(node)){
+            tokens.add(new SourceToken(node, node.module, "",  "", moduleName));
+        }
+    }
+
+
+    /**
+     * This function creates source tokens from an import node.
+     * 
+     * @param node the import node
+     * @param moduleName the module name
+     * @param tokens OUT used to add the source tokens (may create many from a single import)
+     */
+    public static void makeImportToken(Import node, List tokens, String moduleName) {
+        aliasType[] names = node.names;
+        makeImportToken(node, tokens, names, moduleName);
+    }
+    
+    /**
+     * The same as above but with ImportFrom
+     */
+    public static void makeImportToken(ImportFrom node, List tokens, String moduleName) {
+        aliasType[] names = node.names;
+        makeImportToken(node, tokens, names, node.module);
+    }
+
+    /**
+     * The same as above
+     */
+    private static void makeImportToken(SimpleNode node, List tokens, aliasType[] names, String module) {
+        for (int i = 0; i < names.length; i++) {
+            String name = names[i].name;
+            String original = names[i].name;
+            if(names[i].asname != null){
+                name = names[i].asname;
+            }
+            tokens.add(new SourceToken(node, name, "", "", module, original));
+        }
+    }
+
+    
+    /**
+     * @param node
+     * @return
+     */
+    public static boolean isWildImport(ImportFrom node) {
+        return node.names.length == 0;
+    }
+
+    /**
+     * @param node
+     * @return
+     */
+    public static boolean isAliasImport(ImportFrom node) {
+        return node.names.length > 0;
+    }
+    
     /**
      * This method transverses the ast and returns a list of found tokens.
      * 

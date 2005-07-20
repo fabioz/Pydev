@@ -28,8 +28,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     /**
      * @return Returns the manager.
      */
-    private ASTManager getManager() {
-        return (ASTManager) nature.getAstManager();
+    private ICodeCompletionASTManager getManager() {
+        return (ICodeCompletionASTManager) nature.getAstManager();
     }
 
     /*

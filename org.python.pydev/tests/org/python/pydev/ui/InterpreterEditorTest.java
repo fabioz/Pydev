@@ -9,9 +9,11 @@ import java.net.MalformedURLException;
 
 import junit.framework.TestCase;
 
+import org.eclipse.core.runtime.Preferences;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.plugin.BundleInfo;
+import org.python.pydev.ui.pythonpathconf.InterpreterEditor;
 
 /**
  * @author Fabio Zadrozny
@@ -35,8 +37,12 @@ public class InterpreterEditorTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         BundleInfo.setBundleInfo(new BundleInfoStub());
-        display = new Display();
-        createSShell();
+        try {
+            display = new Display();
+            createSShell();
+        } catch (UnsatisfiedLinkError e) {
+            //ok, ignore it.
+        }
     }
 
     /*
@@ -64,12 +70,13 @@ public class InterpreterEditorTest extends TestCase {
      * 
      */
     public void testIt() throws MalformedURLException {
-        shell.open();
-
-//        InterpreterEditor editor = new InterpreterEditor("label", shell, new InterpreterManager(new Preferences()));
-//        shell.pack();
-//        shell.setSize(new org.eclipse.swt.graphics.Point(300, 300));
-//        goToManual(display);
-        
+        if(display != null){
+            shell.open();
+    
+            InterpreterEditor editor = new InterpreterEditor("label", shell, new InterpreterManager(new Preferences()));
+            shell.pack();
+            shell.setSize(new org.eclipse.swt.graphics.Point(300, 300));
+            goToManual(display);
+        }
     }
 }

@@ -88,44 +88,26 @@ public class GlobalModelVisitor extends AbstractVisitor {
      */
     public Object visitImportFrom(ImportFrom node) throws Exception {
         if (this.visitWhat == WILD_MODULES) {
-            if (node.names.length == 0) {
-                this.tokens.add(new SourceToken(node, node.module, "",  "", moduleName));
-            }
+            makeWildImportToken(node, this.tokens, moduleName);
         } else if (this.visitWhat == ALIAS_MODULES) {
-            if (node.names.length > 0) {
-                for (int i = 0; i < node.names.length; i++) {
-                    String name = node.names[i].name;
-                    String original = node.names[i].name;
-                    if(node.names[i].asname != null){
-                        name = node.names[i].asname;
-                    }
-                    
-	                this.tokens.add(new SourceToken(node, name, "", "", node.module, original));
-                }
-            }
+            makeImportToken(node, this.tokens, moduleName);
         }
         return null;
     }
-    
+
+
+
     /**
      * Visiting some import
      * @see org.python.parser.ast.VisitorBase#visitImport(org.python.parser.ast.Import)
      */
     public Object visitImport(Import node) throws Exception {
         if (this.visitWhat == ALIAS_MODULES) {
-            if (node.names.length > 0) {
-                for (int i = 0; i < node.names.length; i++) {
-                    String name = node.names[i].name;
-                    String original = node.names[i].name;
-                    if(node.names[i].asname != null){
-                        name = node.names[i].asname;
-                    } 
-	                this.tokens.add(new SourceToken(node, name, "", "", moduleName, original));
-                }
-            }
+            makeImportToken(node, this.tokens, moduleName);
         }
         return null;
     }
+
     
     /**
      * @see org.python.parser.ast.VisitorBase#visitStr(org.python.parser.ast.Str)

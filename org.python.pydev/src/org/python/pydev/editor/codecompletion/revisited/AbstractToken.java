@@ -183,4 +183,12 @@ public abstract class AbstractToken implements IToken{
         return originalRep;
     }
 
+    public int getLineDefinition() {
+        return UNDEFINED;
+    }
+
+    public int getColDefinition() {
+        return UNDEFINED;
+    }
+
 }

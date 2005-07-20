@@ -101,7 +101,11 @@ public class InterpreterManager implements IInterpreterManager {
                 String msg = "Unable to get information on interpreter!";
     	        String reason = "The interpreter: '"+executable+"' is not a valid python executable.";
     	        
-                ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(),0 ,reason, null ));
+                try {
+                    ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, reason, null));
+                } catch (Error e) {
+                    // ignore error comunication error
+                }
     	        throw new RuntimeException(reason);
     	    }
         }

@@ -82,5 +82,13 @@ public class SourceToken extends AbstractToken{
     public SimpleNode getAst(){
         return ast;
     }
+
+    public int getLineDefinition() {
+        return ast.beginLine;
+    }
+
+    public int getColDefinition() {
+        return ast.beginLine;
+    }
     
 }

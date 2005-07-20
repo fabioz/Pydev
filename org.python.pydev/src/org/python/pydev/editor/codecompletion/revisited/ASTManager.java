@@ -36,7 +36,7 @@ import org.python.pydev.plugin.nature.PythonNature;
  * 
  * @author Fabio Zadrozny
  */
-public class ASTManager implements ICodeCompletionASTManager, Serializable {
+public class ASTManager implements ICodeCompletionASTManager, Serializable{
 
     /**
      * 
@@ -220,38 +220,16 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable {
         return projectModulesManager.getModule(name, nature);
     }
 
-    /**
-     * The completion should work in the following way:
-     * 
-     * First we have to know in which scope we are.
-     * 
-     * If we have no token nor qualifier, get the locals for the file (only from module imports or from inner scope).
-     * 
-     * If we have a part of the qualifier and not activationToken, go for all that match (e.g. all classes, so that we can make the import
-     * automatically)
-     * 
-     * If we have the activationToken, try to guess what it is and get its attrs and funcs.
-     * 
-     * @param file
-     * @param line
-     * @param col
-     * @param activationToken
-     * @param qualifier
-     * @return
+    /** 
+     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager#getCompletionsForToken(java.io.File, org.eclipse.jface.text.IDocument, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
     public IToken[] getCompletionsForToken(File file, IDocument doc, CompletionState state) {
         AbstractModule module = AbstractModule.createModuleFromDoc("", file, doc, state.nature, state.line);
         return getCompletionsForModule(module, state);
     }
 
-    /**
-     * 
-     * @param doc
-     * @param line
-     * @param col
-     * @param activationToken
-     * @param qualifier
-     * @return
+    /** 
+     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForToken(org.eclipse.jface.text.IDocument, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
     public IToken[] getCompletionsForToken(IDocument doc, CompletionState state) {
         IToken[] completionsForModule;
@@ -315,13 +293,8 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable {
         return null;
     }
     
-    /**
-     * @param file
-     * @param activationToken
-     * @param qualifier
-     * @param module
-     * @param col
-     * @param line
+    /** 
+     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
     public IToken[] getCompletionsForModule(AbstractModule module, CompletionState state) {
         IToken[] builtinsCompletions = getBuiltinsCompletions(state);
@@ -466,16 +439,10 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable {
         return new IToken[0];
     }
 
-    /**
-     * @param activationToken
-     * @param qualifier
-     * @param recursing
-     * @param globalTokens
-     * @param importedModules
-     * @param wildImportedModules
-     * @param module
+    /** 
+     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getGlobalCompletions
      */
-    private List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, CompletionState state, AbstractModule current) {
+    public List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, CompletionState state, AbstractModule current) {
         List completions = new ArrayList();
 
         //in completion with nothing, just go for what is imported and global tokens.
@@ -492,35 +459,49 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable {
         for (int i = 0; i < wildImportedModules.length; i++) {
 
             IToken name = wildImportedModules[i];
-            AbstractModule mod = getModule(name.getCompletePath(), state.nature);
-            
-            if (mod == null) {
-                mod = getModule(name.getRepresentation(), state.nature);
-            }
-            
-            if (mod != null) {
-                state.checkWildImportInMemory(current, mod);
-                IToken[] completionsForModule = getCompletionsForModule(mod, state);
-                for (int j = 0; j < completionsForModule.length; j++) {
-                    completions.add(completionsForModule[j]);
-                }
-            } else {
-                //"Module not found:" + name.getRepresentation()
-            }
+            getCompletionsForWildImport(state, current, completions, name);
         }
 
         if(!state.builtinsGotten){
             state.builtinsGotten = true;
             //last thing: get completions from module __builtin__
-            AbstractModule builtMod = getModule("__builtin__", state.nature);
-            if(builtMod != null){
-                IToken[] toks = builtMod.getGlobalTokens();
-                for (int i = 0; i < toks.length; i++) {
-                    completions.add(toks[i]);
-                }
-            }
+            getBuiltinCompletions(state, completions);
         }
         return completions;
+    }
+
+    /**
+     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getBuiltinCompletions
+     */
+    public void getBuiltinCompletions(CompletionState state, List completions) {
+        AbstractModule builtMod = getModule("__builtin__", state.nature);
+        if(builtMod != null){
+            IToken[] toks = builtMod.getGlobalTokens();
+            for (int i = 0; i < toks.length; i++) {
+                completions.add(toks[i]);
+            }
+        }
+    }
+
+    /**
+     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForWildImport
+     */
+    public void getCompletionsForWildImport(CompletionState state, AbstractModule current, List completions, IToken name) {
+        AbstractModule mod = getModule(name.getCompletePath(), state.nature);
+        
+        if (mod == null) {
+            mod = getModule(name.getRepresentation(), state.nature);
+        }
+        
+        if (mod != null) {
+            state.checkWildImportInMemory(current, mod);
+            IToken[] completionsForModule = getCompletionsForModule(mod, state);
+            for (int j = 0; j < completionsForModule.length; j++) {
+                completions.add(completionsForModule[j]);
+            }
+        } else {
+            //"Module not found:" + name.getRepresentation()
+        }
     }
 
     private IToken[] searchOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current) {

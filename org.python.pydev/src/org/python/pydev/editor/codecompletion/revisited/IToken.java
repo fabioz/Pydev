@@ -37,4 +37,18 @@ public interface IToken extends Serializable, Comparable{
      * from x import testcase as t(return x.testcase)
      */
     public String getCompletePath();
+    
+    /**
+     * Constant to indicate that it was not possible to know in which line the
+     * token was defined.
+     */
+    public static final int UNDEFINED = -1;
+    /**
+     * @return the line where this token was defined
+     */
+    public int getLineDefinition();
+    /**
+     * @return the col where this token was defined
+     */
+    public int getColDefinition();
 }

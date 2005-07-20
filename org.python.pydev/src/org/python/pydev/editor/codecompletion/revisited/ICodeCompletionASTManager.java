@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -101,5 +102,63 @@ public interface ICodeCompletionASTManager {
      * 1: tok
      */
     public abstract Object[] findOnImportedMods( PythonNature nature, String activationToken, AbstractModule current);
+
+    
+
+    /**
+     * 
+     * @param doc
+     * @param line
+     * @param col
+     * @param activationToken
+     * @param qualifier
+     * @return
+     */
+    public abstract IToken[] getCompletionsForToken(IDocument doc, CompletionState state);
+
+    /**
+     * @param file
+     * @param activationToken
+     * @param qualifier
+     * @param module
+     * @param col
+     * @param line
+     */
+    public abstract IToken[] getCompletionsForModule(AbstractModule module, CompletionState state);
+
+    /**
+     * This method gets the completions for a wild import. 
+     * They are added to the completions list
+     * 
+     * @param state this is the completion state
+     * @param current this is the current module
+     * @param completions OUT this is were completions are added.
+     * @param wildImport this is the token identifying the wild import
+     */
+    public void getCompletionsForWildImport(CompletionState state, AbstractModule current, List completions, IToken wildImport);
+
+    /**
+     * This method returns the python builtins as completions
+     * 
+     * @param state this is the current completion state
+     * @param completions OUT this is where the completions are added.
+     */
+    public void getBuiltinCompletions(CompletionState state, List completions);
+
+    /**
+     * This method can get the global completions for a module (the activation token is usually empty in
+     * these cases).
+     * 
+     * What it actually should do is getting the completions for the wild imported modules, plus builtins,
+     * plus others passed as arguments.
+     * 
+     * @param globalTokens the global tokens found in the module
+     * @param importedModules the imported modules
+     * @param wildImportedModules the wild imported modules
+     * @param state the current completion state
+     * @param current the current module
+     * @return a list of IToken
+     */
+    public abstract List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, CompletionState state, AbstractModule current);
 
 }
