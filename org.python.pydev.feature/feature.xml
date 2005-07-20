@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.python.pydev.feature"
+      id="org.python.pydev"
       label="PyDev for Eclipse"
       version="0.9.6"
       provider-name="Fabio Zadrozny / Aleks Totic ">
@@ -76,6 +76,5 @@ Aleks and Fabio
          download-size="0"
          install-size="0"
          version="0.9.6"/>
-
 
 </feature>
