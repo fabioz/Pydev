@@ -1,4 +1,4 @@
-package org.python.pydev.utils;
+package org.python.pydev.core.docutils;
 
 
 
@@ -31,7 +31,7 @@ package org.python.pydev.utils;
  * @author <a href="mailto:hps@intermeta.de">Henning P. Schmiedehausen</a>
  * @author Gary Gregory
  * @since 2.0
- * @version $Id: WordUtils.java,v 1.1 2005-07-15 11:48:30 fabioz Exp $
+ * @version $Id: WordUtils.java,v 1.1 2005-07-20 11:57:05 fabioz Exp $
  */
 public class WordUtils {
 
