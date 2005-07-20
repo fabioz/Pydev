@@ -3,8 +3,11 @@ This module was created to get information available in the interpreter, such as
 paths, etc.
 
 TODO: get the builtin modules embeeded in python from sys.builtin_module_names... 
-sys.builtin_module_names: contains the builtin modules embeeded in python (rigth now, we specify all manually).
+(for putting in org.python.pydev.ui.pythonpathconf.InterpreterInfo.forcedLibs)
 
+
+what is what:
+sys.builtin_module_names: contains the builtin modules embeeded in python (rigth now, we specify all manually).
 sys.prefix: A string giving the site-specific directory prefix where the platform independent Python files are installed
 
 '''
