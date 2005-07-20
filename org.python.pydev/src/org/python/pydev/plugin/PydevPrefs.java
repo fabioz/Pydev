@@ -44,8 +44,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
-import org.python.pydev.utils.WordUtils;
-
+import org.python.pydev.core.docutils.WordUtils;
 
 
 /**

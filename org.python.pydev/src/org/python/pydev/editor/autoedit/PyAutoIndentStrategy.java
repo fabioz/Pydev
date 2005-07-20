@@ -12,46 +12,20 @@ import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
+import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.PyDoubleClickStrategy;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 
 /**
- * Implements indenting behavior.
+ * Class which implements the following behaviors:
+ * - indenting: after 'class' or 'def' 
+ * - replacement: when typing colons or parentheses
  * 
- * Tabs vs. spaces indentation
+ * This class uses the org.python.pydev.core.docutils.DocUtils class extensively
+ * for some document-related operations.
  */
 public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
-
-    /**
-     * Field representing a semicolon.
-     */
-    public static final char SEMICOLON = ';';
-
-    /**
-     * Field representing a colon;
-     */
-    public static final char COLON = ':';
-
-    /**
-     * Field representing a comma.
-     */
-    public static final char COMMA = ',';
-
-    /**
-     * Field representing a space.
-     */
-    public static final char SPACE = ' ';
-
-    /**
-     * Field representing a beginning parenthesis, i.e., (
-     */
-    public static final char BEGIN_PARENTHESIS = '(';
-
-    /**
-     * Field representing an ending parenthesis, i.e., )
-     */
-    public static final char END_PARENTHESIS = ')';
 
     private IIndentPrefs prefs;
 
@@ -64,13 +38,6 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             this.prefs = new DefaultIndentPrefs(); //create the default if this is still not done.
         }
         return this.prefs;
-    }
-
-    public static String createSpaceString(int width) {
-        StringBuffer b = new StringBuffer(width);
-        while (width-- > 0)
-            b.append(SPACE);
-        return b.toString();
     }
 
     /**
@@ -91,19 +58,19 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                 char lastChar = document.getChar(offset - 1);
 
                 //we dont want whitespaces
-                while (offset > 0 && lastChar == SPACE) {
+                while (offset > 0 && lastChar == DocUtils.SPACE) {
                     offset--;
                     lastChar = document.getChar(offset - 1);
                 }
 
                 if (offset > 0) {
 
-                    if (lastChar == COLON) {
+                    if (lastChar == DocUtils.COLON) {
                         String initial = text;
 
                         text = initial + prefs.getIndentationString();
 
-                    } else if (lastChar == COMMA) {
+                    } else if (lastChar == DocUtils.COMMA) {
                         text = indentAfterCommaNewline(document, text, offset);
                     }
                 }
@@ -112,95 +79,6 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
         return text;
     }
 
-    /**
-     * Create the indentation string after comma and a newline.
-     * 
-     * @param document
-     * @param text
-     * @param offset
-     * @return Indentation String
-     * @throws BadLocationException
-     */
-    private String indentAfterCommaNewline(IDocument document, String text, int offset)
-            throws BadLocationException {
-        int smartIndent = totalIndentAmountAfterCommaNewline(document, offset);
-        if (smartIndent > 0) {
-            String initial = text;
-
-            // Discard everything but the newline from initial, since we'll
-            // build the smart indent from scratch anyway.
-            int initialLength = initial.length();
-            for (int i = 0; i < initialLength; i++) {
-                char theChar = initial.charAt(i);
-                // This covers all cases I know of, but if there is any platform
-                // with weird newline then this would need to be smarter.
-                if (theChar != '\r' && theChar != '\n') {
-                    if (i > 0) {
-                        initial = initial.substring(0, i);
-                        smartIndent -= --i;
-                    }
-                    break;
-                }
-            }
-
-            // Create the actual indentation string
-            String indentationString = prefs.getIndentationString();
-            int indentationSteps = smartIndent / prefs.getTabWidth();
-            int spaceSteps = smartIndent % prefs.getTabWidth();
-            StringBuffer b = new StringBuffer(smartIndent);
-            while (indentationSteps-- > 0)
-                b.append(indentationString);
-            while (spaceSteps-- >= 0)
-                b.append(Character.toString(SPACE));
-
-            return initial + b.toString();
-        }
-        return text;
-    }
-
-    /**
-     * Return smart indent amount for new line. This should be done for multiline structures like function parameters, tuples, lists and dictionaries.
-     * 
-     * Example:
-     * 
-     * a=foo(1, #
-     * 
-     * We would return the indentation needed to place the caret at the # position.
-     * 
-     * @param document The document
-     * @param offset The document offset of the last character on the previous line
-     * @return indent, or -1 if smart indent could not be determined (fall back to default)
-     */
-    private int totalIndentAmountAfterCommaNewline(IDocument document, int offset)
-            throws BadLocationException {
-        int lineStart = document.getLineInformationOfOffset(offset).getOffset();
-        String line = document.get(lineStart, offset - lineStart);
-        int lineLength = line.length();
-
-        for (int i = 0; i < lineLength - 1; i++) {
-            char theChar = line.charAt(i);
-
-            // This covers all cases I know of, but if there is any platform
-            // with weird newline then this would need to be smarter.
-            if (theChar == '\r' || theChar == '\n')
-                break;
-
-            if (theChar == '(' || theChar == '[' || theChar == '{') {
-                //ok, it's not just returning the line now, we have to check for tabs and make each
-                //tab count for the tabWidth.
-                int smartIndent = lineLength - (lineLength - i) + 1;
-                String string = line.substring(0, smartIndent - 1);
-                for (int j = 0; j < string.length(); j++) {
-                    char c = string.charAt(j);
-                    if (c == '\t') {
-                        smartIndent += prefs.getTabWidth() - 1;
-                    }
-                }
-                return smartIndent;
-            }
-        }
-        return -1;
-    }
 
     /**
      * 
@@ -213,10 +91,10 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 
         try {
             command.text = autoIndentNewline(document, command.length, command.text, command.offset);
-
             prefs.convertToStd(document, command);
+            
 
-            if (command.text.equals(Character.toString(BEGIN_PARENTHESIS)) && prefs.getAutoParentesis()) {
+            if (command.text.equals(Character.toString(DocUtils.BEGIN_PARENTHESIS)) && prefs.getAutoParentesis()) {
                 PySelection ps = new PySelection(document, command.offset);
                 String line = ps.getLine();
 
@@ -261,7 +139,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
              * Typing another colon (i.e, ':') at that position will not insert
              * another colon
              */
-            else if (command.text.equals(Character.toString(COLON)) && prefs.getAutoColon()) {
+            else if (command.text.equals(Character.toString(DocUtils.COLON)) && prefs.getAutoColon()) {
                 performColonReplacement(document, command);
             }
 
@@ -302,36 +180,49 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
     }
 
     /**
-     * Private function to call to perform any replacement of braces.
+     * Create the indentation string after comma and a newline.
      * 
-     * The Eclipse Java editor does this by default, and it is very useful. If
-     * you try to insert some kind of pair, be it a parenthesis or bracket in
-     * Java, the character will not insert and instead the editor just puts your
-     * cursor at the next position.
-     * 
-     * This function performs the equivalent for the Python editor.
-     *  
      * @param document
-     * @param command if the command does not contain a brace, this function does nothing.
+     * @param text
+     * @param offset
+     * @return Indentation String
+     * @throws BadLocationException
      */
-    private void performPairReplacement(IDocument document, DocumentCommand command) {
-        PySelection ps = new PySelection(document, command.offset);
+    private String indentAfterCommaNewline(IDocument document, String text, int offset)
+            throws BadLocationException {
+        int smartIndent = totalIndentAmountAfterCommaNewline(document, offset);
+        if (smartIndent > 0) {
+            String initial = text;
 
-        /*
-         * Start matching.
-         */
-        /*
-         * TODO: Might have to optimize and check for less braces if delay
-         * between user's typing characters is too big.
-         * 
-         * You can do this by passing a small array to PythonPairMatcher()
-         */
-        PythonPairMatcher matcher = new PythonPairMatcher(PyDoubleClickStrategy.BRACKETS);
-        IRegion region = matcher.match(ps.getDoc(), command.offset + 1);
-        if (region != null) {
-            command.text = "";
-            command.caretOffset = command.offset + 1;
+            // Discard everything but the newline from initial, since we'll
+            // build the smart indent from scratch anyway.
+            int initialLength = initial.length();
+            for (int i = 0; i < initialLength; i++) {
+                char theChar = initial.charAt(i);
+                // This covers all cases I know of, but if there is any platform
+                // with weird newline then this would need to be smarter.
+                if (theChar != '\r' && theChar != '\n') {
+                    if (i > 0) {
+                        initial = initial.substring(0, i);
+                        smartIndent -= --i;
+                    }
+                    break;
+                }
+            }
+
+            // Create the actual indentation string
+            String indentationString = prefs.getIndentationString();
+            int indentationSteps = smartIndent / prefs.getTabWidth();
+            int spaceSteps = smartIndent % prefs.getTabWidth();
+            StringBuffer b = new StringBuffer(smartIndent);
+            while (indentationSteps-- > 0)
+                b.append(indentationString);
+            while (spaceSteps-- >= 0)
+                b.append(Character.toString(DocUtils.SPACE));
+
+            return initial + b.toString();
         }
+        return text;
     }
 
     /**
@@ -357,8 +248,8 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             try {
                 char currentCharacter = document.getChar(absoluteOffset);
 
-                if (currentCharacter == COLON) {
-                    command.text = "";
+                if (currentCharacter == DocUtils.COLON) {
+                    command.text = DocUtils.EMPTY_STRING;
                     command.caretOffset = command.offset + 1;
                 }
 
@@ -367,6 +258,39 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                 throw new RuntimeException(e);
             }
 
+        }
+    }
+
+    /**
+     * Private function to call to perform any replacement of braces.
+     * 
+     * The Eclipse Java editor does this by default, and it is very useful. If
+     * you try to insert some kind of pair, be it a parenthesis or bracket in
+     * Java, the character will not insert and instead the editor just puts your
+     * cursor at the next position.
+     * 
+     * This function performs the equivalent for the Python editor.
+     *  
+     * @param document
+     * @param command if the command does not contain a brace, this function does nothing.
+     */
+    private void performPairReplacement(IDocument document, DocumentCommand command) {
+        PySelection ps = new PySelection(document, command.offset);
+
+        /*
+         * Start matching.
+         */
+        /*
+         * TODO: Might have to optimize and check for less braces if delay
+         * between user's typing characters is too big.
+         * 
+         * You can do this by passing a smaller array to PythonPairMatcher()
+         */
+        PythonPairMatcher matcher = new PythonPairMatcher(PyDoubleClickStrategy.BRACKETS);
+        IRegion region = matcher.match(ps.getDoc(), command.offset + 1);
+        if (region != null) {
+            command.text = DocUtils.EMPTY_STRING;
+            command.caretOffset = command.offset + 1;
         }
     }
 
@@ -386,8 +310,8 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             }
         }
 
-        int i = PyAction.countChars(BEGIN_PARENTHESIS, line);
-        int j = PyAction.countChars(END_PARENTHESIS, line);
+        int i = PyAction.countChars(DocUtils.BEGIN_PARENTHESIS, line);
+        int j = PyAction.countChars(DocUtils.END_PARENTHESIS, line);
 
         if (j > i) {
             return false;
@@ -396,4 +320,53 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
         return true;
     }
 
+    /**
+	 * Return smart indent amount for new line. This should be done for
+	 * multiline structures like function parameters, tuples, lists and
+	 * dictionaries.
+	 * 
+	 * Example:
+	 * 
+	 * a=foo(1, #
+	 * 
+	 * We would return the indentation needed to place the caret at the #
+	 * position.
+	 * 
+	 * @param document
+	 *            The document
+	 * @param offset
+	 *            The document offset of the last character on the previous line
+	 * @return indent, or -1 if smart indent could not be determined (fall back
+	 *         to default)
+	 */
+    private int totalIndentAmountAfterCommaNewline(IDocument document, int offset)
+            throws BadLocationException {
+        int lineStart = document.getLineInformationOfOffset(offset).getOffset();
+        String line = document.get(lineStart, offset - lineStart);
+        int lineLength = line.length();
+
+        for (int i = lineLength - 1; i > 0; i--) {
+            char theChar = line.charAt(i);
+
+            // This covers all cases I know of, but if there is any platform
+            // with weird newline then this would need to be smarter.
+            if (theChar == '\r' || theChar == '\n')
+                break;
+
+            if (theChar == '(' || theChar == '[' || theChar == '{') {
+                //ok, it's not just returning the line now, we have to check for tabs and make each
+                //tab count for the tabWidth.
+                int smartIndent = lineLength - (lineLength - i) + 1;
+                String string = line.substring(0, smartIndent - 1);
+                for (int j = 0; j < string.length(); j++) {
+                    char c = string.charAt(j);
+                    if (c == DocUtils.TAB) {
+                        smartIndent += prefs.getTabWidth() - 1;
+                    }
+                }
+                return smartIndent;
+            }
+        }
+        return -1;
+    }
 }

@@ -8,6 +8,7 @@ package org.python.pydev.editor.autoedit;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.docutils.DocUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -32,9 +33,9 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
      */
     public String getIndentationString() {
         if (getUseSpaces() && !getForceTabs())
-            return PyAutoIndentStrategy.createSpaceString(getTabWidth());
+            return DocUtils.createSpaceString(getTabWidth());
         else
-            return "\t";
+            return DocUtils.TAB_STRING;
     }
 
 	public void convertToStd(IDocument document, DocumentCommand command){
@@ -67,10 +68,10 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
 		String indentString) throws BadLocationException 
 	{
 		// only interresting if it contains a tab (also if it is a tab only)
-		if (text.indexOf("\t") != -1) {
+		if (text.indexOf(DocUtils.TAB_STRING) != -1) {
 			// get some text infos
 			
-			if (text.equals("\t")) {
+			if (text.equals(DocUtils.TAB_STRING)) {
 			    //only a single tab?
 				deleteWhitespaceAfter(document, offset);
 				text = indentString;
@@ -80,11 +81,12 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
 				byte[] byteLine = text.getBytes();
 				StringBuffer newText = new StringBuffer();
 				for (int count = 0; count < byteLine.length; count++) {
-					if (byteLine[count] == '\t')
+					if (byteLine[count] == DocUtils.TAB){
 						newText.append(indentString);
-						// if it is not a tab add the char
-					else
+						
+					} else { // if it is not a tab add the char
 						newText.append((char) byteLine[count]);
+					}
 				}
 				text = newText.toString();
 			}
@@ -95,11 +97,11 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
 	/**
 	 * Converts spaces to strings. Useful when pasting
 	 */
-	private String convertSpacesToTabs(
-		IDocument document, int length, String text, int offset, 
-		String indentString) throws BadLocationException 
+	private String convertSpacesToTabs(IDocument document, int length,
+			String text, int offset, String indentString)
+			throws BadLocationException
 	{
-		String spaceStr = PyAutoIndentStrategy.createSpaceString(getTabWidth());
+		String spaceStr = DocUtils.createSpaceString(getTabWidth());
 		while(text.startsWith(spaceStr)){
 		    text = text.replaceAll(spaceStr, "\t");
 		}
@@ -119,7 +121,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
 			
 			if (textAfter.length() > 0
 				&& isWhitespace(textAfter)) {
-				document.replace(offset, textAfter.length(), "");
+				document.replace(offset, textAfter.length(), DocUtils.EMPTY_STRING);
 			}
 		}
 	}
