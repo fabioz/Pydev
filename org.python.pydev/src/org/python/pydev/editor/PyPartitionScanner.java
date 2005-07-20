@@ -81,6 +81,10 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
 	}
 
 	public static void checkPartitionScanner(IDocument document) {
+	    if(document == null){
+	        return;
+        }
+        
         IDocumentExtension3 docExtension= (IDocumentExtension3) document;
 	    IDocumentPartitioner partitioner = docExtension.getDocumentPartitioner(PYTHON_PARTITION_TYPE);
 	    if (partitioner == null){
