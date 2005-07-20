@@ -219,12 +219,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
         super.init(site, input);
 
-		//check the document provider (sanity check)        
-        IDocumentProvider documentProvider = getDocumentProvider();
-        if (!(documentProvider instanceof PyDocumentProvider)) {
-            setDocumentProvider(new PyDocumentProvider());
-        }
-
         IDocument document = getDocument(input);
         
         // check the document partitioner (sanity check / fix)
