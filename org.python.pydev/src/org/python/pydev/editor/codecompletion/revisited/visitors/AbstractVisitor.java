@@ -61,11 +61,17 @@ public abstract class AbstractVisitor extends VisitorBase{
      * @param node the import node
      * @param tokens OUT used to add the source token
      * @param moduleName the module name
+     * 
+     * @return the tokens list passed in or the created one if it was null
      */
-    public static void makeWildImportToken(ImportFrom node, List tokens, String moduleName) {
+    public static List makeWildImportToken(ImportFrom node, List tokens, String moduleName) {
+        if(tokens == null){
+            tokens = new ArrayList();
+        }
         if(isWildImport(node)){
             tokens.add(new SourceToken(node, node.module, "",  "", moduleName));
         }
+        return tokens;
     }
 
 
@@ -75,24 +81,29 @@ public abstract class AbstractVisitor extends VisitorBase{
      * @param node the import node
      * @param moduleName the module name
      * @param tokens OUT used to add the source tokens (may create many from a single import)
+     * 
+     * @return the tokens list passed in or the created one if it was null
      */
-    public static void makeImportToken(Import node, List tokens, String moduleName) {
+    public static List makeImportToken(Import node, List tokens, String moduleName) {
         aliasType[] names = node.names;
-        makeImportToken(node, tokens, names, moduleName);
+        return makeImportToken(node, tokens, names, moduleName);
     }
     
     /**
      * The same as above but with ImportFrom
      */
-    public static void makeImportToken(ImportFrom node, List tokens, String moduleName) {
+    public static List makeImportToken(ImportFrom node, List tokens, String moduleName) {
         aliasType[] names = node.names;
-        makeImportToken(node, tokens, names, node.module);
+        return makeImportToken(node, tokens, names, node.module);
     }
 
     /**
      * The same as above
      */
-    private static void makeImportToken(SimpleNode node, List tokens, aliasType[] names, String module) {
+    private static List makeImportToken(SimpleNode node, List tokens, aliasType[] names, String module) {
+        if(tokens == null){
+            tokens = new ArrayList();
+        }
         for (int i = 0; i < names.length; i++) {
             String name = names[i].name;
             String original = names[i].name;
@@ -101,6 +112,7 @@ public abstract class AbstractVisitor extends VisitorBase{
             }
             tokens.add(new SourceToken(node, name, "", "", module, original));
         }
+        return tokens;
     }
 
     
