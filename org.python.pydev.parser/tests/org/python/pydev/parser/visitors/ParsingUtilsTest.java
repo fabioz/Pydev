@@ -25,5 +25,31 @@ public class ParsingUtilsTest extends TestCase {
         ParsingUtils.removeCommentsAndWhitespaces(buf);
         assertEquals("a,b=0,*args,**kwargs", buf.toString());
     }
+    
+    public void testRemoveCommentsWhitespacesAndLiterals() {
+        String s = 
+            "a , b = 0,#ignore\n" +
+            "*args, **kwargs\n" +
+            "'''";
+        StringBuffer buf = new StringBuffer(s);
+        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf);
+        assertEquals("a,b=0,*args,**kwargs", buf.toString());
+        
+        s = 
+            "a , b = 0,#ignore\n" +
+            "*args, **kwargs\n" +
+            "'''remove'\"";
+        buf = new StringBuffer(s);
+        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf);
+        assertEquals("a,b=0,*args,**kwargs", buf.toString());
+        
+        s = 
+            "a , b = 0,#ignore\n" +
+            "*args, **kwargs\n" +
+            "'''remove'''keep";
+        buf = new StringBuffer(s);
+        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf);
+        assertEquals("a,b=0,*args,**kwargskeep", buf.toString());
+    }
 
 }

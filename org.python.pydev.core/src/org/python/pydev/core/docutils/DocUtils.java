@@ -166,4 +166,26 @@ public class DocUtils {
         return b.toString();
     }
 
+    public static char getPeer(char c){
+        for (int i = 0; i < BRACKETS.length; i++) {
+            if(c == BRACKETS[i]){
+                int mod = i % 2;
+                return BRACKETS[i - mod];
+            }
+        }
+        
+        throw new RuntimeException("Unable to find peer for :"+c);
+        
+    }
+
+    /**
+     * An array of Python pairs of characters that you will find in any Python code.
+     * 
+     * Currently, the set contains:
+     * <ul>
+     * <ol>left and right brackets: [, ]</ol>
+     * <ol>right and right parentheses: (, )
+     * </ul>
+     */
+    public static final char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
 }

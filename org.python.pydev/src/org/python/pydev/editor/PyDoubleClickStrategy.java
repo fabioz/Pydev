@@ -15,6 +15,7 @@ import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.ICharacterPairMatcher;
+import org.python.pydev.core.docutils.DocUtils;
 
 /**
  * Our double-click implementation. 
@@ -23,18 +24,6 @@ import org.eclipse.jface.text.source.ICharacterPairMatcher;
  */
 public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
 
-	/**
-	 * An array of Python pairs of characters that you will find in any Python code.
-	 * 
-	 * Currently, the set contains:
-	 * <ul>
-	 * <ol>left and right brackets: [, ]</ol>
-	 * <ol>right and right parentheses: (, )
-	 * </ul>
-	 */
-	public static final char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
-	
-	
 	public class JavaCodeReader extends Reader {
 	
 		/** The EOF character */
@@ -458,7 +447,7 @@ public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
 			return -1;
 		}
 	}
-	protected JavaPairMatcher fPairMatcher = new JavaPairMatcher(BRACKETS);
+	protected JavaPairMatcher fPairMatcher = new JavaPairMatcher(DocUtils.BRACKETS);
 
 	/**
 	 * @see ITextDoubleClickStrategy#doubleClicked

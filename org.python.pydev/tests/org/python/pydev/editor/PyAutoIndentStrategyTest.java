@@ -292,6 +292,14 @@ public class PyAutoIndentStrategyTest extends TestCase {
 		assertEquals(expected, docCmd.text);
 		assertEquals(2, docCmd.caretOffset);
 		
+		// check insertion that should happen even being just before a ')'
+		doc = "(() ";
+		docCmd = new DocCmd(2, 0, ")");
+		strategy.customizeDocumentCommand(new Document(doc), docCmd);
+		expected = ")";
+		assertEquals(expected, docCmd.text);
+		assertEquals(0, docCmd.caretOffset);
+		
 		// check same stuff for brackets
 		// check simple braces insertion not at end of document
 		doc = "[] ";

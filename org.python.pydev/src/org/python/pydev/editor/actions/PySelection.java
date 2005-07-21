@@ -345,4 +345,12 @@ public class PySelection {
         return getDoc().getChar(getAbsoluteCursorOffset()+1);
     }
     
+    /**
+     * @return
+     * @throws BadLocationException
+     */
+    public char getCharAtCurrentOffset() throws BadLocationException {
+        return getDoc().getChar(getAbsoluteCursorOffset());
+    }
+    
 }

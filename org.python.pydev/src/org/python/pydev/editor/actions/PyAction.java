@@ -21,6 +21,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.parser.visitors.ParsingUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
@@ -500,10 +501,10 @@ public abstract class PyAction implements IEditorActionDelegate {
      * @param c the character to search for
      * @return an integer (int) representing the number of occurences of this character
      */
-    public static int countChars(char c, String line) {
+    public static int countChars(char c, Object line) {
         int ret = 0;
-        for (int i = 0; i < line.length(); i++) {
-            if(line.charAt(i) == c){
+        for (int i = 0; i < ParsingUtils.len(line); i++) {
+            if(ParsingUtils.charAt(line, i) == c){
                 ret += 1;
             }
         }

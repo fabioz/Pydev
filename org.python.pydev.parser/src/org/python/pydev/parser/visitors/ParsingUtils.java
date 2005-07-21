@@ -87,14 +87,7 @@ public class ParsingUtils {
             throw new RuntimeException("Wrong location to eat literals. Expecting ' or \" ");
         }
         
-        boolean multi = isMultiLiteral(cs, i, curr);
-        
-        int j;
-        if(multi){
-            j = findNextMulti(cs, i+3, curr);
-        }else{
-            j = findNextSingle(cs, i+1, curr);
-        }
+        int j = getLiteralEnd(cs, i, curr);
         
         if(buf != null){
             for (int k = i; k < cs.length && k <= j; k++) {
@@ -103,6 +96,24 @@ public class ParsingUtils {
         }
         return j;
         
+    }
+
+    /**
+     * @param cs
+     * @param i
+     * @param curr
+     * @return
+     */
+    private static int getLiteralEnd(Object cs, int i, char curr) {
+        boolean multi = isMultiLiteral(cs, i, curr);
+        
+        int j;
+        if(multi){
+            j = findNextMulti(cs, i+3, curr);
+        }else{
+            j = findNextSingle(cs, i+1, curr);
+        }
+        return j;
     }
 
     /**
@@ -142,8 +153,8 @@ public class ParsingUtils {
      * @param cs
      * @param i
      */
-    public static int findNextSingle(char[] cs, int i, char curr) {
-        while(i < cs.length && cs[i] != curr){
+    public static int findNextSingle(Object cs, int i, char curr) {
+        while(i < len(cs) && charAt(cs,i) != curr){
             i++;
         }
         return i;
@@ -153,24 +164,57 @@ public class ParsingUtils {
      * @param cs
      * @param i
      */
-    public static int findNextMulti(char[] cs, int i, char curr) {
-        while(i+2 < cs.length){
-            if (cs[i] == curr && cs[i+1] == curr && cs[i+2] == curr){
+    public static int findNextMulti(Object cs, int i, char curr) {
+        while(i+2 < len(cs)){
+            if (charAt(cs,i) == curr && charAt(cs,i+1) == curr && charAt(cs,i+2) == curr){
                 break;
             }
             i++;
         }
-        if(cs.length < i+2){
-            return cs.length;
+        if(len(cs) < i+2){
+            return len(cs);
         }
         return i+2;
     }
-
-    public static boolean isMultiLiteral(char cs[], int i, char curr){
-        if(cs.length <= i + 2){
+    
+    public static char charAt(Object o, int i){
+        if (o instanceof char[]) {
+            return ((char[]) o)[i];
+        }
+        if (o instanceof StringBuffer) {
+            return ((StringBuffer) o).charAt(i);
+        }
+        if (o instanceof String) {
+            return ((String) o).charAt(i);
+        }
+        throw new RuntimeException("unable to get char at of "+o.getClass());
+    }
+    
+    public static int len(Object o){
+        if (o instanceof char[]) {
+            return ((char[]) o).length;
+        }
+        if (o instanceof StringBuffer) {
+            return ((StringBuffer) o).length();
+        }
+        if (o instanceof String) {
+            return ((String) o).length();
+        }
+        throw new RuntimeException("unable to get len of "+o.getClass());
+    }
+    
+    /**
+     * 
+     * @param cs may be a string, a string buffer or a char array
+     * @param i current position (should have a ' or ")
+     * @param curr the current char (' or ")
+     * @return whether we are at the start of a multi line literal or not.
+     */
+    public static boolean isMultiLiteral(Object cs, int i, char curr){
+        if(len(cs) <= i + 2){
             return false;
         }
-        if(cs[i+1] == curr && cs[i+2] == curr){
+        if(charAt(cs, i+1) == curr && charAt(cs,i+2) == curr){
             return true;
         }
         return false;
@@ -190,6 +234,40 @@ public class ParsingUtils {
         return i;
     }
 
+    /**
+     * Removes all the comments, whitespaces and literals from a stringbuffer (might be useful when
+     * just finding matches for something).
+     * 
+     * @param buf the buffer from where things should be removed.
+     */
+    public static void removeCommentsWhitespacesAndLiterals(StringBuffer buf) {
+        for (int i = 0; i < buf.length(); i++) {
+            char ch = buf.charAt(i);
+            if(ch == '#'){
+                
+                int j = i;
+                while(j < buf.length() && ch != '\n' && ch != '\r'){
+                    j++;
+                    ch = buf.charAt(j);
+                }
+                buf.delete(i, j);
+            }
+            
+            if(ch == '\'' || ch == '"'){
+                int j = getLiteralEnd(buf, i, ch);
+                buf.delete(i, j+1);
+            }
+        }
+        
+        int length = buf.length();
+        for (int i = length -1; i >= 0; i--) {
+            char ch = buf.charAt(i);
+            if(Character.isWhitespace(ch)){
+                buf.deleteCharAt(i);
+            }
+        }
+    }
+    
     public static void removeCommentsAndWhitespaces(StringBuffer buf) {
         
         for (int i = 0; i < buf.length(); i++) {

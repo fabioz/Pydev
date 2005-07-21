@@ -13,9 +13,9 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.core.docutils.DocUtils;
-import org.python.pydev.editor.PyDoubleClickStrategy;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
+import org.python.pydev.parser.visitors.ParsingUtils;
 
 /**
  * Class which implements the following behaviors:
@@ -155,8 +155,8 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                     // the following searches through each of the end braces and
                     // sees if the command has one of them
                     boolean found = false;
-                    for (int i = 1; i <= PyDoubleClickStrategy.BRACKETS.length && !found; i += 2) {
-                        char c = PyDoubleClickStrategy.BRACKETS[i];
+                    for (int i = 1; i <= DocUtils.BRACKETS.length && !found; i += 2) {
+                        char c = DocUtils.BRACKETS[i];
                         if (c == command.text.charAt(0)) {
                             found = true;
                             performPairReplacement(document, command);
@@ -273,22 +273,21 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
      *  
      * @param document
      * @param command if the command does not contain a brace, this function does nothing.
+     * @throws BadLocationException 
      */
-    private void performPairReplacement(IDocument document, DocumentCommand command) {
+    private void performPairReplacement(IDocument document, DocumentCommand command) throws BadLocationException {
         PySelection ps = new PySelection(document, command.offset);
 
-        /*
-         * Start matching.
-         */
-        /*
-         * TODO: Might have to optimize and check for less braces if delay
-         * between user's typing characters is too big.
-         * 
-         * You can do this by passing a smaller array to PythonPairMatcher()
-         */
-        PythonPairMatcher matcher = new PythonPairMatcher(PyDoubleClickStrategy.BRACKETS);
-        IRegion region = matcher.match(ps.getDoc(), command.offset + 1);
-        if (region != null) {
+        char c = ps.getCharAtCurrentOffset();
+        char peer = DocUtils.getPeer(c);
+        StringBuffer doc = new StringBuffer(document.get());
+        //it is not enough just counting the chars, we have to ignore those that are within comments or literals.
+        ParsingUtils.removeCommentsWhitespacesAndLiterals(doc);
+        int chars = PyAction.countChars(c, doc);
+        int peers = PyAction.countChars(peer, doc);
+        
+        if( chars == peers){
+            //if we have the same number of peers, we want to eat the char
             command.text = DocUtils.EMPTY_STRING;
             command.caretOffset = command.offset + 1;
         }
