@@ -32,7 +32,7 @@ public class UnusedImportsTestAnalyzer extends CodeCompletionTestsBase {
     /**
      * @return Returns the manager.
      */
-    private ICodeCompletionASTManager getManager() {
+    protected ICodeCompletionASTManager getManager() {
         return (ICodeCompletionASTManager) nature.getAstManager();
     }
 
@@ -61,6 +61,13 @@ public class UnusedImportsTestAnalyzer extends CodeCompletionTestsBase {
         
         assertEquals(1, msgs.length);
         assertEquals(IMessage.WARNING, msgs[0].getType());
+        assertEquals(IMessage.UNUSED_IMPORT, msgs[0].getSubType());
+
+        doc = new Document("import testlib\nprint testlib");
+        analyzer = new UnusedImportsAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0));
+        
+        assertEquals(0, msgs.length);
     }
 
     
