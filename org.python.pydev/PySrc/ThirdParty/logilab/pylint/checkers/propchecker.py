@@ -42,7 +42,6 @@ class MyChecker(BaseChecker):
 
         if (isinstance(node.node, astng.Getattr)
             and isinstance(node.node.expr, astng.Name)
-            and node.node.expr.name == 'Subject'
             and node.node.attrname == 'Properties'):
             in_class = node.get_frame()
             for param in node.args:

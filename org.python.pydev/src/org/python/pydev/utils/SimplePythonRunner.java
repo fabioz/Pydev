@@ -255,10 +255,16 @@ public class SimplePythonRunner {
             paths = new ArrayList(info.libs);
         }
 
+        boolean win32= Platform.getOS().equals(Constants.OS_WIN32);
+        String separator = ";";
+        if(!win32){
+            separator = ":"; //system dependent
+        }
+
     	StringBuffer pythonpath = new StringBuffer();
         for (int i = 0; i < paths.size(); i++) {
     		if (i > 0){
-    			pythonpath.append(";");
+    			pythonpath.append(separator);
     		}
     		pythonpath.append(REF.getFileAbsolutePath(new File((String) paths.get(i))));
     	}
