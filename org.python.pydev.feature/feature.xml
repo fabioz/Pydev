@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.python.pydev"
+      id="org.python.pydev.feature"
       label="PyDev for Eclipse"
       version="0.9.6"
-      provider-name="Fabio Zadrozny / Aleks Totic ">
+      provider-name="Fabio Zadrozny / Aleks Totic "
+      plugin="org.python.pydev">
 
    <description>
       Python development environment
