@@ -21,5 +21,7 @@ Require-Bundle: org.junit,
  org.eclipse.core.variables,
  org.eclipse.ui.console,
  org.python.pydev,
- org.python.pydev.core
+ org.python.pydev.core,
+ org.python.pydev.ast,
+ org.python.pydev.parser
 Eclipse-AutoStart: true
