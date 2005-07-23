@@ -3,27 +3,21 @@
  */
 package com.python.pydev.analysis;
 
-public class Message implements IMessage{
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
-    private int type;
-    private int subType;
+public class Message extends AbstractMessage {
+
+
     private String message;
 
-    public Message(int type, int subType, String message) {
-        this.type = type;
-        this.subType = subType;
+    public Message(int type, int subType, String message, SourceToken generator) {
+        super(type, subType, generator);
         this.message = message;
     }
-    
-    public int getType() {
-        return type;
-    }
 
-    public int getSubType() {
-        return subType;
-    }
 
-    public String getMessage() {
+
+    public String getShortMessage() {
         return message;
     }
 

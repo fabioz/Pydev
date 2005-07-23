@@ -13,10 +13,10 @@ import com.python.pydev.analysis.visitors.OcurrencesVisitor;
  * 
  * @author Fabio
  */
-public class UnusedImportsAnalyzer implements Analyzer {
+public class OcurrencesAnalyzer implements Analyzer {
 
     public IMessage[] analyzeDocument(PythonNature nature, SourceModule module) {
-        OcurrencesVisitor visitor = new OcurrencesVisitor(nature, module.getName());
+        OcurrencesVisitor visitor = new OcurrencesVisitor(nature, module.getName(), module);
         try {
             module.getAst().accept(visitor);
         } catch (Exception e) {
