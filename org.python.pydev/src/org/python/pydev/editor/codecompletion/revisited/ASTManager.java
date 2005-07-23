@@ -486,7 +486,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForWildImport
      */
-    public void getCompletionsForWildImport(CompletionState state, AbstractModule current, List completions, IToken name) {
+    public List getCompletionsForWildImport(CompletionState state, AbstractModule current, List completions, IToken name) {
         AbstractModule mod = getModule(name.getCompletePath(), state.nature);
         
         if (mod == null) {
@@ -502,6 +502,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         } else {
             //"Module not found:" + name.getRepresentation()
         }
+        return completions;
     }
 
     private IToken[] searchOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current) {

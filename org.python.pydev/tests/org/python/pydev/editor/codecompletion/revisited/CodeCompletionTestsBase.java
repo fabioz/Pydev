@@ -171,7 +171,7 @@ public class CodeCompletionTestsBase extends TestCase {
         InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
         int size = ((ASTManager)nature.getAstManager()).getSize();
         assertTrue(info.modulesManager.getSize() > 0);
-        assertTrue(info.modulesManager.getSize() < size);
+        assertTrue(""+info.modulesManager.getSize()+" "+size , info.modulesManager.getSize() < size );
     }
    
 

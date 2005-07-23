@@ -50,8 +50,17 @@ public abstract class AbstractVisitor extends VisitorBase{
      */
     protected void addToken(SimpleNode node) {
         //add the token
-        SourceToken t = new SourceToken(node, NodeUtils.getRepresentationString(node), NodeUtils.getNodeArgs(node), NodeUtils.getNodeDocString(node), moduleName);
+        SourceToken t = makeToken(node, moduleName);
         this.tokens.add(t);
+    }
+
+
+    /**
+     * @param node
+     * @return
+     */
+    public static SourceToken makeToken(SimpleNode node, String moduleName) {
+        return new SourceToken(node, NodeUtils.getRepresentationString(node), NodeUtils.getNodeArgs(node), NodeUtils.getNodeDocString(node), moduleName);
     }
 
     
@@ -64,14 +73,16 @@ public abstract class AbstractVisitor extends VisitorBase{
      * 
      * @return the tokens list passed in or the created one if it was null
      */
-    public static List makeWildImportToken(ImportFrom node, List tokens, String moduleName) {
+    public static IToken makeWildImportToken(ImportFrom node, List tokens, String moduleName) {
         if(tokens == null){
             tokens = new ArrayList();
         }
+        SourceToken sourceToken = null;
         if(isWildImport(node)){
-            tokens.add(new SourceToken(node, node.module, "",  "", moduleName));
+            sourceToken = new SourceToken(node, node.module, "",  "", moduleName);
+            tokens.add(sourceToken);
         }
-        return tokens;
+        return sourceToken;
     }
 
 

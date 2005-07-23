@@ -135,7 +135,7 @@ public interface ICodeCompletionASTManager {
      * @param completions OUT this is were completions are added.
      * @param wildImport this is the token identifying the wild import
      */
-    public void getCompletionsForWildImport(CompletionState state, AbstractModule current, List completions, IToken wildImport);
+    public List getCompletionsForWildImport(CompletionState state, AbstractModule current, List completions, IToken wildImport);
 
     /**
      * This method returns the python builtins as completions
