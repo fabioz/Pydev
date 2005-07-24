@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.eclipse.core.resources.IMarker;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
@@ -25,9 +24,8 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.plugin.nature.PythonNature;
 
-import com.python.pydev.analysis.CompositeMessage;
-import com.python.pydev.analysis.IMessage;
-import com.python.pydev.analysis.Message;
+import com.python.pydev.analysis.IAnalysisPreferences;
+import com.python.pydev.analysis.messages.IMessage;
 
 /**
  * this visitor marks the used/ unused tokens and generates the messages related
@@ -56,18 +54,27 @@ public class OcurrencesVisitor extends VisitorBase{
      * this is the module we are visiting
      */
     private AbstractModule current;
-    
+
     /**
-     * this map should hold the generator source token and the messages that are generated for it
+     * used to check for duplication in signatures
      */
-    public Map<IToken, List<IMessage>> messages = new HashMap<IToken, List<IMessage>>();
+    private DuplicationChecker duplicationChecker;
+
+    /**
+     * Used to manage the messages
+     */
+    private MessagesManager messagesManager;
     
     /**
      * Constructor
+     * @param prefs 
      */
-    public OcurrencesVisitor(PythonNature nature, String moduleName, AbstractModule current) {
+    public OcurrencesVisitor(PythonNature nature, String moduleName, AbstractModule current, IAnalysisPreferences prefs) {
         this.nature = nature;
         this.moduleName = moduleName;
+        this.messagesManager = new MessagesManager(prefs);
+        this.duplicationChecker = new DuplicationChecker(this.messagesManager);
+        
         startScope(); //initial scope 
     }
     
@@ -76,24 +83,8 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     public IMessage[] getMessages() {
         endScope(); //have to end the scope that started when we created the class.
-        List<IMessage> result = new ArrayList<IMessage>();
         
-        //let's get the messages
-        for (List<IMessage> l : messages.values()) {
-            if(l.size() > 1){
-                //the generator token has many associated messages
-                IMessage message = l.get(0);
-                CompositeMessage compositeMessage = new CompositeMessage(message.getSeverity(), message.getSubType(), message.getGenerator());
-                for(IMessage m : l){
-                    compositeMessage.addMessage(m);
-                }
-                result.add(compositeMessage);
-            }
-            else if(l.size() == 1){
-                result.add(l.get(0));
-            }
-        }
-        return (IMessage[]) result.toArray(new IMessage[0]);
+        return messagesManager.getMessages();
     }
     
     /**
@@ -119,7 +110,9 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     public Object visitClassDef(ClassDef node) throws Exception {
         startScope();
+        duplicationChecker.beforeClassDef(node);
         Object object = super.visitClassDef(node);
+        duplicationChecker.afterClassDef(node);
         endScope();
         return object;
     }
@@ -130,7 +123,9 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         startScope();
+        duplicationChecker.beforeFunctionDef(node);
         Object object = super.visitFunctionDef(node);
+        duplicationChecker.afterFunctionDef(node);
         endScope();
         return object;
     }
@@ -185,6 +180,10 @@ public class OcurrencesVisitor extends VisitorBase{
         }
     }
     
+    /**
+     * visit some import 
+     * @see org.python.parser.ast.VisitorIF#visitImportFrom(org.python.parser.ast.ImportFrom)
+     */
     public Object visitImportFrom(ImportFrom node) throws Exception {
         if(AbstractVisitor.isWildImport(node)){
             IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName);
@@ -198,10 +197,16 @@ public class OcurrencesVisitor extends VisitorBase{
         return null;
     }
     
+    /**
+     * initializes a new scope
+     */
     private void startScope() {
         stack.push(new HashMap<String,Found>());
     }
     
+    /**
+     * finalizes the current scope
+     */
     private void endScope() {
         Map m = (Map) stack.pop(); //clear the last
         for (Iterator iter = m.values().iterator(); iter.hasNext();) {
@@ -218,9 +223,9 @@ public class OcurrencesVisitor extends VisitorBase{
     private void addMessage(Found f) {
         SimpleNode ast = f.generator.getAst();
         if(ast instanceof Import || ast instanceof ImportFrom){
-            addMessage(IMarker.SEVERITY_WARNING, IMessage.SUB_UNUSED_IMPORT, f);
+            messagesManager.addMessage(IAnalysisPreferences.TYPE_UNUSED_IMPORT, f);
         }else{
-            addMessage(IMarker.SEVERITY_WARNING, IMessage.SUB_UNUSED_VARIABLE, f);
+            messagesManager.addMessage(IAnalysisPreferences.TYPE_UNUSED_VARIABLE, f);
         }
     }
 
@@ -243,23 +248,19 @@ public class OcurrencesVisitor extends VisitorBase{
         return null;
     }
     
+    /**
+     * we just found a token, so let's mark the correspondent tokens read (or undefined)
+     */
     private void markRead(SourceToken token) {
         for (Map<String,Found> m : stack) {
             
             Found f = m.get(token.getRepresentation());
             if(f != null){
                 f.used = true;
+            }else{ //this token was not defined...
+                messagesManager.addMessage(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, token);
             }
         }
     }
 
-
-    private void addMessage(int type, int subType, Found f) {
-        List<IMessage> msgs = messages.get(f.generator);
-        if (msgs == null){
-            msgs = new ArrayList<IMessage>();
-            messages.put(f.generator, msgs);
-        }
-        msgs.add(new Message(type, subType, f.tok.getRepresentation(),(SourceToken) f.tok));
-    }
 }

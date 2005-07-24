@@ -10,30 +10,51 @@ import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
-import com.python.pydev.analysis.IMessage;
+import com.python.pydev.analysis.AnalysisPreferences;
+import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.OcurrencesAnalyzer;
+import com.python.pydev.analysis.messages.IMessage;
 
 public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
     private static final String PYDEV_PROBLEM_MARKER = "com.python.pydev.analysis.pydev_analysis_problemmarker";
+    
+    /**
+     * here we have to detect errors / warnings from the code analysis
+     *  
+     * @see org.python.pydev.builder.PyDevBuilderVisitor#visitChangedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
+     */
     @Override
     public boolean visitChangedResource(IResource resource, IDocument document) {
         try {
             resource.deleteMarkers(PYDEV_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
         } catch (CoreException e3) {
-            PydevPlugin.log(e3);
+            Log.log(e3);
         }
+        
+        IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
+        
+        //let's see if we should do code analysis
+        if(analysisPreferences.makeCodeAnalysis() == false){
+            return true;
+        }
+
         OcurrencesAnalyzer analyzer = new OcurrencesAnalyzer();
         PythonNature nature = PythonNature.getPythonNature(resource.getProject());
         AbstractModule module = AbstractModule.createModuleFromDoc("", null, document, nature, 0);
-        IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module);
+        
+        //ok, let's do it
+        IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences);
         try {
+            
+            //add the markers
             for (IMessage m : messages) {
-                String msg = "ID:" + m.getSubType() + " " + m.getMessage();
-                createMarker(resource, document, msg, m.getStartLine() - 1, m.getStartCol() - 1, m.getEndLine() - 1, m.getEndCol() - 1, PYDEV_PROBLEM_MARKER, m.getSeverity());
+                String msg = "ID:" + m.getType() + " " + m.getMessage();
+                createMarker(resource, document, msg, 
+                        m.getStartLine() - 1, m.getStartCol() - 1, m.getEndLine() - 1, m.getEndCol() - 1, 
+                        PYDEV_PROBLEM_MARKER, m.getSeverity());
             }
         } catch (Exception e) {
             Log.log(e);

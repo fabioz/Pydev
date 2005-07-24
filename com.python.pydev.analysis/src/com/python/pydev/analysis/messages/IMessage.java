@@ -1,7 +1,7 @@
 /*
  * Created on 19/07/2005
  */
-package com.python.pydev.analysis;
+package com.python.pydev.analysis.messages;
 
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
@@ -15,15 +15,12 @@ public interface IMessage {
      */
     int getSeverity();
     
-    
-    
-    
-    int SUB_UNUSED_IMPORT = 0;
-    int SUB_UNUSED_VARIABLE = 1;
     /**
-     * @return this message sub type
+     * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNUSED_IMPORT
+     * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNUSED_VARIABLE
+     * @return this message type
      */
-    int getSubType();
+    int getType();
 
     /**
      * @return the starting line of the error
@@ -53,7 +50,7 @@ public interface IMessage {
     /**
      * @return the message that should be presented to the user in a short way (may be used for abbreviations).
      */
-    String getShortMessage();
+    Object getShortMessage();
     
     /**
      * @return the generator token for the message

@@ -22,5 +22,9 @@
    		<builder_participant class="com.python.pydev.analysis.builder.AnalysisBuilderVisitor">
    		</builder_participant>
    </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.python.pydev.analysis.AnalysisPreferenceInitializer"/>
+   </extension>
 
 </plugin>

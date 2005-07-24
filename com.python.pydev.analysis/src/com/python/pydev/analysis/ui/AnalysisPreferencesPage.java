@@ -3,29 +3,47 @@
  */
 package com.python.pydev.analysis.ui;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.plugin.PydevPlugin;
+
+import com.python.pydev.analysis.AnalysisPlugin;
+import com.python.pydev.analysis.AnalysisPreferenceInitializer;
+import com.python.pydev.analysis.IAnalysisPreferences;
 
 public class AnalysisPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     public AnalysisPreferencesPage() {
         super(FLAT);
-        setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         setDescription("PyDev Analysis");
-        
+        setPreferenceStore(null);
     }
-    private static final String USE_PYDEV_ANALYSIS = "USE_PYDEV_ANALYSIS";
-    private static final boolean DEFAULT_USE_PYDEV_ANALYSIS = true;
-
+    
+    @Override
+    protected IPreferenceStore doGetPreferenceStore() {
+        return AnalysisPlugin.getDefault().getPreferenceStore();
+    }
+    
     @Override
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        addField(new BooleanFieldEditor(USE_PYDEV_ANALYSIS, "Use PyDev Code Analysis?", p));
+        String[][] values = new String[][]{
+                {"Error"  , String.valueOf(IMarker.SEVERITY_ERROR)},
+                {"Warning", String.valueOf(IMarker.SEVERITY_WARNING)},
+                {"Ignore" , String.valueOf(IAnalysisPreferences.SEVERITY_IGNORE)}
+        };
+
+        addField(new BooleanFieldEditor(AnalysisPreferenceInitializer.USE_PYDEV_ANALYSIS, "Use PyDev Code Analysis?", p));
+        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNUSED_IMPORT, "Unused import severity", 3,values,p, true));
+        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNUSED_VARIABLE, "Unused variable severity", 3,values,p, true));
+        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNDEFINED_VARIABLE, "Undefined variable severity", 3,values,p, true));
+        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_DUPLICATED_SIGNATURE, "Duplicated signature severity", 3,values,p, true));
 
     }
 

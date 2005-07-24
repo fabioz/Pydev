@@ -1,7 +1,7 @@
 /*
  * Created on 23/07/2005
  */
-package com.python.pydev.analysis;
+package com.python.pydev.analysis.messages;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,25 +9,20 @@ import java.util.List;
 
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
+import com.python.pydev.analysis.IAnalysisPreferences;
+
+
 
 public class CompositeMessage extends AbstractMessage{
 
-    public CompositeMessage(int type, int subType, SourceToken generator) {
-        super(type, subType, generator);
+    public CompositeMessage(int type, SourceToken generator, IAnalysisPreferences prefs) {
+        super(type, generator, prefs);
     }
 
     List<IMessage> msgs = new ArrayList<IMessage>();
     
     public void addMessage(IMessage msg){
         msgs.add(msg);
-    }
-    
-    public int getSeverity() {
-        return 0;
-    }
-
-    public int getSubType() {
-        return 0;
     }
 
     public String getShortMessage() {
