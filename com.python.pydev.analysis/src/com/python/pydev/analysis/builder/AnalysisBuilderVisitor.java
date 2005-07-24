@@ -19,7 +19,7 @@ import com.python.pydev.analysis.messages.IMessage;
 
 public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
-    private static final String PYDEV_PROBLEM_MARKER = "com.python.pydev.analysis.pydev_analysis_problemmarker";
+    private static final String PYDEV_ANALYSIS_PROBLEM_MARKER = "com.python.pydev.analysis.pydev_analysis_problemmarker";
     
     /**
      * here we have to detect errors / warnings from the code analysis
@@ -29,7 +29,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     @Override
     public boolean visitChangedResource(IResource resource, IDocument document) {
         try {
-            resource.deleteMarkers(PYDEV_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+            resource.deleteMarkers(PYDEV_ANALYSIS_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
         } catch (CoreException e3) {
             Log.log(e3);
         }
@@ -54,7 +54,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
                 String msg = "ID:" + m.getType() + " " + m.getMessage();
                 createMarker(resource, document, msg, 
                         m.getStartLine() - 1, m.getStartCol() - 1, m.getEndLine() - 1, m.getEndCol() - 1, 
-                        PYDEV_PROBLEM_MARKER, m.getSeverity());
+                        PYDEV_ANALYSIS_PROBLEM_MARKER, m.getSeverity());
             }
         } catch (Exception e) {
             Log.log(e);
