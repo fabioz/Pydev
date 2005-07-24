@@ -17,7 +17,9 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.MarkerUtilities;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Fabio Zadrozny
@@ -191,6 +193,31 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
      */
     public abstract boolean visitRemovedResource(IResource resource, IDocument document);
 
+    /**
+     * Checks pre-existance of marker.
+     */
+    public static IMarker markerExists(IResource resource, String message, int charStart, int charEnd, String type) {
+        IMarker[] tasks;
+        try {
+            tasks = resource.findMarkers(type, true, IResource.DEPTH_ZERO);
+            for (int i = 0; i < tasks.length; i++) {
+                IMarker task = tasks[i];
+                
+                boolean eqMessage = task.getAttribute(IMarker.MESSAGE).equals(message);
+                
+                boolean eqCharStart = (Integer)task.getAttribute(IMarker.CHAR_START) == charStart;
+                boolean eqCharEnd = (Integer)task.getAttribute(IMarker.CHAR_END) == charEnd;
+                
+                if (eqMessage && eqCharStart && eqCharEnd){
+                    return task;
+                }
+            }
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
 
     /**
      * Checks pre-existance of marker.
@@ -205,9 +232,12 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
         try {
             tasks = resource.findMarkers(type, true, IResource.DEPTH_ZERO);
             for (int i = 0; i < tasks.length; i++) {
-                if (tasks[i].getAttribute(IMarker.LINE_NUMBER).toString().equals(String.valueOf(lineNumber))
-                        && tasks[i].getAttribute(IMarker.MESSAGE).equals(message))
-                    return tasks[i];
+                IMarker task = tasks[i];
+                boolean eqLineNumber = (Integer)task.getAttribute(IMarker.LINE_NUMBER) == lineNumber;
+                boolean eqMessage = task.getAttribute(IMarker.MESSAGE).equals(message);
+                if (eqLineNumber && eqMessage){
+                    return task;
+                }
             }
         } catch (CoreException e) {
             throw new RuntimeException(e);
@@ -242,18 +272,51 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
         createMarker(resource, message, lineNumber, markerType, severity);
     }
 
-    /**
-     * @param resource
-     * @param message
-     * @param lineNumber
-     * @param markerType
-     * @param marker
-     * @param severity
-     * @return
-     */
+    public static void createMarker(IResource resource, IDocument doc, String message, 
+            int lineStart, int colStart, int lineEnd, int colEnd, 
+            String markerType, int severity) {
+
+        if(lineStart < 0){
+            lineStart = 0;
+        }
+        
+        int startAbsolute;
+        int endAbsolute;
+        
+        try {
+            IRegion start = doc.getLineInformation(lineStart);
+            startAbsolute = start.getOffset() + colStart;
+            if (lineEnd >= 0 && colEnd >= 0) {
+                IRegion end = doc.getLineInformation(lineEnd);
+                endAbsolute = end.getOffset() + colEnd;
+            } else {
+                endAbsolute = start.getOffset() + start.getLength();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        IMarker marker = markerExists(resource, message, startAbsolute, endAbsolute, markerType);
+        if (marker == null) {
+            try {
+                
+                
+                HashMap map = new HashMap();
+                map.put(IMarker.MESSAGE, message);
+                map.put(IMarker.CHAR_START, new Integer(startAbsolute));
+                map.put(IMarker.CHAR_END, new Integer(endAbsolute));
+                map.put(IMarker.SEVERITY, new Integer(severity));
+                
+                MarkerUtilities.createMarker(resource, map, markerType);
+            } catch (Exception e) {
+                PydevPlugin.log(e);
+            }
+        }
+    }
+    
     public static void createMarker(IResource resource, String message, int lineNumber, String markerType, int severity) {
         if(lineNumber <= 0)
-            lineNumber = 1;
+            lineNumber = 0;
         IMarker marker = markerExists(resource, message, lineNumber, markerType);
         if (marker == null) {
             try {
@@ -271,7 +334,7 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 
     public static void createMarker(IResource resource, String message, int lineNumber, String markerType, int severity, boolean userEditable, boolean istransient) {
         if(lineNumber <= 0)
-            lineNumber = 1;
+            lineNumber = 0;
         IMarker marker = markerExists(resource, message, lineNumber, markerType);
         if (marker == null) {
             try {

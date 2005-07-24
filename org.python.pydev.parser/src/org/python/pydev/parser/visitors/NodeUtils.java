@@ -126,4 +126,64 @@ public class NodeUtils {
         return getRepresentationString(node);
     }
 
+    public static int[] getColLineEnd(SimpleNode v) {
+        int lineEnd = getLineEnd(v);
+        int col = 0;
+        if(lineEnd == v.beginLine){
+            if(v instanceof Str){
+                String s = ((Str)v).s;
+                col = v.beginColumn + s.length();
+            }else{
+                col = getFromRepresentation(v);
+            }
+            
+        }else{
+            //it is another line...
+            if(v instanceof Str){
+                String s = ((Str)v).s;
+                int i = s.lastIndexOf('\n');
+                String sub = s.substring(i, s.length());
+                
+                col = sub.length();
+            }else{
+                col = getFromRepresentation(v);
+            }
+        }
+        return new int[]{lineEnd, col};
+    }
+
+    /**
+     * @param v
+     * @return
+     */
+    private static int getFromRepresentation(SimpleNode v) {
+        int col;
+        String representationString = getRepresentationString(v);
+        try {
+            col = v.beginColumn + representationString.length();
+        } catch (Exception e) {
+            col = -1;
+        }
+        return col;
+    }
+    
+    public static int getLineEnd(SimpleNode v) {
+        if(v instanceof Str){
+            String s = ((Str)v).s;
+            char[] cs = s.toCharArray();
+            int found = 0;
+            for (int i = 0; i < cs.length; i++) {
+     
+                if(cs[i] == '\n'){
+                    found += 1;
+                }
+            }
+//            StringTokenizer tokenizer = new StringTokenizer(s, "\n");
+//            int countTokens = tokenizer.countTokens();
+//            System.out.println("For-->"+s+"<-- ="+countTokens);
+            return v.beginLine + found;
+        }
+        return v.beginLine;
+    }
+
 }

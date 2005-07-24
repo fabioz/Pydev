@@ -15,6 +15,7 @@ import org.python.parser.ast.Name;
 import org.python.parser.ast.keywordType;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -88,7 +89,43 @@ public class SourceToken extends AbstractToken{
     }
 
     public int getColDefinition() {
-        return ast.beginLine;
+        return ast.beginColumn;
     }
     
+    int[] colLineEnd;
+    public int getLineEnd(){
+        if(colLineEnd == null){
+            colLineEnd = NodeUtils.getColLineEnd(getAst());
+        }
+        return colLineEnd[0];
+    }
+    
+    public int getColEnd(){
+        if(colLineEnd == null){
+            colLineEnd = NodeUtils.getColLineEnd(getAst());
+        }
+        return colLineEnd[1];
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof SourceToken))
+            return false;
+        
+        SourceToken s = (SourceToken) obj;
+        
+        if(!s.getRepresentation().equals(getRepresentation()))
+            return false;
+        if(s.getLineDefinition() != getLineDefinition())
+            return false;
+        if(s.getColDefinition() != getColDefinition())
+            return false;
+        
+        return true;
+    }
+    
+    @Override
+    public int hashCode() {
+        return 7*getLineDefinition()*getColDefinition();
+    }
 }

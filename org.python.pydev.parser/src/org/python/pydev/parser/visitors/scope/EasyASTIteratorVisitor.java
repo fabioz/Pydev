@@ -16,9 +16,9 @@ import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
-import org.python.parser.ast.Str;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.exprType;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * This class is used so that after transversing the AST, we have a simple structure for navigating
@@ -73,7 +73,7 @@ public class EasyASTIteratorVisitor extends VisitorBase{
      */
     private void after(ASTEntry entry) {
         stack.pop();
-        entry.endLine = getEnd(lastVisited);
+        entry.endLine = NodeUtils.getLineEnd(lastVisited);
     }
 
 
@@ -83,7 +83,7 @@ public class EasyASTIteratorVisitor extends VisitorBase{
     private void atomic(SimpleNode node) {
         ASTEntry entry = new ASTEntry(getParent());
         entry.node = node;
-        entry.endLine = getEnd(node);
+        entry.endLine = NodeUtils.getLineEnd(node);
         nodes.add(entry);
     }
 
@@ -113,25 +113,6 @@ public class EasyASTIteratorVisitor extends VisitorBase{
         }
         return null;
     }
-
-    private int getEnd(SimpleNode v) {
-        if(v instanceof Str){
-            String s = ((Str)v).s;
-            char[] cs = s.toCharArray();
-            int found = 0;
-            for (int i = 0; i < cs.length; i++) {
-                if(cs[i] == '\n'){
-                    found += 1;
-                }
-            }
-//            StringTokenizer tokenizer = new StringTokenizer(s, "\n");
-//            int countTokens = tokenizer.countTokens();
-//            System.out.println("For-->"+s+"<-- ="+countTokens);
-            return v.beginLine + found;
-        }
-        return v.beginLine;
-    }
-
 
     /** 
      * @see org.python.parser.ast.VisitorBase#visitImport(org.python.parser.ast.Import)

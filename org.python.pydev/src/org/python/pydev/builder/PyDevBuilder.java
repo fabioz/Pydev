@@ -8,6 +8,7 @@ package org.python.pydev.builder;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -20,9 +21,14 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.pylint.PyLintVisitor;
@@ -35,6 +41,51 @@ import org.python.pydev.plugin.PydevPlugin;
  * @author Fabio Zadrozny
  */
 public class PyDevBuilder extends IncrementalProjectBuilder {
+
+    private IExtension[] extensions;
+    private IExtension[] getExtensions() {
+        if(extensions == null){
+            IExtensionRegistry registry = Platform.getExtensionRegistry();
+            IExtensionPoint extensionPoint = registry.getExtensionPoint("org.python.pydev.pydev_builder");
+            extensions = extensionPoint.getExtensions();
+        }
+        return extensions;
+    }
+    
+    /**
+     * 
+     * @return a list of visitors for building the application.
+     */
+    public List<PyDevBuilderVisitor> getVisitors() {
+        List<PyDevBuilderVisitor> list = new ArrayList<PyDevBuilderVisitor>();
+        list.add(new PyTodoVisitor());
+        list.add(new PyLintVisitor());
+        list.add(new PyCodeCompletionVisitor());
+
+        IExtension[] extensions = getExtensions();
+        // For each extension ...
+        for (int i = 0; i < extensions.length; i++) {
+            IExtension extension = extensions[i];
+            IConfigurationElement[] elements = extension.getConfigurationElements();
+            // For each member of the extension ...
+            for (int j = 0; j < elements.length; j++) {
+                IConfigurationElement element = elements[j];
+                
+                try {
+                    PyDevBuilderVisitor visitor = (PyDevBuilderVisitor) element.createExecutableExtension("class");
+                    list.add(visitor);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+        return list;
+    }
+
+
+
+
     /**
      * Builds the project.
      * 
@@ -42,51 +93,35 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      */
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
 
-        if(PyDevBuilderPrefPage.usePydevBuilders() == false)
+        if (PyDevBuilderPrefPage.usePydevBuilders() == false)
             return null;
-        
+
         if (kind == IncrementalProjectBuilder.FULL_BUILD) {
             // Do a Full Build: Use a ResourceVisitor to process the tree.
             performFullBuild(monitor);
-            
-        } else { 
+
+        } else {
             // Build it with a delta
-            
-            //first step is just counting them
+
+            // first step is just counting them
             IResourceDelta delta = getDelta(getProject());
             PyDevDeltaCounter counterVisitor = new PyDevDeltaCounter();
             delta.accept(counterVisitor);
-            
+
             if (delta == null) {
                 performFullBuild(monitor);
             } else {
-                for (Iterator it = getVisitors().iterator(); it.hasNext();) {
-                    PyDevBuilderVisitor element = (PyDevBuilderVisitor) it.next();
-                    
-                    //some visitors cannot visit too many elements because they do a lot of processing
-                    if(element.maxResourcesToVisit() == PyDevBuilderVisitor.MAX_TO_VISIT_INFINITE || 
-                       element.maxResourcesToVisit() >= counterVisitor.getNVisited()){
+                for (PyDevBuilderVisitor element : getVisitors()) {
+
+                    // some visitors cannot visit too many elements because they do a lot of processing
+                    if (element.maxResourcesToVisit() == PyDevBuilderVisitor.MAX_TO_VISIT_INFINITE || element.maxResourcesToVisit() >= counterVisitor.getNVisited()) {
                         delta.accept(element);
                     }
                 }
-                
+
             }
         }
         return null;
-    }
-
-    /**
-     * 
-     * @return a list of visitors for building the application.
-     */
-    private List getVisitors() {
-        ArrayList list = new ArrayList();
-//        list.add(new PyCheckerVisitor());
-        list.add(new PyTodoVisitor());
-        list.add(new PyLintVisitor());
-        list.add(new PyCodeCompletionVisitor());
-
-        return list;
     }
 
     /**
@@ -98,22 +133,22 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         IProject project = getProject();
 
         if (project != null) {
-	        List resourcesToParse = new ArrayList();
-	
-	        List visitors = getVisitors();
+            List<IResource> resourcesToParse = new ArrayList<IResource>();
 
-	        monitor.beginTask("Building...", (visitors.size() * 100) + 30);
+            List<PyDevBuilderVisitor> visitors = getVisitors();
+
+            monitor.beginTask("Building...", (visitors.size() * 100) + 30);
 
             IResource[] members = project.members();
 
-            if(members != null){
-	            //get all the python files to get information.
-	            for (int i = 0; i < members.length; i++) {
-	                try {
+            if (members != null) {
+                // get all the python files to get information.
+                for (int i = 0; i < members.length; i++) {
+                    try {
                         if (members[i] == null) {
                             continue;
                         }
-                        
+
                         if (members[i].getType() == IResource.FILE) {
                             String fileExtension = members[i].getFileExtension();
                             if (fileExtension != null && fileExtension.equals("py")) {
@@ -133,45 +168,42 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                             }
                         }
                     } catch (Exception e) {
-                        //that's ok...
+                        // that's ok...
                     }
-	            }
-	            monitor.worked(30);
-	            fullBuild(resourcesToParse, monitor, visitors);
-            }            
+                }
+                monitor.worked(30);
+                fullBuild(resourcesToParse, monitor, visitors);
+            }
         }
         monitor.done();
 
     }
-    
-	/**
-	 * Default implementation. 
-	 * Visits each resource once at a time.
-	 * May be overriden if a better implementation is needed.
-	 * 
-	 * @param resourcesToParse list of resources from project that are python files.
-	 * @param monitor
-	 * @param visitors
-	 */
-    public void fullBuild(List resourcesToParse, IProgressMonitor monitor, List visitors){
 
-        
-        //we have 100 units here
-        double inc = (visitors.size() * 100) / (double)resourcesToParse.size();
-        
+    /**
+     * Default implementation. Visits each resource once at a time. May be overriden if a better implementation is needed.
+     * 
+     * @param resourcesToParse list of resources from project that are python files.
+     * @param monitor
+     * @param visitors
+     */
+    public void fullBuild(List resourcesToParse, IProgressMonitor monitor, List visitors) {
+
+        // we have 100 units here
+        double inc = (visitors.size() * 100) / (double) resourcesToParse.size();
+
         double total = 0;
         int totalResources = resourcesToParse.size();
         int i = 0;
-        
+
         for (Iterator iter = resourcesToParse.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
-            i+=1;
+            i += 1;
             total += inc;
             IResource r = (IResource) iter.next();
 
             IDocument doc = getDocFromResource(r);
             for (Iterator it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
                 PyDevBuilderVisitor visitor = (PyDevBuilderVisitor) it.next();
-                
+
                 StringBuffer msgBuf = new StringBuffer();
                 msgBuf.append("Visiting... (");
                 msgBuf.append(i);
@@ -181,15 +213,14 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 msgBuf.append(r.getProjectRelativePath());
                 msgBuf.append(" - visitor: ");
                 msgBuf.append(visitor.getClass().getName());
-                
-                
+
                 monitor.subTask(msgBuf.toString());
                 visitor.visitChangedResource(r, doc);
             }
 
-            if(total > 1){
+            if (total > 1) {
                 monitor.worked((int) total);
-                total -= (int)total;
+                total -= (int) total;
             }
         }
     }
@@ -200,10 +231,10 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * @param resource
      * @return
      */
-    public static IDocument getDocFromResource(IResource resource){
+    public static IDocument getDocFromResource(IResource resource) {
         IProject project = resource.getProject();
         if (project != null && resource instanceof IFile) {
-            
+
             IFile file = (IFile) resource;
             try {
                 String encoding = file.getCharset();
@@ -211,7 +242,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 StringBuffer buf = new StringBuffer();
 
                 InputStreamReader in = null;
-	            try {
+                try {
                     if (encoding != null) {
                         in = new InputStreamReader(stream, encoding);
                     } else {
@@ -226,13 +257,11 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                     in.close();
                 }
                 return new Document(buf.toString());
-            }catch (Exception e) {
+            } catch (Exception e) {
                 PydevPlugin.log(e);
             }
         }
         return null;
     }
-    
 
 }
-

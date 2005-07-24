@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
+   <extension-point id="pydev_builder" name="Pydev Builder" schema="schema/pydev_builder.exsd"/>
 
 <!-- Python editor -->
    <extension point="org.eclipse.ui.editors">
@@ -906,6 +907,7 @@ ${cursor}
    
 	<extension 
 		point="org.eclipse.core.resources.markers"
+        name="PyLint Problem"
 		id="pylintproblemmarker">
 	   <super type="org.eclipse.core.resources.problemmarker"/>
 	   <persistent value="true"/>
