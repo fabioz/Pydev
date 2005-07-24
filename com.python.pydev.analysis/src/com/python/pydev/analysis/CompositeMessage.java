@@ -22,7 +22,7 @@ public class CompositeMessage extends AbstractMessage{
         msgs.add(msg);
     }
     
-    public int getType() {
+    public int getSeverity() {
         return 0;
     }
 

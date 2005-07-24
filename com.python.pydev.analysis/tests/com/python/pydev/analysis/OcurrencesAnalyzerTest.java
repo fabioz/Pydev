@@ -3,6 +3,7 @@
  */
 package com.python.pydev.analysis;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
@@ -13,6 +14,14 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase { 
 
     public static void main(String[] args) {
+//        OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
+//        try {
+//            analyzer2.setUp();
+//            analyzer2.testSameName();
+//            analyzer2.tearDown();
+//        } catch (Throwable e) {
+//            e.printStackTrace();
+//        }
         junit.textui.TestRunner.run(OcurrencesAnalyzerTest.class);
     }
 
@@ -55,7 +64,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         assertEquals(1, msgs.length);
         assertEquals("Unused import(s): testlib", msgs[0].getMessage());
-        assertEquals(IMessage.TYPE_WARNING, msgs[0].getType());
+        assertEquals(IMarker.SEVERITY_WARNING, msgs[0].getSeverity());
         assertEquals(IMessage.SUB_UNUSED_IMPORT, msgs[0].getSubType());
 
         doc = new Document("import testlib\nprint testlib");
@@ -112,6 +121,31 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals("Unused variable: a", msgs[0].getMessage());
         
     }
+
+    public void testSameName() {
+        //2 messages with token with same name
+        doc = new Document(
+            "a = 1\n"+
+            "a = 2" );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0));
+        
+        assertEquals(2, msgs.length);
+    }
+    
+    public void testOtherScopes() {
+        //2 messages with token with same name
+        doc = new Document(
+"def eoueoau(  aeee  ): \n"+  
+"    pass               \n"+
+"def eoueoau(  afff  ): \n"+   
+"    pass "             );                   
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0));
+        
+        assertEquals(2, msgs.length);
+    }
+    
     /**
      * @param msgs
      */

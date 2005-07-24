@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Analysis Plug-in
-Bundle-SymbolicName: com.python.pydev.analysis
+Bundle-SymbolicName: com.python.pydev.analysis; singleton:=true
 Bundle-Version: 0.9.6
 Bundle-Activator: com.python.pydev.analysis.AnalysisPlugin
 Bundle-Vendor: Fabio Zadrozny

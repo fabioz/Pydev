@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.eclipse.core.resources.IMarker;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
@@ -28,48 +29,61 @@ import com.python.pydev.analysis.CompositeMessage;
 import com.python.pydev.analysis.IMessage;
 import com.python.pydev.analysis.Message;
 
+/**
+ * this visitor marks the used/ unused tokens and generates the messages related
+ * 
+ * @author Fabio
+ */
 public class OcurrencesVisitor extends VisitorBase{
 
+    /**
+     * nature is needed for imports
+     */
     private PythonNature nature;
+    
+    /**
+     * this is the name of the module we are visiting
+     */
     private String moduleName;
     
+    /**
+     * this stack is used to hold the scope. when we enter a scope, an item is added, and when we
+     * exit, it is removed (and the analysis of unused tokens should happen at this time).
+     */
     private Stack<Map<String,Found>> stack = new Stack<Map<String,Found>>();
     
+    /**
+     * this is the module we are visiting
+     */
     private AbstractModule current;
+    
+    /**
+     * this map should hold the generator source token and the messages that are generated for it
+     */
     public Map<IToken, List<IMessage>> messages = new HashMap<IToken, List<IMessage>>();
     
-    public static class Found{
-        /**
-         * This is the token that is from the current module that created the token (if on some wild import)
-         * 
-         * May be equal to tok
-         */
-        public SourceToken generator;
-        
-        /**
-         * This is the token that has been added to the namespace (may have been created on the current module or not).
-         */
-        public IToken tok;
-        
-        /**
-         * Identifies if the current token has been used or not
-         */
-        public boolean used = false;
-        
-        Found(IToken tok, SourceToken generator){
-            this.tok = tok;
-            this.generator = generator;
-        }
+    /**
+     * Constructor
+     */
+    public OcurrencesVisitor(PythonNature nature, String moduleName, AbstractModule current) {
+        this.nature = nature;
+        this.moduleName = moduleName;
+        startScope(); //initial scope 
     }
-
+    
+    /**
+     * @return the generated messages.
+     */
     public IMessage[] getMessages() {
-        endScope();
+        endScope(); //have to end the scope that started when we created the class.
         List<IMessage> result = new ArrayList<IMessage>();
         
+        //let's get the messages
         for (List<IMessage> l : messages.values()) {
             if(l.size() > 1){
+                //the generator token has many associated messages
                 IMessage message = l.get(0);
-                CompositeMessage compositeMessage = new CompositeMessage(message.getType(), message.getSubType(), message.getGenerator());
+                CompositeMessage compositeMessage = new CompositeMessage(message.getSeverity(), message.getSubType(), message.getGenerator());
                 for(IMessage m : l){
                     compositeMessage.addMessage(m);
                 }
@@ -82,20 +96,27 @@ public class OcurrencesVisitor extends VisitorBase{
         return (IMessage[]) result.toArray(new IMessage[0]);
     }
     
-    public OcurrencesVisitor(PythonNature nature, String moduleName, AbstractModule current) {
-        this.nature = nature;
-        this.moduleName = moduleName;
-        startScope(); //initial scope 
-    }
-    
+    /**
+     * nothing is additionally handled here 
+     * @see org.python.parser.ast.VisitorBase#unhandled_node(org.python.parser.SimpleNode)
+     */
     protected Object unhandled_node(SimpleNode node) throws Exception {
         return null;
     }
 
+    /**
+     * transverse the node 
+     * @see org.python.parser.ast.VisitorBase#traverse(org.python.parser.SimpleNode)
+     */
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
     
+    
+    /**
+     * we are starting a new scope when visiting a class 
+     * @see org.python.parser.ast.VisitorIF#visitClassDef(org.python.parser.ast.ClassDef)
+     */
     public Object visitClassDef(ClassDef node) throws Exception {
         startScope();
         Object object = super.visitClassDef(node);
@@ -103,6 +124,10 @@ public class OcurrencesVisitor extends VisitorBase{
         return object;
     }
 
+    /**
+     * we are starting a new scope when visiting a function 
+     * @see org.python.parser.ast.VisitorIF#visitFunctionDef(org.python.parser.ast.FunctionDef)
+     */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         startScope();
         Object object = super.visitFunctionDef(node);
@@ -110,6 +135,10 @@ public class OcurrencesVisitor extends VisitorBase{
         return object;
     }
     
+    /**
+     * when visiting an import, just make the token and add it 
+     * @see org.python.parser.ast.VisitorIF#visitImport(org.python.parser.ast.Import)
+     */
     public Object visitImport(Import node) throws Exception {
         List list = AbstractVisitor.makeImportToken(node, null, moduleName);
         addTokens(list, null);
@@ -117,7 +146,7 @@ public class OcurrencesVisitor extends VisitorBase{
     }
 
     /**
-     * @param list
+     * Adds many tokens at once (created by the same token -- wild import)
      */
     private void addTokens(List list, IToken generator) {
         Map<String,Found> m = stack.peek();
@@ -144,11 +173,15 @@ public class OcurrencesVisitor extends VisitorBase{
      * @param o
      */
     private void addToken(IToken generator, Map<String, Found> m, IToken o) {
-        String representation = o.getRepresentation();
+        String rep = o.getRepresentation();
+        Found found = m.get(rep);
+        if(found != null && !found.used){ //it will be removed from the scope
+            addMessage(found);
+        }
         if (generator == null){
-            m.put(representation, new Found(o,(SourceToken) o)); //the generator and the token are the same
+            m.put(rep, new Found(o,(SourceToken) o)); //the generator and the token are the same
         }else{
-            m.put(representation, new Found(o,(SourceToken) generator));
+            m.put(rep, new Found(o,(SourceToken) generator));
         }
     }
     
@@ -174,13 +207,20 @@ public class OcurrencesVisitor extends VisitorBase{
         for (Iterator iter = m.values().iterator(); iter.hasNext();) {
             Found f = (Found) iter.next();
             if(!f.used){
-                SimpleNode ast = f.generator.getAst();
-                if(ast instanceof Import || ast instanceof ImportFrom){
-                    addMessage(IMessage.TYPE_WARNING, IMessage.SUB_UNUSED_IMPORT, f);
-                }else{
-                    addMessage(IMessage.TYPE_WARNING, IMessage.SUB_UNUSED_VARIABLE, f);
-                }
+                addMessage(f);
             }
+        }
+    }
+
+    /**
+     * @param f
+     */
+    private void addMessage(Found f) {
+        SimpleNode ast = f.generator.getAst();
+        if(ast instanceof Import || ast instanceof ImportFrom){
+            addMessage(IMarker.SEVERITY_WARNING, IMessage.SUB_UNUSED_IMPORT, f);
+        }else{
+            addMessage(IMarker.SEVERITY_WARNING, IMessage.SUB_UNUSED_VARIABLE, f);
         }
     }
 
@@ -191,39 +231,28 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     public Object visitName(Name node) throws Exception {
         //when visiting the global namespace, we don't go into any inner scope.
+        SourceToken token = AbstractVisitor.makeToken(node, moduleName);
         if (node.ctx == Name.Store) {
-            SourceToken token = AbstractVisitor.makeToken(node, moduleName);
             if(!token.getRepresentation().equals("self")){
                 addToken(token,token);
             }
         }
         if (node.ctx == Name.Load) {
-            markRead(node);
+            markRead(token);
         }
         return null;
     }
     
-    private void markRead(Name node) {
-        for (Iterator iter = stack.iterator(); iter.hasNext();) {
-            Map m = (Map) iter.next();
-            Found f = (Found) m.get(node.id);
+    private void markRead(SourceToken token) {
+        for (Map<String,Found> m : stack) {
+            
+            Found f = m.get(token.getRepresentation());
             if(f != null){
                 f.used = true;
             }
         }
     }
 
-    protected String[] getAllDefinedTokens() {
-        List<String> strings = new ArrayList<String>();
-        for(Map<String,Found> m : stack){
-
-            for(String s : m.keySet()){
-              strings.add(s);
-            }
-            
-        }
-        return (String[]) strings.toArray(new String[0]);
-    }
 
     private void addMessage(int type, int subType, Found f) {
         List<IMessage> msgs = messages.get(f.generator);

@@ -6,13 +6,14 @@ package com.python.pydev.analysis;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 public interface IMessage {
-    int TYPE_ERROR = 1;
-    int TYPE_WARNING = 2;
     
     /**
-     * @return this message type.
+     * @see org.eclipse.core.resources.IMarker#SEVERITY_ERROR
+     * @see org.eclipse.core.resources.IMarker#SEVERITY_WARNING
+     * @see org.eclipse.core.resources.IMarker#SEVERITY_INFO
+     * @return this message severity.
      */
-    int getType();
+    int getSeverity();
     
     
     

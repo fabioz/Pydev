@@ -33,7 +33,7 @@ public abstract class AbstractMessage implements IMessage{
 
     }
     
-    public int getType() {
+    public int getSeverity() {
         return type;
     }
 
@@ -50,11 +50,11 @@ public abstract class AbstractMessage implements IMessage{
     }
 
     public int getEndLine() {
-        return -1;
+        return generator.getLineEnd();
     }
 
     public int getEndCol() {
-        return -1;
+        return generator.getColEnd();
     }
 
 
@@ -65,7 +65,7 @@ public abstract class AbstractMessage implements IMessage{
     public String getMessage() {
         String typeStr = getTypeStr();
         if(typeStr == null){
-            throw new AssertionError("Unable to get message for type: "+getType());
+            throw new AssertionError("Unable to get message for type: "+getSeverity());
         }
         String shortMessage = getShortMessage();
         if(shortMessage == null){
