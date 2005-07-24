@@ -137,8 +137,11 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 						break;
 				}
 
+				//ok, standard visiting ended... now, we have to check if we should visit the other
+                //resources if it was an __init__.py file that changed
 			    if(isAddOrChange && shouldVisitInitDependency() && isInitFile(resource)){
 			        IResource[] initDependents = getInitDependents(resource);
+                    
 			        for (int i = 0; i < initDependents.length; i++) {
 			            visitChangedResource(initDependents[i], PyDevBuilder.getDocFromResource(initDependents[i]));
                     }
@@ -303,6 +306,7 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
                 
                 HashMap map = new HashMap();
                 map.put(IMarker.MESSAGE, message);
+                map.put(IMarker.LINE_NUMBER, new Integer(lineStart));
                 map.put(IMarker.CHAR_START, new Integer(startAbsolute));
                 map.put(IMarker.CHAR_END, new Integer(endAbsolute));
                 map.put(IMarker.SEVERITY, new Integer(severity));
