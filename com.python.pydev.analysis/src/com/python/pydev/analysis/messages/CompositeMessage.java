@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 
@@ -15,7 +15,7 @@ import com.python.pydev.analysis.IAnalysisPreferences;
 
 public class CompositeMessage extends AbstractMessage{
 
-    public CompositeMessage(int type, SourceToken generator, IAnalysisPreferences prefs) {
+    public CompositeMessage(int type, IToken generator, IAnalysisPreferences prefs) {
         super(type, generator, prefs);
     }
 

@@ -9,6 +9,7 @@ import java.util.Map;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
@@ -22,9 +23,9 @@ public abstract class AbstractMessage implements IMessage{
 
     private int severity;
 
-    private SourceToken generator;
+    private IToken generator;
 
-    public AbstractMessage(int type, SourceToken generator, IAnalysisPreferences prefs) {
+    public AbstractMessage(int type, IToken generator, IAnalysisPreferences prefs) {
         this.severity = prefs.getSeverityForType(type);
         this.type = type;
         this.generator = generator;
@@ -60,22 +61,31 @@ public abstract class AbstractMessage implements IMessage{
     }
 
     private int fixCol(int col) {
-        SimpleNode ast = generator.getAst();
-        if(ast instanceof ClassDef){
-            return col + 6;
-        }
-        if(ast instanceof FunctionDef){
-            return col + 4;
+        if(generator instanceof SourceToken){
+            SimpleNode ast = ((SourceToken)generator).getAst();
+            if(ast instanceof ClassDef){
+                return col + 6;
+            }
+            if(ast instanceof FunctionDef){
+                return col + 4;
+            }
         }
         return col;
     }
 
     public int getEndLine() {
-        return generator.getLineEnd();
+        if(generator instanceof SourceToken){
+            return ((SourceToken)generator).getLineEnd();
+        }
+        return -1;
     }
 
+    
     public int getEndCol() {
-        return fixCol(generator.getColEnd());
+        if(generator instanceof SourceToken){
+            return fixCol(((SourceToken)generator).getColEnd());
+        }
+        return -1;
     }
 
 
@@ -106,7 +116,7 @@ public abstract class AbstractMessage implements IMessage{
         return String.format(typeStr, shortMessage);
     }
     
-    public SourceToken getGenerator() {
+    public IToken getGenerator() {
         return generator;
     }
 }

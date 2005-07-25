@@ -20,8 +20,9 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
 //        OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
 //        try {
 //            analyzer2.setUp();
-//            analyzer2.testSameName();
+//            analyzer2.testSelfAttribute();
 //            analyzer2.tearDown();
+//            System.out.println("finished");
 //        } catch (Throwable e) {
 //            e.printStackTrace();
 //        }
@@ -54,7 +55,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        CompiledModule.COMPILED_MODULES_ENABLED = false;
+        CompiledModule.COMPILED_MODULES_ENABLED = true;
         restorePythonPath(false);
         prefs = createAnalysisPrefs();
         severityForUnusedImport = IMarker.SEVERITY_WARNING;
@@ -170,9 +171,9 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         //ignore the self
         doc = new Document(
-"class Class1:         \n" +
-"    def met1(self, a):\n" +
-"        pass"
+            "class Class1:         \n" +
+            "    def met1(self, a):\n" +
+            "        pass"
                 );
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
@@ -196,10 +197,10 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
     public void testOtherScopes() {
         //2 messages with token with same name
         doc = new Document(
-"def m1(  aeee  ): \n"+  
-"    pass               \n"+
-"def m2(  afff  ): \n"+   
-"    pass "             );                   
+            "def m1(  aeee  ): \n"+  
+            "    pass               \n"+
+            "def m2(  afff  ): \n"+   
+            "    pass "             );                   
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
@@ -210,8 +211,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
     public void testUndefinedVariable() {
         //2 messages with token with same name
         doc = new Document(
-"print a" 
-);
+            "print a" 
+            );
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
@@ -220,12 +221,222 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals("Undefined variable: a", msgs[0].getMessage());
     }
     
+    public void testOk() {
+        //all ok...
+        doc = new Document(
+            "import os   \n" +
+            "            \n" +
+            "def m1():   \n" +
+            "    print os\n" +
+            "            \n" +
+            "print m1    \n"  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testAttributeImport() {
+        //all ok...
+        doc = new Document(
+            "import os.path      \n" +
+            "print os.path       \n" +
+            ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testAttributeImportAccess() {
+        //all ok...
+        doc = new Document(
+                "import os           \n" +
+                "print os.path       \n" +
+                ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testAttributeAccess() {
+        //all ok...
+        doc = new Document(
+                "class Stub():pass   \n" +
+                "s = Stub()          \n" +
+                "s.a = 10            \n" +
+                "s.b = s.a           \n" +
+                ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testImportAttr() {
+        //all ok...
+        doc = new Document(
+            "import os.path                 \n" +
+            "if os.path.isfile( '' ):pass   \n" +
+            ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testAttributeAccessUndefined() {
+        //all ok...
+        doc = new Document(
+                "s.a = 10            \n" +
+                ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(1, msgs.length);
+        assertEquals(TYPE_UNDEFINED_VARIABLE, msgs[0].getType());
+        assertEquals("Undefined variable: s.a", msgs[0].getMessage());
+    }
+    
+    public void testSelf() {
+        //all ok...
+        doc = new Document(
+            "class C:            \n" +
+            "    def m1(self):   \n" +
+            "        print self  \n" +
+            ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testDefinitionLater() {
+        doc = new Document(
+            "def m1():     \n" +
+            "    print m2()\n" +
+            "              \n" +
+            "def m2():     \n" +
+            "    pass      \n" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testNotDefinedLater() {
+        doc = new Document(
+                "def m1():     \n" +
+                "    print m2()\n" +
+                "              \n" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(1, msgs.length);
+    }
+    
+    public void testUndefinedVariableBuiltin() {
+        doc = new Document(
+                "print False" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testSelfAttribute() {
+        doc = new Document(
+            "class C:                          \n" +
+            "    def m2(self):                 \n" +
+            "        self.m1 = ''              \n" +
+            "        print self.m1.join('a').join('b')   \n" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testBuiltinAcess() {
+        doc = new Document(
+                "print file.read" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testAttribute1() {
+        doc = new Document(
+            "file( 10, 'r' ).read()" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testAttributeFloat() {
+        doc = new Document(
+                "v = 1.0.__class__\n" +
+                "print v            " 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testAttributeString() {
+        doc = new Document(
+                "v = 'r'.join('a')\n" +
+                "print v            " 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testAttributeString2() {
+        doc = new Document(
+                "v = 'r.a.s.b'.join('a')\n" +
+                "print v            " 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
     public void testDuplicatedSignature() {
         //2 messages with token with same name
         doc = new Document(
-"class C:             \n" +
-"    def m1(self):pass\n" +
-"    def m1(self):pass\n" 
+            "class C:             \n" +
+            "    def m1(self):pass\n" +
+            "    def m1(self):pass\n" 
         );
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);

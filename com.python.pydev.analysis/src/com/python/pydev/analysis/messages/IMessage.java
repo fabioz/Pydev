@@ -3,7 +3,7 @@
  */
 package com.python.pydev.analysis.messages;
 
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
 
 public interface IMessage {
     
@@ -55,5 +55,5 @@ public interface IMessage {
     /**
      * @return the generator token for the message
      */
-    SourceToken getGenerator();
+    IToken getGenerator();
 }

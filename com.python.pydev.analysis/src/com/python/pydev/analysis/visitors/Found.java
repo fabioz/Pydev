@@ -4,7 +4,6 @@
 package com.python.pydev.analysis.visitors;
 
 import org.python.pydev.editor.codecompletion.revisited.IToken;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 public class Found{
     /**
@@ -12,7 +11,7 @@ public class Found{
      * 
      * May be equal to tok
      */
-    public SourceToken generator;
+    public IToken generator;
     
     /**
      * This is the token that has been added to the namespace (may have been created on the current module or not).
@@ -24,7 +23,7 @@ public class Found{
      */
     public boolean used = false;
     
-    Found(IToken tok, SourceToken generator){
+    Found(IToken tok, IToken generator){
         this.tok = tok;
         this.generator = generator;
     }

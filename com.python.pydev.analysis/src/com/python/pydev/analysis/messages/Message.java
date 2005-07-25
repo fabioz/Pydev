@@ -3,7 +3,7 @@
  */
 package com.python.pydev.analysis.messages;
 
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 
@@ -13,7 +13,7 @@ public class Message extends AbstractMessage {
 
     private Object message;
 
-    public Message(int type, Object message, SourceToken generator, IAnalysisPreferences prefs) {
+    public Message(int type, Object message, IToken generator, IAnalysisPreferences prefs) {
         super(type, generator, prefs);
         this.message = message;
     }

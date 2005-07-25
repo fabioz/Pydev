@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.python.pydev.editor.codecompletion.revisited.IToken;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.CompositeMessage;
@@ -38,14 +37,14 @@ public class MessagesManager {
     /**
      * adds a message of some type given its formatting params
      */
-    public void addMessage(int type, SourceToken generator, Object ...objects ) {
+    public void addMessage(int type, IToken generator, Object ...objects ) {
         independentMessages.add(new Message(type, objects, generator, prefs));
     }
 
     /**
      * adds a message of some type for a given token
      */
-    public void addMessage(int type, SourceToken token) {
+    public void addMessage(int type, IToken token) {
         List<IMessage> msgs = getMsgsList(token);
         msgs.add(new Message(type, token.getRepresentation(),token, prefs));
     }
@@ -54,15 +53,15 @@ public class MessagesManager {
      * adds a message of some type for some Found instance
      */
     public void addMessage(int type, Found f) {
-        SourceToken generator = f.generator;
+        IToken generator = f.generator;
         List<IMessage> msgs = getMsgsList(generator);
-        msgs.add(new Message(type, f.tok.getRepresentation(),(SourceToken) f.tok, prefs));
+        msgs.add(new Message(type, f.tok.getRepresentation(), f.tok, prefs));
     }
 
     /**
      * @return the messages associated with a token
      */
-    public List<IMessage> getMsgsList(SourceToken generator) {
+    public List<IMessage> getMsgsList(IToken generator) {
         List<IMessage> msgs = messages.get(generator);
         if (msgs == null){
             msgs = new ArrayList<IMessage>();
