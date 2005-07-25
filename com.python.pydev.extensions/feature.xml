@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.python.pydev.extensions"
+      label="PyDev Extensions"
+      version="0.9.7"
+      provider-name="Fabio Zadrozny">
+
+   <description url="http://www.example.com/description">
+      This plugin enables PyDev extensions. It is a commercial product and may not be re-distributed
+      nor used without consent of Fabio Zadrozny
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      Fabio Zadrozny
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      Commercial license
+   </license>
+
+   <plugin
+         id="com.python.pydev.analysis"
+         download-size="0"
+         install-size="0"
+         version="0.9.7"
+         unpack="false"/>
+
+   <plugin
+         id="com.python.pydev.fastparser"
+         download-size="0"
+         install-size="0"
+         version="0.9.7"
+         unpack="false"/>
+
+   <plugin
+         id="com.python.pydev.refactoring"
+         download-size="0"
+         install-size="0"
+         version="0.9.7"/>
+
+</feature>
