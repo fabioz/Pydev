@@ -63,6 +63,13 @@ public abstract class AbstractVisitor extends VisitorBase{
         return new SourceToken(node, NodeUtils.getRepresentationString(node), NodeUtils.getNodeArgs(node), NodeUtils.getNodeDocString(node), moduleName);
     }
 
+    /**
+     * same as make token, but returns the full representation for a token, instead of just a 'partial' name
+     */
+    public static SourceToken makeFullNameToken(SimpleNode node, String moduleName) {
+        return new SourceToken(node, NodeUtils.getFullRepresentationString(node), NodeUtils.getNodeArgs(node), NodeUtils.getNodeDocString(node), moduleName);
+    }
+    
     
     /**
      * This function creates source tokens from a wild import node.

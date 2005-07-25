@@ -99,7 +99,7 @@ public class InterpreterManager implements IInterpreterManager {
     	    }else{
                 String title = "Invalid interpreter:"+executable;
                 String msg = "Unable to get information on interpreter!";
-    	        String reason = "The interpreter: '"+executable+"' is not a valid python executable.";
+    	        String reason = "The interpreter: '"+executable+"' is not a valid python executable - info.executable found: "+info.executable;
     	        
                 try {
                     ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, reason, null));

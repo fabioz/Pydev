@@ -142,8 +142,9 @@ public interface ICodeCompletionASTManager {
      * 
      * @param state this is the current completion state
      * @param completions OUT this is where the completions are added.
+     * @return the same list that has been passed at completions
      */
-    public void getBuiltinCompletions(CompletionState state, List completions);
+    public List getBuiltinCompletions(CompletionState state, List completions);
 
     /**
      * This method can get the global completions for a module (the activation token is usually empty in

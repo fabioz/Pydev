@@ -10,9 +10,11 @@ import org.python.parser.ast.Attribute;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.Expr;
 import org.python.parser.ast.FunctionDef;
+import org.python.parser.ast.Import;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Str;
+import org.python.parser.ast.aliasType;
 import org.python.parser.ast.stmtType;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
@@ -73,6 +75,14 @@ public class NodeUtils {
         }else if (node instanceof Num){
             return ((Num)node).n.toString();
             
+        }else if (node instanceof Import){
+            aliasType[] names = ((Import)node).names;
+            for (aliasType n : names) {
+                if(n.asname != null){
+                    return n.asname;
+                }
+                return n.name;
+            }
         }
         
         return null;
@@ -120,11 +130,17 @@ public class NodeUtils {
         
         if (node instanceof Attribute){
             Attribute a = (Attribute)node;
-            return getRepresentationString(a.value) + "."+ a.attr;
+            return getFullRepresentationString(a.value) + "."+ a.attr;
         } 
+        
+        if (node instanceof Str || node instanceof Num){
+            return NodeUtils.getBuiltinType( getRepresentationString(node) );
+        } 
+        
         
         return getRepresentationString(node);
     }
+    
 
     public static int[] getColLineEnd(SimpleNode v) {
         int lineEnd = getLineEnd(v);
@@ -184,6 +200,42 @@ public class NodeUtils {
             return v.beginLine + found;
         }
         return v.beginLine;
+    }
+
+    /**
+     * @return the builtin type (if any) for some token (e.g.: '' would return str, 1.0 would return float...
+     */
+    public static String getBuiltinType(String tok) {
+        if(tok.endsWith("'") || tok.endsWith("\"")){
+            //ok, we are getting code completion for a string.
+            return "str";
+            
+            
+        } else if(tok.endsWith("]")){
+            //ok, we are getting code completion for a list.
+            return "list";
+            
+            
+        } else if(tok.endsWith("}")){
+            //ok, we are getting code completion for a dict.
+            return "dict";
+            
+            
+        } else {
+            try {
+                Integer.parseInt(tok);
+                return "int";
+            } catch (Exception e) { //ok, not parsed as int
+            }
+    
+            try {
+                Float.parseFloat(tok);
+                return "float";
+            } catch (Exception e) { //ok, not parsed as int
+            }
+        }
+        
+        return null;
     }
 
 }

@@ -21,6 +21,9 @@ public class BundleInfoStub implements IBundleInfo {
         if(relative.toString().indexOf("interpreterInfo.py") != -1){
             return new File("./PySrc/interpreterInfo.py");
         }
+        if(relative.toString().indexOf("pycompletionserver.py") != -1){
+            return new File("./PySrc/pycompletionserver.py");
+        }
         throw new RuntimeException("Not available info on: "+relative);
     }
 

@@ -24,6 +24,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
@@ -256,35 +257,9 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      */
     private IToken[] getBuiltinsCompletions(CompletionState state){
         CompletionState state2 = state.getCopy();
-        state2.activationToken = null;
 
         //check for the builtin types.
-        if(state.activationToken.endsWith("'") || state.activationToken.endsWith("\"")){
-            //ok, we are getting code completion for a string.
-	        state2.activationToken = "str";
-        }
-
-        if(state.activationToken.endsWith("]")){
-            //ok, we are getting code completion for a list.
-            state2.activationToken = "list";
-        }
-
-        if(state.activationToken.endsWith("}")){
-            //ok, we are getting code completion for a dict.
-            state2.activationToken = "dict";
-        }
-
-        try {
-            Integer.parseInt(state.activationToken);
-            state2.activationToken = "int";
-        } catch (Exception e) { //ok, not parsed as int
-        }
-
-        try {
-            Float.parseFloat(state.activationToken);
-            state2.activationToken = "float";
-        } catch (Exception e) { //ok, not parsed as int
-        }
+        state2.activationToken = NodeUtils.getBuiltinType(state.activationToken);
 
         if(state2.activationToken != null){
             AbstractModule m = getModule("__builtin__", state.nature);
@@ -292,7 +267,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         }
         return null;
     }
-    
+
     /** 
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
@@ -473,7 +448,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getBuiltinCompletions
      */
-    public void getBuiltinCompletions(CompletionState state, List completions) {
+    public List getBuiltinCompletions(CompletionState state, List completions) {
         AbstractModule builtMod = getModule("__builtin__", state.nature);
         if(builtMod != null){
             IToken[] toks = builtMod.getGlobalTokens();
@@ -481,6 +456,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 completions.add(toks[i]);
             }
         }
+        return completions;
     }
 
     /**

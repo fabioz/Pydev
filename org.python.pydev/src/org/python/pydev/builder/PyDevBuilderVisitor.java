@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.MarkerUtilities;
@@ -295,6 +296,8 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
             } else {
                 endAbsolute = start.getOffset() + start.getLength();
             }
+        } catch (BadLocationException e) {
+            throw new RuntimeException("Unable to get the location requested for the resource "+resource.getLocation(), e);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
