@@ -2,8 +2,8 @@
 <project default="fixVersions">
 
 	<target name="fixVersions">
-		<property name = "pydev.version"        value = "0.9.6"/>
-		<property name="buildDirectory"         value="D:\dev_programs\eclipse_3\eclipse\workspace" />
+		<property name = "pydev.version"        value = "0.9.7"/>
+		<property name="buildDirectory"         value="D:\eclipse_workspace" />
 
 		<replaceregexp match="Bundle-Version:(.*)" replace="Bundle-Version: ${pydev.version}" byline="true">
 			<fileset dir="${buildDirectory}" includes="**/*.MF"/>

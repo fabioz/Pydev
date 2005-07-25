@@ -5,8 +5,8 @@
         <touch file="${user.home}/.cvspass" />
 		<tstamp/>
 
-		<property name = "pydev.version"        value = "0.9.6"/>
-		<property name = "buildId"              value = "0_9_6"/>
+		<property name = "pydev.version"        value = "0.9.7"/>
+		<property name = "buildId"              value = "0_9_7"/>
 		<property name = "buildLabel"           value = "${buildId}"/>
 
 		<property name = "timestamp"            value = "${DSTAMP}${TSTAMP}" />
