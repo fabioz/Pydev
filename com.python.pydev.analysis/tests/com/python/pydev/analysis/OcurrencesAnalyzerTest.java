@@ -20,7 +20,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
 //        OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
 //        try {
 //            analyzer2.setUp();
-//            analyzer2.testSelfAttribute();
+//            analyzer2.testScopes();
 //            analyzer2.tearDown();
 //            System.out.println("finished");
 //        } catch (Throwable e) {
@@ -182,6 +182,21 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals("Unused variable: a", msgs[0].getMessage());
         
     }
+    
+    public void testScopes() {
+        //2 messages with token with same name
+        doc = new Document(
+            "def m1():       \n"+   
+            "    def m2():   \n"+     
+            "        print a \n"+      
+            "    a = 10        "   
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
 
     public void testSameName() {
         //2 messages with token with same name
@@ -194,6 +209,30 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(2, msgs.length);
     }
     
+    public void testVarArgs() {
+        doc = new Document(
+                "def m1(*args): \n"+
+                "    print args   " 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testKwArgs() {
+        doc = new Document(
+            "def m1(**kwargs): \n"+
+            "    print kwargs    " 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+
+
     public void testOtherScopes() {
         //2 messages with token with same name
         doc = new Document(
@@ -238,6 +277,35 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(0, msgs.length);
     }
     
+    public void testImportAfter() {
+        doc = new Document(
+                "def met():          \n" +
+                "    print os.path   \n" +
+                "import os.path      \n" +
+                ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+
+    public void testImportAfter2() {
+        doc = new Document(
+                "def met():          \n" +
+                "    print os.path   \n" +
+                "import os           \n" +
+                ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+
     public void testAttributeImport() {
         //all ok...
         doc = new Document(
@@ -382,6 +450,18 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testDictAcess() {
+        doc = new Document(
+            "k = {}                         \n" +
+            "print k[0].append(10)   " 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
         assertEquals(0, msgs.length);
     }
     

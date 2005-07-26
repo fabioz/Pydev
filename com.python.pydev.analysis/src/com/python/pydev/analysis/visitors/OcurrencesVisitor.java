@@ -4,6 +4,7 @@
 package com.python.pydev.analysis.visitors;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.VisitorBase;
+import org.python.parser.ast.argumentsType;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -152,9 +154,25 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         startScope();
-        duplicationChecker.beforeFunctionDef(node);
+        duplicationChecker.beforeFunctionDef(node); //duplication checker
+        
+        argumentsType args = node.args;
+        
+        Map<String,Found> m = stack.peek();
+
+        if(args.kwarg != null){
+            Name name = new Name(args.kwarg, Name.Load);
+            SourceToken token = AbstractVisitor.makeToken(name, moduleName);
+            addToken(token, m, token, args.kwarg);
+        }
+        if(args.vararg != null){
+            Name name = new Name(args.vararg, Name.Load);
+            SourceToken token = AbstractVisitor.makeToken(name, moduleName);
+            addToken(token, m, token, args.vararg);
+        }
         Object object = super.visitFunctionDef(node);
-        duplicationChecker.afterFunctionDef(node);
+        
+        duplicationChecker.afterFunctionDef(node);//duplication checker
         endScope();
         addToNamesToIgnore(node);
         return object;
@@ -248,25 +266,58 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     private void endScope() {
         Map<String,Found> m = stack.pop(); //clear the last
-        for (Found f : m.values()) {
-            if(!f.used){
-                addUnusedMessage(f);
+        
+        List<IToken> definedLater = new ArrayList<IToken>();
+        for(IToken n : probablyNotDefined){
+            String rep = n.getRepresentation();
+            //we also get a last pass to the unused to see if they might have been defined later on the higher scope
+            
+            Found found = find(m, rep);
+            if(found != null){
+                found.used = true;
+                definedLater.add(n);
             }
         }
+        probablyNotDefined.removeAll(definedLater);
         
-        //ok, this was the last scope, so, let's check for the probably not defined, but
-        //that might have been defined in the global scope
+        //ok, this was the last scope, so, the ones probably not defined are really not defined at this
+        //point
         if(stack.size() == 0){
+            
             for(IToken n : probablyNotDefined){
                 String rep = n.getRepresentation();
                 if(!stackNamesToIgnore.get(0).containsKey(rep)){
                     addUndefinedMessage(n);
                 }
             }
+            
+        }
+        
+        //so, now, we clear the unused
+        for (Found f : m.values()) {
+            if(!f.used){
+                addUnusedMessage(f);
+            }
         }
         
         stackNamesToIgnore.pop();
         
+    }
+
+    
+    private Found find(Map<String, Found> m, String fullRep) {
+        int i = fullRep.indexOf('.', 0);
+
+        while(i >= 0){
+            String sub = fullRep.substring(0,i);
+            i = fullRep.indexOf('.', i+1);
+            Found found = m.get(sub);
+            if(found != null){
+                return found;
+            }
+        }
+        
+        return m.get(fullRep);
     }
 
     /**
@@ -395,6 +446,8 @@ public class OcurrencesVisitor extends VisitorBase{
      * @param token
      */
     private void addUndefinedMessage(IToken token) {
+        if(token.getRepresentation().equals("_"))
+            return; //TODO: check how to get tokens that are added to the builtins
         messagesManager.addMessage(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, token);
     }
 
