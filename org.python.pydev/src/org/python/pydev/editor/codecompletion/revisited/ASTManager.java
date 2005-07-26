@@ -463,7 +463,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForWildImport
      */
     public List getCompletionsForWildImport(CompletionState state, AbstractModule current, List completions, IToken name) {
-        AbstractModule mod = getModule(name.getCompletePath(), state.nature);
+        AbstractModule mod = getModule(name.getCompletePath(), state.nature); //relative import
         
         if (mod == null) {
             mod = getModule(name.getRepresentation(), state.nature);

@@ -31,10 +31,8 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
       try {
           PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
 	      test.setUp();
-//	      test.testSelfReference();
-//	      test.testCompleteImportCompletion();
-//	      test.testCompleteImportBuiltin();
-	      test.testFor();
+	      test.testWildImportRecursive();
+	      test.testWildImportRecursive2();
 	      test.tearDown();
 	  } catch (Exception e) {
 	      e.printStackTrace();
@@ -63,6 +61,18 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 
 
     
+    /**
+     * make a request for a code completion
+     * 
+     * @param strDoc the document requesting the code completion
+     * @param documentOffset the offset of the document (if -1, the doc length is used)
+     * @param returned the number of completions expected (if -1 not tested)
+     * @param retCompl a string array specifying the expected completions that should be contained (may only be a 
+     * subset of all completions.
+     * 
+     * @throws CoreException
+     * @throws BadLocationException
+     */
     public void requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
         if(documentOffset == -1)
             documentOffset = strDoc.length();
@@ -262,6 +272,21 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 	}
 	
 
+	public void testWildImportRecursive() throws BadLocationException, IOException, Exception{
+        String s;
+        s = "from testrecwild import *\n" +
+            "";
+        requestCompl(s, -1, -1, new String[] { "Class1"});
+	}
+	
+	public void testWildImportRecursive2() throws BadLocationException, IOException, Exception{
+	    String s;
+	    s = "from testrecwild2 import *\n" +
+	    "";
+	    requestCompl(s, -1, -1, new String[] { "Class2"});
+	}
+	
+	
 	
     public void testGetActTok(){
         String strs[];

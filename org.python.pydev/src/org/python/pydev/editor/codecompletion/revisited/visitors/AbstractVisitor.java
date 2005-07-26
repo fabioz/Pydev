@@ -86,6 +86,11 @@ public abstract class AbstractVisitor extends VisitorBase{
         }
         SourceToken sourceToken = null;
         if(isWildImport(node)){
+            //on wild import the module name should be one level less...
+            int i;
+            if(moduleName != null && (i = moduleName.indexOf('.')) != -1){
+                moduleName = moduleName.substring(0, i);
+            }
             sourceToken = new SourceToken(node, node.module, "",  "", moduleName);
             tokens.add(sourceToken);
         }
