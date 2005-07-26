@@ -14,6 +14,7 @@ import org.python.parser.ast.Import;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Str;
+import org.python.parser.ast.Subscript;
 import org.python.parser.ast.aliasType;
 import org.python.parser.ast.stmtType;
 import org.python.pydev.core.REF;
@@ -123,7 +124,7 @@ public class NodeUtils {
             Call c = (Call) node;
             node = c.func;
             if (REF.hasAttr(node, "value") && REF.hasAttr(node, "attr")) {
-                return getRepresentationString((SimpleNode) REF.getAttrObj(node, "value")) + "." +REF.getAttrObj(node, "attr").toString();
+                return getFullRepresentationString((SimpleNode) REF.getAttrObj(node, "value")) + "." +REF.getAttrObj(node, "attr").toString();
             }
         }
         
@@ -135,6 +136,10 @@ public class NodeUtils {
         
         if (node instanceof Str || node instanceof Num){
             return NodeUtils.getBuiltinType( getRepresentationString(node) );
+        } 
+        
+        if (node instanceof Subscript){
+            return getFullRepresentationString(((Subscript)node).value);
         } 
         
         
