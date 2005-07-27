@@ -54,7 +54,7 @@
          point="org.eclipse.ui.propertyPages">
       <page
             objectClass="org.eclipse.core.resources.IProject"
-            name="PyDev PYTHONPATH"
+            name="PyDev - PYTHONPATH"
             class="org.python.pydev.ui.PyProjectProperties"
             id="org.python.pydev.ui.pyProjectProperties">
          <filter
@@ -67,7 +67,7 @@
          point="org.eclipse.ui.propertyPages">
       <page
             objectClass="org.eclipse.core.resources.IProject"
-            name="PyDev details"
+            name="PyDev - project type"
             class="org.python.pydev.ui.PyProjectPythonDetails"
             id="org.python.pydev.ui.pyProjectPythonDetails">
          <filter

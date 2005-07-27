@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.IEditorInput;
@@ -36,7 +37,6 @@ import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.IInterpreterManager;
-import org.python.pydev.ui.PyProjectPythonDetails;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.JobProgressComunicator;
 
@@ -66,7 +66,12 @@ public class PythonNature implements IProjectNature, IPythonNature {
      * Builder id for pydev (code completion todo and others)
      */
     public static final String BUILDER_ID = "org.python.pydev.PyDevBuilder";
-
+    
+    /**
+     * constant that stores the name of the python version we are using for the project with this nature
+     */
+    private static final QualifiedName PYTHON_PROJECT_VERSION = new QualifiedName(PydevPlugin.getPluginID(), "PYTHON_PROJECT_VERSION");
+    
     /**
      * Project associated with this nature.
      */
@@ -338,19 +343,52 @@ public class PythonNature implements IProjectNature, IPythonNature {
     }
 
     /**
-     * @return
+     * @return the python version for the project
+     * @throws CoreException 
      */
-    public String getVersion() {
-        return PyProjectPythonDetails.getPythonVersion();
+    public String getVersion() throws CoreException {
+        if(project != null){
+            String persistentProperty = project.getPersistentProperty(PYTHON_PROJECT_VERSION);
+            if(persistentProperty == null){ //there is no such property set (let's set it to the default
+                String defaultVersion = getDefaultVersion();
+                setVersion(defaultVersion);
+                persistentProperty = defaultVersion;
+            }
+            return persistentProperty;
+        }
+        return null;
+    }
+    /**
+     * set the project version given the constants provided
+     * @throws CoreException 
+     */
+    public void setVersion(String version) throws CoreException{
+        if(project != null){
+            project.setPersistentProperty(PYTHON_PROJECT_VERSION, version);
+        }
     }
 
-    /**
-     * 
-     */
+    public String getDefaultVersion(){
+        return PYTHON_VERSION_2_4;
+    }
+
+    public boolean isJython() throws CoreException {
+        return getVersion().equals(JYTHON_VERSION_2_1);
+    }
+
+    public boolean isPython() throws CoreException {
+        return !isJython();
+    }
+    
+    public boolean acceptsDecorators() throws CoreException {
+        return getVersion().equals(PYTHON_VERSION_2_4);
+    }
+    
     public void saveAstManager(boolean saveNow) {
         //TODO: put into a save list...
         REF.writeToFile(astManager, getAstOutputFile());
     }
+
 }
 
 

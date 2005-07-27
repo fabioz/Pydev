@@ -267,17 +267,22 @@ public class PyParser {
     
             //lets try to make it 2.4 compatible
             //TODO: (HACK) this is a hack, once the grammar is compatible to 2.4, remove it!
-            float f = Float.parseFloat(info.nature.getVersion());
-            if(info.nature != null && f >= 2.4){
-	            if(tokenErr.curChar.equals("@") && tokenErr.errorCode == TokenMgrError.LEXICAL_ERROR){
-	                int line = tokenErr.errorLine;
-	                String docToParse = DocUtils.getDocToParseFromLine(info.document, line-1);
-	                if(docToParse != null){
-	
-	                    Document doc = new Document(docToParse);
-	                    return reparseDocument(new ParserInfo(doc, true, info.nature));
-	                }
-	            }
+            try {
+                if(info.nature != null && info.nature.acceptsDecorators()){
+    	            if(tokenErr.curChar.equals("@") && tokenErr.errorCode == TokenMgrError.LEXICAL_ERROR){
+    	                int line = tokenErr.errorLine;
+    	                String docToParse = DocUtils.getDocToParseFromLine(info.document, line-1);
+    	                if(docToParse != null){
+    	
+    	                    Document doc = new Document(docToParse);
+    	                    return reparseDocument(new ParserInfo(doc, true, info.nature));
+    	                }
+    	            }
+                }
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            } catch (CoreException e) {
+                e.printStackTrace();
             }
             //END: HACK
             

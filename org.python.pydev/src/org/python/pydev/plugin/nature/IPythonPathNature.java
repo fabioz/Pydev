@@ -61,4 +61,5 @@ public interface IPythonPathNature {
      */
     public String getProjectExternalSourcePath() throws CoreException;
 
+    
 }
