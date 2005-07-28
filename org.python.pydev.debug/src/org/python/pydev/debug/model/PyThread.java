@@ -113,6 +113,7 @@ public class PyThread extends PlatformObject implements IThread {
 
 	public void resume() throws DebugException {
 		if (!isPydevThread) {
+			stack = null;
 			isStepping = false;
 			RemoteDebugger d = target.getDebugger();
 			d.postCommand(new ThreadRunCommand(d, id));
@@ -121,6 +122,7 @@ public class PyThread extends PlatformObject implements IThread {
 
 	public void suspend() throws DebugException {
 		if (!isPydevThread) {
+			stack = null;
 			RemoteDebugger d = target.getDebugger();
 			d.postCommand(new ThreadSuspendCommand(d, id));
 		}
@@ -167,6 +169,8 @@ public class PyThread extends PlatformObject implements IThread {
 	}
 
 	public IStackFrame[] getStackFrames() throws DebugException {
+		while (stack == null)	// Busy wait, the other thread will supply the stack shortly
+			;
 		return stack;
 	}
 
@@ -189,7 +193,8 @@ public class PyThread extends PlatformObject implements IThread {
 	public IBreakpoint[] getBreakpoints() {
 		// should return breakpoint that caused this thread to suspend
 		// not implementing this seems to cause no harm
-		return null;
+		PyBreakpoint[] breaks = new PyBreakpoint[0];
+		return breaks;
 	}
 
 	public Object getAdapter(Class adapter) {
