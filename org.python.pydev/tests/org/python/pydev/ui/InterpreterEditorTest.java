@@ -73,7 +73,7 @@ public class InterpreterEditorTest extends TestCase {
         if(display != null){
             shell.open();
     
-            InterpreterEditor editor = new InterpreterEditor("label", shell, new InterpreterManager(new Preferences()));
+  //          InterpreterEditor editor = new InterpreterEditor("label", shell, new InterpreterManager(new Preferences()));
             shell.pack();
             shell.setSize(new org.eclipse.swt.graphics.Point(300, 300));
             goToManual(display);
