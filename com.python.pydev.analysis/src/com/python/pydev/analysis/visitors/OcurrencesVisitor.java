@@ -17,6 +17,7 @@ import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.If;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
+import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.argumentsType;
@@ -153,13 +154,13 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitClassDef(org.python.parser.ast.ClassDef)
      */
     public Object visitClassDef(ClassDef node) throws Exception {
+        addToNamesToIgnore(node);
+
         startScope(SCOPE_TYPE_CLASS);
         duplicationChecker.beforeClassDef(node);
         Object object = super.visitClassDef(node);
         duplicationChecker.afterClassDef(node);
         endScope();
-        
-        addToNamesToIgnore(node);
         
         return object;
     }
@@ -177,6 +178,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitFunctionDef(org.python.parser.ast.FunctionDef)
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
+        addToNamesToIgnore(node);
         startScope(SCOPE_TYPE_METHOD);
         duplicationChecker.beforeFunctionDef(node); //duplication checker
         
@@ -196,7 +198,6 @@ public class OcurrencesVisitor extends VisitorBase{
         
         duplicationChecker.afterFunctionDef(node);//duplication checker
         endScope();
-        addToNamesToIgnore(node);
         return object;
     }
     
@@ -255,6 +256,9 @@ public class OcurrencesVisitor extends VisitorBase{
     @Override
     public Object visitAttribute(Attribute node) throws Exception {
         SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName);
+        if(token.getRepresentation().equals("")){
+            return null;
+        }
         String fullRep = token.getRepresentation();
         int i = fullRep.indexOf('.', 0);
         String sub = fullRep.substring(0,i);
@@ -292,6 +296,20 @@ public class OcurrencesVisitor extends VisitorBase{
         return r;
     }
     
+    @Override
+    public Object visitListComp(ListComp node) throws Exception {
+        //overriden because we need to visit the generators first
+        if (node.generators != null) {
+            for (int i = 0; i < node.generators.length; i++) {
+                if (node.generators[i] != null)
+                    node.generators[i].accept(this);
+            }
+        }
+        if (node.elt != null)
+            node.elt.accept(this);
+
+        return null;
+    }
     
     /**
      * @return a default completion state for globals (empty act. token)

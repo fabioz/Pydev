@@ -20,7 +20,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testTupleVar();
+            analyzer2.testScopes4();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -261,6 +261,34 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(0, msgs.length);
     }
     
+    public void testScopes4() {
+        doc = new Document(
+                "def rec():           \n"+
+                "    def rec2():      \n"+
+                "        return rec2  \n"+
+                ""   
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testScopes5() {
+        doc = new Document(
+                "class C:       \n"+
+                "    class I:   \n"+
+                "        print I\n"+
+                ""   
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
     public void testSameName() {
         //2 messages with token with same name
         doc = new Document(
@@ -467,6 +495,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
+        printMessages(msgs);
         assertEquals(0, msgs.length);
     }
     
@@ -618,6 +647,17 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
     public void testTupleVar() {
         doc = new Document(
             "print (0,0).__class__" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testTupleVar2() {
+        doc = new Document(
+            "print (10 / 10).__class__" 
         );
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
