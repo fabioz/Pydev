@@ -15,7 +15,9 @@ import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.Subscript;
+import org.python.parser.ast.Tuple;
 import org.python.parser.ast.aliasType;
+import org.python.parser.ast.exprType;
 import org.python.parser.ast.stmtType;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
@@ -72,6 +74,20 @@ public class NodeUtils {
     
         }else if (node instanceof Str){
             return "'"+((Str)node).s+"'";
+            
+        }else if (node instanceof Tuple){
+            StringBuffer buf = new StringBuffer();
+            Tuple t = (Tuple)node;
+            for ( exprType e : t.elts){
+                buf.append(getRepresentationString(e));
+                buf.append(", ");
+            }
+            if(t.elts.length > 0){
+                int l = buf.length();
+                buf.deleteCharAt(l-1);
+                buf.deleteCharAt(l-2);
+            }
+            return "("+buf+")";
             
         }else if (node instanceof Num){
             return ((Num)node).n.toString();
@@ -135,6 +151,10 @@ public class NodeUtils {
         } 
         
         if (node instanceof Str || node instanceof Num){
+            return NodeUtils.getBuiltinType( getRepresentationString(node) );
+        } 
+        
+        if (node instanceof Tuple){
             return NodeUtils.getBuiltinType( getRepresentationString(node) );
         } 
         
@@ -224,6 +244,10 @@ public class NodeUtils {
         } else if(tok.endsWith("}")){
             //ok, we are getting code completion for a dict.
             return "dict";
+            
+        } else if(tok.endsWith(")")){
+            //ok, we are getting code completion for a tuple.
+            return "tuple";
             
             
         } else {

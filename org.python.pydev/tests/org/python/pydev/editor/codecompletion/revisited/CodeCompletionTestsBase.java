@@ -7,7 +7,6 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import junit.framework.TestCase;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.plugin.BundleInfo;
@@ -15,51 +14,12 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.BundleInfoStub;
 import org.python.pydev.ui.IInterpreterManager;
-import org.python.pydev.ui.InterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * @author Fabio Zadrozny
  */
 public class CodeCompletionTestsBase extends TestCase {
-
-    private static class InterpreterManagerStub extends InterpreterManager implements IInterpreterManager {
-
-        public InterpreterManagerStub(Preferences prefs) {
-            super(prefs);
-        }
-
-        public String getDefaultInterpreter() {
-            return PYTHON_EXE;
-        }
-
-        public String[] getInterpreters() {
-            return new String[]{PYTHON_EXE};
-        }
-
-        public String addInterpreter(String executable, IProgressMonitor monitor) {
-            throw new RuntimeException("not impl");
-        }
-
-        public String[] getInterpretersFromPersistedString(String persisted) {
-            throw new RuntimeException("not impl");
-        }
-
-        public String getStringToPersist(String[] executables) {
-            throw new RuntimeException("not impl");
-        }
-        
-        /**
-         * @see org.python.pydev.ui.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
-         */
-        public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
-            
-            InterpreterInfo info = super.getInterpreterInfo(executable, monitor);
-            PYTHON_EXE = info.executable;
-            return info;
-        }
-    }
-
 
     //NOTE: this should be gotten from some variable to point to the python lib (less system dependence, but still, some).
     public static String PYTHON_EXE="C:/bin/Python24/python.exe";
@@ -68,8 +28,8 @@ public class CodeCompletionTestsBase extends TestCase {
     public static final String PYTHON_SITE_PACKAGES="C:/bin/Python24/Lib/site-packages/";
     
     //NOTE: this should set to the tests pysrc location, so that it can be added to the pythonpath.
-//    public static final String TEST_PYSRC_LOC="D:/dev_programs/eclipse_3/eclipse/workspace/org.python.pydev/tests/pysrc/";
-    public static final String TEST_PYSRC_LOC="D:/eclipse_workspace/org.python.pydev/tests/pysrc/";
+    public static final String TEST_PYSRC_LOC="D:/dev_programs/eclipse_3/eclipse/workspace/org.python.pydev/tests/pysrc/";
+//    public static final String TEST_PYSRC_LOC="D:/eclipse_workspace/org.python.pydev/tests/pysrc/";
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(CodeCompletionTestsBase.class);
@@ -134,6 +94,7 @@ public class CodeCompletionTestsBase extends TestCase {
 
         }
     }
+    
     
     /**
      * @param info

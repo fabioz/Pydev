@@ -13,6 +13,11 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Preferences;
+import org.python.pydev.editor.codecompletion.revisited.InterpreterManagerStub;
+import org.python.pydev.plugin.BundleInfo;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.BundleInfoStub;
 
 /**
  * These tests should run, however the directory where the tests are run must be correct.
@@ -32,6 +37,8 @@ public class PythonShellTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
+        BundleInfo.setBundleInfo(new BundleInfoStub());
+        PydevPlugin.setInterpreterManager(new InterpreterManagerStub(new Preferences()));
         this.shell = startShell();
     }
 

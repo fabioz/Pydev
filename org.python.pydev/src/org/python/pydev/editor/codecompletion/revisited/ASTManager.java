@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.FunctionDef;
+import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
@@ -225,7 +226,8 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager#getCompletionsForToken(java.io.File, org.eclipse.jface.text.IDocument, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
     public IToken[] getCompletionsForToken(File file, IDocument doc, CompletionState state) {
-        AbstractModule module = AbstractModule.createModuleFromDoc("", file, doc, state.nature, state.line);
+        String moduleName = projectModulesManager.resolveModule(REF.getFileAbsolutePath(file));
+        AbstractModule module = AbstractModule.createModuleFromDoc(moduleName, file, doc, state.nature, state.line);
         return getCompletionsForModule(module, state);
     }
 
