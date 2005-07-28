@@ -4,9 +4,7 @@
 package com.python.pydev.analysis.visitors;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -15,6 +13,7 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
+import org.python.parser.ast.If;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
@@ -48,10 +47,9 @@ public class OcurrencesVisitor extends VisitorBase{
     private String moduleName;
     
     /**
-     * this stack is used to hold the scope. when we enter a scope, an item is added, and when we
-     * exit, it is removed (and the analysis of unused tokens should happen at this time).
+     * manage the scopes...
      */
-    private Stack<Map<String,Found>> stack = new Stack<Map<String,Found>>();
+    private Scope scope;
     
     /**
      * Stack for names that should not generate warnings, such as builtins, method names, etc.
@@ -89,6 +87,7 @@ public class OcurrencesVisitor extends VisitorBase{
         this.nature = nature;
         this.moduleName = moduleName;
         this.messagesManager = new MessagesManager(prefs);
+        this.scope = new Scope(this.messagesManager);
         this.duplicationChecker = new DuplicationChecker(this.messagesManager);
         
         startScope(); //initial scope 
@@ -122,6 +121,10 @@ public class OcurrencesVisitor extends VisitorBase{
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
+
+    
+    
+
     
     
     /**
@@ -158,17 +161,15 @@ public class OcurrencesVisitor extends VisitorBase{
         
         argumentsType args = node.args;
         
-        Map<String,Found> m = stack.peek();
-
         if(args.kwarg != null){
             Name name = new Name(args.kwarg, Name.Load);
             SourceToken token = AbstractVisitor.makeToken(name, moduleName);
-            addToken(token, m, token, args.kwarg);
+            scope.addToken(token, token, args.kwarg);
         }
         if(args.vararg != null){
             Name name = new Name(args.vararg, Name.Load);
             SourceToken token = AbstractVisitor.makeToken(name, moduleName);
-            addToken(token, m, token, args.vararg);
+            scope.addToken(token, token, args.vararg);
         }
         Object object = super.visitFunctionDef(node);
         
@@ -184,47 +185,8 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     public Object visitImport(Import node) throws Exception {
         List list = AbstractVisitor.makeImportToken(node, null, moduleName);
-        addTokens(list, null);
+        scope.addTokens(list, null);
         return null;
-    }
-
-    /**
-     * Adds many tokens at once (created by the same token -- wild import)
-     */
-    private void addTokens(List list, IToken generator) {
-        Map<String,Found> m = stack.peek();
-        for (Iterator iter = list.iterator(); iter.hasNext();) {
-            IToken o = (IToken) iter.next();
-            addToken(generator, m, o, o.getRepresentation());
-        }
-    }
-
-    /**
-     * @param generator
-     * @param m
-     * @param o
-     */
-    private void addToken(IToken generator, IToken o) {
-        Map<String,Found> m = stack.peek();
-        addToken(generator, m, o, o.getRepresentation());
-        
-    }
-    
-    /**
-     * @param generator
-     * @param m
-     * @param o
-     */
-    private void addToken(IToken generator, Map<String, Found> m, IToken o, String rep) {
-        Found found = m.get(rep);
-        if(found != null && !found.used){ //it will be removed from the scope
-            addUnusedMessage(found);
-        }
-        if (generator == null){
-            m.put(rep, new Found(o,(SourceToken) o)); //the generator and the token are the same
-        }else{
-            m.put(rep, new Found(o,(SourceToken) generator));
-        }
     }
     
     /**
@@ -237,105 +199,14 @@ public class OcurrencesVisitor extends VisitorBase{
             CompletionState state = getEmptyCompletionState();
             state.builtinsGotten = true; //we don't want any builtins
             List completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList(), wildImport);
-            addTokens(completionsForWildImport, wildImport);
+            scope.addTokens(completionsForWildImport, wildImport);
         }else{
             List list = AbstractVisitor.makeImportToken(node, null, moduleName);
-            addTokens(list, null);
+            scope.addTokens(list, null);
         }
         return null;
     }
 
-    /**
-     * @return a default completion state for globals (empty act. token)
-     */
-    private CompletionState getEmptyCompletionState() {
-        return new CompletionState(0,0,"", nature);
-    }
-    
-    /**
-     * initializes a new scope
-     */
-    private void startScope() {
-        stack.push(new HashMap<String,Found>());
-        Map<String, IToken> item = new HashMap<String, IToken>();
-        stackNamesToIgnore.push(item);
-    }
-    
-    /**
-     * finalizes the current scope
-     */
-    private void endScope() {
-        Map<String,Found> m = stack.pop(); //clear the last
-        
-        List<IToken> definedLater = new ArrayList<IToken>();
-        for(IToken n : probablyNotDefined){
-            String rep = n.getRepresentation();
-            //we also get a last pass to the unused to see if they might have been defined later on the higher scope
-            
-            Found found = find(m, rep);
-            if(found != null){
-                found.used = true;
-                definedLater.add(n);
-            }
-        }
-        probablyNotDefined.removeAll(definedLater);
-        
-        //ok, this was the last scope, so, the ones probably not defined are really not defined at this
-        //point
-        if(stack.size() == 0){
-            
-            for(IToken n : probablyNotDefined){
-                String rep = n.getRepresentation();
-                if(!stackNamesToIgnore.get(0).containsKey(rep)){
-                    addUndefinedMessage(n);
-                }
-            }
-            
-        }
-        
-        //so, now, we clear the unused
-        for (Found f : m.values()) {
-            if(!f.used){
-                addUnusedMessage(f);
-            }
-        }
-        
-        stackNamesToIgnore.pop();
-        
-    }
-
-    
-    private Found find(Map<String, Found> m, String fullRep) {
-        int i = fullRep.indexOf('.', 0);
-
-        while(i >= 0){
-            String sub = fullRep.substring(0,i);
-            i = fullRep.indexOf('.', i+1);
-            Found found = m.get(sub);
-            if(found != null){
-                return found;
-            }
-        }
-        
-        return m.get(fullRep);
-    }
-
-    /**
-     * adds a message for something that was not used
-     */
-    private void addUnusedMessage(Found f) {
-        if(f.generator instanceof SourceToken){
-            SimpleNode ast = ((SourceToken)f.generator).getAst();
-            
-            //it can be an unused import
-            if(ast instanceof Import || ast instanceof ImportFrom){
-                messagesManager.addMessage(IAnalysisPreferences.TYPE_UNUSED_IMPORT, f);
-                return; //finish it...
-            }
-        }
-        //or unused variable
-        messagesManager.addMessage(IAnalysisPreferences.TYPE_UNUSED_VARIABLE, f);
-    }
 
     /**
      * Visiting some name
@@ -348,7 +219,7 @@ public class OcurrencesVisitor extends VisitorBase{
         if (node.ctx == Name.Store) {
             String rep = token.getRepresentation();
             if(!rep.equals("self")){
-                addToken(token,token);
+                scope.addToken(token,token);
             }else{
                 addToNamesToIgnore(node); //ignore self
             }
@@ -391,22 +262,99 @@ public class OcurrencesVisitor extends VisitorBase{
         return null;
     }
 
+    
+    @Override
+    public Object visitIf(If node) throws Exception {
+        scope.addIfSubScope();
+        Object r = super.visitIf(node);
+        scope.removeIfSubScope();
+        return r;
+    }
+    
+    
     /**
-     * @param found
-     * @param name
-     * @return
+     * @return a default completion state for globals (empty act. token)
      */
-    private boolean find(boolean found, String name) {
-        for (Map<String,Found> m : stack) {
+    private CompletionState getEmptyCompletionState() {
+        return new CompletionState(0,0,"", nature);
+    }
+    
+    /**
+     * initializes a new scope
+     */
+    private void startScope() {
+        scope.startScope();
+        Map<String, IToken> item = new HashMap<String, IToken>();
+        stackNamesToIgnore.push(item);
+    }
+    
+    /**
+     * finalizes the current scope
+     */
+    private void endScope() {
+        ScopeItems m = scope.endScope(); //clear the last scope
+        
+        List<IToken> definedLater = new ArrayList<IToken>();
+        for(IToken n : probablyNotDefined){
+            String rep = n.getRepresentation();
+            //we also get a last pass to the unused to see if they might have been defined later on the higher scope
             
-            Found f = m.get(name);
-            if(f != null){
-                f.used = true;
-                found = true;
+//            ScopeItems curr = scope.currentScope();
+            
+            Found found = find(m, rep);
+            if(found != null){
+                found.setUsed(true);
+                definedLater.add(n);
             }
         }
-        return found;
+        probablyNotDefined.removeAll(definedLater);
+        
+        //ok, this was the last scope, so, the ones probably not defined are really not defined at this
+        //point
+        if(scope.size() == 0){
+            
+            for(IToken n : probablyNotDefined){
+                String rep = n.getRepresentation();
+                if(!stackNamesToIgnore.get(0).containsKey(rep)){
+                    messagesManager.addUndefinedMessage(n);
+                }
+            }
+            
+        }
+        
+        //so, now, we clear the unused
+        for (Found f : m.values()) {
+            if(!f.isUsed()){
+                messagesManager.addUnusedMessage(f);
+            }
+        }
+        
+        stackNamesToIgnore.pop();
+        
     }
+
+    
+    /**
+     * Finds an item given its full representation (so, os.path can be found as solely os)
+     */
+    private Found find(ScopeItems m, String fullRep) {
+        if(m == null)
+            return null;
+        
+        int i = fullRep.indexOf('.', 0);
+
+        while(i >= 0){
+            String sub = fullRep.substring(0,i);
+            i = fullRep.indexOf('.', i+1);
+            Found found = m.get(sub);
+            if(found != null){
+                return found;
+            }
+        }
+        
+        return m.get(fullRep);
+    }
+
     
     /**
      * we just found a token, so let's mark the correspondent tokens read (or undefined)
@@ -417,13 +365,15 @@ public class OcurrencesVisitor extends VisitorBase{
     }
 
     /**
-     * @param token
-     * @param rep
-     * @return 
+     * marks a token as read given its representation
+     * 
+     * @param token the token to be added
+     * @param rep the token representation
+     * @param addToNotDefined determines if it should be added to the 'not defined tokens' stack or not 
+     * @return true if it was found
      */
     private boolean markRead(IToken token, String rep, boolean addToNotDefined) {
-        boolean found = false;
-        found = find(found, rep);
+        boolean found = scope.find(rep);
         
         //this token might not be defined...
         int i;
@@ -432,24 +382,16 @@ public class OcurrencesVisitor extends VisitorBase{
             rep = rep.substring(0, i);
         }
         if(addToNotDefined && !found && !isInNamesToIgnore(rep)){
-            if(stack.size() > 1){
+            if(scope.size() > 1){
                 probablyNotDefined.add(token); //we are not in the global scope, so it might be defined later...
             }else{
                 //global scope, so, even if it is defined later, this is an error...
-                addUndefinedMessage(token);
+                messagesManager.addUndefinedMessage(token);
             }
         }
         return found;
     }
 
-    /**
-     * @param token
-     */
-    private void addUndefinedMessage(IToken token) {
-        if(token.getRepresentation().equals("_"))
-            return; //TODO: check how to get tokens that are added to the builtins
-        messagesManager.addMessage(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, token);
-    }
 
     /**
      * checks if there is some token in the names that are defined (but should be ignored)

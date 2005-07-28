@@ -8,7 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.python.parser.SimpleNode;
+import org.python.parser.ast.Import;
+import org.python.parser.ast.ImportFrom;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.CompositeMessage;
@@ -52,12 +56,18 @@ public class MessagesManager {
     /**
      * adds a message of some type for some Found instance
      */
-    public void addMessage(int type, Found f) {
-        IToken generator = f.generator;
-        List<IMessage> msgs = getMsgsList(generator);
-        msgs.add(new Message(type, f.tok.getRepresentation(), f.tok, prefs));
+    public void addMessage(int type, IToken generator, IToken tok) {
+        addMessage(type, generator, tok, tok.getRepresentation());
     }
 
+    /**
+     * adds a message of some type for some Found instance
+     */
+    public void addMessage(int type, IToken generator, IToken tok, String rep) {
+        List<IMessage> msgs = getMsgsList(generator);
+        msgs.add(new Message(type, rep, tok, prefs));
+    }
+    
     /**
      * @return the messages associated with a token
      */
@@ -70,6 +80,45 @@ public class MessagesManager {
         return msgs;
     }
 
+    
+    /**
+     * @param token adds a message saying that a token is not defined
+     */
+    public void addUndefinedMessage(IToken token) {
+        if(token.getRepresentation().equals("_"))
+            return; //TODO: check how to get tokens that are added to the builtins
+        
+        String rep = token.getRepresentation();
+        int i;
+        if((i = rep.indexOf('.')) != -1){
+            rep = rep.substring(0,i);
+        }
+        addMessage(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, token, rep );
+    }
+
+    /**
+     * adds a message for something that was not used
+     */
+    public void addUnusedMessage(Found f) {
+        for (GenAndTok g : f){
+            if(g.generator instanceof SourceToken){
+                SimpleNode ast = ((SourceToken)g.generator).getAst();
+                
+                //it can be an unused import
+                if(ast instanceof Import || ast instanceof ImportFrom){
+                    addMessage(IAnalysisPreferences.TYPE_UNUSED_IMPORT, g.generator, g.tok);
+                    continue; //finish it...
+                }
+            }
+            //or unused variable
+            addMessage(IAnalysisPreferences.TYPE_UNUSED_VARIABLE, g.generator, g.tok);
+        }
+    }
+
+
+    
+    
+    
     /**
      * @return the generated messages.
      */

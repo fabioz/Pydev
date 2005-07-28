@@ -17,16 +17,19 @@ import static com.python.pydev.analysis.IAnalysisPreferences.*;
 public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase { 
 
     public static void main(String[] args) {
-//        OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
-//        try {
-//            analyzer2.setUp();
-//            analyzer2.testScopes();
-//            analyzer2.tearDown();
-//            System.out.println("finished");
-//        } catch (Throwable e) {
-//            e.printStackTrace();
-//        }
-        junit.textui.TestRunner.run(OcurrencesAnalyzerTest.class);
+        OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
+        try {
+            analyzer2.setUp();
+            analyzer2.testScopes();
+            analyzer2.tearDown();
+            System.out.println("finished");
+            
+            
+            junit.textui.TestRunner.run(OcurrencesAnalyzerTest.class);
+            
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -183,6 +186,39 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
     }
     
+    public void test2UnusedVariables() {
+        doc = new Document(
+                "               \n"+  
+                "result = 10    \n"+       
+                "               \n"+      
+                "if False:      \n"+       
+                "    result = 20\n"+        
+                "               \n"     
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(2, msgs.length);
+    }
+    
+    public void testNotUnusedVariable() {
+        doc = new Document(
+            "               \n"+  
+            "result = 10    \n"+       
+            "               \n"+      
+            "if False:      \n"+       
+            "    result = 20\n"+        
+            "               \n"+     
+            "print result   \n"      
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+        
+    }
+    
     public void testScopes() {
         //2 messages with token with same name
         doc = new Document(
@@ -334,6 +370,19 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(0, msgs.length);
     }
     
+    public void testAttributeAccessMsg() {
+        //all ok...
+        doc = new Document(
+                "s.a = 10            \n" +
+                ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(1, msgs.length);
+        assertEquals("Undefined variable: s", msgs[0].getMessage());
+    }
+    
     public void testAttributeAccess() {
         //all ok...
         doc = new Document(
@@ -364,19 +413,6 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(0, msgs.length);
     }
     
-    public void testAttributeAccessUndefined() {
-        //all ok...
-        doc = new Document(
-                "s.a = 10            \n" +
-                ""  
-        );
-        analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
-        
-        assertEquals(1, msgs.length);
-        assertEquals(TYPE_UNDEFINED_VARIABLE, msgs[0].getType());
-        assertEquals("Undefined variable: s.a", msgs[0].getMessage());
-    }
     
     public void testSelf() {
         //all ok...
@@ -417,6 +453,20 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
         assertEquals(1, msgs.length);
+    }
+    
+    public void testNotDefinedLater2() {
+        doc = new Document(
+            "def m1():     \n" +
+            "    print c   \n" +
+            "    c = 10    \n" +
+            "              \n" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(2, msgs.length);
     }
     
     public void testUndefinedVariableBuiltin() {
