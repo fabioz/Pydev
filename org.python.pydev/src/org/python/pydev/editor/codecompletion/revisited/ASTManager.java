@@ -226,7 +226,10 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager#getCompletionsForToken(java.io.File, org.eclipse.jface.text.IDocument, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
     public IToken[] getCompletionsForToken(File file, IDocument doc, CompletionState state) {
-        String moduleName = projectModulesManager.resolveModule(REF.getFileAbsolutePath(file));
+        String moduleName = "";
+        if(file != null){
+            moduleName = projectModulesManager.resolveModule(REF.getFileAbsolutePath(file));
+        }
         AbstractModule module = AbstractModule.createModuleFromDoc(moduleName, file, doc, state.nature, state.line);
         return getCompletionsForModule(module, state);
     }
@@ -538,7 +541,8 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     private Object[] findOnImportedMods( IToken[] importedModules, PythonNature nature, String activationToken, AbstractModule current) {
         for (int i = 0; i < importedModules.length; i++) {
             final String modRep = importedModules[i].getRepresentation();
-            if(modRep.equals(activationToken)){
+            String fullRep = importedModules[i].getCompletePath();
+            if(modRep.equals(activationToken) || fullRep.equals(activationToken)){
                 String rep = importedModules[i].getCompletePath();
                 
                 Object [] o = null;

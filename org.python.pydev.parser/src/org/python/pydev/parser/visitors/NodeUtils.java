@@ -147,7 +147,11 @@ public class NodeUtils {
         
         if (node instanceof Attribute){
             Attribute a = (Attribute)node;
-            return getFullRepresentationString(a.value) + "."+ a.attr;
+            String fullRepresentationString = getFullRepresentationString(a.value);
+            if(fullRepresentationString == null){
+                return null;
+            }
+            return fullRepresentationString + "."+ a.attr;
         } 
         
         if (node instanceof Str || node instanceof Num){

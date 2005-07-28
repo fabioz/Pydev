@@ -279,9 +279,11 @@ public abstract class ModulesManager implements Serializable {
      */
     public AbstractModule getModule(String name, PythonNature nature) {
 
-        AbstractModule n = (AbstractModule) getModules().get(new ModulesKey(name, null));
+        AbstractModule n = (AbstractModule) getModules().get(new ModulesKey(name + ".__init__", null));
         if (n == null) {
-            n = (AbstractModule) getModules().get(new ModulesKey(name + ".__init__", null));
+            n = (AbstractModule) getModules().get(new ModulesKey(name, null));
+        }else{
+            name += ".__init__";
         }
 
         if (n instanceof SourceModule) {

@@ -330,15 +330,16 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     public static void main(String[] args)  {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         
-        junit.textui.TestRunner.run(ASTManagerTest.class);
 
-//        try {
+        try {
 //            ASTManagerTest test = new ASTManagerTest();
 //            test.setUp();
-//            test.testCompletion();
+//            test.testRelative();
 //            test.tearDown();
-//        } catch (Throwable e) {
-//            e.printStackTrace();
-//        }
+
+            junit.textui.TestRunner.run(ASTManagerTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 }

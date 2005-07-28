@@ -90,6 +90,8 @@ public abstract class AbstractVisitor extends VisitorBase{
             int i;
             if(moduleName != null && (i = moduleName.lastIndexOf('.')) != -1){
                 moduleName = moduleName.substring(0, i);
+            }else{
+                moduleName = "";
             }
             sourceToken = new SourceToken(node, node.module, "",  "", moduleName);
             tokens.add(sourceToken);
