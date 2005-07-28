@@ -53,6 +53,26 @@ public class OcurrencesVisitor extends VisitorBase{
     private Scope scope;
     
     /**
+     * the scope type is a method
+     */
+    public static final int SCOPE_TYPE_GLOBAL = 0;
+    
+    /**
+     * the scope type is a method
+     */
+    public static final int SCOPE_TYPE_METHOD = 1;
+
+    /**
+     * the scope type is a class
+     */
+    public static final int SCOPE_TYPE_CLASS = 2;
+    
+    /**
+     * to know in which scope type we are at the moment...
+     */
+    private Stack<Integer> scopeTypes = new Stack<Integer>();
+    
+    /**
      * Stack for names that should not generate warnings, such as builtins, method names, etc.
      */
     private Stack<Map<String,IToken>> stackNamesToIgnore = new Stack<Map<String,IToken>>();
@@ -91,7 +111,7 @@ public class OcurrencesVisitor extends VisitorBase{
         this.scope = new Scope(this.messagesManager);
         this.duplicationChecker = new DuplicationChecker(this.messagesManager);
         
-        startScope(); //initial scope 
+        startScope(SCOPE_TYPE_GLOBAL); //initial scope 
         List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(getEmptyCompletionState(), new ArrayList());
         for(IToken t : builtinCompletions){
             stackNamesToIgnore.peek().put(t.getRepresentation(), t);
@@ -133,7 +153,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitClassDef(org.python.parser.ast.ClassDef)
      */
     public Object visitClassDef(ClassDef node) throws Exception {
-        startScope();
+        startScope(SCOPE_TYPE_CLASS);
         duplicationChecker.beforeClassDef(node);
         Object object = super.visitClassDef(node);
         duplicationChecker.afterClassDef(node);
@@ -157,7 +177,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitFunctionDef(org.python.parser.ast.FunctionDef)
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
-        startScope();
+        startScope(SCOPE_TYPE_METHOD);
         duplicationChecker.beforeFunctionDef(node); //duplication checker
         
         argumentsType args = node.args;
@@ -283,10 +303,11 @@ public class OcurrencesVisitor extends VisitorBase{
     /**
      * initializes a new scope
      */
-    private void startScope() {
+    private void startScope(int newScopeType) {
         scope.startScope();
         Map<String, IToken> item = new HashMap<String, IToken>();
         stackNamesToIgnore.push(item);
+        scopeTypes.push(newScopeType);
     }
     
     /**
@@ -294,7 +315,7 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     private void endScope() {
         ScopeItems m = scope.endScope(); //clear the last scope
-        
+        int scopeType = scopeTypes.pop();
         for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
             Found n = it.next();
             
@@ -315,7 +336,8 @@ public class OcurrencesVisitor extends VisitorBase{
             
             for(Found n : probablyNotDefined){
                 String rep = n.getSingle().tok.getRepresentation();
-                if(!stackNamesToIgnore.get(0).containsKey(rep)){
+                Map<String, IToken> lastInStack = stackNamesToIgnore.peek();
+                if(!findInNamesToIgnore(rep, lastInStack)){
                     messagesManager.addUndefinedMessage(n.getSingle().tok);
                 }
             }
@@ -325,12 +347,32 @@ public class OcurrencesVisitor extends VisitorBase{
         //so, now, we clear the unused
         for (Found f : m.values()) {
             if(!f.isUsed()){
-                messagesManager.addUnusedMessage(f);
+                if(scopeType != SCOPE_TYPE_CLASS){
+                    messagesManager.addUnusedMessage(f);
+                }
             }
         }
         
         stackNamesToIgnore.pop();
         
+    }
+
+    /**
+     * find out if an item is in the names to ignore given its full representation
+     */
+    private boolean findInNamesToIgnore(String fullRep, Map<String, IToken> lastInStack) {
+        
+        int i = fullRep.indexOf('.', 0);
+
+        while(i >= 0){
+            String sub = fullRep.substring(0,i);
+            i = fullRep.indexOf('.', i+1);
+            if(lastInStack.containsKey(sub)){
+                return true;
+            }
+        }
+
+        return lastInStack.containsKey(fullRep);
     }
 
     
@@ -398,7 +440,7 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     private boolean isInNamesToIgnore(String rep) {
         for(Map<String,IToken> m : this.stackNamesToIgnore){
-            if(m.containsKey(rep)){
+            if(findInNamesToIgnore(rep, m)){
                 return true;
             }
         }

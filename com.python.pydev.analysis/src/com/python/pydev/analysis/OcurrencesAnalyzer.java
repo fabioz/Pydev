@@ -3,8 +3,10 @@
  */
 package com.python.pydev.analysis;
 
+import org.eclipse.core.runtime.IStatus;
 import org.python.parser.SimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.messages.IMessage;
@@ -26,7 +28,7 @@ public class OcurrencesAnalyzer implements Analyzer {
                 ast.accept(visitor);
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            PydevPlugin.log(IStatus.ERROR, "Error while visiting "+module.getName()+" ("+module.getFile()+")",e);
         }
         return visitor.getMessages();
     }

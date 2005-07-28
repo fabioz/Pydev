@@ -18,11 +18,11 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
 
     public static void main(String[] args) {
         try {
-//            OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
-//            analyzer2.setUp();
-//            analyzer2.testNotDefinedLater2();
-//            analyzer2.tearDown();
-//            System.out.println("finished");
+            OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
+            analyzer2.setUp();
+            analyzer2.testTupleVar();
+            analyzer2.tearDown();
+            System.out.println("finished");
             
             
             junit.textui.TestRunner.run(OcurrencesAnalyzerTest.class);
@@ -234,6 +234,33 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(0, msgs.length);
     }
 
+    public void testScopes2() {
+        doc = new Document(
+            "class Class1:              \n"+  
+            "    c = 1                  \n"+      
+            ""   
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testScopes3() {
+        doc = new Document(
+                "class Class1:              \n"+  
+                "    def __init__( self ):  \n"+
+                "        print Class1       \n"+
+                ""   
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
     public void testSameName() {
         //2 messages with token with same name
         doc = new Document(
@@ -443,6 +470,23 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(0, msgs.length);
     }
     
+    public void testDefinitionLater2() {
+        doc = new Document(
+            "def m():                \n" +
+            "    AroundContext().m1()\n" +
+            "                        \n" +
+            "class AroundContext:    \n" +
+            "    def m1(self):       \n" +
+            "        pass            \n" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+ 
+    }
+    
     public void testNotDefinedLater() {
         doc = new Document(
                 "def m1():     \n" +
@@ -552,6 +596,28 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         doc = new Document(
                 "v = 'r.a.s.b'.join('a')\n" +
                 "print v            " 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testListComprehension() {
+        doc = new Document(
+            "print [i for i in range(10)]" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testTupleVar() {
+        doc = new Document(
+            "print (0,0).__class__" 
         );
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);

@@ -3,6 +3,9 @@
  */
 package com.python.pydev.analysis.builder;
 
+import java.io.File;
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
@@ -43,7 +46,12 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
         OcurrencesAnalyzer analyzer = new OcurrencesAnalyzer();
         PythonNature nature = PythonNature.getPythonNature(resource.getProject());
-        AbstractModule module = AbstractModule.createModuleFromDoc("", null, document, nature, 0);
+        IFile f = (IFile) resource;
+        String file = f.getRawLocation().toOSString();
+        
+        String moduleName = nature.getAstManager().getProjectModulesManager().resolveModule(file);
+        
+        AbstractModule module = AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, 0);
         
         //ok, let's do it
         IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences);
