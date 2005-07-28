@@ -312,7 +312,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 
 	        IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
 	        if(activeWorkbenchWindow == null){
-	        	//we have to be in a ui thread for this to work... check how to fix it!
+	        	// TODO we have to be in a ui thread for this to work... check how to fix it!
 	        	throw new RuntimeException("activeWorkbenchWindow cannot be null");
 	        }
 	        
@@ -339,20 +339,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @throws CoreException
      */
     private static IEditorPart openExternalFile(IPath location, IWorkbenchPage wp, boolean activate) throws CoreException {
-        IWorkspace ws = ResourcesPlugin.getWorkspace();
-        IProject project = ws.getRoot().getProject("External Files");
-        if (!project.exists())
-            project.create(null);
-        if (!project.isOpen())
-            project.open(null);
-
-        IFile file = project.getFile(location.lastSegment());
-        try {
-            file.createLink(location, IResource.NONE, null);
-        } catch (CoreException e) {
-            //That's OK
-            //org.eclipse.core.internal.resources.ResourceException: Resource /External Files/GUITest.py already exists.
-        }
+        IFile file = linkToExternalFile(location);
         if (wp != null)
             return IDE.openEditor(wp, file, activate);
         return null;
@@ -365,12 +352,37 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         //        IEditorInput input = new ExternalEditorInput(storage);
         //        return wp.openEditor(input, desc.getId());
     }
+    
+    /**
+	 * imports the file into project called "External Files"
+	 */
+	public static IFile linkToExternalFile(IPath location) 
+	{
+		IFile file = null;
+		try {
+			IWorkspace ws = ResourcesPlugin.getWorkspace();
+			IProject project = ws.getRoot().getProject("External Files");
+			if (!project.exists())
+				project.create(null);
+			if (!project.isOpen())
+				project.open(null);
+
+			file = project.getFile(location.lastSegment());
+			file.createLink(location, IResource.NONE, null);
+			return file;
+		} catch (CoreException e) {
+			// That's OK
+			// org.eclipse.core.internal.resources.ResourceException: Resource
+			// /External Files/GUITest.py already exists.
+		}
+		return file;
+	}
 
     /**
-     * Returns this plug-in's template store.
-     * 
-     * @return the template store of this plug-in instance
-     */
+	 * Returns this plug-in's template store.
+	 * 
+	 * @return the template store of this plug-in instance
+	 */
     public TemplateStore getTemplateStore() {
         if (fStore == null) {
             fStore = new ContributionTemplateStore(getContextTypeRegistry(), getPreferenceStore(), CUSTOM_TEMPLATES_PY_KEY);
