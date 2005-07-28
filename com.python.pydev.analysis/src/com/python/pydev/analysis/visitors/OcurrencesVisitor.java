@@ -5,6 +5,7 @@ package com.python.pydev.analysis.visitors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -62,7 +63,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * 
      * objects should not be added to it if we are at the global scope.
      */
-    private List<IToken> probablyNotDefined = new ArrayList<IToken>();
+    private List<Found> probablyNotDefined = new ArrayList<Found>();
     
     /**
      * this is the module we are visiting
@@ -294,29 +295,28 @@ public class OcurrencesVisitor extends VisitorBase{
     private void endScope() {
         ScopeItems m = scope.endScope(); //clear the last scope
         
-        List<IToken> definedLater = new ArrayList<IToken>();
-        for(IToken n : probablyNotDefined){
-            String rep = n.getRepresentation();
+        for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
+            Found n = it.next();
+            
+            IToken tok = n.getSingle().tok;
+            String rep = tok.getRepresentation();
             //we also get a last pass to the unused to see if they might have been defined later on the higher scope
             
-//            ScopeItems curr = scope.currentScope();
-            
             Found found = find(m, rep);
-            if(found != null){
+            if(found != null && found.getSingle().scopeId != n.getSingle().scopeId){
                 found.setUsed(true);
-                definedLater.add(n);
+                it.remove();
             }
         }
-        probablyNotDefined.removeAll(definedLater);
         
         //ok, this was the last scope, so, the ones probably not defined are really not defined at this
         //point
         if(scope.size() == 0){
             
-            for(IToken n : probablyNotDefined){
-                String rep = n.getRepresentation();
+            for(Found n : probablyNotDefined){
+                String rep = n.getSingle().tok.getRepresentation();
                 if(!stackNamesToIgnore.get(0).containsKey(rep)){
-                    messagesManager.addUndefinedMessage(n);
+                    messagesManager.addUndefinedMessage(n.getSingle().tok);
                 }
             }
             
@@ -383,7 +383,7 @@ public class OcurrencesVisitor extends VisitorBase{
         }
         if(addToNotDefined && !found && !isInNamesToIgnore(rep)){
             if(scope.size() > 1){
-                probablyNotDefined.add(token); //we are not in the global scope, so it might be defined later...
+                probablyNotDefined.add(new Found(token, token, scope.getCurrScopeId())); //we are not in the global scope, so it might be defined later...
             }else{
                 //global scope, so, even if it is defined later, this is an error...
                 messagesManager.addUndefinedMessage(token);

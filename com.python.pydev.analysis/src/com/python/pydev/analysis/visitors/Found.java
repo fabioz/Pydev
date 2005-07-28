@@ -10,36 +10,41 @@ import java.util.List;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 
 class GenAndTok{
-    public IToken generator;
-    public IToken tok;
-    
-    public GenAndTok(IToken generator, IToken tok) {
-        this.generator = generator;
-        this.tok = tok;
-    }
-}
-public class Found implements Iterable<GenAndTok>{
     
     /**
      * This is the token that is from the current module that created the token (if on some wild import)
      * 
      * May be equal to tok
      */
-    private List<IToken> generator = new ArrayList<IToken>();
-    
+    public IToken generator;
+
     /**
      * This is the token that has been added to the namespace (may have been created on the current module or not).
      */
-    private List<IToken> tok = new ArrayList<IToken>();
+    public IToken tok;
+    
+    /**
+     * the scope id of the definition
+     */
+    public int scopeId;
+    
+    public GenAndTok(IToken generator, IToken tok, int scopeId) {
+        this.generator = generator;
+        this.tok = tok;
+        this.scopeId = scopeId;
+    }
+}
+public class Found implements Iterable<GenAndTok>{
+    
+    private List<GenAndTok> found = new ArrayList<GenAndTok>();
     
     /**
      * Identifies if the current token has been used or not
      */
     private boolean used = false;
     
-    Found(IToken tok, IToken generator){
-        this.tok.add(tok);
-        this.generator.add(generator);
+    Found(IToken tok, IToken generator, int scopeId){
+        this.found.add(new GenAndTok(generator, tok, scopeId));
     }
 
     /**
@@ -57,27 +62,14 @@ public class Found implements Iterable<GenAndTok>{
     }
 
     public Iterator<GenAndTok> iterator() {
-        final Iterator<IToken> iGen = generator.iterator();
-        final Iterator<IToken> iTok = tok.iterator();
-        return new Iterator<GenAndTok>(){
-
-            public boolean hasNext() {
-                return iGen.hasNext();
-            }
-
-            public GenAndTok next() {
-                return new GenAndTok(iGen.next(), iTok.next());
-            }
-
-            public void remove() {
-                throw new RuntimeException("not supported");
-            }
-            
-        };
+        return this.found.iterator();
     }
 
-    public void addGeneratorToFound(IToken generator2, IToken tok2) {
-        this.generator.add(generator2);
-        this.tok.add(tok2);
+    public void addGeneratorToFound(IToken generator2, IToken tok2, int scopeId) {
+        this.found.add(new GenAndTok(generator2, tok2, scopeId));
+    }
+
+    public GenAndTok getSingle() {
+        return found.get(0);
     }
 }

@@ -19,6 +19,13 @@ public class Scope {
     
     private MessagesManager messagesManager;
     
+    private Stack<Integer> scopeId = new Stack<Integer>();
+    private int scopeUnique = 0;
+    private int getNewId() {
+        scopeUnique++;
+        return scopeUnique;
+    }
+    
     public Scope(MessagesManager messagesManager) {
         this.messagesManager = messagesManager;
     }
@@ -59,16 +66,16 @@ public class Scope {
             if(m.getIfSubScope() == 0){
                 messagesManager.addUnusedMessage(found);
             }else{
-                found.addGeneratorToFound(generator,o);
+                found.addGeneratorToFound(generator,o, getCurrScopeId());
                 //ok, it was added, so, let's call this over because we've appended it to another found,
                 //no reason to re-add it again.
                 return;
             }
         }
         if (generator == null){
-            m.put(rep, new Found(o,(SourceToken) o)); //the generator and the token are the same
+            m.put(rep, new Found(o,(SourceToken) o, getCurrScopeId())); //the generator and the token are the same
         }else{
-            m.put(rep, new Found(o,(SourceToken) generator));
+            m.put(rep, new Found(o,(SourceToken) generator, getCurrScopeId()));
         }
     }
     
@@ -76,10 +83,17 @@ public class Scope {
      * initializes a new scope
      */
     public void startScope() {
-        scope.push(new ScopeItems());
+        int newId = getNewId();
+        scope.push(new ScopeItems(newId));
+        scopeId.push(newId);
+    }
+    
+    public int getCurrScopeId(){
+        return scopeId.peek();
     }
 
     public ScopeItems endScope() {
+        scopeId.pop();
         return scope.pop();
     }
 

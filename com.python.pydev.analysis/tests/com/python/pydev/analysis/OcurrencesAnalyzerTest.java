@@ -17,12 +17,12 @@ import static com.python.pydev.analysis.IAnalysisPreferences.*;
 public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase { 
 
     public static void main(String[] args) {
-        OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
         try {
-            analyzer2.setUp();
-            analyzer2.testScopes();
-            analyzer2.tearDown();
-            System.out.println("finished");
+//            OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
+//            analyzer2.setUp();
+//            analyzer2.testNotDefinedLater2();
+//            analyzer2.tearDown();
+//            System.out.println("finished");
             
             
             junit.textui.TestRunner.run(OcurrencesAnalyzerTest.class);
@@ -465,7 +465,6 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
-        printMessages(msgs);
         assertEquals(2, msgs.length);
     }
     

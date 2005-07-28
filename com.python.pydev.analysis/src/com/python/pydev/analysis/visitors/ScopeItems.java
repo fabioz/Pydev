@@ -10,6 +10,11 @@ import java.util.Map;
 public class ScopeItems {
     Map<String,Found> m = new HashMap<String,Found>();
     int ifSubScope = 0;
+    private int scopeId;
+
+    public ScopeItems(int scopeId) {
+        this.scopeId = scopeId;
+    }
 
     public Found get(String rep) {
         return m.get(rep);
@@ -33,6 +38,13 @@ public class ScopeItems {
 
     public int getIfSubScope() {
         return ifSubScope;
+    }
+
+    /**
+     * @return Returns the scopeId.
+     */
+    public int getScopeId() {
+        return scopeId;
     }
 
 }
