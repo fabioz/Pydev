@@ -294,7 +294,19 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
                 IRegion end = doc.getLineInformation(lineEnd);
                 endAbsolute = end.getOffset() + colEnd;
             } else {
-                endAbsolute = start.getOffset() + start.getLength();
+                //ok, we have to calculate it based on the line contents...
+                String line = doc.get(start.getOffset(), start.getLength());
+                int i;
+                StringBuffer buffer;
+                if((i = line.indexOf('#')) != -1){
+                    buffer = new StringBuffer(line.substring(0, i));
+                }else{
+                    buffer = new StringBuffer(line);
+                }
+                while(buffer.length() > 0 && Character.isWhitespace(buffer.charAt(buffer.length() - 1))){
+                    buffer.deleteCharAt(buffer.length() -1);
+                }
+                endAbsolute = start.getOffset() + buffer.length();
             }
         } catch (BadLocationException e) {
             throw new RuntimeException("Unable to get the location requested for the resource "+resource.getLocation(), e);

@@ -238,15 +238,15 @@ public class NodeUtils {
     private static int getFromRepresentation(SimpleNode v) {
         int col;
         String representationString = getFullRepresentationString(v);
+        if(representationString == null){
+            return -1;
+        }
+        
         int i;
         if((i = representationString.indexOf('.') )  != -1){
             representationString = representationString.substring(0,i);
         }
-        try {
-            col = getColDefinition(v) + representationString.length();
-        } catch (Exception e) {
-            col = -1;
-        }
+        col = getColDefinition(v) + representationString.length();
         return col;
     }
     

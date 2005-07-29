@@ -19,11 +19,11 @@ public class InterpreterManagerStub extends InterpreterManager implements IInter
     }
 
     public String getDefaultInterpreter() {
-        return CodeCompletionTestsBase.PYTHON_EXE;
+        return TestDependent.PYTHON_EXE;
     }
 
     public String[] getInterpreters() {
-        return new String[]{CodeCompletionTestsBase.PYTHON_EXE};
+        return new String[]{TestDependent.PYTHON_EXE};
     }
 
     public String addInterpreter(String executable, IProgressMonitor monitor) {
@@ -44,7 +44,7 @@ public class InterpreterManagerStub extends InterpreterManager implements IInter
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
         
         InterpreterInfo info = super.getInterpreterInfo(executable, monitor);
-        CodeCompletionTestsBase.PYTHON_EXE = info.executable;
+        TestDependent.PYTHON_EXE = info.executable;
         return info;
     }
 }

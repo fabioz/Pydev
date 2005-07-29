@@ -21,16 +21,6 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
  */
 public class CodeCompletionTestsBase extends TestCase {
 
-    //NOTE: this should be gotten from some variable to point to the python lib (less system dependence, but still, some).
-    public static String PYTHON_EXE="C:/bin/Python24/python.exe";
-    public static final String PYTHON_INSTALL="C:/bin/Python24/";
-    public static final String PYTHON_LIB="C:/bin/Python24/Lib/";
-    public static final String PYTHON_SITE_PACKAGES="C:/bin/Python24/Lib/site-packages/";
-    
-    //NOTE: this should set to the tests pysrc location, so that it can be added to the pythonpath.
-    public static final String TEST_PYSRC_LOC="D:/dev_programs/eclipse_3/eclipse/workspace/org.python.pydev/tests/pysrc/";
-    //public static final String TEST_PYSRC_LOC="D:/eclipse_workspace/org.python.pydev/tests/pysrc/";
-
     public static void main(String[] args) {
         junit.textui.TestRunner.run(CodeCompletionTestsBase.class);
     }
@@ -112,15 +102,15 @@ public class CodeCompletionTestsBase extends TestCase {
     }
 
     public void restorePythonPathWithSitePackages(boolean force){
-        restoreSystemPythonPath(force, PYTHON_LIB+"|"+PYTHON_SITE_PACKAGES);
-        restoreProjectPythonPath(force, TEST_PYSRC_LOC);
+        restoreSystemPythonPath(force, TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES);
+        restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
         checkSize();
     }
 
 
     public void restorePythonPath(boolean force){
-        restoreSystemPythonPath(force, PYTHON_LIB);
-        restoreProjectPythonPath(force, TEST_PYSRC_LOC);
+        restoreSystemPythonPath(force, TestDependent.PYTHON_LIB);
+        restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
         checkSize();
     }
     
