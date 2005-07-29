@@ -20,7 +20,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testScopes4();
+            analyzer2.testImportAs2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -396,6 +396,74 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(0, msgs.length);
     }
     
+    public void testImportPartial() {
+        doc = new Document(
+                "import os.path   \n" +
+                "print os         \n" +
+                ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testImportAs() {
+        doc = new Document(
+                "import os.path as bla   \n" +
+                "print bla               \n" +
+                ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testImportAs2() {
+        doc = new Document(
+                "import os.path as bla   \n" +
+                "print os.path           \n" +
+                ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(2, msgs.length);
+        assertContainsMsg("Undefined variable: os", msgs);
+        assertContainsMsg("Unused import(s): bla", msgs);
+    }
+    
+    private void assertContainsMsg(String msg, IMessage[] msgs2) {
+        for (IMessage message : msgs2) {
+            if(message.getMessage().equals(msg)){
+                return;
+            }
+        }
+        StringBuffer msgsAvailable = new StringBuffer();
+        for (IMessage message : msgs2) {
+            msgsAvailable.append(message.getMessage());
+            msgsAvailable.append("\n");
+        }
+        fail(String.format("No message named %s could be found. Available: %s", msg, msgsAvailable));
+    }
+
+    public void testImportAs3() {
+        doc = new Document(
+                "import os.path as bla   \n" +
+                "print os                \n" +
+                ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(2, msgs.length);
+        assertContainsMsg("Undefined variable: os", msgs);
+        assertContainsMsg("Unused import(s): bla", msgs);
+    }
+    
 
     public void testAttributeImport() {
         //all ok...
@@ -452,6 +520,21 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
+    }
+    
+    public void testAttributeErrorPos() {
+        //all ok...
+        doc = new Document(
+            "print message().bla\n" +
+            ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(1, msgs.length);
+        assertEquals("Undefined variable: message", msgs[0].getMessage());
+        assertEquals(7, msgs[0].getStartCol());
+        assertEquals(14, msgs[0].getEndCol());
     }
     
     public void testImportAttr() {

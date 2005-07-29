@@ -206,8 +206,10 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitImport(org.python.parser.ast.Import)
      */
     public Object visitImport(Import node) throws Exception {
-        List list = AbstractVisitor.makeImportToken(node, null, moduleName);
-        scope.addTokens(list, null);
+        List <IToken>list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
+        for (IToken token : list) {
+            scope.addToken(token, token);
+        }
         return null;
     }
     
@@ -223,7 +225,7 @@ public class OcurrencesVisitor extends VisitorBase{
             List completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList(), wildImport);
             scope.addTokens(completionsForWildImport, wildImport);
         }else{
-            List list = AbstractVisitor.makeImportToken(node, null, moduleName);
+            List list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
             scope.addTokens(list, null);
         }
         return null;
