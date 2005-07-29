@@ -21,6 +21,7 @@ import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.argumentsType;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -112,7 +113,7 @@ public class OcurrencesVisitor extends VisitorBase{
         this.scope = new Scope(this.messagesManager);
         this.duplicationChecker = new DuplicationChecker(this.messagesManager);
         
-        startScope(SCOPE_TYPE_GLOBAL); //initial scope 
+        startScope(SCOPE_TYPE_GLOBAL); //initial scope - there is only one 'global' 
         List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(getEmptyCompletionState(), new ArrayList());
         for(IToken t : builtinCompletions){
             stackNamesToIgnore.peek().put(t.getRepresentation(), t);
@@ -202,7 +203,10 @@ public class OcurrencesVisitor extends VisitorBase{
     }
     
     /**
-     * when visiting an import, just make the token and add it 
+     * when visiting an import, just make the token and add it
+     * 
+     * e.g.: if it is an import such as 'os.path', it will return 2 tokens, one for 'os' and one for 'os.path',
+     *  
      * @see org.python.parser.ast.VisitorIF#visitImport(org.python.parser.ast.Import)
      */
     public Object visitImport(Import node) throws Exception {
@@ -242,7 +246,7 @@ public class OcurrencesVisitor extends VisitorBase{
         SourceToken token = AbstractVisitor.makeToken(node, moduleName);
         if (node.ctx == Name.Store) {
             String rep = token.getRepresentation();
-            if(!rep.equals("self")){
+            if(!rep.equals("self")){ //TODO: after knowing about decorations, self should only be allowed in methods from a class
                 scope.addToken(token,token);
             }else{
                 addToNamesToIgnore(node); //ignore self
@@ -255,33 +259,38 @@ public class OcurrencesVisitor extends VisitorBase{
         return null;
     }
     
-    @Override
+    /**
+     * visiting some attribute, as os.path or math().val or (10,10).__class__
+     *  
+     * @see org.python.parser.ast.VisitorIF#visitAttribute(org.python.parser.ast.Attribute)
+     */
     public Object visitAttribute(Attribute node) throws Exception {
         SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName);
         if(token.getRepresentation().equals("")){
             return null;
         }
         String fullRep = token.getRepresentation();
-        int i = fullRep.indexOf('.', 0);
-        String sub = fullRep.substring(0,i);
 
         if (node.ctx == Attribute.Store) {
             //in a store attribute, the first part is always a load
+            int i = fullRep.indexOf('.', 0);
+            String sub = fullRep.substring(0,i);
             markRead(token, sub, true);
             
         } else if (node.ctx == Attribute.Load) {
     
-            while(i >= 0){
-                sub = fullRep.substring(0,i);
-                i = fullRep.indexOf('.', i+1);
+            Iterator<String> it = new FullRepIterable(fullRep).iterator();
+            boolean found = false;
             
-                boolean found = markRead(token, sub, false);
-                if(found){
-                    break;
+            while(it.hasNext()){
+                String sub = it.next();
+                if( markRead(token, sub, false) ){
+                    if (found == false){
+                        found = true;
+                    }
                 }
-                if(i == -1){ //check for the full attribute
-                    markRead(token, fullRep, true);
-                    break;
+                if(!it.hasNext()){
+                    markRead(token, fullRep, !found); //only set it to add to not defined if it was still not found
                 }
             }
         }
@@ -290,7 +299,11 @@ public class OcurrencesVisitor extends VisitorBase{
     }
 
     
-    @Override
+    /**
+     * overriden because we need to know about if scopes
+     * 
+     * @see org.python.parser.ast.VisitorIF#visitListComp(org.python.parser.ast.ListComp)
+     */
     public Object visitIf(If node) throws Exception {
         scope.addIfSubScope();
         Object r = super.visitIf(node);
@@ -298,9 +311,12 @@ public class OcurrencesVisitor extends VisitorBase{
         return r;
     }
     
-    @Override
+    /**
+     * overriden because we need to visit the generators first
+     * 
+     * @see org.python.parser.ast.VisitorIF#visitListComp(org.python.parser.ast.ListComp)
+     */
     public Object visitListComp(ListComp node) throws Exception {
-        //overriden because we need to visit the generators first
         if (node.generators != null) {
             for (int i = 0; i < node.generators.length; i++) {
                 if (node.generators[i] != null)
@@ -343,9 +359,15 @@ public class OcurrencesVisitor extends VisitorBase{
             String rep = tok.getRepresentation();
             //we also get a last pass to the unused to see if they might have been defined later on the higher scope
             
-            Found found = find(m, rep);
-            if(found != null && found.getSingle().scopeId != n.getSingle().scopeId){
-                found.setUsed(true);
+            List<Found> foundItems = find(m, rep);
+            boolean setUsed = false;
+            for (Found found : foundItems) {
+                if(found.getSingle().scopeId != n.getSingle().scopeId){
+                    found.setUsed(true);
+                    setUsed = true;
+                }
+            }
+            if(setUsed){
                 it.remove();
             }
         }
@@ -397,11 +419,13 @@ public class OcurrencesVisitor extends VisitorBase{
 
     
     /**
-     * Finds an item given its full representation (so, os.path can be found as solely os)
+     * Finds an item given its full representation (so, os.path can be found as 'os' and 'os.path')
      */
-    private Found find(ScopeItems m, String fullRep) {
-        if(m == null)
-            return null;
+    private List<Found> find(ScopeItems m, String fullRep) {
+        ArrayList<Found> foundItems = new ArrayList<Found>();
+        if(m == null){
+            return foundItems;
+        }
         
         int i = fullRep.indexOf('.', 0);
 
@@ -410,11 +434,15 @@ public class OcurrencesVisitor extends VisitorBase{
             i = fullRep.indexOf('.', i+1);
             Found found = m.get(sub);
             if(found != null){
-                return found;
+                foundItems.add(found);
             }
         }
         
-        return m.get(fullRep);
+        Found found = m.get(fullRep);
+        if(found != null){
+            foundItems.add(found);
+        }
+        return foundItems;
     }
 
     

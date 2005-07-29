@@ -21,6 +21,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
             analyzer2.testImportAs2();
+            analyzer2.testAttributeErrorPos();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -405,8 +406,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
-        printMessages(msgs);
-        assertEquals(0, msgs.length);
+        assertEquals(1, msgs.length);
+        assertContainsMsg("Unused import(s): os.path", msgs);
     }
     
     public void testImportAs() {
@@ -431,6 +432,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
+        printMessages(msgs,2);
         assertEquals(2, msgs.length);
         assertContainsMsg("Undefined variable: os", msgs);
         assertContainsMsg("Unused import(s): bla", msgs);
@@ -531,12 +533,19 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
+        printMessages(msgs, 1);
         assertEquals(1, msgs.length);
         assertEquals("Undefined variable: message", msgs[0].getMessage());
         assertEquals(7, msgs[0].getStartCol());
         assertEquals(14, msgs[0].getEndCol());
     }
     
+    private void printMessages(IMessage[] msgs, int i) {
+        if(msgs.length != i){
+            printMessages(msgs);
+        }
+    }
+
     public void testImportAttr() {
         //all ok...
         doc = new Document(
