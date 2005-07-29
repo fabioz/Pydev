@@ -11,7 +11,9 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.Assign;
 import org.python.parser.ast.Attribute;
+import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.If;
@@ -19,6 +21,7 @@ import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.Return;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.argumentsType;
 import org.python.pydev.core.FullRepIterable;
@@ -295,9 +298,49 @@ public class OcurrencesVisitor extends VisitorBase{
             }
         }
 
+        if(node.value instanceof Call){
+            //now, visit all inside it but the func itself 
+            Call c = (Call)node.value;
+            OcurrencesVisitor visitor = this;
+            if (c.args != null) {
+                for (int i = 0; i < c.args.length; i++) {
+                    if (c.args[i] != null)
+                        c.args[i].accept(visitor);
+                }
+            }
+            if (c.keywords != null) {
+                for (int i = 0; i < c.keywords.length; i++) {
+                    if (c.keywords[i] != null)
+                        c.keywords[i].accept(visitor);
+                }
+            }
+            if (c.starargs != null)
+                c.starargs.accept(visitor);
+            if (c.kwargs != null)
+                c.kwargs.accept(visitor);
+
+        }
         return null;
     }
 
+    /**
+     * overriden because we want the value to be visited before the targets 
+     * @see org.python.parser.ast.VisitorIF#visitAssign(org.python.parser.ast.Assign)
+     */
+    public Object visitAssign(Assign node) throws Exception {
+        OcurrencesVisitor visitor = this;
+        
+        if (node.value != null)
+            node.value.accept(visitor);
+
+        if (node.targets != null) {
+            for (int i = 0; i < node.targets.length; i++) {
+                if (node.targets[i] != null)
+                    node.targets[i].accept(visitor);
+            }
+        }
+        return null;
+    }
     
     /**
      * overriden because we need to know about if scopes
@@ -483,6 +526,10 @@ public class OcurrencesVisitor extends VisitorBase{
     }
 
 
+    @Override
+    public Object visitReturn(Return node) throws Exception {
+        return super.visitReturn(node);
+    }
     /**
      * checks if there is some token in the names that are defined (but should be ignored)
      */

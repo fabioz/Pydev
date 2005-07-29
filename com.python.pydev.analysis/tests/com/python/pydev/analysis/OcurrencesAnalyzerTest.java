@@ -20,8 +20,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testImportAs2();
-            analyzer2.testAttributeErrorPos();
+            analyzer2.testAttributeErrorPos2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -219,6 +218,50 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(0, msgs.length);
         
     }
+    
+    public void testNotUnusedVariable2() {
+        doc = new Document(
+            "def GetValue( option ):         \n"+  
+            "    return int( option ).Value()\n"+       
+            ""      
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+        
+    }
+    
+    public void testNotUnusedVariable3() {
+        doc = new Document(
+            "def val(i):    \n"+  
+            "    i = i + 1  \n"+       
+            "    print i    \n"+       
+            ""      
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testUndefinedVar() {
+        doc = new Document(
+                "def GetValue():         \n"+  
+                "    return int( option ).Value()\n"+       
+                ""      
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs,1);
+        assertEquals(1, msgs.length);
+        assertContainsMsg("Undefined variable: option", msgs);
+    }
+    
+    
     
     public void testScopes() {
         //2 messages with token with same name
@@ -539,6 +582,39 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(7, msgs[0].getStartCol());
         assertEquals(14, msgs[0].getEndCol());
     }
+    
+    public void testAttributeErrorPos2() {
+        //all ok...
+        doc = new Document(
+                "lambda x: os.rmdir( x )\n" +
+                ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 1);
+        assertEquals(1, msgs.length);
+        assertEquals("Undefined variable: os", msgs[0].getMessage());
+        assertEquals(11, msgs[0].getStartCol());
+        assertEquals(13, msgs[0].getEndCol());
+    }
+    
+    public void testAttributeErrorPos3() {
+        //all ok...
+        doc = new Document(
+                "os.rmdir( '' )\n" +
+                ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 1);
+        assertEquals(1, msgs.length);
+        assertEquals("Undefined variable: os", msgs[0].getMessage());
+        assertEquals(1, msgs[0].getStartCol());
+        assertEquals(3, msgs[0].getEndCol());
+    }
+
     
     private void printMessages(IMessage[] msgs, int i) {
         if(msgs.length != i){
