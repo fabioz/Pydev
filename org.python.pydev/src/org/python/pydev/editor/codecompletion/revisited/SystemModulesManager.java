@@ -12,9 +12,6 @@ import java.util.Collection;
  */
 public class SystemModulesManager extends ModulesManager{
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
     private String[] builtins;
 

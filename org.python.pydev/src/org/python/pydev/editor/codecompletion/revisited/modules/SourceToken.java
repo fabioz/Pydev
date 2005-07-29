@@ -85,13 +85,13 @@ public class SourceToken extends AbstractToken{
     }
 
     public int getLineDefinition() {
-        return ast.beginLine;
-    }
-
-    public int getColDefinition() {
-        return ast.beginColumn;
+        return NodeUtils.getLineDefinition(ast);
     }
     
+    public int getColDefinition() {
+        return NodeUtils.getColDefinition(ast);
+    }
+
     int[] colLineEnd;
     public int getLineEnd(){
         if(colLineEnd == null){

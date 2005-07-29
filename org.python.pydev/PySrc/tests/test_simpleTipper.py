@@ -19,6 +19,11 @@ class Test(unittest.TestCase):
         for a in t:
             print a
  
+    def testImports2(self):
+        tip = importsTipper.GenerateTip('OpenGL.GLUT')
+        self.assertIn('glutDisplayFunc', tip)
+        self.assertIn('glutInitDisplayMode', tip)
+        
     def testImports(self):
         '''
         You can print the results to check...

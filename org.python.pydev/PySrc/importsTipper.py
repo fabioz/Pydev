@@ -12,58 +12,26 @@ TYPE_BUILTIN = 4
 TYPE_PARAM = 5
 
 
+def _imp(name):
+    try:
+        return __import__(name)
+    except:
+        import sys;exc_info = sys.exc_info()
+        import traceback;traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = f)
+        if '.' in name:
+            sub = name[0:name.rfind('.')]
+            return _imp(sub)
+        else:
+            s = 'Unable to import module: %s - sys.path: %s' % (str(name), sys.path)
+            raise RuntimeError(s)
 
-
-def find_class( module, name):
-    __import__(module)
-    mod   = sys.modules[module]
-    klass = getattr(mod, name)
-    return klass
-
-
-def FindClass( p_full_class_ ):
-    import types
-    type    = p_full_class_.split('.')
-    module_ = '.'.join( type[:-1] )
-    class_  = type[-1]
-
-    if class_ == 'NoneType':
-        return types.NoneType
-
-    if module_:
-        return find_class( module_, class_ )
-    else:
-        return eval( class_ )
-
-def _genMod( toks ):
-    ret = ''
-    
-    for t in toks:
-        if len(ret) > 0:
-            ret += '.'
-        ret += t
-        
-    return ret
-
-def ImportMod(name):
-    '''
-    Method used to import a module from a string.
-    '''
+def Find( name ):
+    mod = _imp(name)
     components = name.split('.')
-    
-    raised = False
-    for c in components:
-        if not raised:
-            try:
-                mod = __import__(c)
-            except:
-                raised = True
-        
-        if raised:
-            mod = getattr(mod, c)
-            
-    return mod
 
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
 
 
 def GenerateTip( data ):
@@ -71,12 +39,9 @@ def GenerateTip( data ):
     if data.endswith( '.' ):
         data = data.rstrip( '.' )
     
-
-    try:
-        mod = FindClass( data )
-    except:
-        mod = ImportMod( data )
-    return GenerateImportsTipForModule( mod )
+    mod = Find( data )
+    tips = GenerateImportsTipForModule( mod )
+    return tips
     
     
 
@@ -99,7 +64,7 @@ def GenerateImportsTipForModule( mod ):
                     if len( r ) > 0:
                         r += ', '
                     r += str( a )
-                args = '( %s )' % (r)
+                args = '(%s)' % (r)
             except TypeError:
 
             #print obj, args

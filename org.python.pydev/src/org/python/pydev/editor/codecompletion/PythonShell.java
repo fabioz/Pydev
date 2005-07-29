@@ -336,7 +336,7 @@ public class PythonShell {
      */
     public String read() throws IOException {
         String r = read(null);
-//        System.out.println("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r)));
+//        System.out.println("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r,"utf-8"),"utf-8"));
         return r;
     }
     

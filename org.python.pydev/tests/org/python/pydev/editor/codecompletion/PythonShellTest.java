@@ -13,23 +13,34 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
+import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.InterpreterManagerStub;
 import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.BundleInfoStub;
+import org.python.pydev.ui.IInterpreterManager;
 
 /**
  * These tests should run, however the directory where the tests are run must be correct.
  * 
  * @author Fabio Zadrozny
  */
-public class PythonShellTest extends TestCase {
+public class PythonShellTest extends CodeCompletionTestsBase{
 
     private PythonShell shell;
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(PythonShellTest.class);
+        try {
+//            PythonShellTest test = new PythonShellTest();
+//            test.setUp();
+//            test.testGlu();
+//            test.tearDown();
+            junit.textui.TestRunner.run(PythonShellTest.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /*
@@ -37,8 +48,7 @@ public class PythonShellTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        BundleInfo.setBundleInfo(new BundleInfoStub());
-        PydevPlugin.setInterpreterManager(new InterpreterManagerStub(new Preferences()));
+        restorePythonPathWithSitePackages(false);
         this.shell = startShell();
     }
 
@@ -65,20 +75,42 @@ public class PythonShellTest extends TestCase {
         List list = shell.getImportCompletions("math", new ArrayList());
 
         Object[] element = null;
-        
         element = (Object[]) list.get(0);
         assertEquals("__doc__", element[0]);
-
         assertEquals(29, list.size());
+
+        
     }
 
 
     public void testErrorOnCompletions() throws IOException, CoreException {
-        List list = shell.getImportCompletions("dfjslkfjds\n\n", new ArrayList());
+        List list = shell.getImportCompletions("dfjslkfjds\n\n", getPythonpath());
         assertEquals(0, list.size());
         //don't show completion errors!
-//        Object object[] = (Object[]) list.get(0);
-//        assertEquals("ERROR:", object[0]);
     }
 
+    /**
+     * @return
+     */
+    private List getPythonpath() {
+        return nature.getAstManager().getProjectModulesManager().getCompletePythonPath();
+    }
+
+    public void testGlu() throws IOException, CoreException {
+        List list = shell.getImportCompletions("OpenGL.GLUT", getPythonpath());
+        
+        assertTrue(list.size() > 10);
+        assertIsIn(list, "glutInitDisplayMode");
+    }
+
+    private void assertIsIn(List list, String expected) {
+        for (Object object : list) {
+            Object o[] = (Object[]) object;
+            if(o[0].equals(expected)){
+                return;
+            }
+        }
+        fail(String.format("The string %s was not found in the returned completions", expected));
+    }
+    
 }

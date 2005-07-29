@@ -170,14 +170,48 @@ public class NodeUtils {
         return getRepresentationString(node);
     }
     
+    
 
+    /**
+     * @param ast2 the node to work with
+     * @return the line definition of a node
+     */
+    public static int getLineDefinition(SimpleNode ast2) {
+        if(ast2 instanceof Attribute){
+            if(!(((Attribute)ast2).value instanceof Call)){
+                return getLineDefinition(((Attribute)ast2).value);
+            }
+        }
+        return ast2.beginLine;
+    }
+
+    
+    /**
+     * @param ast2 the node to work with
+     * @return the column definition of a node
+     */
+    public static int getColDefinition(SimpleNode ast2) {
+        if(ast2 instanceof Attribute){
+            if(!(((Attribute)ast2).value instanceof Call)){
+                return getColDefinition(((Attribute)ast2).value);
+            }
+        }
+        return ast2.beginColumn;
+    }
+
+
+
+    /**
+     * @param v the token to work with
+     * @return a tuple with [line, col] of the definition of a token
+     */
     public static int[] getColLineEnd(SimpleNode v) {
         int lineEnd = getLineEnd(v);
         int col = 0;
-        if(lineEnd == v.beginLine){
+        if(lineEnd == getLineDefinition(v)){
             if(v instanceof Str){
                 String s = ((Str)v).s;
-                col = v.beginColumn + s.length();
+                col = getColDefinition(v) + s.length();
             }else{
                 col = getFromRepresentation(v);
             }
@@ -209,7 +243,7 @@ public class NodeUtils {
             representationString = representationString.substring(0,i);
         }
         try {
-            col = v.beginColumn + representationString.length();
+            col = getColDefinition(v) + representationString.length();
         } catch (Exception e) {
             col = -1;
         }
@@ -227,12 +261,9 @@ public class NodeUtils {
                     found += 1;
                 }
             }
-//            StringTokenizer tokenizer = new StringTokenizer(s, "\n");
-//            int countTokens = tokenizer.countTokens();
-//            System.out.println("For-->"+s+"<-- ="+countTokens);
-            return v.beginLine + found;
+            return getLineDefinition(v) + found;
         }
-        return v.beginLine;
+        return getLineDefinition(v);
     }
 
     /**
@@ -274,5 +305,6 @@ public class NodeUtils {
         
         return null;
     }
+    
 
 }

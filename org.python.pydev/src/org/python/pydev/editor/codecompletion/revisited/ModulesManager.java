@@ -48,6 +48,8 @@ public abstract class ModulesManager implements Serializable {
      */
     protected PythonPathHelper pythonPathHelper = new PythonPathHelper();
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Custom deserialization is needed.
      */
@@ -359,4 +361,7 @@ public abstract class ModulesManager implements Serializable {
         return pythonPathHelper.resolveModule(full);
     }
 
+    public List getPythonPath(){
+        return new ArrayList(pythonPathHelper.pythonpath);
+    }
 }
