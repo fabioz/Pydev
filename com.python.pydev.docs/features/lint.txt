@@ -1,0 +1,40 @@
+Lint feature
+=============
+
+Will always be active (altough the user may put all in ignore if he does not want to see the messages)
+
+
+Warnings
+--------
+
+- Unused import 
+- Unused variable (local, param - ignore when dummy / unused = user defined tokens)
+- Duplicated signature (method, class)
+- Reimported module
+- Unexistant module
+
+
+Errors
+------
+- Undefined variable
+
+
+Concerns
+--------
+- Unused imports may or may not be detected on __init__
+- Dependent modules should be re-analyzed after a module changes
+- There should be a way to silent those warnings (with Ctrl+1)
+
+
+To do later
+-----------
+
+- Member X not found.
+- Base class' __init__ not called.
+- Redefining X from outer scope.
+- Calling function with wrong number of arguments (considerando *args e **kwargs, claro).
+- Keyword argument does not exist:
+   def foo(a, b): pass
+
+   foo(x=1)
+

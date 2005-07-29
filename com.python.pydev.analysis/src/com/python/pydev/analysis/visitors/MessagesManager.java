@@ -65,7 +65,7 @@ public class MessagesManager {
      */
     public void addMessage(int type, IToken generator, IToken tok, String rep) {
         List<IMessage> msgs = getMsgsList(generator);
-        msgs.add(new Message(type, rep, tok, prefs));
+        msgs.add(new Message(type, rep, generator, prefs));
     }
     
     /**

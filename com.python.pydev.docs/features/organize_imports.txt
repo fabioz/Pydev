@@ -1,0 +1,11 @@
+Organize imports
+================
+
+The organize imports feature will work on the generated markers from the lint-feature.
+
+Cases
+-----
+
+- Remove the unused imports
+- Change the wild import
+- Add import for the undefined tokens (will use the 'not context-sensitive' completion)

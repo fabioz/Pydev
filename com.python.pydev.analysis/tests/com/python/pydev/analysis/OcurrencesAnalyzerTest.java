@@ -20,7 +20,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testAttributeErrorPos2();
+            analyzer2.testUnusedImports2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -84,7 +84,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
         assertEquals(1, msgs.length);
-        assertEquals("Unused import(s): testlib", msgs[0].getMessage());
+        assertEquals("Unused import: testlib", msgs[0].getMessage());
         assertEquals(IMarker.SEVERITY_ERROR, msgs[0].getSeverity());
         assertEquals(TYPE_UNUSED_IMPORT, msgs[0].getType());
 
@@ -103,7 +103,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         assertEquals(1, msgs.length);
         assertEquals(IMarker.SEVERITY_ERROR, msgs[0].getSeverity());
-        assertEquals("Unused import(s): main, TestCase, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
+        assertEquals("Unused import: main, TestCase, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
 
         
         //-----------------
@@ -115,7 +115,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         assertEquals(1, msgs.length);
         assertEquals(IMarker.SEVERITY_WARNING, msgs[0].getSeverity());
-        assertEquals("Unused import(s): main, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
+        assertEquals("Unused import: main, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
         
         //-----------------
         severityForUnusedImport = SEVERITY_IGNORE;
@@ -129,6 +129,34 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
     
     }
 
+    public void testUnusedImports2(){
+        
+        doc = new Document(
+            "from simpleimport import *\n" +
+            "print xml"
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(1, msgs.length);
+        assertContainsMsg("Unused import: xml.dom.domreg, xml.dom", msgs);
+        assertEquals(1, msgs[0].getStartLine());
+    }
+ 
+    public void testUnusedImports3(){
+        
+        doc = new Document(
+                "import os.path as otherthing*\n" +
+                "print xml"
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(1, msgs.length);
+        assertContainsMsg("Unused import: otherthing", msgs);
+        fail("check for the column");
+    }
+    
     /**
      * @return
      */
@@ -450,7 +478,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
         assertEquals(1, msgs.length);
-        assertContainsMsg("Unused import(s): os.path", msgs);
+        assertContainsMsg("Unused import: os.path", msgs);
     }
     
     public void testImportAs() {
@@ -478,7 +506,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         printMessages(msgs,2);
         assertEquals(2, msgs.length);
         assertContainsMsg("Undefined variable: os", msgs);
-        assertContainsMsg("Unused import(s): bla", msgs);
+        assertContainsMsg("Unused import: bla", msgs);
     }
     
     private void assertContainsMsg(String msg, IMessage[] msgs2) {
@@ -506,7 +534,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         assertEquals(2, msgs.length);
         assertContainsMsg("Undefined variable: os", msgs);
-        assertContainsMsg("Unused import(s): bla", msgs);
+        assertContainsMsg("Unused import: bla", msgs);
     }
     
 

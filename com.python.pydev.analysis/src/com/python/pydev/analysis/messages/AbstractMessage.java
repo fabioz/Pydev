@@ -33,7 +33,7 @@ public abstract class AbstractMessage implements IMessage{
 
     private String getTypeStr() {
         if (messages.size() == 0) {
-            messages.put(IAnalysisPreferences.TYPE_UNUSED_IMPORT, "Unused import(s): %s");
+            messages.put(IAnalysisPreferences.TYPE_UNUSED_IMPORT, "Unused import: %s");
             messages.put(IAnalysisPreferences.TYPE_UNUSED_VARIABLE, "Unused variable: %s");
             messages.put(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, "Undefined variable: %s");
             messages.put(IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE, "Duplicated signature: %s");
