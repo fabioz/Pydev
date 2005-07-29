@@ -90,7 +90,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
         if (this.visitWhat == WILD_MODULES) {
             makeWildImportToken(node, this.tokens, moduleName);
         } else if (this.visitWhat == ALIAS_MODULES) {
-            makeImportToken(node, this.tokens, moduleName);
+            makeImportToken(node, this.tokens, moduleName, true);
         }
         return null;
     }
@@ -103,7 +103,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
      */
     public Object visitImport(Import node) throws Exception {
         if (this.visitWhat == ALIAS_MODULES) {
-            makeImportToken(node, this.tokens, moduleName);
+            makeImportToken(node, this.tokens, moduleName, true);
         }
         return null;
     }

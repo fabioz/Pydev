@@ -28,11 +28,11 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
     public static void main(String[] args) {
         
       try {
-//          PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
-//	      test.setUp();
-//	      test.testWildImportRecursive3();
-//	      test.tearDown();
-//          System.out.println("Finished");
+          PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
+	      test.setUp();
+          test.testImportMultipleFromImport();
+	      test.tearDown();
+          System.out.println("Finished");
 
           junit.textui.TestRunner.run(PythonCompletionProcessorTest.class);
 	  } catch (Exception e) {
@@ -292,6 +292,13 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 	    s = "from testrec2 import *\n" +
 	    "";
 	    requestCompl(s, -1, -1, new String[] { "Leaf"});
+	}
+	
+	public void testImportMultipleFromImport() throws BadLocationException, IOException, Exception{
+	    String s;
+	    s = "import testlib.unittest.relative\n" +
+	    "";
+	    requestCompl(s, -1, -1, new String[] { "testlib","testlib.unittest","testlib.unittest.relative"});
 	}
 	
 	

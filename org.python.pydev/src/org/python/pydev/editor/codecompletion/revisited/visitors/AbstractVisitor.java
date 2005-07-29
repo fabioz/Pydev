@@ -17,6 +17,7 @@ import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.aliasType;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -36,7 +37,7 @@ public abstract class AbstractVisitor extends VisitorBase{
     
     public static final int INNER_DEFS = 5;
 
-    protected List tokens = new ArrayList();
+    protected List<IToken> tokens = new ArrayList<IToken>();
     
     /**
      * Module being visited.
@@ -80,9 +81,9 @@ public abstract class AbstractVisitor extends VisitorBase{
      * 
      * @return the tokens list passed in or the created one if it was null
      */
-    public static IToken makeWildImportToken(ImportFrom node, List tokens, String moduleName) {
+    public static IToken makeWildImportToken(ImportFrom node, List<IToken> tokens, String moduleName) {
         if(tokens == null){
-            tokens = new ArrayList();
+            tokens = new ArrayList<IToken>();
         }
         SourceToken sourceToken = null;
         if(isWildImport(node)){
@@ -106,28 +107,30 @@ public abstract class AbstractVisitor extends VisitorBase{
      * @param node the import node
      * @param moduleName the module name
      * @param tokens OUT used to add the source tokens (may create many from a single import)
+     * @param allowForMultiple is used to indicate if an import in the format import os.path should generate one token for os
+     * and another for os.path or just one for both with os.path
      * 
      * @return the tokens list passed in or the created one if it was null
      */
-    public static List makeImportToken(Import node, List tokens, String moduleName) {
+    public static List<IToken> makeImportToken(Import node, List<IToken> tokens, String moduleName, boolean allowForMultiple) {
         aliasType[] names = node.names;
-        return makeImportToken(node, tokens, names, moduleName);
+        return makeImportToken(node, tokens, names, moduleName, allowForMultiple);
     }
     
     /**
      * The same as above but with ImportFrom
      */
-    public static List makeImportToken(ImportFrom node, List tokens, String moduleName) {
+    public static List<IToken> makeImportToken(ImportFrom node, List<IToken> tokens, String moduleName, boolean allowForMultiple) {
         aliasType[] names = node.names;
-        return makeImportToken(node, tokens, names, node.module);
+        return makeImportToken(node, tokens, names, node.module, allowForMultiple);
     }
 
     /**
      * The same as above
      */
-    private static List makeImportToken(SimpleNode node, List tokens, aliasType[] names, String module) {
+    private static List<IToken> makeImportToken(SimpleNode node, List<IToken> tokens, aliasType[] names, String module, boolean allowForMultiple) {
         if(tokens == null){
-            tokens = new ArrayList();
+            tokens = new ArrayList<IToken>();
         }
         for (int i = 0; i < names.length; i++) {
             String name = names[i].name;
@@ -135,7 +138,13 @@ public abstract class AbstractVisitor extends VisitorBase{
             if(names[i].asname != null){
                 name = names[i].asname;
             }
-            tokens.add(new SourceToken(node, name, "", "", module, original));
+            
+            FullRepIterable iterator = new FullRepIterable(name);
+            for (String rep : iterator) {
+                SourceToken sourceToken = new SourceToken(node, rep, "", "", module, original);
+                tokens.add(sourceToken);
+            }
+
         }
         return tokens;
     }

@@ -203,7 +203,11 @@ public class NodeUtils {
      */
     private static int getFromRepresentation(SimpleNode v) {
         int col;
-        String representationString = getRepresentationString(v);
+        String representationString = getFullRepresentationString(v);
+        int i;
+        if((i = representationString.indexOf('.') )  != -1){
+            representationString = representationString.substring(0,i);
+        }
         try {
             col = v.beginColumn + representationString.length();
         } catch (Exception e) {
