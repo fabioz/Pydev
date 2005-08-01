@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: PyDev Refactoring Plug-in
 Bundle-SymbolicName: com.python.pydev.refactoring; singleton:=true
 Bundle-Version: 0.9.7.1
-Bundle-ClassPath: refactoring.jar
 Bundle-Activator: com.python.pydev.refactoring.RefactoringPlugin
 Bundle-Vendor: Fabio Zadrozny
 Bundle-Localization: plugin
