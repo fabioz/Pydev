@@ -21,7 +21,6 @@ Zadrozny
    </license>
 
    <requires>
-      <import feature="org.python.pydev.feature" version="0.9.7" match="perfect"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.junit"/>
@@ -31,10 +30,7 @@ Zadrozny
       <import plugin="org.python.pydev.parser"/>
       <import plugin="org.eclipse.jface.text"/>
       <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.ui.ide"/>
-      <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import feature="org.python.pydev.feature" version="0.9.7.1" match="perfect"/>
    </requires>
 
    <plugin
