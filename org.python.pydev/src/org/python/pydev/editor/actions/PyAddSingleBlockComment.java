@@ -1,9 +1,9 @@
 /*
- * @author: fabioz
- * Created: January 2004
  * License: Common Public License v1.0
+ * Created on 01/08/2005
+ * 
+ * @author Fabio Zadrozny
  */
-
 package org.python.pydev.editor.actions;
 
 import org.eclipse.core.runtime.Preferences;
@@ -13,28 +13,16 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
-/**
- * Creates a comment block.  Comment blocks are slightly different than regular comments 
- * created in that they provide a distinguishing element at the beginning and end as a 
- * separator.  In this case, it is a string of <code>=======</code> symbols to strongly
- * differentiate this comment block.
- * 
- * @author Fabio Zadrozny
- * @author Parhaum Toofanian
- */
-public class PyAddBlockComment extends PyAction {
+public class PyAddSingleBlockComment extends PyAction{
     /* Selection element */
-    private static PySelection ps;
+    private PySelection ps;
 
-    /**
-     * Grabs the selection information and performs the action.
-     */
     public void run(IAction action) {
         try {
             // Select from text editor
             ps = new PySelection(getTextEditor());
             // Perform the action
-            perform();
+            perform(ps);
 
             // Put cursor at the first area of the selection
             getTextEditor().selectAndReveal(ps.getEndLine().getOffset(), 0);
@@ -42,16 +30,7 @@ public class PyAddBlockComment extends PyAction {
             beep(e);
         }
     }
-
-    /**
-     * Performs the action with the class' PySelection.
-     * 
-     * @return boolean The success or failure of the action
-     */
-    public static boolean perform() {
-        return perform(ps);
-    }
-
+    
     /**
      * Performs the action with a given PySelection
      * 
@@ -67,16 +46,14 @@ public class PyAddBlockComment extends PyAction {
 
         int i;
         try {
-            // Start of block
-            strbuf.append("#" + getFullCommentLine() + ps.getEndLineDelim());
-
             // For each line, comment them out
             for (i = ps.getStartLineIndex(); i <= ps.getEndLineIndex(); i++) {
-                strbuf.append("#" + ps.getLine(i) + ps.getEndLineDelim());
+                String line = ps.getLine(i).trim();
+                String fullCommentLine = getFullCommentLine(line); 
+                strbuf.append(fullCommentLine);
+                strbuf.append(line );
+                strbuf.append(ps.getEndLineDelim());
             }
-
-            // End of block
-            strbuf.append("#" + getFullCommentLine());
 
             // Replace the text with the modified information
             ps.getDoc().replace(ps.getStartLine().getOffset(), ps.getSelLength(), strbuf.toString());
@@ -91,10 +68,11 @@ public class PyAddBlockComment extends PyAction {
 
     /**
      * Currently returns a string with the comment block.  
+     * @param line 
      * 
      * @return Comment line string, or a default one if Preferences are null
      */
-    protected static String getFullCommentLine() {
+    protected static String getFullCommentLine(String line) {
         try {
             IPreferenceStore chainedPrefStore = PydevPlugin.getChainedPrefStore();
             int cols = chainedPrefStore
@@ -103,17 +81,21 @@ public class PyAddBlockComment extends PyAction {
             Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
             char c;
             try {
-                c = prefs.getString(PydevPrefs.MULTI_BLOCK_COMMENT_CHAR).charAt(0);
+                c = prefs.getString(PydevPrefs.SINGLE_BLOCK_COMMENT_CHAR).charAt(0);
             } catch (Exception e) {
-                c = '=';
+                c = '-';
             }
 
-            for (int i = 0; i < cols-1; i++) {
+            buffer.append("#");
+            for (int i = 0; i + line.length() < cols-2; i++) {
                 buffer.append(c);
             }
+            buffer.append(" ");
             return buffer.toString();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
+
 }

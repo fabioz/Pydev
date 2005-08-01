@@ -97,8 +97,11 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String TAB_WIDTH = "TAB_WIDTH";
 	public static final int DEFAULT_TAB_WIDTH = 4;
 	
-	public static final String BLOCK_COMMENT = "BLOCK_COMMENT";
-	public static final String DEFAULT_BLOCK_COMMENT_STRING = "================================================================================";
+	public static final String MULTI_BLOCK_COMMENT_CHAR = "MULTI_BLOCK_COMMENT_CHAR";
+	public static final String DEFAULT_MULTI_BLOCK_COMMENT_CHAR = "=";
+	
+	public static final String SINGLE_BLOCK_COMMENT_CHAR = "SINGLE_BLOCK_COMMENT_CHAR";
+	public static final String DEFAULT_SINGLE_BLOCK_COMMENT_CHAR = "-";
 	
 	//checkboxes
 	public static final String SUBSTITUTE_TABS = "SUBSTITUTE_TABS";
@@ -216,7 +219,8 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		//text
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_PAR));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, BLOCK_COMMENT));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, MULTI_BLOCK_COMMENT_CHAR));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, SINGLE_BLOCK_COMMENT_CHAR));
 		
         //Auto eat colon and braces
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_COLON));
@@ -292,7 +296,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 
 		addTextField(appearanceComposite, "Tab length:", TAB_WIDTH, 3, 0, true);
 
-		addTextField(appearanceComposite, "Block comment separator:", BLOCK_COMMENT, 50, 0, false);
+		addTextField(appearanceComposite, "Multi-block char:", MULTI_BLOCK_COMMENT_CHAR, 2, 0, false);
+        
+		addTextField(appearanceComposite, "Single-block char:", SINGLE_BLOCK_COMMENT_CHAR, 2, 0, false);
 				
 		//auto par
         b = addCheckBox(appearanceComposite, "Automatic parentheses insertion", AUTO_PAR, 0);
@@ -669,7 +675,8 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
         prefs.setDefault(AUTO_BRACES, DEFAULT_AUTO_BRACES);
 
 		prefs.setDefault(TAB_WIDTH, DEFAULT_TAB_WIDTH);
-		prefs.setDefault(BLOCK_COMMENT, DEFAULT_BLOCK_COMMENT_STRING);
+		prefs.setDefault(MULTI_BLOCK_COMMENT_CHAR, DEFAULT_MULTI_BLOCK_COMMENT_CHAR);
+		prefs.setDefault(SINGLE_BLOCK_COMMENT_CHAR, DEFAULT_SINGLE_BLOCK_COMMENT_CHAR);
 		
 		//checkboxes
 		prefs.setDefault(SUBSTITUTE_TABS, DEFAULT_SUBSTITUTE_TABS);

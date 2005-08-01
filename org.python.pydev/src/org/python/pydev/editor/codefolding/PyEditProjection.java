@@ -5,7 +5,6 @@
  */
 package org.python.pydev.editor.codefolding;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
@@ -16,14 +15,11 @@ import org.eclipse.jface.text.source.projection.ProjectionSupport;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextEditor;
-import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.parser.IParserListener;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**
@@ -54,17 +50,6 @@ public abstract class PyEditProjection extends TextEditor implements IParserList
         return viewer;
     }
     
-
-    /**
-     * @return a preference store that has the pydev preference store and the default editors text store
-     */
-    protected IPreferenceStore getChainedPrefStore() {
-        IPreferenceStore general = EditorsUI.getPreferenceStore();
-        IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
-        ChainedPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] { general, preferenceStore });
-        return store;
-    }
-
 
     protected final static char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
 

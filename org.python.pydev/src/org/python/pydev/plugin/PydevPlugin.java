@@ -27,16 +27,19 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.pychecker.PyCheckerPrefPage;
@@ -608,4 +611,13 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 			each.testFailed(klass, methodName, trace);
 		}
 	}
+    /**
+     * @return a preference store that has the pydev preference store and the default editors text store
+     */
+    public static IPreferenceStore getChainedPrefStore() {
+        IPreferenceStore general = EditorsUI.getPreferenceStore();
+        IPreferenceStore preferenceStore = getDefault().getPreferenceStore();
+        ChainedPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] { general, preferenceStore });
+        return store;
+    }
 }

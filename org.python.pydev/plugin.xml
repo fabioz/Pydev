@@ -213,6 +213,13 @@
                id="org.python.pydev.editor.actions.addBlockComment">
          </action>
          <action
+               definitionId="org.python.pydev.editor.actions.addSingleBlockComment"
+               label="Add single comment block"
+               class="org.python.pydev.editor.actions.PyAddSingleBlockComment"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.addSingleBlockComment">
+         </action>
+         <action
                definitionId="org.python.pydev.editor.actions.navigation.nextMethod"
                label="Goto next method or class"
                class="org.python.pydev.editor.actions.PyNextMethod"
@@ -398,6 +405,12 @@
                id="org.python.pydev.editor.actions.addBlockComment">
          </action>
          <action
+               label="Add single comment block"
+               class="org.python.pydev.editor.actions.PyAddSingleBlockComment"
+               menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
+               id="org.python.pydev.editor.actions.addSingleBlockComment">
+         </action>
+         <action
                label="Navigate to next method / class"
                class="org.python.pydev.editor.actions.PyNextMethod"
                menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
@@ -495,6 +508,13 @@
             description="Creates a python comment block"
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.addBlockComment">
+      </command>
+<!-- command: block-->
+      <command
+            name="Add Single Comment Block"
+            description="Creates a comment block from a single line"
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.addSingleBlockComment">
       </command>
 <!-- command: uncomment-->
       <command
@@ -635,6 +655,12 @@
             sequence="Ctrl+4"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.addBlockComment"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="Ctrl+Shift+4"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.editor.actions.addSingleBlockComment"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key

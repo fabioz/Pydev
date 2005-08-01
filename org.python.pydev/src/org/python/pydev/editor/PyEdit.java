@@ -128,7 +128,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     public PyEdit() {
         super();
         modelListeners = new ArrayList();
-        colorCache = new ColorCache(getChainedPrefStore());
+        colorCache = new ColorCache(PydevPlugin.getChainedPrefStore());
         
         editConfiguration = new PyEditConfiguration(colorCache, this);
         setSourceViewerConfiguration(editConfiguration);
@@ -645,7 +645,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
     protected void initializeEditor() {
         super.initializeEditor();
-        IPreferenceStore prefStore = getChainedPrefStore();
+        IPreferenceStore prefStore = PydevPlugin.getChainedPrefStore();
         this.setPreferenceStore(prefStore);
     }
 
