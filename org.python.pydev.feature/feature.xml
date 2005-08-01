@@ -2,7 +2,7 @@
 <feature
       id="org.python.pydev.feature"
       label="PyDev for Eclipse"
-      version="0.9.7"
+      version="0.9.7.1"
       provider-name="Fabio Zadrozny / Aleks Totic "
       plugin="org.python.pydev">
 
@@ -37,45 +37,45 @@ Aleks and Fabio
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.debug.core"/>
       <import plugin="org.eclipse.core.variables"/>
-      <import plugin="org.eclipse.ui.externaltools"/>
       <import plugin="org.eclipse.debug.ui"/>
       <import plugin="org.eclipse.ui.console"/>
+      <import plugin="org.junit"/>
    </requires>
 
    <plugin
          id="org.python.pydev.core"
          download-size="0"
          install-size="0"
-         version="0.9.7"/>
+         version="0.9.7.1"/>
 
    <plugin
          id="org.python.pydev.parser"
          download-size="0"
          install-size="0"
-         version="0.9.7"/>
+         version="0.9.7.1"/>
 
    <plugin
          id="org.python.pydev.ast"
          download-size="0"
          install-size="0"
-         version="0.9.7"/>
+         version="0.9.7.1"/>
 
    <plugin
          id="org.python.pydev.help"
          download-size="0"
          install-size="0"
-         version="0.9.7"/>
+         version="0.9.7.1"/>
 
    <plugin
          id="org.python.pydev"
          download-size="0"
          install-size="0"
-         version="0.9.7"/>
+         version="0.9.7.1"/>
 
    <plugin
          id="org.python.pydev.debug"
          download-size="0"
          install-size="0"
-         version="0.9.7"/>
+         version="0.9.7.1"/>
 
 </feature>

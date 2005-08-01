@@ -5,8 +5,8 @@
         <touch file="${user.home}/.cvspass" />
 		<tstamp/>
 
-		<property name = "pydev.version"        value = "0.9.7"/>
-		<property name = "buildId"              value = "0_9_7"/>
+		<property name = "pydev.version"        value = "0.9.7.1"/>
+		<property name = "buildId"              value = "0_9_7_1"/>
 		<property name = "buildLabel"           value = "${buildId}"/>
 
 		<property name = "timestamp"            value = "${DSTAMP}${TSTAMP}" />
@@ -17,7 +17,9 @@
 		<property name = "archivePrefix"        value = "eclipse"/>
 		<property name = "buildType"            value = "I" />
 		<property name = "zipsdir"              value = "${buildDirectory}/${buildType}.${buildId}"/>
-		<property name = "buildingOSGi"         value = "true"/> <!--this should not be here, but it is... bug in eclipse https://bugs.eclipse.org/bugs/show_bug.cgi?id=103682-->
+		<property name = "javacSource"          value = "1.5"/>
+		<property name = "javacTarget"          value = "1.4"/>
+		<property name = "javacVerbose"         value = "false"/>
 
 		<property name = "zipLocation"          value = "${basedir}/results/${buildId}/org.python.pydev.feature-${buildId}.zip"/>
 		<property name = "eclipseTmpResults"    value = "${basedir}/results/tmp" />
