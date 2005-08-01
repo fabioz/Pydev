@@ -51,4 +51,9 @@ public interface IToken extends Serializable, Comparable{
      * @return the col where this token was defined
      */
     public int getColDefinition();
+    
+    /**
+     * @return whether the token we have wrapped is an import
+     */
+    public boolean isImport();
 }

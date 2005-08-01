@@ -128,4 +128,13 @@ public class SourceToken extends AbstractToken{
     public int hashCode() {
         return 7*getLineDefinition()*getColDefinition();
     }
+
+    public boolean isImport() {
+        SimpleNode ast = getAst();
+        if(ast instanceof Import || ast instanceof ImportFrom){
+            return true;
+        }
+
+        return false;
+    }
 }

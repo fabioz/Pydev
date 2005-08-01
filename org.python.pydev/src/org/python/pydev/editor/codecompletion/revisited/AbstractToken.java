@@ -191,4 +191,7 @@ public abstract class AbstractToken implements IToken{
         return UNDEFINED;
     }
 
+    public boolean isImport() {
+        return false;
+    }
 }

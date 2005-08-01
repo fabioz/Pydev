@@ -11,6 +11,7 @@ import org.python.parser.ast.Call;
 import org.python.parser.ast.Expr;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Import;
+import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Str;
@@ -196,6 +197,9 @@ public class NodeUtils {
                 return getColDefinition(((Attribute)ast2).value);
             }
         }
+        if(ast2 instanceof Import || ast2 instanceof ImportFrom){
+            return 1;
+        }
         return ast2.beginColumn;
     }
 
@@ -208,6 +212,12 @@ public class NodeUtils {
     public static int[] getColLineEnd(SimpleNode v) {
         int lineEnd = getLineEnd(v);
         int col = 0;
+
+        if(v instanceof Import || v instanceof ImportFrom){
+            return new int[]{lineEnd, -1}; //col is -1... import is always full line
+        }
+        
+        
         if(lineEnd == getLineDefinition(v)){
             if(v instanceof Str){
                 String s = ((Str)v).s;
@@ -305,6 +315,7 @@ public class NodeUtils {
         
         return null;
     }
+
     
 
 }
