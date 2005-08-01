@@ -1,4 +1,3 @@
 plugin@com.python.pydev.analysis=HEAD,:pserver:fabioz@10.0.0.1:/home/users/fabioz/cvs,,
 plugin@com.python.pydev.fastparser=HEAD,:pserver:fabioz@10.0.0.1:/home/users/fabioz/cvs,,
-plugin@com.python.pydev.refactoring=HEAD,:pserver:fabioz@10.0.0.1:/home/users/fabioz/cvs,,
 feature@com.python.pydev.extensions=HEAD,:pserver:fabioz@10.0.0.1:/home/users/fabioz/cvs,,

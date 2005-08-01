@@ -41,7 +41,13 @@
 		<ant antfile="build.xml" dir="${pde.build.scripts}">
 			<property name = "builder" value = "${basedir}" />
 		</ant>
-        <echo message="Finalized build!"/>
+		
+        <echo message="Cleaning temp!"/>
+		<delete includeemptydirs="true">
+		    <fileset dir="${eclipseTmpResults}" includes="**/*"/>
+		</delete>
+        
+		<echo message="Finalized build!"/>
 	</target>
 	
 </project>
