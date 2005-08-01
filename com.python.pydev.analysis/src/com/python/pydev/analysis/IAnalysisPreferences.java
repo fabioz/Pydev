@@ -9,6 +9,7 @@ public interface IAnalysisPreferences {
     public static final int TYPE_UNUSED_VARIABLE = 1;
     public static final int TYPE_UNDEFINED_VARIABLE = 2;
     public static final int TYPE_DUPLICATED_SIGNATURE = 3;
+    public static final int TYPE_REIMPORT = 4;
     
     /**
      * this severity indicates that the given message should be ignored

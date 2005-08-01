@@ -115,6 +115,17 @@ public class MessagesManager {
         }
     }
 
+    /**
+     * adds a message for a re-import
+     */
+    public void addReimportMessage(Found f) {
+        for (GenAndTok g : f){
+            if(g.generator instanceof SourceToken){
+                addMessage(IAnalysisPreferences.TYPE_REIMPORT, g.generator, g.tok);
+            }
+        }
+    }
+    
 
     
     
@@ -133,22 +144,32 @@ public class MessagesManager {
                 continue;
             }
             
-            IMessage message = l.get(0);
-            if(message.getSeverity() == IAnalysisPreferences.SEVERITY_IGNORE){
-                continue;
+            Map<Integer, List<IMessage>> messagesByType = getMessagesByType(l);
+            for (int type : messagesByType.keySet()) {
+                l = messagesByType.get(type);
+                
+                //the values are guaranteed to have size at least equal to 1
+                IMessage message = l.get(0);
+                
+                //messages are grouped by type, and the severity is set by type, so, this is ok...
+                if(message.getSeverity() == IAnalysisPreferences.SEVERITY_IGNORE){
+                    continue;
+                }
+
+                if(l.size() == 1){
+                    result.add(message);
+                    
+                } else{
+                    //the generator token has many associated messages - the messages may have different types,
+                    //so, we need to get them by types
+                    CompositeMessage compositeMessage = new CompositeMessage(message.getType(), message.getGenerator(), prefs);
+                    for(IMessage m : l){
+                        compositeMessage.addMessage(m);
+                    }
+                    result.add(compositeMessage);
+                }
             }
             
-            if(l.size() == 1){
-                result.add(message);
-                
-            } else{
-                //the generator token has many associated messages
-                CompositeMessage compositeMessage = new CompositeMessage(message.getType(), message.getGenerator(), prefs);
-                for(IMessage m : l){
-                    compositeMessage.addMessage(m);
-                }
-                result.add(compositeMessage);
-            }
         }
         
         for(IMessage message : independentMessages){
@@ -159,6 +180,25 @@ public class MessagesManager {
             result.add(message);
         }
         return (IMessage[]) result.toArray(new IMessage[0]);
+    }
+
+    /**
+     * @return a map with the messages separated by type (keys are the type)
+     * 
+     * the values are guaranteed to have size at least equal to 1
+     */
+    private Map<Integer,List<IMessage>> getMessagesByType(List<IMessage> l) {
+        HashMap<Integer, List<IMessage>> messagesByType = new HashMap<Integer, List<IMessage>>();
+        for (IMessage message : l) {
+            
+            List<IMessage> messages = messagesByType.get(message.getType());
+            if(messages == null){
+                messages = new ArrayList<IMessage>();
+                messagesByType.put(message.getType(), messages);
+            }
+            messages.add(message);
+        }
+        return messagesByType;
     }
 
 }

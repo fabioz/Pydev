@@ -45,19 +45,22 @@ public class AnalysisPreferences implements IAnalysisPreferences{
             case IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE:
                 return pluginPreferences.getInt(AnalysisPreferenceInitializer.SEVERITY_DUPLICATED_SIGNATURE);
                 
+            case IAnalysisPreferences.TYPE_REIMPORT:
+                return pluginPreferences.getInt(AnalysisPreferenceInitializer.SEVERITY_REIMPORT);
+                
             default: 
                 throw new RuntimeException("Unable to get severity for: "+type);
         }
     }
 
     /**
-     * should we do code analysis?
+     * yeah, we always do code analysis...
      *  
      * @see com.python.pydev.analysis.IAnalysisPreferences#makeCodeAnalysis()
      */
     public boolean makeCodeAnalysis() {
-        Preferences pluginPreferences = AnalysisPlugin.getDefault().getPluginPreferences();
-        return pluginPreferences.getBoolean(AnalysisPreferenceInitializer.USE_PYDEV_ANALYSIS);
+        return true;
     }
+
 
 }

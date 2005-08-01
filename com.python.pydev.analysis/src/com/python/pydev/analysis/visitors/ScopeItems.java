@@ -11,9 +11,11 @@ public class ScopeItems {
     Map<String,Found> m = new HashMap<String,Found>();
     int ifSubScope = 0;
     private int scopeId;
+    private int scopeType;
 
-    public ScopeItems(int scopeId) {
+    public ScopeItems(int scopeId, int scopeType) {
         this.scopeId = scopeId;
+        this.scopeType = scopeType;
     }
 
     public Found get(String rep) {
@@ -45,6 +47,13 @@ public class ScopeItems {
      */
     public int getScopeId() {
         return scopeId;
+    }
+    
+    /**
+     * @return Returns the scopeType.
+     */
+    public int getScopeType() {
+        return scopeType;
     }
 
 }

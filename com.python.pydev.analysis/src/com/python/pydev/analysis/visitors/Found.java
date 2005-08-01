@@ -27,11 +27,17 @@ class GenAndTok{
      * the scope id of the definition
      */
     public int scopeId;
+
+    /**
+     * this is the scope where it was found
+     */
+    public ScopeItems scopeFound;
     
-    public GenAndTok(IToken generator, IToken tok, int scopeId) {
+    public GenAndTok(IToken generator, IToken tok, int scopeId, ScopeItems scopeFound) {
         this.generator = generator;
         this.tok = tok;
         this.scopeId = scopeId;
+        this.scopeFound = scopeFound;
     }
 }
 public class Found implements Iterable<GenAndTok>{
@@ -43,8 +49,8 @@ public class Found implements Iterable<GenAndTok>{
      */
     private boolean used = false;
     
-    Found(IToken tok, IToken generator, int scopeId){
-        this.found.add(new GenAndTok(generator, tok, scopeId));
+    Found(IToken tok, IToken generator, int scopeId, ScopeItems scopeFound){
+        this.found.add(new GenAndTok(generator, tok, scopeId, scopeFound));
     }
 
     /**
@@ -65,11 +71,15 @@ public class Found implements Iterable<GenAndTok>{
         return this.found.iterator();
     }
 
-    public void addGeneratorToFound(IToken generator2, IToken tok2, int scopeId) {
-        this.found.add(new GenAndTok(generator2, tok2, scopeId));
+    public void addGeneratorToFound(IToken generator2, IToken tok2, int scopeId, ScopeItems scopeFound) {
+        this.found.add(new GenAndTok(generator2, tok2, scopeId, scopeFound));
     }
 
     public GenAndTok getSingle() {
         return found.get(0);
+    }
+
+    public boolean isImport() {
+        return getSingle().generator.isImport();
     }
 }

@@ -23,6 +23,7 @@ import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Return;
 import org.python.parser.ast.VisitorBase;
+import org.python.parser.ast.While;
 import org.python.parser.ast.argumentsType;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
@@ -56,26 +57,6 @@ public class OcurrencesVisitor extends VisitorBase{
      * manage the scopes...
      */
     private Scope scope;
-    
-    /**
-     * the scope type is a method
-     */
-    public static final int SCOPE_TYPE_GLOBAL = 0;
-    
-    /**
-     * the scope type is a method
-     */
-    public static final int SCOPE_TYPE_METHOD = 1;
-
-    /**
-     * the scope type is a class
-     */
-    public static final int SCOPE_TYPE_CLASS = 2;
-    
-    /**
-     * to know in which scope type we are at the moment...
-     */
-    private Stack<Integer> scopeTypes = new Stack<Integer>();
     
     /**
      * Stack for names that should not generate warnings, such as builtins, method names, etc.
@@ -116,7 +97,7 @@ public class OcurrencesVisitor extends VisitorBase{
         this.scope = new Scope(this.messagesManager);
         this.duplicationChecker = new DuplicationChecker(this.messagesManager);
         
-        startScope(SCOPE_TYPE_GLOBAL); //initial scope - there is only one 'global' 
+        startScope(Scope.SCOPE_TYPE_GLOBAL); //initial scope - there is only one 'global' 
         List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(getEmptyCompletionState(), new ArrayList());
         for(IToken t : builtinCompletions){
             stackNamesToIgnore.peek().put(t.getRepresentation(), t);
@@ -160,7 +141,7 @@ public class OcurrencesVisitor extends VisitorBase{
     public Object visitClassDef(ClassDef node) throws Exception {
         addToNamesToIgnore(node);
 
-        startScope(SCOPE_TYPE_CLASS);
+        startScope(Scope.SCOPE_TYPE_CLASS);
         duplicationChecker.beforeClassDef(node);
         Object object = super.visitClassDef(node);
         duplicationChecker.afterClassDef(node);
@@ -183,7 +164,7 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         addToNamesToIgnore(node);
-        startScope(SCOPE_TYPE_METHOD);
+        startScope(Scope.SCOPE_TYPE_METHOD);
         duplicationChecker.beforeFunctionDef(node); //duplication checker
         
         argumentsType args = node.args;
@@ -299,28 +280,35 @@ public class OcurrencesVisitor extends VisitorBase{
         }
 
         if(node.value instanceof Call){
-            //now, visit all inside it but the func itself 
-            Call c = (Call)node.value;
-            OcurrencesVisitor visitor = this;
-            if (c.args != null) {
-                for (int i = 0; i < c.args.length; i++) {
-                    if (c.args[i] != null)
-                        c.args[i].accept(visitor);
-                }
-            }
-            if (c.keywords != null) {
-                for (int i = 0; i < c.keywords.length; i++) {
-                    if (c.keywords[i] != null)
-                        c.keywords[i].accept(visitor);
-                }
-            }
-            if (c.starargs != null)
-                c.starargs.accept(visitor);
-            if (c.kwargs != null)
-                c.kwargs.accept(visitor);
+            visitCallAttr(node);
 
         }
         return null;
+    }
+
+    /**
+     * used if we want to visit all in a call but the func itself (that's the call name).
+     */
+    private void visitCallAttr(Attribute node) throws Exception {
+        //now, visit all inside it but the func itself 
+        Call c = (Call)node.value;
+        OcurrencesVisitor visitor = this;
+        if (c.args != null) {
+            for (int i = 0; i < c.args.length; i++) {
+                if (c.args[i] != null)
+                    c.args[i].accept(visitor);
+            }
+        }
+        if (c.keywords != null) {
+            for (int i = 0; i < c.keywords.length; i++) {
+                if (c.keywords[i] != null)
+                    c.keywords[i].accept(visitor);
+            }
+        }
+        if (c.starargs != null)
+            c.starargs.accept(visitor);
+        if (c.kwargs != null)
+            c.kwargs.accept(visitor);
     }
 
     /**
@@ -344,12 +332,20 @@ public class OcurrencesVisitor extends VisitorBase{
     
     /**
      * overriden because we need to know about if scopes
-     * 
-     * @see org.python.parser.ast.VisitorIF#visitListComp(org.python.parser.ast.ListComp)
      */
     public Object visitIf(If node) throws Exception {
         scope.addIfSubScope();
         Object r = super.visitIf(node);
+        scope.removeIfSubScope();
+        return r;
+    }
+    
+    /**
+     * overriden because we need to know about while scopes
+     */
+    public Object visitWhile(While node) throws Exception {
+        scope.addIfSubScope();
+        Object r =  super.visitWhile(node);
         scope.removeIfSubScope();
         return r;
     }
@@ -383,10 +379,9 @@ public class OcurrencesVisitor extends VisitorBase{
      * initializes a new scope
      */
     private void startScope(int newScopeType) {
-        scope.startScope();
+        scope.startScope(newScopeType);
         Map<String, IToken> item = new HashMap<String, IToken>();
         stackNamesToIgnore.push(item);
-        scopeTypes.push(newScopeType);
     }
     
     /**
@@ -394,7 +389,6 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     private void endScope() {
         ScopeItems m = scope.endScope(); //clear the last scope
-        int scopeType = scopeTypes.pop();
         for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
             Found n = it.next();
             
@@ -430,9 +424,10 @@ public class OcurrencesVisitor extends VisitorBase{
         }
         
         //so, now, we clear the unused
+        int scopeType = m.getScopeType();
         for (Found f : m.values()) {
             if(!f.isUsed()){
-                if(scopeType != SCOPE_TYPE_CLASS){
+                if(scopeType == Scope.SCOPE_TYPE_METHOD || f.isImport()){ //only within methods do we put things as unused 
                     messagesManager.addUnusedMessage(f);
                 }
             }
@@ -506,7 +501,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @return true if it was found
      */
     private boolean markRead(IToken token, String rep, boolean addToNotDefined) {
-        boolean found = scope.find(rep);
+        boolean found = scope.findFirst(rep, true) != null;
         
         //this token might not be defined...
         int i;
@@ -516,7 +511,7 @@ public class OcurrencesVisitor extends VisitorBase{
         }
         if(addToNotDefined && !found && !isInNamesToIgnore(rep)){
             if(scope.size() > 1){
-                probablyNotDefined.add(new Found(token, token, scope.getCurrScopeId())); //we are not in the global scope, so it might be defined later...
+                probablyNotDefined.add(new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems())); //we are not in the global scope, so it might be defined later...
             }else{
                 //global scope, so, even if it is defined later, this is an error...
                 messagesManager.addUndefinedMessage(token);

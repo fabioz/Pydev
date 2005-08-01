@@ -7,16 +7,17 @@ Will always be active (altough the user may put all in ignore if he does not wan
 Warnings
 --------
 
-- Unused import 
-- Unused variable (local, param - ignore when dummy / unused = user defined tokens)
-- Duplicated signature (method, class)
-- Reimported module
+- Unused import - OK
+- Unused variable - OK
+  (local, param - ignore when dummy / unused or some other user defined token)
+- Duplicated signature (method, class) - OK
+- Reimported module - OK
 - Unexistant module
 
 
 Errors
 ------
-- Undefined variable
+- Undefined variable - OK
 
 
 Concerns
