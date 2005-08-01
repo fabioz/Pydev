@@ -156,7 +156,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                         } else if (members[i].getType() == IResource.FOLDER) {
                             IPath location = ((IFolder) members[i]).getLocation();
                             File folder = new File(location.toOSString());
-                            List l = PydevPlugin.getPyFilesBelow(folder, null, true)[0];
+                            List l = PydevPlugin.getPyFilesBelow(folder, null, true, false)[0];
                             for (Iterator iter = l.iterator(); iter.hasNext();) {
                                 File element = (File) iter.next();
                                 IPath path = PydevPlugin.getPath(new Path(REF.getFileAbsolutePath(element)));
@@ -213,6 +213,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 msgBuf.append(" - visitor: ");
                 msgBuf.append(visitor.getClass().getName());
 
+//                System.out.println(msgBuf);
                 monitor.subTask(msgBuf.toString());
                 visitor.visitChangedResource(r, doc);
             }
