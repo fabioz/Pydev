@@ -20,8 +20,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUndefinedVariable2();
-            analyzer2.testUndefinedVariable3();
+            analyzer2.testNotUnusedVariable5();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -322,6 +321,59 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
+        
+    }
+    
+    public void testNotUnusedVariable5() {
+        doc = new Document(
+            "def m():         \n"+  
+            "    try:         \n"+       
+            "        c = 'a'  \n"+
+            "    except:      \n"+
+            "        c = 'b'  \n"+      
+            "    print c      \n"+     
+            ""      
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+        
+    }
+    
+    public void testNotUnusedVariable6() {
+        doc = new Document(
+                "def m():         \n"+  
+                "    try:         \n"+       
+                "        c = 'a'  \n"+
+                "    finally:     \n"+
+                "        c = 'b'  \n"+      
+                "    print c      \n"+     
+                ""      
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+        
+    }
+    
+    public void testUnusedVariable6() {
+        doc = new Document(
+                "def m():         \n"+  
+                "    try:         \n"+       
+                "        c = 'a'  \n"+
+                "    finally:     \n"+
+                "        c = 'b'  \n"+      
+                ""      
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs,2 );
+        assertEquals(2, msgs.length);
         
     }
     

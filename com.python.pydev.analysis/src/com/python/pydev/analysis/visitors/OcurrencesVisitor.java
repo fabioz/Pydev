@@ -22,6 +22,8 @@ import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Return;
+import org.python.parser.ast.TryExcept;
+import org.python.parser.ast.TryFinally;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.While;
 import org.python.parser.ast.argumentsType;
@@ -349,6 +351,22 @@ public class OcurrencesVisitor extends VisitorBase{
         scope.removeIfSubScope();
         return r;
     }
+
+    @Override
+    public Object visitTryExcept(TryExcept node) throws Exception {
+        scope.addIfSubScope();
+        Object r = super.visitTryExcept(node);
+        scope.removeIfSubScope();
+        return r;
+    }
+    
+    @Override
+    public Object visitTryFinally(TryFinally node) throws Exception {
+        scope.addIfSubScope();
+        Object r = super.visitTryFinally(node);
+        scope.removeIfSubScope();
+        return r;
+    }
     
     /**
      * overriden because we need to visit the generators first
@@ -521,10 +539,6 @@ public class OcurrencesVisitor extends VisitorBase{
     }
 
 
-    @Override
-    public Object visitReturn(Return node) throws Exception {
-        return super.visitReturn(node);
-    }
     /**
      * checks if there is some token in the names that are defined (but should be ignored)
      */
