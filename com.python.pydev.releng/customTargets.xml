@@ -41,7 +41,7 @@
 <target name="genericAllElements">
 	<ant antfile="${genericTargets}" target="${target}" >
 		<property name="type" value="feature" />
-		<property name="id" value="org.python.pydev.feature" />
+		<property name="id" value="com.python.pydev.extensions" />
 	</ant>
 </target>
 
@@ -53,7 +53,7 @@
 <!-- Add one target for each root element and each configuration -->
 <!-- ===================================================================== -->
 
-<target name="assemble.org.python.pydev.feature">
+<target name="assemble.com.python.pydev.extensions">
 	<ant antfile="${assembleScriptName}" dir="${buildDirectory}"/>
 </target>
 
@@ -93,7 +93,7 @@
 		<fileset dir="${buildDirectory}" includes="**/*.MF"/>
 	</replaceregexp>
 	
-	<replaceregexp file="${buildDirectory}\features\org.python.pydev.feature\feature.xml" match='version="0(.*)"' replace='version="${pydev.version}"' byline="true"/>
+	<replaceregexp file="${buildDirectory}\features\com.python.pydev.extensions\feature.xml" match='version="0(.*)"' replace='version="${pydev.version}"' byline="true"/>
 </target>
 
 <!-- ===================================================================== -->
@@ -152,12 +152,8 @@
 	</unzip>
 	
 	<jar jarfile="${destFeats}${fol0}.jar" basedir="${eclipseTmpResults}/eclipse${fol0}" update="true"  />
-	<jar jarfile="${destFeats}${fol1}.jar" basedir="${eclipseTmpResults}/eclipse${fol1}" update="true" manifest="${eclipseTmpResults}/eclipse${fol1}/META-INF/MANIFEST.MF" />
-	<jar jarfile="${destFeats}${fol2}.jar" basedir="${eclipseTmpResults}/eclipse${fol2}" update="true" manifest="${eclipseTmpResults}/eclipse${fol2}/META-INF/MANIFEST.MF" />
-	<jar jarfile="${destFeats}${fol3}.jar" basedir="${eclipseTmpResults}/eclipse${fol3}" update="true" manifest="${eclipseTmpResults}/eclipse${fol3}/META-INF/MANIFEST.MF" />
-	<jar jarfile="${destFeats}${fol4}.jar" basedir="${eclipseTmpResults}/eclipse${fol4}" update="true" manifest="${eclipseTmpResults}/eclipse${fol4}/META-INF/MANIFEST.MF" />
-	<jar jarfile="${destFeats}${fol5}.jar" basedir="${eclipseTmpResults}/eclipse${fol5}" update="true" manifest="${eclipseTmpResults}/eclipse${fol5}/META-INF/MANIFEST.MF" />
-	<jar jarfile="${destFeats}${fol6}.jar" basedir="${eclipseTmpResults}/eclipse${fol6}" update="true" manifest="${eclipseTmpResults}/eclipse${fol6}/META-INF/MANIFEST.MF" />
+	<copy tofile="${destFeats}${fol1}.jar" file="${eclipseTmpResults}/eclipse${fol1}.jar" />
+	<copy tofile="${destFeats}${fol2}.jar" file="${eclipseTmpResults}/eclipse${fol2}.jar" />
 	
 	<delete dir="${eclipseTmpResults}"/>
     <echo message="Finished making jars in update site!"/>

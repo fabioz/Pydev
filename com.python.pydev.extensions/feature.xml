@@ -51,10 +51,4 @@ Zadrozny
          version="0.9.7.1"
          unpack="false"/>
 
-   <plugin
-         id="com.python.pydev.refactoring"
-         download-size="0"
-         install-size="0"
-         version="0.9.7.1"/>
-
 </feature>

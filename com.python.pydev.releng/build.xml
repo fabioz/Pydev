@@ -21,17 +21,13 @@
 		<property name = "javacTarget"          value = "1.4"/>
 		<property name = "javacVerbose"         value = "false"/>
 
-		<property name = "zipLocation"          value = "${basedir}/results/${buildId}/org.python.pydev.feature-${buildId}.zip"/>
+		<property name = "zipLocation"          value = "${basedir}/results/${buildId}/com.python.pydev.extensions-${buildId}.zip"/>
 		<property name = "eclipseTmpResults"    value = "${basedir}/results/tmp" />
 		<property name = "destFeats"            value = "${EC_WORKSPACE}\org.python.pydev.site" />
 
-		<property name = "fol0"  value = "/features/org.python.pydev.feature_${pydev.version}"/>
-		<property name = "fol1"  value = "/plugins/org.python.pydev_${pydev.version}"         />
-		<property name = "fol2"  value = "/plugins/org.python.pydev.core_${pydev.version}"    />
-		<property name = "fol3"  value = "/plugins/org.python.pydev.parser_${pydev.version}"  />
-		<property name = "fol4"  value = "/plugins/org.python.pydev.ast_${pydev.version}"     />
-		<property name = "fol5"  value = "/plugins/org.python.pydev.debug_${pydev.version}"   />
-		<property name = "fol6"  value = "/plugins/org.python.pydev.help_${pydev.version}"    />
+		<property name = "fol0"  value = "/features/com.python.pydev.extensions_${pydev.version}"/>
+		<property name = "fol1"  value = "/plugins/com.python.pydev.analysis_${pydev.version}"         />
+		<property name = "fol2"  value = "/plugins/com.python.pydev.fastparser_${pydev.version}"         />
 
 		
 		<echo message="pydev.version = ${pydev.version}"/>
