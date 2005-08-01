@@ -1,5 +1,8 @@
 /*
  * Created on 29/07/2005
+ *
+ * Create a file TestDependent.java with the contents in this file and substitute the
+ * values as needed...
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
