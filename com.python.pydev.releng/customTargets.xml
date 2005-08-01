@@ -1,8 +1,8 @@
 <project name="Build specific targets and properties" default="noDefault" basedir=".">
 
-<property name="basews" value="gtk" />
-<property name="baseos" value="win32" />
-<property name="basearch" value="x86" />
+<property name="basews" value="*" />
+<property name="baseos" value="*" />
+<property name="basearch" value="*" />
 <property name="basenl" value="en_US" />
 
 <!-- ===================================================================== -->
@@ -14,7 +14,7 @@
 	<antcall target="${target}ForAllElements"/>
 </target>
 
-<target name="fetchElementForAllElements" unless="dontFetchAnything">
+<target name="fetchElementForAllElements" unless="dontFetchAnything"> 
 	<antcall target="genericAllElements"/>
 </target>
 
@@ -89,6 +89,11 @@
 <!-- Steps to do after fetching the build elements -->
 <!-- ===================================================================== -->
 <target name="postFetch">
+	<replaceregexp match="Bundle-Version:(.*)" replace="Bundle-Version: ${pydev.version}" byline="true">
+		<fileset dir="${buildDirectory}" includes="**/*.MF"/>
+	</replaceregexp>
+	
+	<replaceregexp file="${buildDirectory}\features\org.python.pydev.feature\feature.xml" match='version="0(.*)"' replace='version="${pydev.version}"' byline="true"/>
 </target>
 
 <!-- ===================================================================== -->
@@ -135,7 +140,27 @@
 <!-- ===================================================================== -->
 <!-- Steps to do after the build is done. -->
 <!-- ===================================================================== -->
-<target name="postBuild">
+<target name="postBuild"> 
+    <echo message="Making jars in update site:"/>  
+
+	<mkdir dir="${eclipseTmpResults}"/>
+	
+	<unzip src="${zipLocation}" dest="${eclipseTmpResults}">
+	    <patternset>
+	        <include name="**/*.*"/>
+	    </patternset>
+	</unzip>
+	
+	<jar jarfile="${destFeats}${fol0}.jar" basedir="${eclipseTmpResults}/eclipse${fol0}" update="true"  />
+	<jar jarfile="${destFeats}${fol1}.jar" basedir="${eclipseTmpResults}/eclipse${fol1}" update="true" manifest="${eclipseTmpResults}/eclipse${fol1}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${destFeats}${fol2}.jar" basedir="${eclipseTmpResults}/eclipse${fol2}" update="true" manifest="${eclipseTmpResults}/eclipse${fol2}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${destFeats}${fol3}.jar" basedir="${eclipseTmpResults}/eclipse${fol3}" update="true" manifest="${eclipseTmpResults}/eclipse${fol3}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${destFeats}${fol4}.jar" basedir="${eclipseTmpResults}/eclipse${fol4}" update="true" manifest="${eclipseTmpResults}/eclipse${fol4}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${destFeats}${fol5}.jar" basedir="${eclipseTmpResults}/eclipse${fol5}" update="true" manifest="${eclipseTmpResults}/eclipse${fol5}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${destFeats}${fol6}.jar" basedir="${eclipseTmpResults}/eclipse${fol6}" update="true" manifest="${eclipseTmpResults}/eclipse${fol6}/META-INF/MANIFEST.MF" />
+	
+	<delete dir="${eclipseTmpResults}"/>
+    <echo message="Finished making jars in update site!"/>
 </target>
 
 <!-- ===================================================================== -->

@@ -2,40 +2,59 @@
 <feature
       id="com.python.pydev.extensions"
       label="PyDev Extensions"
-      version="0.9.7"
+      version="0.9.7.1"
       provider-name="Fabio Zadrozny">
 
    <description url="http://www.example.com/description">
-      This plugin enables PyDev extensions. It is a commercial product and may not be re-distributed
-      nor used without consent of Fabio Zadrozny
+      This feature enables PyDev extensions. It may not be re-distributed
+nor used without consent of Fabio Zadrozny
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      Fabio Zadrozny
+      © Fabio Zadrozny
    </copyright>
 
    <license url="http://www.example.com/license">
-      Commercial license
+      This feature may not be re-distributed
+nor used without consent of Fabio
+Zadrozny
    </license>
+
+   <requires>
+      <import feature="org.python.pydev.feature" version="0.9.7" match="perfect"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.junit"/>
+      <import plugin="org.python.pydev.core"/>
+      <import plugin="org.python.pydev.ast"/>
+      <import plugin="org.python.pydev"/>
+      <import plugin="org.python.pydev.parser"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+   </requires>
 
    <plugin
          id="com.python.pydev.analysis"
          download-size="0"
          install-size="0"
-         version="0.9.7"
+         version="0.9.7.1"
          unpack="false"/>
 
    <plugin
          id="com.python.pydev.fastparser"
          download-size="0"
          install-size="0"
-         version="0.9.7"
+         version="0.9.7.1"
          unpack="false"/>
 
    <plugin
          id="com.python.pydev.refactoring"
          download-size="0"
          install-size="0"
-         version="0.9.7"/>
+         version="0.9.7.1"/>
 
 </feature>
