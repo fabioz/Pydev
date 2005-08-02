@@ -22,10 +22,16 @@ Errors
 
 Concerns
 --------
-- Unused imports may or may not be detected on __init__
-- Dependent modules should be re-analyzed after a module changes
-- There should be a way to silent those warnings (with Ctrl+1)
+- Only files that are in the specified source folders should be analyzed.
+- Unused imports may or may not be detected on __init__.
+- Dependent modules should be re-analyzed after a module changes.
+- There should be a way to silent those warnings (with Ctrl+1).
+- Unused parameters on abstract methods should not be reported.
 
+e.g.:
+
+def DoUpdate(self, timestep):
+   raise NotImplementedError 
 
 To do later
 -----------
