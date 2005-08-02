@@ -61,7 +61,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             for (IMessage m : messages) {
                 String msg = "ID:" + m.getType() + " " + m.getMessage();
                 createMarker(resource, document, msg, 
-                        m.getStartLine() - 1, m.getStartCol() - 1, m.getEndLine() - 1, m.getEndCol() - 1, 
+                        m.getStartLine(document) - 1, m.getStartCol(document) - 1, m.getEndLine(document) - 1, m.getEndCol(document) - 1, 
                         PYDEV_ANALYSIS_PROBLEM_MARKER, m.getSeverity());
             }
         } catch (Exception e) {

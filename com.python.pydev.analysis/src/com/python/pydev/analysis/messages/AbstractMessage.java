@@ -6,6 +6,9 @@ package com.python.pydev.analysis.messages;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
@@ -51,13 +54,32 @@ public abstract class AbstractMessage implements IMessage{
         return type;
     }
 
-    public int getStartLine() {
+    public int getStartLine(IDocument doc) {
         return generator.getLineDefinition();
     }
 
-    public int getStartCol() {
-        int colDefinition = generator.getColDefinition();
-        colDefinition = fixCol(colDefinition);
+    public int getStartCol(IDocument doc) {
+        int colDefinition;
+        if(generator.isImport()){
+            //it depends on the document contents... we have to remove the empty spaces to its left
+            int startLine = getStartLine(doc);
+            try {
+                IRegion start = doc.getLineInformation(startLine-1);
+                String line = doc.get(start.getOffset(), start.getLength());
+
+                colDefinition = 0;
+                while(line.length() > colDefinition && Character.isWhitespace(line.charAt(colDefinition))){
+                    colDefinition++;
+                }
+                colDefinition++;
+
+            } catch (BadLocationException e) {
+                colDefinition = 1;
+            }
+        }else{
+            colDefinition = generator.getColDefinition();
+            colDefinition = fixCol(colDefinition);
+        }
         return colDefinition;
     }
 
@@ -74,7 +96,7 @@ public abstract class AbstractMessage implements IMessage{
         return col;
     }
 
-    public int getEndLine() {
+    public int getEndLine(IDocument doc) {
         if(generator instanceof SourceToken){
             return ((SourceToken)generator).getLineEnd();
         }
@@ -82,7 +104,7 @@ public abstract class AbstractMessage implements IMessage{
     }
 
     
-    public int getEndCol() {
+    public int getEndCol(IDocument doc) {
         if(generator instanceof SourceToken){
             return fixCol(((SourceToken)generator).getColEnd());
         }

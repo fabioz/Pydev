@@ -142,7 +142,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         assertEquals(1, msgs.length);
         assertContainsMsg("Unused import: xml.dom.domreg, xml.dom", msgs);
-        assertEquals(1, msgs[0].getStartLine());
+        assertEquals(1, msgs[0].getStartLine(doc));
     }
  
     public void testUnusedImports3(){
@@ -156,8 +156,39 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         assertEquals(1, msgs.length);
         assertContainsMsg("Unused import: otherthing", msgs);
-        assertEquals(1, msgs[0].getStartCol());
-        assertEquals(-1, msgs[0].getEndCol());
+        assertEquals(1, msgs[0].getStartCol(doc));
+        assertEquals(-1, msgs[0].getEndCol(doc));
+    }
+    
+    public void testUnusedImports4(){
+        
+        doc = new Document(
+                "def m():\n" +
+                "    import os.path as otherthing\n" +
+                ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(1, msgs.length);
+        assertContainsMsg("Unused import: otherthing", msgs);
+        assertEquals(5, msgs[0].getStartCol(doc));
+        assertEquals(-1, msgs[0].getEndCol(doc));
+    }
+    
+    public void testReimport4(){
+        
+        doc = new Document(
+            "from testlib.unittest.relative import toImport\n" +
+            "from testlib.unittest.relative import toImport\n" +
+            ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(2, msgs.length);
+        assertContainsMsg("Unused import: toImport", msgs);
+        assertContainsMsg("Import redefinition: toImport", msgs);
     }
     
     public void testReimport(){
@@ -173,8 +204,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         assertEquals(1, msgs.length);
         assertContainsMsg("Import redefinition: os", msgs);
-        assertEquals(1, msgs[0].getStartCol());
-        assertEquals(2, msgs[0].getStartLine());
+        assertEquals(1, msgs[0].getStartCol(doc));
+        assertEquals(2, msgs[0].getStartLine(doc));
     }
     
     public void testReimport2(){
@@ -583,7 +614,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(1, msgs.length);
         assertEquals(TYPE_UNUSED_VARIABLE, msgs[0].getType());
         assertEquals("Unused variable: a", msgs[0].getMessage());
-        assertEquals(3, msgs[0].getStartLine());
+        assertEquals(3, msgs[0].getStartLine(doc));
     }
     
     public void testOk() {
@@ -680,7 +711,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         for (IMessage message : msgs2) {
             if(message.getMessage().equals(msg)){
                 if(line != -1){
-                    assertEquals(line, message.getStartLine());
+                    assertEquals(line, message.getStartLine(doc));
                 }
                 return;
             }
@@ -778,8 +809,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         printMessages(msgs, 1);
         assertEquals(1, msgs.length);
         assertEquals("Undefined variable: message", msgs[0].getMessage());
-        assertEquals(7, msgs[0].getStartCol());
-        assertEquals(14, msgs[0].getEndCol());
+        assertEquals(7, msgs[0].getStartCol(doc));
+        assertEquals(14, msgs[0].getEndCol(doc));
     }
     
     public void testAttributeErrorPos2() {
@@ -794,8 +825,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         printMessages(msgs, 1);
         assertEquals(1, msgs.length);
         assertEquals("Undefined variable: os", msgs[0].getMessage());
-        assertEquals(11, msgs[0].getStartCol());
-        assertEquals(13, msgs[0].getEndCol());
+        assertEquals(11, msgs[0].getStartCol(doc));
+        assertEquals(13, msgs[0].getEndCol(doc));
     }
     
     public void testAttributeErrorPos3() {
@@ -810,8 +841,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         printMessages(msgs, 1);
         assertEquals(1, msgs.length);
         assertEquals("Undefined variable: os", msgs[0].getMessage());
-        assertEquals(1, msgs[0].getStartCol());
-        assertEquals(3, msgs[0].getEndCol());
+        assertEquals(1, msgs[0].getStartCol(doc));
+        assertEquals(3, msgs[0].getEndCol(doc));
     }
 
     
@@ -1054,7 +1085,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(1, msgs.length);
         assertEquals(TYPE_DUPLICATED_SIGNATURE, msgs[0].getType());
         assertEquals("Duplicated signature: m1", msgs[0].getMessage());
-        assertEquals(9, msgs[0].getStartCol());
+        assertEquals(9, msgs[0].getStartCol(doc));
 
         //ignore
         severityForDuplicatedSignature = IAnalysisPreferences.SEVERITY_IGNORE;

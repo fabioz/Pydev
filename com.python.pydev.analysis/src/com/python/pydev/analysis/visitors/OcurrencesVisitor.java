@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.eclipse.core.runtime.IStatus;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Assign;
 import org.python.parser.ast.Attribute;
@@ -33,6 +34,7 @@ import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
@@ -208,15 +210,21 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitImportFrom(org.python.parser.ast.ImportFrom)
      */
     public Object visitImportFrom(ImportFrom node) throws Exception {
-        if(AbstractVisitor.isWildImport(node)){
-            IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName);
-            CompletionState state = getEmptyCompletionState();
-            state.builtinsGotten = true; //we don't want any builtins
-            List completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList(), wildImport);
-            scope.addTokens(completionsForWildImport, wildImport);
-        }else{
-            List list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
-            scope.addTokens(list, null);
+        try {
+            
+            if(AbstractVisitor.isWildImport(node)){
+                IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName);
+                CompletionState state = getEmptyCompletionState();
+                state.builtinsGotten = true; //we don't want any builtins
+                List completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList(), wildImport);
+                scope.addTokens(completionsForWildImport, wildImport);
+            }else{
+                List list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
+                scope.addTokens(list, null);
+            }
+            
+        } catch (Exception e) {
+            PydevPlugin.log(IStatus.ERROR, "Error when analyzing module "+moduleName, e);
         }
         return null;
     }

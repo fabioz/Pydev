@@ -78,6 +78,10 @@ public class Scope {
      * @param rep the representation of the token (o) 
      */
     public void addToken(IToken generator, ScopeItems m, IToken o, String rep) {
+        if(generator == null){
+            generator = o;
+        }
+        
         Found found = findFirst(rep, false);
         
         boolean isReimport = false;
@@ -106,14 +110,8 @@ public class Scope {
             }
         }
         
-        Found newFound = null;
-        if (generator == null){
-            newFound = new Found(o,(SourceToken) o, getCurrScopeId(), getCurrScopeItems());
-            m.put(rep, newFound); //the generator and the token are the same
-        }else{
-            newFound = new Found(o,(SourceToken) generator, getCurrScopeId(), getCurrScopeItems());
-            m.put(rep, newFound);
-        }
+        Found newFound = new Found(o,(SourceToken) generator, getCurrScopeId(), getCurrScopeItems());
+        m.put(rep, newFound);
 
         if(isReimport){
             messagesManager.addReimportMessage(newFound);

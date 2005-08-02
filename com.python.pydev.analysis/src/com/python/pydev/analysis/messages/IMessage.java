@@ -3,6 +3,7 @@
  */
 package com.python.pydev.analysis.messages;
 
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 
 public interface IMessage {
@@ -25,22 +26,23 @@ public interface IMessage {
     /**
      * @return the starting line of the error
      */
-    int getStartLine();
+    int getStartLine(IDocument doc);
     
     /**
+     * @param doc 
      * @return the starting col of the error
      */
-    int getStartCol();
+    int getStartCol(IDocument doc);
 
     /**
      * @return the ending line of the error. may be -1 if we are unable to find the end of the token
      */
-    int getEndLine();
+    int getEndLine(IDocument doc);
 
     /**
      * @return the ending col of the error. may be -1 if we are unable to find the end of the token
      */
-    int getEndCol();
+    int getEndCol(IDocument doc);
     
     /**
      * @return the message that should be presented to the user.
