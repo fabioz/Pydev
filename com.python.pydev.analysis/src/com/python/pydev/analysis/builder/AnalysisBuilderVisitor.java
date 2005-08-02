@@ -37,35 +37,37 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             Log.log(e3);
         }
         
-        IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
-        
-        //let's see if we should do code analysis
-        if(analysisPreferences.makeCodeAnalysis() == false){
-            return true;
-        }
-
-        OcurrencesAnalyzer analyzer = new OcurrencesAnalyzer();
-        PythonNature nature = PythonNature.getPythonNature(resource.getProject());
-        IFile f = (IFile) resource;
-        String file = f.getRawLocation().toOSString();
-        
-        String moduleName = nature.getAstManager().getProjectModulesManager().resolveModule(file);
-        
-        AbstractModule module = AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, 0);
-        
-        //ok, let's do it
-        IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences);
-        try {
+        if(isInPythonPath(resource)){ //just get problems in resources that are in the pythonpath
+            IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
             
-            //add the markers
-            for (IMessage m : messages) {
-                String msg = "ID:" + m.getType() + " " + m.getMessage();
-                createMarker(resource, document, msg, 
-                        m.getStartLine(document) - 1, m.getStartCol(document) - 1, m.getEndLine(document) - 1, m.getEndCol(document) - 1, 
-                        PYDEV_ANALYSIS_PROBLEM_MARKER, m.getSeverity());
+            //let's see if we should do code analysis
+            if(analysisPreferences.makeCodeAnalysis() == false){
+                return true;
             }
-        } catch (Exception e) {
-            Log.log(e);
+    
+            OcurrencesAnalyzer analyzer = new OcurrencesAnalyzer();
+            PythonNature nature = PythonNature.getPythonNature(resource.getProject());
+            IFile f = (IFile) resource;
+            String file = f.getRawLocation().toOSString();
+            
+            String moduleName = nature.getAstManager().getProjectModulesManager().resolveModule(file);
+            
+            AbstractModule module = AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, 0);
+            
+            //ok, let's do it
+            IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences);
+            try {
+                
+                //add the markers
+                for (IMessage m : messages) {
+                    String msg = "ID:" + m.getType() + " " + m.getMessage();
+                    createMarker(resource, document, msg, 
+                            m.getStartLine(document) - 1, m.getStartCol(document) - 1, m.getEndLine(document) - 1, m.getEndCol(document) - 1, 
+                            PYDEV_ANALYSIS_PROBLEM_MARKER, m.getSeverity());
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
         }
         return true;
     }
