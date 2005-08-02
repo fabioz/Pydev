@@ -142,15 +142,12 @@
 <!-- ===================================================================== -->
 <target name="postBuild"> 
     <echo message="Making jars in update site:"/>  
-
 	<mkdir dir="${eclipseTmpResults}"/>
-	
 	<unzip src="${zipLocation}" dest="${eclipseTmpResults}">
 	    <patternset>
 	        <include name="**/*.*"/>
 	    </patternset>
 	</unzip>
-	
 	<jar jarfile="${destFeats}${fol0}.jar" basedir="${eclipseTmpResults}/eclipse${fol0}" update="true"  />
 	<jar jarfile="${destFeats}${fol1}.jar" basedir="${eclipseTmpResults}/eclipse${fol1}" update="true" manifest="${eclipseTmpResults}/eclipse${fol1}/META-INF/MANIFEST.MF" />
 	<jar jarfile="${destFeats}${fol2}.jar" basedir="${eclipseTmpResults}/eclipse${fol2}" update="true" manifest="${eclipseTmpResults}/eclipse${fol2}/META-INF/MANIFEST.MF" />
@@ -158,9 +155,21 @@
 	<jar jarfile="${destFeats}${fol4}.jar" basedir="${eclipseTmpResults}/eclipse${fol4}" update="true" manifest="${eclipseTmpResults}/eclipse${fol4}/META-INF/MANIFEST.MF" />
 	<jar jarfile="${destFeats}${fol5}.jar" basedir="${eclipseTmpResults}/eclipse${fol5}" update="true" manifest="${eclipseTmpResults}/eclipse${fol5}/META-INF/MANIFEST.MF" />
 	<jar jarfile="${destFeats}${fol6}.jar" basedir="${eclipseTmpResults}/eclipse${fol6}" update="true" manifest="${eclipseTmpResults}/eclipse${fol6}/META-INF/MANIFEST.MF" />
-	
+    <echo message="Finished making jars in update site!"/> 
+
+
+	<!-- I also want to put it into my eclipse installation -->	
+    <echo message="Putting into eclipse install:"/>  
+	<copy todir="${EC_HOME}${fol0}"><fileset dir="${eclipseTmpResults}/eclipse${fol0}"/></copy>
+	<copy todir="${EC_HOME}${fol1}"><fileset dir="${eclipseTmpResults}/eclipse${fol1}"/></copy>
+	<copy todir="${EC_HOME}${fol2}"><fileset dir="${eclipseTmpResults}/eclipse${fol2}"/></copy>
+	<copy todir="${EC_HOME}${fol3}"><fileset dir="${eclipseTmpResults}/eclipse${fol3}"/></copy>
+	<copy todir="${EC_HOME}${fol4}"><fileset dir="${eclipseTmpResults}/eclipse${fol4}"/></copy>
+	<copy todir="${EC_HOME}${fol5}"><fileset dir="${eclipseTmpResults}/eclipse${fol5}"/></copy>
+	<copy todir="${EC_HOME}${fol6}"><fileset dir="${eclipseTmpResults}/eclipse${fol6}"/></copy>
+    <echo message="Finished making installing!"/>
+
 	<delete dir="${eclipseTmpResults}"/>
-    <echo message="Finished making jars in update site!"/>
 </target>
 
 <!-- ===================================================================== -->
