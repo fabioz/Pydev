@@ -22,7 +22,6 @@ import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Name;
-import org.python.parser.ast.Return;
 import org.python.parser.ast.TryExcept;
 import org.python.parser.ast.TryFinally;
 import org.python.parser.ast.VisitorBase;

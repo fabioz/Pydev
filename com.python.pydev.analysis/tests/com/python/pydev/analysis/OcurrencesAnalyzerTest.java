@@ -20,7 +20,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testNotUnusedVariable5();
+            analyzer2.testUndefinedVariableBuiltin3();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -946,6 +946,28 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testUndefinedVariableBuiltin2() {
+        doc = new Document(
+            "print __file__" //source folder always has the builtin __file__
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testUndefinedVariableBuiltin3() {
+        doc = new Document(
+                "print [].__str__" //[] is a builtin 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
         assertEquals(0, msgs.length);
     }
     

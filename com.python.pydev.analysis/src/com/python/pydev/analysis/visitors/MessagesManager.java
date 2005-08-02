@@ -13,6 +13,7 @@ import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.CompositeMessage;
@@ -93,6 +94,12 @@ public class MessagesManager {
         if((i = rep.indexOf('.')) != -1){
             rep = rep.substring(0,i);
         }
+
+        String builtinType = NodeUtils.getBuiltinType(rep);
+        if(builtinType != null){
+            return; //this is a builtin, so, it is defined after all
+        }
+        
         addMessage(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, token, rep );
     }
 
