@@ -6,6 +6,7 @@ package com.python.pydev.analysis.visitors;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 
@@ -38,6 +39,19 @@ class GenAndTok{
         this.tok = tok;
         this.scopeId = scopeId;
         this.scopeFound = scopeFound;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("GenAndTok [ ");
+        buffer.append(generator.getRepresentation());
+        buffer.append(" - ");
+        buffer.append(tok.getRepresentation());
+        buffer.append(" (scopeId:");
+        buffer.append(scopeId);
+        buffer.append(") ]");
+        return buffer.toString();
     }
 }
 public class Found implements Iterable<GenAndTok>{
@@ -81,5 +95,20 @@ public class Found implements Iterable<GenAndTok>{
 
     public boolean isImport() {
         return getSingle().generator.isImport();
+    }
+    
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("Found { (used:");
+        buffer.append(used);
+        buffer.append(") [");
+        
+        for (GenAndTok g : found) {
+            buffer.append(g);
+            buffer.append("  ");
+        }
+        buffer.append(" ]}");
+        return buffer.toString();
     }
 }

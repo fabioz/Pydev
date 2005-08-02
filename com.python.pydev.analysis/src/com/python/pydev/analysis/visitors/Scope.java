@@ -12,21 +12,38 @@ import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 public class Scope {
-    /**
-     * the scope type is a class
-     */
-    public static final int SCOPE_TYPE_CLASS = 2;
-    
-    /**
-     * the scope type is a method
-     */
-    public static final int SCOPE_TYPE_METHOD = 1;
     
     /**
      * the scope type is a method
      */
     public static final int SCOPE_TYPE_GLOBAL = 0;
 
+    /**
+     * the scope type is a method
+     */
+    public static final int SCOPE_TYPE_METHOD = 1;
+
+    /**
+     * the scope type is a class
+     */
+    public static final int SCOPE_TYPE_CLASS = 2;
+    
+    /**
+     * @param scopeType
+     * @return a string representing the scope type
+     */
+    public static String getScopeTypeStr(int scopeType){
+        switch(scopeType){
+        case Scope.SCOPE_TYPE_GLOBAL:
+            return "Global Scope";
+        case Scope.SCOPE_TYPE_CLASS:
+            return "Class Scope";
+        case Scope.SCOPE_TYPE_METHOD:
+            return "Method Scope";
+        }
+        return null;
+    }
+    
     /**
      * this stack is used to hold the scope. when we enter a scope, an item is added, and when we
      * exit, it is removed (and the analysis of unused tokens should happen at this time).
@@ -94,9 +111,13 @@ public class Scope {
             
                 if(!found.isUsed() && m.getIfSubScope() == 0){ // it was not used, and we're not in an if scope...
                     
-                    //we don't get unused at the global scope or class definition scope unless it's an import
-                    if(found.getSingle().scopeFound.getScopeType() == Scope.SCOPE_TYPE_METHOD || found.isImport()){ 
-                        messagesManager.addUnusedMessage(found);
+                    //this kind of unused message should only happen if we are at the same scope...
+                    if(found.getSingle().scopeFound.getScopeId() == getCurrScopeId()){
+                        
+                        //we don't get unused at the global scope or class definition scope unless it's an import
+                        if(found.getSingle().scopeFound.getScopeType() == Scope.SCOPE_TYPE_METHOD || found.isImport()){ 
+                            messagesManager.addUnusedMessage(found);
+                        }
                     }
                     
                 } else{ 
@@ -200,5 +221,15 @@ public class Scope {
         return scope.peek();
     }
 
-
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("Scope: ");
+        for (ScopeItems item : scope) {
+            buffer.append("\n");
+            buffer.append(item);
+            
+        }
+        return buffer.toString();
+    }
 }

@@ -55,5 +55,20 @@ public class ScopeItems {
     public int getScopeType() {
         return scopeType;
     }
+    
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("ScopeItem (type:");
+        buffer.append(Scope.getScopeTypeStr(scopeType));
+        buffer.append(")\n");
+        for (Map.Entry<String, Found> entry : m.entrySet()) {
+            buffer.append(entry.getKey());
+            buffer.append(": contains ");
+            buffer.append(entry.getValue());
+            buffer.append("\n");
+        }
+        return buffer.toString();
+    }
 
 }

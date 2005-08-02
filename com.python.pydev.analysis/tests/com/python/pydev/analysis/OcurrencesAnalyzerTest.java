@@ -20,7 +20,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUndefinedVariableBuiltin3();
+            analyzer2.testUnusedVariable7();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -405,6 +405,24 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         printMessages(msgs,2 );
         assertEquals(2, msgs.length);
+        
+    }
+    
+    public void testUnusedVariable7() {
+        doc = new Document(
+            "def m( a, b ):       \n"+  
+            "    def m1( a, b ):  \n"+       
+            "        print a, b   \n"+
+            "    if a:            \n"+
+            "        print 'ok'   \n"+      
+            ""      
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs,1 );
+        assertEquals(1, msgs.length);
+        assertContainsMsg("Unused variable: b", msgs, 1);
         
     }
     

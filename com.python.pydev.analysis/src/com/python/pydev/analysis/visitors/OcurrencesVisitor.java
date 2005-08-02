@@ -172,21 +172,38 @@ public class OcurrencesVisitor extends VisitorBase{
         
         argumentsType args = node.args;
         
-        if(args.kwarg != null){
-            Name name = new Name(args.kwarg, Name.Load);
-            SourceToken token = AbstractVisitor.makeToken(name, moduleName);
-            scope.addToken(token, token, args.kwarg);
+        OcurrencesVisitor visitor = this;
+        //visit regular args
+        if (args != null){
+            args.accept(visitor);
         }
+
+        //visit varargs
         if(args.vararg != null){
             Name name = new Name(args.vararg, Name.Load);
             SourceToken token = AbstractVisitor.makeToken(name, moduleName);
             scope.addToken(token, token, args.vararg);
         }
-        Object object = super.visitFunctionDef(node);
         
+        //visit kwargs
+        if(args.kwarg != null){
+            Name name = new Name(args.kwarg, Name.Load);
+            SourceToken token = AbstractVisitor.makeToken(name, moduleName);
+            scope.addToken(token, token, args.kwarg);
+        }
+        
+        //visit the body
+        if (node.body != null) {
+            for (int i = 0; i < node.body.length; i++) {
+                if (node.body[i] != null){
+                    node.body[i].accept(visitor);
+                }
+            }
+        }
+
         duplicationChecker.afterFunctionDef(node);//duplication checker
         endScope();
-        return object;
+        return null;
     }
     
     /**
