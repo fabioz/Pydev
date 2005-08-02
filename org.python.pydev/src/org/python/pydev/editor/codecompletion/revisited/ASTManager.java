@@ -111,7 +111,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         initial = initial.toLowerCase().trim();
 
         //set to hold the completion (no duplicates allowed).
-        Set set = new HashSet();
+        Set<IToken> set = new HashSet<IToken>();
 
         //first we get the imports... that complete for the token.
         for (Iterator iter = projectModulesManager.keySet().iterator(); iter.hasNext();) {
@@ -291,7 +291,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 
             if (state.activationToken.length() == 0) {
 
-		        List completions = getGlobalCompletions(globalTokens, importedModules, wildImportedModules, state, module);
+		        List<IToken> completions = getGlobalCompletions(globalTokens, importedModules, wildImportedModules, state, module);
 		        
 		        //now find the locals for the module
 		        if (state.line >= 0){
@@ -301,7 +301,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                     }
 		        }
 
-                return (IToken[]) completions.toArray(new IToken[0]);
+                return completions.toArray(new IToken[0]);
                 
             }else{ //ok, we have a token, find it and get its completions.
                 
@@ -423,7 +423,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getGlobalCompletions
      */
     public List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, CompletionState state, AbstractModule current) {
-        List completions = new ArrayList();
+        List<IToken> completions = new ArrayList<IToken>();
 
         //in completion with nothing, just go for what is imported and global tokens.
         for (int i = 0; i < globalTokens.length; i++) {

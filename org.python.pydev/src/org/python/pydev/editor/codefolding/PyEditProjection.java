@@ -5,9 +5,13 @@
  */
 package org.python.pydev.editor.codefolding;
 
+import java.util.Iterator;
+
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IOverviewRuler;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
@@ -35,6 +39,7 @@ public abstract class PyEditProjection extends TextEditor implements IParserList
 
     public static final int PROP_FOLDING_CHANGED = -999;
 
+    
     /*
      * (non-Javadoc)
      * 

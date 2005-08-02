@@ -5,11 +5,16 @@
  */
 package org.python.pydev.editor.codefolding;
 
+import java.util.Iterator;
+
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IOverviewRuler;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyEditConfiguration;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
@@ -35,6 +40,57 @@ public class PySourceViewer extends ProjectionViewer {
         }
     }
         
+    
+    /**
+     * @return a class that iterates through the markers available in this source viewer
+     */
+    public Iterable<IMarker> getMarkerIteratable(){
+        final IAnnotationModel annotationModel = getAnnotationModel();
+        final Iterator annotationIterator = annotationModel.getAnnotationIterator();
+
+        return new Iterable<IMarker>(){
+
+            public Iterator<IMarker> iterator() {
+                return new Iterator<IMarker>(){
+
+                    private IMarker marker;
+
+                    public boolean hasNext() {
+                        while(annotationIterator.hasNext()){
+                            if(marker != null){
+                                return true;
+                            }
+                            
+                            while(annotationIterator.hasNext()){
+                                Object object = annotationIterator.next();
+                                if(object instanceof MarkerAnnotation){
+                                    MarkerAnnotation m = (MarkerAnnotation) object;
+                                    marker = m.getMarker();
+                                    return true;
+                                }
+                            }
+                        }
+                        return false;
+                    }
+
+                    public IMarker next() {
+                        hasNext();
+                        
+                        IMarker m = marker;
+                        marker = null;
+                        return m;
+                    }
+
+                    public void remove() {
+                        throw new RuntimeException("not implemented");
+                    }
+                    
+                };
+            }
+            
+        };
+    }
+    
     /* (non-Javadoc)
     }
      * @see org.eclipse.jface.text.source.projection.ProjectionViewer#canDoOperation(int)

@@ -47,7 +47,6 @@ each command has a format:
 """
 import sys
 import threading
-import types
 import Queue as PydevQueue
 from socket import socket
 from socket import AF_INET
@@ -55,7 +54,6 @@ from socket import SOCK_STREAM
 from socket import timeout
 import urllib
 import time
-import inspect
 import pydevd_vars
 
 VERSION_STRING = "1.0"
@@ -327,8 +325,8 @@ class InternalGetVariable:
             cmd = dbg.cmdFactory.makeGetVariableMessage(self.sequence, xml)
 #            print >>sys.stderr, "sending command"
             dbg.writer.addCommand(cmd)
-        except Exception, e:
-            import sys;exc_info = sys.exc_info()
+        except Exception:
+            exc_info = sys.exc_info()
             import StringIO
             s = StringIO.StringIO()
             import traceback;traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = s)
@@ -434,7 +432,7 @@ class PyDB:
             s.connect((host, port))
             pydevd_log(1, "Connected.")
             self.initializeNetwork(s)
-        except timeout, e:
+        except timeout:
             print "server timed out after 10 seconds, could not connect to " + host + ":" + str(port)
             print "Exiting. Bye!"
             sys.exit(1)
@@ -449,7 +447,6 @@ class PyDB:
         """ returns intenal command queue for a given thread.
         if new queue is created, notify the RDB about it """
         thread_id = int(thread_id)
-        queue = None
         try:
             return self.cmdQueue[thread_id]
         except KeyError:
@@ -718,7 +715,15 @@ class PyDB:
 
         if locals is None: 
             locals = globals        
-        
+            
+        #Predefined (writable) attributes: __name__ is the module's name; 
+        #__doc__ is the module's documentation string, or None if unavailable; 
+        #__file__ is the pathname of the file from which the module was loaded, 
+        #if it was loaded from a file. The __file__ attribute is not present for 
+        #C modules that are statically linked into the interpreter; for extension modules 
+        #loaded dynamically from a shared library, it is the pathname of the shared library file. 
+
+
         #I think this is an ugly hack, bug it works (seems to) for the bug that says that sys.path should be the same in
         #debug and run.
         if __file__.startswith(sys.path[0]):
