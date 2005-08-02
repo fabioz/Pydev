@@ -1,4 +1,19 @@
 
+- Code completion has been improved for supporting wild imports and relative imports better (sometimes it had some problems).
+- There are hovers for the text and annotations (when you pass the mouse through an error it should show).
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 what I want:

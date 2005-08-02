@@ -553,16 +553,17 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                     endLine = document.getLineInformation(errorToken.endLine - 1);
                 errorStart = startLine.getOffset() + errorToken.beginColumn - 1;
                 errorEnd = endLine.getOffset() + errorToken.endColumn;
-                errorLine = errorToken.beginLine;
                 message = parseErr.getMessage();
+
             } else {
                 TokenMgrError tokenErr = (TokenMgrError) error;
                 IRegion startLine = document.getLineInformation(tokenErr.errorLine - 1);
                 errorStart = startLine.getOffset();
                 errorEnd = startLine.getOffset() + tokenErr.errorColumn;
-                errorLine = tokenErr.errorLine;
                 message = tokenErr.getMessage();
             }
+            errorLine = document.getLineOfOffset(errorStart); 
+
             // map.put(IMarker.LOCATION, "Whassup?"); this is the location field
             // in task manager
             if (message != null) { // prettyprint
@@ -570,7 +571,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                 message = message.replaceAll("\\r", " ");
                 message = message.replaceAll("\\n", " ");
             }
-            Map map = new HashMap();
+            Map<String, Object> map = new HashMap<String, Object>();
             map.put(IMarker.MESSAGE, message);
             map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
             map.put(IMarker.LINE_NUMBER, new Integer(errorLine));

@@ -27,7 +27,7 @@ public class CompiledModule extends AbstractModule{
     
     public static boolean COMPILED_MODULES_ENABLED = true; 
 
-    private HashMap cache = new HashMap();
+    private HashMap<String, IToken[]> cache = new HashMap<String, IToken[]>();
     
     /**
      * These are the tokens the compiled module has.
@@ -53,7 +53,7 @@ public class CompiledModule extends AbstractModule{
 	            PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
 	            List completions = shell.getImportCompletions(name, manager.getProjectModulesManager().getCompletePythonPath());
 	            
-	            ArrayList array = new ArrayList();
+	            ArrayList<IToken> array = new ArrayList<IToken>();
 	            
 	            for (Iterator iter = completions.iterator(); iter.hasNext();) {
 	                String[] element = (String[]) iter.next();
@@ -61,7 +61,14 @@ public class CompiledModule extends AbstractModule{
 	                array.add(t);
 	                
 	            }
-	            tokens = (CompiledToken[]) array.toArray(new CompiledToken[0]);
+                
+                //as we will use it for code completion on sources that map to modules, the __file__ should also
+                //be added...
+                if(name.equals("__builtin__")){
+                    array.add(new CompiledToken("__file__","","",name,PyCodeCompletion.TYPE_BUILTIN));
+                }
+                
+	            tokens = array.toArray(new CompiledToken[0]);
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            PydevPlugin.log(e);
@@ -101,7 +108,6 @@ public class CompiledModule extends AbstractModule{
     public String getDocString() {
         return "compiled extension";
     }
-//    public IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col, PythonNature nature) {
 
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
@@ -119,7 +125,7 @@ public class CompiledModule extends AbstractModule{
 	            PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
 	            List completions = shell.getImportCompletions(name+"."+state.activationToken, manager.getProjectModulesManager().getCompletePythonPath());
 	            
-	            ArrayList array = new ArrayList();
+	            ArrayList<IToken> array = new ArrayList<IToken>();
 	            
 	            for (Iterator iter = completions.iterator(); iter.hasNext();) {
 	                String[] element = (String[]) iter.next(); 
