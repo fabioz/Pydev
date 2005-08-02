@@ -16,8 +16,6 @@ def _imp(name):
     try:
         return __import__(name)
     except:
-        import sys;exc_info = sys.exc_info()
-        import traceback;traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = f)
         if '.' in name:
             sub = name[0:name.rfind('.')]
             return _imp(sub)

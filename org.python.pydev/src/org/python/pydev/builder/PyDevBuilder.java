@@ -197,13 +197,10 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * @param nature the nature associated to the resource
      */
     private void addToResourcesToParse(List<IResource> resourcesToParse, IResource member, PythonNature nature) {
-        //analyze it only if it is a valid source file and maps to some 
-        //module in the pythonpath
+        //analyze it only if it is a valid source file 
         String fileExtension = member.getFileExtension();
         if (fileExtension != null && PythonPathHelper.isValidSourceFile("."+fileExtension)) {
-            if(nature.getAstManager().getProjectModulesManager().isInPythonPath(member, nature.getProject())){
-                resourcesToParse.add(member);
-            }
+            resourcesToParse.add(member);
         }
     }
 

@@ -46,6 +46,21 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
     }
     
     /**
+     * @param resource the resource we want to know about
+     * @return true if it is in the pythonpath
+     */
+    protected boolean isInPythonPath(IResource resource){
+        IProject project = resource.getProject();
+        PythonNature nature = PythonNature.getPythonNature(project);
+        if(project != null && nature != null){
+            ProjectModulesManager modulesManager = nature.getAstManager().getProjectModulesManager();
+            return modulesManager.isInPythonPath(resource, project);
+        }
+
+        return false;
+    }
+    
+    /**
      * @param initResource
      * @return all the IFiles that are below the folder where initResource is located.
      */
@@ -126,15 +141,13 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 			    return true;
 			}
 			
+            //only analyze projects with the python nature...
             IProject project = resource.getProject();
             PythonNature nature = PythonNature.getPythonNature(project);
             
             if(project != null && nature != null){
-                boolean isValidSourceFile = PythonPathHelper.isValidSourceFile("."+ext);
-                ProjectModulesManager modulesManager = nature.getAstManager().getProjectModulesManager();
-
                 //we just want to make the visit if it is a valid python file and it is in the pythonpath
-                if (isValidSourceFile && modulesManager.isInPythonPath(resource, project)) {
+                if (PythonPathHelper.isValidSourceFile("."+ext)) {
                     
     			    boolean isAddOrChange = false;
     				switch (delta.getKind()) {

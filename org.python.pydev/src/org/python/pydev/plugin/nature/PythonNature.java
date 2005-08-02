@@ -320,11 +320,14 @@ public class PythonNature implements IProjectNature, IPythonNature {
     
     public static IPythonPathNature getPythonPathNature(IProject project) {
         PythonNature pythonNature = getPythonNature(project);
-        return pythonNature.pythonPathNature;
+        if(pythonNature != null){
+            return pythonNature.pythonPathNature;
+        }
+        return null;
     }
     /**
-     * @param project
-     * @return
+     * @param project the project we want to know about (if it is null, null is returned)
+     * @return the python nature for a project (or null if it does not exist for the project)
      */
     public static PythonNature getPythonNature(IProject project) {
         if(project != null){
