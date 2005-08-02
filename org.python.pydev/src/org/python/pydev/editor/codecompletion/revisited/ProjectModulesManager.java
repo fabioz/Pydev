@@ -5,14 +5,18 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -57,8 +61,28 @@ public class ProjectModulesManager extends ModulesManager{
     }
 
     /**
-     * @param full
-     * @return
+     * @param member the member we want to know if it is in the pythonpath
+     * @param container the project where the member is
+     * @return true if it is in the pythonpath and false otherwise
+     */
+    public boolean isInPythonPath(IResource member, IProject container) {
+        return resolveModule(member, container) != null;
+    }
+    
+    /**
+     * @param member this is the member file we are analyzing
+     * @param container the project where the file is contained
+     * @return the name of the module given the pythonpath
+     */
+    public String resolveModule(IResource member, IProject container) {
+        IPath location = PydevPlugin.getLocation(member.getFullPath(), container);
+        File inOs = new File(location.toOSString());
+        return resolveModule(REF.getFileAbsolutePath(inOs));
+    }
+
+    /**
+     * @param full the full file-system path of the file to resolve
+     * @return the name of the module given the pythonpath
      */
     public String resolveModule(String full) {
         ModulesManager[] managersInvolved = this.getManagersInvolved();

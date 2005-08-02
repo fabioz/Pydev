@@ -12,6 +12,7 @@ import java.util.List;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
@@ -20,7 +21,10 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.MarkerUtilities;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Fabio Zadrozny
@@ -47,12 +51,12 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
      */
     protected IResource[] getInitDependents(IResource initResource){
         
-        List toRet = new ArrayList();
+        List<IResource> toRet = new ArrayList<IResource>();
         IContainer parent = initResource.getParent();
         
         try {
             fillWithMembers(toRet, parent);
-            return (IResource[]) toRet.toArray(new IResource[0]);
+            return toRet.toArray(new IResource[0]);
         } catch (CoreException e) {
             //that's ok, it might not exist anymore
             return new IResource[0];
@@ -64,7 +68,7 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
      * @param parent
      * @throws CoreException
      */
-    private void fillWithMembers(List toRet, IContainer parent) throws CoreException {
+    private void fillWithMembers(List<IResource> toRet, IContainer parent) throws CoreException {
         IResource[] resources = parent.members();
         
         for (int i = 0; i < resources.length; i++) {
@@ -122,31 +126,41 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 			    return true;
 			}
 			
-			if (ext.equals("py") || ext.equals("pyw")) {
-			    boolean isAddOrChange = false;
-				switch (delta.getKind()) {
-					case IResourceDelta.ADDED :
-					    visitAddedResource(resource, PyDevBuilder.getDocFromResource(resource));
-					    isAddOrChange = true;
-						break;
-					case IResourceDelta.CHANGED:
-					    visitChangedResource(resource, PyDevBuilder.getDocFromResource(resource));
-					    isAddOrChange = true;
-						break;
-					case IResourceDelta.REMOVED:
-					    visitRemovedResource(resource, null);
-						break;
-				}
+            IProject project = resource.getProject();
+            PythonNature nature = PythonNature.getPythonNature(project);
+            
+            if(project != null && nature != null){
+                boolean isValidSourceFile = PythonPathHelper.isValidSourceFile("."+ext);
+                ProjectModulesManager modulesManager = nature.getAstManager().getProjectModulesManager();
 
-				//ok, standard visiting ended... now, we have to check if we should visit the other
-                //resources if it was an __init__.py file that changed
-			    if(isAddOrChange && shouldVisitInitDependency() && isInitFile(resource)){
-			        IResource[] initDependents = getInitDependents(resource);
+                //we just want to make the visit if it is a valid python file and it is in the pythonpath
+                if (isValidSourceFile && modulesManager.isInPythonPath(resource, project)) {
                     
-			        for (int i = 0; i < initDependents.length; i++) {
-			            visitChangedResource(initDependents[i], PyDevBuilder.getDocFromResource(initDependents[i]));
-                    }
-			    }
+    			    boolean isAddOrChange = false;
+    				switch (delta.getKind()) {
+    					case IResourceDelta.ADDED :
+    					    visitAddedResource(resource, PyDevBuilder.getDocFromResource(resource));
+    					    isAddOrChange = true;
+    						break;
+    					case IResourceDelta.CHANGED:
+    					    visitChangedResource(resource, PyDevBuilder.getDocFromResource(resource));
+    					    isAddOrChange = true;
+    						break;
+    					case IResourceDelta.REMOVED:
+    					    visitRemovedResource(resource, null);
+    						break;
+    				}
+    
+    				//ok, standard visiting ended... now, we have to check if we should visit the other
+                    //resources if it was an __init__.py file that changed
+    			    if(isAddOrChange && shouldVisitInitDependency() && isInitFile(resource)){
+    			        IResource[] initDependents = getInitDependents(resource);
+                        
+    			        for (int i = 0; i < initDependents.length; i++) {
+    			            visitChangedResource(initDependents[i], PyDevBuilder.getDocFromResource(initDependents[i]));
+                        }
+    			    }
+                }
 			}
 		}
 		
@@ -319,7 +333,7 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
             try {
                 
                 
-                HashMap map = new HashMap();
+                HashMap<String, Object> map = new HashMap<String, Object>();
                 map.put(IMarker.MESSAGE, message);
                 map.put(IMarker.LINE_NUMBER, new Integer(lineStart));
                 map.put(IMarker.CHAR_START, new Integer(startAbsolute));
@@ -339,7 +353,7 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
         IMarker marker = markerExists(resource, message, lineNumber, markerType);
         if (marker == null) {
             try {
-                HashMap map = new HashMap();
+                HashMap<String, Object> map = new HashMap<String, Object>();
                 map.put(IMarker.MESSAGE, message);
                 map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
                 map.put(IMarker.SEVERITY, new Integer(severity));
@@ -357,7 +371,7 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
         IMarker marker = markerExists(resource, message, lineNumber, markerType);
         if (marker == null) {
             try {
-                HashMap map = new HashMap();
+                HashMap<String, Object> map = new HashMap<String, Object>();
                 map.put(IMarker.MESSAGE, message);
                 map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
                 map.put(IMarker.SEVERITY, new Integer(severity));

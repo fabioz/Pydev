@@ -91,6 +91,11 @@ public class PythonPathHelper implements Serializable{
     }
     
 
+    /**
+     * 
+     * @param path the path we want to analyze
+     * @return if the path passed belongs to a valid python compiled extension
+     */
     public static boolean isValidDll(String path){
         if( path.endsWith(".pyd")  ||
 	        path.endsWith(".so")  ||
@@ -101,26 +106,31 @@ public class PythonPathHelper implements Serializable{
     }
     
     /**
+     * @param path
+     * @return if the path passed belongs to a valid python source file
+     */
+    public static boolean isValidSourceFile(String path) {
+        return path.endsWith(".py") || path.endsWith(".pyw");
+    }
+    
+    /**
      * 
      * @param path
      * @return if the paths maps to a valid python module (depending on its extension).
      */
     public static boolean isValidFileMod(String path){
-//           path.endsWith(".pyc")  || - we don't want pyc files, only source files and compiled extensions
-//           path.endsWith(".pyo") - we don't want pyo files, only source files and compiled extensions
 
-        if( path.endsWith(".py") || 
-            path.endsWith(".pyw")){
-             return true;
+        boolean ret = false;
+        if( isValidSourceFile(path)){
+             ret = true;
+             
+        } else if(isValidDll(path)){
+            ret = true;
         }
         
-        else if(isValidDll(path)){
-            return true;
-        }
-        
-        return false;
+        return ret;
     }
-    
+
     
     public String resolveModule(String fullPath){
         return resolveModule(fullPath, true);
