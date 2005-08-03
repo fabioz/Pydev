@@ -5,8 +5,8 @@
         <touch file="${user.home}/.cvspass" />
 		<tstamp/>
 
-		<property name = "pydev.version"        value = "0.9.7.5"/>
-		<property name = "buildId"              value = "0_9_7_5"/>
+		<property name = "pydev.version"        value = "0.9.7.6"/>
+		<property name = "buildId"              value = "0_9_7_6"/>
 		<property name = "buildLabel"           value = "${buildId}"/>
 
 		<property name = "timestamp"            value = "${DSTAMP}${TSTAMP}" />
@@ -20,9 +20,11 @@
 		<property name = "javacSource"          value = "1.5"/>
 		<property name = "javacTarget"          value = "1.4"/>
 		<property name = "javacVerbose"         value = "false"/>
+		<property name = "buildingOSGi"         value = "true"/>
 
-		<property name = "zipLocation"          value = "${basedir}/results/${buildId}/org.python.pydev.feature-${buildId}.zip"/>
-		<property name = "eclipseTmpResults"    value = "${basedir}/results/tmp" />
+		<property name = "eclipseResults"       value = "${basedir}/results" />
+		<property name = "zipLocation"          value = "${eclipseResults}/${buildId}/org.python.pydev.feature-${buildId}.zip"/>
+		<property name = "eclipseTmpResults"    value = "${eclipseResults}/tmp" />
 		<property name = "destFeats"            value = "${EC_WORKSPACE}\org.python.pydev.site" />
 
 		<property name = "fol0"  value = "/features/org.python.pydev.feature_${pydev.version}"/>
@@ -41,6 +43,8 @@
 
 
 	<target name = "main" depends="init">
+		<delete dir="${eclipseResults}"/>
+
         <echo message="Initializing build:"/>
 		<ant antfile="build.xml" dir="${pde.build.scripts}">
 			<property name = "builder" value = "${basedir}" />
