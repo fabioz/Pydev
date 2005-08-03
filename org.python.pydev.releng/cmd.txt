@@ -1,22 +1,25 @@
+
+Related bugs and references
+
 https://bugs.eclipse.org/bugs/show_bug.cgi?id=58413
 https://bugs.eclipse.org/bugs/show_bug.cgi?id=87151
-
 http://www.eclipse.org/articles/Article-PDE-Automation/automation.html
 http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/pde-build-home/articles/Automated%20Builds/article.html?rev=HEAD&content-type=text/html
+
+Bug I submitted about java1.4 target not respected
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=105899
+
 
 COMP1
 set EC_HOME=C:\bin\eclipse310
 set EC_WORKSPACE=D:\eclipse_workspace
-D:
-cd %EC_WORKSPACE%\org.python.pydev.releng 
-java -cp %EC_HOME%\startup.jar org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE%
-
-
-
 
 COMP2
 set EC_HOME=D:\dev_programs\eclipse_3\310\eclipse
 set EC_WORKSPACE=D:\dev_programs\eclipse_3\eclipse\workspace
+
+
+Actual command line:
 d:
 cd %EC_WORKSPACE%\org.python.pydev.releng 
 java -cp %EC_HOME%\startup.jar org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE%
