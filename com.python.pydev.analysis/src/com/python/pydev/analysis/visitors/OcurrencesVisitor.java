@@ -181,6 +181,8 @@ public class OcurrencesVisitor extends VisitorBase{
         //visit varargs
         if(args.vararg != null){
             Name name = new Name(args.vararg, Name.Load);
+            name.beginLine = node.beginLine;
+            name.beginColumn = -1;
             SourceToken token = AbstractVisitor.makeToken(name, moduleName);
             scope.addToken(token, token, args.vararg);
         }
@@ -188,6 +190,8 @@ public class OcurrencesVisitor extends VisitorBase{
         //visit kwargs
         if(args.kwarg != null){
             Name name = new Name(args.kwarg, Name.Load);
+            name.beginLine = node.beginLine;
+            name.beginColumn = -1;
             SourceToken token = AbstractVisitor.makeToken(name, moduleName);
             scope.addToken(token, token, args.kwarg);
         }
