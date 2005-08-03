@@ -1,3 +1,12 @@
+Things to look when doing jython integration:
+
+org.eclipse.jdt.internal.debug.ui.launcher.LocalJavaApplicationTabGroup
+org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup
+org.eclipse.jdt.launching.JavaLaunchDelegate
+org.eclipse.ant.core.AntRunner
+org.eclipse.ant.internal.ui.preferences.AntRuntimePreferencePage
+
+
 
 - Code completion has been improved for supporting wild imports and relative imports better (sometimes it had some problems).
 - There are hovers for the text and annotations (when you pass the mouse through an error it should show).

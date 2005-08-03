@@ -218,26 +218,23 @@ public class NodeUtils {
         }
         
         
-        if(lineEnd == getLineDefinition(v)){
-            if(v instanceof Str){
+        if(v instanceof Str){
+            if(lineEnd == getLineDefinition(v)){
                 String s = ((Str)v).s;
                 col = getColDefinition(v) + s.length();
+                return new int[]{lineEnd, col};
             }else{
-                col = getFromRepresentation(v);
-            }
-            
-        }else{
-            //it is another line...
-            if(v instanceof Str){
+                //it is another line...
                 String s = ((Str)v).s;
                 int i = s.lastIndexOf('\n');
                 String sub = s.substring(i, s.length());
                 
                 col = sub.length();
-            }else{
-                col = getFromRepresentation(v);
+                return new int[]{lineEnd, col};
             }
         }
+        
+        col = getFromRepresentation(v);
         return new int[]{lineEnd, col};
     }
 
@@ -256,7 +253,12 @@ public class NodeUtils {
         if((i = representationString.indexOf('.') )  != -1){
             representationString = representationString.substring(0,i);
         }
-        col = getColDefinition(v) + representationString.length();
+        int colDefinition = getColDefinition(v);
+        if(colDefinition == -1){
+            return -1;
+        }
+        
+        col = colDefinition + representationString.length();
         return col;
     }
     
