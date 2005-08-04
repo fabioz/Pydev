@@ -36,8 +36,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.IInterpreterManager;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.JobProgressComunicator;
 
 import sun.misc.BASE64Decoder;
@@ -218,10 +216,7 @@ public class PythonNature implements IProjectNature, IPythonNature {
 
                     astManager = (ICodeCompletionASTManager) IOUtils.readFromFile(getAstOutputFile());
                     //errors can happen when restoring it
-                    if(astManager != null){
-	                    restoreSystemManager();
-	                    
-                    }else{
+                    if(astManager == null){
                         try {
                             String pythonPathStr = pythonPathNature.getOnlyProjectPythonPathStr();
                             rebuildPath(pythonPathStr);
@@ -229,7 +224,8 @@ public class PythonNature implements IProjectNature, IPythonNature {
                             
                             PydevPlugin.log(e);
                         }
-                        
+                    }else{
+                        astManager.setProject(getProject()); // this is the project related to it
                     }
                     return Status.OK_STATUS;
                 }
@@ -276,31 +272,15 @@ public class PythonNature implements IProjectNature, IPythonNature {
                 if(astManager == null){
                     astManager = new ASTManager();
                 }
-
+                astManager.setProject(getProject());
                 astManager.changePythonPath(paths, project, new JobProgressComunicator(monitor, "Rebuilding modules", 500, this));
                 saveAstManager(false);
-                restoreSystemManager();
 
                 return Status.OK_STATUS;
             }
         };
         myJob.schedule();
         
-    }
-
-    /**
-     * This must be called so that the system manager is restored.
-     */
-    private void restoreSystemManager() {
-        try {
-            if (astManager != null) {
-                IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
-                InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
-                astManager.setSystemModuleManager(info.modulesManager, getProject());
-            }
-        } catch (Exception e) {
-            PydevPlugin.log(e);
-        }
     }
     
     /**

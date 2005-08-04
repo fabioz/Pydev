@@ -29,9 +29,14 @@ public interface ICodeCompletionASTManager {
      */
     public abstract void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor);
     
+    /**
+     * Set the project this ast manager works with.
+     * 
+     * @param project the project related to this ast manager
+     */
+    public abstract void setProject(IProject project);
     
-    public abstract void setSystemModuleManager(SystemModulesManager systemManager, IProject project);
-
+    
     /**
      * This method provides a way to rebuild a module (new delta).
      * 

@@ -6,6 +6,8 @@ org.eclipse.jdt.launching.JavaLaunchDelegate
 org.eclipse.ant.core.AntRunner
 org.eclipse.ant.internal.ui.preferences.AntRuntimePreferencePage
 
+how the jython.bat works: java.exe "-Dpython.home=C:\bin\jython21" -classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
+(maybe we can use the java framework and just use it to pass these arguments in the run.
 
 
 - Code completion has been improved for supporting wild imports and relative imports better (sometimes it had some problems).

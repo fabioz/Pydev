@@ -40,13 +40,23 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class ASTManager implements ICodeCompletionASTManager, Serializable{
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
+    
+    /**
+     * This is the guy that will handle project things for us
+     */
     public ProjectModulesManager projectModulesManager = new ProjectModulesManager();
     public ProjectModulesManager getProjectModulesManager(){
         return projectModulesManager;
+    }
+    
+    /**
+     * Set the project this ast manager works with.
+     * 
+     * @param project the project related to this ast manager
+     */
+    public void setProject(IProject project){
+        projectModulesManager.setProject(project);
     }
 
     //----------------------- AUXILIARIES
@@ -54,9 +64,6 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 
     public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
         projectModulesManager.changePythonPath(pythonpath, project, monitor);
-    }
-    public void setSystemModuleManager(SystemModulesManager systemManager, IProject project){
-        projectModulesManager.setSystemModuleManager(systemManager,project);
     }
     public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature) {
         projectModulesManager.rebuildModule(f, doc, project, monitor, nature);

@@ -5,9 +5,13 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.plugin.BundleInfo;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.ui.BundleInfoStub;
 
 /**
  * Tests here have no dependency on the pythonpath.
@@ -38,6 +42,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     protected void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
+
+        PydevPlugin.setInterpreterManager(new InterpreterManagerStub(preferences));
         nature = new PythonNature();
         nature.setAstManager(new ASTManager());
     }
@@ -48,6 +54,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     protected void tearDown() throws Exception {
         super.tearDown();
         CompiledModule.COMPILED_MODULES_ENABLED = true;
+        BundleInfo.setBundleInfo(null);
     }
 
     public void testCompletion(){

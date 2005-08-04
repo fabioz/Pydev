@@ -16,10 +16,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.ui.IInterpreterManager;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * @author Fabio Zadrozny
@@ -28,11 +31,21 @@ public class ProjectModulesManager extends ModulesManager{
 
      private static final long serialVersionUID = 1L;
     //these attributes must be set whenever this class is restored.
-    private transient ModulesManager systemModulesManager;
     private transient IProject project;
     
-    public IProject getProject(){
-        return project;
+    /**
+     * Set the project this modules manager works with.
+     * 
+     * @param project the project related to this manager
+     */
+    public void setProject(IProject project){
+        this.project = project;
+    }
+    
+    public SystemModulesManager getSystemModulesManager(){
+        IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
+        InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
+        return info.modulesManager;
     }
     
     /**
@@ -100,14 +113,6 @@ public class ProjectModulesManager extends ModulesManager{
     }
 
     /**
-     * @param managersInvolved2
-     */
-    public void setSystemModuleManager(SystemModulesManager systemManager, IProject project) {
-        this.systemModulesManager = systemManager;
-        this.project = project;
-    }
-
-    /**
      * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#getSize()
      */
     public int getSize() {
@@ -126,6 +131,7 @@ public class ProjectModulesManager extends ModulesManager{
      */
     public String[] getBuiltins() {
         String[] builtins = null;
+        SystemModulesManager systemModulesManager = getSystemModulesManager();
         if(systemModulesManager != null){
             builtins = systemModulesManager.getBuiltins();
         }
@@ -137,6 +143,7 @@ public class ProjectModulesManager extends ModulesManager{
      * @return Returns the managersInvolved (does not include itself).
      */
     protected ModulesManager[] getManagersInvolved() {
+        SystemModulesManager systemModulesManager = getSystemModulesManager();
         try {
             ArrayList list = new ArrayList();
             if(systemModulesManager != null){

@@ -34,34 +34,59 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
 	 * Initializer sets the preference store
 	 */
 	public InterpreterPreferencesPage() {
-		super("Python Interpreters", GRID);
+		super(GRID);
 		setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         changed = false;
 	}
+    
+    @Override
+    public String getTitle() {
+        return "Python Interpreters";
+    }
 
-	
+    /**
+     * @return the title that should be used above the interpreters editor.
+     */
+    protected String getInterpretersTitle() {
+        return "Python interpreters (e.g.: python.exe)";
+    }
+    
+    /**
+     * @param p this is the composite that should be the interpreter parent
+     * @return an interpreter editor (used to add/edit/remove the information on an editor)
+     */
+    protected InterpreterEditor getInterpreterEditor(Composite p) {
+        return new InterpreterEditor (getInterpretersTitle(), p, PydevPlugin.getInterpreterManager());
+    }
+
+    /**
+     * @return whether this page has changed
+	 */
 	private boolean hasChanged(){
 	    return changed || pathEditor.hasChanged();
 	}
 	
-
-
-
     public void init(IWorkbench workbench) {
 	}
 	
 	/**
-	 * Creates the editors
+	 * Creates the editors - also provides a hook for getting a different interpreter editor
 	 */
 	protected void createFieldEditors() {
 		Composite p = getFieldEditorParent();
-		pathEditor = new InterpreterEditor ("Python interpreters (e.g.: python.exe)", p, PydevPlugin.getInterpreterManager());
+		pathEditor = getInterpreterEditor(p);
 		addField(pathEditor);
 	}
 
+
 	
     /**
-     * Restores the modules.
+     * Restores the modules. Is called when the user changed something in the editor and applies the change.
+     * 
+     * Gathers all the info and calls the hook that really restores things within a thread, so that the user can 
+     * get information on the progress.
+     * 
+     * Only the information on the default interpreter is stored.
      */
     private void restoreModules() {
 
@@ -69,6 +94,7 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
             return;
 
         } else{
+            //this is the default interpreter
             final String item = pathEditor.getExesList().getItem(0);
         
 	        ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
@@ -78,27 +104,7 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
 	            IRunnableWithProgress operation = new IRunnableWithProgress(){
 	
 	                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-	                    monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
-	                    IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
-	                    final InterpreterInfo info = iMan.getInterpreterInfo(item, monitor);
-	                    info.restorePythonpath(monitor);
-	                    
-	                    //pass all project natures and restore the module manager
-	                    IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-	                    IProject[] projects = root.getProjects();
-	                    for (int i = 0; i < projects.length; i++) {
-                            IProject p = projects[i];
-                            if(p.isOpen()){
-                                PythonNature nature = PythonNature.getPythonNature(p);
-                                if(nature != null){
-                                    ICodeCompletionASTManager astManager = nature.getAstManager();
-                                    if(astManager != null){
-                                        astManager.setSystemModuleManager(info.modulesManager, p);
-                                    }
-                                }
-                            }
-                        }
-	                    monitor.done();
+	                    doRestore(item, monitor);
 	                }};
 	                
 	            monitorDialog.run(true, true, operation);
@@ -107,10 +113,27 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
 	            PydevPlugin.log(e);
 	        }            
         }
+    }
+
+    
+    /**
+     * @param defaultSelected this is the path to the default selected file (interpreter)
+     * @param monitor a monitor to display the progress to the user.
+     */
+    protected void doRestore(final String defaultSelected, IProgressMonitor monitor) {
+        monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
+        IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
+        final InterpreterInfo info = iMan.getInterpreterInfo(defaultSelected, monitor);
+        info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
         
+        monitor.done();
     }
 
 
+    /**
+     * Applies changes (if any) 
+     * @see org.eclipse.jface.preference.PreferencePage#performApply()
+     */
     protected void performApply() {
         restoreModules();
         changed = false;
@@ -118,17 +141,29 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
         super.performApply();
     }
     
+    /**
+     * Restores the default values 
+     *  
+     * @see org.eclipse.jface.preference.PreferencePage#performDefaults()
+     */
     protected void performDefaults() {
         changed = true;
         super.performDefaults();
     }
     
+    /**
+     * Cancels any change
+     *  
+     * @see org.eclipse.jface.preference.IPreferencePage#performCancel()
+     */
     public boolean performCancel() {
         changed = false;
         return super.performCancel();
     }
     
     /**
+     * Applies changes (if any)
+     * 
      * @see org.eclipse.jface.preference.IPreferencePage#performOk()
      */
     public boolean performOk() {
@@ -137,5 +172,6 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
         }
         return super.performOk();
     }
+
 
 }

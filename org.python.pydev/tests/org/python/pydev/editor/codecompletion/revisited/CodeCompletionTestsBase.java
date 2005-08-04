@@ -63,7 +63,6 @@ public class CodeCompletionTestsBase extends TestCase {
             InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
     	    ASTManager astManager = ((ASTManager)nature.getAstManager());
             astManager.changePythonPath(path, null, new NullProgressMonitor());
-            astManager.setSystemModuleManager(info.modulesManager, null);
         }
     }
     

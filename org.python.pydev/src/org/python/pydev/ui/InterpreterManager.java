@@ -43,8 +43,26 @@ public class InterpreterManager implements IInterpreterManager {
      */
     public InterpreterManager(Preferences prefs) {
         this.prefs = prefs;
-//        prefs.setDefault(INTERPRETER_PATH, getStringToPersist(new String[]{"python"}));
         prefs.setDefault(INTERPRETER_PATH, "");
+
+// attempt to get the default... 
+//        String[] strings = prefs.defaultPropertyNames();
+//        boolean alreadySet = false;
+//        for (String prop : strings) {
+//            if(prop.equals(INTERPRETER_PATH)){ //do not set the default again
+//                System.out.println("already set");
+//                alreadySet = true;
+//            }
+//        }
+//        if(!alreadySet){
+//            try {
+//                InterpreterInfo interpreterInfo = getInterpreterInfo("python", new NullProgressMonitor());
+//                prefs.setDefault(INTERPRETER_PATH, getStringToPersist(new String[] { interpreterInfo.executable }));
+//            } catch (Throwable e) {
+//                e.printStackTrace();
+//                prefs.setDefault(INTERPRETER_PATH, "");
+//            }
+//        }
     }
     
     /**

@@ -36,7 +36,7 @@ public class PythonShell {
     /**
      * Reference to 'global python shells'
      */
-    private static Map shells = new HashMap();
+    private static Map<Integer,PythonShell> shells = new HashMap<Integer,PythonShell>();
     
     public static final int COMPLETION_SHELL = 1; 
     public static final int OTHERS_SHELL = 2; 
@@ -46,7 +46,11 @@ public class PythonShell {
         for (Iterator iter = shells.values().iterator(); iter.hasNext();) {
             PythonShell element = (PythonShell) iter.next();
             if(element != null){
-                element.endIt();
+                try {
+                    element.endIt();
+                } catch (Exception e) {
+                    // ignore... we are ending it anyway...
+                }
             }
         }
         shells.clear();
@@ -508,7 +512,7 @@ public class PythonShell {
      * @return
      */
     private List getInvalidCompletion() {
-        List l = new ArrayList();
+        List<String[]> l = new ArrayList<String[]>();
         l.add(new String[]{"SERVER_ERROR","please try again."});
         return l;
     }
@@ -518,7 +522,7 @@ public class PythonShell {
      * @throws IOException
      */
     private List getCompletions() throws IOException {
-        ArrayList list = new ArrayList();
+        ArrayList<String[]> list = new ArrayList<String[]>();
         String string = this.read().replaceAll("\\(","").replaceAll("\\)","");
         StringTokenizer tokenizer = new StringTokenizer(string, ",");
         

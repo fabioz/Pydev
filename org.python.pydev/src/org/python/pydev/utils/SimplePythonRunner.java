@@ -6,10 +6,8 @@
  */
 package org.python.pydev.utils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,11 +37,15 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
  * It is not as complete as the PythonRunner from the debug, as it doesn't register the process in the console, but it can be quite useful
  * for other runs.
  * 
+ * 
+ * Interesting reading for http://www.javaworld.com/javaworld/jw-12-2000/jw-1229-traps.html  -  
+ * Navigate yourself around pitfalls related to the Runtime.exec() method
+ * 
+ * 
  * @author Fabio Zadrozny
  */
 public class SimplePythonRunner {
 
-    private static int BUFSIZE = 128;
 
     /**
      * Just execute the string. do nothing else...
@@ -102,7 +104,12 @@ public class SimplePythonRunner {
             }
         }
 
-        String executionString = interpreter + " -u " + script + " " + args;
+        String executionString;
+        if(args != null){
+            executionString = interpreter + " -u " + script + " " + args;
+        }else{
+            executionString = interpreter + " -u " + script;
+        }
         monitor.worked(1);
         //System.out.println(executionString);
         return runAndGetOutput(executionString, workingDir, project, monitor);
@@ -139,30 +146,21 @@ public class SimplePythonRunner {
             throw new RuntimeException(e);
         }
 
-        StringBuffer contents = new StringBuffer();
         if (process != null) {
 
             try {
-                process.getOutputStream().close();
+                process.getOutputStream().close(); //we won't write to it...
             } catch (IOException e2) {
             }
 
             monitor.setTaskName("Reading output...");
             monitor.worked(5);
-            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()), BUFSIZE);
+            ThreadStreamReader std = new ThreadStreamReader(process.getInputStream());
+            ThreadStreamReader err = new ThreadStreamReader(process.getErrorStream());
 
-
+            std.start();
+            err.start();
             
-            try {
-                int c;
-                while ((c = in.read()) != -1) {
-                    contents.append((char) c);
-		            monitor.worked(1);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
             
             try {
                 monitor.setTaskName("Waiting for process to finish.");
@@ -172,7 +170,7 @@ public class SimplePythonRunner {
                 throw new RuntimeException(e1);
             }
 
-            
+            return std.contents.toString();
             
         } else {
             try {
@@ -183,7 +181,7 @@ public class SimplePythonRunner {
             }
 
         }
-        return contents.toString();
+        return ""; //no output
     }
 
 
@@ -198,6 +196,10 @@ public class SimplePythonRunner {
      * @throws CoreException
      */
 	public static String[] getEnvironment(IProject project) throws CoreException {
+        if(project == null){ //no associated project... just get the default env
+            return getDefaultSystemEnvAsArray();
+        }
+        
 	    String pythonPathEnvStr = "";
 		try {
 	        if (PydevPlugin.getInterpreterManager().hasInfoOnDefaultInterpreter()){ //check if we have a default interpreter.
@@ -209,27 +211,7 @@ public class SimplePythonRunner {
 
 		DebugPlugin defaultPlugin = DebugPlugin.getDefault();
 		if(defaultPlugin != null){
-	        ILaunchManager launchManager = defaultPlugin.getLaunchManager();
-	
-		    // build base environment
-			Map env = new HashMap();
-			env.putAll(launchManager.getNativeEnvironment());
-			
-			// Add variables from config
-			boolean win32= Platform.getOS().equals(Constants.OS_WIN32);
-			for(Iterator iter= env.entrySet().iterator(); iter.hasNext(); ) {
-				Map.Entry entry= (Map.Entry) iter.next();
-				String key= (String) entry.getKey();
-				if (win32) {
-					// Win32 vars are case insensitive. Uppercase everything so
-					// that (for example) "pAtH" will correctly replace "PATH"
-					key= key.toUpperCase();
-				}
-				String value = (String) entry.getValue();
-				// translate any string substitution variables
-				String translated = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(value);
-				env.put(key, translated);
-			}		
+	        Map<String,String> env = getDefaultSystemEnv(defaultPlugin);		
 	
 			env.put("PYTHONPATH", pythonPathEnvStr); //put the environment
 			return getMapEnvAsArray(env);
@@ -237,6 +219,53 @@ public class SimplePythonRunner {
 		    return null;
 		}
 	}
+
+    
+	public static String[] getDefaultSystemEnvAsArray() throws CoreException {
+        Map defaultSystemEnv = getDefaultSystemEnv();
+        if(defaultSystemEnv != null){
+            return getMapEnvAsArray(defaultSystemEnv);
+        }
+        return null;
+    }
+    
+	public static Map getDefaultSystemEnv() throws CoreException {
+	    DebugPlugin defaultPlugin = DebugPlugin.getDefault();
+	    return getDefaultSystemEnv(defaultPlugin);
+    }
+
+    /**
+     * @param defaultPlugin
+     * @return
+     * @throws CoreException
+     */
+    public static Map<String,String> getDefaultSystemEnv(DebugPlugin defaultPlugin) throws CoreException {
+        if(defaultPlugin != null){
+            ILaunchManager launchManager = defaultPlugin.getLaunchManager();
+    
+            // build base environment
+            Map<String,String> env = new HashMap<String,String>();
+            env.putAll(launchManager.getNativeEnvironment());
+            
+            // Add variables from config
+            boolean win32= Platform.getOS().equals(Constants.OS_WIN32);
+            for(Iterator iter= env.entrySet().iterator(); iter.hasNext(); ) {
+            	Map.Entry entry= (Map.Entry) iter.next();
+            	String key= (String) entry.getKey();
+            	if (win32) {
+            		// Win32 vars are case insensitive. Uppercase everything so
+            		// that (for example) "pAtH" will correctly replace "PATH"
+            		key= key.toUpperCase();
+            	}
+            	String value = (String) entry.getValue();
+            	// translate any string substitution variables
+            	String translated = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(value);
+            	env.put(key, translated);
+            }
+            return env;
+        }
+        return null;
+    }
 
 
     /**
@@ -277,7 +306,7 @@ public class SimplePythonRunner {
      * @return
      */
     private static String[] getMapEnvAsArray(Map env) {
-        List strings= new ArrayList(env.size());
+        List<String> strings= new ArrayList<String>(env.size());
 		for(Iterator iter= env.entrySet().iterator(); iter.hasNext(); ) {
 			Map.Entry entry = (Map.Entry) iter.next();
 			StringBuffer buffer= new StringBuffer((String) entry.getKey());
@@ -285,7 +314,7 @@ public class SimplePythonRunner {
 			strings.add(buffer.toString());
 		}
 		
-		return (String[]) strings.toArray(new String[strings.size()]);
+		return strings.toArray(new String[strings.size()]);
     }
 
     
