@@ -55,17 +55,25 @@ public class ProjectModulesManager extends ModulesManager{
         Set s = new HashSet();
         s.addAll(getModules().keySet());
 
-        ModulesManager[] managersInvolved = this.getManagersInvolved();
+        ModulesManager[] managersInvolved = this.getManagersInvolved(true);
         for (int i = 0; i < managersInvolved.length; i++) {
             s.addAll(managersInvolved[i].getModules().keySet());
         }
         return s;
     }
     
-    public AbstractModule getModule(String name, PythonNature nature) {
-        ModulesManager[] managersInvolved = this.getManagersInvolved();
-        for (int i = 0; i < managersInvolved.length; i++) {
-            AbstractModule module = managersInvolved[i].getModule(name, nature);
+    public AbstractModule getModule(String name, PythonNature nature, boolean checkSystemManager) {
+        ModulesManager[] managersInvolved = this.getManagersInvolved(true); //only get the system manager here (to avoid recursion)
+
+        for (ModulesManager m : managersInvolved) {
+            AbstractModule module;
+            if (m instanceof ProjectModulesManager) {
+                ProjectModulesManager pM = (ProjectModulesManager) m;
+                module = pM.getModule(name, nature, false);
+
+            }else{
+                module = m.getModule(name, nature); //we already have the system manager here...
+            }
             if(module != null){
                 return module;
             }
@@ -94,13 +102,31 @@ public class ProjectModulesManager extends ModulesManager{
     }
 
     /**
+     * resolve module for all, including the system manager.
+     * 
+     * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#resolveModule(java.lang.String)
+     */
+    public String resolveModule(String full) {
+        return resolveModule(full, true);
+    }
+    
+    /**
      * @param full the full file-system path of the file to resolve
      * @return the name of the module given the pythonpath
      */
-    public String resolveModule(String full) {
-        ModulesManager[] managersInvolved = this.getManagersInvolved();
-        for (int i = 0; i < managersInvolved.length; i++) {
-            String mod = managersInvolved[i].resolveModule(full);
+    public String resolveModule(String full, boolean checkSystemManager) {
+        ModulesManager[] managersInvolved = this.getManagersInvolved(checkSystemManager);
+        for (ModulesManager m : managersInvolved) {
+            
+            String mod;
+            if (m instanceof ProjectModulesManager) {
+                ProjectModulesManager pM = (ProjectModulesManager) m;
+                mod = pM.resolveModule(full, false);
+            
+            }else{
+                mod = m.resolveModule(full);
+            }
+
             if(mod != null){
                 return mod;
             }
@@ -117,7 +143,7 @@ public class ProjectModulesManager extends ModulesManager{
      */
     public int getSize() {
         int size = getModules().size();
-        ModulesManager[] managersInvolved = this.getManagersInvolved();
+        ModulesManager[] managersInvolved = this.getManagersInvolved(true);
         for (int i = 0; i < managersInvolved.length; i++) {
             size += managersInvolved[i].getModules().size();
         }
@@ -140,15 +166,17 @@ public class ProjectModulesManager extends ModulesManager{
 
 
     /**
+     * @param checkSystemManager 
      * @return Returns the managersInvolved (does not include itself).
      */
-    protected ModulesManager[] getManagersInvolved() {
+    protected ModulesManager[] getManagersInvolved(boolean checkSystemManager) {
+        ArrayList<ModulesManager> list = new ArrayList<ModulesManager>();
         SystemModulesManager systemModulesManager = getSystemModulesManager();
+        if(checkSystemManager && systemModulesManager != null){
+            list.add(systemModulesManager);
+        }
+
         try {
-            ArrayList list = new ArrayList();
-            if(systemModulesManager != null){
-                list.add(systemModulesManager);
-            }
             if(project != null){
 	            IProject[] referencedProjects = project.getReferencedProjects();
 	            for (int i = 0; i < referencedProjects.length; i++) {
@@ -167,7 +195,7 @@ public class ProjectModulesManager extends ModulesManager{
             return (ModulesManager[]) list.toArray(new ModulesManager[list.size()]);
         } catch (CoreException e) {
             PydevPlugin.log(e);
-            if(systemModulesManager != null){
+            if(checkSystemManager && systemModulesManager != null){
                 return new ModulesManager[]{systemModulesManager};
             }else{
                 return new ModulesManager[]{};
@@ -177,7 +205,7 @@ public class ProjectModulesManager extends ModulesManager{
 
     public List getCompletePythonPath(){
         ArrayList l = new ArrayList();
-        ModulesManager[] managersInvolved = getManagersInvolved();
+        ModulesManager[] managersInvolved = getManagersInvolved(true);
         for (int i = 0; i < managersInvolved.length; i++) {
             l.addAll(managersInvolved[i].pythonPathHelper.pythonpath);
         }

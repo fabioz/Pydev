@@ -575,12 +575,20 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                     //e.printStackTrace();//that's ok...
                 }
                 
-                if(o == null || mod == null || tok == null || current == mod || tok.equals(rep)){  
+                //check 1... rep of module
+                if(o == null || mod == null || tok == null || current == mod || tok.equals(rep) || tok.equals(fullRep)){  
 	                o = findModuleFromPath(rep, nature);
 	                mod = (AbstractModule) o[0];
 	                tok = (String) o[1];
                 }
                 
+                //check 2... modRep (simple)
+                if(o == null || mod == null || tok == null || current == mod){
+                    o = findModuleFromPath(modRep, nature);
+                    mod = (AbstractModule) o[0];
+                    tok = (String) o[1];
+                }
+                 
                 if(tok.length() == 0){
                     //the activation token corresponds to an imported module. We have to get its global tokens and return them.
                     return new Object[]{ mod, ""};
