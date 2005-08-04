@@ -78,7 +78,11 @@ public abstract class AbstractMessage implements IMessage{
             }
         }else{
             colDefinition = generator.getColDefinition();
-            colDefinition = fixCol(colDefinition);
+            if(colDefinition > 0){
+                colDefinition = fixCol(colDefinition);
+            }else{
+                colDefinition = 1;
+            }
         }
         return colDefinition;
     }
@@ -106,7 +110,13 @@ public abstract class AbstractMessage implements IMessage{
     
     public int getEndCol(IDocument doc) {
         if(generator instanceof SourceToken){
-            return fixCol(((SourceToken)generator).getColEnd());
+            int colEnd = ((SourceToken)generator).getColEnd();
+            
+            if(colEnd == -1){
+                return -1;
+            }
+            
+            return fixCol(colEnd);
         }
         return -1;
     }

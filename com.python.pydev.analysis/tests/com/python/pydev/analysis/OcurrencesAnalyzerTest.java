@@ -574,8 +574,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         assertEquals(1, msgs.length);
         assertContainsMsg("Unused variable: args", msgs, 2);
-        assertEquals(2, msgs[0].getStartCol(doc));
-        assertEquals(17, msgs[0].getEndCol(doc));
+        assertEquals(1, msgs[0].getStartCol(doc));
+        assertEquals(-1, msgs[0].getEndCol(doc));
     }
     
     public void testKwArgs() {
