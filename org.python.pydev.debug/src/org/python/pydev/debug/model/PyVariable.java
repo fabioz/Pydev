@@ -79,7 +79,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 	 * When implemented, recently changed variables are shown in red.
 	 */
 	public boolean supportsValueModification() {
-		return true;
+		return false;
 	}
 
 	public boolean hasValueChanged() throws DebugException {
