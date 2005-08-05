@@ -445,7 +445,8 @@ public class OcurrencesVisitor extends VisitorBase{
             List<Found> foundItems = find(m, rep);
             boolean setUsed = false;
             for (Found found : foundItems) {
-                if(found.getSingle().scopeId != n.getSingle().scopeId){
+                //the scope where it is defined must be an outer scope so that we can say it was defined later...
+                if(found.getSingle().scopeId < n.getSingle().scopeId){
                     found.setUsed(true);
                     setUsed = true;
                 }

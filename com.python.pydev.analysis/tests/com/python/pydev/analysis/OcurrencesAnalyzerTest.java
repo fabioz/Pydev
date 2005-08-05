@@ -540,6 +540,22 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(0, msgs.length);
     }
     
+    public void testScopes6() {
+        doc = new Document(
+            "def ok():          \n"+
+            "    print col      \n"+
+            "def rowNotEmpty(): \n"+
+            "    col = 1        \n"+
+            ""   
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 2);
+        assertContainsMsg("Undefined variable: col", msgs, 2);
+        assertContainsMsg("Unused variable: col", msgs, 4);
+    }
+    
     public void testSameName() {
         //2 messages with token with same name
         doc = new Document(
