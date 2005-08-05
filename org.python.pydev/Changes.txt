@@ -6,6 +6,9 @@ org.eclipse.jdt.launching.JavaLaunchDelegate
 org.eclipse.ant.core.AntRunner
 org.eclipse.ant.internal.ui.preferences.AntRuntimePreferencePage
 
+jython module management (may be handy)
+org.python.core.SysPackageManager
+
 how the jython.bat works: java.exe "-Dpython.home=C:\bin\jython21" -classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
 (maybe we can use the java framework and just use it to pass these arguments in the run.
 
@@ -14,6 +17,7 @@ how the jython.bat works: java.exe "-Dpython.home=C:\bin\jython21" -classpath "C
 - There are hovers for the text and annotations (when you pass the mouse through an error it should show).
 - Block comment (Ctrl+4) now uses the size defined for the print margin.
 - New block-comment style added (Ctrl+Shift+4).
+- The debugger had many fixes (altough it is still not perfect). Thanks to Aleks Totic and Scott Schlesier for the patches!
 
 
 

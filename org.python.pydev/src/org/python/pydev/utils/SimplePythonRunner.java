@@ -248,7 +248,7 @@ public class SimplePythonRunner {
             env.putAll(launchManager.getNativeEnvironment());
             
             // Add variables from config
-            boolean win32= Platform.getOS().equals(Constants.OS_WIN32);
+            boolean win32= isWindowsPlatform();
             for(Iterator iter= env.entrySet().iterator(); iter.hasNext(); ) {
             	Map.Entry entry= (Map.Entry) iter.next();
             	String key= (String) entry.getKey();
@@ -269,6 +269,14 @@ public class SimplePythonRunner {
 
 
     /**
+     * @return whether we are in windows or not
+     */
+    public static boolean isWindowsPlatform() {
+        return Platform.getOS().equals(Constants.OS_WIN32);
+    }
+
+
+    /**
      * @param project
      * @return
      */
@@ -284,7 +292,7 @@ public class SimplePythonRunner {
             paths = new ArrayList(info.libs);
         }
 
-        boolean win32= Platform.getOS().equals(Constants.OS_WIN32);
+        boolean win32= isWindowsPlatform();
         String separator = ";";
         if(!win32){
             separator = ":"; //system dependent

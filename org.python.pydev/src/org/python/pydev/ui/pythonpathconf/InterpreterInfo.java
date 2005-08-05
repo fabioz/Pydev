@@ -28,10 +28,40 @@ public class InterpreterInfo implements Serializable{
      * check note on http://java.sun.com/j2se/1.5.0/docs/guide/serialization/spec/version.html#6678
      */
     private static final long serialVersionUID = 1L;
-    public String executable;
-    public java.util.List libs = new ArrayList(); //folders
-    public java.util.List dllLibs = new ArrayList(); //.pyd, .dll, etc.
-    public Set forcedLibs = new HashSet(); //__builtin__, os, math
+    
+    /**
+     * path to the python executable 
+     * 
+     * or to the jython jar
+     */
+    public String executable; 
+    
+    /**
+     * folders - they should be passed to the pythonpath
+     */
+    public java.util.List libs = new ArrayList(); 
+    
+    /**
+     * Those libraries are not really used in python (they are found in the system pythonpath), and 
+     * don't need to be passed in the pythonpath (they are only here so that the user can see
+     * this information)
+     *  
+     * files: .pyd, .dll, etc.
+     * 
+     * for jython, this should not be used (there are actually no compiled extensions in jython... 
+     * jars are treated as a folder would be -- with some minor differences)
+     */
+    public java.util.List dllLibs = new ArrayList(); 
+    
+    /**
+     * __builtin__, os, math, etc for python 
+     * 
+     * check sys.builtin_module_names and others that should
+     * be forced to use code completion as builtins, such os, math, etc.
+     * 
+     * for jython, this should 
+     */
+    public Set forcedLibs = new HashSet(); 
     
     /**
      * module management for the system is always binded to an interpreter (binded in this class)

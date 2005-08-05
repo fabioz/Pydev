@@ -64,7 +64,7 @@ public interface IInterpreterManager {
     public String getStringToPersist(String[] executables);
 
     /**
-     * 
+     * @return whether we have information on the default interpreter.
      */
     public boolean hasInfoOnDefaultInterpreter();
     

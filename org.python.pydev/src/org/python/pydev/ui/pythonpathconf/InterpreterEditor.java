@@ -37,6 +37,7 @@ import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.IInterpreterManager;
 import org.python.pydev.ui.UIConstants;
+import org.python.pydev.utils.SimplePythonRunner;
 
 /**
  * Field editor for a list of python interpreter with executable verifier.
@@ -412,20 +413,13 @@ public class InterpreterEditor extends PythonListEditor {
     }
 
 
-    /**
-     * true if executable is jython. A hack,
-     */
-    static public boolean isJython(String executable) {
-        return executable.toLowerCase().indexOf("jython") != -1;
-    }
-
-
     /** Overriden
      */
     protected String getNewInputObject() {
         FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
 
-        if (System.getProperty("os.name").startsWith("Win")) {
+        
+        if (SimplePythonRunner.isWindowsPlatform()) {
             dialog.setFilterExtensions(new String[] { "*.exe", "*.*" });
         } else {
             // right file dialog executable filters for unix/mac?

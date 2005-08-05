@@ -60,6 +60,19 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
     }
 
     /**
+     * @param defaultSelectedInterpreter this is the path to the default selected file (interpreter)
+     * @param monitor a monitor to display the progress to the user.
+     */
+    protected void doRestore(final String defaultSelectedInterpreter, IProgressMonitor monitor) {
+        monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
+        IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
+        final InterpreterInfo info = iMan.getInterpreterInfo(defaultSelectedInterpreter, monitor);
+        info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
+        
+        monitor.done();
+    }
+
+    /**
      * @return whether this page has changed
 	 */
 	private boolean hasChanged(){
@@ -96,11 +109,10 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
         } else{
             //this is the default interpreter
             final String item = pathEditor.getExesList().getItem(0);
-        
 	        ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
-	
 	        monitorDialog.setBlockOnOpen(false);
-	        try {
+
+            try {
 	            IRunnableWithProgress operation = new IRunnableWithProgress(){
 	
 	                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
@@ -116,20 +128,6 @@ public class InterpreterPreferencesPage extends FieldEditorPreferencePage implem
     }
 
     
-    /**
-     * @param defaultSelected this is the path to the default selected file (interpreter)
-     * @param monitor a monitor to display the progress to the user.
-     */
-    protected void doRestore(final String defaultSelected, IProgressMonitor monitor) {
-        monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
-        IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
-        final InterpreterInfo info = iMan.getInterpreterInfo(defaultSelected, monitor);
-        info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
-        
-        monitor.done();
-    }
-
-
     /**
      * Applies changes (if any) 
      * @see org.eclipse.jface.preference.PreferencePage#performApply()
