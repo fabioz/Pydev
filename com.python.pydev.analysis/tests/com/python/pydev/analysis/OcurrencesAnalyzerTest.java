@@ -752,25 +752,51 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertContainsMsg("Unused import: bla", msgs);
     }
     
+    private void assertNotContainsMsg(String msg, IMessage[] msgs2) {
+        if(containsMsg(msg, msgs2)){
+            fail("The message "+msg+" was found within the messages (it should not have been found).");
+        }
+    }
     private void assertContainsMsg(String msg, IMessage[] msgs2) {
         assertContainsMsg(msg, msgs2, -1);
     }
 
     private void assertContainsMsg(String msg, IMessage[] msgs2, int line) {
-        for (IMessage message : msgs2) {
-            if(message.getMessage().equals(msg)){
-                if(line != -1){
-                    assertEquals(line, message.getStartLine(doc));
-                }
-                return;
-            }
+        boolean found = containsMsg(msg, msgs2, line);
+        
+        if(found){
+            return;
         }
+        
         StringBuffer msgsAvailable = new StringBuffer();
         for (IMessage message : msgs2) {
             msgsAvailable.append(message.getMessage());
             msgsAvailable.append("\n");
         }
         fail(String.format("No message named %s could be found. Available: %s", msg, msgsAvailable));
+    }
+
+    /**
+     * Checks if a specific message is contained within the messages passed
+     */
+    private boolean containsMsg(String msg, IMessage[] msgs2) {
+        return containsMsg(msg, msgs2, -1);
+    }
+    
+    /**
+     * Checks if a specific message is contained within the messages passed
+     */
+    private boolean containsMsg(String msg, IMessage[] msgs2, int line) {
+        boolean found = false;
+        for (IMessage message : msgs2) {
+            if(message.getMessage().equals(msg)){
+                if(line != -1){
+                    assertEquals(line, message.getStartLine(doc));
+                }
+                found = true;
+            }
+        }
+        return found;
     }
 
     public void testImportAs3() {
@@ -832,7 +858,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
     public void testAttributeAccess() {
         //all ok...
         doc = new Document(
-                "def m1():                 " +
+                "def m1():               \n" +
                 "    class Stub():pass   \n" +
                 "    s = Stub()          \n" +
                 "    s.a = 10            \n" +
@@ -844,6 +870,29 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
+    }
+    
+    public void testAttributeAccess2() {
+        //all ok...
+        doc = new Document(
+            "class TestCase:                                    \n" +
+            "    def test(self):                                \n" +
+            "        db = 10                                    \n" +
+            "        comp = db.select(1)                        \n" +
+            "        aa.bbb.cccc[comp.id].hasSimulate = True    \n" +
+            "                                                   \n" +
+            ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 1);
+        //comp should be used
+        //aa undefined (check pos)
+        assertNotContainsMsg("Unused variable: comp", msgs);
+        assertContainsMsg("Undefined variable: aa", msgs, severityForUndefinedVariable);
+        assertEquals(1, msgs.length);
+        assertEquals(9, msgs[0].getStartCol(doc));
     }
     
     public void testAttributeErrorPos() {
