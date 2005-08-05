@@ -22,6 +22,7 @@ import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.Subscript;
 import org.python.parser.ast.TryExcept;
 import org.python.parser.ast.TryFinally;
 import org.python.parser.ast.VisitorBase;
@@ -224,7 +225,11 @@ public class OcurrencesVisitor extends VisitorBase{
         }
         return null;
     }
-    
+
+    @Override
+    public Object visitList(org.python.parser.ast.List node) throws Exception {
+        return super.visitList(node);
+    }
     /**
      * visit some import 
      * @see org.python.parser.ast.VisitorIF#visitImportFrom(org.python.parser.ast.ImportFrom)
@@ -311,7 +316,9 @@ public class OcurrencesVisitor extends VisitorBase{
 
         if(node.value instanceof Call){
             visitCallAttr(node);
-
+        }
+        if(node.value instanceof Subscript){
+            this.traverse(((Subscript) node.value).slice);
         }
         return null;
     }

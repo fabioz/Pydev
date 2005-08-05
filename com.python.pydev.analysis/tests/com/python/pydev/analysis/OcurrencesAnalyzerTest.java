@@ -20,7 +20,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testVarArgsNotUsed();
+            analyzer2.testAttributeAccess2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -890,7 +890,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         //comp should be used
         //aa undefined (check pos)
         assertNotContainsMsg("Unused variable: comp", msgs);
-        assertContainsMsg("Undefined variable: aa", msgs, severityForUndefinedVariable);
+        assertContainsMsg("Undefined variable: aa", msgs, 5);
         assertEquals(1, msgs.length);
         assertEquals(9, msgs[0].getStartCol(doc));
     }
