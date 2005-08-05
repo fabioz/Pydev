@@ -61,6 +61,10 @@ public class ProjectModulesManager extends ModulesManager{
         }
         return s;
     }
+
+    public AbstractModule getModule(String name, PythonNature nature) {
+        return getModule(name, nature, true);
+    }
     
     public AbstractModule getModule(String name, PythonNature nature, boolean checkSystemManager) {
         ModulesManager[] managersInvolved = this.getManagersInvolved(true); //only get the system manager here (to avoid recursion)
