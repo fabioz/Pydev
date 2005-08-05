@@ -7,7 +7,6 @@ package org.python.pydev.debug.model;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
@@ -18,7 +17,6 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
-import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
  * Represents a stack entry.
@@ -213,30 +211,22 @@ public class PyStackFrame extends PlatformObject implements IStackFrame {
 	}
 
 	/**
-	 * HACK
-	 * Here to work around eclipse2 annotation marker removal code.
-	 * This makes sure that old stack markers get removed.
-	 * E3 remove me in Eclipse 3
+	 * fixed - this was bug http://sourceforge.net/tracker/index.php?func=detail&aid=1174821&group_id=85796&atid=577329
+	 * in the forum (unable to get stack correctly when recursing)
 	 */
 	public int hashCode() {
-		return 5;
+		return id.hashCode();
 	}
+    
 	/**
-	 * HACK
-	 * Here to work around eclipse2 annotation marker removal code
-	 * E3 remove me in Eclipse 3
-	 * LaunchView wants to know, 
+     * fixed - this was bug http://sourceforge.net/tracker/index.php?func=detail&aid=1174821&group_id=85796&atid=577329
+     * in the forum (unable to get stack correctly when recursing)
 	 */
 	public boolean equals(Object obj) {
-		if (obj instanceof PyStackFrame) 
-			try {
-				return path.equals(((PyStackFrame)obj).getPath()) && 
-						(line == ((PyStackFrame)obj).getLineNumber());
-			} catch (DebugException e) {
-				PydevDebugPlugin.log(IStatus.ERROR, "PyStackFrame.equals", null);
-				return false;
-			}
-		else
-			return super.equals(obj);
+        if (obj instanceof PyStackFrame) {
+            PyStackFrame sf = (PyStackFrame) obj;
+            return this.id.equals(sf.id);
+        }
+        return false;
 	}
 }
