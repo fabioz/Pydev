@@ -22,8 +22,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-import org.python.pydev.utils.SimplePythonRunner;
 
 import sun.misc.BASE64Decoder;
 
@@ -103,7 +103,7 @@ public class InterpreterManager implements IInterpreterManager {
             //ok, we have to get the info from the executable (and let's cache results for future use...
     		try {
     	        File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
-    	        String string = SimplePythonRunner.runAndGetOutputWithInterpreter(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
+    	        String string = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
     	        info = InterpreterInfo.fromString(string);
     	        info.restoreCompiledLibs(monitor);
     	    } catch (Exception e) {

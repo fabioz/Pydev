@@ -1,7 +1,7 @@
 /*
  * Created on 03/08/2005
  */
-package org.python.pydev.utils;
+package org.python.pydev.runners;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,7 +12,7 @@ public class ThreadStreamReader extends Thread {
     InputStream is;
     StringBuffer contents;
 
-    ThreadStreamReader(InputStream is) {
+    public ThreadStreamReader(InputStream is) {
         contents = new StringBuffer();
         this.is = is;
     }

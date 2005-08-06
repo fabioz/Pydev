@@ -193,7 +193,7 @@ public class NodeUtils {
      */
     public static int getColDefinition(SimpleNode ast2) {
         if(ast2 instanceof Attribute){
-            if(!(((Attribute)ast2).value instanceof Call)){
+            if(!(((Attribute)ast2).value instanceof Call) && !(((Attribute)ast2).value instanceof Subscript)){
                 return getColDefinition(((Attribute)ast2).value);
             }
         }

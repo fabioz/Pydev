@@ -13,7 +13,7 @@ import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IResource;
 import org.python.pydev.builder.PyDevBuilderVisitor;
-import org.python.pydev.utils.SimplePythonRunner;
+import org.python.pydev.runners.SimplePythonRunner;
 
 /**
  * 
@@ -154,7 +154,7 @@ public class PyCheckerLauncher {
         
         String contents = "";
         try {
-            contents = SimplePythonRunner.runAndGetOutput(pycheckerLocation, resourceLocation, new File(pycheckerLocation).getParentFile());
+            contents = new SimplePythonRunner().runAndGetOutput(pycheckerLocation, resourceLocation, new File(pycheckerLocation).getParentFile());
         } catch (RuntimeException e) {
             System.err.println("Exception during process creation of pychecker on resource: " + resourceLocation + ".");
             throw e;

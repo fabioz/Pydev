@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.python.pydev.editor.codecompletion.revisited.TestDependent;
 import org.python.pydev.plugin.BundleInfo;
+import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.ui.BundleInfoStub;
 
 /**
@@ -48,7 +49,7 @@ public class SimplePythonRunnerTest extends TestCase {
     public void testEnv() throws CoreException, IOException {
         
         File relativePath = BundleInfo.getBundleInfo().getRelativePath(new Path("PySrc/interpreterInfo.py"));
-        String string = SimplePythonRunner.runAndGetOutput(TestDependent.PYTHON_EXE+" "+relativePath.getCanonicalPath(), null);
+        String string = new SimplePythonRunner().runAndGetOutput(TestDependent.PYTHON_EXE+" "+relativePath.getCanonicalPath(), null);
         System.out.println(string);
     }
 }

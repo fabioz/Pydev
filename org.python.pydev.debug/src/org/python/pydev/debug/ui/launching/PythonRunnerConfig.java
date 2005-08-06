@@ -31,7 +31,7 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.SocketUtil;
-import org.python.pydev.utils.SimplePythonRunner;
+import org.python.pydev.runners.SimplePythonRunner;
 
 /**
  * Holds configuration for PythonRunner.
@@ -214,7 +214,7 @@ public class PythonRunnerConfig {
         if(envp == null){
             //ok, the user has done nothing to the environment, just get all the default environment and
             //put the pythonpath in it
-            envp = SimplePythonRunner.getEnvironment(project);
+            envp = new SimplePythonRunner().getEnvironment(project);
         }else{
     		boolean win32= Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
 
@@ -224,7 +224,7 @@ public class PythonRunnerConfig {
 
     		if(!specifiedPythonpath(envMap)){
 	    		
-	            String pythonpath = SimplePythonRunner.makePythonPathEnvString(project);
+	            String pythonpath = new SimplePythonRunner().makePythonPathEnvString(project);
 	            //override it if it was the ambient pythonpath
 	            for (int i = 0; i < envp.length; i++) {
 	                if(win32){

@@ -25,7 +25,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
-import org.python.pydev.utils.SimplePythonRunner;
+import org.python.pydev.runners.SimplePythonRunner;
 
 /**
  * @author Fabio Zadrozny
@@ -166,14 +166,14 @@ public class PythonShell {
             String osName = System.getProperty("os.name");
             
             String execMsg;
-            if(osName.toLowerCase().indexOf("win") != -1){ //in windows, we have to put python "path_to_file.py"
+            if(SimplePythonRunner.isWindowsPlatform()){ //in windows, we have to put python "path_to_file.py"
                 execMsg = interpreter+" \""+REF.getFileAbsolutePath(serverFile)+"\" "+pWrite+" "+pRead;
             }else{ //however in mac, this gives an error...
                 execMsg = interpreter+" "+REF.getFileAbsolutePath(serverFile)+" "+pWrite+" "+pRead;
             }
 
             //System.out.println(execMsg);
-            process = SimplePythonRunner.createProcess(execMsg, serverFile.getParentFile());
+            process = new SimplePythonRunner().createProcess(execMsg, serverFile.getParentFile());
             
             sleepALittle(200);
             if(process == null){

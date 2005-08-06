@@ -35,9 +35,9 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.ui.IInterpreterManager;
 import org.python.pydev.ui.UIConstants;
-import org.python.pydev.utils.SimplePythonRunner;
 
 /**
  * Field editor for a list of python interpreter with executable verifier.

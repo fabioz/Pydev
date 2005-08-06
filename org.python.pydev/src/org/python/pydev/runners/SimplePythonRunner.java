@@ -1,0 +1,159 @@
+/*
+ * License: Common Public License v1.0
+ * Created on Oct 25, 2004
+ * 
+ * @author Fabio Zadrozny
+ */
+package org.python.pydev.runners;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.plugin.PydevPlugin;
+
+/**
+ * 
+ * This class has some useful methods for running a python script.
+ * 
+ * It is not as complete as the PythonRunner from the debug, as it doesn't register the process in the console, but it can be quite useful
+ * for other runs.
+ * 
+ * 
+ * Interesting reading for http://www.javaworld.com/javaworld/jw-12-2000/jw-1229-traps.html  -  
+ * Navigate yourself around pitfalls related to the Runtime.exec() method
+ * 
+ * 
+ * @author Fabio Zadrozny
+ */
+public class SimplePythonRunner extends SimpleRunner {
+
+    public String runAndGetOutput(String script, String args, File workingDir) {
+    	return runAndGetOutput(script, args, workingDir, null);
+    }
+    
+    /**
+     * Execute the script specified with the python interpreter
+     * 
+     * @param script the script we will execute
+     * @param args the arguments to pass to the script
+     * @param workingDir the working directory
+     * @param project the project that is associated to this run
+     * 
+     * @return a string with the output of the process (stdout)
+     */
+    public String runAndGetOutput(String script, String args, File workingDir, IProject project) {
+        
+        script = formatParamToExec(script);
+
+        String executionString = PydevPlugin.getInterpreterManager().getDefaultInterpreter() + " -u " + script + " " + args;
+        //System.out.println(executionString);
+        return runAndGetOutput(executionString, workingDir, project);
+    }
+
+    /**
+     * Execute the string and format for windows if we have spaces...
+     * 
+     * @param script
+     * @param args
+     * @param workingDir
+     * @return
+     */
+    public String runAndGetOutputWithInterpreter(String interpreter, String script, String args, File workingDir, IProject project, IProgressMonitor monitor) {
+        monitor.setTaskName("Mounting executable string...");
+        monitor.worked(5);
+        
+        script = formatParamToExec(script);
+
+        String executionString;
+        if(args != null){
+            executionString = interpreter + " -u " + script + " " + args;
+        }else{
+            executionString = interpreter + " -u " + script;
+        }
+        monitor.worked(1);
+        //System.out.println(executionString);
+        return runAndGetOutput(executionString, workingDir, project, monitor);
+    }
+
+
+    public String runAndGetOutput(String executionString, File workingDir, IProgressMonitor monitor) {
+    	return runAndGetOutput(executionString, workingDir, null, monitor);
+    }
+    
+    public String runAndGetOutput(String executionString, File workingDir) {
+    	return runAndGetOutput(executionString, workingDir, null, new NullProgressMonitor());
+    }
+    
+    public String runAndGetOutput(String executionString, File workingDir, IProject project) {
+    	return runAndGetOutput(executionString, workingDir, project, new NullProgressMonitor());
+    }
+
+    /**
+     * This is the method that actually does the running (all others are just 'shortcuts' to this one).
+     * 
+     * @param executionString this is the string that will be executed
+     * @param workingDir this is the directory where the execution will happen
+     * @param project this is the project that is related to the run (it is used to get the environment for the shell we are going to
+     * execute with the correct pythonpath environment variable).
+     * @param monitor this is the monitor used to communicate the progress to the user
+     * 
+     * @return the string that is the output of the process (stdout).
+     */
+    public String runAndGetOutput(String executionString, File workingDir, IProject project, IProgressMonitor monitor) {
+        monitor.setTaskName("Executing: "+executionString);
+        monitor.worked(5);
+        Process process = null;
+        try {
+	        monitor.setTaskName("Making pythonpath environment...");
+	    	String[] envp = getEnvironment(project);
+	        monitor.setTaskName("Making exec.");
+	        process = Runtime.getRuntime().exec(executionString, envp, workingDir);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        if (process != null) {
+
+            try {
+                process.getOutputStream().close(); //we won't write to it...
+            } catch (IOException e2) {
+            }
+
+            monitor.setTaskName("Reading output...");
+            monitor.worked(5);
+            ThreadStreamReader std = new ThreadStreamReader(process.getInputStream());
+            ThreadStreamReader err = new ThreadStreamReader(process.getErrorStream());
+
+            std.start();
+            err.start();
+            
+            
+            try {
+                monitor.setTaskName("Waiting for process to finish.");
+                monitor.worked(5);
+                process.waitFor(); //wait until the process completion.
+            } catch (InterruptedException e1) {
+                throw new RuntimeException(e1);
+            }
+
+            return std.contents.toString();
+            
+        } else {
+            try {
+                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error creating python process - got null process("
+                        + executionString + ")", new Exception("Error creating python process - got null process.")));
+            } catch (CoreException e) {
+                PydevPlugin.log(IStatus.ERROR, e.getMessage(), e);
+            }
+
+        }
+        return ""; //no output
+    }
+
+    
+}

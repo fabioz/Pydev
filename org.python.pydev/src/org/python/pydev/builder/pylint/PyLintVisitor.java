@@ -27,7 +27,7 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.utils.SimplePythonRunner;
+import org.python.pydev.runners.SimplePythonRunner;
 
 /**
  * 
@@ -152,7 +152,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             
             IProject project = resource.getProject();
             
-            String output = SimplePythonRunner.runAndGetOutput(REF.getFileAbsolutePath(script), lintargs+REF.getFileAbsolutePath(arg), script.getParentFile(), project);
+            String output = new SimplePythonRunner().runAndGetOutput(REF.getFileAbsolutePath(script), lintargs+REF.getFileAbsolutePath(arg), script.getParentFile(), project);
 
             StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
             
