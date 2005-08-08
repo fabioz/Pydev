@@ -67,4 +67,11 @@ public class InterpreterManagerStub extends InterpreterManager implements IInter
     public String getDefaultJythonPath() {
         return TestDependent.JYTHON_JYTHON_PATH;
     }
+    
+    /**
+     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJavaLocation()
+     */
+    public String getDefaultJavaLocation() {
+        return TestDependent.JAVA_LOCATION;
+    }
 }

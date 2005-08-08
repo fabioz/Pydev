@@ -89,6 +89,11 @@ public interface IInterpreterManager {
      * @return the default jython pythonpath
      */
     public String getDefaultJythonPath();
+
+    /**
+     * @return the default java executable location
+     */
+    public String getDefaultJavaLocation();
     
     
 }

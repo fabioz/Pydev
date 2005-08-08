@@ -214,6 +214,10 @@ public class InterpreterManager implements IInterpreterManager {
         throw new RuntimeException("todo");
     }
 
+    public String getDefaultJavaLocation() {
+        //TODO: get this information correctly
+        throw new RuntimeException("todo");
+    }
 }
 
 class IOUtils {

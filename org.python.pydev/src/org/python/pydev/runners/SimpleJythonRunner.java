@@ -82,10 +82,10 @@ public class SimpleJythonRunner extends SimpleRunner{
         //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21" 
         //-classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
 
-        String javaLoc = TestDependent.JAVA_LOCATION;
+        IInterpreterManager interpreterManager = PydevPlugin.getInterpreterManager();
+        String javaLoc = interpreterManager.getDefaultJavaLocation();
         javaLoc = formatParamToExec(javaLoc);
         
-        IInterpreterManager interpreterManager = PydevPlugin.getInterpreterManager();
         String jythonJar = interpreterManager.getDefaultJythonJar();
         
         String jythonHome = interpreterManager.getDefaultJythonHome();
