@@ -29,6 +29,11 @@ public class Scope {
     public static final int SCOPE_TYPE_CLASS = 2;
     
     /**
+     * when we are at method definition, not always is as expected...
+     */
+    public boolean isInMethodDefinition = false;
+    
+    /**
      * @param scopeType
      * @return a string representing the scope type
      */
@@ -85,6 +90,7 @@ public class Scope {
         ScopeItems m = scope.peek();
         addToken(generator, m, o, rep);
     }
+
     /**
      * when adding a token, we also have to check if there is not a token with the same representation
      * added, because if there is, the previous token might not be used at all...
@@ -101,8 +107,9 @@ public class Scope {
         
         Found found = findFirst(rep, false);
         
+        
         boolean isReimport = false;
-        if(found != null){ //it will be removed from the scope
+        if(!isInMethodDefinition && found != null){ //it will be removed from the scope
             if(found.isImport() && generator.isImport()){
                 isReimport = true;
                 //keep on going, as it still might be used or unused

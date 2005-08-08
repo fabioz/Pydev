@@ -28,6 +28,7 @@ import org.python.parser.ast.TryFinally;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.While;
 import org.python.parser.ast.argumentsType;
+import org.python.parser.ast.exprType;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
@@ -168,15 +169,27 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         addToNamesToIgnore(node);
+
+        OcurrencesVisitor visitor = this;
+        argumentsType args = node.args;
+
+        //visit the defaults first (before starting the scope, because this is where the load of variables from other scopes happens)
+        if(args.defaults != null){
+            for(exprType expr : args.defaults){
+                expr.accept(visitor);
+            }
+        }
+
         startScope(Scope.SCOPE_TYPE_METHOD);
         duplicationChecker.beforeFunctionDef(node); //duplication checker
-        
-        argumentsType args = node.args;
-        
-        OcurrencesVisitor visitor = this;
+
+
+        scope.isInMethodDefinition = true;
         //visit regular args
-        if (args != null){
-            args.accept(visitor);
+        if (args.args != null){
+            for(exprType expr : args.args){
+                expr.accept(visitor);
+            }
         }
 
         //visit varargs
@@ -196,6 +209,7 @@ public class OcurrencesVisitor extends VisitorBase{
             SourceToken token = AbstractVisitor.makeToken(name, moduleName);
             scope.addToken(token, token, args.kwarg);
         }
+        scope.isInMethodDefinition = false;
         
         //visit the body
         if (node.body != null) {

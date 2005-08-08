@@ -20,7 +20,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testAttributeAccess2();
+            analyzer2.testUnusedVariable9();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -418,7 +418,23 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         printMessages(msgs, 1);
         assertEquals(1, msgs.length);
-        assertContainsMsg("Unused variable: show", msgs, 3);
+        assertContainsMsg("Unused variable: show", msgs, 2);
+    }
+    
+    public void testUnusedVariable10() {
+        doc = new Document(
+                "def outer(show):        \n"+  
+                "    def inner(show):    \n"+       
+                "        pass            \n"+
+                ""      
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 2);
+        assertEquals(2, msgs.length);
+        assertContainsMsg("Unused variable: show", msgs, 1);
+        assertContainsMsg("Unused variable: show", msgs, 2);
     }
     
     public void testUnusedVariable6() {
@@ -817,16 +833,21 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
      * Checks if a specific message is contained within the messages passed
      */
     private boolean containsMsg(String msg, IMessage[] msgs2, int line) {
-        boolean found = false;
+        boolean foundMsg = false;
+        boolean foundMsgInLine = false;
         for (IMessage message : msgs2) {
             if(message.getMessage().equals(msg)){
-                if(line != -1){
-                    assertEquals(line, message.getStartLine(doc));
+                foundMsg = true;
+                if(line != -1 && foundMsgInLine == false){
+                    foundMsgInLine = line == message.getStartLine(doc);
                 }
-                found = true;
             }
         }
-        return found;
+        
+        if(foundMsg && line != -1){
+            assertTrue("The message :"+msg+" was not found in the specified line ("+line+")",foundMsgInLine);
+        }
+        return foundMsg;
     }
 
     public void testImportAs3() {
