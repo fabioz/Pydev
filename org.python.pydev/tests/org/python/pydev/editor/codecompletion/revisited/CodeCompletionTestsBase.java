@@ -59,7 +59,7 @@ public class CodeCompletionTestsBase extends TestCase {
     	    nature.setAstManager(new ASTManager());
     	    
 
-            IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
+            IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager();
             InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
     	    ASTManager astManager = ((ASTManager)nature.getAstManager());
             astManager.changePythonPath(path, null, new NullProgressMonitor());
@@ -69,11 +69,11 @@ public class CodeCompletionTestsBase extends TestCase {
     private void restoreSystemPythonPath(boolean force, String path){
         if(restoredSystem == null || restoredSystem != this.getClass() || force){
             //restore manager and cache
-            PydevPlugin.setInterpreterManager(new InterpreterManagerStub(preferences));
+            PydevPlugin.setPythonInterpreterManager(new InterpreterManagerStub(preferences));
             restoredSystem = this.getClass();
             
             //get default and restore the pythonpath
-            IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
+            IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager();
             InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
             info.restoreCompiledLibs(new NullProgressMonitor());
             info.restorePythonpath(path, new NullProgressMonitor());
@@ -92,7 +92,7 @@ public class CodeCompletionTestsBase extends TestCase {
         nature = null; //has to be restored
         assertTrue(info.modulesManager.getSize() > 0);
 
-        IInterpreterManager iMan2 = PydevPlugin.getInterpreterManager();
+        IInterpreterManager iMan2 = PydevPlugin.getPythonInterpreterManager();
         InterpreterInfo info2 = iMan2.getDefaultInterpreterInfo(new NullProgressMonitor());
         assertTrue(info2 == info);
         assertTrue(info2.modulesManager.getSize() > 0);
@@ -117,7 +117,7 @@ public class CodeCompletionTestsBase extends TestCase {
      * 
      */
     private void checkSize() {
-        IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
+        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager();
         InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
         int size = ((ASTManager)nature.getAstManager()).getSize();
         assertTrue(info.modulesManager.getSize() > 0);

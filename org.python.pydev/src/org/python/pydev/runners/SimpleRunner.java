@@ -53,7 +53,7 @@ public abstract class SimpleRunner {
         String pythonPathEnvStr = "";
     	try {
             
-            if (PydevPlugin.getInterpreterManager().hasInfoOnDefaultInterpreter(pythonNature)){ //check if we have a default interpreter.
+            if (PydevPlugin.getPythonInterpreterManager().hasInfoOnDefaultInterpreter(pythonNature)){ //check if we have a default interpreter.
                 pythonPathEnvStr = makePythonPathEnvString(project);
             }
         } catch (Exception e) {
@@ -166,7 +166,7 @@ public abstract class SimpleRunner {
         	paths = pythonPathNature.getCompleteProjectPythonPath();
         }else{
             //otherwise, get the system pythonpath
-            InterpreterInfo info = PydevPlugin.getInterpreterManager().getDefaultInterpreterInfo(new NullProgressMonitor());
+            InterpreterInfo info = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreterInfo(new NullProgressMonitor());
             paths = new ArrayList(info.libs);
         }
     

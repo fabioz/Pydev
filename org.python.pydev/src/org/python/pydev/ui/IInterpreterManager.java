@@ -20,6 +20,11 @@ public interface IInterpreterManager {
     public String INTERPRETER_PATH = "INTERPRETER_PATH_NEW";
         
     /**
+     * This is the constant from where we get the jython jar
+     */
+    public String JYTHON_JAR = "JYTHON_JAR";
+    
+    /**
      * This is not applicable for jython (the interpreter is given by the java plugin - jdt)
      * 
      * @return the default interpreter.
@@ -71,24 +76,10 @@ public interface IInterpreterManager {
     public String getStringToPersist(String[] executables);
 
     /**
+     * @param nature is needed because we want to know which kind of project we are dealing with
      * @return whether we have information on the default interpreter.
      */
     public boolean hasInfoOnDefaultInterpreter(IPythonNature nature);
-
-    /**
-     * @return the default jython jar location.
-     */
-    public String getDefaultJythonJar();
-
-    /**
-     * @return the default jython home location.
-     */
-    public String getDefaultJythonHome();
-
-    /**
-     * @return the default jython pythonpath
-     */
-    public String getDefaultJythonPath();
 
     /**
      * @return the default java executable location

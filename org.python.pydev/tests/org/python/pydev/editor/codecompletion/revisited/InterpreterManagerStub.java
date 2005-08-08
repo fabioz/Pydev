@@ -44,7 +44,7 @@ public class InterpreterManagerStub extends InterpreterManager implements IInter
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
         
         InterpreterInfo info = super.getInterpreterInfo(executable, monitor);
-        TestDependent.PYTHON_EXE = info.executable;
+        TestDependent.PYTHON_EXE = info.executableOrJar;
         return info;
     }
     /**

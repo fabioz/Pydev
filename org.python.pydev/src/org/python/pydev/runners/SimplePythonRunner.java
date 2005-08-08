@@ -46,7 +46,7 @@ public class SimplePythonRunner extends SimpleRunner {
         
         script = formatParamToExec(script);
 
-        String executionString = PydevPlugin.getInterpreterManager().getDefaultInterpreter() + " -u " + script + " " + args;
+        String executionString = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter() + " -u " + script + " " + args;
         //System.out.println(executionString);
         return runAndGetOutput(executionString, workingDir, project);
     }

@@ -30,15 +30,16 @@ public class InterpreterInfo implements Serializable{
     private static final long serialVersionUID = 1L;
     
     /**
-     * This is not applicable for jython (the interpreter is given by the java plugin - jdt)
-     * path to the python executable 
+     * For jython, this is the jython.jar
+     * 
+     * For python, this is the path to the python executable 
      */
-    public String executable; 
+    public String executableOrJar; 
     
     /**
      * folders - they should be passed to the pythonpath
      */
-    public java.util.List libs = new ArrayList(); 
+    public java.util.List<String> libs = new ArrayList<String>(); 
     
     /**
      * Those libraries are not really used in python (they are found in the system pythonpath), and 
@@ -68,7 +69,7 @@ public class InterpreterInfo implements Serializable{
     public SystemModulesManager modulesManager = new SystemModulesManager(forcedLibs);
     
     public InterpreterInfo(String exe, Collection libs0){
-        this.executable = exe;
+        this.executableOrJar = exe;
         libs.addAll(libs0);
     }
     
@@ -91,7 +92,7 @@ public class InterpreterInfo implements Serializable{
         }
 
         InterpreterInfo info = (InterpreterInfo) o;
-        if(info.executable.equals(this.executable) == false){
+        if(info.executableOrJar.equals(this.executableOrJar) == false){
             return false;
         }
         
@@ -173,7 +174,7 @@ public class InterpreterInfo implements Serializable{
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("Executable:");
-        buffer.append(executable);
+        buffer.append(executableOrJar);
         buffer.append("|");
         for (Iterator iter = libs.iterator(); iter.hasNext();) {
             buffer.append(iter.next().toString());

@@ -87,8 +87,8 @@
       <page
             name="Python Interpreters"
             category="org.python.pydev.prefs"
-            class="org.python.pydev.ui.pythonpathconf.InterpreterPreferencesPage"
-            id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPage">
+            class="org.python.pydev.ui.pythonpathconf.PythonInterpreterPreferencesPage"
+            id="org.python.pydev.ui.pythonpathconf.pythonInterpreterPreferencesPage">
       </page>
       <page
             name="Jython Interpreters"

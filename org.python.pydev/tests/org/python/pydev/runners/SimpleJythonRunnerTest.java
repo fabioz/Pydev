@@ -28,7 +28,7 @@ public class SimpleJythonRunnerTest extends TestCase {
         super.setUp();
         BundleInfo.setBundleInfo(new BundleInfoStub());
         preferences = new Preferences();
-        PydevPlugin.setInterpreterManager(new InterpreterManagerStub(preferences));
+        PydevPlugin.setPythonInterpreterManager(new InterpreterManagerStub(preferences));
 
     }
 

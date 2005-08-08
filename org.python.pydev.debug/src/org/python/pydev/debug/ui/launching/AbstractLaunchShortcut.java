@@ -177,7 +177,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 // E3			String baseDirectory = varManager.generateVariableExpression("workspace_loc",file.getRawLocation().removeLastSegments(1).toString());
 			String baseDirectory = resource.getRawLocation().removeLastSegments(1).toString();
 			String arguments = "";
-			String interpreter = PydevPlugin.getInterpreterManager().getDefaultInterpreter();
+			String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
 			
             workingCopy.setAttribute(Constants.ATTR_PROJECT,resource.getProject().getName());
             workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE,resource.getType());

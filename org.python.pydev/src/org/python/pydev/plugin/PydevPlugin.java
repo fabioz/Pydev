@@ -53,21 +53,29 @@ import org.python.pydev.pyunit.ITestRunListener;
 import org.python.pydev.pyunit.PyUnitTestRunner;
 import org.python.pydev.ui.IInterpreterManager;
 import org.python.pydev.ui.ImageCache;
-import org.python.pydev.ui.InterpreterManager;
+import org.python.pydev.ui.PythonInterpreterManager;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
  */
 public class PydevPlugin extends AbstractUIPlugin implements Preferences.IPropertyChangeListener {
 
-    private static IInterpreterManager interpreterManager;
-    public static void setInterpreterManager(IInterpreterManager interpreterManager) {
-        PydevPlugin.interpreterManager = interpreterManager;
+    private static IInterpreterManager pythonInterpreterManager;
+    private static IInterpreterManager jythonInterpreterManager;
+    public static void setPythonInterpreterManager(IInterpreterManager interpreterManager) {
+        PydevPlugin.pythonInterpreterManager = interpreterManager;
     }
-    public static IInterpreterManager getInterpreterManager() {
-        return interpreterManager;
+    public static IInterpreterManager getPythonInterpreterManager() {
+        return pythonInterpreterManager;
     }
 
+    public static void setJythonInterpreterManager(IInterpreterManager interpreterManager) {
+        PydevPlugin.jythonInterpreterManager = interpreterManager;
+    }
+    public static IInterpreterManager getJythonInterpreterManager() {
+        return jythonInterpreterManager;
+    }
+    
     
     private static PydevPlugin plugin; //The shared instance.
     
@@ -100,7 +108,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         }
         Preferences preferences = plugin.getPluginPreferences();
         preferences.addPropertyChangeListener(this);
-        setInterpreterManager(new InterpreterManager(preferences));
+        setPythonInterpreterManager(new PythonInterpreterManager(preferences));
         
 
         //restore the nature for all python projects

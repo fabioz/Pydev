@@ -6,10 +6,13 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
-public class JythonInterpreterEditor {
+import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.ui.IInterpreterManager;
 
-    public JythonInterpreterEditor() {
-        super();
+public class JythonInterpreterEditor extends InterpreterEditor{
+
+    public JythonInterpreterEditor(String labelText, Composite parent, IInterpreterManager interpreterManager) {
+        super(labelText, parent, interpreterManager);
     }
 
     /**

@@ -20,9 +20,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -34,7 +36,7 @@ import sun.misc.BASE64Decoder;
  * 
  * @author Fabio Zadrozny
  */
-public class InterpreterManager implements IInterpreterManager {
+public abstract class InterpreterManager implements IInterpreterManager {
 
     private Map exeToInfo = new HashMap();
     private Preferences prefs;
@@ -85,21 +87,34 @@ public class InterpreterManager implements IInterpreterManager {
             //ok, we have to get the info from the executable (and let's cache results for future use...
     		try {
     	        File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
-    	        String string = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
-    	        info = InterpreterInfo.fromString(string);
+
+                String output;
+                boolean isJythonExecutable = isJythonExecutable(executable);
+                if(isJythonExecutable){
+                    output = new SimpleJythonRunner().runAndGetOutputWithJar(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
+                }else{                
+                    output = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
+                }
+                
+    	        info = InterpreterInfo.fromString(output);
     	        info.restoreCompiledLibs(monitor);
+                
+                if(isJythonExecutable){
+                    //the executable is the jar itself
+                    info.executableOrJar = executable;
+                }
     	    } catch (Exception e) {
     	        PydevPlugin.log(e);
     	        //TODO: make dialog: unable to get info for file... 
     	        throw new RuntimeException(e);
     	    }
-    	    if(info.executable != null && info.executable.trim().length() > 0){
-    	        exeToInfo.put(info.executable, info);
+    	    if(info.executableOrJar != null && info.executableOrJar.trim().length() > 0){
+    	        exeToInfo.put(info.executableOrJar, info);
     	        
     	    }else{
                 String title = "Invalid interpreter:"+executable;
                 String msg = "Unable to get information on interpreter!";
-    	        String reason = "The interpreter: '"+executable+"' is not a valid python executable - info.executable found: "+info.executable;
+    	        String reason = "The interpreter: '"+executable+"' is not a valid python executable - info.executable found: "+info.executableOrJar;
     	        
                 try {
                     ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, reason, null));
@@ -113,11 +128,19 @@ public class InterpreterManager implements IInterpreterManager {
     }
 
     /**
+     * @param executable
+     * @return
+     */
+    private boolean isJythonExecutable(String executable) {
+        return executable.endsWith(".jar");
+    }
+
+    /**
      * @see org.python.pydev.ui.IInterpreterManager#addInterpreter(java.lang.String)
      */
     public String addInterpreter(String executable, IProgressMonitor monitor) {
         InterpreterInfo info = getInterpreterInfo(executable, monitor);
-        return info.executable;
+        return info.executableOrJar;
     }
 
     //little cache...
@@ -141,8 +164,8 @@ public class InterpreterManager implements IInterpreterManager {
 	            
 	            for (Iterator iter = list.iterator(); iter.hasNext();) {
 	                InterpreterInfo info = (InterpreterInfo) iter.next();
-	                this.exeToInfo.put(info.executable, info);
-	                ret.add(info.executable);
+	                this.exeToInfo.put(info.executableOrJar, info);
+	                ret.add(info.executableOrJar);
 	            }
             } catch (Exception e) {
                 PydevPlugin.log(e);
@@ -190,33 +213,12 @@ public class InterpreterManager implements IInterpreterManager {
         }
     }
 
-    /**
-     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJythonJar()
-     */
-    public String getDefaultJythonJar() {
-        //TODO: get this information correctly
-        throw new RuntimeException("todo");
-    }
-
-    /**
-     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJythonHome()
-     */
-    public String getDefaultJythonHome() {
-        //TODO: get this information correctly
-        throw new RuntimeException("todo");
-    }
-
-    /**
-     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJythonPath()
-     */
-    public String getDefaultJythonPath(){
-        //TODO: get this information correctly
-        throw new RuntimeException("todo");
-    }
-
     public String getDefaultJavaLocation() {
-        //TODO: get this information correctly
-        throw new RuntimeException("todo");
+        try {
+            return JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 

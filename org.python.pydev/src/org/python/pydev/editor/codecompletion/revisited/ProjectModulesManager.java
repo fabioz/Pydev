@@ -43,7 +43,7 @@ public class ProjectModulesManager extends ModulesManager{
     }
     
     public SystemModulesManager getSystemModulesManager(){
-        IInterpreterManager iMan = PydevPlugin.getInterpreterManager();
+        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager();
         InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
         return info.modulesManager;
     }

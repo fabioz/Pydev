@@ -91,7 +91,7 @@ public class PyCoverage {
             //python coverage.py -r -m files....
 
             String[] cmdLine = new String[4];
-            cmdLine[0] = PydevPlugin.getInterpreterManager().getDefaultInterpreter();
+            cmdLine[0] = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
             cmdLine[1] = profileScript;
             cmdLine[2] = getCoverageFileLocation();
             cmdLine[3] = "-waitfor";
@@ -226,7 +226,7 @@ public class PyCoverage {
             String profileScript;
             profileScript = PythonRunnerConfig.getCoverageScript();
             String[] cmdLine = new String[4];
-            cmdLine[0] = PydevPlugin.getInterpreterManager().getDefaultInterpreter();
+            cmdLine[0] = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
             cmdLine[1] = profileScript;
             cmdLine[2] = getCoverageFileLocation();
             cmdLine[3] = "-e";

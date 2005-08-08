@@ -10,9 +10,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.python.pydev.editor.codecompletion.revisited.TestDependent;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.IInterpreterManager;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class SimpleJythonRunner extends SimpleRunner{
     /**
@@ -77,28 +78,46 @@ public class SimpleJythonRunner extends SimpleRunner{
         return ""; //no output
     }
 
+    public String runAndGetOutputWithJar(String script, String jythonJar, String args, File workingDir, IProject project, IProgressMonitor monitor) {
+        //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21" 
+        //-classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
+        
+        IInterpreterManager interpreterManager = PydevPlugin.getPythonInterpreterManager();
+        String javaLoc = interpreterManager.getDefaultJavaLocation();
+        javaLoc = formatParamToExec(javaLoc);
+        
+        String executionString = javaLoc +
+        " -classpath "+jythonJar+
+        " org.python.util.jython "+script;
+        
+        return runAndGetOutput(executionString, workingDir, project, monitor);
+        
+    }
     @Override
     public String runAndGetOutput(String script, String args, File workingDir, IProject project) {
         //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21" 
         //-classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
 
-        IInterpreterManager interpreterManager = PydevPlugin.getInterpreterManager();
+        IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
         String javaLoc = interpreterManager.getDefaultJavaLocation();
         javaLoc = formatParamToExec(javaLoc);
         
-        String jythonJar = interpreterManager.getDefaultJythonJar();
+        String jythonJar = interpreterManager.getDefaultInterpreter();
+        InterpreterInfo info = interpreterManager.getInterpreterInfo(jythonJar, new NullProgressMonitor());
         
-        String jythonHome = interpreterManager.getDefaultJythonHome();
-        String jythonPath = interpreterManager.getDefaultJythonPath();
         
-        String executionString = javaLoc +
-        " -Dpython.home="+jythonHome+ 
-        " -Dpython.path="+ jythonPath+ 
-        " -classpath "+jythonJar+
-        " org.python.util.jython "+script;
+        StringBuffer jythonPath = new StringBuffer();
+        for(String lib :info.libs){
+            jythonPath.append(lib);
+        }
+        throw new RuntimeException("todo: finish");
         
-        System.out.println("Executing "+executionString);
-        return runAndGetOutput(executionString, workingDir, project);
+//        String executionString = javaLoc +
+//        " -Dpython.path="+ jythonPath+ 
+//        " -classpath "+jythonJar+
+//        " org.python.util.jython "+script;
+//        
+//        return runAndGetOutput(executionString, workingDir, project);
     }
 
 }

@@ -20,7 +20,8 @@ Require-Bundle: org.junit,
  org.eclipse.core.variables,
  org.python.pydev.ast,
  org.python.pydev.parser,
- org.python.pydev.core
+ org.python.pydev.core,
+ org.eclipse.jdt.launching
 Eclipse-AutoStart: true
 Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,

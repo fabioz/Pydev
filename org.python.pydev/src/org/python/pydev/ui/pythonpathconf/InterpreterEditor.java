@@ -100,18 +100,22 @@ public class InterpreterEditor extends PythonListEditor {
     }
     
     /**
-     * Creates a path field editor.
+     * Creates a path field editor linked to the preference name passed
      * 
      * @param labelText the label text of the field editor
      * @param parent the parent of the field editor's control
      */
-    public InterpreterEditor(String labelText, Composite parent, IInterpreterManager interpreterManager) {
-        init(IInterpreterManager.INTERPRETER_PATH, labelText);
+    protected InterpreterEditor(String preferenceName, String labelText, Composite parent, IInterpreterManager interpreterManager) {
+        init(preferenceName, labelText);
         this.interpreterManager = interpreterManager;
-    	imageSystemLibRoot = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM_ROOT);
-    	imageSystemLib = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
+        imageSystemLibRoot = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM_ROOT);
+        imageSystemLib = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
         createControl(parent);
         updateTree();
+    }
+    
+    public InterpreterEditor(String labelText, Composite parent, IInterpreterManager interpreterManager) {
+        this(IInterpreterManager.INTERPRETER_PATH, labelText, parent, interpreterManager);
     }
 
     protected void doLoad() {
