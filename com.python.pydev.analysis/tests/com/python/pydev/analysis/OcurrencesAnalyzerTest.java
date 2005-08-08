@@ -391,6 +391,36 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
     }
     
+    public void testUnusedVariable8() {
+        doc = new Document(
+        "def outer(show=True):     \n"+  
+        "    def inner(show):      \n"+       
+        "        print show        \n"+
+        ""      
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 1);
+        assertEquals(1, msgs.length);
+        assertContainsMsg("Unused variable: show", msgs, 1);
+    }
+    
+    public void testUnusedVariable9() {
+        doc = new Document(
+                "def outer(show=True):        \n"+  
+                "    def inner(show=show):    \n"+       
+                "        pass                 \n"+
+                ""      
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 1);
+        assertEquals(1, msgs.length);
+        assertContainsMsg("Unused variable: show", msgs, 3);
+    }
+    
     public void testUnusedVariable6() {
         doc = new Document(
                 "def m():         \n"+  
