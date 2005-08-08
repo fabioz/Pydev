@@ -30,9 +30,8 @@ public class InterpreterInfo implements Serializable{
     private static final long serialVersionUID = 1L;
     
     /**
+     * This is not applicable for jython (the interpreter is given by the java plugin - jdt)
      * path to the python executable 
-     * 
-     * or to the jython jar
      */
     public String executable; 
     

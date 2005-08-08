@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimplePythonRunner;
@@ -44,25 +45,6 @@ public class InterpreterManager implements IInterpreterManager {
     public InterpreterManager(Preferences prefs) {
         this.prefs = prefs;
         prefs.setDefault(INTERPRETER_PATH, "");
-
-// attempt to get the default... 
-//        String[] strings = prefs.defaultPropertyNames();
-//        boolean alreadySet = false;
-//        for (String prop : strings) {
-//            if(prop.equals(INTERPRETER_PATH)){ //do not set the default again
-//                System.out.println("already set");
-//                alreadySet = true;
-//            }
-//        }
-//        if(!alreadySet){
-//            try {
-//                InterpreterInfo interpreterInfo = getInterpreterInfo("python", new NullProgressMonitor());
-//                prefs.setDefault(INTERPRETER_PATH, getStringToPersist(new String[] { interpreterInfo.executable }));
-//            } catch (Throwable e) {
-//                e.printStackTrace();
-//                prefs.setDefault(INTERPRETER_PATH, "");
-//            }
-//        }
     }
     
     /**
@@ -191,13 +173,46 @@ public class InterpreterManager implements IInterpreterManager {
 
 
     /**
-     * @see org.python.pydev.ui.IInterpreterManager#hasInfoOnDefaultInterpreter()
+     * @see org.python.pydev.ui.IInterpreterManager#hasInfoOnDefaultInterpreter(IPythonNature)
      */
-    public boolean hasInfoOnDefaultInterpreter() {
-        InterpreterInfo info = (InterpreterInfo) exeToInfo.get(getDefaultInterpreter());
-        return info != null;
+    public boolean hasInfoOnDefaultInterpreter(IPythonNature nature) {
+        try {
+            
+            if (nature.isJython()) {
+                throw new RuntimeException("only the python interpreter can be asked for right now");
+            }
+
+            InterpreterInfo info = (InterpreterInfo) exeToInfo.get(getDefaultInterpreter());
+            return info != null;
+            
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    /**
+     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJythonJar()
+     */
+    public String getDefaultJythonJar() {
+        //TODO: get this information correctly
+        throw new RuntimeException("todo");
+    }
+
+    /**
+     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJythonHome()
+     */
+    public String getDefaultJythonHome() {
+        //TODO: get this information correctly
+        throw new RuntimeException("todo");
+    }
+
+    /**
+     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJythonPath()
+     */
+    public String getDefaultJythonPath(){
+        //TODO: get this information correctly
+        throw new RuntimeException("todo");
+    }
 
 }
 

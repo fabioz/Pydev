@@ -6,6 +6,7 @@
 package org.python.pydev.ui;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -19,30 +20,36 @@ public interface IInterpreterManager {
     public String INTERPRETER_PATH = "INTERPRETER_PATH_NEW";
         
     /**
+     * This is not applicable for jython (the interpreter is given by the java plugin - jdt)
+     * 
      * @return the default interpreter.
      */
     public String getDefaultInterpreter();
     
     /**
+     * This is not applicable for jython (the interpreter is given by the java plugin - jdt)
+     * 
      * @return the list of configured interpreters.
      */
     public String [] getInterpreters();
     
     /**
+     * This is not applicable for jython (the interpreter is given by the java plugin - jdt)
+     * 
      * @param executable this is the executable from where we want to get the info
      * @return information on the executable
      */
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor);
 
     /**
-     * @param monitor
+     * @param monitor monitor to report the progress.
      * @return the default interpreter info.
      */
     public InterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor);
     
     /**
      * This function should be used to add an interpreter to the system. Note that it should not be
-     * really added to the system here.
+     * persisted here.
      * 
      * @param executable interpreter to be added
      * @param monitor
@@ -66,7 +73,22 @@ public interface IInterpreterManager {
     /**
      * @return whether we have information on the default interpreter.
      */
-    public boolean hasInfoOnDefaultInterpreter();
+    public boolean hasInfoOnDefaultInterpreter(IPythonNature nature);
+
+    /**
+     * @return the default jython jar location.
+     */
+    public String getDefaultJythonJar();
+
+    /**
+     * @return the default jython home location.
+     */
+    public String getDefaultJythonHome();
+
+    /**
+     * @return the default jython pythonpath
+     */
+    public String getDefaultJythonPath();
     
     
 }

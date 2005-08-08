@@ -47,4 +47,24 @@ public class InterpreterManagerStub extends InterpreterManager implements IInter
         TestDependent.PYTHON_EXE = info.executable;
         return info;
     }
+    /**
+     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJythonJar()
+     */
+    public String getDefaultJythonJar() {
+        return TestDependent.JYTHON_JAR_LOCATION;
+    }
+
+    /**
+     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJythonHome()
+     */
+    public String getDefaultJythonHome() {
+        return TestDependent.JYTHON_HOME_LOCATION;
+    }
+
+    /**
+     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJythonPath()
+     */
+    public String getDefaultJythonPath() {
+        return TestDependent.JYTHON_JYTHON_PATH;
+    }
 }

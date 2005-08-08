@@ -13,7 +13,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -32,12 +31,9 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class SimplePythonRunner extends SimpleRunner {
 
-    public String runAndGetOutput(String script, String args, File workingDir) {
-    	return runAndGetOutput(script, args, workingDir, null);
-    }
     
     /**
-     * Execute the script specified with the python interpreter
+     * Execute the script specified with the interpreter for a given project 
      * 
      * @param script the script we will execute
      * @param args the arguments to pass to the script
@@ -58,10 +54,14 @@ public class SimplePythonRunner extends SimpleRunner {
     /**
      * Execute the string and format for windows if we have spaces...
      * 
-     * @param script
-     * @param args
-     * @param workingDir
-     * @return
+     * The interpreter can be specified.
+     * 
+     * @param interpreter the interpreter we want to use for executing
+     * @param script the python script to execute
+     * @param args the arguments to the scripe
+     * @param workingDir the directory where the script should be executed
+     * 
+     * @return the stdout of the run (if any)
      */
     public String runAndGetOutputWithInterpreter(String interpreter, String script, String args, File workingDir, IProject project, IProgressMonitor monitor) {
         monitor.setTaskName("Mounting executable string...");
@@ -81,17 +81,6 @@ public class SimplePythonRunner extends SimpleRunner {
     }
 
 
-    public String runAndGetOutput(String executionString, File workingDir, IProgressMonitor monitor) {
-    	return runAndGetOutput(executionString, workingDir, null, monitor);
-    }
-    
-    public String runAndGetOutput(String executionString, File workingDir) {
-    	return runAndGetOutput(executionString, workingDir, null, new NullProgressMonitor());
-    }
-    
-    public String runAndGetOutput(String executionString, File workingDir, IProject project) {
-    	return runAndGetOutput(executionString, workingDir, project, new NullProgressMonitor());
-    }
 
     /**
      * This is the method that actually does the running (all others are just 'shortcuts' to this one).

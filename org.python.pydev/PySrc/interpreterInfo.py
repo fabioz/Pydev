@@ -18,12 +18,23 @@ if __name__ == '__main__':
     executable = sys.executable
     print 'EXECUTABLE:%s|' % executable
     
+    def formatPath(p):
+        '''fixes the path so that the format of the path really reflects the directories in the system
+        '''
+        return os.path.normcase(os.path.normpath(p))
+
     #this is the new implementation to get the system folders 
     #(still need to check if it works in linux)
     #(previously, we were getting the executable dir, but that is not always correct...)
-    prefix = sys.prefix.lower()
+    prefix = formatPath(sys.prefix)
     
+
+    result = []
     for p in sys.path:
-        if p.lower().startswith(prefix):
-            print '|', p
-    
+        p = formatPath(p)
+        if p.startswith(prefix):
+            if p not in result: #a path should not appear more than once...
+                result.append(p)
+            
+    for p in result:
+        print '|', p

@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.variables.VariablesPlugin;
@@ -25,10 +26,10 @@ import org.python.pydev.plugin.nature.IPythonPathNature;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-public class SimpleRunner {
+public abstract class SimpleRunner {
 
     /**
-     * Just execute the string. does nothing else...
+     * Just execute the string. Does nothing else.
      */
     public Process createProcess(String executionString, File workingDir) throws IOException {
         return Runtime.getRuntime().exec(executionString, null, workingDir);
@@ -39,18 +40,20 @@ public class SimpleRunner {
      * 
      * changed so that we always set the PYTHONPATH in the environment
      * 
-     * @param configuration
-     * @return
-     * @throws CoreException
+     * @return the system environment with the PYTHONPATH env variable added for a given project (if it is null, return it with the
+     * default PYTHONPATH added).
      */
     public String[] getEnvironment(IProject project) throws CoreException {
-        if(project == null){ //no associated project... just get the default env
+        PythonNature pythonNature = PythonNature.getPythonNature(project);
+        if(pythonNature == null){ //no associated nature in the project... just get the default env
             return getDefaultSystemEnvAsArray();
         }
         
+        
         String pythonPathEnvStr = "";
     	try {
-            if (PydevPlugin.getInterpreterManager().hasInfoOnDefaultInterpreter()){ //check if we have a default interpreter.
+            
+            if (PydevPlugin.getInterpreterManager().hasInfoOnDefaultInterpreter(pythonNature)){ //check if we have a default interpreter.
                 pythonPathEnvStr = makePythonPathEnvString(project);
             }
         } catch (Exception e) {
@@ -68,6 +71,9 @@ public class SimpleRunner {
     	}
     }
 
+    /**
+     * @return an array with the env variables for the system with the format xx=yy  
+     */
     public String[] getDefaultSystemEnvAsArray() throws CoreException {
         Map defaultSystemEnv = getDefaultSystemEnv();
         if(defaultSystemEnv != null){
@@ -76,17 +82,18 @@ public class SimpleRunner {
         return null;
     }
 
+    /**
+     * @return a map with the env variables for the system  
+     */
     public Map getDefaultSystemEnv() throws CoreException {
         DebugPlugin defaultPlugin = DebugPlugin.getDefault();
         return getDefaultSystemEnv(defaultPlugin);
     }
 
     /**
-     * @param defaultPlugin
-     * @return
-     * @throws CoreException
+     * @return a map with the env variables for the system  
      */
-    public Map<String,String> getDefaultSystemEnv(DebugPlugin defaultPlugin) throws CoreException {
+    private Map<String,String> getDefaultSystemEnv(DebugPlugin defaultPlugin) throws CoreException {
         if(defaultPlugin != null){
             ILaunchManager launchManager = defaultPlugin.getLaunchManager();
     
@@ -118,11 +125,19 @@ public class SimpleRunner {
      * @return whether we are in windows or not
      */
     public static boolean isWindowsPlatform() {
-        return Platform.getOS().equals(Constants.OS_WIN32);
+        try {
+            return Platform.getOS().equals(Constants.OS_WIN32);
+        } catch (NullPointerException e) {
+            String env = System.getenv("os");
+            if(env.toLowerCase().indexOf("win") != -1){
+                return true;
+            }
+            return false;
+        }
     }
 
     /**
-     * Formats the script to the windows environment (if needed), adding '"' to the start and end of the script
+     * Formats the script to the windows environment (if needed), adding '"' to the start and end of the parameter
      * 
      * @param param the parameter that might be formatted
      * 
@@ -138,8 +153,10 @@ public class SimpleRunner {
     }
 
     /**
-     * @param project
-     * @return
+     * Creates a string that can be passed as the PYTHONPATH 
+     * 
+     * @param project the project we want to get the settings from. If it is null, the system pythonpath is returned 
+     * @return a string that can be used as the PYTHONPATH env variable
      */
     public String makePythonPathEnvString(IProject project) {
         List paths;
@@ -153,12 +170,7 @@ public class SimpleRunner {
             paths = new ArrayList(info.libs);
         }
     
-        boolean win32= isWindowsPlatform();
-        String separator = ";";
-        if(!win32){
-            separator = ":"; //system dependent
-        }
-    
+        String separator = getPythonPathSeparator();
     	StringBuffer pythonpath = new StringBuffer();
         for (int i = 0; i < paths.size(); i++) {
     		if (i > 0){
@@ -168,9 +180,22 @@ public class SimpleRunner {
     	}
         return pythonpath.toString();
     }
+    
+    /**
+     * @return the separator for the pythonpath variables (system dependent)
+     */
+    public String getPythonPathSeparator(){
+        boolean win32= isWindowsPlatform();
+        String separator = ";";
+        if(!win32){
+            separator = ":"; //system dependent
+        }
+        return separator;
+    }
 
     /**
      * @param env a map that will have its values formatted to xx=yy, so that it can be passed in an exec
+     * @return an array with the formatted map
      */
     private String[] getMapEnvAsArray(Map env) {
         List<String> strings= new ArrayList<String>(env.size());
@@ -183,5 +208,58 @@ public class SimpleRunner {
     	
     	return strings.toArray(new String[strings.size()]);
     }
+
+    /**
+     * shortcut
+     */
+    public String runAndGetOutput(String executionString, File workingDir, IProgressMonitor monitor) {
+        return runAndGetOutput(executionString, workingDir, null, monitor);
+    }
+    
+    /**
+     * shortcut
+     */
+    public String runAndGetOutput(String executionString, File workingDir) {
+        return runAndGetOutput(executionString, workingDir, null, new NullProgressMonitor());
+    }
+    
+    /**
+     * shortcut
+     */
+    public String runAndGetOutput(String executionString, File workingDir, IProject project) {
+        return runAndGetOutput(executionString, workingDir, project, new NullProgressMonitor());
+    }
+
+    /**
+     * shortcut
+     */
+    public String runAndGetOutput(String script, String args, File workingDir) {
+        return runAndGetOutput(script, args, workingDir, null);
+    }
+
+    /**
+     * This is the method that actually does the running (all others are just 'shortcuts' to this one).
+     * 
+     * @param executionString this is the string that will be executed
+     * @param workingDir this is the directory where the execution will happen
+     * @param project this is the project that is related to the run (it is used to get the environment for the shell we are going to
+     * execute with the correct pythonpath environment variable).
+     * @param monitor this is the monitor used to communicate the progress to the user
+     * 
+     * @return the string that is the output of the process (stdout).
+     */
+    public abstract String runAndGetOutput(String executionString, File workingDir, IProject project, IProgressMonitor monitor);
+
+    /**
+     * Execute the script specified with the interpreter for a given project 
+     * 
+     * @param script the script we will execute
+     * @param args the arguments to pass to the script
+     * @param workingDir the working directory
+     * @param project the project that is associated to this run
+     * 
+     * @return a string with the output of the process (stdout)
+     */
+    public abstract String runAndGetOutput(String script, String args, File workingDir, IProject project);
 
 }
