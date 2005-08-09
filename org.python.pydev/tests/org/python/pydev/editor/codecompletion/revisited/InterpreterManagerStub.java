@@ -8,11 +8,12 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
-import org.python.pydev.ui.IInterpreterManager;
-import org.python.pydev.ui.InterpreterManager;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
+import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-public class InterpreterManagerStub extends InterpreterManager implements IInterpreterManager {
+public class InterpreterManagerStub extends AbstractInterpreterManager implements IInterpreterManager {
 
     public InterpreterManagerStub(Preferences prefs) {
         super(prefs);
@@ -39,7 +40,7 @@ public class InterpreterManagerStub extends InterpreterManager implements IInter
     }
     
     /**
-     * @see org.python.pydev.ui.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
+     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
         
@@ -47,31 +48,31 @@ public class InterpreterManagerStub extends InterpreterManager implements IInter
         TestDependent.PYTHON_EXE = info.executableOrJar;
         return info;
     }
-    /**
-     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJythonJar()
-     */
-    public String getDefaultJythonJar() {
-        return TestDependent.JYTHON_JAR_LOCATION;
-    }
-
-    /**
-     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJythonHome()
-     */
-    public String getDefaultJythonHome() {
-        return TestDependent.JYTHON_HOME_LOCATION;
-    }
-
-    /**
-     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJythonPath()
-     */
-    public String getDefaultJythonPath() {
-        return TestDependent.JYTHON_JYTHON_PATH;
-    }
     
     /**
-     * @see org.python.pydev.ui.IInterpreterManager#getDefaultJavaLocation()
+     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getDefaultJavaLocation()
      */
     public String getDefaultJavaLocation() {
         return TestDependent.JAVA_LOCATION;
+    }
+
+    @Override
+    protected String getPreferenceName() {
+        return "pref name";
+    }
+
+    @Override
+    protected String getNotConfiguredInterpreterMsg() {
+        return "getNotConfiguredInterpreterMsg";
+    }
+
+    @Override
+    public InterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) {
+        throw new RuntimeException("not impl");
+    }
+
+    @Override
+    public boolean canGetInfoOnNature(IPythonNature nature) {
+        return true;
     }
 }

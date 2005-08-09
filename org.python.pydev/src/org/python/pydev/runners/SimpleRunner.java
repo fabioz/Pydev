@@ -24,7 +24,6 @@ import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.IPythonPathNature;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public abstract class SimpleRunner {
 
@@ -53,7 +52,7 @@ public abstract class SimpleRunner {
         String pythonPathEnvStr = "";
     	try {
             
-            if (PydevPlugin.getPythonInterpreterManager().hasInfoOnDefaultInterpreter(pythonNature)){ //check if we have a default interpreter.
+            if (PydevPlugin.getInterpreterManager(pythonNature).hasInfoOnDefaultInterpreter(pythonNature)){ //check if we have a default interpreter.
                 pythonPathEnvStr = makePythonPathEnvString(project);
             }
         } catch (Exception e) {
@@ -160,15 +159,13 @@ public abstract class SimpleRunner {
      */
     public String makePythonPathEnvString(IProject project) {
         List paths;
-        if(project != null){
-            //if we have a project, get its complete pythonpath
-            IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
-        	paths = pythonPathNature.getCompleteProjectPythonPath();
-        }else{
-            //otherwise, get the system pythonpath
-            InterpreterInfo info = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreterInfo(new NullProgressMonitor());
-            paths = new ArrayList(info.libs);
+        if(project == null){
+            return ""; //no pythonpath can be gotten (set to empty, so that the default is gotten)
         }
+        
+        //if we have a project, get its complete pythonpath
+        IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
+    	paths = pythonPathNature.getCompleteProjectPythonPath();
     
         String separator = getPythonPathSeparator();
     	StringBuffer pythonpath = new StringBuffer();

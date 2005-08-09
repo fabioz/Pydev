@@ -30,7 +30,6 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.StreamConsumer;
-import org.python.pydev.ui.pythonpathconf.JythonInterpreterEditor;
 
 /**
  * The main Python debug setup tab.
@@ -139,9 +138,6 @@ public class PythonMainTab extends AbstractLaunchConfigurationTab {
 		
 		try {
 			String versionOption = " -V";
-			// Jython command line option is --version, not -V
-			if (JythonInterpreterEditor.isJython(executable))
-				versionOption = " --version";
 			
 			String complete = executable + versionOption;
             Process pr = Runtime.getRuntime().exec(complete);

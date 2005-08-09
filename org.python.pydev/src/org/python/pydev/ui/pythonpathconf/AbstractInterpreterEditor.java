@@ -36,8 +36,8 @@ import org.eclipse.swt.widgets.Widget;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimplePythonRunner;
-import org.python.pydev.ui.IInterpreterManager;
 import org.python.pydev.ui.UIConstants;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 /**
  * Field editor for a list of python interpreter with executable verifier.
@@ -50,7 +50,7 @@ import org.python.pydev.ui.UIConstants;
  * Subclasses must implement :<code>parseString</code>,<code>createList</code>,<code>getNewInputObject</code>
  */
 
-public class InterpreterEditor extends PythonListEditor {
+public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     /**
      * The last path, or <code>null</code> if none.
@@ -105,7 +105,7 @@ public class InterpreterEditor extends PythonListEditor {
      * @param labelText the label text of the field editor
      * @param parent the parent of the field editor's control
      */
-    protected InterpreterEditor(String preferenceName, String labelText, Composite parent, IInterpreterManager interpreterManager) {
+    protected AbstractInterpreterEditor(String preferenceName, String labelText, Composite parent, IInterpreterManager interpreterManager) {
         init(preferenceName, labelText);
         this.interpreterManager = interpreterManager;
         imageSystemLibRoot = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM_ROOT);
@@ -114,9 +114,6 @@ public class InterpreterEditor extends PythonListEditor {
         updateTree();
     }
     
-    public InterpreterEditor(String labelText, Composite parent, IInterpreterManager interpreterManager) {
-        this(IInterpreterManager.INTERPRETER_PATH, labelText, parent, interpreterManager);
-    }
 
     protected void doLoad() {
         super.doLoad();
@@ -417,16 +414,19 @@ public class InterpreterEditor extends PythonListEditor {
     }
 
 
+    /**
+     * @return a string with the extensions that are accepted for the interpreter
+     */
+    public abstract String[] getInterpreterFilterExtensions();
+    
     /** Overriden
      */
     protected String getNewInputObject() {
         FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
 
-        
-        if (SimplePythonRunner.isWindowsPlatform()) {
-            dialog.setFilterExtensions(new String[] { "*.exe", "*.*" });
-        } else {
-            // right file dialog executable filters for unix/mac?
+        String[] filterExtensions = getInterpreterFilterExtensions();
+        if(filterExtensions != null){
+            dialog.setFilterExtensions(filterExtensions);
         }
 
         if (lastPath != null) {

@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.ui;
+package org.python.pydev.ui.interpreters;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.IPythonNature;
@@ -17,12 +17,12 @@ public interface IInterpreterManager {
     /**
      * This is the constant from where we get the interpreter info
      */
-    public String INTERPRETER_PATH = "INTERPRETER_PATH_NEW";
+    public String PYTHON_INTERPRETER_PATH = "INTERPRETER_PATH_NEW";
         
     /**
      * This is the constant from where we get the jython jar
      */
-    public String JYTHON_JAR = "JYTHON_JAR";
+    public String JYTHON_INTERPRETER_PATH = "JYTHON_INTERPRETER_PATH";
     
     /**
      * This is not applicable for jython (the interpreter is given by the java plugin - jdt)

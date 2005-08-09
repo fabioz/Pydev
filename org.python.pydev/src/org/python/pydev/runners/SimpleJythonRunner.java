@@ -12,7 +12,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.IInterpreterManager;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class SimpleJythonRunner extends SimpleRunner{
@@ -82,7 +82,7 @@ public class SimpleJythonRunner extends SimpleRunner{
         //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21" 
         //-classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
         
-        IInterpreterManager interpreterManager = PydevPlugin.getPythonInterpreterManager();
+        IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
         String javaLoc = interpreterManager.getDefaultJavaLocation();
         javaLoc = formatParamToExec(javaLoc);
         

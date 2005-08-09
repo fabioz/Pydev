@@ -10,9 +10,9 @@ package org.python.pydev.ui.pythonpathconf;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.IInterpreterManager;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
 
-public class JythonInterpreterPreferencesPage extends InterpreterPreferencesPage{
+public class JythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage{
 
     public String getTitle() {
         return "Jython Interpreters";
@@ -29,14 +29,14 @@ public class JythonInterpreterPreferencesPage extends InterpreterPreferencesPage
      * @param p this is the composite that should be the interpreter parent
      * @return an interpreter editor (used to add/edit/remove the information on an editor)
      */
-    protected InterpreterEditor getInterpreterEditor(Composite p) {
-        return new JythonInterpreterEditor (getInterpretersTitle(), p, PydevPlugin.getPythonInterpreterManager());
+    protected AbstractInterpreterEditor getInterpreterEditor(Composite p) {
+        return new JythonInterpreterEditor (getInterpretersTitle(), p, PydevPlugin.getJythonInterpreterManager());
     }
 
     @Override
     protected void doRestore(String defaultSelectedInterpreter, IProgressMonitor monitor) {
         monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
-        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager();
+        IInterpreterManager iMan = PydevPlugin.getJythonInterpreterManager();
         final InterpreterInfo info = iMan.getInterpreterInfo(defaultSelectedInterpreter, monitor);
         info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
         

@@ -21,7 +21,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.IInterpreterManager;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -43,7 +43,7 @@ public class ProjectModulesManager extends ModulesManager{
     }
     
     public SystemModulesManager getSystemModulesManager(){
-        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager();
+        IInterpreterManager iMan = PydevPlugin.getInterpreterManager(PythonNature.getPythonNature(project));
         InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
         return info.modulesManager;
     }

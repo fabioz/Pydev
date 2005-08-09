@@ -15,26 +15,25 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.IInterpreterManager;
 
 /**
  * @author Fabio Zadrozny
  */
-public abstract class InterpreterPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
+public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
 
     private boolean changed = false;
-    protected InterpreterEditor pathEditor;
+    protected AbstractInterpreterEditor pathEditor;
 
     /**
 	 * Initializer sets the preference store
 	 */
-	public InterpreterPreferencesPage() {
+	public AbstractInterpreterPreferencesPage() {
 		super(GRID);
 		setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         changed = false;
 	}
 
-    protected abstract InterpreterEditor getInterpreterEditor(Composite p);
+    protected abstract AbstractInterpreterEditor getInterpreterEditor(Composite p);
     
     /**
      * @return whether this page has changed

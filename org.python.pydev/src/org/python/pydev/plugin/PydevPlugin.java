@@ -45,15 +45,17 @@ import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.pychecker.PyCheckerPrefPage;
 import org.python.pydev.builder.pylint.PyLintPrefPage;
 import org.python.pydev.builder.todo.PyTodoPrefPage;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.pyunit.ITestRunListener;
 import org.python.pydev.pyunit.PyUnitTestRunner;
-import org.python.pydev.ui.IInterpreterManager;
 import org.python.pydev.ui.ImageCache;
-import org.python.pydev.ui.PythonInterpreterManager;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
+import org.python.pydev.ui.interpreters.JythonInterpreterManager;
+import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
@@ -74,6 +76,24 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
     public static IInterpreterManager getJythonInterpreterManager() {
         return jythonInterpreterManager;
+    }
+    /**
+     * returns the interpreter manager for a given nature
+     * @param nature the nature from where we want to get the associated interpreter manager
+     * 
+     * @return the interpreter manager
+     */
+    public static IInterpreterManager getInterpreterManager(IPythonNature nature) {
+        try {
+            if (nature.isJython()) {
+                return jythonInterpreterManager;
+            } else if (nature.isPython()) {
+                return pythonInterpreterManager;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        throw new RuntimeException("Unable to get the interpreter manager for the nature passed.");
     }
     
     
@@ -109,6 +129,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         Preferences preferences = plugin.getPluginPreferences();
         preferences.addPropertyChangeListener(this);
         setPythonInterpreterManager(new PythonInterpreterManager(preferences));
+        setJythonInterpreterManager(new JythonInterpreterManager(preferences));
         
 
         //restore the nature for all python projects

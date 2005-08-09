@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.plugin.BundleInfo;
-import org.python.pydev.ui.pythonpathconf.InterpreterEditor;
+import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor;
 
 /**
  * @author Fabio Zadrozny

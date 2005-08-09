@@ -362,7 +362,7 @@ public class PythonRunnerConfig {
 		Vector cmdArgs = new Vector(10);
 		cmdArgs.add(interpreter);
 		// Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
-		cmdArgs.add(org.python.pydev.ui.pythonpathconf.JythonInterpreterEditor.isJython(interpreter) ? "-i" : "-u");
+		cmdArgs.add("-u");
 		if (isDebug) {
 			cmdArgs.add(getDebugScript());
 			cmdArgs.add("--client");

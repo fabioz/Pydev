@@ -20,7 +20,7 @@ import org.python.pydev.editor.codecompletion.revisited.InterpreterManagerStub;
 import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.BundleInfoStub;
-import org.python.pydev.ui.IInterpreterManager;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 /**
  * These tests should run, however the directory where the tests are run must be correct.

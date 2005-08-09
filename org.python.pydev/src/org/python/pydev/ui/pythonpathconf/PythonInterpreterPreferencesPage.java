@@ -6,16 +6,12 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.IInterpreterManager;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
 
-public class PythonInterpreterPreferencesPage extends InterpreterPreferencesPage{
+public class PythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage{
 
     public String getTitle() {
         return "Python Interpreters";
@@ -32,8 +28,8 @@ public class PythonInterpreterPreferencesPage extends InterpreterPreferencesPage
      * @param p this is the composite that should be the interpreter parent
      * @return an interpreter editor (used to add/edit/remove the information on an editor)
      */
-    protected InterpreterEditor getInterpreterEditor(Composite p) {
-        return new InterpreterEditor (getInterpretersTitle(), p, PydevPlugin.getPythonInterpreterManager());
+    protected AbstractInterpreterEditor getInterpreterEditor(Composite p) {
+        return new PythonInterpreterEditor (getInterpretersTitle(), p, PydevPlugin.getPythonInterpreterManager());
     }
     
 

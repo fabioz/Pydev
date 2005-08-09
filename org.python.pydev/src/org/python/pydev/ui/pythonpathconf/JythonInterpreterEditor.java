@@ -7,19 +7,18 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import org.eclipse.swt.widgets.Composite;
-import org.python.pydev.ui.IInterpreterManager;
+import org.python.pydev.runners.SimplePythonRunner;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
 
-public class JythonInterpreterEditor extends InterpreterEditor{
+public class JythonInterpreterEditor extends AbstractInterpreterEditor{
 
     public JythonInterpreterEditor(String labelText, Composite parent, IInterpreterManager interpreterManager) {
-        super(labelText, parent, interpreterManager);
+        super(IInterpreterManager.JYTHON_INTERPRETER_PATH, labelText, parent, interpreterManager);
     }
 
-    /**
-     * true if executable is jython. A hack,
-     */
-    static public boolean isJython(String executable) {
-        return executable.toLowerCase().indexOf("jython") != -1;
+    @Override
+    public String[] getInterpreterFilterExtensions() {
+        return new String[] { "*.jar", "*.*" };
     }
 
 }

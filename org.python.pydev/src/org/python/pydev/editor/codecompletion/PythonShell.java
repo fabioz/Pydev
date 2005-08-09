@@ -386,7 +386,7 @@ public class PythonShell {
         try {
             closeConn();
         } catch (Exception e) {
-            e.printStackTrace();
+            //that's ok...
         }
         if (process!= null){
             try {

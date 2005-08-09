@@ -3,10 +3,9 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.ui;
+package org.python.pydev.ui.interpreters;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -16,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
@@ -24,8 +24,7 @@ import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.runners.SimpleJythonRunner;
-import org.python.pydev.runners.SimplePythonRunner;
+import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import sun.misc.BASE64Decoder;
@@ -36,41 +35,51 @@ import sun.misc.BASE64Decoder;
  * 
  * @author Fabio Zadrozny
  */
-public abstract class InterpreterManager implements IInterpreterManager {
+public abstract class AbstractInterpreterManager implements IInterpreterManager {
 
-    private Map exeToInfo = new HashMap();
+    private Map<String, InterpreterInfo> exeToInfo = new HashMap<String, InterpreterInfo>();
     private Preferences prefs;
 
     /**
      * Constructor
      */
-    public InterpreterManager(Preferences prefs) {
+    public AbstractInterpreterManager(Preferences prefs) {
         this.prefs = prefs;
-        prefs.setDefault(INTERPRETER_PATH, "");
+        prefs.setDefault(getPreferenceName(), "");
     }
+
+    /**
+     * @return the preference name where the options for this interpreter manager should be stored
+     */
+    protected abstract String getPreferenceName();
     
     /**
      * @throws NotConfiguredInterpreterException
-     * @see org.python.pydev.ui.IInterpreterManager#getDefaultInterpreter()
+     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getDefaultInterpreter()
      */
     public String getDefaultInterpreter() throws NotConfiguredInterpreterException {
         String[] interpreters = getInterpreters();
         if(interpreters.length > 0){
             return interpreters[0];
         }else{
-            throw new NotConfiguredInterpreterException("Interpreter is not properly configured! Please go to window->preferences->PyDev->Python Interpreters and configure it.");
+            throw new NotConfiguredInterpreterException(getNotConfiguredInterpreterMsg());
         }
     }
 
     /**
-     * @see org.python.pydev.ui.IInterpreterManager#getInterpreters()
+     * @return a message to show to the user when there is no configured interpreter
+     */
+    protected abstract String getNotConfiguredInterpreterMsg(); 
+
+    /**
+     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getInterpreters()
      */
     public String[] getInterpreters() {
-        return getInterpretersFromPersistedString(prefs.getString(INTERPRETER_PATH));
+        return getInterpretersFromPersistedString(prefs.getString(getPreferenceName()));
     }
     
     /**
-     * @see org.python.pydev.ui.IInterpreterManager#getDefaultInterpreterInfo(org.eclipse.core.runtime.IProgressMonitor)
+     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getDefaultInterpreterInfo(org.eclipse.core.runtime.IProgressMonitor)
      */
     public InterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor) {
         String interpreter = getDefaultInterpreter();
@@ -78,7 +87,18 @@ public abstract class InterpreterManager implements IInterpreterManager {
     }
     
     /**
-     * @see org.python.pydev.ui.IInterpreterManager#getInterpreterInfo(java.lang.String)
+     * Given an executable, should create the interpreter info that corresponds to it
+     * 
+     * @param executable the executable that should be used to create the info
+     * @param monitor a monitor to keep track of the info
+     * 
+     * @return the interpreter info for the executable
+     * @throws CoreException 
+     */
+    public abstract InterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException;
+    
+    /**
+     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getInterpreterInfo(java.lang.String)
      */
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
         InterpreterInfo info = (InterpreterInfo) exeToInfo.get(executable);
@@ -86,23 +106,9 @@ public abstract class InterpreterManager implements IInterpreterManager {
             monitor.worked(5);
             //ok, we have to get the info from the executable (and let's cache results for future use...
     		try {
-    	        File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
 
-                String output;
-                boolean isJythonExecutable = isJythonExecutable(executable);
-                if(isJythonExecutable){
-                    output = new SimpleJythonRunner().runAndGetOutputWithJar(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
-                }else{                
-                    output = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
-                }
+                info = createInterpreterInfo(executable, monitor);
                 
-    	        info = InterpreterInfo.fromString(output);
-    	        info.restoreCompiledLibs(monitor);
-                
-                if(isJythonExecutable){
-                    //the executable is the jar itself
-                    info.executableOrJar = executable;
-                }
     	    } catch (Exception e) {
     	        PydevPlugin.log(e);
     	        //TODO: make dialog: unable to get info for file... 
@@ -111,10 +117,10 @@ public abstract class InterpreterManager implements IInterpreterManager {
     	    if(info.executableOrJar != null && info.executableOrJar.trim().length() > 0){
     	        exeToInfo.put(info.executableOrJar, info);
     	        
-    	    }else{
+    	    }else{ //it is null or no empty
                 String title = "Invalid interpreter:"+executable;
                 String msg = "Unable to get information on interpreter!";
-    	        String reason = "The interpreter: '"+executable+"' is not a valid python executable - info.executable found: "+info.executableOrJar;
+    	        String reason = "The interpreter (or jar): '"+executable+"' is not valid - info.executable found: "+info.executableOrJar;
     	        
                 try {
                     ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, reason, null));
@@ -128,15 +134,15 @@ public abstract class InterpreterManager implements IInterpreterManager {
     }
 
     /**
-     * @param executable
-     * @return
+     * @param executable the executable we want to know about
+     * @return if the executable is the jython jar.
      */
-    private boolean isJythonExecutable(String executable) {
+    protected boolean isJythonExecutable(String executable) {
         return executable.endsWith(".jar");
     }
 
     /**
-     * @see org.python.pydev.ui.IInterpreterManager#addInterpreter(java.lang.String)
+     * @see org.python.pydev.ui.interpreters.IInterpreterManager#addInterpreter(java.lang.String)
      */
     public String addInterpreter(String executable, IProgressMonitor monitor) {
         InterpreterInfo info = getInterpreterInfo(executable, monitor);
@@ -148,7 +154,7 @@ public abstract class InterpreterManager implements IInterpreterManager {
     private String [] persistedCacheRet;
     
     /**
-     * @see org.python.pydev.ui.IInterpreterManager#getInterpretersFromPersistedString(java.lang.String)
+     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getInterpretersFromPersistedString(java.lang.String)
      */
     public String[] getInterpretersFromPersistedString(String persisted) {
 
@@ -157,15 +163,17 @@ public abstract class InterpreterManager implements IInterpreterManager {
         }
         
         if(persistedCache == null || persistedCache.equals(persisted) == false){
-	        List ret = new ArrayList();
+	        List<String> ret = new ArrayList<String>();
 
 	        try {
 		        List list = (List) IOUtils.getStrAsObj(persisted);
 	            
 	            for (Iterator iter = list.iterator(); iter.hasNext();) {
 	                InterpreterInfo info = (InterpreterInfo) iter.next();
-	                this.exeToInfo.put(info.executableOrJar, info);
-	                ret.add(info.executableOrJar);
+                    if(info != null && info.executableOrJar != null){
+    	                this.exeToInfo.put(info.executableOrJar, info);
+    	                ret.add(info.executableOrJar);
+                    }
 	            }
             } catch (Exception e) {
                 PydevPlugin.log(e);
@@ -175,18 +183,18 @@ public abstract class InterpreterManager implements IInterpreterManager {
             }
             
 	        persistedCache = persisted;
-	        persistedCacheRet = (String[]) ret.toArray(new String[0]);
+	        persistedCacheRet = ret.toArray(new String[0]);
         }
         return persistedCacheRet;
     }
 
     /**
-     * @see org.python.pydev.ui.IInterpreterManager#getStringToPersist(java.lang.String[])
+     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getStringToPersist(java.lang.String[])
      */
     public String getStringToPersist(String[] executables) {
-        ArrayList list = new ArrayList();
-        for (int i = 0; i < executables.length; i++) {
-            Object info = this.exeToInfo.get(executables[i]);
+        ArrayList<InterpreterInfo> list = new ArrayList<InterpreterInfo>();
+        for (String exe : executables) {
+            InterpreterInfo info = this.exeToInfo.get(exe);
             if(info!=null){
                 list.add(info);
             }
@@ -196,15 +204,19 @@ public abstract class InterpreterManager implements IInterpreterManager {
 
 
     /**
-     * @see org.python.pydev.ui.IInterpreterManager#hasInfoOnDefaultInterpreter(IPythonNature)
+     * @return whether this interpreter manager can be used to get info on the specified nature
+     */
+    public abstract boolean canGetInfoOnNature(IPythonNature nature);
+    
+    /**
+     * @see org.python.pydev.ui.interpreters.IInterpreterManager#hasInfoOnDefaultInterpreter(IPythonNature)
      */
     public boolean hasInfoOnDefaultInterpreter(IPythonNature nature) {
+        if(!canGetInfoOnNature(nature)){
+            throw new RuntimeException("Cannot get info on the requested nature");
+        }
+        
         try {
-            
-            if (nature.isJython()) {
-                throw new RuntimeException("only the python interpreter can be asked for right now");
-            }
-
             InterpreterInfo info = (InterpreterInfo) exeToInfo.get(getDefaultInterpreter());
             return info != null;
             
