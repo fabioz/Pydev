@@ -100,7 +100,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         CompletionState state = new CompletionState(line,col, token, nature);
         ICodeCompletionASTManager a = (ICodeCompletionASTManager)nature.getAstManager();
         comps = a.getCompletionsForToken(doc, state);
-        assertEquals(1, comps.length);
+        assertFalse(comps.length == 0);
 
     }
     

@@ -228,7 +228,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature);
         comps = getManager().getCompletionsForToken(doc, state);
-        assertEquals(1, comps.length);
+        assertEquals(0, comps.length); //no tokens returned
         
     }
     

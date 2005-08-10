@@ -483,20 +483,24 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForWildImport
      */
     public List getCompletionsForWildImport(CompletionState state, AbstractModule current, List completions, IToken name) {
-        AbstractModule mod = getModule(name.getCompletePath(), state.nature); //relative import
-        
-        if (mod == null) {
-            mod = getModule(name.getRepresentation(), state.nature);
-        }
-        
-        if (mod != null) {
-            state.checkWildImportInMemory(current, mod);
-            IToken[] completionsForModule = getCompletionsForModule(mod, state);
-            for (int j = 0; j < completionsForModule.length; j++) {
-                completions.add(completionsForModule[j]);
+        try {
+            AbstractModule mod = getModule(name.getCompletePath(), state.nature); //relative import
+
+            if (mod == null) {
+                mod = getModule(name.getRepresentation(), state.nature);
             }
-        } else {
-            //"Module not found:" + name.getRepresentation()
+
+            if (mod != null) {
+                state.checkWildImportInMemory(current, mod);
+                IToken[] completionsForModule = getCompletionsForModule(mod, state);
+                for (int j = 0; j < completionsForModule.length; j++) {
+                    completions.add(completionsForModule[j]);
+                }
+            } else {
+                //"Module not found:" + name.getRepresentation()
+            }
+        } catch (CompletionRecursionException e) {
+            //probably found a recursion... let's return the tokens we have so far
         }
         return completions;
     }

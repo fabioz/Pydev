@@ -17,6 +17,7 @@ import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
@@ -153,44 +154,47 @@ public class SourceModule extends AbstractModule {
                     //COMPLETION: get the completions for the whole hierarchy if this is a class!!
                     List modToks = new ArrayList(Arrays.asList(GlobalModelVisitor.getTokens(a, GlobalModelVisitor.INNER_DEFS, name)));
                     
-                    if( a instanceof ClassDef){
-                        ClassDef c = (ClassDef) a;
-                        for (int j = 0; j < c.bases.length; j++) {
-                            if(c.bases[j] instanceof Name){
-                                Name n = (Name) c.bases[j];
-                                String base = n.id;
-                                //An error in the programming might result in an error.
-                                //
-                                //e.g. The case below results in a loop.
-                                //
-                                //class A(B):
-                                //    
-                                //    def a(self):
-                                //        pass
-                                //        
-                                //class B(A):
-                                //    
-                                //    def b(self):
-                                //        pass
-                                state = state.getCopy();
-                                state.activationToken = base;
-                                
-                                state.checkMemory(this, base);
-                                
-                                
-                                final IToken[] comps = manager.getCompletionsForModule(this, state);
-                                modToks.addAll(Arrays.asList(comps));
-                            }else if (c.bases[j] instanceof Attribute){
-                                Attribute attr = (Attribute) c.bases[j];
-                                String s = NodeUtils.getFullRepresentationString(attr);
-                                
-                                state = state.getCopy();
-                                state.activationToken = s;
-                                final IToken[] comps = manager.getCompletionsForModule(this, state);
-                                modToks.addAll(Arrays.asList(comps));
+                    try {
+                        if (a instanceof ClassDef) {
+                            ClassDef c = (ClassDef) a;
+                            for (int j = 0; j < c.bases.length; j++) {
+                                if (c.bases[j] instanceof Name) {
+                                    Name n = (Name) c.bases[j];
+                                    String base = n.id;
+                                    //An error in the programming might result in an error.
+                                    //
+                                    //e.g. The case below results in a loop.
+                                    //
+                                    //class A(B):
+                                    //    
+                                    //    def a(self):
+                                    //        pass
+                                    //        
+                                    //class B(A):
+                                    //    
+                                    //    def b(self):
+                                    //        pass
+                                    state = state.getCopy();
+                                    state.activationToken = base;
+
+                                    state.checkMemory(this, base);
+
+                                    final IToken[] comps = manager.getCompletionsForModule(this, state);
+                                    modToks.addAll(Arrays.asList(comps));
+                                } else if (c.bases[j] instanceof Attribute) {
+                                    Attribute attr = (Attribute) c.bases[j];
+                                    String s = NodeUtils.getFullRepresentationString(attr);
+
+                                    state = state.getCopy();
+                                    state.activationToken = s;
+                                    final IToken[] comps = manager.getCompletionsForModule(this, state);
+                                    modToks.addAll(Arrays.asList(comps));
+                                }
                             }
+
                         }
-                        
+                    } catch (CompletionRecursionException e) {
+                        // let's return what we have so far...
                     }
                     
                     return (IToken[]) modToks.toArray(new IToken[0]);

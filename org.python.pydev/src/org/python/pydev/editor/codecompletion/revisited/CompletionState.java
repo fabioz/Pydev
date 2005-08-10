@@ -32,7 +32,7 @@ public class CompletionState {
         /**
          * if more than this number of ocurrences is found, we are in a recursion
          */
-        private static final int MAX_NUMBER_OF_OCURRENCES = 2;
+        private static final int MAX_NUMBER_OF_OCURRENCES = 5;
         
         public Map<AbstractModule, Map<E, Integer>> memo = new HashMap<AbstractModule, Map<E, Integer>>();
 
@@ -114,20 +114,8 @@ public class CompletionState {
      */
     public void checkWildImportInMemory(AbstractModule caller, AbstractModule wild) {
         if(this.wildImportMemory.isInRecursion(caller, wild)){
-            throw new CompletionRecursionException("Recursion found (caller: "+caller.getName()+", import: "+wild.getName()+" )");
+            throw new CompletionRecursionException("Possible recursion found (caller: "+caller.getName()+", import: "+wild.getName()+" ) - stopping analysis.");
         }
-//        List<AbstractModule> l;
-//        if (this.wildImportMemory.containsKey(caller)){
-//            l = this.wildImportMemory.get(caller);
-//            if(l.contains(wild)){
-//                throw new CompletionRecursionException("Recursion found (caller: "+caller.getName()+", import: "+wild.getName()+" )");
-//            }
-//        }else{
-//            l = new ArrayList<AbstractModule>();
-//        }
-//        
-//        l.add(wild);
-//        wildImportMemory.put(caller, l);
         
     }
     
@@ -137,22 +125,9 @@ public class CompletionState {
      */
     public void checkDefinitionMemory(AbstractModule module, Definition definition) {
         if(this.definitionMemory.isInRecursion(module, definition)){
-            throw new CompletionRecursionException("Recursion found (token: "+definition+")");
+            throw new CompletionRecursionException("Possible recursion found (token: "+definition+") - stopping analysis.");
         }
 
-//        List<Definition> l;
-//        if (this.definitionMemory.containsKey(module)){
-//            l = this.definitionMemory.get(module);
-//            if(l.contains(definition)){
-//                throw new CompletionRecursionException("Recursion found (token: "+definition+")");
-//            }
-//        }else{
-//            l = new ArrayList<Definition>();
-//        }
-//        
-//        l.add(definition);
-//        definitionMemory.put(module, l);
-            
     }
     /**
      * @param module
@@ -160,20 +135,8 @@ public class CompletionState {
      */
     public void checkMemory(SourceModule module, String base) {
         if(this.memory.isInRecursion(module, base)){
-            throw new CompletionRecursionException("Recursion found (token: "+base+")");
+            throw new CompletionRecursionException("Possible recursion found (token: "+base+") - stopping analysis.");
         }
-//        List<String> l;
-//        if (this.memory.containsKey(module)){
-//            l = this.memory.get(module);
-//            if(l.contains(base)){
-//                throw new CompletionRecursionException("Recursion found (token: "+base+")");
-//            }
-//        }else{
-//            l = new ArrayList<String>();
-//        }
-//        
-//        l.add(base);
-//        memory.put(module, l);
     }
     
 }
