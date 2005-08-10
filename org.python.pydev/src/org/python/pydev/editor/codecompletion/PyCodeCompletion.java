@@ -433,47 +433,69 @@ public class PyCodeCompletion {
         return getImportsTipperStr(doc, documentOffset);
     }
 
+    public static String getImportsTipperStr(IDocument doc, int documentOffset) {
+        IRegion region;
+        try {
+            region = doc.getLineInformationOfOffset(documentOffset);
+            String trimmedLine = doc.get(region.getOffset(), documentOffset-region.getOffset());
+            trimmedLine = trimmedLine.trim();
+            return getImportsTipperStr(trimmedLine, true);
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
     /**
      * @param doc
      * @param documentOffset
      * @return
      */
-    public static String getImportsTipperStr(IDocument doc, int documentOffset) {
+    public static String getImportsTipperStr(String trimmedLine, boolean returnEvenEmpty) {
         String importMsg = "";
-        try {
-            
-            IRegion region = doc.getLineInformationOfOffset(documentOffset);
-            String string = doc.get(region.getOffset(), documentOffset-region.getOffset());
-            int fromIndex = string.indexOf("from");
-            int importIndex = string.indexOf("import");
+        
+        if(!trimmedLine.startsWith("from") && !trimmedLine.startsWith("import")){
+            return "";
+        }
+        
+        int fromIndex = trimmedLine.indexOf("from");
+        int importIndex = trimmedLine.indexOf("import");
 
-            //check if we have a from or an import.
-            if(fromIndex  != -1 || importIndex != -1){
-                string = string.replaceAll("#.*", ""); //remove comments 
-                String[] strings = string.split(" ");
-                
-                for (int i = 0; i < strings.length; i++) {
-                    if(strings[i].equals("from")==false && strings[i].equals("import")==false){
-                        if(importMsg.length() != 0){
-                            importMsg += '.';
-                        }
-                        importMsg += strings[i];
-                    }
+        //check if we have a from or an import.
+        if(fromIndex  != -1 || importIndex != -1){
+            trimmedLine = trimmedLine.replaceAll("#.*", ""); //remove comments 
+            String[] strings = trimmedLine.split(" ");
+            
+            if(fromIndex != -1 && importIndex == -1){
+                if(strings.length > 2){
+                    //user has spaces as in  'from xxx uuu'
+                    return "";
                 }
-                
-                if(fromIndex  != -1 && importIndex != -1){
-                    if(strings.length == 3){
+            }
+            
+            
+            for (int i = 0; i < strings.length; i++) {
+                if(strings[i].equals("from")==false && strings[i].equals("import")==false){
+                    if(importMsg.length() != 0){
                         importMsg += '.';
                     }
+                    importMsg += strings[i];
                 }
-            }else{
-                return "";
             }
-        } catch (BadLocationException e) {
-            e.printStackTrace();
+            
+            if(fromIndex  != -1 && importIndex != -1){
+                if(strings.length == 3){
+                    importMsg += '.';
+                }
+            }
+        }else{
+            return "";
         }
         if (importMsg.indexOf(".") == -1){
-            return " "; //we have only import fff (so, we're going for all imports).
+            if(returnEvenEmpty || importMsg.trim().length() > 0){
+                return " "; //we have only import fff or from iii (so, we're going for all imports).
+            }else{
+                return ""; //we have only import fff or from iii (so, we're going for all imports).
+            }
         }
 
         //now, we may still have something like 'unittest.test,' or 'unittest.test.,'

@@ -93,6 +93,12 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String AUTO_BRACES = "AUTO_BRACES";
 	public static final boolean DEFAULT_AUTO_BRACES = true;
 
+    /**
+     * Used if the 'import' should be written automatically in an from xxx import yyy
+     */
+    public static final String AUTO_WRITE_IMPORT_STR = "AUTO_WRITE_IMPORT_STR";
+    public static final boolean DEFAULT_AUTO_WRITE_IMPORT_STR = true;
+
 	//text
 	public static final String TAB_WIDTH = "TAB_WIDTH";
 	public static final int DEFAULT_TAB_WIDTH = 4;
@@ -144,6 +150,8 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	//see initializeDefaultColors for selection defaults
 	public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
 	public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
+
+
 	
 		
 	/**
@@ -219,6 +227,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		//text
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_PAR));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_WRITE_IMPORT_STR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, MULTI_BLOCK_COMMENT_CHAR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, SINGLE_BLOCK_COMMENT_CHAR));
 		
@@ -320,6 +329,11 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
                 "to enter a colon which is already there.  Instead of inserting another colon, the editor will " +
                 "simply move your cursor to the next position after the colon.", TOOLTIP_WIDTH));
 
+        //auto import str
+        b = addCheckBox(appearanceComposite, "Automatic write 'import' string on from xxx ", AUTO_COLON, 0);
+        b.setToolTipText(WordUtils.wrap("Enabling this will allow the editor to automatically write the" +
+                "'import' string when you write a space after you've written 'from xxx '.", TOOLTIP_WIDTH));
+        
         
 		addCheckBox(appearanceComposite, "Substitute spaces for tabs?", SUBSTITUTE_TABS, 0);
 		
@@ -673,6 +687,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		prefs.setDefault(AUTO_PAR, DEFAULT_AUTO_PAR);
         prefs.setDefault(AUTO_COLON, DEFAULT_AUTO_COLON);
         prefs.setDefault(AUTO_BRACES, DEFAULT_AUTO_BRACES);
+        prefs.setDefault(AUTO_WRITE_IMPORT_STR, DEFAULT_AUTO_WRITE_IMPORT_STR);
 
 		prefs.setDefault(TAB_WIDTH, DEFAULT_TAB_WIDTH);
 		prefs.setDefault(MULTI_BLOCK_COMMENT_CHAR, DEFAULT_MULTI_BLOCK_COMMENT_CHAR);

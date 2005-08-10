@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.FunctionDef;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -59,6 +60,13 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         projectModulesManager.setProject(project);
     }
 
+    /**
+     * Set the nature this ast manager works with (if no project is available and a nature is).
+     */
+    public void setNature(IPythonNature nature){
+        projectModulesManager.setPythonNature(nature);
+    }
+    
     //----------------------- AUXILIARIES
 
 

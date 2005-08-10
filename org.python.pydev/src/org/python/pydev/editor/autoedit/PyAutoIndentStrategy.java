@@ -13,6 +13,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
+import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.parser.visitors.ParsingUtils;
 
 /**
@@ -142,16 +143,32 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             }
 
             /*
+             * this is a space... so, if we are in 'from xxx ', we may auto-write
+             * the import 
+             */
+            else if (command.text.equals(" ") && prefs.getAutoWriteImport()) {
+                PySelection ps = new PySelection(document, command.offset);
+                String line = ps.getLineContentsToCursor().trim();
+                if(line.indexOf("import") == -1){
+                    String importsTipperStr = PyCodeCompletion.getImportsTipperStr(line, false);
+                    if(importsTipperStr.length() > 0){
+                        command.text = " import ";
+                    }
+                }
+            }
+            
+            /*
              * If the command is some kind of parentheses or brace, and there's
              * already a matching one, don't insert it. Just move the cursor to
              * the next space.
              */
             else if (command.text.length() > 0 && prefs.getAutoBraces()) {
                 // you can only do the replacement if the next character already there is what the user is trying to input
-                if (command.offset < document.getLength()
-                        && document.get(command.offset, 1).equals(command.text)) {
+                
+                if (command.offset < document.getLength() && document.get(command.offset, 1).equals(command.text)) {
                     // the following searches through each of the end braces and
                     // sees if the command has one of them
+
                     boolean found = false;
                     for (int i = 1; i <= DocUtils.BRACKETS.length && !found; i += 2) {
                         char c = DocUtils.BRACKETS[i];

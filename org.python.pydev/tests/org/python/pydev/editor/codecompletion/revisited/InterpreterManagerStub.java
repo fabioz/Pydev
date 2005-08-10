@@ -6,11 +6,13 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
+import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class InterpreterManagerStub extends AbstractInterpreterManager implements IInterpreterManager {
@@ -67,8 +69,8 @@ public class InterpreterManagerStub extends AbstractInterpreterManager implement
     }
 
     @Override
-    public InterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) {
-        throw new RuntimeException("not impl");
+    public InterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+        return PythonInterpreterManager.doCreateInterpreter(executable, monitor);
     }
 
     @Override

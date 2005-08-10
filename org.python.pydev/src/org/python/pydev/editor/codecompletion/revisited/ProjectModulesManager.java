@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.PydevPlugin;
@@ -32,6 +33,7 @@ public class ProjectModulesManager extends ModulesManager{
      private static final long serialVersionUID = 1L;
     //these attributes must be set whenever this class is restored.
     private transient IProject project;
+    private transient IPythonNature nature;
     
     /**
      * Set the project this modules manager works with.
@@ -40,10 +42,18 @@ public class ProjectModulesManager extends ModulesManager{
      */
     public void setProject(IProject project){
         this.project = project;
+        this.nature = PythonNature.getPythonNature(project);
+    }
+    
+    /**
+     * @param nature this is the nature for this project modules manager (can be used if no project is set)
+     */
+    public void setPythonNature(IPythonNature nature){
+        this.nature = nature;
     }
     
     public SystemModulesManager getSystemModulesManager(){
-        IInterpreterManager iMan = PydevPlugin.getInterpreterManager(PythonNature.getPythonNature(project));
+        IInterpreterManager iMan = PydevPlugin.getInterpreterManager(nature);
         InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
         return info.modulesManager;
     }

@@ -11,8 +11,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
+import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class SimpleJythonRunner extends SimpleRunner{

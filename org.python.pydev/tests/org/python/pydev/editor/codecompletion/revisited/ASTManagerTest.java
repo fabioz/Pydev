@@ -5,13 +5,12 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.BundleInfoStub;
 
 /**
  * Tests here have no dependency on the pythonpath.
@@ -44,8 +43,10 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
 
         PydevPlugin.setPythonInterpreterManager(new InterpreterManagerStub(preferences));
-        nature = new PythonNature();
-        nature.setAstManager(new ASTManager());
+        nature = createPythonLikeNature();
+        ASTManager manager = new ASTManager();
+        nature.setAstManager(manager);
+        manager.setNature(nature);
     }
 
     /*
@@ -250,6 +251,20 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     public void testLocals(){
         token = "";
         line = 2;
+        sDoc = ""+
+            "contentsCopy = applicationDb.getContentsCopy()\n" +    
+            "database.Database.fromContentsCopy(self, cont)";
+        col = sDoc.length()-3;
+        doc = new Document(sDoc);
+        state = new CompletionState(line,col, token, nature);
+        comps = getManager().getCompletionsForToken(doc, state);
+        assertEquals(1, comps.length );
+        assertIsIn("contentsCopy", comps);
+    }
+    
+    public void testLocals2(){
+        token = "";
+        line = 2;
         col = 10;
         sDoc = ""+
         		"def met(par1, par2):          \n" +    
@@ -339,10 +354,10 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         
 
         try {
-//            ASTManagerTest test = new ASTManagerTest();
-//            test.setUp();
-//            test.testRelative();
-//            test.tearDown();
+            ASTManagerTest test = new ASTManagerTest();
+            test.setUp();
+            test.testLocals();
+            test.tearDown();
 
             junit.textui.TestRunner.run(ASTManagerTest.class);
         } catch (Throwable e) {

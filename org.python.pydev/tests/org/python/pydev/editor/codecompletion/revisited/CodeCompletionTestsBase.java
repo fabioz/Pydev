@@ -7,6 +7,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import junit.framework.TestCase;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.plugin.BundleInfo;
@@ -55,15 +56,32 @@ public class CodeCompletionTestsBase extends TestCase {
         if(restored == null || restored != this.getClass() || force){
             //cache
             restored = this.getClass();
-    	    nature = new PythonNature();
+            nature = createPythonLikeNature();
     	    nature.setAstManager(new ASTManager());
     	    
 
             IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager();
             InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
     	    ASTManager astManager = ((ASTManager)nature.getAstManager());
+            astManager.setNature(nature);
             astManager.changePythonPath(path, null, new NullProgressMonitor());
         }
+    }
+
+    /**
+     * @return a nature that is python-specific
+     */
+    protected PythonNature createPythonLikeNature() {
+        return new PythonNature(){
+            @Override
+            public boolean isJython() throws CoreException {
+                return false;
+            }
+            @Override
+            public boolean isPython() throws CoreException {
+                return true;
+            }
+        };
     }
     
     private void restoreSystemPythonPath(boolean force, String path){

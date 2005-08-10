@@ -170,7 +170,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
                    "\t\t  ";
         assertEquals(expected, docCmd.text);
     }        
-    
+
     /**
      * Tests automatically adding/replacing brackets, colons, and parentheses.
      * @see PyAutoIndentStrategy
@@ -318,6 +318,45 @@ public class PyAutoIndentStrategyTest extends TestCase {
 		assertEquals(0, docCmd.caretOffset);
     }
     
+    public void testAutoImportStr() {
+        strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
+        String doc = "from xxx";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = " import ";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "from xxx import";
+        docCmd = new DocCmd(doc.length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " ";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "no from xxx";
+        docCmd = new DocCmd(doc.length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " ";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "From xxx";
+        docCmd = new DocCmd(doc.length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " ";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "from this space";
+        docCmd = new DocCmd(doc.length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " ";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "from";
+        docCmd = new DocCmd(doc.length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " ";
+        assertEquals(expected, docCmd.text);
+    }
+
     private final class TestIndentPrefs extends AbstractIndentPrefs {
         
         private boolean useSpaces;
@@ -325,6 +364,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         boolean autoPar = true;
         boolean autoColon = true;
         boolean autoBraces = true;
+        boolean autoWriteImport = true;
 
         public TestIndentPrefs(boolean useSpaces, int tabWidth){
             this.useSpaces = useSpaces;
@@ -356,6 +396,10 @@ public class PyAutoIndentStrategyTest extends TestCase {
 		{
 			return autoBraces;
 		}
+
+        public boolean getAutoWriteImport() {
+            return autoWriteImport;
+        }
 
     }
 

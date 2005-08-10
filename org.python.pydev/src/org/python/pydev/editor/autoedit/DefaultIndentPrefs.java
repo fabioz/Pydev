@@ -65,5 +65,9 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
         return PydevPrefs.getPreferences().getBoolean(PydevPrefs.AUTO_BRACES);
     }
 
+    public boolean getAutoWriteImport() {
+        return PydevPrefs.getPreferences().getBoolean(PydevPrefs.AUTO_WRITE_IMPORT_STR);
+    }
+
 
 }

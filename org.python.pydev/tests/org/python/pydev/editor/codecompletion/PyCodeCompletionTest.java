@@ -30,12 +30,20 @@ public class PyCodeCompletionTest extends TestCase {
     public void testIt(){
         completion = new PyCodeCompletion(false);
         doTest("from datetime import datetime, date, MINYEAR,", "datetime");
+        doTest("    from datetime import datetime, date, MINYEAR,", "datetime");
+        doTest("no    from datetime import datetime, date, MINYEAR,", "");
+        
         doTest("from datetime.datetime import ", "datetime.datetime");
+        doTest("    from datetime.datetime import ", "datetime.datetime");
+        
         doTest("from testlib import unittest , ", "testlib");
-        doTest("from datetime.datetime import to", "datetime.datetime");
+        doTest("    from testlib import unittest , ", "testlib");
 
-        
-        
+        doTest("from datetime.datetime import to", "datetime.datetime");
+        doTest("    from datetime.datetime import to", "datetime.datetime");
+
+        doTest("from this space", "");
+        doTest("from ", " ");
     }
 
 }

@@ -63,4 +63,9 @@ public interface IIndentPrefs {
 	 * @return iff auto-skip braces is ENABLED
 	 */
 	public boolean getAutoBraces();
+	
+	/**
+	 * Get whether we should auto-write 'import' if we are in a from xxx import fff
+	 */
+	public boolean getAutoWriteImport();
 }
