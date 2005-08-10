@@ -35,7 +35,7 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
 
     @Override
     public InterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
-        boolean isJythonExecutable = isJythonExecutable(executable);
+        boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
         if(isJythonExecutable){
             throw new RuntimeException("A jar cannot be used in order to get the info for the python interpreter.");
         }                

@@ -236,9 +236,13 @@ public class InterpreterInfo implements Serializable{
 	    forcedLibs.add("__builtin__");
 	    forcedLibs.add("sys");
 	    forcedLibs.add("datetime");
-	    forcedLibs.add("OpenGL");
-	    forcedLibs.add("wxPython");
-	    forcedLibs.add("itertools");
+        if(isJythonInfo()){
+            
+        }else{
+            forcedLibs.add("OpenGL");
+            forcedLibs.add("wxPython");
+            forcedLibs.add("itertools");
+        }
     }
 
     /**
@@ -264,4 +268,21 @@ public class InterpreterInfo implements Serializable{
         }
         restorePythonpath(buffer.toString(), monitor);
     }
+    
+    /**
+     * @return whether this info belongs to jython 
+     */
+    public boolean isJythonInfo() {
+        return isJythonExecutable(executableOrJar);
+    }
+
+    /**
+     * @param executable the executable we want to know about
+     * @return if the executable is the jython jar.
+     */
+    public static boolean isJythonExecutable(String executable) {
+        return executable.endsWith(".jar");
+    }
+    
+    
 }

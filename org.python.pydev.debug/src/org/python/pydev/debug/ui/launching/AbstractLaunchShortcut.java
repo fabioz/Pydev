@@ -35,6 +35,7 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 /**
  * Called when "Run Script..." popup menu item is selected.
@@ -177,7 +178,8 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 // E3			String baseDirectory = varManager.generateVariableExpression("workspace_loc",file.getRawLocation().removeLastSegments(1).toString());
 			String baseDirectory = resource.getRawLocation().removeLastSegments(1).toString();
 			String arguments = "";
-			String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
+			IInterpreterManager pythonInterpreterManager = PydevPlugin.getPythonInterpreterManager();
+            String interpreter = pythonInterpreterManager.getDefaultInterpreter();
 			
             workingCopy.setAttribute(Constants.ATTR_PROJECT,resource.getProject().getName());
             workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE,resource.getType());

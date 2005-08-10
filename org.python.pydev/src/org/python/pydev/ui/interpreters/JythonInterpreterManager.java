@@ -7,10 +7,12 @@
 package org.python.pydev.ui.interpreters;
 
 import java.io.File;
+import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
+import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
@@ -35,20 +37,40 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
 
     @Override
     public InterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
-        File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
-        boolean isJythonExecutable = isJythonExecutable(executable);
+        boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
         
         if(!isJythonExecutable){
             throw new RuntimeException("In order to get the info for the jython interpreter, a jar is needed (e.g.: jython.jar)");
         }
+        return doCreateInterpreterInfo(executable, monitor);
+    }
+
+    /**
+     * This is the method that creates the interpreter info for jython. It gets the info on the jython side and on the java side
+     * 
+     * @param executable the jar that should be used to get the info
+     * @param monitor a monitor, to keep track of what's happening
+     * @return the interpreter info, with the default libraries and jars
+     * 
+     * @throws CoreException
+     */
+    public static InterpreterInfo doCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+        File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
         
+        //gets the info for the python side
         String output = new SimpleJythonRunner().runAndGetOutputWithJar(REF.getFileAbsolutePath(script), executable, null, null, null, monitor);
         
         InterpreterInfo info = InterpreterInfo.fromString(output);
-        info.restoreCompiledLibs(monitor);
-        
         //the executable is the jar itself
         info.executableOrJar = executable;
+
+        info.restoreCompiledLibs(monitor);
+        
+        List<File> jars = JavaVmLocationFinder.findDefaultJavaJars();
+        for (File jar : jars) {
+            info.libs.add(REF.getFileAbsolutePath(jar));
+        }
+        
 
         return info;
     }

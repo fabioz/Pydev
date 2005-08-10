@@ -227,13 +227,13 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		//text
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_PAR));
-		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_WRITE_IMPORT_STR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, MULTI_BLOCK_COMMENT_CHAR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, SINGLE_BLOCK_COMMENT_CHAR));
 		
         //Auto eat colon and braces
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_COLON));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_BRACES));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_WRITE_IMPORT_STR));
 
         //matching
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_MATCHING_BRACKETS));
@@ -330,7 +330,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
                 "simply move your cursor to the next position after the colon.", TOOLTIP_WIDTH));
 
         //auto import str
-        b = addCheckBox(appearanceComposite, "Automatic write 'import' string on from xxx ", AUTO_COLON, 0);
+        b = addCheckBox(appearanceComposite, "Autotic insertion of the 'import' string on 'from xxx' ", AUTO_WRITE_IMPORT_STR, 0);
         b.setToolTipText(WordUtils.wrap("Enabling this will allow the editor to automatically write the" +
                 "'import' string when you write a space after you've written 'from xxx '.", TOOLTIP_WIDTH));
         

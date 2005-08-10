@@ -7,6 +7,8 @@
 package org.python.pydev.ui.pythonpathconf;
 
 
+import java.util.List;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.plugin.PydevPlugin;
@@ -41,5 +43,11 @@ public class JythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
         info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
         
         monitor.done();
+    }
+    
+    @Override
+    protected void doClear(List<String> allButTheseInterpreters, IProgressMonitor monitor) {
+        IInterpreterManager iMan = PydevPlugin.getJythonInterpreterManager();
+        iMan.clearAllBut(allButTheseInterpreters);
     }
 }

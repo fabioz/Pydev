@@ -5,6 +5,8 @@
  */
 package org.python.pydev.ui.interpreters;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -82,9 +84,10 @@ public interface IInterpreterManager {
     public boolean hasInfoOnDefaultInterpreter(IPythonNature nature);
 
     /**
-     * @return the default java executable location
+     * All the information cached should be cleared but the information related to the passed interpreters
+     * @param allButTheseInterpreters name of the interpreters that should not have the information cleared
      */
-    public String getDefaultJavaLocation();
-    
+    public void clearAllBut(List<String> allButTheseInterpreters);
+
     
 }

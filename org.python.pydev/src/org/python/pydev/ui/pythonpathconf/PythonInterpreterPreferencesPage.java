@@ -6,6 +6,8 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.plugin.PydevPlugin;
@@ -45,6 +47,11 @@ public class PythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
         
         monitor.done();
     }
-
+    
+    @Override
+    protected void doClear(List<String> allButTheseInterpreters, IProgressMonitor monitor) {
+        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager();
+        iMan.clearAllBut(allButTheseInterpreters);
+    }
 
 }

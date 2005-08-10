@@ -483,6 +483,11 @@ public class PythonShell {
             this.write(str);
  
             return getCompletions();
+        } catch (NullPointerException e) {
+            //still not started...
+            restartShell();
+            return getInvalidCompletion();
+            
         } catch (Exception e) {
             PydevPlugin.log(IStatus.ERROR, "ERROR getting completions.", e);
 

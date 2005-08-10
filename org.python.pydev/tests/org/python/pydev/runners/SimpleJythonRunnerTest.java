@@ -6,15 +6,17 @@ package org.python.pydev.runners;
 import java.io.File;
 import java.io.IOException;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.editor.codecompletion.revisited.InterpreterManagerStub;
+import org.python.pydev.editor.codecompletion.revisited.TestDependent;
 import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.BundleInfoStub;
+
+import junit.framework.TestCase;
 
 public class SimpleJythonRunnerTest extends TestCase {
 
@@ -28,7 +30,6 @@ public class SimpleJythonRunnerTest extends TestCase {
         super.setUp();
         BundleInfo.setBundleInfo(new BundleInfoStub());
         preferences = new Preferences();
-        PydevPlugin.setPythonInterpreterManager(new InterpreterManagerStub(preferences));
         PydevPlugin.setJythonInterpreterManager(new InterpreterManagerStub(preferences));
 
     }
@@ -40,9 +41,9 @@ public class SimpleJythonRunnerTest extends TestCase {
 
     public void testRun() throws CoreException, IOException {
         SimpleJythonRunner runner = new SimpleJythonRunner();
-        
         File absoluteFile = BundleInfo.getBundleInfo().getRelativePath(new Path("interpreterInfo.py")).getAbsoluteFile();
-        String string = runner.runAndGetOutput(absoluteFile.getCanonicalPath(), (String)null, null);
+        String string = runner.runAndGetOutputWithJar(absoluteFile.getCanonicalPath(), TestDependent.JYTHON_JAR_LOCATION, null, null, null, new NullProgressMonitor());
+//        String string = runner.runAndGetOutput(absoluteFile.getCanonicalPath(), (String)null, null);
         assertNotNull(string);
         System.out.println(string);
     }

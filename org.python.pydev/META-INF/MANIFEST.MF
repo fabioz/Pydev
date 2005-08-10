@@ -21,7 +21,9 @@ Require-Bundle: org.junit,
  org.python.pydev.ast,
  org.python.pydev.parser,
  org.python.pydev.core,
- org.eclipse.jdt.launching
+ org.eclipse.jdt.launching,
+ org.eclipse.jdt,
+ org.eclipse.jdt.core
 Eclipse-AutoStart: true
 Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,
@@ -53,6 +55,7 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.ui,
  org.python.pydev.ui.dialogs,
  org.python.pydev.ui.editors,
+ org.python.pydev.ui.interpreters,
  org.python.pydev.ui.pythonpathconf,
  org.python.pydev.utils,
  org.python.pydev.views

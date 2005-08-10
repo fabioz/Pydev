@@ -7,9 +7,12 @@
 package org.python.copiedfromeclipsesrc;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.LibraryLocation;
 
 /**
  * copied from org.eclipse.jdt.internal.launching.StandardVMType
@@ -66,5 +69,20 @@ public class JavaVmLocationFinder {
         IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
         File installLocation = defaultVMInstall.getInstallLocation();
         return findJavaExecutable(installLocation);
+    }
+    
+    
+    /**
+     * @return the default java jars (rt.jar ... )
+     */
+    public static List<File> findDefaultJavaJars(){
+        IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
+        LibraryLocation[] libraryLocations = JavaRuntime.getLibraryLocations(defaultVMInstall);
+        
+        ArrayList<File> jars = new ArrayList<File>();
+        for (LibraryLocation location : libraryLocations) {
+            jars.add(location.getSystemLibraryPath().toFile());
+        }
+        return jars;
     }
 }

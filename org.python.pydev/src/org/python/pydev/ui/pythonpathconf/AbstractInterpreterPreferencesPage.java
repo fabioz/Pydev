@@ -6,8 +6,11 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -94,6 +97,13 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @param monitor a monitor to display the progress to the user.
      */
     protected abstract void doRestore(final String defaultSelectedInterpreter, IProgressMonitor monitor);
+    
+    /**
+     * all the information should be cleared but the related to the interpreters passed
+     * @param allButTheseInterpreters
+     * @param monitor
+     */
+    protected abstract void doClear(final List<String> allButTheseInterpreters, IProgressMonitor monitor);
 
     protected boolean isEditorChanged() {
         return pathEditor.hasChanged();
@@ -124,6 +134,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     protected void restoreModules() {
     
         if(pathEditor.getExesList().getItemCount() <= 0){
+            doClear(new ArrayList<String>(),new NullProgressMonitor());
             return;
     
         } else{
@@ -131,11 +142,22 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
             final String item = pathEditor.getExesList().getItem(0);
             ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
             monitorDialog.setBlockOnOpen(false);
+
+            final List<String> exesToKeep = new ArrayList<String>();
+            org.eclipse.swt.widgets.List exesList = pathEditor.getExesList();
+            String[] items = exesList.getItems();
+            for (String exeToKeep : items) {
+                exesToKeep.add(exeToKeep);
+            }
     
             try {
                 IRunnableWithProgress operation = new IRunnableWithProgress(){
     
                     public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                        //clear all but the ones that appear
+                        doClear(exesToKeep,monitor);
+                        
+                        //restore the default
                         doRestore(item, monitor);
                     }};
                     

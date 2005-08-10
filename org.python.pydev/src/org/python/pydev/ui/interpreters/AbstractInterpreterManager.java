@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
@@ -66,6 +65,14 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         }
     }
 
+    public void clearAllBut(List<String> allButTheseInterpreters) {
+        for (String interpreter : exeToInfo.keySet()) {
+            if(!allButTheseInterpreters.contains(interpreter)){
+                exeToInfo.remove(interpreter);
+            }
+        }
+    }
+    
     /**
      * @return a message to show to the user when there is no configured interpreter
      */
@@ -111,7 +118,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                 
     	    } catch (Exception e) {
     	        PydevPlugin.log(e);
-    	        //TODO: make dialog: unable to get info for file... 
     	        throw new RuntimeException(e);
     	    }
     	    if(info.executableOrJar != null && info.executableOrJar.trim().length() > 0){
@@ -131,14 +137,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     	    }
         }
         return info;
-    }
-
-    /**
-     * @param executable the executable we want to know about
-     * @return if the executable is the jython jar.
-     */
-    protected boolean isJythonExecutable(String executable) {
-        return executable.endsWith(".jar");
     }
 
     /**
@@ -225,13 +223,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         }
     }
 
-    public String getDefaultJavaLocation() {
-        try {
-            return JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
 
 class IOUtils {

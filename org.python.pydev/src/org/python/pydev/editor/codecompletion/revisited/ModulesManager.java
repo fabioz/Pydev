@@ -112,9 +112,20 @@ public abstract class ModulesManager implements Serializable {
             String element = (String) iter.next();
 
             //the slow part is getting the files... not much we can do (I think).
-            List[] below = pythonPathHelper.getModulesBelow(new File(element), monitor);
-            completions.addAll(below[0]);
-            total += below[0].size();
+            File root = new File(element);
+            List[] below = pythonPathHelper.getModulesBelow(root, monitor);
+            if(below != null){
+                completions.addAll(below[0]);
+                total += below[0].size();
+                
+            }else{ //ok, it was null, so, maybe this is not a folder, but a zip file with java classes...
+                List<String> fromJar = PythonPathHelper.getFromJar(root, monitor);
+                if(fromJar != null){
+                    for (String modName : fromJar) {
+                        mods.put(new ModulesKey(modName, null), AbstractModule.createEmptyModule(modName, null));
+                    }
+                }
+            }
         }
 
         int j = 0;

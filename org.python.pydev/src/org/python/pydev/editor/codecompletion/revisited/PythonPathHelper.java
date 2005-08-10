@@ -16,12 +16,19 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
@@ -74,22 +81,74 @@ public class PythonPathHelper implements Serializable{
      * @return the files in position 0 and folders in position 1.
      */
     public List[] getModulesBelow(File root, IProgressMonitor monitor){
-        FileFilter filter = new FileFilter() {
+        if(!root.exists()){
+            return null;
+        }
+        
+        if(root.isDirectory()){
+            FileFilter filter = new FileFilter() {
+                
+    	        public boolean accept(File pathname) {
+    	            if(pathname.isFile()){
+    	                return isValidFileMod(REF.getFileAbsolutePath(pathname));
+    	            }else if(pathname.isDirectory()){
+    	                return isFileOrFolderWithInit(pathname);
+    	            }else{
+    	                return false;
+    	            }
+    	        }
+    	
+    	    };
+    	    return PydevPlugin.getPyFilesBelow(root, filter, monitor, true);
             
-	        public boolean accept(File pathname) {
-	            if(pathname.isFile()){
-	                return isValidFileMod(REF.getFileAbsolutePath(pathname));
-	            }else if(pathname.isDirectory()){
-	                return isFileOrFolderWithInit(pathname);
-	            }else{
-	                return false;
-	            }
-	        }
-	
-	    };
-	    return PydevPlugin.getPyFilesBelow(root, filter, monitor, true);
+        }
+        return null;
     }
     
+    /**
+     * @param root the zip file to analyze
+     * @param monitor the monitor, to keep track of what is happening
+     * @return a list with the name of the found modules in the jar
+     */
+    public static List<String> getFromJar(File root, IProgressMonitor monitor){
+         if(root.isFile()){ //ok, it may be a jar file, so let's get its contents and get the available modules
+            Set<String> folders = new HashSet<String>();
+            try {
+                String zipFileName = root.getName();
+                ZipFile zipFile = new ZipFile(root);
+                Enumeration<? extends ZipEntry> entries = zipFile.entries();
+                while(entries.hasMoreElements()){
+                    ZipEntry entry = entries.nextElement();
+                    String name = entry.getName();
+                    if(!entry.isDirectory()){
+                        //it is a file... we will ignore them, as java files do not map to actual modules as python, but to classes.
+                        //and will only add its parent folder...
+                        IPath path = new Path(name);
+                        String fileExtension = path.getFileExtension();
+                        if(fileExtension.equals("class")){
+                            path = path.removeFileExtension().removeLastSegments(1); //remove the class and the public class name
+                            StringBuffer buffer = new StringBuffer();
+                            for (int i = 0; i < path.segmentCount(); i++) {
+                                buffer.append(path.segment(i));
+                                String modName = buffer.toString();
+                                
+                                folders.add(modName);
+                                if(i+1 < path.segmentCount()){
+                                    buffer.append("."); //not the last one...
+                                }
+                            }
+                            monitor.setTaskName("Found in "+zipFileName+" module "+buffer);
+                        }
+                    }
+                }
+                
+                return new ArrayList<String>(folders);
+            } catch (Exception e) {
+                //that's ok, it is probably not a zip file after all...
+            }
+        }
+        return null;
+    }
 
     /**
      * 
