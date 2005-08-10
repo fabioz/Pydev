@@ -39,13 +39,15 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
      */
     public boolean visitChangedResource(IResource resource, IDocument document) {
         
-        IProject project = resource.getProject();
-        PythonNature pythonNature = PythonNature.getPythonNature(project);
-        ICodeCompletionASTManager astManager = pythonNature.getAstManager();
-        
-        if (astManager != null){
-            IPath location = resource.getLocation(); 
-            astManager.rebuildModule(new File(location.toOSString()), document, resource.getProject(), new NullProgressMonitor(), pythonNature);
+        if(document != null){ //it might be out of sync...
+            IProject project = resource.getProject();
+            PythonNature pythonNature = PythonNature.getPythonNature(project);
+            ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+            
+            if (astManager != null){
+                IPath location = resource.getLocation(); 
+                astManager.rebuildModule(new File(location.toOSString()), document, resource.getProject(), new NullProgressMonitor(), pythonNature);
+            }
         }
 
         return false;

@@ -426,9 +426,9 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
             } catch (CompletionRecursionException e) {
                 //thats ok
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             } catch (Throwable t) {
-                t.printStackTrace();
+                throw new RuntimeException("A throwable exception has been detected "+t.getClass());
             }
         }
         return new IToken[0];

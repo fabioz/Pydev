@@ -101,4 +101,9 @@ public class Definition {
         
         return true;
     }
+    
+    @Override
+    public int hashCode() {
+        return value.hashCode() + col + line;
+    }
 }

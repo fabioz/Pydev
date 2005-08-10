@@ -227,27 +227,29 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             IResource r = (IResource) iter.next();
 
             IDocument doc = getDocFromResource(r);
-            for (Iterator it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
-                PyDevBuilderVisitor visitor = (PyDevBuilderVisitor) it.next();
-
-                StringBuffer msgBuf = new StringBuffer();
-                msgBuf.append("Visiting... (");
-                msgBuf.append(i);
-                msgBuf.append(" of ");
-                msgBuf.append(totalResources);
-                msgBuf.append(") - ");
-                msgBuf.append(r.getProjectRelativePath());
-                msgBuf.append(" - visitor: ");
-                msgBuf.append(visitor.getClass().getName());
-
-//                System.out.println(msgBuf);
-                monitor.subTask(msgBuf.toString());
-                visitor.visitChangedResource(r, doc);
-            }
-
-            if (total > 1) {
-                monitor.worked((int) total);
-                total -= (int) total;
+            if(doc != null){ //might be out of synch
+                for (Iterator it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
+                    PyDevBuilderVisitor visitor = (PyDevBuilderVisitor) it.next();
+    
+                    StringBuffer msgBuf = new StringBuffer();
+                    msgBuf.append("Visiting... (");
+                    msgBuf.append(i);
+                    msgBuf.append(" of ");
+                    msgBuf.append(totalResources);
+                    msgBuf.append(") - ");
+                    msgBuf.append(r.getProjectRelativePath());
+                    msgBuf.append(" - visitor: ");
+                    msgBuf.append(visitor.getClass().getName());
+    
+                    //System.out.println(msgBuf);
+                    monitor.subTask(msgBuf.toString());
+                    visitor.visitChangedResource(r, doc);
+                }
+    
+                if (total > 1) {
+                    monitor.worked((int) total);
+                    total -= (int) total;
+                }
             }
         }
     }
