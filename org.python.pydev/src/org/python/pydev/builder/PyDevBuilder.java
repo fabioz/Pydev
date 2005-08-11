@@ -82,7 +82,6 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 }
             }
         }
-        
         return list;
     }
 
@@ -116,12 +115,13 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             } else {
                 for (PyDevBuilderVisitor element : getVisitors()) {
 
+                    element.monitor = monitor;
+                    element.totalResources = counterVisitor.getNVisited();
                     // some visitors cannot visit too many elements because they do a lot of processing
                     if (element.maxResourcesToVisit() == PyDevBuilderVisitor.MAX_TO_VISIT_INFINITE || element.maxResourcesToVisit() >= counterVisitor.getNVisited()) {
                         delta.accept(element);
                     }
                 }
-
             }
         }
         return null;
@@ -231,18 +231,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 for (Iterator it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
                     PyDevBuilderVisitor visitor = (PyDevBuilderVisitor) it.next();
     
-                    StringBuffer msgBuf = new StringBuffer();
-                    msgBuf.append("Visiting... (");
-                    msgBuf.append(i);
-                    msgBuf.append(" of ");
-                    msgBuf.append(totalResources);
-                    msgBuf.append(") - ");
-                    msgBuf.append(r.getProjectRelativePath());
-                    msgBuf.append(" - visitor: ");
-                    msgBuf.append(visitor.getClass().getName());
-    
-                    //System.out.println(msgBuf);
-                    monitor.subTask(msgBuf.toString());
+                    communicateProgress(monitor, totalResources, i, r, visitor);
                     visitor.visitChangedResource(r, doc);
                 }
     
@@ -251,6 +240,27 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                     total -= (int) total;
                 }
             }
+        }
+    }
+
+    /**
+     * Used so that we can communicate the progress to the user
+     */
+    public static void communicateProgress(IProgressMonitor monitor, int totalResources, int i, IResource r, PyDevBuilderVisitor visitor) {
+        if(monitor != null){
+            StringBuffer msgBuf = new StringBuffer();
+            msgBuf.append("Visiting... (");
+            msgBuf.append(i);
+            msgBuf.append(" of ");
+            msgBuf.append(totalResources);
+            msgBuf.append(") - ");
+            msgBuf.append(r.getProjectRelativePath());
+            msgBuf.append(" - visitor: ");
+            msgBuf.append(visitor.getClass().getName());
+       
+            //in this case the visitor does not have the progress and therefore does not communicate the progress
+            String name = msgBuf.toString();
+            monitor.subTask(name);
         }
     }
 

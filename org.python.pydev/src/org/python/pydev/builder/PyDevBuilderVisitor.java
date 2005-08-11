@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -32,7 +33,27 @@ import org.python.pydev.plugin.nature.PythonNature;
 public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 
     public static final int MAX_TO_VISIT_INFINITE = -1;
+    
+    
+    //variables used to communicate the progress
+    /**
+     * this monitor might be set externally so that we can comunicate the progress to the user
+     * (set externally)
+     */
+    public IProgressMonitor monitor;
+    /**
+     * number of total resources to be visited (only used when the monitor is set)
+     * (set externally)
+     */
+    public int totalResources;
+    /**
+     * number of resources visited to the moment 
+     * (updated in this class)
+     */
+    public int currentResourcesVisited = 0;
+    //end variables used to communicate the progress
 
+    
     /**
      * Method to return whether a resource is an __init__
      * 
@@ -110,7 +131,7 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
 		if(resource == null){
 		    return true;
 		}
-
+        
         int type = resource.getType();
 	
 
@@ -163,6 +184,12 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
     					    visitRemovedResource(resource, null);
     						break;
     				}
+
+                    if(isAddOrChange){
+                        //communicate the progress
+                        currentResourcesVisited++;
+                        PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, this);
+                    }
     
     				//ok, standard visiting ended... now, we have to check if we should visit the other
                     //resources if it was an __init__.py file that changed
