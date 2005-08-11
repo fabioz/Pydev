@@ -60,29 +60,29 @@ public abstract class AbstractMessage implements IMessage{
 
     public int getStartCol(IDocument doc) {
         int colDefinition;
-        if(generator.isImport()){
-            //it depends on the document contents... we have to remove the empty spaces to its left
-            int startLine = getStartLine(doc);
-            try {
-                IRegion start = doc.getLineInformation(startLine-1);
-                String line = doc.get(start.getOffset(), start.getLength());
-
-                colDefinition = 0;
-                while(line.length() > colDefinition && Character.isWhitespace(line.charAt(colDefinition))){
-                    colDefinition++;
-                }
-                colDefinition++;
-
-            } catch (BadLocationException e) {
-                colDefinition = 1;
-            }
-        }else{
+        
+        if(!generator.isImport()){
             colDefinition = generator.getColDefinition();
             if(colDefinition > 0){
                 colDefinition = fixCol(colDefinition);
-            }else{
-                colDefinition = 1;
+                return colDefinition;
             }
+        }
+
+        //it depends on the document contents... we have to remove the empty spaces to its left
+        int startLine = getStartLine(doc);
+        try {
+            IRegion start = doc.getLineInformation(startLine-1);
+            String line = doc.get(start.getOffset(), start.getLength());
+
+            colDefinition = 0;
+            while(line.length() > colDefinition && Character.isWhitespace(line.charAt(colDefinition))){
+                colDefinition++;
+            }
+            colDefinition++;
+
+        } catch (BadLocationException e) {
+            colDefinition = 1;
         }
         return colDefinition;
     }

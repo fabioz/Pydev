@@ -20,7 +20,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUnusedVariable9();
+            analyzer2.testKwArgs2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -652,6 +652,21 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(0, msgs.length);
     }
 
+    public void testKwArgs2() {
+        doc = new Document(
+                "def m3():             \n" +
+                "    def m1(**kwargs): \n"+
+                "        pass            " 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs,1);
+        assertEquals(1, msgs.length);
+        assertContainsMsg("Unused variable: kwargs", msgs, 2);
+        assertEquals(5, msgs[0].getStartCol(doc));
+    }
+    
 
     public void testOtherScopes() {
         //2 messages with token with same name
