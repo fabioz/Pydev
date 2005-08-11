@@ -20,6 +20,7 @@ import java.util.Hashtable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
@@ -201,14 +202,19 @@ public class RemoteDebugger extends Object {
 		public void run() {
 			while (!done) {
 				try {
-					if (in.ready()) {
-						String cmdLine = in.readLine();
+//				    if (in.ready()) {
+//				        String cmdLine = in.readLine();
+//				        processCommand(cmdLine);
+//				    }
+					String cmdLine = in.readLine();
+                    if(cmdLine != null){
 						processCommand(cmdLine);
 					}
 					Thread.sleep(100);
 				} catch (IOException e) {
 					done = true;
 				} catch (InterruptedException e1) {
+                    done = true;
 					e1.printStackTrace();
 				}
 				if ((socket == null) || !socket.isConnected()) {
@@ -218,6 +224,7 @@ public class RemoteDebugger extends Object {
 					done = true;
 				}
 			}
+            dispose();
 		}
 	}
 
@@ -308,8 +315,9 @@ public class RemoteDebugger extends Object {
 				// it is going away
 			}
 		socket = null;
-		if (target != null)
+		if (target != null){
 			target.debuggerDisconnected();
+        }
 	}
 	
 	/**
@@ -330,7 +338,11 @@ public class RemoteDebugger extends Object {
 			reader.done();
 			reader = null;
 		}
-		disconnect();
+        try {
+            target.terminate();
+        } catch (DebugException e) {
+            throw new RuntimeException(e);
+        }
 		target = null;
 	}
 	

@@ -169,9 +169,10 @@ public class PyThread extends PlatformObject implements IThread {
 	}
 
 	public IStackFrame[] getStackFrames() throws DebugException {
-		while (stack == null)	// Busy wait, the other thread will supply the stack shortly
-			;
-		return stack;
+        if(isSuspended && stack != null){
+            return stack;
+        }
+        return new IStackFrame[0];
 	}
 
 	public boolean hasStackFrames() throws DebugException {

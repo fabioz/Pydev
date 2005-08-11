@@ -168,10 +168,16 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 
 	public boolean canTerminate() {
 		// We can always terminate, it does no harm
+	    if(process == null){
+	        return false;
+        }
 		return true;
 	}
 
 	public boolean isTerminated() {
+        if(process == null){
+            return true;
+        }
 		return process.isTerminated();
 	}
 
@@ -180,6 +186,7 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 			debugger.disconnect();
 		threads = new IThread[0];
 		process.terminate();
+        process = null;
 		fireEvent(new DebugEvent(this, DebugEvent.TERMINATE));
 	}
 	

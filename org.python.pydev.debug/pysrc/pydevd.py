@@ -45,6 +45,7 @@ each command has a format:
     * RDB - remote debugger, the java end
     * PYDB - pydevd, the python end
 """
+import time
 import sys
 import threading
 import Queue as PydevQueue
@@ -746,16 +747,34 @@ class PyDB:
         self.writer.addCommand(net)
         
         threading.settrace(self.trace_dispatch) # for all future threads
-        sys.settrace(self.trace_dispatch) # for this thread
+        sys.settrace(None) # don't debug the debugger thread
         while not self.readyToRun: time.sleep(0.1) # busy wait until we receive run command
         try:
-            try:
-                execfile(file, globals, locals);
-            except:
-                print >>sys.stderr, "Debugger exiting with exception"
-                raise
+            executor = Executor(file, globals, locals)
+            executor.start()
+            
+            while not executor.finished:
+                time.sleep(5)
         finally:
             self.quitting = 1
+
+
+class Executor(threading.Thread):
+    """ executes the file to be debugged in the only (initial) thread that should have the tracing on"""
+    
+    def __init__(self, file, globals, locals):
+        threading.Thread.__init__(self)
+        self.finished = False
+        self.globals = globals
+        self.locals = locals
+        self.file = file
+        
+    def run(self):
+        try:
+            execfile(self.file, self.globals, self.locals)
+        finally:
+            self.finished = True
+
   
 def processCommandLine(argv):
     """ parses the arguments.
