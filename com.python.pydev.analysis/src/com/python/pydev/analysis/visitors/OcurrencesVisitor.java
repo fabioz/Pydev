@@ -17,6 +17,7 @@ import org.python.parser.ast.Attribute;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
+import org.python.parser.ast.Global;
 import org.python.parser.ast.If;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
@@ -279,15 +280,34 @@ public class OcurrencesVisitor extends VisitorBase{
         SourceToken token = AbstractVisitor.makeToken(node, moduleName);
         if (node.ctx == Name.Store) {
             String rep = token.getRepresentation();
-            if(!rep.equals("self")){ //TODO: after knowing about decorations, self should only be allowed in methods from a class
-                scope.addToken(token,token);
-            }else{
-                addToNamesToIgnore(node); //ignore self
+            boolean inNamesToIgnore = isInNamesToIgnore(rep);
+            
+            if(!inNamesToIgnore){
+                
+                if(!rep.equals("self")){ //TODO: after knowing about decorations, self should only be allowed in methods from a class
+                    scope.addToken(token,token);
+                }else{
+                    addToNamesToIgnore(node); //ignore self
+                }
             }
             
             
         } else if (node.ctx == Name.Load) {
             markRead(token);
+        }
+        return null;
+    }
+    
+    @Override
+    public Object visitGlobal(Global node) throws Exception {
+        for(String name :node.names){
+            Name nameAst = new Name(name, Name.Store);
+            nameAst.beginLine = node.beginLine;
+            nameAst.beginColumn = -1;
+
+            SourceToken token = AbstractVisitor.makeToken(nameAst, moduleName);
+            scope.addTokenToGlobalScope(token);
+            addToNamesToIgnore(nameAst); // it is global, so, ignore it...
         }
         return null;
     }

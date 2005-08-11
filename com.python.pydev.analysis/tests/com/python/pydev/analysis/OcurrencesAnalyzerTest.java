@@ -20,7 +20,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testKwArgs2();
+            analyzer2.testGlobal2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -886,6 +886,36 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
             "import os.path      \n" +
             "print os.path       \n" +
             ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testGlobal() {
+        //no need to warn if global variable is unused (and it should be defined at the global declaration)
+        doc = new Document(
+                "def m():                         \n" +
+                "    global __progress            \n" +
+                "    __progress = __progress + 1  \n" +
+                ""  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testGlobal2() {
+        //no need to warn if global variable is unused (and it should be defined at the global declaration)
+        doc = new Document(
+                "def m():                         \n" +
+                "    global __progress            \n" +
+                "    __progress = 1               \n" +
+                ""  
         );
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);

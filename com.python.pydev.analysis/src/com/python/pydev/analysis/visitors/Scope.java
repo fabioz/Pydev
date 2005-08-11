@@ -92,6 +92,14 @@ public class Scope {
     }
 
     /**
+     * Adds a token to the global scope
+     */
+    public void addTokenToGlobalScope(IToken generator) {
+        ScopeItems globalScope = getGlobalScope();
+        addToken(generator, globalScope, generator, generator.getRepresentation());
+    }
+
+    /**
      * when adding a token, we also have to check if there is not a token with the same representation
      * added, because if there is, the previous token might not be used at all...
      * 
@@ -128,7 +136,7 @@ public class Scope {
                     }
                     
                 } else{ 
-                    //found... may have been or not used, anyway, we're an if scope, so, that does not matter...
+                    //found... may have been or not used, anyway, we're in an if scope, so, that does not matter...
                     found.addGeneratorToFound(generator,o, getCurrScopeId(), getCurrScopeItems());
                     
                     //ok, it was added, so, let's call this over because we've appended it to another found,
@@ -138,7 +146,7 @@ public class Scope {
             }
         }
         
-        Found newFound = new Found(o,(SourceToken) generator, getCurrScopeId(), getCurrScopeItems());
+        Found newFound = new Found(o,(SourceToken) generator, m.getScopeId(), m);
         m.put(rep, newFound);
 
         if(isReimport){
@@ -239,4 +247,9 @@ public class Scope {
         }
         return buffer.toString();
     }
+
+    public ScopeItems getGlobalScope() {
+        return scope.get(0);
+    }
+
 }
