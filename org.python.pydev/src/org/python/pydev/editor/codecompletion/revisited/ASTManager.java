@@ -595,7 +595,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 }
                 
                 //check 2... modRep (simple)
-                if(o == null || mod == null || tok == null || current == mod){
+                if(o == null || mod == null || tok == null || current.equals(mod)){
                     o = findModuleFromPath(modRep, nature);
                     mod = (AbstractModule) o[0];
                     tok = (String) o[1];

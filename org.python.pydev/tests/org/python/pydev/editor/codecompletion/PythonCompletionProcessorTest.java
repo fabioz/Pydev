@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
       try {
           PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
 	      test.setUp();
-          test.testImportMultipleFromImport();
+          test.testCompleteImportBuiltinReference();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -62,9 +63,14 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
 
 
     
+    public void requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+        requestCompl(null, strDoc, documentOffset, returned, retCompl);
+    }
+    
     /**
      * make a request for a code completion
      * 
+     * @param the file where we are doing the completion
      * @param strDoc the document requesting the code completion
      * @param documentOffset the offset of the document (if -1, the doc length is used)
      * @param returned the number of completions expected (if -1 not tested)
@@ -74,14 +80,12 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
      * @throws CoreException
      * @throws BadLocationException
      */
-    public void requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+    public void requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
         if(documentOffset == -1)
             documentOffset = strDoc.length();
         
         IDocument doc = new Document(strDoc);
-        CompletionRequest request = new CompletionRequest(null, 
-                nature, doc, documentOffset,
-                codeCompletion);
+        CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);
 
         List props = codeCompletion.getCodeCompletionProposals(request);
         ICompletionProposal[] codeCompletionProposals = codeCompletion.onlyValidSorted(props, request.qualifier);
@@ -252,6 +256,21 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
         try {
             String s;
 
+            s = "" +
+            "import os\n"+
+            "                \n"+   
+            "os.";         
+            File file = new File("tests/pysrc/simpleosimport.py");
+            assertTrue(file.exists());
+            assertTrue(file.isFile());
+            requestCompl(file, s, s.length(), -1, new String[]{"path"});
+            
+            s = "" +
+            "import os\n"+
+            "                \n"+   
+            "os.";         
+            requestCompl(s, s.length(), -1, new String[]{"path"});
+            
     	    //check for builtins with reference..3
     	    s = "" +
 			"from qt import *\n"+

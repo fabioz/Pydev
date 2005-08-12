@@ -16,6 +16,7 @@ import org.python.parser.ast.Attribute;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
+import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
@@ -335,5 +336,24 @@ public class SourceModule extends AbstractModule {
             e.printStackTrace();
             return -1;
         }
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof SourceModule)) {
+            return false;
+        }
+        SourceModule m = (SourceModule) obj;
+        if(file == null || m.file == null){
+            if(file != null){
+                return false;
+            }
+            if(m.file != null){
+                return false;
+            }
+            return this.name.equals(m.name);
+        }
+        
+        return REF.getFileAbsolutePath(file).equals(REF.getFileAbsolutePath(m.file)) && this.name.equals(m.name); 
     }
 }
