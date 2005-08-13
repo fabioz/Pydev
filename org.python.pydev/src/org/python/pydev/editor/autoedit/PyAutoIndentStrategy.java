@@ -148,9 +148,10 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
              */
             else if (command.text.equals(" ") && prefs.getAutoWriteImport()) {
                 PySelection ps = new PySelection(document, command.offset);
-                String line = ps.getLineContentsToCursor().trim();
-                if(line.indexOf("import") == -1){
-                    String importsTipperStr = PyCodeCompletion.getImportsTipperStr(line, false);
+                String completeLine = ps.getLineWithoutComments();
+                String lineToCursor = ps.getLineContentsToCursor().trim();
+                if(completeLine.indexOf("import") == -1){
+                    String importsTipperStr = PyCodeCompletion.getImportsTipperStr(lineToCursor, false);
                     if(importsTipperStr.length() > 0){
                         command.text = " import ";
                     }

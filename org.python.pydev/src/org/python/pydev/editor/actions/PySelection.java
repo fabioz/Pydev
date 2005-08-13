@@ -75,6 +75,15 @@ public class PySelection {
         PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
     }
 
+    public String getLineWithoutComments() {
+        String l = getLine();
+        int i;
+        if((i = l.indexOf('#') ) != -1){
+            l = l.substring(0, i);
+        }
+        return l;
+    }
+    
     /**
      * Gets current line from document.
      * 

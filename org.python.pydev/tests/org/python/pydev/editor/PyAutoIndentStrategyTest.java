@@ -355,6 +355,19 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = " ";
         assertEquals(expected, docCmd.text);
+
+        doc = "from xxx import yyy";
+        docCmd = new DocCmd(8, 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " ";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "from xxx #import yyy";
+        docCmd = new DocCmd(8, 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " import ";
+        assertEquals(expected, docCmd.text);
+        
     }
 
     private final class TestIndentPrefs extends AbstractIndentPrefs {
