@@ -19,6 +19,11 @@ class Test(unittest.TestCase):
         for a in t:
             print a
  
+    def testImports3(self):
+        tip = importsTipper.GenerateTip('os')
+        ret = self.assertIn('path', tip)
+        self.assertEquals('', ret[2])
+
     def testImports2(self):
         tip = importsTipper.GenerateTip('OpenGL.GLUT')
         self.assertIn('glutDisplayFunc', tip)
@@ -67,7 +72,7 @@ class Test(unittest.TestCase):
         self.assertEquals(4, len(tips[0]))
         for a in tips:
             if tok == a[0]:
-                return
+                return a
         raise AssertionError('%s not in %s', tok, tips)
 
     def testInspect(self):

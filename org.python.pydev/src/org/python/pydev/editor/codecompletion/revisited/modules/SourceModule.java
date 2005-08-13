@@ -226,13 +226,13 @@ public class SourceModule extends AbstractModule {
             String tok = token;
             SourceModule mod = this;
             
-            if(o != null){
+            if(o != null && o[0] instanceof SourceModule){
 	            mod =  (SourceModule) o[0];
 	            tok = (String) o[1];
+	            Definition d = mod.findGlobalTokDef(tok);
+	            if(d != null)
+	                toRet.add(d);
             }
-            Definition d = mod.findGlobalTokDef(tok);
-            if(d != null)
-                toRet.add(d);
             
         }else{
 	        for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {

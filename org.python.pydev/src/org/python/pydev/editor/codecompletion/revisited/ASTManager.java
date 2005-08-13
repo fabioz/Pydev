@@ -664,7 +664,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 AbstractModule mod = (AbstractModule) o[0];
                 String tok = (String) o[1];
                 
-                if(mod == current){
+                if(mod != null && mod.equals(current)){
                     Object[] o1 = findModuleFromPath(importedModules[i].getRepresentation() + subst, nature);
                     AbstractModule mod1 = (AbstractModule) o1[0];
                     String tok1 = (String) o1[1];

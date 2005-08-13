@@ -291,12 +291,33 @@ public abstract class ModulesManager implements Serializable {
      * @return the module represented by this name
      */
     public AbstractModule getModule(String name, PythonNature nature) {
+        AbstractModule n = null;
+        
+        //check for supported builtins these don't have files associated.
+        //they are the first to be passed because the user can force a module to be builtin, because there
+        //is some information that is only useful when you have builtins, such as os and wxPython (those can
+        //be source modules, but they are so hacked that it is almost impossible to get useful information
+        //from them).
+        String[] builtins = getBuiltins();
+        
+        for (int i = 0; i < builtins.length; i++) {
+            if (name.equals(builtins[i])) {
+                n = (AbstractModule) getModules().get(new ModulesKey(name, null));
+                if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ //still not created or not defined as compiled module (as it should be)
+                    n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
+                    this.getModules().put(new ModulesKey(n.getName(), null), n);
+                }
+            }
+        }
 
-        AbstractModule n = (AbstractModule) getModules().get(new ModulesKey(name + ".__init__", null));
-        if (n == null) {
-            n = (AbstractModule) getModules().get(new ModulesKey(name, null));
-        }else{
-            name += ".__init__";
+
+        if(n == null){
+            n = (AbstractModule) getModules().get(new ModulesKey(name + ".__init__", null));
+            if (n == null) {
+                n = (AbstractModule) getModules().get(new ModulesKey(name, null));
+            }else{
+                name += ".__init__";
+            }
         }
 
         if (n instanceof SourceModule) {
@@ -316,18 +337,7 @@ public abstract class ModulesManager implements Serializable {
             //system dependent, and being so, many of its useful completions are not goten
             //e.g. os.path is defined correctly only on runtime.
 
-            String[] builtins = null;
             boolean found = false;
-
-            if (e.f != null) {
-                builtins = getBuiltins();
-                for (int i = 0; i < builtins.length; i++) {
-                    if (name.equals(builtins[i])) {
-                        n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
-                        found = true;
-                    }
-                }
-            }
 
             if (!found && e.f != null) {
                 try {
@@ -337,19 +347,8 @@ public abstract class ModulesManager implements Serializable {
                     n = null;
                 }
 
-            } else {
-                //check for supported builtins
-                //these don't have files associated.
-                if (builtins == null) {
-                    builtins = getBuiltins();
-                }
-                for (int i = 0; i < builtins.length; i++) {
-                    if (name.equals(builtins[i])) {
-                        n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
-                    }
-                }
-            }
-
+            } 
+            
             if (n != null) {
                 this.getModules().put(new ModulesKey(name, e.f), n);
             } else {

@@ -257,6 +257,12 @@ public class PythonCompletionProcessorTest extends CodeCompletionTestsBase {
             String s;
 
             s = "" +
+            "import wxPython\n"+
+            "                \n"+   
+            "wxPython.";         
+            requestCompl(s, s.length(), -1, new String[]{});
+
+            s = "" +
             "import os\n"+
             "                \n"+   
             "os.";         

@@ -11,6 +11,7 @@ TYPE_ATTR = 3
 TYPE_BUILTIN = 4
 TYPE_PARAM = 5
 
+TYPE_BUILTIN_STR = '4'
 
 def _imp(name):
     try:
@@ -45,33 +46,67 @@ def GenerateTip( data ):
 
 
 def GenerateImportsTipForModule( mod ):
+    '''
+    @param mod: the module from where we should get the completions
+    '''
     ret = []
     
-    for d in dir( mod ):
+    dirComps = dir( mod )
+    getCompleteInfo = True
+    
+    if len(dirComps) > 1000:
+        #ok, we don't want to let our users wait forever... 
+        #no complete info for you...
         
+        getCompleteInfo = False
+    
+    dontGetDocsOn = (float, int, str, tuple, list, type)
+    for d in dirComps:
+
         args = ''
-        obj = getattr(mod, d)
-        type = TYPE_BUILTIN
 
-        if inspect.ismethod(obj) or inspect.isbuiltin(obj) or inspect.isfunction(obj) or inspect.isroutine(obj):
-            try:
-                args, vargs, kwargs, defaults = inspect.getargspec( obj )
+        if getCompleteInfo:
+            obj = getattr(mod, d)
+            retType = TYPE_BUILTIN
+
+            if inspect.ismethod(obj) or inspect.isbuiltin(obj) or inspect.isfunction(obj) or inspect.isroutine(obj):
+                try:
+                    args, vargs, kwargs, defaults = inspect.getargspec( obj )
+                        
+                    r = ''
+                    for a in ( args ):
+                        if len( r ) > 0:
+                            r += ', '
+                        r += str( a )
+                    args = '(%s)' % (r)
+                except TypeError:
+                    args = '()'
+
+                retType = TYPE_FUNCTION
+            
+            
+            #check if we have to get docs
+            getDoc = True
+            for class_ in dontGetDocsOn:
+                if isinstance(obj, class_):
+                    getDoc = False
+                    break
                     
-                r = ''
-                for a in ( args ):
-                    if len( r ) > 0:
-                        r += ', '
-                    r += str( a )
-                args = '(%s)' % (r)
-            except TypeError:
-
-            #print obj, args
-                args = '()'
-            type = TYPE_FUNCTION
-
-        #add token and doc to return - assure only strings.
-        ret.append(   (d, inspect.getdoc( obj ), args, str(type))   )
-
+            doc = ''
+            if getDoc:
+                #no need to get this info... too many constants are defined and 
+                #makes things much slower (passing all that through sockets takes quite some time)
+                doc = inspect.getdoc( obj )
+            
+            #add token and doc to return - assure only strings.
+            ret.append(   (d, doc, args, str(retType))   )
+            
+        else: #getCompleteInfo == False
+        
+            #ok, no complete info, let's try to do this as fast and clean as possible
+            #so, no docs for this kind of information, only the signatures
+            ret.append(   (d, '', args, TYPE_BUILTIN_STR)   )
+            
     return ret
 
 
