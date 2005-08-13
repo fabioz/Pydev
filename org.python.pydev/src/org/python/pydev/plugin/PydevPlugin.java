@@ -47,7 +47,7 @@ import org.python.pydev.builder.pylint.PyLintPrefPage;
 import org.python.pydev.builder.todo.PyTodoPrefPage;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
-import org.python.pydev.editor.codecompletion.PythonShell;
+import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.pyunit.ITestRunListener;
@@ -184,7 +184,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             }
 
             //stop the running shells
-            PythonShell.stopAllShells();
+            AbstractShell.stopAllShells();
         } finally{
 	        super.stop(context);
         }

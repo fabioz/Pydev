@@ -6,6 +6,7 @@
 package org.python.pydev.editor.refactoring;
 
 import org.eclipse.ui.IPropertyListener;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.model.ItemPointer;

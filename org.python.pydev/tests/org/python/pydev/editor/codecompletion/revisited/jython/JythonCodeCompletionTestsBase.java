@@ -62,6 +62,4 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
         PydevPlugin.setJythonInterpreterManager(new PythonInterpreterManagerStub(preferences));
     }
     
-    public void testCompletion() {
-    }
 }

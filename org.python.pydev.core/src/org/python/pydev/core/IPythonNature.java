@@ -15,6 +15,16 @@ public interface IPythonNature {
     public static final String JYTHON_VERSION_2_1 = "jython 2.1";
 
     /**
+     * this id is provided so that we can have an identifier for python-related things (independent of its version)
+     */
+    public static final int PYTHON_RELATED = 0;
+    
+    /**
+     * this id is provided so that we can have an identifier for jython-related things (independent of its version)
+     */
+    public static final int JYTHON_RELATED = 1;
+
+    /**
      * @return the project version given the constants provided
      * @throws CoreException 
      */
@@ -49,4 +59,12 @@ public interface IPythonNature {
      * @throws CoreException 
      */
     boolean acceptsDecorators() throws CoreException;
+    
+    /**
+     * @return the id that is related to this nature given its type
+     * 
+     * @see #PYTHON_RELATED
+     * @see #JYTHON_RELATED
+     */
+    int getRelatedId() throws CoreException;
 }

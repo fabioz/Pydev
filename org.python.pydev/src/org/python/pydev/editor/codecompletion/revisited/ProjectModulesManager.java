@@ -52,6 +52,13 @@ public class ProjectModulesManager extends ModulesManager{
         this.nature = nature;
     }
     
+    /**
+     * @return the nature related to this manager
+     */
+    public IPythonNature getNature() {
+        return nature;
+    }
+    
     public SystemModulesManager getSystemModulesManager(){
         IInterpreterManager iMan = PydevPlugin.getInterpreterManager(nature);
         InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());

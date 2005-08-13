@@ -1,9 +1,7 @@
 /*
- * Created on Aug 16, 2004
- *
- * @author Fabio Zadrozny
+ * Created on 13/08/2005
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.editor.codecompletion.shell;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,26 +19,41 @@ import java.util.StringTokenizer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
+import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
-import org.python.pydev.runners.SimplePythonRunner;
 
-/**
- * @author Fabio Zadrozny
- */
-public class PythonShell {
+public abstract class AbstractShell {
 
-    private static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000;
+    /**
+     * the encoding used to encode messages
+     */
+    private static final String ENCODING_UTF_8 = "UTF-8";
+    
     /**
      * Reference to 'global python shells'
+     * 
+     * this works as follows:
+     * we have a 'related to' id as the first step, according to the IPythonNature constants
+     * 
+     * @see org.python.pydev.core.IPythonNature#PYTHON_RELATED
+     * @see org.python.pydev.core.IPythonNature#JYTHON_RELATED
+     * 
+     * and then we have the id with the shell type that points to the actual shell
+     * 
+     * @see #COMPLETION_SHELL
+     * @see #OTHERS_SHELL
      */
-    private static Map<Integer,PythonShell> shells = new HashMap<Integer,PythonShell>();
+    protected static Map<Integer,Map<Integer,PythonShell>> shells = new HashMap<Integer,Map<Integer,PythonShell>>();
     
-    public static final int COMPLETION_SHELL = 1; 
-    public static final int OTHERS_SHELL = 2; 
-
+    /**
+     * stops all registered shells 
+     *
+     */
     public synchronized static void stopAllShells(){
         
         for (Iterator iter = shells.values().iterator(); iter.hasNext();) {
@@ -56,55 +69,87 @@ public class PythonShell {
         shells.clear();
     }
 
-    public synchronized static void putServerShell(int id, PythonShell shell) {
-        shells.put(new Integer(id), shell);
-    }
-    
+    public static final int BUFFER_SIZE = 1024 ;
+    public static final int OTHERS_SHELL = 2;
+    public static final int COMPLETION_SHELL = 1;
+    protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000;
+    private static final boolean DEBUG_SHELL = false;
+
     /**
-     * @return
+     * @param relatedId the id that is related to the structure we want to get
+     * @return a map with the type of the shell mapping to the shell itself
+     */
+    private static Map<Integer, PythonShell> getTypeToShellFromId(int relatedId) {
+        Map<Integer, PythonShell> typeToShell = shells.get(relatedId);
+        
+        if (typeToShell == null) {
+            typeToShell = new HashMap<Integer, PythonShell>();
+            shells.put(relatedId, typeToShell);
+        }
+        return typeToShell;
+    }
+
+    /**
+     * register a shell and give it an id
+     * @param id the shell id
+     * @param shell the shell to register
+     * 
+     * @see #COMPLETION_SHELL
+     * @see #OTHERS_SHELL
+     */
+    public synchronized static void putServerShell(IPythonNature nature, int id, PythonShell shell) {
+        try {
+            Map<Integer, PythonShell> typeToShell = getTypeToShellFromId(nature.getRelatedId());
+            typeToShell.put(new Integer(id), shell);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public synchronized static PythonShell getServerShell(IPythonNature nature, int id) throws IOException, Exception {
+        return getServerShell(nature.getRelatedId(), id);
+    }
+    /**
+     * @return the shell with the given id related to some nature
      * @throws CoreException
      * @throws IOException
      * 
      */
-    public synchronized static PythonShell getServerShell(int id) throws IOException, Exception {
-        PythonShell pytonShell = (PythonShell) shells.get(new Integer(id));
+    public synchronized static PythonShell getServerShell(int relatedId, int id) throws IOException, Exception {
+        Map<Integer, PythonShell> typeToShell = getTypeToShellFromId(relatedId);
+        PythonShell pytonShell = (PythonShell) typeToShell.get(new Integer(id));
         
         if(pytonShell == null){
             pytonShell = new PythonShell();
-            shells.put(new Integer(id), pytonShell);
+            typeToShell.put(new Integer(id), pytonShell);
             pytonShell.startIt();
         }
         return pytonShell;
     }
 
-    
-    public static final int BUFFER_SIZE = 1024 ;
     /**
      * Python server process.
      */
-    public Process process;
-    
+    protected Process process;
     /**
      * We should write in this socket.
      */
-    private Socket socketToWrite;
-    
+    protected Socket socketToWrite;
     /**
      * We should read this socket.
      */
-    private Socket socketToRead;
-    
+    protected Socket socketToRead;
     /**
      * Python file that works as the server.
      */
-    private File serverFile;
-
+    protected File serverFile;
     /**
      * Server socket (accept connections).
      */
-    private ServerSocket serverSocket;
+    protected ServerSocket serverSocket;
 
-
+    
     /**
      * Initialize given the file that points to the python server (execute it
      * with python).
@@ -114,29 +159,17 @@ public class PythonShell {
      * @throws IOException
      * @throws CoreException
      */
-    public PythonShell(File f) throws IOException, CoreException {
+    protected AbstractShell(File f) throws IOException, CoreException {
         serverFile = f;
         if(!serverFile.exists()){
             throw new RuntimeException("Can't find python server file");
         }
     }
-    
-    
-    /**
-     * Initialize with the default python server file.
-     * 
-     * @throws IOException
-     * @throws CoreException
-     */
-    public PythonShell() throws IOException, CoreException {
-        this(PydevPlugin.getScriptWithinPySrc("pycompletionserver.py"));
-    }
 
-    
     /**
      * Just wait a little...
      */
-    private void sleepALittle(int t) {
+    protected void sleepALittle(int t) {
         try {
             synchronized(this){
                 wait(t); //millis
@@ -149,33 +182,37 @@ public class PythonShell {
     /**
      * This method creates the python server process and starts the sockets, so that we
      * can talk with the server.
+     * @throws IOException
+     * @throws CoreException
+     */
+    public void startIt() throws IOException, Exception {
+        this.startIt(AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
+    }
+
+
+    /**
+     * This method creates the python server process and starts the sockets, so that we
+     * can talk with the server.
      * 
      * @param milisSleep: time to wait after creating the process.
      * @throws IOException is some error happens creating the sockets - the process is terminated.
      * @throws CoreException
      */
-    public void startIt(int milisSleep) throws IOException, Exception{
+    protected void startIt(int milisSleep) throws IOException, Exception {
         try {
-
+    
             int pWrite = SocketUtil.findUnusedLocalPort("127.0.0.1", 50000, 55000);
             int pRead = SocketUtil.findUnusedLocalPort("127.0.0.1", 55001, 60000);
-
-            if(process != null)
-                endIt();
-            String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
-            String osName = System.getProperty("os.name");
-            
-            String execMsg;
-            if(SimplePythonRunner.isWindowsPlatform()){ //in windows, we have to put python "path_to_file.py"
-                execMsg = interpreter+" \""+REF.getFileAbsolutePath(serverFile)+"\" "+pWrite+" "+pRead;
-            }else{ //however in mac, this gives an error...
-                execMsg = interpreter+" "+REF.getFileAbsolutePath(serverFile)+" "+pWrite+" "+pRead;
+    
+            if(process != null){
+                endIt(); //end the current process
             }
+            
+            String execMsg = createServerProcess(pWrite, pRead);
 
-            //System.out.println(execMsg);
-            process = new SimplePythonRunner().createProcess(execMsg, serverFile.getParentFile());
             
             sleepALittle(200);
+            String osName = System.getProperty("os.name");
             if(process == null){
                 String msg = "Error creating python process - got null process("+execMsg+") - os:"+osName;
                 throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
@@ -196,21 +233,16 @@ public class PythonShell {
             int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
             while(!connected && attempts < maxAttempts){
                 attempts += 1;
-	            try {
-	                if(socketToWrite == null || socketToWrite.isConnected() == false){
-	                    socketToWrite = new Socket("127.0.0.1",pWrite); //we should write in this port
-	                }
+                try {
+                    if(socketToWrite == null || socketToWrite.isConnected() == false){
+                        socketToWrite = new Socket("127.0.0.1",pWrite); //we should write in this port
+                    }
                     socketToRead = serverSocket.accept();
                     connected = true;
                 } catch (IOException e1) {
-	                if(socketToWrite != null && socketToWrite.isConnected() == true){
-	                    PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of "+maxAttempts+" failed, trying again...(socketToWrite already binded)", e1);
-	                }
-//	                no need for showing the error below...
-//	                else{
-//	                    PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of "+maxAttempts+" failed, trying again...", e1);
-//	                }
-	                
+                    if(socketToWrite != null && socketToWrite.isConnected() == true){
+                        PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of "+maxAttempts+" failed, trying again...(socketToWrite already binded)", e1);
+                    }
                 }
                 
                 //if not connected, let's sleep a little for another attempt
@@ -225,7 +257,7 @@ public class PythonShell {
                 Exception exception = new Exception("Error connecting to python process.");
                 try {
                     Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Error connecting to python process (" + execMsg + ")", exception);
-	                throw new CoreException(status);
+                    throw new CoreException(status);
                 } catch (Exception e) {
                     throw exception;
                 }
@@ -240,25 +272,23 @@ public class PythonShell {
             throw e;
         }
     }
-    
-    /**
-     * This method creates the python server process and starts the sockets, so that we
-     * can talk with the server.
-     * @throws IOException
-     * @throws CoreException
-     */
-    public void startIt() throws IOException, Exception{
-        this.startIt(DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
-    }
 
-    
-    private void communicateWork(String desc, Operation operation){
+    /**
+     * @param pWrite the port where we should write
+     * @param pRead the port where we should read
+     * @return the command line that was used to create the process 
+     * 
+     * @throws IOException
+     */
+    protected abstract String createServerProcess(int pWrite, int pRead) throws IOException;
+
+    protected void communicateWork(String desc, Operation operation) {
         if(operation != null){
             operation.monitor.setTaskName(desc);
             operation.monitor.worked(1);
         }
     }
-    
+
     /**
      * @param operation
      * @return
@@ -269,10 +299,10 @@ public class PythonShell {
         String tempStr = "";
         int j = 0;
         while(j != 100){
-	        byte[] b = new byte[PythonShell.BUFFER_SIZE];
-
+            byte[] b = new byte[AbstractShell.BUFFER_SIZE];
+    
             this.socketToRead.getInputStream().read(b);
-
+    
             String s = new String(b);
             
             if(s.indexOf("@@PROCESSING_END@@") != -1){ //each time we get a processing message, reset j to 0.
@@ -286,7 +316,7 @@ public class PythonShell {
                 s = s.replaceAll("@@PROCESSING:", "");
                 s = s.replaceAll("END@@", "");
                 j = 0;
-                s = URLDecoder.decode(s, "UTF-8");
+                s = URLDecoder.decode(s, ENCODING_UTF_8);
                 if(s.trim().equals("") == false){
                     communicateWork("Processing: "+s, operation);
                 }else{
@@ -294,7 +324,7 @@ public class PythonShell {
                 }
                 s = "";
             }
-
+    
             
             s = s.replaceAll((char)0+"",""); //python sends this char as payload.
             str.append(s);
@@ -319,7 +349,7 @@ public class PythonShell {
         try {
             if(ret.indexOf("END@@")!= -1){
                 ret = ret.substring(0, ret.indexOf("END@@"));
-	            return ret;
+                return ret;
             }else{
                 throw new RuntimeException("Couldn't find END@@ on received string.");
             }
@@ -333,35 +363,36 @@ public class PythonShell {
         }
     }
 
-
     /**
      * @return s string with the contents read.
      * @throws IOException
      */
-    public String read() throws IOException {
+    protected String read() throws IOException {
         String r = read(null);
-//        System.out.println("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r,"utf-8"),"utf-8"));
+        if(DEBUG_SHELL){
+            System.out.println("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r,ENCODING_UTF_8),ENCODING_UTF_8));
+        }
         return r;
     }
-    
 
     /**
      * @param str
      * @throws IOException
      */
     public void write(String str) throws IOException {
-//        System.out.println("WRITING:"+str);
+        if(DEBUG_SHELL){
+            System.out.println("WRITING:"+str);
+        }
         this.socketToWrite.getOutputStream().write(str.getBytes());
     }
 
-    
     /**
      * @throws IOException
      */
-    private void closeConn() throws IOException {
+    protected void closeConn() throws IOException {
         write("@@KILL_SERVER_END@@");
         if(socketToWrite != null){
-	        socketToWrite.close();
+            socketToWrite.close();
         }
         socketToWrite = null;
         
@@ -375,7 +406,6 @@ public class PythonShell {
         }
         serverSocket = null;
     }
-
 
     /**
      * Kill our sub-process.
@@ -410,33 +440,29 @@ public class PythonShell {
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
-
+    
             process = null;
         }
         
     }
 
-    public void sendGoToDirMsg(File file){
+    public void sendGoToDirMsg(File file) {
         try {
             if(file.isDirectory() == false){
                 file = file.getParentFile();
             }
             
             String str = REF.getFileAbsolutePath(file);
-            str = URLEncoder.encode(str, "UTF-8");
+            str = URLEncoder.encode(str, ENCODING_UTF_8);
             this.write("@@CHANGE_DIR:"+str+"END@@");
-//            String ok = this.read(); //this should be the ok message...
             this.read(); //this should be the ok message...
             
         } catch (IOException e) {
             PydevPlugin.log(IStatus.ERROR, "ERROR sending go to dir msg.", e);
         }
     }
-    
 
     /**
-     * 
-     * @param importsTipper
      * @return list with tuples: new String[]{token, description}
      * @throws CoreException
      */
@@ -444,7 +470,7 @@ public class PythonShell {
         changePythonPath(pythonpath);
         
         try {
-            str = URLEncoder.encode(str, "UTF-8");
+            str = URLEncoder.encode(str, ENCODING_UTF_8);
             return this.getTheCompletions("@@IMPORTS:" + str + "\nEND@@");
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -463,25 +489,16 @@ public class PythonShell {
             buffer.append("|");
         }
         try {
-            getTheCompletions("@@CHANGE_PYTHONPATH:" + URLEncoder.encode(buffer.toString(), "UTF-8") + "\nEND@@");
+            getTheCompletions("@@CHANGE_PYTHONPATH:" + URLEncoder.encode(buffer.toString(), ENCODING_UTF_8) + "\nEND@@");
         } catch (Exception e) {
             throw new RuntimeException(e);
         } 
     }
 
-    /**
-     * 
-     * @return List with String[] (we are interested only in the String[0])
-     * @throws CoreException
-     */
-    public List getPythonPath() throws CoreException{
-        return this.getTheCompletions("@@PYTHONPATH_END@@");
-    }
-    
-    private List getTheCompletions(String str) throws CoreException{
+    protected List getTheCompletions(String str) throws CoreException {
         try {
             this.write(str);
- 
+    
             return getCompletions();
         } catch (NullPointerException e) {
             //still not started...
@@ -490,12 +507,12 @@ public class PythonShell {
             
         } catch (Exception e) {
             PydevPlugin.log(IStatus.ERROR, "ERROR getting completions.", e);
-
+    
             restartShell();
             return getInvalidCompletion();
         }
     }
-    
+
     /**
      * @throws CoreException
      * 
@@ -512,42 +529,42 @@ public class PythonShell {
         }
     }
 
-
     /**
      * @return
      */
-    private List getInvalidCompletion() {
+    protected List getInvalidCompletion() {
         List<String[]> l = new ArrayList<String[]>();
         l.add(new String[]{"SERVER_ERROR","please try again."});
         return l;
     }
 
-
     /**
      * @throws IOException
      */
-    private List getCompletions() throws IOException {
+    protected List getCompletions() throws IOException {
         ArrayList<String[]> list = new ArrayList<String[]>();
         String string = this.read().replaceAll("\\(","").replaceAll("\\)","");
         StringTokenizer tokenizer = new StringTokenizer(string, ",");
         
         while(tokenizer.hasMoreTokens()){
-            String token       = URLDecoder.decode(tokenizer.nextToken(), "UTF-8");
+            String token       = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
             if(!tokenizer.hasMoreTokens()){
                 return list;
             }
-            String description = URLDecoder.decode(tokenizer.nextToken(), "UTF-8");
+            String description = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
             
             String args = "";
             if(tokenizer.hasMoreTokens())
-                args = URLDecoder.decode(tokenizer.nextToken(), "UTF-8");
+                args = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
             
             String type =""+PyCodeCompletion.TYPE_UNKNOWN;
             if(tokenizer.hasMoreTokens())
-                type = URLDecoder.decode(tokenizer.nextToken(), "UTF-8");
-            
-//            System.out.println(token);
-//            System.out.println(description);
+                type = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+  
+            if(DEBUG_SHELL){
+                System.out.println(token);
+                System.out.println(description);
+            }
 
             if(!token.equals("ERROR:")){
                 list.add(new String[]{token, description, args, type});
@@ -556,9 +573,5 @@ public class PythonShell {
         return list;
     }
 
-
-
-
-
-
+    
 }

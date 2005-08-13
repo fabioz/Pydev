@@ -67,6 +67,10 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         projectModulesManager.setPythonNature(nature);
     }
     
+    public IPythonNature getNature() {
+        return projectModulesManager.getNature();
+    }
+    
     //----------------------- AUXILIARIES
 
 

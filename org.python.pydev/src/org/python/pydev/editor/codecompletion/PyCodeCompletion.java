@@ -34,6 +34,7 @@ import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
+import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -159,7 +160,7 @@ public class PyCodeCompletion {
             List theList = new ArrayList();
             try {
                 if (CompiledModule.COMPILED_MODULES_ENABLED) {
-                    PythonShell.getServerShell(PythonShell.COMPLETION_SHELL); //just start it
+                    AbstractShell.getServerShell(request.nature, AbstractShell.COMPLETION_SHELL); //just start it
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);

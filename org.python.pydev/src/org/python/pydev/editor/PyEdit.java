@@ -55,8 +55,8 @@ import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
 import org.python.pydev.editor.model.AbstractNode;
@@ -141,24 +141,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         this.addModelListener(codeFoldingSetter);
         this.addPropertyListener(codeFoldingSetter);
 
-        //we also want to initialize our shells...
-        //we use 2: one for refactoring and one for code completion.
-        new Thread() {
-            public void run() {
-                try {
-                    try {
-                        PythonShell.getServerShell(PythonShell.OTHERS_SHELL);
-                    } catch (RuntimeException e1) {
-                    }
-                    try {
-                        PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
-                    } catch (RuntimeException e1) {
-                    }
-                } catch (Exception e) {
-                }
-
-            }
-        }.start();
 
     }
 
@@ -230,7 +212,29 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         // Also adds Python nature to the project.
     	// The reason this is done here is because I want to assign python
     	// nature automatically to any project that has active python files.
-        PythonNature.addNature(input);
+        final IPythonNature nature = PythonNature.addNature(input);
+        
+        //we also want to initialize our shells...
+        //we use 2: one for refactoring and one for code completion.
+        new Thread() {
+            public void run() {
+                try {
+                    //ok, behaviour change... we just initialize the shell that is not for code completion
+                    //when requested...
+//                    try {
+//                        PythonShell.getServerShell(PythonShell.OTHERS_SHELL);
+//                    } catch (RuntimeException e1) {
+//                    }
+                    try {
+                        AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+                    } catch (RuntimeException e1) {
+                    }
+                } catch (Exception e) {
+                }
+
+            }
+        }.start();
+
         
         //set the parser for the document
         parser.setDocument(document);

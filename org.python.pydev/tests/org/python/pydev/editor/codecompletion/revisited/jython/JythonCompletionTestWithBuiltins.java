@@ -1,19 +1,20 @@
 /*
  * Created on 13/08/2005
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.editor.codecompletion.revisited.jython;
 
 import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.PythonShellTest;
 import org.python.pydev.editor.codecompletion.revisited.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShell;
 
-public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
+public class JythonCompletionTestWithBuiltins extends JythonCodeCompletionTestsBase{
     
     private static PythonShell shell;
     
@@ -24,7 +25,7 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
         super.setUp();
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPathWithSitePackages(false);
+        this.restorePythonPath(false);
         codeCompletion = new PyCodeCompletion(false);
 
         //we don't want to start it more than once

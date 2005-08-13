@@ -11,12 +11,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.PythonShell;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.editor.codecompletion.shell.AbstractShell;
+import org.python.pydev.editor.codecompletion.shell.PythonShell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -50,7 +51,7 @@ public class CompiledModule extends AbstractModule{
         super(name);
         if(COMPILED_MODULES_ENABLED){
 	        try {
-	            PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
+	            PythonShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
 	            List completions = shell.getImportCompletions(name, manager.getProjectModulesManager().getCompletePythonPath());
 	            
 	            ArrayList<IToken> array = new ArrayList<IToken>();
@@ -122,7 +123,7 @@ public class CompiledModule extends AbstractModule{
 
         if(COMPILED_MODULES_ENABLED){
 	        try {
-	            PythonShell shell = PythonShell.getServerShell(PythonShell.COMPLETION_SHELL);
+	            PythonShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
 	            List completions = shell.getImportCompletions(name+"."+state.activationToken, manager.getProjectModulesManager().getCompletePythonPath());
 	            
 	            ArrayList<IToken> array = new ArrayList<IToken>();

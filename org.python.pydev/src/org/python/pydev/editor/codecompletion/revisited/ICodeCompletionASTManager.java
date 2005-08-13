@@ -11,6 +11,7 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -61,6 +62,10 @@ public interface ICodeCompletionASTManager {
      */
     public abstract ProjectModulesManager getProjectModulesManager();
 
+    /**
+     * @return the nature associated to this manager
+     */
+    public abstract IPythonNature getNature();
 
     //----------------------------------- COMPLETIONS
 
@@ -166,5 +171,7 @@ public interface ICodeCompletionASTManager {
      * @return a list of IToken
      */
     public abstract List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, CompletionState state, AbstractModule current);
+
+    
 
 }

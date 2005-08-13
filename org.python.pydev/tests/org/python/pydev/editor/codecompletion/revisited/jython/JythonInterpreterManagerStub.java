@@ -1,12 +1,14 @@
 /*
  * Created on 13/08/2005
  */
-package org.python.pydev.editor.codecompletion.revisited;
+package org.python.pydev.editor.codecompletion.revisited.jython;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.editor.codecompletion.revisited.PythonInterpreterManagerStub;
+import org.python.pydev.editor.codecompletion.revisited.TestDependent;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;

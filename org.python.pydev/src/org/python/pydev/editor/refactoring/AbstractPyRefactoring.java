@@ -31,7 +31,7 @@ public abstract class AbstractPyRefactoring implements IPyRefactoring{
         return AbstractPyRefactoring.pyRefactoring;
     }
 
-    public synchronized static void setPyRefactoring(IPyRefactoring pyRefactoring){
+    public synchronized static void setPyRefactoring( IPyRefactoring pyRefactoring){
         if (AbstractPyRefactoring.pyRefactoring != null){
             AbstractPyRefactoring.pyRefactoring.killShell();
             AbstractPyRefactoring.pyRefactoring = null;

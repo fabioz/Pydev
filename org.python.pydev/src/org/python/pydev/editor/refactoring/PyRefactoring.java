@@ -11,10 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
-import org.python.pydev.editor.codecompletion.PythonShell;
+import org.python.pydev.editor.codecompletion.shell.AbstractShell;
+import org.python.pydev.editor.codecompletion.shell.PythonShell;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -37,7 +39,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
      */
     public PyRefactoring(){
         try {
-            PythonShell.getServerShell(PythonShell.OTHERS_SHELL); //when we initialize, initialize the server.
+            AbstractShell.getServerShell(IPythonNature.PYTHON_RELATED, AbstractShell.OTHERS_SHELL); //when we initialize, initialize the server.
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -48,7 +50,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
      */
     public void restartShell() {
         try {
-            PythonShell.getServerShell(PythonShell.OTHERS_SHELL).restartShell();
+            AbstractShell.getServerShell(IPythonNature.PYTHON_RELATED, AbstractShell.OTHERS_SHELL).restartShell();
         } catch (Exception e) {
             e.printStackTrace();
         } 
@@ -59,7 +61,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
      */
     public void killShell() {
         try {
-            PythonShell.getServerShell(PythonShell.OTHERS_SHELL).endIt();
+            AbstractShell.getServerShell(IPythonNature.PYTHON_RELATED, AbstractShell.OTHERS_SHELL).endIt();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -76,7 +78,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
     private String makeAction(String str, Operation operation, PyEdit editor){
         PythonShell pytonShell;
         try {
-            pytonShell = PythonShell.getServerShell(PythonShell.OTHERS_SHELL);
+            pytonShell = AbstractShell.getServerShell(editor.getPythonNature(), AbstractShell.OTHERS_SHELL);
 	        try {
 		        pytonShell.changePythonPath(((PythonNature)editor.getPythonNature()).getPythonPathNature().getCompleteProjectPythonPath());
 	            pytonShell.write(str);

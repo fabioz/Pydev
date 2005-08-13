@@ -17,6 +17,7 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -80,11 +81,11 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             //Get code completion proposals
             if(PyCodeCompletionPreferencesPage.useCodeCompletion()){
 	            try {
-	                PythonShell.getServerShell(PythonShell.COMPLETION_SHELL).sendGoToDirMsg(edit.getEditorFile());
+	                AbstractShell.getServerShell(edit.getPythonNature(), AbstractShell.COMPLETION_SHELL).sendGoToDirMsg(edit.getEditorFile());
 	            } catch (Exception e) {
 	                //if we don't suceed, we don't have to fail... just go on and try
 	                // to complete...
-	                e.printStackTrace();
+                    PydevPlugin.log(e);
 	            }
 	
                 Object[] objects = new Object[]{new ArrayList(), new Boolean(true)};

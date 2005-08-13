@@ -123,25 +123,27 @@ public class PythonNature implements IProjectNature, IPythonNature {
         this.pythonPathNature.setProject(project);
     }
 
-    public static synchronized void addNature(IEditorInput element) {
+    public static synchronized IPythonNature addNature(IEditorInput element) {
         if(element instanceof FileEditorInput){
 			IFile file = (IFile)((FileEditorInput)element).getAdapter(IFile.class);
 			if (file != null){
 				try {
-	                PythonNature.addNature(file.getProject(), null);
+	                return PythonNature.addNature(file.getProject(), null);
 	            } catch (CoreException e) {
 	                PydevPlugin.log(e);
 	            }
 			}
 		}
+        return null;
     }
 
     /**
      * Utility routine to add PythonNature to the project
+     * @return 
      */
-    public static synchronized void addNature(IProject project, IProgressMonitor monitor) throws CoreException {
+    public static synchronized IPythonNature addNature(IProject project, IProgressMonitor monitor) throws CoreException {
         if (project == null) {
-            return;
+            return null;
         }
         if(monitor == null){
             monitor = new NullProgressMonitor();
@@ -181,8 +183,9 @@ public class PythonNature implements IProjectNature, IPythonNature {
             PythonNature nature = (PythonNature) n;
             //call initialize always - let it do the control.
             nature.init();
+            return nature;
         }
-
+        return null;
     }
 
     /**
@@ -370,6 +373,15 @@ public class PythonNature implements IProjectNature, IPythonNature {
     public void saveAstManager(boolean saveNow) {
         //TODO: put into a save list...
         REF.writeToFile(astManager, getAstOutputFile());
+    }
+
+    public int getRelatedId() throws CoreException {
+        if(isPython()){
+            return PYTHON_RELATED;
+        }else if(isJython()){
+            return JYTHON_RELATED;
+        }
+        throw new RuntimeException("Unable to get the id to which this nature is related");
     }
 
 }

@@ -5,23 +5,14 @@
  */
 package org.python.pydev.editor.codecompletion;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.PythonInterpreterManagerStub;
 import org.python.pydev.editor.codecompletion.revisited.TestDependent;
-import org.python.pydev.plugin.BundleInfo;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.BundleInfoStub;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
+import org.python.pydev.editor.codecompletion.shell.PythonShell;
 
 /**
  * These tests should run, however the directory where the tests are run must be correct.
@@ -58,8 +49,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
      * @throws CoreException
      */
     public static PythonShell startShell() throws IOException, Exception {
-        File f = new File("PySrc/pycompletionserver.py");
-        PythonShell shell = new PythonShell(f);
+        PythonShell shell = new PythonShell();
         shell.startIt();
         return shell;
     }
