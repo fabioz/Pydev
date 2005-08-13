@@ -63,13 +63,15 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
         InterpreterInfo info = InterpreterInfo.fromString(output);
         //the executable is the jar itself
         info.executableOrJar = executable;
-
-        info.restoreCompiledLibs(monitor);
         
+        //we have to find the jars before we restore the compiled libs 
         List<File> jars = JavaVmLocationFinder.findDefaultJavaJars();
         for (File jar : jars) {
             info.libs.add(REF.getFileAbsolutePath(jar));
         }
+        
+        //java, java.lang, etc should be found now
+        info.restoreCompiledLibs(monitor);
         
 
         return info;

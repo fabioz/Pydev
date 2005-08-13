@@ -48,7 +48,7 @@ public abstract class AbstractShell {
      * @see #COMPLETION_SHELL
      * @see #OTHERS_SHELL
      */
-    protected static Map<Integer,Map<Integer,PythonShell>> shells = new HashMap<Integer,Map<Integer,PythonShell>>();
+    protected static Map<Integer,Map<Integer,AbstractShell>> shells = new HashMap<Integer,Map<Integer,AbstractShell>>();
     
     /**
      * stops all registered shells 
@@ -57,7 +57,7 @@ public abstract class AbstractShell {
     public synchronized static void stopAllShells(){
         
         for (Iterator iter = shells.values().iterator(); iter.hasNext();) {
-            PythonShell element = (PythonShell) iter.next();
+            AbstractShell element = (AbstractShell) iter.next();
             if(element != null){
                 try {
                     element.endIt();
@@ -79,11 +79,11 @@ public abstract class AbstractShell {
      * @param relatedId the id that is related to the structure we want to get
      * @return a map with the type of the shell mapping to the shell itself
      */
-    private static Map<Integer, PythonShell> getTypeToShellFromId(int relatedId) {
-        Map<Integer, PythonShell> typeToShell = shells.get(relatedId);
+    private static Map<Integer, AbstractShell> getTypeToShellFromId(int relatedId) {
+        Map<Integer, AbstractShell> typeToShell = shells.get(relatedId);
         
         if (typeToShell == null) {
-            typeToShell = new HashMap<Integer, PythonShell>();
+            typeToShell = new HashMap<Integer, AbstractShell>();
             shells.put(relatedId, typeToShell);
         }
         return typeToShell;
@@ -97,9 +97,9 @@ public abstract class AbstractShell {
      * @see #COMPLETION_SHELL
      * @see #OTHERS_SHELL
      */
-    public synchronized static void putServerShell(IPythonNature nature, int id, PythonShell shell) {
+    public synchronized static void putServerShell(IPythonNature nature, int id, AbstractShell shell) {
         try {
-            Map<Integer, PythonShell> typeToShell = getTypeToShellFromId(nature.getRelatedId());
+            Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(nature.getRelatedId());
             typeToShell.put(new Integer(id), shell);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -107,7 +107,7 @@ public abstract class AbstractShell {
     }
 
 
-    public synchronized static PythonShell getServerShell(IPythonNature nature, int id) throws IOException, Exception {
+    public synchronized static AbstractShell getServerShell(IPythonNature nature, int id) throws IOException, Exception {
         return getServerShell(nature.getRelatedId(), id);
     }
     /**
@@ -116,16 +116,22 @@ public abstract class AbstractShell {
      * @throws IOException
      * 
      */
-    public synchronized static PythonShell getServerShell(int relatedId, int id) throws IOException, Exception {
-        Map<Integer, PythonShell> typeToShell = getTypeToShellFromId(relatedId);
-        PythonShell pytonShell = (PythonShell) typeToShell.get(new Integer(id));
+    public synchronized static AbstractShell getServerShell(int relatedId, int id) throws IOException, Exception {
+        Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
+        AbstractShell pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
         
-        if(pytonShell == null){
-            pytonShell = new PythonShell();
-            typeToShell.put(new Integer(id), pytonShell);
-            pytonShell.startIt();
+        if(pythonShell == null){
+            if(relatedId == IPythonNature.PYTHON_RELATED){
+                pythonShell = new PythonShell();
+            }else if(relatedId == IPythonNature.JYTHON_RELATED){
+                pythonShell = new JythonShell();
+            }else{
+                throw new RuntimeException("unknown related id");
+            }
+            typeToShell.put(new Integer(id), pythonShell);
+            pythonShell.startIt();
         }
-        return pytonShell;
+        return pythonShell;
     }
 
     /**
@@ -254,7 +260,7 @@ public abstract class AbstractShell {
             if(!connected){
                 //what, after all this trouble we are still not connected????!?!?!?!
                 //let's communicate this to the user...
-                Exception exception = new Exception("Error connecting to python process.");
+                Exception exception = new Exception("Error connecting to python process (" + execMsg + ")");
                 try {
                     Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Error connecting to python process (" + execMsg + ")", exception);
                     throw new CoreException(status);

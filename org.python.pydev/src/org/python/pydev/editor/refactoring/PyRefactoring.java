@@ -16,7 +16,6 @@ import org.python.pydev.core.REF;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
-import org.python.pydev.editor.codecompletion.shell.PythonShell;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -76,7 +75,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
      * @return
      */
     private String makeAction(String str, Operation operation, PyEdit editor){
-        PythonShell pytonShell;
+        AbstractShell pytonShell;
         try {
             pytonShell = AbstractShell.getServerShell(editor.getPythonNature(), AbstractShell.OTHERS_SHELL);
 	        try {

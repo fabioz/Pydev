@@ -1,7 +1,12 @@
 '''
 @author Fabio Zadrozny 
 '''
-
+#ok, let,s fix some things that may not work on jython depending on the version
+try:
+    __setFalse = False
+except NameError:
+    False = 0
+    True = 1
 
 import sys
 _sys_path = [p for p in sys.path]
@@ -10,9 +15,8 @@ _sys_modules = {}
 for name,mod in sys.modules.items():
     _sys_modules[name] = mod
     
-import threading
+from java.lang import Thread
 import time
-import refactoring
 import urllib
 import importsTipper
 
@@ -29,10 +33,8 @@ MSG_KILL_SERVER         = '@@KILL_SERVER_END@@'
 MSG_COMPLETIONS         = '@@COMPLETIONS'
 MSG_END                 = 'END@@'
 MSG_INVALID_REQUEST     = '@@INVALID_REQUEST'
-MSG_RELOAD_MODULES      = '@@RELOAD_MODULES_END@@'
 MSG_CHANGE_DIR          = '@@CHANGE_DIR:'
 MSG_OK                  = '@@MSG_OK_END@@'
-MSG_BIKE                = '@@BIKE'
 MSG_PROCESSING          = '@@PROCESSING_END@@'
 MSG_PROCESSING_PROGRESS = '@@PROCESSING:%sEND@@'
 MSG_IMPORTS             = '@@IMPORTS:'
@@ -78,9 +80,9 @@ def ChangePythonPath(pythonpath):
         if len(path) > 0:
             sys.path.append(path)
     
-class KeepAliveThread( threading.Thread ):
+class KeepAliveThread( Thread ):
     def __init__( self, socket ):
-        threading.Thread.__init__( self )
+        Thread.__init__( self )
         self.socket = socket
         self.processMsgFunc = None
         self.lastMsg = None
@@ -99,10 +101,10 @@ class KeepAliveThread( threading.Thread ):
         dbg( 'sending '+ self.lastMsg)
         self.socket.send( self.lastMsg )
         
-class T( threading.Thread ):
+class T( Thread ):
 
     def __init__( self, thisP, serverP ):
-        threading.Thread.__init__( self )
+        Thread.__init__( self )
         self.thisPort   = thisP
         self.serverPort = serverP
         self.socket = None #socket to send messages.
@@ -184,7 +186,7 @@ class T( threading.Thread ):
         #after being connected, create a socket as a client.
         self.connectToServer( )
         
-        dbg('pycompletionserver Connected by ' + str(addr))
+        dbg('jycompletionserver Connected by ' + str(addr))
         
         
         while 1:
@@ -194,29 +196,31 @@ class T( threading.Thread ):
             
             while not data.endswith( MSG_END ):
                 data += conn.recv( BUFFER_SIZE )
+                dbg('received data '+str(data))
 
+            dbg('ok, out of the while... treating received msg')
+            
             try:
                 try:
-                    if MSG_KILL_SERVER in data:
+                    dbg('making test')
+                    if data.find(MSG_KILL_SERVER) != -1:
                         #break if we received kill message.
                         break;
         
+                    dbg('starting keep alive thread')
                     keepAliveThread.start( )
                     
-                    if MSG_PYTHONPATH in data:
+                    if data.find(MSG_PYTHONPATH) != -1:
                         comps = []
                         for p in _sys_path:
                             comps.append( ( p, ' ' ) )
                         returnMsg = self.getCompletionsMessage( comps )
 
-                    elif MSG_RELOAD_MODULES in data:
-                        ReloadModules( )
-                        returnMsg = MSG_OK
-                    
                     else:
                         data = data[:data.rfind( MSG_END )]
                     
                         if data.startswith( MSG_IMPORTS ):
+                            dbg('ok, generating tips for import msg: '+str(data))
                             data = data.replace( MSG_IMPORTS, '' )
                             data = urllib.unquote_plus( data )
                             comps = importsTipper.GenerateTip( data )
@@ -234,14 +238,10 @@ class T( threading.Thread ):
                             CompleteFromDir( data )
                             returnMsg = MSG_OK
                             
-                        elif data.startswith( MSG_BIKE ): 
-                            data = data.replace( MSG_BIKE, '' )
-                            data = urllib.unquote_plus( data )
-                            returnMsg = refactoring.HandleRefactorMessage( data, keepAliveThread )
-                            
                         else:
                             returnMsg = MSG_INVALID_REQUEST
                 except :
+                    dbg('exception ocurred')
                     import traceback
                     import StringIO
 
@@ -250,6 +250,7 @@ class T( threading.Thread ):
 
                     traceback.print_exception( exc_info[0], exc_info[1], exc_info[2], limit=None, file = s )
                     returnMsg = self.getCompletionsMessage( [( 'ERROR:', '%s'%( s.getvalue( ) ), '' )] )
+                    dbg('exception ocurred and returned (%s)' % s.getvalue())
                 
             finally:
                 keepAliveThread.lastMsg = returnMsg

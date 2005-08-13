@@ -119,12 +119,6 @@ public abstract class ModulesManager implements Serializable {
                 total += below[0].size();
                 
             }else{ //ok, it was null, so, maybe this is not a folder, but a zip file with java classes...
-                List<String> fromJar = PythonPathHelper.getFromJar(root, monitor);
-                if(fromJar != null){
-                    for (String modName : fromJar) {
-                        mods.put(new ModulesKey(modName, null), AbstractModule.createEmptyModule(modName, null));
-                    }
-                }
             }
         }
 

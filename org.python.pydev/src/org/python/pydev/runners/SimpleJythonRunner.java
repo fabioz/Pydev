@@ -101,27 +101,41 @@ public class SimpleJythonRunner extends SimpleRunner{
         //-classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
 
         try {
-            IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
-            String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
-            javaLoc = formatParamToExec(javaLoc);
-
-            String jythonJar = interpreterManager.getDefaultInterpreter();
-            InterpreterInfo info = interpreterManager.getInterpreterInfo(jythonJar, new NullProgressMonitor());
-
-            StringBuffer jythonPath = new StringBuffer();
-            for (String lib : info.libs) {
-                jythonPath.append(lib);
-            }
-            String executionString = javaLoc +
-            " -Dpython.path="+ jythonPath+ 
-            " -classpath "+jythonJar+
-            " org.python.util.jython "+script;
+            String executionString = makeExecutableCommandStr(script);
             
             return runAndGetOutput(executionString, workingDir, project);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         
+    }
+
+    /**
+     * @param script
+     * @return
+     * @throws IOException
+     */
+    public static String makeExecutableCommandStr(String script) throws IOException {
+        IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
+        String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
+        javaLoc = formatParamToExec(javaLoc);
+
+        String jythonJar = interpreterManager.getDefaultInterpreter();
+        InterpreterInfo info = interpreterManager.getInterpreterInfo(jythonJar, new NullProgressMonitor());
+
+        StringBuffer jythonPath = new StringBuffer();
+        for (String lib : info.libs) {
+            if(jythonPath.length() != 0){
+                jythonPath.append(";"); //TODO: check if this is system dependent
+            }
+            lib = formatParamToExec(lib);
+            jythonPath.append(lib);
+        }
+        String executionString = javaLoc +
+        " -Dpython.path="+ jythonPath+ 
+        " -classpath "+jythonJar+
+        " org.python.util.jython "+script;
+        return executionString;
     }
 
 }

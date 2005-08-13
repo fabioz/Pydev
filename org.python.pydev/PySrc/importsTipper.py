@@ -1,4 +1,19 @@
-import inspect
+#ok, let,s fix some things that may not work on jython depending on the version
+try:
+    __setFalse = False
+except NameError:
+    False = 0
+    True = 1
+
+
+class InfoHolder:
+    INSPECT_AVAILABLE = True
+
+try:
+    import inspect
+except:
+    InfoHolder.INSPECT_AVAILABLE = False
+
 import sys
 
 
@@ -58,6 +73,10 @@ def GenerateImportsTipForModule( mod ):
         #ok, we don't want to let our users wait forever... 
         #no complete info for you...
         
+        getCompleteInfo = False
+    
+    if not InfoHolder.INSPECT_AVAILABLE:
+        #there's no way to get complete info if the inspect is not available
         getCompleteInfo = False
     
     dontGetDocsOn = (float, int, str, tuple, list, type)

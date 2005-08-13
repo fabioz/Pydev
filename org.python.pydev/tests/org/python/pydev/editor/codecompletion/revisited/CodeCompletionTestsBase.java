@@ -126,7 +126,7 @@ public class CodeCompletionTestsBase extends TestCase {
     /**
      * @param info the information for the system manager that we just restored
      */
-    private void afterRestorSystemPythonPath(InterpreterInfo info) {
+    protected void afterRestorSystemPythonPath(InterpreterInfo info) {
         nature = null; //has to be restored for the project, as we just restored the system pythonpath
         
         //ok, the system manager must be there
@@ -170,7 +170,7 @@ public class CodeCompletionTestsBase extends TestCase {
      * checks if the size of the system modules manager and the project moule manager are coherent
      * (we must have more modules in the system than in the project)
      */
-    private void checkSize() {
+    protected void checkSize() {
         IInterpreterManager iMan = getInterpreterManager();
         InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
         int size = ((ASTManager)nature.getAstManager()).getSize();

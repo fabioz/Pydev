@@ -111,12 +111,15 @@ public class PythonPathHelper implements Serializable{
      * @return a list with the name of the found modules in the jar
      */
     public static List<String> getFromJar(File root, IProgressMonitor monitor){
-         if(root.isFile()){ //ok, it may be a jar file, so let's get its contents and get the available modules
+         String fileName = root.getName();
+         if(root.isFile() && (fileName.endsWith(".jar") || fileName.endsWith(".zip"))){ //ok, it may be a jar file, so let's get its contents and get the available modules
             Set<String> folders = new HashSet<String>();
             try {
                 String zipFileName = root.getName();
                 ZipFile zipFile = new ZipFile(root);
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
+                
+                //ok, now that we have the zip entries, let's map them to modules
                 while(entries.hasMoreElements()){
                     ZipEntry entry = entries.nextElement();
                     String name = entry.getName();
@@ -125,7 +128,7 @@ public class PythonPathHelper implements Serializable{
                         //and will only add its parent folder...
                         IPath path = new Path(name);
                         String fileExtension = path.getFileExtension();
-                        if(fileExtension.equals("class")){
+                        if(fileExtension != null && fileExtension.equals("class")){
                             path = path.removeFileExtension().removeLastSegments(1); //remove the class and the public class name
                             StringBuffer buffer = new StringBuffer();
                             for (int i = 0; i < path.segmentCount(); i++) {
@@ -145,6 +148,7 @@ public class PythonPathHelper implements Serializable{
                 return new ArrayList<String>(folders);
             } catch (Exception e) {
                 //that's ok, it is probably not a zip file after all...
+                PydevPlugin.log(e);
             }
         }
         return null;

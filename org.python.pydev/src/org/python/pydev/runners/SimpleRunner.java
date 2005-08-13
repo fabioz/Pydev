@@ -142,7 +142,7 @@ public abstract class SimpleRunner {
      * 
      * @return the formatted parameter
      */
-    protected String formatParamToExec(String param) {
+    protected static String formatParamToExec(String param) {
         if(isWindowsPlatform()){ //in windows, we have to put python "path_to_file.py"
             if(param.startsWith("\"") == false){
                 param = "\""+param+"\"";

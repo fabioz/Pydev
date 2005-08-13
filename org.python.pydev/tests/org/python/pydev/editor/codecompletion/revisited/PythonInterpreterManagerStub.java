@@ -47,7 +47,9 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
         
         InterpreterInfo info = super.getInterpreterInfo(executable, monitor);
-        TestDependent.PYTHON_EXE = info.executableOrJar;
+        if(!InterpreterInfo.isJythonExecutable(executable)){
+            TestDependent.PYTHON_EXE = info.executableOrJar;
+        }
         return info;
     }
     

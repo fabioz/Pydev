@@ -46,9 +46,20 @@ public class SimplePythonRunner extends SimpleRunner {
         
         script = formatParamToExec(script);
 
-        String executionString = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter() + " -u " + script + " " + args;
+        String executionString = makeExecutableCommandStr(script, args);
         //System.out.println(executionString);
         return runAndGetOutput(executionString, workingDir, project);
+    }
+
+    /**
+     * @param script the script to run
+     * @param args the arguments to be passed to the script
+     * @return the string with the command to run the passed script with jython
+     */
+    public static String makeExecutableCommandStr(String script, String args) {
+        script = formatParamToExec(script);
+
+        return PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter() + " -u " + script + " " + args;
     }
 
     /**

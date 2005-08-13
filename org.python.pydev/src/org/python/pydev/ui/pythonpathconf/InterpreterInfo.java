@@ -48,8 +48,7 @@ public class InterpreterInfo implements Serializable{
      *  
      * files: .pyd, .dll, etc.
      * 
-     * for jython, this should not be used (there are actually no compiled extensions in jython... 
-     * jars are treated as a folder would be -- with some minor differences)
+     * for jython, the jars should appear here.
      */
     public java.util.List dllLibs = new ArrayList(); 
     
@@ -242,6 +241,17 @@ public class InterpreterInfo implements Serializable{
             forcedLibs.add("OpenGL");
             forcedLibs.add("wxPython");
             forcedLibs.add("itertools");
+        }
+        
+        for (Iterator iter = dllLibs.iterator(); iter.hasNext();) {
+            String root = iter.next().toString();
+
+            //and now, we still have to check if any of the libs is a zip (or jar), and add those to the builtins
+            //if we are in jython, the rt.jar should be in one of these, and java, java.lang, etc. should be there...
+            List<String> fromJar = PythonPathHelper.getFromJar(new File(root), monitor);
+            if(fromJar != null){
+                forcedLibs.addAll(fromJar);
+            }
         }
     }
 
