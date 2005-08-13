@@ -35,20 +35,22 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
 
     @Override
     public InterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+        return doCreateInterpreterInfo(executable, monitor);
+    }
+
+    /**
+     * @param executable the python interpreter from where we should create the info
+     * @param monitor a monitor to see the progress
+     * 
+     * @return the created interpreter info
+     * @throws CoreException
+     */
+    public static InterpreterInfo doCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
         boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
         if(isJythonExecutable){
             throw new RuntimeException("A jar cannot be used in order to get the info for the python interpreter.");
         }                
-        return doCreateInterpreter(executable, monitor);
-    }
 
-    /**
-     * @param executable
-     * @param monitor
-     * @return
-     * @throws CoreException
-     */
-    public static InterpreterInfo doCreateInterpreter(String executable, IProgressMonitor monitor) throws CoreException {
         File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
 
         String output = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);

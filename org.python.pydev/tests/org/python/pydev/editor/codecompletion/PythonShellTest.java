@@ -16,7 +16,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.InterpreterManagerStub;
+import org.python.pydev.editor.codecompletion.revisited.PythonInterpreterManagerStub;
+import org.python.pydev.editor.codecompletion.revisited.TestDependent;
 import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.BundleInfoStub;
@@ -97,10 +98,12 @@ public class PythonShellTest extends CodeCompletionTestsBase{
     }
 
     public void testGlu() throws IOException, CoreException {
-        List list = shell.getImportCompletions("OpenGL.GLUT", getPythonpath());
-        
-        assertTrue(list.size() > 10);
-        assertIsIn(list, "glutInitDisplayMode");
+        if(TestDependent.HAS_GLU_INSTALLED){
+            List list = shell.getImportCompletions("OpenGL.GLUT", getPythonpath());
+            
+            assertTrue(list.size() > 10);
+            assertIsIn(list, "glutInitDisplayMode");
+        }
     }
 
     private void assertIsIn(List list, String expected) {

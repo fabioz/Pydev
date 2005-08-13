@@ -37,11 +37,6 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
 
     @Override
     public InterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
-        boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
-        
-        if(!isJythonExecutable){
-            throw new RuntimeException("In order to get the info for the jython interpreter, a jar is needed (e.g.: jython.jar)");
-        }
         return doCreateInterpreterInfo(executable, monitor);
     }
 
@@ -55,6 +50,11 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
      * @throws CoreException
      */
     public static InterpreterInfo doCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+        boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
+        
+        if(!isJythonExecutable){
+            throw new RuntimeException("In order to get the info for the jython interpreter, a jar is needed (e.g.: jython.jar)");
+        }
         File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
         
         //gets the info for the python side

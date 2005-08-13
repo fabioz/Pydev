@@ -67,12 +67,12 @@ public class CompletionRequest{
         
     }
 
-    File editorFile;
-    PythonNature nature;
-    IDocument doc;
-    String activationToken; 
-    String qualifier; 
-    int documentOffset; 
-    int qlen;
-    PyCodeCompletion codeCompletion;
+    public File editorFile;
+    public PythonNature nature;
+    public IDocument doc;
+    public String activationToken; 
+    public String qualifier; 
+    public int documentOffset; 
+    public int qlen;
+    public PyCodeCompletion codeCompletion;
 }

@@ -568,7 +568,7 @@ public abstract class PyAction implements IEditorActionDelegate {
             return identString;
         } catch (Exception e) {
             
-            PydevPlugin.log(e);
+            PydevPlugin.log(e, false); //no need te print it to the console - happens regularly whed doing unit-tests without the eclipse env
             return "    "; //default
         }
     }

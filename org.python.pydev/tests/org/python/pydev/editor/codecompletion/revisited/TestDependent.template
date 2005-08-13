@@ -20,8 +20,13 @@ public class TestDependent {
     //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21" 
     //-classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
     public static final String JAVA_LOCATION="C:/Program Files/Java/jdk1.5.0_04/bin/java.exe";
+    public static final String JAVA_RT_JAR_LOCATION= "C:/Program Files/Java/jdk1.5.0_04/jre/lib/rt.jar";
+    
     public static final String JYTHON_JAR_LOCATION="C:/bin/jython21/jython.jar";
-    public static final String JYTHON_HOME_LOCATION="C:/bin/jython21";
-    public static final String JYTHON_JYTHON_PATH= "C:/bin/jython21/Lib";
+    
+    //we cannot test what we don't have...
+    public static final boolean HAS_WXPYTHON_INSTALLED = true;
+    public static final boolean HAS_QT_INSTALLED = false;
+    public static final boolean HAS_GLU_INSTALLED = false;
 
 }

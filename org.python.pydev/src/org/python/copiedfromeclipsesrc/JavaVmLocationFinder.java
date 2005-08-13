@@ -13,6 +13,7 @@ import java.util.List;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.LibraryLocation;
+import org.python.pydev.utils.ICallback;
 
 /**
  * copied from org.eclipse.jdt.internal.launching.StandardVMType
@@ -21,7 +22,7 @@ import org.eclipse.jdt.launching.LibraryLocation;
  */
 public class JavaVmLocationFinder {
 
-    public JavaVmLocationFinder() {
+    private JavaVmLocationFinder() {
         super();
     }
 
@@ -49,7 +50,7 @@ public class JavaVmLocationFinder {
      * file.  If found, return the corresponding <code>File</code> object, otherwise return
      * <code>null</code>.
      */
-    public static File findJavaExecutable(File vmInstallLocation) {
+    private static File findJavaExecutable(File vmInstallLocation) {
         
         // Try each candidate in order.  The first one found wins.  Thus, the order
         // of fgCandidateJavaLocations is significant.
@@ -66,23 +67,47 @@ public class JavaVmLocationFinder {
      * @return the default java executable configured in the jdt plugin
      */
     public static File findDefaultJavaExecutable(){
-        IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
-        File installLocation = defaultVMInstall.getInstallLocation();
-        return findJavaExecutable(installLocation);
+        return (File) callbackJavaExecutable.call(null);
     }
+
+    /**
+     * might be changed for tests (if not in the eclipse env)
+     */
+    public static ICallback callbackJavaExecutable = new ICallback(){
+        
+        public Object call(Object args) {
+            IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
+            File installLocation = defaultVMInstall.getInstallLocation();
+            return findJavaExecutable(installLocation);
+        }
+        
+    };
+    
+    
     
     
     /**
      * @return the default java jars (rt.jar ... )
      */
     public static List<File> findDefaultJavaJars(){
-        IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
-        LibraryLocation[] libraryLocations = JavaRuntime.getLibraryLocations(defaultVMInstall);
-        
-        ArrayList<File> jars = new ArrayList<File>();
-        for (LibraryLocation location : libraryLocations) {
-            jars.add(location.getSystemLibraryPath().toFile());
-        }
-        return jars;
+        return (List<File>) callbackJavaJars.call(null);
     }
+    
+    /**
+     * might be changed for tests (if not in the eclipse env)
+     */
+    public static ICallback callbackJavaJars = new ICallback(){
+
+        public Object call(Object args) {
+            IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
+            LibraryLocation[] libraryLocations = JavaRuntime.getLibraryLocations(defaultVMInstall);
+            
+            ArrayList<File> jars = new ArrayList<File>();
+            for (LibraryLocation location : libraryLocations) {
+                jars.add(location.getSystemLibraryPath().toFile());
+            }
+            return jars;
+        }
+        
+    };
 }

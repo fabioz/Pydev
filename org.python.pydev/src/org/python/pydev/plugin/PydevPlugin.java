@@ -235,6 +235,8 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         PyCodeFormatterPage.initializeDefaultPreferences(getPluginPreferences());
     }
 
+    
+    
     public void propertyChange(Preferences.PropertyChangeEvent event) {
         //		System.out.println( event.getProperty()
         //		 + "\n\told setting: "
@@ -243,11 +245,18 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         //		 + event.getNewValue());
     }
 
+    public static void log(int errorLevel, String message, Throwable e) {
+        log(errorLevel, message, e, true);
+    }
+    
     /**
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
      */
-    public static void log(int errorLevel, String message, Throwable e) {
-        e.printStackTrace();
+    public static void log(int errorLevel, String message, Throwable e, boolean printToConsole) {
+        if(printToConsole){
+            e.printStackTrace();
+        }
+        
         try {
 	        Status s = new Status(errorLevel, getPluginID(), errorLevel, message, e);
 	        getDefault().getLog().log(s);
@@ -257,7 +266,11 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     public static void log(Throwable e) {
-        log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten.", e);
+        log(e, true);
+    }
+    
+    public static void log(Throwable e, boolean printToConsole) {
+        log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten.", e, printToConsole);
     }
 
     public static CoreException log(String msg) {
