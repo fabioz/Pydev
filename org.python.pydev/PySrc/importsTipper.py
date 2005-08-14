@@ -1,19 +1,4 @@
-#ok, let,s fix some things that may not work on jython depending on the version
-try:
-    __setFalse = False
-except NameError:
-    False = 0
-    True = 1
-
-
-class InfoHolder:
-    INSPECT_AVAILABLE = True
-
-try:
-    import inspect
-except:
-    InfoHolder.INSPECT_AVAILABLE = False
-
+import inspect
 import sys
 
 
@@ -26,7 +11,7 @@ TYPE_ATTR = 3
 TYPE_BUILTIN = 4
 TYPE_PARAM = 5
 
-TYPE_BUILTIN_STR = '4'
+TYPE_BUILTIN_AS_STR = '4'
 
 def _imp(name):
     try:
@@ -75,10 +60,6 @@ def GenerateImportsTipForModule( mod ):
         
         getCompleteInfo = False
     
-    if not InfoHolder.INSPECT_AVAILABLE:
-        #there's no way to get complete info if the inspect is not available
-        getCompleteInfo = False
-    
     dontGetDocsOn = (float, int, str, tuple, list, type)
     for d in dirComps:
 
@@ -124,7 +105,7 @@ def GenerateImportsTipForModule( mod ):
         
             #ok, no complete info, let's try to do this as fast and clean as possible
             #so, no docs for this kind of information, only the signatures
-            ret.append(   (d, '', args, TYPE_BUILTIN_STR)   )
+            ret.append(   (d, '', args, TYPE_BUILTIN_AS_STR)   )
             
     return ret
 

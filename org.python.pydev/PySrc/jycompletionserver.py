@@ -18,7 +18,7 @@ for name,mod in sys.modules.items():
 from java.lang import Thread
 import time
 import urllib
-import importsTipper
+import jyimportsTipper
 
 
 DEBUG = False
@@ -223,7 +223,7 @@ class T( Thread ):
                             dbg('ok, generating tips for import msg: '+str(data))
                             data = data.replace( MSG_IMPORTS, '' )
                             data = urllib.unquote_plus( data )
-                            comps = importsTipper.GenerateTip( data )
+                            comps = jyimportsTipper.GenerateTip( data )
                             returnMsg = self.getCompletionsMessage( comps )
     
                         elif data.startswith( MSG_CHANGE_PYTHONPATH ):
