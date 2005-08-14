@@ -97,8 +97,7 @@ public class SimpleJythonRunner extends SimpleRunner{
     }
     @Override
     public String runAndGetOutput(String script, String args, File workingDir, IProject project) {
-        //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21" 
-        //-classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
+        //"java.exe" -classpath "C:\bin\jython21\jython.jar" -Dpython.path xxx;xxx;xxx org.python.util.jython script %ARGS%
 
         try {
             String executionString = makeExecutableCommandStr(script);

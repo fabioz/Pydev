@@ -68,7 +68,7 @@ public class PythonRunner {
 			runUnitTest(config, launch, monitor);
             
 		}else { //default - just configured by command line (the others need special attention)
-	        doIt(monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
+	        doIt(config, monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
 		}
 	}
 
@@ -77,7 +77,7 @@ public class PythonRunner {
 	 * 
 	 * Loosely modeled upon Ant launcher.
 	 */
-	public static void runDebug(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
+	private static void runDebug(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
@@ -121,7 +121,7 @@ public class PythonRunner {
 	}
 
 
-    public static void doIt(IProgressMonitor monitor, String [] envp, String[] cmdLine, File workingDirectory, ILaunch launch) throws CoreException{
+    private static void doIt(PythonRunnerConfig config, IProgressMonitor monitor, String [] envp, String[] cmdLine, File workingDirectory, ILaunch launch) throws CoreException{
         if (monitor == null)
         	monitor = new NullProgressMonitor();
         IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
@@ -131,7 +131,9 @@ public class PythonRunner {
         // Launch & connect to the debugger		
         subMonitor.subTask("Constructing command_line...");
         String commandLineAsString = PythonRunnerConfig.getCommandLineAsString(cmdLine);
+        System.out.println("running: "+commandLineAsString);
         Map processAttributes = new HashMap();
+            
         processAttributes.put(IProcess.ATTR_CMDLINE, commandLineAsString);
         
         subMonitor.subTask("Exec...");
@@ -140,7 +142,12 @@ public class PythonRunner {
         Process p = DebugPlugin.exec(cmdLine, workingDirectory, envp);	
         checkProcess(p);
 
-        IProcess process = registerWithDebugPlugin(cmdLine[cmdLine.length-1], launch, p, processAttributes);
+        IProcess process;
+        if(config.isJython()){
+            process = registerWithDebugPluginForProcessType(cmdLine[cmdLine.length-1], launch, p, processAttributes, "java");
+        }else{
+            process = registerWithDebugPlugin(cmdLine[cmdLine.length-1], launch, p, processAttributes);
+        }
         checkProcess(p, process);
 
         // Registered the process with the debug plugin
@@ -149,9 +156,9 @@ public class PythonRunner {
 
     }
 
-    public static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException{
+    private static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException{
         if(!config.isFile()){
-            doIt(monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
+            doIt(config, monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
         }else{
             if (monitor == null)
             	monitor = new NullProgressMonitor();
@@ -192,7 +199,7 @@ public class PythonRunner {
 	 * The debug plugin needs to be notified about our process.
 	 * It'll then display the appropriate UI.
 	 */
-	public static IProcess registerWithDebugPlugin(PythonRunnerConfig config, ILaunch launch, Process p) {
+	private static IProcess registerWithDebugPlugin(PythonRunnerConfig config, ILaunch launch, Process p) {
 		HashMap processAttributes = new HashMap();
 		processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
 		return registerWithDebugPlugin(config.resource.lastSegment(), launch,p, processAttributes);
@@ -202,18 +209,29 @@ public class PythonRunner {
 	 * The debug plugin needs to be notified about our process.
 	 * It'll then display the appropriate UI.
 	 */
-	public static IProcess registerWithDebugPlugin(String cmdLine, String label, ILaunch launch, Process p) {
+    private static IProcess registerWithDebugPlugin(String cmdLine, String label, ILaunch launch, Process p) {
 		HashMap processAttributes = new HashMap();
 		processAttributes.put(IProcess.ATTR_CMDLINE, cmdLine);
 		return registerWithDebugPlugin(label, launch,p, processAttributes);
 	}
+    
+    /**
+     * The debug plugin needs to be notified about our process.
+     * It'll then display the appropriate UI.
+     */
+    private static IProcess registerWithDebugPlugin(String label, ILaunch launch, Process p, Map processAttributes) {
+        processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
+        processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
+        processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
+        return DebugPlugin.newProcess(launch,p, label, processAttributes);
+    }
 	
 	/**
 	 * The debug plugin needs to be notified about our process.
 	 * It'll then display the appropriate UI.
 	 */
-	public static IProcess registerWithDebugPlugin(String label, ILaunch launch, Process p, Map processAttributes) {
-	    processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
+    private static IProcess registerWithDebugPluginForProcessType(String label, ILaunch launch, Process p, Map processAttributes, String processType) {
+	    processAttributes.put(IProcess.ATTR_PROCESS_TYPE, processType);
 	    processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
 	    return DebugPlugin.newProcess(launch,p, label, processAttributes);

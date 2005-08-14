@@ -133,7 +133,7 @@ public class TreeWithAddRemove extends Composite{
                     SelectionDialog dialog = (SelectionDialog) d;
 	                dialog.open();
 	                Object[] objects = dialog.getResult();
-	                if (objects.length == 1) { //only one folder can be selected
+	                if (objects != null && objects.length == 1) { //only one folder can be selected
 	                    if (objects[0] instanceof IPath) {
 	                        IPath p = (IPath) objects[0];
 	                        String pathAsString = getPathAsString(p);

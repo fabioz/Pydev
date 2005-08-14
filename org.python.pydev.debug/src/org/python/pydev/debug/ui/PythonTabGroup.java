@@ -11,6 +11,7 @@ import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.RefreshTab;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Create tabs for the debugger setup.
@@ -20,8 +21,10 @@ import org.eclipse.debug.ui.RefreshTab;
 public class PythonTabGroup extends AbstractLaunchConfigurationTabGroup {
 
 	public void createTabs(ILaunchConfigurationDialog arg0, String arg1) {
+        System.out.println("PythonTabGroup - createTabs "+arg1);
 		ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
-			new PythonMainTab(),
+			new MainTab(PydevPlugin.getPythonInterpreterManager()),
+            new PythonProjectRelatedTab(PydevPlugin.getPythonInterpreterManager()),
 			new RefreshTab(),
 			new EnvironmentTab(),
 			new CommonTab()	};

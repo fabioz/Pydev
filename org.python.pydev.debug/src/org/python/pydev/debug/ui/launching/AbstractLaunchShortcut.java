@@ -173,12 +173,12 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 
 			ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, name);
 			// Python Main Tab Arguments
-// E3			IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
 			String location = getDefaultLocation(resource);
-// E3			String baseDirectory = varManager.generateVariableExpression("workspace_loc",file.getRawLocation().removeLastSegments(1).toString());
+//			IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
+//			String baseDirectory = varManager.generateVariableExpression("workspace_loc",resource.getRawLocation().removeLastSegments(1).toString());
 			String baseDirectory = resource.getRawLocation().removeLastSegments(1).toString();
 			String arguments = "";
-			IInterpreterManager pythonInterpreterManager = PydevPlugin.getPythonInterpreterManager();
+			IInterpreterManager pythonInterpreterManager = getInterpreterManager();
             String interpreter = pythonInterpreterManager.getDefaultInterpreter();
 			
             workingCopy.setAttribute(Constants.ATTR_PROJECT,resource.getProject().getName());
@@ -200,6 +200,14 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 			return null;
 		}
 	}
+
+
+    /**
+     * @return the interpreter manager associated with this shortcut (may be overriden if it is not python)
+     */
+    protected IInterpreterManager getInterpreterManager() {
+        return PydevPlugin.getPythonInterpreterManager();
+    }
 
 	/**
 	 * COPIED/MODIFIED from AntLaunchShortcut

@@ -142,7 +142,7 @@ public abstract class SimpleRunner {
      * 
      * @return the formatted parameter
      */
-    protected static String formatParamToExec(String param) {
+    public static String formatParamToExec(String param) {
         if(isWindowsPlatform()){ //in windows, we have to put python "path_to_file.py"
             if(param.startsWith("\"") == false){
                 param = "\""+param+"\"";
@@ -157,7 +157,7 @@ public abstract class SimpleRunner {
      * @param project the project we want to get the settings from. If it is null, the system pythonpath is returned 
      * @return a string that can be used as the PYTHONPATH env variable
      */
-    public String makePythonPathEnvString(IProject project) {
+    public static String makePythonPathEnvString(IProject project) {
         List paths;
         if(project == null){
             return ""; //no pythonpath can be gotten (set to empty, so that the default is gotten)
@@ -181,7 +181,7 @@ public abstract class SimpleRunner {
     /**
      * @return the separator for the pythonpath variables (system dependent)
      */
-    public String getPythonPathSeparator(){
+    public static String getPythonPathSeparator(){
         boolean win32= isWindowsPlatform();
         String separator = ";";
         if(!win32){

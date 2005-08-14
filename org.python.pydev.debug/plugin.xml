@@ -25,6 +25,16 @@
         name="Python unittest"
         public="true">
 	</launchConfigurationType>
+    <launchConfigurationType
+        delegate="org.python.pydev.debug.ui.launching.JythonLaunchConfigurationDelegate"
+        id="org.python.pydev.debug.jythonLaunchConfigurationType"
+        modes="run"
+        name="Jython run"
+        public="true"
+        sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
+        sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
+     </launchConfigurationType>
+
 </extension>
 <!--- the launcher icon  -->
 <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
@@ -41,6 +51,11 @@
 	<launchConfigurationTypeImage
 		icon="icons/python.gif"
 		configTypeID="org.python.pydev.debug.unittestLaunchConfigurationType"
+		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
+	</launchConfigurationTypeImage>
+	<launchConfigurationTypeImage
+		icon="icons/jython.gif"
+		configTypeID="org.python.pydev.debug.jythonLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 </extension>
@@ -60,6 +75,11 @@
 		type="org.python.pydev.debug.unittestLaunchConfigurationType"
 		class="org.python.pydev.debug.ui.PythonTabGroup"
 		id="org.python.pydev.debug.ui.PythonTabGroup">
+	</launchConfigurationTabGroup>
+	<launchConfigurationTabGroup
+		type="org.python.pydev.debug.jythonLaunchConfigurationType"
+		class="org.python.pydev.debug.ui.JythonTabGroup"
+		id="org.python.pydev.debug.ui.JythonTabGroup">
 	</launchConfigurationTabGroup>
 </extension>
 
@@ -81,6 +101,28 @@
            		 <iterate>
            		 	<or>
                		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+               		</or>
+           		 </iterate>
+              </with>
+           </enablement>
+        </contextualLaunch>
+	</shortcut>
+	<shortcut
+		label="Jython Run"
+		icon="icons/jython.gif"
+		modes="run"
+		class="org.python.pydev.debug.ui.launching.JythonLaunchShortcut"
+		id="org.python.pydev.debug.ui.jythonLaunchShortcut">
+		<!--this adds it to run-as (taken from \eclipse\plugins\org.eclipse.jdt.junit_3.0.1) -->
+        <contextualLaunch>
+           <enablement>
+              <with variable="selection">
+                 <count value="1"/>
+           		 <iterate>
+           		 	<or>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
                		</or>
            		 </iterate>
               </with>
@@ -101,6 +143,7 @@
            		 <iterate>
            		 	<or>
                		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
                		    <instanceof value="org.eclipse.core.resources.IFolder" />
                		</or>
            		 </iterate>
@@ -121,6 +164,7 @@
            		 <iterate>
            		 	<or>
                		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
                		    <instanceof value="org.eclipse.core.resources.IFolder" />
                		</or>
            		 </iterate>
@@ -157,6 +201,14 @@
 	<consoleLineTracker
 		class="org.python.pydev.debug.ui.PythonConsoleLineTracker"
 		processType="PYDEV.PYTHON"
+		id="org.python.pydev.debug.ui.PythonConsoleLineTracker">
+	</consoleLineTracker>
+</extension>
+<extension 
+	point="org.eclipse.debug.ui.consoleLineTrackers">
+	<consoleLineTracker
+		class="org.python.pydev.debug.ui.PythonConsoleLineTracker"
+		processType="java"
 		id="org.python.pydev.debug.ui.PythonConsoleLineTracker">
 	</consoleLineTracker>
 </extension>

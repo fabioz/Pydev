@@ -6,9 +6,10 @@
 package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -24,6 +25,7 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.REF;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
@@ -32,6 +34,8 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.runners.SimplePythonRunner;
+import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * Holds configuration for PythonRunner.
@@ -42,8 +46,9 @@ import org.python.pydev.runners.SimplePythonRunner;
 public class PythonRunnerConfig {
 
     public static final String RUN_COVERAGE = "RUN_COVERAGE";
-    public static final String RUN_REGULAR = "RUN_REGULAR";
+    public static final String RUN_REGULAR  = "RUN_REGULAR";
     public static final String RUN_UNITTEST = "RUN_UNITTEST";
+    public static final String RUN_JYTHON   = "RUN_JYTHON";
     
     
 	public IPath resource;
@@ -69,6 +74,10 @@ public class PythonRunnerConfig {
     
     public boolean isUnittest(){
         return this.run.equals(RUN_UNITTEST);
+    }
+    
+    public boolean isJython(){
+        return this.run.equals(RUN_JYTHON);
     }
     
     public boolean isFile() throws CoreException{
@@ -114,7 +123,7 @@ public class PythonRunnerConfig {
      * configuration attribute, or if unable to resolve any variables
      */
     public static String[] getArguments(ILaunchConfiguration configuration) throws CoreException {
-        String args = configuration.getAttribute(Constants.ATTR_TOOL_ARGUMENTS, (String) null);
+        String args = configuration.getAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, (String) null);
         if (args != null) {
             String expanded = getStringVariableManager().performStringSubstitution(args);
             return parseStringIntoList(expanded);
@@ -183,7 +192,10 @@ public class PythonRunnerConfig {
 		isDebug = mode.equals(ILaunchManager.DEBUG_MODE);
 		
 		resource = getLocation(conf);
-		interpreter = conf.getAttribute(Constants.ATTR_INTERPRETER, "python");
+		interpreter = conf.getAttribute(Constants.ATTR_INTERPRETER, "");
+        if(interpreter == null || interpreter.length() == 0){
+            throw new RuntimeException("the interpreter is not corretly specified for the run");
+        }
 		arguments = getArguments(conf);
 		IPath workingPath = getWorkingDirectory(conf);
 		workingDirectory = workingPath == null ? null : workingPath.toFile();
@@ -224,7 +236,7 @@ public class PythonRunnerConfig {
 
     		if(!specifiedPythonpath(envMap)){
 	    		
-	            String pythonpath = new SimplePythonRunner().makePythonPathEnvString(project);
+	            String pythonpath = SimpleRunner.makePythonPathEnvString(project);
 	            //override it if it was the ambient pythonpath
 	            for (int i = 0; i < envp.length; i++) {
 	                if(win32){
@@ -359,46 +371,65 @@ public class PythonRunnerConfig {
 	 * @throws CoreException 
 	 */
 	public String[] getCommandLine() throws CoreException {
-		Vector cmdArgs = new Vector(10);
-		cmdArgs.add(interpreter);
-		// Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
-		cmdArgs.add("-u");
-		if (isDebug) {
-			cmdArgs.add(getDebugScript());
-			cmdArgs.add("--client");
-			cmdArgs.add("localhost");
-			cmdArgs.add("--port");
-			cmdArgs.add(Integer.toString(debugPort));
-			cmdArgs.add("--file");
-		}
-		
-		if(isCoverage()){
-			cmdArgs.add(getCoverageScript());
-			String coverageFileLocation = PyCoverage.getCoverageFileLocation();
-            System.out.println("coverageFileLocation "+coverageFileLocation);
-            cmdArgs.add(coverageFileLocation);
-			cmdArgs.add("-x");
-			if (!isFile()){
-			    //run all testcases
-                cmdArgs.add(getRunFilesScript());
+		List<String> cmdArgs = new ArrayList<String>();
+        
+        if(isJython()){
+            //"java.exe" -classpath "C:\bin\jython21\jython.jar" org.python.util.jython script %ARGS%
+            String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getAbsolutePath();
+            if(!InterpreterInfo.isJythonExecutable(interpreter)){
+                throw new RuntimeException("The jython jar must be specified as the interpreter to run. Found: "+interpreter);
             }
-		}
+            javaLoc = SimpleRunner.formatParamToExec(javaLoc);
+            interpreter = SimpleRunner.formatParamToExec(interpreter);
+            cmdArgs.add(javaLoc);
+            cmdArgs.add("-classpath");
+            cmdArgs.add(interpreter);
+            cmdArgs.add("-Dpython.path=%PYTHONPATH%"); //will be added to the env variables in the run (check if this works on all platforms...)
+            cmdArgs.add("org.python.util.jython");
 
-		if(isUnittest()){
-            if (isFile()){
-    			cmdArgs.add(getUnitTestScript());
-    			cmdArgs.add(Integer.toString(getUnitTestPort()));
-    			cmdArgs.add(unitTestModuleDir);
-    			cmdArgs.add(unitTestModule);
-    			String[] retVal = new String[cmdArgs.size()];
-    			cmdArgs.toArray(retVal);
-    			return retVal;
-
-            }else{ //run all testcases
-                cmdArgs.add(getRunFilesScript());
-            }
-		}
-
+        }else{
+        
+    		cmdArgs.add(interpreter);
+    		// Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
+    		cmdArgs.add("-u");
+        
+    		if (isDebug) {
+    			cmdArgs.add(getDebugScript());
+    			cmdArgs.add("--client");
+    			cmdArgs.add("localhost");
+    			cmdArgs.add("--port");
+    			cmdArgs.add(Integer.toString(debugPort));
+    			cmdArgs.add("--file");
+    		}
+    		
+    		if(isCoverage()){
+    			cmdArgs.add(getCoverageScript());
+    			String coverageFileLocation = PyCoverage.getCoverageFileLocation();
+                System.out.println("coverageFileLocation "+coverageFileLocation);
+                cmdArgs.add(coverageFileLocation);
+    			cmdArgs.add("-x");
+    			if (!isFile()){
+    			    //run all testcases
+                    cmdArgs.add(getRunFilesScript());
+                }
+    		}
+    
+    		if(isUnittest()){
+                if (isFile()){
+        			cmdArgs.add(getUnitTestScript());
+        			cmdArgs.add(Integer.toString(getUnitTestPort()));
+        			cmdArgs.add(unitTestModuleDir);
+        			cmdArgs.add(unitTestModule);
+        			String[] retVal = new String[cmdArgs.size()];
+        			cmdArgs.toArray(retVal);
+        			return retVal;
+    
+                }else{ //run all testcases
+                    cmdArgs.add(getRunFilesScript());
+                }
+    		}
+        }
+        
 		cmdArgs.add(resource.toOSString());
 		for (int i=0; arguments != null && i<arguments.length; i++){
 			cmdArgs.add(arguments[i]);

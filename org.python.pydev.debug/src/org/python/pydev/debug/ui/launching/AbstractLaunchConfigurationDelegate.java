@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
@@ -47,13 +48,18 @@ public abstract class AbstractLaunchConfigurationDelegate implements ILaunchConf
 		try {
 			PythonRunner.run(runConfig, launch, monitor);
 		} catch (IOException e) {
-			e.printStackTrace();
+            Log.log(e);
 			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected IO Exception in Pydev debugger", null));
 		}
 	}
 
     /**
-     * @return
+     * @return the mode we should use to run it...
+     * 
+     * @see PythonRunnerConfig#RUN_REGULAR
+     * @see PythonRunnerConfig#RUN_COVERAGE
+     * @see PythonRunnerConfig#RUN_UNITTEST
+     * @see PythonRunnerConfig#RUN_JYTHON
      */
     protected abstract String getRunnerConfigRun();
 }

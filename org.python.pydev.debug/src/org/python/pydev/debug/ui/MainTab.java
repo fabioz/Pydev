@@ -1,0 +1,258 @@
+/*
+ * Author: atotic
+ * Author: fabioz
+ * Created: Aug 20, 2003
+ * License: Common Public License v1.0
+ */
+package org.python.pydev.debug.ui;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+import org.python.pydev.debug.core.Constants;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
+
+/**
+ * The main Python debug setup tab.
+ * 
+ * <p>Interesting functionality: InterpreterEditor will try the verify the choice of an interpreter.
+ * <p>Getting the ModifyListener to display the proper error message was tricky
+ */
+public class MainTab extends AbstractLaunchConfigurationTab {
+
+    // Widgets
+    Text locationField;
+    Text baseDirectoryField;
+    Text programArgumentField;
+    Combo interpreterComboField;
+    
+    
+    protected ModifyListener modifyListener = new ModifyListener() {
+        public void modifyText(ModifyEvent e) {
+            updateLaunchConfigurationDialog();
+        }
+    };
+    private IInterpreterManager interpreterManager;
+    
+
+    public MainTab(IInterpreterManager interpreterManager) {
+        this.interpreterManager = interpreterManager;
+    }
+
+
+
+    public void createControl(Composite parent) {
+        Composite comp = new Composite(parent, SWT.NONE);
+        setControl(comp);
+        GridLayout gridLayout = new GridLayout ();
+        gridLayout.numColumns = 2;
+        comp.setLayout (gridLayout);
+
+        Label label0 = new Label (comp, SWT.NONE);
+        label0.setText ("Location");
+        GridData data = new GridData ();
+        data.horizontalSpan = 2;
+        data.grabExcessHorizontalSpace = true;
+        label0.setLayoutData (data);
+        locationField = new Text (comp, SWT.BORDER);
+        locationField.addModifyListener(modifyListener);
+        data = new GridData ();
+        data.horizontalAlignment = GridData.FILL;
+        data.horizontalSpan = 2;
+        locationField.setLayoutData (data);
+
+        Label label2 = new Label (comp, SWT.NONE);
+        label2.setText ("Base directory");
+        data = new GridData ();
+        data.horizontalSpan = 2;
+        label2.setLayoutData (data);
+
+        baseDirectoryField = new Text (comp, SWT.BORDER);
+        data = new GridData ();
+        data.horizontalAlignment = GridData.FILL;
+        data.horizontalSpan = 2;
+        baseDirectoryField.setLayoutData (data);
+        baseDirectoryField.addModifyListener(modifyListener);
+        Label label4 = new Label (comp, SWT.NONE);
+        label4.setText ("Program arguments");
+        data = new GridData ();
+        data.horizontalSpan = 2;
+        label4.setLayoutData (data);
+
+        programArgumentField = new Text (comp, SWT.BORDER | SWT.MULTI);
+        data = new GridData ();
+        data.horizontalAlignment = GridData.FILL;
+        data.verticalAlignment = GridData.FILL;
+        data.horizontalSpan = 2;
+        data.verticalSpan = 2;
+        programArgumentField.setLayoutData (data);
+        programArgumentField.addModifyListener(modifyListener);
+
+        Label label6 = new Label (comp, SWT.NONE);
+        label6.setText ("Interpreter");
+        data = new GridData ();
+        data.horizontalSpan = 2;
+        label6.setLayoutData (data);
+
+
+        interpreterComboField = new Combo (comp, SWT.DROP_DOWN);
+        interpreterComboField.setItems (this.interpreterManager.getInterpreters());
+        interpreterComboField.select(0);
+        data = new GridData ();
+        data.horizontalAlignment = GridData.FILL;
+        data.horizontalSpan = 2;
+        interpreterComboField .setLayoutData (data);
+        interpreterComboField.addModifyListener(modifyListener);
+    }
+
+
+    
+    /**
+     * checks if some launch is valid 
+     * @see org.eclipse.debug.ui.ILaunchConfigurationTab#isValid(org.eclipse.debug.core.ILaunchConfiguration)
+     */
+    public boolean isValid(ILaunchConfiguration launchConfig) {
+        setErrorMessage(null);
+        setMessage(null);
+        String interpreter;
+        try {
+            interpreter = launchConfig.getAttribute(Constants.ATTR_INTERPRETER, "" );
+        } catch (CoreException e) {
+            setErrorMessage("No interpreter? " + e.getMessage());
+            return false;
+        }
+        if(interpreter == null){
+            return false;
+        }
+        
+        try {
+            return checkIfInterpreterExists(interpreter);
+            
+        } catch (Exception e) {
+            //we might have problems getting the configured interpreters
+            setMessage(e.getMessage());
+            setErrorMessage(e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * @param interpreter the interpreter to validate
+     * @return true if the interpreter is configured in pydev
+     */
+    protected boolean checkIfInterpreterExists(String interpreter) {
+        String[] interpreters = this.interpreterManager.getInterpreters();
+        for (int i = 0; i < interpreters.length; i++) {
+            if (interpreters[i] != null && interpreters[i].equals(interpreter)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    /**
+     * sets attributes in the working copy
+     */
+    private void setAttribute(ILaunchConfigurationWorkingCopy conf, String name, String value) {
+        if (value == null || value.length() == 0){
+            conf.setAttribute(name, (String)null);
+        }else{
+            conf.setAttribute(name, value);
+        }
+    }
+    
+    /**
+     * this is the name that will appear to the user 
+     * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
+     */
+    public String getName() {
+        return "Main";
+    }
+
+    /**
+     * this is the image that will appear to the user 
+     * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getImage()
+     */
+    public Image getImage() {
+        return PydevPlugin.getImageCache().get(Constants.MAIN_ICON);
+    }
+    
+    public void setDefaults(ILaunchConfigurationWorkingCopy arg0) {
+        //no defaults to set
+    }
+
+    /**
+     * Initializes widgets from ILaunchConfiguration
+     * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
+     */
+    public void initializeFrom(ILaunchConfiguration conf) {
+        String location = "";
+        String baseDirectory = "";
+        String interpreter = "";
+        String arguments = "";
+        try {
+            location = conf.getAttribute(Constants.ATTR_LOCATION, "");
+            baseDirectory = conf.getAttribute(Constants.ATTR_WORKING_DIRECTORY, "");
+            interpreter = conf.getAttribute(Constants.ATTR_INTERPRETER, "");
+            arguments = conf.getAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "");
+        }
+        catch (CoreException e) {
+        }
+        locationField.setText(location);
+        baseDirectoryField.setText(baseDirectory);
+        programArgumentField.setText(arguments);
+        String[] interpreters = interpreterComboField.getItems();
+        
+        if(interpreters.length == 0){
+            setErrorMessage("No interpreter is configured, please, go to window > preferences > interpreters and add the interpreter you want to use.");
+        }else{
+        
+            int selectThis = -1;
+            
+            for (int i=0; i< interpreters.length; i++){
+                if (interpreter.equals(interpreters[i])){
+                    selectThis = i;
+                }
+            }
+            
+            if (selectThis == -1) {
+                setErrorMessage("Obsolete interpreter is selected. Choose a new one.");
+            }else{
+                interpreterComboField.select(selectThis);
+            }
+        }
+    }
+    
+    /**
+     * save the values 
+     * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
+     */
+    public void performApply(ILaunchConfigurationWorkingCopy conf) {
+        String value;
+        value = locationField.getText().trim();
+        setAttribute(conf, Constants.ATTR_LOCATION, value);
+
+        value = baseDirectoryField.getText().trim();
+        setAttribute(conf, Constants.ATTR_WORKING_DIRECTORY, value);
+        
+        value = programArgumentField.getText().trim();
+        setAttribute(conf, Constants.ATTR_PROGRAM_ARGUMENTS, value);
+        
+        value = interpreterComboField.getText();
+        setAttribute(conf, Constants.ATTR_INTERPRETER, value);
+    }
+    
+}

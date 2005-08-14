@@ -56,13 +56,18 @@ public abstract class AbstractShell {
      */
     public synchronized static void stopAllShells(){
         
-        for (Iterator iter = shells.values().iterator(); iter.hasNext();) {
-            AbstractShell element = (AbstractShell) iter.next();
-            if(element != null){
-                try {
-                    element.endIt();
-                } catch (Exception e) {
-                    // ignore... we are ending it anyway...
+        for (Iterator<Map<Integer, AbstractShell>> iter = shells.values().iterator(); iter.hasNext();) {
+            Map<Integer,AbstractShell> rel = (Map<Integer, AbstractShell>) iter.next();
+            if(rel != null){
+                for (Iterator iter2 = rel.values().iterator(); iter.hasNext();) {
+                    AbstractShell element = (AbstractShell) iter2.next();
+                    if(element != null){
+                        try {
+                            element.endIt();
+                        } catch (Exception e) {
+                            // ignore... we are ending it anyway...
+                        }
+                    }
                 }
             }
         }
