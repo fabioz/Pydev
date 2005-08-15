@@ -105,6 +105,7 @@ public abstract class ModulesManager implements Serializable {
 
         List completions = new ArrayList();
 
+        List<String> fromJar = new ArrayList<String>();
         int total = 0;
 
         //first thing: get all files available from the python path and sum them up.
@@ -118,7 +119,10 @@ public abstract class ModulesManager implements Serializable {
                 completions.addAll(below[0]);
                 total += below[0].size();
                 
-            }else{ //ok, it was null, so, maybe this is not a folder, but a zip file with java classes...
+            }else{ //ok, it was null, so, maybe this is not a folder, but  zip file with java classes...
+                List<String> currFromJar = PythonPathHelper.getFromJar(root, monitor);
+                fromJar.addAll(currFromJar);
+                total += currFromJar.size();
             }
         }
 
@@ -139,6 +143,10 @@ public abstract class ModulesManager implements Serializable {
                     mods.put(new ModulesKey(m, f), AbstractModule.createEmptyModule(m, f));
                 }
             }
+        }
+        
+        for (String modName : fromJar) {
+            mods.put(new ModulesKey(modName, null), AbstractModule.createEmptyModule(modName, null));
         }
 
         //create the builtin modules
@@ -341,7 +349,9 @@ public abstract class ModulesManager implements Serializable {
                     n = null;
                 }
 
-            } 
+            }else{ //ok, it does not have a file associated, so, we treat it as a builtin (this can happen in java jars)
+                n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
+            }
             
             if (n != null) {
                 this.getModules().put(new ModulesKey(name, e.f), n);

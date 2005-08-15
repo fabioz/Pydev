@@ -66,9 +66,16 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     public void clearAllBut(List<String> allButTheseInterpreters) {
-        for (String interpreter : exeToInfo.keySet()) {
-            if(!allButTheseInterpreters.contains(interpreter)){
-                exeToInfo.remove(interpreter);
+        synchronized(exeToInfo){
+            ArrayList toRemove = new ArrayList();
+            for (String interpreter : exeToInfo.keySet()) {
+                if(!allButTheseInterpreters.contains(interpreter)){
+                    toRemove.add(interpreter);
+                }
+            }
+            //we do not want to remove it while we are iterating...
+            for (Object object : toRemove) {
+                exeToInfo.remove(object);
             }
         }
     }

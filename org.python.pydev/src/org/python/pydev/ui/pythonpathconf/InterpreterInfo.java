@@ -243,16 +243,6 @@ public class InterpreterInfo implements Serializable{
             forcedLibs.add("itertools");
         }
         
-        for (Iterator iter = dllLibs.iterator(); iter.hasNext();) {
-            String root = iter.next().toString();
-
-            //and now, we still have to check if any of the libs is a zip (or jar), and add those to the builtins
-            //if we are in jython, the rt.jar should be in one of these, and java, java.lang, etc. should be there...
-            List<String> fromJar = PythonPathHelper.getFromJar(new File(root), monitor);
-            if(fromJar != null){
-                forcedLibs.addAll(fromJar);
-            }
-        }
     }
 
     /**
