@@ -782,12 +782,14 @@
    </extension>
    <extension point="org.eclipse.team.core.ignore">
       <ignore enabled="true" pattern="*.pyc"/>
+      <ignore enabled="true" pattern="*.class"/>
       <ignore enabled="true" pattern="*.pyo"/>
    </extension>
 <!-- filter out .pyc files in the navigation view -->
    <extension
          point="org.eclipse.ui.ide.resourceFilters">
       <filter selected="True" pattern="*.pyc"/>
+      <ignore enabled="true" pattern="*.class"/>
       <filter selected="True" pattern="*.pyo"/>
    </extension>
 <!-- templates -->
