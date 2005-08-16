@@ -42,6 +42,11 @@ c.bla = 1
 c.foo = 2
 c. | triggers completion with bla,foo
 
+- code completion with self variables should be an union of all found occurences (right now, it finds the
+first and gets completions based on it, so, some strange behaviours can happen... e.g.: if the first occurence
+found maps to None, even if some other value finds the correct class, it is ignored. What we should have is
+the union between the completions from None and the other class).
+
 - imports in local scope should be gotten
 - pythonpath should be the same for project and lauch
 - IPython should be integrated
