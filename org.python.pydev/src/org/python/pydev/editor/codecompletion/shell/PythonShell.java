@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.shell;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
@@ -33,7 +34,15 @@ public class PythonShell extends AbstractShell{
     @Override
     protected String createServerProcess(int pWrite, int pRead) throws IOException {
         String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
-        
+        File file = new File(interpreter);
+        if(file.exists() == false ){
+            throw new RuntimeException("The interpreter location found does not exist. "+interpreter);
+        }
+        if(file.isDirectory() == true){
+            throw new RuntimeException("The interpreter location found is a directory. "+interpreter);
+        }
+
+
         String execMsg;
         if(SimpleRunner.isWindowsPlatform()){ //in windows, we have to put python "path_to_file.py"
             execMsg = interpreter+" \""+REF.getFileAbsolutePath(serverFile)+"\" "+pWrite+" "+pRead;

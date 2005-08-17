@@ -220,7 +220,7 @@ public abstract class AbstractShell {
             }
             
             String execMsg = createServerProcess(pWrite, pRead);
-
+            System.out.println("executing "+execMsg);
             
             sleepALittle(200);
             String osName = System.getProperty("os.name");

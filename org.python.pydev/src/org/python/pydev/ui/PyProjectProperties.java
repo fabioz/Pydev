@@ -15,6 +15,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.python.pydev.plugin.PydevPlugin;
@@ -67,7 +68,7 @@ public class PyProjectProperties extends PropertyPage {
                 String externalSourcePath = PythonNature.getPythonPathNature(project).getProjectExternalSourcePath();
 
                 Label l2 = new Label(topComp, SWT.None);
-		    	l2.setText("Source Folders.");
+		    	l2.setText("Project Source Folders and jars.");
 		    	gd = new GridData();
 		    	gd.grabExcessHorizontalSpace = true;
 		    	gd.grabExcessVerticalSpace = false;
@@ -84,7 +85,7 @@ public class PyProjectProperties extends PropertyPage {
                 
                 
 		    	l2 = new Label(topComp, SWT.None);
-		    	l2.setText("External Source Folders.");
+		    	l2.setText("External Source Folders and jars.");
 		    	gd = new GridData();
 		    	gd.grabExcessHorizontalSpace = true;
 		    	gd.grabExcessVerticalSpace = false;
@@ -95,8 +96,13 @@ public class PyProjectProperties extends PropertyPage {
                         return UIConstants.LIB_SYSTEM;
                     }
 
-                    protected Object getSelectionDialog() {
+                    protected Object getSelectionDialogAddSourceFolder() {
                         return new DirectoryDialog(getShell());
+                    }
+                    
+                    @Override
+                    protected Object getSelectionDialogAddJar() {
+                        return new FileDialog(getShell());
                     }
                 };
                 data = new GridData(GridData.FILL_BOTH);

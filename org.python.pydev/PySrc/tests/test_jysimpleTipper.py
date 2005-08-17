@@ -6,6 +6,7 @@ import sys
 sys.argv[0] = os.path.dirname(sys.argv[0]) 
 #twice the dirname to get the previous level from this file.
 sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
+sys.path.insert(1, "D:\\dev_programs\\eclipse_3\\eclipse\\runtime-workbench-workspace\\testjython\\lib\\junit.jar" )
 
 from jyimportsTipper import ismethod
 from jyimportsTipper import isclass
@@ -41,8 +42,13 @@ class TestMod(unittest.TestCase):
                 return a
         raise AssertionError('%s not in %s' % (tok, tips))
 
+    def testImports2(self):
+        import pdb;pdb.set_trace()
+        tip = jyimportsTipper.GenerateTip('junit.framework')
+        ret = self.assertIn('TestCase', tip)
+        self.assertEquals('', ret[2])
+        
     def testImports3(self):
-#        import pdb;pdb.set_trace()
         tip = jyimportsTipper.GenerateTip('os')
         ret = self.assertIn('path', tip)
         self.assertEquals('', ret[2])

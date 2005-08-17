@@ -5,6 +5,7 @@
  */
 package org.python.pydev.ui.editors;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.SWT;
@@ -18,6 +19,7 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
@@ -63,12 +65,21 @@ public class TreeWithAddRemove extends Composite{
 		buttonsSourceFolders.setLayout(layout);
 		
 		Button buttonAddSourceFolder = new Button(buttonsSourceFolders, SWT.PUSH);
-		customizeAddSourceFolderButton(buttonAddSourceFolder);
+		customizeAddSourceFolderButton(buttonAddSourceFolder, true);
+        buttonAddSourceFolder.setText(getButtonAddText());
         data = new GridData ();
         data.horizontalAlignment = GridData.FILL;
         data.grabExcessHorizontalSpace = true;
         buttonAddSourceFolder.setLayoutData(data);
 
+        Button buttonAddJar = new Button(buttonsSourceFolders, SWT.PUSH);
+        customizeAddSourceFolderButton(buttonAddJar, false);
+        buttonAddJar.setText("Add jar");
+        data = new GridData ();
+        data.horizontalAlignment = GridData.FILL;
+        data.grabExcessHorizontalSpace = true;
+        buttonAddJar.setLayoutData(data);
+        
 		Button buttonRemSourceFolder = new Button(buttonsSourceFolders, SWT.PUSH);
 		customizeRemSourceFolderButton(buttonRemSourceFolder);
         data = new GridData ();
@@ -92,6 +103,7 @@ public class TreeWithAddRemove extends Composite{
      */
     protected void customizeRemSourceFolderButton(Button buttonRem) {
         buttonRem.setText(getButtonRemoveText());
+        buttonRem.setToolTipText("Remove the selected item");
         buttonRem.addSelectionListener(new SelectionListener(){
 
             public void widgetSelected(SelectionEvent e) {
@@ -113,12 +125,17 @@ public class TreeWithAddRemove extends Composite{
      * 
      * @param buttonAddSourceFolder
      */
-    protected void customizeAddSourceFolderButton(Button buttonAddSourceFolder) {
-        buttonAddSourceFolder.setText(getButtonAddText());
+    protected void customizeAddSourceFolderButton(Button buttonAddSourceFolder, final boolean chooseSourceFolder) {
         buttonAddSourceFolder.addSelectionListener(new SelectionListener(){
 
             public void widgetSelected(SelectionEvent e) {
-                Object d = getSelectionDialog();
+                Object d;
+                if(chooseSourceFolder){
+                    d = getSelectionDialogAddSourceFolder();
+                }else{
+                    d = getSelectionDialogAddJar();
+                }
+                
                 if(d instanceof FileDialog){
                     FileDialog dialog = (FileDialog) d;
                     String filePath = dialog.open();
@@ -133,12 +150,21 @@ public class TreeWithAddRemove extends Composite{
                     SelectionDialog dialog = (SelectionDialog) d;
 	                dialog.open();
 	                Object[] objects = dialog.getResult();
-	                if (objects != null && objects.length == 1) { //only one folder can be selected
-	                    if (objects[0] instanceof IPath) {
-	                        IPath p = (IPath) objects[0];
-	                        String pathAsString = getPathAsString(p);
-	                        addTreeItem(pathAsString);
-	                    }
+	                if (objects != null) { 
+                        for (int i = 0; i < objects.length; i++) {
+                            Object object = objects[i];
+                            if (object instanceof IPath) {
+                                IPath p = (IPath) object;
+                                String pathAsString = getPathAsString(p);
+                                addTreeItem(pathAsString);
+                            }else if(object instanceof IFile){
+                                IFile p = (IFile) object;
+                                String pathAsString = getPathAsString(p.getProjectRelativePath());
+                                if(pathAsString.endsWith(".jar") || pathAsString.endsWith(".zip")){
+                                    addTreeItem(pathAsString);
+                                }
+                            }
+                        }
 	                }
                 }else{
                     throw new RuntimeException("Dont know how to treat dialog: "+d.getClass());
@@ -157,7 +183,7 @@ public class TreeWithAddRemove extends Composite{
      * @return
      */
     protected String getButtonRemoveText() {
-        return "Remove Source Folder";
+        return "Remove";
     }
 
 
@@ -165,7 +191,7 @@ public class TreeWithAddRemove extends Composite{
      * @return
      */
     protected String getButtonAddText() {
-        return "Add Source Folder";
+        return "Add source folder";
     }
 
 
@@ -178,11 +204,18 @@ public class TreeWithAddRemove extends Composite{
     }
 
 
+    
+    /**
+     * @return
+     */
+    protected Object getSelectionDialogAddJar() {
+        return new ResourceSelectionDialog(getShell(), project, "Choose jars to add to PYTHONPATH");
+    }
 
     /**
      * @return
      */
-    protected Object getSelectionDialog() {
+    protected Object getSelectionDialogAddSourceFolder() {
         return new ProjectFolderSelectionDialog(getShell(), project, true, "Choose source folders to add to PYTHONPATH");
     }
 

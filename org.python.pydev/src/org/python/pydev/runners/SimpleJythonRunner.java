@@ -117,6 +117,13 @@ public class SimpleJythonRunner extends SimpleRunner{
     public static String makeExecutableCommandStr(String script) throws IOException {
         IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
         String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
+        File file = new File(javaLoc);
+        if(file.exists() == false ){
+            throw new RuntimeException("The java location found does not exist. "+javaLoc);
+        }
+        if(file.isDirectory() == true){
+            throw new RuntimeException("The java location found is a directory. "+javaLoc);
+        }
         javaLoc = formatParamToExec(javaLoc);
 
         String jythonJar = interpreterManager.getDefaultInterpreter();
