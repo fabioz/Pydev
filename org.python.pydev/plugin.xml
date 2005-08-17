@@ -789,7 +789,7 @@
    <extension
          point="org.eclipse.ui.ide.resourceFilters">
       <filter selected="True" pattern="*.pyc"/>
-      <ignore enabled="true" pattern="*.class"/>
+      <filter selected="True" pattern="*.class"/>
       <filter selected="True" pattern="*.pyo"/>
    </extension>
 <!-- templates -->

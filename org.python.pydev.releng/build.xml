@@ -5,8 +5,8 @@
         <touch file="${user.home}/.cvspass" />
 		<tstamp/>
 
-		<property name = "pydev.version"        value = "0.9.7.7"/>
-		<property name = "buildId"              value = "0_9_7_7"/>
+		<property name = "pydev.version"        value = "${PYDEV_VERSION}"/>
+		<property name = "buildId"              value = "${BUILD_ID}"/>
 		<property name = "buildLabel"           value = "${buildId}"/>
 
 		<property name = "timestamp"            value = "${DSTAMP}${TSTAMP}" />
@@ -18,7 +18,7 @@
 		<property name = "buildType"            value = "I" />
 		<property name = "zipsdir"              value = "${buildDirectory}/${buildType}.${buildId}"/>
 		<property name = "javacSource"          value = "1.5"/>
-		<property name = "javacTarget"          value = "1.4"/>
+		<property name = "javacTarget"          value = "1.5"/>
 		<property name = "javacVerbose"         value = "false"/>
 		<property name = "buildingOSGi"         value = "true"/>
 
@@ -37,6 +37,7 @@
 
 		
 		<echo message="pydev.version = ${pydev.version}"/>
+		<echo message="buildId = ${buildId}"/>
 		<echo message="EC_HOME = ${EC_HOME}"/>
 		<echo message="EC_WORKSPACE = ${EC_WORKSPACE}"/>
 	</target>
