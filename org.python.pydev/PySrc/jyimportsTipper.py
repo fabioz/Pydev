@@ -29,6 +29,12 @@ def _imp(name):
             raise RuntimeError(s)
 
 def Find( name ):
+    if name.startswith('__builtin__'):
+        if name == '__builtin__.str':
+            name = 'org.python.core.PyString'
+        elif name == '__builtin__.dict':
+            name = 'org.python.core.PyDictionary'
+            
     mod = _imp(name)
     components = name.split('.')
 
