@@ -123,9 +123,10 @@ public class SimpleJythonRunner extends SimpleRunner{
         InterpreterInfo info = interpreterManager.getInterpreterInfo(jythonJar, new NullProgressMonitor());
 
         StringBuffer jythonPath = new StringBuffer();
+        String pathSeparator = SimpleRunner.getPythonPathSeparator();
         for (String lib : info.libs) {
             if(jythonPath.length() != 0){
-                jythonPath.append(";"); //TODO: check if this is system dependent
+                jythonPath.append(pathSeparator); 
             }
             lib = formatParamToExec(lib);
             jythonPath.append(lib);

@@ -86,5 +86,13 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
         }
     }
 
+    public boolean isJython() {
+        return true;
+    }
+
+    public boolean isPython() {
+        return false;
+    }
+
 
 }

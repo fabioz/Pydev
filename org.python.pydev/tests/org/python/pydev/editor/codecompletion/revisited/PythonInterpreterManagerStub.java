@@ -79,4 +79,12 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     public boolean canGetInfoOnNature(IPythonNature nature) {
         return true;
     }
+
+    public boolean isJython() {
+        return false;
+    }
+
+    public boolean isPython() {
+        return true;
+    }
 }

@@ -182,12 +182,13 @@ public abstract class SimpleRunner {
      * @return the separator for the pythonpath variables (system dependent)
      */
     public static String getPythonPathSeparator(){
-        boolean win32= isWindowsPlatform();
-        String separator = ";";
-        if(!win32){
-            separator = ":"; //system dependent
-        }
-        return separator;
+        return System.getProperty( "path.separator" ); //is system dependent, and should cover for all cases...
+//        boolean win32= isWindowsPlatform();
+//        String separator = ";";
+//        if(!win32){
+//            separator = ":"; //system dependent
+//        }
+//        return separator;
     }
 
     /**

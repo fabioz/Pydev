@@ -10,17 +10,24 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
+import org.eclipse.debug.ui.ILaunchConfigurationDialog;
+import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.core.docutils.WordUtils;
 import org.python.pydev.debug.core.Constants;
+import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 
@@ -45,6 +52,44 @@ public class MainTab extends AbstractLaunchConfigurationTab {
         }
     };
     private IInterpreterManager interpreterManager;
+    private Button button;
+    private ILaunchConfigurationWorkingCopy workingCopyForCommandLineGeneration;
+    private Text text;
+
+    private SelectionListener listener = new SelectionListener(){
+
+        public void widgetSelected(SelectionEvent e) {
+            if(e.getSource() == button){
+                try {
+                    //ok, show the command-line to the user
+                    ILaunchConfigurationDialog launchConfigurationDialog = getLaunchConfigurationDialog();
+                    ILaunchConfigurationTab[] tabs = launchConfigurationDialog.getTabs();
+                    for (int i = 0; i < tabs.length; i++) {
+                        tabs[i].performApply(workingCopyForCommandLineGeneration);
+                    }
+                    String run;
+                    if(interpreterManager.isJython()){
+                        run = PythonRunnerConfig.RUN_JYTHON;
+                    }else if(interpreterManager.isPython()){
+                        run = PythonRunnerConfig.RUN_REGULAR;
+                    }else{
+                        throw new RuntimeException("Should be python or jython interpreter (found unknown).");
+                    }
+                    
+                    PythonRunnerConfig config = new PythonRunnerConfig(workingCopyForCommandLineGeneration, launchConfigurationDialog.getMode(), run);
+                    String commandLineAsString = config.getCommandLineAsString();
+                    commandLineAsString = WordUtils.wrap(commandLineAsString, 80);
+                    commandLineAsString += "\n\nThe PYTHONPATH that will be used is:\n\n";
+                    commandLineAsString += config.pythonpathUsed;
+                    text.setText(commandLineAsString);
+                } catch (Exception e1) {
+                    text.setText("Unable to make the command-line. \n\nReason:\n\n"+e1.getMessage());
+                }
+            }
+        }
+
+        public void widgetDefaultSelected(SelectionEvent e) {
+        }};
     
 
     public MainTab(IInterpreterManager interpreterManager) {
@@ -115,6 +160,26 @@ public class MainTab extends AbstractLaunchConfigurationTab {
         data.horizontalSpan = 2;
         interpreterComboField .setLayoutData (data);
         interpreterComboField.addModifyListener(modifyListener);
+
+        button = new Button (comp, SWT.NONE);
+        button.setText ("See resulting command-line for the given parameters");
+        data = new GridData ();
+        data.horizontalSpan = 2;
+        button.setLayoutData (data);
+        button.addSelectionListener(this.listener);
+        
+        text = new Text (comp, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        text.setText ("In case you are in doubt how will the run happen, click the button to \n" +
+                      "see the command-line that will be executed with the current parameters\n" +
+                      "(and the PYTHONPATH / CLASSPATH used for the run).");
+        data = new GridData ();
+        data.grabExcessVerticalSpace = true;
+        data.horizontalAlignment = GridData.FILL;
+        data.verticalAlignment = GridData.FILL;
+        data.horizontalSpan = 2;
+        data.verticalSpan = 5;
+        text.setLayoutData (data);
+        
     }
 
 
@@ -199,6 +264,12 @@ public class MainTab extends AbstractLaunchConfigurationTab {
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
      */
     public void initializeFrom(ILaunchConfiguration conf) {
+        try {
+            workingCopyForCommandLineGeneration = conf.getWorkingCopy();
+        } catch (CoreException e1) {
+            throw new RuntimeException(e1);
+        }
+        
         String location = "";
         String baseDirectory = "";
         String interpreter = "";

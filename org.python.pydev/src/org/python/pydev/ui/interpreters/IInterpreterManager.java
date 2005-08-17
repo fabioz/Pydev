@@ -89,5 +89,15 @@ public interface IInterpreterManager {
      */
     public void clearAllBut(List<String> allButTheseInterpreters);
 
+    /**
+     * @return whether this manager treats jython
+     */
+    public boolean isJython();
+
+    /**
+     * @return whether this manager treats python
+     */
+    public boolean isPython();
+
     
 }

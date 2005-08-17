@@ -55,6 +55,7 @@ public class PythonRunnerConfig {
 	public String interpreter;
 	public String[] arguments;
 	public File workingDirectory;
+	public String pythonpathUsed;
 	// debugging
 	public boolean isDebug;
 	private int debugPort = 0;  // use getDebugPort
@@ -227,6 +228,7 @@ public class PythonRunnerConfig {
             //ok, the user has done nothing to the environment, just get all the default environment and
             //put the pythonpath in it
             envp = new SimplePythonRunner().getEnvironment(project);
+            pythonpathUsed = SimpleRunner.makePythonPathEnvString(project);
         }else{
     		boolean win32= Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
 
@@ -237,9 +239,11 @@ public class PythonRunnerConfig {
     		if(!specifiedPythonpath(envMap)){
 	    		
 	            String pythonpath = SimpleRunner.makePythonPathEnvString(project);
+                pythonpathUsed = pythonpath; 
 	            //override it if it was the ambient pythonpath
 	            for (int i = 0; i < envp.length; i++) {
 	                if(win32){
+                        //case insensitive
 		                if(envp[i].toUpperCase().startsWith("PYTHONPATH")){
 		                    //OK, finish it.
 				            envp[i] = "PYTHONPATH="+pythonpath;
@@ -382,11 +386,17 @@ public class PythonRunnerConfig {
             javaLoc = SimpleRunner.formatParamToExec(javaLoc);
             interpreter = SimpleRunner.formatParamToExec(interpreter);
             cmdArgs.add(javaLoc);
+
+            //some nice things on the classpath config: http://mindprod.com/jgloss/classpath.html
             cmdArgs.add("-classpath");
-            cmdArgs.add(interpreter);
+            cmdArgs.add(interpreter+SimpleRunner.getPythonPathSeparator()+"%PYTHONPATH%");
             cmdArgs.add("-Dpython.path=%PYTHONPATH%"); //will be added to the env variables in the run (check if this works on all platforms...)
             cmdArgs.add("org.python.util.jython");
-
+            
+            if (isDebug) {
+                throw new RuntimeException("still not implemented");
+            }
+            
         }else{
         
     		cmdArgs.add(interpreter);

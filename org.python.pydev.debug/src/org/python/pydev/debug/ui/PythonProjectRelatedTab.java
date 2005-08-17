@@ -12,7 +12,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -56,14 +55,6 @@ public class PythonProjectRelatedTab extends AbstractLaunchConfigurationTab {
                     PythonNature nature = PythonNature.getPythonNature((IProject)project);
                     if(nature == null){
                         setErrorMessage("Invalid project (no python nature associated).");
-                    }
-                    
-                    try {
-                        if (nature.isJython() != interpreterManager.getDefaultInterpreterInfo(new NullProgressMonitor()).isJythonInfo()) {
-                            setErrorMessage("Invalid project - the nature associated does not match the run type (jython vs python).");
-                        }
-                    } catch (Exception f) {
-                        setErrorMessage("Unable to get info on nature. Error: "+f.getMessage());
                     }
                 }
                 updatePythonpath();

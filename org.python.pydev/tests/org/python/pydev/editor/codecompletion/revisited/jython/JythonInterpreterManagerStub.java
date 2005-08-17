@@ -10,7 +10,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.PythonInterpreterManagerStub;
 import org.python.pydev.editor.codecompletion.revisited.TestDependent;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
-import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
@@ -77,4 +76,14 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
     public boolean canGetInfoOnNature(IPythonNature nature) {
         return true;
     }
+    
+
+    public boolean isJython() {
+        return true;
+    }
+
+    public boolean isPython() {
+        return false;
+    }
+
 }

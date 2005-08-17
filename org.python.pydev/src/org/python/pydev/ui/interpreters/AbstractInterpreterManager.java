@@ -59,7 +59,11 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     public String getDefaultInterpreter() throws NotConfiguredInterpreterException {
         String[] interpreters = getInterpreters();
         if(interpreters.length > 0){
-            return interpreters[0];
+            String interpreter = interpreters[0];
+            if(interpreter == null){
+                throw new NotConfiguredInterpreterException("The configured interpreter is null, some error happened getting it.\n" +getNotConfiguredInterpreterMsg());
+            }
+            return interpreter;
         }else{
             throw new NotConfiguredInterpreterException(getNotConfiguredInterpreterMsg());
         }

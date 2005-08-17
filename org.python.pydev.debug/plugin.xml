@@ -28,7 +28,7 @@
     <launchConfigurationType
         delegate="org.python.pydev.debug.ui.launching.JythonLaunchConfigurationDelegate"
         id="org.python.pydev.debug.jythonLaunchConfigurationType"
-        modes="run"
+        modes="run, debug"
         name="Jython run"
         public="true"
         sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
@@ -111,7 +111,7 @@
 	<shortcut
 		label="Jython Run"
 		icon="icons/jython.gif"
-		modes="run"
+		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.JythonLaunchShortcut"
 		id="org.python.pydev.debug.ui.jythonLaunchShortcut">
 		<!--this adds it to run-as (taken from \eclipse\plugins\org.eclipse.jdt.junit_3.0.1) -->

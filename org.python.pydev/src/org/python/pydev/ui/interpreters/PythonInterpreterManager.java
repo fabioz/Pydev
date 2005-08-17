@@ -70,6 +70,14 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
         }
     }
 
+    public boolean isJython() {
+        return false;
+    }
+
+    public boolean isPython() {
+        return true;
+    }
+
 
 
 }
