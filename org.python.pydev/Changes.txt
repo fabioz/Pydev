@@ -14,12 +14,13 @@ how the jython.bat works: java.exe "-Dpython.home=C:\bin\jython21" -classpath "C
 
 
 - Code completion has been improved for supporting wild imports and relative imports better (sometimes it had some problems).
-- There are hovers for the text and annotations (when you pass the mouse through an error it should show).
+- There are hovers for the text and annotations (when you pass the mouse through an error it will show its description).
 - Block comment (Ctrl+4) now uses the size defined for the print margin.
 - New block-comment style added (Ctrl+Shift+4).
-- The debugger had many fixes (altough it is still not perfect). Thanks to Aleks Totic and Scott Schlesier for the patches!
-- Jython has its first shot at PyDev, but you should be able to use many things already, meaning: all the common editor features and code completion
-
+- The debugger had many fixes (altough it is still not perfect). Thanks to Aleks Totic, Scott Schlesier and Vitor Oba for the patches!
+- Jython has its first shot at PyDev, you should be able to use many things already, meaning: all the common editor features and code completion.
+- New icons were created.
+- Many other bug-fixes as usual.
 
 
 

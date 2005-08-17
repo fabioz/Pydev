@@ -909,7 +909,7 @@ ${cursor}
             id="org.python.pydev"/>
       <view
             class="org.python.pydev.views.PyRefactorView"
-            icon="icons/python.gif"
+            icon="icons/python_refactor.gif"
             category="org.python.pydev"
             name="Refactor Results View"
             id="org.python.pydev.views.PyRefactorView"/>

@@ -44,12 +44,12 @@
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 	<launchConfigurationTypeImage
-		icon="icons/python.gif"
+		icon="icons/python_coverage.gif"
 		configTypeID="org.python.pydev.debug.coverageLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 	<launchConfigurationTypeImage
-		icon="icons/python.gif"
+		icon="icons/python_unit.gif"
 		configTypeID="org.python.pydev.debug.unittestLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
@@ -131,7 +131,7 @@
 	</shortcut>
 	<shortcut
 		label="Python Coverage"
-		icon="icons/python.gif"
+		icon="icons/python_coverage.gif"
 		modes="run"
 		class="org.python.pydev.debug.ui.launching.CoverageLaunchShortcut"
 		id="org.python.pydev.debug.ui.launchShortcut">
@@ -153,7 +153,7 @@
 	</shortcut>
 	<shortcut
 		label="Python unit-test"
-		icon="icons/python.gif"
+		icon="icons/python_unit.gif"
 		modes="run"
 		class="org.python.pydev.debug.ui.launching.UnitTestLaunchShortcut"
 		id="org.python.pydev.debug.ui.launchShortcut">
@@ -181,7 +181,7 @@
         id="org.python.pydev.debug"/>
    <view
         class="org.python.pydev.debug.codecoverage.PyCodeCoverageView"
-        icon="icons/python.gif"
+        icon="icons/python_coverage.gif"
         category="org.python.pydev"
         name="Code Coverage Results View"
         id="org.python.pydev.views.PyCodeCoverageView"/>
