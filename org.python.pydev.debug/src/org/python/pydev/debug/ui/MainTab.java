@@ -165,6 +165,7 @@ public class MainTab extends AbstractLaunchConfigurationTab {
         button.setText ("See resulting command-line for the given parameters");
         data = new GridData ();
         data.horizontalSpan = 2;
+        data.horizontalAlignment = GridData.FILL;
         button.setLayoutData (data);
         button.addSelectionListener(this.listener);
         
