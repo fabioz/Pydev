@@ -14,8 +14,8 @@ release for both (org and com)
 
 set EC_HOME=D:\dev_programs\eclipse_3\310\eclipse
 set EC_WORKSPACE=D:\dev_programs\eclipse_3\eclipse\workspace
-set PYDEV_VERSION=0.9.7.94
-set BUILD_ID=0_9_7_94
+set PYDEV_VERSION=0.9.7.95
+set BUILD_ID=0_9_7_95
 
 d:
 
