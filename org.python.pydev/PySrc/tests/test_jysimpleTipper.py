@@ -16,6 +16,7 @@ from java.lang import System
 from java.lang import String
 from java.lang.System import arraycopy
 from java.lang.System import out
+import java.lang.String
 
 __DBG = 0
 def dbg(s):
@@ -38,9 +39,10 @@ class TestMod(unittest.TestCase):
         for a in tips:
             if tok == a[0]:
                 return a
-        raise AssertionError('%s not in %s', tok, tips)
+        raise AssertionError('%s not in %s' % (tok, tips))
 
     def testImports3(self):
+#        import pdb;pdb.set_trace()
         tip = jyimportsTipper.GenerateTip('os')
         ret = self.assertIn('path', tip)
         self.assertEquals('', ret[2])
@@ -51,7 +53,35 @@ class TestMod(unittest.TestCase):
         self.assertIn('RuntimeError'   , tip)
         self.assertIn('RuntimeWarning' , tip)
 
+    def testImports(self):
+        tip = jyimportsTipper.GenerateTip('java.lang')
+        tup = self.assertIn('String' , tip)
+        self.assertEquals(str(jyimportsTipper.TYPE_CLASS), tup[3])
+        
+        tip = jyimportsTipper.GenerateTip('java')
+        tup = self.assertIn('lang' , tip)
+        self.assertEquals(str(jyimportsTipper.TYPE_IMPORT), tup[3])
+        
+        tip = jyimportsTipper.GenerateTip('java.lang.String')
+        tup = self.assertIn('indexOf'          , tip)
+        self.assertEquals(str(jyimportsTipper.TYPE_FUNCTION), tup[3])
 
+        tip = jyimportsTipper.GenerateTip('java.lang.String')
+        tup = self.assertIn('charAt'          , tip)
+        self.assertEquals(str(jyimportsTipper.TYPE_FUNCTION), tup[3])
+        self.assertEquals('(int)', tup[2])
+
+        tup = self.assertIn('format'          , tip)
+        self.assertEquals(str(jyimportsTipper.TYPE_FUNCTION), tup[3])
+        self.assertEquals('(String, Object)', tup[2])
+
+        tip = jyimportsTipper.GenerateTip('__builtin__.str')
+        self.assertIn('find'          , tip)
+
+        tip = jyimportsTipper.GenerateTip('__builtin__.dict')
+        self.assertIn('get'          , tip)
+
+import org.python.core.PyDictionary
 class TestCompl(unittest.TestCase):
 
     def setUp(self):
@@ -62,6 +92,16 @@ class TestCompl(unittest.TestCase):
 
     def testGettingInfoOnJython(self):
         
+        dbg( '\n\n--------------------------- java')
+        assert not ismethod(java)[0]
+        assert not isclass(java)
+        assert jyimportsTipper.ismodule(java)
+            
+        dbg( '\n\n--------------------------- java.lang')
+        assert not ismethod(java.lang)[0]
+        assert not isclass(java.lang)
+        assert jyimportsTipper.ismodule(java.lang)
+            
         dbg( '\n\n--------------------------- Method')
         assert not ismethod(Method)[0]
         assert isclass(Method)

@@ -1,21 +1,10 @@
+import traceback
+import java.lang
 import sys
-from java.lang.reflect import Method
-from java.lang.reflect import Field
-from java.lang import Class
-from java.lang import System
-from java.lang import String
-from java.lang import Object
-from java.lang.System import arraycopy
-from java.lang.System import out
-from java.io import OutputStream
 
 from org.python.core import PyReflectedFunction
-from org.python.core import PyReflectedField
-from org.python.core import PyReflectedConstructor
 
 from org.python import core
-from org.python.core import PyReflectedFunction
-
 
 #completion types.
 TYPE_UNKNOWN = -1
@@ -74,6 +63,19 @@ class Info:
         
         s = 'function:%s args=%s, varargs=%s, kwargs=%s, docs:%s' % \
             (str(self.name), str( self.args), str( self.varargs), str( self.kwargs), str( self.doc))
+        return s
+        
+    def getAsDoc(self):
+        s = '''%s
+        
+@doc %s
+
+@params %s
+@varargs %s
+@kwargs %s
+
+@return %s
+''' % (str(self.name), str( self.doc), str( self.args), str( self.varargs), str( self.kwargs), str( self.ret))
         return s
         
 def isclass(cls):
@@ -152,7 +154,10 @@ def ismethod(func):
                 args = []
                 for j in range(len(parameterTypes)):
                     paramTypesClass = parameterTypes[j]
-                    paramClassName = paramTypesClass.getName()
+                    try:
+                        paramClassName = paramTypesClass.getName()
+                    except:
+                        paramClassName = paramTypesClass.getName(paramTypesClass)
                     #if the parameter equals [C, it means it it a char array, so, let's change it
                     if paramClassName == '[C':
                         paramClassName = 'char[]'
@@ -168,14 +173,55 @@ def ismethod(func):
     return 0, None
 
 def ismodule(mod):
+    #java modules... do we have other way to know that?
+    if not hasattr(mod, 'getClass') and not hasattr(mod, '__class__') \
+       and hasattr(mod, '__name__'):
+           return 1
+           
     return isinstance(mod, core.PyModule)
 
 
 def dirObj(obj):
-    return dir(obj)
+    ret = []
+    found = java.util.HashMap()
+
+    if hasattr(obj, '__class__') and obj.__class__ ==  java.lang.Class:
+        declaredMethods = obj.getDeclaredMethods()
+        declaredFields = obj.getDeclaredFields()
+        for i in range(len(declaredMethods)):
+            name = declaredMethods[i].getName()
+            ret.append(name)
+            found.put(name, 1)
+            
+        for i in range(len(declaredFields)):
+            name = declaredFields[i].getName()
+            ret.append(name)
+            found.put(name, 1)
+
+    #this simple dir does not always get all the info, that's why we have the part before
+    #(e.g.: if we do a dir on String, some methods that are from other interfaces such as 
+    #charAt don't appear)
+    d = dir(obj)
+    for name in d:
+        if found.get(name) is not 1:
+            ret.append(name)
+            
+    return ret
 
 
-
+def formatArg(arg):
+    '''formats an argument to be shown
+    '''
+    
+    s = str( arg )
+    dot = s.rfind('.')
+    if dot >= 0:
+        s = s[dot+1:]
+    
+    s = s.replace(';','')
+    return s
+    
+    
 def GenerateImportsTipForModule( mod ):
     '''
     @param mod: the module from where we should get the completions
@@ -188,29 +234,40 @@ def GenerateImportsTipForModule( mod ):
     for d in dirComps:
 
         args = ''
-
-        obj = getattr(mod, d)
+        doc = ''
         retType = TYPE_BUILTIN
 
-        isMet = ismethod(obj)
-        if isMet[0]:
-            info = isMet[1][0]
-            try:
-                args, vargs, kwargs = info.args, info.varargs, info.kwargs
-                    
-                r = ''
-                for a in ( args ):
-                    if len( r ) > 0:
-                        r += ', '
-                    r += str( a )
-                args = '(%s)' % (r)
-            except TypeError:
-                args = '()'
+        try:
+            obj = getattr(mod, d)
+        except:
+            #that's ok, private things cannot be gotten...
+            continue
+        else:
 
-            retType = TYPE_FUNCTION
+            isMet = ismethod(obj)
+            if isMet[0]:
+                info = isMet[1][0]
+                try:
+                    args, vargs, kwargs = info.args, info.varargs, info.kwargs
+                    doc = info.getAsDoc()
+                    r = ''
+                    for a in ( args ):
+                        if len( r ) > 0:
+                            r += ', '
+                        r += formatArg(a)
+                    args = '(%s)' % (r)
+                except TypeError:
+                    print traceback.print_exc()
+                    args = '()'
+    
+                retType = TYPE_FUNCTION
+                
+            elif isclass(obj):
+                retType = TYPE_CLASS
+                
+            elif ismodule(obj):
+                retType = TYPE_IMPORT
         
-        
-        doc = ''
         #add token and doc to return - assure only strings.
         ret.append(   (d, doc, args, str(retType))   )
         
@@ -218,5 +275,3 @@ def GenerateImportsTipForModule( mod ):
     return ret
 
 
-    
-    

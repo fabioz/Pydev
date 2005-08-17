@@ -1,269 +1,282 @@
-'''
-@author Fabio Zadrozny 
-'''
-#ok, let,s fix some things that may not work on jython depending on the version
-try:
-    __setFalse = False
-except NameError:
-    False = 0
-    True = 1
-
+import traceback
+import java.lang
 import sys
-_sys_path = [p for p in sys.path]
 
-_sys_modules = {}
-for name,mod in sys.modules.items():
-    _sys_modules[name] = mod
-    
-from java.lang import Thread
-import time
-import urllib
-import jyimportsTipper
+from org.python.core import PyReflectedFunction
 
+from org.python import core
 
-DEBUG = False
+#completion types.
+TYPE_UNKNOWN = -1
+TYPE_IMPORT = 0
+TYPE_CLASS = 1
+TYPE_FUNCTION = 2
+TYPE_ATTR = 3
+TYPE_BUILTIN = 4
+TYPE_PARAM = 5
 
-def dbg(s):
-    if DEBUG == True:
-        print s
-        
-HOST = '127.0.0.1'               # Symbolic name meaning the local host
+TYPE_BUILTIN_AS_STR = '4'
 
-MSG_KILL_SERVER         = '@@KILL_SERVER_END@@'
-MSG_COMPLETIONS         = '@@COMPLETIONS'
-MSG_END                 = 'END@@'
-MSG_INVALID_REQUEST     = '@@INVALID_REQUEST'
-MSG_CHANGE_DIR          = '@@CHANGE_DIR:'
-MSG_OK                  = '@@MSG_OK_END@@'
-MSG_PROCESSING          = '@@PROCESSING_END@@'
-MSG_PROCESSING_PROGRESS = '@@PROCESSING:%sEND@@'
-MSG_IMPORTS             = '@@IMPORTS:'
-MSG_PYTHONPATH          = '@@PYTHONPATH_END@@'
-MSG_CHANGE_PYTHONPATH   = '@@CHANGE_PYTHONPATH:'
+def _imp(name):
+    try:
+        return __import__(name)
+    except:
+        if '.' in name:
+            sub = name[0:name.rfind('.')]
+            return _imp(sub)
+        else:
+            s = 'Unable to import module: %s - sys.path: %s' % (str(name), sys.path)
+            raise RuntimeError(s)
 
-BUFFER_SIZE = 1024
-
-
-
-currDirModule = None
-
-def CompleteFromDir(dir):
-    '''
-    This is necessary so that we get the imports from the same dir where the file
-    we are completing is located.
-    '''
-    global currDirModule
-    if currDirModule is not None:
-        del sys.path[currDirModule]
-
-    sys.path.insert(0, dir)
-
-
-def ReloadModules():
-    '''
-    Reload all the modules in sys.modules
-    '''
-    sys.modules.clear()
-    for name,mod in _sys_modules.items():
-        sys.modules[name] = mod
-
-def ChangePythonPath(pythonpath):
-    '''Changes the pythonpath (clears all the previous pythonpath)
-    
-    @param pythonpath: string with paths separated by |
-    '''
-    
-    split = pythonpath.split('|')
-    sys.path = []
-    for path in split:
-        path = path.strip()
-        if len(path) > 0:
-            sys.path.append(path)
-    
-class KeepAliveThread( Thread ):
-    def __init__( self, socket ):
-        Thread.__init__( self )
-        self.socket = socket
-        self.processMsgFunc = None
-        self.lastMsg = None
-    
-    def run( self ):
-        time.sleep( 0.1 )
-        while self.lastMsg == None:
+def Find( name ):
+    if name.startswith('__builtin__'):
+        if name == '__builtin__.str':
+            name = 'org.python.core.PyString'
+        elif name == '__builtin__.dict':
+            name = 'org.python.core.PyDictionary'
             
-            if self.processMsgFunc != None:
-                s = MSG_PROCESSING_PROGRESS % urllib.quote_plus( self.processMsgFunc( ) )
-                self.socket.send( s )
-            else:
-                self.socket.send( MSG_PROCESSING )
-            time.sleep( 0.1 )
+    mod = _imp(name)
+    components = name.split('.')
 
-        dbg( 'sending '+ self.lastMsg)
-        self.socket.send( self.lastMsg )
-        
-class T( Thread ):
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
 
-    def __init__( self, thisP, serverP ):
-        Thread.__init__( self )
-        self.thisPort   = thisP
-        self.serverPort = serverP
-        self.socket = None #socket to send messages.
-        
 
-    def connectToServer( self ):
-        import socket
-        
-        self.socket = s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-        s.connect( ( HOST, self.serverPort ) )
-
-    def removeInvalidChars( self, msg ):
-        if msg:
-            return urllib.quote_plus( msg )
-        return ' '
+def GenerateTip( data ):
+    data = data.replace( '\n', '' )
+    if data.endswith( '.' ):
+        data = data.rstrip( '.' )
     
-    def formatCompletionMessage( self, completionsList ):
+    mod = Find( data )
+    tips = GenerateImportsTipForModule( mod )
+    return tips
+    
+
+class Info:
+    
+    def __init__(self, name, **kwargs):
+        self.name = name
+        self.doc = kwargs.get('doc', None)
+        self.args = kwargs.get('args', None) #tuple of strings
+        self.varargs = kwargs.get('varargs', None) #string
+        self.kwargs = kwargs.get('kwargs', None) #string
+        self.ret = kwargs.get('ret', None) #string
+        
+    def basicAsStr(self):
+        '''@returns this class information as a string (just basic format)
         '''
-        Format the completions suggestions in the following format:
-        @@COMPLETIONS((token,description),(token,description),(token,description))END@@
-        '''
-        compMsg = []
-        for tup in completionsList:
-            if len( compMsg ) > 0:
-                compMsg.append( ',' )
+        
+        s = 'function:%s args=%s, varargs=%s, kwargs=%s, docs:%s' % \
+            (str(self.name), str( self.args), str( self.varargs), str( self.kwargs), str( self.doc))
+        return s
+        
+    def getAsDoc(self):
+        s = '''%s
+        
+@doc %s
+
+@params %s
+@varargs %s
+@kwargs %s
+
+@return %s
+''' % (str(self.name), str( self.doc), str( self.args), str( self.varargs), str( self.kwargs), str( self.ret))
+        return s
+        
+def isclass(cls):
+    return isinstance(cls, core.PyClass)
+
+def ismethod(func):
+    '''this function should return the information gathered on a function
+    
+    @param func: this is the function we want to get info on
+    @return a tuple where:
+        0 = indicates whether the parameter passed is a method or not
+        1 = a list of classes 'Info', with the info gathered from the function
+            this is a list because when we have methods from java with the same name and different signatures,
+            we actually have many methods, each with its own set of arguments
+    '''
+    
+    if isinstance(func, core.PyFunction):
+        #ok, this is from python, created by jython
+        #print '    PyFunction'
+        
+        def getargs(func_code):
+            """Get information about the arguments accepted by a code object.
+        
+            Three things are returned: (args, varargs, varkw), where 'args' is
+            a list of argument names (possibly containing nested lists), and
+            'varargs' and 'varkw' are the names of the * and ** arguments or None."""
+        
+            nargs = func_code.co_argcount
+            names = func_code.co_varnames
+            args = list(names[:nargs])
+            step = 0
+        
+            varargs = None
+            if func_code.co_flags & func_code.CO_VARARGS:
+                varargs = func_code.co_varnames[nargs]
+                nargs = nargs + 1
+            varkw = None
+            if func_code.co_flags & func_code.CO_VARKEYWORDS:
+                varkw = func_code.co_varnames[nargs]
+            return args, varargs, varkw
+        
+        args = getargs(func.func_code)
+        return 1, [Info(func.func_name, args = args[0], varargs = args[1],  kwargs = args[2], doc = func.func_doc)]
+        
+    if isinstance(func, core.PyMethod):
+        #this is something from java itself, and jython just wrapped it...
+        
+        #things to play in func:
+        #['__call__', '__class__', '__cmp__', '__delattr__', '__dir__', '__doc__', '__findattr__', '__name__', '_doget', 'im_class',
+        #'im_func', 'im_self', 'toString']
+        #print '    PyMethod'
+        #that's the PyReflectedFunction... keep going to get it
+        func = func.im_func
+
+    if isinstance(func, PyReflectedFunction):
+        #this is something from java itself, and jython just wrapped it...
+        
+        #print '    PyReflectedFunction'
+        
+        infos = []
+        for i in range(len(func.argslist)):
+            #things to play in func.argslist[i]:
                 
-            compMsg.append( '(' )
-            compMsg.append( str( self.removeInvalidChars( tup[0] ) ) ) #token
-            compMsg.append( ',' )
-            compMsg.append( self.removeInvalidChars( tup[1] ) ) #description
-
-            if(len(tup) > 2):
-                compMsg.append( ',' )
-                compMsg.append( self.removeInvalidChars( tup[2] ) ) #args - only if function.
-                
-            if(len(tup) > 3):
-                compMsg.append( ',' )
-                compMsg.append( self.removeInvalidChars( tup[3] ) ) #TYPE
-                
-            compMsg.append( ')' )
-        
-        return '%s(%s)%s'%( MSG_COMPLETIONS, ''.join( compMsg ), MSG_END )
-    
-    def getCompletionsMessage( self, completionsList ):
-        '''
-        get message with completions.
-        '''
-        return self.formatCompletionMessage( completionsList )
-    
-    def getTokenAndData( self, data ):
-        '''
-        When we receive this, we have 'token):data'
-        '''
-        token = ''
-        for c in data:
-            if c != ')':
-                token += c
-            else:
-                break;
-        
-        return token, data.lstrip( token+'):' )
-
-    
-    def run( self ):
-        # Echo server program
-        import socket
-        
-        s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-        s.bind( ( HOST, self.thisPort ) )
-        s.listen( 1 ) #socket to receive messages.
-        
-
-        #we stay here until we are connected.
-        #we only accept 1 client. 
-        #the exit message for the server is @@KILL_SERVER_END@@
-        conn, addr = s.accept( )
-        time.sleep( 0.5 ) #wait a little before connecting to JAVA server
-
-        #after being connected, create a socket as a client.
-        self.connectToServer( )
-        
-        dbg('jycompletionserver Connected by ' + str(addr))
-        
-        
-        while 1:
-            data = ''
-            returnMsg = ''
-            keepAliveThread = KeepAliveThread( self.socket )
+            #'PyArgsCall', 'PyArgsKeywordsCall', 'REPLACE', 'StandardCall', 'args', 'compare', 'compareTo', 'data', 'declaringClass'
+            #'flags', 'isStatic', 'matches', 'precedence']
             
-            while not data.endswith( MSG_END ):
-                data += conn.recv( BUFFER_SIZE )
-                dbg('received data '+str(data))
-
-            dbg('ok, out of the while... treating received msg')
+            #print '        ', func.argslist[i].data.__class__
+            #func.argslist[i].data.__class__ == java.lang.reflect.Method
             
-            try:
+            if func.argslist[i]:
+                met = func.argslist[i].data
+                name = met.getName()
+                ret = met.getReturnType()
+                parameterTypes = met.getParameterTypes()
+                
+                args = []
+                for j in range(len(parameterTypes)):
+                    paramTypesClass = parameterTypes[j]
+                    try:
+                        paramClassName = paramTypesClass.getName()
+                    except:
+                        paramClassName = paramTypesClass.getName(paramTypesClass)
+                    #if the parameter equals [C, it means it it a char array, so, let's change it
+                    if paramClassName == '[C':
+                        paramClassName = 'char[]'
+                    args.append(paramClassName)
+
+                
+                info = Info(name, args = args, ret = ret)
+                #print info.basicAsStr()
+                infos.append(info)
+
+        return 1, infos
+        
+    return 0, None
+
+def ismodule(mod):
+    #java modules... do we have other way to know that?
+    if not hasattr(mod, 'getClass') and not hasattr(mod, '__class__') \
+       and hasattr(mod, '__name__'):
+           return 1
+           
+    return isinstance(mod, core.PyModule)
+
+
+def dirObj(obj):
+    ret = []
+    found = java.util.HashMap()
+
+    if hasattr(obj, '__class__') and obj.__class__ ==  java.lang.Class:
+        declaredMethods = obj.getDeclaredMethods()
+        declaredFields = obj.getDeclaredFields()
+        for i in range(len(declaredMethods)):
+            name = declaredMethods[i].getName()
+            ret.append(name)
+            found.put(name, 1)
+            
+        for i in range(len(declaredFields)):
+            name = declaredFields[i].getName()
+            ret.append(name)
+            found.put(name, 1)
+
+    #this simple dir does not always get all the info, that's why we have the part before
+    #(e.g.: if we do a dir on String, some methods that are from other interfaces such as 
+    #charAt don't appear)
+    d = dir(obj)
+    for name in d:
+        if found.get(name) is not 1:
+            ret.append(name)
+            
+    return ret
+
+
+def formatArg(arg):
+    '''formats an argument to be shown
+    '''
+    
+    s = str( arg )
+    dot = s.rfind('.')
+    if dot >= 0:
+        s = s[dot+1:]
+    
+    s = s.replace(';','')
+    return s
+    
+    
+def GenerateImportsTipForModule( mod ):
+    '''
+    @param mod: the module from where we should get the completions
+    '''
+    ret = []
+    
+    dirComps = dirObj( mod )
+    
+    dontGetDocsOn = (float, int, str, tuple, list, type)
+    for d in dirComps:
+
+        args = ''
+        doc = ''
+        retType = TYPE_BUILTIN
+
+        try:
+            obj = getattr(mod, d)
+        except:
+            #that's ok, private things cannot be gotten...
+            continue
+        else:
+
+            isMet = ismethod(obj)
+            if isMet[0]:
+                info = isMet[1][0]
                 try:
-                    dbg('making test')
-                    if data.find(MSG_KILL_SERVER) != -1:
-                        #break if we received kill message.
-                        break;
-        
-                    dbg('starting keep alive thread')
-                    keepAliveThread.start( )
-                    
-                    if data.find(MSG_PYTHONPATH) != -1:
-                        comps = []
-                        for p in _sys_path:
-                            comps.append( ( p, ' ' ) )
-                        returnMsg = self.getCompletionsMessage( comps )
-
-                    else:
-                        data = data[:data.rfind( MSG_END )]
-                    
-                        if data.startswith( MSG_IMPORTS ):
-                            dbg('ok, generating tips for import msg: '+str(data))
-                            data = data.replace( MSG_IMPORTS, '' )
-                            data = urllib.unquote_plus( data )
-                            comps = jyimportsTipper.GenerateTip( data )
-                            returnMsg = self.getCompletionsMessage( comps )
+                    args, vargs, kwargs = info.args, info.varargs, info.kwargs
+                    doc = info.getAsDoc()
+                    r = ''
+                    for a in ( args ):
+                        if len( r ) > 0:
+                            r += ', '
+                        r += formatArg(a)
+                    args = '(%s)' % (r)
+                except TypeError:
+                    print traceback.print_exc()
+                    args = '()'
     
-                        elif data.startswith( MSG_CHANGE_PYTHONPATH ):
-                            data = data.replace( MSG_CHANGE_PYTHONPATH, '' )
-                            data = urllib.unquote_plus( data )
-                            ChangePythonPath( data )
-                            returnMsg = MSG_OK
-    
-                        elif data.startswith( MSG_CHANGE_DIR ):
-                            data = data.replace( MSG_CHANGE_DIR, '' )
-                            data = urllib.unquote_plus( data )
-                            CompleteFromDir( data )
-                            returnMsg = MSG_OK
-                            
-                        else:
-                            returnMsg = MSG_INVALID_REQUEST
-                except :
-                    dbg('exception ocurred')
-                    import traceback
-                    import StringIO
-
-                    s = StringIO.StringIO( )
-                    exc_info = sys.exc_info( )
-
-                    traceback.print_exception( exc_info[0], exc_info[1], exc_info[2], limit=None, file = s )
-                    returnMsg = self.getCompletionsMessage( [( 'ERROR:', '%s'%( s.getvalue( ) ), '' )] )
-                    dbg('exception ocurred and returned (%s)' % s.getvalue())
+                retType = TYPE_FUNCTION
                 
-            finally:
-                keepAliveThread.lastMsg = returnMsg
+            elif isclass(obj):
+                retType = TYPE_CLASS
+                
+            elif ismodule(obj):
+                retType = TYPE_IMPORT
+        
+        #add token and doc to return - assure only strings.
+        ret.append(   (d, doc, args, str(retType))   )
+        
             
-        conn.close( )
-        self.ended = True
-
-if __name__ == '__main__':
-
-    thisPort = int( sys.argv[1] )  #this is from where we want to receive messages.
-    serverPort = int( sys.argv[2] )#this is where we want to write messages.
-    
-    t = T( thisPort, serverPort )
-    dbg( 'will start' )
-    t.start( )
+    return ret
 
