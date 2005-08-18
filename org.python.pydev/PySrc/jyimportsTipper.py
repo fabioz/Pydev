@@ -39,6 +39,7 @@ def Find( name ):
     components = name.split('.')
 
     for comp in components[1:]:
+        print dir(mod)
         mod = getattr(mod, comp)
     return mod
 
@@ -310,3 +311,7 @@ def GenerateImportsTipForModule( mod ):
     return ret
 
 
+if __name__ == "__main__":
+    import sys
+    sys.path.append(r'D:\dev_programs\eclipse_3\310\eclipse\plugins\org.junit_3.8.1\junit.jar')
+    print Find('junit.framework.TestCase')
