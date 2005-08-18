@@ -245,7 +245,36 @@ def GenerateImportsTipForModule( mod ):
 
         try:
             obj = getattr(mod, d)
-        except:
+        except AttributeError:
+            #jython has a bug in its custom classloader that prevents some things from working correctly, so, let's see if
+            #we can fix that... (maybe fixing it in jython itself would be a better idea, as this is clearly a bug)
+            #for that we need a custom classloader... we have references from it in the below places:
+            #
+            #http://mindprod.com/jgloss/classloader.html
+            #http://www.javaworld.com/javaworld/jw-03-2000/jw-03-classload-p2.html
+            #http://freshmeat.net/articles/view/1643/
+            #
+            #note: this only happens when we add things to the sys.path at runtime, if they are added to the classpath
+            #before the run, everything goes fine.
+            #
+            #The code below ilustrates what I mean... 
+            #
+            #import sys
+            #sys.path.insert(1, r"C:\bin\eclipse310\plugins\org.junit_3.8.1\junit.jar" )
+            #
+            #import junit.framework
+            #print dir(junit.framework) #shows the TestCase class here
+            #
+            #import junit.framework.TestCase 
+            #
+            #raises the error:
+            #Traceback (innermost last):
+            #  File "<console>", line 1, in ?
+            #ImportError: No module named TestCase
+            #
+            #whereas if we had added the jar to the classpath before, everything would be fine by now...
+
+            ret.append(   (d, '', '', str(retType))   )
             #that's ok, private things cannot be gotten...
             continue
         else:
