@@ -50,6 +50,20 @@ public abstract class AbstractShell {
      */
     protected static Map<Integer,Map<Integer,AbstractShell>> shells = new HashMap<Integer,Map<Integer,AbstractShell>>();
     
+    public static void stopServerShell(int relatedId, int id) {
+        Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
+        AbstractShell pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
+        
+        if(pythonShell != null){
+            try {
+                pythonShell.endIt();
+            } catch (Exception e) {
+                // ignore... we are ending it anyway...
+            }
+        }
+    }
+
+    
     /**
      * stops all registered shells 
      *
@@ -99,6 +113,9 @@ public abstract class AbstractShell {
      * @param id the shell id
      * @param shell the shell to register
      * 
+     * @see org.python.pydev.core.IPythonNature#PYTHON_RELATED
+     * @see org.python.pydev.core.IPythonNature#JYTHON_RELATED
+     * 
      * @see #COMPLETION_SHELL
      * @see #OTHERS_SHELL
      */
@@ -117,9 +134,15 @@ public abstract class AbstractShell {
     }
     /**
      * @return the shell with the given id related to some nature
+     * 
+     * @see org.python.pydev.core.IPythonNature#PYTHON_RELATED
+     * @see org.python.pydev.core.IPythonNature#JYTHON_RELATED
+     * 
+     * @see #COMPLETION_SHELL
+     * @see #OTHERS_SHELL
+     * 
      * @throws CoreException
      * @throws IOException
-     * 
      */
     public synchronized static AbstractShell getServerShell(int relatedId, int id) throws IOException, Exception {
         Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
@@ -584,5 +607,5 @@ public abstract class AbstractShell {
         return list;
     }
 
-    
+
 }

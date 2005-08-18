@@ -27,6 +27,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
@@ -35,7 +36,6 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 
@@ -94,6 +94,16 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private List listBuiltins;
 
     boolean changed = false;
+
+    private Composite boxSystem;
+
+    private Button addBtSystemFolder;
+
+    private Button removeBtSystemFolder;
+
+    private Button addBtSystemJar;
+
+    private SelectionListener selectionListenerSystem;
 
     public List getExesList(){
         return listControl;
@@ -201,11 +211,15 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     	
     	Composite control = getTreeLibsControl(parent);
     	gd = new GridData(GridData.FILL_BOTH);
-    	gd.horizontalSpan = numColumns;
+    	gd.horizontalSpan = numColumns - 1;
     	gd.grabExcessHorizontalSpace = true;
     	gd.grabExcessVerticalSpace = true;
     	control.setLayoutData(gd);
 
+    	control = getButtonBoxControlSystem(parent);
+    	gd = new GridData();
+    	gd.verticalAlignment = GridData.BEGINNING;
+    	control.setLayoutData(gd);
     	
     	Label l2 = new Label(parent, SWT.None);
     	l2.setText("Forced builtin libs (check http://pydev.sf.net/faq.html for more info).");
@@ -248,7 +262,40 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     }
 
     /**
-     * Returns this field editor's button box containing the Add, Remove, Up, and Down button.
+     * Returns this field editor's button box containing the Add Source Folder, Add Jar and Remove
+     * 
+     * @param parent the parent control
+     * @return the button box
+     */
+    public Composite getButtonBoxControlSystem(Composite parent) {
+        if (boxSystem == null) {
+            boxSystem = new Composite(parent, SWT.NULL);
+            GridLayout layout = new GridLayout();
+            layout.marginWidth = 0;
+            boxSystem.setLayout(layout);
+            addBtSystemFolder = createBt(boxSystem, "New Folder", getSelectionListenerSystem());//$NON-NLS-1$
+            if(this.interpreterManager.isJython()){
+                addBtSystemJar = createBt(boxSystem, "New Jar", getSelectionListenerSystem());//$NON-NLS-1$
+            }
+            removeBtSystemFolder = createBt(boxSystem, "ListEditor.remove", getSelectionListenerSystem());//$NON-NLS-1$
+            boxSystem.addDisposeListener(new DisposeListener() {
+                public void widgetDisposed(DisposeEvent event) {
+                    addBtSystemJar = null;
+                    addBtSystemFolder = null;
+                    removeBtSystemFolder = null;
+                    boxSystem = null;
+                }
+            });
+            
+        } else {
+            checkParent(boxSystem, parent);
+        }
+        
+        return boxSystem;
+    }
+    
+    /**
+     * Returns this field editor's button box containing the Add and Remove
      * 
      * @param parent the parent control
      * @return the button box
@@ -259,8 +306,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             GridLayout layout = new GridLayout();
             layout.marginWidth = 0;
             box.setLayout(layout);
-            addBtOthers = createBt(box, "ListEditor.add");//$NON-NLS-1$
-            removeBtOthers = createBt(box, "ListEditor.remove");//$NON-NLS-1$
+            addBtOthers = createBt(box, "ListEditor.add", getSelectionListenerOthers());//$NON-NLS-1$
+            removeBtOthers = createBt(box, "ListEditor.remove", getSelectionListenerOthers());//$NON-NLS-1$
             box.addDisposeListener(new DisposeListener() {
                 public void widgetDisposed(DisposeEvent event) {
                     addBtOthers = null;
@@ -275,6 +322,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
         return box;
     }
+
     /**
      * Returns this field editor's selection listener. The listener is created if nessessary.
      * 
@@ -296,6 +344,56 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         return selectionListenerOthers;
     }
 
+    /**
+     * Returns this field editor's selection listener. The listener is created if nessessary.
+     * 
+     * @return the selection listener
+     */
+    private SelectionListener getSelectionListenerSystem() {
+        if (selectionListenerSystem == null){
+            selectionListenerSystem = new SelectionAdapter() {
+                public void widgetSelected(SelectionEvent event) {
+                    if (listControl.getSelectionCount() == 1) {
+                        String executable = listControl.getSelection()[0];
+                        InterpreterInfo info = interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
+
+                    
+                        Widget widget = event.widget;
+                        if (widget == addBtSystemFolder) {
+                            DirectoryDialog dialog = new DirectoryDialog(getShell());
+                            String filePath = dialog.open();
+                            if(filePath != null){
+                                info.libs.add(filePath);
+                                System.out.println("do add folder");
+                            }
+                            
+                        } else if (widget == addBtSystemJar) {
+                            FileDialog dialog = new FileDialog(getShell());
+                            String filePath = dialog.open();
+                            if(filePath != null){
+                                info.libs.add(filePath);
+                                info.dllLibs.add(filePath);
+                                System.out.println("do add jar");
+                            }
+                                
+                        } else if (widget == removeBtSystemFolder) {
+                            TreeItem[] selection = tree.getSelection();
+                            for (int i = 0; i < selection.length; i++) {
+                                TreeItem s = selection[i];
+                                String text = s.getText();
+                                info.libs.remove(text);
+                                info.dllLibs.remove(text);
+                            }
+                            System.out.println("do remove");
+                        }
+                        updateTree();
+                    }
+                }
+            };
+        }
+        return selectionListenerSystem;
+    }
+    
     /**
      * 
      */
@@ -336,9 +434,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      * 
      * @param parent the parent control
      * @param key the resource name used to supply the button's label text
+     * @param listenerToAdd 
      * @return Button
      */
-    private Button createBt(Composite parent, String key) {
+    private Button createBt(Composite parent, String key, SelectionListener listenerToAdd) {
         Button button = new Button(parent, SWT.PUSH);
         button.setText(JFaceResources.getString(key));
         button.setFont(parent.getFont());
@@ -347,7 +446,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         int widthHint = convertHorizontalDLUsToPixels(button, IDialogConstants.BUTTON_WIDTH);
         data.widthHint = Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
         button.setLayoutData(data);
-        button.addSelectionListener(getSelectionListenerOthers());
+        button.addSelectionListener(listenerToAdd);
         return button;
     }
 

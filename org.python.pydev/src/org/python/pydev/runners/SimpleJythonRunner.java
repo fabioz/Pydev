@@ -82,6 +82,7 @@ public class SimpleJythonRunner extends SimpleRunner{
     public String runAndGetOutputWithJar(String script, String jythonJar, String args, File workingDir, IProject project, IProgressMonitor monitor) {
         //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21" 
         //-classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
+        //used just for getting info without any classpath nor pythonpath
         
         try {
             String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
@@ -140,7 +141,7 @@ public class SimpleJythonRunner extends SimpleRunner{
         }
         String executionString = javaLoc +
         " -Dpython.path="+ jythonPath+ 
-        " -classpath "+jythonJar+
+        " -classpath "+jythonJar+pathSeparator+jythonPath+
         " org.python.util.jython "+script;
         return executionString;
     }

@@ -85,7 +85,7 @@ public class PyProjectProperties extends PropertyPage {
                 
                 
 		    	l2 = new Label(topComp, SWT.None);
-		    	l2.setText("External Source Folders and jars.");
+		    	l2.setText("External Source Folders (and jars if jython).");
 		    	gd = new GridData();
 		    	gd.grabExcessHorizontalSpace = true;
 		    	gd.grabExcessVerticalSpace = false;
