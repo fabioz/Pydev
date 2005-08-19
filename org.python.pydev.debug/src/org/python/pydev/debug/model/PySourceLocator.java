@@ -5,15 +5,11 @@
  */
 package org.python.pydev.debug.model;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.ui.ISourcePresentation;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -35,18 +31,18 @@ public class PySourceLocator implements ISourceLocator, ISourcePresentation {
 			IPath path = ((PyStackFrame)element).getPath();
 			if (path != null && !path.toString().startsWith("<")) 
 			{
-		        IWorkspace w = ResourcesPlugin.getWorkspace();		        
-		        IFile file = w.getRoot().getFileForLocation(path);
-		        if (file == null  || !file.exists())
-		        	file = PydevPlugin.linkToExternalFile(path);
-		        edInput = new FileEditorInput(file);
+		        edInput = PydevPlugin.createEditorInput(path);
+                
 			}
 		}
 		return edInput;
 	}
 
+
 	public String getEditorId(IEditorInput input, Object element) {
 		return PyEdit.EDITOR_ID;
 	}
+
+    
 
 }
