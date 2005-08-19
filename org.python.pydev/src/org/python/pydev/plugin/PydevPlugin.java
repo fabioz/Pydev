@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -38,14 +39,17 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.osgi.framework.BundleContext;
+import org.python.copiedfromeclipsesrc.PydevFileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.pychecker.PyCheckerPrefPage;
 import org.python.pydev.builder.pylint.PyLintPrefPage;
 import org.python.pydev.builder.todo.PyTodoPrefPage;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.templates.PyContextType;
@@ -342,13 +346,8 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             return null;
 
         try {
-	        IWorkspace w = ResourcesPlugin.getWorkspace();
-	        
-	        IFile file = w.getRoot().getFileForLocation(path);
-	        
-	        if(plugin == null){
-	        	throw new RuntimeException("plugin cannot be null");
-	        }
+            
+            IEditorInput file = createEditorInput(path);
 	        
 	        final IWorkbench workbench = plugin.getWorkbench();
 	        if(workbench == null){
@@ -357,18 +356,13 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 
 	        IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
 	        if(activeWorkbenchWindow == null){
-	        	// TODO we have to be in a ui thread for this to work... check how to fix it!
-	        	throw new RuntimeException("activeWorkbenchWindow cannot be null");
+	        	throw new RuntimeException("activeWorkbenchWindow cannot be null (we have to be in a ui thread for this to work)");
 	        }
 	        
 			IWorkbenchPage wp = activeWorkbenchWindow.getActivePage();
         
-            if (file != null && file.exists()) {
-                // File is inside the workspace
-                return IDE.openEditor(wp, file, activate);
-            } else {
-                return openExternalFile(path, wp, activate);
-            }
+            // File is inside the workspace
+            return IDE.openEditor(wp, file, PyEdit.EDITOR_ID);
             
         } catch (Exception e) {
             log(IStatus.ERROR, "Unexpected error opening path " + path.toString(), e);
@@ -376,52 +370,87 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         }
     }
 
+    
+    
+    
+
+//  =====================
+//  ===================== ALL BELOW IS COPIED FROM org.eclipse.ui.internal.editors.text.OpenExternalFileAction
+//  =====================
+
     /**
      * @param path
-     * @param wp
-     * @param activate
      * @return
-     * @throws CoreException
      */
-    private static IEditorPart openExternalFile(IPath location, IWorkbenchPage wp, boolean activate) throws CoreException {
-        IFile file = linkToExternalFile(location);
-        if (wp != null)
-            return IDE.openEditor(wp, file, activate);
-        return null;
+    public static IEditorInput createEditorInput(IPath path) {
+        IEditorInput edInput;
+        IWorkspace w = ResourcesPlugin.getWorkspace();      
+        IFile file = w.getRoot().getFileForLocation(path);
+        if (file == null  || !file.exists()){
+            //it is probably an external file
+            File file2 = path.toFile();
+            edInput = createEditorInput(file2);
+        }else{
+            edInput = new FileEditorInput(file);
+        }
+        return edInput;
+    }
 
-        //        IStorage storage = new FileStorage(path);
-        //        IEditorRegistry registry = PlatformUI.getWorkbench().getEditorRegistry();
-        //        IEditorDescriptor desc = registry.getDefaultEditor(path.lastSegment());
-        //        if (desc == null)
-        //        	desc = registry.findEditor(IEditorRegistry.SYSTEM_EXTERNAL_EDITOR_ID);
-        //        IEditorInput input = new ExternalEditorInput(storage);
-        //        return wp.openEditor(input, desc.getId());
+    private static IEditorInput createEditorInput(File file) {
+        IFile workspaceFile= getWorkspaceFile(file);
+        if (workspaceFile != null)
+            return new FileEditorInput(workspaceFile);
+        return new PydevFileEditorInput(file);
+    }
+
+    private static IFile getWorkspaceFile(File file) {
+        IWorkspace workspace= ResourcesPlugin.getWorkspace();
+        IPath location= Path.fromOSString(file.getAbsolutePath());
+        IFile[] files= workspace.getRoot().findFilesForLocation(location);
+        files= filterNonExistentFiles(files);
+        if (files == null || files.length == 0){
+            return null;
+        }
+        
+        if (files.length > 1){
+            return files[0];
+        } else {
+            return null;
+        }
+        //we are out of the loop from the interface when this is called
+//        if (files.length == 1)
+//            return files[0];
+//        return selectWorkspaceFile(files);
     }
     
-    /**
-	 * imports the file into project called "External Files"
-	 */
-	public static IFile linkToExternalFile(IPath location) 
-	{
-		IFile file = null;
-		try {
-			IWorkspace ws = ResourcesPlugin.getWorkspace();
-			IProject project = ws.getRoot().getProject("External Files");
-			if (!project.exists())
-				project.create(null);
-			if (!project.isOpen())
-				project.open(null);
 
-			file = project.getFile(location.lastSegment());
-			file.createLink(location, IResource.NONE, null);
-			return file;
-		} catch (CoreException e) {
-			// That's OK
-			// org.eclipse.core.internal.resources.ResourceException: Resource
-			// /External Files/GUITest.py already exists.
-		}
-		return file;
-	}
+    private static IFile[] filterNonExistentFiles(IFile[] files){
+        if (files == null)
+            return null;
+
+        int length= files.length;
+        ArrayList existentFiles= new ArrayList(length);
+        for (int i= 0; i < length; i++) {
+            if (files[i].exists())
+                existentFiles.add(files[i]);
+        }
+        return (IFile[])existentFiles.toArray(new IFile[existentFiles.size()]);
+    }
+//    private IFile selectWorkspaceFile(IFile[] files) {
+//        ElementListSelectionDialog dialog= new ElementListSelectionDialog(fWindow.getShell(), new FileLabelProvider());
+//        dialog.setElements(files);
+//        dialog.setTitle(TextEditorMessages.OpenExternalFileAction_title_selectWorkspaceFile);
+//        dialog.setMessage(TextEditorMessages.OpenExternalFileAction_message_fileLinkedToMultiple);
+//        if (dialog.open() == Window.OK)
+//            return (IFile) dialog.getFirstResult();
+//        return null;
+//    }
+
+    
+//  =====================
+//  ===================== END COPY FROM org.eclipse.ui.internal.editors.text.OpenExternalFileAction
+//  =====================
+
 
     /**
 	 * Returns this plug-in's template store.
