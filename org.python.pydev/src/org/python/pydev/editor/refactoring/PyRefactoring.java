@@ -14,6 +14,7 @@ import java.util.StringTokenizer;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.model.ItemPointer;
@@ -75,6 +76,8 @@ public class PyRefactoring extends AbstractPyRefactoring {
      * @return
      */
     private String makeAction(String str, Operation operation, PyEdit editor){
+        PyRefactorAction.checkAvailableForRefactoring(editor);
+
         AbstractShell pytonShell;
         try {
             pytonShell = AbstractShell.getServerShell(editor.getPythonNature(), AbstractShell.OTHERS_SHELL);

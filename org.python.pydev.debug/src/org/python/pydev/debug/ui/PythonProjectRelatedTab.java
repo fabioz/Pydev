@@ -194,10 +194,14 @@ public class PythonProjectRelatedTab extends AbstractLaunchConfigurationTab {
         this.pythonpath.removeAll();
         IProject project = getProjectFromTextWidget();
         IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
-        java.util.List paths = pythonPathNature.getCompleteProjectPythonPath();
-        for (Iterator iter = paths.iterator(); iter.hasNext();) {
-            String element = (String) iter.next();
-            this.pythonpath.add(element);
+        if(pythonPathNature != null){
+            java.util.List paths = pythonPathNature.getCompleteProjectPythonPath();
+            for (Iterator iter = paths.iterator(); iter.hasNext();) {
+                String element = (String) iter.next();
+                this.pythonpath.add(element);
+            }
+        }else{
+            this.pythonpath.add("Unable to get the pythonpath associated with the current project for the run (no pydev nature associated).");
         }
     }
 

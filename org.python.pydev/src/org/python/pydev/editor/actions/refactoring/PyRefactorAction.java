@@ -8,6 +8,7 @@ package org.python.pydev.editor.actions.refactoring;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -33,6 +34,7 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.views.PyRefactorView;
 
 /**
@@ -57,8 +59,8 @@ public abstract class PyRefactorAction extends PyAction {
             this.action = action;
         }
 
-        protected void execute(IProgressMonitor monitor) throws CoreException,
-                InvocationTargetException, InterruptedException {
+        protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
+                InterruptedException {
 
             try {
                 this.monitor = monitor;
@@ -77,10 +79,8 @@ public abstract class PyRefactorAction extends PyAction {
      * @param msg
      */
     protected String getInput(PyEdit edit, String msg) {
-        InputDialog d = new InputDialog(getPyEditShell(), "Refactoring", msg,
-                getDefaultValue(), null);
-        
-        
+        InputDialog d = new InputDialog(getPyEditShell(), "Refactoring", msg, getDefaultValue(), null);
+
         int retCode = d.open();
         if (retCode == InputDialog.OK) {
             return d.getValue();
@@ -96,8 +96,7 @@ public abstract class PyRefactorAction extends PyAction {
     }
 
     private void refreshEditor(PyEdit edit) throws CoreException {
-        IFile file = (IFile) ((FileEditorInput) edit.getEditorInput())
-                .getAdapter(IFile.class);
+        IFile file = (IFile) ((FileEditorInput) edit.getEditorInput()).getAdapter(IFile.class);
         file.refreshLocal(IResource.DEPTH_INFINITE, null);
     }
 
@@ -107,16 +106,13 @@ public abstract class PyRefactorAction extends PyAction {
      */
     protected void refreshEditors(PyEdit edit) throws CoreException {
         refreshEditor(edit);
-        
-
 
         IWorkbenchPage[] pages = workbenchWindow.getPages();
         for (int i = 0; i < pages.length; i++) {
-            IEditorReference[] editorReferences = pages[i]
-                    .getEditorReferences();
+            IEditorReference[] editorReferences = pages[i].getEditorReferences();
 
             IViewReference[] viewReferences = pages[i].getViewReferences();
-            
+
             for (int j = 0; j < editorReferences.length; j++) {
                 IEditorPart ed = editorReferences[j].getEditor(false);
                 if (ed instanceof PyEdit) {
@@ -130,42 +126,47 @@ public abstract class PyRefactorAction extends PyAction {
                 }
             }
 
-        
             for (int j = 0; j < viewReferences.length; j++) {
                 IWorkbenchPart view = viewReferences[j].getPart(false);
-                if(view instanceof PyRefactorView){
-                  view = viewReferences[j].getPart(true);
-                  PyRefactorView e = (PyRefactorView) view;
+                if (view instanceof PyRefactorView) {
+                    view = viewReferences[j].getPart(true);
+                    PyRefactorView e = (PyRefactorView) view;
                     e.refresh();
                 }
             }
 
         }
-        
+
     }
 
     /**
      * @param edit
      */
     protected boolean areRefactorPreconditionsOK(PyEdit edit) {
-        workbenchWindow = PlatformUI.getWorkbench()
-                .getActiveWorkbenchWindow();
-        IEditorPart[] dirtyEditors = workbenchWindow.getActivePage()
-                .getDirtyEditors();
+        try {
+            checkAvailableForRefactoring(edit);
+        } catch (Exception e) {
+            ErrorDialog.openError(null, "Error", "Unable to do requested action", 
+                    new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, e.getMessage(), null));
+            return false;
+        }
+        
+        
+        workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+
+        IEditorPart[] dirtyEditors = workbenchWindow.getActivePage().getDirtyEditors();
 
         boolean saveEditors = false;
         if (dirtyEditors.length > 0) {
-            saveEditors = MessageDialog
-                    .openQuestion(getPyEditShell(), "Save All?",
-                            "All the editors must be saved to make this operation.\nIs it ok to save them?");
+            saveEditors = MessageDialog.openQuestion(getPyEditShell(), "Save All?",
+                    "All the editors must be saved to make this operation.\nIs it ok to save them?");
             if (saveEditors == false) {
                 return false;
             }
         }
 
         if (saveEditors) {
-            boolean editorsSaved = workbenchWindow.getActivePage()
-                    .saveAllEditors(false);
+            boolean editorsSaved = workbenchWindow.getActivePage().saveAllEditors(false);
             if (!editorsSaved) {
                 return false;
             }
@@ -224,8 +225,7 @@ public abstract class PyRefactorAction extends PyAction {
         final String nameUsed = name;
         Operation operation = new Operation(nameUsed, action);
 
-        ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(
-                getPyEditShell());
+        ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(getPyEditShell());
         monitorDialog.setBlockOnOpen(false);
         try {
             monitorDialog.run(true, false, operation);
@@ -246,16 +246,13 @@ public abstract class PyRefactorAction extends PyAction {
             String[] strings = operation.statusOfOperation.split("DETAILS:");
 
             if (strings.length == 2) {
-                
-                IStatus status = new Status(IStatus.ERROR, PydevPlugin
-                        .getPluginID(), 0, strings[0],
+
+                IStatus status = new Status(IStatus.ERROR, PydevPlugin.getPluginID(), 0, strings[0],
                         new Exception(strings[0]));
-            
-                ErrorDialog.openError(getPyEditShell(), "ERROR", strings[0],
-                        status);
+
+                ErrorDialog.openError(getPyEditShell(), "ERROR", strings[0], status);
             } else {
-                MessageDialog.openError(getPyEditShell(), "ERROR",
-                        operation.statusOfOperation);
+                MessageDialog.openError(getPyEditShell(), "ERROR", operation.statusOfOperation);
             }
             throw new RuntimeException(strings[1]);
         }
@@ -292,12 +289,31 @@ public abstract class PyRefactorAction extends PyAction {
      * @return the status returned by the server for the refactoring.
      * @throws Exception
      */
-    protected abstract String perform(IAction action, String name,
-            Operation operation) throws Exception;
+    protected abstract String perform(IAction action, String name, Operation operation) throws Exception;
 
     /**
      * 
      * @return null if no input message is needed.
      */
     protected abstract String getInputMessage();
+
+    /**
+     * should throw an exception if we cannot do a refactoring in this editor.
+     * 
+     * @param editor
+     */
+    public static void checkAvailableForRefactoring(PyEdit editor) {
+        IProject project = editor.getProject();
+        PythonNature pythonNature = PythonNature.getPythonNature(project);
+        if(pythonNature == null){
+            throw new RuntimeException("Unable to do refactor because the file is an a project that does not have the pydev nature configured.");
+        }
+        try {
+            if(!pythonNature.isPython()){
+                throw new RuntimeException("Can only do actions dependent on Bycicle Repair Man in Python projects.");
+            }
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

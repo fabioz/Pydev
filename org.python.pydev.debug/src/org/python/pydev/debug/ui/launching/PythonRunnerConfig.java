@@ -389,8 +389,8 @@ public class PythonRunnerConfig {
 
             //some nice things on the classpath config: http://mindprod.com/jgloss/classpath.html
             cmdArgs.add("-classpath");
-            cmdArgs.add(interpreter+SimpleRunner.getPythonPathSeparator()+"%PYTHONPATH%");
-            cmdArgs.add("-Dpython.path=%PYTHONPATH%"); //will be added to the env variables in the run (check if this works on all platforms...)
+            cmdArgs.add(interpreter+SimpleRunner.getPythonPathSeparator()+pythonpathUsed);
+            cmdArgs.add("-Dpython.path="+pythonpathUsed); //will be added to the env variables in the run (check if this works on all platforms...)
             cmdArgs.add("org.python.util.jython");
             
             if (isDebug) {

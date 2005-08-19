@@ -4,13 +4,16 @@
  */
 package org.python.pydev.editor.actions;
 
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Fabio Zadrozny
@@ -19,6 +22,13 @@ import org.python.pydev.editor.refactoring.IPyRefactoring;
 public class PyGoToDefinition extends PyRefactorAction {
 
     protected boolean areRefactorPreconditionsOK(PyEdit edit) {
+        try {
+            checkAvailableForRefactoring(edit);
+        } catch (Exception e) {
+            ErrorDialog.openError(null, "Error", "Unable to do requested action", 
+                    new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, e.getMessage(), null));
+            return false;
+        }
 
         if (edit.isDirty())
             edit.doSave(null);
@@ -46,12 +56,15 @@ public class PyGoToDefinition extends PyRefactorAction {
                 return;
             }
 
-            if (where.length > 0)
+            if (where.length > 0){
                 openAction.run(where[0]);
-            else
+            } else {
                 PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            ErrorDialog.openError(null, "Error", "Unable to do requested action", 
+                    new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, e.getMessage(), null));
+            
         }
     }
 

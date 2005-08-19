@@ -6,6 +6,8 @@
  */
 package org.python.pydev.debug.ui;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -48,6 +50,28 @@ public class MainTab extends AbstractLaunchConfigurationTab {
     
     protected ModifyListener modifyListener = new ModifyListener() {
         public void modifyText(ModifyEvent e) {
+            if(e.getSource() == locationField){
+                File file = new File(locationField.getText());
+                if(!file.exists()){
+                    setErrorMessage("The file in the location does not exist.");
+                }
+                if(!file.isFile()){
+                    setErrorMessage("The file in the location is not actually a file.");
+                }
+                
+            }else if(e.getSource() == baseDirectoryField){
+                File file = new File(locationField.getText());
+                if(!file.exists()){
+                    setErrorMessage("The directory in the Base Directory does not exist.");
+                }
+                if(!file.isDirectory()){
+                    setErrorMessage("The directory in the location is not actually a directory.");
+                }
+                
+                
+            }else if(e.getSource() == programArgumentField){
+                
+            }
             updateLaunchConfigurationDialog();
         }
     };
@@ -158,7 +182,7 @@ public class MainTab extends AbstractLaunchConfigurationTab {
         data = new GridData ();
         data.horizontalAlignment = GridData.FILL;
         data.horizontalSpan = 2;
-        interpreterComboField .setLayoutData (data);
+        interpreterComboField.setLayoutData (data);
         interpreterComboField.addModifyListener(modifyListener);
 
         button = new Button (comp, SWT.NONE);
