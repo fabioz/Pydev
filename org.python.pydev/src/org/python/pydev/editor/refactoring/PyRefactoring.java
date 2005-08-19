@@ -40,7 +40,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         try {
             AbstractShell.getServerShell(IPythonNature.PYTHON_RELATED, AbstractShell.OTHERS_SHELL); //when we initialize, initialize the server.
         } catch (Exception e) {
-            e.printStackTrace();
+            //for the refactoring, we just let it pass...
         }
     }
 

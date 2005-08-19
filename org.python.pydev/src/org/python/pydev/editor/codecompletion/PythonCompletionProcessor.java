@@ -81,11 +81,12 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             //Get code completion proposals
             if(PyCodeCompletionPreferencesPage.useCodeCompletion()){
 	            try {
+                    //change the dir in the shell (so that we can ask for relative imports)... this might or not be used,
+                    //but we have to do it before the completion process begins
 	                AbstractShell.getServerShell(edit.getPythonNature(), AbstractShell.COMPLETION_SHELL).sendGoToDirMsg(edit.getEditorFile());
 	            } catch (Exception e) {
 	                //if we don't suceed, we don't have to fail... just go on and try
 	                // to complete...
-                    PydevPlugin.log(e);
 	            }
 	
                 Object[] objects = new Object[]{new ArrayList(), new Boolean(true)};

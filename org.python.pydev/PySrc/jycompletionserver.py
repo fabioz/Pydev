@@ -25,7 +25,7 @@ DEBUG = False
 
 def dbg(s):
     if DEBUG == True:
-        print s
+        print 'JY_SERVER', s
         
 HOST = '127.0.0.1'               # Symbolic name meaning the local host
 

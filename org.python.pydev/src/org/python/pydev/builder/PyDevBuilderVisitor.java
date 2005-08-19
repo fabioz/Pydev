@@ -22,6 +22,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.MarkerUtilities;
+import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
@@ -74,8 +75,11 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
         IProject project = resource.getProject();
         PythonNature nature = PythonNature.getPythonNature(project);
         if(project != null && nature != null){
-            ProjectModulesManager modulesManager = nature.getAstManager().getProjectModulesManager();
-            return modulesManager.isInPythonPath(resource, project);
+            ICodeCompletionASTManager astManager = nature.getAstManager();
+            if(astManager != null){
+                ProjectModulesManager modulesManager = astManager.getProjectModulesManager();
+                return modulesManager.isInPythonPath(resource, project);
+            }
         }
 
         return false;

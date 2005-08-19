@@ -20,7 +20,7 @@ DEBUG = 0
 
 def dbg(s):
     if DEBUG:
-        print s
+        print 'TEST', s
 
 class Test(unittest.TestCase):
 
@@ -71,12 +71,24 @@ class Test(unittest.TestCase):
             completions = self.readMsg()
             dbg( urllib.unquote_plus(completions))
             
-            
             start = '@@COMPLETIONS(('
             self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % ( completions, start) )
-    
             self.assert_(completions.find('@@COMPLETIONS') != -1)
             self.assert_(completions.find('END@@') != -1)
+
+
+            msg = urllib.quote_plus('__builtin__.s')
+            toWrite = '@@IMPORTS:%sEND@@'%msg
+            dbg( 'writing' + str(toWrite))
+            sToWrite.send(toWrite) #math completions
+            completions = self.readMsg()
+            dbg( urllib.unquote_plus(completions))
+            
+            start = '@@COMPLETIONS('
+            self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % ( completions, start) )
+            self.assert_(completions.find('@@COMPLETIONS') != -1)
+            self.assert_(completions.find('END@@') != -1)
+
 
         
         finally:
@@ -120,10 +132,13 @@ class Test(unittest.TestCase):
     def readMsg(self):
         msg = '@@PROCESSING_END@@'
         while msg.startswith('@@PROCESSING'):
-            msg = self.connToRead.recv(1024*4)
+            msg = self.connToRead.recv(1024)
             if msg.startswith('@@PROCESSING:'):
                 dbg( 'Status msg:' + str(msg))
-
+        
+        while msg.find('END@@') == -1:
+            msg += self.connToRead.recv(1024)
+        
         return msg
         
     def sendKillMsg(self, socket):

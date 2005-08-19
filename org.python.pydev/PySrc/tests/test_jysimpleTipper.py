@@ -87,13 +87,20 @@ class TestMod(unittest.TestCase):
 
         tup = self.assertIn('format'          , tip)
         self.assertEquals(str(jyimportsTipper.TYPE_FUNCTION), tup[3])
-        self.assertEquals('(String, Object)', tup[2])
+        self.assertEquals('(string, objectArray)', tup[2])
+        self.assert_(tup[1].find('[Ljava.lang.Object;') == -1)
+
+        tup = self.assertIn('getBytes'          , tip)
+        self.assertEquals(str(jyimportsTipper.TYPE_FUNCTION), tup[3])
+        self.assert_(tup[1].find('[B') == -1)
+        self.assert_(tup[1].find('byte[]') != -1)
 
         tip = jyimportsTipper.GenerateTip('__builtin__.str')
         self.assertIn('find'          , tip)
 
         tip = jyimportsTipper.GenerateTip('__builtin__.dict')
         self.assertIn('get'          , tip)
+
 
 import org.python.core.PyDictionary
 class TestCompl(unittest.TestCase):

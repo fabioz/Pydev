@@ -29,6 +29,19 @@ import org.python.pydev.plugin.SocketUtil;
 
 public abstract class AbstractShell {
 
+    public static final int BUFFER_SIZE = 1024 ;
+    public static final int OTHERS_SHELL = 2;
+    public static final int COMPLETION_SHELL = 1;
+    protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000;
+    protected static final boolean DEBUG_SHELL = false;
+
+
+    private void dbg(Object string) {
+        if(DEBUG_SHELL){
+            System.out.println(string);
+        }
+    }
+
     /**
      * the encoding used to encode messages
      */
@@ -87,12 +100,6 @@ public abstract class AbstractShell {
         }
         shells.clear();
     }
-
-    public static final int BUFFER_SIZE = 1024 ;
-    public static final int OTHERS_SHELL = 2;
-    public static final int COMPLETION_SHELL = 1;
-    protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000;
-    private static final boolean DEBUG_SHELL = false;
 
     /**
      * @param relatedId the id that is related to the structure we want to get
@@ -243,7 +250,7 @@ public abstract class AbstractShell {
             }
             
             String execMsg = createServerProcess(pWrite, pRead);
-            System.out.println("executing "+execMsg);
+            dbg("executing "+execMsg);
             
             sleepALittle(200);
             String osName = System.getProperty("os.name");
@@ -306,6 +313,8 @@ public abstract class AbstractShell {
             throw e;
         }
     }
+
+
 
     /**
      * @param pWrite the port where we should write
@@ -403,9 +412,7 @@ public abstract class AbstractShell {
      */
     protected String read() throws IOException {
         String r = read(null);
-        if(DEBUG_SHELL){
-            System.out.println("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r,ENCODING_UTF_8),ENCODING_UTF_8));
-        }
+        dbg("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r,ENCODING_UTF_8),ENCODING_UTF_8));
         return r;
     }
 
@@ -414,9 +421,7 @@ public abstract class AbstractShell {
      * @throws IOException
      */
     public void write(String str) throws IOException {
-        if(DEBUG_SHELL){
-            System.out.println("WRITING:"+str);
-        }
+        dbg("WRITING:"+str);
         this.socketToWrite.getOutputStream().write(str.getBytes());
     }
 
@@ -595,10 +600,8 @@ public abstract class AbstractShell {
             if(tokenizer.hasMoreTokens())
                 type = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
   
-            if(DEBUG_SHELL){
-                System.out.println(token);
-                System.out.println(description);
-            }
+            dbg(token);
+            dbg(description);
 
             if(!token.equals("ERROR:")){
                 list.add(new String[]{token, description, args, type});

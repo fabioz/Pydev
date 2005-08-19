@@ -1,3 +1,5 @@
+from java.lang import StringBuffer
+from java.lang import String
 import traceback
 import java.lang
 import sys
@@ -39,9 +41,24 @@ def Find( name ):
     components = name.split('.')
 
     for comp in components[1:]:
-        print dir(mod)
         mod = getattr(mod, comp)
     return mod
+
+def formatParamClassName(paramClassName):
+    if paramClassName.startswith('['):
+        if paramClassName == '[C':
+            paramClassName = 'char[]'
+        
+        elif paramClassName == '[B':
+            paramClassName = 'byte[]'
+        
+        elif paramClassName == '[I':
+            paramClassName = 'int[]'
+            
+        elif paramClassName.startswith('[L') and paramClassName.endswith(';'):
+            paramClassName = paramClassName[2:-1]
+            paramClassName += '[]'
+    return paramClassName
 
 
 def GenerateTip( data ):
@@ -72,18 +89,31 @@ class Info:
             (str(self.name), str( self.args), str( self.varargs), str( self.kwargs), str( self.doc))
         return s
         
+
     def getAsDoc(self):
-        s = '''%s
+        s = str(self.name)
+        if self.doc:
+            s+='\n@doc %s\n' % str(self.doc)
+            
+        if self.args:
+            s+='\n@params '
+            for arg in self.args:
+                s+=str(formatParamClassName(arg))
+                s+='  '
         
-@doc %s
-
-@params %s
-@varargs %s
-@kwargs %s
-
-@return %s
-''' % (str(self.name), str( self.doc), str( self.args), str( self.varargs), str( self.kwargs), str( self.ret))
-        return s
+        if self.varargs:
+            s+='\n@varargs '
+            s+=str(self.varargs)
+            
+        if self.kwargs:
+            s+='\n@kwargs '
+            s+=str(self.kwargs)
+            
+        if self.ret:
+            s+='\n@return '
+            s+=str(formatParamClassName(str(self.ret)))
+            
+        return str(s)
         
 def isclass(cls):
     return isinstance(cls, core.PyClass)
@@ -166,9 +196,15 @@ def ismethod(func):
                     except:
                         paramClassName = paramTypesClass.getName(paramTypesClass)
                     #if the parameter equals [C, it means it it a char array, so, let's change it
-                    if paramClassName == '[C':
-                        paramClassName = 'char[]'
-                    args.append(paramClassName)
+
+                    a = formatParamClassName(paramClassName)
+                    #a = a.replace('[]','Array')
+                    #a = a.replace('Object', 'obj')
+                    #a = a.replace('String', 's')
+                    #a = a.replace('Integer', 'i')
+                    #a = a.replace('Char', 'c')
+                    #a = a.replace('Double', 'd')
+                    args.append(a) #so we don't leave invalid code
 
                 
                 info = Info(name, args = args, ret = ret)
@@ -226,6 +262,11 @@ def formatArg(arg):
         s = s[dot+1:]
     
     s = s.replace(';','')
+    s = s.replace('[]','Array')
+    if len(s) > 0:
+        c = s[0].lower()
+        s =  c + s[1:]
+
     return s
     
     
