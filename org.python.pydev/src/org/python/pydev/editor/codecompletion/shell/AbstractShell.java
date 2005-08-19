@@ -250,7 +250,7 @@ public abstract class AbstractShell {
             }
             
             String execMsg = createServerProcess(pWrite, pRead);
-            dbg("executing "+execMsg);
+            //dbg("executing "+execMsg);
             
             sleepALittle(200);
             String osName = System.getProperty("os.name");
@@ -412,7 +412,7 @@ public abstract class AbstractShell {
      */
     protected String read() throws IOException {
         String r = read(null);
-        dbg("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r,ENCODING_UTF_8),ENCODING_UTF_8));
+        //dbg("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r,ENCODING_UTF_8),ENCODING_UTF_8));
         return r;
     }
 
@@ -421,7 +421,7 @@ public abstract class AbstractShell {
      * @throws IOException
      */
     public void write(String str) throws IOException {
-        dbg("WRITING:"+str);
+        //dbg("WRITING:"+str);
         this.socketToWrite.getOutputStream().write(str.getBytes());
     }
 
@@ -600,8 +600,8 @@ public abstract class AbstractShell {
             if(tokenizer.hasMoreTokens())
                 type = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
   
-            dbg(token);
-            dbg(description);
+            //dbg(token);
+            //dbg(description);
 
             if(!token.equals("ERROR:")){
                 list.add(new String[]{token, description, args, type});
