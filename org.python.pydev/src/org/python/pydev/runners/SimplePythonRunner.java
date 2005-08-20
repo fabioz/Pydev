@@ -42,12 +42,8 @@ public class SimplePythonRunner extends SimpleRunner {
      * 
      * @return a string with the output of the process (stdout)
      */
-    public String runAndGetOutput(String script, String args, File workingDir, IProject project) {
-        
-        script = formatParamToExec(script);
-
+    public String runAndGetOutput(String script, String[] args, File workingDir, IProject project) {
         String executionString = makeExecutableCommandStr(script, args);
-        //System.out.println(executionString);
         return runAndGetOutput(executionString, workingDir, project);
     }
 
@@ -56,10 +52,14 @@ public class SimplePythonRunner extends SimpleRunner {
      * @param args the arguments to be passed to the script
      * @return the string with the command to run the passed script with jython
      */
-    public static String makeExecutableCommandStr(String script, String args) {
-        script = formatParamToExec(script);
+    public static String makeExecutableCommandStr(String script, String[] args) {
+        String[] s = new String[]{
+            PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter() , 
+            "-u" ,
+            script ,
+        };
 
-        return PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter() + " -u " + script + " " + args;
+        return getCommandLineAsString(s, args);
     }
 
     /**
@@ -74,21 +74,18 @@ public class SimplePythonRunner extends SimpleRunner {
      * 
      * @return the stdout of the run (if any)
      */
-    public String runAndGetOutputWithInterpreter(String interpreter, String script, String args, File workingDir, IProject project, IProgressMonitor monitor) {
+    public String runAndGetOutputWithInterpreter(String interpreter, String script, String[] args, File workingDir, IProject project, IProgressMonitor monitor) {
         monitor.setTaskName("Mounting executable string...");
         monitor.worked(5);
         
-        script = formatParamToExec(script);
+        String[] s = new String[]{
+            interpreter, 
+            "-u" ,
+            script ,
+        };
 
-        String executionString;
-        if(args != null){
-            executionString = interpreter + " -u " + script + " " + args;
-        }else{
-            executionString = interpreter + " -u " + script;
-        }
         monitor.worked(1);
-        //System.out.println(executionString);
-        return runAndGetOutput(executionString, workingDir, project, monitor);
+        return runAndGetOutput(getCommandLineAsString(s,args), workingDir, project, monitor);
     }
 
 
@@ -109,9 +106,9 @@ public class SimplePythonRunner extends SimpleRunner {
         monitor.worked(5);
         Process process = null;
         try {
-	        monitor.setTaskName("Making pythonpath environment...");
+	        monitor.setTaskName("Making pythonpath environment..."+executionString);
 	    	String[] envp = getEnvironment(project);
-	        monitor.setTaskName("Making exec.");
+	        monitor.setTaskName("Making exec..."+executionString);
 	        process = Runtime.getRuntime().exec(executionString, envp, workingDir);
         } catch (Exception e) {
             throw new RuntimeException(e);

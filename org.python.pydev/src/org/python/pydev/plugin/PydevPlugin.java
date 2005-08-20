@@ -44,13 +44,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.osgi.framework.BundleContext;
 import org.python.copiedfromeclipsesrc.PydevFileEditorInput;
-import org.python.pydev.builder.PyDevBuilderPrefPage;
-import org.python.pydev.builder.pychecker.PyCheckerPrefPage;
-import org.python.pydev.builder.pylint.PyLintPrefPage;
-import org.python.pydev.builder.todo.PyTodoPrefPage;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -114,6 +109,8 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     /** Key to store custom templates. */
     private static final String CUSTOM_TEMPLATES_PY_KEY = "org.python.pydev.editor.templates.PyTemplatePreferencesPage";
 
+    public static final String DEFAULT_PYDEV_SCOPE = "org.python.pydev";
+
 
     /**
      * The constructor.
@@ -155,7 +152,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             }
             
         }.schedule();
-
+        
     }
     
 
@@ -228,17 +225,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     public ResourceBundle getResourceBundle() {
         return resourceBundle;
     }
-
-    protected void initializeDefaultPluginPreferences() {
-        PydevPrefs.initializeDefaultPreferences(getPluginPreferences());
-        PyCodeCompletionPreferencesPage.initializeDefaultPreferences(getPluginPreferences());
-        PyCheckerPrefPage.initializeDefaultPreferences(getPluginPreferences());
-        PyLintPrefPage.initializeDefaultPreferences(getPluginPreferences());
-        PyTodoPrefPage.initializeDefaultPreferences(getPluginPreferences());
-        PyDevBuilderPrefPage.initializeDefaultPreferences(getPluginPreferences());
-        PyCodeFormatterPage.initializeDefaultPreferences(getPluginPreferences());
-    }
-
     
     
     public void propertyChange(Preferences.PropertyChangeEvent event) {
@@ -429,7 +415,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             return null;
 
         int length= files.length;
-        ArrayList existentFiles= new ArrayList(length);
+        ArrayList<IFile> existentFiles= new ArrayList<IFile>(length);
         for (int i= 0; i < length; i++) {
             if (files[i].exists())
                 existentFiles.add(files[i]);
@@ -525,7 +511,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @param file
      * @return tuple with files in pos 0 and folders in pos 1
      */
-    public static List[] getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs) {
+    public static List<File>[] getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs) {
         return getPyFilesBelow(file, monitor, true, true);
     }
     /**
@@ -534,7 +520,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @param file
      * @return tuple with files in pos 0 and folders in pos 1
      */
-    public static List[] getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs, boolean checkHasInit) {
+    public static List<File>[] getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs, boolean checkHasInit) {
         FileFilter filter = new FileFilter() {
     
             public boolean accept(File pathname) {
@@ -549,11 +535,11 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
 
-    public static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean checkHasInit) {
+    public static List<File>[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean checkHasInit) {
         return getPyFilesBelow(file, filter, monitor, true, checkHasInit);
     }
     
-    public static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, boolean checkHasInit) {
+    public static List<File>[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, boolean checkHasInit) {
         return getPyFilesBelow(file, filter, monitor, addSubFolders, 0, checkHasInit);
     }
     /**
@@ -563,12 +549,12 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @param addSubFolders: indicates if sub-folders should be added
      * @return tuple with files in pos 0 and folders in pos 1
      */
-    private static List[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, int level, boolean checkHasInit) {
+    private static List<File>[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, int level, boolean checkHasInit) {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
-        List filesToReturn = new ArrayList();
-        List folders = new ArrayList();
+        List<File> filesToReturn = new ArrayList<File>();
+        List<File> folders = new ArrayList<File>();
 
         if (file.exists() == true) {
 
@@ -583,7 +569,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 
                 boolean hasInit = false;
 
-                List foldersLater = new LinkedList();
+                List<File> foldersLater = new LinkedList<File>();
                 
                 for (int i = 0; i < files.length; i++) {
                     File file2 = files[i];
@@ -626,6 +612,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
                 throw new RuntimeException("Not dir nor file... what is it?");
             }
         }
+        
         return new List[] { filesToReturn, folders };
 
     }

@@ -27,6 +27,7 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimplePythonRunner;
 
 /**
@@ -142,17 +143,24 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
          * @throws CoreException
          */
         private void passPyLint(IResource resource) throws CoreException {
-            File script;
-            script = PydevPlugin.getScriptWithinPySrc("ThirdParty/logilab/pylint/lint.py");
+            File script = new File(PyLintPrefPage.getPyLintLocation());
             File arg = new File(location.toOSString());
 
-            String lintargs = " --include-ids=y ";
-            lintargs += PyLintPrefPage.getPylintArgs().replaceAll("\r","").replaceAll("\n"," ");
-            lintargs += " ";
+            ArrayList<String> list = new ArrayList<String>();
+            list.add("--include-ids=y");
+            
+            //user args
+            String userArgs = PyLintPrefPage.getPylintArgs().replaceAll("\r","").replaceAll("\n"," ");
+            StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
+            while(tokenizer2.hasMoreTokens()){
+                list.add(tokenizer2.nextToken());
+            }
+            list.add(REF.getFileAbsolutePath(arg));
+            
             
             IProject project = resource.getProject();
             
-            String output = new SimplePythonRunner().runAndGetOutput(REF.getFileAbsolutePath(script), lintargs+REF.getFileAbsolutePath(arg), script.getParentFile(), project);
+            String output = new SimplePythonRunner().runAndGetOutput(REF.getFileAbsolutePath(script), list.toArray(new String[0]), script.getParentFile(), project);
 
             StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
             
@@ -270,6 +278,15 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         }
         
         IProject project = resource.getProject();
+        PythonNature pythonNature = PythonNature.getPythonNature(project);
+        try {
+            //pylint can only be used for jython projects
+            if (!pythonNature.isPython()) {
+                return true;
+            }
+        } catch (Exception e) {
+            return true;
+        }
         if (project != null && resource instanceof IFile) {
 
             IFile file = (IFile) resource;

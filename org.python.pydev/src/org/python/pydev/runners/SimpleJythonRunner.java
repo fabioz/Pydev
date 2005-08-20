@@ -86,9 +86,15 @@ public class SimpleJythonRunner extends SimpleRunner{
         
         try {
             String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
-            javaLoc = formatParamToExec(javaLoc);
 
-            String executionString = javaLoc + " -classpath " + jythonJar + " org.python.util.jython " + script;
+            String[] s = new String[]{
+                javaLoc,
+                "-classpath",
+                jythonJar,
+                "org.python.util.jython" 
+                ,script
+            };
+            String executionString = getCommandLineAsString(s);
 
             return runAndGetOutput(executionString, workingDir, project, monitor);
         } catch (Exception e) {
@@ -97,7 +103,7 @@ public class SimpleJythonRunner extends SimpleRunner{
         
     }
     @Override
-    public String runAndGetOutput(String script, String args, File workingDir, IProject project) {
+    public String runAndGetOutput(String script, String[] args, File workingDir, IProject project) {
         //"java.exe" -classpath "C:\bin\jython21\jython.jar" -Dpython.path xxx;xxx;xxx org.python.util.jython script %ARGS%
 
         try {
@@ -118,6 +124,7 @@ public class SimpleJythonRunner extends SimpleRunner{
     public static String makeExecutableCommandStr(String script) throws IOException {
         IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
         String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
+        
         File file = new File(javaLoc);
         if(file.exists() == false ){
             throw new RuntimeException("The java location found does not exist. "+javaLoc);
@@ -125,8 +132,9 @@ public class SimpleJythonRunner extends SimpleRunner{
         if(file.isDirectory() == true){
             throw new RuntimeException("The java location found is a directory. "+javaLoc);
         }
-        javaLoc = formatParamToExec(javaLoc);
 
+        
+        
         String jythonJar = interpreterManager.getDefaultInterpreter();
         InterpreterInfo info = interpreterManager.getInterpreterInfo(jythonJar, new NullProgressMonitor());
 
@@ -136,13 +144,21 @@ public class SimpleJythonRunner extends SimpleRunner{
             if(jythonPath.length() != 0){
                 jythonPath.append(pathSeparator); 
             }
-            lib = formatParamToExec(lib);
             jythonPath.append(lib);
         }
-        String executionString = javaLoc +
-        " -Dpython.path="+ jythonPath+ 
-        " -classpath "+jythonJar+pathSeparator+jythonPath+
-        " org.python.util.jython "+script;
+        
+        
+        String[] s = new String[]{
+            javaLoc ,
+            "-Dpython.path="+ jythonPath.toString(), 
+            "-classpath",
+            jythonJar+pathSeparator+jythonPath,
+            "org.python.util.jython",
+            script
+        };
+        String executionString = getCommandLineAsString(s);
+
+        System.out.println("running jython: "+executionString);
         return executionString;
     }
 

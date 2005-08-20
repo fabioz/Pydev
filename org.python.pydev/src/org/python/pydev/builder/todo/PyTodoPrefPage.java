@@ -8,7 +8,6 @@ package org.python.pydev.builder.todo;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Composite;
@@ -22,8 +21,8 @@ import org.python.pydev.plugin.PydevPrefs;
  */
 public class PyTodoPrefPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-    private static final String DEFAULT_PY_TODO_TAGS = "TODO: FIXME:";
-    private static final String PY_TODO_TAGS = "PY_TODO_TAGS";
+    public static final String DEFAULT_PY_TODO_TAGS = "TODO: FIXME:";
+    public static final String PY_TODO_TAGS = "PY_TODO_TAGS";
 
     public PyTodoPrefPage() {
         super(GRID);
@@ -31,9 +30,6 @@ public class PyTodoPrefPage extends FieldEditorPreferencePage implements IWorkbe
         setDescription("Task tags");
     }
 
-    public static void initializeDefaultPreferences(Preferences prefs) {
-        prefs.setDefault(PY_TODO_TAGS, DEFAULT_PY_TODO_TAGS);
-    }
 
     /* (non-Javadoc)
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()

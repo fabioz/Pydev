@@ -7,11 +7,10 @@ package org.python.pydev.builder.pylint;
 
 import java.io.File;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
@@ -26,58 +25,38 @@ import org.python.pydev.utils.LabelFieldEditor;
  */
 public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-    private static final String PYLINT_FILE_LOCATION = "PYLINT_FILE_LOCATION";
+    public static final String PYLINT_FILE_LOCATION = "PYLINT_FILE_LOCATION";
 
-    private static final String USE_PYLINT = "USE_PYLINT";
-    private static final boolean DEFAULT_USE_PYLINT = false;
+    public static final String USE_PYLINT = "USE_PYLINT";
+    public static final boolean DEFAULT_USE_PYLINT = false;
 
-    private static final String USE_ERRORS = "USE_ERRORS";
-    private static final boolean DEFAULT_USE_ERRORS = true;
+    public static final String USE_ERRORS = "USE_ERRORS";
+    public static final boolean DEFAULT_USE_ERRORS = true;
 
-    private static final String USE_WARNINGS = "USE_WARNINGS";
-    private static final boolean DEFAULT_USE_WARNINGS = false;
+    public static final String USE_WARNINGS = "USE_WARNINGS";
+    public static final boolean DEFAULT_USE_WARNINGS = false;
 
-    private static final String USE_FATAL = "USE_FATAL";
-    private static final boolean DEFAULT_USE_FATAL = true;
+    public static final String USE_FATAL = "USE_FATAL";
+    public static final boolean DEFAULT_USE_FATAL = true;
 
-    private static final String USE_CODING_STANDARD = "USE_CODING_STANDARD";
-    private static final boolean DEFAULT_USE_CODING_STANDARD = false;
+    public static final String USE_CODING_STANDARD = "USE_CODING_STANDARD";
+    public static final boolean DEFAULT_USE_CODING_STANDARD = false;
 
-    private static final String USE_REFACTOR = "USE_REFACTOR";
-    private static final boolean DEFAULT_USE_REFACTOR = false;
+    public static final String USE_REFACTOR = "USE_REFACTOR";
+    public static final boolean DEFAULT_USE_REFACTOR = false;
 
-    private static final String PYLINT_ARGS = "PYLINT_ARGS";
+    public static final String PYLINT_ARGS = "PYLINT_ARGS";
 
-    private static final String MAX_PYLINT_DELTA = "MAX_PYLINT_DELTA";
-    private static final int DEFAULT_MAX_PYLINT_DELTA = 999;
+    public static final String MAX_PYLINT_DELTA = "MAX_PYLINT_DELTA";
+    public static final int DEFAULT_MAX_PYLINT_DELTA = 999;
     
     
-    private static final String DEFAULT_PYLINT_ARGS = "--persistent=n --comment=n --disable-msg=W0103,W0131,C0103,W0312,W0511";
-//    													"--persistent=n --comment=n --disable-all --enable-basic=y --enable-classes=y --enable-design=y --enable-exceptions=y \n"+
-//    													"--enable-format=y --enable-imports=y \n"+
-//    													"--disable-msg=W0103,W0131,C0103,W0312,C0301,C0101,C0324,W0511";
+    public static final String DEFAULT_PYLINT_ARGS = "--persistent=n --comment=n --disable-msg=W0103,W0131,C0103,W0312,W0511";
 
     public PyLintPrefPage() {
         super(FLAT);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         setDescription("Pylint");
-    }
-
-    public static void initializeDefaultPreferences(Preferences prefs) {
-        try {
-            File s = PydevPlugin.getScriptWithinPySrc("ThirdParty/logilab/pylint/lint.py");
-            prefs.setDefault(PYLINT_FILE_LOCATION, s.toString());
-            prefs.setDefault(USE_PYLINT, DEFAULT_USE_PYLINT);
-            prefs.setDefault(USE_ERRORS, DEFAULT_USE_ERRORS);
-            prefs.setDefault(USE_WARNINGS, DEFAULT_USE_WARNINGS);
-            prefs.setDefault(USE_FATAL, DEFAULT_USE_FATAL);
-            prefs.setDefault(USE_CODING_STANDARD, DEFAULT_USE_CODING_STANDARD);
-            prefs.setDefault(USE_REFACTOR, DEFAULT_USE_REFACTOR);
-            prefs.setDefault(PYLINT_ARGS, DEFAULT_PYLINT_ARGS);
-            prefs.setDefault(MAX_PYLINT_DELTA, DEFAULT_MAX_PYLINT_DELTA);
-        } catch (CoreException e) {
-            e.printStackTrace();
-        }
     }
 
     /*
@@ -90,10 +69,8 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
         addField(new BooleanFieldEditor(USE_PYLINT, "Use pylint?", p));
         addField(new IntegerFieldEditor(MAX_PYLINT_DELTA, "Max delta to run PyLint?", p));
-//        FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of pylint:", true, p);
-        //not used - some patches had to be applied to pylint, so, the original might not work!
-//        fileField.setEnabled(false, p);
-//        addField(fileField);
+        FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of pylint (lint.py):", true, p);
+        addField(fileField);
 
         addField(new BooleanFieldEditor(USE_FATAL, "Communicate FATAL?", p));
         addField(new BooleanFieldEditor(USE_ERRORS, "Communicate ERRORS?", p));
@@ -139,16 +116,24 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         return PydevPrefs.getPreferences().getString(PYLINT_FILE_LOCATION);
     }
 
+    private static boolean communicatedOnce = false;
     /**
      * should we use py lint?
      * 
      * @return
      */
     public static boolean usePyLint() {
-        if (!isPylintConfigured(PyLintPrefPage.getPyLintLocation()))
-            return false;
+        boolean b = PydevPrefs.getPreferences().getBoolean(USE_PYLINT);
 
-        return PydevPrefs.getPreferences().getBoolean(USE_PYLINT);
+        if (!isPylintConfigured(PyLintPrefPage.getPyLintLocation())){
+            if(b && !communicatedOnce){
+                communicatedOnce = true;
+                PydevPlugin.log("Unable to use pylint because it is not properly configured.");
+            }
+            return false;
+        }
+
+        return b;
     }
 
     /**

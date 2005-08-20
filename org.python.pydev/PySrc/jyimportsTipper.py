@@ -192,9 +192,13 @@ def ismethod(func):
                 for j in range(len(parameterTypes)):
                     paramTypesClass = parameterTypes[j]
                     try:
-                        paramClassName = paramTypesClass.getName()
-                    except:
-                        paramClassName = paramTypesClass.getName(paramTypesClass)
+                        try:
+                            paramClassName = paramTypesClass.getName()
+                        except:
+                            paramClassName = paramTypesClass.getName(paramTypesClass)
+                    except AttributeError:
+                        paramClassName = repr(paramTypesClass) #should be something like <type 'object'>
+                        paramClassName = paramClassName.split('\'')[1]
                     #if the parameter equals [C, it means it it a char array, so, let's change it
 
                     a = formatParamClassName(paramClassName)

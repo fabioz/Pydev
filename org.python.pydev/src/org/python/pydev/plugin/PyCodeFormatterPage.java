@@ -51,14 +51,6 @@ implements IWorkbenchPreferencePage{
     public void init(IWorkbench workbench) {
     }
 
-    /**
-     * Sets default preference values
-     */
-    public static void initializeDefaultPreferences(Preferences prefs) {
-		prefs.setDefault(USE_SPACE_AFTER_COMMA, DEFAULT_USE_SPACE_AFTER_COMMA);
-		prefs.setDefault(USE_SPACE_FOR_PARENTESIS, DEFAULT_USE_SPACE_FOR_PARENTESIS);
-    }
-    
     public static boolean useSpaceAfterComma() {
         return PydevPrefs.getPreferences().getBoolean(USE_SPACE_AFTER_COMMA);
     }

@@ -15,6 +15,14 @@
             name="Python Editor">
       </editor>
    </extension>
+<!-- Initialize our preferences -->
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="org.python.pydev.builder.pylint.PyLintPrefInitializer"/>
+      <initializer class="org.python.pydev.plugin.PydevPrefsInitializer"/>
+      <initializer class="org.python.pydev.editor.codecompletion.PyCodeCompletionInitializer"/>
+   </extension>
+<!-- document provider (even for the external files) -->
    <extension point="org.eclipse.ui.editors.documentProviders">
       <provider
             class="org.python.pydev.editor.PyDocumentProvider"
@@ -799,116 +807,7 @@
       <filter selected="True" pattern="*.class"/>
       <filter selected="True" pattern="*.pyo"/>
    </extension>
-<!-- templates -->
-   <extension
-         point="org.eclipse.ui.editors.templates">
-      <contextType
-            class="org.python.pydev.editor.templates.PyContextType"
-            id="org.python.pydev.editor.templates.python"/>
-      <template
-            name="main"
-            icon="icons/template.gif"
-            description="main function pattern. Season to taste"
-            contextTypeId="org.python.pydev.editor.templates.python"
-            id="org.python.pydev.editor.templates.python.main">
-<pattern>
-if __name__ == '__main__':
-    ${cursor}${Run)()
-</pattern>
-      </template>
-      <template
-            name="pd"
-            icon="icons/template.gif"
-            description="pdb"
-            contextTypeId="org.python.pydev.editor.templates.python"
-            id="org.python.pydev.editor.templates.python.pdb">
-         <pattern>import pdb;pdb.set_trace()</pattern>
-      </template>
-      <template
-            name="stdout"
-            icon="icons/template.gif"
-            description="Prints to sys.stdout"
-            contextTypeId="org.python.pydev.editor.templates.python"
-            id="org.python.pydev.editor.templates.python.stdout">
-         <pattern>print >> sys.stdout, ${cursor}${data}</pattern>
-      </template>
-      <template
-            name="stderr"
-            icon="icons/template.gif"
-            description="Prints to sys.stderr"
-            contextTypeId="org.python.pydev.editor.templates.python"
-            id="org.python.pydev.editor.templates.python.stderr">
-         <pattern>print >> sys.stderr, ${cursor}${data}</pattern>
-      </template>
-      <template
-            name="eq"
-            icon="icons/template.gif"
-            description="equals and not equals"
-            contextTypeId="org.python.pydev.editor.templates.python"
-            id="org.python.pydev.editor.templates.python.eq">
-<pattern>
-def __eq__(self,o):
-    if isintance(o, self.__class__):
-        pass
-        #TODO:class checking
-
-    return False
-
-def __ne__(self,o):
-	return not self == o
-</pattern>
-
-      </template>
-
-      <template
-            name="iff"
-            icon="icons/template.gif"
-            description="Normal 'if' test"
-            contextTypeId="org.python.pydev.editor.templates.python"
-            id="org.python.pydev.editor.templates.python.iff">
-         <pattern>
-if ${cursor}${condition}: True
-         </pattern>
-      </template>
-           <template
-            name="def"
-            icon="icons/template.gif"
-            description="global method definition"
-            contextTypeId="org.python.pydev.editor.templates.python"
-            id="org.python.pydev.editor.templates.python.def">
-         <pattern>
-def ${cursor}${method}(): True
-         </pattern>
-      </template>
-      <template
-            name="debugger"
-            icon="icons/template.gif"
-            description="Creates an in-module debugger"
-            contextTypeId="org.python.pydev.editor.templates.python"
-            id="org.python.pydev.editor.templates.python.debug">
-<pattern>
-import sys
-debugToggle = 1
-def debug(*values):
-    if debugToggle == 0: return
-    print >> sys.stderr, "DBG>", 
-    for v in values: print >> sys.stderr,  v,
-    print >> sys.stderr, '.'
-${cursor}
-</pattern>
-      </template>
-      <template
-            name="dbg"
-            icon="icons/template.gif"
-            description="print a debug line.(use the debugger macro to define an in-module global debug method first!)"
-            contextTypeId="org.python.pydev.editor.templates.python"
-            id="org.python.pydev.editor.templates.python.dbg">
-         <pattern>debug('==>', ${cursor}${data})</pattern>
-      </template>
-   </extension>
-   
-   
-   
+<!-- view for refactoring -->
    <extension
          point="org.eclipse.ui.views">
       <category
@@ -921,8 +820,8 @@ ${cursor}
             name="Refactor Results View"
             id="org.python.pydev.views.PyRefactorView"/>
    </extension>
-   <extension
-         point="org.eclipse.ui.perspectiveExtensions">
+<!-- add the refactoring view to the resource perspective -->
+   <extension point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension targetID="org.eclipse.ui.resourcePerspective">
          <view
                ratio="0.5"
@@ -931,12 +830,14 @@ ${cursor}
                id="org.python.pydev.views.PyRefactorView"/>
       </perspectiveExtension>
     </extension>
+<!-- add quick-fixes (does nothing right now) -->
     <extension
          point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
             class="org.python.pydev.editor.correctionassist.PyQuickFix"
             markerType="org.eclipse.core.resources.problemmarker"/>
     </extension>
+<!-- Builder for pydev -->
     <extension
          id="PyDevBuilder"
          name="Pydev Builder"
@@ -945,7 +846,7 @@ ${cursor}
          <run class="org.python.pydev.builder.PyDevBuilder"/>
       </builder>
     </extension>
-   
+<!-- Communicate pylint problems as markers -->
 	<extension 
 		point="org.eclipse.core.resources.markers"
         name="PyLint Problem"
@@ -953,7 +854,13 @@ ${cursor}
 	   <super type="org.eclipse.core.resources.problemmarker"/>
 	   <persistent value="true"/>
 	</extension>
-	
+<!-- templates -->
+    <extension point="org.eclipse.ui.editors.templates">
+         <contextType
+            class="org.python.pydev.editor.templates.PyContextType"
+            id="org.python.pydev.editor.templates.python"/>
+	</extension>
+
 	
 	
 	

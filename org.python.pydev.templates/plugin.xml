@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+<!-- templates -->
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            name="main"
+            icon="icons/template.gif"
+            description="Main function pattern."
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.main">
+<pattern>
+if __name__ == '__main__':
+    ${cursor}
+</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            name="pd"
+            icon="icons/template.gif"
+            description="pdb"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.pdb">
+         <pattern>import pdb;pdb.set_trace()</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            name="stdout"
+            icon="icons/template.gif"
+            description="Prints to sys.stdout"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.stdout">
+         <pattern>print >> sys.stdout, ${data}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            name="stderr"
+            icon="icons/template.gif"
+            description="Prints to sys.stderr"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.stderr">
+         <pattern>print >> sys.stderr, ${data}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            name="eq"
+            icon="icons/template.gif"
+            description="equals and not equals"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.eq">
+<pattern>
+def __eq__(self, o):
+    if isintance(o, self.__class__):
+        ${pass}${cursor}
+
+    return False
+
+def __ne__(self, o):
+	return not self == o
+</pattern>
+
+      </template>
+
+      <template
+            autoinsert="true"
+            name="if"
+            icon="icons/template.gif"
+            description="Normal 'if' test"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.iff">
+         <pattern>if ${condition}: ${cursor}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            name="debugger"
+            icon="icons/template.gif"
+            description="Creates an in-module debugger"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.debug">
+<pattern>
+import sys
+debugToggle = 1
+def debug(*values):
+    if debugToggle == 0: return
+    print >> sys.stderr, "DBG>", 
+    for v in values: print >> sys.stderr,  v,
+    print >> sys.stderr, '.'
+${cursor}
+</pattern>
+      </template>
+      
+      <template
+            autoinsert="true"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            description="print a debug line.(use the debugger macro to define an in-module global debug method first!)"
+            icon="icons/template.gif"
+            id="org.python.pydev.editor.templates.python.dbg"
+            name="dbg">
+         <pattern>debug('==>', ${data})${cursor}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            description="Class definition (subclass)"
+            icon="icons/template.gif"
+            id="org.python.pydev.editor.templates.python.classo"
+            name="classs">
+         <pattern>class ${class}(${object}):${cursor}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            description="Class definition (simple)"
+            icon="icons/template.gif"
+            id="org.python.pydev.editor.templates.python.class"
+            name="class">
+         <pattern>class ${class}:${cursor}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            description="Method definition (class)"
+            icon="icons/template.gif"
+            id="org.python.pydev.editor.templates.python.defc"
+            name="defc">
+         <pattern>def ${method}(self):${cursor}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            description="Method definition (class - with parameters)"
+            icon="icons/template.gif"
+            id="org.python.pydev.editor.templates.python.defp"
+            name="defp">
+         <pattern>def ${method}(self, ${params}):${cursor}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            name="def"
+            icon="icons/template.gif"
+            description="Method definition (global)"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.def">
+         <pattern>def ${method}():${cursor}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            name="print"
+            icon="icons/template.gif"
+            description="print"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.print">
+         <pattern>print ${cursor}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            name="printexc"
+            icon="icons/template.gif"
+            description="print current traceback"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.printexc">
+         <pattern>import traceback;traceback.print_exc()${cursor}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            name="raiseruntimeerror"
+            icon="icons/template.gif"
+            description="raise RuntimeError('desc')"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.raiseruntimeerror">
+         <pattern>raise RuntimeError('$(desc)')${cursor}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            name="raise"
+            icon="icons/template.gif"
+            description="raise"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.raise">
+         <pattern>raise ${cursor}</pattern>
+      </template>
+      <template
+            autoinsert="false"
+            name="testCase"
+            icon="icons/template.gif"
+            description="Complete test-case module with pyunit"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.testCase">
+         <pattern>import unittest
+
+class ${TestCase}(unittest.TestCase):
+    
+    def setUp(self):
+        unittest.TestCase.setUp(self)
+    
+    def tearDown(self):
+        unittest.TestCase.tearDown(self)
+        
+    def test${Met1}(self):
+        ${pass}${cursor}
+        
+if __name__ == '__main__':
+    unittest.main()
+</pattern>
+
+
+      </template>
+   </extension>
+
+</plugin>

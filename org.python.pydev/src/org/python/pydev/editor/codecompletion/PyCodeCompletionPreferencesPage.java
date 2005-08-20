@@ -26,7 +26,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static final boolean DEFAULT_USE_CODECOMPLETION = true;
     
     public static final String ATTEMPTS_CODECOMPLETION = "ATTEMPTS_CODECOMPLETION";
-    public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 25;
+    public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 15;
 
 	public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
 	public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
@@ -64,22 +64,6 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 		addField(new BooleanFieldEditor(
 		        USE_CODECOMPLETION, "Use code completion?", p));
 
-//        String w = "\nWARNINGS for code completion:\n\n" 
-//            	+ "Code completion works mostly on source files \n" +
-//            			"read from java and parsed, but cpython modules\n" +
-//            			"are also supported, and to use them, it is necessary to\n" +
-//            			"have a shell that gets completions on them, so, if \n" +
-//            			"code completion does not work, check if there is a \n" +
-//            			"python shell running.";
-//
-//        FieldEditor fe = new LabelFieldEditor("Warning", w, p);
-//        addField(fe);
-
-
-//        addField(new BooleanFieldEditor(
-//		        USE_AUTOCOMPLETE, "Use autocompletion?", p));
-
-
 		addField(new BooleanFieldEditor(
 		        AUTOCOMPLETE_ON_DOT, "Autocomplete on '.'?", p));
 
@@ -94,18 +78,6 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
     public void init(IWorkbench workbench) {
-    }
-
-    /**
-     * Sets default preference values
-     */
-    public static void initializeDefaultPreferences(Preferences prefs) {
-		prefs.setDefault(USE_CODECOMPLETION, DEFAULT_USE_CODECOMPLETION);
-		prefs.setDefault(ATTEMPTS_CODECOMPLETION, DEFAULT_ATTEMPTS_CODECOMPLETION);
-		prefs.setDefault(AUTOCOMPLETE_ON_DOT, DEFAULT_AUTOCOMPLETE_ON_DOT);
-		prefs.setDefault(USE_AUTOCOMPLETE, DEFAULT_USE_AUTOCOMPLETE);
-		prefs.setDefault(AUTOCOMPLETE_DELAY, DEFAULT_AUTOCOMPLETE_DELAY);
-		prefs.setDefault(AUTOCOMPLETE_ON_PAR, DEFAULT_AUTOCOMPLETE_ON_PAR);
     }
 
     public static boolean useCodeCompletion() {

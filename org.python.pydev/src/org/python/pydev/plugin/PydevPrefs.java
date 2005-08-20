@@ -26,7 +26,6 @@ import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.preference.PreferencePage;
-import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -130,22 +129,22 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	
 	//colors
     public static final String DECORATOR_COLOR = "DECORATOR_COLOR";
-	private static final RGB DEFAULT_DECORATOR_COLOR = new RGB(125, 125, 125);
+	public static final RGB DEFAULT_DECORATOR_COLOR = new RGB(125, 125, 125);
 
     public static final String NUMBER_COLOR = "NUMBER_COLOR";
-	private static final RGB DEFAULT_NUMBER_COLOR = new RGB(128, 0, 0);
+	public static final RGB DEFAULT_NUMBER_COLOR = new RGB(128, 0, 0);
 
     public static final String CODE_COLOR = "CODE_COLOR";
-	private static final RGB DEFAULT_CODE_COLOR = new RGB(0, 0, 0);
+	public static final RGB DEFAULT_CODE_COLOR = new RGB(0, 0, 0);
 	
 	public static final String KEYWORD_COLOR = "KEYWORD_COLOR";
-	private static final RGB DEFAULT_KEYWORD_COLOR = new RGB(0, 0, 255);
+	public static final RGB DEFAULT_KEYWORD_COLOR = new RGB(0, 0, 255);
 	
 	public static final String STRING_COLOR = "STRING_COLOR";
-	private static final RGB DEFAULT_STRING_COLOR = new RGB(0, 170, 0);
+	public static final RGB DEFAULT_STRING_COLOR = new RGB(0, 170, 0);
 	
 	public static final String COMMENT_COLOR = "COMMENT_COLOR";
-	private static final RGB DEFAULT_COMMENT_COLOR = new RGB(192, 192, 192);
+	public static final RGB DEFAULT_COMMENT_COLOR = new RGB(192, 192, 192);
 	
 	//see initializeDefaultColors for selection defaults
 	public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
@@ -680,45 +679,6 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	}
 	
 	/**
-	 * Sets default preference values
-	 */
-	protected static void initializeDefaultPreferences(Preferences prefs) {
-		//text
-		prefs.setDefault(AUTO_PAR, DEFAULT_AUTO_PAR);
-        prefs.setDefault(AUTO_COLON, DEFAULT_AUTO_COLON);
-        prefs.setDefault(AUTO_BRACES, DEFAULT_AUTO_BRACES);
-        prefs.setDefault(AUTO_WRITE_IMPORT_STR, DEFAULT_AUTO_WRITE_IMPORT_STR);
-
-		prefs.setDefault(TAB_WIDTH, DEFAULT_TAB_WIDTH);
-		prefs.setDefault(MULTI_BLOCK_COMMENT_CHAR, DEFAULT_MULTI_BLOCK_COMMENT_CHAR);
-		prefs.setDefault(SINGLE_BLOCK_COMMENT_CHAR, DEFAULT_SINGLE_BLOCK_COMMENT_CHAR);
-		
-		//checkboxes
-		prefs.setDefault(SUBSTITUTE_TABS, DEFAULT_SUBSTITUTE_TABS);
-		prefs.setDefault(GUESS_TAB_SUBSTITUTION, DEFAULT_GUESS_TAB_SUBSTITUTION);
-		prefs.setDefault(USE_CODE_FOLDING, DEFAULT_USE_CODE_FOLDING);
-		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_USE_CUSTOM_CARETS, StringConverter.asString(DEFAULT_EDITOR_USE_CUSTOM_CARETS));
-		prefs.setDefault(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_WIDE_CARET, StringConverter.asString(DEFAULT_EDITOR_WIDE_CARET));
-		
-		//matching
-		prefs.setDefault(USE_MATCHING_BRACKETS, DEFAULT_USE_MATCHING_BRACKETS);
-		prefs.setDefault(MATCHING_BRACKETS_COLOR, StringConverter.asString(DEFAULT_MATCHING_BRACKETS_COLOR));
-		
-		//colors
-		prefs.setDefault(CODE_COLOR,StringConverter.asString(DEFAULT_CODE_COLOR));
-		prefs.setDefault(NUMBER_COLOR,StringConverter.asString(DEFAULT_NUMBER_COLOR));
-		prefs.setDefault(DECORATOR_COLOR,StringConverter.asString(DEFAULT_DECORATOR_COLOR));
-		prefs.setDefault(KEYWORD_COLOR,StringConverter.asString(DEFAULT_KEYWORD_COLOR));
-		prefs.setDefault(STRING_COLOR,StringConverter.asString(DEFAULT_STRING_COLOR));
-		prefs.setDefault(COMMENT_COLOR,StringConverter.asString(DEFAULT_COMMENT_COLOR));
-		//for selection colors see initializeDefaultColors()
-		
-		//no UI
-		prefs.setDefault(CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
-	}
-	
-
-    /**
 	 * @return the place where this plugin preferences are stored.
 	 */
 	public static Preferences getPreferences() {

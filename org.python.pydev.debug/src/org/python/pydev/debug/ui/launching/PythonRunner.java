@@ -25,6 +25,7 @@ import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
 import org.python.pydev.debug.unittest.PyUnitTestRunner;
+import org.python.pydev.runners.SimpleRunner;
 
 /**
  * Launches Python process, and connects it to Eclipse's debugger.
@@ -130,8 +131,8 @@ public class PythonRunner {
 
         // Launch & connect to the debugger		
         subMonitor.subTask("Constructing command_line...");
-        String commandLineAsString = PythonRunnerConfig.getCommandLineAsString(cmdLine);
-        System.out.println("running: "+commandLineAsString);
+        String commandLineAsString = SimpleRunner.getCommandLineAsString(cmdLine);
+        System.out.println("running command line: "+commandLineAsString);
         Map processAttributes = new HashMap();
             
         processAttributes.put(IProcess.ATTR_CMDLINE, commandLineAsString);
@@ -173,7 +174,7 @@ public class PythonRunner {
             Process p = DebugPlugin.exec(cmdLine, config.workingDirectory, config.envp);	
             checkProcess(p);
 
-            IProcess process = registerWithDebugPlugin(PythonRunnerConfig.getCommandLineAsString(cmdLine), cmdLine[cmdLine.length-1], launch, p);
+            IProcess process = registerWithDebugPlugin(SimpleRunner.getCommandLineAsString(cmdLine), cmdLine[cmdLine.length-1], launch, p);
             checkProcess(p, process);
             
             // Register the process with the debug plugin

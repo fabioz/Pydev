@@ -78,4 +78,11 @@ Aleks and Fabio
          install-size="0"
          version="0.9.7.1"/>
 
+   <plugin
+         id="org.python.pydev.templates"
+         download-size="0"
+         install-size="0"
+         version="0.9.7.1"
+         unpack="false"/>
+
 </feature>

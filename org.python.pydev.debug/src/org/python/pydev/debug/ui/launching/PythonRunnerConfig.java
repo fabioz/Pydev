@@ -383,8 +383,6 @@ public class PythonRunnerConfig {
             if(!InterpreterInfo.isJythonExecutable(interpreter)){
                 throw new RuntimeException("The jython jar must be specified as the interpreter to run. Found: "+interpreter);
             }
-            javaLoc = SimpleRunner.formatParamToExec(javaLoc);
-            interpreter = SimpleRunner.formatParamToExec(interpreter);
             cmdArgs.add(javaLoc);
 
             //some nice things on the classpath config: http://mindprod.com/jgloss/classpath.html
@@ -456,23 +454,10 @@ public class PythonRunnerConfig {
 		String[] args;
         try {
             args = getCommandLine();
-            return getCommandLineAsString(args);
+            return SimpleRunner.getCommandLineAsString(args);
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
 	}
 
-
-    /**
-     * @param args
-     * @return
-     */
-    public static String getCommandLineAsString(String[] args) {
-        StringBuffer s = new StringBuffer();
-		for (int i=0; i< args.length; i++) {
-			s.append(args[i]);
-			s.append(" ");
-		}
-		return s.toString();
-    }
 }

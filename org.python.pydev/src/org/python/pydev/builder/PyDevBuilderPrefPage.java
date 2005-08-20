@@ -20,8 +20,8 @@ import org.python.pydev.utils.LabelFieldEditor;
  */
 public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-    private static final boolean DEFAULT_USE_PYDEV_BUILDERS = true;
-    private static final String USE_PYDEV_BUILDERS = "USE_PYDEV_BUILDERS";
+    public static final boolean DEFAULT_USE_PYDEV_BUILDERS = true;
+    public static final String USE_PYDEV_BUILDERS = "USE_PYDEV_BUILDERS";
 
     /**
      * @param style
@@ -58,13 +58,6 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
     public void init(IWorkbench workbench) {
-    }
-
-    /**
-     * @param pluginPreferences
-     */
-    public static void initializeDefaultPreferences(Preferences prefs) {
-        prefs.setDefault(USE_PYDEV_BUILDERS, DEFAULT_USE_PYDEV_BUILDERS);
     }
 
     public static boolean usePydevBuilders() {

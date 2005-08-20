@@ -135,21 +135,52 @@ public abstract class SimpleRunner {
         }
     }
 
+
     /**
-     * Formats the script to the windows environment (if needed), adding '"' to the start and end of the parameter
-     * 
-     * @param param the parameter that might be formatted
-     * 
-     * @return the formatted parameter
+     * copied from org.eclipse.jdt.internal.launching.StandardVMRunner
+     * @param args - other arguments to be added to the command line (may be null)
+     * @return
      */
-    public static String formatParamToExec(String param) {
-        if(isWindowsPlatform()){ //in windows, we have to put python "path_to_file.py"
-            if(param.startsWith("\"") == false){
-                param = "\""+param+"\"";
-            }
+    public static String getCommandLineAsString(String[] commandLine, String ... args) {
+        if(args != null && args.length > 0){
+            String[] newCommandLine = new String[commandLine.length + args.length];
+            System.arraycopy(commandLine, 0, newCommandLine, 0, commandLine.length);
+            System.arraycopy(args, 0, newCommandLine, commandLine.length, args.length);
+            commandLine = newCommandLine;
         }
-        return param;
-    }
+        
+        
+        if (commandLine.length < 1)
+            return ""; //$NON-NLS-1$
+        StringBuffer buf= new StringBuffer();
+        for (int i= 0; i < commandLine.length; i++) {
+            if(commandLine[i] == null){
+                continue; //ignore nulls (changed from original code)
+            }
+            
+            buf.append(' ');
+            char[] characters= commandLine[i].toCharArray();
+            StringBuffer command= new StringBuffer();
+            boolean containsSpace= false;
+            for (int j = 0; j < characters.length; j++) {
+                char character= characters[j];
+                if (character == '\"') {
+                    command.append('\\');
+                } else if (character == ' ') {
+                    containsSpace = true;
+                }
+                command.append(character);
+            }
+            if (containsSpace) {
+                buf.append('\"');
+                buf.append(command.toString());
+                buf.append('\"');
+            } else {
+                buf.append(command.toString());
+            }
+        }   
+        return buf.toString();
+    }   
 
     /**
      * Creates a string that can be passed as the PYTHONPATH 
@@ -173,7 +204,8 @@ public abstract class SimpleRunner {
     		if (i > 0){
     			pythonpath.append(separator);
     		}
-    		pythonpath.append(REF.getFileAbsolutePath(new File((String) paths.get(i))));
+    		String path = REF.getFileAbsolutePath(new File((String) paths.get(i)));
+            pythonpath.append(path);
     	}
         return pythonpath.toString();
     }
@@ -227,11 +259,11 @@ public abstract class SimpleRunner {
     public String runAndGetOutput(String executionString, File workingDir, IProject project) {
         return runAndGetOutput(executionString, workingDir, project, new NullProgressMonitor());
     }
-
+    
     /**
      * shortcut
      */
-    public String runAndGetOutput(String script, String args, File workingDir) {
+    public String runAndGetOutput(String script, String[] args, File workingDir) {
         return runAndGetOutput(script, args, workingDir, null);
     }
 
@@ -258,6 +290,6 @@ public abstract class SimpleRunner {
      * 
      * @return a string with the output of the process (stdout)
      */
-    public abstract String runAndGetOutput(String script, String args, File workingDir, IProject project);
+    public abstract String runAndGetOutput(String script, String args[], File workingDir, IProject project);
 
 }
