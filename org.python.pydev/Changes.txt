@@ -9,10 +9,21 @@ org.eclipse.ant.internal.ui.preferences.AntRuntimePreferencePage
 jython module management (may be handy)
 org.python.core.SysPackageManager
 
-how the jython.bat works: java.exe "-Dpython.home=C:\bin\jython21" -classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
-(maybe we can use the java framework and just use it to pass these arguments in the run.
 
 
+
+
+after 0.9.7.99
+
+- jython integration supports spaces for jython.jar and java install
+- pylint also supports spaces
+- many templates were added
+
+
+
+
+
+done in 0.9.7.99
 - Code completion has been improved for supporting wild imports and relative imports better (sometimes it had some problems).
 - There are hovers for the text and annotations (when you pass the mouse through an error it will show its description).
 - Block comment (Ctrl+4) now uses the size defined for the print margin.

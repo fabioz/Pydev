@@ -19,8 +19,13 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.templates.DocumentTemplateContext;
+import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.swt.graphics.Image;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
@@ -138,13 +143,14 @@ public class PyCodeCompletion {
      * 0 - String  - token name
      * 1 - String  - token description
      * 2 - Integer - token type (see constants)
+     * @param viewer 
      * 
      * @return list of IToken.
      * 
      * (This is where we do the "REAL" work).
      * @throws BadLocationException
      */
-    public List getCodeCompletionProposals(CompletionRequest request) throws CoreException, BadLocationException {
+    public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException {
         
         ArrayList ret = new ArrayList();
         try {
@@ -217,7 +223,7 @@ public class PyCodeCompletion {
                 theList.addAll(Arrays.asList(comps));
             }
 
-            changeItokenToCompletionPropostal(request, ret, theList, importsTip);
+            changeItokenToCompletionPropostal(viewer, request, ret, theList, importsTip);
         } catch (CompletionRecursionException e) {
             ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
         }
@@ -313,12 +319,31 @@ public class PyCodeCompletion {
     }
 
     /**
+     * @param viewer 
      * @param request
      * @param convertedProposals
      * @param iTokenList
      * @param importsTip
      */
-    private void changeItokenToCompletionPropostal(CompletionRequest request, List convertedProposals, List iTokenList, boolean importsTip) {
+    private void changeItokenToCompletionPropostal(ITextViewer viewer, CompletionRequest request, List convertedProposals, List iTokenList, boolean importsTip) {
+        //TODO: check org.eclipse.jface.text.templates.TemplateCompletionProcessor to see how to do custom 'selections' in completions
+//        int offset = request.documentOffset;
+//        ITextSelection selection= (ITextSelection) viewer.getSelectionProvider().getSelection();
+//
+//        // adjust offset to end of normalized selection
+//        if (selection.getOffset() == offset)
+//            offset= selection.getOffset() + selection.getLength();
+//
+//        String prefix= extractPrefix(viewer, offset);
+//        Region region= new Region(offset - prefix.length(), prefix.length());
+//
+//        TemplateContextType contextType= getContextType(viewer, region);
+//        if (contextType != null) {
+//            IDocument document= viewer.getDocument();
+//            new DocumentTemplateContext(contextType, document, region.getOffset(), region.getLength());
+//        }
+
+        
         for (Iterator iter = iTokenList.iterator(); iter.hasNext();) {
             
             Object obj = iter.next();
@@ -335,7 +360,7 @@ public class PyCodeCompletion {
                 if(! importsTip){
 	                args = getArgs(element);                
 	                if(args.length()>0){
-	                    l++;
+	                    l++; //cursor position is name + '('
 	                }
                 }
                 //END

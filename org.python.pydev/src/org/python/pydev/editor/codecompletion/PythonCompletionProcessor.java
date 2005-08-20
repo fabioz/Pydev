@@ -91,7 +91,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 	
                 Object[] objects = new Object[]{new ArrayList(), new Boolean(true)};
                 try {
-                    objects = getPythonProposals(documentOffset, doc);
+                    objects = getPythonProposals(viewer, documentOffset, doc);
                 } catch (CompletionRecursionException e) {
                     //thats ok
                 } catch (Throwable e) {
@@ -147,10 +147,11 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * Returns the python proposals as a list.
      * First parameter of tuple is a list and second is a Boolean object indicating whether the templates
      * should be also shown or not. 
+     * @param viewer 
      * @throws CoreException
      * @throws BadLocationException
      */
-    private Object[] getPythonProposals(int documentOffset, IDocument doc) throws CoreException, BadLocationException {
+    private Object[] getPythonProposals(ITextViewer viewer, int documentOffset, IDocument doc) throws CoreException, BadLocationException {
         CompletionRequest request = new CompletionRequest(edit.getEditorFile(), 
                 (PythonNature)edit.getPythonNature(), doc, documentOffset,
                 codeCompletion);
@@ -163,7 +164,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             showTemplates = false; //don't show templates if we are in the imports section.
         }
         
-        List allProposals = request.codeCompletion.getCodeCompletionProposals(request);
+        List allProposals = request.codeCompletion.getCodeCompletionProposals(viewer, request);
         return new Object[]{allProposals, new Boolean(showTemplates)};
     }
 

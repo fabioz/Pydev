@@ -130,6 +130,15 @@ ${cursor}
       <template
             autoinsert="true"
             contextTypeId="org.python.pydev.editor.templates.python"
+            description="Method definition (class)"
+            icon="icons/template.gif"
+            id="org.python.pydev.editor.templates.python.init"
+            name="init">
+         <pattern>def __init__(self):${cursor}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            contextTypeId="org.python.pydev.editor.templates.python"
             description="Method definition (class - with parameters)"
             icon="icons/template.gif"
             id="org.python.pydev.editor.templates.python.defp"
