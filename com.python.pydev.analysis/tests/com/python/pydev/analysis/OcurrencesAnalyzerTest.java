@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
+import org.python.pydev.editor.codecompletion.revisited.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -28,7 +29,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testImportNotFound3();
+            analyzer2.testCompiledUnusedImports5();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -69,7 +70,11 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
     protected void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        restorePythonPath(false);
+        if(TestDependent.HAS_WXPYTHON_INSTALLED){
+            restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+TestDependent.PYTHON_WXPYTHON_PACKAGES, false);
+        }else{
+            restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES, false);
+        }
         prefs = createAnalysisPrefs();
         severityForUnusedImport = IMarker.SEVERITY_WARNING;
         severityForUnusedVariable = IMarker.SEVERITY_WARNING;
@@ -184,6 +189,21 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertContainsMsg("Unused import: otherthing", msgs);
         assertEquals(5, msgs[0].getStartCol(doc));
         assertEquals(-1, msgs[0].getEndCol(doc));
+    }
+    
+    public void testCompiledUnusedImports5(){
+        
+        if(TestDependent.HAS_WXPYTHON_INSTALLED){
+            doc = new Document(
+                    "from wxPython.wx import wxButton\n" +
+                    ""
+            );
+            analyzer = new OcurrencesAnalyzer();
+            msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+            
+            printMessages(msgs, 1);
+            assertContainsMsg("Unused import: wxButton", msgs);
+        }
     }
     
     public void testImportNotFound(){

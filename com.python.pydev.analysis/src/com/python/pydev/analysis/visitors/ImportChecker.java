@@ -87,26 +87,27 @@ public class ImportChecker {
                 found = true;
                 
             } else{
-                //ok, we are getting some token from the module... let's see if it is really available.
-                String qualifier = initial.substring(foundAs.length());
-                int lastIndexOf = qualifier.lastIndexOf('.');
                 
-                if(lastIndexOf == -1){
-                    throw new RuntimeException("Are you sure?");
+                String qualifier = initial.substring(foundAs.length());
+                if(qualifier.startsWith(".")){
+                    qualifier = qualifier.substring(1);
                 }
-                String actToken = qualifier.substring(lastIndexOf+1);
-                qualifier = qualifier.substring(0,lastIndexOf);
+
+                //ok, we are getting some token from the module... let's see if it is really available.
+                String[] headAndTail = FullRepIterable.headAndTail(qualifier);
+                String actToken = headAndTail[0];  //tail (if os.path, it is os) 
+                String hasToBeFound = headAndTail[1]; //head (it is path)
                 
                 //if it was os.path:
                 //initial would be os.path
                 //foundAs would be os
-                //actToken would be .path
+                //actToken would be path
                 
                 //now, what we will do is try to do a code completion in os and see if path is found
-                CompletionState comp = CompletionState.getEmptyCompletionState(qualifier, nature);
+                CompletionState comp = CompletionState.getEmptyCompletionState(actToken, nature);
                 IToken[] completionsForModule = nature.getAstManager().getCompletionsForModule(module, comp);
                 for (IToken foundTok : completionsForModule) {
-                    if(foundTok.getRepresentation().equals(actToken)){
+                    if(foundTok.getRepresentation().equals(hasToBeFound)){
                         found = true;
                     }
                 }
