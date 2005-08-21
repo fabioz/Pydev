@@ -77,4 +77,18 @@ public class FullRepIterableTest extends TestCase {
         }
         assertEquals(3, i);
     }
+    
+    public void testHeadAndTail() {
+        String[] strings = FullRepIterable.headAndTail("aa.bb.cc");
+        assertEquals("aa.bb", strings[0]);
+        assertEquals("cc", strings[1]);
+
+        strings = FullRepIterable.headAndTail("aa.bb");
+        assertEquals("aa", strings[0]);
+        assertEquals("bb", strings[1]);
+        
+        strings = FullRepIterable.headAndTail("aa");
+        assertEquals("", strings[0]);
+        assertEquals("aa", strings[1]);
+    }
 }

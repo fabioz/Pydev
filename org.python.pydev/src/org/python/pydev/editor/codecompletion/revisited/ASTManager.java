@@ -652,7 +652,6 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                             
                         
                     }
-                    
                 }
 
                 

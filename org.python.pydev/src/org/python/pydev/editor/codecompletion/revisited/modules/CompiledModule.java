@@ -158,10 +158,10 @@ public class CompiledModule extends AbstractModule{
             CompletionState state = CompletionState.getEmptyCompletionState(nature);
             String[] headAndTail = FullRepIterable.headAndTail(tok);
             state.activationToken = headAndTail[0];
-            String tail = headAndTail[1];
+            String head = headAndTail[1];
             IToken[] globalTokens = getGlobalTokens(state, nature.getAstManager());
             for (IToken token : globalTokens) {
-                if(token.getRepresentation().equals(tail)){
+                if(token.getRepresentation().equals(head)){
                     return true;
                 }
             }

@@ -104,12 +104,26 @@ public class FullRepIterable implements Iterable<String>{
         }
     }
     
+    /**
+     * on string 'aa.bb.cc', the head is 'cc' and the tail is 'aa.bb'
+     * 
+     * head is pos 1
+     * tail is pos 0
+     */
     public static String[] headAndTail(String fullRep){
-        int i = fullRep.indexOf('.');
-        return new String[]{ 
-                fullRep.substring(0, i), 
-                fullRep.substring(i+1)
-                };
+        int i = fullRep.lastIndexOf('.');
+        if(i != -1){
+            return new String[]{ 
+                    fullRep.substring(0, i), 
+                    fullRep.substring(i+1)
+                    };
+        }else{
+            return new String[]{ 
+                    "",
+                    fullRep 
+            };
+            
+        }
     }
 
 }
