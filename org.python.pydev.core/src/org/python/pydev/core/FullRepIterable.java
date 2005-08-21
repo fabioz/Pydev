@@ -20,6 +20,38 @@ import java.util.Iterator;
  */
 public class FullRepIterable implements Iterable<String>{
 
+    private static final class ReverseFullRepIterator implements Iterator<String> {
+
+        private String fullRep;
+
+        public ReverseFullRepIterator(String fullRep) {
+            this.fullRep = fullRep;
+        }
+
+        public boolean hasNext() {
+            return fullRep.length() > 0;
+        }
+
+        public String next() {
+            if(fullRep.length() == 0){
+                throw new RuntimeException("no more items");
+            }
+            String ret = fullRep;
+            int l = fullRep.lastIndexOf('.');
+            if(l == -1){
+                fullRep = "";
+            }else{
+                fullRep = fullRep.substring(0, l);
+            }
+            return ret;
+        }
+
+        public void remove() {
+            throw new RuntimeException("Not supported");
+        }
+        
+    }
+    
     private static final class FullRepIterator implements Iterator<String> {
         private int i = -1;
         private boolean lastStep; //even if there is no point, we should return the last string
@@ -53,13 +85,23 @@ public class FullRepIterable implements Iterable<String>{
     
     
     private String fullRep;
+    private boolean reverse;
 
     public FullRepIterable(String fullRep) {
+        this(fullRep, false);
+    }
+
+    public FullRepIterable(String fullRep, boolean reverse) {
         this.fullRep = fullRep;
+        this.reverse = reverse;
     }
 
     public Iterator<String> iterator() {
-        return new FullRepIterator(this.fullRep);
+        if(!reverse){
+            return new FullRepIterator(this.fullRep);
+        }else{
+            return new ReverseFullRepIterator(this.fullRep);
+        }
     }
 
 }

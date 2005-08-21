@@ -138,5 +138,19 @@ public class CompletionState {
             throw new CompletionRecursionException("Possible recursion found (token: "+base+") - stopping analysis.");
         }
     }
+
+    /**
+     * @return a default completion state for globals (empty act. token)
+     */
+    public static CompletionState getEmptyCompletionState(PythonNature nature) {
+        return new CompletionState(0,0,"", nature);
+    }
+    
+    /**
+     * @return a default completion state for globals (act token defined)
+     */
+    public static CompletionState getEmptyCompletionState(String token, PythonNature nature) {
+        return new CompletionState(0,0,token, nature);
+    }
     
 }
