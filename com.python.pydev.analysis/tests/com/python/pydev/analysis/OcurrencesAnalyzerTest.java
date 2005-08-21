@@ -28,7 +28,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.test3UnusedVariables();
+            analyzer2.testImportNotFound3();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -59,6 +59,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
     private int severityForUndefinedVariable;
     private int severityForDuplicatedSignature;
     private int severityForReimport;
+    private int severityForUnresolvedImport;
 
     private IAnalysisPreferences prefs;
 
@@ -75,6 +76,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         severityForUndefinedVariable = IMarker.SEVERITY_ERROR;
         severityForDuplicatedSignature = IMarker.SEVERITY_ERROR;
         severityForReimport = IMarker.SEVERITY_WARNING;
+        severityForUnresolvedImport = IMarker.SEVERITY_ERROR;
     }
 
     /*
@@ -184,19 +186,63 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(-1, msgs[0].getEndCol(doc));
     }
     
-    public void testReimport4(){
+    public void testImportNotFound(){
         
         doc = new Document(
-            "from testlib.unittest.relative import toImport\n" +
-            "from testlib.unittest.relative import toImport\n" +
-            ""
+                "def m():\n" +
+                "    import invalidImport\n" +
+                ""
         );
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
         assertEquals(2, msgs.length);
-        assertContainsMsg("Unused import: toImport", msgs);
-        assertContainsMsg("Import redefinition: toImport", msgs);
+        assertContainsMsg("Unresolved import: invalidImport", msgs);
+        assertContainsMsg("Unused import: invalidImport", msgs);
+    }
+    
+    public void testImportNotFound2(){
+        
+        doc = new Document(
+                "import invalidImport\n" +
+                ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(2, msgs.length);
+        assertContainsMsg("Unresolved import: invalidImport", msgs);
+        assertContainsMsg("Unused import: invalidImport", msgs);
+    }
+    
+    public void testImportNotFound3(){
+        
+        doc = new Document(
+                "import os.notDefined\n" +
+                ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs,3);
+        assertContainsMsg("Unused import: os.notDefined", msgs);
+        assertContainsMsg("Unused import: os", msgs);
+        assertContainsMsg("Unresolved import: os.notDefined", msgs);
+    }
+    
+    public void testReimport4(){
+        
+        doc = new Document(
+            "from testlib.unittest.relative import toimport\n" +
+            "from testlib.unittest.relative import toimport\n" +
+            ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 2);
+        assertContainsMsg("Unused import: toimport", msgs);
+        assertContainsMsg("Import redefinition: toimport", msgs);
     }
     
     public void testReimport(){
@@ -271,6 +317,9 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
                 }
                 if (type == TYPE_REIMPORT){
                     return severityForReimport;
+                }
+                if (type == TYPE_UNRESOLVED_IMPORT){
+                    return severityForUnresolvedImport;
                 }
                 throw new RuntimeException("unable to get severity for type "+type);
             }
@@ -1081,6 +1130,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         if(msgs.length != i){
             printMessages(msgs);
         }
+        assertEquals(i, msgs.length);
     }
 
     public void testImportAttr() {

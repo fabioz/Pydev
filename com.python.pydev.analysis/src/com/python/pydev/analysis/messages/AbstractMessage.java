@@ -41,6 +41,7 @@ public abstract class AbstractMessage implements IMessage{
             messages.put(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, "Undefined variable: %s");
             messages.put(IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE, "Duplicated signature: %s");
             messages.put(IAnalysisPreferences.TYPE_REIMPORT, "Import redefinition: %s");
+            messages.put(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, "Unresolved import: %s");
         }
         return messages.get(getType());
 

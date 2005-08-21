@@ -86,6 +86,11 @@ public class OcurrencesVisitor extends VisitorBase{
      * used to check for duplication in signatures
      */
     private DuplicationChecker duplicationChecker;
+    
+    /**
+     * used to check for invalid imports
+     */
+    private ImportChecker importChecker;
 
     /**
      * Used to manage the messages
@@ -102,9 +107,10 @@ public class OcurrencesVisitor extends VisitorBase{
         this.messagesManager = new MessagesManager(prefs);
         this.scope = new Scope(this.messagesManager);
         this.duplicationChecker = new DuplicationChecker(this.messagesManager);
+        this.importChecker = new ImportChecker(this.messagesManager);
         
         startScope(Scope.SCOPE_TYPE_GLOBAL); //initial scope - there is only one 'global' 
-        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(getEmptyCompletionState(), new ArrayList());
+        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(CompletionState.getEmptyCompletionState(nature), new ArrayList());
         for(IToken t : builtinCompletions){
             stackNamesToIgnore.peek().put(t.getRepresentation(), t);
         }
@@ -236,15 +242,12 @@ public class OcurrencesVisitor extends VisitorBase{
     public Object visitImport(Import node) throws Exception {
         List <IToken>list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
         for (IToken token : list) {
+            importChecker.visitImportToken(token, nature);
             scope.addToken(token, token);
         }
         return null;
     }
 
-    @Override
-    public Object visitList(org.python.parser.ast.List node) throws Exception {
-        return super.visitList(node);
-    }
     /**
      * visit some import 
      * @see org.python.parser.ast.VisitorIF#visitImportFrom(org.python.parser.ast.ImportFrom)
@@ -254,12 +257,18 @@ public class OcurrencesVisitor extends VisitorBase{
             
             if(AbstractVisitor.isWildImport(node)){
                 IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName);
-                CompletionState state = getEmptyCompletionState();
+                importChecker.visitImportToken(wildImport, nature);
+                
+                CompletionState state = CompletionState.getEmptyCompletionState(nature);
                 state.builtinsGotten = true; //we don't want any builtins
                 List completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList(), wildImport);
                 scope.addTokens(completionsForWildImport, wildImport);
             }else{
-                List list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
+                List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
+                
+                for (IToken token : list) {
+                    importChecker.visitImportToken(token, nature);
+                }
                 scope.addTokens(list, null);
             }
             
@@ -453,13 +462,6 @@ public class OcurrencesVisitor extends VisitorBase{
             node.elt.accept(this);
 
         return null;
-    }
-    
-    /**
-     * @return a default completion state for globals (empty act. token)
-     */
-    private CompletionState getEmptyCompletionState() {
-        return new CompletionState(0,0,"", nature);
     }
     
     /**
