@@ -3,6 +3,15 @@
  */
 package com.python.pydev.analysis;
 
+import static com.python.pydev.analysis.IAnalysisPreferences.SEVERITY_IGNORE;
+import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE;
+import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE;
+import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_IMPORT;
+import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_VARIABLE;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
@@ -12,7 +21,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
 import com.python.pydev.analysis.messages.IMessage;
-import static com.python.pydev.analysis.IAnalysisPreferences.*;
 
 public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase { 
 
@@ -20,13 +28,13 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testGlobal2();
+            analyzer2.test3UnusedVariables();
             analyzer2.tearDown();
             System.out.println("finished");
             
             
             junit.textui.TestRunner.run(OcurrencesAnalyzerTest.class);
-            
+            System.out.println("finished all");
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -269,7 +277,21 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
 
             public boolean makeCodeAnalysis() {
                 return true;
-            }};
+            }
+            
+            /**
+             * @see com.python.pydev.analysis.IAnalysisPreferences#getNamesIgnoredByUnusedVariable()
+             */
+            public List<String> getNamesIgnoredByUnusedVariable() {
+                List<String> names = new ArrayList<String>();
+                names.add("dummy");
+                return names;
+            }
+            
+            public void clearCaches() {
+                //no caches here
+            }
+        };
     }
 
     
@@ -317,6 +339,21 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
         assertEquals(2, msgs.length);
+    }
+    
+    public void test3UnusedVariables() {
+        doc = new Document(
+                "def m1():              \n"+  
+                "    dummyResult = 10   \n"+       
+                "                       \n"+      
+                "    if False:          \n"+       
+                "        dummy2 = 20    \n"+        
+                "                       \n"     
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        assertEquals(0, msgs.length);
     }
     
     public void testNotUnusedVariable() {

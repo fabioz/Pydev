@@ -39,6 +39,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         
         if(isInPythonPath(resource)){ //just get problems in resources that are in the pythonpath
             IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
+            analysisPreferences.clearCaches();
             
             //let's see if we should do code analysis
             if(analysisPreferences.makeCodeAnalysis() == false){

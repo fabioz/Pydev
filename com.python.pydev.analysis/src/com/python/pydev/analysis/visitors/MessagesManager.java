@@ -117,9 +117,40 @@ public class MessagesManager {
                     continue; //finish it...
                 }
             }
+            
             //or unused variable
-            addMessage(IAnalysisPreferences.TYPE_UNUSED_VARIABLE, g.generator, g.tok);
+            //we have to check if this is a name we should ignore
+            if(startsWithNamesToIgnore(g)){
+                addMessage(IAnalysisPreferences.TYPE_UNUSED_VARIABLE, g.generator, g.tok);
+            }
         }
+    }
+
+    
+    /**
+     * a cache, so that we don't get the names to ignore over and over
+     * this is ok, because every time we start an analysis session, this object is re-created, and the options
+     * will not change all the time
+     */
+    private List<String> namesToIgnoreCache = null;
+    /**
+     * @param g the generater that will generate an unused variable message
+     * @return true if we should not add the message
+     */
+    private boolean startsWithNamesToIgnore(GenAndTok g) {
+        if(namesToIgnoreCache == null){
+            namesToIgnoreCache = prefs.getNamesIgnoredByUnusedVariable();
+        }
+        String representation = g.tok.getRepresentation();
+        
+        boolean addIt = true;
+        for (String str : namesToIgnoreCache) {
+            if(representation.startsWith(str)){
+                addIt = false;
+                break;
+            }
+        }
+        return addIt;
     }
 
     /**
@@ -132,8 +163,6 @@ public class MessagesManager {
             }
         }
     }
-    
-
     
     
     

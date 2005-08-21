@@ -15,6 +15,9 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final String SEVERITY_UNUSED_VARIABLE = "SEVERITY_UNUSED_VARIABLE";
     public static final int DEFAULT_SEVERITY_UNUSED_VARIABLE = IMarker.SEVERITY_WARNING;
     
+    public static final String NAMES_TO_IGNORE_UNUSED_VARIABLE = "NAMES_TO_IGNORE_UNUSED_VARIABLE";
+    public static final String DEFAULT_NAMES_TO_IGNORE_UNUSED_VARIABLE = "dummy, _, unused";
+    
     public static final String SEVERITY_UNUSED_IMPORT = "SEVERITY_UNUSED_IMPORT";
     public static final int DEFAULT_SEVERITY_UNUSED_IMPORT = IMarker.SEVERITY_WARNING;
 
@@ -27,17 +30,20 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final String SEVERITY_REIMPORT = "SEVERITY_REIMPORT";
     public static final int DEFAULT_SEVERITY_REIMPORT = IMarker.SEVERITY_WARNING;
     
+    public static final String SEVERITY_UNRESOLVED_IMPORT = "SEVERITY_UNRESOLVED_IMPORT";
+    public static final int DEFAULT_SEVERITY_UNRESOLVED_IMPORT = IMarker.SEVERITY_ERROR;
     
 
     @Override
     public void initializeDefaultPreferences() {
         Preferences node = new DefaultScope().getNode(DEFAULT_SCOPE);
         
-        node.putInt(SEVERITY_UNUSED_IMPORT, DEFAULT_SEVERITY_UNUSED_IMPORT);
-        node.putInt(SEVERITY_UNUSED_VARIABLE, DEFAULT_SEVERITY_UNUSED_VARIABLE);
-        node.putInt(SEVERITY_UNDEFINED_VARIABLE, DEFAULT_SEVERITY_UNDEFINED_VARIABLE);
-        node.putInt(SEVERITY_DUPLICATED_SIGNATURE, DEFAULT_SEVERITY_DUPLICATED_SIGNATURE);
-        node.putInt(SEVERITY_REIMPORT, DEFAULT_SEVERITY_REIMPORT);
+        for (int i = 0; i < AnalysisPreferences.completeSeverityMap.length; i++) {
+            Object[] s = AnalysisPreferences.completeSeverityMap[i];
+            node.putInt((String)s[1], (Integer)s[2]);
+            
+        }
+        node.put   (NAMES_TO_IGNORE_UNUSED_VARIABLE, DEFAULT_NAMES_TO_IGNORE_UNUSED_VARIABLE);
     }
 
 
