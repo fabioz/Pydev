@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
@@ -32,7 +32,7 @@ public class CompiledModule extends AbstractModule{
     /**
      * These are the tokens the compiled module has.
      */
-    private CompiledToken[] tokens = new CompiledToken[0];
+    private CompiledToken[] tokens = null;
 
     /**
      * 
@@ -70,11 +70,13 @@ public class CompiledModule extends AbstractModule{
                 
 	            tokens = array.toArray(new CompiledToken[0]);
 	        } catch (Exception e) {
+                tokens = new CompiledToken[0];
 	            e.printStackTrace();
 	            PydevPlugin.log(e);
 	        }
         }else{
             //not used if not enabled.
+            tokens = new CompiledToken[0];
         }
 
     }
@@ -112,7 +114,7 @@ public class CompiledModule extends AbstractModule{
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(CompletionState state, ASTManager manager) {
+    public IToken[] getGlobalTokens(CompletionState state, ICodeCompletionASTManager manager) {
         Object v = cache.get(state.activationToken);
         if(v != null){
             return (IToken[]) v;
@@ -143,6 +145,29 @@ public class CompiledModule extends AbstractModule{
 	        }
         }
         return toks;
+    }
+    
+    @Override
+    public boolean isInGlobalTokens(String tok, PythonNature nature) {
+        //we have to override because there is no way to check if it is in some import from some other place if it has dots on the tok...
+        
+        
+        if(tok.indexOf('.') == -1){
+            return super.isInGlobalTokens(tok, nature);
+        }else{
+            CompletionState state = CompletionState.getEmptyCompletionState(nature);
+            String[] headAndTail = FullRepIterable.headAndTail(tok);
+            state.activationToken = headAndTail[0];
+            String tail = headAndTail[1];
+            IToken[] globalTokens = getGlobalTokens(state, nature.getAstManager());
+            for (IToken token : globalTokens) {
+                if(token.getRepresentation().equals(tail)){
+                    return true;
+                }
+            }
+        }
+        return false;
+
     }
 
     /**

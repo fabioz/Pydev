@@ -15,6 +15,21 @@ import org.python.pydev.editor.codecompletion.shell.PythonShell;
 
 public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
     
+    public static void main(String[] args) {
+        try {
+            PythonCompletionTestWithBuiltins builtins = new PythonCompletionTestWithBuiltins();
+            builtins.setUp();
+            builtins.testCompleteImportBuiltinReference();
+            builtins.tearDown();
+            
+            junit.textui.TestRunner.run(PythonCompletionTestWithBuiltins.class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+    }
+
     private static PythonShell shell;
     
     /*
@@ -24,7 +39,7 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
         super.setUp();
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPathWithSitePackages(false);
+        this.restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+TestDependent.PYTHON_WXPYTHON_PACKAGES, false);
         codeCompletion = new PyCodeCompletion(false);
 
         //we don't want to start it more than once
@@ -44,6 +59,7 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
         AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, null);
     }
 
+    
     public void testCompleteImportBuiltin() throws BadLocationException, IOException, Exception{
         
         String s;
@@ -104,10 +120,16 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
 
         if(TestDependent.HAS_WXPYTHON_INSTALLED){ //we can only test what we have
             s = "" +
+            "from wxPython.wx import wxButton\n"+
+            "                \n"+   
+            "wxButton.";         
+            requestCompl(s, s.length(), -1, new String[]{"Close()"});
+
+            s = "" +
             "import wxPython\n"+
             "                \n"+   
             "wxPython.";         
-            requestCompl(s, s.length(), -1, new String[]{});
+            requestCompl(s, s.length(), -1, new String[]{"wx"});
         }
 
         s = "" +

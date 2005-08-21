@@ -17,9 +17,9 @@ import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
 import org.python.pydev.core.REF;
-import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -142,7 +142,7 @@ public class SourceModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(CompletionState state, ASTManager manager) {
+    public IToken[] getGlobalTokens(CompletionState state, ICodeCompletionASTManager manager) {
         IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
         
         if(t instanceof SourceToken[]){

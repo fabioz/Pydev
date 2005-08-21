@@ -103,5 +103,13 @@ public class FullRepIterable implements Iterable<String>{
             return new ReverseFullRepIterator(this.fullRep);
         }
     }
+    
+    public static String[] headAndTail(String fullRep){
+        int i = fullRep.indexOf('.');
+        return new String[]{ 
+                fullRep.substring(0, i), 
+                fullRep.substring(i+1)
+                };
+    }
 
 }

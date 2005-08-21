@@ -610,7 +610,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                     return new Object[]{ mod, ""};
                     
                 }else if (mod != null){
-                    if(mod.isInGlobalTokens(tok)){
+                    if(mod.isInGlobalTokens(tok, nature)){
                         return new Object[]{ mod, tok};
                     }
                     

@@ -148,6 +148,17 @@ public class CodeCompletionTestsBase extends TestCase {
      * 
      * same as the restorePythonPath function but also includes the site packages in the distribution
      */
+    public void restorePythonPath(String path, boolean force){
+        restoreSystemPythonPath(force, path);
+        restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
+        checkSize();
+    }
+    
+    /**
+     * @see #restorePythonPath(boolean)
+     * 
+     * same as the restorePythonPath function but also includes the site packages in the distribution
+     */
     public void restorePythonPathWithSitePackages(boolean force){
         restoreSystemPythonPath(force, TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES);
         restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);

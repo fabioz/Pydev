@@ -17,8 +17,8 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.pydev.core.REF;
-import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -64,7 +64,7 @@ public abstract class AbstractModule {
      * @param tok
      * @return whether the passed token is part of the global tokens of this module.
      */
-    public boolean isInGlobalTokens(String tok){
+    public boolean isInGlobalTokens(String tok, PythonNature nature){
         IToken[] tokens = getGlobalTokens();
         
         for (int i = 0; i < tokens.length; i++) {
@@ -96,7 +96,7 @@ public abstract class AbstractModule {
      * @param manager
      * @return
      */
-    public abstract IToken[] getGlobalTokens(CompletionState state, ASTManager manager);
+    public abstract IToken[] getGlobalTokens(CompletionState state, ICodeCompletionASTManager manager);
     
     /**
      * 
