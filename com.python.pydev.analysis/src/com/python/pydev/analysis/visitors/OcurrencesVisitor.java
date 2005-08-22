@@ -242,8 +242,12 @@ public class OcurrencesVisitor extends VisitorBase{
     public Object visitImport(Import node) throws Exception {
         List <IToken>list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
         for (IToken token : list) {
-            importChecker.visitImportToken(token, nature);
             scope.addToken(token, token);
+        }
+        //it is only a single import for the import checker
+        if(list.size() > 0){
+            IToken token = list.get(list.size() -1);
+            importChecker.visitImportToken(token, nature, moduleName);
         }
         return null;
     }
@@ -257,7 +261,7 @@ public class OcurrencesVisitor extends VisitorBase{
             
             if(AbstractVisitor.isWildImport(node)){
                 IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName);
-                importChecker.visitImportToken(wildImport, nature);
+                importChecker.visitImportToken(wildImport, nature, moduleName);
                 
                 CompletionState state = CompletionState.getEmptyCompletionState(nature);
                 state.builtinsGotten = true; //we don't want any builtins
@@ -266,8 +270,10 @@ public class OcurrencesVisitor extends VisitorBase{
             }else{
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
                 
-                for (IToken token : list) {
-                    importChecker.visitImportToken(token, nature);
+                //it is only a single import for the import checker
+                if(list.size() > 0){
+                    IToken token = list.get(list.size() -1);
+                    importChecker.visitImportToken(token, nature, moduleName);
                 }
                 scope.addTokens(list, null);
             }

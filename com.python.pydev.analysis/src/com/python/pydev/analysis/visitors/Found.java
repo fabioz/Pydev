@@ -6,7 +6,6 @@ package com.python.pydev.analysis.visitors;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 

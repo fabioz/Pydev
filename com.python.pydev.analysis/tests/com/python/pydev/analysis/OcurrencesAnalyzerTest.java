@@ -9,6 +9,8 @@ import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNDEFINED_VARI
 import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_IMPORT;
 import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_VARIABLE;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +31,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testImportFound1();
+            analyzer2.testImportNotFound3();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -276,6 +278,15 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         printMessages(msgs, 2);
         assertContainsMsg("Unused import: toimport", msgs);
         assertContainsMsg("Import redefinition: toimport", msgs);
+    }
+    
+    public void testRelativeNotUndefined() throws FileNotFoundException{
+        
+        analyzer = new OcurrencesAnalyzer();
+        String file = TestDependent.TEST_PYSRC_LOC+"testlib/unittest/relative/testrelative.py";
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testlib.unittest.relative.testrelative", new File(file), nature, 0), prefs);
+        
+        printMessages(msgs, 0);
     }
     
     public void testReimport(){

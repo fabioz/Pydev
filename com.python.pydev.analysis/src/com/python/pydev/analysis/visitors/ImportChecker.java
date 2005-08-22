@@ -25,36 +25,44 @@ public class ImportChecker {
         this.messagesManager = messagesManager;
     }
 
-    public void visitImportToken(IToken token, PythonNature nature) {
-        String repComplete = token.getCompletePath();
-        
-        
+    public void visitImportToken(IToken token, PythonNature nature, String moduleName) {
+        //try to find it as a relative import
+
         AbstractModule module = null;
-        String initial = repComplete;
+        String initial = null;
         String foundAs = null;
-        //first check for relative imports
-        for (String part : new FullRepIterable(repComplete, true)) {
-            module = nature.getAstManager().getModule(part, nature);
-            if(module != null){
-                //may have found a module (if it is the same module were the token was defined
-                //we will have to discard it later).
-                foundAs = part;
-                break;
-            }
-        }
-        
         boolean found = false;
-        if (module != null){
-            found = isRepAvailable(nature, module, initial, foundAs);
-            if(found){
-                return;
+
+        //if we have a module name, it may be a relative import
+        if(moduleName != null){
+            String tail = FullRepIterable.headAndTail(moduleName)[0]; //discard the head
+            String repRelative = tail+"."+token.getCompletePath();
+            
+            
+            initial = repRelative;
+            //first check for relative imports
+            for (String part : new FullRepIterable(repRelative, true)) {
+                module = nature.getAstManager().getModule(part, nature);
+                if(module != null){
+                    //may have found a module (if it is the same module were the token was defined
+                    //we will have to discard it later).
+                    foundAs = part;
+                    break;
+                }
             }
-            module = null; //the token was not really found, still can check with the absolute representation though
+        
+            if (module != null){
+                found = isRepAvailable(nature, module, initial, foundAs);
+                if(found){
+                    return;
+                }
+                module = null; //the token was not really found, still can check with the absolute representation though
+            }
         }
         
         if(module == null){
             //still not found
-            String rep = token.getRepresentation();
+            String rep = token.getCompletePath();
             initial = rep;
             for (String part : new FullRepIterable(rep, true)) {
                 module = nature.getAstManager().getModule(part, nature);
