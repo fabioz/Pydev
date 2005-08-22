@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Codecompletion Plug-in
+Bundle-SymbolicName: com.python.pydev.codecompletion; singleton:=true
+Bundle-Version: 0.9.7.1
+Bundle-Activator: com.python.pydev.codecompletion.CodecompletionPlugin
+Bundle-Vendor: Fabio Zadrozny
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.python.pydev,
+ org.eclipse.jface.text,
+ org.python.pydev.core,
+ org.python.pydev.parser
+Eclipse-AutoStart: true

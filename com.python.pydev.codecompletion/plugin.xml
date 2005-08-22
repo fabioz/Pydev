@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension point="org.python.pydev.pydev_completion">
+  		<completion_participant class="com.python.pydev.codecompletion.participant.CompletionParticipant">
+   		</completion_participant>
+   
+   </extension>
+
+</plugin>
