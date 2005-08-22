@@ -31,7 +31,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testImportNotFound3();
+            analyzer2.testImportNotFound5();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -263,6 +263,41 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         printMessages(msgs,1);
         assertContainsMsg("Unused import: otherThing", msgs);
+    }
+    
+    public void testImportNotFound6(){
+        
+        doc = new Document(
+                "import os\n" +
+                ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs,1);
+        assertContainsMsg("Unused import: os", msgs);
+    }
+    
+    public void testImportNotFound7(){
+        
+        doc = new Document(
+                "import encodings.latin_1\n" +
+                "print encodings.latin_1\n" +
+                ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs,0);
+    }
+    
+    public void testImportNotFound8() throws FileNotFoundException{
+        
+        analyzer = new OcurrencesAnalyzer();
+        String file = TestDependent.TEST_PYSRC_LOC+"testenc/encimport.py";
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testenc.encimport", new File(file), nature, 0), prefs);
+        
+        printMessages(msgs, 0);
     }
     
     public void testImportNotFound5(){

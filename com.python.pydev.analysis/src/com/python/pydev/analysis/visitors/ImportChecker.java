@@ -31,39 +31,32 @@ public class ImportChecker {
         AbstractModule module = null;
         String initial = null;
         String foundAs = null;
-        boolean found = false;
 
-        //if we have a module name, it may be a relative import
+        //try 1 ----------------------------------------------------------------
+        String relative1 = null;
+        String relative2 = null;
         if(moduleName != null){
             String tail = FullRepIterable.headAndTail(moduleName)[0]; //discard the head
-            String repRelative = tail+"."+token.getCompletePath();
-            
-            
-            initial = repRelative;
-            //first check for relative imports
-            for (String part : new FullRepIterable(repRelative, true)) {
-                module = nature.getAstManager().getModule(part, nature);
-                if(module != null){
-                    //may have found a module (if it is the same module were the token was defined
-                    //we will have to discard it later).
-                    foundAs = part;
-                    break;
-                }
-            }
-        
-            if (module != null){
-                found = isRepAvailable(nature, module, initial, foundAs);
-                if(found){
-                    return;
-                }
-                module = null; //the token was not really found, still can check with the absolute representation though
-            }
+            relative1 = tail+"."+token.getOriginalRep();
+            relative2 = tail+"."+token.getCompletePath();
         }
+
+        //we have to check for many variations, as it can be relative, absolute, import from, as
+        String [] reps = new String[]{ 
+                token.getCompletePath(),
+                relative1,
+                relative2,
+                token.getRepresentation(),
+                token.getOriginalRep()
+        };
         
-        if(module == null){
-            //still not found
-            String rep = token.getCompletePath();
+        for(String rep : reps){
+            if(rep == null){
+                continue;
+            }
+            
             initial = rep;
+            //first check for relative imports
             for (String part : new FullRepIterable(rep, true)) {
                 module = nature.getAstManager().getModule(part, nature);
                 if(module != null){
@@ -71,15 +64,19 @@ public class ImportChecker {
                     break;
                 }
             }
+        
+            if (module != null){
+                if( isRepAvailable(nature, module, initial, foundAs)){
+                    return;
+                }
+                module = null; //the token was not really found, still can check with the absolute representation though
+            }
         }
         
-        found = isRepAvailable(nature, module, initial, foundAs);
-
-        if(! found){
-            //if it got here, it was not resolved
-            messagesManager.addMessage(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, token);
-        }
+        //if it got here, it was not resolved
+        messagesManager.addMessage(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, token);
     }
+    
 
     private boolean isRepAvailable(PythonNature nature, AbstractModule module, String initial, String foundAs) {
         boolean found = false;
