@@ -152,6 +152,7 @@
 	<jar jarfile="${destFeats}${fol0}.jar" basedir="${eclipseTmpResults}/eclipse${fol0}" update="true"  />
 	<copy tofile="${destFeats}${fol1}.jar" file="${eclipseTmpResults}/eclipse${fol1}.jar" />
 	<copy tofile="${destFeats}${fol2}.jar" file="${eclipseTmpResults}/eclipse${fol2}.jar" />
+	<copy tofile="${destFeats}${fol3}.jar" file="${eclipseTmpResults}/eclipse${fol3}.jar" />
     <echo message="Finished making jars in update site!"/> 
 	
 	
@@ -160,6 +161,7 @@
 	<copy todir="${EC_HOME}${fol0}"><fileset dir="${eclipseTmpResults}/eclipse${fol0}"/></copy>
 	<copy tofile="${EC_HOME}${fol1}.jar" file="${eclipseTmpResults}/eclipse${fol1}.jar" />
 	<copy tofile="${EC_HOME}${fol2}.jar" file="${eclipseTmpResults}/eclipse${fol2}.jar" />
+	<copy tofile="${EC_HOME}${fol3}.jar" file="${eclipseTmpResults}/eclipse${fol3}.jar" />
     <echo message="Finished making installing!"/>
 
 	<delete dir="${eclipseTmpResults}"/>

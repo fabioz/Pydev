@@ -30,6 +30,7 @@
 		<property name = "fol0"  value = "/features/com.python.pydev.extensions_${pydev.version}"/>
 		<property name = "fol1"  value = "/plugins/com.python.pydev.analysis_${pydev.version}"         />
 		<property name = "fol2"  value = "/plugins/com.python.pydev.fastparser_${pydev.version}"         />
+		<property name = "fol3"  value = "/plugins/com.python.pydev.codecompletion_${pydev.version}"         />
 
 		
 		<echo message="pydev.version = ${pydev.version}"/>
