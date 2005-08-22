@@ -65,7 +65,8 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer, int)
      */
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int documentOffset) {
-
+        ICompletionProposal[] proposals;
+        
         try {
             //FIRST: discover activation token and qualifier.
             IDocument doc = viewer.getDocument();
@@ -120,13 +121,14 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 
             
             
-            ICompletionProposal[] proposals = codeCompletion.onlyValidSorted(pythonAndTemplateProposals, qualifier);
+            proposals = codeCompletion.onlyValidSorted(pythonAndTemplateProposals, qualifier);
             // Return the proposals
-            return proposals;
         } catch (RuntimeException e) {
+            proposals = new ICompletionProposal[0];
             setError(e);
         }
-        return new ICompletionProposal[0]; //if error happens, return no completions.
+        
+        return proposals;
     }
 
     

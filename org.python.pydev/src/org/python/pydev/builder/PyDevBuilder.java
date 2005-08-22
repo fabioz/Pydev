@@ -20,14 +20,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.pylint.PyLintVisitor;
@@ -35,6 +30,7 @@ import org.python.pydev.builder.todo.PyTodoVisitor;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.extension.ExtensionHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -45,16 +41,6 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class PyDevBuilder extends IncrementalProjectBuilder {
 
-    private IExtension[] extensions;
-    private IExtension[] getExtensions() {
-        if(extensions == null){
-            IExtensionRegistry registry = Platform.getExtensionRegistry();
-            IExtensionPoint extensionPoint = registry.getExtensionPoint("org.python.pydev.pydev_builder");
-            extensions = extensionPoint.getExtensions();
-        }
-        return extensions;
-    }
-    
     /**
      * 
      * @return a list of visitors for building the application.
@@ -65,23 +51,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         list.add(new PyLintVisitor());
         list.add(new PyCodeCompletionVisitor());
 
-        IExtension[] extensions = getExtensions();
-        // For each extension ...
-        for (int i = 0; i < extensions.length; i++) {
-            IExtension extension = extensions[i];
-            IConfigurationElement[] elements = extension.getConfigurationElements();
-            // For each member of the extension ...
-            for (int j = 0; j < elements.length; j++) {
-                IConfigurationElement element = elements[j];
-                
-                try {
-                    PyDevBuilderVisitor visitor = (PyDevBuilderVisitor) element.createExecutableExtension("class");
-                    list.add(visitor);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        list.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_BUILDER));
         return list;
     }
 

@@ -40,7 +40,7 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+TestDependent.PYTHON_WXPYTHON_PACKAGES, false);
-        codeCompletion = new PyCodeCompletion(false);
+        codeCompletion = new PyCodeCompletion();
 
         //we don't want to start it more than once
         if(shell == null){

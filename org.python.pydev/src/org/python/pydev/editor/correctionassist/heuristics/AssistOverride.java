@@ -49,7 +49,7 @@ public class AssistOverride implements IAssistProps {
         String[] strs = PyCodeCompletion.getActivationTokenAndQual(ps.getDoc(), ps.getAbsoluteCursorOffset());
         String tok = strs[1];
         CompletionState state = new CompletionState(ps.getStartLineIndex(), ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset(), null, nature);
-        CompletionRequest request = new CompletionRequest(file, nature, ps.getDoc(), "self", ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(true), "");
+        CompletionRequest request = new CompletionRequest(file, nature, ps.getDoc(), "self", ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(), "");
         IToken[] selfCompletions = PyCodeCompletion.getSelfCompletions(request, new ArrayList(), state, true);
 
         

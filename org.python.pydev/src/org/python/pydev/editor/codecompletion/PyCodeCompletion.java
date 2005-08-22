@@ -19,13 +19,9 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.templates.DocumentTemplateContext;
-import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.swt.graphics.Image;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
@@ -40,6 +36,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
+import org.python.pydev.extension.ExtensionHelper;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -88,50 +85,51 @@ public class PyCodeCompletion {
     public static final int TYPE_PARAM = 5;
     
     /**
-     * 
+     * Type for package (used to decide the icon)
      */
-    public PyCodeCompletion() {
-        imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
-    }
-
-    /**
-     * 
-     */
-    public PyCodeCompletion(boolean useImageCache) {
-        if(useImageCache)
-            imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
-    }
+    public static final int TYPE_PACKAGE = 6;
+    
 
     /**
      * Returns an image for the given type
      * @param type
      * @return
      */
-    public Image getImageForType(int type){
-        if(imageCache == null)
+    public static Image getImageForType(int type){
+        try {
+            ImageCache imageCache = PydevPlugin.getImageCache();
+            if (imageCache == null)
+                return null;
+
+            switch (type) {
+            case PyCodeCompletion.TYPE_IMPORT:
+                return imageCache.get(UIConstants.COMPLETION_IMPORT_ICON);
+
+            case PyCodeCompletion.TYPE_CLASS:
+                return imageCache.get(UIConstants.COMPLETION_CLASS_ICON);
+
+            case PyCodeCompletion.TYPE_FUNCTION:
+                return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
+
+            case PyCodeCompletion.TYPE_ATTR:
+                return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
+
+            case PyCodeCompletion.TYPE_BUILTIN:
+                return imageCache.get(UIConstants.BUILTINS_ICON);
+
+            case PyCodeCompletion.TYPE_PARAM:
+                return imageCache.get(UIConstants.COMPLETION_PARAMETERS_ICON);
+
+            case PyCodeCompletion.TYPE_PACKAGE:
+                return imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
+
+            default:
+                return null;
+            }
+            
+        } catch (Exception e) {
+            PydevPlugin.log(e, false);
             return null;
-        
-        switch(type){
-        	case PyCodeCompletion.TYPE_IMPORT: 
-        	    return imageCache.get(UIConstants.COMPLETION_IMPORT_ICON);
-        	
-        	case PyCodeCompletion.TYPE_CLASS: 
-        	    return imageCache.get(UIConstants.COMPLETION_CLASS_ICON);
-        	
-        	case PyCodeCompletion.TYPE_FUNCTION: 
-        	    return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
-
-        	case PyCodeCompletion.TYPE_ATTR: 
-        	    return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
-
-        	case PyCodeCompletion.TYPE_BUILTIN: 
-        	    return imageCache.get(UIConstants.BUILTINS_ICON);
-        	
-        	case PyCodeCompletion.TYPE_PARAM: 
-        	    return imageCache.get(UIConstants.COMPLETION_PARAMETERS_ICON);
-        	
-        	default:
-        	    return null;
         }
     }
 
@@ -221,6 +219,8 @@ public class PyCodeCompletion {
                 IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
 
                 theList.addAll(Arrays.asList(comps));
+                
+                theList.addAll(getGlobalsFromParticipants(request, state));
             }
 
             changeItokenToCompletionPropostal(viewer, request, ret, theList, importsTip);
@@ -228,6 +228,17 @@ public class PyCodeCompletion {
             ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
         }
 
+        return ret;
+    }
+
+    private Collection getGlobalsFromParticipants(CompletionRequest request, CompletionState state) {
+        ArrayList ret = new ArrayList();
+        
+        List participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+        for (Iterator iter = participants.iterator(); iter.hasNext();) {
+            IPyDevCompletionParticipant participant = (IPyDevCompletionParticipant) iter.next();
+            ret.addAll(participant.getGlobalCompletions(request, state));
+        }
         return ret;
     }
 
@@ -379,7 +390,6 @@ public class PyCodeCompletion {
                 convertedProposals.add(proposal);
             
             }else if(obj instanceof Object[]){
-
                 Object element[] = (Object[]) obj;
                 
                 String name = (String) element[0];
@@ -398,6 +408,10 @@ public class PyCodeCompletion {
                         request.documentOffset - request.qlen, request.qlen, name.length(), getImageForType(type), null, null, docStr, priority);
                 
                 convertedProposals.add(proposal);
+                
+            }else if(obj instanceof ICompletionProposal){
+                //no need to convert
+                convertedProposals.add(obj);
             }
             
         }
@@ -435,11 +449,6 @@ public class PyCodeCompletion {
     }
 
 
-
-    /**
-     * This is an image cache (probably this should be initialized elsewhere).
-     */
-    private ImageCache imageCache;
 
     /**
      * Returns non empty string if we are in imports section 

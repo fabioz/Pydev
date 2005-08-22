@@ -28,7 +28,7 @@ public class ProposalsComparator implements Comparator {
 	        }
         }
         //if it is not an IPyCompletionProposal, it has default priority.
-        if(o1 instanceof IPyCompletionProposal){
+        else if(o1 instanceof IPyCompletionProposal){
 	        IPyCompletionProposal p1 = (IPyCompletionProposal) o1;
             
 	        if(p1.getPriority() < IPyCompletionProposal.PRIORITY_DEFAULT){
@@ -39,7 +39,7 @@ public class ProposalsComparator implements Comparator {
 	        }
         }
         
-        if(o2 instanceof IPyCompletionProposal){
+        else if(o2 instanceof IPyCompletionProposal){
 	        IPyCompletionProposal p2 = (IPyCompletionProposal) o2;
             
 	        if(IPyCompletionProposal.PRIORITY_DEFAULT < p2.getPriority()){

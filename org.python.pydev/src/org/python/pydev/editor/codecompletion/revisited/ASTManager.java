@@ -133,7 +133,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         Set<IToken> set = new HashSet<IToken>();
 
         //first we get the imports... that complete for the token.
-        for (Iterator iter = projectModulesManager.keySet().iterator(); iter.hasNext();) {
+        for (Iterator iter = projectModulesManager.getAllModuleNames().iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
 
             String element = key.name;
@@ -206,31 +206,6 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         return (IToken[]) set.toArray(new IToken[0]);
     }
 
-//    /**
-//     * @return a Set of strings with all the modules.
-//     */
-//    public ModulesKey[] getAllModules() {
-//        return modulesManager.getAllModules();
-//    }
-//
-//    /**
-//     * @return
-//     */
-//    public int getSize() {
-//        return modulesManager.getSize();
-//    }
-//
-//    /**
-//     * This method returns the module that corresponds to the path passed as a parameter.
-//     * 
-//     * @param file
-//     * @return the module represented by the file.
-//     */
-//    private AbstractModule getModule(File file, PythonNature nature) {
-//        String name = projectModulesManager.resolveModule(REF.getFileAbsolutePath(file));
-//        return getModule(name, nature);
-//    }
-
     /**
      * This method returns the module that corresponds to the path passed as a parameter.
      * 
@@ -245,12 +220,23 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager#getCompletionsForToken(java.io.File, org.eclipse.jface.text.IDocument, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
     public IToken[] getCompletionsForToken(File file, IDocument doc, CompletionState state) {
+        AbstractModule module = createModule(file, doc, state, this);
+        return getCompletionsForModule(module, state);
+    }
+
+    /**
+     * @param file
+     * @param doc
+     * @param state
+     * @return
+     */
+    public static AbstractModule createModule(File file, IDocument doc, CompletionState state, ICodeCompletionASTManager manager) {
         String moduleName = "";
         if(file != null){
-            moduleName = projectModulesManager.resolveModule(REF.getFileAbsolutePath(file));
+            moduleName = manager.getProjectModulesManager().resolveModule(REF.getFileAbsolutePath(file));
         }
         AbstractModule module = AbstractModule.createModuleFromDoc(moduleName, file, doc, state.nature, state.line);
-        return getCompletionsForModule(module, state);
+        return module;
     }
 
     /** 

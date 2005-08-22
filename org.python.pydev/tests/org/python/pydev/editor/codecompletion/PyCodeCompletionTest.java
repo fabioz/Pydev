@@ -28,7 +28,7 @@ public class PyCodeCompletionTest extends TestCase {
         
     }
     public void testIt(){
-        completion = new PyCodeCompletion(false);
+        completion = new PyCodeCompletion();
         doTest("from datetime import datetime, date, MINYEAR,", "datetime");
         doTest("    from datetime import datetime, date, MINYEAR,", "datetime");
         doTest("no    from datetime import datetime, date, MINYEAR,", "");

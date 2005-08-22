@@ -3,25 +3,20 @@
 <schema targetNamespace="org.python.pydev">
 <annotation>
       <appInfo>
-         <meta.schema plugin="org.python.pydev" id="pydev_builder" name="org.python.pydev.pydev_builder"/>
+         <meta.schema plugin="org.python.pydev" id="pydev_completion" name="org.python.pydev.pydev_completion"/>
       </appInfo>
       <documentation>
          [Enter description of this extension point.]
       </documentation>
    </annotation>
 
-   <element name="builder_participant">
+   <element name="completion_participant">
       <complexType>
-         <sequence>
-         </sequence>
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
                   
                </documentation>
-               <appInfo>
-                  <meta.attribute translatable="true"/>
-               </appInfo>
             </annotation>
          </attribute>
       </complexType>

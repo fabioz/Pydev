@@ -12,6 +12,7 @@ public interface IPyCompletionProposal {
 
     int PRIORITY_LOCALS = -1;
     int PRIORITY_DEFAULT = 10;
+    int PRIORITY_PACKAGES = 100;
     
     /**
      * @return the priority for showing this completion proposal, so that lower priorities are

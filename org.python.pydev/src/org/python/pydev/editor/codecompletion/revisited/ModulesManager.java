@@ -268,7 +268,7 @@ public abstract class ModulesManager implements Serializable {
     /**
      * @return
      */
-    public Set keySet() {
+    public Set getAllModuleNames() {
         Set s = new HashSet();
         s.addAll(getModules().keySet());
         return s;

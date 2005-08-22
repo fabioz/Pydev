@@ -23,7 +23,7 @@ public class JythonCompletionTestWithBuiltins extends JythonCodeCompletionTestsB
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(false);
-        codeCompletion = new PyCodeCompletion(false);
+        codeCompletion = new PyCodeCompletion();
 
         //we don't want to start it more than once
         if(shell == null){

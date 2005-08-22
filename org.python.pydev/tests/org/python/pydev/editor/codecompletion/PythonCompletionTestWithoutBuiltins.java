@@ -44,7 +44,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         this.restorePythonPath(false);
-        codeCompletion = new PyCodeCompletion(false);
+        codeCompletion = new PyCodeCompletion();
     }
 
     /*

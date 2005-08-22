@@ -7,6 +7,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +21,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
@@ -68,17 +70,38 @@ public class ProjectModulesManager extends ModulesManager{
     /**
      * @return
      */
-    public Set keySet() {
+    public Set getAllModuleNames() {
         Set s = new HashSet();
-        s.addAll(getModules().keySet());
+        Set keySet = getModules().keySet();
+        for (Object object : keySet) {
+            ModulesKey m = (ModulesKey) object;
+            s.add(m.name);
+        }
 
         ModulesManager[] managersInvolved = this.getManagersInvolved(true);
         for (int i = 0; i < managersInvolved.length; i++) {
-            s.addAll(managersInvolved[i].getModules().keySet());
+            keySet = managersInvolved[i].getModules().keySet();
+            for (Object object : keySet) {
+                ModulesKey m = (ModulesKey) object;
+                s.add(m.name);
+            }
         }
         return s;
     }
 
+    @Override
+    public ModulesKey[] getAllModules() {
+        List<ModulesKey> ret = new ArrayList<ModulesKey>();
+        ret.addAll(Arrays.asList(super.getAllModules()));
+                
+        ModulesManager[] managersInvolved = this.getManagersInvolved(true);
+        for (int i = 0; i < managersInvolved.length; i++) {
+            ret.addAll((Arrays.asList(managersInvolved[i].getAllModules())));
+        }
+        return ret.toArray(new ModulesKey[0]);
+    }
+
+    
     public AbstractModule getModule(String name, PythonNature nature) {
         return getModule(name, nature, true);
     }
@@ -224,6 +247,7 @@ public class ProjectModulesManager extends ModulesManager{
         }
     }
 
+    
     public List getCompletePythonPath(){
         ArrayList l = new ArrayList();
         ModulesManager[] managersInvolved = getManagersInvolved(true);

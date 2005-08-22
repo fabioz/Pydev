@@ -18,7 +18,7 @@ after 0.9.7.99
 - jython integration supports spaces for jython.jar and java install
 - pylint also supports spaces
 - many templates were added
-
+- pylint is no longer distributed with pydev (its location must be specified)
 
 
 
