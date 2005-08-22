@@ -414,22 +414,29 @@ public class PythonPathHelper implements Serializable{
             }
             
             if(lEnc != null){
-                //ok, the encoding line is in lEnc
-                lEnc = lEnc.substring(lEnc.indexOf("coding")+6);
-                
-                char c;
-                while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) == ' ' || c == ':' || c == '=')) {
-                    lEnc = lEnc.substring(1);
-                }
-
-                StringBuffer buffer = new StringBuffer();
-                while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) != ' ' || c == '-' || c == '*')) {
+                lEnc = lEnc.trim();
+                if(lEnc.length() == 0){
+                    ret = null;
                     
-                    buffer.append(c);
-                    lEnc = lEnc.substring(1);
+                }else if(lEnc.charAt(0) == '#'){ //it must be a comment line
+                    
+                    //ok, the encoding line is in lEnc
+                    lEnc = lEnc.substring(lEnc.indexOf("coding")+6);
+                    
+                    char c;
+                    while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) == ' ' || c == ':' || c == '=')) {
+                        lEnc = lEnc.substring(1);
+                    }
+    
+                    StringBuffer buffer = new StringBuffer();
+                    while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) != ' ' || c == '-' || c == '*')) {
+                        
+                        buffer.append(c);
+                        lEnc = lEnc.substring(1);
+                    }
+    
+                    ret = buffer.toString();
                 }
-
-                ret = buffer.toString();
             }
         } catch (IOException e) {
             e.printStackTrace();

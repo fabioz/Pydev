@@ -182,6 +182,14 @@ public abstract class AbstractToken implements IToken{
         }
         return originalRep;
     }
+    
+    /**
+     * @return the original representation (useful for imports)
+     * e.g.: if it was import coilib.Exceptions as Exceptions, would return coilib.Exceptions
+     */
+    public String getOriginalRep(){
+        return originalRep;
+    }
 
     public int getLineDefinition() {
         return UNDEFINED;

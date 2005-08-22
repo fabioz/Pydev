@@ -56,4 +56,10 @@ public interface IToken extends Serializable, Comparable{
      * @return whether the token we have wrapped is an import
      */
     public boolean isImport();
+    
+    /**
+     * @return the original representation (useful for imports)
+     * e.g.: if it was import coilib.Exceptions as Exceptions, would return coilib.Exceptions
+     */
+    public String getOriginalRep();
 }
