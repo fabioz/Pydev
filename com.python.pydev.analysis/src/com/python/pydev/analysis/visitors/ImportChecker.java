@@ -43,11 +43,6 @@ public class ImportChecker {
             }
         }
         
-        String parentPackage = token.getParentPackage();
-        if(parentPackage.length() > 0 && module.getName().equals(parentPackage)){
-            module = null; //we just found the same module we were before... let's try as if absolute
-        }
-
         boolean found = false;
         if (module != null){
             found = isRepAvailable(nature, module, initial, foundAs);

@@ -29,7 +29,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testCompiledUnusedImports5();
+            analyzer2.testImportFound1();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -248,6 +248,19 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertContainsMsg("Unused import: os.notDefined", msgs);
         assertContainsMsg("Unused import: os", msgs);
         assertContainsMsg("Unresolved import: os.notDefined", msgs);
+    }
+    
+    public void testImportFound1(){
+        
+        doc = new Document(
+                "from os import path\n" +
+                ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs,1);
+        assertContainsMsg("Unused import: path", msgs);
     }
     
     public void testReimport4(){
