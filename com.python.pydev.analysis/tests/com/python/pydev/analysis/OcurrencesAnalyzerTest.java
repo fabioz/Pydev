@@ -252,6 +252,32 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertContainsMsg("Unresolved import: os.notDefined", msgs);
     }
     
+    public void testImportNotFound4(){
+        
+        doc = new Document(
+                "import os as otherThing\n" +
+                ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs,1);
+        assertContainsMsg("Unused import: otherThing", msgs);
+    }
+    
+    public void testImportNotFound5(){
+        
+        doc = new Document(
+                "from os import path as otherThing\n" +
+                ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs,1);
+        assertContainsMsg("Unused import: otherThing", msgs);
+    }
+    
     public void testImportFound1(){
         
         doc = new Document(
