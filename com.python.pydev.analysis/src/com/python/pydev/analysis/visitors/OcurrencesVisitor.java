@@ -104,7 +104,7 @@ public class OcurrencesVisitor extends VisitorBase{
     public OcurrencesVisitor(PythonNature nature, String moduleName, AbstractModule current, IAnalysisPreferences prefs) {
         this.nature = nature;
         this.moduleName = moduleName;
-        this.messagesManager = new MessagesManager(prefs);
+        this.messagesManager = new MessagesManager(prefs, moduleName);
         this.scope = new Scope(this.messagesManager);
         this.duplicationChecker = new DuplicationChecker(this.messagesManager);
         this.importChecker = new ImportChecker(this.messagesManager);

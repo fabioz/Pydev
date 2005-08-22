@@ -36,6 +36,9 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         } catch (CoreException e3) {
             Log.log(e3);
         }
+        if(document.get().indexOf("#@PydevCodeAnalysisIgnore") != -1){
+            return true;
+        }
         
         if(isInPythonPath(resource)){ //just get problems in resources that are in the pythonpath
             IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();

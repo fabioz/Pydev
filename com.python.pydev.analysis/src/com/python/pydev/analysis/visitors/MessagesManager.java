@@ -34,16 +34,40 @@ public class MessagesManager {
 
 
     public List<IMessage> independentMessages = new ArrayList<IMessage>();
+
+    /**
+     * Should be used to give the name of the module we are visiting
+     */
+    private String moduleName;
     
-    public MessagesManager(IAnalysisPreferences prefs) {
+    public MessagesManager(IAnalysisPreferences prefs, String moduleName) {
         this.prefs = prefs;
+        this.moduleName = moduleName;
+    }
+    
+    /**
+     * @return whether we should add an unused import message to the module being analyzed
+     */
+    public boolean shouldAddUnusedImportMessage(){
+        if(moduleName == null){
+            return true;
+        }
+        if(moduleName.endsWith("__init__")){
+            return false;
+        }
+        return true;
     }
     
     /**
      * adds a message of some type given its formatting params
      */
     public void addMessage(int type, IToken generator, Object ...objects ) {
-        independentMessages.add(new Message(type, objects, generator, prefs));
+        if(type == IAnalysisPreferences.TYPE_UNUSED_IMPORT){
+            if (!shouldAddUnusedImportMessage()){
+                return;
+            }
+        }
+        doAddMessage(independentMessages, type, objects, generator);
     }
 
     /**
@@ -51,9 +75,20 @@ public class MessagesManager {
      */
     public void addMessage(int type, IToken token) {
         List<IMessage> msgs = getMsgsList(token);
-        msgs.add(new Message(type, token.getRepresentation(),token, prefs));
+        doAddMessage(msgs, type, token.getRepresentation(),token);
     }
 
+    /**
+     * checks if the message should really be added and does the add.
+     */
+    private void doAddMessage(List<IMessage> msgs, int type, Object string, IToken token){
+        if(type == IAnalysisPreferences.TYPE_UNUSED_IMPORT){
+            if (!shouldAddUnusedImportMessage()){
+                return;
+            }
+        }
+        msgs.add(new Message(type, string,token, prefs));
+    }
     /**
      * adds a message of some type for some Found instance
      */
@@ -66,7 +101,7 @@ public class MessagesManager {
      */
     public void addMessage(int type, IToken generator, IToken tok, String rep) {
         List<IMessage> msgs = getMsgsList(generator);
-        msgs.add(new Message(type, rep, generator, prefs));
+        doAddMessage(msgs, type, rep, generator);
     }
     
     /**
