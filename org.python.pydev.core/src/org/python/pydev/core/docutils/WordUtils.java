@@ -31,7 +31,7 @@ package org.python.pydev.core.docutils;
  * @author <a href="mailto:hps@intermeta.de">Henning P. Schmiedehausen</a>
  * @author Gary Gregory
  * @since 2.0
- * @version $Id: WordUtils.java,v 1.1 2005-07-20 11:57:05 fabioz Exp $
+ * @version $Id: WordUtils.java,v 1.2 2005-08-22 11:59:54 fabioz Exp $
  */
 public class WordUtils {
 
@@ -498,6 +498,16 @@ public class WordUtils {
             whitespace = Character.isWhitespace(ch);
         }
         return buffer.toString();
+    }
+
+    public static boolean endsWith(String str, char c) {
+        if(str.length() == 0){
+            return false;
+        }
+        if(str.charAt(str.length()-1) == c){
+            return true;
+        }
+        return false;
     }
     
 }

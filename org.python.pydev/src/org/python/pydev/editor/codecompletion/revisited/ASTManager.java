@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -133,7 +134,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         Set<IToken> set = new HashSet<IToken>();
 
         //first we get the imports... that complete for the token.
-        for (Iterator iter = projectModulesManager.getAllModuleNames().iterator(); iter.hasNext();) {
+        for (Iterator iter = Arrays.asList(projectModulesManager.getAllModules()).iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
 
             String element = key.name;

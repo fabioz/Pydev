@@ -13,6 +13,7 @@ import java.util.Iterator;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.docutils.WordUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -66,10 +67,21 @@ public class PyOrganizeImports extends PyAction{
 		    }
 		    
 		    if(inComment == false && (str.startsWith("import ") || str.startsWith("from "))){
-		        list.add( new Object[]{new Integer(i), str} );
+                int iToAdd = i;
+                if(WordUtils.endsWith(str, '\\')){
+                    i++;
+                    while(i < lines && WordUtils.endsWith(str, '\\')){
+                        //we have to get all until there are no more back-slashes
+                        String str1 = PySelection.getLine(doc, i);
+                        str += PyAction.getDelimiter(doc);
+                        str += str1;
+                        i++;
+                    }
+                }
+		        list.add( new Object[]{new Integer(iToAdd), str} );
 		        
 		        if(firstImport == -1){
-		            firstImport = i;
+		            firstImport = iToAdd;
 		        }
 		    }
         }
@@ -94,7 +106,12 @@ public class PyOrganizeImports extends PyAction{
 		//ok, now we have to delete all lines with imports.
 		for (Iterator iter = list.iterator(); iter.hasNext();) {
 		    Object[] element = (Object[]) iter.next();
-		    PySelection.deleteLine(doc, ((Integer)element[0]).intValue());
+            String s = (String) element[1];
+            int i = PyAction.countLineBreaks(s);
+            while(i >= 0){
+                PySelection.deleteLine(doc, ((Integer)element[0]).intValue());
+                i--;
+            }
         }
 		
 		Collections.sort(list, new Comparator(){

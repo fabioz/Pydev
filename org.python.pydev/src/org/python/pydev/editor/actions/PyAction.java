@@ -579,4 +579,23 @@ public abstract class PyAction implements IEditorActionDelegate {
             b.append(" ");
         return b.toString();
     }
+
+    public static int countLineBreaks(String replacementString) {
+        int lineBreaks = 0;
+        int ignoreNextNAt = -1;
+        
+        //we may have line breaks with \r\n, or only \n or \r
+        for (int i = 0; i < replacementString.length(); i++) {
+            if(replacementString.charAt(i) == '\r'){
+                lineBreaks++;
+                ignoreNextNAt = i + 1;
+            }
+            if(replacementString.charAt(i) == '\n'){
+                if(ignoreNextNAt != i){
+                    lineBreaks++;
+                }
+            }
+        }
+        return lineBreaks;
+    }
 }
