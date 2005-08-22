@@ -1,2 +1,0 @@
-E: 46:MissingMethod: Missing method 'truc' from IMachin interface
-W: 71:BadArgument.troc: Arguments number differs from IMachin interface method

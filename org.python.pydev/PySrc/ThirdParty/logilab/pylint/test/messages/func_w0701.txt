@@ -1,3 +1,0 @@
-W:  8:function1: Raise a string exception
-W: 12:function2: Raise a string exception
-

@@ -1,2 +1,0 @@
-W: 22:Concret: Method 'bbbb' is abstract in class 'Abstract' but is not overriden
-

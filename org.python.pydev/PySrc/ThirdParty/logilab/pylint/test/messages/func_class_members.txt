@@ -1,3 +1,0 @@
-E: 16:MyClass.test: Access to undefined member 'incorrect'
-E: 17:MyClass.test: Access to undefined member 'nonexistent1'
-E: 18:MyClass.test: Access to undefined member 'nonexistent2'

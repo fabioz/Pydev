@@ -1,1 +1,0 @@
-W:  9:fix_contant: Use of the global statement

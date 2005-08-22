@@ -1,2 +1,0 @@
-C:  1: Line too long (89/80)
-C:  2: Line too long (93/80)

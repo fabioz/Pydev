@@ -1,2 +1,0 @@
-W:  9:function: Undefined global 'AAAA'
-W:  9:function: Use of the global statement

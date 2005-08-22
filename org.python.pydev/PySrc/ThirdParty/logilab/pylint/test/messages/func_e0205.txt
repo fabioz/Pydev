@@ -1,2 +1,0 @@
-E: 14:Cdef.abcd: Method hide an inherited attribute from Abcd
-

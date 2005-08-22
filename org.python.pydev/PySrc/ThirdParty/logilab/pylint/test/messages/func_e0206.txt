@@ -1,3 +1,0 @@
-E:  6:Abcd: Interface __revision__ is not a class (Const)
-E: 13:Cdef: Interface __revision__ is not a class (Const)
-

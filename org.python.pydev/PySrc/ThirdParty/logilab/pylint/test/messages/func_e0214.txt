@@ -1,2 +1,0 @@
-E: 11:MetaClass.whatever: Metaclass method doesn't have "mcs" as first argument
-

@@ -1,2 +1,0 @@
-W:  7:function: Unused argument 'arg'
-W: 14:AAAA.method: Unused argument 'arg'
