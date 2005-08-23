@@ -12,8 +12,11 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.editor.codecompletion.revisited.TestDependent;
 import org.python.pydev.plugin.BundleInfo;
+import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor;
+import org.python.pydev.ui.pythonpathconf.PythonInterpreterEditor;
 
 /**
  * @author Fabio Zadrozny
@@ -36,12 +39,16 @@ public class InterpreterEditorTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
+        AbstractInterpreterEditor.USE_ICONS = false;
         BundleInfo.setBundleInfo(new BundleInfoStub());
         try {
-            display = new Display();
-            createSShell();
+            if(TestDependent.HAS_SWT_ON_PATH){
+                display = new Display();
+                createSShell();
+            }
         } catch (UnsatisfiedLinkError e) {
             //ok, ignore it.
+            e.printStackTrace();
         }
     }
 
@@ -50,6 +57,7 @@ public class InterpreterEditorTest extends TestCase {
      */
     protected void tearDown() throws Exception {
         super.tearDown();
+        AbstractInterpreterEditor.USE_ICONS = true;
         BundleInfo.setBundleInfo(null);
     }
 
@@ -57,10 +65,10 @@ public class InterpreterEditorTest extends TestCase {
      * @param display
      */
     protected void goToManual(Display display) {
-//        while (!shell.isDisposed()) {
-//            if (!display.readAndDispatch())
-//                display.sleep();
-//        }
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
         System.out.println("finishing...");
         display.dispose();
     }
@@ -71,12 +79,11 @@ public class InterpreterEditorTest extends TestCase {
      */
     public void testIt() throws MalformedURLException {
         if(display != null){
-            shell.open();
-    
-  //          InterpreterEditor editor = new InterpreterEditor("label", shell, new InterpreterManager(new Preferences()));
+            PythonInterpreterEditor editor = new PythonInterpreterEditor("label", shell, new PythonInterpreterManager(new Preferences()));
             shell.pack();
             shell.setSize(new org.eclipse.swt.graphics.Point(300, 300));
-            goToManual(display);
+            shell.open();
+            //goToManual(display);
         }
     }
 }

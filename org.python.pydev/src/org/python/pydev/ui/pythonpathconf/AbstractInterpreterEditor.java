@@ -52,6 +52,8 @@ import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
+    public static boolean USE_ICONS = true;
+    
     /**
      * The last path, or <code>null</code> if none.
      * It is used so that we can open the editor in the specified place.
@@ -118,8 +120,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     protected AbstractInterpreterEditor(String preferenceName, String labelText, Composite parent, IInterpreterManager interpreterManager) {
         init(preferenceName, labelText);
         this.interpreterManager = interpreterManager;
-        imageSystemLibRoot = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM_ROOT);
-        imageSystemLib = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
+        if(USE_ICONS){
+            imageSystemLibRoot = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM_ROOT);
+            imageSystemLib = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
+        }
         createControl(parent);
         updateTree();
     }
@@ -199,47 +203,50 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      */
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         super.doFillIntoGrid(parent, numColumns);
-
+        
     	Label l1 = new Label(parent, SWT.None);
     	l1.setText("System PYTHONPATH");
     	GridData gd = new GridData();
     	gd.horizontalSpan = numColumns;
-    	gd.grabExcessHorizontalSpace = false;
-    	gd.grabExcessVerticalSpace = false;
     	l1.setLayoutData(gd);
 
-    	
-    	Composite control = getTreeLibsControl(parent);
-    	gd = new GridData(GridData.FILL_BOTH);
+    	//the tree
+        Tree tree = getTreeLibsControl(parent);
+    	gd = new GridData();
     	gd.horizontalSpan = numColumns - 1;
-    	gd.grabExcessHorizontalSpace = true;
-    	gd.grabExcessVerticalSpace = true;
-    	control.setLayoutData(gd);
+        gd.horizontalAlignment = SWT.FILL;
+        gd.verticalAlignment = SWT.FILL;
+        gd.grabExcessVerticalSpace = true;
+        tree.setLayoutData(gd);
 
-    	control = getButtonBoxControlSystem(parent);
+        //buttons at the side of the tree
+        Composite control = getButtonBoxControlSystem(parent);
     	gd = new GridData();
     	gd.verticalAlignment = GridData.BEGINNING;
+    	gd.horizontalSpan = numColumns - 1;
     	control.setLayoutData(gd);
-    	
+
+        //label
     	Label l2 = new Label(parent, SWT.None);
     	l2.setText("Forced builtin libs (check http://pydev.sf.net/faq.html for more info).");
     	gd = new GridData();
     	gd.horizontalSpan = numColumns;
-    	gd.grabExcessHorizontalSpace = false;
-    	gd.grabExcessVerticalSpace = false;
     	l2.setLayoutData(gd);
 
-    	
+        //the list with the builtins
     	List list = getBuiltinsListControl(parent);
-        gd = new GridData(GridData.FILL_HORIZONTAL);
-        gd.verticalAlignment = GridData.FILL;
+        gd = new GridData();
         gd.horizontalSpan = numColumns - 1;
-        gd.grabExcessHorizontalSpace = true;
+        gd.horizontalAlignment = SWT.FILL;
+        gd.grabExcessHorizontalSpace = false;
+        gd.heightHint = 100;
         list.setLayoutData(gd);
     	
+        //the builtins buttons
     	control = getButtonBoxControlOthers(parent);
         gd = new GridData();
         gd.verticalAlignment = GridData.BEGINNING;
+        gd.horizontalSpan = numColumns - 1;
         control.setLayoutData(gd);
     }
     /**
