@@ -3,10 +3,18 @@
  */
 package com.python.pydev.analysis.visitors;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.python.parser.SimpleNode;
+import org.python.parser.ast.Import;
+import org.python.parser.ast.ImportFrom;
+import org.python.parser.ast.aliasType;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
@@ -28,53 +36,80 @@ public class ImportChecker {
     public void visitImportToken(IToken token, PythonNature nature, String moduleName) {
         //try to find it as a relative import
 
-        AbstractModule module = null;
-        String initial = null;
-        String foundAs = null;
-
-        //try 1 ----------------------------------------------------------------
-        String relative1 = null;
-        String relative2 = null;
-        if(moduleName != null){
-            String tail = FullRepIterable.headAndTail(moduleName)[0]; //discard the head
-            relative1 = tail+"."+token.getOriginalRep();
-            relative2 = tail+"."+token.getCompletePath();
-        }
-
-        //we have to check for many variations, as it can be relative, absolute, import from, as
-        String [] reps = new String[]{ 
-                token.getCompletePath(),
-                relative1,
-                relative2,
-                token.getRepresentation(),
-                token.getOriginalRep()
-        };
-        
-        for(String rep : reps){
-            if(rep == null){
-                continue;
+        if(token instanceof SourceToken){
+            AbstractModule module = null;
+            String initial = null;
+            String foundAs = null;
+            List<String> reps = new ArrayList<String>();
+            String tail = null;
+            if(moduleName != null){
+                tail = FullRepIterable.headAndTail(moduleName)[0]; //discard the head
+            }            
+            
+            SourceToken tok = (SourceToken) token;
+            SimpleNode ast = tok.getAst();
+            
+            if(ast instanceof Import){
+                Import imp = (Import) ast;
+                aliasType[] n = imp.names;
+                if(n != null){
+                    for (int i = 0; i < n.length; i++) {
+                        String name = n[i].name;
+                        reps.add(name);
+                        if(tail != null){
+                            reps.add(tail+"."+name);
+                        }
+                    }
+                }
+                
+            }else if(ast instanceof ImportFrom){
+                ImportFrom imp = (ImportFrom) ast;
+                String fromModule = imp.module;
+                
+                if(imp.names != null && imp.names.length > 0){
+                    for (int i = 0; i < imp.names.length; i++) {
+                        String name = imp.names[i].name;
+                        reps.add(fromModule+"."+name);
+                        if(tail != null){
+                            reps.add(tail+"."+fromModule+"."+name);
+                        }
+                    }
+                }else{
+                    reps.add(fromModule);
+                    if(tail != null){
+                        reps.add(tail+"."+fromModule);
+                    }
+                }
+            }
+    
+            //try em ----------------------------------------------------------------
+    
+            for(String rep : reps){
+                if(rep == null){
+                    continue;
+                }
+                
+                initial = rep;
+                //first check for relative imports
+                for (String part : new FullRepIterable(rep, true)) {
+                    module = nature.getAstManager().getModule(part, nature);
+                    if(module != null){
+                        foundAs = part;
+                        break;
+                    }
+                }
+            
+                if (module != null){
+                    if( isRepAvailable(nature, module, initial, foundAs)){
+                        return;
+                    }
+                    module = null; //the token was not really found, still can check with the absolute representation though
+                }
             }
             
-            initial = rep;
-            //first check for relative imports
-            for (String part : new FullRepIterable(rep, true)) {
-                module = nature.getAstManager().getModule(part, nature);
-                if(module != null){
-                    foundAs = part;
-                    break;
-                }
-            }
-        
-            if (module != null){
-                if( isRepAvailable(nature, module, initial, foundAs)){
-                    return;
-                }
-                module = null; //the token was not really found, still can check with the absolute representation though
-            }
+            //if it got here, it was not resolved
+            messagesManager.addMessage(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, token);
         }
-        
-        //if it got here, it was not resolved
-        messagesManager.addMessage(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, token);
     }
     
 

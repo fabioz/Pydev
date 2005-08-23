@@ -31,7 +31,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testImportNotFound5();
+            analyzer2.testUnusedImports2();
+            analyzer2.testUnusedImports();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -120,7 +121,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
-        assertEquals(1, msgs.length);
+        printMessages(msgs, 1);
         assertEquals(IMarker.SEVERITY_ERROR, msgs[0].getSeverity());
         assertEquals("Unused import: main, TestCase, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
 
@@ -157,7 +158,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
-        assertEquals(1, msgs.length);
+        printMessages(msgs,1);
         assertContainsMsg("Unused import: xml.dom.domreg, xml.dom", msgs);
         assertEquals(1, msgs[0].getStartLine(doc));
     }
