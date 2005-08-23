@@ -2,14 +2,14 @@
 This module was created to get information available in the interpreter, such as libraries,
 paths, etc.
 
-TODO: get the builtin modules embeeded in python from sys.builtin_module_names... 
-(for putting in org.python.pydev.ui.pythonpathconf.InterpreterInfo.forcedLibs)
-
-
 what is what:
 sys.builtin_module_names: contains the builtin modules embeeded in python (rigth now, we specify all manually).
 sys.prefix: A string giving the site-specific directory prefix where the platform independent Python files are installed
 
+format is something as 
+EXECUTABLE:python.exe|libs@compiled_dlls$builtin_mods
+
+all internal are separated by |
 '''
 import sys
 import os
@@ -38,3 +38,12 @@ if __name__ == '__main__':
             
     for p in result:
         print '|', p
+    
+    print '@' #no compiled libs
+    print '$' #the forced libs
+    
+    for builtinMod in sys.builtin_module_names:
+        print '|', builtinMod
+        
+        
+

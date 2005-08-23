@@ -10,10 +10,10 @@ import java.io.FileFilter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.REF;
@@ -60,7 +60,7 @@ public class InterpreterInfo implements Serializable{
      * 
      * for jython, this should 
      */
-    public Set forcedLibs = new HashSet(); 
+    public Set forcedLibs = new TreeSet(); 
     
     /**
      * module management for the system is always binded to an interpreter (binded in this class)
@@ -134,37 +134,31 @@ public class InterpreterInfo implements Serializable{
             }
         }
 
+        ArrayList l1 = new ArrayList();
         if(libsSplit.length > 1){
 	        String dllLibs = libsSplit[1];
 	        String[] dllLibs1 = dllLibs.split("\\|");
-	        ArrayList l1 = new ArrayList();
 	        for (int i = 0; i < dllLibs1.length; i++) {
 	            String trimmed = dllLibs1[i].trim();
 	            if(trimmed.length() > 0){
 	                l1.add(trimmed);
 	            }
 	        }
-	        
-	        
-	        if(forcedSplit.length > 1){
-		        String forcedLibs = forcedSplit[1];
-		        String[] forcedLibs1 = forcedLibs.split("\\|");
-		        ArrayList l2 = new ArrayList();
-		        for (int i = 0; i < forcedLibs1.length; i++) {
-		            String trimmed = forcedLibs1[i].trim();
-		            if(trimmed.length() > 0){
-		                l2.add(trimmed);
-		            }
-		        }
-	            
-	            return new InterpreterInfo(executable, l, l1, l2);
-	        
-	        }else{
-	            return new InterpreterInfo(executable, l, l1);
-	        }
-        }else{
-            return new InterpreterInfo(executable, l);
         }
+	        
+        ArrayList l2 = new ArrayList();
+        if(forcedSplit.length > 1){
+	        String forcedLibs = forcedSplit[1];
+	        String[] forcedLibs1 = forcedLibs.split("\\|");
+	        for (int i = 0; i < forcedLibs1.length; i++) {
+	            String trimmed = forcedLibs1[i].trim();
+	            if(trimmed.length() > 0){
+	                l2.add(trimmed);
+	            }
+	        }
+        }	            
+        return new InterpreterInfo(executable, l, l1, l2);
+	        
     }
     
     /**
@@ -174,24 +168,23 @@ public class InterpreterInfo implements Serializable{
         StringBuffer buffer = new StringBuffer();
         buffer.append("Executable:");
         buffer.append(executableOrJar);
-        buffer.append("|");
         for (Iterator iter = libs.iterator(); iter.hasNext();) {
-            buffer.append(iter.next().toString());
             buffer.append("|");
+            buffer.append(iter.next().toString());
         }
+        buffer.append("@");
         if(dllLibs.size() > 0){
-	        buffer.append("@");
 	        for (Iterator iter = dllLibs.iterator(); iter.hasNext();) {
-	            buffer.append(iter.next().toString());
 	            buffer.append("|");
+	            buffer.append(iter.next().toString());
 	        }
         }
         
+        buffer.append("$");
         if(forcedLibs.size() > 0){
-	        buffer.append("$");
 	        for (Iterator iter = forcedLibs.iterator(); iter.hasNext();) {
-	            buffer.append(iter.next().toString());
 	            buffer.append("|");
+	            buffer.append(iter.next().toString());
 	        }
         }
         
@@ -229,20 +222,17 @@ public class InterpreterInfo implements Serializable{
             this.dllLibs.add(REF.getFileAbsolutePath(f));
         }
 	    
-	    forcedLibs.clear();
-	    forcedLibs.add("os");
-	    forcedLibs.add("math");
-	    forcedLibs.add("__builtin__");
-	    forcedLibs.add("sys");
-	    forcedLibs.add("datetime");
-	    forcedLibs.add("time");
-	    forcedLibs.add("gc");
+	    //the compiled with the interpreter should be already gotten.
+	    forcedLibs.add("os"); //we have it in source, but want to interpret it, source info (ast) does not give us much
+	    forcedLibs.add("__builtin__"); //just to be sure of it... (it's a set, so, adding twice should be no problem).
+        
+
         if(isJythonInfo()){
-            
+            //by default, we don't want to force anything to python.
         }else{
+            //those are sources, but we want to get runtime info on them.
             forcedLibs.add("OpenGL");
             forcedLibs.add("wxPython");
-            forcedLibs.add("itertools");
         }
         
     }

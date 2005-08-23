@@ -37,21 +37,23 @@ public class InterpreterInfoTest extends TestCase {
      * 
      */
     public void testInfo() {
-        List l = new ArrayList();
+        List<String> l = new ArrayList<String>();
         InterpreterInfo info = new InterpreterInfo("test", l);
         InterpreterInfo info2 = new InterpreterInfo("test", l);
         InterpreterInfo info3 = new InterpreterInfo("test3", l);
-        List l4 = new ArrayList();
+        List<String> l4 = new ArrayList<String>();
         l4.add("l4");
         InterpreterInfo info4 = new InterpreterInfo("test", l4);
         
-        List dlls = new ArrayList();
+        List<String> dlls = new ArrayList<String>();
         dlls.add("dll1");
         InterpreterInfo info5 = new InterpreterInfo("test", l4, dlls);
         
-        List forced = new ArrayList();
+        List<String> forced = new ArrayList<String>();
         forced.add("forced1");
         InterpreterInfo info6 = new InterpreterInfo("test", l4, dlls, forced);
+        
+        InterpreterInfo info7 = new InterpreterInfo("test", new ArrayList(), new ArrayList(), forced);
         
         assertEquals(info, info2);
         assertFalse(info.equals(info3));
@@ -72,6 +74,22 @@ public class InterpreterInfoTest extends TestCase {
         
         String toString6 = info6.toString();
         assertEquals(info6, InterpreterInfo.fromString(toString6));
+        
+        String toString7 = info7.toString();
+        assertEquals(info7, InterpreterInfo.fromString(toString7));
+        
+        List<String> l1 = new ArrayList<String>();
+        l1.add("c:\\bin\\python24\\lib\\lib-tk");
+        l1.add("c:\\bin\\python24");
+        List<String> l2 = new ArrayList<String>();
+        List<String> l3 = new ArrayList<String>();
+        l3.add("__builtin__");
+        l3.add("__main__");
+        l3.add("_bisect");
+        InterpreterInfo info8 = new InterpreterInfo("C:\\bin\\Python24\\python.exe", l1, l2, l3);
+        
+        String s = "EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tk\n| c:\\bin\\python24\n@\n$\n| __builtin__| __main__\n| _bisect\n";
+        assertEquals(info8, InterpreterInfo.fromString(s));
         
     }
 }
