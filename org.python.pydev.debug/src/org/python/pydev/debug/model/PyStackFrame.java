@@ -225,8 +225,9 @@ public class PyStackFrame extends PlatformObject implements IStackFrame {
 	public boolean equals(Object obj) {
         if (obj instanceof PyStackFrame) {
             PyStackFrame sf = (PyStackFrame) obj;
-            return this.id.equals(sf.id);
+            return this.id.equals(sf.id) && this.path.toString().equals(sf.path.toString())
+                    && this.line == sf.line;
         }
         return false;
-	}
+    }
 }

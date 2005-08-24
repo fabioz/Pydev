@@ -392,7 +392,14 @@ public class PythonRunnerConfig {
             cmdArgs.add("org.python.util.jython");
             
             if (isDebug) {
-                throw new RuntimeException("still not implemented");
+                cmdArgs.add(getDebugScript());
+                cmdArgs.add("--type");
+                cmdArgs.add("jython");
+                cmdArgs.add("--client");
+                cmdArgs.add("localhost");
+                cmdArgs.add("--port");
+                cmdArgs.add(Integer.toString(debugPort));
+                cmdArgs.add("--file");
             }
             
         }else{
@@ -403,6 +410,8 @@ public class PythonRunnerConfig {
         
     		if (isDebug) {
     			cmdArgs.add(getDebugScript());
+                cmdArgs.add("--type");
+                cmdArgs.add("python");
     			cmdArgs.add("--client");
     			cmdArgs.add("localhost");
     			cmdArgs.add("--port");

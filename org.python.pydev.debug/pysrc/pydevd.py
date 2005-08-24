@@ -45,6 +45,15 @@ each command has a format:
     * RDB - remote debugger, the java end
     * PYDB - pydevd, the python end
 """
+
+
+try:
+    __setFalse = False
+except:
+    False = 0
+    True = 1
+
+
 import time
 import sys
 import threading
@@ -52,9 +61,8 @@ import Queue as PydevQueue
 from socket import socket
 from socket import AF_INET
 from socket import SOCK_STREAM
-from socket import timeout
+from socket import error
 import urllib
-import time
 import pydevd_vars
 
 VERSION_STRING = "1.0"
@@ -128,6 +136,10 @@ class WriterThread(threading.Thread):
         self.setName("pydevd.Writer")
         self.setDaemon(True)
         self.cmdQueue = PydevQueue.Queue()
+        if type=='python':
+            self.timeout = 0
+        else:
+            self.timeout = 0.1
        
     def addCommand(self, cmd):
         """ cmd is NetCommand """
@@ -139,14 +151,17 @@ class WriterThread(threading.Thread):
         try:
             while(True):
                 cmd = self.cmdQueue.get(1)
-                pydevd_log(1, "sending cmd " + cmd.getOutgoing())
-                self.sock.sendall(cmd.getOutgoing())
+                out = cmd.getOutgoing()
+                pydevd_log(1, "sending cmd " + out)
+                bytesSent = self.sock.send(out) #TODO: this does not guarantee that all message is sent (and jython does not have a send all)
+                time.sleep(self.timeout)                
         except Exception, e:
             print >>sys.stderr, "Exception in writer thread", str(e)
         except:
             print >>sys.stderr, "Exception in writer thread"
             raise
-            
+    
+    
 class NetCommand:
     """ Commands received/sent over the network.
     
@@ -406,8 +421,8 @@ class PyDB:
         self.breakpoints = {}
         self.readyToRun = False
 
-    def initializeNetwork(self, sock):
-        sock.settimeout(None) # infinite, no timeouts from now on
+    def initializeNetwork(self, sock):        
+        #sock.settimeout(None) # infinite, no timeouts from now on - jython does not have it
         self.reader = ReaderThread(sock)
         self.reader.start()
         self.writer = WriterThread(sock)
@@ -429,11 +444,11 @@ class PyDB:
         pydevd_log(1, "Connecting to " + host + ":" + str(port))
         try:
             s = socket(AF_INET, SOCK_STREAM);
-            s.settimeout(10) # seconds
+#            s.settimeout(10) # seconds - jython does not have it
             s.connect((host, port))
             pydevd_log(1, "Connected.")
             self.initializeNetwork(s)
-        except timeout:
+        except:
             print "server timed out after 10 seconds, could not connect to " + host + ":" + str(port)
             print "Exiting. Bye!"
             sys.exit(1)
@@ -640,10 +655,9 @@ class PyDB:
                 self.doWaitSuspend(t, frame, event, arg)
                 return self.trace_dispatch
         except AttributeError:
-#            print "Attribute ERROR"
             t.pydev_state = PyDB.STATE_RUN # assign it to avoid future exceptions
         except:
-            print sys.stderr, "Exception in trace_dispatch"
+            print >> sys.stderr, "Exception in trace_dispatch"
             print sys.exc_info()[0]
             raise
 
@@ -727,7 +741,7 @@ class PyDB:
 
         #I think this is an ugly hack, bug it works (seems to) for the bug that says that sys.path should be the same in
         #debug and run.
-        if __file__.startswith(sys.path[0]):
+        if m.__file__.startswith(sys.path[0]):
             #print >> sys.stderr, 'Deleting: ', sys.path[0]
             del sys.path[0]
         
@@ -746,8 +760,12 @@ class PyDB:
         net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.writer" id="-1"/></xml>')
         self.writer.addCommand(net)
         
-        threading.settrace(self.trace_dispatch) # for all future threads
-        sys.settrace(self.trace_dispatch)  #for this thread
+        sys.settrace(self.trace_dispatch) 
+        try:                     
+            threading.settrace(self.trace_dispatch) # for all future threads           
+        except:
+            pass
+
         while not self.readyToRun: 
             time.sleep(0.1) # busy wait until we receive run command
             
@@ -758,6 +776,7 @@ def processCommandLine(argv):
     """ parses the arguments.
         removes our arguments from the command line """
     retVal = {}
+    retVal['type'] = ''
     retVal['client'] = ''
     retVal['server'] = False
     retVal['port'] = 0
@@ -768,6 +787,10 @@ def processCommandLine(argv):
         if (argv[i] == '--port'):
             del argv[i]
             retVal['port'] = int(argv[i])
+            del argv[i]
+        elif (argv[i] == '--type'):
+            del argv[i]
+            retVal['type'] = argv[i]
             del argv[i]
         elif (argv[i] == '--client'):
             del argv[i]
@@ -794,6 +817,11 @@ def usage(doExit=0):
 def quittingNow():
     pydevd_log(1, "Debugger exiting. Over & out....\n")
 
+def quittingNowJython():
+    pydevd_log(1, "Debugger exiting. Over & out ( Jython )....\n")
+    import sys
+    sys.exit(0)
+
 if __name__ == '__main__':
     print >>sys.stderr, "pydev debugger"
     # parse the command line. --file is our last argument that is required
@@ -806,7 +834,13 @@ if __name__ == '__main__':
     pydevd_log(2, "arguments:" + str(sys.argv))
  
     import atexit
-    atexit.register(quittingNow)
+    if setup['type']=='python':
+        atexit.register(quittingNow)
+    else:
+        atexit.register(quittingNowJython)
+
+    global type
+    type = setup['type']
 
     debugger = PyDB()
     debugger.connect(setup['client'], setup['port'])

@@ -5,16 +5,36 @@ from types import *
 import urllib
 import threading
 import sys
-import inspect
+
+try:
+    __setFalse = False
+except:
+    False = 0
+    True = 1
+
+class InspectStub:
+   def isbuiltin(self, *args):
+       return False
+   def isroutine(self, *args):
+       return False
+       
+try:
+   import inspect
+except ImportError:
+   inspect = InspectStub()
 
 #types does not include a MethodWrapperType
-MethodWrapperType = type([].__str__)
+try:
+   MethodWrapperType = type([].__str__)
+except:
+   MethodWrapperType = None
+
 
 class VariableError(Exception):
     def __init__(self, message):
         Exception.__init__(self, message)
 
-class Resolver(object):
+class Resolver:
     def resolve(self, var, attribute):
         return getattr(var, attribute)
         
@@ -51,7 +71,9 @@ class Resolver(object):
         if filterPrivate:
             names = [n for n in names if not (n.startswith('_') and not n.endswith('__') )]
         
-        d = dict( [ (n, getattr(var, n)) for n in names])
+        d = {}
+        for n in names:
+            d[ n ] = getattr(var, n)        
         d['type'] = type(var).__name__
         return d
                 
@@ -73,18 +95,26 @@ defaultResolver = Resolver()
 dictResolver = DictResolver()
 tupleResolver = TupleResolver()
 
-typeMap = {NoneType : (NoneType, NoneType.__name__, None), \
-    IntType : (IntType, IntType.__name__, None), \
-    LongType : (LongType, LongType.__name__, None), \
-    FloatType : (FloatType, FloatType.__name__, None), \
-    BooleanType : (BooleanType, BooleanType.__name__, None), \
-    ComplexType : (ComplexType, ComplexType.__name__, None), \
-    StringType : (StringType, StringType.__name__, None), \
-    UnicodeType : (UnicodeType, UnicodeType.__name__, None), \
-    BufferType : (BufferType, BufferType.__name__, None), \
-    TupleType : (TupleType, TupleType.__name__, tupleResolver), \
-    ListType : (ListType, ListType.__name__, tupleResolver), \
-    DictType : (DictType, DictType.__name__, dictResolver) }
+typeMap = {
+   NoneType : (NoneType, NoneType.__name__, None),
+   IntType : (IntType, IntType.__name__, None),
+   LongType : (LongType, LongType.__name__, None),
+   FloatType : (FloatType, FloatType.__name__, None),
+   ComplexType : (ComplexType, ComplexType.__name__, None),
+   StringType : (StringType, StringType.__name__, None),
+   UnicodeType : (UnicodeType, UnicodeType.__name__, None),
+   TupleType : (TupleType, TupleType.__name__, tupleResolver),
+   ListType : (ListType, ListType.__name__, tupleResolver),
+   DictType : (DictType, DictType.__name__, dictResolver)
+}
+
+try:
+   typeMap[BooleanType] = (BooleanType, BooleanType.__name__, None)
+   typeMap[BufferType] = (BufferType, BufferType.__name__, None)
+except:
+   #jython does not have this types
+   pass
+
 
 def getType(o):
     """ returns a triple (typeObject, typeString, resolver
@@ -93,10 +123,15 @@ def getType(o):
         Use the resolver to get its attributes.
         
         All container objects should have a resolver.
-    """
-    for t in typeMap:
-        if isinstance(o, t):
-            return typeMap[t]
+    """    
+    try:
+        for t in typeMap.keys():
+            if isinstance(o, t):
+                return typeMap[t]
+    except:
+        print typeMap
+        print typeMap.__class__
+        print dir( typeMap )        
         
     #no match return default        
     return (type(o), type(o).__name__, defaultResolver)
@@ -127,6 +162,8 @@ def frameVarsToXML(frame):
             v = frame.f_locals[k]
             xml += varToXML(v, str(k))
         except Exception, e:
+            import traceback
+            traceback.print_exc()
             print >>sys.stderr,"unexpected error, recovered safely", str(e)
     return xml
 
@@ -159,8 +196,13 @@ def resolveCompoundVariable(thread, frame_id, scope, attrs):
         var = resolver.resolve(var, k)
     
 #    print >>sys.stderr, "Got variable", var
-    (type, typeName, resolver) = getType(var)
-    return resolver.getDictionary(var)
+    
+    try:
+        (type, typeName, resolver) = getType(var)
+        return resolver.getDictionary(var)
+    except:
+        import traceback
+        traceback.print_exc()
 
     
 def evaluateExpression( thread, frame_id, expression ):

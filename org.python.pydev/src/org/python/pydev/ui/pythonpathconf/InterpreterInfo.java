@@ -224,7 +224,10 @@ public class InterpreterInfo implements Serializable{
 	    
 	    //the compiled with the interpreter should be already gotten.
 	    forcedLibs.add("os"); //we have it in source, but want to interpret it, source info (ast) does not give us much
-	    forcedLibs.add("__builtin__"); //just to be sure of it... (it's a set, so, adding twice should be no problem).
+        
+        //as it is a set, there is no problem to add it twice
+	    forcedLibs.add("__builtin__"); //jython bug: __builtin__ is not added
+	    forcedLibs.add("sys"); //jython bug: sys is not added
         
 
         if(isJythonInfo()){
@@ -273,6 +276,9 @@ public class InterpreterInfo implements Serializable{
      * @return if the executable is the jython jar.
      */
     public static boolean isJythonExecutable(String executable) {
+        if (executable.endsWith("\"")) {
+            return executable.endsWith(".jar\"");
+        }
         return executable.endsWith(".jar");
     }
     
