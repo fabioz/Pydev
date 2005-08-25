@@ -10,7 +10,7 @@ import java.io.InputStreamReader;
 
 public class ThreadStreamReader extends Thread {
     InputStream is;
-    StringBuffer contents;
+    public StringBuffer contents;
 
     public ThreadStreamReader(InputStream is) {
         contents = new StringBuffer();
@@ -26,7 +26,7 @@ public class ThreadStreamReader extends Thread {
                 contents.append((char) c);
             }
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            //that's ok
         }
     }
 }

@@ -26,6 +26,7 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
+import org.python.pydev.runners.ThreadStreamReader;
 
 public abstract class AbstractShell {
 
@@ -33,7 +34,7 @@ public abstract class AbstractShell {
     public static final int OTHERS_SHELL = 2;
     public static final int COMPLETION_SHELL = 1;
     protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000;
-    protected static final boolean DEBUG_SHELL = false;
+    protected static final boolean DEBUG_SHELL = true;
 
 
     private void dbg(Object string) {
@@ -189,6 +190,8 @@ public abstract class AbstractShell {
      * Server socket (accept connections).
      */
     protected ServerSocket serverSocket;
+    private ThreadStreamReader stdReader;
+    private ThreadStreamReader errReader;
 
     
     /**
@@ -250,7 +253,7 @@ public abstract class AbstractShell {
             }
             
             String execMsg = createServerProcess(pWrite, pRead);
-            //dbg("executing "+execMsg);
+            dbg("executing "+execMsg);
             
             sleepALittle(200);
             String osName = System.getProperty("os.name");
@@ -264,6 +267,9 @@ public abstract class AbstractShell {
                 throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
             } catch (IllegalThreadStateException e2) { //this is ok
             }
+            
+            //ok, process validated, so, let's get its output and store it for further use.
+            afterCreateProcess();
             
             boolean connected = false;
             int attempts = 0;
@@ -295,9 +301,19 @@ public abstract class AbstractShell {
             if(!connected){
                 //what, after all this trouble we are still not connected????!?!?!?!
                 //let's communicate this to the user...
-                Exception exception = new Exception("Error connecting to python process (" + execMsg + ")");
+                String isAlive;
                 try {
-                    Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Error connecting to python process (" + execMsg + ")", exception);
+                    int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
+                    isAlive = " - the process in NOT ALIVE anymore (output="+exitVal+") - ";
+                } catch (IllegalThreadStateException e2) { //this is ok
+                    isAlive = " - the process in still alive - ";
+                }
+                
+
+                String output = getProcessOutput();
+                Exception exception = new Exception("Error connecting to python process (" + execMsg + ") "+isAlive+" the output of the process is: "+output);
+                try {
+                    Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Error connecting to python process (" + execMsg + ") "+isAlive+" the output of the process is: "+output, exception);
                     throw new CoreException(status);
                 } catch (Exception e) {
                     throw exception;
@@ -314,6 +330,36 @@ public abstract class AbstractShell {
         }
     }
 
+
+
+    private void afterCreateProcess() {
+        try {
+            process.getOutputStream().close(); //we won't write to it...
+        } catch (IOException e2) {
+        }
+        
+        //will print things if we are debugging or just get it (and do nothing except emptying it)
+        stdReader = new ThreadStreamReader(process.getInputStream());
+        errReader = new ThreadStreamReader(process.getErrorStream());
+
+        stdReader.start();
+        errReader.start();
+    }
+
+
+    /**
+     * @return the current output of the process
+     */
+    protected String getProcessOutput(){
+        try {
+            String output = "";
+            output += "Std output:\n" + stdReader.contents.toString();
+            output += "\n\nErr output:\n" + errReader.contents.toString();
+            return output;
+        } catch (Exception e) {
+            return "Unable to get output";
+        }
+    }
 
 
     /**

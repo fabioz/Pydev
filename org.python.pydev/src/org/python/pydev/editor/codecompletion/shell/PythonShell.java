@@ -51,18 +51,6 @@ public class PythonShell extends AbstractShell{
             execMsg = interpreter+" "+REF.getFileAbsolutePath(serverFile)+" "+pWrite+" "+pRead;
         }
         process = new SimplePythonRunner().createProcess(execMsg, serverFile.getParentFile());
-        
-        try {
-            process.getOutputStream().close(); //we won't write to it...
-        } catch (IOException e2) {
-        }
-        
-        //will print things if we are debugging or just get it (and do nothing except emptying it)
-        ThreadStreamReaderPrinter std = new ThreadStreamReaderPrinter(process.getInputStream());
-        ThreadStreamReaderPrinter err = new ThreadStreamReaderPrinter(process.getErrorStream());
-
-        std.start();
-        err.start();
 
         return execMsg;
     }
