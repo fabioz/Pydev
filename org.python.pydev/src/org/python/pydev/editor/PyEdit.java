@@ -42,7 +42,6 @@ import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
-import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerUtilities;
@@ -92,6 +91,8 @@ import org.python.pydev.ui.ColorCache;
  *  
  */
 public class PyEdit extends PyEditProjection implements IPyEdit {
+
+    public static final String PY_EDIT_CONTEXT = "#PyEditContext";
 
     static public String EDITOR_ID = "org.python.pydev.editor.PythonEditor";
 
@@ -653,6 +654,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         super.initializeEditor();
         IPreferenceStore prefStore = PydevPlugin.getChainedPrefStore();
         this.setPreferenceStore(prefStore);
+        setEditorContextMenuId(PY_EDIT_CONTEXT);
     }
 
     /**

@@ -159,8 +159,7 @@
       </page>
    </extension>
 <!-- Editor menus -->
-   <extension
-         point="org.eclipse.ui.editorActions">
+   <extension point="org.eclipse.ui.editorActions">
       <editorContribution
             targetID="org.python.pydev.editor.PythonEditor"
             id="org.python.pydev.editor.editorContribution">
@@ -340,114 +339,48 @@
 
       </editorContribution>
    </extension>
+
 <!-- NOTE: EditorContext part of the targetID was deduced, that is just what Eclipse expects -->
 <!-- Editor popup menus-->
-   <extension
-         point="org.eclipse.ui.popupMenus">
+   <extension point="org.eclipse.ui.popupMenus">
       <viewerContribution
-            targetID="org.python.pydev.editor.PythonEditor.EditorContext"
-            id="org.python.pydev.editor.popup">
+            targetID="#PyEditContext"
+            id="org.python.pydev.editor">
          <menu
-               label="Source"
-               id="org.python.pydev.editor.actions.editorPopup">
-            <separator
-                  name="editGroup">
-            </separator>
-            <separator
-                  name="addGroup">
-            </separator>
-            <separator
-            	  name="whitespaceGroup">
-            </separator>
-         </menu>
-         <menu
+               id="org.python.pydev.editor.refactoring"
                label="Refactoring"
-               id="org.python.pydev.refactoring">
+               path="Refactoring">
             <separator name="refactorings"/>
          </menu>
          <!--This is for making the refactor action accessible in the editor pop-up -->
          <action
                label="Extract Method"
                class="org.python.pydev.editor.actions.refactoring.PyExtractMethod"
-               menubarPath="org.python.pydev.refactoring/refactorings"
-               id="org.python.pydev.refactoring.extractmethod">
+               menubarPath="org.python.pydev.editor.refactoring/refactorings"
+               id="org.python.pydev.editor.refactoring.extractmethod">
          </action>
          <action
                label="Rename"
                class="org.python.pydev.editor.actions.refactoring.PyRename"
-               menubarPath="org.python.pydev.refactoring/refactorings"
-               id="org.python.pydev.refactoring.rename">
+               menubarPath="org.python.pydev.editor.refactoring/refactorings"
+               id="org.python.pydev.editor.refactoring.rename">
          </action>
          <action
                label="Inline Local Variable"
                class="org.python.pydev.editor.actions.refactoring.PyInlineLocalVariable"
-               menubarPath="org.python.pydev.refactoring/refactorings"
-               id="org.python.pydev.refactoring.inlinelocalvariable">
+               menubarPath="org.python.pydev.editor.refactoring/refactorings"
+               id="org.python.pydev.editor.refactoring.inlinelocalvariable">
          </action>
          <action
                label="Extract Local Variable"
                class="org.python.pydev.editor.actions.refactoring.PyExtractLocalVariable"
-               menubarPath="org.python.pydev.refactoring/refactorings"
-               id="org.python.pydev.refactoring.extractlocalvariable">
-         </action>
-         <action
-               label="Convert space-tabs to tabs"
-               class="org.python.pydev.editor.actions.PyConvertSpaceToTab"
-               menubarPath="org.python.pydev.editor.actions.editorPopup/whitespaceGroup"
-               id="org.python.pydev.editor.actions.convertSpaceToTab">
-         </action>
-         <action
-               label="Convert tabs to space-tabs"
-               class="org.python.pydev.editor.actions.PyConvertTabToSpace"
-               menubarPath="org.python.pydev.editor.actions.editorPopup/whitespaceGroup"
-               id="org.python.pydev.editor.actions.convertTabToSpace">
-         </action>
-         <action
-               label="Uncomment"
-               class="org.python.pydev.editor.actions.PyUncomment"
-               menubarPath="org.python.pydev.editor.actions.editorPopup/editGroup"
-               id="org.python.pydev.editor.actions.uncomment">
-         </action>
-         <action
-               label="Comment"
-               class="org.python.pydev.editor.actions.PyComment"
-               menubarPath="org.python.pydev.editor.actions.editorPopup/editGroup"
-               id="org.python.pydev.editor.actions.comment">
-         </action>
-         <action
-               label="Remove comment block"
-               class="org.python.pydev.editor.actions.PyRemoveBlockComment"
-               menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
-               id="org.python.pydev.editor.actions.removeBlockComment">
-         </action>
-         <action
-               label="Add comment block"
-               class="org.python.pydev.editor.actions.PyAddBlockComment"
-               menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
-               id="org.python.pydev.editor.actions.addBlockComment">
-         </action>
-         <action
-               label="Add single comment block"
-               class="org.python.pydev.editor.actions.PyAddSingleBlockComment"
-               menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
-               id="org.python.pydev.editor.actions.addSingleBlockComment">
-         </action>
-         <action
-               label="Navigate to next method / class"
-               class="org.python.pydev.editor.actions.PyNextMethod"
-               menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
-               id="org.python.pydev.editor.actions.navigation.nextMethod">
-         </action>
-         <action
-               label="Navigate to previous method / class"
-               class="org.python.pydev.editor.actions.PyPreviousMethod"
-               menubarPath="org.python.pydev.editor.actions.editorPopup/addGroup"
-               id="org.python.pydev.editor.actions.navigation.previousMethod">
+               menubarPath="org.python.pydev.editor.refactoring/refactorings"
+               id="org.python.pydev.editor.refactoring.extractlocalvariable">
          </action>
       </viewerContribution>
     </extension>
-<!-- Commands -->
-	<!-- Editor Context (formerly scope) -->
+
+<!-- Editor Context (formerly scope) -->
     <extension point="org.eclipse.ui.contexts">
       <context
             name="Pydev editor scope"
@@ -456,7 +389,6 @@
             id="org.python.pydev.ui.editor.scope">
       </context>
     </extension>
-
 <!-- associates commands with keyboard shortcuts -->
 <!-- Commands -->    
     <extension point="org.eclipse.ui.commands">
