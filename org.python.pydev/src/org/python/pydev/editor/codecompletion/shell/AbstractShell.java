@@ -619,7 +619,7 @@ public abstract class AbstractShell {
      */
     protected List getInvalidCompletion() {
         List<String[]> l = new ArrayList<String[]>();
-        l.add(new String[]{"SERVER_ERROR","please try again."});
+        l.add(new String[]{"SERVER_ERROR","please try again.","",""});
         return l;
     }
 

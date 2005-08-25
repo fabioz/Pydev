@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
@@ -57,9 +58,35 @@ public class CompiledModule extends AbstractModule{
 	            
 	            for (Iterator iter = completions.iterator(); iter.hasNext();) {
 	                String[] element = (String[]) iter.next();
-	                IToken t = new CompiledToken(element[0], element[1], element[2], name, Integer.parseInt(element[3]));
-	                array.add(t);
-	                
+                    //let's make this less error-prone.
+	                try {
+                        String o1 = element[0]; //this one is really, really needed
+                        String o2 = "";
+                        String o3 = "";
+                        String o4;
+                        
+                        if(element.length > 0)
+                            o2 = element[1];
+                        
+                        if(element.length > 0)
+                            o3 = element[2];
+                        
+                        if(element.length > 0)
+                            o4 = element[3];
+                        else
+                            o4 = ""+PyCodeCompletion.TYPE_BUILTIN;
+                        
+                        IToken t = new CompiledToken(o1, o2, o3, name, Integer.parseInt(o4));
+                        array.add(t);
+                    } catch (Exception e) {
+                        String received = "";
+                        for (int i = 0; i < element.length; i++) {
+                            received += element[i];
+                            received += "  ";
+                        }
+                        
+                        PydevPlugin.log(IStatus.ERROR, "Error getting completions for compiled module "+name+" received = '"+received+"'", e);
+                    }
 	            }
                 
                 //as we will use it for code completion on sources that map to modules, the __file__ should also
