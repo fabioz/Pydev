@@ -7,7 +7,7 @@ import sys
 _sys_path = [p for p in sys.path]
 
 _sys_modules = {}
-for name,mod in sys.modules.items():
+for name, mod in sys.modules.items():
     _sys_modules[name] = mod
     
 import threading
@@ -16,11 +16,15 @@ import refactoring
 import urllib
 import importsTipper
 
+INFO1 = 1
+INFO2 = 2
+WARN = 4
+ERROR = 8
 
-DEBUG = False
+DEBUG = INFO1 | ERROR
 
-def dbg(s):
-    if DEBUG == True:
+def dbg( s, prior ):
+    if prior & DEBUG != 0:
         print s
         
 HOST = '127.0.0.1'               # Symbolic name meaning the local host
@@ -45,7 +49,7 @@ BUFFER_SIZE = 1024
 
 currDirModule = None
 
-def CompleteFromDir(dir):
+def CompleteFromDir( dir ):
     '''
     This is necessary so that we get the imports from the same dir where the file
     we are completing is located.
@@ -54,7 +58,7 @@ def CompleteFromDir(dir):
     if currDirModule is not None:
         del sys.path[currDirModule]
 
-    sys.path.insert(0, dir)
+    sys.path.insert( 0, dir )
 
 
 def ReloadModules():
@@ -62,21 +66,21 @@ def ReloadModules():
     Reload all the modules in sys.modules
     '''
     sys.modules.clear()
-    for name,mod in _sys_modules.items():
+    for name, mod in _sys_modules.items():
         sys.modules[name] = mod
 
-def ChangePythonPath(pythonpath):
+def ChangePythonPath( pythonpath ):
     '''Changes the pythonpath (clears all the previous pythonpath)
     
     @param pythonpath: string with paths separated by |
     '''
     
-    split = pythonpath.split('|')
+    split = pythonpath.split( '|' )
     sys.path = []
     for path in split:
         path = path.strip()
-        if len(path) > 0:
-            sys.path.append(path)
+        if len( path ) > 0:
+            sys.path.append( path )
     
 class KeepAliveThread( threading.Thread ):
     def __init__( self, socket ):
@@ -90,13 +94,13 @@ class KeepAliveThread( threading.Thread ):
         while self.lastMsg == None:
             
             if self.processMsgFunc != None:
-                s = MSG_PROCESSING_PROGRESS % urllib.quote_plus( self.processMsgFunc( ) )
+                s = MSG_PROCESSING_PROGRESS % urllib.quote_plus( self.processMsgFunc() )
                 self.socket.send( s )
             else:
                 self.socket.send( MSG_PROCESSING )
             time.sleep( 0.1 )
 
-        dbg( 'sending '+ self.lastMsg)
+        dbg( 'sending '+ self.lastMsg, INFO2 )
         self.socket.send( self.lastMsg )
         
 class T( threading.Thread ):
@@ -134,11 +138,11 @@ class T( threading.Thread ):
             compMsg.append( ',' )
             compMsg.append( self.removeInvalidChars( tup[1] ) ) #description
 
-            if(len(tup) > 2):
+            if( len( tup ) > 2 ):
                 compMsg.append( ',' )
                 compMsg.append( self.removeInvalidChars( tup[2] ) ) #args - only if function.
                 
-            if(len(tup) > 3):
+            if( len( tup ) > 3 ):
                 compMsg.append( ',' )
                 compMsg.append( self.removeInvalidChars( tup[3] ) ) #TYPE
                 
@@ -167,95 +171,114 @@ class T( threading.Thread ):
 
     
     def run( self ):
-        # Echo server program
-        import socket
-        
-        s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-        s.bind( ( HOST, self.thisPort ) )
-        s.listen( 1 ) #socket to receive messages.
-        
-
-        #we stay here until we are connected.
-        #we only accept 1 client. 
-        #the exit message for the server is @@KILL_SERVER_END@@
-        conn, addr = s.accept( )
-        time.sleep( 0.5 ) #wait a little before connecting to JAVA server
-
-        #after being connected, create a socket as a client.
-        self.connectToServer( )
-        
-        dbg('pycompletionserver Connected by ' + str(addr))
-        
-        
-        while 1:
-            data = ''
-            returnMsg = ''
-            keepAliveThread = KeepAliveThread( self.socket )
+        try:
+            # Echo server program
+            import socket
             
-            while not data.endswith( MSG_END ):
-                data += conn.recv( BUFFER_SIZE )
-
-            try:
+            dbg( 'pycompletionserver creating socket' , INFO1 )
+            s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+            s.bind( ( HOST, self.thisPort ) )
+            s.listen( 1 ) #socket to receive messages.
+            
+    
+            #we stay here until we are connected.
+            #we only accept 1 client. 
+            #the exit message for the server is @@KILL_SERVER_END@@
+            dbg( 'pycompletionserver waiting for connection' , INFO1 )
+            conn, addr = s.accept()
+            time.sleep( 0.5 ) #wait a little before connecting to JAVA server
+    
+            dbg( 'pycompletionserver waiting to java client' , INFO1 )
+            #after being connected, create a socket as a client.
+            self.connectToServer()
+            
+            dbg( 'pycompletionserver Connected by ' + str( addr ), INFO1 )
+            
+            
+            while 1:
+                data = ''
+                returnMsg = ''
+                keepAliveThread = KeepAliveThread( self.socket )
+                
+                while not data.endswith( MSG_END ):
+                    data += conn.recv( BUFFER_SIZE )
+    
                 try:
-                    if MSG_KILL_SERVER in data:
-                        #break if we received kill message.
-                        break;
-        
-                    keepAliveThread.start( )
-                    
-                    if MSG_PYTHONPATH in data:
-                        comps = []
-                        for p in _sys_path:
-                            comps.append( ( p, ' ' ) )
-                        returnMsg = self.getCompletionsMessage( comps )
-
-                    elif MSG_RELOAD_MODULES in data:
-                        ReloadModules( )
-                        returnMsg = MSG_OK
-                    
-                    else:
-                        data = data[:data.rfind( MSG_END )]
-                    
-                        if data.startswith( MSG_IMPORTS ):
-                            data = data.replace( MSG_IMPORTS, '' )
-                            data = urllib.unquote_plus( data )
-                            comps = importsTipper.GenerateTip( data )
+                    try:
+                        if MSG_KILL_SERVER in data:
+                            dbg( 'pycompletionserver kill message received', INFO1 )
+                            #break if we received kill message.
+                            break;
+            
+                        keepAliveThread.start()
+                        
+                        if MSG_PYTHONPATH in data:
+                            comps = []
+                            for p in _sys_path:
+                                comps.append( ( p, ' ' ) )
                             returnMsg = self.getCompletionsMessage( comps )
     
-                        elif data.startswith( MSG_CHANGE_PYTHONPATH ):
-                            data = data.replace( MSG_CHANGE_PYTHONPATH, '' )
-                            data = urllib.unquote_plus( data )
-                            ChangePythonPath( data )
+                        elif MSG_RELOAD_MODULES in data:
+                            ReloadModules()
                             returnMsg = MSG_OK
-    
-                        elif data.startswith( MSG_CHANGE_DIR ):
-                            data = data.replace( MSG_CHANGE_DIR, '' )
-                            data = urllib.unquote_plus( data )
-                            CompleteFromDir( data )
-                            returnMsg = MSG_OK
-                            
-                        elif data.startswith( MSG_BIKE ): 
-                            data = data.replace( MSG_BIKE, '' )
-                            data = urllib.unquote_plus( data )
-                            returnMsg = refactoring.HandleRefactorMessage( data, keepAliveThread )
-                            
+                        
                         else:
-                            returnMsg = MSG_INVALID_REQUEST
-                except :
-                    import traceback
-                    import StringIO
-
-                    s = StringIO.StringIO( )
-                    exc_info = sys.exc_info( )
-
-                    traceback.print_exception( exc_info[0], exc_info[1], exc_info[2], limit=None, file = s )
-                    returnMsg = self.getCompletionsMessage( [( 'ERROR:', '%s'%( s.getvalue( ) ), '' )] )
+                            data = data[:data.rfind( MSG_END )]
+                        
+                            if data.startswith( MSG_IMPORTS ):
+                                data = data.replace( MSG_IMPORTS, '' )
+                                data = urllib.unquote_plus( data )
+                                comps = importsTipper.GenerateTip( data )
+                                returnMsg = self.getCompletionsMessage( comps )
+        
+                            elif data.startswith( MSG_CHANGE_PYTHONPATH ):
+                                data = data.replace( MSG_CHANGE_PYTHONPATH, '' )
+                                data = urllib.unquote_plus( data )
+                                ChangePythonPath( data )
+                                returnMsg = MSG_OK
+        
+                            elif data.startswith( MSG_CHANGE_DIR ):
+                                data = data.replace( MSG_CHANGE_DIR, '' )
+                                data = urllib.unquote_plus( data )
+                                CompleteFromDir( data )
+                                returnMsg = MSG_OK
+                                
+                            elif data.startswith( MSG_BIKE ): 
+                                data = data.replace( MSG_BIKE, '' )
+                                data = urllib.unquote_plus( data )
+                                returnMsg = refactoring.HandleRefactorMessage( data, keepAliveThread )
+                                
+                            else:
+                                returnMsg = MSG_INVALID_REQUEST
+                    except :
+                        dbg( 'pycompletionserver exception ocurred', ERROR )
+                        import traceback
+                        import StringIO
+    
+                        s = StringIO.StringIO()
+                        exc_info = sys.exc_info()
+                        traceback.print_exception( exc_info[0], exc_info[1], exc_info[2], limit=None, file = s )
+    
+                        err = s.getvalue()
+                        dbg( 'pycompletionserver received error: '+err, ERROR )
+                        returnMsg = self.getCompletionsMessage( [( 'ERROR:', '%s'%( err ), '' )] )
+                    
+                finally:
+                    keepAliveThread.lastMsg = returnMsg
                 
-            finally:
-                keepAliveThread.lastMsg = returnMsg
-            
-        conn.close( )
-        self.ended = True
+            conn.close()
+            self.ended = True
+        except:
+            import traceback
+            import StringIO
+
+            s = StringIO.StringIO()
+            exc_info = sys.exc_info()
+
+            traceback.print_exception( exc_info[0], exc_info[1], exc_info[2], limit=None, file = s )
+            err = s.getvalue()
+            dbg( 'jycompletionserver received error: '+str( err ), ERROR )
+            raise
 
 if __name__ == '__main__':
 
@@ -263,6 +286,6 @@ if __name__ == '__main__':
     serverPort = int( sys.argv[2] )#this is where we want to write messages.
     
     t = T( thisPort, serverPort )
-    dbg( 'will start' )
-    t.start( )
+    dbg( 'pycompletionserver will start', INFO1 )
+    t.start()
 

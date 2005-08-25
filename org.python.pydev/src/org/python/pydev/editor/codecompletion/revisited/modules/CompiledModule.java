@@ -91,7 +91,7 @@ public class CompiledModule extends AbstractModule{
                 
                 //as we will use it for code completion on sources that map to modules, the __file__ should also
                 //be added...
-                if(name.equals("__builtin__")){
+                if(array.size() > 0 && name.equals("__builtin__")){
                     array.add(new CompiledToken("__file__","","",name,PyCodeCompletion.TYPE_BUILTIN));
                 }
                 

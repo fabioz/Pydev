@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public abstract class AbstractShell {
     public static final int BUFFER_SIZE = 1024 ;
     public static final int OTHERS_SHELL = 2;
     public static final int COMPLETION_SHELL = 1;
-    protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000;
+    protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 500;
     protected static final boolean DEBUG_SHELL = true;
 
 
@@ -268,13 +269,15 @@ public abstract class AbstractShell {
             } catch (IllegalThreadStateException e2) { //this is ok
             }
             
+            dbg("afterCreateProcess ");
             //ok, process validated, so, let's get its output and store it for further use.
             afterCreateProcess();
             
             boolean connected = false;
             int attempts = 0;
             
-            sleepALittle(300);
+            dbg("connecting ");
+            sleepALittle(milisSleep);
             socketToWrite = null;
             serverSocket = new ServerSocket(pRead); //read in this port
             int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
@@ -284,8 +287,16 @@ public abstract class AbstractShell {
                     if(socketToWrite == null || socketToWrite.isConnected() == false){
                         socketToWrite = new Socket("127.0.0.1",pWrite); //we should write in this port
                     }
-                    socketToRead = serverSocket.accept();
-                    connected = true;
+                    
+                    if(socketToWrite != null || socketToWrite.isConnected()){
+                        serverSocket.setSoTimeout(milisSleep*2); //let's give it a higher timeout, as we're already half - connected
+                        try {
+                            socketToRead = serverSocket.accept();
+                            connected = true;
+                        } catch (SocketTimeoutException e) {
+                            //that's ok, timeout for waiting connection expired, let's check it again in the next loop
+                        }
+                    }
                 } catch (IOException e1) {
                     if(socketToWrite != null && socketToWrite.isConnected() == true){
                         PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of "+maxAttempts+" failed, trying again...(socketToWrite already binded)", e1);
@@ -299,6 +310,8 @@ public abstract class AbstractShell {
             }
             
             if(!connected){
+                dbg("NOT connected ");
+
                 //what, after all this trouble we are still not connected????!?!?!?!
                 //let's communicate this to the user...
                 String isAlive;
@@ -532,6 +545,8 @@ public abstract class AbstractShell {
     }
 
     public void sendGoToDirMsg(File file) {
+        checkShell();
+        
         try {
             if(file.isDirectory() == false){
                 file = file.getParentFile();
@@ -543,9 +558,25 @@ public abstract class AbstractShell {
             this.read(); //this should be the ok message...
             
         } catch (IOException e) {
+            try {
+                restartShell();
+            } catch (Exception e1) {
+                // TODO: handle exception
+            }
             PydevPlugin.log(IStatus.ERROR, "ERROR sending go to dir msg.", e);
         }
     }
+
+    private void checkShell() {
+        try {
+            if (!this.socketToWrite.isConnected()) {
+                restartShell();
+            }
+        } catch (Exception e) {
+            // ok
+        }
+    }
+
 
     /**
      * @return list with tuples: new String[]{token, description}
