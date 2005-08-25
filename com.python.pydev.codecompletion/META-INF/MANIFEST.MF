@@ -11,5 +11,6 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev,
  org.eclipse.jface.text,
  org.python.pydev.core,
- org.python.pydev.parser
+ org.python.pydev.parser,
+ org.junit
 Eclipse-AutoStart: true
