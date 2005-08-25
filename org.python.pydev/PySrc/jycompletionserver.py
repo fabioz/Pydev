@@ -206,7 +206,7 @@ class T( Thread ):
                 returnMsg = ''
                 keepAliveThread = KeepAliveThread( self.socket )
                 
-                while not data.endswith( MSG_END ):
+                while data.find( MSG_END ) == -1:
                     data += conn.recv( BUFFER_SIZE )
     
                 dbg( 'jycompletionserver ok, out of the while... treating received msg', INFO1 )

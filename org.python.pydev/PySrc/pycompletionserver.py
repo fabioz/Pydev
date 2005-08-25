@@ -200,7 +200,7 @@ class T( threading.Thread ):
                 returnMsg = ''
                 keepAliveThread = KeepAliveThread( self.socket )
                 
-                while not data.endswith( MSG_END ):
+                while data.find( MSG_END ) == -1:
                     data += conn.recv( BUFFER_SIZE )
     
                 try:
@@ -208,7 +208,7 @@ class T( threading.Thread ):
                         if MSG_KILL_SERVER in data:
                             dbg( 'pycompletionserver kill message received', INFO1 )
                             #break if we received kill message.
-                            break;
+                            break
             
                         keepAliveThread.start()
                         
