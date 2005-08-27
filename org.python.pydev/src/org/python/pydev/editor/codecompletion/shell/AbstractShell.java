@@ -518,22 +518,6 @@ public abstract class AbstractShell {
         }
         if (process!= null){
             try {
-                process.getOutputStream().close();
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-            try {
-                process.getErrorStream().close();
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-            try {
-                process.getInputStream().close();
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-                
-            try {
                 process.destroy();
             } catch (Exception e2) {
                 e2.printStackTrace();
