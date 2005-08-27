@@ -31,8 +31,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUnusedImports2();
-            analyzer2.testUnusedImports();
+            analyzer2.testLambda();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -349,6 +348,19 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testlib.unittest.relative.testrelative", new File(file), nature, 0), prefs);
         
         printMessages(msgs, 0);
+    }
+    
+    public void testLambda(){
+        
+        doc = new Document(
+            "a = lambda b: callit(b)\n"+
+            ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 1);
+        assertContainsMsg("Undefined variable: callit", msgs);
     }
     
     public void testReimport(){
