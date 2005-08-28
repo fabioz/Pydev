@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.io.File;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
 /**
@@ -264,19 +265,19 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
     public static void main(String[] args) {
         
-        junit.textui.TestRunner.run(PythonPathHelperTest.class);
-//        try {
-//            PythonPathHelperTest test = new PythonPathHelperTest();
-//            test.setUp();
-//            test.testClassHierarchyCompletion();
-//            test.tearDown();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } catch(Error e){
-//            e.printStackTrace();
-//        } catch(Throwable e){
-//            e.printStackTrace();
-//        }
+        try {
+            PythonPathHelperTest test = new PythonPathHelperTest();
+            test.setUp();
+            test.testClassHierarchyCompletion();
+            test.tearDown();
+            junit.textui.TestRunner.run(PythonPathHelperTest.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } catch(Error e){
+            e.printStackTrace();
+        } catch(Throwable e){
+            e.printStackTrace();
+        }
     }
 }
 

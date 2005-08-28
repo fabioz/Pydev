@@ -20,7 +20,7 @@ public class PyParserTest extends TestCase {
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testParser7();
+//            test.testParser9();
             test.tearDown();
             junit.textui.TestRunner.run(PyParserTest.class);
         } catch (Exception e) {
@@ -52,11 +52,11 @@ public class PyParserTest extends TestCase {
         parseLegalDocStr(s);
     }
 
-//    public void testOnUnittestMod() {
-//        String loc = TestDependent.PYTHON_LIB+"unittest.py";
-//        String s = REF.getFileContents(new File(loc));
-//        parseLegalDocStr(s);
-//    }
+    public void testOnUnittestMod() {
+        String loc = TestDependent.PYTHON_LIB+"unittest.py";
+        String s = REF.getFileContents(new File(loc));
+        parseLegalDocStr(s);
+    }
     
     public void testParser() {
         String s = "class C: pass";
@@ -69,6 +69,16 @@ public class PyParserTest extends TestCase {
         "    False, True = 0, 1\n"+
         "\n"+
         "\n";
+        parseLegalDocStr(s);
+    }
+    
+    public void testParser8() {
+        String s = "" +
+"if type(clsinfo) in (types.TupleType, types.ListType):\n"+
+"    pass\n"+
+"\n"+
+"\n"+
+"\n";
         parseLegalDocStr(s);
     }
     

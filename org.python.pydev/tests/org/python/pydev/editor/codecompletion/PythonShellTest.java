@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.TestDependent;
 import org.python.pydev.editor.codecompletion.shell.PythonShell;
 
 /**

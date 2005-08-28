@@ -46,48 +46,71 @@ public class PySourceViewer extends ProjectionViewer {
      */
     public Iterable<IMarker> getMarkerIteratable(){
         final IAnnotationModel annotationModel = getAnnotationModel();
-        final Iterator annotationIterator = annotationModel.getAnnotationIterator();
-
-        return new Iterable<IMarker>(){
-
-            public Iterator<IMarker> iterator() {
-                return new Iterator<IMarker>(){
-
-                    private IMarker marker;
-
-                    public boolean hasNext() {
-                        while(annotationIterator.hasNext()){
-                            if(marker != null){
-                                return true;
-                            }
-                            
+        //it may be null on external files, because I simply cannot make it get the org.python.copiedfromeclipsesrc.PydevFileEditorInput
+        //(if it did, I could enhance it...). Instead, it returns a org.eclipse.ui.internal.editors.text.JavaFileEditorInput
+        //that never has an annotation model. (shortly, eclipse bug).
+        if(annotationModel != null){
+            final Iterator annotationIterator = annotationModel.getAnnotationIterator();
+    
+            return new Iterable<IMarker>(){
+    
+                public Iterator<IMarker> iterator() {
+                    return new Iterator<IMarker>(){
+    
+                        private IMarker marker;
+    
+                        public boolean hasNext() {
                             while(annotationIterator.hasNext()){
-                                Object object = annotationIterator.next();
-                                if(object instanceof MarkerAnnotation){
-                                    MarkerAnnotation m = (MarkerAnnotation) object;
-                                    marker = m.getMarker();
+                                if(marker != null){
                                     return true;
                                 }
+                                
+                                while(annotationIterator.hasNext()){
+                                    Object object = annotationIterator.next();
+                                    if(object instanceof MarkerAnnotation){
+                                        MarkerAnnotation m = (MarkerAnnotation) object;
+                                        marker = m.getMarker();
+                                        return true;
+                                    }
+                                }
                             }
+                            return false;
                         }
+    
+                        public IMarker next() {
+                            hasNext();
+                            
+                            IMarker m = marker;
+                            marker = null;
+                            return m;
+                        }
+    
+                        public void remove() {
+                            throw new RuntimeException("not implemented");
+                        }
+                        
+                    };
+                }
+                
+            };
+        }
+        return new Iterable<IMarker>(){
+            
+            public Iterator<IMarker> iterator() {
+                return new Iterator<IMarker>(){
+                    public boolean hasNext() {
                         return false;
                     }
 
                     public IMarker next() {
-                        hasNext();
-                        
-                        IMarker m = marker;
-                        marker = null;
-                        return m;
+                        return null;
                     }
 
                     public void remove() {
                         throw new RuntimeException("not implemented");
                     }
-                    
                 };
             }
-            
         };
     }
     

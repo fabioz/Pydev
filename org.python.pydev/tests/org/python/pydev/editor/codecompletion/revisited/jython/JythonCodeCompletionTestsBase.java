@@ -8,8 +8,8 @@ import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.TestDependent;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
@@ -57,16 +57,6 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
             }
         }
         assertTrue(foundRtJar);
-
-        boolean foundJava = false;
-        for(Object lib: info.forcedLibs){
-            String s = (String) lib;
-            if(s.equals("java")){
-                foundJava = true;
-            }
-        }
-        assertTrue(foundJava);
-
     }
 
 
@@ -110,7 +100,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
      * @param force whether this should be forced, even if it was previously created for this class
      */
     public void restorePythonPath(boolean force){
-        restoreSystemPythonPath(force, TestDependent.JYTHON_LIB_LOCATION);
+        restoreSystemPythonPath(force, TestDependent.JYTHON_LIB_LOCATION+"|"+TestDependent.JAVA_RT_JAR_LOCATION);
         restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
         checkSize();
     }

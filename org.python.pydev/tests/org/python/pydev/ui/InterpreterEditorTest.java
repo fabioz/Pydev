@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.python.pydev.editor.codecompletion.revisited.TestDependent;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor;

@@ -897,11 +897,13 @@ void power() #void: {}
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
 void atomtrailer() #void: {}
 {
-    atom() (LOOKAHEAD(2) <LPAREN> <RPAREN> #Call_Op(1)
-|   LOOKAHEAD(2)(<LPAREN> listmaker() <RPAREN>) #Call_Op(jjtree.nodeArity()+1)
-|   LOOKAHEAD(2)(<LPAREN> arglist() <RPAREN>) #Call_Op(jjtree.nodeArity()+1)
-|   <LBRACKET> subscriptlist() <RBRACKET> #Index_Op(2)
-|   <DOT> AnyName() #Dot_Op(2) )*
+atom() 
+(
+		LOOKAHEAD(2) <LPAREN> <RPAREN> #Call_Op(1)
+	|   LOOKAHEAD(2)(<LPAREN> insidetuporcall() <RPAREN>) #Call_Op(jjtree.nodeArity()+1) //with list comprehension: fabioz
+	|   <LBRACKET> subscriptlist() <RBRACKET> #Index_Op(2)
+	|   <DOT> AnyName() #Dot_Op(2) 
+)*
 }
 
 
@@ -909,7 +911,7 @@ void atomtrailer() #void: {}
 void atom() #void: {}
 {
     LOOKAHEAD(2) (  <LPAREN> <RPAREN> ) #tuple
-|   LOOKAHEAD(2) (  <LPAREN> test() list_for() <RPAREN> ) #tuple //with list comprehension: fabioz
+|   LOOKAHEAD(2) (  <LPAREN> insidetuporcall() <RPAREN> ) #tuple
 |   ( <LPAREN> [SmartTestList()] <RPAREN> )
 |   ( <LBRACKET> [listmaker()] <RBRACKET> ) #list
 |   ( <LBRACE> [dictmaker()] <RBRACE> ) #dictionary
@@ -919,6 +921,11 @@ void atom() #void: {}
 |   String() (String() #strjoin(2))*
 }
 
+//we can be inside a tuple or a call, and we may have list comprehension in it. (fabioz)
+void insidetuporcall() #void: {}
+{
+	arglist() (list_for())*
+}
 
 //lambdef: 'lambda' [varargslist] ':' test
 void lambdef():{}
@@ -962,6 +969,10 @@ void dictmaker() #void: {}
 //listmaker: test ( list_for | (',' test)* [','] )
 void listmaker() #void: {}
 { test() ( (list_for())+ | (LOOKAHEAD(2) <COMMA> test())* [Comma()] #tuple(>1)) }
+
+void complistmaker() #void: {}
+{ test() list_for()  
+}
 
 //list_iter: [list_for | list_if]
 //void list_iter() #void: {}

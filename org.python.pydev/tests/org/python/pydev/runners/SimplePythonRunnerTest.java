@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
-import org.python.pydev.editor.codecompletion.revisited.TestDependent;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.ui.BundleInfoStub;

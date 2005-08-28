@@ -7,8 +7,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShell;

@@ -27,9 +27,13 @@ public class ExtensionHelper {
         IExtension[] extensions = extensionsCache.get(type);
         if(extensions == null){
             IExtensionRegistry registry = Platform.getExtensionRegistry();
-            IExtensionPoint extensionPoint = registry.getExtensionPoint(type);
-            extensions = extensionPoint.getExtensions();
-            extensionsCache.put(type, extensions);
+            if(registry != null){ // we may not be in eclipse env when testing
+                IExtensionPoint extensionPoint = registry.getExtensionPoint(type);
+                extensions = extensionPoint.getExtensions();
+                extensionsCache.put(type, extensions);
+            }else{
+                extensions = new IExtension[0];
+            }
         }
         return extensions;
     }

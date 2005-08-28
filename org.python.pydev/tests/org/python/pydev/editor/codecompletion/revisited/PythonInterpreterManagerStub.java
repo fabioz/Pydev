@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
