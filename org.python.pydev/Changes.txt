@@ -16,11 +16,15 @@ org.python.core.SysPackageManager
 after 0.9.7.99
 
 - jython integration supports spaces for jython.jar and java install
-- pylint also supports spaces
+- jython debugger support has been added
+- jython code-completion support for new style objects (jython 2.2a1) has been enhanced.
 - many templates were added
+- the grammar evolved a lot (and will probably be re-used by the jython guys), 
+so, now you can actually use decorators (not in a hackish way as previously),
+list comprehension on method calls and tuples and the new from xxx import (a,b,c) syntax.
+- pylint supports spaces
 - pylint is no longer distributed with pydev (its location must be specified)
-
-
+- some problems with the shells used for code-completion should be fixed
 
 
 done in 0.9.7.99

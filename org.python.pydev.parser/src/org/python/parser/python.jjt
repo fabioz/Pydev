@@ -1,6 +1,6 @@
 // -*- java -*-
 // Copyright © Corporation for National Research Initiatives
-
+//good reading for error handling: https://javacc.dev.java.net/doc/errorrecovery.html
 options
 {
     // only non-defaults are given here.

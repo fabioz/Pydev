@@ -276,6 +276,7 @@ public class PyParser {
         IParserHost host = new CompilerAPI();
         PythonGrammar grammar = new PythonGrammar(in, host);
         if(ENABLE_TRACING){
+            //grammar has to be generated with debugging info for this to make a difference
             grammar.enable_tracing();
         }
 
@@ -302,28 +303,6 @@ public class PyParser {
         } catch (TokenMgrError tokenErr) {
             SimpleNode newRoot = null;
     
-            //lets try to make it 2.4 compatible
-            //TODO: (HACK) this is a hack, once the grammar is compatible to 2.4, remove it!
-            try {
-                if(info.nature != null && info.nature.acceptsDecorators()){
-    	            if(tokenErr != null && tokenErr.curChar != null && tokenErr.curChar.equals("@") && 
-                       tokenErr.errorCode == TokenMgrError.LEXICAL_ERROR){
-    	                int line = tokenErr.errorLine;
-    	                String docToParse = DocUtils.getDocToParseFromLine(info.document, line-1);
-    	                if(docToParse != null){
-    	
-    	                    Document doc = new Document(docToParse);
-    	                    return reparseDocument(new ParserInfo(doc, true, info.nature));
-    	                }
-    	            }
-                }
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            } catch (CoreException e) {
-                e.printStackTrace();
-            }
-            //END: HACK
-            
             if (info.changedCurrentLine){
                 newRoot = tryReparseAgain(info, tokenErr);
             }
