@@ -4,16 +4,16 @@ import org.python.parser.SimpleNode;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ListComp extends exprType {
+public class GeneratorExp extends exprType {
     public exprType elt;
     public comprehensionType[] generators;
 
-    public ListComp(exprType elt, comprehensionType[] generators) {
+    public GeneratorExp(exprType elt, comprehensionType[] generators) {
         this.elt = elt;
         this.generators = generators;
     }
 
-    public ListComp(exprType elt, comprehensionType[] generators,
+    public GeneratorExp(exprType elt, comprehensionType[] generators,
     SimpleNode parent) {
         this(elt, generators);
         this.beginLine = parent.beginLine;
@@ -21,7 +21,7 @@ public class ListComp extends exprType {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer("ListComp[");
+        StringBuffer sb = new StringBuffer("GeneratorExp[");
         sb.append("elt=");
         sb.append(dumpThis(this.elt));
         sb.append(", ");
@@ -32,13 +32,13 @@ public class ListComp extends exprType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(33, ostream);
+        pickleThis(34, ostream);
         pickleThis(this.elt, ostream);
         pickleThis(this.generators, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {
-        return visitor.visitListComp(this);
+        return visitor.visitGeneratorExp(this);
     }
 
     public void traverse(VisitorIF visitor) throws Exception {

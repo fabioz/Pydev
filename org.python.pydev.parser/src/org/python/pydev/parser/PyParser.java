@@ -43,6 +43,11 @@ import org.python.pydev.core.log.Log;
  */
 
 public class PyParser {
+    
+    /**
+     * just for tests, when we don't have any editor
+     */
+    static boolean ACCEPT_NULL_EDITOR = false; 
 
     IDocument document;
 
@@ -56,6 +61,8 @@ public class PyParser {
 
     final static int PARSE_LATER_INTERVAL = 20; // 20 = 2 seconds
 
+    static boolean ENABLE_TRACING = false;
+
     boolean parseNow = false; // synchronized access by ParsingThread
 
     
@@ -65,9 +72,16 @@ public class PyParser {
      */
     int parseLater = 0; // synchronized access by ParsingThread
 
-    public PyParser(IPyEdit editorView) {
-        this.editorView = editorView;
+    /**
+     * should only be called for testing. does not register as a thread
+     */
+    PyParser() {
         parserListeners = new ArrayList();
+    }
+    
+    public PyParser(IPyEdit editorView) {
+        this();
+        this.editorView = editorView;
         ParsingThread.getParsingThread().register(this);
     }
 
@@ -167,29 +181,47 @@ public class PyParser {
         }
     }
 
-    
-
+    /**
+     * reparses the document getting the nature associated to the corresponding editor 
+     * @return
+     */
+    Object[] reparseDocument() {
+        return reparseDocument(editorView.getPythonNature());
+    }
     /**
      * Parses the document, generates error annotations
+     * 
+     * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
+     *         if we are able to recover from a reparse, we have both, the root and the error.
      */
-    void reparseDocument() {
+    Object[] reparseDocument(IPythonNature nature) {
         
         //get the document ast and error in object
-        Object obj[] = reparseDocument(new ParserInfo(document, true, editorView.getPythonNature(), -1));
+        Object obj[] = reparseDocument(new ParserInfo(document, true, nature, -1));
         
         if(obj[0] != null && obj[0] instanceof SimpleNode){
-            IEditorInput input = editorView.getEditorInput();
-            if (input == null)
-                return;
-            IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
-            if (original != null){
-                try {
-                    original.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
-                } catch (CoreException e) {
-                    Log.log(e);
+            //ok, reparse succesful, lets erase the markers that are in the editor we just parsed
+            if(editorView != null){
+                IEditorInput input = editorView.getEditorInput();
+                if (input == null){
+                    return null;
+                }
+                
+                IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
+                if (original != null){
+                    try {
+                        original.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+                    } catch (CoreException e) {
+                        Log.log(e);
+                    }
+                }
+                fireParserChanged((SimpleNode) obj[0]);
+            }else{
+                //ok, we have no editor view
+                if (!PyParser.ACCEPT_NULL_EDITOR){
+                    throw new RuntimeException("Null editor received in parser!");
                 }
             }
-            fireParserChanged((SimpleNode) obj[0]);
         }
         
         if(obj[1] != null && obj[1] instanceof ParseException){
@@ -199,6 +231,8 @@ public class PyParser {
         if(obj[1] != null && obj[1] instanceof TokenMgrError){
             fireParserError((TokenMgrError) obj[1]);
         }
+        
+        return obj;
     }
     
 
@@ -241,6 +275,9 @@ public class PyParser {
         ReaderCharStream in = new ReaderCharStream(inString);
         IParserHost host = new CompilerAPI();
         PythonGrammar grammar = new PythonGrammar(in, host);
+        if(ENABLE_TRACING){
+            grammar.enable_tracing();
+        }
 
 
         try {

@@ -1,7 +1,7 @@
 // -*- java -*-
 // Copyright © Corporation for National Research Initiatives
 
-options 
+options
 {
     // only non-defaults are given here.
     NODE_SCOPE_HOOK = true;                  // call jjtree*NodeScope()
@@ -9,7 +9,7 @@ options
     NODE_USES_PARSER = true;
     STATIC = false;                          // multiple parsers
     COMMON_TOKEN_ACTION = true;              // CommonTokenAction(Token)
-//    DEBUG_PARSER = true;
+//    DEBUG_PARSER = true;                   // must be used to enable tracing 
 //    DEBUG_TOKEN_MANAGER = true;
     USER_CHAR_STREAM = true;
     UNICODE_INPUT = true;
@@ -20,10 +20,10 @@ PARSER_BEGIN(PythonGrammar)
 package org.python.parser;
 import org.python.parser.ast.modType;
 
-public class PythonGrammar 
+public class PythonGrammar
 {
     public IParserHost hostLiteralMkr;
-    
+
     void jjtreeOpenNodeScope(Node n) {
         Token t = getToken(1);
         jjtree.pushNodePos(t.beginLine, t.beginColumn);
@@ -89,7 +89,7 @@ public class PythonGrammar
         }
     }
 
-    // ! maximal currently used LOOKAHEAD is 3    
+    // ! maximal currently used LOOKAHEAD is 3
     private static final int MAX_LOOKAHEAD = 3;
 
     public boolean partial_valid_sentence(Throwable t) {
@@ -102,70 +102,74 @@ public class PythonGrammar
            case IN_STRING2NLC:
            case IN_STRING13:
            case IN_STRING23:
+           case IN_USTRING1NLC:
+           case IN_USTRING2NLC:
+           case IN_USTRING13:
+           case IN_USTRING23:
                return e.EOFSeen;
            default:
                return false;
            }
         }
-        if (!(t instanceof ParseException)) 
+        if (!(t instanceof ParseException))
             return false;
         try {
             ParseException e = (ParseException)t;
             int tok = getNextToken().kind;
             if (tok == EOF) return true; // all tokens eaten
-            
+
             // or check whether remaing tokens partially fullfill lookahead
             // expectations
-        
+
             int[][] expected = e.expectedTokenSequences;
-        
+
             if (expected == null) return false;
-        
+
             int[] ahead = new int[MAX_LOOKAHEAD-1];
-        
+
             int i = 0;
             for(;;) {
                 ahead[i] = tok;
-                i++;            
+                i++;
                 tok = getNextToken().kind;
                 if (tok == EOF) break;
                 if (i >= MAX_LOOKAHEAD-1) return false;
             }
-            
+
             int nahead = i;
-            
+
         next_expected:
             for(int j = 0; j<expected.length; j++) {
                 int[] cand = expected[j];
-        
+
                 if (cand.length <= nahead ) continue next_expected;
-        
+
                 for(int k = 0; k < nahead; k++)
                     if (ahead[k] != cand[k])
                         continue next_expected;
                 return true;
             }
-        
+
             return false;
         } catch (TokenMgrError e1) {
             return false;
         }
     }
-   
-   	// constructors taking a IParserHost impl
-   	
-   	public PythonGrammar(CharStream stream,IParserHost host) {
-   	    this(stream);
-   	    hostLiteralMkr = host;
-   	}
-   	
-   	public PythonGrammar(PythonGrammarTokenManager tm,
-   	                     IParserHost host)
-    {
+
+   // constructors taking a IParserHost impl
+
+   public PythonGrammar(CharStream stream,IParserHost host) {
+       this(stream);
+       hostLiteralMkr = host;
+   }
+
+   public PythonGrammar(PythonGrammarTokenManager tm,
+                        IParserHost host)
+   {
         this(tm);
         hostLiteralMkr = host;
-   	}
-    
+   }
+
 }
 
 
@@ -182,7 +186,7 @@ TOKEN_MGR_DECLS:
     boolean expect_indent = false;
 
     boolean compound = false;
-    
+
     public boolean single_input = false;
 
     // parsing of partial sentence (interactive) mode
@@ -190,8 +194,6 @@ TOKEN_MGR_DECLS:
     // control whether empty new lines on EOF force sentence closing NEWLINE even if indent
     // is expected,i.e. classic behavior at jython prompt (different from codeop behavior)
     public boolean stdprompt = false;
-
-    public boolean generator_allowed = false;
 
     static Token addDedent(Token previous) {
         Token t = new Token();
@@ -236,21 +238,17 @@ TOKEN_MGR_DECLS:
                     t.kind = NEWLINE;
                     t.image = "<FORCENL>";
                     single_input = false;
-                }               
+                }
             }
-        } else if (t.kind == YIELD) {
-            if (!generator_allowed) {
-                t.kind = NAME;
-            }
-        }
+        } 
     }
-    
+
     void indenting(int ind) {
         indent = ind;
         if (indent == indentation[level])
             SwitchTo(INDENTATION_UNCHANGED);
         else
-            SwitchTo(INDENTING);    
+            SwitchTo(INDENTING);
     }
 }
 
@@ -312,7 +310,7 @@ SKIP :
                 SwitchTo(MAYBE_FORCE_NEWLINE_IF_EOF);
             }
             else
-                indenting(0);            
+                indenting(0);
         }
 }
 
@@ -494,10 +492,14 @@ TOKEN : /* Numeric literals */
 
 MORE : /* Strings */
 {
-    < (["u", "U"])? (["r", "R"])? "'" > :  IN_STRING11
-|   < (["u", "U"])? (["r", "R"])? "\"" > :  IN_STRING21
-|   < (["u", "U"])? (["r", "R"])? "'''" > :  IN_STRING13
-|   < (["u", "U"])? (["r", "R"])? "\"\"\"" > :  IN_STRING23
+    < (["u", "U"]) (["r", "R"])? "'" > :  IN_USTRING11
+|   < (["u", "U"]) (["r", "R"])? "\"" > :  IN_USTRING21
+|   < (["u", "U"]) (["r", "R"])? "'''" > :  IN_USTRING13
+|   < (["u", "U"]) (["r", "R"])? "\"\"\"" > :  IN_USTRING23
+|   < (["r", "R"])? "'" > :  IN_STRING11
+|   < (["r", "R"])? "\"" > :  IN_STRING21
+|   < (["r", "R"])? "'''" > :  IN_STRING13
+|   < (["r", "R"])? "\"\"\"" > :  IN_STRING23
 }
 
 <IN_STRING11> TOKEN : { <SINGLE_STRING: "'"> {
@@ -506,19 +508,40 @@ MORE : /* Strings */
     matchedToken.image = image.toString(); } : DEFAULT}
 <IN_STRING13> TOKEN : { <TRIPLE_STRING: "'''"> {
     matchedToken.image = image.toString(); } : DEFAULT}
-<IN_STRING23> TOKEN : { <TRIPLE_STRING2: "\"\"\""> { 
+<IN_STRING23> TOKEN : { <TRIPLE_STRING2: "\"\"\""> {
     matchedToken.image = image.toString(); } : DEFAULT}
 
-<IN_STRING11> MORE: 
+<IN_USTRING11> TOKEN : { <SINGLE_USTRING: "'"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING21> TOKEN : { <SINGLE_USTRING2: "\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING13> TOKEN : { <TRIPLE_USTRING: "'''"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING23> TOKEN : { <TRIPLE_USTRING2: "\"\"\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+
+<IN_STRING11> MORE:
 {
     <"\\\r\n">           { image.setLength(image.length()-3); } : IN_STRING1NLC
 |   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_STRING1NLC
 }
 
-<IN_STRING21> MORE: 
+<IN_STRING21> MORE:
 {
     <"\\\r\n">           { image.setLength(image.length()-3); } : IN_STRING2NLC
 |   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_STRING2NLC
+}
+
+<IN_USTRING11> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_USTRING1NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_USTRING1NLC
+}
+
+<IN_USTRING21> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_USTRING2NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_USTRING2NLC
 }
 
 <IN_STRING1NLC> MORE:
@@ -531,24 +554,33 @@ MORE : /* Strings */
  <""> : IN_STRING21
 }
 
-<IN_STRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
-<IN_STRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
+<IN_USTRING1NLC> MORE:
+{
+ <""> : IN_USTRING11
+}
 
-<IN_STRING13, IN_STRING23> MORE:
+<IN_USTRING2NLC> MORE:
+{
+ <""> : IN_USTRING21
+}
+
+<IN_STRING11, IN_USTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
+<IN_STRING21, IN_USTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
+
+<IN_STRING13, IN_STRING23, IN_USTRING13, IN_USTRING23> MORE:
 {
     <"\r\n"> {
-        int l = image.length(); 
+        int l = image.length();
         image.setLength(l-1);
         image.setCharAt(l-2, '\n');
-    } 
+    }
 |   <"\n">
 |   <"\r"> { image.setCharAt(image.length()-1, '\n'); }
-|   <~["\n","\r"]> 
+|   <~["\n","\r"]>
 |   <"\\" ~["\n","\r"]>
 }
 
-
-//single_input: NEWLINE | simple_stmt | compound_stmt NEWLINE 
+//single_input: NEWLINE | simple_stmt | compound_stmt NEWLINE
 // apparently CPython coalesces newlines, we don't
 modType single_input(): {
     token_source.single_input=true;
@@ -559,7 +591,7 @@ modType single_input(): {
 }
 
 //file_input: (NEWLINE | stmt)* ENDMARKER
-modType file_input(): {token_source.single_input=false;} 
+modType file_input(): {token_source.single_input=false;}
 {
     (<NEWLINE> | stmt())* <EOF>
     { return (modType) jjtree.popNode(); }
@@ -656,8 +688,8 @@ void expr_stmt() #void: {}
 //print_stmt: 'print' (test ',')* [test] | 'print' '>>' test (, test)+ [,]
 void print_stmt() #void: {}
 {
-    LOOKAHEAD(2) <PRINT> <RSHIFT> (test() 
-        [ (LOOKAHEAD(2) <COMMA> test())+ [Comma()] ] 
+    LOOKAHEAD(2) <PRINT> <RSHIFT> (test()
+        [ (LOOKAHEAD(2) <COMMA> test())+ [Comma()] ]
         )#printext_stmt
 |   LOOKAHEAD(2) <PRINT> (test() (LOOKAHEAD(2) <COMMA> test())* [Comma()]
         )#print_stmt
@@ -703,13 +735,13 @@ void import_stmt() #void: {}
 void Import(): {}
 { dotted_as_name() (<COMMA> dotted_as_name())* }
 
+//TODO: allways allowed (treat different versions in other places, to see if this is correct or not)
 void ImportFrom(): { String mod; String name; }
 {
     mod=dotted_name() <IMPORT> (
         <MULTIPLY> | (name=import_as_name() (<COMMA> import_as_name())*)
-            { if (mod.equals("__future__") && name.equals("generators"))
-                token_source.generator_allowed = true;
-            }
+// always allow generators
+//            { if (mod.equals("__future__") && name.equals("generators"))//                token_source.generator_allowed = true;//            }
         )
 }
 
@@ -766,9 +798,9 @@ void for_stmt(): {}
 void try_stmt() #void: {}
 { <TRY> <COLON> suite() (
     ((except_clause())+ [<ELSE> <COLON> suite()])
-        #try_stmt(jjtree.nodeArity()+1) 
+        #try_stmt(jjtree.nodeArity()+1)
     | <FINALLY> <COLON> suite()
-        #tryfinally_stmt(jjtree.nodeArity()+1)) 
+        #tryfinally_stmt(jjtree.nodeArity()+1))
 }
 
 //except_clause: 'except' [test [',' test]]
@@ -777,7 +809,7 @@ void except_clause(): {}
 
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 void suite(): {}
-{ simple_stmt() |  <NEWLINE> 
+{ simple_stmt() |  <NEWLINE>
                    { token_source.expect_indent = true; } <INDENT> { token_source.expect_indent = false; } (stmt())+ <DEDENT> }
 
 
@@ -866,7 +898,8 @@ void power() #void: {}
 void atomtrailer() #void: {}
 {
     atom() (LOOKAHEAD(2) <LPAREN> <RPAREN> #Call_Op(1)
-|   (<LPAREN> arglist() <RPAREN>) #Call_Op(jjtree.nodeArity()+1)
+|   LOOKAHEAD(2)(<LPAREN> listmaker() <RPAREN>) #Call_Op(jjtree.nodeArity()+1)
+|   LOOKAHEAD(2)(<LPAREN> arglist() <RPAREN>) #Call_Op(jjtree.nodeArity()+1)
 |   <LBRACKET> subscriptlist() <RBRACKET> #Index_Op(2)
 |   <DOT> AnyName() #Dot_Op(2) )*
 }
@@ -876,13 +909,14 @@ void atomtrailer() #void: {}
 void atom() #void: {}
 {
     LOOKAHEAD(2) (  <LPAREN> <RPAREN> ) #tuple
+|   LOOKAHEAD(2) (  <LPAREN> test() list_for() <RPAREN> ) #tuple //with list comprehension: fabioz
 |   ( <LPAREN> [SmartTestList()] <RPAREN> )
 |   ( <LBRACKET> [listmaker()] <RBRACKET> ) #list
 |   ( <LBRACE> [dictmaker()] <RBRACE> ) #dictionary
 |   "`" SmartTestList() "`" #str_1op(1)
-|   Name()
+|   Name() 
 |   Number()
-|   String() (String() #strjoin(2))* 
+|   String() (String() #strjoin(2))*
 }
 
 
@@ -899,7 +933,7 @@ void subscript() #void: {}
 {
     <DOT> <DOT> <DOT> #Ellipses
 |   (test() (slice())?) #Slice
-|   slice() #Slice(>0) 
+|   slice() #Slice(>0)
 }
 
 //sliceop: ':' [test]
@@ -935,26 +969,23 @@ void listmaker() #void: {}
 
 //list_for: 'for' exprlist 'in' testlist list_iter
 void list_for(): {}
-{ <FOR> exprlist() <IN> SmartTestList() (list_if())* }
+{ <FOR> exprlist() <IN> SmartTestList() (<IF> test())* }
 
-//list_if: 'if' test list_iter
-void list_if() #void: {}
-{ <IF> test() }
 
 
 //classdef: 'class' NAME ['(' testlist ')'] ':' suite
 void classdef(): {}
 {<CLASS> Name() [<LPAREN> testlist() <RPAREN>] <COLON> suite()}
 
-//arglist: (argument ',')* 
+//arglist: (argument ',')*
 //              (argument [',']| '*' test [',' '**' test] | '**' test)
 void arglist() #void: {}
 {
-    normalargs() [<COMMA> 
-    [LOOKAHEAD(2) ExtraArgValueList() 
+    normalargs() [<COMMA>
+    [LOOKAHEAD(2) ExtraArgValueList()
     [ <COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]]
-|   [LOOKAHEAD(2) ExtraArgValueList() 
-    [ <COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()] 
+|   [LOOKAHEAD(2) ExtraArgValueList()
+    [ <COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]
 }
 
 void normalargs() #void: {}
@@ -1018,6 +1049,10 @@ void String() #void :
 |   ( t=<SINGLE_STRING2> { jjtThis.setImage(makeString(t.image, 1)); } {} )#String
 |   ( t=<TRIPLE_STRING> { jjtThis.setImage(makeString(t.image, 3)); } {} )#String
 |   ( t=<TRIPLE_STRING2> { jjtThis.setImage(makeString(t.image, 3)); } {} )#String
+|   ( t=<SINGLE_USTRING> { jjtThis.setImage(makeString(t.image, 1)); } {} )#Unicode
+|   ( t=<SINGLE_USTRING2> { jjtThis.setImage(makeString(t.image, 1)); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING2> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Unicode
 }
 
 Token AnyName() #void:

@@ -2,9 +2,4 @@
 package org.python.parser;
 
 public class ParseError extends Exception {
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 7148442134136884596L;
 }

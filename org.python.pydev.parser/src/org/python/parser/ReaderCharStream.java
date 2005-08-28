@@ -275,7 +275,7 @@ public final class ReaderCharStream implements CharStream
   }
 
   /**
-   * Method to adjust line and column numbers for the start of a token.
+   * Method to adjust line and column numbers for the start of a token.<BR>
    */
   public void adjustBeginLineColumn(int newLine, int newCol)
   {

@@ -12,29 +12,24 @@ public class TokenMgrError extends Error
     */
 
    /**
-     * 
-     */
-    private static final long serialVersionUID = 5733001144542718546L;
-
-/**
     * Lexical error occured.
     */
-   public static final int LEXICAL_ERROR = 0;
+   static public final int LEXICAL_ERROR = 0;
 
    /**
     * An attempt wass made to create a second instance of a static token manager.
     */
-   public static final int STATIC_LEXER_ERROR = 1;
+   static final int STATIC_LEXER_ERROR = 1;
 
    /**
     * Tried to change to an invalid lexical state.
     */
-   public static final int INVALID_LEXICAL_STATE = 2;
+   static final int INVALID_LEXICAL_STATE = 2;
 
    /**
     * Detected (and bailed out of) an infinite loop in the token manager.
     */
-   public static final int LOOP_DETECTED = 3;
+   static final int LOOP_DETECTED = 3;
 
    /**
     * Indicates the reason why the exception is thrown. It will have

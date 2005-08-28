@@ -35,6 +35,7 @@ public interface VisitorIF {
     public Object visitLambda(Lambda node) throws Exception;
     public Object visitDict(Dict node) throws Exception;
     public Object visitListComp(ListComp node) throws Exception;
+    public Object visitGeneratorExp(GeneratorExp node) throws Exception;
     public Object visitCompare(Compare node) throws Exception;
     public Object visitCall(Call node) throws Exception;
     public Object visitRepr(Repr node) throws Exception;

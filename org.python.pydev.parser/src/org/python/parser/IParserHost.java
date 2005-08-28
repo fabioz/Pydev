@@ -8,16 +8,16 @@ package org.python.parser;
 
 public interface IParserHost {
 
-	   public Object newLong(String s);
+       public Object newLong(String s);
 
-	   public Object newLong(java.math.BigInteger i);
+       public Object newLong(java.math.BigInteger i);
 
-	   public Object newFloat(double v);
+       public Object newFloat(double v);
        
-	   public Object newImaginary(double v);
+       public Object newImaginary(double v);
        
-	   public Object newInteger(int i);
+       public Object newInteger(int i);
        
-	   public String decode_UnicodeEscape(String str, int start, int end,
-			   String errors, boolean unicode);
+       public String decode_UnicodeEscape(String str, int start, int end,
+               String errors, boolean unicode);
 }
