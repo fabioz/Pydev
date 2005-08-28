@@ -747,11 +747,12 @@ void Import(): {}
 //TODO: allways allowed (treat different versions in other places, to see if this is correct or not)
 void ImportFrom(): { String mod; String name; }
 {
-    mod=dotted_name() <IMPORT> (
-        <MULTIPLY> | (name=import_as_name() (<COMMA> import_as_name())*)
-// always allow generators
-//            { if (mod.equals("__future__") && name.equals("generators"))//                token_source.generator_allowed = true;//            }
-        )
+    mod=dotted_name() <IMPORT> 
+(
+    <MULTIPLY> //from xx import *
+    | (name=import_as_name() (<COMMA> import_as_name())*) //from xxx import a,b,c
+    | <LPAREN> name=import_as_name() ((<NEWLINE>)* <COMMA> (<NEWLINE>)* import_as_name())* <RPAREN> //from xxx import (a,b,c)
+)
 }
 
 //dotted_as_name: dotted_name [NAME NAME]

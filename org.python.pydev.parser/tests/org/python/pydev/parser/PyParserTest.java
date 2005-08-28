@@ -20,7 +20,7 @@ public class PyParserTest extends TestCase {
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testOnDocXMLRPCServerMod();
+            test.testNewImportParser();
             test.tearDown();
             junit.textui.TestRunner.run(PyParserTest.class);
         } catch (Exception e) {
@@ -142,6 +142,17 @@ public class PyParserTest extends TestCase {
     public void testOnDocXMLRPCServerMod() {
         String loc = TestDependent.PYTHON_LIB+"DocXMLRPCServer.py";
         String s = REF.getFileContents(new File(loc));
+        parseLegalDocStr(s);
+    }
+    
+    public void testNewImportParser() {
+        String s = "" +
+        "from a import (b,\n" +
+        "            c,\n" +
+        "            d)\n" +
+        "\n" +
+        "\n" +
+        "";
         parseLegalDocStr(s);
     }
     
