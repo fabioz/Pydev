@@ -1,5 +1,8 @@
 package org.python.parser;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import org.python.parser.ast.Assert;
 import org.python.parser.ast.Assign;
 import org.python.parser.ast.Attribute;
@@ -50,6 +53,7 @@ import org.python.parser.ast.Yield;
 import org.python.parser.ast.aliasType;
 import org.python.parser.ast.argumentsType;
 import org.python.parser.ast.comprehensionType;
+import org.python.parser.ast.decoratorsType;
 import org.python.parser.ast.excepthandlerType;
 import org.python.parser.ast.exprType;
 import org.python.parser.ast.expr_contextType;
@@ -139,6 +143,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         exprType value;
         exprType[] exprs;
 
+        int l;
         switch (n.getId()) {
         case -1:
             System.out.println("Illegal node");
@@ -154,6 +159,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTNUM:
             //throw new RuntimeException("how to handle this? -- fabio")
             return new Num(n.getImage());
+        case JJTUNICODE:
         case JJTSTRING:
             return new Str(n.getImage().toString());
 
@@ -236,12 +242,81 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             return new Break();
         case JJTCONTINUE_STMT:
             return new Continue();
+        case JJTDECORATORS:
+            ArrayList list2 = new ArrayList();
+            while(stack.nodeArity() > 0){
+                ArrayList listArgs = new ArrayList();
+                SimpleNode node = (SimpleNode) stack.popNode();
+                while(isArg(node) || node instanceof comprehensionType){
+                    if(node instanceof comprehensionType){
+                        listArgs.add(node);
+                        listArgs.add(stack.popNode()); //target
+                        
+                    }else{
+                        listArgs.add(node);
+                    }
+                    node = (SimpleNode) stack.popNode();
+                }
+                listArgs.add(node);
+                list2.add(makeCallOrDecorator(listArgs, false));
+            }
+            return new Decorators((decoratorsType[]) list2.toArray(new decoratorsType[0]), JJTDECORATORS);
+        case JJTCALL_OP:
+            exprType starargs = null;
+            exprType kwargs = null;
+
+            l = arity - 1;
+            if (l > 0 && peekNode().getId() == JJTEXTRAKEYWORDVALUELIST) {
+                kwargs = ((ExtraArgValue) popNode()).value;
+                l--;
+            }
+            if (l > 0 && peekNode().getId() == JJTEXTRAARGVALUELIST) {
+                starargs = ((ExtraArgValue) popNode()).value;
+                l--;
+            }
+            
+            int nargs = l;
+
+            SimpleNode[] tmparr = new SimpleNode[l]; 
+            for (int i = l - 1; i >= 0; i--) {
+                tmparr[i] = popNode();
+                if (tmparr[i] instanceof keywordType) {
+                    nargs = i;
+                }
+            }
+            
+            exprType[] args = new exprType[nargs];
+            for (int i = 0; i < nargs; i++) {
+                //what can happen is something like print sum(x for x in y), where we have already passed x in the args, and then get 'for x in y'
+                if(tmparr[i] instanceof comprehensionType){
+                    args = new exprType[]{
+                        new ListComp(args[0], new comprehensionType[]{
+                                (comprehensionType)tmparr[i]
+                            })
+                        };
+                }else{
+                    args[i] = makeExpr(tmparr[i]);
+                }
+            }
+
+            keywordType[] keywords = new keywordType[l - nargs];
+            for (int i = nargs; i < l; i++) {
+                if (!(tmparr[i] instanceof keywordType))
+                    throw new ParseException(
+                        "non-keyword argument following keyword", tmparr[i]);
+                keywords[i - nargs] = (keywordType) tmparr[i];
+            }
+            exprType func = makeExpr();
+            return new Call(func, args, keywords, starargs, kwargs);
         case JJTFUNCDEF:
+            //get the decorators
+            //and clear them for the next call (they always must be before a function def)
             body = popSuite();
-            argumentsType arguments = makeArguments(arity - 2);
+            
+            argumentsType arguments = makeArguments(stack.nodeArity() - 2);
             String name = makeIdentifier();
-            exprType[] decorators = new exprType[0];
-            return new FunctionDef(name, arguments, body, decorators);
+            Decorators decs = (Decorators) popNode() ;
+            return new FunctionDef(name, arguments, body, decs.exp);
         case JJTDEFAULTARG:
             value = (arity == 1) ? null : makeExpr();
             return new DefaultArg(makeExpr(), value);
@@ -292,7 +367,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 arity--;
                 orelse = popSuite();
             }
-            int l = arity - 1;
+            l = arity - 1;
             excepthandlerType[] handlers = new excepthandlerType[l];
             for (int i = l - 1; i >= 0; i--) {
                 handlers[i] = (excepthandlerType) popNode();
@@ -375,57 +450,6 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             return new UnaryOp(UnaryOp.Invert, makeExpr());
         case JJTNOT_1OP:
             return new UnaryOp(UnaryOp.Not, makeExpr());
-//        case JJTCALL_OP_COMP:
-//            throw new RuntimeException("err");
-        case JJTCALL_OP:
-            //if (arity == 1)
-            //    return new Call(makeExpr(), null, null, null, null);
-            exprType starargs = null;
-            exprType kwargs = null;
-
-            l = arity - 1;
-            if (l > 0 && peekNode().getId() == JJTEXTRAKEYWORDVALUELIST) {
-                kwargs = ((ExtraArgValue) popNode()).value;
-                l--;
-            }
-            if (l > 0 && peekNode().getId() == JJTEXTRAARGVALUELIST) {
-                starargs = ((ExtraArgValue) popNode()).value;
-                l--;
-            }
-            
-            int nargs = l;
-
-            SimpleNode[] tmparr = new SimpleNode[l]; 
-            for (int i = l - 1; i >= 0; i--) {
-                tmparr[i] = popNode();
-                if (tmparr[i] instanceof keywordType) {
-                    nargs = i;
-                }
-            }
-            
-            exprType[] args = new exprType[nargs];
-            for (int i = 0; i < nargs; i++) {
-                //what can happen is something like print sum(x for x in y), where we have already passed x in the args, and then get 'for x in y'
-                if(tmparr[i] instanceof comprehensionType){
-                    args = new exprType[]{
-                        new ListComp(args[0], new comprehensionType[]{
-                                (comprehensionType)tmparr[i]
-                            })
-                        };
-                }else{
-                    args[i] = makeExpr(tmparr[i]);
-                }
-            }
-
-            keywordType[] keywords = new keywordType[l - nargs];
-            for (int i = nargs; i < l; i++) {
-                if (!(tmparr[i] instanceof keywordType))
-                    throw new ParseException(
-                        "non-keyword argument following keyword", tmparr[i]);
-                keywords[i - nargs] = (keywordType) tmparr[i];
-            }
-            exprType func = makeExpr();
-            return new Call(func, args, keywords, starargs, kwargs);
         case JJTEXTRAKEYWORDVALUELIST:
             return new ExtraArgValue(makeExpr(), JJTEXTRAKEYWORDVALUELIST);
         case JJTEXTRAARGVALUELIST:
@@ -562,10 +586,55 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTCOLON:
             return n;
         default:
+            System.out.println("default "+n.getId());
             return null;
         }
     }
 
+    
+    SimpleNode makeCallOrDecorator(java.util.List nodes, boolean isCall){
+        exprType starargs = null;
+        exprType kwargs = null;
+
+        exprType func = null;
+        ArrayList keywordsl = new ArrayList();
+        ArrayList argsl = new ArrayList();
+        for (Iterator iter = nodes.iterator(); iter.hasNext();) {
+            SimpleNode node = (SimpleNode) iter.next();
+            
+        
+            if (node.getId() == JJTEXTRAKEYWORDVALUELIST) {
+                kwargs = ((ExtraArgValue) popNode()).value;
+            }
+            else if (node.getId() == JJTEXTRAARGVALUELIST) {
+                starargs = ((ExtraArgValue) popNode()).value;
+                
+            } else if(node instanceof keywordType){
+                //keyword
+                keywordsl.add(node);
+                
+            } else if(isArg(node)){
+                //default
+                argsl.add(node);
+
+            } else if(node instanceof comprehensionType){
+                //list comp (2 nodes: comp type and the elt -- what does elt mean by the way?) 
+                argsl.add( 
+                    new ListComp((exprType)iter.next(), new comprehensionType[]{(comprehensionType)node}));
+            } else {
+                //name
+                func = (exprType) node;
+            }
+            
+        }
+        if(isCall){
+            return new Call(func, (exprType[]) argsl.toArray(new exprType[0]), (keywordType[]) keywordsl.toArray(new keywordType[0]), starargs, kwargs);
+        } else {
+            return new decoratorsType(func, (exprType[]) argsl.toArray(new exprType[0]), (keywordType[]) keywordsl.toArray(new keywordType[0]), starargs, kwargs);
+        }
+
+    }
+    
     private stmtType makeAugAssign(int op) throws Exception {
         exprType value = makeExpr();
         exprType target = makeExpr();
@@ -595,6 +664,70 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         return new BinOp(left, op, right);
     }
 
+    
+    boolean isArg(SimpleNode n){
+        if (n instanceof ExtraArg)
+            return true;
+        if (n instanceof DefaultArg)
+            return true;
+        if (n instanceof keywordType)
+            return true;
+        return false;
+    }
+    
+    String[] getVargAndKwarg(java.util.List args) throws Exception {
+        String varg = null;
+        String kwarg = null;
+        for (Iterator iter = args.iterator(); iter.hasNext();) {
+            SimpleNode node = (SimpleNode) iter.next();
+            if(node.getId() == JJTEXTRAKEYWORDLIST){
+                ExtraArg a = (ExtraArg)node;
+                kwarg = a.name;
+                
+            }else if(node.getId() == JJTEXTRAARGLIST){
+                ExtraArg a = (ExtraArg)node;
+                varg = a.name;
+            }
+        }
+        return new String[]{varg, kwarg};
+    }
+    
+    argumentsType makeArguments(java.util.List args) throws Exception {
+        java.util.List defArg = new ArrayList();
+        for (Iterator iter = args.iterator(); iter.hasNext();) {
+            SimpleNode node = (SimpleNode) iter.next();
+            if(node.getId() != JJTEXTRAKEYWORDLIST && node.getId() == JJTEXTRAARGLIST){
+                defArg.add(node);
+            }
+        }
+        String[] vargAndKwarg = getVargAndKwarg(args);
+        String varg = vargAndKwarg[0];
+        String kwarg = vargAndKwarg[1];
+        
+        return makeArguments((DefaultArg[])defArg.toArray(new DefaultArg[0]), varg, kwarg);
+    }
+    
+    argumentsType makeArguments(DefaultArg[] def, String varg, String kwarg) throws Exception {
+        exprType fpargs[] = new exprType[def.length];
+        exprType defaults[] = new exprType[def.length];
+        int startofdefaults = 0;
+        for(int i = 0 ; i< def.length; i++){
+            DefaultArg node = def[i];
+            fpargs[i] = node.parameter;
+            ctx.setStore(fpargs[i]);
+            defaults[i] = node.value;
+            if (node.value != null)
+                startofdefaults = i;
+        }
+        
+        // System.out.println("start "+ startofdefaults + " " + l);
+        exprType[] newdefs = new exprType[def.length - startofdefaults];
+        System.arraycopy(defaults, startofdefaults, newdefs, 0, newdefs.length);
+
+        return new argumentsType(fpargs, varg, kwarg, newdefs);
+
+    }
+    
     argumentsType makeArguments(int l) throws Exception {
         String kwarg = null;
         String stararg = null;
@@ -606,24 +739,26 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             stararg = ((ExtraArg) popNode()).name;
             l--;
         }
-        int startofdefaults = l;
-        exprType fpargs[] =  new exprType[l];
-        exprType defaults[] =  new exprType[l];
+        ArrayList list = new ArrayList();
         for (int i = l-1; i >= 0; i--) {
-            DefaultArg node = (DefaultArg) popNode();
-            fpargs[i] = node.parameter;
-            ctx.setStore(fpargs[i]);
-            defaults[i] = node.value;
-            if (node.value != null)
-                startofdefaults = i;
+            list.add((DefaultArg) popNode());
         }
-//System.out.println("start "+  startofdefaults + " " + l);
-        exprType[] newdefs = new exprType[l-startofdefaults];
-        System.arraycopy(defaults, startofdefaults, newdefs, 0, newdefs.length);
-        
-        return new argumentsType(fpargs, stararg, kwarg, newdefs);
+        return makeArguments((DefaultArg[]) list.toArray(new DefaultArg[0]), stararg, kwarg);
     }
 }
+
+class Decorators extends SimpleNode {
+    public decoratorsType[] exp;
+    private int id;
+    Decorators(decoratorsType[] exp, int id) {
+        this.exp = exp;
+        this.id = id;
+    }
+    public int getId() {
+        return id;
+    }
+}
+
 
 class DefaultArg extends SimpleNode {
     public exprType parameter;

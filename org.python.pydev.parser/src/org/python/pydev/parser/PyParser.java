@@ -369,22 +369,26 @@ public class PyParser {
             line = info.currentLine;
         
         }else{
-            line = tokenErr.currentToken.beginLine-1;
-        
-	        boolean okToGo = false;
-	        
-	        while(! okToGo){
-		        if(! lineIn(info.linesChanged, line)){
-		            info.linesChanged.add(new Integer(line));
-		            okToGo = true;
-		            
-		        } else if(info.linesChanged.size() < 10){
-		            line += 1;
-		            
-		        } else{
-		            return null;
-		        }
-	        }
+            if(tokenErr.currentToken != null){
+                line = tokenErr.currentToken.beginLine-1;
+            
+    	        boolean okToGo = false;
+    	        
+    	        while(! okToGo){
+    		        if(! lineIn(info.linesChanged, line)){
+    		            info.linesChanged.add(new Integer(line));
+    		            okToGo = true;
+    		            
+    		        } else if(info.linesChanged.size() < 10){
+    		            line += 1;
+    		            
+    		        } else{
+    		            return null;
+    		        }
+                }
+	        }else{
+             return null;   
+            }
         }
 
         return tryReparseChangingLine(info, line);

@@ -3,5 +3,13 @@ Thanks to jython's team for this implementation of JavaCC python parser.
 
 It uses JavaCC and adslgen.
 
+Fabio:
+It has been updated to support:
+- list comprehension correctly (in tuples and in method calls, which required only changes to javacc)
+- decorators, which required changes to javacc and python.asdl (a decorators type was created, as oposed
+to an array of expressions, as was in the prior version in the python tree).
+
+Still to do:
+- allow for error recovery
 
 </body>

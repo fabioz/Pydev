@@ -8,19 +8,19 @@ public class FunctionDef extends stmtType {
     public String name;
     public argumentsType args;
     public stmtType[] body;
-    public exprType[] decorators;
+    public decoratorsType[] decs;
 
     public FunctionDef(String name, argumentsType args, stmtType[] body,
-    exprType[] decorators) {
+    decoratorsType[] decs) {
         this.name = name;
         this.args = args;
         this.body = body;
-        this.decorators = decorators;
+        this.decs = decs;
     }
 
     public FunctionDef(String name, argumentsType args, stmtType[] body,
-    exprType[] decorators, SimpleNode parent) {
-        this(name, args, body, decorators);
+    decoratorsType[] decs, SimpleNode parent) {
+        this(name, args, body, decs);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
     }
@@ -36,8 +36,8 @@ public class FunctionDef extends stmtType {
         sb.append("body=");
         sb.append(dumpThis(this.body));
         sb.append(", ");
-        sb.append("decorators=");
-        sb.append(dumpThis(this.decorators));
+        sb.append("decs=");
+        sb.append(dumpThis(this.decs));
         sb.append("]");
         return sb.toString();
     }
@@ -47,7 +47,7 @@ public class FunctionDef extends stmtType {
         pickleThis(this.name, ostream);
         pickleThis(this.args, ostream);
         pickleThis(this.body, ostream);
-        pickleThis(this.decorators, ostream);
+        pickleThis(this.decs, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {
@@ -63,10 +63,10 @@ public class FunctionDef extends stmtType {
                     body[i].accept(visitor);
             }
         }
-        if (decorators != null) {
-            for (int i = 0; i < decorators.length; i++) {
-                if (decorators[i] != null)
-                    decorators[i].accept(visitor);
+        if (decs != null) {
+            for (int i = 0; i < decs.length; i++) {
+                if (decs[i] != null)
+                    decs[i].accept(visitor);
             }
         }
     }

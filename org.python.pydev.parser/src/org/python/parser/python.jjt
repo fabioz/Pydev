@@ -452,6 +452,7 @@ TOKEN : /* KEYWORDS */
 |   < EXEC: "exec" >
 |   < ASSERT: "assert" >
 |   < AS: "as" >
+|   < AT: "@" >
 }
 
 
@@ -606,8 +607,16 @@ modType eval_input(): {token_source.single_input=false;}
 
 //funcdef: 'def' NAME parameters ':' suite
 void funcdef(): {}
-{ <DEF> AnyName() parameters() <COLON> suite() }
+{ 
+	decorators()
+	<DEF> AnyName() parameters() <COLON> suite() 
+}
 
+//@ call, name, attr ... <nl>
+void decorators(): {}
+{
+	(<AT> dotted_name() (<LPAREN> insidetuporcall() <RPAREN>)* <NEWLINE> )* 
+}
 //parameters: '(' [varargslist] ')'
 void parameters() #void: {}
 { <LPAREN> [varargslist()] <RPAREN> }

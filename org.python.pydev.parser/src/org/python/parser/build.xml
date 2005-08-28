@@ -8,7 +8,10 @@
         <echo>
 If this build.xml is called directly, you have to make sure the property javaccHome is set correctly.
 This can be done either inside this build.xml (first top property), or on the command line.
-            
+
+This build only handles javacc. If changes are done to the python.asdl file, you have to
+re-generate it by hand with "python asdl_java.py Python.asdl" inside of the ast package.
+        	
 Current setting is: ${javaccHome}
         </echo>
     </target>

@@ -20,7 +20,7 @@ public class PyParserTest extends TestCase {
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-//            test.testParser9();
+            test.testOnDocXMLRPCServerMod();
             test.tearDown();
             junit.textui.TestRunner.run(PyParserTest.class);
         } catch (Exception e) {
@@ -52,8 +52,95 @@ public class PyParserTest extends TestCase {
         parseLegalDocStr(s);
     }
 
+    public void testDecorator() {
+        String s = "" +
+            "class C:\n" +
+            "    \n" +
+            "    @staticmethod\n" +
+            "    def m():\n" +
+            "        pass\n" +
+            "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testDecorator2() {
+        String s = "" +
+            "@funcattrs(status=\"experimental\", author=\"BDFL\")\n" +
+            "@staticmethod\n" +
+            "def longMethodNameForEffect(*args):\n" +
+            "    pass\n" +
+            "\n" +
+            "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testDecorator4() {
+        String s = "" +
+        "@funcattrs(1)\n" +
+        "def longMethodNameForEffect(*args):\n" +
+        "    pass\n" +
+        "\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testDecorator5() {
+        String s = "" +
+        "@funcattrs(a)\n" +
+        "def longMethodNameForEffect(*args):\n" +
+        "    funcattrs(1)\n" +
+        "\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testDecorator3() {
+        String s = "" +
+        "@funcattrs(a, 1, status=\"experimental\", author=\"BDFL\", *args, **kwargs)\n" +
+        "@staticmethod1\n" +
+        "@staticmethod2(b)\n" +
+        "def longMethodNameForEffect(*args):\n" +
+        "    pass\n" +
+        "\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testDecorator6() {
+        String s = "" +
+        "@funcattrs(b for b in x)\n" +
+        "def longMethodNameForEffect(*args):\n" +
+        "    pass\n" +
+        "\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testOnCompleteLib() {
+        File file = new File(TestDependent.PYTHON_LIB);
+        File[] files = file.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File f = files[i];
+            if(f.getAbsolutePath().toLowerCase().endsWith(".py")){
+                parseLegalDocStr(REF.getFileContents(f), f);
+            }
+        }
+    }
+    
     public void testOnUnittestMod() {
         String loc = TestDependent.PYTHON_LIB+"unittest.py";
+        String s = REF.getFileContents(new File(loc));
+        parseLegalDocStr(s);
+    }
+    
+    public void testOnCodecsMod() {
+        String loc = TestDependent.PYTHON_LIB+"codecs.py";
+        String s = REF.getFileContents(new File(loc));
+        parseLegalDocStr(s);
+    }
+    
+    public void testOnDocXMLRPCServerMod() {
+        String loc = TestDependent.PYTHON_LIB+"DocXMLRPCServer.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
@@ -124,20 +211,25 @@ public class PyParserTest extends TestCase {
     /**
      * @param s
      */
-    private void parseLegalDocStr(String s) {
+    private void parseLegalDocStr(String s, Object ... additionalErrInfo) {
         Document doc = new Document(s);
-        parseLegalDoc(doc);
+        parseLegalDoc(doc, additionalErrInfo);
     }
 
     /**
+     * @param additionalErrInfo 
      * @param parser
      */
-    private void parseLegalDoc(IDocument doc) {
+    private void parseLegalDoc(IDocument doc, Object[] additionalErrInfo) {
         parser.setDocument(doc);
         Object[] objects = parser.reparseDocument((IPythonNature)null);
         Object err = objects[1];
         if(err != null){
-            fail("Expected no error, received: "+err);
+            String s = "";
+            for (int i = 0; i < additionalErrInfo.length; i++) {
+                s += additionalErrInfo[i];
+            }
+            fail("Expected no error, received: "+err+" "+s);
         }
         assertNotNull(objects[0]);
     }
