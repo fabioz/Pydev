@@ -93,7 +93,7 @@ public class FastparserTest extends TestCase {
      * @return
      */
     private Module makeFile1MethodDef() {
-        FunctionDef def = new FunctionDef("GlobalMethod", null, null);
+        FunctionDef def = new FunctionDef("GlobalMethod", null, null, null);
         def.beginColumn = 1;
         def.beginLine = 1;
         

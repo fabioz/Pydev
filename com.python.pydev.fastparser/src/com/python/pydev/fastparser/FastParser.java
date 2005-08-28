@@ -112,7 +112,7 @@ public class FastParser {
 
     private static int makeMethodDef(char[] cs, int i) throws BadLocationException {
         //should be something like def method(a,b,c=1):
-        FunctionDef def = new FunctionDef(null,null,null);
+        FunctionDef def = new FunctionDef(null,null,null, null);
         def.args = new argumentsType(null, null, null, new exprType[]{});
         stmts.add(def);
 

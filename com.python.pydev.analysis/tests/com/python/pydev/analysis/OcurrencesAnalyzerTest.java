@@ -16,9 +16,9 @@ import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
-import org.python.pydev.editor.codecompletion.revisited.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
