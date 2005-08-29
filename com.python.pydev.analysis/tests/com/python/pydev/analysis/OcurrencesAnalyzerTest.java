@@ -31,7 +31,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testLambda();
+            analyzer2.testStaticNoSelf2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -41,6 +41,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         } catch (Throwable e) {
             e.printStackTrace();
         }
+        System.exit(0);
     }
 
 
@@ -63,6 +64,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
     private int severityForDuplicatedSignature;
     private int severityForReimport;
     private int severityForUnresolvedImport;
+    private int severityForNoSelf;
 
     private IAnalysisPreferences prefs;
 
@@ -84,6 +86,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         severityForDuplicatedSignature = IMarker.SEVERITY_ERROR;
         severityForReimport = IMarker.SEVERITY_WARNING;
         severityForUnresolvedImport = IMarker.SEVERITY_ERROR;
+        severityForNoSelf = IMarker.SEVERITY_ERROR;
     }
 
     /*
@@ -439,6 +442,9 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
                 if (type == TYPE_UNRESOLVED_IMPORT){
                     return severityForUnresolvedImport;
                 }
+                if (type == TYPE_NO_SELF){
+                    return severityForNoSelf;
+                }
                 throw new RuntimeException("unable to get severity for type "+type);
             }
 
@@ -462,6 +468,22 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
     }
 
     
+    public void testUnusedVariable2() {
+        
+        //ignore the self
+        doc = new Document(
+            "class Class1:         \n" +
+            "    def met1(self, a):\n" +
+            "        pass"
+                );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 1);
+        assertEquals("Unused variable: a", msgs[0].getMessage());
+    
+    }
+    
     public void testUnusedVariable() {
         doc = new Document(
                 "def m1():    \n" +
@@ -478,18 +500,6 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
         assertEquals(0, msgs.length);
-        
-        //ignore the self
-        doc = new Document(
-            "class Class1:         \n" +
-            "    def met1(self, a):\n" +
-            "        pass"
-                );
-        analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
-        
-        assertEquals(1, msgs.length);
-        assertEquals("Unused variable: a", msgs[0].getMessage());
         
     }
     
@@ -1479,6 +1489,53 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
+    }
+    
+    public void testStaticNoSelf() {
+        doc = new Document(
+            "class C:\n" +
+            "    @staticmethod\n" +
+            "    def m():\n" +
+            "        pass\n" +
+            "\n" +
+            "\n" +
+            "" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 0);
+    }
+    
+    public void testStaticNoSelf2() {
+        doc = new Document(
+                "class C:\n" +
+                "    def m():\n" +
+                "        pass\n" +
+                "    m = staticmethod(m)\n" +
+                "\n" +
+                "" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 0);
+    }
+    
+    public void testNoSelf() {
+        doc = new Document(
+            "class C:\n" +
+            "    def m():\n" +
+            "        pass\n" +
+            "\n" +
+            "\n" +
+            "" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 1);
+        assertEquals("Method 'm' should have self as first parameter", msgs[0].getMessage());
     }
     
     public void testTupleVar2() {

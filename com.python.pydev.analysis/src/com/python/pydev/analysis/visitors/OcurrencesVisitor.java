@@ -88,6 +88,11 @@ public class OcurrencesVisitor extends VisitorBase{
     private DuplicationChecker duplicationChecker;
     
     /**
+     * used to check if a signature from a method starts with self (if it is not a staticmethod)
+     */
+    private NoSelfChecker noSelfChecker;
+    
+    /**
      * used to check for invalid imports
      */
     private ImportChecker importChecker;
@@ -107,6 +112,7 @@ public class OcurrencesVisitor extends VisitorBase{
         this.messagesManager = new MessagesManager(prefs, moduleName);
         this.scope = new Scope(this.messagesManager);
         this.duplicationChecker = new DuplicationChecker(this.messagesManager);
+        this.noSelfChecker = new NoSelfChecker(this.messagesManager, moduleName);
         this.importChecker = new ImportChecker(this.messagesManager);
         
         startScope(Scope.SCOPE_TYPE_GLOBAL); //initial scope - there is only one 'global' 
@@ -155,7 +161,9 @@ public class OcurrencesVisitor extends VisitorBase{
 
         startScope(Scope.SCOPE_TYPE_CLASS);
         duplicationChecker.beforeClassDef(node);
+        noSelfChecker.beforeClassDef(node);
         Object object = super.visitClassDef(node);
+        noSelfChecker.afterClassDef(node);
         duplicationChecker.afterClassDef(node);
         endScope();
         
@@ -183,12 +191,15 @@ public class OcurrencesVisitor extends VisitorBase{
         //visit the defaults first (before starting the scope, because this is where the load of variables from other scopes happens)
         if(args.defaults != null){
             for(exprType expr : args.defaults){
-                expr.accept(visitor);
+                if(expr != null){
+                    expr.accept(visitor);
+                }
             }
         }
 
         startScope(Scope.SCOPE_TYPE_METHOD);
         duplicationChecker.beforeFunctionDef(node); //duplication checker
+        noSelfChecker.beforeFunctionDef(node);
 
 
         scope.isInMethodDefinition = true;
@@ -228,6 +239,7 @@ public class OcurrencesVisitor extends VisitorBase{
         }
 
         duplicationChecker.afterFunctionDef(node);//duplication checker
+        noSelfChecker.afterFunctionDef(node);
         endScope();
         return null;
     }
@@ -404,15 +416,18 @@ public class OcurrencesVisitor extends VisitorBase{
     public Object visitAssign(Assign node) throws Exception {
         OcurrencesVisitor visitor = this;
         
+        //in 'm = a', this is 'a'
         if (node.value != null)
             node.value.accept(visitor);
 
+        //in 'm = a', this is 'm'
         if (node.targets != null) {
             for (int i = 0; i < node.targets.length; i++) {
                 if (node.targets[i] != null)
                     node.targets[i].accept(visitor);
             }
         }
+        noSelfChecker.visitAssign(node);
         return null;
     }
     

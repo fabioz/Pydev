@@ -13,6 +13,7 @@ public interface IAnalysisPreferences {
     public static final int TYPE_DUPLICATED_SIGNATURE = 3;
     public static final int TYPE_REIMPORT = 4;
     public static final int TYPE_UNRESOLVED_IMPORT = 5;
+    public static final int TYPE_NO_SELF = 6;
     
     /**
      * this severity indicates that the given message should be ignored

@@ -42,6 +42,7 @@ public abstract class AbstractMessage implements IMessage{
             messages.put(IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE, "Duplicated signature: %s");
             messages.put(IAnalysisPreferences.TYPE_REIMPORT, "Import redefinition: %s");
             messages.put(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, "Unresolved import: %s");
+            messages.put(IAnalysisPreferences.TYPE_NO_SELF, "Method '%s' should have self as first parameter");
         }
         return messages.get(getType());
 
