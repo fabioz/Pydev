@@ -43,6 +43,7 @@ public class AnalysisPreferences implements IAnalysisPreferences{
         {IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE, AnalysisPreferenceInitializer.SEVERITY_DUPLICATED_SIGNATURE, AnalysisPreferenceInitializer.DEFAULT_SEVERITY_DUPLICATED_SIGNATURE  },
         {IAnalysisPreferences.TYPE_REIMPORT            , AnalysisPreferenceInitializer.SEVERITY_REIMPORT            , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_REIMPORT              },
         {IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT   , AnalysisPreferenceInitializer.SEVERITY_UNRESOLVED_IMPORT   , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNRESOLVED_IMPORT     },
+        {IAnalysisPreferences.TYPE_NO_SELF             , AnalysisPreferenceInitializer.SEVERITY_NO_SELF             , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_NO_SELF               },
     };
     
 
