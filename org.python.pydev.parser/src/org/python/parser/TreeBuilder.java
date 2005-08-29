@@ -1,6 +1,7 @@
 package org.python.parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.python.parser.ast.Assert;
@@ -743,6 +744,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         for (int i = l-1; i >= 0; i--) {
             list.add((DefaultArg) popNode());
         }
+        Collections.reverse(list);//we get them in reverse order in the stack
         return makeArguments((DefaultArg[]) list.toArray(new DefaultArg[0]), stararg, kwarg);
     }
 }

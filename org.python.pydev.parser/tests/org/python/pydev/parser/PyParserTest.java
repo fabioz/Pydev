@@ -8,6 +8,11 @@ import java.io.File;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.ParseException;
+import org.python.parser.SimpleNode;
+import org.python.parser.ast.ClassDef;
+import org.python.parser.ast.FunctionDef;
+import org.python.parser.ast.Module;
+import org.python.parser.ast.Name;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
@@ -20,7 +25,7 @@ public class PyParserTest extends TestCase {
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testNewImportParser();
+            test.testCorrectArgs();
             test.tearDown();
             junit.textui.TestRunner.run(PyParserTest.class);
         } catch (Exception e) {
@@ -43,6 +48,19 @@ public class PyParserTest extends TestCase {
         PyParser.ENABLE_TRACING = false;
         ParseException.verboseExceptions = false;
         super.tearDown();
+    }
+    
+    public void testCorrectArgs() {
+        String s = "" +
+        "class Class1:         \n" +
+        "    def met1(self, a):\n" +
+        "        pass";
+        SimpleNode node = parseLegalDocStr(s);
+        Module m = (Module) node;
+        ClassDef d = (ClassDef) m.body[0];
+        FunctionDef f = (FunctionDef) d.body[0];
+        assertEquals("self",((Name)f.args.args[0]).id);
+        assertEquals("a",((Name)f.args.args[1]).id);
     }
     
     public void testYield() {
@@ -221,17 +239,18 @@ public class PyParserTest extends TestCase {
     
     /**
      * @param s
+     * @return 
      */
-    private void parseLegalDocStr(String s, Object ... additionalErrInfo) {
+    private SimpleNode parseLegalDocStr(String s, Object ... additionalErrInfo) {
         Document doc = new Document(s);
-        parseLegalDoc(doc, additionalErrInfo);
+        return parseLegalDoc(doc, additionalErrInfo);
     }
 
     /**
      * @param additionalErrInfo 
      * @param parser
      */
-    private void parseLegalDoc(IDocument doc, Object[] additionalErrInfo) {
+    private SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo) {
         parser.setDocument(doc);
         Object[] objects = parser.reparseDocument((IPythonNature)null);
         Object err = objects[1];
@@ -243,6 +262,7 @@ public class PyParserTest extends TestCase {
             fail("Expected no error, received: "+err+" "+s);
         }
         assertNotNull(objects[0]);
+        return (SimpleNode) objects[0];
     }
     
 }
