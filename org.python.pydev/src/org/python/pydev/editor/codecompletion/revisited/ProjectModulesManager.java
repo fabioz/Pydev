@@ -141,8 +141,15 @@ public class ProjectModulesManager extends ModulesManager{
      */
     public String resolveModule(IResource member, IProject container) {
         IPath location = PydevPlugin.getLocation(member.getFullPath(), container);
-        File inOs = new File(location.toOSString());
-        return resolveModule(REF.getFileAbsolutePath(inOs));
+        if(location == null){
+            //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
+            PydevPlugin.log("Unable to find the path "+member+" in the project were it\n" +
+                    "is added as a source folder for pydev (project: "+project.getName()+")");
+            return null;
+        }else{
+            File inOs = new File(location.toOSString());
+            return resolveModule(REF.getFileAbsolutePath(inOs));
+        }
     }
 
     /**

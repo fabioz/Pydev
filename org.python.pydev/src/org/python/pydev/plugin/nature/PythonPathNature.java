@@ -65,8 +65,15 @@ public class PythonPathNature implements IPythonPathNature {
             if(strings[i].trim().length()>0){
                 IPath p = new Path(strings[i]);
                 p = PydevPlugin.getLocation(p, project);
-                buf.append(REF.getFileAbsolutePath(p.toFile()));
-                buf.append("|");
+                if(p != null){
+                    buf.append(REF.getFileAbsolutePath(p.toFile()));
+                    buf.append("|");
+                }else{ //the location was not found
+                    
+                    //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
+                    PydevPlugin.log("Unable to find the path "+strings[i]+" in the project were it\n" +
+                            "is added as a source folder for pydev (project: "+project.getName()+")");
+                }
             }
         }
         

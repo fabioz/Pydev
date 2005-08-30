@@ -291,6 +291,9 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return null;
     }
 
+    public static IPath getLocationFromWorkspace(IPath path) {
+        return getLocationFromWorkspace(path, 0);
+    }
     /**
      * This one should only be used if the root (project) is unknown.
      * 
@@ -298,12 +301,17 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @param path
      * @return
      */
-    public static IPath getLocationFromWorkspace(IPath path) {
+    public static IPath getLocationFromWorkspace(IPath path, int repetitions) {
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
         IContainer root = workspace.getRoot();
-        return getLocation(path, root);
+        repetitions++;
+        return getLocation(path, root, repetitions);
     }
 
+    public static IPath getLocation(IPath path, IContainer root) {
+        return getLocation(path, root, 0);
+    }
+    
     /**
      * Returns the location in the filesystem for the given path
      * 
@@ -311,7 +319,11 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @param root the path must be inside this root
      * @return
      */
-    public static IPath getLocation(IPath path, IContainer root) {
+    public static IPath getLocation(IPath path, IContainer root, int repetitions) {
+        if(repetitions > 3){
+            return null;
+        }
+        repetitions++;
         IResource resource = root.findMember(path);
         IPath location = null;
         if (resource != null) {
@@ -319,7 +331,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         }
         
         if(location == null){
-            location = getLocationFromWorkspace(path);
+            location = getLocationFromWorkspace(path, repetitions);
         }
         return location;
     }
