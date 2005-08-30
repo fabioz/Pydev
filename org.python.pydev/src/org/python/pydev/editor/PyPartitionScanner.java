@@ -37,8 +37,9 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
 	public final static String PY_COMMENT = "__python_comment";
 	public final static String PY_SINGLELINE_STRING = "__python_singleline_string";
 	public final static String PY_MULTILINE_STRING = "__python_multiline_string";
+	public final static String PY_BACKQUOTES = "__python_backquotes";
     
-    public final static String[] types = {PY_COMMENT, PY_SINGLELINE_STRING, PY_MULTILINE_STRING};
+    public final static String[] types = {PY_COMMENT, PY_SINGLELINE_STRING, PY_MULTILINE_STRING, PY_BACKQUOTES};
     public static final String PYTHON_PARTITION_TYPE = "__PYTHON_PARTITION_TYPE";
     
 	public PyPartitionScanner() {
@@ -48,10 +49,15 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
 		addCommentRule(rules);
 		addMultilineStringRule(rules);
 		addSinglelineStringRule(rules);
+		addReprRule(rules);
 		
 		IPredicateRule[] result = new IPredicateRule[rules.size()];
 		rules.toArray(result);
 		setPredicateRules(result);
+	}
+
+	private void addReprRule(List rules) {
+		rules.add(new SingleLineRule("`", "`", new Token(PY_BACKQUOTES)));
 	}
 
 	private void addSinglelineStringRule(List rules) {

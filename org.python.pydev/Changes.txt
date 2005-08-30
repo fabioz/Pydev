@@ -9,7 +9,13 @@ org.eclipse.ant.internal.ui.preferences.AntRuntimePreferencePage
 jython module management (may be handy)
 org.python.core.SysPackageManager
 
+after 0.9.8
 
+- Gerhard Kalab contributed patch to:
+	- enable bold and italic style for syntax coloring
+	- added parse rule and color/style for string representation (backquotes)
+- zombie process after exiting eclipse reviewed
+- paths with '.' are accepted for the pythonpath (unless they start with a '.', because it may not accept relative paths).
 
 
 

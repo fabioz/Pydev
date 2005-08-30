@@ -245,24 +245,35 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         prefListener = new Preferences.IPropertyChangeListener() {
             public void propertyChange(Preferences.PropertyChangeEvent event) {
                 String property = event.getProperty();
+                //tab width
                 if (property.equals(PydevPrefs.TAB_WIDTH)) {
                     ISourceViewer sourceViewer = getSourceViewer();
-                    if (sourceViewer == null)
+                    if (sourceViewer == null){
                         return;
+                    }
                     sourceViewer.getTextWidget().setTabs(PydevPlugin.getDefault().getPluginPreferences().getInt(PydevPrefs.TAB_WIDTH));
+                   
+                //auto adjust for file tabs
                 } else if (property.equals(PydevPrefs.GUESS_TAB_SUBSTITUTION)) {
                     resetForceTabs();
-                } else if (property.equals(PydevPrefs.CODE_COLOR) || property.equals(PydevPrefs.DECORATOR_COLOR) || property.equals(PydevPrefs.NUMBER_COLOR)
-                        || property.equals(PydevPrefs.KEYWORD_COLOR) || property.equals(PydevPrefs.COMMENT_COLOR) || property.equals(PydevPrefs.STRING_COLOR)) {
+                    
+                //hyperlink
+                }else if (property.equals(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_HYPERLINK_COLOR)) {
                     colorCache.reloadNamedColor(property);
-                    editConfiguration.updateSyntaxColor(property);
+                    if (fMouseListener != null){
+                        fMouseListener.updateColor(getSourceViewer());
+                    }
+                
+                //colors and styles
+                } else if (property.equals(PydevPrefs.CODE_COLOR) || property.equals(PydevPrefs.DECORATOR_COLOR) || property.equals(PydevPrefs.NUMBER_COLOR)
+                        || property.equals(PydevPrefs.KEYWORD_COLOR) || property.equals(PydevPrefs.COMMENT_COLOR) || property.equals(PydevPrefs.STRING_COLOR)
+                        || property.equals(PydevPrefs.DEFAULT_BACKQUOTES_COLOR)
+                        || property.endsWith("_STYLE")
+                        ) {
+                    colorCache.reloadNamedColor(property); //all reference this cache
+                    editConfiguration.updateSyntaxColorAndStyle(); //the style needs no reloading
                     getSourceViewer().invalidateTextPresentation();
                 } 
-                else if (property.equals(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_HYPERLINK_COLOR)) {
-                    colorCache.reloadNamedColor(property);
-                    if (fMouseListener != null)
-                        fMouseListener.updateColor(getSourceViewer());
-                }
             }
         };
         resetForceTabs();

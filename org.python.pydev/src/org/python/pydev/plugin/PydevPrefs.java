@@ -15,6 +15,7 @@ package org.python.pydev.plugin;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -122,10 +123,14 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final boolean DEFAULT_EDITOR_WIDE_CARET = false;
 	
 	//matching
+	public static final String USE_MATCHING_BRACKETS = "USE_MATCHING_BRACKETS";
     public static final boolean DEFAULT_USE_MATCHING_BRACKETS = true;
-    public static final String USE_MATCHING_BRACKETS = "USE_MATCHING_BRACKETS";
-    public static final RGB DEFAULT_MATCHING_BRACKETS_COLOR = new RGB(64,128,128);
+
     public static final String MATCHING_BRACKETS_COLOR = "EDITOR_MATCHING_BRACKETS_COLOR";
+    public static final RGB DEFAULT_MATCHING_BRACKETS_COLOR = new RGB(64,128,128);
+    
+    public static final String MATCHING_BRACKETS_STYLE = "EDITOR_MATCHING_BRACKETS_STYLE";
+    public static final int DEFAULT_MATCHING_BRACKETS_STYLE = SWT.NORMAL;
 	
 	//colors
     public static final String DECORATOR_COLOR = "DECORATOR_COLOR";
@@ -146,12 +151,34 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String COMMENT_COLOR = "COMMENT_COLOR";
 	public static final RGB DEFAULT_COMMENT_COLOR = new RGB(192, 192, 192);
 	
+	public static final String BACKQUOTES_COLOR = "BACKQUOTES_COLOR";
+	public static final RGB DEFAULT_BACKQUOTES_COLOR = new RGB(0, 0, 0);
+	
 	//see initializeDefaultColors for selection defaults
 	public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
 	public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
 
+	//font
+    public static final String DECORATOR_STYLE = "DECORATOR_STYLE";
+	public static final int DEFAULT_DECORATOR_STYLE = SWT.ITALIC;
 
+    public static final String NUMBER_STYLE = "NUMBER_STYLE";
+	public static final int DEFAULT_NUMBER_STYLE = SWT.NORMAL;
+
+    public static final String CODE_STYLE = "CODE_STYLE";
+	public static final int DEFAULT_CODE_STYLE = SWT.NORMAL;
 	
+	public static final String KEYWORD_STYLE = "KEYWORD_STYLE";
+	public static final int DEFAULT_KEYWORD_STYLE = SWT.NORMAL;
+	
+	public static final String STRING_STYLE = "STRING_STYLE";
+	public static final int DEFAULT_STRING_STYLE = SWT.ITALIC;
+	
+	public static final String COMMENT_STYLE = "COMMENT_STYLE";
+	public static final int DEFAULT_COMMENT_STYLE = SWT.NORMAL;
+	
+	public static final String BACKQUOTES_STYLE = "BACKQUOTES_STYLE";
+	public static final int DEFAULT_BACKQUOTES_STYLE = SWT.BOLD;
 		
 	/**
 	 * Defaults
@@ -164,11 +191,23 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		{"Keywords", KEYWORD_COLOR, null},
 		{"Strings", STRING_COLOR, null},
 		{"Comments", COMMENT_COLOR, null},
+		{"Backquotes", BACKQUOTES_COLOR, null},
+	};
+	
+	private final String[][] fAppearanceFontListModel= new String[][] {
+		{"Code", CODE_STYLE, null},
+		{"Decorators", DECORATOR_STYLE, null},
+		{"Numbers", NUMBER_STYLE, null},
+		{"Matching brackets", MATCHING_BRACKETS_STYLE, null},
+		{"Keywords", KEYWORD_STYLE, null},
+		{"Strings", STRING_STYLE, null},
+		{"Comments", COMMENT_STYLE, null},
+		{"Backquotes", BACKQUOTES_STYLE, null},
 	};
 	
 	private OverlayPreferenceStore fOverlayStore;
 	
-	private Map fCheckBoxes= new HashMap();
+	private Map<Button, String> fCheckBoxes= Collections.checkedMap(new HashMap<Button, String>(), Button.class, String.class);
 	private SelectionListener fCheckBoxListener= new SelectionListener() {
 		public void widgetDefaultSelected(SelectionEvent e) {
 		}
@@ -177,8 +216,8 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 			fOverlayStore.setValue((String) fCheckBoxes.get(button), button.getSelection());
 		}
 	};
-	
-	private Map fTextFields= new HashMap();
+
+	private Map<Text, String> fTextFields= Collections.checkedMap(new HashMap<Text, String>(), Text.class, String.class);
 	private ModifyListener fTextFieldListener= new ModifyListener() {
 		public void modifyText(ModifyEvent e) {
 			Text text= (Text) e.widget;
@@ -186,7 +225,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		}
 	};
 
-	private ArrayList fNumberFields= new ArrayList();
+	private java.util.List<Text> fNumberFields= Collections.checkedList(new ArrayList<Text>(), Text.class);
 	private ModifyListener fNumberFieldListener= new ModifyListener() {
 		public void modifyText(ModifyEvent e) {
 			numberFieldChanged((Text) e.widget);
@@ -196,6 +235,26 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	private List fAppearanceColorList;
 	private ColorEditor fAppearanceColorEditor;
 	private Button fAppearanceColorDefault;
+	private Button fFontBoldCheckBox;
+	private Button fFontItalicCheckBox;
+
+	private SelectionListener fStyleCheckBoxListener= new SelectionListener() {
+		public void widgetDefaultSelected(SelectionEvent e) {
+			// do nothing
+		}
+		public void widgetSelected(SelectionEvent e) {
+			int i= fAppearanceColorList.getSelectionIndex();
+			int style= SWT.NORMAL; 
+			String styleKey= fAppearanceFontListModel[i][1];
+			if (fFontBoldCheckBox.getSelection()) {
+				style= style | SWT.BOLD;
+			}
+			if (fFontItalicCheckBox.getSelection()) {
+				style= style | SWT.ITALIC;
+			}
+			fOverlayStore.setValue(styleKey, style);
+		}
+	};
 	
 	/**
 	 * Tells whether the fields are initialized.
@@ -209,7 +268,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	 * @see #createDependency(Button, String, Control)
 	 * @since 3.0
 	 */
-	private ArrayList fMasterSlaveListeners= new ArrayList();
+	private java.util.List<SelectionListener> fMasterSlaveListeners= Collections.checkedList(new ArrayList<SelectionListener>(), SelectionListener.class);
 
 	
 	public PydevPrefs() {
@@ -221,7 +280,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	
 	private OverlayPreferenceStore createOverlayStore() {
 		
-		ArrayList overlayKeys= new ArrayList();
+		java.util.List<OverlayPreferenceStore.OverlayKey> overlayKeys= Collections.checkedList(
+					new ArrayList<OverlayPreferenceStore.OverlayKey>(), 
+					OverlayPreferenceStore.OverlayKey.class);
 		
 		//text
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
@@ -252,6 +313,16 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, KEYWORD_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, STRING_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, COMMENT_COLOR));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, BACKQUOTES_COLOR));
+		
+		//font style
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, CODE_STYLE));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, NUMBER_STYLE));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, DECORATOR_STYLE));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, KEYWORD_STYLE));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, STRING_STYLE));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, COMMENT_STYLE));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, BACKQUOTES_STYLE));
 		
 		OverlayPreferenceStore.OverlayKey[] keys= new OverlayPreferenceStore.OverlayKey[overlayKeys.size()];
 		overlayKeys.toArray(keys);
@@ -275,7 +346,19 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		int i= fAppearanceColorList.getSelectionIndex();
 		String key= fAppearanceColorListModel[i][1];
 		RGB rgb= PreferenceConverter.getColor(fOverlayStore, key);
-		fAppearanceColorEditor.setColorValue(rgb);		
+		fAppearanceColorEditor.setColorValue(rgb);
+		String styleKey= fAppearanceFontListModel[i][1];
+		int styleValue= fOverlayStore.getInt(styleKey);
+		if ((styleValue & SWT.BOLD) == 0) {
+			fFontBoldCheckBox.setSelection(false);
+		} else {
+			fFontBoldCheckBox.setSelection(true);
+		}
+		if ((styleValue & SWT.ITALIC) == 0) {
+			fFontItalicCheckBox.setSelection(false);
+		} else {
+			fFontItalicCheckBox.setSelection(true);
+		}
 		updateAppearanceColorWidgets(fAppearanceColorListModel[i][2]);
 	}
 
@@ -329,7 +412,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
                 "simply move your cursor to the next position after the colon.", TOOLTIP_WIDTH));
 
         //auto import str
-        b = addCheckBox(appearanceComposite, "Autotic insertion of the 'import' string on 'from xxx' ", AUTO_WRITE_IMPORT_STR, 0);
+        b = addCheckBox(appearanceComposite, "Automatic insertion of the 'import' string on 'from xxx' ", AUTO_WRITE_IMPORT_STR, 0);
         b.setToolTipText(WordUtils.wrap("Enabling this will allow the editor to automatically write the" +
                 "'import' string when you write a space after you've written 'from xxx '.", TOOLTIP_WIDTH));
         
@@ -369,7 +452,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 
 		fAppearanceColorList= new List(editorComposite, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
 		gd= new GridData(GridData.VERTICAL_ALIGN_BEGINNING | GridData.FILL_HORIZONTAL);
-		gd.heightHint= convertHeightInCharsToPixels(5);
+		gd.heightHint= convertHeightInCharsToPixels(8);
 		fAppearanceColorList.setLayoutData(gd);
 						
 		Composite stylesComposite= new Composite(editorComposite, SWT.NONE);
@@ -404,7 +487,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 			}
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		};
-		
+
 		fAppearanceColorDefault= new Button(stylesComposite, SWT.CHECK);
 		fAppearanceColorDefault.setText("System default"); 
 		gd= new GridData(GridData.FILL_HORIZONTAL);
@@ -433,8 +516,21 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 				PreferenceConverter.setValue(fOverlayStore, key, fAppearanceColorEditor.getColorValue());
 			}
 		});
+
+		fFontBoldCheckBox = addStyleCheckBox(stylesComposite, "Bold");
+		fFontItalicCheckBox = addStyleCheckBox(stylesComposite, "Italic");
 		
 		return appearanceComposite;
+	}
+
+	private Button addStyleCheckBox(Composite parent, String text) {
+		Button result= new Button(parent, SWT.CHECK);
+		result.setText(text);
+		GridData gd= new GridData();
+		gd.horizontalSpan= 2;
+		result.setLayoutData(gd);
+		result.addSelectionListener(fStyleCheckBoxListener);
+		return result;
 	}
 	
 	/*

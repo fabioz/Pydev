@@ -7,6 +7,7 @@
 package org.python.pydev.editor;
 
 import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.DefaultUndoManager;
 import org.eclipse.jface.text.IAutoEditStrategy;
@@ -64,7 +65,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
     private PyCodeScanner codeScanner;
 
-    private PyColoredScanner commentScanner, stringScanner;
+    private PyColoredScanner commentScanner, stringScanner, backquotesScanner;
 
     public PyContentAssistant pyContentAssistant = new PyContentAssistant();
 
@@ -193,14 +194,24 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
             // We need to cover all the content types from PyPartitionScanner
 
+            IPreferenceStore preferences = PydevPlugin.getChainedPrefStore();
             // Comments have uniform color
-            commentScanner = new PyColoredScanner(colorCache, PydevPrefs.COMMENT_COLOR);
+            commentScanner = new PyColoredScanner(colorCache, PydevPrefs.COMMENT_COLOR, 
+            		preferences.getInt(PydevPrefs.COMMENT_STYLE));
             dr = new DefaultDamagerRepairer(commentScanner);
             reconciler.setDamager(dr, PyPartitionScanner.PY_COMMENT);
             reconciler.setRepairer(dr, PyPartitionScanner.PY_COMMENT);
 
+            // Backquotes have uniform color
+            backquotesScanner = new PyColoredScanner(colorCache, PydevPrefs.BACKQUOTES_COLOR,
+            		preferences.getInt(PydevPrefs.BACKQUOTES_STYLE));
+            dr = new DefaultDamagerRepairer(backquotesScanner);
+            reconciler.setDamager(dr, PyPartitionScanner.PY_BACKQUOTES);
+            reconciler.setRepairer(dr, PyPartitionScanner.PY_BACKQUOTES);
+            
             // Strings have uniform color
-            stringScanner = new PyColoredScanner(colorCache, PydevPrefs.STRING_COLOR);
+            stringScanner = new PyColoredScanner(colorCache, PydevPrefs.STRING_COLOR,
+            		preferences.getInt(PydevPrefs.STRING_STYLE));
             dr = new DefaultDamagerRepairer(stringScanner);
             reconciler.setDamager(dr, PyPartitionScanner.PY_SINGLELINE_STRING);
             reconciler.setRepairer(dr, PyPartitionScanner.PY_SINGLELINE_STRING);
@@ -328,16 +339,22 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
     //updates the syntax highlighting for the specified preference
     //assumes that that editor colorCache has been updated with the
     //new named color
-    public void updateSyntaxColor(String name) {
+    public void updateSyntaxColorAndStyle() {
         if (reconciler != null) {
+            //always update all (too much work in keeping this synchronized by type)
+            codeScanner.updateColors();
+            
+            IPreferenceStore preferences = PydevPlugin.getChainedPrefStore();
+            
+            commentScanner.setStyle(preferences.getInt(PydevPrefs.COMMENT_STYLE));
+            commentScanner.updateColorAndStyle();
 
-            if (name.equals(PydevPrefs.CODE_COLOR) || name.equals(PydevPrefs.KEYWORD_COLOR) || name.equals(PydevPrefs.NUMBER_COLOR) || name.equals(PydevPrefs.DECORATOR_COLOR)) {
-                codeScanner.updateColors();
-            } else if (name.equals(PydevPrefs.COMMENT_COLOR)) {
-                commentScanner.updateColor();
-            } else if (name.equals(PydevPrefs.STRING_COLOR)) {
-                stringScanner.updateColor();
-            }
+            stringScanner.setStyle(preferences.getInt(PydevPrefs.STRING_STYLE));
+            stringScanner.updateColorAndStyle();
+
+            backquotesScanner.setStyle(preferences.getInt(PydevPrefs.BACKQUOTES_STYLE));
+            backquotesScanner.updateColorAndStyle();
         }
     }
+    
 }

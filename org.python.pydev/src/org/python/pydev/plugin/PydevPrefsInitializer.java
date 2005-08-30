@@ -38,6 +38,7 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         //matching
         node.putBoolean(PydevPrefs.USE_MATCHING_BRACKETS, PydevPrefs.DEFAULT_USE_MATCHING_BRACKETS);
         node.put(PydevPrefs.MATCHING_BRACKETS_COLOR, StringConverter.asString(PydevPrefs.DEFAULT_MATCHING_BRACKETS_COLOR));
+        node.putInt(PydevPrefs.MATCHING_BRACKETS_STYLE, PydevPrefs.DEFAULT_MATCHING_BRACKETS_STYLE);
         
         //colors
         node.put(PydevPrefs.CODE_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_CODE_COLOR));
@@ -46,7 +47,17 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.put(PydevPrefs.KEYWORD_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_KEYWORD_COLOR));
         node.put(PydevPrefs.STRING_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_STRING_COLOR));
         node.put(PydevPrefs.COMMENT_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_COMMENT_COLOR));
+        node.put(PydevPrefs.BACKQUOTES_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_BACKQUOTES_COLOR));
         //for selection colors see initializeDefaultColors()
+        
+        //font style
+        node.putInt(PydevPrefs.CODE_STYLE, PydevPrefs.DEFAULT_CODE_STYLE);
+        node.putInt(PydevPrefs.NUMBER_STYLE, PydevPrefs.DEFAULT_NUMBER_STYLE);
+        node.putInt(PydevPrefs.DECORATOR_STYLE, PydevPrefs.DEFAULT_DECORATOR_STYLE);
+        node.putInt(PydevPrefs.KEYWORD_STYLE, PydevPrefs.DEFAULT_KEYWORD_STYLE);
+        node.putInt(PydevPrefs.STRING_STYLE, PydevPrefs.DEFAULT_STRING_STYLE);
+        node.putInt(PydevPrefs.COMMENT_STYLE, PydevPrefs.DEFAULT_COMMENT_STYLE);
+        node.putInt(PydevPrefs.BACKQUOTES_STYLE, PydevPrefs.DEFAULT_BACKQUOTES_STYLE);
         
         //no UI
         node.putInt(PydevPrefs.CONNECT_TIMEOUT, PydevPrefs.DEFAULT_CONNECT_TIMEOUT);
