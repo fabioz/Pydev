@@ -164,6 +164,9 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     public void stop(BundleContext context) throws Exception {
         
         try {
+            //stop the running shells
+            AbstractShell.shutdownAllShells();
+
             Preferences preferences = plugin.getPluginPreferences();
             preferences.removePropertyChangeListener(this);
             
@@ -184,8 +187,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
                 }
             }
 
-            //stop the running shells
-            AbstractShell.stopAllShells();
         } finally{
 	        super.stop(context);
         }

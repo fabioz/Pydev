@@ -65,6 +65,15 @@ public abstract class AbstractShell {
      */
     protected static Map<Integer,Map<Integer,AbstractShell>> shells = new HashMap<Integer,Map<Integer,AbstractShell>>();
     
+    /**
+     * if we are already finished for good, we may not start new shells (this is a static, because this 
+     * should be set only at shutdown).
+     */
+    private static boolean finishedForGood = false;
+    
+    /**
+     * simple stop of a shell (it may be later restarted)
+     */
     public static void stopServerShell(int relatedId, int id) {
         Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
         AbstractShell pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
@@ -83,18 +92,19 @@ public abstract class AbstractShell {
      * stops all registered shells 
      *
      */
-    public synchronized static void stopAllShells(){
-        
+    public synchronized static void shutdownAllShells(){
         for (Iterator<Map<Integer, AbstractShell>> iter = shells.values().iterator(); iter.hasNext();) {
+            finishedForGood = true;  //we may no longer restart shells
+            
             Map<Integer,AbstractShell> rel = (Map<Integer, AbstractShell>) iter.next();
             if(rel != null){
                 for (Iterator iter2 = rel.values().iterator(); iter.hasNext();) {
                     AbstractShell element = (AbstractShell) iter2.next();
                     if(element != null){
                         try {
-                            element.endIt();
+                            element.shutdown(); //shutdown
                         } catch (Exception e) {
-                            // ignore... we are ending it anyway...
+                            PydevPlugin.log(e); //let's log it... this should not happen
                         }
                     }
                 }
@@ -141,6 +151,7 @@ public abstract class AbstractShell {
     public synchronized static AbstractShell getServerShell(IPythonNature nature, int id) throws IOException, Exception {
         return getServerShell(nature.getRelatedId(), id);
     }
+    
     /**
      * @return the shell with the given id related to some nature
      * 
@@ -205,6 +216,10 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     protected AbstractShell(File f) throws IOException, CoreException {
+        if(finishedForGood){
+            throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to create a new shell.");
+        }
+        
         serverFile = f;
         if(!serverFile.exists()){
             throw new RuntimeException("Can't find python server file");
@@ -244,6 +259,10 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     protected void startIt(int milisSleep) throws IOException, Exception {
+        if(finishedForGood){
+            throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to restart it.");
+        }
+
         try {
     
             int pWrite = SocketUtil.findUnusedLocalPort("127.0.0.1", 50000, 55000);
@@ -281,7 +300,7 @@ public abstract class AbstractShell {
             socketToWrite = null;
             serverSocket = new ServerSocket(pRead); //read in this port
             int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
-            while(!connected && attempts < maxAttempts){
+            while(!connected && attempts < maxAttempts && !finishedForGood){
                 attempts += 1;
                 try {
                     if(socketToWrite == null || socketToWrite.isConnected() == false){
@@ -309,7 +328,7 @@ public abstract class AbstractShell {
                 }
             }
             
-            if(!connected){
+            if(!connected && !finishedForGood ){
                 dbg("NOT connected ");
 
                 //what, after all this trouble we are still not connected????!?!?!?!
@@ -337,8 +356,8 @@ public abstract class AbstractShell {
             
             if(process!=null){
                 process.destroy();
+                process = null;
             }
-            process = null;
             throw e;
         }
     }
@@ -397,6 +416,10 @@ public abstract class AbstractShell {
      * @throws IOException
      */
     public String read(Operation operation) throws IOException {
+        if(finishedForGood){
+            throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to read from it.");
+        }
+
         StringBuffer str = new StringBuffer();
         String tempStr = "";
         int j = 0;
@@ -480,6 +503,9 @@ public abstract class AbstractShell {
      * @throws IOException
      */
     public void write(String str) throws IOException {
+        if(finishedForGood){
+            throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to write to it.");
+        }
         //dbg("WRITING:"+str);
         this.socketToWrite.getOutputStream().write(str.getBytes());
     }
@@ -487,24 +513,52 @@ public abstract class AbstractShell {
     /**
      * @throws IOException
      */
-    protected void closeConn() throws IOException {
-        write("@@KILL_SERVER_END@@");
-        if(socketToWrite != null){
-            socketToWrite.close();
+    private void closeConn() throws IOException {
+//let's not send a message... just close the sockets and kill it
+//        try {
+//            write("@@KILL_SERVER_END@@");
+//        } catch (Exception e) {
+//        }
+        try {
+            if (socketToWrite != null) {
+                socketToWrite.close();
+            }
+        } catch (Exception e) {
         }
         socketToWrite = null;
         
-        if(socketToRead != null){
-            socketToRead.close();
+        try {
+            if (socketToRead != null) {
+                socketToRead.close();
+            }
+        } catch (Exception e) {
         }
         socketToRead = null;
         
-        if(serverSocket != null){
-            serverSocket.close();
+        try {
+            if (serverSocket != null) {
+                serverSocket.close();
+            }
+        } catch (Exception e) {
         }
         serverSocket = null;
     }
 
+    /**
+     * this function should be used with care... it only destroys our processes without closing the
+     * connections correctly (intended for shutdowns)
+     */
+    public void shutdown() {
+        socketToRead = null;
+        socketToWrite = null;
+        serverSocket = null;
+        if (process!= null){
+            process.destroy();
+            process = null;
+        }
+    }
+
+    
     /**
      * Kill our sub-process.
      * @throws IOException
@@ -517,18 +571,16 @@ public abstract class AbstractShell {
             //that's ok...
         }
         if (process!= null){
-            try {
-                process.destroy();
-            } catch (Exception e2) {
-                e2.printStackTrace();
-            }
-    
+            process.destroy();
             process = null;
         }
         
     }
 
     public void sendGoToDirMsg(File file) {
+        if(finishedForGood){
+            throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to change the shell dir.");
+        }
         checkShell();
         
         try {
@@ -545,7 +597,7 @@ public abstract class AbstractShell {
             try {
                 restartShell();
             } catch (Exception e1) {
-                // TODO: handle exception
+                
             }
             PydevPlugin.log(IStatus.ERROR, "ERROR sending go to dir msg.", e);
         }
@@ -553,7 +605,9 @@ public abstract class AbstractShell {
 
     private void checkShell() {
         try {
-            if (!this.socketToWrite.isConnected()) {
+            if (this.socketToWrite == null || !this.socketToWrite.isBound() || 
+                this.socketToRead == null  || !this.socketToRead.isBound()  ||
+                this.serverSocket == null  || !this.serverSocket.isBound()) {
                 restartShell();
             }
         } catch (Exception e) {
@@ -582,6 +636,9 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     public void changePythonPath(List pythonpath) throws CoreException {
+        if(finishedForGood){
+            throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to change its dir.");
+        }
         StringBuffer buffer = new StringBuffer();
         for (Iterator iter = pythonpath.iterator(); iter.hasNext();) {
             String path = (String) iter.next();
@@ -618,6 +675,10 @@ public abstract class AbstractShell {
      * 
      */
     public void restartShell() throws CoreException {
+        if(finishedForGood){
+            throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to restart a new shell.");
+        }
+
         try {
             this.endIt();
         } catch (Exception e) {
