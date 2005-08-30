@@ -61,12 +61,12 @@ public class PythonPathHelper implements Serializable{
     /**
      * Returns the default path given from the string.
      * @param str
-     * @param acceptPoint
-     * @return
+     * @param acceptPoint says if we can have dots in the str that has the path to be analyzed
+     * @return a trimmed string with all the '\' converted to '/'
      */
     public String getDefaultPathStr(String str, boolean acceptPoint){
-        if((str.indexOf("\\.") != -1 || str.indexOf(".") == 1) && acceptPoint == false){
-            throw new RuntimeException("The pythonpath can only have full paths without . or .. ("+str+") is not valid.");
+        if(acceptPoint == false && str.indexOf(".") == 0){ //cannot start with a dot
+            throw new RuntimeException("The pythonpath can only have absolute paths (cannot start with '.', therefore, the path: '"+str+"' is not valid.");
         }
         return str.trim().replaceAll("\\\\","/");
     }
