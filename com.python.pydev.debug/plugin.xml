@@ -5,24 +5,33 @@
    <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
-            label="Sample Action Set"
+            label="Pydev Debug Server"
             visible="true"
             id="com.python.pydev.debug.actionSet">
          <menu
-               label="Sample &amp;Menu"
-               id="sampleMenu">
+               label="Pydev Debug"
+               id="debugMenu">
             <separator
-                  name="sampleGroup">
+                  name="debugGroup">
             </separator>
          </menu>
          <action
-               label="&amp;Sample Action"
-               icon="icons/sample.gif"
+               label="&amp;Start Debug Server"
+               icon="icons/start_debug_server.gif"
                class="com.python.pydev.debug.actions.StartDebugServer"
-               tooltip="Hello, Eclipse world"
-               menubarPath="sampleMenu/sampleGroup"
-               toolbarPath="sampleGroup"
+               tooltip="Pydev: start the pydev server"
+               menubarPath="debugMenu/debugGroup"
+               toolbarPath="debugGroup"
                id="com.python.pydev.debug.actions.StartDebugServer">
+         </action>
+         <action
+               label="&amp;End Debug Server"
+               icon="icons/term_debug_server.gif"
+               class="com.python.pydev.debug.actions.EndDebugServer"
+               tooltip="Pydev: stop the debugger server"
+               menubarPath="debugMenu/debugGroup"
+               toolbarPath="debugGroup"
+               id="com.python.pydev.debug.actions.EndDebugServer">
          </action>
       </actionSet>
    </extension>

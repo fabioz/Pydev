@@ -14,12 +14,12 @@ import org.eclipse.jface.dialogs.MessageDialog;
  * delegated to it.
  * @see IWorkbenchWindowActionDelegate
  */
-public class StartDebugServer implements IWorkbenchWindowActionDelegate {
+public class EndDebugServer implements IWorkbenchWindowActionDelegate {
 	private IWorkbenchWindow window;
 	/**
 	 * The constructor.
 	 */
-	public StartDebugServer() {
+	public EndDebugServer() {
 	}
 
 	/**
@@ -32,7 +32,7 @@ public class StartDebugServer implements IWorkbenchWindowActionDelegate {
 		MessageDialog.openInformation(
 			window.getShell(),
 			"Extensions Debug Plug-in",
-			"WOHOOOOOOOO start");
+			"WOHOOOOOOOO end");
 	}
 
 	/**
