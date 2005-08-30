@@ -33,8 +33,8 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final String SEVERITY_UNRESOLVED_IMPORT = "SEVERITY_UNRESOLVED_IMPORT";
     public static final int DEFAULT_SEVERITY_UNRESOLVED_IMPORT = IMarker.SEVERITY_ERROR;
 
-    public static final Object SEVERITY_NO_SELF = "SEVERITY_NO_SELF";
-    public static final Object DEFAULT_SEVERITY_NO_SELF = IMarker.SEVERITY_ERROR;
+    public static final String SEVERITY_NO_SELF = "SEVERITY_NO_SELF";
+    public static final int DEFAULT_SEVERITY_NO_SELF = IMarker.SEVERITY_ERROR;
     
 
     @Override
