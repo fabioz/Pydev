@@ -5,6 +5,9 @@
  */
 package org.python.pydev.debug.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.PlatformObject;
@@ -92,6 +95,19 @@ public class PyStackFrame extends PlatformObject implements IStackFrame {
 		return variables;
 	}
 
+    /**
+     * create a map with the variables, such that the name of the variable points to the IVariable
+     * 
+     * @return the map
+     */
+	public Map<String, IVariable> getVariablesAsMap() throws DebugException {
+        HashMap<String, IVariable> map = new HashMap<String, IVariable>();
+        for (IVariable var : variables) {
+            map.put(var.getName(), var);
+        }
+	    return map;
+	}
+	
 	public boolean hasVariables() throws DebugException {
 		return (variables != null);
 	}

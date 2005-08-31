@@ -29,6 +29,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 	protected String type;
 	protected String value;
 	protected PyDebugTarget target;
+	protected boolean isModified;
 	
 	//Only create one instance of an empty array to be returned
 	private static final IVariable[] EMPTY_IVARIABLE_ARRAY = new IVariable[0]; 
@@ -38,6 +39,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 		this.name = name;
 		this.type = type;
 		this.target = target;
+		isModified = false;
 	}
 
 	public String getDetailText() throws DebugException {
@@ -79,13 +81,17 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 	 * When implemented, recently changed variables are shown in red.
 	 */
 	public boolean supportsValueModification() {
-		return false;
+		return true;
 	}
 
 	public boolean hasValueChanged() throws DebugException {
-		return false;
+		return isModified;
 	}
 
+	public void setModified( boolean mod ) {
+		isModified = mod;
+	}
+	
 	public void setValue(String expression) throws DebugException {
 	}
 

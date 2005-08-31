@@ -5,6 +5,8 @@
  */
 package org.python.pydev.debug.model;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +32,7 @@ import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -41,6 +44,7 @@ import org.python.pydev.debug.model.remote.RunCommand;
 import org.python.pydev.debug.model.remote.SetBreakpointCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
+import org.python.pydev.plugin.PydevPlugin;
 /**
  * Debugger class that represents a single python process.
  * 
@@ -55,6 +59,7 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 	IPath file;
 	IThread[] threads;
 	boolean disconnected = false;
+	IStackFrame[] oldStackFrame;
 
 	public PyDebugTarget(ILaunch launch, 
 							IProcess process, 
@@ -449,11 +454,87 @@ public class PyDebugTarget extends PlatformObject implements IDebugTarget, ILaun
 			}
 		}
 		if (t != null) {
-			t.setSuspended(true, (IStackFrame[])threadNstack[2]);
-			fireEvent(new DebugEvent(t, DebugEvent.SUSPEND, reason));
+			IStackFrame stackFrame[] = (IStackFrame[])threadNstack[2]; 
+
+            //verify if there are modifications...
+            verifyModified( stackFrame );
+            
+            //set it as being old already...
+			oldStackFrame = stackFrame;
+			
+			t.setSuspended(true, stackFrame );
+			fireEvent(new DebugEvent(t, DebugEvent.SUSPEND, reason));		
 		}
 	}
 	
+    
+    /**
+     * @param stackFrames the stack frames that should be gotten as a map
+     * @return a map with the id of the stack pointing to the stack itself
+     */
+    private Map<String, IStackFrame> getStackFrameArrayAsMap(IStackFrame[] stackFrames){
+        HashMap<String, IStackFrame> map = new HashMap<String, IStackFrame>();
+        for (int i = 0; i < stackFrames.length; i++) {
+            PyStackFrame s = (PyStackFrame) stackFrames[i];
+            map.put(s.getId(), s);
+        }
+        return map;
+    }
+    
+    /**
+     * verifies (and marks as modified) variables in the stack frame
+     * @param stackFrame the array of stack-frames we are analizing
+     */
+	private void verifyModified(IStackFrame[] stackFrame) {
+	    if( oldStackFrame!=null ) {
+    		
+            Map<String, IStackFrame> oldStackFrameArrayAsMap = getStackFrameArrayAsMap(oldStackFrame);
+            for( int i=0; i<stackFrame.length; i++ ) {
+    			PyStackFrame newFrame = (PyStackFrame)stackFrame[i];
+    		
+                IStackFrame oldFrame = oldStackFrameArrayAsMap.get(newFrame.getId());
+                if(oldFrame != null){
+					verifyVariablesModified( newFrame, (PyStackFrame) oldFrame );
+    			}
+    		}		
+        }
+	}
+
+    /**
+     * compares stack frames to check for modified variables (and mark them as modified in the new stack)
+     * 
+     * @param newFrame the new frame
+     * @param oldFrame the old frame
+     */
+	private void verifyVariablesModified(PyStackFrame newFrame, PyStackFrame oldFrame ) {
+		PyVariable newVariable = null;
+        
+		try {
+            Map<String, IVariable> variablesAsMap = oldFrame.getVariablesAsMap();
+			IVariable[] newFrameVariables = newFrame.getVariables();
+            
+            //we have to check for each new variable
+            for( int i=0; i<newFrameVariables.length; i++ ) {
+				newVariable = (PyVariable)newFrameVariables[i];
+			
+                PyVariable oldVariable = (PyVariable)variablesAsMap.get(newVariable.getName());
+			
+                if( oldVariable != null) {
+					boolean equals = newVariable.getValueString().equals( oldVariable.getValueString() );
+                    
+                    //if it is not equal, it was modified
+					newVariable.setModified( !equals );
+                    
+				}else{ //it didn't exist before...
+				    newVariable.setModified( true );
+                }
+			}
+            
+		} catch (DebugException e) {		
+			PydevPlugin.log(e);
+		}
+	}
+
 	// thread_id\tresume_reason
 	static Pattern threadRunPattern = Pattern.compile("(\\d+)\\t(\\w*)");
 	/**
