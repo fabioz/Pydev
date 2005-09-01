@@ -122,6 +122,7 @@
 <!-- Steps to do after running the build.xmls for the elements being built. -->
 <!-- ===================================================================== -->
 <target name="postProcess">
+    <echo message="Post - Process... passing retroweaver?"/>  
 </target>
 
 
@@ -155,6 +156,7 @@
 	<jar jarfile="${destFeats}${fol4}.jar" basedir="${eclipseTmpResults}/eclipse${fol4}" update="true" manifest="${eclipseTmpResults}/eclipse${fol4}/META-INF/MANIFEST.MF" />
 	<jar jarfile="${destFeats}${fol5}.jar" basedir="${eclipseTmpResults}/eclipse${fol5}" update="true" manifest="${eclipseTmpResults}/eclipse${fol5}/META-INF/MANIFEST.MF" />
 	<jar jarfile="${destFeats}${fol6}.jar" basedir="${eclipseTmpResults}/eclipse${fol6}" update="true" manifest="${eclipseTmpResults}/eclipse${fol6}/META-INF/MANIFEST.MF" />
+	<copy tofile="${destFeats}${fol7}.jar" file="${eclipseTmpResults}/eclipse${fol7}.jar" />
     <echo message="Finished making jars in update site!"/> 
 
 
@@ -167,6 +169,7 @@
 	<copy todir="${EC_HOME}${fol4}"><fileset dir="${eclipseTmpResults}/eclipse${fol4}"/></copy>
 	<copy todir="${EC_HOME}${fol5}"><fileset dir="${eclipseTmpResults}/eclipse${fol5}"/></copy>
 	<copy todir="${EC_HOME}${fol6}"><fileset dir="${eclipseTmpResults}/eclipse${fol6}"/></copy>
+	<copy tofile="${EC_HOME}${fol7}.jar" file="${eclipseTmpResults}/eclipse${fol7}.jar" />
     <echo message="Finished making installing!"/>
 
 	<delete dir="${eclipseTmpResults}"/>
