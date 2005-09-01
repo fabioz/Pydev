@@ -9,7 +9,8 @@ Bundle-Localization: plugin
 Require-Bundle: org.junit,
  org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.jface.text
+ org.eclipse.jface.text,
+ Retroweaver plug-in;visibility:=reexport
 Eclipse-AutoStart: true
 Export-Package: org.python.pydev.core,
  org.python.pydev.core.docutils,
