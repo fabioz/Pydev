@@ -23,11 +23,12 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
     public static void main(String[] args) {
         
       try {
-//          PythonCompletionProcessorTest test = new PythonCompletionProcessorTest();
-//	      test.setUp();
-//          test.testCompleteImportBuiltinReference();
-//	      test.tearDown();
-//          System.out.println("Finished");
+          //DEBUG_TESTS_BASE = true;
+          PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
+	      test.setUp();
+          test.testSelfReferenceWithTabs2();
+	      test.tearDown();
+          System.out.println("Finished");
 
           junit.textui.TestRunner.run(PythonCompletionTestWithoutBuiltins.class);
 	  } catch (Exception e) {
@@ -100,7 +101,42 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 			"        self.c.";
         requestCompl(s, s.length(), -1, new String[] { "met1()"});
 	}
+	
+	
+	public void testSelfReferenceWithTabs() throws CoreException, BadLocationException{
+	    String s;
+	    s = "class C:\n" +
+	    "    def met1(self):\n" +
+	    "        pass\n" +
+	    "        \n" +
+	    "class B:\n" +
+	    "    def met2(self):\n" +
+	    "        self.c = C()\n" +
+	    "        \n" +
+	    "    def met3(self):\n" +
+	    "        self.c.";
+        s = s.replaceAll("\\ \\ \\ \\ ", "\t");
+	    requestCompl(s, s.length(), -1, new String[] { "met1()"});
+	}
 
+	
+	public void testSelfReferenceWithTabs2() throws CoreException, BadLocationException{
+	    String s;
+	    s = "" +
+        "class C:\n" +
+        "    def met3(self):\n" +
+        "        self.COMPLETE_HERE\n" +
+        "                    \n" +
+	    "    def met1(self): \n" +
+	    "        pass        \n" +
+        "";
+	    s = s.replaceAll("\\ \\ \\ \\ ", "\t");
+        int iComp = s.indexOf("COMPLETE_HERE");
+        s = s.replaceAll("COMPLETE_HERE", "");
+	    requestCompl(s, iComp, -1, new String[] { "met1()"});
+	}
+	
+	
 
 	public void testWildImportRecursive() throws BadLocationException, IOException, Exception{
         String s;

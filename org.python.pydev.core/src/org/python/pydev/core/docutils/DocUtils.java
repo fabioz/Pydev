@@ -87,10 +87,15 @@ public class DocUtils {
 
             String spaces = "";
             for (int i = 0; i < src.length(); i++) {
-                if (src.charAt(i) != ' ') {
+                if (src.charAt(i) == ' ') {
+                    spaces += ' ';
+                    
+                } else if (src.charAt(i) == '\t') {
+                    spaces += '\t';
+                    
+                }else {
                     break;
                 }
-                spaces += SPACE;
             }
 
 
@@ -113,10 +118,17 @@ public class DocUtils {
                     if(t.startsWith("class") || t.startsWith("def") ){
                         tokSpaces = "";
                         for (int i = 0; i < tok.length(); i++) {
-                            if (tok.charAt(i) != SPACE) {
+                            tokSpaces += SPACE;
+                            
+                            if (tok.charAt(i) == ' ') {
+                                tokSpaces += ' ';
+                                
+                            } else if (tok.charAt(i) == '\t') {
+                                tokSpaces += '\t';
+                                
+                            } else{
                                 break;
                             }
-                            tokSpaces += SPACE;
                         }
                         break;
                     }

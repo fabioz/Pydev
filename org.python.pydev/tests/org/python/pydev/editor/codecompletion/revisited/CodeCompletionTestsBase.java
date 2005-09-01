@@ -11,6 +11,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.text.BadLocationException;
@@ -26,6 +27,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.BundleInfoStub;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+import org.python.pydev.utils.PrintProgressMonitor;
 
 /**
  * @author Fabio Zadrozny
@@ -44,6 +46,7 @@ public class CodeCompletionTestsBase extends TestCase {
 	public static Class restored;
 	public static Class restoredSystem;
 	public Preferences preferences;
+    protected static boolean DEBUG_TESTS_BASE = false;
 
 	/*
      * @see TestCase#setUp()
@@ -71,7 +74,7 @@ public class CodeCompletionTestsBase extends TestCase {
     	    
     	    ASTManager astManager = ((ASTManager)nature.getAstManager());
             astManager.setNature(nature);
-            astManager.changePythonPath(path, null, new NullProgressMonitor());
+            astManager.changePythonPath(path, null, getProgressMonitor());
         }
     }
 
@@ -106,14 +109,24 @@ public class CodeCompletionTestsBase extends TestCase {
             
             //get default and restore the pythonpath
             IInterpreterManager iMan = getInterpreterManager();
-            InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
-            info.restoreCompiledLibs(new NullProgressMonitor());
-            info.restorePythonpath(path, new NullProgressMonitor());
+            InterpreterInfo info = iMan.getDefaultInterpreterInfo(getProgressMonitor());
+            info.restoreCompiledLibs(getProgressMonitor());
+            info.restorePythonpath(path, getProgressMonitor());
 
             //postconditions
             afterRestorSystemPythonPath(info);
 
         }
+    }
+
+    /**
+     * @return a progress monitor
+     */
+    private IProgressMonitor getProgressMonitor() {
+        if (DEBUG_TESTS_BASE){
+            return new PrintProgressMonitor();
+        }
+        return new NullProgressMonitor();
     }
 
     /**
@@ -135,7 +148,7 @@ public class CodeCompletionTestsBase extends TestCase {
 
         //and it must be registered as the pydev interpreter manager
         IInterpreterManager iMan2 = getInterpreterManager();
-        InterpreterInfo info2 = iMan2.getDefaultInterpreterInfo(new NullProgressMonitor());
+        InterpreterInfo info2 = iMan2.getDefaultInterpreterInfo(getProgressMonitor());
         assertTrue(info2 == info);
         
         //does it have the loaded modules?
@@ -173,8 +186,17 @@ public class CodeCompletionTestsBase extends TestCase {
      * @param force whether this should be forced, even if it was previously created for this class
      */
     public void restorePythonPath(boolean force){
+        if(DEBUG_TESTS_BASE){
+            System.out.println("-------------- Restoring system pythonpath");
+        }
         restoreSystemPythonPath(force, TestDependent.PYTHON_LIB);
+        if(DEBUG_TESTS_BASE){
+            System.out.println("-------------- Restoring project pythonpath");
+        }
         restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
+        if(DEBUG_TESTS_BASE){
+            System.out.println("-------------- Checking size");
+        }
         checkSize();
     }
     
@@ -184,7 +206,7 @@ public class CodeCompletionTestsBase extends TestCase {
      */
     protected void checkSize() {
         IInterpreterManager iMan = getInterpreterManager();
-        InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
+        InterpreterInfo info = iMan.getDefaultInterpreterInfo(getProgressMonitor());
         int size = ((ASTManager)nature.getAstManager()).getSize();
         assertTrue(info.modulesManager.getSize() > 0);
         assertTrue(""+info.modulesManager.getSize()+" "+size , info.modulesManager.getSize() < size );

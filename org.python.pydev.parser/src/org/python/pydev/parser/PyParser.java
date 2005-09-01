@@ -241,7 +241,7 @@ public class PyParser {
     
     public static class ParserInfo{
         public IDocument document;
-        public boolean changedCurrentLine=true; 
+        public boolean stillTryToChangeCurrentLine=true; 
         public IPythonNature nature;
         public int currentLine=-1;
         public String initial = null;
@@ -249,7 +249,7 @@ public class PyParser {
         
         public ParserInfo(IDocument document, boolean changedCurrentLine, IPythonNature nature){
             this.document = document;
-            this.changedCurrentLine = changedCurrentLine;
+            this.stillTryToChangeCurrentLine = changedCurrentLine;
             this.nature = nature;
         }
 
@@ -289,7 +289,7 @@ public class PyParser {
         } catch (ParseException parseErr) {
             SimpleNode newRoot = null;
             
-            if (info.changedCurrentLine){
+            if (info.stillTryToChangeCurrentLine){
                 newRoot = tryReparseAgain(info, parseErr);
             } else {
                 info.currentLine = -1;
@@ -303,7 +303,7 @@ public class PyParser {
         } catch (TokenMgrError tokenErr) {
             SimpleNode newRoot = null;
     
-            if (info.changedCurrentLine){
+            if (info.stillTryToChangeCurrentLine){
                 newRoot = tryReparseAgain(info, tokenErr);
             }
             
@@ -401,7 +401,7 @@ public class PyParser {
 
             Document doc = new Document(docToParse);
             info.document = doc;
-            info.changedCurrentLine = false;
+            info.stillTryToChangeCurrentLine = false;
 	        return (SimpleNode) reparseDocument(info)[0];
         }
         return null;
