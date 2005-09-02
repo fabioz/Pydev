@@ -39,9 +39,11 @@
 		<echo message="EC_WORKSPACE = ${EC_WORKSPACE}"/>
 	</target>
 
-
-	<target name = "main" depends="init">
-		<delete dir="${eclipseResults}"/>
+	<target name = "delete" depends="init" unless="dontFetchAnything">
+		<delete dir="${eclipseResults}" />
+	</target>
+		
+	<target name = "main" depends="delete">
 
 		<echo message="Initializing build:"/>
 		<ant antfile="build.xml" dir="${pde.build.scripts}">
