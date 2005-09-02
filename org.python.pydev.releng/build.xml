@@ -27,6 +27,14 @@
 		<property name = "eclipseTmpResults"    value = "${eclipseResults}/tmp" />
 		<property name = "destFeats"            value = "${EC_WORKSPACE}\org.python.pydev.site" />
 
+		<!-- values after compile -->
+		<property name = "jar1"  value = "${eclipseResults}/plugins/org.python.pydev/pydev"/>
+		<property name = "jar2"  value = "${eclipseResults}/plugins/org.python.pydev.core/core"/>
+		<property name = "jar3"  value = "${eclipseResults}/plugins/org.python.pydev.parser/parser"/>
+		<property name = "jar4"  value = "${eclipseResults}/plugins/org.python.pydev.ast/ast"/>
+		<property name = "jar5"  value = "${eclipseResults}/plugins/org.python.pydev.debug/pydev-debug"/>
+		
+		<!-- values inside the jar -->
 		<property name = "fol0"  value = "/features/org.python.pydev.feature_${pydev.version}"/>
 		<property name = "fol1"  value = "/plugins/org.python.pydev_${pydev.version}"         />
 		<property name = "fol2"  value = "/plugins/org.python.pydev.core_${pydev.version}"    />
@@ -44,8 +52,11 @@
 	</target>
 
 
-	<target name = "main" depends="init">
-		<delete dir="${eclipseResults}"/>
+	<target name = "delete" depends="init" unless="dontFetchAnything">
+		<delete dir="${eclipseResults}" />
+	</target>
+		
+	<target name = "main" depends="delete">
 
         <echo message="Initializing build:"/>
 		<ant antfile="build.xml" dir="${pde.build.scripts}">

@@ -1,5 +1,15 @@
 <project name="Build specific targets and properties" default="noDefault" basedir=".">
 
+<property name="retroweaver.home" value="F:\Dev.Java\retroweaver-all\retroweaver" />
+
+<taskdef name="retroweaver"
+	classname="com.rc.retroweaver.ant.RetroWeaverTask">
+	<classpath>
+		<fileset dir="${retroweaver.home}/lib" includes="**/*"/>
+			<pathelement location="${retroweaver.home}/release/retroweaver.jar"/>
+	</classpath>
+</taskdef>
+
 <property name="basews" value="*" />
 <property name="baseos" value="*" />
 <property name="basearch" value="*" />
@@ -106,6 +116,7 @@
 <!-- Steps to do after generating the build scripts. -->
 <!-- ===================================================================== -->
 <target name="postGenerate">
+    <echo message="---------------------------------------------------------------- postGenerate ----------------------------------------------------------------"/>  
 </target>
 
 
@@ -113,6 +124,7 @@
 <!-- Steps to do before running the build.xmls for the elements being built. -->
 <!-- ===================================================================== -->
 <target name="preProcess">
+    <echo message="---------------------------------------------------------------- preProcess ----------------------------------------------------------------"/>  
 	<replace dir="${buildDirectory}/plugins" value="${timestamp}" token="@build@">
 		<include name="**/about.mappings" />
 	</replace>
@@ -122,7 +134,7 @@
 <!-- Steps to do after running the build.xmls for the elements being built. -->
 <!-- ===================================================================== -->
 <target name="postProcess">
-    <echo message="Post - Process... passing retroweaver?"/>  
+    <echo message="---------------------------------------------------------------- postProcess ----------------------------------------------------------------"/>  
 </target>
 
 
@@ -130,12 +142,48 @@
 <!-- Steps to do before running assemble. -->
 <!-- ===================================================================== -->
 <target name="preAssemble">
+    <echo message="---------------------------------------------------------------- preAssemble ----------------------------------------------------------------"/>  
 </target>
 
 <!-- ===================================================================== -->
 <!-- Steps to do after  running assemble. -->
 <!-- ===================================================================== -->
 <target name="postAssemble">
+    <echo message="---------------------------------------------------------------- postAssemble ----------------------------------------------------------------"/>  
+	<delete dir="${jar1}" />
+	<delete dir="${jar2}" />
+	<delete dir="${jar3}" />
+	<delete dir="${jar4}" />
+	<delete dir="${jar5}" />
+
+	<unzip src="${jar1}.jar" dest="${jar1}/out"><patternset><include name="**/*.*"/></patternset></unzip>
+	<unzip src="${jar2}.jar" dest="${jar2}/out"><patternset><include name="**/*.*"/></patternset></unzip>
+	<unzip src="${jar3}.jar" dest="${jar3}/out"><patternset><include name="**/*.*"/></patternset></unzip>
+	<unzip src="${jar4}.jar" dest="${jar4}/out"><patternset><include name="**/*.*"/></patternset></unzip>
+	<unzip src="${jar5}.jar" dest="${jar5}/out"><patternset><include name="**/*.*"/></patternset></unzip>
+	
+	<!-- pass retroweaver -->
+	
+	<retroweaver srcdir="${jar1}/out" verbose="true"/>
+	<retroweaver srcdir="${jar2}/out" verbose="true"/>
+	<retroweaver srcdir="${jar3}/out" verbose="true"/>
+	<retroweaver srcdir="${jar4}/out" verbose="true"/>
+	<retroweaver srcdir="${jar5}/out" verbose="true"/>
+	
+	<delete file="${jar1}.jar" />
+	<delete file="${jar2}.jar" />
+	<delete file="${jar3}.jar" />
+	<delete file="${jar4}.jar" />
+	<delete file="${jar5}.jar" />
+	
+	<jar jarfile="${jar1}.jar" basedir="${jar1}/out" update="true" manifest="${jar1}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${jar2}.jar" basedir="${jar2}/out" update="true" manifest="${jar2}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${jar3}.jar" basedir="${jar3}/out" update="true" manifest="${jar3}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${jar4}.jar" basedir="${jar4}/out" update="true" manifest="${jar4}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${jar5}.jar" basedir="${jar5}/out" update="true" manifest="${jar5}/META-INF/MANIFEST.MF" />
+	
+	
+	
 </target>
 
 <!-- ===================================================================== -->
