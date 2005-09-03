@@ -12,6 +12,7 @@ import org.eclipse.jface.text.IRegion;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
@@ -148,7 +149,7 @@ public abstract class AbstractMessage implements IMessage{
             }
             shortMessage = buf.toString();
         }
-        return String.format(typeStr, shortMessage);
+        return StringUtils.format(typeStr, shortMessage);
     }
     
     public IToken getGenerator() {

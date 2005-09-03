@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -1048,7 +1049,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
             msgsAvailable.append(message.getMessage());
             msgsAvailable.append("\n");
         }
-        fail(String.format("No message named %s could be found. Available: %s", msg, msgsAvailable));
+        fail(StringUtils.format("No message named %s could be found. Available: %s", msg, msgsAvailable));
     }
 
     /**
