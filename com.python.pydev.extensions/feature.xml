@@ -30,7 +30,7 @@ Zadrozny
       <import plugin="org.python.pydev.parser"/>
       <import plugin="org.eclipse.jface.text"/>
       <import plugin="org.eclipse.core.resources"/>
-      <import feature="org.python.pydev.feature" version="0.9.7.1" match="perfect"/>
+      <import feature="org.python.pydev.feature" version="0.9.7.1" match="greaterOrEqual"/>
    </requires>
 
    <plugin

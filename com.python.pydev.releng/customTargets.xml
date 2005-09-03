@@ -142,18 +142,18 @@
 	<unzip src="${jar2}.jar" dest="${jar2}/out"><patternset><include name="**/*.*"/></patternset></unzip>
 	<unzip src="${jar3}.jar" dest="${jar3}/out"><patternset><include name="**/*.*"/></patternset></unzip>
 	
-	<!-- pass retroweaver -->
-	<echo message = "--------------------------------- weaving jars ${jar1}"/>
+	<!-- pass retroweaver 
+	<echo message = "********************************* weaving jars ${jar1}"/>
 	<retroweaver srcdir="${jar1}/out" verbose="false" destdir="${jar1}/out" version="1.4"/>
 	
-	<echo message = "--------------------------------- weaving jars ${jar2}"/>
+	<echo message = "********************************* weaving jars ${jar2}"/>
 	<retroweaver srcdir="${jar2}/out" verbose="false" destdir="${jar2}/out" version="1.4"/>
 	
-	<echo message = "--------------------------------- weaving jars ${jar3}"/>
+	<echo message = "********************************* weaving jars ${jar3}"/>
 	<retroweaver srcdir="${jar3}/out" verbose="false" destdir="${jar3}/out" version="1.4"/>
 
-	<echo message = "--------------------------------- weaving ended"/>
-	
+	<echo message = "********************************* weaving ended"/>
+	-->
 	<delete file="${jar1}.jar" />
 	<delete file="${jar2}.jar" />
 	<delete file="${jar3}.jar" />

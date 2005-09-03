@@ -14,4 +14,4 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.parser,
  org.junit
 Eclipse-AutoStart: true
-Bundle-ClassPath: retroweaver-rt.jar
+Bundle-ClassPath: codecompletion.jar, retroweaver-rt.jar

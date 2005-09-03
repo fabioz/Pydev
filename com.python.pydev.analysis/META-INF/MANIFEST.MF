@@ -16,4 +16,4 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jface.text,
  org.eclipse.core.resources
 Eclipse-AutoStart: true
-Bundle-ClassPath: retroweaver-rt.jar
+Bundle-ClassPath: analysis.jar, retroweaver-rt.jar
