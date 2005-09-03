@@ -26,31 +26,59 @@
 		<property name = "zipLocation"          value = "${eclipseResults}/${buildId}/com.python.pydev.extensions-${buildId}.zip"/>
 		<property name = "eclipseTmpResults"    value = "${eclipseResults}/tmp" />
 		<property name = "destFeats"            value = "${EC_WORKSPACE}\org.python.pydev.site" />
+		<property name = "retroweaver.home"     value = "F:\Dev.Java\retroweaver-all\retroweaver" />
 
-		<property name = "fol0"  value = "/features/com.python.pydev.extensions_${pydev.version}"/>
-		<property name = "fol1"  value = "/plugins/com.python.pydev.analysis_${pydev.version}"         />
-		<property name = "fol2"  value = "/plugins/com.python.pydev.fastparser_${pydev.version}"         />
-		<property name = "fol3"  value = "/plugins/com.python.pydev.codecompletion_${pydev.version}"         />
+		<!-- names of the plugins -->
+		<property name = "plug0"  value = "com.python.pydev.extensions"/>
+		<property name = "plug1"  value = "com.python.pydev.analysis"/>
+		<property name = "plug2"  value = "com.python.pydev.fastparser"/>
+		<property name = "plug3"  value = "com.python.pydev.codecompletion"/>
+
+		<!-- values after compile -->
+		<property name = "jar1"  value = "${eclipseResults}/plugins/${plug1}/analysis"/>
+		<property name = "jar2"  value = "${eclipseResults}/plugins/${plug2}/fastparser"/>
+		<property name = "jar3"  value = "${eclipseResults}/plugins/${plug3}/codecompletion"/>
+
+		<!-- values inside the jar -->
+		<property name = "fol0"  value = "/features/${plug0}_${pydev.version}"/>
+		<property name = "fol1"  value =  "/plugins/${plug1}_${pydev.version}"/>
+		<property name = "fol2"  value =  "/plugins/${plug2}_${pydev.version}"/>
+		<property name = "fol3"  value =  "/plugins/${plug3}_${pydev.version}"/>
 
 		
+		<!-- print some info -->
 		<echo message="pydev.version = ${pydev.version}"/>
 		<echo message="buildId = ${buildId}"/>
 		<echo message="EC_HOME = ${EC_HOME}"/>
 		<echo message="EC_WORKSPACE = ${EC_WORKSPACE}"/>
 	</target>
 
-	<target name = "delete" depends="init" unless="dontFetchAnything">
+
+	<target name = "delete" depends="init">
 		<delete dir="${eclipseResults}" />
 	</target>
 		
-	<target name = "main" depends="delete">
+	<!-- when we don't fetch anything, we copy things from the workspace to the places they should be for 
+	the build.
+	-->
+	<target name = "recreate" depends="delete"  if="dontFetchAnything">
+		<mkdir dir="${eclipseResults}"/>
+		<mkdir dir="${eclipseResults}/plugins"/>
+		<mkdir dir="${eclipseResults}/features"/>
+		<copy todir="${eclipseResults}/features/${plug0}"><fileset dir="${EC_WORKSPACE}/${plug0}" defaultexcludes="yes" excludes="**/*.class" /></copy>
+		<copy todir="${eclipseResults}/plugins/${plug1}"> <fileset dir="${EC_WORKSPACE}/${plug1}" defaultexcludes="yes" excludes="**/*.class" /></copy>
+		<copy todir="${eclipseResults}/plugins/${plug2}"> <fileset dir="${EC_WORKSPACE}/${plug2}" defaultexcludes="yes" excludes="**/*.class" /></copy>
+		<copy todir="${eclipseResults}/plugins/${plug3}"> <fileset dir="${EC_WORKSPACE}/${plug3}" defaultexcludes="yes" excludes="**/*.class" /></copy>
+	</target>
+		
+	<target name = "main" depends="recreate">
 
-		<echo message="Initializing build:"/>
+        <echo message="Initializing build:"/>
 		<ant antfile="build.xml" dir="${pde.build.scripts}">
 			<property name = "builder" value = "${basedir}" />
 		</ant>
-        
-		<echo message="Finalized build!"/>
+		
+        <echo message="Finalized build!"/>
 	</target>
 	
 </project>

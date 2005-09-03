@@ -37,21 +37,18 @@ Zadrozny
          id="com.python.pydev.analysis"
          download-size="0"
          install-size="0"
-         version="0.9.7.1"
-         unpack="false"/>
+         version="0.9.7.1"/>
 
    <plugin
          id="com.python.pydev.fastparser"
          download-size="0"
          install-size="0"
-         version="0.9.7.1"
-         unpack="false"/>
+         version="0.9.7.1"/>
 
    <plugin
          id="com.python.pydev.codecompletion"
          download-size="0"
          install-size="0"
-         version="0.9.7.1"
-         unpack="false"/>
+         version="0.9.7.1"/>
 
 </feature>

@@ -1,4 +1,12 @@
 <project name="Build specific targets and properties" default="noDefault" basedir=".">
+	
+<taskdef name="retroweaver"
+	classname="com.rc.retroweaver.ant.RetroWeaverTask">
+	<classpath>
+		<fileset dir="${retroweaver.home}/lib" includes="**/*"/>
+			<pathelement location="${retroweaver.home}/release/retroweaver.jar"/>
+	</classpath>
+</taskdef>
 
 <property name="basews" value="*" />
 <property name="baseos" value="*" />
@@ -106,6 +114,7 @@
 <!-- Steps to do after generating the build scripts. -->
 <!-- ===================================================================== -->
 <target name="postGenerate">
+    <echo message="---------------------------------------------------------------- postGenerate ----------------------------------------------------------------"/>  
 </target>
 
 
@@ -113,15 +122,47 @@
 <!-- Steps to do before running the build.xmls for the elements being built. -->
 <!-- ===================================================================== -->
 <target name="preProcess">
+    <echo message="---------------------------------------------------------------- preProcess ----------------------------------------------------------------"/>  
 	<replace dir="${buildDirectory}/plugins" value="${timestamp}" token="@build@">
 		<include name="**/about.mappings" />
 	</replace>
 </target>
 
+
 <!-- ===================================================================== -->
 <!-- Steps to do after running the build.xmls for the elements being built. -->
 <!-- ===================================================================== -->
 <target name="postProcess">
+    <echo message="---------------------------------------------------------------- postProcess ----------------------------------------------------------------"/>  
+	<delete dir="${jar1}" />
+	<delete dir="${jar2}" />
+	<delete dir="${jar3}" />
+
+	<unzip src="${jar1}.jar" dest="${jar1}/out"><patternset><include name="**/*.*"/></patternset></unzip>
+	<unzip src="${jar2}.jar" dest="${jar2}/out"><patternset><include name="**/*.*"/></patternset></unzip>
+	<unzip src="${jar3}.jar" dest="${jar3}/out"><patternset><include name="**/*.*"/></patternset></unzip>
+	
+	<!-- pass retroweaver -->
+	<echo message = "--------------------------------- weaving jars ${jar1}"/>
+	<retroweaver srcdir="${jar1}/out" verbose="false" destdir="${jar1}/out" version="1.4"/>
+	
+	<echo message = "--------------------------------- weaving jars ${jar2}"/>
+	<retroweaver srcdir="${jar2}/out" verbose="false" destdir="${jar2}/out" version="1.4"/>
+	
+	<echo message = "--------------------------------- weaving jars ${jar3}"/>
+	<retroweaver srcdir="${jar3}/out" verbose="false" destdir="${jar3}/out" version="1.4"/>
+
+	<echo message = "--------------------------------- weaving ended"/>
+	
+	<delete file="${jar1}.jar" />
+	<delete file="${jar2}.jar" />
+	<delete file="${jar3}.jar" />
+	
+	<jar jarfile="${jar1}.jar" basedir="${jar1}/out" update="true" manifest="${jar1}/out/META-INF/MANIFEST.MF" />
+	<jar jarfile="${jar2}.jar" basedir="${jar2}/out" update="true" manifest="${jar2}/out/META-INF/MANIFEST.MF" />
+	<jar jarfile="${jar3}.jar" basedir="${jar3}/out" update="true" manifest="${jar3}/out/META-INF/MANIFEST.MF" />
+	
+	
 </target>
 
 
@@ -129,19 +170,22 @@
 <!-- Steps to do before running assemble. -->
 <!-- ===================================================================== -->
 <target name="preAssemble">
+    <echo message="---------------------------------------------------------------- preAssemble ----------------------------------------------------------------"/>  
 </target>
 
 <!-- ===================================================================== -->
 <!-- Steps to do after  running assemble. -->
 <!-- ===================================================================== -->
 <target name="postAssemble">
+    <echo message="---------------------------------------------------------------- postAssemble ----------------------------------------------------------------"/>  
+	
 </target>
 
 <!-- ===================================================================== -->
 <!-- Steps to do after the build is done. -->
 <!-- ===================================================================== -->
 <target name="postBuild"> 
-
+    <echo message="---------------------------------------------------------------- postBuild ----------------------------------------------------------------"/>  
     <echo message="Making jars in update site:"/>  
 	<mkdir dir="${eclipseTmpResults}"/>
 	<unzip src="${zipLocation}" dest="${eclipseTmpResults}">
@@ -150,18 +194,18 @@
 	    </patternset>
 	</unzip>
 	<jar jarfile="${destFeats}${fol0}.jar" basedir="${eclipseTmpResults}/eclipse${fol0}" update="true"  />
-	<copy tofile="${destFeats}${fol1}.jar" file="${eclipseTmpResults}/eclipse${fol1}.jar" />
-	<copy tofile="${destFeats}${fol2}.jar" file="${eclipseTmpResults}/eclipse${fol2}.jar" />
-	<copy tofile="${destFeats}${fol3}.jar" file="${eclipseTmpResults}/eclipse${fol3}.jar" />
+	<jar jarfile="${destFeats}${fol1}.jar" basedir="${eclipseTmpResults}/eclipse${fol1}" update="true" manifest="${eclipseTmpResults}/eclipse${fol1}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${destFeats}${fol2}.jar" basedir="${eclipseTmpResults}/eclipse${fol2}" update="true" manifest="${eclipseTmpResults}/eclipse${fol2}/META-INF/MANIFEST.MF" />
+	<jar jarfile="${destFeats}${fol3}.jar" basedir="${eclipseTmpResults}/eclipse${fol3}" update="true" manifest="${eclipseTmpResults}/eclipse${fol3}/META-INF/MANIFEST.MF" />
     <echo message="Finished making jars in update site!"/> 
-	
-	
+
+
 	<!-- I also want to put it into my eclipse installation -->	
     <echo message="Putting into eclipse install:"/>  
 	<copy todir="${EC_HOME}${fol0}"><fileset dir="${eclipseTmpResults}/eclipse${fol0}"/></copy>
-	<copy tofile="${EC_HOME}${fol1}.jar" file="${eclipseTmpResults}/eclipse${fol1}.jar" />
-	<copy tofile="${EC_HOME}${fol2}.jar" file="${eclipseTmpResults}/eclipse${fol2}.jar" />
-	<copy tofile="${EC_HOME}${fol3}.jar" file="${eclipseTmpResults}/eclipse${fol3}.jar" />
+	<copy todir="${EC_HOME}${fol1}"><fileset dir="${eclipseTmpResults}/eclipse${fol1}"/></copy>
+	<copy todir="${EC_HOME}${fol2}"><fileset dir="${eclipseTmpResults}/eclipse${fol2}"/></copy>
+	<copy todir="${EC_HOME}${fol3}"><fileset dir="${eclipseTmpResults}/eclipse${fol3}"/></copy>
     <echo message="Finished making installing!"/>
 
 	<delete dir="${eclipseTmpResults}"/>

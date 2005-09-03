@@ -12,16 +12,21 @@ set EC_WORKSPACE=D:\eclipse_workspace
 COMP2
 release for both (org and com)
 
-set EC_HOME=D:\dev_programs\eclipse_3\310\eclipse
-set EC_WORKSPACE=D:\dev_programs\eclipse_3\eclipse\workspace
-set PYDEV_VERSION=0.9.8
-set BUILD_ID=0_9_8
+set EC_HOME=C:\bin\eclipse310
+set EC_WORKSPACE=D:\eclipse_workspace
+set PYDEV_VERSION=0.9.8.1
+set BUILD_ID=0_9_8_1
 
 d:
 
 cd %EC_WORKSPACE%\org.python.pydev.releng 
-java -cp %EC_HOME%\startup.jar org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE% -DPYDEV_VERSION=%PYDEV_VERSION% -DBUILD_ID=%BUILD_ID%
+java5 -cp %EC_HOME%\startup.jar org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE% -DPYDEV_VERSION=%PYDEV_VERSION% -DBUILD_ID=%BUILD_ID% -DdontFetchAnything=True
 
 cd %EC_WORKSPACE%\com.python.pydev.releng 
-java -cp %EC_HOME%\startup.jar org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE% -DPYDEV_VERSION=%PYDEV_VERSION% -DBUILD_ID=%BUILD_ID%
+java5 -cp %EC_HOME%\startup.jar org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE% -DPYDEV_VERSION=%PYDEV_VERSION% -DBUILD_ID=%BUILD_ID% -DdontFetchAnything=True
+
+
+
+executing with java 1.4
+c:\bin\eclipse310\eclipse.exe -clean -vm "C:\Program Files\Java\j2re1.4.2_09\bin\javaw.exe" -vmargs -Xms40m -Xmx256m
 

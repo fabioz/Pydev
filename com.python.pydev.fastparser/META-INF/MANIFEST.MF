@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Fastparser Plug-in
-Bundle-SymbolicName: com.python.pydev.fastparser
+Bundle-SymbolicName: com.python.pydev.fastparser; singleton:=true
 Bundle-Version: 0.9.7.1
 Bundle-Activator: com.python.pydev.fastparser.FastparserPlugin
 Bundle-Vendor: Fabio Zadrozny
@@ -13,3 +13,4 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.core
 Eclipse-AutoStart: true
 Bundle-ClassPath: retroweaver-rt.jar
+Export-Package: com.python.pydev.fastparser
