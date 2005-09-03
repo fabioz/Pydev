@@ -3,14 +3,14 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Core Plug-in
 Bundle-SymbolicName: org.python.pydev.core; singleton:=true
 Bundle-Version: 0.9.7.1
-Bundle-ClassPath: core.jar
+Bundle-ClassPath: core.jar,
+ retroweaver-rt.jar
 Bundle-Activator: org.python.pydev.core.CorePlugin
 Bundle-Localization: plugin
 Require-Bundle: org.junit,
  org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.jface.text,
- Retroweaver plug-in;visibility:=reexport
+ org.eclipse.jface.text
 Eclipse-AutoStart: true
 Export-Package: org.python.pydev.core,
  org.python.pydev.core.docutils,

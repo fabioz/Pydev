@@ -15,7 +15,6 @@ package org.python.pydev.plugin;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -207,7 +206,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	
 	private OverlayPreferenceStore fOverlayStore;
 	
-	private Map<Button, String> fCheckBoxes= Collections.checkedMap(new HashMap<Button, String>(), Button.class, String.class);
+	private Map<Button, String> fCheckBoxes= new HashMap<Button, String>();
 	private SelectionListener fCheckBoxListener= new SelectionListener() {
 		public void widgetDefaultSelected(SelectionEvent e) {
 		}
@@ -217,7 +216,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		}
 	};
 
-	private Map<Text, String> fTextFields= Collections.checkedMap(new HashMap<Text, String>(), Text.class, String.class);
+	private Map<Text, String> fTextFields= new HashMap<Text, String>();
 	private ModifyListener fTextFieldListener= new ModifyListener() {
 		public void modifyText(ModifyEvent e) {
 			Text text= (Text) e.widget;
@@ -225,7 +224,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		}
 	};
 
-	private java.util.List<Text> fNumberFields= Collections.checkedList(new ArrayList<Text>(), Text.class);
+	private java.util.List<Text> fNumberFields= new ArrayList<Text>();
 	private ModifyListener fNumberFieldListener= new ModifyListener() {
 		public void modifyText(ModifyEvent e) {
 			numberFieldChanged((Text) e.widget);
@@ -268,7 +267,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	 * @see #createDependency(Button, String, Control)
 	 * @since 3.0
 	 */
-	private java.util.List<SelectionListener> fMasterSlaveListeners= Collections.checkedList(new ArrayList<SelectionListener>(), SelectionListener.class);
+	private java.util.List<SelectionListener> fMasterSlaveListeners= new ArrayList<SelectionListener>();
 
 	
 	public PydevPrefs() {
@@ -280,9 +279,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	
 	private OverlayPreferenceStore createOverlayStore() {
 		
-		java.util.List<OverlayPreferenceStore.OverlayKey> overlayKeys= Collections.checkedList(
-					new ArrayList<OverlayPreferenceStore.OverlayKey>(), 
-					OverlayPreferenceStore.OverlayKey.class);
+		java.util.List<OverlayPreferenceStore.OverlayKey> overlayKeys= new ArrayList<OverlayPreferenceStore.OverlayKey>();
 		
 		//text
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
