@@ -102,13 +102,17 @@ class KeepAliveThread( Thread ):
             
             if self.processMsgFunc != None:
                 s = MSG_PROCESSING_PROGRESS % urllib.quote_plus( self.processMsgFunc() )
-                self.socket.send( s )
+                sent = self.socket.send( s )
             else:
-                self.socket.send( MSG_PROCESSING )
+                sent = self.socket.send( MSG_PROCESSING )
+            if sent == 0:
+                sys.exit(0) #connection broken
             time.sleep( 0.1 )
 
-        self.socket.send( self.lastMsg )
-        
+        sent = self.socket.send( self.lastMsg )
+        if sent == 0:
+            sys.exit(0) #connection broken
+            
 class T( Thread ):
 
     def __init__( self, thisP, serverP ):
@@ -207,7 +211,10 @@ class T( Thread ):
                 keepAliveThread = KeepAliveThread( self.socket )
                 
                 while data.find( MSG_END ) == -1:
-                    data += conn.recv( BUFFER_SIZE )
+                    received = conn.recv( BUFFER_SIZE )
+                    if len(received) == 0:
+                        sys.exit(0) #ok, connection ended
+                    data += received
     
                 dbg( 'jycompletionserver ok, out of the while... treating received msg', INFO1 )
                 
@@ -216,7 +223,7 @@ class T( Thread ):
                         if data.find( MSG_KILL_SERVER ) != -1:
                             dbg( 'jycompletionserver kill message received', INFO1 )
                             #break if we received kill message.
-                            break;
+                            sys.exit(0)
             
                         dbg( 'jycompletionserver starting keep alive thread', INFO2 )
                         keepAliveThread.start()

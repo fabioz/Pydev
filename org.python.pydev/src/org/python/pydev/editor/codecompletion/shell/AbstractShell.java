@@ -5,6 +5,7 @@ package org.python.pydev.editor.codecompletion.shell;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -507,7 +508,9 @@ public abstract class AbstractShell {
             throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to write to it.");
         }
         //dbg("WRITING:"+str);
-        this.socketToWrite.getOutputStream().write(str.getBytes());
+        OutputStream outputStream = this.socketToWrite.getOutputStream();
+        outputStream.write(str.getBytes());
+        outputStream.flush();
     }
 
     /**

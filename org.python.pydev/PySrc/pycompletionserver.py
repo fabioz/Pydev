@@ -95,13 +95,17 @@ class KeepAliveThread( threading.Thread ):
             
             if self.processMsgFunc != None:
                 s = MSG_PROCESSING_PROGRESS % urllib.quote_plus( self.processMsgFunc() )
-                self.socket.send( s )
+                sent = self.socket.send( s )
             else:
-                self.socket.send( MSG_PROCESSING )
+                sent = self.socket.send( MSG_PROCESSING )
+            if sent == 0:
+                sys.exit(0) #connection broken
             time.sleep( 0.1 )
 
         dbg( 'sending '+ self.lastMsg, INFO2 )
-        self.socket.send( self.lastMsg )
+        sent = self.socket.send( self.lastMsg )
+        if sent == 0:
+            sys.exit(0) #connection broken
         
 class T( threading.Thread ):
 
@@ -201,14 +205,17 @@ class T( threading.Thread ):
                 keepAliveThread = KeepAliveThread( self.socket )
                 
                 while data.find( MSG_END ) == -1:
-                    data += conn.recv( BUFFER_SIZE )
+                    received = conn.recv( BUFFER_SIZE )
+                    if len(received) == 0:
+                        sys.exit(0) #ok, connection ended
+                    data += received
     
                 try:
                     try:
                         if MSG_KILL_SERVER in data:
                             dbg( 'pycompletionserver kill message received', INFO1 )
                             #break if we received kill message.
-                            break
+                            sys.exit(0)
             
                         keepAliveThread.start()
                         
@@ -277,7 +284,7 @@ class T( threading.Thread ):
 
             traceback.print_exception( exc_info[0], exc_info[1], exc_info[2], limit=None, file = s )
             err = s.getvalue()
-            dbg( 'jycompletionserver received error: '+str( err ), ERROR )
+            dbg( 'pycompletionserver received error: '+str( err ), ERROR )
             raise
 
 if __name__ == '__main__':

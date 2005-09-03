@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.shell.PythonShell;
 
@@ -103,7 +104,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
                 return;
             }
         }
-        fail(String.format("The string %s was not found in the returned completions", expected));
+        fail(StringUtils.format("The string %s was not found in the returned completions", expected));
     }
     
 }
