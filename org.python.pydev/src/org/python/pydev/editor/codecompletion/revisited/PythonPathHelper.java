@@ -68,6 +68,10 @@ public class PythonPathHelper implements Serializable{
         if(acceptPoint == false && str.indexOf(".") == 0){ //cannot start with a dot
             throw new RuntimeException("The pythonpath can only have absolute paths (cannot start with '.', therefore, the path: '"+str+"' is not valid.");
         }
+        File file = new File(str);
+        if(file.exists()){
+            str = REF.getFileAbsolutePath(file);
+        }
         return str.trim().replaceAll("\\\\","/");
     }
     

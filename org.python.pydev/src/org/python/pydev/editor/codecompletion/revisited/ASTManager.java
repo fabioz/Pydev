@@ -134,7 +134,11 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
             String moduleName = nature.getAstManager().getProjectModulesManager().resolveModule(REF.getFileAbsolutePath(request.editorFile));
             if(moduleName != null){
                 String tail = FullRepIterable.headAndTail(moduleName)[0];
-                relative = tail+"."+original;
+                if(original.length() > 0){
+                    relative = tail+"."+original;
+                }else{
+                    relative = tail;
+                }
             }
         }
         
@@ -148,14 +152,14 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         Set<IToken> set = new HashSet<IToken>();
 
         //first we get the imports... that complete for the token.
-        getAbsoluteImportTokens(absoluteModule, set);
+        getAbsoluteImportTokens(absoluteModule, set, PyCodeCompletion.TYPE_IMPORT);
 
         //Now, if we have an initial module, we have to get the completions
         //for it.
         getTokensForModule(original, nature, absoluteModule, set);
 
         if(relative != null && relative.equals(absoluteModule) == false){
-            getAbsoluteImportTokens(relative, set);
+            getAbsoluteImportTokens(relative, set, PyCodeCompletion.TYPE_RELATIVE_IMPORT);
             getTokensForModule(relative, nature, relative, set);
         }
         return (IToken[]) set.toArray(new IToken[0]);
@@ -165,7 +169,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @param moduleToGetTokensFrom the string that represents the token from where we are getting the imports
      * @param set the set where the tokens should be added
      */
-    private void getAbsoluteImportTokens(String moduleToGetTokensFrom, Set<IToken> set) {
+    private void getAbsoluteImportTokens(String moduleToGetTokensFrom, Set<IToken> set, int type) {
         for (Iterator iter = Arrays.asList(projectModulesManager.getAllModules()).iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
 
@@ -193,10 +197,9 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                     String[] splitted = element.split("\\.");
                     if (splitted.length > 0) {
                         //this is the completion
-                        set.add(new ConcreteToken(splitted[0], "", "", moduleToGetTokensFrom, PyCodeCompletion.TYPE_IMPORT));
+                        set.add(new ConcreteToken(splitted[0], "", "", moduleToGetTokensFrom, type));
                     }
                 }
-
             }
         }
     }

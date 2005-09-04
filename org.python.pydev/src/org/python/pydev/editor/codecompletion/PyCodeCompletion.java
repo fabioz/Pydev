@@ -88,6 +88,11 @@ public class PyCodeCompletion {
      * Type for package (used to decide the icon)
      */
     public static final int TYPE_PACKAGE = 6;
+
+    /**
+     * Type for relative import
+     */
+    public static final int TYPE_RELATIVE_IMPORT = 7;
     
 
     /**
@@ -122,6 +127,9 @@ public class PyCodeCompletion {
 
             case PyCodeCompletion.TYPE_PACKAGE:
                 return imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
+                
+            case PyCodeCompletion.TYPE_RELATIVE_IMPORT:
+                return imageCache.get(UIConstants.COMPLETION_RELATIVE_IMPORT_ICON);
 
             default:
                 return null;
