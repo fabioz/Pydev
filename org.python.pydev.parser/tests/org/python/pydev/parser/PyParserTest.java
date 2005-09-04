@@ -25,8 +25,9 @@ public class PyParserTest extends TestCase {
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testCorrectArgs();
+            test.testOnWxPython();
             test.tearDown();
+            System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,8 +135,26 @@ public class PyParserTest extends TestCase {
         parseLegalDocStr(s);
     }
     
+    public void testOnWxPython() {
+        if(TestDependent.HAS_WXPYTHON_INSTALLED){
+            File file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES+"wxPython");
+            parseFilesInDir(file);
+            file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES+"wx");
+            parseFilesInDir(file);
+        }
+        
+    }
     public void testOnCompleteLib() {
         File file = new File(TestDependent.PYTHON_LIB);
+        parseFilesInDir(file);
+    }
+
+    /**
+     * @param file
+     */
+    private void parseFilesInDir(File file) {
+        assertTrue(file.exists());
+        assertTrue(file.isDirectory());
         File[] files = file.listFiles();
         for (int i = 0; i < files.length; i++) {
             File f = files[i];

@@ -25,8 +25,9 @@ public class ThreadStreamReader extends Thread {
             while ((c = in.read()) != -1) {
                 contents.append((char) c);
             }
-        } catch (IOException ioe) {
+        } catch (Exception e) {
             //that's ok
+            e.printStackTrace();
         }
     }
 }

@@ -33,6 +33,12 @@ class Test(unittest.TestCase):
         '''
         You can print the results to check...
         '''
+        tip = importsTipper.GenerateTip('wxPython.wx')
+        self.assertIn('App'        , tip)
+        
+        tip = importsTipper.GenerateTip('wxPython.wx.App')
+        print tip
+        
         tip = importsTipper.GenerateTip('qt')
         self.assertIn('QWidget'        , tip)
         self.assertIn('QDialog'        , tip)
@@ -73,7 +79,7 @@ class Test(unittest.TestCase):
         for a in tips:
             if tok == a[0]:
                 return a
-        raise AssertionError('%s not in %s', tok, tips)
+        raise AssertionError('%s not in %s' %(tok, tips))
 
     def testInspect(self):
         

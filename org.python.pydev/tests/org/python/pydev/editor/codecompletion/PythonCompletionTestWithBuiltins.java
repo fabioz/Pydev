@@ -19,7 +19,7 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
         try {
             PythonCompletionTestWithBuiltins builtins = new PythonCompletionTestWithBuiltins();
             builtins.setUp();
-            builtins.testCompleteImportBuiltinReference();
+            builtins.testWxPython1();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionTestWithBuiltins.class);
@@ -112,6 +112,24 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
 
     
     
+    public void testWxPython1() throws BadLocationException, IOException, Exception{
+        if(TestDependent.HAS_WXPYTHON_INSTALLED){ //we can only test what we have
+            String s = ""+
+            "from wxPython.wx import *\n"+
+            "import wx\n"+
+            "class HelloWorld(wx.App):\n"+
+            "   def OnInit(self):\n"+
+            "       frame = wx.Frame(None,-1,\"hello world\")\n"+
+            "       frame.Show(True)\n"+
+            "       self.SetTopWindow(frame)\n"+
+            "       b=wx.Button(frame,-1,\"Button\")\n"+
+            "       return True\n"+
+            "app = HelloWorld(0)\n"+
+            "app.MainLoop()\n"+
+            "app.";
+            requestCompl(s, s.length(), -1, new String[]{"MainLoop()"});
+        }
+    }
     
 
     public void testCompleteImportBuiltinReference() throws BadLocationException, IOException, Exception{
