@@ -12,6 +12,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -75,7 +76,7 @@ public interface ICodeCompletionASTManager {
      * @param initial: this is the initial module (e.g.: foo.bar) or an empty string.
      * @return a Set with the imports as tuples with the name, the docstring.
      */
-    public abstract IToken[] getCompletionsForImport(final String original, PythonNature nature);
+    public abstract IToken[] getCompletionsForImport(final String original, CompletionRequest request);
 
 
     /**

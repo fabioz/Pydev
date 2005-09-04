@@ -5,12 +5,16 @@
  */
 package org.python.pydev.editor.codecompletion;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
 /**
@@ -26,7 +30,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-          test.testSelfReferenceWithTabs2();
+          test.testRelativeImport();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -136,7 +140,11 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 	    requestCompl(s, iComp, -1, new String[] { "met1()"});
 	}
 	
-	
+	public void testRelativeImport() throws FileNotFoundException, CoreException, BadLocationException{
+        String file = TestDependent.TEST_PYSRC_LOC+"testlib/unittest/relative/testrelative.py";
+        String strDoc = "from toimport import ";
+        requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"Test1", "Test2"});   
+    }
 
 	public void testWildImportRecursive() throws BadLocationException, IOException, Exception{
         String s;

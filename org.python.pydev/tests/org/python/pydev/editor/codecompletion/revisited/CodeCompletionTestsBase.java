@@ -18,6 +18,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
@@ -232,6 +233,11 @@ public class CodeCompletionTestsBase extends TestCase {
     
     public void requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
         requestCompl(null, strDoc, documentOffset, returned, retCompl);
+    }
+    
+    public void requestCompl(File file, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+        String strDoc = REF.getFileContents(file);
+        requestCompl(file, strDoc, documentOffset, returned, retCompl);
     }
     
     /**

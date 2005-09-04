@@ -19,8 +19,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.FunctionDef;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
@@ -120,27 +122,57 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     /**
      * Returns the imports that start with a given string. The comparisson is not case dependent. Passes all the modules in the cache.
      * 
-     * @param initial: this is the initial module (e.g.: foo.bar) or an empty string.
+     * @param original is the name of the import module eg. 'from toimport import ' would mean that the original is 'toimport'
+     * or something like 'foo.bar' or an empty string (if only 'import').
      * @return a Set with the imports as tuples with the name, the docstring.
      */
-    public IToken[] getCompletionsForImport(final String original, PythonNature nature) {
-        String initial = original;
-        if (initial.endsWith(".")) {
-            initial = initial.substring(0, initial.length() - 1);
+    public IToken[] getCompletionsForImport(final String original, CompletionRequest request) {
+        PythonNature nature = request.nature;
+        
+        String relative = null;
+        if(request.editorFile != null){
+            String moduleName = nature.getAstManager().getProjectModulesManager().resolveModule(REF.getFileAbsolutePath(request.editorFile));
+            if(moduleName != null){
+                String tail = FullRepIterable.headAndTail(moduleName)[0];
+                relative = tail+"."+original;
+            }
         }
-        initial = initial.toLowerCase().trim();
+        
+        String absoluteModule = original;
+        if (absoluteModule.endsWith(".")) {
+            absoluteModule = absoluteModule.substring(0, absoluteModule.length() - 1);
+        }
+        absoluteModule = absoluteModule.toLowerCase().trim();
 
         //set to hold the completion (no duplicates allowed).
         Set<IToken> set = new HashSet<IToken>();
 
         //first we get the imports... that complete for the token.
+        getAbsoluteImportTokens(absoluteModule, set);
+
+        //Now, if we have an initial module, we have to get the completions
+        //for it.
+        getTokensForModule(original, nature, absoluteModule, set);
+
+        if(relative != null && relative.equals(absoluteModule) == false){
+            getAbsoluteImportTokens(relative, set);
+            getTokensForModule(relative, nature, relative, set);
+        }
+        return (IToken[]) set.toArray(new IToken[0]);
+    }
+
+    /**
+     * @param moduleToGetTokensFrom the string that represents the token from where we are getting the imports
+     * @param set the set where the tokens should be added
+     */
+    private void getAbsoluteImportTokens(String moduleToGetTokensFrom, Set<IToken> set) {
         for (Iterator iter = Arrays.asList(projectModulesManager.getAllModules()).iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
 
             String element = key.name;
 
-            if (element.toLowerCase().startsWith(initial)) {
-                element = element.substring(initial.length());
+            if (element.toLowerCase().startsWith(moduleToGetTokensFrom)) {
+                element = element.substring(moduleToGetTokensFrom.length());
 
                 boolean goForIt = false;
                 //if initial is not empty only get those that start with a dot (submodules, not
@@ -148,7 +180,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 //e.g. we want xml.dom
                 //and not xmlrpclib
                 //if we have xml token (not using the qualifier here) 
-                if (initial.length() != 0) {
+                if (moduleToGetTokensFrom.length() != 0) {
                     if (element.startsWith(".")) {
                         element = element.substring(1);
                         goForIt = true;
@@ -161,22 +193,26 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                     String[] splitted = element.split("\\.");
                     if (splitted.length > 0) {
                         //this is the completion
-                        set.add(new ConcreteToken(splitted[0], "", "", initial, PyCodeCompletion.TYPE_IMPORT));
+                        set.add(new ConcreteToken(splitted[0], "", "", moduleToGetTokensFrom, PyCodeCompletion.TYPE_IMPORT));
                     }
                 }
 
             }
         }
+    }
 
-        //Now, if we have an initial module, we have to get the completions
-        //for it.
-        if (initial.length() > 0) {
-            String nameInCache = original;
-            if (nameInCache.endsWith(".")) {
-                nameInCache = nameInCache.substring(0, nameInCache.length() - 1);
+    /**
+     * @param original this is the initial module where the completion should happen (may have class in it too)
+     * @param moduleToGetTokensFrom
+     * @param set set where the tokens should be added
+     */
+    private void getTokensForModule(String original, PythonNature nature, String moduleToGetTokensFrom, Set<IToken> set) {
+        if (moduleToGetTokensFrom.length() > 0) {
+            if (original.endsWith(".")) {
+                original = original.substring(0, original.length() - 1);
             }
 
-            Object[] modTok = findModuleFromPath(nameInCache, nature);
+            Object[] modTok = findModuleFromPath(original, nature);
             
             
             Object object = modTok[0];
@@ -203,8 +239,6 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 }
             }
         }
-
-        return (IToken[]) set.toArray(new IToken[0]);
     }
 
     /**

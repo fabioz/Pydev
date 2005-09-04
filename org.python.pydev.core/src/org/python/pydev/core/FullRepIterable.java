@@ -107,8 +107,8 @@ public class FullRepIterable implements Iterable<String>{
     /**
      * on string 'aa.bb.cc', the head is 'cc' and the tail is 'aa.bb'
      * 
-     * head is pos 1
-     * tail is pos 0
+     * head is pos 1 (cc)
+     * tail is pos 0 (aa.bb)
      */
     public static String[] headAndTail(String fullRep){
         int i = fullRep.lastIndexOf('.');

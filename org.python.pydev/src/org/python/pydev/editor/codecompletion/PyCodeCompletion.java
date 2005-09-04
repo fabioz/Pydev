@@ -189,7 +189,7 @@ public class PyCodeCompletion {
 
                 importsTip = true;
                 importsTipper = importsTipper.trim();
-                IToken[] imports = astManager.getCompletionsForImport(importsTipper, request.nature);
+                IToken[] imports = astManager.getCompletionsForImport(importsTipper, request);
                 theList.addAll(Arrays.asList(imports));
 
                 //code completion for a token

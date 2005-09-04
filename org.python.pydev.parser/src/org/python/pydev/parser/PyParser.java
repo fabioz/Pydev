@@ -246,6 +246,7 @@ public class PyParser {
         public int currentLine=-1;
         public String initial = null;
         public List linesChanged = new ArrayList();
+        public ParseException parseErr;
         
         public ParserInfo(IDocument document, boolean changedCurrentLine, IPythonNature nature){
             this.document = document;
@@ -288,13 +289,17 @@ public class PyParser {
 
         } catch (ParseException parseErr) {
             SimpleNode newRoot = null;
+
+            if(info.parseErr == null){
+                info.parseErr = parseErr;
+            }
             
             if (info.stillTryToChangeCurrentLine){
-                newRoot = tryReparseAgain(info, parseErr);
+                newRoot = tryReparseAgain(info, info.parseErr);
             } else {
                 info.currentLine = -1;
                 info.document = new Document(info.initial);
-                newRoot = tryReparseAgain(info, parseErr);
+                newRoot = tryReparseAgain(info, info.parseErr);
             }
             
             return new Object[]{newRoot, parseErr};
@@ -349,7 +354,7 @@ public class PyParser {
         
         }else{
             if(tokenErr.currentToken != null){
-                line = tokenErr.currentToken.beginLine-1;
+                line = tokenErr.currentToken.beginLine-2;
             
     	        boolean okToGo = false;
     	        

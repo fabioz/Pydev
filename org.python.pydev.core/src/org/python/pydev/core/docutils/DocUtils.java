@@ -118,8 +118,6 @@ public class DocUtils {
                     if(t.startsWith("class") || t.startsWith("def") ){
                         tokSpaces = "";
                         for (int i = 0; i < tok.length(); i++) {
-                            tokSpaces += SPACE;
-                            
                             if (tok.charAt(i) == ' ') {
                                 tokSpaces += ' ';
                                 
