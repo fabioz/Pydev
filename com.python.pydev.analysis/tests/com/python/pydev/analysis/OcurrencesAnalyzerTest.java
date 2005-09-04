@@ -32,7 +32,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testStaticNoSelf2();
+            analyzer2.testRelativeNotUndefined2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -352,6 +352,16 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testlib.unittest.relative.testrelative", new File(file), nature, 0), prefs);
         
         printMessages(msgs, 0);
+    }
+    
+    public void testRelativeNotUndefined2() throws FileNotFoundException{
+        
+        analyzer = new OcurrencesAnalyzer();
+        String file = TestDependent.TEST_PYSRC_LOC+"relative/mod2.py";
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("relative.mod2", new File(file), nature, 0), prefs);
+        
+        printMessages(msgs, 1);
+        assertEquals("Unused import: mod1", msgs[0].getMessage());
     }
     
     public void testLambda(){

@@ -40,8 +40,11 @@ public class ImportChecker {
             AbstractModule module = null;
             String initial = null;
             String foundAs = null;
+            
+            //representations that will be tested
             List<String> reps = new ArrayList<String>();
-            String tail = null;
+            
+            String tail = null; //the tail is used for relative imports
             if(moduleName != null){
                 tail = FullRepIterable.headAndTail(moduleName)[0]; //discard the head
             }            
@@ -49,15 +52,18 @@ public class ImportChecker {
             SourceToken tok = (SourceToken) token;
             SimpleNode ast = tok.getAst();
             
+            
+            //try to build the import string --------------------------------------------
             if(ast instanceof Import){
                 Import imp = (Import) ast;
                 aliasType[] n = imp.names;
                 if(n != null){
                     for (int i = 0; i < n.length; i++) {
                         String name = n[i].name;
-                        reps.add(name);
+                        
+                        reps.add(name); //add as absolute
                         if(tail != null){
-                            reps.add(tail+"."+name);
+                            reps.add(tail+"."+name); //add as relative
                         }
                     }
                 }
@@ -69,28 +75,30 @@ public class ImportChecker {
                 if(imp.names != null && imp.names.length > 0){
                     for (int i = 0; i < imp.names.length; i++) {
                         String name = imp.names[i].name;
-                        reps.add(fromModule+"."+name);
+                        
+                        reps.add(fromModule+"."+name); //add as absolute
                         if(tail != null){
-                            reps.add(tail+"."+fromModule+"."+name);
+                            reps.add(tail+"."+fromModule+"."+name); //add as relative
                         }
                     }
                 }else{
-                    reps.add(fromModule);
+                    
+                    reps.add(fromModule); //add as absolute
                     if(tail != null){
-                        reps.add(tail+"."+fromModule);
+                        reps.add(tail+"."+fromModule); //add as relative
                     }
                 }
             }
     
             //try em ----------------------------------------------------------------
-    
+            //has absolute and relative all together
+            
             for(String rep : reps){
                 if(rep == null){
                     continue;
                 }
                 
                 initial = rep;
-                //first check for relative imports
                 for (String part : new FullRepIterable(rep, true)) {
                     module = nature.getAstManager().getModule(part, nature);
                     if(module != null){
