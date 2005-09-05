@@ -12,6 +12,7 @@ import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 
@@ -71,20 +72,20 @@ public class DuplicationChecker {
     }
 
     public void beforeClassDef(ClassDef node) {
-        startScope(node.name, node); 
+        startScope(NodeUtils.getRepresentationString(node), node); 
     }
 
     public void afterClassDef(ClassDef node) {
-        endScope(node.name);
+        endScope(NodeUtils.getRepresentationString(node));
     }
 
 
     public void beforeFunctionDef(FunctionDef node) {
-        startScope(node.name, node); 
+        startScope(NodeUtils.getRepresentationString(node), node); 
     }
 
     public void afterFunctionDef(FunctionDef node) {
-        endScope(node.name);
+        endScope(NodeUtils.getRepresentationString(node));
     }
 
     

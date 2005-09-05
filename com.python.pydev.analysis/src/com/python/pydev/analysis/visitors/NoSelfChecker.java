@@ -24,6 +24,7 @@ public class NoSelfChecker {
 
     private Stack<Integer> scope = new Stack<Integer>();
     private Stack<HashMap<String, FunctionDef>> maybeNoSelfDefinedItems = new Stack<HashMap<String, FunctionDef>>();
+    private Stack<HashMap<String, FunctionDef>> maybeNoClsDefinedItems = new Stack<HashMap<String, FunctionDef>>();
     
     private MessagesManager messagesManager;
     private String moduleName;
@@ -37,15 +38,25 @@ public class NoSelfChecker {
     public void beforeClassDef(ClassDef node) {
         scope.push(Scope.SCOPE_TYPE_CLASS);
         maybeNoSelfDefinedItems.push(new HashMap<String, FunctionDef>());
+        maybeNoClsDefinedItems.push(new HashMap<String, FunctionDef>());
     }
 
     public void afterClassDef(ClassDef node) {
         scope.pop();
         
-        HashMap<String, FunctionDef> noSelfDefinedItems = maybeNoSelfDefinedItems.pop();
-        for (Map.Entry<String, FunctionDef> entry : noSelfDefinedItems.entrySet()) {
+        creteMessagesForStack(maybeNoSelfDefinedItems, "self");
+        creteMessagesForStack(maybeNoClsDefinedItems, "cls");
+    }
+
+    /**
+     * @param stack
+     * @param shouldBeDefined
+     */
+    private void creteMessagesForStack(Stack<HashMap<String, FunctionDef>> stack, String shouldBeDefined) {
+        HashMap<String, FunctionDef> noDefinedItems = stack.pop();
+        for (Map.Entry<String, FunctionDef> entry : noDefinedItems.entrySet()) {
             SourceToken token = AbstractVisitor.makeToken(entry.getValue(), moduleName);
-            messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_SELF, token);
+            messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_SELF, token, new Object[]{token, shouldBeDefined});
         }
     }
 
@@ -60,37 +71,51 @@ public class NoSelfChecker {
         
         
         if(scope.peek().equals(Scope.SCOPE_TYPE_CLASS)){
-            //let's check if we have to start with self
+            //let's check if we have to start with self or cls
             boolean startsWithSelf = false;
+            boolean startsWithCls = false;
             if(node.args != null){
+                
                 if(node.args.args.length > 0){
                     exprType arg = node.args.args[0];
+                    
                     if(arg instanceof Name){
                         Name n = (Name) arg;
+                        
                         if(n.id.equals("self")){
                             startsWithSelf = true;
+                        } else if(n.id.equals("cls")){
+                            startsWithCls = true;
                         }
                     }
                 }
             }
             
-            if(!startsWithSelf){
-                if(node.decs != null){
-                    for (decoratorsType dec : node.decs) {
-                        if(dec != null){
-                            String rep = NodeUtils.getRepresentationString(dec.func);
-                            if(rep != null){
-                                if(rep.equals("staticmethod")){
-                                    startsWithSelf = true;
-                                }
+            boolean isStaticMethod = false;
+            boolean isClassMethod = false;
+            if(node.decs != null){
+                for (decoratorsType dec : node.decs) {
+                    
+                    if(dec != null){
+                        String rep = NodeUtils.getRepresentationString(dec.func);
+                    
+                        if(rep != null){
+                            
+                            if(rep.equals("staticmethod")){
+                                isStaticMethod = true;
+                            } else if(rep.equals("classmethod")){
+                                isClassMethod = true;
                             }
                         }
                     }
                 }
-                //didn't have staticmethod decorator either
-                if(!startsWithSelf){
-                    maybeNoSelfDefinedItems.peek().put(node.name, node);
-                }
+            }
+            //didn't have staticmethod decorator either
+            if(!startsWithSelf && !isStaticMethod && !isClassMethod){
+                maybeNoSelfDefinedItems.peek().put(NodeUtils.getRepresentationString(node), node);
+            }
+            if(startsWithCls && !isClassMethod){
+                maybeNoClsDefinedItems.peek().put(NodeUtils.getRepresentationString(node), node);
             }
         }
         scope.push(Scope.SCOPE_TYPE_METHOD);
@@ -116,7 +141,9 @@ public class NoSelfChecker {
             }
             
             FunctionDef def = maybeNoSelfDefinedItems.peek().get(rep);
-            if(def != null){
+            FunctionDef defCls = maybeNoClsDefinedItems.peek().get(rep);
+            
+            if(def != null || defCls != null){
                 //ok, it may be a staticmethod, let's check its value (should be a call)
                 exprType expr = node.value;
                 if(expr instanceof Call){
@@ -125,9 +152,15 @@ public class NoSelfChecker {
                         String argRep = NodeUtils.getRepresentationString(call.args[0]);
                         if(argRep != null && argRep.equals(rep)){
                             String funcCall = NodeUtils.getRepresentationString(call.func);
-                            if(funcCall != null && funcCall.equals("staticmethod")){
+                            
+                            
+                            if(def != null && funcCall != null && funcCall.equals("staticmethod")){
                                 //ok, finally... it is a staticmethod after all...
                                 maybeNoSelfDefinedItems.peek().remove(rep);
+                            }
+                            if(defCls != null && funcCall != null && funcCall.equals("classmethod")){
+                                //ok, finally... it is a classmethod after all...
+                                maybeNoClsDefinedItems.peek().remove(rep);
                             }
                         }
                     }
@@ -135,5 +168,4 @@ public class NoSelfChecker {
             }
         }
     }
-
 }

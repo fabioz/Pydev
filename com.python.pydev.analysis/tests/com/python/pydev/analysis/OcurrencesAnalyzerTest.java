@@ -32,7 +32,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testRelativeNotUndefined2();
+            analyzer2.testNoSelf();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -934,6 +934,19 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         printMessages(msgs);
         assertEquals(0, msgs.length);
     }
+
+    public void testDecoratorUndefined() {
+        doc = new Document(
+                "@notdefined \n"+
+                "def m1():   \n"+ 
+                "    pass    \n"+ 
+                "\n" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        printMessages(msgs,1);
+        assertEquals("Undefined variable: notdefined", msgs[0].getMessage());
+    }
     
     public void testUndefinedVariable3() {
         doc = new Document(
@@ -1511,6 +1524,22 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
             "\n" +
             "\n" +
             "" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 0);
+    }
+    
+    public void testClassMethodCls() {
+        doc = new Document(
+                "class C:\n" +
+                "    @classmethod\n" +
+                "    def m(cls):\n" +
+                "        print cls\n" +
+                "\n" +
+                "\n" +
+                "" 
         );
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);

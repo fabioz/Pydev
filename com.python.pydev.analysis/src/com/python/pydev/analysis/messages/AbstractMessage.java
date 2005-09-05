@@ -43,7 +43,7 @@ public abstract class AbstractMessage implements IMessage{
             messages.put(IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE, "Duplicated signature: %s");
             messages.put(IAnalysisPreferences.TYPE_REIMPORT, "Import redefinition: %s");
             messages.put(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, "Unresolved import: %s");
-            messages.put(IAnalysisPreferences.TYPE_NO_SELF, "Method '%s' should have self as first parameter");
+            messages.put(IAnalysisPreferences.TYPE_NO_SELF, "Method '%s' should have %s as first parameter");
         }
         return messages.get(getType());
 
@@ -140,14 +140,26 @@ public abstract class AbstractMessage implements IMessage{
         }
         if( shortMessage instanceof Object[]){
             Object[] o = (Object[]) shortMessage;
-            StringBuffer buf = new StringBuffer();
-            for (int i = 0; i < o.length; i++) {
-                buf.append(o[i].toString());
-                if(i != o.length-1){
-                    buf.append(" ");
+            
+            //if we have the same number of %s as objects in the array, make the format
+            int countPercS = StringUtils.countPercS(typeStr);
+            if(countPercS == o.length){
+                return StringUtils.format(typeStr, o);
+                
+            }else if(countPercS == 1){
+                //if we have only 1, all parameters should be concatenated in a single string
+                StringBuffer buf = new StringBuffer();
+                for (int i = 0; i < o.length; i++) {
+                    buf.append(o[i].toString());
+                    if(i != o.length-1){
+                        buf.append(" ");
+                    }
                 }
+                shortMessage = buf.toString();
+                
+            }else{
+                throw new AssertionError("The number of %s is not the number of passed parameters nor 1");
             }
-            shortMessage = buf.toString();
         }
         return StringUtils.format(typeStr, shortMessage);
     }

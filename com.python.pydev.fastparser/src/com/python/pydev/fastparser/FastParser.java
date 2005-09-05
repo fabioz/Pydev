@@ -17,6 +17,7 @@ import org.python.parser.ast.Expr;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Module;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.argumentsType;
@@ -121,7 +122,7 @@ public class FastParser {
         
         //---FIND its name
         int j = getNameEnd(buf);
-        def.name = getName(buf, j);
+        def.name = getName(buf, j, NameTok.FunctionName);
         
         char c = buf.charAt(j-1);
         List args = new ArrayList();
@@ -206,7 +207,7 @@ public class FastParser {
         
         //---FIND its name
         int j = getNameEnd(buf);
-        def.name = getName(buf, j);
+        def.name = getName(buf, j, NameTok.ClassName);
         
         char c = buf.charAt(j-1);
         int k = j;
@@ -249,9 +250,10 @@ public class FastParser {
      * @param j
      * @return
      */
-    private static String getName(StringBuffer buf, int j) {
+    private static NameTok getName(StringBuffer buf, int j, int ctx) {
         String n = buf.substring(0, j-1).trim();
-        return n;
+        NameTok tok = new NameTok(n, ctx);
+        return tok;
     }
 
 

@@ -15,6 +15,7 @@ import org.python.parser.ast.Expr;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Module;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.argumentsType;
 import org.python.parser.ast.exprType;
@@ -68,7 +69,7 @@ public class FastparserTest extends TestCase {
         expr.beginColumn = 17;
         expr.beginLine = 2;
 
-        ClassDef def = new ClassDef("Class1", new exprType[]{name},new stmtType[]{ expr});
+        ClassDef def = new ClassDef(new NameTok("Class1", NameTok.ClassName), new exprType[]{name},new stmtType[]{ expr});
         def.beginColumn = 1;
         def.beginLine = 1;
         Module mod = new Module(new stmtType[]{def});
@@ -93,7 +94,7 @@ public class FastparserTest extends TestCase {
      * @return
      */
     private Module makeFile1MethodDef() {
-        FunctionDef def = new FunctionDef("GlobalMethod", null, null, null);
+        FunctionDef def = new FunctionDef(new NameTok("GlobalMethod", NameTok.FunctionName), null, null, null);
         def.beginColumn = 1;
         def.beginLine = 1;
         

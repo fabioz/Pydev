@@ -29,6 +29,7 @@ import org.python.parser.ast.TryFinally;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.While;
 import org.python.parser.ast.argumentsType;
+import org.python.parser.ast.decoratorsType;
 import org.python.parser.ast.exprType;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
@@ -196,6 +197,13 @@ public class OcurrencesVisitor extends VisitorBase{
                 }
             }
         }
+        
+        //then the decorators (no, still not in method scope)
+        for (decoratorsType dec : node.decs){
+            if(dec != null){
+                dec.accept(visitor);
+            }
+        }
 
         startScope(Scope.SCOPE_TYPE_METHOD);
         duplicationChecker.beforeFunctionDef(node); //duplication checker
@@ -295,7 +303,6 @@ public class OcurrencesVisitor extends VisitorBase{
         }
         return null;
     }
-
 
     /**
      * Visiting some name
