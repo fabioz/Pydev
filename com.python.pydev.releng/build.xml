@@ -26,7 +26,7 @@
 		<property name = "zipLocation"          value = "${eclipseResults}/${buildId}/com.python.pydev.extensions-${buildId}.zip"/>
 		<property name = "eclipseTmpResults"    value = "${eclipseResults}/tmp" />
 		<property name = "destFeats"            value = "${EC_WORKSPACE}\org.python.pydev.site" />
-		<property name = "retroweaver.home"     value = "F:\Dev.Java\retroweaver-all\retroweaver" />
+		<property name = "retroweaver.home"     value = "${RETROWEAVER_HOME}" />
 
 		<!-- names of the plugins -->
 		<property name = "plug0"  value = "com.python.pydev.extensions"/>
