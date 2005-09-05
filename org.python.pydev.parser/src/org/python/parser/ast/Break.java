@@ -22,7 +22,7 @@ public class Break extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(26, ostream);
+        pickleThis(27, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {

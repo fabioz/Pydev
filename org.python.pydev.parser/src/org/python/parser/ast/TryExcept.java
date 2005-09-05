@@ -38,7 +38,7 @@ public class TryExcept extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(17, ostream);
+        pickleThis(18, ostream);
         pickleThis(this.body, ostream);
         pickleThis(this.handlers, ostream);
         pickleThis(this.orelse, ostream);

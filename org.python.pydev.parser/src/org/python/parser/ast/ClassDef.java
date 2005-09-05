@@ -5,17 +5,17 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class ClassDef extends stmtType {
-    public String name;
+    public NameTokType name;
     public exprType[] bases;
     public stmtType[] body;
 
-    public ClassDef(String name, exprType[] bases, stmtType[] body) {
+    public ClassDef(NameTokType name, exprType[] bases, stmtType[] body) {
         this.name = name;
         this.bases = bases;
         this.body = body;
     }
 
-    public ClassDef(String name, exprType[] bases, stmtType[] body,
+    public ClassDef(NameTokType name, exprType[] bases, stmtType[] body,
     SimpleNode parent) {
         this(name, bases, body);
         this.beginLine = parent.beginLine;
@@ -37,7 +37,7 @@ public class ClassDef extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(6, ostream);
+        pickleThis(7, ostream);
         pickleThis(this.name, ostream);
         pickleThis(this.bases, ostream);
         pickleThis(this.body, ostream);
@@ -48,6 +48,8 @@ public class ClassDef extends stmtType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
+        if (name != null)
+            name.accept(visitor);
         if (bases != null) {
             for (int i = 0; i < bases.length; i++) {
                 if (bases[i] != null)

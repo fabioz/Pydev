@@ -13,6 +13,7 @@ import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.ListComp;
+import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.Subscript;
@@ -55,7 +56,12 @@ public class NodeUtils {
     public static String getRepresentationString(SimpleNode node) {
             
         if (REF.hasAttr(node, "name")) {
-            return REF.getAttrObj(node, "name").toString();
+            Object attrObj = REF.getAttrObj(node, "name");
+            if(attrObj instanceof NameTok){
+                NameTok n = (NameTok) attrObj;
+                return n.id;
+            }
+            return attrObj.toString();
             
         }else if (REF.hasAttr(node, "id")) {
             return REF.getAttrObj(node, "id").toString();
@@ -316,6 +322,10 @@ public class NodeUtils {
         }
         
         return null;
+    }
+
+    public static String getNameFromNameTok(NameTok tok){
+        return tok.id;
     }
 
     

@@ -26,6 +26,7 @@ import org.eclipse.swt.graphics.Image;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.NameTok;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
@@ -38,6 +39,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisito
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.extension.ExtensionHelper;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.ImageCache;
@@ -309,7 +311,7 @@ public class PyCodeCompletion {
                             
                             if(actTokStrs.length == 1){
                                 //ok, it's just really self, let's get on to get the completions
-		                        state.activationToken = d.name;
+		                        state.activationToken = NodeUtils.getNameFromNameTok((NameTok) d.name);
 		        	            comps = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
 		        	            
                             }else{

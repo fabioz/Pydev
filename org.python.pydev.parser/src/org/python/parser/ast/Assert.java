@@ -31,7 +31,7 @@ public class Assert extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(19, ostream);
+        pickleThis(20, ostream);
         pickleThis(this.test, ostream);
         pickleThis(this.msg, ostream);
     }

@@ -6,6 +6,8 @@
 package org.python.pydev.editor.model;
 
 import org.python.parser.ast.ClassDef;
+import org.python.parser.ast.NameTok;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * Represents a class definition.
@@ -19,13 +21,15 @@ public class ClassNode extends AbstractNode {
 		super(parent);
 		this.astNode = astNode;
 		scope = new Scope(this);
-		setStart(new Location(astNode.beginLine - 1, astNode.beginColumn + 5));
-		setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn + 5 + astNode.name.length()));
+
+        NameTok nameTok = (NameTok) astNode.name;
+		setStart(new Location(nameTok.beginLine - 1, nameTok.beginColumn -1));
+        setEnd(new Location(astNode.beginLine - 1, nameTok.beginColumn -1 + NodeUtils.getNameFromNameTok(nameTok).length()));
 		properties = PROP_CLICKABLE;
 	}
 	
 	public String getName() {
-		return astNode.name;
+		return NodeUtils.getNameFromNameTok((NameTok) astNode.name);
 	}
 	
 	public Scope getScope() {

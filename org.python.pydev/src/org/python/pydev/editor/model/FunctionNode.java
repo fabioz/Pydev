@@ -6,6 +6,8 @@
 package org.python.pydev.editor.model;
 
 import org.python.parser.ast.FunctionDef;
+import org.python.parser.ast.NameTok;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * Represents a function definition.
@@ -21,15 +23,16 @@ public class FunctionNode extends AbstractNode {
 		scope = new Scope(this);
 		parent.getScope().addFunctionDefinition(this);
 
-		setStart(new Location(astNode.beginLine - 1, astNode.beginColumn + 3));
-		setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn + 3 + astNode.name.length()));
+		NameTok nameTok = (NameTok) astNode.name;
+		setStart(new Location(nameTok.beginLine - 1, nameTok.beginColumn -1 ));
+        setEnd(new Location(nameTok.beginLine - 1, nameTok.beginColumn -1 + NodeUtils.getNameFromNameTok(nameTok).length()));
 		fixColumnLocation(start, lineText);
 		fixColumnLocation(end, lineText);
 		properties = PROP_CLICKABLE;
 	}
 	
 	public String getName() {
-		return astNode.name;
+		return NodeUtils.getNameFromNameTok((NameTok) astNode.name);
 	}
 
 	public Scope getScope() {

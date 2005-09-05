@@ -22,7 +22,7 @@ public class Continue extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(27, ostream);
+        pickleThis(28, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {

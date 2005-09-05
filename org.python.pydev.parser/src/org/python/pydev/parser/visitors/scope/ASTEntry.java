@@ -10,7 +10,9 @@ import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.NameTok;
 import org.python.parser.ast.aliasType;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 
 /**
@@ -32,10 +34,10 @@ public class ASTEntry{
         }
         
         if (node instanceof ClassDef){
-            name = ((ClassDef)node).name;
+            name = NodeUtils.getNameFromNameTok((NameTok) ((ClassDef)node).name);
             
         } else if (node instanceof FunctionDef){
-            name = ((FunctionDef)node).name;
+            name = NodeUtils.getNameFromNameTok((NameTok) ((FunctionDef)node).name);
             
         }else if (node instanceof Import){
             aliasType[] names = ((Import)node).names;

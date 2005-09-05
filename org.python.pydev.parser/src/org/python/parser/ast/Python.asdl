@@ -9,9 +9,13 @@ module Python
 	    -- not really an actual node but useful in Jython's typesystem.
 	    | Suite(stmt* body)
 
-	stmt = FunctionDef(identifier name, arguments args, 
+	NameTok = NameTok(identifier id, name_context ctx)
+
+	name_context = ClassName | FunctionName | KeywordName
+
+	stmt = FunctionDef(NameTok name, arguments args, 
                            stmt* body, decorators* decs)
-	      | ClassDef(identifier name, expr* bases, stmt* body)
+	      | ClassDef(NameTok name, expr* bases, stmt* body)
 	      | Return(expr? value) | Yield(expr value)
 
 	      | Delete(expr* targets)
@@ -96,7 +100,7 @@ module Python
 		     identifier? kwarg, expr* defaults)
 
         -- keyword arguments supplied to call
-        keyword = (identifier arg, expr value)
+        keyword = (NameTok arg, expr value)
 
         -- import name with optional 'as' alias.
         alias = (identifier name, identifier? asname)

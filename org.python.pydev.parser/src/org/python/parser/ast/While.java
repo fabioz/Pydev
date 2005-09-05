@@ -37,7 +37,7 @@ public class While extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(14, ostream);
+        pickleThis(15, ostream);
         pickleThis(this.test, ostream);
         pickleThis(this.body, ostream);
         pickleThis(this.orelse, ostream);

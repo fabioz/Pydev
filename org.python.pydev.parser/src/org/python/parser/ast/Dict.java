@@ -31,7 +31,7 @@ public class Dict extends exprType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(32, ostream);
+        pickleThis(33, ostream);
         pickleThis(this.keys, ostream);
         pickleThis(this.values, ostream);
     }

@@ -29,4 +29,20 @@ public class StringUtils {
         }
         return buffer.toString();
     }
+
+    public static int countPercS(String str) {
+        int j = 0;
+        
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if(c == '%' && i+1 < str.length()){
+                char nextC = str.charAt(i+1);
+                if (nextC == 's'){
+                    j++;
+                    i++;
+                }
+            }
+        }
+        return j;
+    }
 }

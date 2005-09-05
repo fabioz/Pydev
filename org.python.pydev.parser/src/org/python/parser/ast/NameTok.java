@@ -4,50 +4,44 @@ import org.python.parser.SimpleNode;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class List extends exprType implements expr_contextType {
-    public exprType[] elts;
+public class NameTok extends NameTokType implements name_contextType {
+    public String id;
     public int ctx;
 
-    public List(exprType[] elts, int ctx) {
-        this.elts = elts;
+    public NameTok(String id, int ctx) {
+        this.id = id;
         this.ctx = ctx;
     }
 
-    public List(exprType[] elts, int ctx, SimpleNode parent) {
-        this(elts, ctx);
+    public NameTok(String id, int ctx, SimpleNode parent) {
+        this(id, ctx);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer("List[");
-        sb.append("elts=");
-        sb.append(dumpThis(this.elts));
+        StringBuffer sb = new StringBuffer("NameTok[");
+        sb.append("id=");
+        sb.append(dumpThis(this.id));
         sb.append(", ");
         sb.append("ctx=");
         sb.append(dumpThis(this.ctx,
-        expr_contextType.expr_contextTypeNames));
+        name_contextType.name_contextTypeNames));
         sb.append("]");
         return sb.toString();
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(44, ostream);
-        pickleThis(this.elts, ostream);
+        pickleThis(5, ostream);
+        pickleThis(this.id, ostream);
         pickleThis(this.ctx, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {
-        return visitor.visitList(this);
+        return visitor.visitNameTok(this);
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (elts != null) {
-            for (int i = 0; i < elts.length; i++) {
-                if (elts[i] != null)
-                    elts[i].accept(visitor);
-            }
-        }
     }
 
 }

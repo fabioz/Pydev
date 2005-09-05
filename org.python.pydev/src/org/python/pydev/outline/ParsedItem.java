@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.python.parser.ast.ImportFrom;
+import org.python.parser.ast.NameTok;
 import org.python.parser.ast.aliasType;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.ClassNode;
@@ -16,6 +17,7 @@ import org.python.pydev.editor.model.FunctionNode;
 import org.python.pydev.editor.model.ImportFromNode;
 import org.python.pydev.editor.model.ImportNode;
 import org.python.pydev.editor.model.NameEqualsMainNode;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * ParsedModel is composed of ParsedItems.
@@ -82,10 +84,10 @@ public class ParsedItem  {
 		if (token == null)
 			return "null";
 		if (token instanceof ClassNode) {
-			return ((ClassNode)token).astNode.name;
+			return NodeUtils.getNameFromNameTok((NameTok) ((ClassNode)token).astNode.name);
 		}
 		else if (token instanceof FunctionNode) {
-			return ((FunctionNode)token).astNode.name;
+			return NodeUtils.getNameFromNameTok((NameTok) ((FunctionNode)token).astNode.name);
 		}
 		else if (token instanceof ImportNode) {
 			aliasType[] imports = ((ImportNode)token).astNode.names;

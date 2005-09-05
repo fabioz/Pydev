@@ -5,15 +5,15 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class keywordType extends SimpleNode {
-    public String arg;
+    public NameTokType arg;
     public exprType value;
 
-    public keywordType(String arg, exprType value) {
+    public keywordType(NameTokType arg, exprType value) {
         this.arg = arg;
         this.value = value;
     }
 
-    public keywordType(String arg, exprType value, SimpleNode parent) {
+    public keywordType(NameTokType arg, exprType value, SimpleNode parent) {
         this(arg, value);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
@@ -31,7 +31,7 @@ public class keywordType extends SimpleNode {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(52, ostream);
+        pickleThis(53, ostream);
         pickleThis(this.arg, ostream);
         pickleThis(this.value, ostream);
     }
@@ -42,6 +42,8 @@ public class keywordType extends SimpleNode {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
+        if (arg != null)
+            arg.accept(visitor);
         if (value != null)
             value.accept(visitor);
     }

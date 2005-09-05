@@ -5,21 +5,21 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class FunctionDef extends stmtType {
-    public String name;
+    public NameTokType name;
     public argumentsType args;
     public stmtType[] body;
     public decoratorsType[] decs;
 
-    public FunctionDef(String name, argumentsType args, stmtType[] body,
-    decoratorsType[] decs) {
+    public FunctionDef(NameTokType name, argumentsType args, stmtType[]
+    body, decoratorsType[] decs) {
         this.name = name;
         this.args = args;
         this.body = body;
         this.decs = decs;
     }
 
-    public FunctionDef(String name, argumentsType args, stmtType[] body,
-    decoratorsType[] decs, SimpleNode parent) {
+    public FunctionDef(NameTokType name, argumentsType args, stmtType[]
+    body, decoratorsType[] decs, SimpleNode parent) {
         this(name, args, body, decs);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
@@ -43,7 +43,7 @@ public class FunctionDef extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(5, ostream);
+        pickleThis(6, ostream);
         pickleThis(this.name, ostream);
         pickleThis(this.args, ostream);
         pickleThis(this.body, ostream);
@@ -55,6 +55,8 @@ public class FunctionDef extends stmtType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
+        if (name != null)
+            name.accept(visitor);
         if (args != null)
             args.accept(visitor);
         if (body != null) {

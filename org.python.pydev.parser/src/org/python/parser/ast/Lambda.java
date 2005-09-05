@@ -31,7 +31,7 @@ public class Lambda extends exprType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(31, ostream);
+        pickleThis(32, ostream);
         pickleThis(this.args, ostream);
         pickleThis(this.body, ostream);
     }

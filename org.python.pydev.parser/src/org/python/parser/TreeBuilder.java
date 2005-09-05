@@ -35,6 +35,7 @@ import org.python.parser.ast.List;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Module;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Pass;
 import org.python.parser.ast.Print;
@@ -109,6 +110,14 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         return ((Name) stack.popNode()).id;
     }
 
+    private NameTok makeName(int ctx) {
+        Name name = (Name) stack.popNode();
+        NameTok n = new NameTok(name.id, ctx);
+        n.beginColumn = name.beginColumn;
+        n.beginLine = name.beginLine;
+        return n;
+    }
+    
     private String[] makeIdentifiers() {
         int l = stack.nodeArity();
         String[] ids = new String[l];
@@ -315,9 +324,9 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             body = popSuite();
             
             argumentsType arguments = makeArguments(stack.nodeArity() - 2);
-            String name = makeIdentifier();
+            NameTok nameTok = makeName(NameTok.FunctionName);
             Decorators decs = (Decorators) popNode() ;
-            return new FunctionDef(name, arguments, body, decs.exp);
+            return new FunctionDef(nameTok, arguments, body, decs.exp);
         case JJTDEFAULTARG:
             value = (arity == 1) ? null : makeExpr();
             return new DefaultArg(makeExpr(), value);
@@ -336,8 +345,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTCLASSDEF:
             body = popSuite();
             exprType[] bases = makeExprs(stack.nodeArity() - 1);
-            name = makeIdentifier();
-            return new ClassDef(name, bases, body);
+            nameTok = makeName(NameTok.ClassName);
+            return new ClassDef(nameTok, bases, body);
         case JJTRETURN_STMT:
             value = arity == 1 ? makeExpr() : null;
             return new Return(value);
@@ -457,8 +466,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             return new ExtraArgValue(makeExpr(), JJTEXTRAARGVALUELIST);
         case JJTKEYWORD:
             value = makeExpr();
-            name = makeIdentifier();
-            return new keywordType(name, value);
+            nameTok = makeName(NameTok.KeywordName);
+            return new keywordType(nameTok, value);
         case JJTTUPLE:
             if (stack.nodeArity() > 0 && peekNode() instanceof comprehensionType) {
                 comprehensionType[] generators = new comprehensionType[arity-1];

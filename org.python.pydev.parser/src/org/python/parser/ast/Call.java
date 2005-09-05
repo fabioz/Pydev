@@ -48,7 +48,7 @@ public class Call extends exprType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(36, ostream);
+        pickleThis(37, ostream);
         pickleThis(this.func, ostream);
         pickleThis(this.args, ostream);
         pickleThis(this.keywords, ostream);
