@@ -236,6 +236,7 @@ public class InterpreterInfo implements Serializable{
             //those are sources, but we want to get runtime info on them.
             forcedLibs.add("OpenGL");
             forcedLibs.add("wxPython");
+            forcedLibs.add("wx");
         }
         
     }

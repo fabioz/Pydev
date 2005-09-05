@@ -14,9 +14,12 @@ after 0.9.8
 - Gerhard Kalab contributed patch to:
 	- enable bold and italic style for syntax coloring
 	- added parse rule and color/style for string representation (backquotes)
+- java 1.4 support reintroduced
 - zombie process after exiting eclipse reviewed
 - paths with '.' are accepted for the pythonpath (unless they start with a '.', because it may not accept relative paths).
-
+- relative imports are added to code-completion
+- local imports are taken into consideration when doing code completion
+- debugger has 'change support', so, changed variables in a scope appear red
 
 
 after 0.9.7.99
