@@ -7,19 +7,19 @@ class TestListener:
     """
     
     # An error occured
-    def addError(test, err):
+    def addError(self, test, err):
         raise NotImplementedError, "TestListener.addError()"
 
     # A failure occurred.
-    def addFailure(test, err):
+    def addFailure(self, test, err):
         raise NotImplementedError, "TestListener.addFailure()"
         
     # A test started.
-    def startTest(test):
+    def startTest(self, test):
         raise NotImplementedError, "TestListener.startTest()"
 
     # A test ended.
-    def endTest(test):
+    def endTest(self, test):
         raise NotImplementedError, "TestListener.endTest()"
 
 class TestResultWithListeners(TestResult):
