@@ -320,6 +320,15 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
     public IToken[] getCompletionsForModule(AbstractModule module, CompletionState state) {
+        ArrayList<IToken> importedModules = new ArrayList<IToken>();
+        if(state.localImportsGotten == false){
+            //in the first analyzed module, we have to get the local imports too. 
+            state.localImportsGotten = true;
+            if(module != null){
+                importedModules.addAll(module.getLocalImportedModules(state.line, state.col));
+            }
+        }
+
         IToken[] builtinsCompletions = getBuiltinsCompletions(state);
         if(builtinsCompletions != null){
             return builtinsCompletions;
@@ -329,12 +338,13 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 
             //get the tokens (global, imported and wild imported)
             IToken[] globalTokens = module.getGlobalTokens();
-            IToken[] importedModules = module.getTokenImportedModules();
+            importedModules.addAll(Arrays.asList(module.getTokenImportedModules()));
             IToken[] wildImportedModules = module.getWildImportedModules();
-
+            
+            
             if (state.activationToken.length() == 0) {
 
-		        List<IToken> completions = getGlobalCompletions(globalTokens, importedModules, wildImportedModules, state, module);
+		        List<IToken> completions = getGlobalCompletions(globalTokens, importedModules.toArray(new IToken[0]), wildImportedModules, state, module);
 		        
 		        //now find the locals for the module
 		        if (state.line >= 0){
@@ -349,10 +359,8 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
             }else{ //ok, we have a token, find it and get its completions.
                 
                 //first check if the token is a module... if it is, get the completions for that module.
-                //TODO: COMPLETION: when we get here, we might have the module or something imports
-                //from a module, so, first we check if it is a module or module token.
                 
-                final IToken[] t = searchOnImportedMods(importedModules, state, module);
+                final IToken[] t = searchOnImportedMods(importedModules.toArray(new IToken[0]), state, module);
                 if(t != null && t.length > 0){
                     return t;
                 }

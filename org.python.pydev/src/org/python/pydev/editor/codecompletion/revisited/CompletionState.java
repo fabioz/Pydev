@@ -22,6 +22,30 @@ public class CompletionState {
     public int col;
     public PythonNature nature;
     
+    public Memo<String> memory = new Memo<String>();
+    public Memo<Definition> definitionMemory = new Memo<Definition>();
+    public Memo<AbstractModule> wildImportMemory = new Memo<AbstractModule>();
+    
+    public boolean builtinsGotten=false;
+    public boolean localImportsGotten=false;
+
+    public CompletionState getCopy(){
+        CompletionState state = new CompletionState();
+        state.activationToken = activationToken;
+        state.line = line;
+        state.col = col;
+        state.nature = nature;
+        
+        state.memory = memory;
+        state.wildImportMemory = wildImportMemory;
+        state.definitionMemory = definitionMemory;
+
+        state.builtinsGotten = builtinsGotten;
+        state.localImportsGotten = localImportsGotten;
+        
+        return state;
+    }
+    
     /**
      * this is a class that can act as a memo and check if something is defined more than 'n' times
      * 
@@ -71,12 +95,6 @@ public class CompletionState {
         }
     }
     
-    public Memo<String> memory = new Memo<String>();
-    public Memo<Definition> definitionMemory = new Memo<Definition>();
-    public Memo<AbstractModule> wildImportMemory = new Memo<AbstractModule>();
-    
-    public boolean builtinsGotten=false;
-    
     /**
      * @param line2
      * @param col2
@@ -95,18 +113,6 @@ public class CompletionState {
         
     }
 
-    public CompletionState getCopy(){
-        CompletionState state = new CompletionState();
-        state.activationToken = activationToken;
-        state.line = line;
-        state.col = col;
-        state.builtinsGotten = builtinsGotten;
-        state.nature = nature;
-        state.memory = memory;
-        state.wildImportMemory = wildImportMemory;
-        state.definitionMemory = definitionMemory;
-        return state;
-    }
 
     /**
      * @param module

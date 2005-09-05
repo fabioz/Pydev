@@ -292,6 +292,21 @@ public class SourceModule extends AbstractModule {
         }
     }
 
+    @Override
+    public List<IToken> getLocalImportedModules(int line, int col) {
+        try {
+            FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
+            if (ast != null){
+                ast.accept(scopeVisitor);
+            }
+            
+            return scopeVisitor.scope.getLocalImportedModules(line, col, name);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<IToken>();
+        }
+    }
+    
     /**
      * @return if the file we have is the same file in the cache.
      */

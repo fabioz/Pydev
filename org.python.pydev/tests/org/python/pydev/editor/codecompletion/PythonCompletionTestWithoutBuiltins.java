@@ -30,7 +30,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-          test.testRelativeImport();
+          test.testInnerImport();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -72,22 +72,28 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 	    requestCompl("from testlib import unittest , __in" , new String[]{"__init__"});
 	    requestCompl("from testlib import unittest , "     , new String[]{"__init__", "unittest"});
 	    
-	    requestCompl("from testlib.unittest import  ", 
-	            new String[]{
-	              "__init__"
-	            , "anothertest"
-	            , "AnotherTest"
-	            , "GUITest"
-	            , "guitestcase"
-	            , "main"
-	            , "relative"
-	            , "TestCase"
-	            , "testcase"
-	            , "TestCaseAlias"
-	            });
+	    requestCompl("from testlib.unittest import  ", getTestLibUnittestTokens());
 
 	    requestCompl("from testlib.unittest.testcase.TestCase import  assertImagesNotE", new String[]{"assertImagesNotEqual"});
 	    requestCompl("from testlib.unittest.testcase.TestCase import  assertBM", new String[]{"assertBMPsNotEqual","assertBMPsEqual"});
+    }
+
+    /**
+     * @return
+     */
+    private String[] getTestLibUnittestTokens() {
+        return new String[]{
+          "__init__"
+        , "anothertest"
+        , "AnotherTest"
+        , "GUITest"
+        , "guitestcase"
+        , "main"
+        , "relative"
+        , "TestCase"
+        , "testcase"
+        , "TestCaseAlias"
+        };
     }
 
 	
@@ -104,6 +110,22 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 			"    def met3(self): \n" +
 			"        self.c.";
         requestCompl(s, s.length(), -1, new String[] { "met1()"});
+	}
+	
+	public void testInnerImport() throws CoreException, BadLocationException{
+	    String s;
+	    s = "" +
+        "def m1():\n" +
+        "    from testlib import unittest\n" +
+        "    unittest.";
+	    requestCompl(s, s.length(), -1, new String[]{
+            "AnotherTest"
+            , "GUITest"
+            , "main"
+            , "TestCase"
+            , "testcase"
+            , "TestCaseAlias"
+            });
 	}
 	
 	

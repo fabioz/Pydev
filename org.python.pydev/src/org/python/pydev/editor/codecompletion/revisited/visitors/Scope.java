@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -129,6 +130,25 @@ public class Scope {
         
         
         return (SourceToken[]) comps.toArray(new SourceToken[0]);
+    }
+
+    public List<IToken> getLocalImportedModules(int line, int col, String moduleName) {
+        ArrayList<IToken> importedModules = new ArrayList<IToken>();
+        for (Iterator iter = this.scope.iterator(); iter.hasNext();) {
+            SimpleNode element = (SimpleNode) iter.next();
+            
+            if (element instanceof FunctionDef) {
+                FunctionDef f = (FunctionDef) element;
+                for (int i = 0; i < f.body.length; i++) {
+
+                    IToken[] tokens = GlobalModelVisitor.getTokens(f.body[i], GlobalModelVisitor.ALIAS_MODULES, moduleName);
+                    for (IToken token : tokens) {
+                        importedModules.add(token);
+                    }
+                }
+            }
+        }
+        return importedModules;
     }
 }
 

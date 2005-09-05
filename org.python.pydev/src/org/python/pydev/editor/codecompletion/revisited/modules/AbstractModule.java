@@ -12,6 +12,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -229,6 +231,10 @@ public abstract class AbstractModule {
      */
     public static AbstractModule createEmptyModule(String m, File f) {
         return new EmptyModule(m, f);
+    }
+
+    public List <IToken> getLocalImportedModules(int line, int col) {
+        return new ArrayList<IToken>();
     }
 
 }
