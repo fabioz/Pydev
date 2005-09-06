@@ -177,7 +177,7 @@ public class PythonRunnerConfig {
                 if (path.isDirectory()) {
                     return new Path(expandedLocation);
                 } 
-                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get working location for the run",null));
+                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get working location for the run \n(the location: '"+expandedLocation+"' is not a valid directory).",null));
             }
         }
         return null;
