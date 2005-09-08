@@ -2,9 +2,14 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension point="org.python.pydev.pydev_completion">
-  		<completion_participant class="com.python.pydev.codecompletion.participant.CompletionParticipant">
-   		</completion_participant>
-   
+  		<completion_participant class="com.python.pydev.codecompletion.participant.CompletionParticipant"/>
+   </extension>
+
+   <extension point="org.python.pydev.pydev_completion">
+  		<completion_participant class="com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant"/>
+   </extension>
+   <extension point="org.python.pydev.pydev_interpreter_observer">
+  		<interpreter_observer class="com.python.pydev.codecompletion.ctxinsensitive.InterpreterObserver"/>
    </extension>
 
 </plugin>

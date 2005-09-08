@@ -11,7 +11,9 @@ public class CodecompletionPlugin extends AbstractUIPlugin {
 
 	//The shared instance.
 	private static CodecompletionPlugin plugin;
-	
+
+    
+    
 	/**
 	 * The constructor.
 	 */
