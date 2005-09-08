@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.extension.ExtensionHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -36,6 +37,9 @@ import sun.misc.BASE64Decoder;
  */
 public abstract class AbstractInterpreterManager implements IInterpreterManager {
 
+    /**
+     * This is the cache, that points from an interpreter to its information.
+     */
     private Map<String, InterpreterInfo> exeToInfo = new HashMap<String, InterpreterInfo>();
     private Preferences prefs;
 
@@ -45,6 +49,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     public AbstractInterpreterManager(Preferences prefs) {
         this.prefs = prefs;
         prefs.setDefault(getPreferenceName(), "");
+        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+        for (IInterpreterObserver observer : participants) {
+            observer.notifyInterpreterManagerRecreated(this);
+        }
     }
 
     /**

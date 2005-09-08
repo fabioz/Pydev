@@ -3,6 +3,7 @@
 <plugin>
    <extension-point id="pydev_builder" name="Pydev Builder" schema="schema/pydev_builder.exsd"/>
    <extension-point id="pydev_completion" name="Pydev completion" schema="schema/pydev_completion.exsd"/>
+   <extension-point id="pydev_interpreter_observer" name="Pydev Interpreter Observer" schema="schema/pydev_interpreter_observer.exsd"/>
 
 <!-- Python editor -->
    <extension point="org.eclipse.ui.editors">

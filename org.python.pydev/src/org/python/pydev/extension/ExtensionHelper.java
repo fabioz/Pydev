@@ -21,6 +21,7 @@ public class ExtensionHelper {
     private static Map<String, IExtension[]> extensionsCache = new HashMap<String, IExtension[]>();
     public final static String PYDEV_COMPLETION = "org.python.pydev.pydev_completion";
     public final static String PYDEV_BUILDER = "org.python.pydev.pydev_builder";
+    public final static String PYDEV_INTERPRETER_OBSERVER = "org.python.pydev.pydev_interpreter_observer";
     
     
     private static IExtension[] getExtensions(String type) {
@@ -42,6 +43,7 @@ public class ExtensionHelper {
     /**
      * "org.python.pydev.pydev_completion"
      * "org.python.pydev.pydev_builder"
+     * "org.python.pydev.pydev_interpreter_observer"
      * 
      * @param type the extension we want to get
      * @return a list of classes created from those extensions

@@ -19,7 +19,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
+import org.python.pydev.extension.ExtensionHelper;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.interpreters.IInterpreterObserver;
 
 
 public class InterpreterInfo implements Serializable{
@@ -249,6 +251,10 @@ public class InterpreterInfo implements Serializable{
         //no managers involved here...
         modulesManager.setBuiltins(forcedLibs);
         modulesManager.changePythonPath(path, null, monitor);
+        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+        for (IInterpreterObserver observer : participants) {
+            observer.notifyPythonpathRestored(this, path, monitor);
+        }
     }
     
     /**
