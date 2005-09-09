@@ -4,8 +4,12 @@
 package com.python.pydev.codecompletion.ctxinsensitive;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 
@@ -54,6 +58,22 @@ public class AdditionalInterpreterInfo {
         FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared);
         additionalInfo.add(info2);
     }
+    
+    /**
+     * Adds a class to the definition
+     */
+    public void addClass(ClassDef def, String moduleDeclared) {
+        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared);
+        additionalInfo.add(info);
+    }
+
+    public void addClassOrFunc(SimpleNode classOrFunc, String moduleDeclared) {
+        if(classOrFunc instanceof ClassDef){
+            addClass((ClassDef) classOrFunc, moduleDeclared);
+        }else{
+            addMethod((FunctionDef) classOrFunc, moduleDeclared);
+        }
+    }
 
     /**
      * @param qualifier the tokens returned have to start with the given qualifier
@@ -68,14 +88,34 @@ public class AdditionalInterpreterInfo {
         }
         return toks;
     }
+    
+    /**
+     * @return all the tokens that are in this info
+     */
+    public Collection<IInfo> getAllTokens(){
+        return additionalInfo;
+    }
 
     /**
-     * Adds a class to the definition
+     * holds nature info
      */
-    public void addClass(ClassDef def, String moduleDeclared) {
-        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared);
-        additionalInfo.add(info);
+    public static Map<String, AdditionalInterpreterInfo> additionalNatureInfo = new HashMap<String, AdditionalInterpreterInfo>();
+
+    /**
+     * holds system info
+     */
+    public static AdditionalInterpreterInfo additionalSystemInfo;
+    
+    /**
+     * @return the additional info for the system
+     */
+    public static AdditionalInterpreterInfo getAdditionalSystemInfo() {
+        if(additionalSystemInfo == null){
+            additionalSystemInfo = new AdditionalInterpreterInfo();
+        }
+        return additionalSystemInfo;
     }
+
     
     
 }

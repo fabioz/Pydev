@@ -22,12 +22,23 @@ import org.python.parser.ast.exprType;
 import org.python.parser.ast.expr_contextType;
 import org.python.parser.ast.stmtType;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.PyParser;
 
 public class FastparserTest extends TestCase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(FastparserTest.class);
+        try {
+            FastparserTest test = new FastparserTest();
+            test.setUp();
+            test.testParseFile10();
+            test.tearDown();
+            
+            System.out.println("finalized");
+            junit.textui.TestRunner.run(FastparserTest.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     protected void setUp() throws Exception {
@@ -166,6 +177,18 @@ public class FastparserTest extends TestCase {
         makeCompAST(fileContents);
     }
 
+    public void testParseFile10() throws Exception { 
+        String fileContents = REF.getFileContents(new File(TestDependent.PYTHON_LIB+"urllib.py"));
+        SimpleNode node = FastParser.reparseDocument(fileContents);
+        assertTrue(node != null);
+    }
+    
+    public void testParseFile11() throws Exception { 
+        String fileContents = REF.getFileContents(new File(TestDependent.PYTHON_LIB+"difflib.py"));
+        SimpleNode node = FastParser.reparseDocument(fileContents);
+        assertTrue(node != null);
+    }
+    
     /**
      * @param fileContents
      * @throws BadLocationException

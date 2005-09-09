@@ -349,7 +349,7 @@ public class FastParser {
         return removeMarks(buffer, c).toString();
     }
     private static StringBuffer removeMarks(StringBuffer buf2, char c) {
-        if(buf2.charAt(1) == c && buf2.charAt(2) == c){
+        if(buf2.charAt(1) == c && buf2.length() > 2 && buf2.charAt(2) == c){
             buf2.delete(0, 3);
             buf2.delete(buf2.length()-3, buf2.length());
         }else{
