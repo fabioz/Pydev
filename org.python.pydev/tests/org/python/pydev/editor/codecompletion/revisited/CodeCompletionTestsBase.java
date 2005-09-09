@@ -66,7 +66,7 @@ public class CodeCompletionTestsBase extends TestCase {
         BundleInfo.setBundleInfo(null);
     }
     
-    protected void restoreProjectPythonPath(boolean force, String path){
+    protected boolean restoreProjectPythonPath(boolean force, String path){
         if(restored == null || restored != this.getClass() || force){
             //cache
             restored = this.getClass();
@@ -76,7 +76,9 @@ public class CodeCompletionTestsBase extends TestCase {
     	    ASTManager astManager = ((ASTManager)nature.getAstManager());
             astManager.setNature(nature);
             astManager.changePythonPath(path, null, getProgressMonitor());
+            return true;
         }
+        return false;
     }
 
     /**
@@ -102,7 +104,10 @@ public class CodeCompletionTestsBase extends TestCase {
         };
     }
     
-    protected void restoreSystemPythonPath(boolean force, String path){
+    /**
+     * @return whether is was actually restored (given the force parameter)
+     */
+    protected boolean restoreSystemPythonPath(boolean force, String path){
         if(restoredSystem == null || restoredSystem != this.getClass() || force){
             //restore manager and cache
             setInterpreterManager();
@@ -116,8 +121,9 @@ public class CodeCompletionTestsBase extends TestCase {
 
             //postconditions
             afterRestorSystemPythonPath(info);
-
+            return true;
         }
+        return false;
     }
 
     /**

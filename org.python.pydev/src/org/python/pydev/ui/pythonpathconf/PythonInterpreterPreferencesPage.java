@@ -40,12 +40,8 @@ public class PythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      * @param monitor a monitor to display the progress to the user.
      */
     protected void doRestore(final String defaultSelectedInterpreter, IProgressMonitor monitor) {
-        monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
         IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager();
-        final InterpreterInfo info = iMan.getInterpreterInfo(defaultSelectedInterpreter, monitor);
-        info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
-        
-        monitor.done();
+        iMan.restorePythopathFor(defaultSelectedInterpreter, monitor);
     }
     
     @Override

@@ -78,6 +78,11 @@ public class SimplePythonRunner extends SimpleRunner {
         monitor.setTaskName("Mounting executable string...");
         monitor.worked(5);
         
+        File file = new File(script);
+        if(file.exists() == false){
+            throw new RuntimeException("The script passed for execution ("+script+") does not exist.");
+        }
+        
         String[] s = new String[]{
             interpreter, 
             "-u" ,

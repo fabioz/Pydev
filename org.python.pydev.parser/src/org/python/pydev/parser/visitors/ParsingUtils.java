@@ -275,7 +275,7 @@ public class ParsingUtils {
             if(ch == '#'){
             
                 int j = i;
-                while(j < buf.length() && ch != '\n' && ch != '\r'){
+                while(j < buf.length() -1 && ch != '\n' && ch != '\r'){
                     j++;
                     ch = buf.charAt(j);
                 }

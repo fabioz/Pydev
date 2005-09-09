@@ -154,11 +154,13 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
                 IRunnableWithProgress operation = new IRunnableWithProgress(){
     
                     public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                        monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
                         //clear all but the ones that appear
                         doClear(exesToKeep,monitor);
                         
                         //restore the default
                         doRestore(item, monitor);
+                        monitor.done();
                     }};
                     
                 monitorDialog.run(true, true, operation);

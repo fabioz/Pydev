@@ -251,10 +251,6 @@ public class InterpreterInfo implements Serializable{
         //no managers involved here...
         modulesManager.setBuiltins(forcedLibs);
         modulesManager.changePythonPath(path, null, monitor);
-        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-        for (IInterpreterObserver observer : participants) {
-            observer.notifySystemPythonpathRestored(this, path, monitor);
-        }
     }
     
     /**

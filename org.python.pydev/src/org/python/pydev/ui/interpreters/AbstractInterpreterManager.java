@@ -242,6 +242,19 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         }
     }
 
+    /**
+     * @see org.python.pydev.ui.interpreters.IInterpreterManager#restorePythopathFor(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
+     */
+    public void restorePythopathFor(String defaultSelectedInterpreter, IProgressMonitor monitor) {
+        final InterpreterInfo info = getInterpreterInfo(defaultSelectedInterpreter, monitor);
+        info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
+
+        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+        for (IInterpreterObserver observer : participants) {
+            observer.notifyDefaultPythonpathRestored(this, monitor);
+        }
+        
+    }
 }
 
 class IOUtils {
