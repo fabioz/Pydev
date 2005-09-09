@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             // Build it with a delta
 
             // first step is just counting them
+            // TODO: change it, so that it also gets the changed and removed resources, and we visit one each
+            // time, as if it was a 'full build', so that we can use a 'memo' for each resource visited.
             IResourceDelta delta = getDelta(getProject());
             PyDevDeltaCounter counterVisitor = new PyDevDeltaCounter();
             delta.accept(counterVisitor);
@@ -83,15 +86,19 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             if (delta == null) {
                 performFullBuild(monitor);
             } else {
-                for (PyDevBuilderVisitor element : getVisitors()) {
-
-                    element.monitor = monitor;
-                    element.totalResources = counterVisitor.getNVisited();
-                    // some visitors cannot visit too many elements because they do a lot of processing
-                    if (element.maxResourcesToVisit() == PyDevBuilderVisitor.MAX_TO_VISIT_INFINITE || element.maxResourcesToVisit() >= counterVisitor.getNVisited()) {
-                        delta.accept(element);
+                List<PyDevBuilderVisitor> visitors = getVisitors();
+                
+//                for (IResource resource : counterVisitor.changed) {
+                    for (PyDevBuilderVisitor element : visitors) {
+                        
+                        element.monitor = monitor;
+                        element.totalResources = counterVisitor.getNVisited();
+                        // some visitors cannot visit too many elements because they do a lot of processing
+                        if (element.maxResourcesToVisit() == PyDevBuilderVisitor.MAX_TO_VISIT_INFINITE || element.maxResourcesToVisit() >= counterVisitor.getNVisited()) {
+                            delta.accept(element);
+                        }
                     }
-                }
+//                }
             }
         }
         return null;
@@ -197,9 +204,11 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             IResource r = (IResource) iter.next();
 
             IDocument doc = getDocFromResource(r);
+            HashMap<String, Object> memo = new HashMap<String, Object>();
             if(doc != null){ //might be out of synch
                 for (Iterator it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
                     PyDevBuilderVisitor visitor = (PyDevBuilderVisitor) it.next();
+                    visitor.memo = memo;
     
                     communicateProgress(monitor, totalResources, i, r, visitor);
                     visitor.visitChangedResource(r, doc);

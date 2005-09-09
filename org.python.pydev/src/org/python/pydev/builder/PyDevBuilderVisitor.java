@@ -54,6 +54,17 @@ public abstract class PyDevBuilderVisitor implements IResourceDeltaVisitor {
     public int currentResourcesVisited = 0;
     //end variables used to communicate the progress
 
+
+    /**
+     * This field acts like a memory. 
+     * 
+     * It is set before a given resource is visited, and is maintained 
+     * for each visitor for a class. 
+     * 
+     * In this way, we can keep from having to recreate some info (such as the ast) each time over and over. 
+     */
+    public HashMap<String, Object> memo;
+
     
     /**
      * Method to return whether a resource is an __init__
