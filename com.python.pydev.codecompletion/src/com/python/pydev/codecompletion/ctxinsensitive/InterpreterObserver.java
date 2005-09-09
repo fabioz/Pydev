@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
@@ -22,9 +23,9 @@ public class InterpreterObserver implements IInterpreterObserver{
      *  
      * this means that we have to create the additional information for the interpreter info
      *  
-     * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyPythonpathRestored(org.python.pydev.ui.pythonpathconf.InterpreterInfo, java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
+     * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifySystemPythonpathRestored(org.python.pydev.ui.pythonpathconf.InterpreterInfo, java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
-    public void notifyPythonpathRestored(InterpreterInfo info, String pythonpath, IProgressMonitor monitor) {
+    public void notifySystemPythonpathRestored(InterpreterInfo info, String pythonpath, IProgressMonitor monitor) {
         //the pythonpath is ignored
     }
 
@@ -42,6 +43,12 @@ public class InterpreterObserver implements IInterpreterObserver{
         } catch (NotConfiguredInterpreterException e) {
             //we should ignore that because there is no interpreter configured for us to get additional information.
         }
+    }
+
+    public void notifyProjectPythonpathRestored(PythonNature nature) {
+    }
+
+    public void notifyNatureRecreated(PythonNature nature) {
     }
 
 }

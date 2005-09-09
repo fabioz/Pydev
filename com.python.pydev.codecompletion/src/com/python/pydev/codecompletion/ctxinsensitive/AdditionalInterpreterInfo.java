@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 
 
 /**
@@ -56,6 +55,10 @@ public class AdditionalInterpreterInfo {
         additionalInfo.add(info2);
     }
 
+    /**
+     * @param qualifier the tokens returned have to start with the given qualifier
+     * @return a list of info, all starting with the given qualifier
+     */
     public List<IInfo> getTokensStartingWith(String qualifier) {
         ArrayList<IInfo> toks = new ArrayList<IInfo>();
         for (IInfo info : additionalInfo) {
@@ -66,6 +69,9 @@ public class AdditionalInterpreterInfo {
         return toks;
     }
 
+    /**
+     * Adds a class to the definition
+     */
     public void addClass(ClassDef def, String moduleDeclared) {
         ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared);
         additionalInfo.add(info);
