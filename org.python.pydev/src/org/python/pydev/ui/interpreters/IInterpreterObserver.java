@@ -4,6 +4,7 @@
 package org.python.pydev.ui.interpreters;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public interface IInterpreterObserver {
@@ -15,7 +16,7 @@ public interface IInterpreterObserver {
      * @param pythonpath the pythonpath (separated by '|') used 
      * @param monitor the monitor used in the restore.
      */
-    void notifyPythonpathRestored(InterpreterInfo info, String pythonpath, IProgressMonitor monitor);
+    void notifySystemPythonpathRestored(InterpreterInfo info, String pythonpath, IProgressMonitor monitor);
 
     /**
      * Notifies observers that the given interpreter manager has just been restored
@@ -23,5 +24,19 @@ public interface IInterpreterObserver {
      * @param manager the manager that has just been restored
      */
     void notifyInterpreterManagerRecreated(AbstractInterpreterManager interpreterManager);
+
+    /**
+     * Notifies observers that the given nature has just had its pythonpath restored
+     *  
+     * @param nature the nature that had its pythonpath recreated
+     */
+    void notifyProjectPythonpathRestored(PythonNature nature);
+    
+    /**
+     * Notifies observers that the given nature has just been recreated
+     * 
+     * @param nature the recreated nature
+     */
+    void notifyNatureRecreated(PythonNature nature);
 
 }
