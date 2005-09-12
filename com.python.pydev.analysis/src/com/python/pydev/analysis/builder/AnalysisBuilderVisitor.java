@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -65,7 +66,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
                 //add the markers
                 for (IMessage m : messages) {
                     String msg = "ID:" + m.getType() + " " + m.getMessage();
-                    createMarker(resource, document, msg, 
+                    PydevMarkerUtils.createMarker(resource, document, msg, 
                             m.getStartLine(document) - 1, m.getStartCol(document) - 1, m.getEndLine(document) - 1, m.getEndCol(document) - 1, 
                             PYDEV_ANALYSIS_PROBLEM_MARKER, m.getSeverity());
                 }
