@@ -13,6 +13,7 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.core,
  org.python.pydev.parser,
  org.junit,
- com.python.pydev.fastparser
+ com.python.pydev.fastparser,
+ org.eclipse.core.resources
 Eclipse-AutoStart: true
 Bundle-ClassPath: codecompletion.jar, retroweaver-rt.jar

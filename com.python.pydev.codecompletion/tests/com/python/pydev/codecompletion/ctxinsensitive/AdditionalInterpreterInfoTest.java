@@ -51,13 +51,17 @@ public class AdditionalInterpreterInfoTest extends TestCase {
     public void testAddClass() {
         info.addClass(createClassDef("cls1" ) , "mod1");
         info.addClass(createClassDef("cls2" ) , "mod1");
-        info.addClass(createClassDef("class1"), "mod1");
-        info.addClass(createClassDef("class2"), "mod1");
+        info.addClass(createClassDef("class1"), "mod2");
+        info.addClass(createClassDef("class2"), "mod2");
         
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("cls");
         assertEquals(2, tokensStartingWith.size());
         assertIsIn("cls1", tokensStartingWith);
         assertIsIn("cls2", tokensStartingWith);
+        
+        info.removeInfoFromModule("mod2");
+        tokensStartingWith = info.getTokensStartingWith("class");
+        assertEquals(0, tokensStartingWith.size());
     }
     
     private ClassDef createClassDef(String name) {

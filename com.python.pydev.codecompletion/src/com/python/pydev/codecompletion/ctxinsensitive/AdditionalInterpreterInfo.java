@@ -6,6 +6,7 @@ package com.python.pydev.codecompletion.ctxinsensitive;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -75,6 +76,15 @@ public class AdditionalInterpreterInfo {
         }
     }
 
+    public void removeInfoFromModule(String moduleName) {
+        for (Iterator<IInfo> it = additionalInfo.iterator(); it.hasNext(); ) {
+            IInfo info = it.next();
+            if(info.getDeclaringModuleName().equals(moduleName)){
+                it.remove();
+            }
+        }
+    }
+
     /**
      * @param qualifier the tokens returned have to start with the given qualifier
      * @return a list of info, all starting with the given qualifier
@@ -115,6 +125,7 @@ public class AdditionalInterpreterInfo {
         }
         return additionalSystemInfo;
     }
+
 
     
     
