@@ -114,8 +114,7 @@ public class CodeCompletionTestsBase extends TestCase {
             restoredSystem = this.getClass();
             
             //get default and restore the pythonpath
-            IInterpreterManager iMan = getInterpreterManager();
-            InterpreterInfo info = iMan.getDefaultInterpreterInfo(getProgressMonitor());
+            InterpreterInfo info = getDefaultInterpreterInfo();
             info.restoreCompiledLibs(getProgressMonitor());
             info.restorePythonpath(path, getProgressMonitor());
 
@@ -124,6 +123,15 @@ public class CodeCompletionTestsBase extends TestCase {
             return true;
         }
         return false;
+    }
+
+    /**
+     * @return the default interpreter info for the current manager
+     */
+    protected InterpreterInfo getDefaultInterpreterInfo() {
+        IInterpreterManager iMan = getInterpreterManager();
+        InterpreterInfo info = iMan.getDefaultInterpreterInfo(getProgressMonitor());
+        return info;
     }
 
     /**

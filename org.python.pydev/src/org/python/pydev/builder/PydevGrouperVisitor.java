@@ -29,10 +29,9 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
             if (visitor.maxResourcesToVisit() == PyDevBuilderVisitor.MAX_TO_VISIT_INFINITE || visitor.maxResourcesToVisit() >= totalResources) {
                 visitor.memo = memo; //setting the memo must be the first thing.
                 try {
+                    //communicate progress for each visitor
                     PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, visitor);
-                    //System.out.println("invoking "+visitor.getClass().getName());
                     REF.invoke(visitor, name, resource, document);
-                    //System.out.println("end invoking "+visitor.getClass().getName());
                     
                     //ok, standard visiting ended... now, we have to check if we should visit the other
                     //resources if it was an __init__.py file that changed
