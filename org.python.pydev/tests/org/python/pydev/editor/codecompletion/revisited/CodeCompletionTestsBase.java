@@ -284,9 +284,10 @@ public class CodeCompletionTestsBase extends TestCase {
      * @param string
      * @param codeCompletionProposals
      */
-    private void assertContains(String string, ICompletionProposal[] codeCompletionProposals) {
+    protected void assertContains(String string, ICompletionProposal[] codeCompletionProposals) {
         for (int i = 0; i < codeCompletionProposals.length; i++) {
-            if(codeCompletionProposals[i].getDisplayString().equals(string)){
+            ICompletionProposal completionProposal = codeCompletionProposals[i];
+            if(checkIfEquals(string, completionProposal)){
                 return ;
             }
         }
@@ -296,10 +297,21 @@ public class CodeCompletionTestsBase extends TestCase {
     }
 
     /**
+     * Checks if the completion we're looking for is the same completion we're analyzing.
+     * 
+     * @param lookingFor this is the completion we are looking for
+     * @param completionProposal this is the completion proposal
+     * @return if the completion we're looking for is the same completion we're checking
+     */
+    protected boolean checkIfEquals(String lookingFor, ICompletionProposal completionProposal) {
+        return completionProposal.getDisplayString().equals(lookingFor);
+    }
+
+    /**
      * @param codeCompletionProposals
      * @return
      */
-    private StringBuffer getAvailableAsStr(ICompletionProposal[] codeCompletionProposals) {
+    protected StringBuffer getAvailableAsStr(ICompletionProposal[] codeCompletionProposals) {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < codeCompletionProposals.length; i++) {
             buffer.append(codeCompletionProposals[i].getDisplayString());
