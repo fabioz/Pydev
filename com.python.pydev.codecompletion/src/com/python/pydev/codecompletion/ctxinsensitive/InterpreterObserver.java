@@ -32,7 +32,7 @@ public class InterpreterObserver implements IInterpreterObserver {
     public void notifyDefaultPythonpathRestored(IInterpreterManager manager, IProgressMonitor monitor) {
         InterpreterInfo defaultInterpreterInfo = manager.getDefaultInterpreterInfo(monitor);
         SystemModulesManager m = defaultInterpreterInfo.modulesManager;
-        AdditionalInterpreterInfo additionalSystemInfo = AdditionalInterpreterInfo.getAdditionalSystemInfo();
+        AdditionalInterpreterInfo additionalSystemInfo = AdditionalInterpreterInfo.getAdditionalSystemInfo(m);
 
         ModulesKey[] allModules = m.getAllModules();
         int i = 0;
@@ -88,6 +88,7 @@ public class InterpreterObserver implements IInterpreterObserver {
         try {
             IProgressMonitor monitor = new NullProgressMonitor();
             InterpreterInfo defaultInterpreterInfo = manager.getDefaultInterpreterInfo(monitor);
+            SystemModulesManager m = defaultInterpreterInfo.modulesManager;
 
         } catch (NotConfiguredInterpreterException e) {
             //we should ignore that because there is no interpreter configured for us to get additional information.

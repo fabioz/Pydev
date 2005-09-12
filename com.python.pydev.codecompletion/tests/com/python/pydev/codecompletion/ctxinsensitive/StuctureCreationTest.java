@@ -54,7 +54,7 @@ public class StuctureCreationTest extends CompletionParticipantTestsBase {
     // ------------------------------------------------------------------------------------------------- tests
     
     public void testSetup() {
-        AdditionalInterpreterInfo additionalSystemInfo = AdditionalInterpreterInfo.getAdditionalSystemInfo();
+        AdditionalInterpreterInfo additionalSystemInfo = AdditionalInterpreterInfo.getAdditionalSystemInfo(getDefaultInterpreterInfo().modulesManager);
         assertTrue(additionalSystemInfo.getAllTokens().size() > 0);
         List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestC");
         assertIsIn("TestCase", "unittest", tokensStartingWith);

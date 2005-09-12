@@ -29,38 +29,39 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
 
         ArrayList<CtxInsensitiveImportComplProposal> completions = new ArrayList<CtxInsensitiveImportComplProposal>();
         if(request.qualifier.length() >= 3){ //at least n characters required...
-            AdditionalInterpreterInfo additionalSystemInfo = AdditionalInterpreterInfo.getAdditionalSystemInfo();
-            List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith(request.qualifier);
-            
-            for (IInfo info : tokensStartingWith) {
-                String rep = info.getName();
-                String realImportRep = "";
-                String displayString = rep + " - "+ info.getDeclaringModuleName();
-
-                //get the image
-                Image img;
-                if(info.getType() == IInfo.CLASS_WITH_IMPORT_TYPE){
-                    img = classWithImport; 
-                }else if(info.getType() == IInfo.METHOD_WITH_IMPORT_TYPE){
-                    img = methodWithImport; 
-                }else{
-                    throw new RuntimeException("Undefined type.");
+            for (AdditionalInterpreterInfo additionalSystemInfo : AdditionalInterpreterInfo.getAdditionalInfo(request.nature)){
+                List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith(request.qualifier);
+                
+                for (IInfo info : tokensStartingWith) {
+                    String rep = info.getName();
+                    String realImportRep = "";
+                    String displayString = rep + " - "+ info.getDeclaringModuleName();
+    
+                    //get the image
+                    Image img;
+                    if(info.getType() == IInfo.CLASS_WITH_IMPORT_TYPE){
+                        img = classWithImport; 
+                    }else if(info.getType() == IInfo.METHOD_WITH_IMPORT_TYPE){
+                        img = methodWithImport; 
+                    }else{
+                        throw new RuntimeException("Undefined type.");
+                    }
+                    
+                    
+                    CtxInsensitiveImportComplProposal  proposal = new CtxInsensitiveImportComplProposal (
+                            rep,
+                            request.documentOffset - request.qlen, 
+                            request.qlen, 
+                            realImportRep.length(), 
+                            img, 
+                            displayString, 
+                            (IContextInformation)null, 
+                            "", 
+                            IPyCompletionProposal.PRIORITY_PACKAGES,
+                            realImportRep);
+                    
+                    completions.add(proposal);
                 }
-                
-                
-                CtxInsensitiveImportComplProposal  proposal = new CtxInsensitiveImportComplProposal (
-                        rep,
-                        request.documentOffset - request.qlen, 
-                        request.qlen, 
-                        realImportRep.length(), 
-                        img, 
-                        displayString, 
-                        (IContextInformation)null, 
-                        "", 
-                        IPyCompletionProposal.PRIORITY_PACKAGES,
-                        realImportRep);
-                
-                completions.add(proposal);
     
             }
         }        

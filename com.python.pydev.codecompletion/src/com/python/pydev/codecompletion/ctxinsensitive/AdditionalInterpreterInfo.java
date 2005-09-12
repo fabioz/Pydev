@@ -10,9 +10,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
+import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
+import org.python.pydev.plugin.nature.PythonNature;
 
 
 /**
@@ -118,13 +122,58 @@ public class AdditionalInterpreterInfo {
     public static AdditionalInterpreterInfo additionalSystemInfo;
     
     /**
+     * @param m the module manager that we want to get info on (python, jython...)
      * @return the additional info for the system
      */
-    public static AdditionalInterpreterInfo getAdditionalSystemInfo() {
+    public static AdditionalInterpreterInfo getAdditionalSystemInfo(ModulesManager m) {
         if(additionalSystemInfo == null){
             additionalSystemInfo = new AdditionalInterpreterInfo();
         }
         return additionalSystemInfo;
+    }
+
+    /**
+     * @param project the project we want to get info on
+     * @return the additional info for a given project (gotten from the cache with its name)
+     */
+    public static AdditionalInterpreterInfo getAdditionalInfoForProject(IProject project) {
+        return additionalNatureInfo.get(project.getName());
+    }
+    
+    /**
+     * @param nature the nature we want to get info on
+     * @return all the additional info that is bounded with some nature (including related projects)
+     */
+    public static List<AdditionalInterpreterInfo> getAdditionalInfo(PythonNature nature) {
+        List<AdditionalInterpreterInfo> ret = new ArrayList<AdditionalInterpreterInfo>();
+        IProject project = nature.getProject();
+        
+        //get for the system info
+        AdditionalInterpreterInfo systemInfo = getAdditionalSystemInfo(nature.getAstManager().getProjectModulesManager().getSystemModulesManager());
+        ret.add(systemInfo);
+
+        //get for the current project
+        AdditionalInterpreterInfo additionalInfoForProject = getAdditionalInfoForProject(project);
+        if(additionalInfoForProject != null){
+            ret.add(additionalInfoForProject);
+        }
+        
+        try {
+            //get for the referenced projects
+            IProject[] referencedProjects = project.getReferencedProjects();
+            for (IProject refProject : referencedProjects) {
+                
+                additionalInfoForProject = getAdditionalInfoForProject(refProject);
+                if(additionalInfoForProject != null){
+                    ret.add(additionalInfoForProject);
+                }
+            }
+            
+            
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
+        return ret;
     }
 
 
