@@ -13,6 +13,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -45,7 +46,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
 	                        String element = (String) iter.next();
 	
 	                        if ((index = tok.indexOf(element)) != -1) {
-	                            createMarker(resource, tok.substring(index).trim(), line + 1, IMarker.TASK, IMarker.SEVERITY_WARNING, false, false);
+	                            PydevMarkerUtils.createMarker(resource, tok.substring(index).trim(), line + 1, IMarker.TASK, IMarker.SEVERITY_WARNING, false, false);
 	                        }
 	
 	                    }

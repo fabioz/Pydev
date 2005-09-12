@@ -5,23 +5,18 @@
  */
 package org.python.pydev.builder;
 
-import java.util.ArrayList;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.text.IDocument;
 
 /**
  * @author Fabio Zadrozny
  */
-public class PyDevDeltaCounter extends PyDevBuilderVisitor{
+public class PyDevDeltaCounter extends PydevInternalResourceDeltaVisitor{
 
     private int nVisited = 0;
-    public ArrayList<IResource> changed;
-    public ArrayList<IResource> removed;
 
     public PyDevDeltaCounter(){
-        changed = new ArrayList<IResource>();
-        removed = new ArrayList<IResource>();
+        super(null, 0);
     }
     
     /**
@@ -29,7 +24,6 @@ public class PyDevDeltaCounter extends PyDevBuilderVisitor{
      */
     public boolean visitChangedResource(IResource resource, IDocument document) {
         nVisited += 1;
-        changed.add(resource);
         return true;
     }
 
@@ -37,7 +31,6 @@ public class PyDevDeltaCounter extends PyDevBuilderVisitor{
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
     public boolean visitRemovedResource(IResource resource, IDocument document) {
-        removed.add(resource);
         return true;
     }
 

@@ -75,30 +75,21 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
         } else {
             // Build it with a delta
-
-            // first step is just counting them
-            // TODO: change it, so that it also gets the changed and removed resources, and we visit one each
-            // time, as if it was a 'full build', so that we can use a 'memo' for each resource visited.
             IResourceDelta delta = getDelta(getProject());
-            PyDevDeltaCounter counterVisitor = new PyDevDeltaCounter();
-            delta.accept(counterVisitor);
 
             if (delta == null) {
+                //no delta (unspecified changes?... let's do a full build...)
                 performFullBuild(monitor);
-            } else {
-                List<PyDevBuilderVisitor> visitors = getVisitors();
                 
-//                for (IResource resource : counterVisitor.changed) {
-                    for (PyDevBuilderVisitor element : visitors) {
-                        
-                        element.monitor = monitor;
-                        element.totalResources = counterVisitor.getNVisited();
-                        // some visitors cannot visit too many elements because they do a lot of processing
-                        if (element.maxResourcesToVisit() == PyDevBuilderVisitor.MAX_TO_VISIT_INFINITE || element.maxResourcesToVisit() >= counterVisitor.getNVisited()) {
-                            delta.accept(element);
-                        }
-                    }
-//                }
+            } else {
+                // ok, we have a delta
+                // first step is just counting them
+                PyDevDeltaCounter counterVisitor = new PyDevDeltaCounter();
+                delta.accept(counterVisitor);
+                
+                PydevGrouperVisitor grouperVisitor = new PydevGrouperVisitor(getVisitors(), monitor, counterVisitor.getNVisited());
+                delta.accept(grouperVisitor);
+                
             }
         }
         return null;
@@ -204,13 +195,17 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             IResource r = (IResource) iter.next();
 
             IDocument doc = getDocFromResource(r);
+            
             HashMap<String, Object> memo = new HashMap<String, Object>();
             if(doc != null){ //might be out of synch
                 for (Iterator it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
+
                     PyDevBuilderVisitor visitor = (PyDevBuilderVisitor) it.next();
-                    visitor.memo = memo;
+                    visitor.memo = memo; //setting the memo must be the first thing.
     
                     communicateProgress(monitor, totalResources, i, r, visitor);
+                    
+                    //on a full build, all visits are as a change...
                     visitor.visitChangedResource(r, doc);
                 }
     

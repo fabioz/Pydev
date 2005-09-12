@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IResource;
-import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.runners.SimplePythonRunner;
 
 /**
@@ -193,7 +193,7 @@ public class PyCheckerLauncher {
             int index = line.indexOf(':');
             int lineNumber = Integer.parseInt(line.substring(0, index)); /* line number (chars between ':') */
             String message = line.substring(index + 1); /* warning associated to line number */
-            PyDevBuilderVisitor.createProblemMarker(resource, message, lineNumber);
+            PydevMarkerUtils.createProblemMarker(resource, message, lineNumber);
         }
     }
 }

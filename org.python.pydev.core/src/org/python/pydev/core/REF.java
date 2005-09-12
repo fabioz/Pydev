@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import org.python.pydev.core.log.Log;
 
@@ -125,6 +126,41 @@ public class REF {
         } catch (IOException e) {
             return f.getAbsolutePath();
         }
+    }
+
+    /**
+     * Calls a method for an object
+     * 
+     * @param obj the object with the method we want to call
+     * @param name the method name
+     * @param args the arguments received for the call
+     * @return the return of the method
+     */
+    public static Object invoke(Object obj, String name, Object... args) {
+        //the args are not checked for the class because if a subclass is passed, the method is not correctly gotten
+        //another method might do it...
+        try {
+            Method[] methods = obj.getClass().getMethods();
+            for (Method method : methods) {
+
+                Class[] parameterTypes = method.getParameterTypes();
+                if(method.getName().equals(name) && parameterTypes.length == args.length){
+                    //check the parameters
+                    int i = 0;
+                    for (Class param : parameterTypes) {
+                        if(!param.isInstance(args[i])){
+                            continue;
+                        }
+                        i++;
+                    }
+                    //invoke it
+                    return method.invoke(obj, args);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        throw new RuntimeException("The method with name: "+name+" was not found (or maybe it was found but the parameters didn't match).");
     }
     
     

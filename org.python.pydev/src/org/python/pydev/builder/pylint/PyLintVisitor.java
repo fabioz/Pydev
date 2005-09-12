@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -100,7 +101,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 	                            int priority = ((Integer)el[2]).intValue();
 	                            String id    = (String) el[3];
 	                            int line     = ((Integer)el[4]).intValue();
-	        		            createMarker(resource, "ID:"+id+" "+tok , line,  type, priority);
+	        		            PydevMarkerUtils.createMarker(resource, "ID:"+id+" "+tok , line,  type, priority);
 	                        }
 	
 	                        return PydevPlugin.makeStatus(Status.OK, "", null);

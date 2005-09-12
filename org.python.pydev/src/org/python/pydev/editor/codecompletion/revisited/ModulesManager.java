@@ -172,9 +172,9 @@ public abstract class ModulesManager implements Serializable {
     public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature) {
         final String m = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(f));
         if (m != null) {
-            final AbstractModule value = AbstractModule.createModuleFromDoc(m, f, doc, nature, -1);
+            //behaviour changed, now, only set it as an empty module (it will be parsed on demand)
             final ModulesKey key = new ModulesKey(m, f);
-            getModules().put(key, value);
+            getModules().put(key, new EmptyModule(m, f));
 
             
         }else if (f != null){ //ok, remove the module that has a key with this file, as it can no longer be resolved
