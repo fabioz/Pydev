@@ -42,7 +42,7 @@ public class InterpreterObserver implements IInterpreterObserver {
             if (key.file != null) { //otherwise it should be treated as a compiled module (no ast generation)
             
                 if (key.file.exists()) {
-                
+
                     if (PythonPathHelper.isValidSourceFile(REF.getFileAbsolutePath(key.file))) {
                         monitor.setTaskName("Creating additional info (" + i + " of "+ allModules.length + ") for " + key.file.getName());
                         monitor.worked(i);
