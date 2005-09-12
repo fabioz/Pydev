@@ -91,8 +91,9 @@ public class AdditionalInterpreterInfo {
      */
     public List<IInfo> getTokensStartingWith(String qualifier) {
         ArrayList<IInfo> toks = new ArrayList<IInfo>();
+        String lowerCaseQual = qualifier.toLowerCase();
         for (IInfo info : additionalInfo) {
-            if(info.getName().startsWith(qualifier)){
+            if(info.getName().toLowerCase().startsWith(lowerCaseQual)){
                 toks.add(info);
             }
         }

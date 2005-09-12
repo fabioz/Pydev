@@ -1,8 +1,9 @@
 package com.python.pydev.codecompletion;
 
-import org.eclipse.ui.plugin.*;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.ui.ImageCache;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -53,4 +54,18 @@ public class CodecompletionPlugin extends AbstractUIPlugin {
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev.codecompletion", path);
 	}
+
+    private static ImageCache imageCache;
+    
+
+    public static ImageCache getImageCache() {
+        if(imageCache == null){
+            imageCache = new ImageCache(CodecompletionPlugin.getDefault().getBundle().getEntry("/"));
+        }
+        return imageCache;
+    }
+    
+    public static final String CLASS_WITH_IMPORT_ICON = "icons/class_obj_imp.gif";
+    public static final String METHOD_WITH_IMPORT_ICON = "icons/method_obj_imp.gif";
+
 }

@@ -20,4 +20,8 @@ public class ClassInfo extends AbstractInfo{
         info.moduleDeclared = moduleDeclared;
         return info;
     }
+
+    public int getType() {
+        return CLASS_WITH_IMPORT_TYPE;
+    }
 }

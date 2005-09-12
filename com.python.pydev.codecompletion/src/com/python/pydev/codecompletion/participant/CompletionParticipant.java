@@ -34,14 +34,14 @@ public class CompletionParticipant implements IPyDevCompletionParticipant{
         if(request.qualifier.length() >= 2){ //at least n characters required...
             
             ICodeCompletionASTManager astManager = request.nature.getAstManager();
-            AbstractModule module = ASTManager.createModule(request.editorFile, request.doc, state, astManager);
+//            AbstractModule module = ASTManager.createModule(request.editorFile, request.doc, state, astManager);
             
             //we don't want to add an import if it already exists
-            IToken[] tokenImportedModules = module.getTokenImportedModules();
-            Set toks = new HashSet();
-            for (IToken token : tokenImportedModules) {
-                toks.add(token.getRepresentation()); //representation for the modules that already exist
-            }
+//            IToken[] tokenImportedModules = module.getTokenImportedModules();
+//            Set toks = new HashSet();
+//            for (IToken token : tokenImportedModules) {
+//                toks.add(token.getRepresentation()); //representation for the modules that already exist
+//            }
             
             
             
@@ -82,7 +82,7 @@ public class CompletionParticipant implements IPyDevCompletionParticipant{
         return list;
     }
     
-    private static class ImportComplProposal extends PyCompletionProposal{
+    static class ImportComplProposal extends PyCompletionProposal{
 
         private String realImportRep;
 

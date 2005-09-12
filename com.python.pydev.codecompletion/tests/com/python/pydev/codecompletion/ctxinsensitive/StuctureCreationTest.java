@@ -5,11 +5,15 @@ package com.python.pydev.codecompletion.ctxinsensitive;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 
-public class StuctureCreationTest extends CodeCompletionTestsBase{
+import com.python.pydev.codecompletion.CompletionParticipantTestsBase;
+
+public class StuctureCreationTest extends CompletionParticipantTestsBase {
     
     private InterpreterObserver observer;
 
@@ -17,6 +21,8 @@ public class StuctureCreationTest extends CodeCompletionTestsBase{
     protected void setUp() throws Exception {
         super.setUp();
         observer = new InterpreterObserver();
+        participant = new CtxParticipant();
+        codeCompletion = new PyCodeCompletion();
         this.restorePythonPath(false);
     }
     
@@ -44,6 +50,9 @@ public class StuctureCreationTest extends CodeCompletionTestsBase{
         return ret;
     }
     
+
+    // ------------------------------------------------------------------------------------------------- tests
+    
     public void testSetup() {
         AdditionalInterpreterInfo additionalSystemInfo = AdditionalInterpreterInfo.getAdditionalSystemInfo();
         assertTrue(additionalSystemInfo.getAllTokens().size() > 0);
@@ -51,6 +60,14 @@ public class StuctureCreationTest extends CodeCompletionTestsBase{
         assertIsIn("TestCase", "unittest", tokensStartingWith);
     }
 
+    
+    public void testCompletion() throws CoreException, BadLocationException {
+        requestCompl("", "TestCase - unittest");
+    }
+
+    // ----------------------------------------------------------------------------------------------- asserts
+    
+    
     private void assertIsIn(String tok, String mod, List<IInfo> tokensStartingWith) {
         for (IInfo info : tokensStartingWith) {
             if(info.getName().equals(tok)){

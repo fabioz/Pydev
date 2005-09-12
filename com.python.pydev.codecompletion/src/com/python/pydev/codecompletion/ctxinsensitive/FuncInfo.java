@@ -18,5 +18,8 @@ public class FuncInfo extends AbstractInfo{
         info.moduleDeclared = moduleDeclared;
         return info;
     }
+    public int getType() {
+        return METHOD_WITH_IMPORT_TYPE;
+    }
 
 }
