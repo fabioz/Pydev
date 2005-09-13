@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.List;
 
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
@@ -35,7 +36,9 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
+import org.python.pydev.extension.ExtensionHelper;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.utils.JobProgressComunicator;
 
 import sun.misc.BASE64Decoder;
@@ -208,6 +211,7 @@ public class PythonNature implements IProjectNature, IPythonNature {
      * Actions includes restoring the dump from the code completion cache
      */
     private void init() {
+        final PythonNature nature = this;
         if (initialized == false) {
             initialized = true;
 
@@ -229,6 +233,11 @@ public class PythonNature implements IProjectNature, IPythonNature {
                         }
                     }else{
                         astManager.setProject(getProject()); // this is the project related to it
+
+                        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+                        for (IInterpreterObserver observer : participants) {
+                            observer.notifyNatureRecreated(nature, monitor);
+                        }
                     }
                     return Status.OK_STATUS;
                 }
@@ -269,6 +278,7 @@ public class PythonNature implements IProjectNature, IPythonNature {
      * This method is called whenever the pythonpath for the project with this nature is changed. 
      */
     public void rebuildPath(final String paths) {
+        final PythonNature nature = this;
         Job myJob = new Job("Pydev code completion: rebuilding modules") {
 
             protected IStatus run(IProgressMonitor monitor) {
@@ -277,6 +287,12 @@ public class PythonNature implements IProjectNature, IPythonNature {
                 }
                 astManager.setProject(getProject());
                 astManager.changePythonPath(paths, project, new JobProgressComunicator(monitor, "Rebuilding modules", 500, this));
+
+                List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+                for (IInterpreterObserver observer : participants) {
+                    observer.notifyProjectPythonpathRestored(nature, monitor);
+                }
+
                 saveAstManager(false);
 
                 return Status.OK_STATUS;
