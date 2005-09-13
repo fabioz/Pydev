@@ -9,6 +9,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.ParseException;
 import org.python.parser.SimpleNode;
+import org.python.parser.Token;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Module;
@@ -25,7 +26,7 @@ public class PyParserTest extends TestCase {
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testOnWxPython();
+            test.testParser9();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -135,6 +136,16 @@ public class PyParserTest extends TestCase {
         parseLegalDocStr(s);
     }
     
+    public void testOnNumarray() {
+        if(TestDependent.HAS_NUMARRAY_INSTALLED){
+            
+            File file = new File(TestDependent.PYTHON_NUMARRAY_PACKAGES);
+            parseFilesInDir(file);
+            file = new File(TestDependent.PYTHON_NUMARRAY_PACKAGES+"linear_algebra/");
+            parseFilesInDir(file);
+        }
+    }
+    
     public void testOnWxPython() {
         if(TestDependent.HAS_WXPYTHON_INSTALLED){
             File file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES+"wxPython");
@@ -142,8 +153,8 @@ public class PyParserTest extends TestCase {
             file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES+"wx");
             parseFilesInDir(file);
         }
-        
     }
+
     public void testOnCompleteLib() {
         File file = new File(TestDependent.PYTHON_LIB);
         parseFilesInDir(file);
@@ -256,6 +267,18 @@ public class PyParserTest extends TestCase {
         parseLegalDocStr(s);
     }
     
+    
+    public void testParser9() {
+        String s = "" +
+        "a[1,]\n"+
+        "a[1,2]\n"+
+        "\n"+
+        "\n"+
+        "\n"+
+        "\n";        
+        parseLegalDocStr(s);
+    }
+    
     /**
      * @param s
      * @return 
@@ -278,6 +301,15 @@ public class PyParserTest extends TestCase {
             for (int i = 0; i < additionalErrInfo.length; i++) {
                 s += additionalErrInfo[i];
             }
+            if (err instanceof ParseException) {
+                ParseException parseErr = (ParseException) err;
+                
+                Token token = parseErr.currentToken;
+                if(token != null){
+                    fail("Expected no error, received: "+err+" "+s+" line:"+token.beginLine+ " col:"+token.beginColumn);
+                }
+            }
+             
             fail("Expected no error, received: "+err+" "+s);
         }
         assertNotNull(objects[0]);

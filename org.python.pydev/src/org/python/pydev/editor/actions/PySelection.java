@@ -14,6 +14,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.parser.visitors.ParsingUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -43,8 +44,8 @@ public class PySelection {
 
 
     /**
-     * @param document
-     * @param selection
+     * @param document the document we are using to make the selection
+     * @param selection that's the actual selection. It might have an offset and a number of selected chars
      */
     public PySelection(IDocument doc, ITextSelection selection) {
         this.doc = doc;
@@ -52,14 +53,21 @@ public class PySelection {
     }
 
     /**
-     * @param document
-     * @param selection
+     * @param document the document we are using to make the selection
+     * @param offset the offset where the selection will happen (0 characters will be selected)
      */
     public PySelection(IDocument doc, int offset) {
         this.doc = doc;
         this.textSelection = new TextSelection(doc, offset, 0);
     }
 
+    /**
+     * Creates a selection for the document, so that no characters are selected and the offset is position 0
+     * @param doc the document where we are doing the selection
+     */
+    public PySelection(IDocument doc) {
+        this(doc, 0);
+    }
     /**
      * In event of partial selection, used to select the full lines involved.
      */
@@ -68,6 +76,91 @@ public class PySelection {
         IRegion startLine = getStartLine();
         
         this.textSelection = new TextSelection(doc, startLine.getOffset(), endLine.getOffset() + endLine.getLength() - startLine.getOffset());
+    }
+
+    /**
+     * @return the line where a global import would be able to happen.
+     * 
+     * The 'usual' structure that we take into consideration for a py file here is:
+     * 
+     * #coding ...
+     * 
+     * '''
+     * multiline comment...
+     * '''
+     * 
+     * imports #that's what we want to find out
+     * 
+     * code
+     * 
+     */
+    public int getLineAvailableForImport() {
+        StringBuffer multiLineBuf = new StringBuffer();
+        int[] firstGlobalLiteral = getFirstGlobalLiteral(multiLineBuf, 0);
+
+        if (multiLineBuf.length() > 0 && firstGlobalLiteral[0] >= 0 && firstGlobalLiteral[1] >= 0) {
+            //ok, multiline found
+            int startingMultilineComment = getLineOfOffset(firstGlobalLiteral[0]);
+            
+            if(startingMultilineComment < 4){
+                
+                //let's see if the multiline comment found is in the beggining of the document
+                int lineOfOffset = getLineOfOffset(firstGlobalLiteral[1]);
+                return lineOfOffset + 1;
+            }else{
+
+                return getFirstNonCommentLine();
+            }
+        } else {
+            
+            //ok, no multiline comment, let's get the first line that is not a comment
+            return getFirstNonCommentLine();
+        }
+    }
+
+
+    /**
+     * @return the first line found that is not a comment.
+     */
+    private int getFirstNonCommentLine() {
+        int lineToMoveImport = 0;
+        int lines = getDoc().getNumberOfLines();
+        for (int line = 0; line < lines; line++) {
+            String str = getLine(line);
+            if (! str.startsWith("#")) {
+                lineToMoveImport = line;
+                break;
+            }
+        }
+        return lineToMoveImport;
+    }
+    
+    
+    /**
+     * @param initialOffset this is the offset we should use to analyze it
+     * @param buf (out) this is the comment itself
+     * @return a tuple with the offset of the start and end of the first multiline comment found
+     */
+    public int[] getFirstGlobalLiteral(StringBuffer buf, int initialOffset){
+        try {
+            IDocument d = getDoc();
+            String strDoc = d.get(initialOffset, d.getLength() - initialOffset);
+            char current = strDoc.charAt(initialOffset);
+            while (current != '\'' && current != '"' && initialOffset < strDoc.length()-1) {
+                initialOffset += 1;
+                current = strDoc.charAt(initialOffset);
+            }
+            
+            if(initialOffset == strDoc.length()-1){
+                return new int[]{-1, -1};
+            }else{
+                //either, we are at the end of the document or we found a literal
+                int i = ParsingUtils.eatLiterals(strDoc, buf, initialOffset);
+                return new int[]{initialOffset, i};
+            }
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected static void beep(Exception e) {
@@ -118,6 +211,17 @@ public class PySelection {
         }
     }
 
+    /**
+     * @param offset the offset we want to get the line
+     * @return the line of the passed offset
+     */
+    public int getLineOfOffset(int offset) {
+        try {
+            return getDoc().getLineOfOffset(offset);
+        } catch (BadLocationException e) {
+            return 0;
+        }
+    }
     /**
      * Gets cursor offset within a line.
      * 

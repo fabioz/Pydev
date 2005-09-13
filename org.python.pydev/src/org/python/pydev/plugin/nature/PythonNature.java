@@ -219,7 +219,9 @@ public class PythonNature implements IProjectNature, IPythonNature {
             
             Job myJob = new Job("Pydev code completion") {
 
-                protected IStatus run(IProgressMonitor monitor) {
+                protected IStatus run(IProgressMonitor monitorArg) {
+                    //begins task automatically
+                    JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev restoring cache info...", IProgressMonitor.UNKNOWN, this);
 
                     astManager = (ICodeCompletionASTManager) IOUtils.readFromFile(getAstOutputFile());
                     //errors can happen when restoring it
@@ -236,9 +238,10 @@ public class PythonNature implements IProjectNature, IPythonNature {
 
                         List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
                         for (IInterpreterObserver observer : participants) {
-                            observer.notifyNatureRecreated(nature, monitor);
+                            observer.notifyNatureRecreated(nature, jobProgressComunicator);
                         }
                     }
+                    jobProgressComunicator.done();
                     return Status.OK_STATUS;
                 }
             };
@@ -281,20 +284,24 @@ public class PythonNature implements IProjectNature, IPythonNature {
         final PythonNature nature = this;
         Job myJob = new Job("Pydev code completion: rebuilding modules") {
 
-            protected IStatus run(IProgressMonitor monitor) {
+            protected IStatus run(IProgressMonitor monitorArg) {
                 if(astManager == null){
                     astManager = new ASTManager();
                 }
                 astManager.setProject(getProject());
-                astManager.changePythonPath(paths, project, new JobProgressComunicator(monitor, "Rebuilding modules", 500, this));
+                
+                //begins task automatically
+                JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
+                astManager.changePythonPath(paths, project, jobProgressComunicator);
 
                 List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
                 for (IInterpreterObserver observer : participants) {
-                    observer.notifyProjectPythonpathRestored(nature, monitor);
+                    observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
                 }
 
                 saveAstManager(false);
-
+                //end task
+                jobProgressComunicator.done();
                 return Status.OK_STATUS;
             }
         };

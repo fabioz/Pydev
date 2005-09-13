@@ -97,5 +97,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
         return false;
     }
 
-
+    public String getManagerRelatedName() {
+        return "jython";
+    }
 }

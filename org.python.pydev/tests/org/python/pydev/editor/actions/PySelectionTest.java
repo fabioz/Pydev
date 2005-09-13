@@ -64,9 +64,56 @@ public class PySelectionTest extends TestCase {
         
     }
     
-    /**
-     * 
-     */
+    public void testImportLine() {
+        String strDoc = "" +
+        "#coding                   \n"+
+        "''' this should be ignored\n"+
+        "from xxx import yyy       \n"+
+        "import www'''             \n"+
+        "#we want the import to appear in this line\n"+
+        "Class C:                  \n"+
+        "    pass                  \n"+
+        "import kkk                \n"+
+        "\n"+
+        "\n";
+        Document document = new Document(strDoc);
+        PySelection selection = new PySelection(document);
+        assertEquals(4, selection.getLineAvailableForImport());
+    }
+
+    public void testImportLine2() {
+        String strDoc = "" +
+        "#coding                   \n"+
+        "#we want the import to appear after this line\n"+
+        "Class C:                  \n"+
+        "    pass                  \n"+
+        "import kkk                \n"+
+        "\n"+
+        "\n";
+        Document document = new Document(strDoc);
+        PySelection selection = new PySelection(document);
+        assertEquals(2, selection.getLineAvailableForImport());
+    }
+    
+    public void testImportLine3() {
+        String strDoc = "" +
+        "#coding                   \n"+
+        "#we want the import to appear after this line\n"+
+        "Class C:                  \n"+
+        "    pass                  \n"+
+        "import kkk                \n"+
+        "                          \n"+
+        "''' this should be ignored\n"+
+        "from xxx import yyy       \n"+
+        "import www'''             \n"+
+        "\n"+
+        "\n";
+        Document document = new Document(strDoc);
+        PySelection selection = new PySelection(document);
+        assertEquals(2, selection.getLineAvailableForImport());
+    }
+
+    
     public void testSelectAll() {
         ps = new PySelection(doc, new TextSelection(doc, 0,0));
         ps.selectAll(true);
@@ -82,7 +129,5 @@ public class PySelectionTest extends TestCase {
         ps.selectAll(false); //nothing changes
         assertEquals(ps.getLine(0), ps.getCursorLineContents());
         assertEquals(ps.getLine(0), ps.getSelectedText());
-        
-        
     }
 }

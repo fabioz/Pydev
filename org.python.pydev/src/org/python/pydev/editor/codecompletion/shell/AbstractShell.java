@@ -35,8 +35,8 @@ public abstract class AbstractShell {
     public static final int BUFFER_SIZE = 1024 ;
     public static final int OTHERS_SHELL = 2;
     public static final int COMPLETION_SHELL = 1;
-    protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 500;
-    protected static final boolean DEBUG_SHELL = true;
+    protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000;
+    protected static final boolean DEBUG_SHELL = false;
 
 
     private void dbg(Object string) {
@@ -339,7 +339,8 @@ public abstract class AbstractShell {
                     int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
                     isAlive = " - the process in NOT ALIVE anymore (output="+exitVal+") - ";
                 } catch (IllegalThreadStateException e2) { //this is ok
-                    isAlive = " - the process in still alive - ";
+                    isAlive = " - the process in still alive (killing it now)- ";
+                    process.destroy();
                 }
                 
 

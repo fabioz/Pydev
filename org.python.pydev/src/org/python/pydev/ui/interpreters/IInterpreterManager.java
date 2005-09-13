@@ -108,5 +108,9 @@ public interface IInterpreterManager {
      */
     public void restorePythopathFor(String defaultSelectedInterpreter, IProgressMonitor monitor);
 
+    /**
+     * @return the name that is related to this manager (e.g.: python, jython...)
+     */
+    String getManagerRelatedName();
     
 }

@@ -88,4 +88,8 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     public boolean isPython() {
         return true;
     }
+    
+    public String getManagerRelatedName() {
+        return "python";
+    }
 }

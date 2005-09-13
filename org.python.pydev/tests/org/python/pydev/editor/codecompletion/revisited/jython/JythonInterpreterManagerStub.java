@@ -86,4 +86,8 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
         return false;
     }
 
+    @Override
+    public String getManagerRelatedName() {
+        return "jython";
+    }
 }

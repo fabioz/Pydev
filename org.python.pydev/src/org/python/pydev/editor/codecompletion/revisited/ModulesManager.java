@@ -280,6 +280,10 @@ public abstract class ModulesManager implements Serializable {
     public ModulesKey[] getAllModules() {
         return (ModulesKey[]) getModules().keySet().toArray(new ModulesKey[0]);
     }
+    
+    public ModulesKey[] getOnlyDirectModules() {
+        return getAllModules();
+    }
 
     /**
      * @return

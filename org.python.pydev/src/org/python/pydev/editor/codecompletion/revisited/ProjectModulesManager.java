@@ -88,6 +88,11 @@ public class ProjectModulesManager extends ModulesManager{
         }
         return s;
     }
+    
+    @Override
+    public ModulesKey[] getOnlyDirectModules() {
+        return super.getAllModules();
+    }
 
     @Override
     public ModulesKey[] getAllModules() {

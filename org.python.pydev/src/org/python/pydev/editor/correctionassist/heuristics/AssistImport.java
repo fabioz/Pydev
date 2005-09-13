@@ -37,15 +37,7 @@ public class AssistImport implements IAssistProps {
         
         String delimiter = PyAction.getDelimiter(ps.getDoc());
         
-        int lineToMoveImport = 0;
-        int lines = ps.getDoc().getNumberOfLines();
-        for (int line = 0; line < lines; line++) {
-            String str = ps.getLine(line);
-            if(str.startsWith("import ") || str.startsWith("from ")){
-                lineToMoveImport = line;
-                break;
-            }
-        }
+        int lineToMoveImport = ps.getLineAvailableForImport();
         
         int offset = ps.getDoc().getLineOffset(lineToMoveImport);
         
@@ -56,6 +48,7 @@ public class AssistImport implements IAssistProps {
         }
         return l;
     }
+
 
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.editor.actions.PySelection)

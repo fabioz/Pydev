@@ -81,6 +81,8 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
         return true;
     }
 
-
+    public String getManagerRelatedName() {
+        return "python";
+    }
 
 }

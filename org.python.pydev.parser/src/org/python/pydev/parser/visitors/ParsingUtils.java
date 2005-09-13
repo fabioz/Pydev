@@ -78,10 +78,10 @@ public class ParsingUtils {
      * @param i the ' or " position
      * @return the end of the literal position (or end of document)
      */
-    public static int eatLiterals(char[] cs, StringBuffer buf, int i) {
+    public static int eatLiterals(Object cs, StringBuffer buf, int i) {
         //ok, current pos is ' or "
         //check if we're starting a single or multiline comment...
-        char curr = cs[i];
+        char curr = charAt(cs, i);
         
         if(curr != '"' && curr != '\''){
             throw new RuntimeException("Wrong location to eat literals. Expecting ' or \" ");
@@ -90,8 +90,8 @@ public class ParsingUtils {
         int j = getLiteralEnd(cs, i, curr);
         
         if(buf != null){
-            for (int k = i; k < cs.length && k <= j; k++) {
-                buf.append(cs[k]);
+            for (int k = i; k < len(cs) && k <= j; k++) {
+                buf.append(charAt(cs, k));
             }
         }
         return j;
@@ -99,10 +99,10 @@ public class ParsingUtils {
     }
 
     /**
-     * @param cs
-     * @param i
-     * @param curr
-     * @return
+     * @param cs object whith len and charAt
+     * @param i index we are analyzing it
+     * @param curr current char
+     * @return the end of the multiline literal
      */
     private static int getLiteralEnd(Object cs, int i, char curr) {
         boolean multi = isMultiLiteral(cs, i, curr);
