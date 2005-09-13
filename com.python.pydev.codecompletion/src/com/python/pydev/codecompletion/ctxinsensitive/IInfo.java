@@ -3,7 +3,9 @@
  */
 package com.python.pydev.codecompletion.ctxinsensitive;
 
-public interface IInfo {
+import java.io.Serializable;
+
+public interface IInfo extends Serializable {
 
     /**
      * @return the name of the representing token

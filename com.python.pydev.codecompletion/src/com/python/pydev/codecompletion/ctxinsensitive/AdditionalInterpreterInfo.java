@@ -3,6 +3,12 @@
  */
 package com.python.pydev.codecompletion.ctxinsensitive;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,8 +21,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
-import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
+import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
+
+import sun.misc.BASE64Decoder;
 
 
 /**
@@ -50,7 +61,12 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class AdditionalInterpreterInfo {
 
+    /**
+     * This is the place where the information is actually stored
+     */
     private List<IInfo> additionalInfo;
+    
+    
 
     public AdditionalInterpreterInfo(){
         additionalInfo = new ArrayList<IInfo>();
@@ -72,6 +88,12 @@ public class AdditionalInterpreterInfo {
         additionalInfo.add(info);
     }
 
+    /**
+     * Adds a class or a function to the definition
+     * 
+     * @param classOrFunc the class or function we want to add
+     * @param moduleDeclared the module where it is declared
+     */
     public void addClassOrFunc(SimpleNode classOrFunc, String moduleDeclared) {
         if(classOrFunc instanceof ClassDef){
             addClass((ClassDef) classOrFunc, moduleDeclared);
@@ -80,6 +102,10 @@ public class AdditionalInterpreterInfo {
         }
     }
 
+    /**
+     * Removes all the info associated with a given module
+     * @param moduleName the name of the module we want to remove info from
+     */
     public void removeInfoFromModule(String moduleName) {
         for (Iterator<IInfo> it = additionalInfo.iterator(); it.hasNext(); ) {
             IInfo info = it.next();
@@ -96,9 +122,11 @@ public class AdditionalInterpreterInfo {
     public List<IInfo> getTokensStartingWith(String qualifier) {
         ArrayList<IInfo> toks = new ArrayList<IInfo>();
         String lowerCaseQual = qualifier.toLowerCase();
-        for (IInfo info : additionalInfo) {
-            if(info.getName().toLowerCase().startsWith(lowerCaseQual)){
-                toks.add(info);
+        if(additionalInfo != null){
+            for (IInfo info : additionalInfo) {
+                if(info.getName().toLowerCase().startsWith(lowerCaseQual)){
+                    toks.add(info);
+                }
             }
         }
         return toks;
@@ -112,33 +140,64 @@ public class AdditionalInterpreterInfo {
     }
 
     /**
-     * holds nature info
+     * holds nature info (project name points to info)
      */
     public static Map<String, AdditionalInterpreterInfo> additionalNatureInfo = new HashMap<String, AdditionalInterpreterInfo>();
 
     /**
-     * holds system info
+     * holds system info (interpreter name points to system info)
      */
-    public static AdditionalInterpreterInfo additionalSystemInfo;
+    public static Map<String, AdditionalInterpreterInfo> additionalSystemInfo = new HashMap<String, AdditionalInterpreterInfo>();
     
     /**
      * @param m the module manager that we want to get info on (python, jython...)
      * @return the additional info for the system
      */
-    public static AdditionalInterpreterInfo getAdditionalSystemInfo(ModulesManager m) {
-        if(additionalSystemInfo == null){
-            additionalSystemInfo = new AdditionalInterpreterInfo();
+    public static AdditionalInterpreterInfo getAdditionalSystemInfo(IInterpreterManager manager) {
+        String key = manager.getClass().getName();
+        AdditionalInterpreterInfo info = additionalSystemInfo.get(key);
+        if(info == null){
+            info = new AdditionalInterpreterInfo();
+            additionalSystemInfo.put(key, info);
         }
-        return additionalSystemInfo;
+        return info;
     }
 
+    /**
+     * sets the additional info (overrides if already set)
+     * @param manager the manager we want to set info on
+     * @param additionalSystemInfoToSet the info to set
+     */
+    public static void setAdditionalSystemInfo(IInterpreterManager manager, AdditionalInterpreterInfo additionalSystemInfoToSet) {
+        additionalSystemInfo.put(manager.getClass().getName(), additionalSystemInfoToSet);
+    }
+
+    /**
+     * sets the additional info (overrides if already set)
+     * @param project the project we want to set info on
+     * @param info the info to set
+     */
+    public static void setAdditionalInfoForProject(IProject project, AdditionalInterpreterInfo info) {
+        additionalNatureInfo.put(project.getName(), info);
+    }
+    
     /**
      * @param project the project we want to get info on
      * @return the additional info for a given project (gotten from the cache with its name)
      */
     public static AdditionalInterpreterInfo getAdditionalInfoForProject(IProject project) {
-        return additionalNatureInfo.get(project.getName());
+        String name = project.getName();
+        AdditionalInterpreterInfo info = additionalNatureInfo.get(name);
+        if(info == null){
+            info = new AdditionalInterpreterInfo();
+            additionalNatureInfo.put(name, info);
+        }
+        return info;
     }
+    
+    
+    
+    
     
     /**
      * @param nature the nature we want to get info on
@@ -149,7 +208,7 @@ public class AdditionalInterpreterInfo {
         IProject project = nature.getProject();
         
         //get for the system info
-        AdditionalInterpreterInfo systemInfo = getAdditionalSystemInfo(nature.getAstManager().getProjectModulesManager().getSystemModulesManager());
+        AdditionalInterpreterInfo systemInfo = getAdditionalSystemInfo(PydevPlugin.getInterpreterManager(nature));
         ret.add(systemInfo);
 
         //get for the current project
@@ -176,7 +235,112 @@ public class AdditionalInterpreterInfo {
         return ret;
     }
 
+    public static void saveAdditionalInfoForProject(IProject project) {
+        AdditionalInterpreterInfo info = getAdditionalInfoForProject(project);
+        info.saveTo(getPersistingLocationForProject(project));
+    }
+
+    /**
+     * @param project
+     * @return
+     */
+    private static String getPersistingLocationForProject(IProject project) {
+        return getPersistingFolder()+project.getName()+".pydevinfo";
+    }
+
+    /**
+     * save the information contained for the given manager
+     */
+    public static void saveAdditionalSystemInfo(IInterpreterManager manager) {
+        AdditionalInterpreterInfo info = getAdditionalSystemInfo(manager);
+        info.saveTo(getPersistingLocation());
+    }
+
+    private static String getPersistingFolder() {
+        return "c:/temp/";
+    }
+    /**
+     * @return
+     */
+    private static String getPersistingLocation() {
+        return getPersistingFolder()+"systeminfo.pydevinfo";
+    }
+
+    private void saveTo(String pathToSave) {
+        REF.writeToFile(additionalInfo, new File(pathToSave));
+    }
+
+    /**
+     * @return whether the info was succesfully loaded or not
+     */
+    public static boolean loadAdditionalSystemInfo(IInterpreterManager manager) {
+        File file = new File(getPersistingLocation());
+        if(file.exists() && file.isFile()){
+            try {
+                List<IInfo> additionalInfo = (List<IInfo>) IOUtils.readFromFile(file);
+                AdditionalInterpreterInfo info = new AdditionalInterpreterInfo();
+                info.additionalInfo = additionalInfo;
+                setAdditionalSystemInfo(manager, info);
+                return true;
+            } catch (Exception e) {
+                PydevPlugin.log(e);
+            }
+        }
+        return false;
+    }
+
+    public static boolean loadAdditionalInfoForProject(IProject project) {
+        File file = new File(getPersistingLocationForProject(project));
+        if(file.exists() && file.isFile()){
+            try {
+                List<IInfo> additionalInfo = (List<IInfo>) IOUtils.readFromFile(file);
+                AdditionalInterpreterInfo info = new AdditionalInterpreterInfo();
+                info.additionalInfo = additionalInfo;
+                setAdditionalInfoForProject(project, info);
+                return true;
+            } catch (Exception e) {
+                PydevPlugin.log(e);
+            }
+        }
+        return false;
+    }
 
     
-    
+}
+
+class IOUtils {
+    /**
+     * @param persisted
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public static Object getStrAsObj(String persisted) throws IOException, ClassNotFoundException {
+        BASE64Decoder decoder = new BASE64Decoder();
+        InputStream input = new ByteArrayInputStream(decoder.decodeBuffer(persisted));
+        ObjectInputStream in = new ObjectInputStream(input);
+        Object list = in.readObject();
+        in.close();
+        input.close();
+        return list;
+    }
+
+    /**
+     * @param astOutputFile
+     * @return
+     */
+    public static Object readFromFile(File astOutputFile) {
+        try {
+            InputStream input = new FileInputStream(astOutputFile);
+            ObjectInputStream in = new ObjectInputStream(input);
+            Object o = in.readObject();
+            in.close();
+            input.close();
+            return o;
+        } catch (Exception e) {
+            Log.log(e);
+            return null;
+        }
+    }
+
 }

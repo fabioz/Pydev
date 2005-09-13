@@ -45,7 +45,7 @@ public class StuctureCreationTest extends CompletionParticipantTestsBase {
     protected boolean restoreProjectPythonPath(boolean force, String path) {
         boolean ret = super.restoreProjectPythonPath(force, path);
         if(ret){
-            observer.notifyProjectPythonpathRestored(nature);
+            observer.notifyProjectPythonpathRestored(nature, new NullProgressMonitor());
         }
         return ret;
     }
@@ -54,7 +54,7 @@ public class StuctureCreationTest extends CompletionParticipantTestsBase {
     // ------------------------------------------------------------------------------------------------- tests
     
     public void testSetup() {
-        AdditionalInterpreterInfo additionalSystemInfo = AdditionalInterpreterInfo.getAdditionalSystemInfo(getDefaultInterpreterInfo().modulesManager);
+        AdditionalInterpreterInfo additionalSystemInfo = AdditionalInterpreterInfo.getAdditionalSystemInfo(getInterpreterManager());
         assertTrue(additionalSystemInfo.getAllTokens().size() > 0);
         List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestC");
         assertIsIn("TestCase", "unittest", tokensStartingWith);
