@@ -87,8 +87,11 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 PyDevDeltaCounter counterVisitor = new PyDevDeltaCounter();
                 delta.accept(counterVisitor);
                 
-                PydevGrouperVisitor grouperVisitor = new PydevGrouperVisitor(getVisitors(), monitor, counterVisitor.getNVisited());
+                List<PyDevBuilderVisitor> visitors = getVisitors();
+                PydevGrouperVisitor grouperVisitor = new PydevGrouperVisitor(visitors, monitor, counterVisitor.getNVisited());
+                notifyVisitingWillStart(visitors);
                 delta.accept(grouperVisitor);
+                notifyVisitingEnded(visitors);
                 
             }
         }
@@ -112,6 +115,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 List<IResource> resourcesToParse = new ArrayList<IResource>();
     
                 List<PyDevBuilderVisitor> visitors = getVisitors();
+                notifyVisitingWillStart(visitors);
     
                 monitor.beginTask("Building...", (visitors.size() * 100) + 30);
     
@@ -153,11 +157,27 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                     monitor.worked(30);
                     buildResources(resourcesToParse, monitor, visitors);
                 }
+                notifyVisitingEnded(visitors);
             }
         }
         monitor.done();
 
     }
+
+    private void notifyVisitingWillStart(List<PyDevBuilderVisitor> visitors) {
+        for (PyDevBuilderVisitor visitor : visitors) {
+            visitor.visitingWillStart();
+        }
+    }
+
+    private void notifyVisitingEnded(List<PyDevBuilderVisitor> visitors) {
+        for (PyDevBuilderVisitor visitor : visitors) {
+            visitor.visitingEnded();
+        }
+    }
+    
+
+
 
     /**
      * @param resourcesToParse the list where the resource may be added

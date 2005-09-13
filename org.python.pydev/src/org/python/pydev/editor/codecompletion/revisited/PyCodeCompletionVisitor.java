@@ -7,7 +7,6 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -40,13 +39,14 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
     public boolean visitChangedResource(IResource resource, IDocument document) {
         
         if(document != null){ //it might be out of sync...
-            IProject project = resource.getProject();
-            PythonNature pythonNature = PythonNature.getPythonNature(project);
-            ICodeCompletionASTManager astManager = pythonNature.getAstManager();
-            
-            if (astManager != null){
-                IPath location = resource.getLocation(); 
-                astManager.rebuildModule(new File(location.toOSString()), document, resource.getProject(), new NullProgressMonitor(), pythonNature);
+            PythonNature pythonNature = getPythonNature(resource);
+            if(pythonNature != null){
+                ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+                
+                if (astManager != null){
+                    IPath location = resource.getLocation(); 
+                    astManager.rebuildModule(new File(location.toOSString()), document, resource.getProject(), new NullProgressMonitor(), pythonNature);
+                }
             }
         }
 
@@ -58,16 +58,16 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
      */
     public boolean visitRemovedResource(IResource resource, IDocument document) {
 
-        IProject project = resource.getProject();
-        PythonNature pythonNature = PythonNature.getPythonNature(project);
-        ICodeCompletionASTManager astManager = pythonNature.getAstManager();
-        
-        if (astManager != null){
-            IPath location = resource.getLocation(); 
+        PythonNature pythonNature = getPythonNature(resource);
+        if(pythonNature != null){
 
-            astManager.removeModule(new File(location.toOSString()), resource.getProject(), new NullProgressMonitor());
+            ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+            if (astManager != null){
+                IPath location = resource.getLocation(); 
+    
+                astManager.removeModule(new File(location.toOSString()), resource.getProject(), new NullProgressMonitor());
+            }
         }
-
         return false;
     }
 

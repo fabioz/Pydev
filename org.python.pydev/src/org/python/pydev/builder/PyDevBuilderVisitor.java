@@ -72,7 +72,21 @@ public abstract class PyDevBuilderVisitor {
         }
         return module;
     }
-    
+
+    /**
+     * @param resource the resource we are analyzing
+     * @return the nature associated to the project where the resource is contained
+     */
+    protected PythonNature getPythonNature(IResource resource) {
+        IProject project = resource.getProject();
+        PythonNature pythonNature = PythonNature.getPythonNature(project);
+        return pythonNature;
+    }
+
+    /**
+     * @param resource must be the resource we are analyzing because it will go to the cache without the resource (only as MODULE_NAME_CACHE)
+     * @return the name of the module we are analyzing (given tho resource)
+     */
     public String getModuleName(IResource resource) {
         String moduleName = (String) memo.get(MODULE_NAME_CACHE);
         if(moduleName == null){
@@ -196,4 +210,21 @@ public abstract class PyDevBuilderVisitor {
      */
     public abstract boolean visitRemovedResource(IResource resource, IDocument document);
     
+    /**
+     * This function is called right before a visiting session starts for a delta (end will
+     * only be called when the whole delta is processed).
+     */
+    public void visitingWillStart(){
+        
+    }
+    
+    /**
+     * This function is called when we finish visiting some delta (which may be the whole project or 
+     * just some files).
+     * 
+     * A use-case is: It may be overriden if we need to store info in a persisting location
+     */
+    public void visitingEnded(){
+        
+    }
 }
