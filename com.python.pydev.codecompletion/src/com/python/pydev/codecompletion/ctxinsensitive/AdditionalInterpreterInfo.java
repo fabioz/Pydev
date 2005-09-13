@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
@@ -28,6 +29,8 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 import sun.misc.BASE64Decoder;
+
+import com.python.pydev.codecompletion.CodecompletionPlugin;
 
 
 /**
@@ -60,6 +63,8 @@ import sun.misc.BASE64Decoder;
  * @author Fabio
  */
 public class AdditionalInterpreterInfo {
+
+    private static final boolean DEBUG_ADDITIONAL_INFO = false;
 
     /**
      * This is the place where the information is actually stored
@@ -142,19 +147,19 @@ public class AdditionalInterpreterInfo {
     /**
      * holds nature info (project name points to info)
      */
-    public static Map<String, AdditionalInterpreterInfo> additionalNatureInfo = new HashMap<String, AdditionalInterpreterInfo>();
+    private static Map<String, AdditionalInterpreterInfo> additionalNatureInfo = new HashMap<String, AdditionalInterpreterInfo>();
 
     /**
      * holds system info (interpreter name points to system info)
      */
-    public static Map<String, AdditionalInterpreterInfo> additionalSystemInfo = new HashMap<String, AdditionalInterpreterInfo>();
+    private static Map<String, AdditionalInterpreterInfo> additionalSystemInfo = new HashMap<String, AdditionalInterpreterInfo>();
     
     /**
      * @param m the module manager that we want to get info on (python, jython...)
      * @return the additional info for the system
      */
     public static AdditionalInterpreterInfo getAdditionalSystemInfo(IInterpreterManager manager) {
-        String key = manager.getClass().getName();
+        String key = manager.getManagerRelatedName();
         AdditionalInterpreterInfo info = additionalSystemInfo.get(key);
         if(info == null){
             info = new AdditionalInterpreterInfo();
@@ -169,7 +174,7 @@ public class AdditionalInterpreterInfo {
      * @param additionalSystemInfoToSet the info to set
      */
     public static void setAdditionalSystemInfo(IInterpreterManager manager, AdditionalInterpreterInfo additionalSystemInfoToSet) {
-        additionalSystemInfo.put(manager.getClass().getName(), additionalSystemInfoToSet);
+        additionalSystemInfo.put(manager.getManagerRelatedName(), additionalSystemInfoToSet);
     }
 
     /**
@@ -238,6 +243,9 @@ public class AdditionalInterpreterInfo {
     public static void saveAdditionalInfoForProject(IProject project) {
         AdditionalInterpreterInfo info = getAdditionalInfoForProject(project);
         info.saveTo(getPersistingLocationForProject(project));
+        if(DEBUG_ADDITIONAL_INFO){
+            System.out.println("Saving project info..."+project.getName());
+        }
     }
 
     /**
@@ -253,20 +261,31 @@ public class AdditionalInterpreterInfo {
      */
     public static void saveAdditionalSystemInfo(IInterpreterManager manager) {
         AdditionalInterpreterInfo info = getAdditionalSystemInfo(manager);
-        info.saveTo(getPersistingLocation());
+        if(DEBUG_ADDITIONAL_INFO){
+            System.out.println("Saving system info...");
+        }
+        info.saveTo(getPersistingLocationForManager(manager));
     }
 
+    /**
+     * @return the path to the folder we want to keep things on
+     */
     private static String getPersistingFolder() {
-        return "c:/temp/";
+        IPath stateLocation = CodecompletionPlugin.getDefault().getStateLocation();
+        return stateLocation.toOSString();
     }
+    
     /**
      * @return
      */
-    private static String getPersistingLocation() {
-        return getPersistingFolder()+"systeminfo.pydevinfo";
+    private static String getPersistingLocationForManager(IInterpreterManager manager) {
+        return getPersistingFolder()+manager.getManagerRelatedName()+".pydevsysteminfo";
     }
 
     private void saveTo(String pathToSave) {
+        if(DEBUG_ADDITIONAL_INFO){
+            System.out.println("Saving info to file (size = "+additionalInfo.size()+") "+pathToSave);
+        }
         REF.writeToFile(additionalInfo, new File(pathToSave));
     }
 
@@ -274,7 +293,7 @@ public class AdditionalInterpreterInfo {
      * @return whether the info was succesfully loaded or not
      */
     public static boolean loadAdditionalSystemInfo(IInterpreterManager manager) {
-        File file = new File(getPersistingLocation());
+        File file = new File(getPersistingLocationForManager(manager));
         if(file.exists() && file.isFile()){
             try {
                 List<IInfo> additionalInfo = (List<IInfo>) IOUtils.readFromFile(file);

@@ -25,17 +25,23 @@ import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+import org.python.pydev.utils.JobProgressComunicator;
 
 public class InterpreterObserver implements IInterpreterObserver {
+
+    private static final boolean DEBUG_INTERPRETER_OBSERVER = false;
 
     /**
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyDefaultPythonpathRestored(org.python.pydev.ui.interpreters.AbstractInterpreterManager, org.eclipse.core.runtime.IProgressMonitor)
      */
     public void notifyDefaultPythonpathRestored(IInterpreterManager manager, IProgressMonitor monitor) {
+        if(DEBUG_INTERPRETER_OBSERVER){
+            System.out.println("notifyDefaultPythonpathRestored "+ manager.getDefaultInterpreter());
+        }
         try {
             InterpreterInfo defaultInterpreterInfo = manager.getDefaultInterpreterInfo(monitor);
             SystemModulesManager m = defaultInterpreterInfo.modulesManager;
-            AdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m);
+            AdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, "(system: "+manager.getManagerRelatedName()+")");
 
             //ok, set it and save it
             AdditionalInterpreterInfo.setAdditionalSystemInfo(manager, additionalSystemInfo);
@@ -46,16 +52,43 @@ public class InterpreterObserver implements IInterpreterObserver {
     }
 
     /**
+     * received when the interpreter manager is restored
+     *  
+     * this means that we have to restore the additional interpreter information we stored
+     *  
+     * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyInterpreterManagerRecreated(org.python.pydev.ui.interpreters.AbstractInterpreterManager)
+     */
+    public void notifyInterpreterManagerRecreated(final IInterpreterManager manager) {
+        if(!AdditionalInterpreterInfo.loadAdditionalSystemInfo(manager)){
+            //not successfully loaded
+            Job j = new Job("Pydev... Restoring additional info"){
+
+                
+                @Override
+                protected IStatus run(IProgressMonitor monitorArg) {
+                    JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev... Restoring additional info", IProgressMonitor.UNKNOWN, this);
+                    notifyDefaultPythonpathRestored(manager, jobProgressComunicator);
+                    jobProgressComunicator.done();
+                    return Status.OK_STATUS;
+                }
+                
+            };
+            j.setPriority(Job.BUILD);
+            j.schedule();
+        }
+    }
+
+    /**
      * Restores the info for a module manager
      * 
      * @param monitor a monitor to keep track of the progress
      * @param m the module manager
      * @return the info generated from the module manager
      */
-    private AdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, ModulesManager m) {
-        AdditionalInterpreterInfo additionalSystemInfo = new AdditionalInterpreterInfo();
+    private AdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, ModulesManager m, String additionalFeedback) {
+        AdditionalInterpreterInfo info = new AdditionalInterpreterInfo();
 
-        ModulesKey[] allModules = m.getAllModules();
+        ModulesKey[] allModules = m.getOnlyDirectModules();
         int i = 0;
         for (ModulesKey key : allModules) {
             i++;
@@ -65,10 +98,20 @@ public class InterpreterObserver implements IInterpreterObserver {
                 if (key.file.exists()) {
 
                     if (PythonPathHelper.isValidSourceFile(REF.getFileAbsolutePath(key.file))) {
-                        monitor.setTaskName("Creating additional info (" + i + " of " + allModules.length + ") for " + key.file.getName());
+                        StringBuffer buffer = new StringBuffer();
+                        buffer.append("Creating ");
+                        buffer.append(additionalFeedback);
+                        buffer.append(" additional info (" );
+                        buffer.append(i );
+                        buffer.append(" of " );
+                        buffer.append(allModules.length );
+                        buffer.append(") for " );
+                        buffer.append(key.file.getName());
+                        monitor.setTaskName(buffer.toString());
                         monitor.worked(1);
 
                         try {
+                            
                             //  the code below works with the default parser (that has much more info... and is much slower)
                             PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(new Document(REF.getFileContents(key.file)), false, null);
                             Object[] obj = PyParser.reparseDocument(parserInfo);
@@ -84,8 +127,10 @@ public class InterpreterObserver implements IInterpreterObserver {
 
                                 while (classesAndMethods.hasNext()) {
                                     SimpleNode classOrFunc = classesAndMethods.next().node;
-                                    additionalSystemInfo.addClassOrFunc(classOrFunc, key.name);
+                                    info.addClassOrFunc(classOrFunc, key.name);
                                 }
+                            }else{
+                                throw new RuntimeException("Unable to generate ast.");
                             }
 
                         } catch (Exception e) {
@@ -97,37 +142,16 @@ public class InterpreterObserver implements IInterpreterObserver {
                 }
             }
         }
-        return additionalSystemInfo;
+        return info;
     }
 
-    /**
-     * received when the interpreter manager is restored
-     *  
-     * this means that we have to restore the additional interpreter information we stored
-     *  
-     * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyInterpreterManagerRecreated(org.python.pydev.ui.interpreters.AbstractInterpreterManager)
-     */
-    public void notifyInterpreterManagerRecreated(final IInterpreterManager manager) {
-        if(!AdditionalInterpreterInfo.loadAdditionalSystemInfo(manager)){
-            //not successfully loaded
-            new Job("Pydev... Restoring additional info"){
-
-                @Override
-                protected IStatus run(IProgressMonitor monitor) {
-                    notifyDefaultPythonpathRestored(manager, monitor);
-                    return Status.OK_STATUS;
-                }
-                
-            }.schedule();
-        }
-    }
 
     public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor) {
         ModulesManager m = nature.getAstManager().getProjectModulesManager();
-        AdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m);
+        AdditionalInterpreterInfo info = restoreInfoForModuleManager(monitor, m, "(project:"+nature.getProject().getName()+")");
         
         //ok, set it and save it
-        AdditionalInterpreterInfo.setAdditionalInfoForProject(nature.getProject(), additionalSystemInfo);
+        AdditionalInterpreterInfo.setAdditionalInfoForProject(nature.getProject(), info);
         AdditionalInterpreterInfo.saveAdditionalInfoForProject(nature.getProject());
     }
 
