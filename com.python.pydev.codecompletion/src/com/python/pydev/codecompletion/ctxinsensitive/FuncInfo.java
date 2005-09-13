@@ -7,6 +7,9 @@ import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.NameTok;
 
 public class FuncInfo extends AbstractInfo{
+    
+    private static final long serialVersionUID = 1L;
+
     /**
      * the parameters for the function (may be mull)
      */

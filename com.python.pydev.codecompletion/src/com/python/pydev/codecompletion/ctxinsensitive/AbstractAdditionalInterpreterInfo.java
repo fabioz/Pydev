@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -141,8 +142,10 @@ public abstract class AbstractAdditionalInterpreterInfo {
     public void removeInfoFromModule(String moduleName) {
         for (Iterator<IInfo> it = additionalInfo.iterator(); it.hasNext(); ) {
             IInfo info = it.next();
-            if(info.getDeclaringModuleName().equals(moduleName)){
-                it.remove();
+            if(info != null && info.getDeclaringModuleName() != null){
+                if(info.getDeclaringModuleName().equals(moduleName)){
+                    it.remove();
+                }
             }
         }
     }
@@ -212,7 +215,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
         if(DEBUG_ADDITIONAL_INFO){
             System.out.println("Saving info to file (size = "+additionalInfo.size()+") "+pathToSave);
         }
-        REF.writeToFile(additionalInfo, new File(pathToSave));
+        REF.writeToFile(additionalInfo.toArray(new IInfo[0]), new File(pathToSave));
     }
 
     /**
@@ -223,7 +226,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
         File file = new File(getPersistingLocation());
         if(file.exists() && file.isFile()){
             try {
-                List<IInfo> additionalInfo = (List<IInfo>) IOUtils.readFromFile(file);
+                List<IInfo> additionalInfo = new ArrayList<IInfo> ( Arrays.asList((IInfo[])IOUtils.readFromFile(file)));
                 this.additionalInfo = additionalInfo;
                 setAsDefaultInfo();
                 return true;
@@ -244,21 +247,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
 }
 
 class IOUtils {
-    /**
-     * @param persisted
-     * @return
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
-    public static Object getStrAsObj(String persisted) throws IOException, ClassNotFoundException {
-        BASE64Decoder decoder = new BASE64Decoder();
-        InputStream input = new ByteArrayInputStream(decoder.decodeBuffer(persisted));
-        ObjectInputStream in = new ObjectInputStream(input);
-        Object list = in.readObject();
-        in.close();
-        input.close();
-        return list;
-    }
 
     /**
      * @param astOutputFile

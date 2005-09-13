@@ -16,8 +16,8 @@ release for both (org and com)
 set EC_HOME=D:\dev_programs\eclipse_3\310\eclipse
 set EC_WORKSPACE=D:\dev_programs\eclipse_3\eclipse\workspace
 set RETROWEAVER_HOME=D:\install\retroweaver
-set PYDEV_VERSION=0.9.8.1
-set BUILD_ID=0_9_8_1
+set PYDEV_VERSION=0.9.8.2
+set BUILD_ID=0_9_8_2
 
 d:
 
