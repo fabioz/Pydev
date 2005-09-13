@@ -529,7 +529,17 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTSUBSCRIPTLIST:
             sliceType[] dims = new sliceType[arity];
             for (int i = arity - 1; i >= 0; i--) {
-                dims[i] = (sliceType) popNode();
+                SimpleNode sliceNode = popNode();
+                if(sliceNode instanceof sliceType){
+                    dims[i] = (sliceType) sliceNode;
+                    
+                }else if(sliceNode instanceof IdentityNode){
+                    //this should be ignored...
+                    //this happens when parsing something like a[1,], whereas a[1,2] would not have this.
+                    
+                }else{
+                    throw new RuntimeException("Expected a sliceType or an IdentityNode. Received :"+sliceNode.getClass());
+                }
             }
             return new ExtSlice(dims);
         case JJTAUG_PLUS:     
