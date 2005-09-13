@@ -13,7 +13,7 @@ import org.python.parser.ast.NameTok;
 
 public class AdditionalInterpreterInfoTest extends TestCase {
 
-    private AdditionalInterpreterInfo info;
+    private AbstractAdditionalInterpreterInfo info;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AdditionalInterpreterInfoTest.class);
@@ -21,7 +21,18 @@ public class AdditionalInterpreterInfoTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        info = new AdditionalInterpreterInfo();
+        info = new AbstractAdditionalInterpreterInfo(){
+
+            @Override
+            protected String getPersistingLocation() {
+                return null;
+            }
+
+            @Override
+            protected void setAsDefaultInfo() {
+            }
+            
+        };
     }
 
     protected void tearDown() throws Exception {

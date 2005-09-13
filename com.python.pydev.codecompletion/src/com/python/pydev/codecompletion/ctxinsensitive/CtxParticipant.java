@@ -37,7 +37,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
         
         ArrayList<CtxInsensitiveImportComplProposal> completions = new ArrayList<CtxInsensitiveImportComplProposal>();
         if(request.qualifier.length() >= 3){ //at least n characters required...
-            for (AdditionalInterpreterInfo additionalSystemInfo : AdditionalInterpreterInfo.getAdditionalInfo(request.nature)){
+            for (AbstractAdditionalInterpreterInfo additionalSystemInfo : AdditionalProjectInterpreterInfo.getAdditionalInfo(request.nature)){
                 List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith(request.qualifier);
                 
                 for (IInfo info : tokensStartingWith) {

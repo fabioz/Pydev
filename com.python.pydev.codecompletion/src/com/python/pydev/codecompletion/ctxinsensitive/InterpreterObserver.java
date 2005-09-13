@@ -3,8 +3,7 @@
  */
 package com.python.pydev.codecompletion.ctxinsensitive;
 
-import java.util.Iterator;
-
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -17,8 +16,6 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
@@ -41,11 +38,11 @@ public class InterpreterObserver implements IInterpreterObserver {
         try {
             InterpreterInfo defaultInterpreterInfo = manager.getDefaultInterpreterInfo(monitor);
             SystemModulesManager m = defaultInterpreterInfo.modulesManager;
-            AdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, "(system: "+manager.getManagerRelatedName()+")");
+            AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, "(system: "+manager.getManagerRelatedName()+")", new AdditionalSystemInterpreterInfo(manager));
 
             //ok, set it and save it
-            AdditionalInterpreterInfo.setAdditionalSystemInfo(manager, additionalSystemInfo);
-            AdditionalInterpreterInfo.saveAdditionalSystemInfo(manager);
+            AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, additionalSystemInfo);
+            AbstractAdditionalInterpreterInfo.saveAdditionalSystemInfo(manager);
         } catch (NotConfiguredInterpreterException e) {
             //ok, nothing configured, nothing to do...
         }
@@ -59,7 +56,7 @@ public class InterpreterObserver implements IInterpreterObserver {
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyInterpreterManagerRecreated(org.python.pydev.ui.interpreters.AbstractInterpreterManager)
      */
     public void notifyInterpreterManagerRecreated(final IInterpreterManager manager) {
-        if(!AdditionalInterpreterInfo.loadAdditionalSystemInfo(manager)){
+        if(!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(manager)){
             //not successfully loaded
             Job j = new Job("Pydev... Restoring additional info"){
 
@@ -85,8 +82,7 @@ public class InterpreterObserver implements IInterpreterObserver {
      * @param m the module manager
      * @return the info generated from the module manager
      */
-    private AdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, ModulesManager m, String additionalFeedback) {
-        AdditionalInterpreterInfo info = new AdditionalInterpreterInfo();
+    private AbstractAdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, ModulesManager m, String additionalFeedback, AbstractAdditionalInterpreterInfo info) {
 
         ModulesKey[] allModules = m.getOnlyDirectModules();
         int i = 0;
@@ -121,14 +117,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                             //SimpleNode node = FastParser.reparseDocument(REF.getFileContents(key.file));
 
                             if (node != null) {
-                                EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
-                                node.accept(visitor);
-                                Iterator<ASTEntry> classesAndMethods = visitor.getClassesAndMethodsIterator();
-
-                                while (classesAndMethods.hasNext()) {
-                                    SimpleNode classOrFunc = classesAndMethods.next().node;
-                                    info.addClassOrFunc(classOrFunc, key.name);
-                                }
+                                info.addAstInfo(node, key.name);
                             }else{
                                 throw new RuntimeException("Unable to generate ast.");
                             }
@@ -148,15 +137,16 @@ public class InterpreterObserver implements IInterpreterObserver {
 
     public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor) {
         ModulesManager m = nature.getAstManager().getProjectModulesManager();
-        AdditionalInterpreterInfo info = restoreInfoForModuleManager(monitor, m, "(project:"+nature.getProject().getName()+")");
+        IProject project = nature.getProject();
+        AbstractAdditionalInterpreterInfo info = restoreInfoForModuleManager(monitor, m, "(project:"+project.getName()+")", new AdditionalProjectInterpreterInfo(project));
         
         //ok, set it and save it
-        AdditionalInterpreterInfo.setAdditionalInfoForProject(nature.getProject(), info);
-        AdditionalInterpreterInfo.saveAdditionalInfoForProject(nature.getProject());
+        AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
+        AdditionalProjectInterpreterInfo.saveAdditionalInfoForProject(project);
     }
 
     public void notifyNatureRecreated(final PythonNature nature, IProgressMonitor monitor) {
-        if(!AdditionalInterpreterInfo.loadAdditionalInfoForProject(nature.getProject())){
+        if(!AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature.getProject())){
             notifyProjectPythonpathRestored(nature, monitor);
         }
     }
