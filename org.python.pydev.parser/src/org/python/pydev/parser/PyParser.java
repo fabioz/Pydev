@@ -43,53 +43,6 @@ import org.python.pydev.core.log.Log;
  */
 
 public class PyParser {
-    private static class ParsingThread extends Thread {
-        boolean okToGo;
-
-        private PyParser parser;
-
-        private ParsingThread(PyParser parser) {
-            super();
-            this.parser = parser;
-        }
-
-        public void run() {
-            try {
-                makeOkAndSleepUntilIdleTimeElapses();
-                while(!okToGo){
-                    makeOkAndSleepUntilIdleTimeElapses();
-                }
-
-                //ok, now we parse it...
-                try {
-                    parser.reparseDocument();
-                } catch (Exception e) {
-                    Log.log(e);
-                }
-                //reset the state
-                parser.state = STATE_WAITING;
-                
-            } finally{
-                parser.parseThread = null;
-            }
-        }
-
-        private void makeOkAndSleepUntilIdleTimeElapses() {
-            try {
-                okToGo = true;
-                sleep(getIdleTimeRequested()); //one sec
-            } catch (Exception e) {
-            }
-        }
-
-        /**
-         * @return the idle time to make a parse... this should probably be on the interface
-         */
-        private int getIdleTimeRequested() {
-            return 500;
-        }
-    }
-    
     /**
      * just for tests, when we don't have any editor
      */
@@ -121,73 +74,45 @@ public class PyParser {
     private ArrayList<IParserListener> parserListeners; 
 
     /**
-     * used to do parsings in a thread
-     */
-    private ParsingThread parsingThread; 
-    
-    /**
-     * indicates that currently nothing is happening
-     */
-    public static final int STATE_WAITING = 0; 
-    
-    /**
-     * indicates whether some parse later has been requested
-     */
-    public static final int STATE_PARSE_LATER = 1; 
-
-    /**
-     * indicates if a thread is currently doing a parse action
-     */
-    public static final int STATE_DOING_PARSE = 2;
-
-    /**
-     * 5 seconds
-     */
-    protected static final long TIME_TO_PARSE_LATER = 5000;
-    
-    /**
-     * initially we're waiting
-     */
-    private int state = STATE_WAITING;
-    
-    /**
-     * this is the exact time a parse later was requested
-     */
-    private long timeParseLaterRequested = 0;
-    
-    /**
-     * this is the exact time the last parse was requested
-     */
-    private long timeLastParse = 0;
-
-    /**
-     * this thread is only created at parse time (and on the end of the parse it is put as null)
-     */
-    private Thread parseThread;
-    
-    /**
      * used to enable tracing in the grammar
      */
     static boolean ENABLE_TRACING = false;
 
     /**
+     * this is the object that will keep parser schedules for us (and will call us for doing parsing when requested)
+     */
+    private ParserScheduler scheduler;
+
+    /**
+     * indicates we should do analysis only on doc save
+     */
+    private boolean useAnalysisOnlyOnDocSave;
+
+    /**
+     * indicates the time we should elapse before doing analysis
+     */
+    private int elapseMillisBeforeAnalysis;
+    
+    /**
      * should only be called for testing. does not register as a thread
      */
     PyParser() {
         parserListeners = new ArrayList<IParserListener>();
+        scheduler = new ParserScheduler(this);
 
-        parsingThread = new ParsingThread(this);
-
-        parsingThread.setPriority(Thread.MIN_PRIORITY);
         documentListener = new IDocumentListener() {
 
             public void documentChanged(DocumentEvent event) {
                 if (event == null || event.getText() == null || event.getText().indexOf("\n") == -1) {
                     // carriage return in changed text means parse now, anything
                     // else means parse later
-                    parseLater();
+                    if(!useAnalysisOnlyOnDocSave){
+                        scheduler.parseLater();
+                    }
                 } else {
-                    parseNow();
+                    if(!useAnalysisOnlyOnDocSave){
+                        scheduler.parseNow();
+                    }
                 }
             }
 
@@ -195,44 +120,6 @@ public class PyParser {
             }
         };
 
-    }
-
-    private void parseNow() {
-        if(state != STATE_DOING_PARSE){
-            state = STATE_DOING_PARSE; // the parser will reset it later
-            timeLastParse = System.currentTimeMillis();
-            if(parseThread == null){
-                parseThread = new Thread(parsingThread);
-                parseThread.setPriority(Thread.MIN_PRIORITY); //parsing is low priority
-                parseThread.start();
-            }
-        }else{
-            //another request... we keep waiting until the user stops adding requests
-            parsingThread.okToGo = false;
-        }
-    }
-    
-    private void parseLater() {
-        if(state != STATE_DOING_PARSE && state != STATE_PARSE_LATER){
-            state = STATE_PARSE_LATER;
-            //ok, the time for this request is:
-            timeParseLaterRequested = System.currentTimeMillis();
-            new Thread(){
-                @Override
-                public void run() {
-                    try {
-                        sleep(TIME_TO_PARSE_LATER);
-                    } catch (Exception e) {
-                        //that's ok
-                    }
-                    //ok, no parse happened while we were sleeping
-                    if( state == STATE_PARSE_LATER && timeLastParse < timeParseLaterRequested){
-                        parseNow();
-                    }
-                }
-            }.start();
-        }
-        
     }
     
     /**
@@ -260,6 +147,11 @@ public class PyParser {
         return root;
     }
 
+    public void notifySaved() {
+        //force parse on save
+        scheduler.parseNow(true);
+    }
+
     public void setDocument(IDocument document) {
         // Cleans up old listeners
         if (this.document != null) {
@@ -274,8 +166,8 @@ public class PyParser {
         }
 
         document.addDocumentListener(documentListener);
-        // Reparse document on the initial set
-        parseNow();
+        // Reparse document on the initial set (force it)
+        scheduler.parseNow(true);
     }
 
     // ---------------------------------------------------------------------------- listeners
@@ -555,6 +447,16 @@ public class PyParser {
         }
         return null;
     }
+
+    public void reset(boolean useAnalysisOnlyOnDocSave, int elapseMillisBeforeAnalysis) {
+        this.useAnalysisOnlyOnDocSave = useAnalysisOnlyOnDocSave;
+        this.elapseMillisBeforeAnalysis = elapseMillisBeforeAnalysis;
+    }
+
+    public int getIdleTimeRequested() {
+        return this.elapseMillisBeforeAnalysis;
+    }
+
     
 }
 

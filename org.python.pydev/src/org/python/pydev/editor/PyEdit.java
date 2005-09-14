@@ -51,6 +51,7 @@ import org.python.parser.ParseException;
 import org.python.parser.SimpleNode;
 import org.python.parser.Token;
 import org.python.parser.TokenMgrError;
+import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.actions.PyOpenAction;
@@ -273,7 +274,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                     colorCache.reloadNamedColor(property); //all reference this cache
                     editConfiguration.updateSyntaxColorAndStyle(); //the style needs no reloading
                     getSourceViewer().invalidateTextPresentation();
-                } 
+                    
+                } else if(property.equals(PyDevBuilderPrefPage.USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE) || property.equals(PyDevBuilderPrefPage.PYDEV_ELAPSE_BEFORE_ANALYSIS)){
+                    parser.reset(PyDevBuilderPrefPage.useAnalysisOnlyOnDocSave(), PyDevBuilderPrefPage.getElapseMillisBeforeAnalysis());
+                }
             }
         };
         resetForceTabs();
@@ -303,6 +307,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     protected void performSave(boolean overwrite, IProgressMonitor progressMonitor) {
         fixEncoding(getEditorInput(), getDocument());
         super.performSave(overwrite, progressMonitor);
+        parser.notifySaved();
     }
     /**
      * Forces the encoding to the one specified in the file
