@@ -43,63 +43,217 @@ import org.python.pydev.core.log.Log;
  */
 
 public class PyParser {
+    private static class ParsingThread extends Thread {
+        boolean okToGo;
+
+        private PyParser parser;
+
+        private ParsingThread(PyParser parser) {
+            super();
+            this.parser = parser;
+        }
+
+        public void run() {
+            try {
+                makeOkAndSleepUntilIdleTimeElapses();
+                while(!okToGo){
+                    makeOkAndSleepUntilIdleTimeElapses();
+                }
+
+                //ok, now we parse it...
+                try {
+                    parser.reparseDocument();
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+                //reset the state
+                parser.state = STATE_WAITING;
+                
+            } finally{
+                parser.parseThread = null;
+            }
+        }
+
+        private void makeOkAndSleepUntilIdleTimeElapses() {
+            try {
+                okToGo = true;
+                sleep(getIdleTimeRequested()); //one sec
+            } catch (Exception e) {
+            }
+        }
+
+        /**
+         * @return the idle time to make a parse... this should probably be on the interface
+         */
+        private int getIdleTimeRequested() {
+            return 500;
+        }
+    }
     
     /**
      * just for tests, when we don't have any editor
      */
     static boolean ACCEPT_NULL_EDITOR = false; 
 
-    IDocument document;
-
-    IPyEdit editorView;
-
-    SimpleNode root = null; // Document root
-
-    IDocumentListener documentListener; // listens to changes in the document
-
-    ArrayList parserListeners; // listeners that get notified
-
-    final static int PARSE_LATER_INTERVAL = 20; // 20 = 2 seconds
-
-    static boolean ENABLE_TRACING = false;
-
-    boolean parseNow = false; // synchronized access by ParsingThread
-
-    
-    /*
-     * counter how to parse. 0 means do not parse, > 0 means wait this many
-     * loops in main thread
+    /**
+     * this is the document we should parse 
      */
-    int parseLater = 0; // synchronized access by ParsingThread
+    private IDocument document;
+
+    /**
+     * this is the editor associated
+     */
+    private IPyEdit editorView;
+
+    /**
+     * ast for the last succesful parsing
+     */
+    private SimpleNode root = null; 
+
+    /**
+     * listens to changes in the document
+     */
+    private IDocumentListener documentListener; 
+
+    /**
+     * listeners that get notified of succesfull or unsuccessful parser achievements
+     */
+    private ArrayList<IParserListener> parserListeners; 
+
+    /**
+     * used to do parsings in a thread
+     */
+    private ParsingThread parsingThread; 
+    
+    /**
+     * indicates that currently nothing is happening
+     */
+    public static final int STATE_WAITING = 0; 
+    
+    /**
+     * indicates whether some parse later has been requested
+     */
+    public static final int STATE_PARSE_LATER = 1; 
+
+    /**
+     * indicates if a thread is currently doing a parse action
+     */
+    public static final int STATE_DOING_PARSE = 2;
+
+    /**
+     * 5 seconds
+     */
+    protected static final long TIME_TO_PARSE_LATER = 5000;
+    
+    /**
+     * initially we're waiting
+     */
+    private int state = STATE_WAITING;
+    
+    /**
+     * this is the exact time a parse later was requested
+     */
+    private long timeParseLaterRequested = 0;
+    
+    /**
+     * this is the exact time the last parse was requested
+     */
+    private long timeLastParse = 0;
+
+    /**
+     * this thread is only created at parse time (and on the end of the parse it is put as null)
+     */
+    private Thread parseThread;
+    
+    /**
+     * used to enable tracing in the grammar
+     */
+    static boolean ENABLE_TRACING = false;
 
     /**
      * should only be called for testing. does not register as a thread
      */
     PyParser() {
-        parserListeners = new ArrayList();
+        parserListeners = new ArrayList<IParserListener>();
+
+        parsingThread = new ParsingThread(this);
+
+        parsingThread.setPriority(Thread.MIN_PRIORITY);
+        documentListener = new IDocumentListener() {
+
+            public void documentChanged(DocumentEvent event) {
+                if (event == null || event.getText() == null || event.getText().indexOf("\n") == -1) {
+                    // carriage return in changed text means parse now, anything
+                    // else means parse later
+                    parseLater();
+                } else {
+                    parseNow();
+                }
+            }
+
+            public void documentAboutToBeChanged(DocumentEvent event) {
+            }
+        };
+
+    }
+
+    private void parseNow() {
+        if(state != STATE_DOING_PARSE){
+            state = STATE_DOING_PARSE; // the parser will reset it later
+            timeLastParse = System.currentTimeMillis();
+            if(parseThread == null){
+                parseThread = new Thread(parsingThread);
+                parseThread.setPriority(Thread.MIN_PRIORITY); //parsing is low priority
+                parseThread.start();
+            }
+        }else{
+            //another request... we keep waiting until the user stops adding requests
+            parsingThread.okToGo = false;
+        }
     }
     
+    private void parseLater() {
+        if(state != STATE_DOING_PARSE && state != STATE_PARSE_LATER){
+            state = STATE_PARSE_LATER;
+            //ok, the time for this request is:
+            timeParseLaterRequested = System.currentTimeMillis();
+            new Thread(){
+                @Override
+                public void run() {
+                    try {
+                        sleep(TIME_TO_PARSE_LATER);
+                    } catch (Exception e) {
+                        //that's ok
+                    }
+                    //ok, no parse happened while we were sleeping
+                    if( state == STATE_PARSE_LATER && timeLastParse < timeParseLaterRequested){
+                        parseNow();
+                    }
+                }
+            }.start();
+        }
+        
+    }
+    
+    /**
+     * Ok, create the parser for an editor
+     * 
+     * @param editorView
+     */
     public PyParser(IPyEdit editorView) {
         this();
         this.editorView = editorView;
-        ParsingThread.getParsingThread().register(this);
     }
 
-    public void parseNow() {
-        parseNow = true;
-    }
 
-    public void parseLater() {
-        parseNow = false;
-        parseLater = PARSE_LATER_INTERVAL; // delay of 1 second
-    }
-
+    /**
+     * should be called when the editor is disposed
+     */
     public void dispose() {
         // remove the listeners
         if (document != null)
             document.removeDocumentListener(documentListener);
         parserListeners.clear();
-        ParsingThread.getParsingThread().unregister(this);
     }
 
     public SimpleNode getRoot() {
@@ -119,26 +273,12 @@ public class PyParser {
             return;
         }
 
-        documentListener = new IDocumentListener() {
-
-            public void documentChanged(DocumentEvent event) {
-                if (event == null || event.getText() == null || event.getText().indexOf("\n") == -1) {
-                    // carriage return in changed text means parse now, anything
-                    // else means parse later
-                    parseLater();
-                } else {
-                    parseNow();
-                }
-            }
-
-            public void documentAboutToBeChanged(DocumentEvent event) {
-            }
-        };
         document.addDocumentListener(documentListener);
         // Reparse document on the initial set
         parseNow();
     }
 
+    // ---------------------------------------------------------------------------- listeners
     /** stock listener implementation */
     public void addParseListener(IParserListener listener) {
         Assert.isNotNull(listener);
@@ -152,6 +292,8 @@ public class PyParser {
         parserListeners.remove(listener);
     }
 
+    
+    // ---------------------------------------------------------------------------- notifications
     /**
      * stock listener implementation event is fired whenever we get a new root
      */
@@ -181,6 +323,7 @@ public class PyParser {
         }
     }
 
+    // ---------------------------------------------------------------------------- parsing
     /**
      * reparses the document getting the nature associated to the corresponding editor 
      * @return
@@ -239,6 +382,7 @@ public class PyParser {
     
     //static methods that can be used to get the ast (and error if any) --------------------------------------
     
+
     public static class ParserInfo{
         public IDocument document;
         public boolean stillTryToChangeCurrentLine=true; 
@@ -414,95 +558,3 @@ public class PyParser {
     
 }
 
-/**
- * Utility thread that reparses document as needed.
- * 
- * Singleton.
- * 
- * Current algorithm is: - if parseLater is called, parse 10 main loops later -
- * if parseNow is called, parse immediately
- */
-
-class ParsingThread extends Thread {
-
-    private static ParsingThread thread = null;
-
-    private static ArrayList parsers = new ArrayList(); // synchronized access
-
-    // only
-
-    private boolean done = false;
-
-    private ParsingThread() {
-        setName("Pydev parsing thread");
-    }
-
-    static public ParsingThread getParsingThread() {
-        synchronized (ParsingThread.class) {
-            if (thread == null) {
-                thread = new ParsingThread();
-                thread.start();
-            }
-            return thread;
-        }
-    }
-
-    public void register(PyParser parser) {
-        synchronized (parsers) {
-            parsers.add(parser);
-        }
-    }
-
-    public void unregister(PyParser parser) {
-        synchronized (parsers) {
-            parser.parseNow = false;
-            parser.parseLater = 0;
-            parsers.remove(parser);
-            if (parsers.size() == 0) {
-                done = true;
-                thread = null;
-            }
-        }
-    }
-
-    public void run() {
-        // wait for document change, and reparse
-        try {
-            while (!done) {
-                try {
-                    ArrayList parseUs = new ArrayList();
-
-                    // Populate the list of parsers waiting to be parsed
-                    synchronized (parsers) {
-                        Iterator i = parsers.iterator();
-                        while (i.hasNext()) {
-                            PyParser p = (PyParser) i.next();
-                            p.parseLater--;
-                            if (p.parseLater == 1)
-                                p.parseNow = true;
-                            if (p.parseNow)
-                                parseUs.add(p);
-                        }
-                    }
-
-                    // Now parse the queue
-                    Iterator i = parseUs.iterator();
-                    while (i.hasNext()) {
-                        PyParser p = (PyParser) i.next();
-                        if (p.parseNow) {
-                            p.parseNow = false;
-                            p.parseLater = 0;
-                            p.reparseDocument();
-                        }
-                    }
-                    sleep(100); // sleep a bit, to avoid flicker
-                } catch (Exception e) {
-                    Log.log(e);
-                }
-            }
-        } finally {
-            if (thread == this)
-                thread = null;
-        }
-    }
-}
