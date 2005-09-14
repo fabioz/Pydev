@@ -5,7 +5,7 @@
          point="org.eclipse.ui.preferencePages">
       <page
             class="com.python.pydev.analysis.ui.AnalysisPreferencesPage"
-            category="org.python.pydev.prefs"
+            category="org.python.pydev.prefs.extensions"
             id="org.python.pydev.prefs.extensions.analysis"
             name="Code Analysis"/>
    </extension>
