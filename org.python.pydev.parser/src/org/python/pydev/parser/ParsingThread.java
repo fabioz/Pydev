@@ -30,7 +30,7 @@ public class ParsingThread extends Thread {
             try {
                 parser.state = ParserScheduler.STATE_DOING_PARSE;
                 parser.reparseDocument();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Log.log(e);
             }
             //remove the force state

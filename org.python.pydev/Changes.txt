@@ -9,6 +9,12 @@ org.eclipse.ant.internal.ui.preferences.AntRuntimePreferencePage
 jython module management (may be handy)
 org.python.core.SysPackageManager
 
+after 0.9.8.1
+
+- Dedent also added
+- Options for doing parsing only when saving the document (check the builder preferences)
+- Options for doing parsing only after an elapsed time (check the builder preferences)
+
 after 0.9.8
 
 - Gerhard Kalab contributed patch to:

@@ -168,13 +168,16 @@ public class PySelection {
         PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
     }
 
-    public String getLineWithoutComments() {
-        String l = getLine();
+    public static String getLineWithoutComments(String l) {
         int i;
         if((i = l.indexOf('#') ) != -1){
             l = l.substring(0, i);
         }
         return l;
+        
+    }
+    public String getLineWithoutComments() {
+        return getLineWithoutComments(getLine());
     }
     
     /**

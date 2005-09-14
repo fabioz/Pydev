@@ -35,7 +35,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
         if (getUseSpaces() && !getForceTabs())
             return DocUtils.createSpaceString(getTabWidth());
         else
-            return DocUtils.TAB_STRING;
+            return "\t";
     }
 
 	public void convertToStd(IDocument document, DocumentCommand command){
@@ -68,10 +68,10 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
 		String indentString) throws BadLocationException 
 	{
 		// only interresting if it contains a tab (also if it is a tab only)
-		if (text.indexOf(DocUtils.TAB_STRING) != -1) {
+		if (text.indexOf("\t") != -1) {
 			// get some text infos
 			
-			if (text.equals(DocUtils.TAB_STRING)) {
+			if (text.equals("\t")) {
 			    //only a single tab?
 				deleteWhitespaceAfter(document, offset);
 				text = indentString;
@@ -81,7 +81,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
 				byte[] byteLine = text.getBytes();
 				StringBuffer newText = new StringBuffer();
 				for (int count = 0; count < byteLine.length; count++) {
-					if (byteLine[count] == DocUtils.TAB){
+					if (byteLine[count] == '\t'){
 						newText.append(indentString);
 						
 					} else { // if it is not a tab add the char

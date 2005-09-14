@@ -22,46 +22,6 @@ import org.eclipse.jface.text.IRegion;
 public class DocUtils {
 	
     /**
-     * Field representing a semicolon.
-     */
-    public static final char SEMICOLON = ';';
-
-    /**
-     * Field representing a colon;
-     */
-    public static final char COLON = ':';
-
-    /**
-     * Field representing a comma.
-     */
-    public static final char COMMA = ',';
-
-    /**
-     * Field representing a space.
-     */
-    public static final char SPACE = ' ';
-
-    /**
-     * Field representing a beginning parenthesis, i.e., (
-     */
-    public static final char BEGIN_PARENTHESIS = '(';
-
-    /**
-     * Field representing an ending parenthesis, i.e., )
-     */
-    public static final char END_PARENTHESIS = ')';
-    
-    /**
-     * Field representing a character tab.
-     */
-    public static final char TAB = '\t';
-    
-    /**
-     * Field representing a tab as a String.
-     */
-    public static final String TAB_STRING = "\t";
-    
-    /**
      * Field representing an empty string.
      */
     public static final String EMPTY_STRING = "";
@@ -133,14 +93,14 @@ public class DocUtils {
                 }
                 
                 if(tokSpaces != null && tokSpaces.length() > spaces.length()){
-	                if(src.indexOf(BEGIN_PARENTHESIS) != -1){
-	                    src = src.substring(0, src.indexOf(BEGIN_PARENTHESIS))+Character.toString(COLON);
+	                if(src.indexOf('(') != -1){
+	                    src = src.substring(0, src.indexOf('('))+Character.toString(':');
 	                }else{
 	                    src = "class COMPLETION_HELPER_CLASS:";
 	                }
                 }else{
-	                if(src.indexOf(BEGIN_PARENTHESIS) != -1){
-	                    src = src.substring(0, src.indexOf(BEGIN_PARENTHESIS))+":pass";
+	                if(src.indexOf('(') != -1){
+	                    src = src.substring(0, src.indexOf('('))+":pass";
 	                }else{
 	                    src = "class COMPLETION_HELPER_CLASS:pass";
 	                }
@@ -172,7 +132,7 @@ public class DocUtils {
     public static String createSpaceString(int width) {
         StringBuffer b = new StringBuffer(width);
         while (width-- > 0)
-            b.append(SPACE);
+            b.append(' ');
         return b.toString();
     }
 

@@ -20,7 +20,15 @@ public class PyAutoIndentStrategyTest extends TestCase {
     private PyAutoIndentStrategy strategy;
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
+        try {
+            PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
+            s.setUp();
+            s.testIndent2();
+            s.tearDown();
+            junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     /*
@@ -91,6 +99,62 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.customizeDocumentCommand(new Document(""), docCmd);
         assertEquals("\tabc", docCmd.text);
     }
+
+    public void testCommentsIndent() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+
+        String doc = "class c: #some comment";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n" +
+                          "    ";
+        assertEquals(expected, docCmd.text);
+
+        //test not indent more
+        doc = "    # comment:";
+        docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "\n" +
+        "    ";
+        assertEquals(expected, docCmd.text);
+        
+        //test indent more
+        doc = "    if False:";
+        docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "\n" +
+        "        ";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    public void testDedent() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+
+        String doc = "def m1(): #some comment\n" +
+                     "    return 10";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n";
+        assertEquals(expected, docCmd.text);
+        
+        //test ending with
+        doc = "def m1(): #some comment\n" +
+              "    return";
+        docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "\n";
+        assertEquals(expected, docCmd.text);
+        
+        //test not dedenting
+        doc = "def m1(): #some comment\n" +
+        "    returnIs10 = 10";
+        docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "\n"+
+        "    ";
+        assertEquals(expected, docCmd.text);
+        
+    }
     
     public void testIndentSpaces() {
         //test after class xxx:\n
@@ -118,6 +182,32 @@ public class PyAutoIndentStrategyTest extends TestCase {
                    "      ";
         assertEquals(expected, docCmd.text);
     }        
+    
+    public void testIndent2() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String doc = "m = [a, otherCall(), ";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n" +
+        "      ";
+        assertEquals(expected, docCmd.text);
+
+        doc = "m = [a, otherCall(), ]";
+        docCmd = new DocCmd(doc.length()-1, 0, "\n"); //right before the last ']'
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "\n" +
+        "      ";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "def m2(self):\n"+
+              "    m1(a, b(), )";
+        docCmd = new DocCmd(doc.length()-1, 0, "\n"); //right before the last ')'
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "\n" +
+        "        ";
+        assertEquals(expected, docCmd.text);
+        
+    }
     
     public void testIndentTabs() {
         //test after class xxx:\n

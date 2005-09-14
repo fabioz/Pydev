@@ -9,7 +9,6 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
-import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**
@@ -266,7 +265,7 @@ public class PyBackspace extends PyAction {
     private String createSpaceString(int width) {
         StringBuffer b = new StringBuffer(width);
         while (tabWidth-- > 0)
-            b.append(DocUtils.SPACE);
+            b.append(' ');
         return b.toString();
     }
 
@@ -282,7 +281,7 @@ public class PyBackspace extends PyAction {
             if (useSpaces && !forceTabs)
                 identString = createSpaceString(tabWidth);
             else
-                identString = DocUtils.TAB_STRING;
+                identString = "\t";
         }
         return identString;
     }

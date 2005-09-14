@@ -41,47 +41,96 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 
     /**
      * Set indentation automatically after newline.
-     * 
-     * @param document
-     * @param length
-     * @param text
-     * @param offset
-     * @return String
-     * @throws BadLocationException
      */
     private String autoIndentNewline(IDocument document, int length, String text, int offset)
             throws BadLocationException {
         if (length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text)) {
 
             if (offset > 0) {
-                char lastChar = document.getChar(offset - 1);
-
-                //we dont want whitespaces
-                while (offset > 0 && lastChar == DocUtils.SPACE) {
-                    offset--;
-                    lastChar = document.getChar(offset - 1);
-                }
-
-                if (offset > 0) {
-
-                    if (lastChar == DocUtils.COLON) {
-                        String initial = text;
-
-                        text = initial + prefs.getIndentationString();
-
-                    } else if (lastChar == DocUtils.COMMA) {
-                        text = indentAfterCommaNewline(document, text, offset);
+                PySelection selection = new PySelection(document, offset);
+                String lineWithoutComments = PySelection.getLineWithoutComments(selection.getLineContentsToCursor());
+                
+                if(lineWithoutComments.length() > 0){
+                    
+                    
+                    //ok, now let's see the auto-indent
+                    int curr = lineWithoutComments.length() -1;
+                    char lastChar = lineWithoutComments.charAt(curr);
+    
+                    //we dont want whitespaces
+                    while (curr > 0 && Character.isWhitespace(lastChar)) {
+                        curr--;
+                        lastChar = lineWithoutComments.charAt(curr);
                     }
+    
+                    if (curr > 0) {
+    
+                        if (lastChar == ':') {
+                            String initial = text;
+    
+                            text = initial + prefs.getIndentationString();
+    
+                        } else if (lastChar == ',') {
+                            text = indentAfterCommaNewline(document, text, offset);
+                            
+                        }else{
+                            //ok, normal indent until now...
+                            //let's check for dedents...
+                            String trimmedLine = lineWithoutComments.trim();
+                            
+                            if(startsWithDedentToken(trimmedLine)){
+                                text = dedent(text);
+                            }
+                        }
+                    }
+                    
+                    
+                    
+                    
                 }
             }
         }
         return text;
     }
 
+    public static final String[] DEDENT_TOKENS = new String[]{
+        "return",
+        "break",
+        "continue",
+        "pass",
+        "raise",
+        "yield"
+    };
+
+    private boolean startsWithDedentToken(String trimmedLine) {
+        for (String dedent : DEDENT_TOKENS) {
+            if(trimmedLine.startsWith(dedent)){
+                if(dedent.length() < trimmedLine.length()){
+                    char afterToken = trimmedLine.charAt(dedent.length());
+                    if(afterToken == ' ' || afterToken == ';' || afterToken == '('){
+                        return true;
+                    }
+                    return false;
+                }else{
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private String dedent(String text) {
+        String indentationString = prefs.getIndentationString();
+        int indentationLength = indentationString.length();
+        int len = text.length();
+
+        if(len >= indentationLength){
+            text = text.substring(0, len - indentationLength);
+        }
+        return text;
+    }
 
     /**
-     * 
-     * 
      * @see org.eclipse.jface.text.IAutoEditStrategy#customizeDocumentCommand(IDocument, DocumentCommand)
      */
     public void customizeDocumentCommand(IDocument document, DocumentCommand command) {
@@ -93,7 +142,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             prefs.convertToStd(document, command);
             
 
-            if (command.text.equals(Character.toString(DocUtils.BEGIN_PARENTHESIS)) && prefs.getAutoParentesis()) {
+            if (command.text.equals("(") && prefs.getAutoParentesis()) {
                 PySelection ps = new PySelection(document, command.offset);
                 String line = ps.getLine();
 
@@ -138,7 +187,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
              * Typing another colon (i.e, ':') at that position will not insert
              * another colon
              */
-            else if (command.text.equals(Character.toString(DocUtils.COLON)) && prefs.getAutoColon()) {
+            else if (command.text.equals(":") && prefs.getAutoColon()) {
                 performColonReplacement(document, command);
             }
 
@@ -220,7 +269,8 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                 if (theChar != '\r' && theChar != '\n') {
                     if (i > 0) {
                         initial = initial.substring(0, i);
-                        smartIndent -= --i;
+                        --i;
+                        smartIndent -= i;
                     }
                     break;
                 }
@@ -230,11 +280,17 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             String indentationString = prefs.getIndentationString();
             int indentationSteps = smartIndent / prefs.getTabWidth();
             int spaceSteps = smartIndent % prefs.getTabWidth();
+            
             StringBuffer b = new StringBuffer(smartIndent);
-            while (indentationSteps-- > 0)
+            while (indentationSteps > 0){
+                indentationSteps -= 1;
                 b.append(indentationString);
-            while (spaceSteps-- >= 0)
-                b.append(Character.toString(DocUtils.SPACE));
+            }
+            
+            while (spaceSteps >= 0){
+                spaceSteps -= 1;
+                b.append(" ");
+            }
 
             return initial + b.toString();
         }
@@ -264,7 +320,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             try {
                 char currentCharacter = document.getChar(absoluteOffset);
 
-                if (currentCharacter == DocUtils.COLON) {
+                if (currentCharacter == ':') {
                     command.text = DocUtils.EMPTY_STRING;
                     command.caretOffset = command.offset + 1;
                 }
@@ -325,8 +381,8 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             }
         }
 
-        int i = PyAction.countChars(DocUtils.BEGIN_PARENTHESIS, line);
-        int j = PyAction.countChars(DocUtils.END_PARENTHESIS, line);
+        int i = PyAction.countChars('(', line);
+        int j = PyAction.countChars(')', line);
 
         if (j > i) {
             return false;
@@ -360,7 +416,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
         String line = document.get(lineStart, offset - lineStart);
         int lineLength = line.length();
 
-        for (int i = lineLength - 1; i > 0; i--) {
+        for (int i = 0; i < lineLength ; i++) {
             char theChar = line.charAt(i);
 
             // This covers all cases I know of, but if there is any platform
@@ -371,11 +427,12 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             if (theChar == '(' || theChar == '[' || theChar == '{') {
                 //ok, it's not just returning the line now, we have to check for tabs and make each
                 //tab count for the tabWidth.
-                int smartIndent = lineLength - (lineLength - i) + 1;
+                int smartIndent = i+1;
                 String string = line.substring(0, smartIndent - 1);
+                
                 for (int j = 0; j < string.length(); j++) {
                     char c = string.charAt(j);
-                    if (c == DocUtils.TAB) {
+                    if (c == '\t') {
                         smartIndent += prefs.getTabWidth() - 1;
                     }
                 }
