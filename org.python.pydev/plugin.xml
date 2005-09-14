@@ -101,13 +101,13 @@
             name="Python Interpreters"
             category="org.python.pydev.prefs"
             class="org.python.pydev.ui.pythonpathconf.PythonInterpreterPreferencesPage"
-            id="org.python.pydev.ui.pythonpathconf.pythonInterpreterPreferencesPage">
+            id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython">
       </page>
       <page
             name="Jython Interpreters"
             category="org.python.pydev.prefs"
             class="org.python.pydev.ui.pythonpathconf.JythonInterpreterPreferencesPage"
-            id="org.python.pydev.ui.pythonpathconf.jythonInterpreterPreferencesPage">
+            id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython">
       </page>
       <page
             name="Debug"
