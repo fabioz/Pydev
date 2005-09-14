@@ -33,17 +33,20 @@
 		<property name = "plug1"  value = "com.python.pydev.analysis"/>
 		<property name = "plug2"  value = "com.python.pydev.fastparser"/>
 		<property name = "plug3"  value = "com.python.pydev.codecompletion"/>
+		<property name = "plug4"  value = "com.python.pydev"/>
 
 		<!-- values after compile -->
 		<property name = "jar1"  value = "${eclipseResults}/plugins/${plug1}/analysis"/>
 		<property name = "jar2"  value = "${eclipseResults}/plugins/${plug2}/fastparser"/>
 		<property name = "jar3"  value = "${eclipseResults}/plugins/${plug3}/codecompletion"/>
+		<property name = "jar4"  value = "${eclipseResults}/plugins/${plug4}/pydev"/>
 
 		<!-- values inside the jar -->
 		<property name = "fol0"  value = "/features/${plug0}_${pydev.version}"/>
 		<property name = "fol1"  value =  "/plugins/${plug1}_${pydev.version}"/>
 		<property name = "fol2"  value =  "/plugins/${plug2}_${pydev.version}"/>
 		<property name = "fol3"  value =  "/plugins/${plug3}_${pydev.version}"/>
+		<property name = "fol4"  value =  "/plugins/${plug4}_${pydev.version}"/>
 
 		
 		<!-- print some info -->
@@ -69,6 +72,7 @@
 		<copy todir="${eclipseResults}/plugins/${plug1}"> <fileset dir="${EC_WORKSPACE}/${plug1}" defaultexcludes="yes" excludes="**/*.class" /></copy>
 		<copy todir="${eclipseResults}/plugins/${plug2}"> <fileset dir="${EC_WORKSPACE}/${plug2}" defaultexcludes="yes" excludes="**/*.class" /></copy>
 		<copy todir="${eclipseResults}/plugins/${plug3}"> <fileset dir="${EC_WORKSPACE}/${plug3}" defaultexcludes="yes" excludes="**/*.class" /></copy>
+		<copy todir="${eclipseResults}/plugins/${plug4}"> <fileset dir="${EC_WORKSPACE}/${plug4}" defaultexcludes="yes" excludes="**/*.class" /></copy>
 	</target>
 		
 	<target name = "doit" depends="recreate">

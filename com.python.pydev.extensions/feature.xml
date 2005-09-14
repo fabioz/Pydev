@@ -3,7 +3,8 @@
       id="com.python.pydev.extensions"
       label="PyDev Extensions"
       version="0.9.7.1"
-      provider-name="Fabio Zadrozny">
+      provider-name="Fabio Zadrozny"
+      plugin="com.python.pydev">
 
    <description url="http://www.example.com/description">
       This feature enables PyDev extensions. It may not be re-distributed
@@ -32,6 +33,12 @@ Zadrozny
       <import plugin="org.eclipse.core.resources"/>
       <import feature="org.python.pydev.feature" version="0.9.7.1" match="greaterOrEqual"/>
    </requires>
+
+   <plugin
+         id="com.python.pydev"
+         download-size="0"
+         install-size="0"
+         version="0.9.7.1"/>
 
    <plugin
          id="com.python.pydev.analysis"

@@ -6,8 +6,8 @@
       <page
             class="com.python.pydev.analysis.ui.AnalysisPreferencesPage"
             category="org.python.pydev.prefs"
-            id="org.python.pydev.prefs.analysis"
-            name="PyDev Code Analysis"/>
+            id="org.python.pydev.prefs.extensions.analysis"
+            name="Code Analysis"/>
    </extension>
 
 	<extension
