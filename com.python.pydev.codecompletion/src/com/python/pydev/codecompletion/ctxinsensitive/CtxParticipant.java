@@ -122,9 +122,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
         
         @Override
         public Point getSelection(IDocument document) {
-            Point selection = super.getSelection(document);
-            selection.x += realImportRep.length();
-            return selection;
+            return new Point(fReplacementOffset+fReplacementString.length()+realImportRep.length(), 0 );
         }
         
     }
