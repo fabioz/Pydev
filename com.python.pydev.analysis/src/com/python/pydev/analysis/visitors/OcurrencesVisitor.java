@@ -619,7 +619,11 @@ public class OcurrencesVisitor extends VisitorBase{
      * @return true if it was found
      */
     private boolean markRead(IToken token, String rep, boolean addToNotDefined) {
-        boolean found = scope.findFirst(rep, true) != null;
+        Iterator it = new FullRepIterable(rep, true).iterator();
+        boolean found = false;
+        while (found == false && it.hasNext()){
+            found = scope.findFirst((String) it.next(), true) != null;
+        }
         
         //this token might not be defined...
         int i;

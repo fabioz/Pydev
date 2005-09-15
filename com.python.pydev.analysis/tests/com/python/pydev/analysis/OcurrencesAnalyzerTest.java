@@ -32,7 +32,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testNoSelf();
+            analyzer2.testUnusedImports5();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -195,6 +195,21 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertContainsMsg("Unused import: otherthing", msgs);
         assertEquals(5, msgs[0].getStartCol(doc));
         assertEquals(-1, msgs[0].getEndCol(doc));
+    }
+    
+    public void testUnusedImports5(){
+        
+        doc = new Document(
+                "from definitions import methoddef\n" +
+                "@methoddef.decorator1\n" +
+                "def m1():pass\n" +
+                "\n" +
+                ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 0);
     }
     
     public void testCompiledUnusedImports5(){
