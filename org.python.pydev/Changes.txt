@@ -14,6 +14,7 @@ after 0.9.8.1
 - Dedent also added
 - Options for doing parsing only when saving the document (check the builder preferences)
 - Options for doing parsing only after an elapsed time (check the builder preferences)
+- .pyc is removed when the corresponding .py file is removed.
 
 after 0.9.8
 

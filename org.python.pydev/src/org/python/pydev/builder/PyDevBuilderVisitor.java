@@ -91,10 +91,17 @@ public abstract class PyDevBuilderVisitor {
         String moduleName = (String) memo.get(MODULE_NAME_CACHE);
         if(moduleName == null){
             PythonNature nature = PythonNature.getPythonNature(resource.getProject());
-            IFile f = (IFile) resource;
-            String file = f.getRawLocation().toOSString();
-            moduleName = nature.getAstManager().getProjectModulesManager().resolveModule(file);
-            memo.put(MODULE_NAME_CACHE, moduleName);
+            
+            if(nature != null){
+                IFile f = (IFile) resource;
+                String file = f.getRawLocation().toOSString();
+                ICodeCompletionASTManager astManager = nature.getAstManager();
+                
+                if(astManager != null){
+                    moduleName = astManager.getProjectModulesManager().resolveModule(file);
+                    memo.put(MODULE_NAME_CACHE, moduleName);
+                }
+            }
         }
         return moduleName;
     }
