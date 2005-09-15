@@ -6,6 +6,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.jface.dialogs.MessageDialog;
 
+import com.python.pydev.debug.remote.RemoteDebuggerServer;
+
 /**
  * Our sample action implements workbench action delegate.
  * The action proxy will be created by the workbench and
@@ -29,10 +31,7 @@ public class EndDebugServer implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
-		MessageDialog.openInformation(
-			window.getShell(),
-			"Extensions Debug Plug-in",
-			"WOHOOOOOOOO end");
+		RemoteDebuggerServer.getInstance().stopListening();
 	}
 
 	/**

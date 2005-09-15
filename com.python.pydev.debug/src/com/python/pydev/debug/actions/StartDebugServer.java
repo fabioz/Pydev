@@ -6,6 +6,10 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.jface.dialogs.MessageDialog;
 
+import com.python.pydev.debug.DebugPlugin;
+import com.python.pydev.debug.remote.RemoteDebuggerServer;
+import com.python.pydev.debug.ui.launching.PydevdServerLaunchShortcut;
+
 /**
  * Our sample action implements workbench action delegate.
  * The action proxy will be created by the workbench and
@@ -29,10 +33,15 @@ public class StartDebugServer implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
-		MessageDialog.openInformation(
+		/*MessageDialog.openInformation(
 			window.getShell(),
 			"Extensions Debug Plug-in",
-			"WOHOOOOOOOO start");
+			"WOHOOOOOOOO start");*/
+		PydevdServerLaunchShortcut s = new PydevdServerLaunchShortcut();
+		s.launch(null,"run","");
+		
+		Thread t = new Thread( RemoteDebuggerServer.getInstance() );
+		t.start();
 	}
 
 	/**

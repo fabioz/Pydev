@@ -4,19 +4,21 @@ import org.eclipse.ui.plugin.*;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.osgi.framework.BundleContext;
 
+import com.python.pydev.debug.remote.RemoteDebuggerServer;
+
 /**
  * The main plugin class to be used in the desktop.
  */
 public class DebugPlugin extends AbstractUIPlugin {
 
 	//The shared instance.
-	private static DebugPlugin plugin;
+	private static DebugPlugin plugin;	
 	
 	/**
 	 * The constructor.
 	 */
 	public DebugPlugin() {
-		plugin = this;
+		plugin = this;	
 	}
 
 	/**

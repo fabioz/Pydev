@@ -2,38 +2,57 @@
 <?eclipse version="3.0"?>
 <plugin>
 
-   <extension
-         point="org.eclipse.ui.actionSets">
-      <actionSet
-            label="Pydev Debug Server"
-            visible="true"
-            id="com.python.pydev.debug.actionSet">
-         <menu
-               label="Pydev Debug"
-               id="debugMenu">
-            <separator
-                  name="debugGroup">
-            </separator>
-         </menu>
-         <action
-               label="&amp;Start Debug Server"
-               icon="icons/start_debug_server.gif"
-               class="com.python.pydev.debug.actions.StartDebugServer"
-               tooltip="Pydev: start the pydev server"
-               menubarPath="debugMenu/debugGroup"
-               toolbarPath="debugGroup"
-               id="com.python.pydev.debug.actions.StartDebugServer">
-         </action>
-         <action
-               label="&amp;End Debug Server"
-               icon="icons/term_debug_server.gif"
-               class="com.python.pydev.debug.actions.EndDebugServer"
-               tooltip="Pydev: stop the debugger server"
-               menubarPath="debugMenu/debugGroup"
-               toolbarPath="debugGroup"
-               id="com.python.pydev.debug.actions.EndDebugServer">
-         </action>
-      </actionSet>
-   </extension>
+<!--- launcher -->
+<extension point="org.eclipse.debug.core.launchConfigurationTypes">
+	<launchConfigurationType
+        delegate="com.python.pydev.debug.ui.launching.PydevdServerLaunchConfigurationDelegate"
+        id="com.python.pydev.debug.pydevdServerLaunchConfigurationType"
+        modes="run"
+        name="Python Server"
+        public="false">
+	</launchConfigurationType>
+</extension>
+
+<extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+	<launchConfigurationTypeImage
+		icon="icons/start_debug_server.gif"
+		configTypeID="com.python.pydev.debug.pydevdServerLaunchConfigurationType"
+		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
+	</launchConfigurationTypeImage>
+</extension>
+
+
+<extension point="org.eclipse.ui.actionSets">
+  <actionSet
+        label="Pydev Debug Server"
+        visible="true"
+        id="com.python.pydev.debug.actionSet">
+     <menu
+           label="Pydev Debug"
+           id="debugMenu">
+        <separator
+              name="debugGroup">
+        </separator>
+     </menu>
+     <action
+           label="&amp;Start Debug Server"
+           icon="icons/start_debug_server.gif"
+           class="com.python.pydev.debug.actions.StartDebugServer"
+           tooltip="Pydev: start the pydev server"
+           menubarPath="debugMenu/debugGroup"
+           toolbarPath="debugGroup"
+           id="com.python.pydev.debug.actions.StartDebugServer">
+     </action>
+     <action
+           label="&amp;End Debug Server"
+           icon="icons/term_debug_server.gif"
+           class="com.python.pydev.debug.actions.EndDebugServer"
+           tooltip="Pydev: stop the debugger server"
+           menubarPath="debugMenu/debugGroup"
+           toolbarPath="debugGroup"
+           id="com.python.pydev.debug.actions.EndDebugServer">
+     </action>
+  </actionSet>
+</extension>
 
 </plugin>
