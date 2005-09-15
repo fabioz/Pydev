@@ -45,6 +45,7 @@ each command has a format:
     * RDB - remote debugger, the java end
     * PYDB - pydevd, the python end
 """
+import os.path
 
 
 try:
@@ -84,7 +85,11 @@ CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
 
+
+DONT_TRACE = ['pydevd.py' , 'threading.py']
+
 Debugger = None
+connected = False
 
 __all__ = ();
     
@@ -153,7 +158,7 @@ class WriterThread(threading.Thread):
                 cmd = self.cmdQueue.get(1)
                 out = cmd.getOutgoing()
                 pydevd_log(1, "sending cmd " + out)
-                bytesSent = self.sock.send(out) #TODO: this does not guarantee that all message is sent (and jython does not have a send all)
+                bytesSent = self.sock.send(out) #TODO: this does not guarantee that all message are sent (and jython does not have a send all)
                 time.sleep(self.timeout)                
         except Exception, e:
             print >>sys.stderr, "Exception in writer thread", str(e)
@@ -240,34 +245,43 @@ class NetCommandFactory:
     def makeThreadSuspendMessage(self, thread_id, frame, stop_reason):
         
         """ <xml>
-        	<thread id="id">
+        	<thread id="id" stop_reason="reason">
  		       	<frame id="id" name="functionName " file="file" line="line">
         			<var variable stuffff....
         		</frame>
         	</thread>
        	"""
         try:
-            cmdText = "<xml>"
-            cmdText += '<thread id="' + str(thread_id) + '" ' + 'stop_reason="' + str(stop_reason) + '">'
+            cmdTextList = ["<xml>"]
+            cmdTextList.append('<thread id="%s" stop_reason="%s">' % (str(thread_id), str(stop_reason)))
+            
             curFrame = frame
-            while (curFrame):
-#                print cmdText
+            while curFrame:
+                #print cmdText
                 myId = str(id(curFrame))
-#                print "id is ", myId
+                #print "id is ", myId
+                
                 myName = curFrame.f_code.co_name
-#                print "name is ", myName
-                myFile = curFrame.f_code.co_filename
-#                myFile = inspect.getsourcefile(curFrame) or inspect.getfile(frame)
-#                print "file is ", myFile
+                #print "name is ", myName
+                
+                myFile = os.path.abspath( curFrame.f_code.co_filename )                
+                #myFile = inspect.getsourcefile(curFrame) or inspect.getfile(frame)
+                #print "file is ", myFile
+                
                 myLine = str(curFrame.f_lineno)
-#                print "line is ", myLine
-                cmdText += '<frame id="' + myId +'" name="' + myName + '" '
-                cmdText += 'file="' + urllib.quote(myFile, '/>_= \t') + '" line="' + myLine + '">"'
+                #print "line is ", myLine
+                
                 variables = pydevd_vars.frameVarsToXML(curFrame)
-                cmdText += variables
-                cmdText += "</frame>"
+
+                cmdTextList.append( '<frame id="%s" name="%s" ' % (myId , myName)                      ) 
+                cmdTextList.append( 'file="%s" line="%s">"'     % (urllib.quote(myFile, '/>_= \t'), myLine)) 
+                cmdTextList.append( variables  ) 
+                cmdTextList.append( "</frame>" ) 
                 curFrame = curFrame.f_back
-            cmdText += "</thread></xml>"
+            
+            cmdTextList.append( "</thread></xml>" )
+            cmdText = ''.join(cmdTextList)
+            
             return NetCommand(CMD_THREAD_SUSPEND, 0, cmdText)
         except:
             return self.makeErrorMessage(0, str(sys.exc_info()[0]))
@@ -421,14 +435,13 @@ class PyDB:
         self.breakpoints = {}
         self.readyToRun = False
 
-    def initializeNetwork(self, sock):        
+    def initializeNetwork(self, sock):
         #sock.settimeout(None) # infinite, no timeouts from now on - jython does not have it
-        self.reader = ReaderThread(sock)
-        self.reader.start()
         self.writer = WriterThread(sock)
         self.writer.start()
-        time.sleep(0.1) # give threads time to start
-        
+        self.reader = ReaderThread(sock)
+        self.reader.start()        
+        time.sleep(0.1) # give threads time to start        
         
     def startServer(self, port):
         """ binds to a port, waits for the debugger to connect """
@@ -602,28 +615,32 @@ class PyDB:
         it expects thread's state as attributes of the thread.
         Upon running, processes any outstanding Stepping commands.
         """
-#        print >>sys.stderr, "thread suspended", thread.getName()
+        #print >>sys.stderr, "thread suspended", thread.getName()
      
         cmd = self.cmdFactory.makeThreadSuspendMessage(id(thread), frame, thread.stop_reason)
         self.writer.addCommand(cmd)
         while (thread.pydev_state == PyDB.STATE_SUSPEND):
- #           print "waiting on thread"
+            #print "waiting on thread"
             self.processInternalCommands()
             time.sleep(0.1)
+            
         try:
-            """ process any stepping instructions """
-            if (thread.pydev_step_cmd == CMD_STEP_INTO):
+            #process any stepping instructions 
+            if thread.pydev_step_cmd == CMD_STEP_INTO:
                 thread.pydev_step_stop = None
-            elif (thread.pydev_step_cmd == CMD_STEP_OVER):
-                if (event is 'return'): # if we are returning from the function, stop in parent
-#                    print "Stepping back one"
+                
+            elif thread.pydev_step_cmd == CMD_STEP_OVER:
+                if event is 'return': # if we are returning from the function, stop in parent
+                    #print "Stepping back one"
                     thread.pydev_step_stop = frame.f_back
                 else:
                     thread.pydev_step_stop = frame
-            elif (thread.pydev_step_cmd == CMD_STEP_RETURN):
+                    
+            elif thread.pydev_step_cmd == CMD_STEP_RETURN:
                 thread.pydev_step_stop = frame.f_back
+                
         except AttributeError:
-            thread.pydev_step_cmd = None # so we do ont thro
+            thread.pydev_step_cmd = None # so we do not thro
             pass
  
         pydevd_log(1, "thread resumed " + thread.getName())  
@@ -632,83 +649,68 @@ class PyDB:
                 
     def trace_dispatch(self, frame, event, arg):
         """ the main callback from the debugger """
+        if event not in ['call', 'line', 'return']:
+            return None
+
+        filename = frame.f_code.co_filename
+        base = os.path.basename( filename )
+        if base in DONT_TRACE: #we don't want to debug pydevd or threading
+            return None
+
         self.processInternalCommands()
         
         t = threading.currentThread()
-        """ if thread is not alive, cancel trace_dispatch processing """
+        
+        # if thread is not alive, cancel trace_dispatch processing
         if not t.isAlive():
             self.processThreadNotAlive(t)
             return None # suspend tracing
         
-        wasSuspended = False
-        
+        wasSuspended = False        
 
-        try:
-            """ breakpoints """
-            file = frame.f_code.co_filename
+        try:            
+            # breakpoints
+            
+            file = os.path.abspath( filename )
             line = int(frame.f_lineno)
             if t.pydev_state != PyDB.STATE_SUSPEND and self.breakpoints.has_key(file) and self.breakpoints[file].has_key(line):
                 self.setSuspend(t, CMD_SET_BREAK)
-            """ if thread has a suspend flag, we suspend with a busy wait """
+                
+            # if thread has a suspend flag, we suspend with a busy wait
             if (t.pydev_state == PyDB.STATE_SUSPEND):
                 wasSuspended = True
                 self.doWaitSuspend(t, frame, event, arg)
                 return self.trace_dispatch
+            
         except AttributeError:
             t.pydev_state = PyDB.STATE_RUN # assign it to avoid future exceptions
+            
         except:
             print >> sys.stderr, "Exception in trace_dispatch"
             print sys.exc_info()[0]
             raise
 
-        if ( not wasSuspended and (event == 'line' or event== 'return')):
+        if not wasSuspended and (event == 'line' or event== 'return'):
             """ step handling. We stop when we hit the right frame"""
             try:
-                if (t.pydev_step_cmd == CMD_STEP_INTO):
+                if t.pydev_step_cmd == CMD_STEP_INTO:
                     self.setSuspend(t, CMD_STEP_INTO)
-                    self.doWaitSuspend(t, frame, event, arg)                    
-                elif (t.pydev_step_cmd == CMD_STEP_OVER or t.pydev_step_cmd == CMD_STEP_RETURN):
-                    if (t.pydev_step_stop == frame):
+                    self.doWaitSuspend(t, frame, event, arg)      
+                    
+                
+                elif t.pydev_step_cmd == CMD_STEP_OVER or t.pydev_step_cmd == CMD_STEP_RETURN:
+                    if t.pydev_step_stop == frame:
                         self.setSuspend(t, t.pydev_step_cmd)
                         self.doWaitSuspend(t, frame, event, arg)
             except:
                 t.pydev_step_cmd = None
         
         retVal = None
-#        print "t3 ", str(id(t))
-        if self.quitting:
-            pass
-#        elif event == 'line':
-#            retVal =  self.dispatch_line(frame)
-#        elif event == 'call':
-#            retVal =  self.dispatch_call(frame, arg)
-#        elif event == 'return':
-#            retVal =  self.dispatch_return(frame, arg)
-#        elif event == 'exception':
-#            retVal =  self.dispatch_exception(frame, arg)
-        else:
+        if not self.quitting:
             retVal = self.trace_dispatch
-#            print 'bdb.Bdb.dispatch: unknown debugging event:', `event`
-#        print "b", str(id(t))
+
         return retVal
 
-    def dispatch_line(self, frame):
-#        myFile = inspect.getsourcefile(frame) or inspect.getfile(frame)
-#        myLine = str(frame.f_lineno)  
-#        print ' File "'+ myFile + '", line '+ myLine
-        return self.trace_dispatch
-
-    def dispatch_call(self, frame, arg):
-#        print "C " + str(frame) + " " + str(arg)
-        return self.trace_dispatch
-
-    def dispatch_return(self, frame, arg):
-#        print "R " + str(frame) + " " + str(arg)
-        return self.trace_dispatch
-
-    def dispatch_exception(self, frame, arg):
-#        print "E " + str(frame) + " " + str(arg)
-        return self.trace_dispatch
 
     def run(self, file, globals=None, locals=None):
 
@@ -800,7 +802,7 @@ def processCommandLine(argv):
             del argv[i]
             retVal['server'] = True
         elif (argv[i] == '--file'):
-            del argv[i]
+            del argv[i]            
             retVal['file'] = argv[i];
             i = len(argv) # pop out, file is our last argument
         else:
@@ -812,16 +814,56 @@ def usage(doExit=0):
     print 'pydevd.py --port=N [(--client hostname) | --server] --file executable [file_options]'
     if (doExit):
         sys.exit(0)
-
       
 def quittingNow():
     pydevd_log(1, "Debugger exiting. Over & out....\n")
 
 def quittingNowJython():
-    pydevd_log(1, "Debugger exiting. Over & out ( Jython )....\n")
-    import sys
-    sys.exit(0)
+    try:
+        pydevd_log(1, "Debugger exiting. Over & out ( Jython )....\n")        
+        import sys
+        sys.exit(0)        
+    except:
+        print "Exception in quitting now jython"
+        raise
 
+def setupQuiting():
+    global type
+    type = 'jython'
+    
+    import atexit
+    try:
+        import java.lang
+        atexit.register(quittingNowJython)
+    except:
+        atexit.register(quittingNow)
+        type = 'python'
+
+def settrace():
+    global connected
+    if not connected :
+        connected = True  
+        
+        setupQuiting()
+        
+        debugger = PyDB()
+        debugger.connect('localhost', 5678)
+        
+        net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.reader" id="-1"/></xml>')
+        debugger.writer.addCommand(net)
+        net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.writer" id="-1"/></xml>')
+        debugger.writer.addCommand(net)
+        
+        frame = sys._getframe().f_back
+        while frame:
+            frame.f_trace = debugger.trace_dispatch
+            frame = frame.f_back
+        
+        t = threading.currentThread()        
+        debugger.setSuspend(t, CMD_SET_BREAK)
+        
+        sys.settrace(debugger.trace_dispatch)
+    
 if __name__ == '__main__':
     print >>sys.stderr, "pydev debugger"
     # parse the command line. --file is our last argument that is required
