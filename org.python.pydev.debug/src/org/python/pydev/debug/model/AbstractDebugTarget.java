@@ -169,8 +169,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 		return false;
 	}
 
-	public IMemoryBlock getMemoryBlock(long startAddress, long length)
-		throws DebugException {
+	public IMemoryBlock getMemoryBlock(long startAddress, long length) throws DebugException {
 		return null;
 	}	
 
@@ -184,16 +183,22 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 		try {
             int cmdCode = Integer.parseInt(sCmdCode);
 //            int seqCode = Integer.parseInt(sSeqCode);
-            if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_CREATED)
+            
+            if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_CREATED){
                 processThreadCreated(payload);
-            else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_KILL)
+                
+            }else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_KILL){
                 processThreadKilled(payload);
-            else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_SUSPEND)
+                
+            }else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_SUSPEND){
                 processThreadSuspended(payload);
-            else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_RUN)
+                
+            }else if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_RUN){
                 processThreadRun(payload);
-            else
-                PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command" + sCmdCode, null); 
+                
+            }else{
+                PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command" + sCmdCode, null);
+            }
         } catch (Exception e) {
             PydevDebugPlugin.log(IStatus.ERROR, "Error processing: " + sCmdCode+"\npayload: "+payload, e); 
         }	
@@ -210,9 +215,11 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 	 * @return an existing thread with a given id (null if none)
 	 */
 	protected PyThread findThreadByID(String thread_id)  {		
-		for (int i = 0; i < threads.length; i++)
-			if (thread_id.equals(((PyThread)threads[i]).getId()))
-				return (PyThread)threads[i];
+		for (IThread thread : threads){
+			if (thread_id.equals(((PyThread)thread).getId())){
+				return (PyThread)thread;
+            }
+        }
 		return null;
 	}
 	
@@ -232,39 +239,57 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 		// Hide Pydevd threads if requested
 		if (PydevDebugPrefs.getPreferences().getBoolean(PydevDebugPrefs.HIDE_PYDEVD_THREADS)) {
 			int removeThisMany = 0;
-			for (int i=0; i< newThreads.length; i++)
-				if (((PyThread)newThreads[i]).isPydevThread())
+            
+			for (int i=0; i< newThreads.length; i++){
+				if (((PyThread)newThreads[i]).isPydevThread()){
 					removeThisMany++;
+                }
+            }
+            
 			if (removeThisMany > 0) {
 				int newSize = newThreads.length - removeThisMany;
-				if (newSize == 0)	// no threads to add
+				
+                if (newSize == 0){	// no threads to add
 					return;
-				else {
-					IThread[] newnewThreads = new IThread[newSize];
-					int ii = 0;
-					for (int i =0; i< newThreads.length; i++)
-						if (!((PyThread)newThreads[i]).isPydevThread())
-							newnewThreads[ii++] = newThreads[i];
+                    
+                } else {
+					
+                    IThread[] newnewThreads = new IThread[newSize];
+					int i = 0;
+                    
+					for (IThread newThread: newThreads){
+						if (!((PyThread)newThread).isPydevThread()){
+							newnewThreads[i] = newThread;
+                            i += 1;
+                        }
+                    }
+                    
 					newThreads = newnewThreads;
+                    
 				}
 			}
 		}
 
 		// add threads to the thread list, and fire event
-		if (threads == null)
+		if (threads == null){
 			threads = newThreads;
-		else {
+            
+        } else {
 			IThread[] combined = new IThread[threads.length + newThreads.length];
 			int i = 0;
-			for (i = 0; i < threads.length; i++)
+			for (i = 0; i < threads.length; i++){
 				combined[i] = threads[i];
-			for (int j = 0; j < newThreads.length; i++, j++)
+            }
+            
+			for (int j = 0; j < newThreads.length; i++, j++){
 				combined[i] = newThreads[j];
+            }
 			threads = combined;
 		}
 		// Now notify debugger that new threads were added
-		for (int i =0; i< newThreads.length; i++) 
+		for (int i =0; i< newThreads.length; i++){ 
 			fireEvent(new DebugEvent(newThreads[i], DebugEvent.CREATE));
+        }
 	}
 	
 	// Remote this from our thread list
@@ -273,9 +298,11 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 		if (threadToDelete != null) {
 			int j = 0;
 			IThread[] newThreads = new IThread[threads.length - 1];
-			for (int i=0; i < threads.length; i++)
-				if (threads[i] != threadToDelete) 
+			for (int i=0; i < threads.length; i++){
+				if (threads[i] != threadToDelete){ 
 					newThreads[j++] = threads[i];
+                }
+            }
 			threads = newThreads;
 			fireEvent(new DebugEvent(threadToDelete, DebugEvent.TERMINATE));
 		}
@@ -289,20 +316,26 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 			PydevDebugPlugin.errorDialog("Error reading ThreadSuspended", e);
 			return;
 		}
+        
 		PyThread t = (PyThread)threadNstack[0];
 		int reason = DebugEvent.UNSPECIFIED;
 		String stopReason = (String) threadNstack[1];
-		if (stopReason != null) {
+		
+        if (stopReason != null) {
 			int stopReason_i = Integer.parseInt(stopReason);
+            
 			if (stopReason_i == AbstractDebuggerCommand.CMD_STEP_OVER ||
 				stopReason_i == AbstractDebuggerCommand.CMD_STEP_INTO ||
-				stopReason_i == AbstractDebuggerCommand.CMD_STEP_RETURN)
+				stopReason_i == AbstractDebuggerCommand.CMD_STEP_RETURN){
 				reason = DebugEvent.STEP_END;
-			else if (stopReason_i == AbstractDebuggerCommand.CMD_THREAD_SUSPEND)
+                
+            }else if (stopReason_i == AbstractDebuggerCommand.CMD_THREAD_SUSPEND){
 				reason = DebugEvent.CLIENT_REQUEST;
-			else if (stopReason_i == AbstractDebuggerCommand.CMD_SET_BREAK)
+                
+            }else if (stopReason_i == AbstractDebuggerCommand.CMD_SET_BREAK){
 				reason = DebugEvent.BREAKPOINT;
-			else {
+                
+            }else {
 				PydevDebugPlugin.log(IStatus.ERROR, "Unexpected reason for suspension", null);
 				reason = DebugEvent.UNSPECIFIED;
 			}
@@ -420,8 +453,9 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 				resumeReason = DebugEvent.UNSPECIFIED;
 			}
 		}
-		else
+		else{
 			PydevDebugPlugin.log(IStatus.ERROR, "Unexpected treadRun payload " + payload, null);
+        }
 		
 		PyThread t = (PyThread)findThreadByID(threadID);
 		if (t != null) {
@@ -430,49 +464,42 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 		}
 	}
 	
-	/**
-	 * Called after debugger has been connected. 
-	 * 
-	 * Here we send all the initialization commands
-	 */
-	public void initialize() {
-		// we post version command just for fun
-		// it establishes the connection
-		debugger.postCommand(new VersionCommand(debugger));
-		
-		// now, register all the breakpoints in our project
-		IFile launched[];
-		if( file!=null ) {
-			IFile temp = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(file);
-			if(temp != null) {
-				launched = new IFile[1];
-				launched[0] = temp;
-			}
-			else {
-				launched = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(file);
-			}
-			for(int ii = 0; ii != launched.length; ++ii) {
-				IProject project = launched[ii].getProject();
-				try {
-					IMarker[] markers = project.findMarkers(PyBreakpoint.PY_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
-					IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
-					for (int i= 0; i < markers.length; i++) {
-						PyBreakpoint brk = (PyBreakpoint)breakpointManager.getBreakpoint(markers[i]);
-						if (brk.isEnabled()) {
-							SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine());
-							debugger.postCommand(cmd);
-						}
-					}
-				} catch (Throwable t) {
-					PydevDebugPlugin.errorDialog("Error setting breakpoints", t);
-				}
-			}
-		}
-			
-		// Send the run command, and we are off
-		RunCommand run = new RunCommand(debugger);
-		debugger.postCommand(run);
-	}
+    /**
+     * Called after debugger has been connected.
+     *
+     * Here we send all the initialization commands
+     */
+    public void initialize() {
+        // we post version command just for fun
+        // it establishes the connection
+        debugger.postCommand(new VersionCommand(debugger));
+
+        // now, register all the breakpoints in all projects
+        IProject projects[] = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+        for (IProject project : projects) {
+            
+            try {
+                IMarker[] markers = project.findMarkers(PyBreakpoint.PY_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
+                IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
+                
+                for (IMarker marker : markers) {
+                    PyBreakpoint brk = (PyBreakpoint) breakpointManager.getBreakpoint(marker);
+                    
+                    if (brk.isEnabled()) {
+                        SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine());
+                        debugger.postCommand(cmd);
+                    }
+                }
+            } catch (Throwable t) {
+                PydevDebugPlugin.errorDialog("Error setting breakpoints", t);
+            }
+        }
+
+        // Send the run command, and we are off
+        RunCommand run = new RunCommand(debugger);
+        debugger.postCommand(run);
+    }
+
 	
 	public boolean canDisconnect() {
 		return !disconnected;
@@ -490,24 +517,32 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 	
 	public Object getAdapter(Class adapter) {		
 		// Not really sure what to do here, but I am trying
-		if (adapter.equals(ILaunch.class))
+		if (adapter.equals(ILaunch.class)){
 			return launch;
-		else if (adapter.equals(IResource.class)) {
+            
+        }else if (adapter.equals(IResource.class)) {
 			// used by Variable ContextManager, and Project:Properties menu item
 			if( file!=null ) {
 				IFile[] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(file);
-				if (files != null && files.length > 0)
+                
+				if (files != null && files.length > 0){
 					return files[0];
-				else
+
+                }else{
 					return null;
+                    
+                }
 			}
-		} else if (adapter.equals(IPropertySource.class))
+            
+		} else if (adapter.equals(IPropertySource.class)){
 			return launch.getAdapter(adapter);
-		else if (adapter.equals(ITaskListResourceAdapter.class) 
+            
+        } else if (adapter.equals(ITaskListResourceAdapter.class) 
 				|| adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class) 
 				|| adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class) 
-				)
+				){
 			return  super.getAdapter(adapter);
+        }
 		// System.err.println("Need adapter " + adapter.toString());
 		return super.getAdapter(adapter);
 	}
