@@ -22,7 +22,7 @@ public class GetVariableCommand extends AbstractDebuggerCommand {
 	int responseCode;
 	String payload;
 
-	public GetVariableCommand(RemoteDebugger debugger, String locator) {
+	public GetVariableCommand(AbstractRemoteDebugger debugger, String locator) {
 		super(debugger);
 		this.locator = locator;
 	}

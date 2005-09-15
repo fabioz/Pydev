@@ -28,13 +28,13 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 	protected String name;
 	protected String type;
 	protected String value;
-	protected PyDebugTarget target;
+	protected AbstractDebugTarget target;
 	protected boolean isModified;
 	
 	//Only create one instance of an empty array to be returned
 	private static final IVariable[] EMPTY_IVARIABLE_ARRAY = new IVariable[0]; 
 
-	public PyVariable(PyDebugTarget target, String name, String type, String value) {
+	public PyVariable(AbstractDebugTarget target, String name, String type, String value) {
 		this.value = value;
 		this.name = name;
 		this.type = type;

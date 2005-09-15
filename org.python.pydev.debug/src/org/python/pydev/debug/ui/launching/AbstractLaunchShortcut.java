@@ -120,7 +120,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 	 * COPIED/MODIFIED from AntLaunchShortcut
 	 * Returns a list of existing launch configuration for the given file.
 	 */
-	private List findExistingLaunchConfigurations(IResource file) {
+	protected List findExistingLaunchConfigurations(IResource file) {
 		ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
 		ILaunchConfigurationType type = manager.getLaunchConfigurationType(getLaunchConfigurationType());
 		List validConfigs= new ArrayList();
@@ -144,7 +144,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 	 * @param file
 	 * @return default string for the location field
 	 */
-	private String getDefaultLocation (IResource file) {
+	protected String getDefaultLocation (IResource file) {
 		return file.getRawLocation().toString();
 // E3		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
 // E3		return varManager.generateVariableExpression("workspace_loc", file.getFullPath().toString());
@@ -212,7 +212,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 	/**
 	 * COPIED/MODIFIED from AntLaunchShortcut
 	 */
-	private ILaunchConfiguration chooseConfig(List configs) {
+	protected ILaunchConfiguration chooseConfig(List configs) {
 		if (configs.isEmpty()) {
 			return null;
 		}

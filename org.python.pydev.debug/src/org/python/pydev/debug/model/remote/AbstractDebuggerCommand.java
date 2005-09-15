@@ -49,11 +49,11 @@ public abstract class AbstractDebuggerCommand {
 	static public final int CMD_VERSION = 501;
 	static public final int CMD_RETURN = 502;
 	
-	protected RemoteDebugger debugger;
+	protected AbstractRemoteDebugger debugger;
 	protected ICommandResponseListener responseListener;
 	int sequence;
 	
-	public AbstractDebuggerCommand(RemoteDebugger debugger) {
+	public AbstractDebuggerCommand(AbstractRemoteDebugger debugger) {
 		this.debugger = debugger;
 		this.responseListener = null;
 		sequence = debugger.getNextSequence();
@@ -74,12 +74,15 @@ public abstract class AbstractDebuggerCommand {
 	 */
 	public void aboutToSend() {
 		// if we need a response, put me on the waiting queue
-		if (needResponse())
+		if (needResponse()){
 			debugger.addToResponseQueue(this);
+        }
 	}
 
 	/**
 	 * Does this command require a response?
+     * 
+     * This is meant to be overriden by subclasses if they need a response.
 	 */
 	public boolean needResponse() {
 		return false;
@@ -96,12 +99,15 @@ public abstract class AbstractDebuggerCommand {
 	 * Called when command completes, if needResponse was true
 	 */
 	public final void processResponse(int cmdCode, String payload) {
-		if (cmdCode / 100  == 9)	
+		if (cmdCode / 100  == 9){
 			processErrorResponse(cmdCode, payload);	
-		else
+        }else{
 			processOKResponse(cmdCode, payload);
-		if (responseListener != null)
+        }
+		
+        if (responseListener != null){
 			responseListener.commandComplete(this);
+        }
 	}
 	
 	/**

@@ -12,9 +12,9 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
+import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
-import org.python.pydev.debug.model.remote.RemoteDebugger;
 
 /**
  * PyVariableCollection represents container variables.
@@ -30,7 +30,7 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 	int requestedVariables = 0; // Network request state: 0 did not request, 1 requested, 2 requested & arrived
 	boolean fireChangeEvent = true;
 	
-	public PyVariableCollection(PyDebugTarget target, String name, String type, String value, IVariableLocator locator) {
+	public PyVariableCollection(AbstractDebugTarget target, String name, String type, String value, IVariableLocator locator) {
 		super(target, name, type, value);
 		this.locator = locator;
 	}
@@ -85,7 +85,7 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 		else if (requestedVariables == 1)
 			return getWaitVariables();
 
-		RemoteDebugger dbg;
+		AbstractRemoteDebugger dbg;
 		dbg = target.getDebugger();
 		
 		// send the command, and then busy-wait

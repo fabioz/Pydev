@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.model.IThread;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.XMLUtils;
 
@@ -21,10 +22,10 @@ import org.python.pydev.debug.model.XMLUtils;
 public class ThreadListCommand extends AbstractDebuggerCommand {
 
 	boolean done;
-	PyDebugTarget target;
+	AbstractDebugTarget target;
 	IThread[] threads;
 	
-	public ThreadListCommand(RemoteDebugger debugger, PyDebugTarget target) {
+	public ThreadListCommand(AbstractRemoteDebugger debugger, AbstractDebugTarget target) {
 		super(debugger);
 		this.target = target;
 		done = false;

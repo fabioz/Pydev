@@ -14,7 +14,7 @@ public class ThreadSuspendCommand extends AbstractDebuggerCommand {
 
 	String thread;
 	
-	public ThreadSuspendCommand(RemoteDebugger debugger, String thread) {
+	public ThreadSuspendCommand(AbstractRemoteDebugger debugger, String thread) {
 		super(debugger);
 		this.thread = thread;
 	}

@@ -17,7 +17,7 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
-import org.python.pydev.debug.model.remote.RemoteDebugger;
+import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.StepCommand;
 import org.python.pydev.debug.model.remote.ThreadRunCommand;
 import org.python.pydev.debug.model.remote.ThreadSuspendCommand;
@@ -28,16 +28,20 @@ import org.python.pydev.debug.model.remote.ThreadSuspendCommand;
  */
 public class PyThread extends PlatformObject implements IThread {
 
-	private PyDebugTarget target;
+	private AbstractDebugTarget target;
 	private String name;
 	private String id;
-	private boolean isPydevThread;	// true if this is a debugger thread, that can't be killed/suspended
+    
+    /**
+     * true if this is a debugger thread, that can't be killed/suspended
+     */
+	private boolean isPydevThread;
 
 	private boolean isSuspended = false;
 	private boolean isStepping = false;
 	private IStackFrame[] stack;
 	
-	public PyThread(PyDebugTarget target, String name, String id) {
+	public PyThread(AbstractDebugTarget target, String name, String id) {
 		this.target = target;
 		this.name = name;
 		this.id = id;
@@ -89,14 +93,7 @@ public class PyThread extends PlatformObject implements IThread {
 	}
 
 	public void terminate() throws DebugException {
-		// this only kills a single thread, we usually want to kill 
-		// the whole app
-//		if (!isPydevThread) {
-//			RemoteDebugger d = target.getDebugger();
-//			d.postCommand(new ThreadKillCommand(d, id));
-//		}
-//		else
-			target.terminate();
+		target.terminate();
 	}
 
 	public boolean canResume() {
@@ -115,7 +112,8 @@ public class PyThread extends PlatformObject implements IThread {
 		if (!isPydevThread) {
 			stack = null;
 			isStepping = false;
-			RemoteDebugger d = target.getDebugger();
+			//RemoteDebugger d = target.getDebugger();
+			AbstractRemoteDebugger d = target.getDebugger();
 			d.postCommand(new ThreadRunCommand(d, id));
 		}
 	}
@@ -123,7 +121,7 @@ public class PyThread extends PlatformObject implements IThread {
 	public void suspend() throws DebugException {
 		if (!isPydevThread) {
 			stack = null;
-			RemoteDebugger d = target.getDebugger();
+			AbstractRemoteDebugger d = target.getDebugger();
 			d.postCommand(new ThreadSuspendCommand(d, id));
 		}
 	}
@@ -147,7 +145,7 @@ public class PyThread extends PlatformObject implements IThread {
 	public void stepInto() throws DebugException {
 		if (!isPydevThread) {
 			isStepping = true;
-			RemoteDebugger d = target.getDebugger();
+			AbstractRemoteDebugger d = target.getDebugger();
 			d.postCommand(new StepCommand(d, AbstractDebuggerCommand.CMD_STEP_INTO, id));
 		}		
 	}
@@ -155,7 +153,7 @@ public class PyThread extends PlatformObject implements IThread {
 	public void stepOver() throws DebugException {
 		if (!isPydevThread) {
 			isStepping = true;
-			RemoteDebugger d = target.getDebugger();
+			AbstractRemoteDebugger d = target.getDebugger();
 			d.postCommand(new StepCommand(d, AbstractDebuggerCommand.CMD_STEP_OVER, id));
 		}		
 	}
@@ -163,7 +161,7 @@ public class PyThread extends PlatformObject implements IThread {
 	public void stepReturn() throws DebugException {
 		if (!isPydevThread) {
 			isStepping = true;
-			RemoteDebugger d = target.getDebugger();
+			AbstractRemoteDebugger d = target.getDebugger();
 			d.postCommand(new StepCommand(d, AbstractDebuggerCommand.CMD_STEP_RETURN, id));
 		}		
 	}
@@ -184,10 +182,16 @@ public class PyThread extends PlatformObject implements IThread {
 	}
 
 	public PyStackFrame findStackFrameByID(String id) {
-		if (stack != null) 
-			for (int i=0; i<stack.length; i++)
-				if (id.equals(((PyStackFrame)stack[i]).getId()))
+		if (stack != null) {
+            
+			for (int i=0; i<stack.length; i++){
+                
+				if (id.equals(((PyStackFrame)stack[i]).getId())){
+                    
 					return (PyStackFrame)stack[i];
+                }
+            }
+        }
 		return null;
 	}
 

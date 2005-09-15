@@ -13,7 +13,7 @@ public class SetBreakpointCommand extends AbstractDebuggerCommand {
 	public String file;
 	public Object line;
 
-	public SetBreakpointCommand(RemoteDebugger debugger, String file, Object line) {
+	public SetBreakpointCommand(AbstractRemoteDebugger debugger, String file, Object line) {
 		super(debugger);
 		this.file = file;
 		this.line = line;

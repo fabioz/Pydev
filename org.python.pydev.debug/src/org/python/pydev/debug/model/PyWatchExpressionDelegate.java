@@ -15,9 +15,9 @@ import org.eclipse.debug.core.model.IWatchExpressionListener;
 import org.eclipse.debug.core.model.IWatchExpressionResult;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
+import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.EvaluateExpressionCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
-import org.python.pydev.debug.model.remote.RemoteDebugger;
 
 public class PyWatchExpressionDelegate 
 	implements IWatchExpressionDelegate, IWatchExpressionResult,
@@ -37,8 +37,8 @@ public class PyWatchExpressionDelegate
 		this.listener = listener;
 		if (context instanceof PyStackFrame) {
 			
-			RemoteDebugger dbg;
-			dbg = ((PyDebugTarget)context.getDebugTarget()).getDebugger();
+			AbstractRemoteDebugger dbg;
+			dbg = ((AbstractDebugTarget)context.getDebugTarget()).getDebugger();
 			
 			// send the command, and then busy-wait
 			EvaluateExpressionCommand cmd = new EvaluateExpressionCommand( 
@@ -63,7 +63,7 @@ public class PyWatchExpressionDelegate
 			if (variables.length == 0) {
 				variables = new PyVariable[1];
 				variables[0] = new PyVariable(
-					(PyDebugTarget)context.getDebugTarget(), "Error", "pydev ERROR", "Could not resolve variable");
+					(AbstractDebugTarget)context.getDebugTarget(), "Error", "pydev ERROR", "Could not resolve variable");
 			}
 			return variables[0];
 		}
@@ -114,7 +114,7 @@ public class PyWatchExpressionDelegate
 			String payload = ((EvaluateExpressionCommand) cmd).getResponse();
 			synchronized(variables) {
 				variables = XMLUtils.XMLToVariables(
-					(PyDebugTarget)context.getDebugTarget(), 
+					(AbstractDebugTarget)context.getDebugTarget(), 
 					((PyStackFrame)context).getLocalsLocator(), payload);
 			}
 		} catch (CoreException e) {

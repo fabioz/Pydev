@@ -24,7 +24,7 @@ public class EvaluateExpressionCommand extends AbstractDebuggerCommand {
 	int responseCode;
 	String payload;
 
-	public EvaluateExpressionCommand(RemoteDebugger debugger, String expression, String locator) {
+	public EvaluateExpressionCommand(AbstractRemoteDebugger debugger, String expression, String locator) {
 		super(debugger);
 		
 		this.locator = locator;

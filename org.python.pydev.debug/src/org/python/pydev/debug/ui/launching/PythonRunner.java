@@ -121,14 +121,13 @@ public class PythonRunner {
 		t.initialize();
 	}
 
-
     private static void doIt(PythonRunnerConfig config, IProgressMonitor monitor, String [] envp, String[] cmdLine, File workingDirectory, ILaunch launch) throws CoreException{
         if (monitor == null)
         	monitor = new NullProgressMonitor();
         IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
 
         subMonitor.beginTask("Launching python", 1);
-
+        
         // Launch & connect to the debugger		
         subMonitor.subTask("Constructing command_line...");
         String commandLineAsString = SimpleRunner.getCommandLineAsString(cmdLine);
@@ -144,17 +143,15 @@ public class PythonRunner {
         checkProcess(p);
 
         IProcess process;
-        if(config.isJython()){
+        if(config.isJython()) {
             process = registerWithDebugPluginForProcessType(cmdLine[cmdLine.length-1], launch, p, processAttributes, "java");
-        }else{
+        } else {
             process = registerWithDebugPlugin(cmdLine[cmdLine.length-1], launch, p, processAttributes);
         }
         checkProcess(p, process);
 
         // Registered the process with the debug plugin
         subMonitor.subTask("Done");
-
-
     }
 
     private static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException{

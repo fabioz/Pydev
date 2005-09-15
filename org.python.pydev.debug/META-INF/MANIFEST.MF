@@ -29,3 +29,11 @@ Require-Bundle: org.junit,
  org.eclipse.jdt.core,
  org.eclipse.jdt.launching
 Eclipse-AutoStart: true
+Export-Package: org.python.pydev.debug.codecoverage,
+ org.python.pydev.debug.core,
+ org.python.pydev.debug.model,
+ org.python.pydev.debug.model.remote,
+ org.python.pydev.debug.ui,
+ org.python.pydev.debug.ui.actions,
+ org.python.pydev.debug.ui.launching,
+ org.python.pydev.debug.unittest

@@ -55,10 +55,10 @@ public class XMLUtils {
 	 */
 	static class XMLToThreadInfo extends DefaultHandler {
 		
-		public PyDebugTarget target;
+		public AbstractDebugTarget target;
 		public ArrayList threads = new ArrayList();
 		
-		public XMLToThreadInfo(PyDebugTarget target) {
+		public XMLToThreadInfo(AbstractDebugTarget target) {
 			this.target = target;
 		}
 
@@ -81,7 +81,7 @@ public class XMLUtils {
 	/**
 	 * Creates IThread[] from the XML response
 	 */
-	static public IThread[] ThreadsFromXML(PyDebugTarget target, String payload) throws CoreException {
+	static public IThread[] ThreadsFromXML(AbstractDebugTarget target, String payload) throws CoreException {
 		IThread[] threads = null;
 		try {
 			SAXParser parser = getSAXParser();
@@ -106,7 +106,7 @@ public class XMLUtils {
 	 * Creates a variable from XML attributes
 	 * <var name="self" type="ObjectType" value="<DeepThread>"/>
 	 */
-	static PyVariable createVariable(PyDebugTarget target, IVariableLocator locator, Attributes attributes) {
+	static PyVariable createVariable(AbstractDebugTarget target, IVariableLocator locator, Attributes attributes) {
 		PyVariable var;
 		String name = attributes.getValue("name");
 		String type = attributes.getValue("type");
@@ -133,10 +133,10 @@ public class XMLUtils {
 		public String stop_reason;
 		public ArrayList stack = new ArrayList();
 		public ArrayList locals;
-		public PyDebugTarget target;
+		public AbstractDebugTarget target;
 		PyStackFrame currentFrame;
 		
-		public XMLToStackInfo(PyDebugTarget target) {
+		public XMLToStackInfo(AbstractDebugTarget target) {
 			this.target = target;
 		}
 
@@ -230,7 +230,7 @@ public class XMLUtils {
 	 * @param payload
 	 * @return an array of [thread_id, stop_reason, IStackFrame[]]
 	 */
-	public static Object[] XMLToStack(PyDebugTarget target, String payload) throws CoreException {
+	public static Object[] XMLToStack(AbstractDebugTarget target, String payload) throws CoreException {
 		IStackFrame[] stack;
 		Object[] retVal = new Object[3];
 		try {
@@ -261,11 +261,11 @@ public class XMLUtils {
 	 *
 	 */
 	static class XMLToVariableInfo extends DefaultHandler {
-		private PyDebugTarget target;
+		private AbstractDebugTarget target;
 		private IVariableLocator locator;
 		public ArrayList vars;
 		
-		public XMLToVariableInfo(PyDebugTarget target, IVariableLocator locator) {
+		public XMLToVariableInfo(AbstractDebugTarget target, IVariableLocator locator) {
 			this.target = target;
 			this.locator = locator;
 			vars = new ArrayList();
@@ -280,7 +280,7 @@ public class XMLUtils {
 		}
 	}
 
-	public static PyVariable[] XMLToVariables(PyDebugTarget target, IVariableLocator locator, String payload) throws CoreException {
+	public static PyVariable[] XMLToVariables(AbstractDebugTarget target, IVariableLocator locator, String payload) throws CoreException {
 		try {
 			SAXParser parser = getSAXParser();
 			XMLToVariableInfo info = new XMLToVariableInfo(target, locator);

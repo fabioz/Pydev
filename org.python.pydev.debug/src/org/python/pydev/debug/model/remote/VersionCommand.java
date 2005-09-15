@@ -17,7 +17,7 @@ public class VersionCommand extends AbstractDebuggerCommand {
 	/**
 	 * @param debugger
 	 */
-	public VersionCommand(RemoteDebugger debugger) {
+	public VersionCommand(AbstractRemoteDebugger debugger) {
 		super(debugger);
 	}
 
