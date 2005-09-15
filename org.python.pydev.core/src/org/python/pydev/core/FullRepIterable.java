@@ -91,6 +91,16 @@ public class FullRepIterable implements Iterable<String>{
         this(fullRep, false);
     }
 
+    /**
+     * User is able to specify reverse mode.
+     * 
+     * If it is the standard mode, 'aa.bb' would be 'aa', 'aa.bb'.
+     * 
+     * In reverse mode 'aa.bb' would be 'aa.bb', 'aa' 
+     * 
+     * @param fullRep The dotted string we want to gather in parts
+     * @param reverse whether we want to get it in reverse order
+     */
     public FullRepIterable(String fullRep, boolean reverse) {
         this.fullRep = fullRep;
         this.reverse = reverse;
