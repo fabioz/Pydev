@@ -8,19 +8,19 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+
+import com.python.pydev.codecompletion.ctxinsensitive.CtxInsensitiveImportComplProposal;
 
 public class CompletionParticipant implements IPyDevCompletionParticipant{
 
@@ -30,19 +30,16 @@ public class CompletionParticipant implements IPyDevCompletionParticipant{
         if(request.qualifier.length() >= 2){ //at least n characters required...
             
             ICodeCompletionASTManager astManager = request.nature.getAstManager();
-//            AbstractModule module = ASTManager.createModule(request.editorFile, request.doc, state, astManager);
             
-            //we don't want to add an import if it already exists
-//            IToken[] tokenImportedModules = module.getTokenImportedModules();
-//            Set toks = new HashSet();
-//            for (IToken token : tokenImportedModules) {
-//                toks.add(token.getRepresentation()); //representation for the modules that already exist
-//            }
+            Image img = PyCodeCompletion.getImageForType(PyCodeCompletion.TYPE_PACKAGE);
             
-            
-            
+            PySelection selection = new PySelection(request.doc);
+            int lineAvailableForImport = selection.getLineAvailableForImport();
+
             ProjectModulesManager projectModulesManager = astManager.getProjectModulesManager();
             Set allModuleNames = projectModulesManager.getAllModuleNames();
+            
+            
             for (Iterator iter = allModuleNames.iterator(); iter.hasNext();) {
                 String name = (String) iter.next();
                 
@@ -60,43 +57,24 @@ public class CompletionParticipant implements IPyDevCompletionParticipant{
                         displayString += " - "+ packageName;
                     }
                     
-                    ImportComplProposal proposal = new ImportComplProposal(importRep,
+                    CtxInsensitiveImportComplProposal  proposal = new CtxInsensitiveImportComplProposal (
+                            importRep,
                             request.documentOffset - request.qlen, 
                             request.qlen, 
                             realImportRep.length(), 
-                            PyCodeCompletion.getImageForType(PyCodeCompletion.TYPE_PACKAGE), 
+                            img, 
                             displayString, 
                             (IContextInformation)null, 
                             "", 
                             IPyCompletionProposal.PRIORITY_PACKAGES,
-                            realImportRep);
-                    
+                            realImportRep,
+                            lineAvailableForImport);
+
                     list.add(proposal);
                 }
             }
         }
         return list;
-    }
-    
-    static class ImportComplProposal extends PyCompletionProposal{
-
-        private String realImportRep;
-
-        public ImportComplProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, String realImportRep) {
-            super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority);
-            this.realImportRep = realImportRep;
-        }
-        
-        @Override
-        public void apply(IDocument document) {
-            try {
-                document.replace(fReplacementOffset, fReplacementLength, realImportRep);
-            } catch (BadLocationException x) {
-                x.printStackTrace();
-                // ignore
-            }
-        }
-        
     }
 
 }
