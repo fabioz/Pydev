@@ -399,13 +399,13 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     private static IEditorInput createEditorInput(File file) {
-        IFile workspaceFile= getWorkspaceFile(file);
-        if (workspaceFile != null)
-            return new FileEditorInput(workspaceFile);
+        IFile[] workspaceFile= getWorkspaceFile(file);
+        if (workspaceFile != null && workspaceFile.length > 0)
+            return new FileEditorInput(workspaceFile[0]);
         return new PydevFileEditorInput(file);
     }
 
-    private static IFile getWorkspaceFile(File file) {
+    public static IFile[] getWorkspaceFile(File file) {
         IWorkspace workspace= ResourcesPlugin.getWorkspace();
         IPath location= Path.fromOSString(file.getAbsolutePath());
         IFile[] files= workspace.getRoot().findFilesForLocation(location);
@@ -414,11 +414,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             return null;
         }
         
-        if (files.length > 1){
-            return files[0];
-        } else {
-            return null;
-        }
+        return files;
         //we are out of the loop from the interface when this is called
 //        if (files.length == 1)
 //            return files[0];
