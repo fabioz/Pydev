@@ -58,4 +58,10 @@ Zadrozny
          install-size="0"
          version="0.9.7.1"/>
 
+   <plugin
+         id="com.python.pydev.debug"
+         download-size="0"
+         install-size="0"
+         version="0.9.7.1"/>
+
 </feature>
