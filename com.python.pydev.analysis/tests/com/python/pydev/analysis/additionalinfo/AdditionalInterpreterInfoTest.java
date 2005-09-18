@@ -42,6 +42,39 @@ public class AdditionalInterpreterInfoTest extends TestCase {
         super.tearDown();
     }
 
+    
+    
+    public void testMap() {
+        info.addMethod(createFuncDef("metz" ), "mod1");
+        info.addMethod(createFuncDef("metZ" ), "mod1");
+        info.addMethod(createFuncDef("met9" ), "mod1");
+        info.addMethod(createFuncDef("met0" ), "mod1");
+        info.addMethod(createFuncDef("meta" ), "mod1");
+        info.addMethod(createFuncDef("metA" ), "mod1");
+        
+        List<IInfo> tokensStartingWith = info.getTokensStartingWith("met");
+        assertEquals(6, tokensStartingWith.size());
+    }
+    
+    public void testMap2() {
+        info.addMethod(createFuncDef("m" ), "mod1");
+        info.addMethod(createFuncDef("mm" ), "mod1");
+        info.addMethod(createFuncDef("mmm" ), "mod1");
+        info.addMethod(createFuncDef("mmmm" ), "mod1");
+        
+        List<IInfo> tokensStartingWith = info.getTokensStartingWith("m");
+        assertEquals(4, tokensStartingWith.size());
+        
+        tokensStartingWith = info.getTokensStartingWith("mm");
+        assertEquals(3, tokensStartingWith.size());
+        
+        tokensStartingWith = info.getTokensStartingWith("mmm");
+        assertEquals(2, tokensStartingWith.size());
+        
+        tokensStartingWith = info.getTokensStartingWith("mmmm");
+        assertEquals(1, tokensStartingWith.size());
+    }
+    
     public void testAddFunc() {
         info.addMethod(createFuncDef("met1" ), "mod1");
         info.addMethod(createFuncDef("met2" ), "mod1");

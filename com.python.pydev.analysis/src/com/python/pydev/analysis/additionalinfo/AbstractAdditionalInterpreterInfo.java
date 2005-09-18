@@ -8,10 +8,11 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.eclipse.core.runtime.IPath;
 import org.python.parser.SimpleNode;
@@ -59,25 +60,64 @@ import com.python.pydev.analysis.AnalysisPlugin;
  */
 public abstract class AbstractAdditionalInterpreterInfo {
 
+    /**
+     * this is the number of initials that is used for indexing
+     */
+    public static final int NUMBER_OF_INITIALS_TO_INDEX = 3;
+
     private static final boolean DEBUG_ADDITIONAL_INFO = false;
 
     /**
-     * This is the place where the information is actually stored
+     * indexes used so that we can access the information faster - it is ordered through a tree map, and should be
+     * very fast to access given its initials.
      */
-    private List<IInfo> additionalInfo;
+    private TreeMap<String, List<IInfo>> initialsToInfo = new TreeMap<String, List<IInfo>>();
     
-    
-
     public AbstractAdditionalInterpreterInfo(){
-        additionalInfo = new ArrayList<IInfo>();
     }
     
+    /**
+     * That's the function actually used to add some info
+     * 
+     * @param info information to be added
+     */
+    private void add(IInfo info) {
+        String name = info.getName();
+        String initials = getInitials(name);
+        List<IInfo> listForInitials = getAndCreateListForInitials(initials);
+        listForInitials.add(info);
+    }
+
+    /**
+     * @param name the name from where we want to get the initials
+     * @return the initials for the name
+     */
+    private String getInitials(String name) {
+        if(name.length() < NUMBER_OF_INITIALS_TO_INDEX){
+            return name;
+        }
+        return name.substring(0, NUMBER_OF_INITIALS_TO_INDEX).toLowerCase();
+    }
+    
+    /**
+     * @param initials the initials we are looking for
+     * @return the list of tokens with the specified initials (must be exact match)
+     */
+    private List<IInfo> getAndCreateListForInitials(String initials) {
+        List<IInfo> lInfo = initialsToInfo.get(initials);
+        if(lInfo == null){
+            lInfo = new ArrayList<IInfo>();
+            initialsToInfo.put(initials, lInfo);
+        }
+        return lInfo;
+    }
+
     /**
      * adds a method to the definition
      */
     public void addMethod(FunctionDef def, String moduleDeclared) {
         FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared);
-        additionalInfo.add(info2);
+        add(info2);
     }
     
     /**
@@ -85,7 +125,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     public void addClass(ClassDef def, String moduleDeclared) {
         ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared);
-        additionalInfo.add(info);
+        add(info);
     }
 
     /**
@@ -136,25 +176,41 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param moduleName the name of the module we want to remove info from
      */
     public void removeInfoFromModule(String moduleName) {
-        for (Iterator<IInfo> it = additionalInfo.iterator(); it.hasNext(); ) {
-            IInfo info = it.next();
-            if(info != null && info.getDeclaringModuleName() != null){
-                if(info.getDeclaringModuleName().equals(moduleName)){
-                    it.remove();
+        Iterator<List<IInfo>> itListOfInfo = initialsToInfo.values().iterator();
+        while (itListOfInfo.hasNext()) {
+
+            Iterator<IInfo> it = itListOfInfo.next().iterator();
+            while (it.hasNext()) {
+
+                IInfo info = it.next();
+                if(info != null && info.getDeclaringModuleName() != null){
+                    if(info.getDeclaringModuleName().equals(moduleName)){
+                        it.remove();
+                    }
                 }
             }
+            
         }
+        
     }
 
     /**
+     * This is the function for which we are most optimized!
+     * 
      * @param qualifier the tokens returned have to start with the given qualifier
      * @return a list of info, all starting with the given qualifier
      */
     public List<IInfo> getTokensStartingWith(String qualifier) {
+        String initials = getInitials(qualifier);
         ArrayList<IInfo> toks = new ArrayList<IInfo>();
         String lowerCaseQual = qualifier.toLowerCase();
-        if(additionalInfo != null){
-            for (IInfo info : additionalInfo) {
+        
+        //get until the end of the alphabet
+        SortedMap<String, List<IInfo>> subMap = this.initialsToInfo.subMap(initials, initials+"z");
+        
+        for (List<IInfo> listForInitials : subMap.values()) {
+            
+            for (IInfo info : listForInitials) {
                 if(info.getName().toLowerCase().startsWith(lowerCaseQual)){
                     toks.add(info);
                 }
@@ -167,7 +223,15 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @return all the tokens that are in this info
      */
     public Collection<IInfo> getAllTokens(){
-        return additionalInfo;
+        Collection<List<IInfo>> lInfo = this.initialsToInfo.values();
+        
+        ArrayList<IInfo> toks = new ArrayList<IInfo>();
+        for (List<IInfo> list : lInfo) {
+            for (IInfo info : list) {
+                toks.add(info);
+            }
+        }
+        return toks;
     }
 
     /**
@@ -209,9 +273,9 @@ public abstract class AbstractAdditionalInterpreterInfo {
 
     private void saveTo(String pathToSave) {
         if(DEBUG_ADDITIONAL_INFO){
-            System.out.println("Saving info to file (size = "+additionalInfo.size()+") "+pathToSave);
+            System.out.println("Saving info to file (size = "+getAllTokens().size()+") "+pathToSave);
         }
-        REF.writeToFile(additionalInfo.toArray(new IInfo[0]), new File(pathToSave));
+        REF.writeToFile(this.initialsToInfo, new File(pathToSave));
     }
 
     /**
@@ -222,8 +286,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
         File file = new File(getPersistingLocation());
         if(file.exists() && file.isFile()){
             try {
-                List<IInfo> additionalInfo = new ArrayList<IInfo> ( Arrays.asList((IInfo[])IOUtils.readFromFile(file)));
-                this.additionalInfo = additionalInfo;
+                this.initialsToInfo = (TreeMap<String, List<IInfo>>) IOUtils.readFromFile(file);
                 setAsDefaultInfo();
                 return true;
             } catch (Exception e) {
