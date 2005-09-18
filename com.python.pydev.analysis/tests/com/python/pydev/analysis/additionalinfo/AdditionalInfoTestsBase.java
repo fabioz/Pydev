@@ -4,7 +4,7 @@
  * 
  * @author Fabio Zadrozny
  */
-package com.python.pydev.codecompletion;
+package com.python.pydev.analysis.additionalinfo;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 
-public class CompletionParticipantTestsBase  extends CodeCompletionTestsBase {
+public class AdditionalInfoTestsBase  extends CodeCompletionTestsBase {
 
     protected IPyDevCompletionParticipant participant;
 

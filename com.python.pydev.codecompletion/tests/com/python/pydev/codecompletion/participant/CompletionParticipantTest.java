@@ -10,9 +10,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 
-import com.python.pydev.codecompletion.CompletionParticipantTestsBase;
+import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 
-public class CompletionParticipantTest extends CompletionParticipantTestsBase {
+public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(CompletionParticipantTest.class);
