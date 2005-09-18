@@ -32,30 +32,30 @@ public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
                 File file = new File(loc);
                 IFile[] files = PydevPlugin.getWorkspaceFile(file);
                 
-                //file must have been returned (and only 1, not more).
-                //TODO: check directly on the project and not in the whole workspace
-                if(files == null || files.length != 1){
+                if(files == null){
                     return true;
                 }
-                
-                final IFile workspaceFile = files[0];
-                if (workspaceFile != null && workspaceFile.exists()) {
-                    
-                    new Job("Deleting File"){
+
+                //remove all: file and links
+                for(final IFile workspaceFile : files){
+                    if (workspaceFile != null && workspaceFile.exists()) {
                         
-                        @Override
-                        protected IStatus run(IProgressMonitor monitor) {
-                            monitor.beginTask("Delete .pyc file: "+workspaceFile.getName(), 1);
-                            try {
-                                workspaceFile.delete(true, monitor);
-                            } catch (CoreException e) {
-                                PydevPlugin.log(e);
+                        new Job("Deleting File"){
+                            
+                            @Override
+                            protected IStatus run(IProgressMonitor monitor) {
+                                monitor.beginTask("Delete .pyc file: "+workspaceFile.getName(), 1);
+                                try {
+                                    workspaceFile.delete(true, monitor);
+                                } catch (CoreException e) {
+                                    PydevPlugin.log(e);
+                                }
+                                monitor.done();
+                                return Status.OK_STATUS;
                             }
-                            monitor.done();
-                            return Status.OK_STATUS;
-                        }
-                        
-                    }.schedule();
+                            
+                        }.schedule();
+                    }
                 }
                 
             } catch (Exception e) {
