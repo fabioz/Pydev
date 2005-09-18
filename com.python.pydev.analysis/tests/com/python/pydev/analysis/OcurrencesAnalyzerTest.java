@@ -32,7 +32,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUnusedImports5();
+            analyzer2.test5UnusedVariables();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -557,6 +557,28 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
         assertEquals(0, msgs.length);
+    }
+    
+    public void test4UnusedVariables() {
+        doc = new Document(
+            "notdefined.aa().bb.cc\n"  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 1);
+        assertEquals(1, msgs[0].getStartCol(doc));
+    }
+    
+    public void test5UnusedVariables() {
+        doc = new Document(
+                "notdefined.aa[10].bb.cc\n"  
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 1);
+        assertEquals(1, msgs[0].getStartCol(doc));
     }
     
     public void testNotUnusedVariable() {
