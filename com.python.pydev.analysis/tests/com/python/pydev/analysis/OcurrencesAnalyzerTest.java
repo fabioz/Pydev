@@ -32,7 +32,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.test5UnusedVariables();
+            analyzer2.testDecoratorUndefined();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -986,7 +986,10 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         printMessages(msgs,1);
-        assertEquals("Undefined variable: notdefined", msgs[0].getMessage());
+        IMessage msg = msgs[0];
+        assertEquals("Undefined variable: notdefined", msg.getMessage());
+        assertEquals(2, msg.getStartCol(doc));
+        assertEquals(1, msg.getStartLine(doc));
     }
     
     public void testUndefinedVariable3() {
