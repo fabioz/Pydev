@@ -53,7 +53,7 @@ public class AnalysisPreferences implements IAnalysisPreferences{
     }
     
     HashMap<Integer, Integer> severityTypeMapCache = null;
-
+    
     private Map<Integer, Integer> getSeverityTypeMap() {
         if(severityTypeMapCache == null){
             severityTypeMapCache = new HashMap<Integer, Integer>();
@@ -106,5 +106,13 @@ public class AnalysisPreferences implements IAnalysisPreferences{
         }
         
         return new ArrayList<String>(names);
+    }
+
+    /**
+     * @see com.python.pydev.analysis.IAnalysisPreferences#getWhenAnalyze()
+     */
+    public int getWhenAnalyze() {
+        Preferences pluginPreferences = AnalysisPlugin.getDefault().getPluginPreferences();
+        return pluginPreferences.getInt(AnalysisPreferenceInitializer.WHEN_ANALYZE);
     }
 }

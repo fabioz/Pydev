@@ -4,11 +4,8 @@
 package com.python.pydev.analysis.builder;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
-import org.python.pydev.builder.PydevMarkerUtils;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -20,21 +17,24 @@ import com.python.pydev.analysis.messages.IMessage;
 
 public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
-    private static final String PYDEV_ANALYSIS_PROBLEM_MARKER = "com.python.pydev.analysis.pydev_analysis_problemmarker";
+    @Override
+    public boolean visitChangedResource(IResource resource, IDocument document) {
+        if(AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SAVE){
+            return visitChangedResource(resource, document, null);
+        }
+        return true;
+    }
     
     /**
      * here we have to detect errors / warnings from the code analysis
      *  
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitChangedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    @Override
-    public boolean visitChangedResource(IResource resource, IDocument document) {
-        try {
-            resource.deleteMarkers(PYDEV_ANALYSIS_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-        } catch (CoreException e3) {
-            Log.log(e3);
-        }
-        if(document.get().indexOf("#@PydevCodeAnalysisIgnore") != -1){
+    public boolean visitChangedResource(IResource resource, IDocument document, AbstractModule module) {
+        AnalysisRunner runner = new AnalysisRunner();
+        
+        runner.deleteMarkers(resource);
+        if(!runner.canDoAnalysis(document)){
             return true;
         }
         
@@ -47,33 +47,25 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
                 return true;
             }
     
-            OcurrencesAnalyzer analyzer = new OcurrencesAnalyzer();
-
-            AbstractModule module = getSourceModule(resource, document);
+            if(module == null){
+                module = getSourceModule(resource, document);
+            }
             
+            OcurrencesAnalyzer analyzer = new OcurrencesAnalyzer();
             PythonNature nature = PythonNature.getPythonNature(resource.getProject());
             //ok, let's do it
             IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences);
-            try {
-                
-                //add the markers
-                for (IMessage m : messages) {
-                    String msg = "ID:" + m.getType() + " " + m.getMessage();
-                    PydevMarkerUtils.createMarker(resource, document, msg, 
-                            m.getStartLine(document) - 1, m.getStartCol(document) - 1, m.getEndLine(document) - 1, m.getEndCol(document) - 1, 
-                            PYDEV_ANALYSIS_PROBLEM_MARKER, m.getSeverity());
-                }
-            } catch (Exception e) {
-                Log.log(e);
-            }
+            runner.addMarkers(resource, document, messages);
         }
         return true;
     }
 
 
+
+
     @Override
     public boolean visitRemovedResource(IResource resource, IDocument document) {
-        return false;
+        return true;
     }
 
 }

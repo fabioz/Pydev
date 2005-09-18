@@ -19,12 +19,14 @@
 	</extension>
 
    <extension point="org.python.pydev.pydev_builder">
-   		<builder_participant class="com.python.pydev.analysis.builder.AnalysisBuilderVisitor">
-   		</builder_participant>
+   		<builder_participant class="com.python.pydev.analysis.builder.AnalysisBuilderVisitor"/>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer class="com.python.pydev.analysis.AnalysisPreferenceInitializer"/>
+   </extension>
+   <extension point="org.python.pydev.parser.pydev_parser_observer">
+   		<parser_observer class="com.python.pydev.analysis.builder.AnalysisParserObserver"/>
    </extension>
 
 </plugin>

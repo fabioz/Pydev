@@ -33,6 +33,13 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
+        String[][] whenAnalyze = new String[][]{
+                {"Only on save"  , String.valueOf(IAnalysisPreferences.ANALYZE_ON_SAVE)},
+                {"On any successful parse", String.valueOf(IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE)}
+        };
+        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.WHEN_ANALYZE, "When do we analyze?", 2,whenAnalyze,p, true));
+
+        
         String[][] values = new String[][]{
                 {"Error"  , String.valueOf(IMarker.SEVERITY_ERROR)},
                 {"Warning", String.valueOf(IMarker.SEVERITY_WARNING)},
@@ -49,7 +56,7 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_DUPLICATED_SIGNATURE, "Duplicated signature", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_REIMPORT, "Import redefinition", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNRESOLVED_IMPORT, "Import not found", 3,values,p, true));
-        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_NO_SELF, "Self not specified in class method", 3,values,p, true));
+        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_NO_SELF, "'self' not specified in class method", 3,values,p, true));
 
     }
 

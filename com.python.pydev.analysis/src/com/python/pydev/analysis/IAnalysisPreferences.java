@@ -19,6 +19,24 @@ public interface IAnalysisPreferences {
      * this severity indicates that the given message should be ignored
      */
     public static final int SEVERITY_IGNORE = -1;
+    
+    /**
+     * Used to define if the analysis should happen only on save
+     */
+    public static final int ANALYZE_ON_SAVE = 1;
+    
+    /**
+     * Used to define if the analysis should happen on any successful parse
+     */
+    public static final int ANALYZE_ON_SUCCESFUL_PARSE = 2;
+    
+    /**
+     * @see #ANALYZE_ON_SAVE
+     * @see #ANALYZE_ON_SUCCESFUL_PARSE
+     * 
+     * @return the even that should trigger the analysis 
+     */
+    int getWhenAnalyze();
 
     /**
      * @see org.eclipse.core.resources.IMarker#SEVERITY_ERROR
@@ -46,7 +64,7 @@ public interface IAnalysisPreferences {
     
     /**
      * The analysis preferences may have caches, so that we don't get all from the cache, but we must be able to clear them
-     * if something changes.
+     * if something changes (if user changes the preferences).
      */
     void clearCaches();
 }

@@ -10,6 +10,9 @@ import org.osgi.service.prefs.Preferences;
 
 public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer{
 
+    public static final String WHEN_ANALYZE = "WHEN_ANALYZE";
+    public static final int DEFAULT_WHEN_ANALYZE = IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE;
+    
     public static final String DEFAULT_SCOPE = "com.python.pydev.analysis";
     
     public static final String SEVERITY_UNUSED_VARIABLE = "SEVERITY_UNUSED_VARIABLE";
@@ -47,6 +50,7 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
             
         }
         node.put   (NAMES_TO_IGNORE_UNUSED_VARIABLE, DEFAULT_NAMES_TO_IGNORE_UNUSED_VARIABLE);
+        node.putInt(WHEN_ANALYZE, DEFAULT_WHEN_ANALYZE);
     }
 
 

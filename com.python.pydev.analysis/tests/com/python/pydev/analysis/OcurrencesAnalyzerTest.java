@@ -490,6 +490,10 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
             public void clearCaches() {
                 //no caches here
             }
+
+            public int getWhenAnalyze() {
+                return IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE;
+            }
         };
     }
 
