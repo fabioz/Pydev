@@ -29,10 +29,10 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.pycremover.PycRemoverBuilderVisitor;
 import org.python.pydev.builder.pylint.PyLintVisitor;
 import org.python.pydev.builder.todo.PyTodoVisitor;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.extension.ExtensionHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 

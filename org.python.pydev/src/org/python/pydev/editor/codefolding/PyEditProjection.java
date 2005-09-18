@@ -23,7 +23,7 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
-import org.python.pydev.parser.IParserListener;
+import org.python.pydev.parser.IParserObserver;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**
@@ -33,7 +33,7 @@ import org.python.pydev.plugin.PydevPrefs;
  * 
  * http://download2.eclipse.org/downloads/drops/S-3.0M9-200405211200/buildnotes/buildnotes_text.html
  */
-public abstract class PyEditProjection extends TextEditor implements IParserListener {
+public abstract class PyEditProjection extends TextEditor implements IParserObserver {
 
     private ProjectionSupport fProjectionSupport;
 

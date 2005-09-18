@@ -1,7 +1,7 @@
 /*
  * Created on 21/08/2005
  */
-package org.python.pydev.extension;
+package org.python.pydev.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 public class ExtensionHelper {
 
@@ -22,6 +22,7 @@ public class ExtensionHelper {
     public final static String PYDEV_COMPLETION = "org.python.pydev.pydev_completion";
     public final static String PYDEV_BUILDER = "org.python.pydev.pydev_builder";
     public final static String PYDEV_INTERPRETER_OBSERVER = "org.python.pydev.pydev_interpreter_observer";
+    public final static String PYDEV_PARSER_OBSERVER = "org.python.pydev.parser.pydev_parser_observer";
     
     
     private static IExtension[] getExtensions(String type) {
@@ -44,6 +45,7 @@ public class ExtensionHelper {
      * "org.python.pydev.pydev_completion"
      * "org.python.pydev.pydev_builder"
      * "org.python.pydev.pydev_interpreter_observer"
+     * "org.python.pydev.parser.pydev_parser_observer"
      * 
      * @param type the extension we want to get
      * @return a list of classes created from those extensions
@@ -62,7 +64,7 @@ public class ExtensionHelper {
                 try {
                     list.add(element.createExecutableExtension("class"));
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }

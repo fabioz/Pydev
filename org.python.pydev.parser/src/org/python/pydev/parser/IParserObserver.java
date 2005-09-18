@@ -5,6 +5,7 @@
  */
 package org.python.pydev.parser;
 
+import org.eclipse.core.resources.IFile;
 import org.python.parser.SimpleNode;
 
 /**
@@ -13,17 +14,19 @@ import org.python.parser.SimpleNode;
  * parserChanged is generated every time document is parsed successfully
  * parserError is generated when parsing fails
  */
-public interface IParserListener {
+public interface IParserObserver {
 	
 	/**
 	 * every time document gets parsed, it generates a new parse tree
-	 * @param root - the root of the new AST (abstract syntax tree)
+	 * @param root the root of the new AST (abstract syntax tree)
+	 * @param file the file that has just been analyzed (it may be null)
 	 */
-	void parserChanged(SimpleNode root);
+	void parserChanged(SimpleNode root, IFile file);
 	
 	/**
 	 * if parse generates an error, you'll get this event
 	 * the exception class will be ParseException, or TokenMgrError
+	 * @param file the file that has just been analyzed (it may be null)
 	 */
-	void parserError(Throwable error);
+	void parserError(Throwable error, IFile file);
 }

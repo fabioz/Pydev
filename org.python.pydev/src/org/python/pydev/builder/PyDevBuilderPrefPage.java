@@ -26,7 +26,7 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     public static final boolean DEFAULT_USE_PYDEV_ONLY_ON_DOC_SAVE = false;
     public static final String USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE = "USE_PYDEV_ONLY_ON_DOC_SAVE";
     
-    public static final int DEFAULT_PYDEV_ELAPSE_BEFORE_ANALYSIS = 500;
+    public static final int DEFAULT_PYDEV_ELAPSE_BEFORE_ANALYSIS = 3000;
     public static final String PYDEV_ELAPSE_BEFORE_ANALYSIS = "PYDEV_ELAPSE_BEFORE_ANALYSIS";
 
     /**
@@ -58,7 +58,7 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
         
         addField(new LabelFieldEditor("LabelFieldEditor", s, p));
         addField(new BooleanFieldEditor(USE_PYDEV_BUILDERS, "Use builders?", p));
-        addField(new BooleanFieldEditor(USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE, "Analyze only on save?", p));
+        addField(new BooleanFieldEditor(USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE, "Build only on save?", p));
         addField(new IntegerFieldEditor(PYDEV_ELAPSE_BEFORE_ANALYSIS, "Time to elapse before analyzing changed file (millis)", p));
     }
 

@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,12 +32,12 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
-import org.python.pydev.extension.ExtensionHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.utils.JobProgressComunicator;
@@ -405,6 +406,26 @@ public class PythonNature implements IProjectNature, IPythonNature {
             return JYTHON_RELATED;
         }
         throw new RuntimeException("Unable to get the id to which this nature is related");
+    }
+
+    /**
+     * @param resource the resource we want to get the name from
+     * @return the name of the module in the environment
+     */
+    public static String getModuleNameForResource(IResource resource) {
+        String moduleName = null;
+        PythonNature nature = getPythonNature(resource.getProject());
+        
+        if(nature != null){
+            IFile f = (IFile) resource;
+            String file = f.getRawLocation().toOSString();
+            ICodeCompletionASTManager astManager = nature.getAstManager();
+            
+            if(astManager != null){
+                moduleName = astManager.getProjectModulesManager().resolveModule(file);
+            }
+        }
+        return moduleName;
     }
 
 }

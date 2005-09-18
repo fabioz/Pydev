@@ -27,6 +27,7 @@ import org.python.parser.PythonGrammar;
 import org.python.parser.ReaderCharStream;
 import org.python.parser.SimpleNode;
 import org.python.parser.TokenMgrError;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.DocUtils;
@@ -71,7 +72,7 @@ public class PyParser {
     /**
      * listeners that get notified of succesfull or unsuccessful parser achievements
      */
-    private ArrayList<IParserListener> parserListeners; 
+    private ArrayList<IParserObserver> parserListeners; 
 
     /**
      * used to enable tracing in the grammar
@@ -97,7 +98,7 @@ public class PyParser {
      * should only be called for testing. does not register as a thread
      */
     PyParser() {
-        parserListeners = new ArrayList<IParserListener>();
+        parserListeners = new ArrayList<IParserObserver>();
         scheduler = new ParserScheduler(this);
 
         documentListener = new IDocumentListener() {
@@ -172,14 +173,14 @@ public class PyParser {
 
     // ---------------------------------------------------------------------------- listeners
     /** stock listener implementation */
-    public void addParseListener(IParserListener listener) {
+    public void addParseListener(IParserObserver listener) {
         Assert.isNotNull(listener);
         if (!parserListeners.contains(listener))
             parserListeners.add(listener);
     }
 
     /** stock listener implementation */
-    public void removeParseListener(IParserListener listener) {
+    public void removeParseListener(IParserObserver listener) {
         Assert.isNotNull(listener);
         parserListeners.remove(listener);
     }
@@ -188,30 +189,34 @@ public class PyParser {
     // ---------------------------------------------------------------------------- notifications
     /**
      * stock listener implementation event is fired whenever we get a new root
+     * @param original 
      */
-    protected void fireParserChanged(SimpleNode root) {
+    protected void fireParserChanged(SimpleNode root, IFile file) {
         this.root = root;
-        if (parserListeners.size() > 0) {
-            ArrayList list = new ArrayList(parserListeners);
-            Iterator e = list.iterator();
-            while (e.hasNext()) {
-                IParserListener l = (IParserListener) e.next();
-                l.parserChanged(root);
-            }
+        Iterator e = parserListeners.iterator();
+        while (e.hasNext()) {
+            IParserObserver l = (IParserObserver) e.next();
+            l.parserChanged(root, file);
+        }
+        List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
+        for (IParserObserver observer : participants) {
+            observer.parserChanged(root, file);
         }
     }
 
     /**
      * stock listener implementation event is fired when parse fails
+     * @param original 
      */
-    protected void fireParserError(Throwable error) {
-        if (parserListeners.size() > 0) {
-            ArrayList list = new ArrayList(parserListeners);
-            Iterator e = list.iterator();
-            while (e.hasNext()) {
-                IParserListener l = (IParserListener) e.next();
-                l.parserError(error);
-            }
+    protected void fireParserError(Throwable error, IFile file) {
+        Iterator e = parserListeners.iterator();
+        while (e.hasNext()) {
+            IParserObserver l = (IParserObserver) e.next();
+            l.parserError(error, file);
+        }
+        List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
+        for (IParserObserver observer : participants) {
+            observer.parserError(error, file);
         }
     }
 
@@ -220,7 +225,7 @@ public class PyParser {
      * reparses the document getting the nature associated to the corresponding editor 
      * @return
      */
-    Object[] reparseDocument() {
+    public Object[] reparseDocument() {
         return reparseDocument(editorView.getPythonNature());
     }
     /**
@@ -229,28 +234,30 @@ public class PyParser {
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
-    Object[] reparseDocument(IPythonNature nature) {
+    public Object[] reparseDocument(IPythonNature nature) {
         
         //get the document ast and error in object
         Object obj[] = reparseDocument(new ParserInfo(document, true, nature, -1));
         
+        IFile original = null;
+        if(editorView != null){
+            IEditorInput input = editorView.getEditorInput();
+            if (input == null){
+                return null;
+            }
+            
+            original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
+        }
+        
         if(obj[0] != null && obj[0] instanceof SimpleNode){
             //ok, reparse succesful, lets erase the markers that are in the editor we just parsed
-            if(editorView != null){
-                IEditorInput input = editorView.getEditorInput();
-                if (input == null){
-                    return null;
+            if (original != null){
+                try {
+                    original.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+                } catch (CoreException e) {
+                    Log.log(e);
                 }
-                
-                IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
-                if (original != null){
-                    try {
-                        original.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
-                    } catch (CoreException e) {
-                        Log.log(e);
-                    }
-                }
-                fireParserChanged((SimpleNode) obj[0]);
+                fireParserChanged((SimpleNode) obj[0], original);
             }else{
                 //ok, we have no editor view
                 if (!PyParser.ACCEPT_NULL_EDITOR){
@@ -260,11 +267,11 @@ public class PyParser {
         }
         
         if(obj[1] != null && obj[1] instanceof ParseException){
-            fireParserError((ParseException) obj[1]);
+            fireParserError((ParseException) obj[1], original);
         }
         
         if(obj[1] != null && obj[1] instanceof TokenMgrError){
-            fireParserError((TokenMgrError) obj[1]);
+            fireParserError((TokenMgrError) obj[1], original);
         }
         
         return obj;

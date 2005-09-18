@@ -504,34 +504,50 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * 
      * Removes all the error markers
      */
-    public void parserChanged(SimpleNode root) {
+    public void parserChanged(SimpleNode root, IFile file) {
         // Remove all the error markers
         IEditorInput input = getEditorInput();
         IPath filePath = null;
-        if (input instanceof IFileEditorInput) {
-            IFile file = ((IFileEditorInput) input).getFile();
+        
+        if(file != null){
             filePath = file.getLocation();
-        } else if (input instanceof IStorageEditorInput)
-            try {
-                filePath = ((IStorageEditorInput) input).getStorage().getFullPath();
-                filePath = filePath.makeAbsolute();
-            } catch (CoreException e2) {
-                PydevPlugin.log(IStatus.ERROR, "unexpected error getting path", e2);
-            }
-        else if (input instanceof ILocationProvider) {
-            filePath = ((ILocationProvider) input).getPath(input);
-            filePath = filePath.makeAbsolute();
-        } else
-            PydevPlugin.log(IStatus.ERROR, "unexpected type of editor input " + input.getClass().toString(), null);
 
+        }else{
+            //all this is just to get the file path
+            if (input instanceof IFileEditorInput) {
+                IFile file1 = ((IFileEditorInput) input).getFile();
+                filePath = file1.getLocation();
+                
+            } else if (input instanceof IStorageEditorInput)
+                try {
+                    filePath = ((IStorageEditorInput) input).getStorage().getFullPath();
+                    filePath = filePath.makeAbsolute();
+                } catch (CoreException e2) {
+                    PydevPlugin.log(IStatus.ERROR, "unexpected error getting path", e2);
+                }
+                
+            else if (input instanceof ILocationProvider) {
+                filePath = ((ILocationProvider) input).getPath(input);
+                filePath = filePath.makeAbsolute();
+                
+            } else {
+                PydevPlugin.log(IStatus.ERROR, "unexpected type of editor input " + input.getClass().toString(), null);
+            }
+        }
+
+        
+        //delete the problem markers
         try {
             IResource res = (IResource) input.getAdapter(IResource.class);
-            if (res != null)
+            if (res != null){
                 res.deleteMarkers(IMarker.PROBLEM, false, 1);
+            }
         } catch (CoreException e) {
             // What bad can come from removing markers? Ignore this exception
             PydevPlugin.log(IStatus.WARNING, "Unexpected error removing markers", e);
         }
+        
+        
         IDocument document = getDocument(input);
         int lastLine = document.getNumberOfLines();
         try {
@@ -542,6 +558,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         } catch (BadLocationException e1) {
             PydevPlugin.log(IStatus.WARNING, "Unexpected error getting document length. No model!", e1);
         }
+        
     }
 
     /**
@@ -549,11 +566,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * 
      * generates an error marker on the document
      */
-    public void parserError(Throwable error) {
-        IEditorInput input = getEditorInput();
-        IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
-        if (original == null)
-            return;
+    public void parserError(Throwable error, IFile original) {
         try {
             IDocument document = getDocumentProvider().getDocument(getEditorInput());
             original.deleteMarkers(IMarker.PROBLEM, false, 1);
@@ -631,8 +644,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     /** stock listener implementation */
     public void addModelListener(IModelListener listener) {
         Assert.isNotNull(listener);
-        if (!modelListeners.contains(listener))
+        if (!modelListeners.contains(listener)){
             modelListeners.add(listener);
+        }
     }
 
     /** stock listener implementation */
@@ -647,13 +661,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * @param root2
      */
     protected void fireModelChanged(AbstractNode root, SimpleNode root2) {
-        if (modelListeners.size() > 0) {
-            ArrayList list = new ArrayList(modelListeners);
-            Iterator e = list.iterator();
-            while (e.hasNext()) {
-                IModelListener l = (IModelListener) e.next();
-                l.modelChanged(root, root2);
-            }
+        Iterator e = modelListeners.iterator();
+        while (e.hasNext()) {
+            IModelListener l = (IModelListener) e.next();
+            l.modelChanged(root, root2);
         }
     }
 

@@ -218,11 +218,24 @@ public abstract class AbstractModule {
 
     /**
      * Creates a source file generated only from an ast.
-     * @param n
-     * @return
+     * @param n the ast root
+     * @return the module
      */
     public static AbstractModule createModule(SimpleNode n) {
         return new SourceModule(null, null, n);
+    }
+    
+    /**
+     * Creates a source file generated only from an ast.
+     * 
+     * @param n the ast root
+     * @param file the module file
+     * @param moduleName the name of the module
+     * 
+     * @return the module
+     */
+    public static AbstractModule createModule(SimpleNode n, File file, String moduleName) {
+        return new SourceModule(moduleName, file, n);
     }
     /**
      * @param m
