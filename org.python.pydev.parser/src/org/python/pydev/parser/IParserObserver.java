@@ -6,6 +6,7 @@
 package org.python.pydev.parser;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 
 /**
@@ -21,12 +22,12 @@ public interface IParserObserver {
 	 * @param root the root of the new AST (abstract syntax tree)
 	 * @param file the file that has just been analyzed (it may be null)
 	 */
-	void parserChanged(SimpleNode root, IFile file);
+	void parserChanged(SimpleNode root, IFile file, IDocument doc);
 	
 	/**
 	 * if parse generates an error, you'll get this event
 	 * the exception class will be ParseException, or TokenMgrError
 	 * @param file the file that has just been analyzed (it may be null)
 	 */
-	void parserError(Throwable error, IFile file);
+	void parserError(Throwable error, IFile file, IDocument doc);
 }

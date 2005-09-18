@@ -504,7 +504,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * 
      * Removes all the error markers
      */
-    public void parserChanged(SimpleNode root, IFile file) {
+    public void parserChanged(SimpleNode root, IFile file, IDocument doc) {
         // Remove all the error markers
         IEditorInput input = getEditorInput();
         IPath filePath = null;
@@ -548,12 +548,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
         
         
-        IDocument document = getDocument(input);
-        int lastLine = document.getNumberOfLines();
+        int lastLine = doc.getNumberOfLines();
         try {
-            document.getLineInformation(lastLine - 1);
+            doc.getLineInformation(lastLine - 1);
             ast = root;
-            pythonModel = ModelMaker.createModel(root, document, filePath);
+            pythonModel = ModelMaker.createModel(root, doc, filePath);
             fireModelChanged(pythonModel, ast);
         } catch (BadLocationException e1) {
             PydevPlugin.log(IStatus.WARNING, "Unexpected error getting document length. No model!", e1);
@@ -566,9 +565,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * 
      * generates an error marker on the document
      */
-    public void parserError(Throwable error, IFile original) {
+    public void parserError(Throwable error, IFile original, IDocument doc) {
         try {
-            IDocument document = getDocumentProvider().getDocument(getEditorInput());
             original.deleteMarkers(IMarker.PROBLEM, false, 1);
             int errorStart;
             int errorEnd;
@@ -580,24 +578,24 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                 // Figure out where the error is in the document, and create a
                 // marker for it
                 Token errorToken = parseErr.currentToken.next != null ? parseErr.currentToken.next : parseErr.currentToken;
-                IRegion startLine = document.getLineInformation(errorToken.beginLine - 1);
+                IRegion startLine = doc.getLineInformation(errorToken.beginLine - 1);
                 IRegion endLine;
                 if (errorToken.endLine == 0)
                     endLine = startLine;
                 else
-                    endLine = document.getLineInformation(errorToken.endLine - 1);
+                    endLine = doc.getLineInformation(errorToken.endLine - 1);
                 errorStart = startLine.getOffset() + errorToken.beginColumn - 1;
                 errorEnd = endLine.getOffset() + errorToken.endColumn;
                 message = parseErr.getMessage();
 
             } else {
                 TokenMgrError tokenErr = (TokenMgrError) error;
-                IRegion startLine = document.getLineInformation(tokenErr.errorLine - 1);
+                IRegion startLine = doc.getLineInformation(tokenErr.errorLine - 1);
                 errorStart = startLine.getOffset();
                 errorEnd = startLine.getOffset() + tokenErr.errorColumn;
                 message = tokenErr.getMessage();
             }
-            errorLine = document.getLineOfOffset(errorStart); 
+            errorLine = doc.getLineOfOffset(errorStart); 
 
             // map.put(IMarker.LOCATION, "Whassup?"); this is the location field
             // in task manager
