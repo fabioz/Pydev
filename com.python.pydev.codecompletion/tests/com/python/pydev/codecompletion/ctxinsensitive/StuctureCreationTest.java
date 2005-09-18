@@ -11,6 +11,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.IInfo;
+import com.python.pydev.analysis.additionalinfo.InterpreterObserver;
 import com.python.pydev.codecompletion.CompletionParticipantTestsBase;
 
 public class StuctureCreationTest extends CompletionParticipantTestsBase {

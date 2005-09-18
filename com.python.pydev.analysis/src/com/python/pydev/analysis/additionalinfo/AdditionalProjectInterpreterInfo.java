@@ -4,7 +4,7 @@
  * 
  * @author Fabio Zadrozny
  */
-package com.python.pydev.codecompletion.ctxinsensitive;
+package com.python.pydev.analysis.additionalinfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
+
 
 public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInterpreterInfo{
 

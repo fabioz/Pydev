@@ -1,7 +1,7 @@
 /*
  * Created on 07/09/2005
  */
-package com.python.pydev.codecompletion.ctxinsensitive;
+package com.python.pydev.analysis.additionalinfo;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -23,6 +23,7 @@ import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.JobProgressComunicator;
+
 
 public class InterpreterObserver implements IInterpreterObserver {
 

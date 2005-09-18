@@ -1,7 +1,7 @@
 /*
  * Created on 07/09/2005
  */
-package com.python.pydev.codecompletion.ctxinsensitive;
+package com.python.pydev.analysis.additionalinfo;
 
 import java.io.Serializable;
 

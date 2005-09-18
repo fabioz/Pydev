@@ -1,12 +1,10 @@
 /*
  * Created on 07/09/2005
  */
-package com.python.pydev.codecompletion.ctxinsensitive;
+package com.python.pydev.analysis.additionalinfo;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -27,9 +25,7 @@ import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 
-import sun.misc.BASE64Decoder;
-
-import com.python.pydev.codecompletion.CodecompletionPlugin;
+import com.python.pydev.analysis.AnalysisPlugin;
 
 
 /**
@@ -199,7 +195,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @return the path to the folder we want to keep things on
      */
     protected static String getPersistingFolder() {
-        IPath stateLocation = CodecompletionPlugin.getDefault().getStateLocation();
+        IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
         String osString = stateLocation.toOSString();
         if(osString.length() > 0){
             char c = osString.charAt(osString.length() -1);

@@ -39,7 +39,8 @@ public class CompletionParticipant implements IPyDevCompletionParticipant{
             ProjectModulesManager projectModulesManager = astManager.getProjectModulesManager();
             Set allModuleNames = projectModulesManager.getAllModuleNames();
             
-            
+            String lowerQual = request.qualifier.toLowerCase();
+
             for (Iterator iter = allModuleNames.iterator(); iter.hasNext();) {
                 String name = (String) iter.next();
                 
@@ -66,7 +67,7 @@ public class CompletionParticipant implements IPyDevCompletionParticipant{
                             displayString, 
                             (IContextInformation)null, 
                             "", 
-                            IPyCompletionProposal.PRIORITY_PACKAGES,
+                            importRep.toLowerCase().equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_2 : IPyCompletionProposal.PRIORITY_PACKAGES,
                             realImportRep,
                             lineAvailableForImport);
 

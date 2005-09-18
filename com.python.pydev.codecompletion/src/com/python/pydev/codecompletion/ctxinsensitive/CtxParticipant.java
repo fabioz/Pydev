@@ -16,6 +16,9 @@ import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.ui.ImageCache;
 
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.codecompletion.CodecompletionPlugin;
 
 public class CtxParticipant implements IPyDevCompletionParticipant{
@@ -30,9 +33,12 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
         String delim = selection.getEndLineDelim();
         
         ArrayList<CtxInsensitiveImportComplProposal> completions = new ArrayList<CtxInsensitiveImportComplProposal>();
-        if(request.qualifier.length() >= 3){ //at least n characters required...
+        String qual = request.qualifier;
+        String lowerQual = qual.toLowerCase();
+        
+        if(qual.length() >= 3){ //at least n characters required...
             for (AbstractAdditionalInterpreterInfo additionalSystemInfo : AdditionalProjectInterpreterInfo.getAdditionalInfo(request.nature)){
-                List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith(request.qualifier);
+                List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith(qual);
                 
                 for (IInfo info : tokensStartingWith) {
                     //there always must be a declaringModuleName
@@ -73,7 +79,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
                             displayString, 
                             (IContextInformation)null, 
                             "", 
-                            IPyCompletionProposal.PRIORITY_GLOBALS,
+                            rep.toLowerCase().equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_1 : IPyCompletionProposal.PRIORITY_GLOBALS,
                             realImportRep,
                             lineAvailableForImport);
                     

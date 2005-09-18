@@ -11,6 +11,9 @@ import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.NameTok;
 
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.IInfo;
+
 public class AdditionalInterpreterInfoTest extends TestCase {
 
     private AbstractAdditionalInterpreterInfo info;

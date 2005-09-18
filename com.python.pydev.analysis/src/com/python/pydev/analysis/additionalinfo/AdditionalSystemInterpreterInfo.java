@@ -4,12 +4,13 @@
  * 
  * @author Fabio Zadrozny
  */
-package com.python.pydev.codecompletion.ctxinsensitive;
+package com.python.pydev.analysis.additionalinfo;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.python.pydev.ui.interpreters.IInterpreterManager;
+
 
 public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInterpreterInfo{
 

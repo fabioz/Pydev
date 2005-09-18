@@ -9,12 +9,5 @@
   		<completion_participant class="com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant"/>
    </extension>
    
-   <extension point="org.python.pydev.pydev_interpreter_observer">
-  		<interpreter_observer class="com.python.pydev.codecompletion.ctxinsensitive.InterpreterObserver"/>
-   </extension>
-   
-   <extension point="org.python.pydev.pydev_builder">
-  		<builder_participant class="com.python.pydev.codecompletion.builder.CtxInsensitiveBuilderVisitor"/>
-   </extension>
 
 </plugin>

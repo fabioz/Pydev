@@ -1,7 +1,7 @@
 /*
  * Created on 11/09/2005
  */
-package com.python.pydev.codecompletion.builder;
+package com.python.pydev.analysis.additionalinfo.builder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +13,8 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.plugin.nature.PythonNature;
 
-import com.python.pydev.codecompletion.ctxinsensitive.AbstractAdditionalInterpreterInfo;
-import com.python.pydev.codecompletion.ctxinsensitive.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 
 public class CtxInsensitiveBuilderVisitor extends PyDevBuilderVisitor {
 

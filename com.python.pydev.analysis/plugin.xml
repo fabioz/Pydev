@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
-   <extension
-         point="org.eclipse.ui.preferencePages">
+   <extension point="org.eclipse.ui.preferencePages">
       <page
             class="com.python.pydev.analysis.ui.AnalysisPreferencesPage"
             category="org.python.pydev.prefs.extensions"
@@ -21,12 +20,21 @@
    <extension point="org.python.pydev.pydev_builder">
    		<builder_participant class="com.python.pydev.analysis.builder.AnalysisBuilderVisitor"/>
    </extension>
-   <extension
-         point="org.eclipse.core.runtime.preferences">
+   
+   <extension point="org.eclipse.core.runtime.preferences">
       <initializer class="com.python.pydev.analysis.AnalysisPreferenceInitializer"/>
    </extension>
+
    <extension point="org.python.pydev.parser.pydev_parser_observer">
    		<parser_observer class="com.python.pydev.analysis.builder.AnalysisParserObserver"/>
+   </extension>
+
+   <extension point="org.python.pydev.pydev_interpreter_observer">
+  		<interpreter_observer class="com.python.pydev.analysis.additionalinfo.InterpreterObserver"/>
+   </extension>
+   
+   <extension point="org.python.pydev.pydev_builder">
+  		<builder_participant class="com.python.pydev.analysis.additionalinfo.builder.CtxInsensitiveBuilderVisitor"/>
    </extension>
 
 </plugin>
