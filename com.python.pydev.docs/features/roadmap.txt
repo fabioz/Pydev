@@ -10,10 +10,17 @@ defined in this folder.
 Features that should be implemented
 -----------------------------------
 
-- Lint
-- Code completion
+- Enhanced code analysis:
+	- Analyze files faster (from within pydev) 
+	- make dependency analysis
+		
+- Enhanced Code completion
+	- Get packages with auto-import
+	- Get classes and methods with auto-import
+
 - Organize imports
 
+- Debug server
 
 They should be done in the order listed above.
 
@@ -24,10 +31,30 @@ What else
 For releasing a commercial version, the features are not all that is needed. Other things that
 are required are:
 
-- Check the current libraries included in pydev for their licenses;
-- Put a license file in each pydev plugin project;
-- Fix all the source files and add the respective license for them;
+- Check the current libraries included in pydev for their licenses
+- Put a license file in each pydev plugin project
+- Fix all the source files and add the respective license for them
 - Make the pydev commercial license
 - Create the homepage
 - Create a licensing system
 - Create the manual (html)
+
+
+
+Second phase
+------------
+
+wizards:
+	- module creation
+	- project creation
+	
+package explorer
+
+Search: 
+	- find definition 
+	- find references
+	- go to definition
+	
+Refactoring
+
+File Diff 

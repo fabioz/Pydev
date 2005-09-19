@@ -12,20 +12,21 @@ Warnings
   (local, param - ignore when dummy / unused or some other user defined token)
 - Duplicated signature (method, class) - OK
 - Reimported module - OK
-- Unexistant module
+- self not specified as first parameter - OK
 
 
 Errors
 ------
 - Undefined variable - OK
-
+- Unexistant module - OK
+- Unexistant variable in some import (code analysis for token imports)
 
 Concerns
 --------
-- Only files that are in the specified source folders should be analyzed.
-- Unused imports may or may not be detected on __init__.
+- Unused imports may or may not be detected on __init__ - OK
+- Only files that are in the specified source folders should be analyzed - OK
 - Dependent modules should be re-analyzed after a module changes.
-- There should be a way to silent those warnings (with Ctrl+1).
+- There should be a way to silent those warnings (with Ctrl+1) or even fix-them depending on the warning.
 - Unused parameters on abstract methods should not be reported.
 
 e.g.:

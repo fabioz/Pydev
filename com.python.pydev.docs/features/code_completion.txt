@@ -4,11 +4,12 @@ Code Completion
 Context-Sensitive
 -----------------
 
-Current code completion (context-sensitive) features should be kept, 
+Current code completion (context-sensitive) features should be kept
 
 Additions:
 - completing on method returns (the method called should be analyzed to know what can it return).
-- local imports should be considered when doing the code completion.
+- local imports should be considered when doing the code completion - OK
+- make code completion for call-tips (inside parentesis)
 
 
 Not context-sensitive and Auto-import
@@ -17,24 +18,19 @@ Not context-sensitive and Auto-import
 The not context-sensitive code completion should work toghether with the auto-import feature.
 
 What will it contain:
-- modules available
-- classes defined in the global scope
-- methods defined in the global scope
+- modules available - OK
+- classes defined in the global scope - OK
+- methods defined in the global scope - OK
 
 Concerns
 --------
 
 - user should be able to select the number of characters that should be in the activation token in order to get 
 the not context-sensitive completions
-- compiled modules
+- compiled modules (the tokens for compiled modules will not appear -- only the compiled modules themselves)
 
 
 
 
 
 
-
-
-auto-edit idea:
-
-from xxx <- on space, add ' import '
