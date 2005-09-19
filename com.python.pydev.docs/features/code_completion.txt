@@ -9,7 +9,8 @@ Current code completion (context-sensitive) features should be kept
 Additions:
 - completing on method returns (the method called should be analyzed to know what can it return).
 - local imports should be considered when doing the code completion - OK
-- make code completion for call-tips (inside parentesis)
+- make code completion for call-tips (inside parentesis):
+	- should happen right after a parentesis or after a comma inside a parentesis
 
 
 Not context-sensitive and Auto-import
@@ -21,6 +22,8 @@ What will it contain:
 - modules available - OK
 - classes defined in the global scope - OK
 - methods defined in the global scope - OK
+- pydoc should show in analyzed files
+- methods should have parameters by default
 
 Concerns
 --------
