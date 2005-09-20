@@ -11,11 +11,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
-import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
@@ -28,8 +29,8 @@ public class AssistDocString implements IAssistProps {
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.editor.actions.PySelection, org.python.pydev.ui.ImageCache)
      */
-    public List getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, AbstractNode root) throws BadLocationException {
-        ArrayList l = new ArrayList(); 
+    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, PyEdit edit, int offset) throws BadLocationException {
+        ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>(); 
         List params = PyAction.getInsideParentesisToks(ps.getCursorLineContents(), false);
         
         StringBuffer buf = new StringBuffer();
@@ -62,7 +63,7 @@ public class AssistDocString implements IAssistProps {
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.editor.actions.PySelection, java.lang.String)
      */
-    public boolean isValid(PySelection ps, String sel) {
+    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
         return (sel.indexOf("class ") != -1 || sel.indexOf("def ") != -1) && 
                (sel.indexOf("(") != -1 && sel.indexOf("(") != -1);
     }

@@ -10,13 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.ImageCache;
 
@@ -30,8 +31,8 @@ public abstract class AbstractAssistCreate implements IAssistProps{
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.editor.actions.PySelection, org.python.pydev.ui.ImageCache, java.io.File, org.python.pydev.plugin.PythonNature, org.python.pydev.editor.model.AbstractNode)
      */
-    public List getProps(PySelection ps, ImageCache imageCache, File file, PythonNature nature, AbstractNode root) throws BadLocationException {
-        List l = new ArrayList();
+    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File file, PythonNature nature, PyEdit edit, int receivedOffset) throws BadLocationException {
+        List<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
         
         String lineContentsToCursor = ps.getCursorLineContents();
         //ok, check line to see if it maps to some import
@@ -89,7 +90,7 @@ public abstract class AbstractAssistCreate implements IAssistProps{
      * @param actTok
      * @param module
      */
-    protected void getProposalFromModule(PySelection ps, ImageCache imageCache, PythonNature nature, List l, int offset, String actTok, SourceModule module) {
+    protected void getProposalFromModule(PySelection ps, ImageCache imageCache, PythonNature nature, List<ICompletionProposal> l, int offset, String actTok, SourceModule module) {
         if(actTok.trim().length() == 0){
             l.add(getProposal(ps, imageCache, offset, module)); //same module as doc
             return;
@@ -122,7 +123,7 @@ public abstract class AbstractAssistCreate implements IAssistProps{
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.editor.actions.PySelection, java.lang.String)
      */
-    public boolean isValid(PySelection ps, String sel) {
+    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
         try {
             String lineToCursor = getValidText(ps);
 

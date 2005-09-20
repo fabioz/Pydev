@@ -100,9 +100,9 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
         PySelection ps = new PySelection(doc, new TextSelection(doc, offset, 0));
         String sel = PyAction.getLineWithoutComments(ps);
 
-        assertEquals(isValid, assist.isValid(ps, sel));
+        assertEquals(isValid, assist.isValid(ps, sel, null, offset));
         if(isValid){
-			List props = assist.getProps(ps, null, null, nature, null);
+			List props = assist.getProps(ps, null, null, nature, null, offset);
 			assertEquals(1, props.size());
 			SourceModuleProposal p = (SourceModuleProposal) props.get(0);
 			
@@ -161,8 +161,8 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		PySelection ps = new PySelection(doc, new TextSelection(doc, selStart, selLength));
         String sel = PyAction.getLineWithoutComments(ps);
 
-		assertEquals(true, assist.isValid(ps, sel));
-		List props = assist.getProps(ps, null, null, nature, null);
+		assertEquals(true, assist.isValid(ps, sel, null, selStart));
+		List props = assist.getProps(ps, null, null, nature, null, selStart);
         assertEquals(nProps, props.size());
 		SourceModuleProposal p = (SourceModuleProposal) props.get(0);
 		
@@ -202,8 +202,8 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase{
 		PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
         String sel = PyAction.getLineWithoutComments(ps);
 
-		assertEquals(true, assist.isValid(ps, sel));
-		List props = assist.getProps(ps, null, null, nature, null);
+		assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+		List props = assist.getProps(ps, null, null, nature, null, d.length());
 		assertEquals(1, props.size());
 		SourceModuleProposal p = (SourceModuleProposal) props.get(0);
 		

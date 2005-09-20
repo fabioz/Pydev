@@ -17,6 +17,8 @@ after 0.9.8.1
 - .pyc is removed when the corresponding .py file is removed.
 - debugger has been changed so that it becomes faster (still not as fast as I would like, but still... faster)
 - other bug-fixes (as ususal)
+- some creation assists have been removed until they are improved (so, Ctrl+1 now is pretty stable for all of its uses)
+  and the structure has been changed to enable extensions
 
 after 0.9.8
 

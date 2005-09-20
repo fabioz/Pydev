@@ -14,16 +14,13 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
-import org.python.pydev.editor.correctionassist.heuristics.AssistCreateClassInModule;
-import org.python.pydev.editor.correctionassist.heuristics.AssistCreateMethodInClass;
-import org.python.pydev.editor.correctionassist.heuristics.AssistCreateMethodInModule;
 import org.python.pydev.editor.correctionassist.heuristics.AssistDocString;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
-import org.python.pydev.editor.correctionassist.heuristics.AssistOverride;
 import org.python.pydev.editor.correctionassist.heuristics.AssistTry;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.PydevPlugin;
@@ -91,28 +88,31 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
 
         PySelection ps = new PySelection(edit);
 
-        List results = new ArrayList();
+        List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
         String sel = PyAction.getLineWithoutComments(ps);
         
         
-        IAssistProps[] assists = new IAssistProps[]{
-                new AssistTry(),
-                new AssistImport(),
-                new AssistDocString(),
-                new AssistOverride(),
-                new AssistAssign(),
-//                new AssistCreations(),
-                new AssistCreateMethodInModule(),
-                new AssistCreateClassInModule(),
-                new AssistCreateMethodInClass(),
-                };
+        List<IAssistProps> assists = new ArrayList<IAssistProps>();
+        assists.add(new AssistTry());
+        assists.add(new AssistImport());
+        assists.add(new AssistDocString());
+        assists.add(new AssistAssign());
         
-        for (int i = 0; i < assists.length; i++) {
+        assists.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_CTRL_1));
+        
+        for (IAssistProps assist : assists) {
             try {
-                if (assists[i].isValid(ps, sel)) {
+                if (assist.isValid(ps, sel, edit, offset)) {
                     try {
-                        results.addAll(assists[i].getProps(ps, imageCache, edit.getEditorFile(), (PythonNature)edit.getPythonNature(), edit
-                                .getPythonModel()));
+                        results.addAll(
+                                assist.getProps(
+                                        ps, 
+                                        imageCache, 
+                                        edit.getEditorFile(), 
+                                        (PythonNature)edit.getPythonNature(), 
+                                        edit,
+                                        offset)
+                        );
                     } catch (BadLocationException e) {
                         PydevPlugin.log(e);
                     }

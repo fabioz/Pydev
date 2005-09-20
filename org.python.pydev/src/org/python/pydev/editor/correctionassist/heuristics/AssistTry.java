@@ -10,11 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
-import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
@@ -28,9 +29,9 @@ public class AssistTry implements IAssistProps {
      * @throws BadLocationException
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.editor.actions.PySelection, org.python.pydev.ui.ImageCache)
      */
-    public List getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, AbstractNode root) throws BadLocationException {
+    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, PyEdit edit, int offset) throws BadLocationException {
         
-        ArrayList l = new ArrayList();
+        ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
         String indentation = PyAction.getStaticIndentationString();
         
         int start = ps.getStartLine().getOffset();
@@ -73,7 +74,7 @@ public class AssistTry implements IAssistProps {
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.editor.actions.PySelection)
      */
-    public boolean isValid(PySelection ps, String sel) {
+    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
         return ps.getTextSelection().getLength() > 0;
     }
     

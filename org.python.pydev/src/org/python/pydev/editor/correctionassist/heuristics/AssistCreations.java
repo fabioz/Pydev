@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
@@ -33,7 +35,7 @@ public class AssistCreations implements IAssistProps {
     private String indentation;
     private String params;
     private int firstCharPosition;
-    private ArrayList l;
+    private ArrayList<ICompletionProposal> l;
     private String sel;
     private String callName;
     private String self;
@@ -42,8 +44,8 @@ public class AssistCreations implements IAssistProps {
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.editor.actions.PySelection, org.python.pydev.ui.ImageCache, java.io.File, org.python.pydev.plugin.PythonNature)
      */
-    public List getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, AbstractNode root) throws BadLocationException {
-        l = new ArrayList();
+    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, PyEdit edit, int offset) throws BadLocationException {
+        l = new ArrayList<ICompletionProposal>();
         initializeAttrs(ps);
 
         if (sel.trim().length() == 0) {
@@ -72,7 +74,7 @@ public class AssistCreations implements IAssistProps {
                     "Make this a new method", null, null, ps.getStartLineIndex()+2));
 
         }else{ //we are in a method or class context
-
+            AbstractNode root = edit.getPythonModel();
 	        if (root == null){
 	            return l;
 	        }
@@ -215,7 +217,7 @@ public class AssistCreations implements IAssistProps {
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.editor.actions.PySelection, java.lang.String)
      */
-    public boolean isValid(PySelection ps, String sel) {
+    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
         return sel.indexOf("class ") == -1 && sel.indexOf("def ") == -1 && sel.indexOf("import ") == -1 && 
         ps.getTextSelection().getLength() == 0;
     }

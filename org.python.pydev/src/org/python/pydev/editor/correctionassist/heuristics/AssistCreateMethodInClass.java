@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
@@ -85,16 +86,8 @@ public class AssistCreateMethodInClass extends AbstractAssistCreate {
     /**
      * 
      * This function might be overriden. It is called before getProposal() 
-     * 
-     * @param ps
-     * @param imageCache
-     * @param nature
-     * @param l
-     * @param offset
-     * @param actTok
-     * @param module
      */
-    protected void getProposalFromModule(PySelection ps, ImageCache imageCache, PythonNature nature, List l, int offset, String actTok, SourceModule module) {
+    protected void getProposalFromModule(PySelection ps, ImageCache imageCache, PythonNature nature, List<ICompletionProposal> l, int offset, String actTok, SourceModule module) {
         try {
             int line = ps.getStartLineIndex();
             int col = offset - ps.getStartLine().getOffset();
