@@ -55,6 +55,10 @@ public abstract class PyEditProjection extends TextEditor implements IParserObse
         return viewer;
     }
     
+    
+    public PySourceViewer getPySourceViewer(){
+        return (PySourceViewer) getSourceViewer();
+    }
 
     protected final static char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
 

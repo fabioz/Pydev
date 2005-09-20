@@ -71,8 +71,9 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
     public PyEditConfiguration(ColorCache colorManager, PyEdit edit) {
         colorCache = colorManager;
-        this.setEdit(edit);
+        this.setEdit(edit); 
     }
+    
 
     public IUndoManager getUndoManager(ISourceViewer sourceViewer) {
         return new DefaultUndoManager(100);

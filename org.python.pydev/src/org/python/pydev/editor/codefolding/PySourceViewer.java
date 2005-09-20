@@ -5,9 +5,12 @@
  */
 package org.python.pydev.editor.codefolding;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IOverviewRuler;
 import org.eclipse.jface.text.source.IVerticalRuler;
@@ -40,6 +43,33 @@ public class PySourceViewer extends ProjectionViewer {
         }
     }
         
+    /**
+     * @param markerLine the line we want markers on
+     * @param markerType the type of the marker (if null, it is not used)
+     * @return a list of markers at the given line
+     */
+    public List<IMarker> getMarkersAtLine(int markerLine, String markerType){
+        ArrayList<IMarker> markers = new ArrayList<IMarker>();
+        
+        Iterable<IMarker> markerIteratable = getMarkerIteratable();
+        for (IMarker marker : markerIteratable) {
+            try {
+                //check the line
+                Integer line = (Integer) marker.getAttribute(IMarker.LINE_NUMBER);
+                if(line != null && line.intValue() == markerLine){
+                    
+                    //and the marker type
+                    if(markerType == null || markerType.equals(marker.getType())){
+                        markers.add(marker);
+                    }
+                }
+            } catch (CoreException e) {
+                //ok - no line ?
+            }
+        }
+        
+        return markers;
+    }
     
     /**
      * @return a class that iterates through the markers available in this source viewer
