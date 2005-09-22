@@ -154,6 +154,10 @@ public class PyParser {
     }
 
     public void setDocument(IDocument document) {
+    	setDocument(document, true);
+    }
+    
+    public void setDocument(IDocument document, boolean addToScheduler) {
         // Cleans up old listeners
         if (this.document != null) {
             document.removeDocumentListener(documentListener);
@@ -167,8 +171,11 @@ public class PyParser {
         }
 
         document.addDocumentListener(documentListener);
-        // Reparse document on the initial set (force it)
-        scheduler.parseNow(true);
+        
+        if(addToScheduler){
+	        // Reparse document on the initial set (force it)
+	        scheduler.parseNow(true);
+        }
     }
 
     // ---------------------------------------------------------------------------- listeners
@@ -226,7 +233,11 @@ public class PyParser {
      * @return
      */
     public Object[] reparseDocument() {
-        return reparseDocument(editorView.getPythonNature());
+    	return reparseDocument(editorView.getPythonNature());
+//    	if(editorView != null){
+//    		return reparseDocument(editorView.getPythonNature());
+//    	}
+//    	return null;
     }
     /**
      * Parses the document, generates error annotations

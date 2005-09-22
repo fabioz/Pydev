@@ -72,6 +72,12 @@ public class PyParserTest extends TestCase {
         parseLegalDocStr(s);
     }
 
+    public void testRawString() {
+    	String s = "" +
+    	"testRawString = r'raw\\'";
+    	parseLegalDocStr(s);
+    }
+    
     public void testDecorator() {
         String s = "" +
             "class C:\n" +
@@ -293,7 +299,7 @@ public class PyParserTest extends TestCase {
      * @param parser
      */
     private SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo) {
-        parser.setDocument(doc);
+        parser.setDocument(doc, false);
         Object[] objects = parser.reparseDocument((IPythonNature)null);
         Object err = objects[1];
         if(err != null){
