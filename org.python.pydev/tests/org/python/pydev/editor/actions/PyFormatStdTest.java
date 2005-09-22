@@ -63,6 +63,20 @@ public class PyFormatStdTest extends TestCase {
     
     }
 
+    public void testFormatEscapedQuotes(){
+    	std.spaceAfterComma = false;
+    	std.parametersWithSpace = false;
+    	
+    	String s = ""+
+    	"foo(bar(\"\\\"\"))";
+    	
+    	assertEquals(s, PyFormatStd.formatStr(s, std));
+    	
+    	s = ""+
+    	"foo(bar('''\\''''))";
+    	assertEquals(s, PyFormatStd.formatStr(s, std));
+    }
+    
 
     public void testFormatPar(){
         std.spaceAfterComma = true;

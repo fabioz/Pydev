@@ -150,26 +150,41 @@ public class ParsingUtils {
 
     
     /**
-     * @param cs
-     * @param i
+     * discover the position of the closing quote
      */
     public static int findNextSingle(Object cs, int i, char curr) {
-        while(i < len(cs) && charAt(cs,i) != curr){
-            i++;
+    	boolean ignoreNext = false;
+        while(i < len(cs)){
+        	char c = charAt(cs,i);
+        	
+        	
+			if(!ignoreNext && c == curr){
+        		break;
+        	}
+
+			ignoreNext = false;
+			if(c == '\\'){ //escaped quote, ignore the next char even if it is a ' or "
+				ignoreNext = true;
+			}
+            
+			i++;
         }
         return i;
     }
 
     /**
-     * @param cs
-     * @param i
+     * check the end of the multiline quote
      */
     public static int findNextMulti(Object cs, int i, char curr) {
         while(i+2 < len(cs)){
-            if (charAt(cs,i) == curr && charAt(cs,i+1) == curr && charAt(cs,i+2) == curr){
+            char c = charAt(cs,i);
+			if (c == curr && charAt(cs,i+1) == curr && charAt(cs,i+2) == curr){
                 break;
             }
-            i++;
+			i++;
+			if(c == '\\'){ //this is for escaped quotes
+				i++;
+			}
         }
         if(len(cs) < i+2){
             return len(cs);

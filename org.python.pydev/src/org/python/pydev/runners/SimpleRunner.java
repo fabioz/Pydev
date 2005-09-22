@@ -21,6 +21,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.osgi.service.environment.Constants;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.IPythonPathNature;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -112,7 +113,12 @@ public abstract class SimpleRunner {
             	}
             	String value = (String) entry.getValue();
             	// translate any string substitution variables
-            	String translated = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(value);
+            	String translated = value;
+            	try {
+					translated = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(value, false);
+				} catch (Exception e) {
+					Log.log(e);
+				}
             	env.put(key, translated);
             }
             return env;
