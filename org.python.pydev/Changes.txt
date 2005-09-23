@@ -19,6 +19,8 @@ after 0.9.8.1
 - other bug-fixes (as ususal)
 - some creation assists have been removed until they are improved (so, Ctrl+1 now is pretty stable for all of its uses)
   and the structure has been changed to enable extensions
+- Some escaped quotes problems fixed when formatting code
+
 
 after 0.9.8
 
