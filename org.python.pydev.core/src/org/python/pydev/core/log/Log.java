@@ -18,6 +18,7 @@ public class Log {
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
      */
     public static void log(int errorLevel, String message, Throwable e) {
+        System.err.println(message);
         e.printStackTrace();
         try {
             

@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.python.pydev.core.log.Log;
 
@@ -23,7 +24,7 @@ public class ExtensionHelper {
     public final static String PYDEV_BUILDER = "org.python.pydev.pydev_builder";
     public final static String PYDEV_INTERPRETER_OBSERVER = "org.python.pydev.pydev_interpreter_observer";
     public final static String PYDEV_PARSER_OBSERVER = "org.python.pydev.parser.pydev_parser_observer";
-    public static final String PYDEV_CTRL_1 = "org.python.pydev.ctrl_1_participants";
+    public static final String PYDEV_CTRL_1 = "org.python.pydev.pydev_ctrl_1";
     
     
     private static IExtension[] getExtensions(String type) {
@@ -31,9 +32,14 @@ public class ExtensionHelper {
         if(extensions == null){
             IExtensionRegistry registry = Platform.getExtensionRegistry();
             if(registry != null){ // we may not be in eclipse env when testing
-                IExtensionPoint extensionPoint = registry.getExtensionPoint(type);
-                extensions = extensionPoint.getExtensions();
-                extensionsCache.put(type, extensions);
+                try {
+                    IExtensionPoint extensionPoint = registry.getExtensionPoint(type);
+                    extensions = extensionPoint.getExtensions();
+                    extensionsCache.put(type, extensions);
+                } catch (Exception e) {
+                    Log.log(IStatus.ERROR, "Error getting extension for:"+ type, e);
+                    throw new RuntimeException(e);
+                }
             }else{
                 extensions = new IExtension[0];
             }

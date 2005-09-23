@@ -468,5 +468,14 @@ public class PySelection {
     public char getCharAtCurrentOffset() throws BadLocationException {
         return getDoc().getChar(getAbsoluteCursorOffset());
     }
+
+
+    /**
+     * @return the offset mapping to the end of the current line.
+     */
+    public int getEndLineOffset() {
+        IRegion endLine = getEndLine();
+        return endLine.getOffset() + endLine.getLength();
+    }
     
 }

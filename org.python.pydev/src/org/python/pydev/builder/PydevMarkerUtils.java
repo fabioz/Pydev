@@ -4,6 +4,7 @@
 package org.python.pydev.builder;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -97,6 +98,12 @@ public class PydevMarkerUtils {
     public static void createMarker(IResource resource, IDocument doc, String message, 
             int lineStart, int colStart, int lineEnd, int colEnd, 
             String markerType, int severity) {
+        createMarker(resource, doc, message, lineStart, colStart, lineEnd, colEnd, markerType, severity, null);
+    }
+    
+    public static void createMarker(IResource resource, IDocument doc, String message, 
+            int lineStart, int colStart, int lineEnd, int colEnd, 
+            String markerType, int severity, Map<String, Object> additionalInfo) {
     
         if(lineStart < 0){
             lineStart = 0;
@@ -143,6 +150,11 @@ public class PydevMarkerUtils {
                 map.put(IMarker.CHAR_START, new Integer(startAbsolute));
                 map.put(IMarker.CHAR_END, new Integer(endAbsolute));
                 map.put(IMarker.SEVERITY, new Integer(severity));
+                
+                //add the additional info
+                for (Map.Entry<String, Object> entry : additionalInfo.entrySet()) {
+                    map.put(entry.getKey(), entry.getValue());
+                }
                 
                 MarkerUtilities.createMarker(resource, map, markerType);
             } catch (Exception e) {

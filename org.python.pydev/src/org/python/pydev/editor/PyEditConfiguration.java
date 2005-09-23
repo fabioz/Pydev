@@ -238,7 +238,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         // next create a content assistant processor to populate the completions window
         IContentAssistProcessor processor = new PythonCompletionProcessor(this.getEdit());
 
-        // No code completion in strings
+        // No code completion in comments
         pyContentAssistant.setContentAssistProcessor(processor, PyPartitionScanner.PY_SINGLELINE_STRING);
         pyContentAssistant.setContentAssistProcessor(processor, PyPartitionScanner.PY_MULTILINE_STRING);
         pyContentAssistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
@@ -266,9 +266,10 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         // next create a content assistant processor to populate the completions window
         IContentAssistProcessor processor = new PythonCorrectionProcessor(this.getEdit());
 
-        // No code completion in strings
+        // Correction assist works on all
         assistant.setContentAssistProcessor(processor, PyPartitionScanner.PY_SINGLELINE_STRING);
         assistant.setContentAssistProcessor(processor, PyPartitionScanner.PY_MULTILINE_STRING);
+        assistant.setContentAssistProcessor(processor, PyPartitionScanner.PY_COMMENT);
         assistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
         assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 
