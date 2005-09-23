@@ -38,7 +38,7 @@
    </extension>
    
    <extension point="org.python.pydev.pydev_ctrl_1">
-  		<builder_participant class="com.python.pydev.analysis.additionalinfo.builder.CtxInsensitiveBuilderVisitor"/>
+  		<builder_participant class="com.python.pydev.analysis.ctrl_1.IgnoreErrorParticipant"/>
    </extension>
 
 </plugin>

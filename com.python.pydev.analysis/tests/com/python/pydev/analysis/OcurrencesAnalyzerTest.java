@@ -494,6 +494,10 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
             public int getWhenAnalyze() {
                 return IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE;
             }
+
+            public String getRequiredMessageToIgnore(int type) {
+                throw new RuntimeException("unimplemented");
+            }
         };
     }
 
