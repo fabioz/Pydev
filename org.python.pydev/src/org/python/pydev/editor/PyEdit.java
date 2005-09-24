@@ -386,7 +386,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
     private static final String CORRECTIONASSIST_PROPOSAL_ID = "org.python.pydev.editors.PyEdit.CorrectionAssist";
 
+    private static final String SIMPLEASSIST_PROPOSAL_ID = "org.python.pydev.editors.PyEdit.SimpleAssist";
+
     public static final int CORRECTIONASSIST_PROPOSALS = 999777;
+
+    public static final int SIMPLEASSIST_PROPOSALS = 999778;
 
     private static class MyResources extends ListResourceBundle {
         public Object[][] getContents() {
@@ -414,6 +418,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         markAsStateDependentAction(CORRECTIONASSIST_PROPOSAL_ID, true); //$NON-NLS-1$ 
         setActionActivationCode(CORRECTIONASSIST_PROPOSAL_ID, '1', -1, SWT.CTRL);
 
+        // -------------------------------------------------------------------------------------
+        //simple assistant for extending later
+        action = new TextOperationAction(resources, "SimpleAssist", this, SIMPLEASSIST_PROPOSALS); //$NON-NLS-1$
+        
+        action.setActionDefinitionId(SIMPLEASSIST_PROPOSAL_ID);
+        setAction(SIMPLEASSIST_PROPOSAL_ID, action); //$NON-NLS-1$ 
+//        markAsStateDependentAction(SIMPLEASSIST_PROPOSAL_ID, true); //$NON-NLS-1$ 
+//        setActionActivationCode(SIMPLEASSIST_PROPOSAL_ID, 'c', -1, SWT.NONE);
+        
         // This action will fire a CONTENTASSIST_PROPOSALS operation
         // when executed
         // -------------------------------------------------------------------------------------

@@ -21,12 +21,14 @@ import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyEditConfiguration;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
+import org.python.pydev.editor.simpleassist.SimpleContentAssistant;
 
 
 public class PySourceViewer extends ProjectionViewer {
 
     private PyEditProjection projection;
     private PyCorrectionAssistant fCorrectionAssistant;
+    private SimpleContentAssistant fSimpleAssistant;
 
     public PySourceViewer(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview, int styles, PyEditProjection projection) {
         super(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
@@ -38,8 +40,15 @@ public class PySourceViewer extends ProjectionViewer {
         super.configure(configuration);
         if (configuration instanceof PyEditConfiguration) {
             PyEditConfiguration pyConfiguration = (PyEditConfiguration) configuration;
+
+            //ctrl 1
             fCorrectionAssistant = pyConfiguration.getCorrectionAssistant(this);
             fCorrectionAssistant.install(this);
+
+            //simple
+            fSimpleAssistant = pyConfiguration.getSimpleAssistant(this);
+            fSimpleAssistant.install(this);
+            
         }
     }
         
@@ -154,6 +163,10 @@ public class PySourceViewer extends ProjectionViewer {
             return true;
         }
         
+        if(operation == PyEdit.SIMPLEASSIST_PROPOSALS){
+            return true;
+        }
+        
         return super.canDoOperation(operation);
     }
 
@@ -170,6 +183,9 @@ public class PySourceViewer extends ProjectionViewer {
 				String msg= fCorrectionAssistant.showPossibleCompletions();
 				projection.setStatusLineErrorMessage(msg);
 				return;
+            case PyEdit.SIMPLEASSIST_PROPOSALS:
+                msg= fSimpleAssistant.showPossibleCompletions();
+                projection.setStatusLineErrorMessage(msg);
 		}
     }
 }

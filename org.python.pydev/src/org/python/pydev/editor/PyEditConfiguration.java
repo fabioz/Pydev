@@ -28,8 +28,6 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
@@ -39,6 +37,8 @@ import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
 import org.python.pydev.editor.hover.PyAnnotationHover;
 import org.python.pydev.editor.hover.PyTextHover;
+import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
+import org.python.pydev.editor.simpleassist.SimpleContentAssistant;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
@@ -247,8 +247,8 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
         //delay and auto activate set on PyContentAssistant constructor.
 
-        Color bgColor = colorCache.getColor(new RGB(230, 255, 230));
-        pyContentAssistant.setProposalSelectorBackground(bgColor);
+//        Color bgColor = colorCache.getColor(new RGB(230, 255, 230));
+//        pyContentAssistant.setProposalSelectorBackground(bgColor);
         pyContentAssistant.setDocumentPartitioning(PyPartitionScanner.PYTHON_PARTITION_TYPE);
         
         return pyContentAssistant;
@@ -275,13 +275,43 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
         //delay and auto activate set on PyContentAssistant constructor.
 
-        Color bgColor = colorCache.getColor(new RGB(230, 255, 230));
-        assistant.setProposalSelectorBackground(bgColor);
+//        Color bgColor = colorCache.getColor(new RGB(230, 255, 230));
+//        assistant.setProposalSelectorBackground(bgColor);
         assistant.setDocumentPartitioning(PyPartitionScanner.PYTHON_PARTITION_TYPE);
         
         return assistant;
     }
 
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
+     */
+    public SimpleContentAssistant getSimpleAssistant(ISourceViewer sourceViewer) {
+        // create a content assistant:
+        SimpleContentAssistant assistant = new SimpleContentAssistant();
+        
+        // next create a content assistant processor to populate the completions window
+        IContentAssistProcessor processor = new SimpleAssistProcessor(this.getEdit());
+        
+        // Correction assist works only on default content
+        assistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
+        assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
+        
+        //delay and auto activate set on PyContentAssistant constructor.
+        
+//        Color bgColor = colorCache.getColor(new RGB(230, 255, 230));
+//        assistant.setProposalSelectorBackground(bgColor);
+        assistant.setDocumentPartitioning(PyPartitionScanner.PYTHON_PARTITION_TYPE);
+       
+        assistant.enableAutoActivation(true);
+        assistant.setAutoActivationDelay(0);
+        assistant.enableAutoInsert(false);
+
+        return assistant;
+    }
+    
     // The presenter instance for the information window
     private static final DefaultInformationControl.IInformationPresenter presenter = new DefaultInformationControl.IInformationPresenter() {
         public String updatePresentation(Display display, String infoText, TextPresentation presentation, int maxWidth, int maxHeight) {

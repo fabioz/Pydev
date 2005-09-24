@@ -25,6 +25,7 @@ public class ExtensionHelper {
     public final static String PYDEV_INTERPRETER_OBSERVER = "org.python.pydev.pydev_interpreter_observer";
     public final static String PYDEV_PARSER_OBSERVER = "org.python.pydev.parser.pydev_parser_observer";
     public static final String PYDEV_CTRL_1 = "org.python.pydev.pydev_ctrl_1";
+    public static final String PYDEV_SIMPLE_ASSIST = "org.python.pydev.pydev_simpleassist";
     
     
     private static IExtension[] getExtensions(String type) {
@@ -53,7 +54,8 @@ public class ExtensionHelper {
      * "org.python.pydev.pydev_builder"
      * "org.python.pydev.pydev_interpreter_observer"
      * "org.python.pydev.parser.pydev_parser_observer"
-     * "org.python.pydev.ctrl_1_participants"
+     * "org.python.pydev.ctrl_1"
+     * "org.python.pydev.pydev_simpleassist"
      * 
      * @param type the extension we want to get
      * @return a list of classes created from those extensions
