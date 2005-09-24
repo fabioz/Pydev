@@ -9,5 +9,9 @@
   		<completion_participant class="com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant"/>
    </extension>
    
+   <extension point="org.python.pydev.pydev_simpleassist">
+  		<simpleassist_participant class="com.python.pydev.codecompletion.simpleassist.KeywordsSimpleAssist"/>
+   </extension>
+   
 
 </plugin>
