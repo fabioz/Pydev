@@ -17,8 +17,14 @@ public interface IMessage {
     int getSeverity();
     
     /**
+     * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_DUPLICATED_SIGNATURE
+     * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_NO_SELF
+     * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_REIMPORT
+     * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNDEFINED_VARIABLE
+     * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNRESOLVED_IMPORT
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNUSED_IMPORT
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNUSED_VARIABLE
+     * 
      * @return this message type
      */
     int getType();

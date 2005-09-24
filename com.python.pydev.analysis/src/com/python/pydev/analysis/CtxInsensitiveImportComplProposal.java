@@ -1,7 +1,7 @@
 /*
  * Created on 16/09/2005
  */
-package com.python.pydev.codecompletion.ctxinsensitive;
+package com.python.pydev.analysis;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -9,6 +9,8 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -27,13 +29,15 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposal{
     @Override
     public void apply(IDocument document) {
         try {
+            String delimiter = PyAction.getDelimiter(document);
+            
             //first do the completion
             document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
             
             //then do the import 
             if(lineToAddImport >=0 && lineToAddImport <= document.getNumberOfLines()){
                 IRegion lineInformation = document.getLineInformation(lineToAddImport);
-                document.replace(lineInformation.getOffset(), 0, realImportRep);
+                document.replace(lineInformation.getOffset(), 0, realImportRep+delimiter);
             }
 
         } catch (BadLocationException x) {
@@ -43,7 +47,8 @@ public class CtxInsensitiveImportComplProposal extends PyCompletionProposal{
     
     @Override
     public Point getSelection(IDocument document) {
-        return new Point(fReplacementOffset+fReplacementString.length()+realImportRep.length(), 0 );
+        String delimiter = PyAction.getDelimiter(document);
+        return new Point(fReplacementOffset+fReplacementString.length()+realImportRep.length()+delimiter.length(), 0 );
     }
     
 }

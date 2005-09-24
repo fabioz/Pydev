@@ -20,7 +20,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        participant = new CompletionParticipant();
+        participant = new ImportsCompletionParticipant();
         codeCompletion = new PyCodeCompletion();
         super.restorePythonPath(false);
     }

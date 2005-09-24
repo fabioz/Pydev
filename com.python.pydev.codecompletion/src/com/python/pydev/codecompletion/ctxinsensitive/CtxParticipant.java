@@ -16,6 +16,7 @@ import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.ui.ImageCache;
 
+import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
