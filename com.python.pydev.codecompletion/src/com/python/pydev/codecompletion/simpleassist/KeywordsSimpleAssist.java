@@ -12,7 +12,6 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.ICompletionProposalExtension;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
@@ -21,7 +20,8 @@ import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
-import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
+
+import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 
 /**
  * Auto completion for keywords:
@@ -68,7 +68,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
         "class ",
         "continue",
         "def ",
-        "del",
+        "del ",
         "elif ",
         "else:",
         "except:",
@@ -98,11 +98,18 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
         "as ",
         "False", 
         "None", 
+        "object", 
         "True"
     };
     
     public Collection<ICompletionProposal> computeCompletionProposals(String activationToken, String qualifier, PySelection ps, PyEdit edit, int offset) {
         List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
+        //check if we have to use it
+        if(!CodeCompletionPreferencesPage.useKeywordsCodeCompletion()){
+            return results;
+        }
+        
+        //get them
         if(activationToken.equals("") && qualifier.equals("") == false){
             for (String keyw : KEYWORDS) {
                 if(keyw.startsWith(qualifier)){
@@ -148,7 +155,6 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
         }
 
         public boolean validate(IDocument document, int offset, DocumentEvent event) {
-            
             String[] strs = PyCodeCompletion.getActivationTokenAndQual(document, offset); 
 
             String activationToken = strs[0];
