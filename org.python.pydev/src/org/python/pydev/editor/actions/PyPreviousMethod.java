@@ -26,4 +26,14 @@ public class PyPreviousMethod extends PyMethodNavigation {
 			current = ModelUtils.getPreviousNode(current);
 		return current;	
 	}
+
+    @Override
+    protected boolean goToEndOfFile() {
+        return false;
+    }
+
+    @Override
+    protected boolean goToStartOfFile() {
+        return true;
+    }
 }

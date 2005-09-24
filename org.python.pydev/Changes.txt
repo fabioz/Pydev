@@ -20,7 +20,7 @@ after 0.9.8.1
 - some creation assists have been removed until they are improved (so, Ctrl+1 now is pretty stable for all of its uses)
   and the structure has been changed to enable extensions
 - Some escaped quotes problems fixed when formatting code
-
+- Navigation with Ctrl+Shift+ (up or down) has been slightly improved, so that it goes to the start or the end of the file
 
 after 0.9.8
 

@@ -38,10 +38,24 @@ public abstract class PyMethodNavigation extends PyAction {
 		AbstractNode closest = ModelUtils.getLessOrEqualNode(pyEdit.getPythonModel(),loc);
 	
 		AbstractNode goHere = getSelect(closest);
-		pyEdit.revealModelNode(goHere);
+        if(goHere != null){
+            //ok, somewhere to go
+            pyEdit.revealModelNode(goHere);
+        }else{
+            //no place specified until now... let's try to see if we should go to the start or end of the file
+            if(goToEndOfFile()){
+                pyEdit.selectAndReveal(doc.getLength(), 0);
+            }else if(goToStartOfFile()){
+                pyEdit.selectAndReveal(0, 0);
+            }
+        }
 	}
 
-	/**
+	protected abstract boolean goToEndOfFile() ;
+
+	protected abstract boolean goToStartOfFile() ;
+
+    /**
 	 * This method should return to where we should go, depending on
 	 * the visitor passed as a parameter (it contains the node where we
 	 * are, the next node and the previous node).

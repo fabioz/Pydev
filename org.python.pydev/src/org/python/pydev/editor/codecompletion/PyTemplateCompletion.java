@@ -82,31 +82,5 @@ public class PyTemplateCompletion extends TemplateCompletionProcessor{
         }
 
     }
-//
-//    public String extractPrefix(ITextViewer viewer, int offset) {
-//        IDocument doc = viewer.getDocument();
-//        String str ="";
-//        int i = offset - 1;
-//        if (i == -1){
-//            return "";
-//        }
-//        
-//        char c;
-//        try {
-//            c = doc.getChar(i);
-//            while (c != ' ' && c != '\n' && c != '\r') {
-//                str = c + str;
-//                i--;
-//                if(i < 0){
-//                    break;
-//                }else{
-//                    c = doc.getChar(i);
-//                }
-//            }
-//        } catch (BadLocationException e) {
-//            e.printStackTrace();
-//        }
-//        return str;
-//    }
 
 }

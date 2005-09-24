@@ -489,27 +489,23 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * Selects & reveals the model node
      */
     public void revealModelNode(AbstractNode node) {
-        if (node == null)
+        if (node == null){
             return; // nothing to see here
-        boolean wholeLine = false;
+        }
+        
         Location start = node.getStart();
         Location end = node.getEnd();
         IDocument document = getDocumentProvider().getDocument(getEditorInput());
         int offset, length;
+
         try {
-            if (wholeLine) {
-                IRegion r;
-                r = document.getLineInformation(start.line);
-                offset = r.getOffset();
-                length = r.getLength();
-            } else {
-                offset = start.toOffset(document);
-                length = end.toOffset(document) - offset;
-            }
+            offset = start.toOffset(document);
+            length = end.toOffset(document) - offset;
         } catch (BadLocationException e) {
             PydevPlugin.log(IStatus.WARNING, "error trying to revealModelItem" + node.toString(), e);
             return;
         }
+        
         setSelection(offset, length);
     }
 
