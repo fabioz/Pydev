@@ -150,7 +150,11 @@ public class PyParser {
 
     public void notifySaved() {
         //force parse on save
-        scheduler.parseNow(true);
+        parseNow(true);
+    }
+    
+    public void parseNow(boolean force){
+        scheduler.parseNow(force);
     }
 
     public void setDocument(IDocument document) {
@@ -234,10 +238,6 @@ public class PyParser {
      */
     public Object[] reparseDocument() {
     	return reparseDocument(editorView.getPythonNature());
-//    	if(editorView != null){
-//    		return reparseDocument(editorView.getPythonNature());
-//    	}
-//    	return null;
     }
     /**
      * Parses the document, generates error annotations

@@ -3,7 +3,9 @@
  */
 package org.python.pydev.builder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
@@ -17,31 +19,35 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class PydevMarkerUtils {
 
+    public static IMarker markerExists(IResource resource, String message, int charStart, int charEnd, String type) {
+        return markerExists(resource, message, charStart, charEnd, type, null);
+    }
     /**
      * Checks pre-existance of marker.
      */
-    public static IMarker markerExists(IResource resource, String message, int charStart, int charEnd, String type) {
-        IMarker[] tasks;
+    public static IMarker markerExists(IResource resource, String message, int charStart, int charEnd, String type, List<IMarker> existingMarkers) {
+        existingMarkers = checkExistingMarkers(resource, type, existingMarkers);
+        
         try {
-            tasks = resource.findMarkers(type, true, IResource.DEPTH_ZERO);
-            for (int i = 0; i < tasks.length; i++) {
-                IMarker task = tasks[i];
-                
+            for (IMarker task : existingMarkers) {
                 boolean eqMessage = task.getAttribute(IMarker.MESSAGE).equals(message);
-                
-                boolean eqCharStart = (Integer)task.getAttribute(IMarker.CHAR_START) == charStart;
-                boolean eqCharEnd = (Integer)task.getAttribute(IMarker.CHAR_END) == charEnd;
-                
-                if (eqMessage && eqCharStart && eqCharEnd){
+
+                boolean eqCharStart = (Integer) task.getAttribute(IMarker.CHAR_START) == charStart;
+                boolean eqCharEnd = (Integer) task.getAttribute(IMarker.CHAR_END) == charEnd;
+
+                if (eqMessage && eqCharStart && eqCharEnd) {
                     return task;
                 }
             }
-        } catch (CoreException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            PydevPlugin.log(e);
         }
         return null;
     }
 
+    public static IMarker markerExists(IResource resource, String message, int lineNumber, String type) {
+        return markerExists(resource, message, lineNumber, lineNumber, type, null);
+    }
     /**
      * Checks pre-existance of marker.
      * 
@@ -50,12 +56,11 @@ public class PydevMarkerUtils {
      * @param lineNumber line number where marker should exist
      * @return pre-existance of marker
      */
-    public static IMarker markerExists(IResource resource, String message, int lineNumber, String type) {
-        IMarker[] tasks;
+    public static IMarker markerExists(IResource resource, String message, int lineNumber, String type, List<IMarker> existingMarkers) {
+        existingMarkers = checkExistingMarkers(resource, type, existingMarkers);
+        
         try {
-            tasks = resource.findMarkers(type, true, IResource.DEPTH_ZERO);
-            for (int i = 0; i < tasks.length; i++) {
-                IMarker task = tasks[i];
+            for (IMarker task : existingMarkers) {
                 boolean eqLineNumber = (Integer)task.getAttribute(IMarker.LINE_NUMBER) == lineNumber;
                 boolean eqMessage = task.getAttribute(IMarker.MESSAGE).equals(message);
                 if (eqLineNumber && eqMessage){
@@ -100,11 +105,19 @@ public class PydevMarkerUtils {
             String markerType, int severity) {
         createMarker(resource, doc, message, lineStart, colStart, lineEnd, colEnd, markerType, severity, null);
     }
-    
-    public static void createMarker(IResource resource, IDocument doc, String message, 
+
+    public static IMarker createMarker(IResource resource, IDocument doc, String message, 
             int lineStart, int colStart, int lineEnd, int colEnd, 
             String markerType, int severity, Map<String, Object> additionalInfo) {
+        return createMarker(resource, doc, message, lineStart, colStart, lineEnd, colEnd, markerType, severity, additionalInfo, null);
+    }
     
+    public static IMarker createMarker(IResource resource, IDocument doc, String message, 
+            int lineStart, int colStart, int lineEnd, int colEnd, 
+            String markerType, int severity, Map<String, Object> additionalInfo, List<IMarker> existingMarkers) {
+    
+        existingMarkers = checkExistingMarkers(resource, markerType, existingMarkers);
+
         if(lineStart < 0){
             lineStart = 0;
         }
@@ -139,7 +152,7 @@ public class PydevMarkerUtils {
             throw new RuntimeException(e);
         }
     
-        IMarker marker = markerExists(resource, message, startAbsolute, endAbsolute, markerType);
+        IMarker marker = markerExists(resource, message, startAbsolute, endAbsolute, markerType, existingMarkers);
         if (marker == null) {
             try {
                 
@@ -160,13 +173,42 @@ public class PydevMarkerUtils {
             } catch (Exception e) {
                 PydevPlugin.log(e);
             }
+        }else{
+            existingMarkers.remove(marker);
         }
+        return marker;
+    }
+    /**
+     * @param resource
+     * @param markerType
+     * @param existingMarkers
+     * @return
+     */
+    private static List<IMarker> checkExistingMarkers(IResource resource, String markerType, List<IMarker> existingMarkers) {
+        if(existingMarkers == null){
+            try {
+                existingMarkers = new ArrayList<IMarker>();
+                IMarker[] markers = resource.findMarkers(markerType, true, IResource.DEPTH_ZERO);
+                for (IMarker marker : markers) {
+                    existingMarkers.add(marker);
+                }
+            } catch (CoreException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return existingMarkers;
+    }
+    
+    public static IMarker createMarker(IResource resource, String message, int lineNumber, String markerType, int severity) {
+        return createMarker(resource, message, lineNumber, markerType, severity, null);
     }
 
-    public static void createMarker(IResource resource, String message, int lineNumber, String markerType, int severity) {
-        if(lineNumber <= 0)
+    public static IMarker createMarker(IResource resource, String message, int lineNumber, String markerType, int severity, List<IMarker> existingMarkers) {
+        if(lineNumber <= 0){
             lineNumber = 0;
-        IMarker marker = markerExists(resource, message, lineNumber, markerType);
+        }
+        existingMarkers = checkExistingMarkers(resource, markerType, existingMarkers);
+        IMarker marker = markerExists(resource, message, lineNumber, markerType, existingMarkers);
         if (marker == null) {
             try {
                 HashMap<String, Object> map = new HashMap<String, Object>();
@@ -178,13 +220,24 @@ public class PydevMarkerUtils {
             } catch (CoreException e) {
                 throw new RuntimeException(e);
             }
+        }else{
+            existingMarkers.remove(marker);
         }
+        return marker;
     }
 
-    public static void createMarker(IResource resource, String message, int lineNumber, String markerType, int severity, boolean userEditable, boolean istransient) {
-        if(lineNumber <= 0)
+    public static IMarker createMarker(IResource resource, String message, int lineNumber, String markerType, int severity, boolean userEditable, boolean istransient) {
+        return createMarker(resource, message, lineNumber, markerType, severity, userEditable, istransient, null);
+    }
+    
+    public static IMarker createMarker(IResource resource, String message, int lineNumber, String markerType, int severity, boolean userEditable, boolean istransient, List<IMarker> existingMarkers) {
+        if(lineNumber <= 0){
             lineNumber = 0;
+        }
+        
+        existingMarkers = checkExistingMarkers(resource, markerType, existingMarkers);
         IMarker marker = markerExists(resource, message, lineNumber, markerType);
+
         if (marker == null) {
             try {
                 HashMap<String, Object> map = new HashMap<String, Object>();
@@ -198,7 +251,10 @@ public class PydevMarkerUtils {
             } catch (CoreException e) {
                 throw new RuntimeException(e);
             }
+        }else{
+            existingMarkers.remove(marker);
         }
+        return marker;
     }
 
 }
