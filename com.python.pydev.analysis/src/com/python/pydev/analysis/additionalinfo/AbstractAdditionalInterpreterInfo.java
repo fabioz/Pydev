@@ -15,6 +15,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
@@ -218,7 +219,25 @@ public abstract class AbstractAdditionalInterpreterInfo {
         }
         return toks;
     }
-    
+
+    public List<IInfo> getTokensEqualTo(String qualifier) {
+        String initials = getInitials(qualifier);
+        ArrayList<IInfo> toks = new ArrayList<IInfo>();
+        
+        //get until the end of the alphabet
+        SortedMap<String, List<IInfo>> subMap = this.initialsToInfo.subMap(initials, initials+"z");
+        
+        for (List<IInfo> listForInitials : subMap.values()) {
+            
+            for (IInfo info : listForInitials) {
+                if(info.getName().equals(qualifier)){
+                    toks.add(info);
+                }
+            }
+        }
+        return toks;
+    }
+
     /**
      * @return all the tokens that are in this info
      */
@@ -259,15 +278,21 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @return the path to the folder we want to keep things on
      */
     protected static String getPersistingFolder() {
-        IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
-        String osString = stateLocation.toOSString();
-        if(osString.length() > 0){
-            char c = osString.charAt(osString.length() -1);
-            if(c != '\\' && c != '/'){
-                osString += '/';
+        try {
+            IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
+            String osString = stateLocation.toOSString();
+            if (osString.length() > 0) {
+                char c = osString.charAt(osString.length() - 1);
+                if (c != '\\' && c != '/') {
+                    osString += '/';
+                }
             }
+            return osString;
+        } catch (NullPointerException e) {
+            //it may fail in tests... (save it in default folder in this cases)
+            PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
+            return "";
         }
-        return osString;
     }
     
 
@@ -301,6 +326,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * (e.g. default for a project, default for python interpreter, etc.)
      */
     protected abstract void setAsDefaultInfo();
+
 
     
 }

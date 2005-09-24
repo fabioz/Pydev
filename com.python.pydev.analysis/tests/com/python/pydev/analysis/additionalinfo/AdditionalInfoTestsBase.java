@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -23,6 +25,32 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 public class AdditionalInfoTestsBase  extends CodeCompletionTestsBase {
 
     protected IPyDevCompletionParticipant participant;
+    protected InterpreterObserver observer;
+    
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        observer = new InterpreterObserver();
+    }
+
+    @Override
+    protected boolean restoreSystemPythonPath(boolean force, String path) {
+        boolean restored = super.restoreSystemPythonPath(force, path);
+        if(restored){
+            IProgressMonitor monitor = new NullProgressMonitor();
+            observer.notifyDefaultPythonpathRestored(getInterpreterManager(), monitor);
+        }
+        return restored;
+    }
+    
+    @Override
+    protected boolean restoreProjectPythonPath(boolean force, String path) {
+        boolean ret = super.restoreProjectPythonPath(force, path);
+        if(ret){
+            observer.notifyProjectPythonpathRestored(nature, new NullProgressMonitor());
+        }
+        return ret;
+    }
 
     public void requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
         if(documentOffset == -1)
@@ -45,5 +73,5 @@ public class AdditionalInfoTestsBase  extends CodeCompletionTestsBase {
             assertEquals("Expected "+returned+" received: "+codeCompletionProposals.length+"\n"+buffer, returned, codeCompletionProposals.length);
         }
     }
-
+    
 }

@@ -1,8 +1,10 @@
 package com.python.pydev.codecompletion;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.ImageCache;
 
 /**
@@ -59,8 +61,21 @@ public class CodecompletionPlugin extends AbstractUIPlugin {
     
 
     public static ImageCache getImageCache() {
-        if(imageCache == null){
-            imageCache = new ImageCache(CodecompletionPlugin.getDefault().getBundle().getEntry("/"));
+        try {
+            if (imageCache == null) {
+                imageCache = new ImageCache(CodecompletionPlugin.getDefault().getBundle().getEntry("/"));
+            }
+        } catch (NullPointerException e) {
+            // we don't have it on tests
+            PydevPlugin.log("unable to get image cache", e, false);
+            
+            //return one that always return null
+            return new ImageCache(){
+                @Override
+                public Image get(String key) {
+                    return null;
+                }
+            };
         }
         return imageCache;
     }

@@ -9,6 +9,8 @@ package com.python.pydev.analysis.additionalinfo;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IStatus;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 
@@ -26,7 +28,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInterpret
 
     @Override
     protected String getPersistingLocation() {
-        return getPersistingFolder()+manager.getManagerRelatedName()+".pydevsysteminfo";
+        return getPersistingFolder() + manager.getManagerRelatedName() + ".pydevsysteminfo";
     }
 
     @Override

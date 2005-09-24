@@ -15,7 +15,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 
 public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInterpreterInfo{

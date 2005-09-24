@@ -19,12 +19,10 @@ import com.python.pydev.analysis.additionalinfo.InterpreterObserver;
 
 public class StuctureCreationTest extends AdditionalInfoTestsBase {
     
-    private InterpreterObserver observer;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        observer = new InterpreterObserver();
         participant = new CtxParticipant();
         codeCompletion = new PyCodeCompletion();
         this.restorePythonPath(false);
@@ -33,25 +31,6 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-    }
-    
-    @Override
-    protected boolean restoreSystemPythonPath(boolean force, String path) {
-        boolean restored = super.restoreSystemPythonPath(force, path);
-        if(restored){
-            IProgressMonitor monitor = new NullProgressMonitor();
-            observer.notifyDefaultPythonpathRestored(getInterpreterManager(), monitor);
-        }
-        return restored;
-    }
-    
-    @Override
-    protected boolean restoreProjectPythonPath(boolean force, String path) {
-        boolean ret = super.restoreProjectPythonPath(force, path);
-        if(ret){
-            observer.notifyProjectPythonpathRestored(nature, new NullProgressMonitor());
-        }
-        return ret;
     }
     
 

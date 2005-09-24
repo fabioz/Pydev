@@ -54,6 +54,9 @@ public class AdditionalInterpreterInfoTest extends TestCase {
         
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("met");
         assertEquals(6, tokensStartingWith.size());
+        
+        List<IInfo> tokensEqualTo = info.getTokensEqualTo("metz");
+        assertEquals(1, tokensEqualTo.size());
     }
     
     public void testMap2() {

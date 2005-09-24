@@ -20,6 +20,8 @@ Features that should be implemented
 
 - Organize imports
 
+- Make auto-import content assist - OK
+
 - Debug server
 
 They should be done in the order listed above.

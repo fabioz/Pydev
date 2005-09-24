@@ -40,8 +40,8 @@ public class AnalysisMarkersParticipants implements IAssistProps{
         
         for (IMarker marker : markersAtLine) {
             try {
-                ignoreParticipant.addProps(marker, analysisPreferences, line, ps, offset, edit, props);
-                fixParticipant.addProps(marker, analysisPreferences, line, ps, offset, edit, props);
+                ignoreParticipant.addProps(marker, analysisPreferences, line, ps, offset, nature, edit, props);
+                fixParticipant.addProps(marker, analysisPreferences, line, ps, offset, nature, edit, props);
             } catch (Exception e) {
                 PydevPlugin.log("Error when getting proposals.", e);
             }

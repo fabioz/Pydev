@@ -11,8 +11,6 @@ import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_VARIABL
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.Document;
@@ -59,15 +57,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
     protected ICodeCompletionASTManager getManager() {
         return (ICodeCompletionASTManager) nature.getAstManager();
     }
-    private int severityForUnusedImport;
-    private int severityForUnusedVariable;
-    private int severityForUndefinedVariable;
-    private int severityForDuplicatedSignature;
-    private int severityForReimport;
-    private int severityForUnresolvedImport;
-    private int severityForNoSelf;
 
-    private IAnalysisPreferences prefs;
+    private AnalysisPreferencesStub prefs;
 
     /*
      * @see TestCase#setUp()
@@ -80,14 +71,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         }else{
             restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES, false);
         }
-        prefs = createAnalysisPrefs();
-        severityForUnusedImport = IMarker.SEVERITY_WARNING;
-        severityForUnusedVariable = IMarker.SEVERITY_WARNING;
-        severityForUndefinedVariable = IMarker.SEVERITY_ERROR;
-        severityForDuplicatedSignature = IMarker.SEVERITY_ERROR;
-        severityForReimport = IMarker.SEVERITY_WARNING;
-        severityForUnresolvedImport = IMarker.SEVERITY_ERROR;
-        severityForNoSelf = IMarker.SEVERITY_ERROR;
+        prefs = new AnalysisPreferencesStub();
     }
 
     /*
@@ -101,7 +85,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
 
     public void testUnusedImports(){
             
-        severityForUnusedImport = IMarker.SEVERITY_ERROR;
+        prefs.severityForUnusedImport = IMarker.SEVERITY_ERROR;
         doc = new Document("import testlib\n");
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
@@ -130,7 +114,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
 
         
         //-----------------
-        severityForUnusedImport = IMarker.SEVERITY_WARNING;
+        prefs.severityForUnusedImport = IMarker.SEVERITY_WARNING;
         sDoc = "from testlib.unittest import *\nprint TestCase";
         doc = new Document(sDoc);
         analyzer = new OcurrencesAnalyzer();
@@ -141,7 +125,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals("Unused import: main, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
         
         //-----------------
-        severityForUnusedImport = SEVERITY_IGNORE;
+        prefs.severityForUnusedImport = SEVERITY_IGNORE;
         sDoc = "from testlib.unittest import *\nprint TestCase";
         doc = new Document(sDoc);
         analyzer = new OcurrencesAnalyzer();
@@ -442,65 +426,6 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertContainsMsg("Import redefinition: os", msgs, 3);
         assertContainsMsg("Unused import: os", msgs, 1);
     }
-    
-    /**
-     * @return
-     */
-    private IAnalysisPreferences createAnalysisPrefs() {
-        return new IAnalysisPreferences(){
-
-            public int getSeverityForType(int type) {
-                if (type == TYPE_UNUSED_IMPORT){
-                    return severityForUnusedImport;
-                }
-                if (type == TYPE_UNUSED_VARIABLE){
-                    return severityForUnusedVariable;
-                }
-                if (type == TYPE_UNDEFINED_VARIABLE){
-                    return severityForUndefinedVariable;
-                }
-                if (type == TYPE_DUPLICATED_SIGNATURE){
-                    return severityForDuplicatedSignature;
-                }
-                if (type == TYPE_REIMPORT){
-                    return severityForReimport;
-                }
-                if (type == TYPE_UNRESOLVED_IMPORT){
-                    return severityForUnresolvedImport;
-                }
-                if (type == TYPE_NO_SELF){
-                    return severityForNoSelf;
-                }
-                throw new RuntimeException("unable to get severity for type "+type);
-            }
-
-            public boolean makeCodeAnalysis() {
-                return true;
-            }
-            
-            /**
-             * @see com.python.pydev.analysis.IAnalysisPreferences#getNamesIgnoredByUnusedVariable()
-             */
-            public List<String> getNamesIgnoredByUnusedVariable() {
-                List<String> names = new ArrayList<String>();
-                names.add("dummy");
-                return names;
-            }
-            
-            public void clearCaches() {
-                //no caches here
-            }
-
-            public int getWhenAnalyze() {
-                return IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE;
-            }
-
-            public String getRequiredMessageToIgnore(int type) {
-                throw new RuntimeException("unimplemented");
-            }
-        };
-    }
-
     
     public void testUnusedVariable2() {
         
@@ -1654,7 +1579,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(9, msgs[0].getStartCol(doc));
 
         //ignore
-        severityForDuplicatedSignature = IAnalysisPreferences.SEVERITY_IGNORE;
+        prefs.severityForDuplicatedSignature = IAnalysisPreferences.SEVERITY_IGNORE;
         doc = new Document(
                 "class C:             \n" +
                 "    def m1(self):pass\n" +

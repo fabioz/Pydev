@@ -16,6 +16,7 @@ import org.eclipse.swt.graphics.Image;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.ImageCache;
 
 import com.python.pydev.analysis.AnalysisPlugin;
@@ -35,7 +36,8 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
      * @throws CoreException 
      * @see com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant#addProps(org.eclipse.core.resources.IMarker, com.python.pydev.analysis.IAnalysisPreferences, java.lang.String, org.python.pydev.editor.actions.PySelection, int, org.python.pydev.editor.PyEdit, java.util.List)
      */
-    public void addProps(IMarker marker, IAnalysisPreferences analysisPreferences, String line, PySelection ps, int offset, PyEdit edit, List<ICompletionProposal> props) throws BadLocationException, CoreException {
+    public void addProps(IMarker marker, IAnalysisPreferences analysisPreferences, String line, PySelection ps, int offset, PythonNature nature,
+            PyEdit edit, List<ICompletionProposal> props) throws BadLocationException, CoreException {
         Integer id = (Integer) marker.getAttribute(AnalysisRunner.PYDEV_PROBLEM_ID_MARKER_INFO);
         String messageToIgnore = analysisPreferences.getRequiredMessageToIgnore(id);
         

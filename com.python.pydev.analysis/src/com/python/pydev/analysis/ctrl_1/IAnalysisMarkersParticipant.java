@@ -11,6 +11,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PySelection;
+import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 
@@ -25,6 +26,7 @@ public interface IAnalysisMarkersParticipant {
      * @param line the line where the analysis is happening
      * @param ps the selection
      * @param offset the offset where it is happening
+     * @param nature this is the nature from the project that is being used
      * @param edit the edit where the completions where required
      * @param props OUT: the completions should be added to this list
      * 
@@ -32,6 +34,7 @@ public interface IAnalysisMarkersParticipant {
      * @throws CoreException 
      */
     public abstract void addProps(IMarker marker, IAnalysisPreferences analysisPreferences, 
-            String line, PySelection ps, int offset, PyEdit edit, List<ICompletionProposal> props) throws BadLocationException, CoreException;
+            String line, PySelection ps, int offset, PythonNature nature,
+            PyEdit edit, List<ICompletionProposal> props) throws BadLocationException, CoreException;
 
 }

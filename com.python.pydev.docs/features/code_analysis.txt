@@ -27,7 +27,7 @@ Concerns
 - Unused imports may or may not be detected on __init__ - OK
 - Only files that are in the specified source folders should be analyzed - OK
 - Dependent modules should be re-analyzed after a module changes.
-- There should be a way to silent those warnings (with Ctrl+1) or even fix-them depending on the warning.
+- There should be a way to silent those warnings (with Ctrl+1) or even fix-them depending on the warning. - OK
 - Unused parameters on abstract methods should not be reported.
 
 e.g.:
@@ -37,7 +37,7 @@ def DoUpdate(self, timestep):
 
 To do later
 -----------
-
+- Unreachable code
 - Member X not found.
 - Base class' __init__ not called.
 - Redefining X from outer scope.
