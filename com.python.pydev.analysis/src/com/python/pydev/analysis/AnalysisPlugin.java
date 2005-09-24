@@ -3,6 +3,8 @@ package com.python.pydev.analysis;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.ImageCache;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -11,6 +13,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
 
 	//The shared instance.
 	private static AnalysisPlugin plugin;
+    private ImageCache imageCache;
 	
 	/**
 	 * The constructor.
@@ -51,4 +54,14 @@ public class AnalysisPlugin extends AbstractUIPlugin {
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev.analysis", path);
 	}
+
+
+    public ImageCache getImageCache() {
+        if(imageCache == null){
+            imageCache = new ImageCache(AnalysisPlugin.getDefault().getBundle().getEntry("/"));
+        }
+        return imageCache;
+    }
+    
+    
 }

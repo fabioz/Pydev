@@ -3,8 +3,10 @@
  */
 package com.python.pydev.analysis.builder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
@@ -46,8 +48,10 @@ public class AnalysisRunner {
      * @param resource the resource where we want to add the markers
      * @param document the document
      * @param messages the messages to add
+     * @param existing these are the existing markers. After this method, the list will contain only the ones that
+     * should be removed.
      */
-    public void addMarkers(IResource resource, IDocument document, IMessage[] messages) {
+    public void addMarkers(IResource resource, IDocument document, IMessage[] messages, ArrayList<IMarker> existing) {
         try {
             IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
             
@@ -79,7 +83,8 @@ public class AnalysisRunner {
                         endCol, 
                         AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER,
                         m.getSeverity(),
-                        additionalInfo);
+                        additionalInfo,
+                        existing);
             }
         } catch (Exception e) {
             Log.log(e);

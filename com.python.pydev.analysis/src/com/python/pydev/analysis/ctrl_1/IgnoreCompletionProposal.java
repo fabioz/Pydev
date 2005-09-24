@@ -8,13 +8,18 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
+import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class IgnoreCompletionProposal extends PyCompletionProposal {
 
-    public IgnoreCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority) {
+    private PyEdit edit;
+
+    public IgnoreCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, PyEdit edit) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority);
+        this.edit = edit;
         
     }
     
@@ -23,7 +28,9 @@ public class IgnoreCompletionProposal extends PyCompletionProposal {
         try {
             //first do the completion
             document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
-            
+
+            //ok, after doing it, let's call for a reparse
+            edit.getParser().parseNow(true);
         } catch (BadLocationException x) {
             PydevPlugin.log(x);
         }

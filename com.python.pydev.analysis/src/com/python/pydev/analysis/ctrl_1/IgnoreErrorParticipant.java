@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.swt.graphics.Image;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
@@ -22,6 +23,7 @@ import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.ImageCache;
 
+import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
@@ -37,6 +39,9 @@ public class IgnoreErrorParticipant implements IAssistProps{
         ArrayList<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
         IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
         String line = ps.getLine();
+        
+        ImageCache analysisImageCache = AnalysisPlugin.getDefault().getImageCache();
+        Image annotationImage = analysisImageCache.get("icons/annotation_obj.gif");
         
         for (IMarker marker : markersAtLine) {
             try {
@@ -65,11 +70,12 @@ public class IgnoreErrorParticipant implements IAssistProps{
                         ps.getEndLineOffset(), 
                         0,
                         offset,
+                        annotationImage,
+                        messageToIgnore.substring(1),
                         null,
-                        messageToIgnore,
                         null,
-                        null,
-                        PyCompletionProposal.PRIORITY_DEFAULT
+                        PyCompletionProposal.PRIORITY_DEFAULT,
+                        edit
                         );
                 props.add(proposal);
                 

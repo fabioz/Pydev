@@ -23,6 +23,7 @@ Errors
 
 Concerns
 --------
+- Markers should only be deleted when they are not used (instead of removing all and recreating all again). - OK
 - Unused imports may or may not be detected on __init__ - OK
 - Only files that are in the specified source folders should be analyzed - OK
 - Dependent modules should be re-analyzed after a module changes.
