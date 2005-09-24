@@ -4,6 +4,7 @@
 package org.python.pydev.editor.simpleassist;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
@@ -49,6 +50,8 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
         for (ISimpleAssistParticipant participant : participants) {
             results.addAll(participant.computeCompletionProposals(activationToken, qualifier, ps, edit, offset));
         }
+        
+        Collections.sort(results, PyCodeCompletion.PROPOSAL_COMPARATOR);
         return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
     }
 

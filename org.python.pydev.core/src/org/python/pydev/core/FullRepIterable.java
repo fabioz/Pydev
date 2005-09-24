@@ -119,6 +119,9 @@ public class FullRepIterable implements Iterable<String>{
      * 
      * head is pos 1 (cc)
      * tail is pos 0 (aa.bb)
+     * 
+     * if it does not have a ".", everything is part of the tail - this is a strange behaviour by the way... but it is what I need, because
+     * of the way to calculate the modules on some cases.
      */
     public static String[] headAndTail(String fullRep){
         int i = fullRep.lastIndexOf('.');

@@ -236,6 +236,10 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         //		 + event.getNewValue());
     }
 
+    public static void log(String message, Throwable e) {
+        log(IStatus.ERROR, message, e);
+    }
+    
     public static void log(int errorLevel, String message, Throwable e) {
         log(errorLevel, message, e, true);
     }

@@ -30,13 +30,13 @@ public class ParsingUtils {
      * @param i the # position
      * @return the end of the comments position (end of document or new line char)
      */
-    public static int eatComments(char[] cs, StringBuffer buf, int i) {
-        while(i < cs.length && cs[i] != '\n' && cs[i] != '\r'){
-            buf.append(cs[i]);
+    public static int eatComments(Object cs, StringBuffer buf, int i) {
+        while(i < len(cs) && charAt(cs,i) != '\n' && charAt(cs,i) != '\r'){
+            buf.append(charAt(cs,i));
             i++;
         }
-        if(i < cs.length)
-            buf.append(cs[i]);
+        if(i < len(cs))
+            buf.append(charAt(cs,i));
     
         return i;
     }
@@ -122,12 +122,12 @@ public class ParsingUtils {
      * @param i the ' or " position
      * @return the end of the literal position (or end of document)
      */
-    public static int eatPar(char[] cs, int i, StringBuffer buf) {
+    public static int eatPar(Object cs, int i, StringBuffer buf) {
         char c = ' ';
         StringBuffer locBuf = new StringBuffer();
         
         int j = i+1;
-        while(j < cs.length && (c = cs[j]) != ')'){
+        while(j < len(cs) && (c = charAt(cs,j)) != ')'){
             
             j++;
             

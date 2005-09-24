@@ -147,8 +147,13 @@ public class PySelection {
             String strDoc = d.get(initialOffset, d.getLength() - initialOffset);
             char current = strDoc.charAt(initialOffset);
             while (current != '\'' && current != '"' && initialOffset < strDoc.length()-1) {
+                if(current == '('){
+                    initialOffset = ParsingUtils.eatPar(strDoc, initialOffset, buf);
+                }
                 initialOffset += 1;
-                current = strDoc.charAt(initialOffset);
+                if(initialOffset < strDoc.length()-1){
+                    current = strDoc.charAt(initialOffset);
+                }
             }
             
             if(initialOffset == strDoc.length()-1){

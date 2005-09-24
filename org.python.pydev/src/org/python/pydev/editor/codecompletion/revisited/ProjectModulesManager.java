@@ -70,7 +70,7 @@ public class ProjectModulesManager extends ModulesManager{
     /**
      * @return
      */
-    public Set getAllModuleNames() {
+    public Set<String> getAllModuleNames() {
         Set s = new HashSet();
         Set keySet = getModules().keySet();
         for (Object object : keySet) {

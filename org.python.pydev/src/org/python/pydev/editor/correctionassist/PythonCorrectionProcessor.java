@@ -6,6 +6,7 @@
 package org.python.pydev.editor.correctionassist;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -18,6 +19,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
+import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.editor.correctionassist.heuristics.AssistDocString;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
@@ -122,7 +124,8 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
             }
         }
 
-    
+        Collections.sort(results, PyCodeCompletion.PROPOSAL_COMPARATOR);
+
         return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
     }
 

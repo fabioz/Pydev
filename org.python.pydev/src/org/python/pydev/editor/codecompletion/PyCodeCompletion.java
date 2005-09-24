@@ -776,13 +776,13 @@ public class PyCodeCompletion {
         // and fill with list elements
         returnProposals.toArray(proposals);
 
-        Arrays.sort(proposals, proposalsComparator);
+        Arrays.sort(proposals, PROPOSAL_COMPARATOR);
         return proposals;
     }
 
     /**
      * Compares proposals so that we can order them.
      */
-    private ProposalsComparator proposalsComparator = new ProposalsComparator();
+    public static final ProposalsComparator PROPOSAL_COMPARATOR = new ProposalsComparator();
 
 }
