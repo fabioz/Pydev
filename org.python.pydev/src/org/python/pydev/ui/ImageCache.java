@@ -28,7 +28,11 @@ public class ImageCache {
 	}
 	
 	
-	public void dispose() {
+	protected ImageCache() {
+    }
+
+
+    public void dispose() {
 		Iterator e = imageHash.values().iterator();
 		while (e.hasNext())
 			 ((Image) e.next()).dispose();
