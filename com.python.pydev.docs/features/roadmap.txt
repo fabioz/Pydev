@@ -11,12 +11,12 @@ Features that should be implemented
 -----------------------------------
 
 - Enhanced code analysis:
-	- Analyze files faster (from within pydev) 
+	- Analyze files faster (from within pydev) - OK
 	- make dependency analysis
 		
 - Enhanced Code completion
-	- Get packages with auto-import
-	- Get classes and methods with auto-import
+	- Get packages with auto-import - OK
+	- Get classes and methods with auto-import - OK
 
 - Organize imports
 

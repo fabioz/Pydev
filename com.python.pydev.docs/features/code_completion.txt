@@ -24,6 +24,7 @@ What will it contain:
 - methods defined in the global scope - OK
 - pydoc should show in analyzed files
 - methods should have parameters by default
+- classes should have parameters by default because of constructor
 
 Concerns
 --------
