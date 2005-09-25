@@ -66,7 +66,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         // - change its name to some other global or local (mistyped)
         // - create a method or class for it (if it is a call)
         
-        Set<Tuple<String>> mods = new HashSet<Tuple<String>>();
+        Set<Tuple<String,String>> mods = new HashSet<Tuple<String,String>>();
         //1. check if it is some module
         for (String completeName : allModules) {
             FullRepIterable iterable = new FullRepIterable(completeName);
@@ -80,7 +80,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                     
                     String displayString = "Import "+mod;
                     realImportRep = "import "+mod;
-                    mods.add(new Tuple<String>(realImportRep, displayString));
+                    mods.add(new Tuple<String,String>(realImportRep, displayString));
 
                 }
                 
@@ -95,7 +95,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                         realImportRep = "from "+packageName+" "+realImportRep;
                         displayString += " ("+ packageName+")";
                     }
-                    mods.add(new Tuple<String>(realImportRep, displayString));
+                    mods.add(new Tuple<String,String>(realImportRep, displayString));
                 }
             }
         }
@@ -109,14 +109,14 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                 //there always is a declaring module
                 String name = found.getName();
                 String declPackage = found.getDeclaringModuleName();
-                mods.add(new Tuple<String>("from "+declPackage+" import "+name,
+                mods.add(new Tuple<String,String>("from "+declPackage+" import "+name,
                         "Import "+name+" ("+declPackage+")"));
             }
         }
         
         int lineAvailableForImport = ps.getLineAvailableForImport();
         
-        for (Tuple<String> string : mods) {
+        for (Tuple<String,String> string : mods) {
             props.add(new CtxInsensitiveImportComplProposal(
                     "",
                     offset,
