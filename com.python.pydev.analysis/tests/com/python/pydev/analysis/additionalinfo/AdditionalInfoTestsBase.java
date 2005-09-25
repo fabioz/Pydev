@@ -38,7 +38,11 @@ public class AdditionalInfoTestsBase  extends CodeCompletionTestsBase {
         boolean restored = super.restoreSystemPythonPath(force, path);
         if(restored){
             IProgressMonitor monitor = new NullProgressMonitor();
-            observer.notifyDefaultPythonpathRestored(getInterpreterManager(), monitor);
+            
+            //try to load it from previous session
+            if(!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(getInterpreterManager())){
+                observer.notifyDefaultPythonpathRestored(getInterpreterManager(), monitor);
+            }
         }
         return restored;
     }
@@ -47,7 +51,10 @@ public class AdditionalInfoTestsBase  extends CodeCompletionTestsBase {
     protected boolean restoreProjectPythonPath(boolean force, String path) {
         boolean ret = super.restoreProjectPythonPath(force, path);
         if(ret){
-            observer.notifyProjectPythonpathRestored(nature, new NullProgressMonitor());
+            //try to load it from previous session
+            if(!AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature.getProject())){
+                observer.notifyProjectPythonpathRestored(nature, new NullProgressMonitor());
+            }
         }
         return ret;
     }

@@ -6,8 +6,6 @@ package com.python.pydev.codecompletion.ctxinsensitive;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 
@@ -15,7 +13,6 @@ import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInf
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
-import com.python.pydev.analysis.additionalinfo.InterpreterObserver;
 
 public class StuctureCreationTest extends AdditionalInfoTestsBase {
     
@@ -45,7 +42,7 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
 
     
     public void testCompletion() throws CoreException, BadLocationException {
-        requestCompl("", "TestCase - unittest");
+        requestCompl("Tes", -1, -1, new String[]{"TestCase - unittest"}); //at least 3 chars needed by default
     }
 
     // ----------------------------------------------------------------------------------------------- asserts

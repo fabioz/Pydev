@@ -31,7 +31,11 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInterpre
 
     @Override
     protected String getPersistingLocation() {
-        return getPersistingFolder()+project.getName()+".pydevinfo";
+        String name = project.getName();
+        if(name == null || name.trim().length() == 0){
+            throw new RuntimeException("The name of the project is not valid: "+project);
+        }
+        return getPersistingFolder()+name+".pydevinfo";
     }
 
     @Override

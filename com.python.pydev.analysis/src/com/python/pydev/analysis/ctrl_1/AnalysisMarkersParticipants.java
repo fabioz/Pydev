@@ -27,10 +27,15 @@ public class AnalysisMarkersParticipants implements IAssistProps{
     private List<IMarker> markersAtLine;
     private IAnalysisMarkersParticipant ignoreParticipant;
     private IAnalysisMarkersParticipant fixParticipant;
+    private ArrayList<IAnalysisMarkersParticipant> participants;
 
     public AnalysisMarkersParticipants() {
         ignoreParticipant = new IgnoreErrorParticipant();
         fixParticipant = new UndefinedVariableFixParticipant();
+        
+        participants = new ArrayList<IAnalysisMarkersParticipant>();
+        participants.add(ignoreParticipant);
+        participants.add(fixParticipant);
     }
 
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, PyEdit edit, int offset) throws BadLocationException {
@@ -39,11 +44,12 @@ public class AnalysisMarkersParticipants implements IAssistProps{
         String line = ps.getLine();
         
         for (IMarker marker : markersAtLine) {
-            try {
-                ignoreParticipant.addProps(marker, analysisPreferences, line, ps, offset, nature, edit, props);
-                fixParticipant.addProps(marker, analysisPreferences, line, ps, offset, nature, edit, props);
-            } catch (Exception e) {
-                PydevPlugin.log("Error when getting proposals.", e);
+            for (IAnalysisMarkersParticipant participant : participants) {
+                try {
+                    participant.addProps(marker, analysisPreferences, line, ps, offset, nature, edit, props);
+                } catch (Exception e) {
+                    PydevPlugin.log("Error when getting proposals.", e);
+                }
             }
         }
         return props;

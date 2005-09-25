@@ -257,7 +257,11 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * this can be used to save the file
      */
     public void save() {
-        saveTo(getPersistingLocation());
+        String persistingLocation = getPersistingLocation();
+        if(DEBUG_ADDITIONAL_INFO){
+            System.out.println("Saving to "+persistingLocation);
+        }
+        saveTo(persistingLocation);
     }
 
     /**

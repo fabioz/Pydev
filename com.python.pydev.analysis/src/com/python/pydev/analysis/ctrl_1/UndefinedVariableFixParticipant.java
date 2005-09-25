@@ -48,8 +48,10 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         
         Integer start = (Integer) marker.getAttribute(IMarker.CHAR_START);
         Integer end = (Integer) marker.getAttribute(IMarker.CHAR_END);
-        String markerContents = ps.getDoc().get(start, end-start);
-
+        ps.setSelection(start, end);
+        String markerContents = ps.getSelectedText();
+        String fullRep = ps.getFullRepAfterSelection();
+        
         ImageCache imageCache = PydevPlugin.getImageCache();
         Image importImage = null;
         if(imageCache != null){ //making tests
@@ -68,12 +70,23 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         //1. check if it is some module
         for (String completeName : allModules) {
             FullRepIterable iterable = new FullRepIterable(completeName);
+            String realImportRep = null;
 
             for (String mod : iterable) {
                 
+                if(fullRep.startsWith(mod) && (
+                        fullRep.length() == mod.length()) || 
+                        fullRep.indexOf(mod.length()) == '.'){
+                    
+                    String displayString = "Import "+mod;
+                    realImportRep = "import "+mod;
+                    mods.add(new Tuple<String>(realImportRep, displayString));
+
+                }
+                
                 String[] strings = FullRepIterable.headAndTail(mod);
                 String packageName = strings[0];
-                String realImportRep = "import "+strings[1];
+                realImportRep = "import "+strings[1];
                 String importRep = strings[1];
                 
                 if(importRep.equals(markerContents)){
