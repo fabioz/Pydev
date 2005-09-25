@@ -85,7 +85,8 @@ public class ProjectStub implements IProject {
     }
 
     public IProject[] getReferencedProjects() throws CoreException {
-        throw new RuntimeException("not impl");
+        //no referenced projects
+        return new IProject[0];
     }
 
     public IProject[] getReferencingProjects() {

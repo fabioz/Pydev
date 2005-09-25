@@ -71,7 +71,7 @@ public class CodeCompletionTestsBase extends TestCase {
             //cache
             restored = this.getClass();
             nature = createNature();
-            nature.setProject(new ProjectStub(path));
+            nature.setProject(new ProjectStub("testProjectStub"));
     	    nature.setAstManager(new ASTManager());
     	    
     	    ASTManager astManager = ((ASTManager)nature.getAstManager());

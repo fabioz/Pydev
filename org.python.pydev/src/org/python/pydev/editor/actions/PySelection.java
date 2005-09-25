@@ -62,6 +62,15 @@ public class PySelection {
     }
 
     /**
+     * Changes the selection
+     * @param absoluteStart this is the offset of the start of the selection
+     * @param absoluteEnd this is the offset of the end of the selection
+     */
+    public void setSelection(int absoluteStart, int absoluteEnd) {
+        this.textSelection = new TextSelection(doc, absoluteStart, absoluteEnd-absoluteStart);
+    }
+
+    /**
      * Creates a selection for the document, so that no characters are selected and the offset is position 0
      * @param doc the document where we are doing the selection
      */
@@ -487,5 +496,31 @@ public class PySelection {
         IRegion endLine = getEndLine();
         return endLine.getOffset() + endLine.getLength();
     }
+
+
+    /**
+     * @return the complete dotted string given the current selection and the strings after
+     * 
+     * e.g.: if we have a text of
+     * 'value = aa.bb.cc()' and 'aa' is selected, this method would return the whole dotted string ('aa.bb.cc') 
+     * @throws BadLocationException 
+     */
+    public String getFullRepAfterSelection() throws BadLocationException {
+        int absoluteCursorOffset = getAbsoluteCursorOffset();
+        int length = doc.getLength();
+        int end = absoluteCursorOffset;
+        char ch = doc.getChar(end);
+        while(Character.isLetterOrDigit(ch) || ch == '.'){
+            end++;
+            //check if we can still get some char
+            if(length-1 < end){
+                break;
+            }
+            ch = doc.getChar(end);
+        };
+        return doc.get(absoluteCursorOffset, end-absoluteCursorOffset);
+    }
+
+
     
 }

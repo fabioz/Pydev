@@ -130,4 +130,18 @@ public class PySelectionTest extends TestCase {
         assertEquals(ps.getLine(0), ps.getCursorLineContents());
         assertEquals(ps.getLine(0), ps.getSelectedText());
     }
+    
+    public void testFullRep() throws Exception {
+        String s = "v=aa.bb.cc()";
+        doc = new Document(s);
+        ps = new PySelection(doc, new TextSelection(doc, 2,2));
+        assertEquals("aa.bb.cc", ps.getFullRepAfterSelection());
+
+        s = "v=aa.bb.cc";
+        doc = new Document(s);
+        ps = new PySelection(doc, new TextSelection(doc, 2,2));
+        assertEquals("aa.bb.cc", ps.getFullRepAfterSelection());
+        
+        
+    }
 }
