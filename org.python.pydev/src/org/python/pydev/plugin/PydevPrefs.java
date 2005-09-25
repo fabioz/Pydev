@@ -384,9 +384,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 
 		addTextField(appearanceComposite, "Tab length:", TAB_WIDTH, 3, 0, true);
 
-		addTextField(appearanceComposite, "Multi-block char:", MULTI_BLOCK_COMMENT_CHAR, 2, 0, false);
+		addTextField(appearanceComposite, "Multi-block char (ctrl+4):", MULTI_BLOCK_COMMENT_CHAR, 2, 0, false);
         
-		addTextField(appearanceComposite, "Single-block char:", SINGLE_BLOCK_COMMENT_CHAR, 2, 0, false);
+		addTextField(appearanceComposite, "Single-block char (ctrl+shift+4):", SINGLE_BLOCK_COMMENT_CHAR, 2, 0, false);
 				
 		//auto par
         b = addCheckBox(appearanceComposite, "Automatic parentheses insertion", AUTO_PAR, 0);

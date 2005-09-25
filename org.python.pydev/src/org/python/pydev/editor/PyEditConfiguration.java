@@ -75,10 +75,6 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
     }
     
 
-    public IUndoManager getUndoManager(ISourceViewer sourceViewer) {
-        return new DefaultUndoManager(100);
-    }
-    
     @Override
     public IAnnotationHover getAnnotationHover(ISourceViewer sourceViewer) {
         return new PyAnnotationHover(sourceViewer);
