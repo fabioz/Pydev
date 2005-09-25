@@ -5,6 +5,8 @@
  */
 package org.python.pydev.editor.actions;
 
+import java.util.List;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
@@ -141,6 +143,56 @@ public class PySelectionTest extends TestCase {
         doc = new Document(s);
         ps = new PySelection(doc, new TextSelection(doc, 2,2));
         assertEquals("aa.bb.cc", ps.getFullRepAfterSelection());
+        
+        
+    }
+    
+    public void testGetInsideParentesis() throws Exception {
+        String s = "def m1(self, a, b)";
+        doc = new Document(s);
+        ps = new PySelection(doc, new TextSelection(doc, 0,0));
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        assertEquals(2, insideParentesisToks.size());
+        assertEquals("a", insideParentesisToks.get(0));
+        assertEquals("b", insideParentesisToks.get(1));
+        
+        
+        s = "def m1(self, a, b=None)";
+        doc = new Document(s);
+        ps = new PySelection(doc, new TextSelection(doc, 0,0));
+        insideParentesisToks = ps.getInsideParentesisToks(true).o1;
+        assertEquals(3, insideParentesisToks.size());
+        assertEquals("self", insideParentesisToks.get(0));
+        assertEquals("a", insideParentesisToks.get(1));
+        assertEquals("b", insideParentesisToks.get(2));
+        
+
+        s = "def m1(self, a, b=None)";
+        doc = new Document(s);
+        ps = new PySelection(doc, new TextSelection(doc, 0,0));
+        insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        assertEquals(2, insideParentesisToks.size());
+        assertEquals("a", insideParentesisToks.get(0));
+        assertEquals("b", insideParentesisToks.get(1));
+        
+        s = "def m1(self, a, (b,c) )";
+        doc = new Document(s);
+        ps = new PySelection(doc, new TextSelection(doc, 0,0));
+        insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        assertEquals(3, insideParentesisToks.size());
+        assertEquals("a", insideParentesisToks.get(0));
+        assertEquals("b", insideParentesisToks.get(1));
+        assertEquals("c", insideParentesisToks.get(2));
+        
+        s = "def m1(self, a, b, \nc,\nd )";
+        doc = new Document(s);
+        ps = new PySelection(doc, new TextSelection(doc, 0,0));
+        insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        assertEquals(4, insideParentesisToks.size());
+        assertEquals("a", insideParentesisToks.get(0));
+        assertEquals("b", insideParentesisToks.get(1));
+        assertEquals("c", insideParentesisToks.get(2));
+        assertEquals("d", insideParentesisToks.get(3));
         
         
     }

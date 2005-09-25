@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Tree;
@@ -121,24 +122,28 @@ public class PyOutlinePage extends ContentOutlinePage  {
 	 * tries to preserve the scrolling
 	 */
 	public void refreshItems(Object[] items) {
-		TreeViewer viewer = getTreeViewer();
-		if (viewer != null){
-			Tree treeWidget = viewer.getTree();
-			ScrollBar bar = treeWidget.getVerticalBar();
-			int barPosition = 0;
-			if (bar != null) {
-				barPosition = bar.getSelection();
-			}
-			if (items == null)
-				viewer.refresh();
-			else 
-				for (int i=0; i< items.length; i++) {
-					viewer.refresh(items[i]);
-				}
-			if (barPosition != 0) {
-				bar.setSelection(Math.min(bar.getMaximum(), barPosition));
-			}
-		}
+		try {
+            TreeViewer viewer = getTreeViewer();
+            if (viewer != null) {
+                Tree treeWidget = viewer.getTree();
+                ScrollBar bar = treeWidget.getVerticalBar();
+                int barPosition = 0;
+                if (bar != null) {
+                    barPosition = bar.getSelection();
+                }
+                if (items == null)
+                    viewer.refresh();
+                else
+                    for (int i = 0; i < items.length; i++) {
+                        viewer.refresh(items[i]);
+                    }
+                if (barPosition != 0) {
+                    bar.setSelection(Math.min(bar.getMaximum(), barPosition));
+                }
+            }
+        } catch (SWTException e) {
+            //things may be disposed...
+        }
 	}
 	public void refreshAll() {
 	}

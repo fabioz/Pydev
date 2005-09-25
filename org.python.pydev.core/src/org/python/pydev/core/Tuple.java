@@ -8,12 +8,12 @@ package org.python.pydev.core;
  * 
  * @author Fabio
  */
-public class Tuple<X> {
+public class Tuple<X,Y> {
 
     public X o1;
-    public X o2;
+    public Y o2;
 
-    public Tuple(X o1, X o2) {
+    public Tuple(X o1, Y o2) {
         this.o1 = o1;
         this.o2 = o2;
     }

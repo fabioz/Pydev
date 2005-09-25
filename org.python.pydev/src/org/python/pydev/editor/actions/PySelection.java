@@ -7,6 +7,10 @@
 
 package org.python.pydev.editor.actions;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -14,6 +18,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.visitors.ParsingUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -488,6 +493,15 @@ public class PySelection {
         return getDoc().getChar(getAbsoluteCursorOffset());
     }
 
+    
+    /**
+     * @return the offset mapping to the end of the line passed as parameter.
+     * @throws BadLocationException 
+     */
+    public int getEndLineOffset(int line) throws BadLocationException {
+        IRegion lineInformation = doc.getLineInformation(line);
+        return lineInformation.getOffset() + lineInformation.getLength();
+    }
 
     /**
      * @return the offset mapping to the end of the current line.
@@ -497,6 +511,14 @@ public class PySelection {
         return endLine.getOffset() + endLine.getLength();
     }
 
+    /**
+     * @return the offset mapping to the start of the current line.
+     */
+    public int getStartLineOffset() {
+        IRegion startLine = getStartLine();
+        return startLine.getOffset();
+    }
+    
 
     /**
      * @return the complete dotted string given the current selection and the strings after
@@ -521,6 +543,47 @@ public class PySelection {
         return doc.get(absoluteCursorOffset, end-absoluteCursorOffset);
     }
 
+  
+      /**
+       * This function gets the tokens inside the parenthesis that start 
+       * at the current selection line
+       * 
+       * @param addSelf: this defines whether tokens named self should be added if it is found.
+       * 
+       * @return a Tuple so that the first param is the list and the second the offset of the end of the parentesis
+       *         it may return null if no starting parentesis was found at the current line
+       */
+      public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf) {
+          List<String> l = new ArrayList<String>();
+          
+          String line = getLine();
+          int openParIndex = line.indexOf('(');
+          if(openParIndex == -1){ // we are in a line that does not have a parentesis
+              return null;
+          }
+          int lineOffset = getStartLineOffset();
+          StringBuffer buf = new StringBuffer();
+          String docContents = doc.get();
+          int i = lineOffset + openParIndex;
+          int j = ParsingUtils.eatPar(docContents, i, buf);
+          String insideParentesisTok = docContents.substring(i+1, j);
+  
+          StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");
+          while (tokenizer.hasMoreTokens()) {
+              String tok = tokenizer.nextToken();
+              String trimmed = tok.split("=")[0].trim();
+              trimmed = trimmed.replaceAll("\\(", "");
+              trimmed = trimmed.replaceAll("\\)", "");
+              if (!addSelf && trimmed.equals("self")) {
+                  // don't add self...
+              } else {
+                  l.add(trimmed);
+              }
+          }
+          return new Tuple<List<String>, Integer>(l, j);
+      }
 
-    
+
+  
+  
 }

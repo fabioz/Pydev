@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
@@ -31,14 +32,15 @@ public class AssistDocString implements IAssistProps {
      */
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, PyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>(); 
-        List params = PyAction.getInsideParentesisToks(ps.getCursorLineContents(), false);
+        Tuple<List<String>, Integer> tuple = ps.getInsideParentesisToks(false);
+        List params = tuple.o1;
         
-        StringBuffer buf = new StringBuffer();
 	    String initial = PyAction.getIndentationFromLine(ps.getCursorLineContents());
         String delimiter = PyAction.getDelimiter(ps.getDoc());
         String indentation = PyAction.getStaticIndentationString();
 	    String inAndIndent = delimiter+initial+indentation;
 	    
+	    StringBuffer buf = new StringBuffer();
         buf.append(inAndIndent+"'''");
 	    int newOffset = buf.length();
 	    
@@ -54,8 +56,11 @@ public class AssistDocString implements IAssistProps {
 	    buf.append(inAndIndent+"'''");
 	    buf.append(inAndIndent);
 
+        int lineOfOffset = ps.getLineOfOffset(tuple.o2);
 	    String comp = buf.toString();
-        l.add(new PyCompletionProposal(comp, ps.getStartLine().getOffset()+ps.getStartLine().getLength(), 0, newOffset , imageCache.get(UIConstants.ASSIST_DOCSTRING),
+        int offsetPosToAdd = ps.getEndLineOffset(lineOfOffset);
+        
+        l.add(new PyCompletionProposal(comp, offsetPosToAdd, 0, newOffset , imageCache.get(UIConstants.ASSIST_DOCSTRING),
                 "Make docstring", null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
 	    return l;
     }
@@ -65,7 +70,7 @@ public class AssistDocString implements IAssistProps {
      */
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
         return (sel.indexOf("class ") != -1 || sel.indexOf("def ") != -1) && 
-               (sel.indexOf("(") != -1 && sel.indexOf("(") != -1);
+               ((sel.indexOf("(") != -1 && sel.indexOf("(") != -1) || sel.indexOf(':') != -1);
     }
 
 }

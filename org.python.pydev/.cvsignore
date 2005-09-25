@@ -7,3 +7,5 @@ temp.testcache
 pydev.Spp
 Thumbs.db
 *.cachedir
+python.pydevsysteminfo
+testProjectStub.pydevinfo
