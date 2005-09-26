@@ -29,6 +29,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
  * - Methods
  * - Indentation
  * 
+ * Note: it does not only provide global information, but also inner information, such as methods from a class.
  * 
  * @author Fabio
  */

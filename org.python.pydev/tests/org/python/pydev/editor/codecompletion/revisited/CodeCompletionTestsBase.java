@@ -246,13 +246,13 @@ public class CodeCompletionTestsBase extends TestCase {
     
     protected PyCodeCompletion codeCompletion;
     
-    public void requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
-        requestCompl(null, strDoc, documentOffset, returned, retCompl);
+    public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+    	return requestCompl(null, strDoc, documentOffset, returned, retCompl);
     }
     
-    public void requestCompl(File file, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(File file, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
         String strDoc = REF.getFileContents(file);
-        requestCompl(file, strDoc, documentOffset, returned, retCompl);
+        return requestCompl(file, strDoc, documentOffset, returned, retCompl);
     }
     
     /**
@@ -264,11 +264,12 @@ public class CodeCompletionTestsBase extends TestCase {
      * @param returned the number of completions expected (if -1 not tested)
      * @param retCompl a string array specifying the expected completions that should be contained (may only be a 
      * subset of all completions.
+     * @return 
      * 
      * @throws CoreException
      * @throws BadLocationException
      */
-    public void requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
         if(documentOffset == -1)
             documentOffset = strDoc.length();
         
@@ -287,6 +288,7 @@ public class CodeCompletionTestsBase extends TestCase {
             StringBuffer buffer = getAvailableAsStr(codeCompletionProposals);
             assertEquals("Expected "+returned+" received: "+codeCompletionProposals.length+"\n"+buffer, returned, codeCompletionProposals.length);
         }
+        return codeCompletionProposals;
     }
     
     /**
@@ -303,6 +305,19 @@ public class CodeCompletionTestsBase extends TestCase {
         StringBuffer buffer = getAvailableAsStr(codeCompletionProposals);
         
         fail("The string "+string+" was not found in the returned completions.\nAvailable:\n"+buffer);
+    }
+    
+    /**
+     * @param string
+     * @param codeCompletionProposals
+     */
+    protected void assertNotContains(String string, ICompletionProposal[] codeCompletionProposals) {
+    	for (int i = 0; i < codeCompletionProposals.length; i++) {
+    		ICompletionProposal completionProposal = codeCompletionProposals[i];
+    		if(checkIfEquals(string, completionProposal)){
+    			fail("The string "+string+" was found in the returned completions (was not expected to be found).");
+    		}
+    	}
     }
 
     /**
@@ -329,12 +344,12 @@ public class CodeCompletionTestsBase extends TestCase {
         return buffer;
     }
 
-    public void requestCompl(String strDoc, String []retCompl) throws CoreException, BadLocationException{
-        requestCompl(strDoc, -1, retCompl.length, retCompl);
+    public ICompletionProposal[] requestCompl(String strDoc, String []retCompl) throws CoreException, BadLocationException{
+        return requestCompl(strDoc, -1, retCompl.length, retCompl);
     }
     
-    public void requestCompl(String strDoc, String retCompl) throws CoreException, BadLocationException{
-        requestCompl(strDoc, new String[]{retCompl});
+    public ICompletionProposal[] requestCompl(String strDoc, String retCompl) throws CoreException, BadLocationException{
+        return requestCompl(strDoc, new String[]{retCompl});
     }
 
     
