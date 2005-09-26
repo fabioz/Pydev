@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.editor.actions.PySelection;
@@ -15,7 +14,6 @@ import org.python.pydev.editor.actions.PySelection;
 import com.python.pydev.analysis.AnalysisPreferencesStub;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
-import com.python.pydev.analysis.builder.AnalysisRunner;
 
 public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase {
 
@@ -40,12 +38,11 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
     }
     
     public void testFix() throws Exception {
-        HashMap attrs = new HashMap();
-        attrs.put(AnalysisRunner.PYDEV_PROBLEM_ID_MARKER_INFO, IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE);
-        attrs.put(IMarker.CHAR_START, 6);
-        attrs.put(IMarker.CHAR_END, 13);
-
-        MarkerStub marker = new MarkerStub(attrs);
+        int start = 6;
+        int end = 13;
+        int type = IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE;
+        
+        MarkerStub marker = createMarkerStub(start, end, type);
         
         // easy: undefined: testlib
         String s = "print testlib"; 

@@ -3,7 +3,9 @@
  */
 package com.python.pydev.analysis.messages;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -12,9 +14,14 @@ import org.eclipse.jface.text.IRegion;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
+import org.python.parser.ast.Import;
+import org.python.parser.ast.ImportFrom;
+import org.python.parser.ast.NameTok;
+import org.python.parser.ast.aliasType;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 
@@ -29,15 +36,20 @@ public abstract class AbstractMessage implements IMessage{
 
     private IToken generator;
 
+    private List<String> additionalInfo;
+
     public AbstractMessage(int type, IToken generator, IAnalysisPreferences prefs) {
         this.severity = prefs.getSeverityForType(type);
         this.type = type;
         this.generator = generator;
     }
+    
+    
 
     private String getTypeStr() {
         if (messages.size() == 0) {
             messages.put(IAnalysisPreferences.TYPE_UNUSED_IMPORT, "Unused import: %s");
+            messages.put(IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT, "Unused in wild import: %s");
             messages.put(IAnalysisPreferences.TYPE_UNUSED_VARIABLE, "Unused variable: %s");
             messages.put(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, "Undefined variable: %s");
             messages.put(IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE, "Duplicated signature: %s");
@@ -61,9 +73,15 @@ public abstract class AbstractMessage implements IMessage{
         return generator.getLineDefinition();
     }
 
+    /**
+     * gets the start col of the message
+     *  
+     * @see com.python.pydev.analysis.messages.IMessage#getStartCol(org.eclipse.jface.text.IDocument)
+     */
     public int getStartCol(IDocument doc) {
-        int colDefinition;
-        
+        int colDefinition=0;
+       
+        //not import...
         if(!generator.isImport()){
             colDefinition = generator.getColDefinition();
             if(colDefinition > 0){
@@ -71,25 +89,67 @@ public abstract class AbstractMessage implements IMessage{
                 return colDefinition;
             }
         }
-
-        //it depends on the document contents... we have to remove the empty spaces to its left
-        int startLine = getStartLine(doc);
-        try {
-            IRegion start = doc.getLineInformation(startLine-1);
-            String line = doc.get(start.getOffset(), start.getLength());
-
-            colDefinition = 0;
-            while(line.length() > colDefinition && Character.isWhitespace(line.charAt(colDefinition))){
-                colDefinition++;
+        
+        //ok, it is an import... (can only be a source token)
+        SourceToken s = (SourceToken) generator;
+        
+        SimpleNode ast = s.getAst();
+        if(ast instanceof ImportFrom){
+            ImportFrom i = (ImportFrom) ast;
+            //if it is a wild import, it starts on the module name
+            if(AbstractVisitor.isWildImport(i)){
+                return i.module.beginColumn;
+            }else{
+                //no wild import, let's check the 'as name'
+                return getNameForRepresentation(i, getShortMessage().toString(), false).beginColumn;
             }
-            colDefinition++;
-
-        } catch (BadLocationException e) {
-            colDefinition = 1;
+            
+        }else if(ast instanceof Import){
+            String shortMessage = getShortMessage().toString();
+            NameTok it = getNameForRepresentation(ast, shortMessage,false);
+            return it.beginColumn;
+        }else{
+            throw new RuntimeException("It is not an import");
         }
-        return colDefinition;
     }
 
+    /**
+     * @param imp this is the import ast
+     * @param rep this is the representation we are looking for
+     * @param returnAsName defines if we should return the asname or only the name (depending on what we are
+     * analyzing -- the start or the end of the representation).
+     * 
+     * @return the name tok for the representation in a given import
+     */
+    private NameTok getNameForRepresentation(SimpleNode imp, String rep, boolean returnAsName){
+        aliasType[] names;
+        if(imp instanceof Import){
+            names = ((Import)imp).names;
+        }else if(imp instanceof ImportFrom){
+            names = ((ImportFrom)imp).names;
+        }else{
+            throw new RuntimeException("import expected");
+        }
+        
+        for (aliasType alias : names) {
+            if(alias.asname != null){
+                if(((NameTok)alias.asname).id.equals(rep)){
+                    if(returnAsName){
+                        return (NameTok)alias.asname;
+                    }else{
+                        return (NameTok) alias.name;
+                    }
+                }
+            }else if(((NameTok)alias.name).id.equals(rep)){
+                return (NameTok) alias.name;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Fix the column for a class or function def
+     */
     private int fixCol(int col) {
         if(generator instanceof SourceToken){
             SimpleNode ast = ((SourceToken)generator).getAst();
@@ -103,6 +163,9 @@ public abstract class AbstractMessage implements IMessage{
         return col;
     }
 
+    /**
+     * @see com.python.pydev.analysis.messages.IMessage#getEndLine(org.eclipse.jface.text.IDocument)
+     */
     public int getEndLine(IDocument doc) {
         if(generator instanceof SourceToken){
             return ((SourceToken)generator).getLineEnd();
@@ -110,8 +173,49 @@ public abstract class AbstractMessage implements IMessage{
         return -1;
     }
 
-    
+
+    /**
+     * @return the end column for this message
+     *  
+     * @see com.python.pydev.analysis.messages.IMessage#getEndCol(org.eclipse.jface.text.IDocument)
+     */
     public int getEndCol(IDocument doc) {
+        if(generator.isImport()){
+            //ok, it is an import... (can only be a source token)
+            SourceToken s = (SourceToken) generator;
+            
+            SimpleNode ast = s.getAst();
+            String shortMessage = getShortMessage().toString();
+            if(ast instanceof ImportFrom){
+                ImportFrom i = (ImportFrom) ast;
+                //ok, now, this depends on the name
+                NameTok it = getNameForRepresentation(i, shortMessage, true);
+                if(it != null){
+                    return it.beginColumn + it.id.length();
+                }
+                
+                //if still not returned, it is a wild import... find the '*'
+                try {
+                    IRegion lineInformation = doc.getLineInformation(i.module.beginLine-1);
+                    //ok, we have the line... now, let's find the absolute offset
+                    int absolute = lineInformation.getOffset() + i.module.beginColumn-1;
+                    while(doc.getChar(absolute) != '*'){
+                        absolute ++;
+                    }
+                    return absolute +2; //1 for the * that we want to get and 1 because we should return as if starting in 1 and not 0
+                } catch (BadLocationException e) {
+                    throw new RuntimeException(e);
+                }
+                
+            }else if(ast instanceof Import){
+                NameTok it = getNameForRepresentation((Import) ast, shortMessage, true);
+                return it.beginColumn + it.id.length();
+            }else{
+                throw new RuntimeException("It is not an import");
+            }
+        }
+        
+        //no import... make it regular
         if(generator instanceof SourceToken){
             int colEnd = ((SourceToken)generator).getColEnd();
             
@@ -127,6 +231,17 @@ public abstract class AbstractMessage implements IMessage{
 
     public String toString() {
         return getMessage();
+    }
+    
+    public List<String> getAdditionalInfo(){
+        return additionalInfo;
+    }
+    
+    public void addAdditionalInfo(String info){
+        if(this.additionalInfo == null){
+            this.additionalInfo = new ArrayList<String>();
+        }
+        this.additionalInfo.add(info);
     }
 
     public String getMessage() {

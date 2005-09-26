@@ -11,8 +11,10 @@ import java.util.Map;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
@@ -62,12 +64,20 @@ public class MessagesManager {
      * adds a message of some type given its formatting params
      */
     public void addMessage(int type, IToken generator, Object ...objects ) {
-        if(type == IAnalysisPreferences.TYPE_UNUSED_IMPORT){
+        if(isUnusedImportMessage(type)){
             if (!shouldAddUnusedImportMessage()){
                 return;
             }
         }
         doAddMessage(independentMessages, type, objects, generator);
+    }
+
+    /**
+     * @param type the type of the message
+     * @return whether it is an unused import message
+     */
+    private boolean isUnusedImportMessage(int type) {
+        return type == IAnalysisPreferences.TYPE_UNUSED_IMPORT || type == IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT;
     }
 
     /**
@@ -82,7 +92,7 @@ public class MessagesManager {
      * checks if the message should really be added and does the add.
      */
     private void doAddMessage(List<IMessage> msgs, int type, Object string, IToken token){
-        if(type == IAnalysisPreferences.TYPE_UNUSED_IMPORT){
+        if(isUnusedImportMessage(type)){
             if (!shouldAddUnusedImportMessage()){
                 return;
             }
@@ -148,7 +158,11 @@ public class MessagesManager {
                 
                 //it can be an unused import
                 if(ast instanceof Import || ast instanceof ImportFrom){
-                    addMessage(IAnalysisPreferences.TYPE_UNUSED_IMPORT, g.generator, g.tok);
+                    if(AbstractVisitor.isWildImport(ast)){
+                        addMessage(IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT, g.generator, g.tok);
+                    }else{
+                        addMessage(IAnalysisPreferences.TYPE_UNUSED_IMPORT, g.generator, g.tok);
+                    }
                     continue; //finish it...
                 }
             }
@@ -168,6 +182,13 @@ public class MessagesManager {
      * will not change all the time
      */
     private List<String> namesToIgnoreCache = null;
+
+    /**
+     * This is the last scope. It is set after all the analysis ended, so that we can generate some
+     * additional info based on it.
+     */
+    private ScopeItems lastScope;
+    
     /**
      * @param g the generater that will generate an unused variable message
      * @return true if we should not add the message
@@ -223,11 +244,13 @@ public class MessagesManager {
                 IMessage message = l.get(0);
                 
                 //messages are grouped by type, and the severity is set by type, so, this is ok...
-                if(message.getSeverity() == IAnalysisPreferences.SEVERITY_IGNORE){
-                    continue;
-                }
+                //if(message.getSeverity() == IAnalysisPreferences.SEVERITY_IGNORE){
+                //    continue;
+                //}
+                //we add even ignore messages because they might be used later in actions dependent on code analysis
 
                 if(l.size() == 1){
+                    addAdditionalInfoToUnusedWildImport(message);
                     result.add(message);
                     
                 } else{
@@ -237,6 +260,7 @@ public class MessagesManager {
                     for(IMessage m : l){
                         compositeMessage.addMessage(m);
                     }
+                    addAdditionalInfoToUnusedWildImport(compositeMessage);
                     result.add(compositeMessage);
                 }
             }
@@ -244,13 +268,34 @@ public class MessagesManager {
         }
         
         for(IMessage message : independentMessages){
-            if(message.getSeverity() == IAnalysisPreferences.SEVERITY_IGNORE){
-                continue;
-            }
+            //if(message.getSeverity() == IAnalysisPreferences.SEVERITY_IGNORE){
+            //    continue;
+            //}
+            // we add even ignore messages because they might be used later in actions dependent on code analysis
             
             result.add(message);
         }
+        
         return (IMessage[]) result.toArray(new IMessage[0]);
+    }
+
+    /**
+     * @param message the message to which we will add additional info
+     */
+    private void addAdditionalInfoToUnusedWildImport(IMessage message) {
+        if(message.getType() == IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT){
+
+            //we have to add additional info on it, saying which tokens where used
+            if(AbstractVisitor.isWildImport(message.getGenerator())){
+
+                List<Tuple<String,Found>> usedItems = lastScope.getUsedItems();
+                for (Tuple<String, Found> tuple : usedItems) {
+                    if(tuple.o2.getSingle().generator == message.getGenerator()){
+                        message.addAdditionalInfo(tuple.o1);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -270,6 +315,10 @@ public class MessagesManager {
             messages.add(message);
         }
         return messagesByType;
+    }
+
+    public void setLastScope(ScopeItems m) {
+        this.lastScope = m;
     }
 
 }

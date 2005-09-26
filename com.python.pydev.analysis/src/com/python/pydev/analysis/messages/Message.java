@@ -18,8 +18,6 @@ public class Message extends AbstractMessage {
         this.message = message;
     }
 
-
-
     public Object getShortMessage() {
         return message;
     }

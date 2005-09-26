@@ -23,6 +23,7 @@ import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Subscript;
 import org.python.parser.ast.TryExcept;
 import org.python.parser.ast.TryFinally;
@@ -220,20 +221,22 @@ public class OcurrencesVisitor extends VisitorBase{
 
         //visit varargs
         if(args.vararg != null){
-            Name name = new Name(args.vararg, Name.Load);
-            name.beginLine = node.beginLine;
-            name.beginColumn = -1;
+            NameTok nameTok = (NameTok)args.vararg;
+            Name name = new Name((nameTok).id, Name.Load);
+            name.beginLine = nameTok.beginLine;
+            name.beginColumn = nameTok.beginColumn;
             SourceToken token = AbstractVisitor.makeToken(name, moduleName);
-            scope.addToken(token, token, args.vararg);
+            scope.addToken(token, token, (nameTok).id);
         }
         
         //visit kwargs
         if(args.kwarg != null){
-            Name name = new Name(args.kwarg, Name.Load);
-            name.beginLine = node.beginLine;
-            name.beginColumn = -1;
+            NameTok nameTok = (NameTok)args.kwarg;
+            Name name = new Name((nameTok).id, Name.Load);
+            name.beginLine = nameTok.beginLine;
+            name.beginColumn = nameTok.beginColumn;
             SourceToken token = AbstractVisitor.makeToken(name, moduleName);
-            scope.addToken(token, token, args.kwarg);
+            scope.addToken(token, token, (nameTok).id);
         }
         scope.isInMethodDefinition = false;
         
@@ -538,13 +541,14 @@ public class OcurrencesVisitor extends VisitorBase{
                     messagesManager.addUndefinedMessage(n.getSingle().tok);
                 }
             }
-            
+            messagesManager.setLastScope(m);
         }
         
         //so, now, we clear the unused
         int scopeType = m.getScopeType();
         for (Found f : m.values()) {
             if(!f.isUsed()){
+                // we don't get unused at the global scope or class definition scope unless it's an import
                 if(scopeType == Scope.SCOPE_TYPE_METHOD || f.isImport()){ //only within methods do we put things as unused 
                     messagesManager.addUnusedMessage(f);
                 }

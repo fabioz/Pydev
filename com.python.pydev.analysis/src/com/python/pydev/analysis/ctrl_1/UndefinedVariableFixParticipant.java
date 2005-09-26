@@ -41,7 +41,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
             PyEdit edit, 
             List<ICompletionProposal> props) throws BadLocationException, CoreException {
         
-        Integer id = (Integer) marker.getAttribute(AnalysisRunner.PYDEV_PROBLEM_ID_MARKER_INFO);
+        Integer id = (Integer) marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
         if(id != IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE){
             return;
         }

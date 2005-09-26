@@ -14,9 +14,11 @@ public interface IAnalysisPreferences {
     public static final int TYPE_REIMPORT             = 5;
     public static final int TYPE_UNRESOLVED_IMPORT    = 6;
     public static final int TYPE_NO_SELF              = 7;
+    public static final int TYPE_UNUSED_WILD_IMPORT   = 8;
     
     
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_IMPORT        = "@UnusedImport";
+    public static final String MSG_TO_IGNORE_TYPE_UNUSED_WILD_IMPORT   = "@UnusedWildImport";
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_VARIABLE      = "@UnusedVariable";
     public static final String MSG_TO_IGNORE_TYPE_UNDEFINED_VARIABLE   = "@UndefinedVariable";
     public static final String MSG_TO_IGNORE_TYPE_DUPLICATED_SIGNATURE = "@DuplicatedSignature";
@@ -24,11 +26,6 @@ public interface IAnalysisPreferences {
     public static final String MSG_TO_IGNORE_TYPE_UNRESOLVED_IMPORT    = "@UnresolvedImport";
     public static final String MSG_TO_IGNORE_TYPE_NO_SELF              = "@NoSelf";
     
-    
-    /**
-     * this severity indicates that the given message should be ignored
-     */
-    public static final int SEVERITY_IGNORE = -1;
     
     /**
      * Used to define if the analysis should happen only on save
@@ -52,8 +49,6 @@ public interface IAnalysisPreferences {
      * @see org.eclipse.core.resources.IMarker#SEVERITY_ERROR
      * @see org.eclipse.core.resources.IMarker#SEVERITY_WARNING
      * @see org.eclipse.core.resources.IMarker#SEVERITY_INFO
-     * 
-     * @see IAnalysisPreferences#SEVERITY_IGNORE
      * 
      * @return this message severity.
      */

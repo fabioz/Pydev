@@ -3,9 +3,13 @@
  */
 package com.python.pydev.analysis.visitors;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.python.pydev.core.Tuple;
 
 public class ScopeItems {
     Map<String,Found> m = new HashMap<String,Found>();
@@ -69,6 +73,19 @@ public class ScopeItems {
             buffer.append("\n");
         }
         return buffer.toString();
+    }
+
+    /**
+     * @return all the used items
+     */
+    public List<Tuple<String, Found>> getUsedItems() {
+        ArrayList<Tuple<String, Found>> found = new ArrayList<Tuple<String, Found>>();
+        for (Map.Entry<String, Found> entry : m.entrySet()) {
+            if(entry.getValue().isUsed()){
+                found.add(new Tuple<String, Found>(entry.getKey(), entry.getValue()));
+            }
+        }
+        return found;
     }
 
 }

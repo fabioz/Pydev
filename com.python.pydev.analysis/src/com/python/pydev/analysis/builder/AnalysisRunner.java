@@ -5,6 +5,7 @@ package com.python.pydev.analysis.builder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -20,7 +21,20 @@ import com.python.pydev.analysis.messages.IMessage;
 
 public class AnalysisRunner {
 
-    public static final String PYDEV_PROBLEM_ID_MARKER_INFO = "PYDEV_PROBLEM_ID";
+    /**
+     * Indicates the type of the message given the constants in com.python.pydev.analysis.IAnalysisPreferences (unused import, 
+     * undefined variable...)
+     */
+    public static final String PYDEV_ANALYSIS_TYPE = "PYDEV_TYPE";
+    
+    /**
+     * Indicates the additional info for the marker (depends on its type) - may be null
+     */
+    public static final String PYDEV_ANALYSIS_ADDITIONAL_INFO = "PYDEV_INFO";
+    
+    /**
+     * this is the type of the marker
+     */
     public static final String PYDEV_ANALYSIS_PROBLEM_MARKER = "com.python.pydev.analysis.pydev_analysis_problemmarker";
 
     /**
@@ -66,7 +80,13 @@ public class AnalysisRunner {
                 }
                 
                 HashMap<String, Object> additionalInfo = new HashMap<String, Object>();
-                additionalInfo.put(PYDEV_PROBLEM_ID_MARKER_INFO, m.getType());
+                additionalInfo.put(PYDEV_ANALYSIS_TYPE, m.getType());
+                
+                //not all messages have additional info
+                List<String> infoForType = m.getAdditionalInfo();
+                if(infoForType != null){
+                    additionalInfo.put(PYDEV_ANALYSIS_ADDITIONAL_INFO, infoForType);
+                }
                 
                 int startCol = m.getStartCol(document) - 1;
                 int endLine = m.getEndLine(document) - 1;

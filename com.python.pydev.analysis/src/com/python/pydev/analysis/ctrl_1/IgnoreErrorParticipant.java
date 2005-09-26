@@ -38,7 +38,7 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
      */
     public void addProps(IMarker marker, IAnalysisPreferences analysisPreferences, String line, PySelection ps, int offset, PythonNature nature,
             PyEdit edit, List<ICompletionProposal> props) throws BadLocationException, CoreException {
-        Integer id = (Integer) marker.getAttribute(AnalysisRunner.PYDEV_PROBLEM_ID_MARKER_INFO);
+        Integer id = (Integer) marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
         String messageToIgnore = analysisPreferences.getRequiredMessageToIgnore(id);
         
         if(line.indexOf(messageToIgnore) != -1){

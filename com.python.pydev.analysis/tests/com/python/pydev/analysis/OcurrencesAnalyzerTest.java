@@ -3,7 +3,6 @@
  */
 package com.python.pydev.analysis;
 
-import static com.python.pydev.analysis.IAnalysisPreferences.SEVERITY_IGNORE;
 import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE;
 import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE;
 import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_IMPORT;
@@ -30,7 +29,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testDecoratorUndefined();
+            analyzer2.testUnusedImports3b();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -86,6 +85,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
     public void testUnusedImports(){
             
         prefs.severityForUnusedImport = IMarker.SEVERITY_ERROR;
+        prefs.severityForUnusedWildImport = IMarker.SEVERITY_ERROR;
         doc = new Document("import testlib\n");
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
@@ -110,11 +110,14 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         printMessages(msgs, 1);
         assertEquals(IMarker.SEVERITY_ERROR, msgs[0].getSeverity());
-        assertEquals("Unused import: main, TestCase, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
+        assertEquals(6, msgs[0].getStartCol(doc));
+        assertEquals(31, msgs[0].getEndCol(doc));
+        assertEquals("Unused in wild import: main, TestCase, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
 
         
         //-----------------
         prefs.severityForUnusedImport = IMarker.SEVERITY_WARNING;
+        prefs.severityForUnusedWildImport = IMarker.SEVERITY_WARNING;
         sDoc = "from testlib.unittest import *\nprint TestCase";
         doc = new Document(sDoc);
         analyzer = new OcurrencesAnalyzer();
@@ -122,18 +125,23 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         assertEquals(1, msgs.length);
         assertEquals(IMarker.SEVERITY_WARNING, msgs[0].getSeverity());
-        assertEquals("Unused import: main, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
+        assertEquals("Unused in wild import: main, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
+        assertEquals("TestCase", msgs[0].getAdditionalInfo().get(0));
         
         //-----------------
-        prefs.severityForUnusedImport = SEVERITY_IGNORE;
-        sDoc = "from testlib.unittest import *\nprint TestCase";
+        prefs.severityForUnusedImport = IMarker.SEVERITY_INFO;
+        prefs.severityForUnusedWildImport = IMarker.SEVERITY_INFO;
+
+        sDoc = "from testlib.unittest import *\nprint TestCase\nprint testcase";
         doc = new Document(sDoc);
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
-        assertEquals(0, msgs.length);//ignored
-        
-    
+        //even in ignore mode, we get the message
+        assertEquals(1, msgs.length);
+        assertEquals("Unused in wild import: main, AnotherTest, TestCaseAlias, GUITest", msgs[0].getMessage());
+        assertEquals("TestCase", msgs[0].getAdditionalInfo().get(0));
+        assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
     }
 
     public void testUnusedImports2(){
@@ -146,8 +154,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
         printMessages(msgs,1);
-        assertContainsMsg("Unused import: xml.dom.domreg, xml.dom", msgs);
-        assertEquals(1, msgs[0].getStartLine(doc));
+        assertContainsMsg("Unused in wild import: xml.dom.domreg, xml.dom", msgs);
+        assertEquals("xml", msgs[0].getAdditionalInfo().get(0)); //this is the used import
     }
  
     public void testUnusedImports3(){
@@ -161,8 +169,48 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         assertEquals(1, msgs.length);
         assertContainsMsg("Unused import: otherthing", msgs);
-        assertEquals(1, msgs[0].getStartCol(doc));
-        assertEquals(-1, msgs[0].getEndCol(doc));
+        assertEquals(8, msgs[0].getStartCol(doc));
+        assertEquals(29, msgs[0].getEndCol(doc));
+    }
+    
+    public void testUnusedImports3a(){
+        
+        doc = new Document(
+                "import os.path as otherthing, unittest\n" +
+                ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 2);
+        IMessage message = assertContainsMsg("Unused import: otherthing", msgs);
+        assertEquals(8, message.getStartCol(doc));
+        assertEquals(29, message.getEndCol(doc));
+        
+        message = assertContainsMsg("Unused import: unittest", msgs);
+        assertEquals(31, message.getStartCol(doc));
+        assertEquals(39, message.getEndCol(doc));
+        
+    }
+    
+    public void testUnusedImports3b(){
+        
+        doc = new Document(
+                "from testlib import unittest, __init__\n" +
+                ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 2);
+        IMessage message = assertContainsMsg("Unused import: unittest", msgs);
+        assertEquals(21, message.getStartCol(doc));
+        assertEquals(29, message.getEndCol(doc));
+        
+        message = assertContainsMsg("Unused import: __init__", msgs);
+        assertEquals(31, message.getStartCol(doc));
+        assertEquals(39, message.getEndCol(doc));
+        
     }
     
     public void testUnusedImports4(){
@@ -177,8 +225,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         assertEquals(1, msgs.length);
         assertContainsMsg("Unused import: otherthing", msgs);
-        assertEquals(5, msgs[0].getStartCol(doc));
-        assertEquals(-1, msgs[0].getEndCol(doc));
+        assertEquals(12, msgs[0].getStartCol(doc));
+        assertEquals(33, msgs[0].getEndCol(doc));
     }
     
     public void testUnusedImports5(){
@@ -389,7 +437,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         assertEquals(1, msgs.length);
         assertContainsMsg("Import redefinition: os", msgs);
-        assertEquals(1, msgs[0].getStartCol(doc));
+        assertEquals(8, msgs[0].getStartCol(doc));
+        assertEquals(10, msgs[0].getEndCol(doc));
         assertEquals(2, msgs[0].getStartLine(doc));
     }
     
@@ -831,8 +880,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
         assertEquals(1, msgs.length);
         assertContainsMsg("Unused variable: args", msgs, 2);
-        assertEquals(1, msgs[0].getStartCol(doc));
-        assertEquals(-1, msgs[0].getEndCol(doc));
+        assertEquals(9, msgs[0].getStartCol(doc));
+        assertEquals(13, msgs[0].getEndCol(doc));
     }
     
     public void testKwArgs() {
@@ -859,7 +908,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         printMessages(msgs,1);
         assertEquals(1, msgs.length);
         assertContainsMsg("Unused variable: kwargs", msgs, 2);
-        assertEquals(5, msgs[0].getStartCol(doc));
+        assertEquals(14, msgs[0].getStartCol(doc));
+        assertEquals(20, msgs[0].getEndCol(doc));
     }
     
 
@@ -1025,19 +1075,19 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
     }
     
     private void assertNotContainsMsg(String msg, IMessage[] msgs2) {
-        if(containsMsg(msg, msgs2)){
+        if(containsMsg(msg, msgs2) != null){
             fail("The message "+msg+" was found within the messages (it should not have been found).");
         }
     }
-    private void assertContainsMsg(String msg, IMessage[] msgs2) {
-        assertContainsMsg(msg, msgs2, -1);
+    private IMessage assertContainsMsg(String msg, IMessage[] msgs2) {
+        return assertContainsMsg(msg, msgs2, -1);
     }
 
-    private void assertContainsMsg(String msg, IMessage[] msgs2, int line) {
-        boolean found = containsMsg(msg, msgs2, line);
+    private IMessage assertContainsMsg(String msg, IMessage[] msgs2, int line) {
+        IMessage found = containsMsg(msg, msgs2, line);
         
-        if(found){
-            return;
+        if(found != null){
+            return found;
         }
         
         StringBuffer msgsAvailable = new StringBuffer();
@@ -1046,34 +1096,40 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
             msgsAvailable.append("\n");
         }
         fail(StringUtils.format("No message named %s could be found. Available: %s", msg, msgsAvailable));
+        return null;
     }
 
     /**
      * Checks if a specific message is contained within the messages passed
      */
-    private boolean containsMsg(String msg, IMessage[] msgs2) {
+    private IMessage containsMsg(String msg, IMessage[] msgs2) {
         return containsMsg(msg, msgs2, -1);
     }
     
     /**
      * Checks if a specific message is contained within the messages passed
      */
-    private boolean containsMsg(String msg, IMessage[] msgs2, int line) {
+    private IMessage containsMsg(String msg, IMessage[] msgs2, int line) {
         boolean foundMsg = false;
-        boolean foundMsgInLine = false;
+        IMessage ret = null;
         for (IMessage message : msgs2) {
             if(message.getMessage().equals(msg)){
                 foundMsg = true;
-                if(line != -1 && foundMsgInLine == false){
-                    foundMsgInLine = line == message.getStartLine(doc);
+                if(line != -1){
+                    ret = message;
+                    if(line == message.getStartLine(doc)){
+                        return message;
+                    }
+                }else{
+                    return message;
                 }
             }
         }
         
-        if(foundMsg && line != -1){
-            assertTrue("The message :"+msg+" was not found in the specified line ("+line+")",foundMsgInLine);
+        if(line != -1){
+            fail("The message :"+msg+" was not found in the specified line ("+line+")");
         }
-        return foundMsg;
+        return ret;
     }
 
     public void testImportAs3() {
@@ -1579,7 +1635,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals(9, msgs[0].getStartCol(doc));
 
         //ignore
-        prefs.severityForDuplicatedSignature = IAnalysisPreferences.SEVERITY_IGNORE;
+        prefs.severityForDuplicatedSignature = IMarker.SEVERITY_INFO;
         doc = new Document(
                 "class C:             \n" +
                 "    def m1(self):pass\n" +
@@ -1588,7 +1644,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
-        assertEquals(0, msgs.length);
+        assertEquals(1, msgs.length); //it is created, but in ignore mode
+        assertEquals(IMarker.SEVERITY_INFO, msgs[0].getSeverity());
         
     }
     

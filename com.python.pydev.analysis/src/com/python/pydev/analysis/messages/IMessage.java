@@ -3,6 +3,8 @@
  */
 package com.python.pydev.analysis.messages;
 
+import java.util.List;
+
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 
@@ -24,6 +26,8 @@ public interface IMessage {
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNRESOLVED_IMPORT
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNUSED_IMPORT
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNUSED_VARIABLE
+     * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNUSED_WILD_IMPORT
+     * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_USED_WILD_IMPORT
      * 
      * @return this message type
      */
@@ -56,6 +60,18 @@ public interface IMessage {
     String getMessage();
     
     /**
+     * @return additional info to be added to the marker that will be created by this message. It might be
+     * useful for making actions based on the analysis info
+     */
+    List<String> getAdditionalInfo();
+    
+    /**
+     * Adds some additional info to the message
+     * @param info this is the additional info to add
+     */
+    void addAdditionalInfo(String info);
+
+    /**
      * @return the message that should be presented to the user in a short way (may be used for abbreviations).
      */
     Object getShortMessage();
@@ -64,4 +80,5 @@ public interface IMessage {
      * @return the generator token for the message
      */
     IToken getGenerator();
+
 }

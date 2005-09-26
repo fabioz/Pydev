@@ -9,6 +9,7 @@ import java.util.List;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
+import org.python.parser.ast.NameTok;
 import org.python.parser.ast.aliasType;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
@@ -59,7 +60,7 @@ public class ImportChecker {
                 aliasType[] n = imp.names;
                 if(n != null){
                     for (int i = 0; i < n.length; i++) {
-                        String name = n[i].name;
+                        String name = ((NameTok)n[i].name).id;
                         
                         reps.add(name); //add as absolute
                         if(tail != null){
@@ -70,11 +71,11 @@ public class ImportChecker {
                 
             }else if(ast instanceof ImportFrom){
                 ImportFrom imp = (ImportFrom) ast;
-                String fromModule = imp.module;
+                String fromModule = ((NameTok)imp.module).id;
                 
                 if(imp.names != null && imp.names.length > 0){
                     for (int i = 0; i < imp.names.length; i++) {
-                        String name = imp.names[i].name;
+                        String name = ((NameTok)imp.names[i].name).id;
                         
                         reps.add(fromModule+"."+name); //add as absolute
                         if(tail != null){

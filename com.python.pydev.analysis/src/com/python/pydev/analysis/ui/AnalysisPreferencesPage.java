@@ -43,7 +43,7 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
         String[][] values = new String[][]{
                 {"Error"  , String.valueOf(IMarker.SEVERITY_ERROR)},
                 {"Warning", String.valueOf(IMarker.SEVERITY_WARNING)},
-                {"Ignore" , String.valueOf(IAnalysisPreferences.SEVERITY_IGNORE)}
+                {"Ignore" , String.valueOf(IMarker.SEVERITY_INFO)}
         };
 
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNUSED_IMPORT, "Unused import", 3,values,p, true));

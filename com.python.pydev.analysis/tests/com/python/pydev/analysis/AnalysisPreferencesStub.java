@@ -16,6 +16,7 @@ public final class AnalysisPreferencesStub implements IAnalysisPreferences {
     public int severityForReimport;
     public int severityForUnresolvedImport;
     public int severityForNoSelf;
+    public int severityForUnusedWildImport;
     
     public AnalysisPreferencesStub(){
         severityForUnusedImport = IMarker.SEVERITY_WARNING;
@@ -25,6 +26,7 @@ public final class AnalysisPreferencesStub implements IAnalysisPreferences {
         severityForReimport = IMarker.SEVERITY_WARNING;
         severityForUnresolvedImport = IMarker.SEVERITY_ERROR;
         severityForNoSelf = IMarker.SEVERITY_ERROR;
+        severityForUnusedWildImport = IMarker.SEVERITY_WARNING;
     }
     
     public int getSeverityForType(int type) {
@@ -48,6 +50,9 @@ public final class AnalysisPreferencesStub implements IAnalysisPreferences {
         }
         if (type == TYPE_NO_SELF){
             return severityForNoSelf;
+        }
+        if (type == TYPE_UNUSED_WILD_IMPORT){
+            return severityForUnusedWildImport;
         }
         throw new RuntimeException("unable to get severity for type "+type);
     }

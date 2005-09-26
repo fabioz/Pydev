@@ -8,8 +8,10 @@ package com.python.pydev.analysis.additionalinfo;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -21,6 +23,9 @@ import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+
+import com.python.pydev.analysis.builder.AnalysisRunner;
+import com.python.pydev.analysis.ctrl_1.MarkerStub;
 
 public class AdditionalInfoTestsBase  extends CodeCompletionTestsBase {
 
@@ -79,6 +84,25 @@ public class AdditionalInfoTestsBase  extends CodeCompletionTestsBase {
             StringBuffer buffer = getAvailableAsStr(codeCompletionProposals);
             assertEquals("Expected "+returned+" received: "+codeCompletionProposals.length+"\n"+buffer, returned, codeCompletionProposals.length);
         }
+    }
+
+    /**
+     * This method creates a marker stub
+     * 
+     * @param start start char
+     * @param end end char
+     * @param type the marker type
+     * @return the created stub
+     */
+    protected MarkerStub createMarkerStub(int start, int end, int type) {
+        HashMap attrs = new HashMap();
+
+        attrs.put(AnalysisRunner.PYDEV_ANALYSIS_TYPE, type);
+        attrs.put(IMarker.CHAR_START, start);
+        attrs.put(IMarker.CHAR_END, end);
+    
+        MarkerStub marker = new MarkerStub(attrs);
+        return marker;
     }
     
 }
