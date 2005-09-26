@@ -135,9 +135,11 @@ public class FastParser {
             for (int k = 0; k < strings.length; k++) {
                 String s = strings[k];
                 if(s.startsWith("**")){
-                    def.args.kwarg = s.substring(2);
+                    throw new RuntimeException("fix");
+//                    def.args.kwarg = s.substring(2);
                 }else if(s.startsWith("*")){
-                    def.args.vararg = s.substring(1);
+                    throw new RuntimeException("fix");
+//                    def.args.vararg = s.substring(1);
                 }else{
                     int index = s.indexOf('=');
                     if(index<0){
