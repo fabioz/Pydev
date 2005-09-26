@@ -38,4 +38,15 @@ public class Tuple<X,Y> {
     public int hashCode() {
         return o1.hashCode() * o2.hashCode();
     }
+    
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("Tuple [");
+        buffer.append(o1);
+        buffer.append(" -- ");
+        buffer.append(o2);
+        buffer.append("]");
+        return buffer.toString();
+    }
 }
