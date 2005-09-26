@@ -64,7 +64,7 @@ public class AdditionalInfoTestsBase  extends CodeCompletionTestsBase {
         return ret;
     }
 
-    public void requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
         if(documentOffset == -1)
             documentOffset = strDoc.length();
         
@@ -84,6 +84,7 @@ public class AdditionalInfoTestsBase  extends CodeCompletionTestsBase {
             StringBuffer buffer = getAvailableAsStr(codeCompletionProposals);
             assertEquals("Expected "+returned+" received: "+codeCompletionProposals.length+"\n"+buffer, returned, codeCompletionProposals.length);
         }
+        return codeCompletionProposals;
     }
 
     /**

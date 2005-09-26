@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -163,8 +165,12 @@ public abstract class AbstractAdditionalInterpreterInfo {
             Iterator<ASTEntry> classesAndMethods = visitor.getClassesAndMethodsIterator();
 
             while (classesAndMethods.hasNext()) {
-                SimpleNode classOrFunc = classesAndMethods.next().node;
-                addClassOrFunc(classOrFunc, moduleName);
+                ASTEntry entry = classesAndMethods.next();
+                
+                if(entry.parent == null){ //we only want those that are in the global scope
+					SimpleNode classOrFunc = entry.node;
+	                addClassOrFunc(classOrFunc, moduleName);
+                }
             }
         } catch (Exception e) {
             PydevPlugin.log(e);
@@ -332,7 +338,22 @@ public abstract class AbstractAdditionalInterpreterInfo {
     protected abstract void setAsDefaultInfo();
 
 
-    
+    @Override
+    public String toString() {
+    	StringBuffer buffer = new StringBuffer();
+    	buffer.append("AdditionalInfo[");
+
+    	Set<Entry<String, List<IInfo>>> name = this.initialsToInfo.entrySet();
+    	for (Entry<String, List<IInfo>> entry : name) {
+			List<IInfo> value = entry.getValue();
+			for (IInfo info : value) {
+				buffer.append(info.toString());
+				buffer.append("\n");
+			}
+		}
+    	buffer.append("]");
+    	return buffer.toString();
+    }
 }
 
 class IOUtils {

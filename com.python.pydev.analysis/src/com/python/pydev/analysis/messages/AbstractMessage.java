@@ -18,6 +18,7 @@ import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.NameTok;
 import org.python.parser.ast.aliasType;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -106,7 +107,7 @@ public abstract class AbstractMessage implements IMessage{
             
         }else if(ast instanceof Import){
             String shortMessage = getShortMessage().toString();
-            NameTok it = getNameForRepresentation(ast, shortMessage,false);
+            NameTok it = getNameForRepresentation(ast, shortMessage, false);
             return it.beginColumn;
         }else{
             throw new RuntimeException("It is not an import");
@@ -115,13 +116,14 @@ public abstract class AbstractMessage implements IMessage{
 
     /**
      * @param imp this is the import ast
-     * @param rep this is the representation we are looking for
+     * @param fullRep this is the representation we are looking for
      * @param returnAsName defines if we should return the asname or only the name (depending on what we are
      * analyzing -- the start or the end of the representation).
      * 
      * @return the name tok for the representation in a given import
      */
     private NameTok getNameForRepresentation(SimpleNode imp, String rep, boolean returnAsName){
+	    	
         aliasType[] names;
         if(imp instanceof Import){
             names = ((Import)imp).names;
@@ -140,8 +142,18 @@ public abstract class AbstractMessage implements IMessage{
                         return (NameTok) alias.name;
                     }
                 }
-            }else if(((NameTok)alias.name).id.equals(rep)){
-                return (NameTok) alias.name;
+            }else{ //let's check for the name
+
+            	String fullRepNameId = ((NameTok)alias.name).id;
+            	
+            	//we have to get all representations, since an import such as import os.path would 
+            	//have to match os and os.path
+            	for(String repId : new FullRepIterable(fullRepNameId)){
+	
+					if(repId.equals(rep)){
+	            		return (NameTok) alias.name;
+	            	}
+            	}
             }
         }
         return null;
@@ -191,7 +203,7 @@ public abstract class AbstractMessage implements IMessage{
                 //ok, now, this depends on the name
                 NameTok it = getNameForRepresentation(i, shortMessage, true);
                 if(it != null){
-                    return it.beginColumn + it.id.length();
+                    return it.beginColumn + shortMessage.length();
                 }
                 
                 //if still not returned, it is a wild import... find the '*'
@@ -202,14 +214,16 @@ public abstract class AbstractMessage implements IMessage{
                     while(doc.getChar(absolute) != '*'){
                         absolute ++;
                     }
-                    return absolute +2; //1 for the * that we want to get and 1 because we should return as if starting in 1 and not 0
+                    int absoluteCol = absolute +1; //1 for the *
+                    IRegion region = doc.getLineInformationOfOffset(absoluteCol);
+					return absoluteCol - region.getOffset() +1 ; //1 because we should return as if starting in 1 and not 0
                 } catch (BadLocationException e) {
                     throw new RuntimeException(e);
                 }
                 
             }else if(ast instanceof Import){
                 NameTok it = getNameForRepresentation((Import) ast, shortMessage, true);
-                return it.beginColumn + it.id.length();
+                return it.beginColumn + shortMessage.length();
             }else{
                 throw new RuntimeException("It is not an import");
             }

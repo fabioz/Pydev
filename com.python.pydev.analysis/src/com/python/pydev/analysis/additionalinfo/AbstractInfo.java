@@ -51,4 +51,9 @@ public abstract class AbstractInfo implements IInfo{
     public int hashCode() {
         return 7* getName().hashCode() + getDeclaringModuleName().hashCode() * getType();
     }
+    
+    @Override
+    public String toString() {
+    	return getName()+ " ("+getDeclaringModuleName()+")";
+    }
 }

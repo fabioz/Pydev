@@ -29,7 +29,8 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUnusedImports3b();
+            //TODO: from elementtree.ElementTree import * is generating reimport message
+            analyzer2.testUnusedImports2a();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -158,6 +159,41 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertEquals("xml", msgs[0].getAdditionalInfo().get(0)); //this is the used import
     }
  
+    public void testUnusedImports2a(){
+    	
+    	doc = new Document(
+			"import os.path"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs,2);
+    	
+    	IMessage message = assertContainsMsg("Unused import: os", msgs);
+    	assertEquals(8, message.getStartCol(doc));
+    	assertEquals(10, message.getEndCol(doc));
+
+    	message = assertContainsMsg("Unused import: os.path", msgs);
+    	assertEquals(8, message.getStartCol(doc));
+    	assertEquals(15, message.getEndCol(doc));
+    	
+    }
+    
+    public void testUnusedImports2b(){
+    	
+    	doc = new Document(
+			"\n\nfrom testlib.unittest import *"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs,1);
+    	
+    	assertEquals(6, msgs[0].getStartCol(doc));
+    	assertEquals(31, msgs[0].getEndCol(doc));
+    	
+    }
+    
     public void testUnusedImports3(){
         
         doc = new Document(

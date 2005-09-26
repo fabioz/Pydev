@@ -38,6 +38,9 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
 
     public static final String SEVERITY_NO_SELF = "SEVERITY_NO_SELF";
     public static final int DEFAULT_SEVERITY_NO_SELF = IMarker.SEVERITY_ERROR;
+	
+    public static final String SEVERITY_UNUSED_WILD_IMPORT = "SEVERITY_UNUSED_WILD_IMPORT";
+	public static final int DEFAULT_SEVERITY_UNUSED_WILD_IMPORT = IMarker.SEVERITY_WARNING;
     
 
     @Override

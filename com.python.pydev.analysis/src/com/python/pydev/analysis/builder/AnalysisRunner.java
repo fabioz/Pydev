@@ -38,6 +38,11 @@ public class AnalysisRunner {
     public static final String PYDEV_ANALYSIS_PROBLEM_MARKER = "com.python.pydev.analysis.pydev_analysis_problemmarker";
 
     /**
+     * do we want to debug this class?
+     */
+	private static final boolean DEBUG_ANALYSIS_RUNNER = false;
+
+    /**
      * @param document the document we want to check
      * @return true if we can analyze it and false if there is some flag saying that we shouldn't
      */
@@ -94,6 +99,9 @@ public class AnalysisRunner {
                 
                 
                 String msg = m.getMessage();
+                if(DEBUG_ANALYSIS_RUNNER){
+                	System.out.printf("\nAdding at start:%s end:%s line:%s message:%s " , startCol, endCol, startLine, msg);
+                }
                 PydevMarkerUtils.createMarker(resource, 
                         document, 
                         msg, 

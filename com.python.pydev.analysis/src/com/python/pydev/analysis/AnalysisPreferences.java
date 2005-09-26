@@ -44,6 +44,7 @@ public class AnalysisPreferences implements IAnalysisPreferences{
         {IAnalysisPreferences.TYPE_REIMPORT            , AnalysisPreferenceInitializer.SEVERITY_REIMPORT            , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_REIMPORT              },
         {IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT   , AnalysisPreferenceInitializer.SEVERITY_UNRESOLVED_IMPORT   , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNRESOLVED_IMPORT     },
         {IAnalysisPreferences.TYPE_NO_SELF             , AnalysisPreferenceInitializer.SEVERITY_NO_SELF             , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_NO_SELF               },
+        {IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT  , AnalysisPreferenceInitializer.SEVERITY_UNUSED_WILD_IMPORT  , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNUSED_WILD_IMPORT    },
     };
     
 
@@ -127,6 +128,7 @@ public class AnalysisPreferences implements IAnalysisPreferences{
             typeToIgnoreMessage.put( TYPE_REIMPORT             , MSG_TO_IGNORE_TYPE_REIMPORT             );
             typeToIgnoreMessage.put( TYPE_UNRESOLVED_IMPORT    , MSG_TO_IGNORE_TYPE_UNRESOLVED_IMPORT    );
             typeToIgnoreMessage.put( TYPE_NO_SELF              , MSG_TO_IGNORE_TYPE_NO_SELF              );
+            typeToIgnoreMessage.put( TYPE_UNUSED_WILD_IMPORT   , MSG_TO_IGNORE_TYPE_UNUSED_WILD_IMPORT   );
         }
         return typeToIgnoreMessage.get(type);
     }

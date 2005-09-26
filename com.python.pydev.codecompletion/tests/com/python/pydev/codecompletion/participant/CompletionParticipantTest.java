@@ -8,9 +8,11 @@ package com.python.pydev.codecompletion.participant;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
+import com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant;
 
 public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
@@ -20,7 +22,6 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        participant = new ImportsCompletionParticipant();
         codeCompletion = new PyCodeCompletion();
         super.restorePythonPath(false);
     }
@@ -30,7 +31,14 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     }
 
     public void testImportCompletion() throws CoreException, BadLocationException {
+    	participant = new ImportsCompletionParticipant();
         requestCompl("unittest", new String[]{"unittest", "unittest - testlib"});
     }
 
+    public void testImportCompletion2() throws CoreException, BadLocationException {
+    	participant = new CtxParticipant();
+    	ICompletionProposal[] proposals = requestCompl("xml", -1, -1, new String[]{});
+    	assertNotContains("xml - xmlrpclib", proposals);
+    }
+    
 }
