@@ -103,9 +103,9 @@ public class NodeUtils {
             aliasType[] names = ((Import)node).names;
             for (aliasType n : names) {
                 if(n.asname != null){
-                    return n.asname;
+                    return ((NameTok)n.asname).id;
                 }
-                return n.name;
+                return ((NameTok)n.name).id;
             }
         }
         

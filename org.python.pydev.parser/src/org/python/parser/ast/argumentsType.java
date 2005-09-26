@@ -6,20 +6,20 @@ import java.io.IOException;
 
 public class argumentsType extends SimpleNode {
     public exprType[] args;
-    public String vararg;
-    public String kwarg;
+    public NameTokType vararg;
+    public NameTokType kwarg;
     public exprType[] defaults;
 
-    public argumentsType(exprType[] args, String vararg, String kwarg,
-    exprType[] defaults) {
+    public argumentsType(exprType[] args, NameTokType vararg, NameTokType
+    kwarg, exprType[] defaults) {
         this.args = args;
         this.vararg = vararg;
         this.kwarg = kwarg;
         this.defaults = defaults;
     }
 
-    public argumentsType(exprType[] args, String vararg, String kwarg,
-    exprType[] defaults, SimpleNode parent) {
+    public argumentsType(exprType[] args, NameTokType vararg, NameTokType
+    kwarg, exprType[] defaults, SimpleNode parent) {
         this(args, vararg, kwarg, defaults);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
@@ -62,6 +62,10 @@ public class argumentsType extends SimpleNode {
                     args[i].accept(visitor);
             }
         }
+        if (vararg != null)
+            vararg.accept(visitor);
+        if (kwarg != null)
+            kwarg.accept(visitor);
         if (defaults != null) {
             for (int i = 0; i < defaults.length; i++) {
                 if (defaults[i] != null)

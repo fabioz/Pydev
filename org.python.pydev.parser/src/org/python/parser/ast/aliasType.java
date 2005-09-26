@@ -5,15 +5,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class aliasType extends SimpleNode {
-    public String name;
-    public String asname;
+    public NameTokType name;
+    public NameTokType asname;
 
-    public aliasType(String name, String asname) {
+    public aliasType(NameTokType name, NameTokType asname) {
         this.name = name;
         this.asname = asname;
     }
 
-    public aliasType(String name, String asname, SimpleNode parent) {
+    public aliasType(NameTokType name, NameTokType asname, SimpleNode
+    parent) {
         this(name, asname);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
@@ -42,6 +43,10 @@ public class aliasType extends SimpleNode {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
+        if (name != null)
+            name.accept(visitor);
+        if (asname != null)
+            asname.accept(visitor);
     }
 
 }
