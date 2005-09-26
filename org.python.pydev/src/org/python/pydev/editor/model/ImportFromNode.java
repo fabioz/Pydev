@@ -6,6 +6,7 @@
 package org.python.pydev.editor.model;
 
 import org.python.parser.ast.ImportFrom;
+import org.python.parser.ast.NameTok;
 
 /**
  * ImportFrom node spans first argument of "from import" statement.
@@ -20,13 +21,13 @@ public class ImportFromNode extends AbstractNode {
 		super(parent);
 		this.astNode = astNode;
 		setStart(new Location(astNode.beginLine - 1, astNode.beginColumn - 1));
-		setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn -1 + astNode.module.length()));
+		setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn -1 + ((NameTok)astNode.module).id.length()));
 		fixColumnLocation(start, lineText);
 		fixColumnLocation(end, lineText);
 		properties = PROP_CLICKABLE;
 	}
 	
 	public String getName() {
-		return astNode.module;
+		return ((NameTok)astNode.module).id;
 	}
 }

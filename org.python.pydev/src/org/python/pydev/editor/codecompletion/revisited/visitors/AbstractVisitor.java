@@ -14,6 +14,7 @@ import org.python.parser.ast.If;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.aliasType;
@@ -94,7 +95,7 @@ public abstract class AbstractVisitor extends VisitorBase{
             }else{
                 moduleName = "";
             }
-            sourceToken = new SourceToken(node, node.module, "",  "", moduleName);
+            sourceToken = new SourceToken(node, ((NameTok)node.module).id, "",  "", moduleName);
             tokens.add(sourceToken);
         }
         return sourceToken;
@@ -122,7 +123,7 @@ public abstract class AbstractVisitor extends VisitorBase{
      */
     public static List<IToken> makeImportToken(ImportFrom node, List<IToken> tokens, String moduleName, boolean allowForMultiple) {
         aliasType[] names = node.names;
-        return makeImportToken(node, tokens, names, node.module, allowForMultiple);
+        return makeImportToken(node, tokens, names, ((NameTok)node.module).id, allowForMultiple);
     }
 
     /**
@@ -133,10 +134,10 @@ public abstract class AbstractVisitor extends VisitorBase{
             tokens = new ArrayList<IToken>();
         }
         for (int i = 0; i < names.length; i++) {
-            String name = names[i].name;
-            String original = names[i].name;
+            String name = ((NameTok)names[i].name).id;
+            String original = ((NameTok)names[i].name).id;
             if(names[i].asname != null){
-                name = names[i].asname;
+                name = ((NameTok)names[i].asname).id;
             }
             
             FullRepIterable iterator = new FullRepIterable(name);
@@ -150,17 +151,33 @@ public abstract class AbstractVisitor extends VisitorBase{
     }
 
     
+    public static boolean isWildImport(SimpleNode node) {
+        if (node instanceof ImportFrom) {
+            ImportFrom n = (ImportFrom) node;
+            return isWildImport(n);
+        }
+        return false;
+    }
+    
+    public static boolean isWildImport(IToken generator) {
+        if (generator instanceof SourceToken) {
+            SourceToken t = (SourceToken) generator;
+            return isWildImport(t.getAst());
+        }
+        return false;
+    }
+
     /**
-     * @param node
-     * @return
+     * @param node the node to analyze
+     * @return whether it is a wild import
      */
     public static boolean isWildImport(ImportFrom node) {
         return node.names.length == 0;
     }
 
     /**
-     * @param node
-     * @return
+     * @param node the node to analyze
+     * @return whether it is an alias import
      */
     public static boolean isAliasImport(ImportFrom node) {
         return node.names.length > 0;
@@ -218,5 +235,7 @@ public abstract class AbstractVisitor extends VisitorBase{
     	}
         return false;
     }
+
+
     
 }

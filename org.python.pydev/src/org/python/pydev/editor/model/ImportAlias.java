@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.model;
 
+import org.python.parser.ast.NameTok;
 import org.python.parser.ast.aliasType;
 
 /**
@@ -20,13 +21,13 @@ public class ImportAlias extends AbstractNode {
 		super(parent);
 		this.astNode = astNode;
 		setStart(new Location(astNode.beginLine - 1, astNode.beginColumn - 1));
-		setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn - 1 + astNode.name.length()));
+		setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn - 1 + ((NameTok)astNode.name).id.length()));
 		fixColumnLocation(start, lineText);
 		fixColumnLocation(end, lineText);
 		properties = PROP_CLICKABLE;
 	}
 	
 	public String getName() {
-		return astNode.name;
+		return ((NameTok)astNode.name).id;
 	}
 }

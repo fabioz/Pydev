@@ -9,11 +9,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.docutils.WordUtils;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -32,13 +35,25 @@ public class PyOrganizeImports extends PyAction{
 			IDocument doc = ps.getDoc();
 			
 			if(ps.getStartLineIndex() == ps.getEndLineIndex()){
-			    performArrangeImports(doc, endLineDelim);
+                //let's see if someone wants to make a better implementation in another plugin...
+                List<IOrganizeImports> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS);
+                if(participants.size() == 1){
+                    PyEdit pyEdit = getPyEdit();
+                    participants.get(0).performArrangeImports(ps, pyEdit);
+                }else{
+                    if(participants.size() > 1){
+                        //let's issue a warning... this extension can only have 1 plugin implementing it
+                        PydevPlugin.log("The organize imports has more than one plugin with this extension point, therefore, the default is being used.");
+                    }
+                    performArrangeImports(doc, endLineDelim);
+                }
 			}else{
 			    performSimpleSort(doc, endLineDelim, ps.getStartLineIndex(), ps.getEndLineIndex());
 			}
 		} 
 		catch ( Exception e ) 
 		{
+            PydevPlugin.log(e);
 			beep ( e );
 		}		
     }

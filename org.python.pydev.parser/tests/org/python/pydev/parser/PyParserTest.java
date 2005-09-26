@@ -72,11 +72,6 @@ public class PyParserTest extends TestCase {
         parseLegalDocStr(s);
     }
 
-    public void testRawString() {
-    	String s = "" +
-    	"testRawString = r'raw\\'";
-    	parseLegalDocStr(s);
-    }
     
     public void testDecorator() {
         String s = "" +

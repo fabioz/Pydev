@@ -5,15 +5,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class ImportFrom extends stmtType {
-    public String module;
+    public NameTokType module;
     public aliasType[] names;
 
-    public ImportFrom(String module, aliasType[] names) {
+    public ImportFrom(NameTokType module, aliasType[] names) {
         this.module = module;
         this.names = names;
     }
 
-    public ImportFrom(String module, aliasType[] names, SimpleNode parent) {
+    public ImportFrom(NameTokType module, aliasType[] names, SimpleNode
+    parent) {
         this(module, names);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
@@ -41,6 +42,8 @@ public class ImportFrom extends stmtType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
+        if (module != null)
+            module.accept(visitor);
         if (names != null) {
             for (int i = 0; i < names.length; i++) {
                 if (names[i] != null)

@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
-   <extension-point id="pydev_builder" name="Pydev Builder" schema="schema/pydev_builder.exsd"/>
-   <extension-point id="pydev_completion" name="Pydev completion" schema="schema/pydev_completion.exsd"/>
-   <extension-point id="pydev_interpreter_observer" name="Pydev Interpreter Observer" schema="schema/pydev_interpreter_observer.exsd"/>
-   <extension-point id="pydev_ctrl_1" name="Pydev Ctrl1 participant" schema="schema/pydev_ctrl_1.exsd"/>
-   <extension-point id="pydev_simpleassist" name="Pydev Simple Assist" schema="schema/pydev_simpleassist.exsd"/>
 
 <!-- Python editor -->
    <extension point="org.eclipse.ui.editors">
@@ -792,7 +787,13 @@
             class="org.python.pydev.editor.templates.PyContextType"
             id="org.python.pydev.editor.templates.python"/>
 	</extension>
-
+<!-- extensions -->
+   <extension-point id="pydev_builder" name="Pydev Builder" schema="schema/pydev_builder.exsd"/>
+   <extension-point id="pydev_completion" name="Pydev completion" schema="schema/pydev_completion.exsd"/>
+   <extension-point id="pydev_interpreter_observer" name="Pydev Interpreter Observer" schema="schema/pydev_interpreter_observer.exsd"/>
+   <extension-point id="pydev_ctrl_1" name="Pydev Ctrl1 participant" schema="schema/pydev_ctrl_1.exsd"/>
+   <extension-point id="pydev_simpleassist" name="Pydev Simple Assist" schema="schema/pydev_simpleassist.exsd"/>
+   <extension-point id="pydev_organize_imports" name="Pydev Organize Imports" schema="schema/pydev_organize_imports.exsd"/>
 	
 	
 	

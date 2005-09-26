@@ -295,6 +295,17 @@ public class PySelection {
         } 
     }
     
+    /**
+     * Deletes the current selected text
+     * 
+     * @throws BadLocationException
+     */
+    public void deleteSelection() throws BadLocationException {
+        int offset = textSelection.getOffset();
+        doc.replace(offset, textSelection.getLength(), "");
+    }
+
+    
     public void addLine(String contents, int afterLine){
         addLine(getDoc(), getEndLineDelim(), contents, afterLine);
     }
@@ -582,6 +593,8 @@ public class PySelection {
           }
           return new Tuple<List<String>, Integer>(l, j);
       }
+
+
 
 
   

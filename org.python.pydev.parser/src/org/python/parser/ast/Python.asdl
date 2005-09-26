@@ -11,7 +11,7 @@ module Python
 
 	NameTok = NameTok(identifier id, name_context ctx)
 
-	name_context = ClassName | FunctionName | KeywordName
+	name_context = ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule
 
 	stmt = FunctionDef(NameTok name, arguments args, 
                            stmt* body, decorators* decs)
@@ -37,7 +37,7 @@ module Python
 	      | Assert(expr test, expr? msg)
 
 	      | Import(alias* names)
-	      | ImportFrom(identifier module, alias* names)
+	      | ImportFrom(NameTok module, alias* names)
 
 	      -- Doesn't capture requirement that locals must be
 	      -- defined if globals is
@@ -96,14 +96,14 @@ module Python
 
 	excepthandler = (expr? type, expr? name, stmt* body)
 
-	arguments = (expr* args, identifier? vararg, 
-		     identifier? kwarg, expr* defaults)
+	arguments = (expr* args, NameTok? vararg, 
+		     NameTok? kwarg, expr* defaults)
 
         -- keyword arguments supplied to call
         keyword = (NameTok arg, expr value)
 
         -- import name with optional 'as' alias.
-        alias = (identifier name, identifier? asname)
+        alias = (NameTok name, NameTok? asname)
 
 	--decorators work as '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 	--changed so that we have the name separated from the arguments for each decorator (fabioz)

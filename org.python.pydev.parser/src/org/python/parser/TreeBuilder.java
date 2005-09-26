@@ -331,9 +331,9 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             value = (arity == 1) ? null : makeExpr();
             return new DefaultArg(makeExpr(), value);
         case JJTEXTRAARGLIST:
-            return new ExtraArg(makeIdentifier(), JJTEXTRAARGLIST);
+            return new ExtraArg(makeName(NameTok.VarArg), JJTEXTRAARGLIST);
         case JJTEXTRAKEYWORDLIST:
-            return new ExtraArg(makeIdentifier(), JJTEXTRAKEYWORDLIST);
+            return new ExtraArg(makeName(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
 /*
         case JJTFPLIST:
             fpdefType[] list = new fpdefType[arity];
@@ -577,8 +577,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             return new comprehensionType(target, iter, ifs);
         case JJTIMPORTFROM:
             aliasType[] aliases = makeAliases(arity - 1);
-            String module = makeIdentifier();
-            return new ImportFrom(module, aliases);
+            return new ImportFrom(makeName(NameTok.ImportModule), aliases);
         case JJTIMPORT:
             return new Import(makeAliases());
     
@@ -592,16 +591,18 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             return new Name(sb.toString(), Name.Load);
 
         case JJTDOTTED_AS_NAME:
-            String asname = null;
-            if (arity > 1)
-                asname = makeIdentifier();
-            return new aliasType(makeIdentifier(), asname);
+            NameTok asname = null;
+            if (arity > 1){
+                asname = makeName(NameTok.ImportName);
+            }
+            return new aliasType(makeName(NameTok.ImportName), asname);
 
         case JJTIMPORT_AS_NAME:
             asname = null;
-            if (arity > 1)
-                asname = makeIdentifier();
-            return new aliasType(makeIdentifier(), asname);
+            if (arity > 1){
+                asname = makeName(NameTok.ImportName);
+            }
+            return new aliasType(makeName(NameTok.ImportName), asname);
         case JJTCOMMA:
         case JJTCOLON:
             return n;
@@ -695,21 +696,21 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         return false;
     }
     
-    String[] getVargAndKwarg(java.util.List args) throws Exception {
-        String varg = null;
-        String kwarg = null;
+    NameTok[] getVargAndKwarg(java.util.List args) throws Exception {
+        NameTok varg = null;
+        NameTok kwarg = null;
         for (Iterator iter = args.iterator(); iter.hasNext();) {
             SimpleNode node = (SimpleNode) iter.next();
             if(node.getId() == JJTEXTRAKEYWORDLIST){
                 ExtraArg a = (ExtraArg)node;
-                kwarg = a.name;
+                kwarg = a.tok;
                 
             }else if(node.getId() == JJTEXTRAARGLIST){
                 ExtraArg a = (ExtraArg)node;
-                varg = a.name;
+                varg = a.tok;
             }
         }
-        return new String[]{varg, kwarg};
+        return new NameTok[]{varg, kwarg};
     }
     
     argumentsType makeArguments(java.util.List args) throws Exception {
@@ -720,14 +721,14 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 defArg.add(node);
             }
         }
-        String[] vargAndKwarg = getVargAndKwarg(args);
-        String varg = vargAndKwarg[0];
-        String kwarg = vargAndKwarg[1];
+        NameTok[] vargAndKwarg = getVargAndKwarg(args);
+        NameTok varg = vargAndKwarg[0];
+        NameTok kwarg = vargAndKwarg[1];
         
         return makeArguments((DefaultArg[])defArg.toArray(new DefaultArg[0]), varg, kwarg);
     }
     
-    argumentsType makeArguments(DefaultArg[] def, String varg, String kwarg) throws Exception {
+    argumentsType makeArguments(DefaultArg[] def, NameTok varg, NameTok kwarg) throws Exception {
         exprType fpargs[] = new exprType[def.length];
         exprType defaults[] = new exprType[def.length];
         int startofdefaults = 0;
@@ -736,8 +737,9 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             fpargs[i] = node.parameter;
             ctx.setStore(fpargs[i]);
             defaults[i] = node.value;
-            if (node.value != null)
+            if (node.value != null){
                 startofdefaults = i;
+            }
         }
         
         // System.out.println("start "+ startofdefaults + " " + l);
@@ -749,14 +751,14 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
     }
     
     argumentsType makeArguments(int l) throws Exception {
-        String kwarg = null;
-        String stararg = null;
+        NameTok kwarg = null;
+        NameTok stararg = null;
         if (l > 0 && peekNode().getId() == JJTEXTRAKEYWORDLIST) {
-            kwarg = ((ExtraArg) popNode()).name;
+            kwarg = ((ExtraArg) popNode()).tok;
             l--;
         }
         if (l > 0 && peekNode().getId() == JJTEXTRAARGLIST) {
-            stararg = ((ExtraArg) popNode()).name;
+            stararg = ((ExtraArg) popNode()).tok;
             l--;
         }
         ArrayList list = new ArrayList();
@@ -791,10 +793,10 @@ class DefaultArg extends SimpleNode {
 }
 
 class ExtraArg extends SimpleNode {
-    public String name;
     public int id;
-    ExtraArg(String name, int id) {
-        this.name = name;
+    NameTok tok;
+    ExtraArg(NameTok tok, int id) {
+        this.tok = tok;
         this.id = id;
     }
     public int getId() {
