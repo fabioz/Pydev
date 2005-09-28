@@ -34,7 +34,12 @@ public class ImportChecker {
         this.messagesManager = messagesManager;
     }
 
-    public void visitImportToken(IToken token, PythonNature nature, String moduleName) {
+    /**
+     * @return the name of the module that was resolved by visiting this token (or null if it
+     * was not  
+     * This information can be handy 
+     */
+    public String visitImportToken(IToken token, PythonNature nature, String moduleName) {
         //try to find it as a relative import
 
         if(token instanceof SourceToken){
@@ -100,6 +105,9 @@ public class ImportChecker {
                 }
                 
                 initial = rep;
+                //get in reverse (e.g.: will return os.path and then os)
+                //this happens because we have to check for the first module that defines it
+                //in the most complete possible form.
                 for (String part : new FullRepIterable(rep, true)) {
                     module = nature.getAstManager().getModule(part, nature);
                     if(module != null){
@@ -110,7 +118,7 @@ public class ImportChecker {
             
                 if (module != null){
                     if( isRepAvailable(nature, module, initial, foundAs)){
-                        return;
+                        return foundAs;
                     }
                     module = null; //the token was not really found, still can check with the absolute representation though
                 }
@@ -119,6 +127,7 @@ public class ImportChecker {
             //if it got here, it was not resolved
             messagesManager.addMessage(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, token);
         }
+        return null;
     }
     
 
