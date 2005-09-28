@@ -477,6 +477,9 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
         // now, register all the breakpoints in all projects
         IProject projects[] = ResourcesPlugin.getWorkspace().getRoot().getProjects();
         for (IProject project : projects) {
+        	if(!project.isOpen()){
+        		continue;
+        	}
             
             try {
                 IMarker[] markers = project.findMarkers(PyBreakpoint.PY_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
