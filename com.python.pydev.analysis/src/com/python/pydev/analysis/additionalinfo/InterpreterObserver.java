@@ -148,6 +148,9 @@ public class InterpreterObserver implements IInterpreterObserver {
 
     public void notifyNatureRecreated(final PythonNature nature, IProgressMonitor monitor) {
         if(!AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature.getProject())){
+            if(DEBUG_INTERPRETER_OBSERVER){
+                System.out.println("Unable to load the info correctly... restoring info from the pythonpath");
+            }
             notifyProjectPythonpathRestored(nature, monitor);
         }
     }

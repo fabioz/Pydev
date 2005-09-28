@@ -107,6 +107,10 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @return the list of tokens with the specified initials (must be exact match)
      */
     private List<IInfo> getAndCreateListForInitials(String initials) {
+        if(initialsToInfo == null){
+            PydevPlugin.log("Additional info not correctly generated.");
+            return new ArrayList<IInfo>();
+        }
         List<IInfo> lInfo = initialsToInfo.get(initials);
         if(lInfo == null){
             lInfo = new ArrayList<IInfo>();
@@ -183,6 +187,11 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param moduleName the name of the module we want to remove info from
      */
     public void removeInfoFromModule(String moduleName) {
+        if(initialsToInfo == null){
+            PydevPlugin.log("Additional info not correctly generated.");
+            return;
+        }
+
         Iterator<List<IInfo>> itListOfInfo = initialsToInfo.values().iterator();
         while (itListOfInfo.hasNext()) {
 
@@ -208,8 +217,12 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @return a list of info, all starting with the given qualifier
      */
     public List<IInfo> getTokensStartingWith(String qualifier) {
-        String initials = getInitials(qualifier);
         ArrayList<IInfo> toks = new ArrayList<IInfo>();
+        if(this.initialsToInfo == null){
+            PydevPlugin.log("No additional info generated for a new completion.");
+            return toks;
+        }
+        String initials = getInitials(qualifier);
         String lowerCaseQual = qualifier.toLowerCase();
         
         //get until the end of the alphabet
@@ -324,8 +337,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
                 this.initialsToInfo = (TreeMap<String, List<IInfo>>) IOUtils.readFromFile(file);
                 setAsDefaultInfo();
                 return true;
-            } catch (Exception e) {
-                PydevPlugin.log(e);
+            } catch (Throwable e) {
+                PydevPlugin.log("Unable to restore previous info... new info should be restored in a thread.",e);
             }
         }
         return false;
@@ -372,7 +385,7 @@ class IOUtils {
             return o;
         } catch (Exception e) {
             Log.log(e);
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
