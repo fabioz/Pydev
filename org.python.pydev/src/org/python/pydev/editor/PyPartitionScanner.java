@@ -20,6 +20,7 @@ import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Rule-based partition scanner
@@ -99,7 +100,7 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
             partitioner = docExtension.getDocumentPartitioner(PYTHON_PARTITION_TYPE);
         }
 	    if (!(partitioner instanceof PyPartitioner)){
-	        throw new RuntimeException("Partitioner should be subclass of PyPartitioner. It is "+partitioner.getClass());
+            PydevPlugin.log("Partitioner should be subclass of PyPartitioner. It is "+partitioner.getClass());
 	    }
     }
     

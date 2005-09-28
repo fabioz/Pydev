@@ -5,7 +5,7 @@
  */
 package org.python.pydev.parser;
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 
@@ -21,13 +21,17 @@ public interface IParserObserver {
 	 * every time document gets parsed, it generates a new parse tree
 	 * @param root the root of the new AST (abstract syntax tree)
 	 * @param file the file that has just been analyzed (it may be null)
+     * 
+     * It is meant to be an org.eclipse.core.resources.IFile or an 
+     * org.eclipse.ui.internal.editors.text.JavaFileEditorInput
+     * 
 	 */
-	void parserChanged(SimpleNode root, IFile file, IDocument doc);
+	void parserChanged(SimpleNode root, IAdaptable file, IDocument doc);
 	
 	/**
 	 * if parse generates an error, you'll get this event
 	 * the exception class will be ParseException, or TokenMgrError
 	 * @param file the file that has just been analyzed (it may be null)
 	 */
-	void parserError(Throwable error, IFile file, IDocument doc);
+	void parserError(Throwable error, IAdaptable file, IDocument doc);
 }

@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -208,8 +209,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         // check the document partitioner (sanity check / fix)
         PyPartitionScanner.checkPartitionScanner(document);
 
-        parser = new PyParser(this);
-        parser.addParseListener(this);
+        checkAndCreateParserIfNeeded();
 
 
         // Also adds Python nature to the project.
@@ -284,6 +284,26 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
     }
 
+    /**
+     * Checks if the parser exists. If it doesn't, creates it.
+     */
+    private void checkAndCreateParserIfNeeded() {
+        if(parser == null){
+            parser = new PyParser(this);
+            parser.addParseListener(this);
+        }
+    }
+    
+
+    @Override
+    protected void doSetInput(IEditorInput input) throws CoreException {
+        super.doSetInput(input);
+        IDocument document = getDocument(input);
+        checkAndCreateParserIfNeeded();
+        if(document != null){
+            parser.setDocument(document);
+        }
+    }
     
     /**
      * @param input
@@ -514,34 +534,37 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * 
      * Removes all the error markers
      */
-    public void parserChanged(SimpleNode root, IFile file, IDocument doc) {
+    public void parserChanged(SimpleNode root, IAdaptable file, IDocument doc) {
         // Remove all the error markers
         IEditorInput input = getEditorInput();
         IPath filePath = null;
         
         if(file != null){
-            filePath = file.getLocation();
-
-        }else{
-            //all this is just to get the file path
-            if (input instanceof IFileEditorInput) {
-                IFile file1 = ((IFileEditorInput) input).getFile();
-                filePath = file1.getLocation();
+            IResource fileAdapter = (IResource) file.getAdapter(IResource.class);
+            if(fileAdapter != null){
+                filePath = fileAdapter.getLocation();
                 
-            } else if (input instanceof IStorageEditorInput)
-                try {
-                    filePath = ((IStorageEditorInput) input).getStorage().getFullPath();
+            }else{
+                //all this is just to get the file path
+                if (input instanceof IFileEditorInput) {
+                    IFile file1 = ((IFileEditorInput) input).getFile();
+                    filePath = file1.getLocation();
+                    
+                } else if (input instanceof IStorageEditorInput)
+                    try {
+                        filePath = ((IStorageEditorInput) input).getStorage().getFullPath();
+                        filePath = filePath.makeAbsolute();
+                    } catch (CoreException e2) {
+                        PydevPlugin.log(IStatus.ERROR, "unexpected error getting path", e2);
+                    }
+                    
+                else if (input instanceof ILocationProvider) {
+                    filePath = ((ILocationProvider) input).getPath(input);
                     filePath = filePath.makeAbsolute();
-                } catch (CoreException e2) {
-                    PydevPlugin.log(IStatus.ERROR, "unexpected error getting path", e2);
+                    
+                } else {
+                    PydevPlugin.log(IStatus.ERROR, "unexpected type of editor input " + input.getClass().toString(), null);
                 }
-                
-            else if (input instanceof ILocationProvider) {
-                filePath = ((ILocationProvider) input).getPath(input);
-                filePath = filePath.makeAbsolute();
-                
-            } else {
-                PydevPlugin.log(IStatus.ERROR, "unexpected type of editor input " + input.getClass().toString(), null);
             }
         }
 
@@ -575,9 +598,17 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * 
      * generates an error marker on the document
      */
-    public void parserError(Throwable error, IFile original, IDocument doc) {
+    public void parserError(Throwable error, IAdaptable original, IDocument doc) {
         try {
-            original.deleteMarkers(IMarker.PROBLEM, false, 1);
+            if(original == null){
+                return;
+            }
+            IResource fileAdapter = (IResource) original.getAdapter(IResource.class);
+            if(fileAdapter == null){
+                return;
+            }
+
+            fileAdapter.deleteMarkers(IMarker.PROBLEM, false, 1);
             int errorStart;
             int errorEnd;
             int errorLine;
@@ -621,7 +652,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             map.put(IMarker.CHAR_START, new Integer(errorStart));
             map.put(IMarker.CHAR_END, new Integer(errorEnd));
             map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
-            MarkerUtilities.createMarker(original, map, IMarker.PROBLEM);
+            MarkerUtilities.createMarker(fileAdapter, map, IMarker.PROBLEM);
 
         } catch (CoreException e1) {
             // Whatever, could not create a marker. Swallow this one

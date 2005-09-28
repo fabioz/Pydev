@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
@@ -139,8 +140,9 @@ public class PyParser {
      */
     public void dispose() {
         // remove the listeners
-        if (document != null)
+        if (document != null){
             document.removeDocumentListener(documentListener);
+        }
         parserListeners.clear();
     }
 
@@ -202,16 +204,18 @@ public class PyParser {
      * stock listener implementation event is fired whenever we get a new root
      * @param original 
      */
-    protected void fireParserChanged(SimpleNode root, IFile file, IDocument doc) {
+    protected void fireParserChanged(SimpleNode root, IAdaptable file, IDocument doc) {
         this.root = root;
-        Iterator e = parserListeners.iterator();
-        while (e.hasNext()) {
-            IParserObserver l = (IParserObserver) e.next();
-            l.parserChanged(root, file, doc);
-        }
-        List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
-        for (IParserObserver observer : participants) {
-            observer.parserChanged(root, file, doc);
+        synchronized(parserListeners){
+            Iterator e = parserListeners.iterator();
+            while (e.hasNext()) {
+                IParserObserver l = (IParserObserver) e.next();
+                l.parserChanged(root, file, doc);
+            }
+            List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
+            for (IParserObserver observer : participants) {
+                observer.parserChanged(root, file, doc);
+            }
         }
     }
 
@@ -219,15 +223,17 @@ public class PyParser {
      * stock listener implementation event is fired when parse fails
      * @param original 
      */
-    protected void fireParserError(Throwable error, IFile file, IDocument doc) {
-        Iterator e = parserListeners.iterator();
-        while (e.hasNext()) {
-            IParserObserver l = (IParserObserver) e.next();
-            l.parserError(error, file, doc);
-        }
-        List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
-        for (IParserObserver observer : participants) {
-            observer.parserError(error, file, doc);
+    protected void fireParserError(Throwable error, IAdaptable file, IDocument doc) {
+        synchronized(parserListeners){
+            Iterator e = parserListeners.iterator();
+            while (e.hasNext()) {
+                IParserObserver l = (IParserObserver) e.next();
+                l.parserError(error, file, doc);
+            }
+            List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
+            for (IParserObserver observer : participants) {
+                observer.parserError(error, file, doc);
+            }
         }
     }
 
@@ -251,6 +257,8 @@ public class PyParser {
         Object obj[] = reparseDocument(new ParserInfo(document, true, nature, -1));
         
         IFile original = null;
+        IAdaptable adaptable = null;
+        
         if(editorView != null){
             IEditorInput input = editorView.getEditorInput();
             if (input == null){
@@ -258,6 +266,14 @@ public class PyParser {
             }
             
             original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
+            if(original != null){
+                adaptable = original;
+                
+            }else{
+                //probabl an external file, may have some location provider mechanism
+                //it may be org.eclipse.ui.internal.editors.text.JavaFileEditorInput
+                adaptable = input;
+            }
         }
         
         if(obj[0] != null && obj[0] instanceof SimpleNode){
@@ -268,21 +284,22 @@ public class PyParser {
                 } catch (CoreException e) {
                     Log.log(e);
                 }
-                fireParserChanged((SimpleNode) obj[0], original, document);
-            }else{
-                //ok, we have no editor view
+                
+            }else if(adaptable == null){
+                //ok, we have nothing... maybe we are in tests...
                 if (!PyParser.ACCEPT_NULL_EDITOR){
                     throw new RuntimeException("Null editor received in parser!");
                 }
             }
+            fireParserChanged((SimpleNode) obj[0], adaptable, document);
         }
         
         if(obj[1] != null && obj[1] instanceof ParseException){
-            fireParserError((ParseException) obj[1], original, document);
+            fireParserError((ParseException) obj[1], adaptable, document);
         }
         
         if(obj[1] != null && obj[1] instanceof TokenMgrError){
-            fireParserError((TokenMgrError) obj[1], original, document);
+            fireParserError((TokenMgrError) obj[1], adaptable, document);
         }
         
         return obj;

@@ -143,6 +143,7 @@ public class PyOutlinePage extends ContentOutlinePage  {
             }
         } catch (SWTException e) {
             //things may be disposed...
+            PydevPlugin.log(e);
         }
 	}
 	public void refreshAll() {

@@ -93,8 +93,16 @@ public class ParsedItem  {
 			aliasType[] imports = ((ImportNode)token).astNode.names;
 			StringBuffer retVal = new StringBuffer();
 			for (int i=0; i<imports.length; i++) {
-				retVal.append(imports[i].name);
-				retVal.append(", ");
+			    aliasType aliasType = imports[i];
+                
+                //as ...
+                if(aliasType.asname != null){
+                    retVal.append(((NameTok)aliasType.asname).id);
+                    retVal.append(" = ");
+                }
+
+                retVal.append(((NameTok)aliasType.name).id);
+                retVal.append(", ");
 			}
 			retVal.delete(retVal.length() - 2, retVal.length());
 			return retVal.toString();
@@ -104,14 +112,22 @@ public class ParsedItem  {
 			ImportFrom importToken = ((ImportFromNode)token).astNode;
 			StringBuffer modules = new StringBuffer();
 			for (int i=0; i<importToken.names.length;i++) {
-				modules.append(importToken.names[i].name);
+			    aliasType aliasType = importToken.names[i];
+
+                //as ...
+                if(aliasType.asname != null){
+                    modules.append(((NameTok)aliasType.asname).id);
+                    modules.append(" = ");
+                }
+
+                modules.append(((NameTok)aliasType.name).id);
 				modules.append(",");
 			}
 			if (modules.length() == 0) {
-				modules.append("*,");
+				modules.append("*,"); //the comma will be deleted
 			}
 			modules.deleteCharAt(modules.length()-1);
-			return importToken.module + ".(" + modules.toString() + ")";
+			return modules.toString() + " (" + ((NameTok)importToken.module).id + ")";
 		}
 		else if (token instanceof NameEqualsMainNode) {
 			return "__name__ == main";
