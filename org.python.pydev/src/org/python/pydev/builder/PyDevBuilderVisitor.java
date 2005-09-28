@@ -29,7 +29,7 @@ import org.python.pydev.plugin.nature.PythonNature;
  * 
  * @author Fabio Zadrozny
  */
-public abstract class PyDevBuilderVisitor {
+public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisitor>{
 
     public static final int MAX_TO_VISIT_INFINITE = -1;
 
@@ -41,6 +41,47 @@ public abstract class PyDevBuilderVisitor {
     private static final String MODULE_NAME_CACHE = "MODULE_NAME";
 
     /**
+     * The default priority is 5. 
+     * 
+     * Higher priorities are minor numbers (and vice-versa).
+     */
+	public static final int PRIORITY_DEFAULT = 5;
+
+	/**
+	 * Maximum priority is 0
+	 */
+	public static final int PRIORITY_MAX = 0;
+	
+	/**
+	 * Minimum priority is 10
+	 */
+	public static final int PRIORITY_MIN = 10;
+	
+	/**
+	 * Compares them by priority (they are ordered before visiting by priority, so, this can
+	 * be useful if some visitor needs to run only after some other visitor was executed).
+	 */
+    public int compareTo(PyDevBuilderVisitor o) {
+    	int priority = getPriority();
+    	int otherPriority = o.getPriority();
+    	if(priority < otherPriority){
+    		return -1;
+    	}
+    	if(otherPriority < priority){
+    		return 1;
+    	}
+    	return 0; //equal
+    }
+    
+    /**
+     * @return the priority of this visitor (visitors with higher priority -- 
+     * lower numbers -- are visited before)
+     */
+    protected int getPriority() {
+    	return PRIORITY_DEFAULT;
+	}
+
+	/**
      * This field acts like a memory. 
      * 
      * It is set before a given resource is visited, and is maintained 

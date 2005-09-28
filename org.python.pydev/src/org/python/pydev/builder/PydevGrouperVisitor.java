@@ -3,6 +3,8 @@
  */
 package org.python.pydev.builder;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -12,15 +14,30 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 
+/**
+ * Groups the visitors to be added and visits them according to their priority
+ * 
+ * @author fabioz
+ */
 public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
 
     private List<PyDevBuilderVisitor> visitors;
 
-    public PydevGrouperVisitor(List<PyDevBuilderVisitor> visitors, IProgressMonitor monitor, int totalResources) {
+    public PydevGrouperVisitor(List<PyDevBuilderVisitor> _visitors, IProgressMonitor monitor, int totalResources) {
         super(monitor, totalResources);
-        this.visitors = visitors;
+        //make a copy
+        this.visitors = new ArrayList<PyDevBuilderVisitor>(_visitors);
+        
+        //sorted by priority
+        Collections.sort(this.visitors); 
     }
     
+    /**
+     * @param name determines the name of the method to visit (added removed or changed)
+     * @param isAddOrChange true if it is an add or change
+     * @param resource the resource to visit
+     * @param document the document from the resource
+     */
     private void visitWith(String name, boolean isAddOrChange, IResource resource, IDocument document){
         HashMap<String, Object> memo = new HashMap<String, Object>();
         
