@@ -295,6 +295,18 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     }
     
 
+    /**
+     * When we have the editor input re-set, we have to change the parser and the partition scanner to
+     * the new document. (this happens in 2 cases: 
+     * - when the editor is reused in the search window
+     * - when we create a file, and make a save as, to change its name
+     * 
+     * there were related bugs in each of these cases:
+     * https://sourceforge.net/tracker/?func=detail&atid=577329&aid=1250307&group_id=85796
+     * https://sourceforge.net/tracker/?func=detail&atid=577329&aid=1251271&group_id=85796
+     *  
+     * @see org.eclipse.ui.texteditor.AbstractTextEditor#doSetInput(org.eclipse.ui.IEditorInput)
+     */
     @Override
     protected void doSetInput(IEditorInput input) throws CoreException {
         super.doSetInput(input);
@@ -302,6 +314,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         checkAndCreateParserIfNeeded();
         if(document != null){
             parser.setDocument(document);
+            PyPartitionScanner.checkPartitionScanner(document);
         }
     }
     
