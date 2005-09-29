@@ -22,6 +22,7 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -68,13 +69,16 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     public static final int NUMBER_OF_INITIALS_TO_INDEX = 3;
 
+    /**
+     * Do you want to debug this class?
+     */
     private static final boolean DEBUG_ADDITIONAL_INFO = false;
 
     /**
      * indexes used so that we can access the information faster - it is ordered through a tree map, and should be
      * very fast to access given its initials.
      */
-    private TreeMap<String, List<IInfo>> initialsToInfo = new TreeMap<String, List<IInfo>>();
+    protected TreeMap<String, List<IInfo>> initialsToInfo = new TreeMap<String, List<IInfo>>();
     
     public AbstractAdditionalInterpreterInfo(){
     }
@@ -323,9 +327,16 @@ public abstract class AbstractAdditionalInterpreterInfo {
         if(DEBUG_ADDITIONAL_INFO){
             System.out.println("Saving info to file (size = "+getAllTokens().size()+") "+pathToSave);
         }
-        REF.writeToFile(this.initialsToInfo, new File(pathToSave));
+        REF.writeToFile(getInfoToSave(), new File(pathToSave));
     }
 
+    /**
+     * @return the information to be saved (if overriden, restoreSavedInfo should be overriden too)
+     */
+    protected Object getInfoToSave(){
+        return this.initialsToInfo;
+    }
+    
     /**
      * actually does the load
      * @return true if it was successfully loaded and false otherwise
@@ -334,7 +345,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
         File file = new File(getPersistingLocation());
         if(file.exists() && file.isFile()){
             try {
-                this.initialsToInfo = (TreeMap<String, List<IInfo>>) IOUtils.readFromFile(file);
+                restoreSavedInfo(IOUtils.readFromFile(file));
                 setAsDefaultInfo();
                 return true;
             } catch (Throwable e) {
@@ -342,6 +353,15 @@ public abstract class AbstractAdditionalInterpreterInfo {
             }
         }
         return false;
+    }
+
+    /**
+     * Restores the saved info in the object (if overriden, getInfoToSave should be overriden too)
+     * @param o the read object from the file
+     */
+    protected void restoreSavedInfo(Object o){
+        this.initialsToInfo = (TreeMap<String, List<IInfo>>) o;
+
     }
 
     /**
@@ -367,6 +387,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     	buffer.append("]");
     	return buffer.toString();
     }
+
 }
 
 class IOUtils {
@@ -379,7 +400,7 @@ class IOUtils {
         try {
             InputStream input = new FileInputStream(astOutputFile);
             ObjectInputStream in = new ObjectInputStream(input);
-            Object o = in.readObject();
+            Object o = new Tuple(in.readObject(), in.readObject());
             in.close();
             input.close();
             return o;

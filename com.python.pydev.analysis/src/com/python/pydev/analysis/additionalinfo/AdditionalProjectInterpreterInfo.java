@@ -17,7 +17,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 
-public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInterpreterInfo{
+public class AdditionalProjectInterpreterInfo extends AbstactAdditionalDependencyInfo{
 
     private IProject project;
     /**

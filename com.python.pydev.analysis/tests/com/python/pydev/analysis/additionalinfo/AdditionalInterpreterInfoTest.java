@@ -4,6 +4,7 @@
 package com.python.pydev.analysis.additionalinfo;
 
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -11,12 +12,9 @@ import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.NameTok;
 
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
-
 public class AdditionalInterpreterInfoTest extends TestCase {
 
-    private AbstractAdditionalInterpreterInfo info;
+    private AbstactAdditionalDependencyInfo info;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AdditionalInterpreterInfoTest.class);
@@ -24,7 +22,7 @@ public class AdditionalInterpreterInfoTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        info = new AbstractAdditionalInterpreterInfo(){
+        info = new AbstactAdditionalDependencyInfo(){
 
             @Override
             protected String getPersistingLocation() {
@@ -129,5 +127,52 @@ public class AdditionalInterpreterInfoTest extends TestCase {
 
     private FunctionDef createFuncDef(String metName) {
         return new FunctionDef(new NameTok(metName, NameTok.FunctionName), null, null, null);
+    }
+    
+    public void testDependencyInfo() throws Exception {
+        String analyzedModule = "mod1";
+        String dependsOn = "mod2";
+        info.addDependency(analyzedModule, dependsOn);
+        
+        //flat dependencies
+        Set dependencies = info.getDependencies("mod1");
+        assertEquals(1, dependencies.size());
+        assertEquals("mod2", dependencies.iterator().next());
+        
+        Set<String> dependenciesOn = info.getModulesThatHaveDependenciesOn("mod2");
+        assertEquals(1, dependenciesOn.size());
+        assertEquals("mod1", dependenciesOn.iterator().next());
+        
+
+        //deep dependencies
+        info.addDependency("mod2", "mod3");
+        dependencies = info.getDependencies("mod1");
+        assertEquals(2, dependencies.size());
+        assertTrue(dependencies.contains("mod2"));
+        assertTrue(dependencies.contains("mod3"));
+
+        dependenciesOn = info.getModulesThatHaveDependenciesOn("mod3");
+        assertEquals(2, dependenciesOn.size());
+        assertTrue(dependenciesOn.contains("mod1"));
+        assertTrue(dependenciesOn.contains("mod2"));
+        
+        
+        //let's see how it goes with circular dependencies
+        info.addDependency("mod3", "mod1");
+        dependencies = info.getDependencies("mod1"); //does not return itself
+        assertEquals(2, dependencies.size());
+        assertTrue(dependencies.contains("mod2"));
+        assertTrue(dependencies.contains("mod3"));
+        
+
+        dependenciesOn = info.getModulesThatHaveDependenciesOn("mod3"); //does not return itself
+        assertEquals(2, dependenciesOn.size());
+        assertTrue(dependenciesOn.contains("mod1"));
+        assertTrue(dependenciesOn.contains("mod2"));
+
+        info.removeInfoFromModule("mod2"); //the other modules should still depend on it, altough its information is lost
+        dependencies = info.getDependencies("mod1"); //does return mod2, even though it does not exist anymore
+        assertEquals(1, dependencies.size());
+        
     }
 }
