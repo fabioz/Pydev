@@ -3,12 +3,14 @@
  */
 package org.python.pydev.core;
 
+import java.io.Serializable;
+
 /**
  * Defines a tuple of some object, adding equals and hashCode operations
  * 
  * @author Fabio
  */
-public class Tuple<X,Y> {
+public class Tuple<X ,Y> implements Serializable{
 
     public X o1;
     public Y o2;
