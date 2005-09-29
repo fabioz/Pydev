@@ -72,7 +72,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * Do you want to debug this class?
      */
-    private static final boolean DEBUG_ADDITIONAL_INFO = false;
+    private static final boolean DEBUG_ADDITIONAL_INFO = true;
 
     /**
      * indexes used so that we can access the information faster - it is ordered through a tree map, and should be
@@ -192,7 +192,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     public void removeInfoFromModule(String moduleName) {
         if(initialsToInfo == null){
-            PydevPlugin.log("Additional info not correctly generated.");
+            PydevPlugin.log("Additional info not correctly generated. ("+this.getClass().getName()+")");
             return;
         }
 
@@ -325,7 +325,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
 
     private void saveTo(String pathToSave) {
         if(DEBUG_ADDITIONAL_INFO){
-            System.out.println("Saving info to file (size = "+getAllTokens().size()+") "+pathToSave);
+            System.out.println("Saving info "+this.getClass().getName()+" to file (size = "+getAllTokens().size()+") "+pathToSave);
         }
         REF.writeToFile(getInfoToSave(), new File(pathToSave));
     }
@@ -400,7 +400,7 @@ class IOUtils {
         try {
             InputStream input = new FileInputStream(astOutputFile);
             ObjectInputStream in = new ObjectInputStream(input);
-            Object o = new Tuple(in.readObject(), in.readObject());
+            Object o = in.readObject();
             in.close();
             input.close();
             return o;
