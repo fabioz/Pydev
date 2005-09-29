@@ -101,6 +101,21 @@ public abstract class AbstractVisitor extends VisitorBase{
         return sourceToken;
     }
 
+    public static List<IToken> makeImportToken(SimpleNode node, List<IToken> tokens, String moduleName, boolean allowForMultiple) {
+    	if(node instanceof Import){
+    		return makeImportToken((Import)node, tokens, moduleName, allowForMultiple);
+    	}
+    	if(node instanceof ImportFrom){
+    		ImportFrom i = (ImportFrom) node;
+    		if(isWildImport(i)){
+    			tokens.add(makeWildImportToken(i, tokens, moduleName));
+    			return tokens;
+    		}
+    		return makeImportToken((ImportFrom)node, tokens, moduleName, allowForMultiple);
+    	}
+    	
+    	throw new RuntimeException("Unable to create token for the passed import.");
+    }
 
     /**
      * This function creates source tokens from an import node.
