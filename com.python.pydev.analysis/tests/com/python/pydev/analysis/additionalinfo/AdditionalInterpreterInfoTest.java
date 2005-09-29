@@ -14,7 +14,7 @@ import org.python.parser.ast.NameTok;
 
 public class AdditionalInterpreterInfoTest extends TestCase {
 
-    private AbstactAdditionalDependencyInfo info;
+    private AbstractAdditionalDependencyInfo info;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AdditionalInterpreterInfoTest.class);
@@ -22,7 +22,7 @@ public class AdditionalInterpreterInfoTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        info = new AbstactAdditionalDependencyInfo(){
+        info = new AbstractAdditionalDependencyInfo(){
 
             @Override
             protected String getPersistingLocation() {

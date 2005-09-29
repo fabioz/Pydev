@@ -17,7 +17,7 @@ import org.python.pydev.core.Tuple;
  * 
  * @author Fabio
  */
-public abstract class AbstactAdditionalDependencyInfo extends AbstractAdditionalInterpreterInfo{
+public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditionalInterpreterInfo{
     
     
     /**
