@@ -22,15 +22,18 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 import com.python.pydev.analysis.AnalysisPlugin;
+import com.python.pydev.analysis.visitors.ImportChecker;
 
 
 /**
@@ -79,8 +82,11 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * very fast to access given its initials.
      */
     protected TreeMap<String, List<IInfo>> initialsToInfo = new TreeMap<String, List<IInfo>>();
+
+	private ImportChecker importChecker;
     
     public AbstractAdditionalInterpreterInfo(){
+    	importChecker = new ImportChecker(null);
     }
     
     /**
@@ -157,16 +163,17 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * Adds information for a source module
      * @param m the module we want to add to the info
      */
-    public void addSourceModuleInfo(SourceModule m) {
-        addAstInfo(m.getAst(), m.getName());
+    public void addSourceModuleInfo(SourceModule m, PythonNature nature) {
+        addAstInfo(m.getAst(), m.getName(), nature);
     }
 
     
     /**
      * Add info from a generated ast
      * @param node the ast root
+     * @param m 
      */
-    public void addAstInfo(SimpleNode node, String moduleName) {
+    public void addAstInfo(SimpleNode node, String moduleName, PythonNature nature) {
         try {
             EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
             node.accept(visitor);
@@ -179,6 +186,14 @@ public abstract class AbstractAdditionalInterpreterInfo {
 					SimpleNode classOrFunc = entry.node;
 	                addClassOrFunc(classOrFunc, moduleName);
                 }
+            }
+            
+            //if we have a nature (we are in a project), we should also create dependency information
+            if(nature != null){
+	            List<IToken> tokensCreated = AbstractVisitor.makeImportToken(node, new ArrayList<IToken>(), moduleName, true);
+	            for (IToken token : tokensCreated) {
+	            	importChecker.visitImportToken(token, nature, moduleName);
+				}
             }
         } catch (Exception e) {
             PydevPlugin.log(e);

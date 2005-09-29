@@ -30,7 +30,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
             //TODO: from elementtree.ElementTree import * is generating reimport message
-            analyzer2.testUnusedImports2a();
+            analyzer2.testImportNotFound3();
             analyzer2.tearDown();
             System.out.println("finished");
             

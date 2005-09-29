@@ -34,7 +34,7 @@ public class CtxInsensitiveBuilderVisitor extends PyDevBuilderVisitor {
         info.removeInfoFromModule(sourceModule.getName());
         if (sourceModule instanceof SourceModule) {
             SourceModule m = (SourceModule) sourceModule;
-            info.addSourceModuleInfo(m);
+            info.addSourceModuleInfo(m, nature);
         }
         return false;
     }

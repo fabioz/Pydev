@@ -39,7 +39,7 @@ public class InterpreterObserver implements IInterpreterObserver {
         try {
             InterpreterInfo defaultInterpreterInfo = manager.getDefaultInterpreterInfo(monitor);
             SystemModulesManager m = defaultInterpreterInfo.modulesManager;
-            AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, "(system: "+manager.getManagerRelatedName()+")", new AdditionalSystemInterpreterInfo(manager));
+            AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, "(system: "+manager.getManagerRelatedName()+")", new AdditionalSystemInterpreterInfo(manager), null);
 
             //ok, set it and save it
             AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, additionalSystemInfo);
@@ -81,9 +81,12 @@ public class InterpreterObserver implements IInterpreterObserver {
      * 
      * @param monitor a monitor to keep track of the progress
      * @param m the module manager
+     * @param nature the associated nature (may be null if there is no associated nature -- as is the case when
+     * restoring system info).
+     * 
      * @return the info generated from the module manager
      */
-    private AbstractAdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, ModulesManager m, String additionalFeedback, AbstractAdditionalInterpreterInfo info) {
+    private AbstractAdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, ModulesManager m, String additionalFeedback, AbstractAdditionalInterpreterInfo info, PythonNature nature) {
 
         ModulesKey[] allModules = m.getOnlyDirectModules();
         int i = 0;
@@ -118,7 +121,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                             //SimpleNode node = FastParser.reparseDocument(REF.getFileContents(key.file));
 
                             if (node != null) {
-                                info.addAstInfo(node, key.name);
+                                info.addAstInfo(node, key.name, nature);
                             }else{
                                 throw new RuntimeException("Unable to generate ast.");
                             }
@@ -139,7 +142,7 @@ public class InterpreterObserver implements IInterpreterObserver {
     public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor) {
         ModulesManager m = nature.getAstManager().getProjectModulesManager();
         IProject project = nature.getProject();
-        AbstractAdditionalInterpreterInfo info = restoreInfoForModuleManager(monitor, m, "(project:"+project.getName()+")", new AdditionalProjectInterpreterInfo(project));
+        AbstractAdditionalInterpreterInfo info = restoreInfoForModuleManager(monitor, m, "(project:"+project.getName()+")", new AdditionalProjectInterpreterInfo(project), nature);
         
         //ok, set it and save it
         AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
