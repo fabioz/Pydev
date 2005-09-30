@@ -34,12 +34,22 @@ public interface IToken extends Serializable, Comparable{
      * 
      * The following cases apply for imports:
      * 
-     * on module test
+     * on module test decorating with module
      * from x import testcase     (return test.x.testcase)
      * from x import testcase as t(return test.x.testcase)
      * import testcase            (return test.testcase)
+     * 
+     * if not decorating would return the same as above without 'test'
      */
-    public String getCompletePath(boolean decorateWithModule);
+    public String getOriginalRep(boolean decorateWithModule);
+
+    /**
+     * @param baseModule this is the module base to discover from where should it be made relative 
+     * 
+     * @return the representation as a relative import - this means that it return the original representation
+     * plus the module it was defined within without its head.
+     */
+    public String getAsRelativeImport(String baseModule);
     
     /**
      * Constant to indicate that it was not possible to know in which line the

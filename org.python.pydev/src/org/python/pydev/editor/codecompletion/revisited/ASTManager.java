@@ -364,10 +364,10 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 for (int i = 0; i < wildImportedModules.length; i++) {
 
                     IToken name = wildImportedModules[i];
-                    AbstractModule mod = getModule(name.getCompletePath(true), state.nature); //relative (for wild imports this is ok... only a module can be used in wild imports)
+                    AbstractModule mod = getModule(name.getAsRelativeImport(module.getName()), state.nature); //relative (for wild imports this is ok... only a module can be used in wild imports)
                     
                     if (mod == null) {
-                        mod = getModule(name.getCompletePath(false), state.nature); //absolute
+                        mod = getModule(name.getOriginalRep(false), state.nature); //absolute
                     }
                     
                     if (mod != null) {
@@ -515,10 +515,10 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      */
     public List getCompletionsForWildImport(CompletionState state, AbstractModule current, List completions, IToken name) {
         try {
-            AbstractModule mod = getModule(name.getCompletePath(true), state.nature); //relative import (in wild import this is ok, as it must be a module, and can have no token)
+            AbstractModule mod = getModule(name.getAsRelativeImport(current.getName()), state.nature); //relative import (in wild import this is ok, as it must be a module, and can have no token)
 
             if (mod == null) {
-                mod = getModule(name.getCompletePath(false), state.nature); //absolute import
+                mod = getModule(name.getOriginalRep(false), state.nature); //absolute import
             }
 
             if (mod != null) {
@@ -537,7 +537,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     }
 
     private IToken[] searchOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current) {
-        Tuple<AbstractModule, String> o = findOnImportedMods(importedModules, state.nature, state.activationToken, current);
+        Tuple<AbstractModule, String> o = findOnImportedMods(importedModules, state.nature, state.activationToken, current.getName());
         
         if(o == null)
             return null;
@@ -572,7 +572,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      */
     public Tuple<AbstractModule, String> findOnImportedMods( PythonNature nature, String activationToken, AbstractModule current) {
         IToken[] importedModules = current.getTokenImportedModules();
-        return findOnImportedMods(importedModules, nature, activationToken, current);
+        return findOnImportedMods(importedModules, nature, activationToken, current.getName());
     }
     
     /**
@@ -590,54 +590,54 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * 0: mod
      * 1: tok
      */
-    private Tuple<AbstractModule, String> findOnImportedMods( IToken[] importedModules, PythonNature nature, String activationToken, AbstractModule current) {
-        String currentModuleName = current.getName();
+    public Tuple<AbstractModule, String> findOnImportedMods( IToken[] importedModules, PythonNature nature, String activationToken, String currentModuleName) {
         for (IToken importedModule : importedModules) {
         	
         	FullRepIterable iterable = new FullRepIterable(activationToken, true);
         	for(String tok : iterable){
         	
-	            final String modRep = importedModule.getRepresentation(); //this is its 'real' representation on the file (if it is from xxx import a as yyy, it is yyy)
+	            final String modRep = importedModule.getRepresentation(); //this is its 'real' representation (alias) on the file (if it is from xxx import a as yyy, it is yyy)
 	            
 	            if(modRep.equals(tok)){
 	            	Tuple<AbstractModule, String> modTok = null;
 	            	AbstractModule mod = null;
-	                String relativePath = importedModule.getCompletePath(true); //returns the complete 'real' representation for some import
-	                                                                            //this is the complete path, with the parent too (so, it can 
-	                                                                            //be used for getting some relative completion)
+	                String relativePath = importedModule.getOriginalRep(true); //returns the complete 'real' representation for some import
+	                                                                           //this is the complete path, with the parent too (this is not 
+	                                                                           //equivalent to relative imports).
 	                //check as relative with complete rep
 	                modTok = findModuleFromPath(relativePath, nature);
 	                mod = modTok.o1;
-	                if(mod != null && mod != current){
+	                if(mod != null && mod.getName().equals(currentModuleName) == false){
 	                	return fixTok(modTok, tok, activationToken);
 	                }
-
-	                //check as absolute
-					if(relativePath.startsWith(currentModuleName)){
-	                    String absolute = relativePath.substring(currentModuleName.length()+1);
-						modTok = findModuleFromPath(absolute, nature); //check it as absolute / +1 to remove the point
-	                    mod = modTok.o1;
-	                    if(mod != null && mod != current){
-	                        return fixTok(modTok, tok, activationToken);
-	                    }
-	                    
-	                    //check as relative (same level)
-	                    String newName = "";
-	                    if(currentModuleName.indexOf('.') != -1){
-	                    	newName = FullRepIterable.headAndTail(currentModuleName)[0]+".";
-	                    }
-	                    absolute = newName+absolute;
-						modTok = findModuleFromPath(absolute, nature); //check it as absolute / +1 to remove the point
-	                    mod = modTok.o1;
-	                    if(mod != null && mod != current){
-	                        return fixTok(modTok, tok, activationToken);
-	                    }
-
+	                
+	                if(currentModuleName != null){
+	
+		                //check as absolute
+						if(relativePath.startsWith(currentModuleName)){
+		                    String absolute = relativePath.substring(currentModuleName.length()+1);
+							modTok = findModuleFromPath(absolute, nature); //check it as absolute / +1 to remove the point
+		                    mod = modTok.o1;
+			                if(mod != null && mod.getName().equals(currentModuleName) == false){
+		                        return fixTok(modTok, tok, activationToken);
+		                    }
+		                    
+		                    //check as relative (same level)
+		                    String newName = "";
+		                    if(currentModuleName.indexOf('.') != -1){
+		                    	newName = FullRepIterable.headAndTail(currentModuleName)[0]+".";
+		                    }
+		                    absolute = newName+absolute;
+							modTok = findModuleFromPath(absolute, nature); //check it as absolute / +1 to remove the point
+		                    mod = modTok.o1;
+			                if(mod != null && mod.getName().equals(currentModuleName) == false){
+		                        return fixTok(modTok, tok, activationToken);
+		                    }
+	
+		                }
 	                }
 	            }
 	        }
-	        
-	        
         }   
         return null;
     }

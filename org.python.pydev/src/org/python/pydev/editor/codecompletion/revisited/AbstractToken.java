@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 
 /**
@@ -173,9 +174,9 @@ public abstract class AbstractToken implements IToken{
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IToken#getCompletePath(boolean)
+     * @see org.python.pydev.editor.codecompletion.revisited.IToken#getOriginalRep(boolean)
      */
-    public String getCompletePath(boolean decorateWithModule) {
+    public String getOriginalRep(boolean decorateWithModule) {
         if(!decorateWithModule){
             return originalRep;
         }
@@ -185,6 +186,28 @@ public abstract class AbstractToken implements IToken{
             return p+"."+originalRep;
         }
         return originalRep;
+    }
+    
+    public String getAsRelativeImport(String baseModule) {
+    	String completePath = getOriginalRep(true);
+    	
+    	if(baseModule == null){
+    		return completePath;
+    	}
+    	
+    	if(completePath.startsWith(baseModule)){
+    		String relative = completePath.substring(baseModule.length());
+    		
+    		if(relative.length() == 0){
+    			return relative;
+    		}
+    		
+    		if(relative.charAt(0) == '.'){
+    			return relative.substring(1);
+    		}
+    		return relative;
+    	}
+    	return completePath;
     }
     
     /**

@@ -115,7 +115,23 @@ public interface ICodeCompletionASTManager {
      */
     public abstract Tuple<AbstractModule, String> findOnImportedMods( PythonNature nature, String activationToken, AbstractModule current);
 
-    
+    /**
+     * This function tries to find some activation token defined in some imported module.  
+     * @return tuple with: the module and the token that should be used from it.
+     * 
+     * @param this is the activation token we have. It may be a single token or some dotted name.
+     * 
+     * If it is a dotted name, such as testcase.TestCase, we need to match against some import
+     * represented as testcase or testcase.TestCase.
+     * 
+     * If a testcase.TestCase matches against some import named testcase, the import is returned and
+     * the TestCase is put as the module
+     * 
+     * 0: mod
+     * 1: tok
+     */
+    public abstract Tuple<AbstractModule, String> findOnImportedMods( IToken[] importedModules, PythonNature nature, String activationToken, String currentModuleName);
+
 
     /**
      * 

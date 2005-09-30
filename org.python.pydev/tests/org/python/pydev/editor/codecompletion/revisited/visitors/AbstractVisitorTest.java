@@ -41,10 +41,10 @@ public class AbstractVisitorTest extends TestCase {
 		assertEquals(2, toks.size());
 		
 		SourceToken token = (SourceToken) toks.get(0);
-		checkIt(simpleNode, token, "os", "testModule.os");
+		checkIt(simpleNode, token, "os", "testModule.os", "os", "os.path");
 		
 		token = (SourceToken) toks.get(1);
-		checkIt(simpleNode, token, "os.path", "testModule.os.path");
+		checkIt(simpleNode, token, "os.path", "testModule.os.path", "os.path", "os.path");
 	}
 
 	public void testImportCreation2() throws Exception {
@@ -55,10 +55,10 @@ public class AbstractVisitorTest extends TestCase {
 	    assertEquals(2, toks.size());
 	    
 	    SourceToken token = (SourceToken) toks.get(0);
-	    checkIt(simpleNode, token, "path", "testModule.os.path");
+	    checkIt(simpleNode, token, "path", "testModule.os.path", "os.path", "os.path");
 	    
 	    token = (SourceToken) toks.get(1);
-	    checkIt(simpleNode, token, "notDefined", "testModule.os.notDefined");
+	    checkIt(simpleNode, token, "notDefined", "testModule.os.notDefined", "os.notDefined", "os.notDefined");
 	}
 	
 	public void testImportCreation3() throws Exception {
@@ -69,16 +69,20 @@ public class AbstractVisitorTest extends TestCase {
 	    assertEquals(2, toks.size());
 	    
 	    SourceToken token = (SourceToken) toks.get(0);
-	    checkIt(simpleNode, token, "tt", "testModule.os.path");
+	    checkIt(simpleNode, token, "tt", "testModule.os.path", "os.path", "os.path");
 	    
 	    token = (SourceToken) toks.get(1);
-	    checkIt(simpleNode, token, "aa", "testModule.os.notDefined");
+	    checkIt(simpleNode, token, "aa", "testModule.os.notDefined", "os.notDefined", "os.tt");
 	}
 	
-	private void checkIt(SimpleNode simpleNode, SourceToken token, String rep, String completeRep) {
-	    assertEquals(completeRep, token.getCompletePath(true));
+	
+	
+	private void checkIt(SimpleNode simpleNode, SourceToken token, String rep, String completeRep, String relativeImport, String originalRep) {
+	    assertEquals(completeRep, token.getOriginalRep(true));
 		assertEquals(rep, token.getRepresentation());
 		assertSame(simpleNode, token.getAst());
+		assertEquals(relativeImport, token.getAsRelativeImport(MODULE_NAME));
+		assertEquals(originalRep, token.getOriginalRep(false));
 	}
 
 	private Iterator<ASTEntry> createModuleAndGetImports(String strDoc, Class classToGet) throws Exception {
