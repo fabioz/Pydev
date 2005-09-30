@@ -107,7 +107,7 @@ public abstract class AbstractVisitor extends VisitorBase{
     		return makeImportToken((ImportFrom)node, tokens, moduleName, allowForMultiple);
     	}
     	
-    	throw new RuntimeException("Unable to create token for the passed import.");
+    	throw new RuntimeException("Unable to create token for the passed import ("+node+")");
     }
 
     /**
