@@ -517,7 +517,12 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         try {
         	//this one is an exception... even though we are getting the name as a relative import, we say it
         	//is not because we want to get the module considering __init__
-            AbstractModule mod = getModule(name.getAsRelativeImport(current.getName()), state.nature, false); 
+        	AbstractModule mod = null;
+        	
+        	if(current != null){
+        		//we cannot get the relative path if we don't have a current module
+        		mod = getModule(name.getAsRelativeImport(current.getName()), state.nature, false);
+        	}
 
             if (mod == null) {
                 mod = getModule(name.getOriginalRep(), state.nature, false); //absolute import
