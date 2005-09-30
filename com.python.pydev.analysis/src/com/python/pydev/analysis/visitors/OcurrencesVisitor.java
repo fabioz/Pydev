@@ -109,6 +109,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @param prefs 
      */
     public OcurrencesVisitor(PythonNature nature, String moduleName, AbstractModule current, IAnalysisPreferences prefs) {
+        this.current = current;
         this.nature = nature;
         this.moduleName = moduleName;
         this.messagesManager = new MessagesManager(prefs, moduleName);
@@ -297,11 +298,6 @@ public class OcurrencesVisitor extends VisitorBase{
                 for (IToken token : list) {
 					importChecker.visitImportToken(token, nature, moduleName);
 				}
-//                //it is only a single import for the import checker
-//                if(list.size() > 0){
-//                    IToken token = list.get(list.size() -1);
-//                    importChecker.visitImportToken(token, nature, moduleName);
-//                }
                 scope.addTokens(list, null);
             }
             

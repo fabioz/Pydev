@@ -29,8 +29,7 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            //TODO: from elementtree.ElementTree import * is generating reimport message
-            analyzer2.testImportNotFound3();
+            analyzer2.testUnusedWildRelativeImport();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -339,6 +338,21 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertContainsMsg("Unresolved import: os.notDefined", msgs);
     }
     
+    public void testImportNotFound9(){
+        
+        doc = new Document(
+                "from os import path, notDefined\n" +
+                ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs,3);
+        assertContainsMsg("Unresolved import: notDefined", msgs);
+        assertContainsMsg("Unused import: notDefined", msgs);
+        assertContainsMsg("Unused import: path", msgs);
+    }
+    
     public void testImportNotFound4(){
         
         doc = new Document(
@@ -385,6 +399,16 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testenc.encimport", new File(file), nature, 0), prefs);
         
         printMessages(msgs, 0);
+    }
+    
+    public void testUnusedWildRelativeImport() throws FileNotFoundException{
+        
+        analyzer = new OcurrencesAnalyzer();
+        String file = TestDependent.TEST_PYSRC_LOC+"testOtherImports/f1.py";
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testOtherImports.f1", new File(file), nature, 0), prefs);
+        
+        printMessages(msgs, 1);
+        assertContainsMsg("Unused in wild import: Test", msgs);
     }
     
     public void testImportNotFound5(){

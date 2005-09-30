@@ -60,28 +60,28 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     public void addAstInfo(SimpleNode node, String moduleName, PythonNature nature) {
     	super.addAstInfo(node, moduleName, nature);
 
-    	//if we have a nature (we are in a project), we should also create dependency information
-        if(nature != null){
-            List<IToken> tokensCreated = AbstractVisitor.makeImportToken(node, new ArrayList<IToken>(), moduleName, true);
-            for (IToken token : tokensCreated) {
-            	Tuple<AbstractModule, String> modTok = importChecker.visitImportToken(token, nature, moduleName);
-            	
-            	//ok, if we found it, it is dependent... (easy)
-            	if(modTok != null){
-            		addDependency(moduleName, modTok.o1.getName());
-            		
-            	}else{
-            		//ok, here lies the problem... we are dependent on some module we cannot resolve... 
-            		//this means that it does not exist right now, altough, if we create it later, we
-            		//will want to reanalyze the current module to see if that's it.
-            		//to do it, we will add dependency on all the known representations of that module,
-            		//so that when it is created we are sure to get it
-            		token.getOriginalRep();
-            		
-            	}
-            	
-			}
-        }
+//    	//if we have a nature (we are in a project), we should also create dependency information
+//        if(nature != null){
+//            List<IToken> tokensCreated = AbstractVisitor.makeImportToken(node, new ArrayList<IToken>(), moduleName, true);
+//            for (IToken token : tokensCreated) {
+//            	Tuple<AbstractModule, String> modTok = importChecker.visitImportToken(token, nature, moduleName);
+//            	
+//            	//ok, if we found it, it is dependent... (easy)
+//            	if(modTok != null){
+//            		addDependency(moduleName, modTok.o1.getName());
+//            		
+//            	}else{
+//            		//ok, here lies the problem... we are dependent on some module we cannot resolve... 
+//            		//this means that it does not exist right now, altough, if we create it later, we
+//            		//will want to reanalyze the current module to see if that's it.
+//            		//to do it, we will add dependency on all the known representations of that module,
+//            		//so that when it is created we are sure to get it
+//            		token.getOriginalRep();
+//            		
+//            	}
+//            	
+//			}
+//        }
     }
     
     protected void restoreSavedInfo(Object o){

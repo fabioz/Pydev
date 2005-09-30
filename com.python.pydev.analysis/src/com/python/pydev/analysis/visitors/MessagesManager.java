@@ -214,7 +214,8 @@ public class MessagesManager {
      */
     public void addReimportMessage(Found f) {
         for (GenAndTok g : f){
-            if(g.generator instanceof SourceToken){
+            //we don't want to add reimport messages if they are found in a wild import
+            if(g.generator instanceof SourceToken && AbstractVisitor.isWildImport(g.generator) == false){
                 addMessage(IAnalysisPreferences.TYPE_REIMPORT, g.generator, g.tok);
             }
         }
