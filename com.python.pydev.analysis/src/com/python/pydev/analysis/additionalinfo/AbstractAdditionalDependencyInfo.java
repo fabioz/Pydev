@@ -3,13 +3,21 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.python.parser.SimpleNode;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.plugin.nature.PythonNature;
+
+import com.python.pydev.analysis.visitors.ImportChecker;
 
 /**
  * Adds dependency information to the interpreter information. This should be used only for
@@ -26,7 +34,17 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * the module (key) maps to its dependencies (values)
      */
     protected Map<String,Set<String>> moduleDependencies = new TreeMap<String, Set<String>>();
+    
+    /**
+     * Used to create dependency info...
+     */
+	private ImportChecker importChecker;
 
+    
+    public AbstractAdditionalDependencyInfo() {
+    	importChecker = new ImportChecker(null);
+	}
+    
     @Override
     public void removeInfoFromModule(String moduleName) {
         super.removeInfoFromModule(moduleName);
@@ -36,6 +54,34 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     @Override
     protected Object getInfoToSave() {
         return new Tuple(this.initialsToInfo, this.moduleDependencies);
+    }
+    
+    @Override
+    public void addAstInfo(SimpleNode node, String moduleName, PythonNature nature) {
+    	super.addAstInfo(node, moduleName, nature);
+
+    	//if we have a nature (we are in a project), we should also create dependency information
+        if(nature != null){
+            List<IToken> tokensCreated = AbstractVisitor.makeImportToken(node, new ArrayList<IToken>(), moduleName, true);
+            for (IToken token : tokensCreated) {
+            	Tuple<AbstractModule, String> modTok = importChecker.visitImportToken(token, nature, moduleName);
+            	
+            	//ok, if we found it, it is dependent... (easy)
+            	if(modTok != null){
+            		addDependency(moduleName, modTok.o1.getName());
+            		
+            	}else{
+            		//ok, here lies the problem... we are dependent on some module we cannot resolve... 
+            		//this means that it does not exist right now, altough, if we create it later, we
+            		//will want to reanalyze the current module to see if that's it.
+            		//to do it, we will add dependency on all the known representations of that module,
+            		//so that when it is created we are sure to get it
+            		token.getOriginalRep();
+            		
+            	}
+            	
+			}
+        }
     }
     
     protected void restoreSavedInfo(Object o){

@@ -23,9 +23,7 @@ import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
@@ -33,7 +31,6 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 import com.python.pydev.analysis.AnalysisPlugin;
-import com.python.pydev.analysis.visitors.ImportChecker;
 
 
 /**
@@ -83,10 +80,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     protected TreeMap<String, List<IInfo>> initialsToInfo = new TreeMap<String, List<IInfo>>();
 
-	private ImportChecker importChecker;
     
     public AbstractAdditionalInterpreterInfo(){
-    	importChecker = new ImportChecker(null);
     }
     
     /**
@@ -188,13 +183,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
                 }
             }
             
-            //if we have a nature (we are in a project), we should also create dependency information
-            if(nature != null){
-	            List<IToken> tokensCreated = AbstractVisitor.makeImportToken(node, new ArrayList<IToken>(), moduleName, true);
-	            for (IToken token : tokensCreated) {
-	            	importChecker.visitImportToken(token, nature, moduleName);
-				}
-            }
         } catch (Exception e) {
             PydevPlugin.log(e);
         }
