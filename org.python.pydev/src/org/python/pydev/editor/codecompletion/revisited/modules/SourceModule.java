@@ -17,6 +17,7 @@ import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
@@ -222,13 +223,13 @@ public class SourceModule extends AbstractModule {
         
         if(visitor.definitions.size() == 0){
             //ok, it is not an assign, so, let's search the global tokens (and imports)
-            Object[] o = nature.getAstManager().findOnImportedMods(nature, token, this);
+            Tuple<AbstractModule, String> o = nature.getAstManager().findOnImportedMods(nature, token, this);
             String tok = token;
             SourceModule mod = this;
             
-            if(o != null && o[0] instanceof SourceModule){
-	            mod =  (SourceModule) o[0];
-	            tok = (String) o[1];
+            if(o != null && o.o1 instanceof SourceModule){
+	            mod =  (SourceModule) o.o1;
+	            tok = o.o2;
             }
             
             //mod == this

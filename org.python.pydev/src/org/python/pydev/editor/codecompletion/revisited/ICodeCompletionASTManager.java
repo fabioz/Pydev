@@ -12,6 +12,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -112,7 +113,7 @@ public interface ICodeCompletionASTManager {
      * 0: mod
      * 1: tok
      */
-    public abstract Object[] findOnImportedMods( PythonNature nature, String activationToken, AbstractModule current);
+    public abstract Tuple<AbstractModule, String> findOnImportedMods( PythonNature nature, String activationToken, AbstractModule current);
 
     
 

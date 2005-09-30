@@ -22,6 +22,7 @@ import org.python.parser.ast.FunctionDef;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -215,31 +216,25 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 original = original.substring(0, original.length() - 1);
             }
 
-            Object[] modTok = findModuleFromPath(original, nature);
+            Tuple<AbstractModule, String> modTok = findModuleFromPath(original, nature);
+            AbstractModule m = modTok.o1;
+            String tok = modTok.o2;
             
+            IToken[] globalTokens;
+            if(tok != null && tok.length() > 0){
+                CompletionState state2 = new CompletionState(-1,-1,tok,nature);
+                state2.builtinsGotten = true; //we don't want to get builtins here
+                globalTokens = m.getGlobalTokens(state2, this);
+            }else{
+                CompletionState state2 = new CompletionState(-1,-1,"",nature);
+                state2.builtinsGotten = true; //we don't want to get builtins here
+                globalTokens = getCompletionsForModule(m, state2);
+            }
             
-            Object object = modTok[0];
-            String tok = (String) modTok[1];
-            
-            if (object instanceof AbstractModule) {
-                AbstractModule m = (AbstractModule) object;
-
-                IToken[] globalTokens;
-                if(tok != null && tok.length() > 0){
-                    CompletionState state2 = new CompletionState(-1,-1,tok,nature);
-                    state2.builtinsGotten = true; //we don't want to get builtins here
-                    globalTokens = m.getGlobalTokens(state2, this);
-                }else{
-                    CompletionState state2 = new CompletionState(-1,-1,"",nature);
-                    state2.builtinsGotten = true; //we don't want to get builtins here
-                    globalTokens = getCompletionsForModule(m, state2);
-                }
-                
-                for (int i = 0; i < globalTokens.length; i++) {
-                    IToken element = globalTokens[i];
-                    //this is the completion
-                    set.add(element);
-                }
+            for (int i = 0; i < globalTokens.length; i++) {
+                IToken element = globalTokens[i];
+                //this is the completion
+                set.add(element);
             }
         }
     }
@@ -369,10 +364,10 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 for (int i = 0; i < wildImportedModules.length; i++) {
 
                     IToken name = wildImportedModules[i];
-                    AbstractModule mod = getModule(name.getCompletePath(), state.nature);
+                    AbstractModule mod = getModule(name.getCompletePath(true), state.nature); //relative (for wild imports this is ok... only a module can be used in wild imports)
                     
                     if (mod == null) {
-                        mod = getModule(name.getRepresentation(), state.nature);
+                        mod = getModule(name.getCompletePath(false), state.nature); //absolute
                     }
                     
                     if (mod != null) {
@@ -520,10 +515,10 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      */
     public List getCompletionsForWildImport(CompletionState state, AbstractModule current, List completions, IToken name) {
         try {
-            AbstractModule mod = getModule(name.getCompletePath(), state.nature); //relative import
+            AbstractModule mod = getModule(name.getCompletePath(true), state.nature); //relative import (in wild import this is ok, as it must be a module, and can have no token)
 
             if (mod == null) {
-                mod = getModule(name.getRepresentation(), state.nature);
+                mod = getModule(name.getCompletePath(false), state.nature); //absolute import
             }
 
             if (mod != null) {
@@ -542,16 +537,13 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     }
 
     private IToken[] searchOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current) {
-        Object [] o = findOnImportedMods(importedModules, state.nature, state.activationToken, current);
+        Tuple<AbstractModule, String> o = findOnImportedMods(importedModules, state.nature, state.activationToken, current);
         
         if(o == null)
             return null;
         
-        if(o.length > 2)
-            return (IToken[]) o[2];
-        
-        AbstractModule mod = (AbstractModule) o[0];
-        String tok = (String) o[1];
+        AbstractModule mod = o.o1;
+        String tok = o.o2;
 
         if(tok.length() == 0){
             //the activation token corresponds to an imported module. We have to get its global tokens and return them.
@@ -577,146 +569,97 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @return tuple with:
      * 0: mod
      * 1: tok
-     * 2: (optional) completions if they've already been gotten 
      */
-    public Object[] findOnImportedMods( PythonNature nature, String activationToken, AbstractModule current) {
+    public Tuple<AbstractModule, String> findOnImportedMods( PythonNature nature, String activationToken, AbstractModule current) {
         IToken[] importedModules = current.getTokenImportedModules();
         return findOnImportedMods(importedModules, nature, activationToken, current);
     }
     
     /**
-     * @param activationToken
-     * @param importedModules
-     * @param module
-     * @return tuple with:
+     * This function tries to find some activation token defined in some imported module.  
+     * @return tuple with: the module and the token that should be used from it.
+     * 
+     * @param this is the activation token we have. It may be a single token or some dotted name.
+     * 
+     * If it is a dotted name, such as testcase.TestCase, we need to match against some import
+     * represented as testcase or testcase.TestCase.
+     * 
+     * If a testcase.TestCase matches against some import named testcase, the import is returned and
+     * the TestCase is put as the module
+     * 
      * 0: mod
      * 1: tok
-     * 2: (optional) completions if they've already been gotten 
      */
-    private Object[] findOnImportedMods( IToken[] importedModules, PythonNature nature, String activationToken, AbstractModule current) {
-        for (int i = 0; i < importedModules.length; i++) {
-            final String modRep = importedModules[i].getRepresentation();
-            String fullRep = importedModules[i].getCompletePath();
-            if(modRep.equals(activationToken) || fullRep.equals(activationToken)){
-                String rep = importedModules[i].getCompletePath();
-                
-                Object [] o = null;
-                AbstractModule mod = null;
-                String tok = null;
-                
-                try {
-                    if (current instanceof SourceModule) {
-                        File f = ((SourceModule) current).getFile();
-                        if (f != null) {
-                            String full = f.toString();
-                            full = this.projectModulesManager.resolveModule(full);
-                            full = full.substring(0, full.lastIndexOf('.'));
-                            if (full != null) {
-                                full += "." + rep;
-                                o = findModuleFromPath(full, nature);
-                                mod = (AbstractModule) o[0];
-                                tok = (String) o[1];
-                            }
-                        }
-                    }
-                } catch (RuntimeException e) {
-                    //e.printStackTrace();//that's ok...
-                }
-                
-                //check 1... rep of module
-                if(o == null || mod == null || tok == null || current == mod || tok.equals(rep) || tok.equals(fullRep)){  
-	                o = findModuleFromPath(rep, nature);
-	                mod = (AbstractModule) o[0];
-	                tok = (String) o[1];
-                }
-                
-                //check 2... modRep (simple)
-                if(o == null || mod == null || tok == null || current.equals(mod)){
-                    o = findModuleFromPath(modRep, nature);
-                    mod = (AbstractModule) o[0];
-                    tok = (String) o[1];
-                }
-                 
-                if(tok.length() == 0){
-                    //the activation token corresponds to an imported module. We have to get its global tokens and return them.
-                    return new Object[]{ mod, ""};
-                    
-                }else if (mod != null){
-                    if(mod.isInGlobalTokens(tok, nature)){
-                        return new Object[]{ mod, tok};
-                    }
-                    
-                    //ok, it was not a global token, still, it might be some import from that module.
-                    IToken[] tokenImportedModules = mod.getTokenImportedModules();
-                    for (int j = 0; j < tokenImportedModules.length; j++) {
-                        if(tokenImportedModules[j].getRepresentation().equals(tok)){
-                            String path = tokenImportedModules[j].getCompletePath();
-                            Object [] o2 = findModuleFromPath(path , nature);
-                            AbstractModule mod2 = (AbstractModule) o2[0];
-                            String tok2 = (String) o2[1];
-                            
-                            if(mod2 == null){
-                                path = mod.getName()+"."+tokenImportedModules[j].getCompletePath();
-                                o2 = findModuleFromPath(path , nature);
-                                mod2 = (AbstractModule) o2[0];
-                                tok2 = (String) o2[1];
-                            }
-                            
-                            return new Object[]{ mod2, tok2};
-                        }
-                    }
-                    IToken[] wildImportedModules = mod.getWildImportedModules();
-                    for (int j = 0; j < wildImportedModules.length; j++) {
-                        AbstractModule mod2 = getModule(wildImportedModules[j].getCompletePath(), nature);
-                        
-                        if (mod2 == null) {
-                            mod2 = getModule(wildImportedModules[j].getRepresentation(), nature);
-                        }
-                        
-                        if (mod2 != null) {
-                            //the token to find is already specified.
-                            if(tok != null){
-	                            return new Object[]{ mod2, tok};
-                            }else{
-	                            return new Object[]{ mod2, activationToken};
-                            }
-                        }
-                            
-                        
-                    }
-                }
+    private Tuple<AbstractModule, String> findOnImportedMods( IToken[] importedModules, PythonNature nature, String activationToken, AbstractModule current) {
+        String currentModuleName = current.getName();
+        for (IToken importedModule : importedModules) {
+        	
+        	FullRepIterable iterable = new FullRepIterable(activationToken, true);
+        	for(String tok : iterable){
+        	
+	            final String modRep = importedModule.getRepresentation(); //this is its 'real' representation on the file (if it is from xxx import a as yyy, it is yyy)
+	            
+	            if(modRep.equals(tok)){
+	            	Tuple<AbstractModule, String> modTok = null;
+	            	AbstractModule mod = null;
+	                String relativePath = importedModule.getCompletePath(true); //returns the complete 'real' representation for some import
+	                                                                            //this is the complete path, with the parent too (so, it can 
+	                                                                            //be used for getting some relative completion)
+	                //check as relative with complete rep
+	                modTok = findModuleFromPath(relativePath, nature);
+	                mod = modTok.o1;
+	                if(mod != null && mod != current){
+	                	return fixTok(modTok, tok, activationToken);
+	                }
 
-                
-            }else if (activationToken.startsWith(modRep)){
-                //this is something like
-                //import qt
-                //
-                //qt.QWidget.| Ctrl+Space
-                //
-                //so, we have to find the qt module and then go for the token.
-                String subst = activationToken.substring(modRep.length());
-                Object [] o = findModuleFromPath(importedModules[i].getCompletePath() + subst, nature);
-                AbstractModule mod = (AbstractModule) o[0];
-                String tok = (String) o[1];
-                
-                if(mod != null && mod.equals(current)){
-                    Object[] o1 = findModuleFromPath(importedModules[i].getRepresentation() + subst, nature);
-                    AbstractModule mod1 = (AbstractModule) o1[0];
-                    String tok1 = (String) o1[1];
-                    if(mod1 != null){
-                        mod = mod1;
-                        tok = tok1;
-                    }
-                    
-                    else{
-                        return null; //we don't want to recurse...
-                    }
-                }
-                return new Object[]{mod, tok};
-            }
-        }
+	                //check as absolute
+					if(relativePath.startsWith(currentModuleName)){
+	                    String absolute = relativePath.substring(currentModuleName.length()+1);
+						modTok = findModuleFromPath(absolute, nature); //check it as absolute / +1 to remove the point
+	                    mod = modTok.o1;
+	                    if(mod != null && mod != current){
+	                        return fixTok(modTok, tok, activationToken);
+	                    }
+	                    
+	                    //check as relative (same level)
+	                    String newName = "";
+	                    if(currentModuleName.indexOf('.') != -1){
+	                    	newName = FullRepIterable.headAndTail(currentModuleName)[0]+".";
+	                    }
+	                    absolute = newName+absolute;
+						modTok = findModuleFromPath(absolute, nature); //check it as absolute / +1 to remove the point
+	                    mod = modTok.o1;
+	                    if(mod != null && mod != current){
+	                        return fixTok(modTok, tok, activationToken);
+	                    }
+
+	                }
+	            }
+	        }
+	        
+	        
+        }   
         return null;
     }
+            
+            
+    /**
+     * Fixes the token if we found a module that was just a substring from the initial activation token.
+     * 
+     * This means that if we had testcase.TestCase and found it as TestCase, the token is added with TestCase
+     */
+    private Tuple<AbstractModule, String> fixTok(Tuple<AbstractModule, String> modTok, String tok, String activationToken) {
+    	if(activationToken.length() > tok.length() && activationToken.startsWith(tok)){
+    		String toAdd = activationToken.substring(tok.length() + 1);
+    		if(modTok.o2.length() == 0){
+    			modTok.o2 = toAdd;
+    		}else{
+    			modTok.o2 += "."+toAdd;
+    		}
+    	}
+		return modTok;
+	}
+
 
     /**
      * This function receives a path (rep) and extracts a module from that path.
@@ -727,7 +670,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @return tuple with found module and the String removed from the path in
      * order to find the module.
      */
-    private Object [] findModuleFromPath(String rep, PythonNature nature){
+    private Tuple<AbstractModule, String> findModuleFromPath(String rep, PythonNature nature){
         String tok = "";
         AbstractModule mod = getModule(rep, nature);
         String mRep = rep;
@@ -740,7 +683,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         if (tok.endsWith(".")){
             tok = tok.substring(0, tok.length()-1); //remove last point if found.
         }
-        return new Object[]{mod, tok};
+        return new Tuple<AbstractModule, String>(mod, tok);
     }
 
     /**

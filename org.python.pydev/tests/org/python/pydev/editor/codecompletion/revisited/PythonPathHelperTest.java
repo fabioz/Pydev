@@ -161,11 +161,11 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         Document doc = new Document(sDoc);
         CompletionState state = new CompletionState(line,col, token, nature);
 		comps = ((ICodeCompletionASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
-		assertTrue(comps.length > 5);
+		ASTManagerTest.assertIsIn("SetWidget", comps);
         ASTManagerTest.assertIsIn("assertEquals", comps);
         ASTManagerTest.assertIsIn("assertNotEquals", comps);
         ASTManagerTest.assertIsIn("assertAlmostEquals", comps);
-        ASTManagerTest.assertIsIn("SetWidget", comps);
+        assertTrue(comps.length > 5);
     }
 
     public void testClassHierarchyCompletion3(){
@@ -268,8 +268,9 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         try {
             PythonPathHelperTest test = new PythonPathHelperTest();
             test.setUp();
-            test.testClassHierarchyCompletion();
+            test.testRelativeImport();
             test.tearDown();
+            System.out.println("Finished");
             junit.textui.TestRunner.run(PythonPathHelperTest.class);
         } catch (Exception e) {
             e.printStackTrace();

@@ -173,9 +173,13 @@ public abstract class AbstractToken implements IToken{
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IToken#getCompletePath()
+     * @see org.python.pydev.editor.codecompletion.revisited.IToken#getCompletePath(boolean)
      */
-    public String getCompletePath() {
+    public String getCompletePath(boolean decorateWithModule) {
+        if(!decorateWithModule){
+            return originalRep;
+        }
+        
         String p = getParentPackage();
         if( p != null && p.length()>0){
             return p+"."+originalRep;

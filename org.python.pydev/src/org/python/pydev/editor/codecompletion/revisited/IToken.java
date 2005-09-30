@@ -20,6 +20,7 @@ public interface IToken extends Serializable, Comparable{
      * 
      * from x import testcase     (return testcase)
      * from x import testcase as t(return t)
+     * import testcase            (return testcase)
      */
     public String getRepresentation();
     public String getDocStr();
@@ -33,10 +34,12 @@ public interface IToken extends Serializable, Comparable{
      * 
      * The following cases apply for imports:
      * 
-     * from x import testcase     (return testcase)
-     * from x import testcase as t(return x.testcase)
+     * on module test
+     * from x import testcase     (return test.x.testcase)
+     * from x import testcase as t(return test.x.testcase)
+     * import testcase            (return test.testcase)
      */
-    public String getCompletePath();
+    public String getCompletePath(boolean decorateWithModule);
     
     /**
      * Constant to indicate that it was not possible to know in which line the

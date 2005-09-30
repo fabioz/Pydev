@@ -138,7 +138,14 @@ public abstract class AbstractVisitor extends VisitorBase{
      */
     public static List<IToken> makeImportToken(ImportFrom node, List<IToken> tokens, String moduleName, boolean allowForMultiple) {
         aliasType[] names = node.names;
-        return makeImportToken(node, tokens, names, ((NameTok)node.module).id, allowForMultiple);
+        String importName = ((NameTok)node.module).id;
+        
+        if(moduleName != null && moduleName.length() > 0){
+            moduleName = moduleName+"."+importName;
+        }else{
+            moduleName = importName;
+        }
+        return makeImportToken(node, tokens, names, moduleName, allowForMultiple);
     }
 
     /**
@@ -149,15 +156,23 @@ public abstract class AbstractVisitor extends VisitorBase{
             tokens = new ArrayList<IToken>();
         }
         for (int i = 0; i < names.length; i++) {
-            String name = ((NameTok)names[i].name).id;
-            String original = ((NameTok)names[i].name).id;
-            if(names[i].asname != null){
-                name = ((NameTok)names[i].asname).id;
+            aliasType aliasType = names[i];
+            
+            String name = null;
+            String original = ((NameTok)aliasType.name).id;
+            
+            if(aliasType.asname != null){
+                name = ((NameTok)aliasType.asname).id;
             }
             
-            FullRepIterable iterator = new FullRepIterable(name);
-            for (String rep : iterator) {
-                SourceToken sourceToken = new SourceToken(node, rep, "", "", module, original);
+            if(name == null){
+                FullRepIterable iterator = new FullRepIterable(original);
+                for (String rep : iterator) {
+                    SourceToken sourceToken = new SourceToken(node, rep, "", "", module, rep);
+                    tokens.add(sourceToken);
+                }
+            }else{
+                SourceToken sourceToken = new SourceToken(node, name, "", "", module, original);
                 tokens.add(sourceToken);
             }
 

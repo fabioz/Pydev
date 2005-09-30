@@ -14,7 +14,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
 /**
@@ -194,6 +193,13 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 	    s = "import testlib.unittest.relative\n" +
 	    "";
 	    requestCompl(s, -1, -1, new String[] { "testlib","testlib.unittest","testlib.unittest.relative"});
+    }
+	
+	public void testImportMultipleFromImport2() throws BadLocationException, IOException, Exception{
+	    String s;
+	    s = "import testlib.unittest.relative\n" +
+	    "testlib.";
+	    requestCompl(s, -1, 0, new String[] { });
 	}
 	
 	

@@ -340,13 +340,18 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
      * @param comps
      */
     public static void assertIsIn(String string, IToken[] comps) {
+    	StringBuffer buffer = new StringBuffer("Available: \n");
         boolean found = false;
         for (int i = 0; i < comps.length; i++) {
-            if(string.equals(comps[i].getRepresentation())){
+            String rep = comps[i].getRepresentation();
+			if(string.equals(rep)){
                 found = true;
             }
+			buffer.append(rep);
+			buffer.append("\n");
         }
-        assertTrue("The searched token ("+string+")was not found in the completions", found);
+        
+        assertTrue("The searched token ("+string+")was not found in the completions. "+buffer, found);
     }
     
     public static void main(String[] args)  {
