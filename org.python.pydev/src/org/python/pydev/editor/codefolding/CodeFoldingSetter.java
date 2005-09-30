@@ -17,6 +17,10 @@ import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.ui.IPropertyListener;
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.ClassDef;
+import org.python.parser.ast.FunctionDef;
+import org.python.parser.ast.Import;
+import org.python.parser.ast.ImportFrom;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.IModelListener;
@@ -89,7 +93,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
 
                 EasyASTIteratorVisitor visitor = EasyASTIteratorVisitor.create(root2);
                 //(re) insert annotations.
-                List nodes = visitor.getClassesAndMethodsList();
+                List nodes = visitor.getAsList(new Class[]{Import.class, ImportFrom.class, ClassDef.class, FunctionDef.class});
 
                 addMarks(nodes, model, collapsed);
 
@@ -122,12 +126,35 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
             for (Iterator iter = nodes.iterator(); iter.hasNext(); ++i) {
 
                 ASTEntry element = (ASTEntry) iter.next();
-                int end = element.endLine;
+                
                 int start = element.node.beginLine-1;
+                int end = element.endLine;
                 if (end == -1) {
                     end = start;
                 }
+
                 try {
+    
+                    if(isImportNode(element)){
+                        //let's keep getting and checking 'glued' imports 
+                        while(iter.hasNext()){
+                            ASTEntry nextElement = (ASTEntry) iter.next();
+                            if(isImportNode(nextElement) && nextElement.endLine == end+1){
+                                end++;
+                            }else{
+
+                                addFoldingMark(element, start, end, model, collapsed);
+                                element = nextElement;
+                                start = element.node.beginLine-1;
+                                end = element.endLine;
+                                if (end == -1) {
+                                    end = start;
+                                }
+                            }
+                        }
+                    }
+
+                
                     addFoldingMark(element, start, end, model, collapsed);
                 } catch (BadLocationException e) {
                     e.printStackTrace();
@@ -135,6 +162,14 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
             }
         } catch (NullPointerException e) {
         }
+    }
+
+    /**
+     * @param element
+     * @return
+     */
+    private boolean isImportNode(ASTEntry element) {
+        return element.node instanceof Import || element.node instanceof ImportFrom;
     }
 
     /**

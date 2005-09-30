@@ -302,4 +302,8 @@ public class EasyASTIteratorVisitor extends VisitorBase{
         }
         return visitor;
     }
+
+    public List getAsList(Class[] classes) {
+        return getIteratorAsList(getIterator(classes));
+    }
 }
