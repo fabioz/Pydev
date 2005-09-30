@@ -10,7 +10,6 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.plugin.PydevPlugin;
 

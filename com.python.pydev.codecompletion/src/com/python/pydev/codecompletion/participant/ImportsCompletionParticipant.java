@@ -8,23 +8,17 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 

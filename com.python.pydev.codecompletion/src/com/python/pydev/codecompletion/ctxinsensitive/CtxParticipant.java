@@ -31,7 +31,6 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
 
         PySelection selection = new PySelection(request.doc);
         int lineAvailableForImport = selection.getLineAvailableForImport();
-        String delim = selection.getEndLineDelim();
         
         ArrayList<CtxInsensitiveImportComplProposal> completions = new ArrayList<CtxInsensitiveImportComplProposal>();
         String qual = request.qualifier;
@@ -51,7 +50,6 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
                     buffer.append(declaringModuleName);
                     buffer.append(" import ");
                     buffer.append(rep);
-                    buffer.append(delim);
                     String realImportRep = buffer.toString();
                     
                     buffer = new StringBuffer();
