@@ -216,7 +216,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 original = original.substring(0, original.length() - 1);
             }
 
-            Tuple<AbstractModule, String> modTok = findModuleFromPath(original, nature);
+            Tuple<AbstractModule, String> modTok = findModuleFromPath(original, nature, false);
             AbstractModule m = modTok.o1;
             String tok = modTok.o2;
             
@@ -245,8 +245,8 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @param name
      * @return the module represented by this name
      */
-    public AbstractModule getModule(String name, PythonNature nature) {
-        return projectModulesManager.getModule(name, nature);
+    public AbstractModule getModule(String name, PythonNature nature, boolean isLookingForRelative) {
+        return projectModulesManager.getModule(name, nature, isLookingForRelative);
     }
 
     /** 
@@ -305,7 +305,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         state2.activationToken = NodeUtils.getBuiltinType(state.activationToken);
 
         if(state2.activationToken != null){
-            AbstractModule m = getModule("__builtin__", state.nature);
+            AbstractModule m = getModule("__builtin__", state.nature, false);
             return m.getGlobalTokens(state2, this);
         }
         return null;
@@ -364,10 +364,10 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 for (int i = 0; i < wildImportedModules.length; i++) {
 
                     IToken name = wildImportedModules[i];
-                    AbstractModule mod = getModule(name.getAsRelativeImport(module.getName()), state.nature); //relative (for wild imports this is ok... only a module can be used in wild imports)
+                    AbstractModule mod = getModule(name.getAsRelativeImport(module.getName()), state.nature, true); //relative (for wild imports this is ok... only a module can be used in wild imports)
                     
                     if (mod == null) {
-                        mod = getModule(name.getOriginalRep(false), state.nature); //absolute
+                        mod = getModule(name.getOriginalRep(), state.nature, false); //absolute
                     }
                     
                     if (mod != null) {
@@ -387,7 +387,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 }
                 
                 //If it was still not found, go to builtins.
-                AbstractModule builtinsMod = getModule("__builtin__", state.nature);
+                AbstractModule builtinsMod = getModule("__builtin__", state.nature, false);
                 if(builtinsMod != null && builtinsMod != module){
 	                tokens = getCompletionsForModule( builtinsMod, state);
 	                if (tokens.length > 0){
@@ -500,7 +500,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getBuiltinCompletions
      */
     public List getBuiltinCompletions(CompletionState state, List completions) {
-        AbstractModule builtMod = getModule("__builtin__", state.nature);
+        AbstractModule builtMod = getModule("__builtin__", state.nature, false);
         if(builtMod != null){
             IToken[] toks = builtMod.getGlobalTokens();
             for (int i = 0; i < toks.length; i++) {
@@ -515,10 +515,12 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      */
     public List getCompletionsForWildImport(CompletionState state, AbstractModule current, List completions, IToken name) {
         try {
-            AbstractModule mod = getModule(name.getAsRelativeImport(current.getName()), state.nature); //relative import (in wild import this is ok, as it must be a module, and can have no token)
+        	//this one is an exception... even though we are getting the name as a relative import, we say it
+        	//is not because we want to get the module considering __init__
+            AbstractModule mod = getModule(name.getAsRelativeImport(current.getName()), state.nature, false); 
 
             if (mod == null) {
-                mod = getModule(name.getOriginalRep(false), state.nature); //absolute import
+                mod = getModule(name.getOriginalRep(), state.nature, false); //absolute import
             }
 
             if (mod != null) {
@@ -601,40 +603,45 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 	            if(modRep.equals(tok)){
 	            	Tuple<AbstractModule, String> modTok = null;
 	            	AbstractModule mod = null;
-	                String relativePath = importedModule.getOriginalRep(true); //returns the complete 'real' representation for some import
-	                                                                           //this is the complete path, with the parent too (this is not 
-	                                                                           //equivalent to relative imports).
+	                
 	                //check as relative with complete rep
-	                modTok = findModuleFromPath(relativePath, nature);
+	                modTok = findModuleFromPath(importedModule.getAsRelativeImport(currentModuleName), nature, true);
+	                mod = modTok.o1;
+	                if(mod != null && mod.getName().equals(currentModuleName) == false){
+	                	return fixTok(modTok, tok, activationToken);
+	                }
+	                
+	                //check as absolute with original rep
+	                modTok = findModuleFromPath(importedModule.getOriginalRep(), nature, false);
 	                mod = modTok.o1;
 	                if(mod != null && mod.getName().equals(currentModuleName) == false){
 	                	return fixTok(modTok, tok, activationToken);
 	                }
 	                
 	                if(currentModuleName != null){
-	
-		                //check as absolute
-						if(relativePath.startsWith(currentModuleName)){
-		                    String absolute = relativePath.substring(currentModuleName.length()+1);
-							modTok = findModuleFromPath(absolute, nature); //check it as absolute / +1 to remove the point
-		                    mod = modTok.o1;
-			                if(mod != null && mod.getName().equals(currentModuleName) == false){
-		                        return fixTok(modTok, tok, activationToken);
-		                    }
-		                    
-		                    //check as relative (same level)
-		                    String newName = "";
-		                    if(currentModuleName.indexOf('.') != -1){
-		                    	newName = FullRepIterable.headAndTail(currentModuleName)[0]+".";
-		                    }
-		                    absolute = newName+absolute;
-							modTok = findModuleFromPath(absolute, nature); //check it as absolute / +1 to remove the point
-		                    mod = modTok.o1;
-			                if(mod != null && mod.getName().equals(currentModuleName) == false){
-		                        return fixTok(modTok, tok, activationToken);
-		                    }
-	
-		                }
+	                	System.out.println("here");
+//		                //check as absolute
+//						if(relativePath.startsWith(currentModuleName)){
+//		                    String absolute = relativePath.substring(currentModuleName.length()+1);
+//							modTok = findModuleFromPath(absolute, nature); //check it as absolute / +1 to remove the point
+//		                    mod = modTok.o1;
+//			                if(mod != null && mod.getName().equals(currentModuleName) == false){
+//		                        return fixTok(modTok, tok, activationToken);
+//		                    }
+//		                    
+//		                    //check as relative (same level)
+//		                    String newName = "";
+//		                    if(currentModuleName.indexOf('.') != -1){
+//		                    	newName = FullRepIterable.headAndTail(currentModuleName)[0]+".";
+//		                    }
+//		                    absolute = newName+absolute;
+//							modTok = findModuleFromPath(absolute, nature); //check it as absolute / +1 to remove the point
+//		                    mod = modTok.o1;
+//			                if(mod != null && mod.getName().equals(currentModuleName) == false){
+//		                        return fixTok(modTok, tok, activationToken);
+//		                    }
+//	
+//		                }
 	                }
 	            }
 	        }
@@ -670,15 +677,15 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @return tuple with found module and the String removed from the path in
      * order to find the module.
      */
-    private Tuple<AbstractModule, String> findModuleFromPath(String rep, PythonNature nature){
+    private Tuple<AbstractModule, String> findModuleFromPath(String rep, PythonNature nature, boolean isLookingForRelative){
         String tok = "";
-        AbstractModule mod = getModule(rep, nature);
+        AbstractModule mod = getModule(rep, nature, isLookingForRelative);
         String mRep = rep;
         int index;
         while(mod == null && (index = mRep.lastIndexOf('.')) != -1){
             tok = mRep.substring(index+1) + "."+tok;
             mRep = mRep.substring(0,index);
-            mod = getModule(mRep, nature);
+            mod = getModule(mRep, nature, isLookingForRelative);
         }
         if (tok.endsWith(".")){
             tok = tok.substring(0, tok.length()-1); //remove last point if found.

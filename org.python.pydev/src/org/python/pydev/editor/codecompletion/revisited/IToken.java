@@ -41,7 +41,7 @@ public interface IToken extends Serializable, Comparable{
      * 
      * if not decorating would return the same as above without 'test'
      */
-    public String getOriginalRep(boolean decorateWithModule);
+//    public String getOriginalRep(boolean decorateWithModule);
 
     /**
      * @param baseModule this is the module base to discover from where should it be made relative 

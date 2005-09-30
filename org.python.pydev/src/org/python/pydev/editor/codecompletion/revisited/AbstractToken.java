@@ -176,7 +176,7 @@ public abstract class AbstractToken implements IToken{
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.IToken#getOriginalRep(boolean)
      */
-    public String getOriginalRep(boolean decorateWithModule) {
+    private String getOriginalRep(boolean decorateWithModule) {
         if(!decorateWithModule){
             return originalRep;
         }
@@ -197,15 +197,19 @@ public abstract class AbstractToken implements IToken{
     	
     	if(completePath.startsWith(baseModule)){
     		String relative = completePath.substring(baseModule.length());
+
+    		baseModule = FullRepIterable.headAndTail(baseModule)[0];
     		
-    		if(relative.length() == 0){
-    			return relative;
+    		if(baseModule.length() == 0){
+    			if(relative.charAt(0) == '.'){
+    				return relative.substring(1);
+    			}
     		}
-    		
     		if(relative.charAt(0) == '.'){
-    			return relative.substring(1);
+    			return baseModule+relative;
+    		}else{
+    			return baseModule+'.'+relative;
     		}
-    		return relative;
     	}
     	return completePath;
     }

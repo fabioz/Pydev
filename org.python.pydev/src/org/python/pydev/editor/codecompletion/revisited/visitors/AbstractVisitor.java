@@ -88,13 +88,6 @@ public abstract class AbstractVisitor extends VisitorBase{
         }
         SourceToken sourceToken = null;
         if(isWildImport(node)){
-            //on wild import the module name should be one level less...
-            int i;
-            if(moduleName != null && (i = moduleName.lastIndexOf('.')) != -1){
-                moduleName = moduleName.substring(0, i);
-            }else{
-                moduleName = "";
-            }
             sourceToken = new SourceToken(node, ((NameTok)node.module).id, "",  "", moduleName);
             tokens.add(sourceToken);
         }
@@ -108,7 +101,7 @@ public abstract class AbstractVisitor extends VisitorBase{
     	if(node instanceof ImportFrom){
     		ImportFrom i = (ImportFrom) node;
     		if(isWildImport(i)){
-    			tokens.add(makeWildImportToken(i, tokens, moduleName));
+    			makeWildImportToken(i, tokens, moduleName);
     			return tokens;
     		}
     		return makeImportToken((ImportFrom)node, tokens, moduleName, allowForMultiple);
@@ -130,7 +123,7 @@ public abstract class AbstractVisitor extends VisitorBase{
      */
     public static List<IToken> makeImportToken(Import node, List<IToken> tokens, String moduleName, boolean allowForMultiple) {
         aliasType[] names = node.names;
-        return makeImportToken(node, tokens, names, moduleName, allowForMultiple);
+        return makeImportToken(node, tokens, names, moduleName, "", allowForMultiple);
     }
     
     /**
@@ -140,21 +133,21 @@ public abstract class AbstractVisitor extends VisitorBase{
         aliasType[] names = node.names;
         String importName = ((NameTok)node.module).id;
         
-        if(moduleName != null && moduleName.length() > 0){
-            moduleName = moduleName+"."+importName;
-        }else{
-            moduleName = importName;
-        }
-        return makeImportToken(node, tokens, names, moduleName, allowForMultiple);
+        return makeImportToken(node, tokens, names, moduleName, importName, allowForMultiple);
     }
 
     /**
      * The same as above
      */
-    private static List<IToken> makeImportToken(SimpleNode node, List<IToken> tokens, aliasType[] names, String module, boolean allowForMultiple) {
+    private static List<IToken> makeImportToken(SimpleNode node, List<IToken> tokens, aliasType[] names, String module, String initialImportName, boolean allowForMultiple) {
         if(tokens == null){
             tokens = new ArrayList<IToken>();
         }
+        
+        if(initialImportName.length() > 0){
+        	initialImportName = initialImportName+".";
+        }
+        
         for (int i = 0; i < names.length; i++) {
             aliasType aliasType = names[i];
             
@@ -168,11 +161,11 @@ public abstract class AbstractVisitor extends VisitorBase{
             if(name == null){
                 FullRepIterable iterator = new FullRepIterable(original);
                 for (String rep : iterator) {
-                    SourceToken sourceToken = new SourceToken(node, rep, "", "", module, rep);
+                    SourceToken sourceToken = new SourceToken(node, rep, "", "", module, initialImportName+rep);
                     tokens.add(sourceToken);
                 }
             }else{
-                SourceToken sourceToken = new SourceToken(node, name, "", "", module, original);
+                SourceToken sourceToken = new SourceToken(node, name, "", "", module, initialImportName+original);
                 tokens.add(sourceToken);
             }
 

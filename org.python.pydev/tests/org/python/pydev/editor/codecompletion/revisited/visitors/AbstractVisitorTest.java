@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 
 public class AbstractVisitorTest extends TestCase {
 
-	private static final String MODULE_NAME = "testModule";
+	private String MODULE_NAME;
 
 	public static void main(String[] args) {
 		junit.textui.TestRunner.run(AbstractVisitorTest.class);
@@ -27,6 +27,7 @@ public class AbstractVisitorTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
+		MODULE_NAME = "testModule";
 	}
 
 	protected void tearDown() throws Exception {
@@ -41,10 +42,10 @@ public class AbstractVisitorTest extends TestCase {
 		assertEquals(2, toks.size());
 		
 		SourceToken token = (SourceToken) toks.get(0);
-		checkIt(simpleNode, token, "os", "testModule.os", "os", "os.path");
+		checkIt(simpleNode, token, "os", "os", "os");
 		
 		token = (SourceToken) toks.get(1);
-		checkIt(simpleNode, token, "os.path", "testModule.os.path", "os.path", "os.path");
+		checkIt(simpleNode, token, "os.path", "os.path", "os.path");
 	}
 
 	public void testImportCreation2() throws Exception {
@@ -55,10 +56,10 @@ public class AbstractVisitorTest extends TestCase {
 	    assertEquals(2, toks.size());
 	    
 	    SourceToken token = (SourceToken) toks.get(0);
-	    checkIt(simpleNode, token, "path", "testModule.os.path", "os.path", "os.path");
+	    checkIt(simpleNode, token, "path", "os.path", "os.path");
 	    
 	    token = (SourceToken) toks.get(1);
-	    checkIt(simpleNode, token, "notDefined", "testModule.os.notDefined", "os.notDefined", "os.notDefined");
+	    checkIt(simpleNode, token, "notDefined", "os.notDefined", "os.notDefined");
 	}
 	
 	public void testImportCreation3() throws Exception {
@@ -69,20 +70,42 @@ public class AbstractVisitorTest extends TestCase {
 	    assertEquals(2, toks.size());
 	    
 	    SourceToken token = (SourceToken) toks.get(0);
-	    checkIt(simpleNode, token, "tt", "testModule.os.path", "os.path", "os.path");
+	    checkIt(simpleNode, token, "tt", "os.path", "os.path");
 	    
 	    token = (SourceToken) toks.get(1);
-	    checkIt(simpleNode, token, "aa", "testModule.os.notDefined", "os.notDefined", "os.tt");
+	    checkIt(simpleNode, token, "aa",  "os.notDefined", "os.notDefined");
+	}
+	
+	
+	public void testImportCreation4() throws Exception {
+		Iterator<ASTEntry> iterator = createModuleAndGetImports("from os.path import *", ImportFrom.class);
+		
+		SimpleNode simpleNode = iterator.next().node;
+		List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), MODULE_NAME, true);
+		assertEquals(1, toks.size());
+		
+		SourceToken token = (SourceToken) toks.get(0);
+		checkIt(simpleNode, token, "os.path",  "os.path", "os.path");
+	}
+	
+	public void testImportCreation5() throws Exception {
+		Iterator<ASTEntry> iterator = createModuleAndGetImports("from os.path import *", ImportFrom.class);
+		MODULE_NAME = "some.dotted.name";
+		SimpleNode simpleNode = iterator.next().node;
+		List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), "some.dotted.name", true);
+		assertEquals(1, toks.size());
+		
+		SourceToken token = (SourceToken) toks.get(0);
+		checkIt(simpleNode, token, "os.path",  "some.dotted.os.path", "os.path");
 	}
 	
 	
 	
-	private void checkIt(SimpleNode simpleNode, SourceToken token, String rep, String completeRep, String relativeImport, String originalRep) {
-	    assertEquals(completeRep, token.getOriginalRep(true));
+	private void checkIt(SimpleNode simpleNode, SourceToken token, String rep, String relativeImport, String originalRep) {
 		assertEquals(rep, token.getRepresentation());
 		assertSame(simpleNode, token.getAst());
 		assertEquals(relativeImport, token.getAsRelativeImport(MODULE_NAME));
-		assertEquals(originalRep, token.getOriginalRep(false));
+		assertEquals(originalRep, token.getOriginalRep());
 	}
 
 	private Iterator<ASTEntry> createModuleAndGetImports(String strDoc, Class classToGet) throws Exception {
