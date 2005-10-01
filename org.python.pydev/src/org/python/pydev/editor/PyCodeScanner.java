@@ -30,7 +30,16 @@ import org.python.pydev.ui.ColorCache;
  */
 public class PyCodeScanner extends RuleBasedScanner {
 	
-	private ColorCache colorCache;
+    // keywords list has to be alphabetized for the keyword detector to work properly
+    static final public String[] KEYWORDS = {
+        "and","as","assert","break","class","continue",
+        "def","del","elif","else","except","exec",
+        "finally","for","from","global",
+        "if","import","in","is","lambda","not",
+        "or","pass","print","raise","return",
+        "try","while","yield","False", "None", "True" };
+
+    private ColorCache colorCache;
 	
 	/**
 	 * Whitespace detector.
@@ -49,14 +58,6 @@ public class PyCodeScanner extends RuleBasedScanner {
 	 * Python keyword detector
 	 */
 	static private class GreatKeywordDetector implements IWordDetector {
-		// keywords list has to be alphabetized for this to work properly
-		static public String[] keywords = {
-				"and","as","assert","break","class","continue",
-				"def","del","elif","else","except","exec",
-				"finally","for","from","global",
-				"if","import","in","is","lambda","not",
-				"or","pass","print","raise","return",
-				"try","while","yield","False", "None", "True" };
 
 		public GreatKeywordDetector() {
 		}
@@ -88,19 +89,52 @@ public class PyCodeScanner extends RuleBasedScanner {
 	
 	static public class NumberDetector implements IWordDetector{
 
-	    
+        /**
+         * Used to keep the state of the token
+         */
+        private StringBuffer buffer;
+        
+        /**
+         * Defines if we are at an hexa number
+         */
+        private boolean isInHexa;
+        
         /**
          * @see org.eclipse.jface.text.rules.IWordDetector#isWordStart(char)
          */
         public boolean isWordStart(char c) {
+            isInHexa = false;
+            buffer = new StringBuffer();
+            buffer.append(c);
             return Character.isDigit(c);
         }
 
         /**
-         * @see org.eclipse.jface.text.rules.IWordDetector#isWordPart(char)
+         * Check if we are still in the number
          */
         public boolean isWordPart(char c) {
-            return Character.isDigit(c) || c == 'e'  || c == '.';
+            //ok, we have to test for scientific notation e.g.: 10.9e10
+            
+            if((c == 'x' || c == 'X') && buffer.length() == 1 && buffer.charAt(0) == '0'){
+                //it is an hexadecimal
+                buffer.append(c);
+                isInHexa = true;
+                return true;
+            }else{
+                buffer.append(c);
+            }
+
+            if(isInHexa){
+                return Character.isDigit(c) || c == 'a'  || c == 'A'
+                                            || c == 'b'  || c == 'B'
+                                            || c == 'c'  || c == 'C'
+                                            || c == 'd'  || c == 'D'
+                                            || c == 'e'  || c == 'E'
+                                            || c == 'f'  || c == 'F';
+                
+            }else{
+                return Character.isDigit(c) || c == 'e'  || c == '.';
+            }
         }
 	    
 	}
@@ -119,13 +153,14 @@ public class PyCodeScanner extends RuleBasedScanner {
 	private void setupRules() {
 		IPreferenceStore preferences = PydevPlugin.getChainedPrefStore();
 		IToken keywordToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.KEYWORD_COLOR), null, preferences.getInt(PydevPrefs.KEYWORD_STYLE)));
+		IToken selfToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.SELF_COLOR), null, preferences.getInt(PydevPrefs.SELF_STYLE)));
 		IToken defaultToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR), null, preferences.getInt(PydevPrefs.CODE_STYLE)));
 		IToken decoratorToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.DECORATOR_COLOR), null, preferences.getInt(PydevPrefs.DECORATOR_STYLE)));
 		IToken numberToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.NUMBER_COLOR), null, preferences.getInt(PydevPrefs.NUMBER_STYLE)));
 		IToken errorToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR), null, preferences.getInt(PydevPrefs.CODE_STYLE))); // Includes operators, brackets, numbers etc.
 		
 		setDefaultReturnToken(errorToken);
-		List rules = new ArrayList();
+		List<IRule> rules = new ArrayList<IRule>();
 		
 		// Scanning strategy:
 		// 1) whitespace
@@ -135,16 +170,16 @@ public class PyCodeScanner extends RuleBasedScanner {
 		rules.add(new WhitespaceRule(new GreatWhite()));
 		
 		WordRule wordRule = new WordRule(new GreatKeywordDetector(), defaultToken);
-		for (int i=0; i<GreatKeywordDetector.keywords.length;i++) {
-			wordRule.addWord(GreatKeywordDetector.keywords[i], keywordToken);
+		for (String keyword : KEYWORDS) {
+			wordRule.addWord( keyword, keywordToken);
 		}
+		wordRule.addWord("self", selfToken);
 		rules.add(wordRule);
 
-		rules.add(new WordRule(new DecoratorDetector(), decoratorToken));
+		
+        rules.add(new WordRule(new DecoratorDetector(), decoratorToken));
 		rules.add(new WordRule(new NumberDetector(), numberToken));
 		
-		IRule[] result = new IRule[rules.size()];
-		rules.toArray(result);
-		setRules(result);
+		setRules(rules.toArray(new IRule[0]));
 	}
 }

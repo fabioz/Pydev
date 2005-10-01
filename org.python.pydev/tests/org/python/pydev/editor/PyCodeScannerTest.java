@@ -35,15 +35,20 @@ public class PyCodeScannerTest extends TestCase {
         super.tearDown();
     }
 
-    /**
-     * 
-     */
     public void testNumber() {
         assertTrue(detector.isWordStart('1'));
         assertTrue(detector.isWordPart('.'));
         assertTrue(detector.isWordPart('2'));
         assertTrue(detector.isWordPart('e'));
         assertTrue(detector.isWordPart('5'));
+        assertFalse(detector.isWordPart(' '));
+    }
+    
+    public void testHexa() {
+        assertTrue(detector.isWordStart('0'));
+        assertTrue(detector.isWordPart('x'));
+        assertTrue(detector.isWordPart('F'));
+        assertTrue(detector.isWordPart('F'));
         assertFalse(detector.isWordPart(' '));
     }
 }

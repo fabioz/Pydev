@@ -622,32 +622,6 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 	                if(mod != null && mod.getName().equals(currentModuleName) == false){
 	                	return fixTok(modTok, tok, activationToken);
 	                }
-	                
-	                if(currentModuleName != null){
-	                	System.out.println("here");
-//		                //check as absolute
-//						if(relativePath.startsWith(currentModuleName)){
-//		                    String absolute = relativePath.substring(currentModuleName.length()+1);
-//							modTok = findModuleFromPath(absolute, nature); //check it as absolute / +1 to remove the point
-//		                    mod = modTok.o1;
-//			                if(mod != null && mod.getName().equals(currentModuleName) == false){
-//		                        return fixTok(modTok, tok, activationToken);
-//		                    }
-//		                    
-//		                    //check as relative (same level)
-//		                    String newName = "";
-//		                    if(currentModuleName.indexOf('.') != -1){
-//		                    	newName = FullRepIterable.headAndTail(currentModuleName)[0]+".";
-//		                    }
-//		                    absolute = newName+absolute;
-//							modTok = findModuleFromPath(absolute, nature); //check it as absolute / +1 to remove the point
-//		                    mod = modTok.o1;
-//			                if(mod != null && mod.getName().equals(currentModuleName) == false){
-//		                        return fixTok(modTok, tok, activationToken);
-//		                    }
-//	
-//		                }
-	                }
 	            }
 	        }
         }   

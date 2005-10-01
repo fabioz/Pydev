@@ -144,6 +144,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String KEYWORD_COLOR = "KEYWORD_COLOR";
 	public static final RGB DEFAULT_KEYWORD_COLOR = new RGB(0, 0, 255);
 	
+	public static final String SELF_COLOR = "SELF_COLOR";
+	public static final RGB DEFAULT_SELF_COLOR = new RGB(0, 0, 0);
+	
 	public static final String STRING_COLOR = "STRING_COLOR";
 	public static final RGB DEFAULT_STRING_COLOR = new RGB(0, 170, 0);
 	
@@ -170,6 +173,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String KEYWORD_STYLE = "KEYWORD_STYLE";
 	public static final int DEFAULT_KEYWORD_STYLE = SWT.NORMAL;
 	
+	public static final String SELF_STYLE = "SELF_STYLE";
+	public static final int DEFAULT_SELF_STYLE = SWT.ITALIC;
+	
 	public static final String STRING_STYLE = "STRING_STYLE";
 	public static final int DEFAULT_STRING_STYLE = SWT.ITALIC;
 	
@@ -178,6 +184,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	
 	public static final String BACKQUOTES_STYLE = "BACKQUOTES_STYLE";
 	public static final int DEFAULT_BACKQUOTES_STYLE = SWT.BOLD;
+
+
+
 		
 	/**
 	 * Defaults
@@ -188,6 +197,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		{"Numbers", NUMBER_COLOR, null},
 		{"Matching brackets", MATCHING_BRACKETS_COLOR, null},
 		{"Keywords", KEYWORD_COLOR, null},
+		{"self", SELF_COLOR, null},
 		{"Strings", STRING_COLOR, null},
 		{"Comments", COMMENT_COLOR, null},
 		{"Backquotes", BACKQUOTES_COLOR, null},
@@ -199,6 +209,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		{"Numbers", NUMBER_STYLE, null},
 		{"Matching brackets", MATCHING_BRACKETS_STYLE, null},
 		{"Keywords", KEYWORD_STYLE, null},
+		{"self", SELF_STYLE, null},
 		{"Strings", STRING_STYLE, null},
 		{"Comments", COMMENT_STYLE, null},
 		{"Backquotes", BACKQUOTES_STYLE, null},
@@ -308,6 +319,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, NUMBER_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, DECORATOR_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, KEYWORD_COLOR));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, SELF_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, STRING_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, COMMENT_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, BACKQUOTES_COLOR));
@@ -317,6 +329,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, NUMBER_STYLE));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, DECORATOR_STYLE));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, KEYWORD_STYLE));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, SELF_STYLE));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, STRING_STYLE));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, COMMENT_STYLE));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, BACKQUOTES_STYLE));

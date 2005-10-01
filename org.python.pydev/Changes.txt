@@ -11,6 +11,7 @@ org.python.core.SysPackageManager
 
 after 0.9.8.2
 
+- Added syntax highlighting to the 'self' token
 - fixed some outline problems
 - debugger does not try to get breakpoints on closed projects anymore
 - some refreshing issues regarding the outline and colors when reusing the editor were fixed
