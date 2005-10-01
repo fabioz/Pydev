@@ -18,6 +18,11 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
 
 public class CtxInsensitiveBuilderVisitor extends PyDevBuilderVisitor {
 
+    @Override
+    protected int getPriority() {
+        return PRIORITY_MIN; //this will be the last gui to be visited (it will take care of saving the information we generate)
+    }
+    
     List<AbstractAdditionalInterpreterInfo> visited;
     
     @Override
@@ -26,31 +31,29 @@ public class CtxInsensitiveBuilderVisitor extends PyDevBuilderVisitor {
     }
     
     @Override
-    public boolean visitChangedResource(IResource resource, IDocument document) {
+    public void visitChangedResource(IResource resource, IDocument document) {
         AbstractModule sourceModule = getSourceModule(resource, document);
         PythonNature nature = getPythonNature(resource);
 
         AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
-        info.removeInfoFromModule(sourceModule.getName());
+        
+        //info.removeInfoFromModule(sourceModule.getName()); -- does not remove info from the module because this should be already
+        //done once it gets here (the AnalysisBuilder, that also makes dependency info should take care of this).
+        
         if (sourceModule instanceof SourceModule) {
             SourceModule m = (SourceModule) sourceModule;
             info.addSourceModuleInfo(m, nature);
         }
-        return false;
+        visited.add(info);
     }
 
     @Override
-    public boolean visitRemovedResource(IResource resource, IDocument document) {
-        String moduleName = getModuleName(resource);
-        PythonNature nature = getPythonNature(resource);
-        
-        AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
-        info.removeInfoFromModule(moduleName);
-        return false;
+    public void visitRemovedResource(IResource resource, IDocument document) {
     }
 
     @Override
     public void visitingEnded() {
+        //persist this info (the analysis builder that generates dependency info will not have to worry about it).
         for (AbstractAdditionalInterpreterInfo info : visited) {
             info.save();
         }

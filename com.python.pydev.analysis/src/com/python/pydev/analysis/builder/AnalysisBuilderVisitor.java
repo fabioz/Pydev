@@ -18,24 +18,23 @@ import org.python.pydev.plugin.nature.PythonNature;
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.OcurrencesAnalyzer;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.messages.IMessage;
 
 public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
     @Override
-    public boolean visitChangedResource(IResource resource, IDocument document) {
+    public void visitChangedResource(IResource resource, IDocument document) {
         if(AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SAVE){
-            return visitChangedResource(resource, document, null);
+            visitChangedResource(resource, document, null);
         }
-        return true;
     }
     
     /**
      * here we have to detect errors / warnings from the code analysis
-     *  
-     * @see org.python.pydev.builder.PyDevBuilderVisitor#visitChangedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    public boolean visitChangedResource(IResource resource, IDocument document, AbstractModule module) {
+    public void visitChangedResource(IResource resource, IDocument document, AbstractModule module) {
         AnalysisRunner runner = new AnalysisRunner();
         
         IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
@@ -46,15 +45,14 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
            analysisPreferences.makeCodeAnalysis() == false //let's see if we should do code analysis
             ){ 
             runner.deleteMarkers(resource);
-            return true;
+            return;
         }
         
         if(module == null){
             module = getSourceModule(resource, document);
         }
-        
-        OcurrencesAnalyzer analyzer = new OcurrencesAnalyzer();
         PythonNature nature = PythonNature.getPythonNature(resource.getProject());
+        OcurrencesAnalyzer analyzer = new OcurrencesAnalyzer();
         
         ArrayList<IMarker> existing = new ArrayList<IMarker>();
         try {
@@ -67,6 +65,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             PydevPlugin.log(e);
         }        
         
+
         //ok, let's do it
         IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences);
         runner.addMarkers(resource, document, messages, existing);
@@ -78,15 +77,17 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
                 PydevPlugin.log(e);
             }
         }
-        return true;
     }
 
 
 
-
     @Override
-    public boolean visitRemovedResource(IResource resource, IDocument document) {
-        return true;
+    public void visitRemovedResource(IResource resource, IDocument document) {
+        String moduleName = getModuleName(resource);
+        PythonNature nature = getPythonNature(resource);
+        
+        AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+        info.removeInfoFromModule(moduleName);
     }
 
 }

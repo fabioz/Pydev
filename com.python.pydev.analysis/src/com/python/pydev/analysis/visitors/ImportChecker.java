@@ -52,10 +52,6 @@ public class ImportChecker {
         
         this.nature = nature;
         this.moduleName = moduleName;
-        if(nature != null && moduleName != null){
-            infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
-            infoForProject.removeInfoFromModule(moduleName);
-        }
     }
 
     /**
