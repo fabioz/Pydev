@@ -267,7 +267,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
     }
     
-    public boolean visitChangedResource(IResource resource, IDocument document) {
+    public void visitChangedResource(IResource resource, IDocument document) {
         
         if(PyLintPrefPage.usePyLint() == false){
             try {
@@ -275,7 +275,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             } catch (CoreException e3) {
                 PydevPlugin.log(e3);
             }
-            return true;
+            return;
         }
         
         IProject project = resource.getProject();
@@ -283,10 +283,10 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         try {
             //pylint can only be used for jython projects
             if (!pythonNature.isPython()) {
-                return true;
+                return;
             }
         } catch (Exception e) {
-            return true;
+            return;
         }
         if (project != null && resource instanceof IFile) {
 
@@ -297,14 +297,12 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                 thread.start();
             }
         }
-        return true;
     }
     
     /**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    public boolean visitRemovedResource(IResource resource, IDocument document) {
-        return false;
+    public void visitRemovedResource(IResource resource, IDocument document) {
     }
 
     /**

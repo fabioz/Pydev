@@ -230,7 +230,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * 
      * @param resource to be visited.
      */
-    public abstract boolean visitChangedResource(IResource resource, IDocument document);
+    public abstract void visitChangedResource(IResource resource, IDocument document);
 
     
     /**
@@ -239,8 +239,8 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * 
      * @param resource to be visited.
      */
-    public boolean visitAddedResource(IResource resource, IDocument document){
-        return visitChangedResource(resource, document);
+    public void visitAddedResource(IResource resource, IDocument document){
+        visitChangedResource(resource, document);
     }
 
     /**
@@ -248,7 +248,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * 
      * @param resource to be visited.
      */
-    public abstract boolean visitRemovedResource(IResource resource, IDocument document);
+    public abstract void visitRemovedResource(IResource resource, IDocument document);
     
     /**
      * This function is called right before a visiting session starts for a delta (end will

@@ -68,21 +68,18 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
     }
 
     @Override
-    public boolean visitAddedResource(IResource resource, IDocument document) {
+    public void visitAddedResource(IResource resource, IDocument document) {
         visitWith("visitAddedResource", true, resource, document);
-        return true;
     }
     
     @Override
-    public boolean visitChangedResource(IResource resource, IDocument document) {
+    public void visitChangedResource(IResource resource, IDocument document) {
         visitWith("visitChangedResource", true, resource, document);
-        return true;
     }
 
     @Override
-    public boolean visitRemovedResource(IResource resource, IDocument document) {
+    public void visitRemovedResource(IResource resource, IDocument document) {
         visitWith("visitRemovedResource", false, resource, document);
-        return true;
     }
 
 }

@@ -19,12 +19,11 @@ import org.python.pydev.plugin.PydevPlugin;
 public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
 
     @Override
-    public boolean visitChangedResource(IResource resource, IDocument document) {
-        return true;
+    public void visitChangedResource(IResource resource, IDocument document) {
     }
 
     @Override
-    public boolean visitRemovedResource(IResource resource, IDocument document) {
+    public void visitRemovedResource(IResource resource, IDocument document) {
         String loc = resource.getLocation().toOSString()+"c"; //.py+c = .pyc
         if(loc.endsWith(".pyc")){
             //the .py has just been removed, so, remove the .pyc if it exists
@@ -33,7 +32,7 @@ public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
                 IFile[] files = PydevPlugin.getWorkspaceFile(file);
                 
                 if(files == null){
-                    return true;
+                    return ;
                 }
 
                 //remove all: file and links
@@ -62,8 +61,6 @@ public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
                 PydevPlugin.log(e);
             }
         }
-        
-        return true;
     }
 
 }

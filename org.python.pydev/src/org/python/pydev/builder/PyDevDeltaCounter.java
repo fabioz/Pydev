@@ -22,16 +22,14 @@ public class PyDevDeltaCounter extends PydevInternalResourceDeltaVisitor{
     /**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitChangedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    public boolean visitChangedResource(IResource resource, IDocument document) {
+    public void visitChangedResource(IResource resource, IDocument document) {
         nVisited += 1;
-        return true;
     }
 
     /**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    public boolean visitRemovedResource(IResource resource, IDocument document) {
-        return true;
+    public void visitRemovedResource(IResource resource, IDocument document) {
     }
 
     /**

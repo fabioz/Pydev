@@ -26,7 +26,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
      * 
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitResource(org.eclipse.core.resources.IResource)
      */
-    public boolean visitChangedResource(IResource resource, IDocument document) {
+    public void visitChangedResource(IResource resource, IDocument document) {
         if (document != null) {
             List todoTags = PyTodoPrefPage.getTodoTags();
             if(todoTags.size() > 0){
@@ -59,14 +59,12 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
             }
         }
 
-        return true;
     }
 
     /**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    public boolean visitRemovedResource(IResource resource, IDocument document) {
-        return false;
+    public void visitRemovedResource(IResource resource, IDocument document) {
     }
 
 }
