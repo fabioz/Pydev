@@ -14,16 +14,12 @@ import java.io.FileNotFoundException;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
 import com.python.pydev.analysis.messages.IMessage;
 
-public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase { 
+public class OcurrencesAnalyzerTest extends AnalysisTestsBase { 
 
     public static void main(String[] args) {
         try {
@@ -41,46 +37,6 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         }
         System.exit(0);
     }
-
-
-
-    private String sDoc;
-    private Document doc;
-    private OcurrencesAnalyzer analyzer;
-    private IMessage[] msgs;
-
-
-    /**
-     * @return Returns the manager.
-     */
-    protected ICodeCompletionASTManager getManager() {
-        return (ICodeCompletionASTManager) nature.getAstManager();
-    }
-
-    private AnalysisPreferencesStub prefs;
-
-    /*
-     * @see TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
-        CompiledModule.COMPILED_MODULES_ENABLED = true;
-        if(TestDependent.HAS_WXPYTHON_INSTALLED){
-            restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+TestDependent.PYTHON_WXPYTHON_PACKAGES, false);
-        }else{
-            restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES, false);
-        }
-        prefs = new AnalysisPreferencesStub();
-    }
-
-    /*
-     * @see TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        CompiledModule.COMPILED_MODULES_ENABLED = true;
-    }
-
 
     public void testUnusedImports(){
             
@@ -1134,63 +1090,6 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         assertContainsMsg("Unused import: bla", msgs);
     }
     
-    private void assertNotContainsMsg(String msg, IMessage[] msgs2) {
-        if(containsMsg(msg, msgs2) != null){
-            fail("The message "+msg+" was found within the messages (it should not have been found).");
-        }
-    }
-    private IMessage assertContainsMsg(String msg, IMessage[] msgs2) {
-        return assertContainsMsg(msg, msgs2, -1);
-    }
-
-    private IMessage assertContainsMsg(String msg, IMessage[] msgs2, int line) {
-        IMessage found = containsMsg(msg, msgs2, line);
-        
-        if(found != null){
-            return found;
-        }
-        
-        StringBuffer msgsAvailable = new StringBuffer();
-        for (IMessage message : msgs2) {
-            msgsAvailable.append(message.getMessage());
-            msgsAvailable.append("\n");
-        }
-        fail(StringUtils.format("No message named %s could be found. Available: %s", msg, msgsAvailable));
-        return null;
-    }
-
-    /**
-     * Checks if a specific message is contained within the messages passed
-     */
-    private IMessage containsMsg(String msg, IMessage[] msgs2) {
-        return containsMsg(msg, msgs2, -1);
-    }
-    
-    /**
-     * Checks if a specific message is contained within the messages passed
-     */
-    private IMessage containsMsg(String msg, IMessage[] msgs2, int line) {
-        boolean foundMsg = false;
-        IMessage ret = null;
-        for (IMessage message : msgs2) {
-            if(message.getMessage().equals(msg)){
-                foundMsg = true;
-                if(line != -1){
-                    ret = message;
-                    if(line == message.getStartLine(doc)){
-                        return message;
-                    }
-                }else{
-                    return message;
-                }
-            }
-        }
-        
-        if(line != -1){
-            fail("The message :"+msg+" was not found in the specified line ("+line+")");
-        }
-        return ret;
-    }
 
     public void testImportAs3() {
         doc = new Document(
@@ -1367,13 +1266,6 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
     }
 
     
-    private void printMessages(IMessage[] msgs, int i) {
-        if(msgs.length != i){
-            printMessages(msgs);
-        }
-        assertEquals(i, msgs.length);
-    }
-
     public void testImportAttr() {
         //all ok...
         doc = new Document(
@@ -1709,14 +1601,6 @@ public class OcurrencesAnalyzerTest extends CodeCompletionTestsBase {
         
     }
     
-    /**
-     * @param msgs
-     */
-    protected void printMessages(IMessage ... msgs) {
-        for (int i = 0; i < msgs.length; i++) {
-            System.out.println(msgs[i]);
-        }
-    }
 
     
 }

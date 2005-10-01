@@ -173,6 +173,6 @@ public class AdditionalInterpreterInfoTest extends TestCase {
         info.removeInfoFromModule("mod2"); //the other modules should still depend on it, altough its information is lost
         dependencies = info.getDependencies("mod1"); //does return mod2, even though it does not exist anymore
         assertEquals(1, dependencies.size());
-        
+
     }
 }

@@ -21,47 +21,19 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 
+import com.python.pydev.analysis.AnalysisTestsBase;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.MarkerStub;
 
-public class AdditionalInfoTestsBase  extends CodeCompletionTestsBase {
+public class AdditionalInfoTestsBase extends AnalysisTestsBase {
 
     protected IPyDevCompletionParticipant participant;
-    protected InterpreterObserver observer;
     
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        observer = new InterpreterObserver();
-    }
-
-    @Override
-    protected boolean restoreSystemPythonPath(boolean force, String path) {
-        boolean restored = super.restoreSystemPythonPath(force, path);
-        if(restored){
-            IProgressMonitor monitor = new NullProgressMonitor();
-            
-            //try to load it from previous session
-            if(!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(getInterpreterManager())){
-                observer.notifyDefaultPythonpathRestored(getInterpreterManager(), monitor);
-            }
-        }
-        return restored;
-    }
-    
-    @Override
-    protected boolean restoreProjectPythonPath(boolean force, String path) {
-        boolean ret = super.restoreProjectPythonPath(force, path);
-        if(ret){
-            //try to load it from previous session
-            if(!AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature.getProject())){
-                observer.notifyProjectPythonpathRestored(nature, new NullProgressMonitor());
-            }
-        }
-        return ret;
     }
 
     public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{

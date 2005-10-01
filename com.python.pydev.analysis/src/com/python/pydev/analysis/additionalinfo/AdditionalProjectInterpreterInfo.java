@@ -23,7 +23,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     /**
      * holds nature info (project name points to info)
      */
-    private static Map<String, AbstractAdditionalInterpreterInfo> additionalNatureInfo = new HashMap<String, AbstractAdditionalInterpreterInfo>();
+    private static Map<String, AbstractAdditionalDependencyInfo> additionalNatureInfo = new HashMap<String, AbstractAdditionalDependencyInfo>();
 
     public AdditionalProjectInterpreterInfo(IProject project) {
         this.project = project;
@@ -88,9 +88,9 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      * @param project the project we want to get info on
      * @return the additional info for a given project (gotten from the cache with its name)
      */
-    public static AbstractAdditionalInterpreterInfo getAdditionalInfoForProject(IProject project) {
+    public static AbstractAdditionalDependencyInfo getAdditionalInfoForProject(IProject project) {
         String name = project.getName();
-        AbstractAdditionalInterpreterInfo info = additionalNatureInfo.get(name);
+        AbstractAdditionalDependencyInfo info = additionalNatureInfo.get(name);
         if(info == null){
             info = new AdditionalProjectInterpreterInfo(project);
             additionalNatureInfo.put(name, info);
@@ -103,12 +103,12 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      * @param project the project we want to set info on
      * @param info the info to set
      */
-    public static void setAdditionalInfoForProject(IProject project, AbstractAdditionalInterpreterInfo info) {
+    public static void setAdditionalInfoForProject(IProject project, AbstractAdditionalDependencyInfo info) {
         additionalNatureInfo.put(project.getName(), info);
     }
 
     public static boolean loadAdditionalInfoForProject(IProject project) {
-        AbstractAdditionalInterpreterInfo info = getAdditionalInfoForProject(project);
+        AbstractAdditionalDependencyInfo info = getAdditionalInfoForProject(project);
         return info.load();
     }
 

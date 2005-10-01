@@ -116,7 +116,7 @@ public class OcurrencesVisitor extends VisitorBase{
         this.scope = new Scope(this.messagesManager);
         this.duplicationChecker = new DuplicationChecker(this.messagesManager);
         this.noSelfChecker = new NoSelfChecker(this.messagesManager, moduleName);
-        this.importChecker = new ImportChecker(this.messagesManager);
+        this.importChecker = new ImportChecker(this.messagesManager, nature, moduleName);
         
         startScope(Scope.SCOPE_TYPE_GLOBAL); //initial scope - there is only one 'global' 
         List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(CompletionState.getEmptyCompletionState(nature), new ArrayList());
@@ -267,13 +267,9 @@ public class OcurrencesVisitor extends VisitorBase{
         List <IToken>list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
         for (IToken token : list) {
             scope.addToken(token, token);
-            importChecker.visitImportToken(token, nature, moduleName);
+            //check each import generated to see if we are able to resolve it.
+            importChecker.visitImportToken(token);
         }
-//        //it is only a single import for the import checker
-//        if(list.size() > 0){
-//            IToken token = list.get(list.size() -1);
-//            importChecker.visitImportToken(token, nature, moduleName);
-//        }
         return null;
     }
 
@@ -286,7 +282,7 @@ public class OcurrencesVisitor extends VisitorBase{
             
             if(AbstractVisitor.isWildImport(node)){
                 IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName);
-                importChecker.visitImportToken(wildImport, nature, moduleName);
+                importChecker.visitImportToken(wildImport);
                 
                 CompletionState state = CompletionState.getEmptyCompletionState(nature);
                 state.builtinsGotten = true; //we don't want any builtins
@@ -296,7 +292,7 @@ public class OcurrencesVisitor extends VisitorBase{
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
                 
                 for (IToken token : list) {
-					importChecker.visitImportToken(token, nature, moduleName);
+					importChecker.visitImportToken(token);
 				}
                 scope.addTokens(list, null);
             }

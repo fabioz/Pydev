@@ -12,22 +12,55 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 
+/**
+ * The import checker not only generates information on errors for unresolved modules, but also gathers
+ * dependency information so that we can do incremental building of dependent modules.
+ * 
+ * @author Fabio
+ */
 public class ImportChecker {
 
     /**
      * used to manage the messages
      */
     private MessagesManager messagesManager;
+    
+    /**
+     * Information that will be used for generating dependency info (when this object is constructed,
+     * all the dependency information regarding the module that we will analyze will be removed). 
+     */
+    private AbstractAdditionalDependencyInfo infoForProject;
 
     /**
-     * constructor
+     * this is the nature we are analyzing
      */
-    public ImportChecker(MessagesManager messagesManager) {
+    private PythonNature nature;
+
+    /**
+     * this is the name of the module that we are analyzing
+     */
+    private String moduleName;
+
+    /**
+     * constructor - will remove all dependency info on the project that we will start to analyze
+     */
+    public ImportChecker(MessagesManager messagesManager, PythonNature nature, String moduleName) {
         this.messagesManager = messagesManager;
+        
+        this.nature = nature;
+        this.moduleName = moduleName;
+        if(nature != null && moduleName != null){
+            infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+            infoForProject.removeInfoFromModule(moduleName);
+        }
     }
 
     /**
+     * @param token MUST be an import token
+     * 
      * @return the module where the token was found and a String representing the way it was found 
      * in the module.
      * 
@@ -35,9 +68,10 @@ public class ImportChecker {
      * to get dependency info, because it is actually dependent on the module, event though it does not have the
      * token we were looking for.
      */
-    public Tuple<AbstractModule, String> visitImportToken(IToken token, PythonNature nature, String moduleName) {
+    public Tuple<AbstractModule, String> visitImportToken(IToken token) {
         //try to find it as a relative import
     	Tuple<AbstractModule, String> modTok = null;
+        boolean wasResolved = false;
     	
         if(token instanceof SourceToken){
         	
@@ -45,20 +79,35 @@ public class ImportChecker {
         	if(modTok != null && modTok.o1 != null){
 
         		if(modTok.o2.length() == 0){
-        			return modTok;
-        		}
-                
-        		if( isRepAvailable(nature, modTok.o1, modTok.o2)){
-                    return modTok;
+        		    wasResolved = true;
+                    
+        		} else if( isRepAvailable(nature, modTok.o1, modTok.o2)){
+        		    wasResolved = true;
                 }
         	}
         	
             
             //if it got here, it was not resolved
-        	if(messagesManager != null){
+        	if(!wasResolved && messagesManager != null){
         		messagesManager.addMessage(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, token);
         	}
         }
+        
+        if(infoForProject != null && moduleName != null){
+            //add the dependency info
+            if(modTok != null){
+                infoForProject.addDependency(moduleName, modTok.o1.getName());
+                System.out.printf("Add normal dependency: %s - %s\n", moduleName, modTok.o1.getName());
+            }else{
+                // still undefined, altough, if it is created, we want this to be reanalyzed (we add it as absolute and relative)
+                System.out.printf("Add undefined dependency: %s - %s\n", moduleName, token.getOriginalRep());
+                System.out.printf("Add undefined dependency: %s - %s\n", moduleName, token.getAsRelativeImport(moduleName));
+                infoForProject.addDependency(moduleName, token.getOriginalRep()); 
+                infoForProject.addDependency(moduleName, token.getAsRelativeImport(moduleName)); 
+            }
+        }
+        
+        //might still return a modTok, even if the token we were looking for was not found.
         return modTok;
     }
     

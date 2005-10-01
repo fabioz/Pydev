@@ -39,7 +39,8 @@ public class InterpreterObserver implements IInterpreterObserver {
         try {
             InterpreterInfo defaultInterpreterInfo = manager.getDefaultInterpreterInfo(monitor);
             SystemModulesManager m = defaultInterpreterInfo.modulesManager;
-            AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, "(system: "+manager.getManagerRelatedName()+")", new AdditionalSystemInterpreterInfo(manager), null);
+            AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, 
+                    "(system: "+manager.getManagerRelatedName()+")", new AdditionalSystemInterpreterInfo(manager), null);
 
             //ok, set it and save it
             AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, additionalSystemInfo);
@@ -64,7 +65,8 @@ public class InterpreterObserver implements IInterpreterObserver {
                 
                 @Override
                 protected IStatus run(IProgressMonitor monitorArg) {
-                    JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev... Restoring additional info", IProgressMonitor.UNKNOWN, this);
+                    JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev... Restoring additional info", 
+                            IProgressMonitor.UNKNOWN, this);
                     notifyDefaultPythonpathRestored(manager, jobProgressComunicator);
                     jobProgressComunicator.done();
                     return Status.OK_STATUS;
@@ -86,7 +88,8 @@ public class InterpreterObserver implements IInterpreterObserver {
      * 
      * @return the info generated from the module manager
      */
-    private AbstractAdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, ModulesManager m, String additionalFeedback, AbstractAdditionalInterpreterInfo info, PythonNature nature) {
+    private AbstractAdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, ModulesManager m, String additionalFeedback, 
+            AbstractAdditionalInterpreterInfo info, PythonNature nature) {
 
         ModulesKey[] allModules = m.getOnlyDirectModules();
         int i = 0;
@@ -142,7 +145,8 @@ public class InterpreterObserver implements IInterpreterObserver {
     public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor) {
         ModulesManager m = nature.getAstManager().getProjectModulesManager();
         IProject project = nature.getProject();
-        AbstractAdditionalInterpreterInfo info = restoreInfoForModuleManager(monitor, m, "(project:"+project.getName()+")", new AdditionalProjectInterpreterInfo(project), nature);
+        AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(monitor, m, 
+                "(project:"+project.getName()+")", new AdditionalProjectInterpreterInfo(project), nature);
         
         //ok, set it and save it
         AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
