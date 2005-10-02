@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -39,15 +40,12 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PythonPathHelper implements Serializable{
     
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
     /**
      * This is a list of Files containg the pythonpath.
      */
-    public List pythonpath = new ArrayList();
+    public List<String> pythonpath = new ArrayList<String>();
     
     /**
      * Returns the default path given from the string.
@@ -191,7 +189,7 @@ public class PythonPathHelper implements Serializable{
 
     
     public String resolveModule(String fullPath){
-        return resolveModule(fullPath, true);
+        return resolveModule(fullPath, false);
     }
     
     /**
@@ -294,6 +292,23 @@ public class PythonPathHelper implements Serializable{
                 }
             }
             
+        }
+        //ok, it was not found in any existing way, so, if we don't require the file to exist, let's just do some simpler search and get the 
+        //first match (if any)... this is useful if the file we are looking for has just been deleted
+        if(requireFileToExist == false){
+            //we have to remove the last part (.py, .pyc, .pyw)
+            fullPath = FullRepIterable.headAndTail(fullPath)[0];
+            for (String element : pythonpath) {
+                element = getDefaultPathStr(element);
+                if(fullPath.startsWith(element)){
+                    String s = fullPath.substring(element.length());
+                    if(s.startsWith("/")){
+                        s = s.substring(1);
+                    }
+                    s = s.replaceAll("/",".");
+                    return s;
+                }                
+            }
         }
         return null;
     }

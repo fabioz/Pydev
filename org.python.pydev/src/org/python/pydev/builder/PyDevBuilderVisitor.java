@@ -126,9 +126,16 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
             String file = f.getRawLocation().toOSString();
             String moduleName = getModuleName(resource);
             module = AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, 0);
-            memo.put(MODULE_CACHE, module);
+            setModuleInCache(module);
         }
         return module;
+    }
+
+    /**
+     * @param module this is the module to set in the cache
+     */
+    protected void setModuleInCache(AbstractModule module) {
+        memo.put(MODULE_CACHE, module);
     }
 
     /**
@@ -150,10 +157,17 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
         if(moduleName == null){
             moduleName = PythonNature.getModuleNameForResource(resource);
             if(moduleName != null){
-                memo.put(MODULE_NAME_CACHE, moduleName);
+                setModuleNameInCache(moduleName);
             }
         }
         return moduleName;
+    }
+
+    /**
+     * @param moduleName the module name to set in the cache
+     */
+    protected void setModuleNameInCache(String moduleName) {
+        memo.put(MODULE_NAME_CACHE, moduleName);
     }
 
     /**

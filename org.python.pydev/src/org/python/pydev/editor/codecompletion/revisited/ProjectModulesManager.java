@@ -163,7 +163,7 @@ public class ProjectModulesManager extends ModulesManager{
      * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#resolveModule(java.lang.String)
      */
     public String resolveModule(String full) {
-        return resolveModule(full, true);
+        return resolveModule(full, false);
     }
     
     /**

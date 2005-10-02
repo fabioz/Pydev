@@ -188,10 +188,27 @@ public abstract class AbstractToken implements IToken{
         return originalRep;
     }
     
+    /**
+     * Make our complete path relative to the base module.
+     * 
+     * @see org.python.pydev.editor.codecompletion.revisited.IToken#getAsRelativeImport(java.lang.String)
+     */
     public String getAsRelativeImport(String baseModule) {
     	String completePath = getOriginalRep(true);
     	
-    	if(baseModule == null){
+    	return makeRelative(baseModule, completePath);
+    }
+
+    /**
+     * @param baseModule this is the 'parent package'. The path passed will be made relative to it
+     * @param completePath this is the path that we want to make relative
+     * @return the relative path. 
+     * 
+     * e.g.: if the baseModule is aa.xx and the completePath is aa.xx.foo.bar, this
+     * funcion would return aa.foo.bar
+     */
+    public static String makeRelative(String baseModule, String completePath) {
+        if(baseModule == null){
     		return completePath;
     	}
     	

@@ -418,7 +418,7 @@ public class PythonNature implements IProjectNature, IPythonNature {
         
         if(nature != null){
             IFile f = (IFile) resource;
-            String file = f.getRawLocation().toOSString();
+            String file = PydevPlugin.getIFileOsString(f);
             ICodeCompletionASTManager astManager = nature.getAstManager();
             
             if(astManager != null){

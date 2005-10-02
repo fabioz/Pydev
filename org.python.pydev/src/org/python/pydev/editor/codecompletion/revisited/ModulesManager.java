@@ -383,7 +383,7 @@ public abstract class ModulesManager implements Serializable {
      * @return
      */
     public String resolveModule(String full) {
-        return pythonPathHelper.resolveModule(full);
+        return pythonPathHelper.resolveModule(full, false);
     }
 
     public List getPythonPath(){

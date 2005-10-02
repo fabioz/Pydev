@@ -45,6 +45,7 @@ import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.osgi.framework.BundleContext;
 import org.python.copiedfromeclipsesrc.PydevFileEditorInput;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.REF;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.templates.PyContextType;
@@ -696,5 +697,38 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         IPreferenceStore preferenceStore = getDefault().getPreferenceStore();
         ChainedPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] { general, preferenceStore });
         return store;
+    }
+    
+    public static String getIFileOsString(IFile f) {
+        String fullPath = f.getRawLocation().toOSString();
+        //now, we have to make sure it is canonical...
+        File file = new File(fullPath);
+        if(file.exists()){
+            return REF.getFileAbsolutePath(file);
+        }else{
+            //it does not exist, so, we have to check its project to validate the part that we can
+            IProject project = f.getProject();
+            IPath location = project.getLocation();
+            File projectFile = location.toFile();
+            if(projectFile.exists()){
+                String projectFilePath = REF.getFileAbsolutePath(projectFile);
+                
+                if(fullPath.startsWith(projectFilePath)){
+                    //the case is all ok
+                    return fullPath;
+                }else{
+                    //the case appears to be different, so, let's check if this is it...
+                    if(fullPath.toLowerCase().startsWith(projectFilePath.toLowerCase())){
+                        String relativePart = fullPath.substring(projectFilePath.length());
+                        
+                        //at least the first part was correct
+                        return projectFilePath+relativePart;
+                    }
+                }
+            }
+        }
+        
+        //it may not be correct, but it was the best we could do...
+        return fullPath;
     }
 }

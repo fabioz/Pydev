@@ -114,6 +114,13 @@ public class FullRepIterable implements Iterable<String>{
         }
     }
     
+    public static String[] headAndTail(String fullRep){
+        return headAndTail(fullRep, true);
+    }
+    
+    public static final int HEAD = 1;
+    public static final int TAIL = 0;
+    
     /**
      * on string 'aa.bb.cc', the head is 'cc' and the tail is 'aa.bb'
      * 
@@ -123,7 +130,7 @@ public class FullRepIterable implements Iterable<String>{
      * if it does not have a ".", everything is part of the tail - this is a strange behaviour by the way... but it is what I need, because
      * of the way to calculate the modules on some cases.
      */
-    public static String[] headAndTail(String fullRep){
+    public static String[] headAndTail(String fullRep, boolean emptyTailIfNoDot){
         int i = fullRep.lastIndexOf('.');
         if(i != -1){
             return new String[]{ 
@@ -131,11 +138,17 @@ public class FullRepIterable implements Iterable<String>{
                     fullRep.substring(i+1)
                     };
         }else{
-            return new String[]{ 
-                    "",
-                    fullRep 
-            };
-            
+            if(emptyTailIfNoDot){
+                return new String[]{ 
+                        "",
+                        fullRep 
+                };
+            }else{
+                return new String[]{ 
+                        fullRep,
+                        ""
+                };
+            }
         }
     }
 
