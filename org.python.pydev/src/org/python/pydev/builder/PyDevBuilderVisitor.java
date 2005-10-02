@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
@@ -38,6 +39,9 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      */
     public static final String MODULE_CACHE = "MODULE_CACHE";
 
+    /**
+     * identifies the key for the module name in the cache
+     */
     private static final String MODULE_NAME_CACHE = "MODULE_NAME";
 
     /**
@@ -92,6 +96,19 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      */
     public HashMap<String, Object> memo;
 
+    /**
+     * Constant indicating value in memory to represent a ful build.
+     */
+    public static final String IS_FULL_BUILD = "IS_FULL_BUILD";
+
+    /**
+     * @return whether we are doing a full build right now.
+     */
+    protected boolean isFullBuild(){
+        Boolean b = (Boolean) memo.get(IS_FULL_BUILD);
+        return b.booleanValue();
+    }
+    
     /**
      * This method returns the module that is created from the given resource.
      * 
@@ -253,8 +270,9 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     /**
      * This function is called right before a visiting session starts for a delta (end will
      * only be called when the whole delta is processed).
+     * @param monitor this is the monitor that will be used in the visit
      */
-    public void visitingWillStart(){
+    public void visitingWillStart(IProgressMonitor monitor){
         
     }
     
@@ -263,8 +281,9 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * just some files).
      * 
      * A use-case is: It may be overriden if we need to store info in a persisting location
+     * @param monitor this is the monitor used in the visit
      */
-    public void visitingEnded(){
+    public void visitingEnded(IProgressMonitor monitor){
         
     }
 }

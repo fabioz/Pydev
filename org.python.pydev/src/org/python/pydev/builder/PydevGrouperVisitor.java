@@ -4,7 +4,6 @@
 package org.python.pydev.builder;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,11 +24,8 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
 
     public PydevGrouperVisitor(List<PyDevBuilderVisitor> _visitors, IProgressMonitor monitor, int totalResources) {
         super(monitor, totalResources);
-        //make a copy
+        //make a copy - should be already sorted at this point
         this.visitors = new ArrayList<PyDevBuilderVisitor>(_visitors);
-        
-        //sorted by priority
-        Collections.sort(this.visitors); 
     }
     
     /**
@@ -40,6 +36,7 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
      */
     private void visitWith(String name, boolean isAddOrChange, IResource resource, IDocument document){
         HashMap<String, Object> memo = new HashMap<String, Object>();
+        memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false); //mark it as a delta build
         
         for (PyDevBuilderVisitor visitor : visitors) {
             // some visitors cannot visit too many elements because they do a lot of processing

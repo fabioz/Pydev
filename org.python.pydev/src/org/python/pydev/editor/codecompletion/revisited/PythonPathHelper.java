@@ -17,11 +17,9 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -50,13 +48,6 @@ public class PythonPathHelper implements Serializable{
      * This is a list of Files containg the pythonpath.
      */
     public List pythonpath = new ArrayList();
-
-    /**
-     * Modules that we have in memory. This is persisted when saved.
-     * 
-     * Keys are strings with the name of the module. Values are AbstractModule objects.
-     */
-    Map modules = new HashMap();    
     
     /**
      * Returns the default path given from the string.

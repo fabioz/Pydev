@@ -9,18 +9,19 @@ import java.io.File;
 import java.io.Serializable;
 
 /**
+ * This class defines the key to use for some module. All its operations are based on its name.
+ * The file may be null.
+ * 
  * @author Fabio Zadrozny
  */
 public class ModulesKey implements Comparable, Serializable{
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = 1L;
     public String name;
     public File file;
 
     /**
-	 * 
+	 * Creates the module key. File may be null
 	 */
 	public ModulesKey(String name, File f) {
 	    this.name = name;
@@ -34,14 +35,7 @@ public class ModulesKey implements Comparable, Serializable{
         if (o instanceof ModulesKey ){
             ModulesKey m = (ModulesKey)o;
             
-            int i = name.compareTo(m.name);
-            if (i != 0)
-                return i;
-            
-            if(file != null && m.file != null){
-                i = file.compareTo(m.file);
-            }
-            return i;
+            return name.compareTo(m.name);
         }
         return 0;
     }

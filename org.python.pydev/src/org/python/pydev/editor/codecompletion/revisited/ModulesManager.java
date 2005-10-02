@@ -41,7 +41,7 @@ public abstract class ModulesManager implements Serializable {
      * 
      * Keys are ModulesKey with the name of the module. Values are AbstractModule objects.
      */
-    private transient Map modules = new HashMap();
+    protected transient Map<ModulesKey, AbstractModule> modules = new HashMap<ModulesKey, AbstractModule>();
 
     /**
      * Helper for using the pythonpath. Also persisted.
@@ -54,7 +54,7 @@ public abstract class ModulesManager implements Serializable {
      * Custom deserialization is needed.
      */
     private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
-        modules = new HashMap();
+        modules = new HashMap<ModulesKey, AbstractModule>();
         aStream.defaultReadObject();
         Set set = (Set) aStream.readObject();
         for (Iterator iter = set.iterator(); iter.hasNext();) {
@@ -76,14 +76,14 @@ public abstract class ModulesManager implements Serializable {
     /**
      * @param modules The modules to set.
      */
-    private void setModules(Map modules) {
+    private void setModules(Map<ModulesKey, AbstractModule> modules) {
         this.modules = modules;
     }
 
     /**
      * @return Returns the modules.
      */
-    protected Map getModules() {
+    protected Map<ModulesKey, AbstractModule> getModules() {
         return modules;
     }
 
@@ -101,7 +101,7 @@ public abstract class ModulesManager implements Serializable {
     public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
         List pythonpathList = pythonPathHelper.setPythonPath(pythonpath);
 
-        Map mods = new HashMap();
+        Map<ModulesKey, AbstractModule> mods = new HashMap<ModulesKey, AbstractModule>();
 
         List completions = new ArrayList();
 
@@ -178,7 +178,7 @@ public abstract class ModulesManager implements Serializable {
 
             
         }else if (f != null){ //ok, remove the module that has a key with this file, as it can no longer be resolved
-            Set toRemove = new HashSet();
+            Set<ModulesKey> toRemove = new HashSet<ModulesKey>();
             for (Iterator iter = getModules().keySet().iterator(); iter.hasNext();) {
                 ModulesKey key = (ModulesKey) iter.next();
                 if(key.file != null && key.file.equals(f)){
@@ -221,7 +221,7 @@ public abstract class ModulesManager implements Serializable {
             return;
         }
         
-        List toRem = new ArrayList();
+        List<ModulesKey> toRem = new ArrayList<ModulesKey>();
         for (Iterator iter = getModules().keySet().iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
             if (key.file != null && key.file.equals(file)) {
@@ -242,7 +242,7 @@ public abstract class ModulesManager implements Serializable {
         }
         
         String absolutePath = REF.getFileAbsolutePath(file);
-        List toRem = new ArrayList();
+        List<ModulesKey> toRem = new ArrayList<ModulesKey>();
         
         for (Iterator iter = getModules().keySet().iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
@@ -269,7 +269,7 @@ public abstract class ModulesManager implements Serializable {
      * @return
      */
     public Set getAllModuleNames() {
-        Set s = new HashSet();
+        Set<ModulesKey> s = new HashSet<ModulesKey>();
         s.addAll(getModules().keySet());
         return s;
     }

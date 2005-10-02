@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -90,10 +91,14 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 delta.accept(counterVisitor);
                 
                 List<PyDevBuilderVisitor> visitors = getVisitors();
+                
+                //sort by priority
+                Collections.sort(visitors); 
+
                 PydevGrouperVisitor grouperVisitor = new PydevGrouperVisitor(visitors, monitor, counterVisitor.getNVisited());
-                notifyVisitingWillStart(visitors);
+                notifyVisitingWillStart(visitors, monitor);
                 delta.accept(grouperVisitor);
-                notifyVisitingEnded(visitors);
+                notifyVisitingEnded(visitors, monitor);
                 
             }
         }
@@ -117,7 +122,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 List<IResource> resourcesToParse = new ArrayList<IResource>();
     
                 List<PyDevBuilderVisitor> visitors = getVisitors();
-                notifyVisitingWillStart(visitors);
+                notifyVisitingWillStart(visitors, monitor);
     
                 monitor.beginTask("Building...", (visitors.size() * 100) + 30);
     
@@ -159,22 +164,22 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                     monitor.worked(30);
                     buildResources(resourcesToParse, monitor, visitors);
                 }
-                notifyVisitingEnded(visitors);
+                notifyVisitingEnded(visitors, monitor);
             }
         }
         monitor.done();
 
     }
 
-    private void notifyVisitingWillStart(List<PyDevBuilderVisitor> visitors) {
+    private void notifyVisitingWillStart(List<PyDevBuilderVisitor> visitors, IProgressMonitor monitor) {
         for (PyDevBuilderVisitor visitor : visitors) {
-            visitor.visitingWillStart();
+            visitor.visitingWillStart(monitor);
         }
     }
 
-    private void notifyVisitingEnded(List<PyDevBuilderVisitor> visitors) {
+    private void notifyVisitingEnded(List<PyDevBuilderVisitor> visitors, IProgressMonitor monitor) {
         for (PyDevBuilderVisitor visitor : visitors) {
-            visitor.visitingEnded();
+            visitor.visitingEnded(monitor);
         }
     }
     
@@ -219,6 +224,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             IDocument doc = getDocFromResource(r);
             
             HashMap<String, Object> memo = new HashMap<String, Object>();
+            memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, true); //mark it as full build
+            
             if(doc != null){ //might be out of synch
                 for (Iterator it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
 
@@ -227,8 +234,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
     
                     communicateProgress(monitor, totalResources, i, r, visitor);
                     
-                    //on a full build, all visits are as a change...
-                    visitor.visitChangedResource(r, doc);
+                    //on a full build, all visits are as some add...
+                    visitor.visitAddedResource(r, doc);
                 }
     
                 if (total > 1) {
