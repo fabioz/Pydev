@@ -14,6 +14,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.builder.AnalysisBuilderVisitor;
 
 /**
  * The import checker not only generates information on errors for unresolved modules, but also gathers
@@ -52,6 +53,7 @@ public class ImportChecker {
         
         this.nature = nature;
         this.moduleName = moduleName;
+        this.infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
     }
 
     /**
@@ -93,11 +95,15 @@ public class ImportChecker {
             //add the dependency info
             if(modTok != null){
                 infoForProject.addDependency(moduleName, modTok.o1.getName());
-                System.out.printf("Add normal dependency: %s - %s\n", moduleName, modTok.o1.getName());
+                if(AnalysisBuilderVisitor.DEBUG_DEPENDENCIES){
+                    System.out.printf("Add normal dependency: %s - %s\n", moduleName, modTok.o1.getName());
+                }
             }else{
                 // still undefined, altough, if it is created, we want this to be reanalyzed (we add it as absolute and relative)
-                System.out.printf("Add undefined dependency: %s - %s\n", moduleName, token.getOriginalRep());
-                System.out.printf("Add undefined dependency: %s - %s\n", moduleName, token.getAsRelativeImport(moduleName));
+                if(AnalysisBuilderVisitor.DEBUG_DEPENDENCIES){
+                    System.out.printf("Add undefined dependency: %s - %s\n", moduleName, token.getOriginalRep());
+                    System.out.printf("Add undefined dependency: %s - %s\n", moduleName, token.getAsRelativeImport(moduleName));
+                }
                 infoForProject.addDependency(moduleName, token.getOriginalRep()); 
                 infoForProject.addDependency(moduleName, token.getAsRelativeImport(moduleName)); 
             }

@@ -3,10 +3,11 @@
  */
 package com.python.pydev.analysis.additionalinfo.builder;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -23,11 +24,11 @@ public class CtxInsensitiveBuilderVisitor extends PyDevBuilderVisitor {
         return PRIORITY_MIN; //this will be the last gui to be visited (it will take care of saving the information we generate)
     }
     
-    List<AbstractAdditionalInterpreterInfo> visited;
+    Set<AbstractAdditionalInterpreterInfo> visited;
     
     @Override
-    public void visitingWillStart() {
-        visited = new ArrayList<AbstractAdditionalInterpreterInfo>();
+    public void visitingWillStart(IProgressMonitor monitor) {
+        visited = new HashSet<AbstractAdditionalInterpreterInfo>();
     }
     
     @Override
@@ -52,7 +53,7 @@ public class CtxInsensitiveBuilderVisitor extends PyDevBuilderVisitor {
     }
 
     @Override
-    public void visitingEnded() {
+    public void visitingEnded(IProgressMonitor monitor) {
         //persist this info (the analysis builder that generates dependency info will not have to worry about it).
         for (AbstractAdditionalInterpreterInfo info : visited) {
             info.save();

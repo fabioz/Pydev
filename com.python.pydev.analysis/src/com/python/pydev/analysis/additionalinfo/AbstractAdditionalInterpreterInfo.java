@@ -72,7 +72,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * Do you want to debug this class?
      */
-    private static final boolean DEBUG_ADDITIONAL_INFO = true;
+    private static final boolean DEBUG_ADDITIONAL_INFO = false;
 
     /**
      * indexes used so that we can access the information faster - it is ordered through a tree map, and should be

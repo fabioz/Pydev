@@ -4,9 +4,11 @@
 package com.python.pydev.analysis.builder;
 
 import java.io.File;
+import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -36,7 +38,10 @@ public class AnalysisParserObserver implements IParserObserver{
             
             //visit it
             AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
-            visitor.visitChangedResource(fileAdapter, doc, module);
+            visitor.memo = new HashMap<String, Object>();
+            visitor.visitingWillStart(new NullProgressMonitor());
+            visitor.visitChangedResource(fileAdapter, doc, module, true); //also analyze dependencies
+            visitor.visitingEnded(new NullProgressMonitor());
         }
     }
 
