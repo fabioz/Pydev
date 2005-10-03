@@ -25,9 +25,11 @@ import org.python.pydev.parser.visitors.NodeUtils;
  * upon its nodes;
  *
  * This structure should provide:
- * - Classes
+ * - Imports
+ * - Classes (and attributes)
  * - Methods
- * - Indentation
+ * 
+ * 
  * 
  * Note: it does not only provide global information, but also inner information, such as methods from a class.
  * 
@@ -35,9 +37,9 @@ import org.python.pydev.parser.visitors.NodeUtils;
  */
 public class EasyASTIteratorVisitor extends VisitorBase{
 
-    private List nodes = new ArrayList();
+    private List<ASTEntry> nodes = new ArrayList<ASTEntry>();
 
-    private Stack stack = new Stack();
+    private Stack<SimpleNode> stack = new Stack<SimpleNode>();
     
     private SimpleNode lastVisited;
     
@@ -149,14 +151,22 @@ public class EasyASTIteratorVisitor extends VisitorBase{
         exprType[] targets = node.targets;
         for (int i = 0; i < targets.length; i++) {
             exprType t = targets[i];
+            
             if(t instanceof Name){
+                //we are in the class declaration
                 if(isInClassDecl()){
+                    //add the attribute for the class
                     atomic(t);
                 }
+                
             }else if(t instanceof Attribute){
+                
+                //we are in a method from the class
                 if(isInClassMethodDecl()){
                     Attribute a = (Attribute) t;
                     if(a.value instanceof Name){
+                        
+                        //it is an instance variable attribute
                         Name n = (Name) a.value;
                         if (n.id.equals("self")){
 		                    atomic(t);
@@ -169,7 +179,7 @@ public class EasyASTIteratorVisitor extends VisitorBase{
     }
     
     /**
-     * @return
+     * @return wether we are in a class or method declaration scope
      */
     private boolean isInClassMethodDecl() {
         Iterator iterator = stack.iterator();
@@ -189,7 +199,7 @@ public class EasyASTIteratorVisitor extends VisitorBase{
     }
 
     /**
-     * @return
+     * @return whether we are in a class declaration scope
      */
     private boolean isInClassDecl() {
         if(stack.size() == 0){
@@ -214,28 +224,34 @@ public class EasyASTIteratorVisitor extends VisitorBase{
         return ret;
     }
     
+    /**
+     * @return and iterator that passes through all the nodes
+     */
     public Iterator getIterator() {
         return nodes.iterator();
     }
 
     /**
-     * @return
+     * @return an iterator for all the classes definitions
      */
     public Iterator getClassesIterator() {
         return getIterator(ClassDef.class);
     }
 
-    public List getClassesAndMethodsList() {
-        Iterator classesAndMethodsIterator = getClassesAndMethodsIterator();
+    /**
+     * @return a list with all the class and method definitions
+     */
+    public List<ASTEntry> getClassesAndMethodsList() {
+        Iterator<ASTEntry> classesAndMethodsIterator = getClassesAndMethodsIterator();
         return getIteratorAsList(classesAndMethodsIterator);
     }
     
     /**
-     * @param classesAndMethodsIterator
-     * @return
+     * @param iter this is the iterator we want to get as a list
+     * @return a list with the elements of the iterator
      */
-    private List getIteratorAsList(Iterator iter) {
-        ArrayList list = new ArrayList();
+    private List<ASTEntry> getIteratorAsList(Iterator<ASTEntry> iter) {
+        ArrayList<ASTEntry> list = new ArrayList<ASTEntry>();
         while (iter.hasNext()) {
             list.add(iter.next());
         }
@@ -243,32 +259,25 @@ public class EasyASTIteratorVisitor extends VisitorBase{
     }
 
     /**
-     * @return
+     * @return an iterator for class and method definitions
      */
-    public Iterator getClassesAndMethodsIterator() {
+    public Iterator<ASTEntry> getClassesAndMethodsIterator() {
         return getIterator(new Class[]{ClassDef.class, FunctionDef.class});
     }
 
     /**
-     * @return
+     * @see EasyASTIteratorVisitor#getIterator(Class[])
      */
-    public Iterator getIterator(Class class_) {
-        List newList = new ArrayList();
-        for (Iterator iter = nodes.iterator(); iter.hasNext();) {
-            ASTEntry entry = (ASTEntry) iter.next();
-            if(entry.node.getClass().isAssignableFrom(class_)){
-                newList.add(entry);
-            }
-        }
-        return newList.iterator();
+    public Iterator<ASTEntry> getIterator(Class class_) {
+        return getIterator(new Class[]{class_});
     }
 
     /**
-     * @param classes
-     * @return
+     * @param classes the classes we are searching for
+     * @return an iterator with nodes found from the passed classes
      */
-    public Iterator getIterator(Class[] classes) {
-        List newList = new ArrayList();
+    public Iterator<ASTEntry> getIterator(Class[] classes) {
+        List<ASTEntry> newList = new ArrayList<ASTEntry>();
         for (Iterator iter = nodes.iterator(); iter.hasNext();) {
             ASTEntry entry = (ASTEntry) iter.next();
             if(isFromClass(entry.node, classes)){
@@ -279,9 +288,9 @@ public class EasyASTIteratorVisitor extends VisitorBase{
     }
 
     /**
-     * @param node
-     * @param classes
-     * @return
+     * @param node this is the node we are analyzing
+     * @param classes this are the classes we are looking for
+     * @return true if the node is from one of the passed classes (may be some subclass too)
      */
     private boolean isFromClass(SimpleNode node, Class[] classes) {
         Class class1 = node.getClass();
@@ -303,7 +312,7 @@ public class EasyASTIteratorVisitor extends VisitorBase{
         return visitor;
     }
 
-    public List getAsList(Class[] classes) {
+    public List<ASTEntry> getAsList(Class[] classes) {
         return getIteratorAsList(getIterator(classes));
     }
 }

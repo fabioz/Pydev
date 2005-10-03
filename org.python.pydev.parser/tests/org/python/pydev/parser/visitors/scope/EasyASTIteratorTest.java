@@ -141,6 +141,7 @@ public class EasyASTIteratorTest extends TestCase {
 		"import test.lib\n" +
 		"from test.lib import test\n" +
 		"from test.lib import *\n" +
+		"from test.lib import test as alias\n" +
 		"";
         
         Object[] objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
@@ -150,6 +151,7 @@ public class EasyASTIteratorTest extends TestCase {
         check((ASTEntry) iterator.next(), "import test.lib", 8, 1, 1);
         check((ASTEntry) iterator.next(), "from test.lib import test", 6, 2, 2);
         check((ASTEntry) iterator.next(), "from test.lib import *", 6, 3, 3);
+        check((ASTEntry) iterator.next(), "from test.lib import test as alias", 6, 4, 4);
         assertFalse(iterator.hasNext());
     }
     

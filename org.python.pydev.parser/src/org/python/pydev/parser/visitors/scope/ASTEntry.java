@@ -44,10 +44,10 @@ public class ASTEntry{
             StringBuffer buffer = new StringBuffer("import ");
             
             for (int i = 0; i < names.length; i++) {
-                buffer.append(names[i].name);
+                buffer.append(((NameTok)names[i].name).id);
                 if(names[i].asname != null){
                     buffer.append(" as ");
-                    buffer.append(names[i].asname);
+                    buffer.append(((NameTok)names[i].asname).id);
                 }
             }
             name = buffer.toString();
@@ -55,14 +55,14 @@ public class ASTEntry{
         }else if(node instanceof ImportFrom){
             aliasType[] names = ((ImportFrom)node).names;
             StringBuffer buffer = new StringBuffer("from ");
-            buffer.append(((ImportFrom)node).module);
+            buffer.append(((NameTok)((ImportFrom)node).module).id);
             buffer.append(" import ");
             if(names.length > 0){
                 for (int i = 0; i < names.length; i++) {
-                    buffer.append(names[i].name);
+                    buffer.append(((NameTok)names[i].name).id);
                     if(names[i].asname != null){
 	                    buffer.append(" as ");
-	                    buffer.append(names[i].asname);
+	                    buffer.append(((NameTok)names[i].asname).id);
                     }
                 }
             }else{
