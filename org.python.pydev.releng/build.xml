@@ -26,7 +26,7 @@
 		<property name = "zipLocation"          value = "${eclipseResults}/${buildId}/org.python.pydev.feature-${buildId}.zip"/>
 		<property name = "eclipseTmpResults"    value = "${eclipseResults}/tmp" />
 		<property name = "destFeats"            value = "${EC_WORKSPACE}/org.python.pydev.site" />
-		<property name = "retroweaver.home"     value = "F:\Dev.Java\retroweaver-all\retroweaver" />
+		<property name = "retroweaver.home"     value = "${RETROWEAVER_HOME}" />
 
 		<!-- names of the plugins -->
 		<property name = "plug0"  value = "org.python.pydev.feature"/>
@@ -87,7 +87,7 @@
 		<copy todir="${eclipseResults}/plugins/${plug7}"> <fileset dir="${EC_WORKSPACE}/${plug7}" defaultexcludes="yes" excludes="**/*.class" /></copy>
 	</target>
 		
-	<target name = "main" depends="recreate">
+	<target name = "doit" depends="recreate">
 
         <echo message="Initializing build:"/>
 		<ant antfile="build.xml" dir="${pde.build.scripts}">
@@ -95,6 +95,11 @@
 		</ant>
 		
         <echo message="Finalized build!"/>
+	</target>
+
+	<target name = "main" depends="doit" if="cleanAfter">
+		<delete dir="${eclipseResults}/plugins" />
+		<delete dir="${eclipseResults}/features" />
 	</target>
 	
 </project>
