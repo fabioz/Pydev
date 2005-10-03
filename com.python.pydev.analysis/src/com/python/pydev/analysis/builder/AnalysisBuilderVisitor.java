@@ -94,6 +94,12 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     }
     
     @Override
+    public void visitAddedResource(IResource resource, IDocument document) {
+    	//the resource was added (not changed)... so, it could be a full build
+    	visitChangedResource(resource, document, null, true);
+    }
+    
+    @Override
     public void visitChangedResource(IResource resource, IDocument document) {
         if(AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SAVE){
             visitChangedResource(resource, document, null, true);
