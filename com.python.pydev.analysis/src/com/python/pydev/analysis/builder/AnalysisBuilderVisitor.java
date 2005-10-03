@@ -4,6 +4,7 @@
 package com.python.pydev.analysis.builder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
@@ -54,6 +55,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     @Override
     public void visitingEnded(IProgressMonitor monitor) {
         super.visitingEnded(monitor);
+        
         //ok, now, before we call the visit over, let's analyze the dependent modules
         for (Tuple<String, PythonNature> modNameAndNature : dependentModulesToAnalyze) {
             PythonNature nature = modNameAndNature.o2;
@@ -64,6 +66,11 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             if(module instanceof SourceModule){
                 //if it is a source module, let's get the resource for it
                 SourceModule mod = (SourceModule) module;
+                
+                this.memo = new HashMap<String, Object>();//clear the cache, just to be sure of it (because we are re-using the same instance to make new visits)
+                setModuleInCache(mod);
+                setModuleNameInCache(modName);
+                
                 IPath path = Path.fromOSString(REF.getFileAbsolutePath(mod.getFile()));
                 if(DEBUG_DEPENDENCIES){
                     System.out.println("visiting dependent "+mod.getName());

@@ -32,7 +32,7 @@ public class OrganizeImportsTest extends AdditionalInfoTestsBase{
         Document document = new Document(s);
         MarkerStub stub = createMarkerStub(0, s.length(), IAnalysisPreferences.TYPE_UNUSED_IMPORT);
         
-        organizer.performArrangeImports(new PySelection(document), stub);
+//        organizer.performArrangeImports(new PySelection(document), stub);
         
         
     }

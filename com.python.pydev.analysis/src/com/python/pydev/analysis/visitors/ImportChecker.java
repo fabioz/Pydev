@@ -93,18 +93,32 @@ public class ImportChecker {
         
         if(infoForProject != null && moduleName != null){
             //add the dependency info
-            if(modTok != null){
+            if(modTok != null && wasResolved){
                 infoForProject.addDependency(moduleName, modTok.o1.getName());
                 if(AnalysisBuilderVisitor.DEBUG_DEPENDENCIES){
                     System.out.printf("Add normal dependency: %s - %s\n", moduleName, modTok.o1.getName());
                 }
             }else{
-                // still undefined, altough, if it is created, we want this to be reanalyzed (we add it as absolute and relative)
-                if(AnalysisBuilderVisitor.DEBUG_DEPENDENCIES){
-                    System.out.printf("Add undefined dependency: %s - %s\n", moduleName, token.getOriginalRep());
-                    System.out.printf("Add undefined dependency: %s - %s\n", moduleName, token.getAsRelativeImport(moduleName));
+                //still undefined, altough, if it is created, we want this to be reanalyzed (we add it as absolute and relative
+                //for each part of the path)
+                String originalRep = token.getOriginalRep();
+                String relative = FullRepIterable.headAndTail(moduleName, false)[FullRepIterable.TAIL];
+
+                for (String rep : new FullRepIterable(originalRep)) {
+                    
+                    infoForProject.addDependency(moduleName, rep);
+                    if(AnalysisBuilderVisitor.DEBUG_DEPENDENCIES){
+                        System.out.printf("Add undefined dependency: %s - %s\n", moduleName, rep);
+                    }
+
+                    //add it as relative too
+                    if(relative.length() > 0){
+                        infoForProject.addDependency(moduleName, relative+'.'+rep);
+                        if(AnalysisBuilderVisitor.DEBUG_DEPENDENCIES){
+                            System.out.printf("Add undefined dependency: %s - %s\n", moduleName, relative+'.'+rep);
+                        }
+                    }
                 }
-                infoForProject.addDependency(moduleName, token.getOriginalRep()); 
                 infoForProject.addDependency(moduleName, token.getAsRelativeImport(moduleName)); 
             }
         }
