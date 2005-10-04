@@ -15,7 +15,7 @@ import sys
 import os
 
 if __name__ == '__main__':
-    executable = sys.executable
+    executable = os.path.realpath(sys.executable)
     print 'EXECUTABLE:%s|' % executable
     
     def formatPath(p):
