@@ -11,6 +11,8 @@ import java.util.TreeMap;
 
 import org.python.pydev.core.Tuple;
 
+import com.python.pydev.analysis.builder.AnalysisBuilderVisitor;
+
 /**
  * Adds dependency information to the interpreter information. This should be used only for
  * classes that are part of a project (this info will not be gotten for the system interpreter) 
@@ -36,7 +38,9 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     @Override
     public void removeInfoFromModule(String moduleName) {
         super.removeInfoFromModule(moduleName);
-        this.moduleDependencies.remove(moduleName);
+        synchronized (lock) {
+        	this.moduleDependencies.remove(moduleName);
+		}
     }
 
     @Override
@@ -65,12 +69,15 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * representation.
      */
     public void addDependency(String analyzedModule, String dependsOn) {
-        Set<String> dependencies = this.moduleDependencies.get(analyzedModule);
-        if(dependencies == null){
-            dependencies = new HashSet<String>();
-            this.moduleDependencies.put(analyzedModule, dependencies);
+        synchronized (lock) {
+	
+	        Set<String> dependencies = this.moduleDependencies.get(analyzedModule);
+	        if(dependencies == null){
+	            dependencies = new HashSet<String>();
+	            this.moduleDependencies.put(analyzedModule, dependencies);
+	        }
+	        dependencies.add(dependsOn);
         }
-        dependencies.add(dependsOn);
     }
 
     /**
@@ -86,44 +93,47 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * TODO: use some graph theory to do this better!
      */
     public Set<String> getDependencies(String analyzedModule) {
-        Set<String> directDependencies = this.moduleDependencies.get(analyzedModule);
-        if(directDependencies == null){
-            return new HashSet<String>();
+        synchronized (lock) {
+	
+	        Set<String> directDependencies = this.moduleDependencies.get(analyzedModule);
+	        if(directDependencies == null){
+	            return new HashSet<String>();
+	        }
+	        
+	        //ok, there is something to return
+	        HashSet<String> toReturn = new HashSet<String>(directDependencies);
+	        
+	        //used to know what will we have to look in the next round
+	        HashSet<String> searchOnNextRound = new HashSet<String>(directDependencies);
+	        
+	        HashSet<String> alreadySeached = new HashSet<String>();
+	        alreadySeached.add(analyzedModule);//the initial has already been analyzed
+	        
+	        //now, for each of these we have to get their dependencies. Also, let's take
+	        //some measures to avoid recursing in this case
+	        do{
+	            //these are the ones we will have to go deeper on...
+	            HashSet<String> stillSearchOnThese = new HashSet<String>(searchOnNextRound);
+	
+	            //clear next searches
+	            searchOnNextRound.clear();
+	            for (String dependency : stillSearchOnThese) {
+	                alreadySeached.add(dependency);
+	                
+	                Set<String> dependencies = this.moduleDependencies.get(dependency);
+	                if(dependencies != null){
+	                    for (String dep : dependencies) {
+	                        if(alreadySeached.contains(dep) == false){
+	                            searchOnNextRound.add(dep);
+	                            toReturn.add(dep);
+	                        }
+	                    }
+	                }
+	            }
+	        }while(searchOnNextRound.size() != 0);
+	        
+	        return toReturn;
         }
-        
-        //ok, there is something to return
-        HashSet<String> toReturn = new HashSet<String>(directDependencies);
-        
-        //used to know what will we have to look in the next round
-        HashSet<String> searchOnNextRound = new HashSet<String>(directDependencies);
-        
-        HashSet<String> alreadySeached = new HashSet<String>();
-        alreadySeached.add(analyzedModule);//the initial has already been analyzed
-        
-        //now, for each of these we have to get their dependencies. Also, let's take
-        //some measures to avoid recursing in this case
-        do{
-            //these are the ones we will have to go deeper on...
-            HashSet<String> stillSearchOnThese = new HashSet<String>(searchOnNextRound);
-
-            //clear next searches
-            searchOnNextRound.clear();
-            for (String dependency : stillSearchOnThese) {
-                alreadySeached.add(dependency);
-                
-                Set<String> dependencies = this.moduleDependencies.get(dependency);
-                if(dependencies != null){
-                    for (String dep : dependencies) {
-                        if(alreadySeached.contains(dep) == false){
-                            searchOnNextRound.add(dep);
-                            toReturn.add(dep);
-                        }
-                    }
-                }
-            }
-        }while(searchOnNextRound.size() != 0);
-        
-        return toReturn;
     }
 
     /**
@@ -137,39 +147,54 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * getting dependent modules on mod3 should return mod1 and mod2
      */
     public Set<String> getModulesThatHaveDependenciesOn(String moduleToFindDependents) {
-        HashSet<String> dependenciesOn = new HashSet<String>();
+        synchronized (lock) {
+	
+	        HashSet<String> dependenciesOn = new HashSet<String>();
+	
+	        //used to know what will we have to look in the next round
+	        HashSet<String> searchOnNextRound = new HashSet<String>();
+	        
+	        HashSet<String> alreadySeached = new HashSet<String>();
+	        alreadySeached.add(moduleToFindDependents);//the initial has already been analyzed
+	
+	        searchOnNextRound.add(moduleToFindDependents);
+	        
+	        if(AnalysisBuilderVisitor.DEBUG_DEPENDENCIES){
+	        	System.out.println("Getting modules that have dependencies on "+moduleToFindDependents);
+	        }
+	        
+	        do{
+	            //these are the ones we will have to go deeper on...
+	            HashSet<String> stillSearchOnThese = new HashSet<String>(searchOnNextRound);
 
-        //used to know what will we have to look in the next round
-        HashSet<String> searchOnNextRound = new HashSet<String>();
-        
-        HashSet<String> alreadySeached = new HashSet<String>();
-        alreadySeached.add(moduleToFindDependents);//the initial has already been analyzed
+	
+	            searchOnNextRound.clear();
+	            
+	            for (String dependsOn : stillSearchOnThese) {
+	            	if(AnalysisBuilderVisitor.DEBUG_DEPENDENCIES){
+	            		System.out.println("\n\nModules that have dependencies on "+dependsOn);
+	            	}
 
-        searchOnNextRound.add(moduleToFindDependents);
-        
-        do{
-            //these are the ones we will have to go deeper on...
-            HashSet<String> stillSearchOnThese = new HashSet<String>(searchOnNextRound);
-
-            searchOnNextRound.clear();
-            
-            for (String dependsOn : stillSearchOnThese) {
-                alreadySeached.add(dependsOn);
-                
-                for (Map.Entry<String,Set<String>> dependencies : this.moduleDependencies.entrySet()) {
-                    
-                    if(dependencies.getValue().contains(dependsOn)){
-                        String key = dependencies.getKey();
-                        if(alreadySeached.contains(key) == false){
-                            searchOnNextRound.add(key);
-                            dependenciesOn.add(key);
-                        }
-                    }
-                }
-            }
-        }while(searchOnNextRound.size() > 0);
-        
-        return dependenciesOn;
+	            	alreadySeached.add(dependsOn);
+	                
+	                for (Map.Entry<String,Set<String>> dependencies : this.moduleDependencies.entrySet()) {
+	                    
+	                    if(dependencies.getValue().contains(dependsOn)){
+	                        String key = dependencies.getKey();
+	                        if(alreadySeached.contains(key) == false){
+	        	            	if(AnalysisBuilderVisitor.DEBUG_DEPENDENCIES){
+	        	            		System.out.println("-- "+key);
+	        	            	}
+	                            searchOnNextRound.add(key);
+	                            dependenciesOn.add(key);
+	                        }
+	                    }
+	                }
+	            }
+	        }while(searchOnNextRound.size() > 0);
+	        
+	        return dependenciesOn;
+        }
     }
 
 

@@ -72,7 +72,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * Do you want to debug this class?
      */
-    private static final boolean DEBUG_ADDITIONAL_INFO = false;
+    private static final boolean DEBUG_ADDITIONAL_INFO = true;
 
     /**
      * indexes used so that we can access the information faster - it is ordered through a tree map, and should be
@@ -80,6 +80,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     protected TreeMap<String, List<IInfo>> initialsToInfo = new TreeMap<String, List<IInfo>>();
 
+    protected Object lock = new Object();
     
     public AbstractAdditionalInterpreterInfo(){
     }
@@ -128,16 +129,20 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * adds a method to the definition
      */
     public void addMethod(FunctionDef def, String moduleDeclared) {
-        FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared);
-        add(info2);
+        synchronized (lock) {
+	        FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared);
+	        add(info2);
+        }
     }
     
     /**
      * Adds a class to the definition
      */
     public void addClass(ClassDef def, String moduleDeclared) {
-        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared);
-        add(info);
+    	synchronized (lock) {
+	        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared);
+	        add(info);
+    	}
     }
 
     /**
@@ -169,6 +174,10 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param m 
      */
     public void addAstInfo(SimpleNode node, String moduleName, PythonNature nature) {
+    	if(node == null || moduleName == null){
+    		return;
+    	}
+    	
         try {
             EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
             node.accept(visitor);
@@ -194,25 +203,27 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param moduleName the name of the module we want to remove info from
      */
     public void removeInfoFromModule(String moduleName) {
-        if(initialsToInfo == null){
-            PydevPlugin.log("Additional info not correctly generated. ("+this.getClass().getName()+")");
-            return;
-        }
+        synchronized (lock) {
 
-        Iterator<List<IInfo>> itListOfInfo = initialsToInfo.values().iterator();
-        while (itListOfInfo.hasNext()) {
-
-            Iterator<IInfo> it = itListOfInfo.next().iterator();
-            while (it.hasNext()) {
-
-                IInfo info = it.next();
-                if(info != null && info.getDeclaringModuleName() != null){
-                    if(info.getDeclaringModuleName().equals(moduleName)){
-                        it.remove();
-                    }
-                }
-            }
-            
+	        if(initialsToInfo == null){
+	            PydevPlugin.log("Additional info not correctly generated. ("+this.getClass().getName()+")");
+	            return;
+	        }
+	
+	        Iterator<List<IInfo>> itListOfInfo = initialsToInfo.values().iterator();
+	        while (itListOfInfo.hasNext()) {
+	
+	            Iterator<IInfo> it = itListOfInfo.next().iterator();
+	            while (it.hasNext()) {
+	
+	                IInfo info = it.next();
+	                if(info != null && info.getDeclaringModuleName() != null){
+	                    if(info.getDeclaringModuleName().equals(moduleName)){
+	                        it.remove();
+	                    }
+	                }
+	            }
+	        }            
         }
         
     }
@@ -224,61 +235,67 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @return a list of info, all starting with the given qualifier
      */
     public List<IInfo> getTokensStartingWith(String qualifier) {
-        ArrayList<IInfo> toks = new ArrayList<IInfo>();
-        if(this.initialsToInfo == null){
-            PydevPlugin.log("No additional info generated for a new completion.");
-            return toks;
+        synchronized (lock) {
+	        ArrayList<IInfo> toks = new ArrayList<IInfo>();
+	        if(this.initialsToInfo == null){
+	            PydevPlugin.log("No additional info generated for a new completion.");
+	            return toks;
+	        }
+	        String initials = getInitials(qualifier);
+	        String lowerCaseQual = qualifier.toLowerCase();
+	        
+	        //get until the end of the alphabet
+	        SortedMap<String, List<IInfo>> subMap = this.initialsToInfo.subMap(initials, initials+"z");
+	        
+	        for (List<IInfo> listForInitials : subMap.values()) {
+	            
+	            for (IInfo info : listForInitials) {
+	                if(info.getName().toLowerCase().startsWith(lowerCaseQual)){
+	                    toks.add(info);
+	                }
+	            }
+	        }
+	        return toks;
         }
-        String initials = getInitials(qualifier);
-        String lowerCaseQual = qualifier.toLowerCase();
-        
-        //get until the end of the alphabet
-        SortedMap<String, List<IInfo>> subMap = this.initialsToInfo.subMap(initials, initials+"z");
-        
-        for (List<IInfo> listForInitials : subMap.values()) {
-            
-            for (IInfo info : listForInitials) {
-                if(info.getName().toLowerCase().startsWith(lowerCaseQual)){
-                    toks.add(info);
-                }
-            }
-        }
-        return toks;
     }
 
     public List<IInfo> getTokensEqualTo(String qualifier) {
-        String initials = getInitials(qualifier);
-        ArrayList<IInfo> toks = new ArrayList<IInfo>();
-        
-        //get until the end of the alphabet
-        SortedMap<String, List<IInfo>> subMap = this.initialsToInfo.subMap(initials, initials+"z");
-        
-        for (List<IInfo> listForInitials : subMap.values()) {
-            
-            for (IInfo info : listForInitials) {
-                if(info.getName().equals(qualifier)){
-                    toks.add(info);
-                }
-            }
+        synchronized (lock) {
+	        String initials = getInitials(qualifier);
+	        ArrayList<IInfo> toks = new ArrayList<IInfo>();
+	        
+	        //get until the end of the alphabet
+	        SortedMap<String, List<IInfo>> subMap = this.initialsToInfo.subMap(initials, initials+"z");
+	        
+	        for (List<IInfo> listForInitials : subMap.values()) {
+	            
+	            for (IInfo info : listForInitials) {
+	                if(info.getName().equals(qualifier)){
+	                    toks.add(info);
+	                }
+	            }
+	        }
+	        return toks;
         }
-        return toks;
     }
 
     /**
      * @return all the tokens that are in this info
      */
     public Collection<IInfo> getAllTokens(){
-        Collection<List<IInfo>> lInfo = this.initialsToInfo.values();
-        
-        ArrayList<IInfo> toks = new ArrayList<IInfo>();
-        for (List<IInfo> list : lInfo) {
-            for (IInfo info : list) {
-                toks.add(info);
-            }
+        synchronized (lock) {
+	        Collection<List<IInfo>> lInfo = this.initialsToInfo.values();
+	        
+	        ArrayList<IInfo> toks = new ArrayList<IInfo>();
+	        for (List<IInfo> list : lInfo) {
+	            for (IInfo info : list) {
+	                toks.add(info);
+	            }
+	        }
+	        return toks;
         }
-        return toks;
     }
-
+    
     /**
      * this can be used to save the file
      */
@@ -327,10 +344,12 @@ public abstract class AbstractAdditionalInterpreterInfo {
     
 
     private void saveTo(String pathToSave) {
-        if(DEBUG_ADDITIONAL_INFO){
-            System.out.println("Saving info "+this.getClass().getName()+" to file (size = "+getAllTokens().size()+") "+pathToSave);
+        synchronized (lock) {
+	        if(DEBUG_ADDITIONAL_INFO){
+	            System.out.println("Saving info "+this.getClass().getName()+" to file (size = "+getAllTokens().size()+") "+pathToSave);
+	        }
+	        REF.writeToFile(getInfoToSave(), new File(pathToSave));
         }
-        REF.writeToFile(getInfoToSave(), new File(pathToSave));
     }
 
     /**
@@ -364,7 +383,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     protected void restoreSavedInfo(Object o){
         this.initialsToInfo = (TreeMap<String, List<IInfo>>) o;
-
     }
 
     /**

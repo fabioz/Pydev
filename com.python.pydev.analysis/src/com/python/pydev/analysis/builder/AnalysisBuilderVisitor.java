@@ -49,6 +49,9 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     @Override
     public void visitingWillStart(IProgressMonitor monitor) {
         super.visitingWillStart(monitor);
+        if(DEBUG_DEPENDENCIES){
+        	System.out.println("Visiting will start... creating modules to analyze.");
+        }
         this.dependentModulesToAnalyze = new ArrayList<Tuple<String, PythonNature>>();
     }
 
@@ -56,60 +59,71 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     public void visitingEnded(IProgressMonitor monitor) {
         super.visitingEnded(monitor);
         
-        //ok, now, before we call the visit over, let's analyze the dependent modules
-        for (Tuple<String, PythonNature> modNameAndNature : dependentModulesToAnalyze) {
-            PythonNature nature = modNameAndNature.o2;
-            String modName = modNameAndNature.o1;
-            AbstractModule module = nature.getAstManager().getProjectModulesManager().getModule(modName, nature, false, false);
-            
-            monitor.setTaskName("Visiting dependencies...");
-            if(module instanceof SourceModule){
-                //if it is a source module, let's get the resource for it
-                SourceModule mod = (SourceModule) module;
-                
-                this.memo = new HashMap<String, Object>();//clear the cache, just to be sure of it (because we are re-using the same instance to make new visits)
-                setModuleInCache(mod);
-                setModuleNameInCache(modName);
-                
-                IPath path = Path.fromOSString(REF.getFileAbsolutePath(mod.getFile()));
-                if(DEBUG_DEPENDENCIES){
-                    System.out.println("visiting dependent "+mod.getName());
-                }
-                
-                monitor.setTaskName("Visiting dependencies..."+mod.getName());
-                monitor.worked(1);
-                
-                IProject project = nature.getProject();
-                
-                //make the path relative to the project
-                int i = path.matchingFirstSegments(project.getLocation());
-                path = path.removeFirstSegments(i);
-                IFile file = file = project.getFile(path);
-                visitChangedResource(file, PyDevBuilder.getDocFromResource(file), module, false);
-            }
-        }
+//        //ok, now, before we call the visit over, let's analyze the dependent modules
+//        monitor.setTaskName("Visiting dependencies...");
+//        if(DEBUG_DEPENDENCIES){
+//        	System.out.println("There are "+dependentModulesToAnalyze.size()+" dependent modules to analyze:");
+//        	for (Tuple<String, PythonNature> modNameAndNature : dependentModulesToAnalyze) {
+//        		System.out.println("Module that will be analyzed: "+modNameAndNature.o1);
+//        	}
+//        }
+//
+//        for (Tuple<String, PythonNature> modNameAndNature : dependentModulesToAnalyze) {
+//        	if(monitor.isCanceled()){
+//        		break;
+//        	}
+//        	
+//            PythonNature nature = modNameAndNature.o2;
+//            String modName = modNameAndNature.o1;
+//            AbstractModule module = nature.getAstManager().getProjectModulesManager().getModule(modName, nature, false, false);
+//            
+//            if(module instanceof SourceModule){
+//                //if it is a source module, let's get the resource for it
+//                SourceModule mod = (SourceModule) module;
+//                
+//                this.memo = new HashMap<String, Object>();//clear the cache, just to be sure of it (because we are re-using the same instance to make new visits)
+//                setModuleInCache(mod);
+//                setModuleNameInCache(modName);
+//                
+//                IPath path = Path.fromOSString(REF.getFileAbsolutePath(mod.getFile()));
+//                if(DEBUG_DEPENDENCIES){
+//                    System.out.println("visiting dependent "+mod.getName());
+//                }
+//                
+//                monitor.setTaskName("Visiting dependency: "+mod.getName());
+//                monitor.worked(1);
+//                
+//                IProject project = nature.getProject();
+//                
+//                //make the path relative to the project
+//                int i = path.matchingFirstSegments(project.getLocation());
+//                path = path.removeFirstSegments(i);
+//                IFile file = file = project.getFile(path);
+//                visitChangedResource(file, PyDevBuilder.getDocFromResource(file), module, false, monitor);
+//            }
+//        }
         
         
         this.dependentModulesToAnalyze.clear();
     }
     
     @Override
-    public void visitAddedResource(IResource resource, IDocument document) {
+    public void visitAddedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
     	//the resource was added (not changed)... so, it could be a full build
-    	visitChangedResource(resource, document, null, true);
+    	visitChangedResource(resource, document, null, false, monitor);
     }
     
     @Override
-    public void visitChangedResource(IResource resource, IDocument document) {
+    public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         if(AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SAVE){
-            visitChangedResource(resource, document, null, true);
+            visitChangedResource(resource, document, null, true, monitor);
         }
     }
     
     /**
      * here we have to detect errors / warnings from the code analysis
      */
-    public void visitChangedResource(IResource resource, IDocument document, AbstractModule module, boolean analyzeDependent) {
+    public void visitChangedResource(IResource resource, IDocument document, AbstractModule module, boolean analyzeDependent, IProgressMonitor monitor) {
         AnalysisRunner runner = new AnalysisRunner();
         
         IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
@@ -131,8 +145,10 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         String moduleName = getModuleName(resource);
         
         //remove dependency information (and anything else that was already generated), but first, gather the modules dependent on this one.
-        fillDependenciesAndRemoveInfo(moduleName, nature, analyzeDependent);
+        fillDependenciesAndRemoveInfo(moduleName, nature, analyzeDependent, monitor);
 
+    	monitor.setTaskName("Analyzing module: "+moduleName);
+    	monitor.worked(1);
         
         OcurrencesAnalyzer analyzer = new OcurrencesAnalyzer();
         
@@ -150,6 +166,8 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
         //ok, let's do it
         IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences);
+        monitor.setTaskName("Adding markers for module: "+moduleName);
+        monitor.worked(1);
         runner.addMarkers(resource, document, messages, existing);
         
         for (IMarker marker : existing) {
@@ -164,11 +182,11 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
 
     @Override
-    public void visitRemovedResource(IResource resource, IDocument document) {
+    public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         String moduleName = getModuleName(resource);
         PythonNature nature = getPythonNature(resource);
         
-        fillDependenciesAndRemoveInfo(moduleName, nature, true);
+        fillDependenciesAndRemoveInfo(moduleName, nature, true, monitor);
     }
 
     /**
@@ -176,12 +194,14 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
      * @param nature
      * @param analyzeDependent 
      */
-    private void fillDependenciesAndRemoveInfo(String moduleName, PythonNature nature, boolean analyzeDependent) {
+    private void fillDependenciesAndRemoveInfo(String moduleName, PythonNature nature, boolean analyzeDependent, IProgressMonitor monitor) {
         AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
         if(analyzeDependent){
-            if(DEBUG_DEPENDENCIES){
-                System.out.println("Getting modules dependent on: "+moduleName);
-            }
+        	String progressMsg = "Getting modules dependent on: "+moduleName;
+			monitor.setTaskName(progressMsg);
+        	monitor.worked(1);
+            if(DEBUG_DEPENDENCIES){ System.out.println(progressMsg);}
+            
             Set<String> dependenciesOn = info.getModulesThatHaveDependenciesOn(moduleName);
             for (String dependentOn : dependenciesOn) {
                 if(DEBUG_DEPENDENCIES){

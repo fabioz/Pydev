@@ -32,7 +32,7 @@ public class CtxInsensitiveBuilderVisitor extends PyDevBuilderVisitor {
     }
     
     @Override
-    public void visitChangedResource(IResource resource, IDocument document) {
+    public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         AbstractModule sourceModule = getSourceModule(resource, document);
         PythonNature nature = getPythonNature(resource);
 
@@ -49,7 +49,7 @@ public class CtxInsensitiveBuilderVisitor extends PyDevBuilderVisitor {
     }
 
     @Override
-    public void visitRemovedResource(IResource resource, IDocument document) {
+    public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
     }
 
     @Override
