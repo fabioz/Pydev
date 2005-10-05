@@ -15,7 +15,8 @@ options
 
     USER_CHAR_STREAM      = true;
     UNICODE_INPUT         = true;
-    ERROR_REPORTING 	  = false; // this is used to shut down errors regarding javacc org.python.parser.PythonGrammar$LookaheadSuccess
+    ERROR_REPORTING 	  = true;  // this is NOT used to shut down errors regarding javacc org.python.parser.PythonGrammar$LookaheadSuccess
+   								   // because the generated information is not complete enough if we do it.
 }
 
 
