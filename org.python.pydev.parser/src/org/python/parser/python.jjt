@@ -4,15 +4,18 @@
 options
 {
     // only non-defaults are given here.
-    NODE_SCOPE_HOOK = true;                  // call jjtree*NodeScope()
-    NODE_FACTORY = true;
-    NODE_USES_PARSER = true;
-    STATIC = false;                          // multiple parsers
-    COMMON_TOKEN_ACTION = true;              // CommonTokenAction(Token)
-//    DEBUG_PARSER = true;                   // must be used to enable tracing 
-//    DEBUG_TOKEN_MANAGER = true;
-    USER_CHAR_STREAM = true;
-    UNICODE_INPUT = true;
+    NODE_SCOPE_HOOK       = true;   // call jjtree*NodeScope()
+    NODE_FACTORY          = true;
+    NODE_USES_PARSER      = true;
+    STATIC                = false;  // multiple parsers
+    COMMON_TOKEN_ACTION   = true;   // CommonTokenAction(Token)
+
+    DEBUG_PARSER          = false;  // must be used to enable tracing 
+    DEBUG_TOKEN_MANAGER   = false;  // used to debug the tokens we have generating 
+
+    USER_CHAR_STREAM      = true;
+    UNICODE_INPUT         = true;
+    ERROR_REPORTING 	  = false; // this is used to shut down errors regarding javacc org.python.parser.PythonGrammar$LookaheadSuccess
 }
 
 
