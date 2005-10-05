@@ -28,7 +28,7 @@ public class EvaluateExpressionCommand extends AbstractDebuggerCommand {
 		super(debugger);
 		
 		this.locator = locator;
-		this.expression = expression;
+		this.expression = expression.replaceAll("\r","").replaceAll("\n","");
 	}
 
 	public String getOutgoing() {

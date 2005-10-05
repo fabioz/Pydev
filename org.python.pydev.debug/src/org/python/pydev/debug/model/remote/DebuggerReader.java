@@ -1,6 +1,7 @@
 package org.python.pydev.debug.model.remote;
 
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -109,7 +110,7 @@ public class DebuggerReader implements Runnable {
      * done from outside)
      * 
      * @see java.lang.Runnable#run()
-     */
+     */	
 	public void run() {
 		while (!done) {
 			try {

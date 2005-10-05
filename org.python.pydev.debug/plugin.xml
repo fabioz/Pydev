@@ -214,7 +214,6 @@
 </extension>
    
 <!-- DEBUGGING -->
-
 <!-- breakpoint ruler action -->
 <extension point="org.eclipse.ui.editorActions">
 	<editorContribution
@@ -229,7 +228,7 @@
 	</editorContribution>
 </extension>
 
-<!-- breakpoint popup menu -->
+<!-- popup menu -->
 <extension point="org.eclipse.ui.popupMenus">
 	<viewerContribution 
     	id="org.python.pydev.debug.PyEditPopupActions" 
@@ -253,6 +252,18 @@
 			menubarPath="debug"
 			class="org.python.pydev.debug.ui.actions.ManageBreakpointRulerActionDelegate">
 		</action>
+	</viewerContribution>
+	
+	<viewerContribution 
+    	id="org.python.pydev.debug.WatchExpression" 
+    	targetID="#PyEditContext">
+		<action
+               label="Watch"
+               class="org.python.pydev.debug.ui.actions.WatchExpressionAction"
+               menubarPath="org.python.pydev.editor.watchexpression"
+               icon="icons/watch_exp.gif"
+               id="org.python.pydev.debug.ui.actions.WatchExpression">
+         </action>
 	</viewerContribution>
 </extension>
 

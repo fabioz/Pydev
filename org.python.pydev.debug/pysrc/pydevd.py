@@ -64,6 +64,7 @@ from socket import AF_INET
 from socket import SOCK_STREAM
 from socket import error
 import urllib
+import string
 import pydevd_vars
 
 VERSION_STRING = "1.0"
@@ -252,6 +253,7 @@ class NetCommandFactory:
         	</thread>
        	"""
         try:
+#            print "makeThreadSuspendMessage"
             cmdTextList = ["<xml>"]
             cmdTextList.append('<thread id="%s" stop_reason="%s">' % (str(thread_id), str(stop_reason)))
             
@@ -343,9 +345,10 @@ class InternalGetVariable:
      
     def doIt(self, dbg):
         """ Converts request into python variable """
+#        print "InternalGetVariable"
         try:
-            xml = "<xml>"
-            valDict = pydevd_vars.resolveCompoundVariable(self.thread, self.frame_id, self.scope, self.attributes)
+            xml = "<xml>"            
+            valDict = pydevd_vars.resolveCompoundVariable(self.thread, self.frame_id, self.scope, self.attributes)                        
             keys = valDict.keys()
             keys.sort()
             for k in keys:
@@ -377,6 +380,7 @@ class InternalEvaluateExpression:
     def doIt(self, dbg):
         """ Converts request into python variable """
         try:
+#            print "InternalEvaluteExpression"
             result = pydevd_vars.evaluateExpression( self.thread, self.frame_id, self.expression )
             xml = "<xml>"
             xml += pydevd_vars.varToXML(result, "")
@@ -671,9 +675,10 @@ class PyDB:
         try:            
             # breakpoints
             
-            file = os.path.abspath( filename )
+            file = os.path.abspath( filename )            
             line = int(frame.f_lineno)
             if t.pydev_state != PyDB.STATE_SUSPEND and self.breakpoints.has_key(file) and self.breakpoints[file].has_key(line):
+                print "passou por self.setSuspend"
                 self.setSuspend(t, CMD_SET_BREAK)
                 
             # if thread has a suspend flag, we suspend with a busy wait
