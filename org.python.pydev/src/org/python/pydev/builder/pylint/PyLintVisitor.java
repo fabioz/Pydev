@@ -267,7 +267,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
     }
     
-    public void visitChangedResource(IResource resource, IDocument document) {
+    public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         
         if(PyLintPrefPage.usePyLint() == false){
             try {
@@ -302,7 +302,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
     /**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    public void visitRemovedResource(IResource resource, IDocument document) {
+    public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
     }
 
     /**

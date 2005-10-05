@@ -235,7 +235,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                     communicateProgress(monitor, totalResources, i, r, visitor);
                     
                     //on a full build, all visits are as some add...
-                    visitor.visitAddedResource(r, doc);
+                    visitor.visitAddedResource(r, doc, monitor);
                 }
     
                 if (total > 1) {

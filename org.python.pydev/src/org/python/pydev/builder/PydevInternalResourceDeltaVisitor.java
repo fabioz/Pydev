@@ -72,7 +72,7 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
         if (type == IResource.FOLDER) {
             switch (delta.getKind()) {
                 case IResourceDelta.REMOVED:
-                    visitRemovedResource(resource, null);
+                    visitRemovedResource(resource, null, monitor);
                     break;
                 //for folders, we don't have to do anything if added or changed (we just treat their children, that should
                 //resolve for modules -- we do, however have to treat __init__.py differently).
@@ -97,15 +97,15 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
                     boolean isAddOrChange = false;
                     switch (delta.getKind()) {
                         case IResourceDelta.ADDED :
-                            visitAddedResource(resource, PyDevBuilder.getDocFromResource(resource));
+                            visitAddedResource(resource, PyDevBuilder.getDocFromResource(resource), monitor);
                             isAddOrChange = true;
                             break;
                         case IResourceDelta.CHANGED:
-                            visitChangedResource(resource, PyDevBuilder.getDocFromResource(resource));
+                            visitChangedResource(resource, PyDevBuilder.getDocFromResource(resource), monitor);
                             isAddOrChange = true;
                             break;
                         case IResourceDelta.REMOVED:
-                            visitRemovedResource(resource, null);
+                            visitRemovedResource(resource, null, monitor);
                             break;
                     }
 

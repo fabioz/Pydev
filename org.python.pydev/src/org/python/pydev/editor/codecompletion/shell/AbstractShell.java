@@ -417,7 +417,7 @@ public abstract class AbstractShell {
      * @return
      * @throws IOException
      */
-    public String read(Operation operation) throws IOException {
+    public synchronized String read(Operation operation) throws IOException {
         if(finishedForGood){
             throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to read from it.");
         }
@@ -504,7 +504,7 @@ public abstract class AbstractShell {
      * @param str
      * @throws IOException
      */
-    public void write(String str) throws IOException {
+    public synchronized void write(String str) throws IOException {
         if(finishedForGood){
             throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to write to it.");
         }

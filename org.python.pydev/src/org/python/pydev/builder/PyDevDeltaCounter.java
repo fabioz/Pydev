@@ -6,6 +6,7 @@
 package org.python.pydev.builder;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 
 /**
@@ -22,14 +23,14 @@ public class PyDevDeltaCounter extends PydevInternalResourceDeltaVisitor{
     /**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitChangedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    public void visitChangedResource(IResource resource, IDocument document) {
+    public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         nVisited += 1;
     }
 
     /**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    public void visitRemovedResource(IResource resource, IDocument document) {
+    public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
     }
 
     /**

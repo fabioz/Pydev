@@ -19,11 +19,11 @@ import org.python.pydev.plugin.PydevPlugin;
 public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
 
     @Override
-    public void visitChangedResource(IResource resource, IDocument document) {
+    public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
     }
 
     @Override
-    public void visitRemovedResource(IResource resource, IDocument document) {
+    public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         String loc = resource.getLocation().toOSString()+"c"; //.py+c = .pyc
         if(loc.endsWith(".pyc")){
             //the .py has just been removed, so, remove the .pyc if it exists

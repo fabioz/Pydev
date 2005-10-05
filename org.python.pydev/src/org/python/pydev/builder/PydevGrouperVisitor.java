@@ -33,8 +33,9 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
      * @param isAddOrChange true if it is an add or change
      * @param resource the resource to visit
      * @param document the document from the resource
+     * @param monitor 
      */
-    private void visitWith(String name, boolean isAddOrChange, IResource resource, IDocument document){
+    private void visitWith(String name, boolean isAddOrChange, IResource resource, IDocument document, IProgressMonitor monitor){
         HashMap<String, Object> memo = new HashMap<String, Object>();
         memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false); //mark it as a delta build
         
@@ -45,7 +46,7 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
                 try {
                     //communicate progress for each visitor
                     PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, visitor);
-                    REF.invoke(visitor, name, resource, document);
+                    REF.invoke(visitor, name, resource, document, monitor);
                     
                     //ok, standard visiting ended... now, we have to check if we should visit the other
                     //resources if it was an __init__.py file that changed
@@ -53,7 +54,7 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
                         IResource[] initDependents = getInitDependents(resource);
                         
                         for (int i = 0; i < initDependents.length; i++) {
-                            REF.invoke(visitor, name, initDependents[i], PyDevBuilder.getDocFromResource(initDependents[i]));
+                            REF.invoke(visitor, name, initDependents[i], PyDevBuilder.getDocFromResource(initDependents[i]), monitor);
                         }
                     }
                 } catch (Exception e) {
@@ -65,18 +66,18 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
     }
 
     @Override
-    public void visitAddedResource(IResource resource, IDocument document) {
-        visitWith("visitAddedResource", true, resource, document);
+    public void visitAddedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+        visitWith("visitAddedResource", true, resource, document, monitor);
     }
     
     @Override
-    public void visitChangedResource(IResource resource, IDocument document) {
-        visitWith("visitChangedResource", true, resource, document);
+    public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+        visitWith("visitChangedResource", true, resource, document, monitor);
     }
 
     @Override
-    public void visitRemovedResource(IResource resource, IDocument document) {
-        visitWith("visitRemovedResource", false, resource, document);
+    public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+        visitWith("visitRemovedResource", false, resource, document, monitor);
     }
 
 }

@@ -9,6 +9,7 @@ import java.io.File;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
@@ -36,7 +37,7 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
      * 
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitChangedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    public void visitChangedResource(IResource resource, IDocument document) {
+    public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         
         if(document != null){ //it might be out of sync...
             PythonNature pythonNature = getPythonNature(resource);
@@ -55,7 +56,7 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
     /**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    public void visitRemovedResource(IResource resource, IDocument document) {
+    public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
 
         PythonNature pythonNature = getPythonNature(resource);
         if(pythonNature != null){

@@ -30,10 +30,17 @@ public class PydevMarkerUtils {
         
         try {
             for (IMarker task : existingMarkers) {
-                boolean eqMessage = task.getAttribute(IMarker.MESSAGE).equals(message);
+                Object msg = task.getAttribute(IMarker.MESSAGE);
+                Object start = task.getAttribute(IMarker.CHAR_START);
+                Object end = task.getAttribute(IMarker.CHAR_END);
 
-                boolean eqCharStart = (Integer) task.getAttribute(IMarker.CHAR_START) == charStart;
-                boolean eqCharEnd = (Integer) task.getAttribute(IMarker.CHAR_END) == charEnd;
+
+                if(msg == null || start == null || end == null || message == null){
+                	return null;
+                }
+                boolean eqMessage = msg.equals(message);
+                boolean eqCharStart = (Integer) start == charStart;
+				boolean eqCharEnd = (Integer) end == charEnd;
 
                 if (eqMessage && eqCharStart && eqCharEnd) {
                     return task;
@@ -200,6 +207,9 @@ public class PydevMarkerUtils {
     }
     
     public static IMarker createMarker(IResource resource, String message, int lineNumber, String markerType, int severity) {
+    	if(message == null){
+    		throw new RuntimeException("The marker message may not be null.");
+    	}
         return createMarker(resource, message, lineNumber, markerType, severity, null);
     }
 
