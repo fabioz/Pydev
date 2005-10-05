@@ -18,6 +18,7 @@ after 0.9.8.2
 - code completion for relative imports has changed a lot (there were some pretty hard-to-find bugs in this area... 
   -- which made the code evolve a lot on this aspect).
 - Code folding added for 'glued' imports
+- Some move imports problems fixed
 
 after 0.9.8.1
 

@@ -165,22 +165,36 @@ public class PySelection {
             }
             
             char current = strDoc.charAt(initialOffset);
+            
+            //for checking if it is global, it must be in the beggining of a line (must be right after a \r or \n).
+            
             while (current != '\'' && current != '"' && initialOffset < strDoc.length()-1) {
+            	
+            	//if it is inside a parenthesis, we will not take it into consideration.
                 if(current == '('){
                     initialOffset = ParsingUtils.eatPar(strDoc, initialOffset, buf);
                 }
+                
+                
                 initialOffset += 1;
                 if(initialOffset < strDoc.length()-1){
                     current = strDoc.charAt(initialOffset);
                 }
             }
-            
+
+            //either, we are at the end of the document or we found a literal
             if(initialOffset == strDoc.length()-1){
                 return new int[]{-1, -1};
             }else{
-                //either, we are at the end of the document or we found a literal
-                int i = ParsingUtils.eatLiterals(strDoc, buf, initialOffset);
-                return new int[]{initialOffset, i};
+            	char lastChar = strDoc.charAt(initialOffset-1);
+            	//it is only global if after \r or \n
+            	if(lastChar == '\r' || lastChar == '\n'){
+	                int i = ParsingUtils.eatLiterals(strDoc, buf, initialOffset);
+	                return new int[]{initialOffset, i};
+            	}else{
+            		//ok, still not found, let's keep going
+            		return getFirstGlobalLiteral(buf, initialOffset+1);
+            	}
             }
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
