@@ -111,7 +111,7 @@ public class NoSelfChecker {
                 }
             }
             //didn't have staticmethod decorator either
-            if(!startsWithSelf && !isStaticMethod && !isClassMethod){
+            if(!startsWithSelf && !startsWithCls && !isStaticMethod && !isClassMethod){
                 maybeNoSelfDefinedItems.peek().put(NodeUtils.getRepresentationString(node), node);
             }
             if(startsWithCls && !isClassMethod){
@@ -157,10 +157,17 @@ public class NoSelfChecker {
                             if(def != null && funcCall != null && funcCall.equals("staticmethod")){
                                 //ok, finally... it is a staticmethod after all...
                                 maybeNoSelfDefinedItems.peek().remove(rep);
-                            }
-                            if(defCls != null && funcCall != null && funcCall.equals("classmethod")){
-                                //ok, finally... it is a classmethod after all...
-                                maybeNoClsDefinedItems.peek().remove(rep);
+                                
+                            }else if(funcCall.equals("classmethod")){
+	                            if(defCls != null && funcCall != null){
+	                                //ok, finally... it is a classmethod after all...
+	                                maybeNoClsDefinedItems.peek().remove(rep);
+	                                
+	                            }else if(def != null && funcCall != null){ //if the definitions were found for the staticmethod, but it was found as a classmethod
+	                            	//ok, it is probably defined in the 'self' stack, so, move it to the 'cls' stack
+	                            	FunctionDef defToMove = maybeNoSelfDefinedItems.peek().remove(rep);
+	                            	maybeNoClsDefinedItems.peek().put(rep, defToMove);
+	                            }
                             }
                         }
                     }

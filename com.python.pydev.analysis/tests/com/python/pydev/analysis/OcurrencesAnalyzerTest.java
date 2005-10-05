@@ -25,7 +25,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUnusedWildRelativeImport();
+            analyzer2.testClassMethodCls3();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -1526,6 +1526,39 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
         printMessages(msgs, 0);
+    }
+    
+    public void testClassMethodCls2() {
+    	doc = new Document(
+    			"class C:\n" +
+    			"    def m(cls):\n" +
+    			"        print cls\n" +
+    			"    m = classmethod(m)" +
+    			"\n" +
+    			"\n" +
+    			"" 
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs, 0);
+    }
+    
+    public void testClassMethodCls3() {
+    	doc = new Document(
+    			"class C:\n" +
+    			"    def m():\n" +
+    			"        pass\n" +
+    			"    m = classmethod(m)" +
+    			"\n" +
+    			"\n" +
+    			"" 
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs, 1);
+    	assertEquals("Method 'm' should have cls as first parameter", msgs[0].toString());
     }
     
     public void testStaticNoSelf2() {
