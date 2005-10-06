@@ -17,13 +17,13 @@ public class ImportFromNode extends AbstractNode {
 
 	public ImportFrom astNode;
 	
-	public ImportFromNode(AbstractNode parent, ImportFrom astNode, String lineText) {
+	public ImportFromNode(AbstractNode parent, ImportFrom astNode) {
 		super(parent);
 		this.astNode = astNode;
-		setStart(new Location(astNode.beginLine - 1, astNode.beginColumn - 1));
-		setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn -1 + ((NameTok)astNode.module).id.length()));
-		fixColumnLocation(start, lineText);
-		fixColumnLocation(end, lineText);
+		
+		setStart(new Location(astNode.module.beginLine - 1, astNode.module.beginColumn - 1));
+
+		findEnd(astNode.names);
 		properties = PROP_CLICKABLE;
 	}
 	

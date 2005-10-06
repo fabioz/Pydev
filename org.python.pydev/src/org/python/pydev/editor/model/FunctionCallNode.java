@@ -18,7 +18,7 @@ public class FunctionCallNode extends AbstractNode {
 	/**
 	 * @param parent
 	 */
-	public FunctionCallNode(AbstractNode parent, Call astNode, String lineText) {
+	public FunctionCallNode(AbstractNode parent, Call astNode) {
 		super(parent);
 		this.astNode = astNode;
 		this.setStart(new Location(astNode.beginLine - 1, astNode.beginColumn - 1));
@@ -30,8 +30,6 @@ public class FunctionCallNode extends AbstractNode {
 		}
 		
 		this.setEnd(new Location(astNode.beginLine - 1, astNode.beginColumn + estimate.getLength()));
-		fixColumnLocation(start, lineText);
-		fixColumnLocation(end, lineText);
 		properties = PROP_CLICKABLE;
 	}
 	

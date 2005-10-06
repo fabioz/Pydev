@@ -17,18 +17,20 @@ public class FunctionNode extends AbstractNode {
 	public FunctionDef astNode;
 	Scope scope;
 	
-	public FunctionNode(AbstractNode parent, FunctionDef node, String lineText) {
+	public FunctionNode(AbstractNode parent, FunctionDef node) {
 		super(parent);
 		this.astNode = node;
 		scope = new Scope(this);
 		parent.getScope().addFunctionDefinition(this);
 
 		NameTok nameTok = (NameTok) astNode.name;
-		setStart(new Location(nameTok.beginLine - 1, nameTok.beginColumn -1 ));
-        setEnd(new Location(nameTok.beginLine - 1, nameTok.beginColumn -1 + NodeUtils.getNameFromNameTok(nameTok).length()));
-		fixColumnLocation(start, lineText);
-		fixColumnLocation(end, lineText);
-		properties = PROP_CLICKABLE;
+		int line = nameTok.beginLine - 1;
+		int beginCol = nameTok.beginColumn -1;
+		
+		setStart(new Location(line, beginCol ));
+        setEnd(new Location(line, beginCol + NodeUtils.getNameFromNameTok(nameTok).length()));
+		
+        properties = PROP_CLICKABLE;
 	}
 	
 	public String getName() {

@@ -9,6 +9,8 @@ import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.python.parser.ast.NameTok;
+import org.python.parser.ast.aliasType;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -36,8 +38,9 @@ public abstract class AbstractNode {
 	 */
 	public AbstractNode(AbstractNode parent) {
 		this.parent = parent;
-		if (parent != null)
+		if (parent != null){
 			parent.addChild(this);
+		}
 	}
 		
 	public Location getStart() {
@@ -104,29 +107,40 @@ public abstract class AbstractNode {
 		return parent.getPath();
 	}
 	
-	/**
-	 * This function is a heuristic solution for the way jython & TextEditor
-	 * deal with column numbers.
-	 * 
-	 * jython's parser converts tabs to spaces internally. 
-	 * When it reports the column, it reports the column after the spaces
-	 * have been converted to tabs. So in "\tFunc()", func starts in column
-	 * 5 according to jython's parser, and in column 1 according to text editor.
-	 * 
-	 * This fix tries to convert jython's column numbers to those that work for editor.
-	 * To do this, we get the whole line where location was defined, and
-	 * substract the spaces assumed by jython (8 per tab).
-	 */
-	public void fixColumnLocation(Location loc, String lineText) {
-		int where = 0;
-		where = lineText.indexOf("\t", where);
-		while (where != -1 && where <= loc.column) {
-			where = lineText.indexOf("\t", where+1);
-			loc.column -= 7;
-		}
-		if (loc.column < 0) {
-			loc.column = 0;
-			PydevPlugin.log(IStatus.ERROR, "Unexpected columnFixLocation error", null);
+	protected void findEnd(aliasType[] foundAlias) {
+		for(aliasType alias : foundAlias){
+			if(alias.asname != null){
+				setEnd(new Location(alias.asname.beginLine - 1, alias.asname.beginColumn - 1 + ((NameTok)alias.asname).id.length()));
+			}else{
+				setEnd(new Location(alias.name.beginLine - 1, alias.name.beginColumn - 1 + ((NameTok)alias.name).id.length()));
+			}
 		}
 	}
+
+	
+//	/**
+//	 * This function is a heuristic solution for the way jython & TextEditor
+//	 * deal with column numbers.
+//	 * 
+//	 * jython's parser converts tabs to spaces internally. 
+//	 * When it reports the column, it reports the column after the spaces
+//	 * have been converted to tabs. So in "\tFunc()", func starts in column
+//	 * 5 according to jython's parser, and in column 1 according to text editor.
+//	 * 
+//	 * This fix tries to convert jython's column numbers to those that work for editor.
+//	 * To do this, we get the whole line where location was defined, and
+//	 * substract the spaces assumed by jython (8 per tab).
+//	 */
+//	public void fixColumnLocation(Location loc, String lineText) {
+//		int where = 0;
+//		where = lineText.indexOf("\t", where);
+//		while (where != -1 && where <= loc.column) {
+//			where = lineText.indexOf("\t", where+1);
+//			loc.column -= 7;
+//		}
+//		if (loc.column < 0) {
+//			loc.column = 0;
+//			PydevPlugin.log(IStatus.ERROR, "Unexpected columnFixLocation error", null);
+//		}
+//	}
 }

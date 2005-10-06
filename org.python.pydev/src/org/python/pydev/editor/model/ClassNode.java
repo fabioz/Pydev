@@ -23,8 +23,11 @@ public class ClassNode extends AbstractNode {
 		scope = new Scope(this);
 
         NameTok nameTok = (NameTok) astNode.name;
-		setStart(new Location(nameTok.beginLine - 1, nameTok.beginColumn -1));
-        setEnd(new Location(astNode.beginLine - 1, nameTok.beginColumn -1 + NodeUtils.getNameFromNameTok(nameTok).length()));
+		int line = nameTok.beginLine - 1;
+		int beginCol = nameTok.beginColumn -1;
+		
+		setStart(new Location(line, beginCol));
+        setEnd(new Location(line, beginCol + NodeUtils.getNameFromNameTok(nameTok).length()));
 		properties = PROP_CLICKABLE;
 	}
 	

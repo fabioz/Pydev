@@ -76,33 +76,25 @@ public class ModelMaker {
 			this.doc = doc;
 		}
 		
-		private String getLineText(SimpleNode node) {
-			try {
-				IRegion lineInfo = doc.getLineInformation(node.beginLine -1);
-				return doc.get(lineInfo.getOffset(), lineInfo.getLength());
-			} catch (BadLocationException e) {
-				PydevPlugin.log(IStatus.ERROR, "Unexpected getLineText error", e);
-			}
-			return "";
-		}
 		
 		/** 
 		 * processAliases creates Import tokens. 
 		 * import os, sys would create 2 aliases
 		 */
 		void processAliases(AbstractNode parent, aliasType[] nodes) {
-			for (int i=0; i<nodes.length; i++)
-				new ImportAlias(parent, nodes[i], getLineText(nodes[i]));
+			for (int i=0; i<nodes.length; i++){
+				new ImportAlias(parent, nodes[i]);
+			}
 		}
 
 		void processImport(Import node) {
-			ImportNode newNode = new ImportNode(parent, node, getLineText(node));
+			ImportNode newNode = new ImportNode(parent, node);
 			// have to traverse children manually to find all imports
 			processAliases(newNode, node.names);
 		}
 		
 		void processImportFrom(ImportFrom node) {
-			ImportFromNode newNode = new ImportFromNode(parent, node, getLineText(node));
+			ImportFromNode newNode = new ImportFromNode(parent, node);
 			// have to traverse children manually to find all imports
 			processAliases(newNode, node.names);		
 		}
@@ -120,7 +112,7 @@ public class ModelMaker {
 		}
 
 		void processFunctionDef(FunctionDef node) {
-			FunctionNode newNode = new FunctionNode(parent, node, getLineText(node));
+			FunctionNode newNode = new FunctionNode(parent, node);
 			// traverse inside the function definition			
 			PopulateModel populator = new PopulateModel(node, newNode, doc);
 			try {
@@ -132,12 +124,13 @@ public class ModelMaker {
 		}
 
 		void processLocal(Name node) {
-			if (!LocalNode.isBuiltin(node.id))
-				new LocalNode(parent, node, getLineText(node));
+			if (!LocalNode.isBuiltin(node.id)){
+				new LocalNode(parent, node);
+			}
 		}
 
 		void processFunctionCall(Call node) {
-			FunctionCallNode newNode = new FunctionCallNode(parent, node, getLineText(node));
+			FunctionCallNode newNode = new FunctionCallNode(parent, node);
 			PopulateModel populator = new PopulateModel(node, newNode, doc);
 			try {
 				node.traverse(populator);
@@ -159,7 +152,7 @@ public class ModelMaker {
 		}
 
 		private void processAttribute(Attribute node) {
-			new AttributeNode(parent, node, getLineText(node));
+			new AttributeNode(parent, node);
 		}
 
 		protected Object unhandled_node(SimpleNode node) throws Exception {
