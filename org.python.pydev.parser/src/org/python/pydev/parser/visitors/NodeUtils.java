@@ -49,9 +49,24 @@ public class NodeUtils {
         return "";
     }
 
+    
     /**
-     * @param node
-     * @return
+     * Get the representation for the passed parameter (if it is a String, it is itself, if it
+     * is a SimpleNode, get its representation
+     */
+    private static String discoverRep(Object o){
+    	if(o instanceof String){
+    		return (String) o;
+    	}
+    	if(o instanceof SimpleNode){
+    		return getRepresentationString((SimpleNode) o);
+    	}
+    	throw new RuntimeException("Expecting a String or a SimpleNode");
+    }
+    
+    /**
+     * @param node this is the node from whom we want to get the representation
+     * @return A suitable String representation for some node.
      */
     public static String getRepresentationString(SimpleNode node) {
             
@@ -64,13 +79,13 @@ public class NodeUtils {
             return attrObj.toString();
             
         }else if (REF.hasAttr(node, "id")) {
-            return REF.getAttrObj(node, "id").toString();
+            return discoverRep(REF.getAttrObj(node, "id"));
     
         }else if (REF.hasAttr(node, "attr")) {
-            return REF.getAttrObj(node, "attr").toString();
+            return discoverRep(REF.getAttrObj(node, "attr"));
     
         }else if (REF.hasAttr(node, "arg")) {
-            return REF.getAttrObj(node, "arg").toString();
+            return discoverRep(REF.getAttrObj(node, "arg"));
             
         }else if (node instanceof Call){
             Call call = ((Call)node);

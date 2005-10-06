@@ -220,6 +220,11 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
             AbstractModule m = modTok.o1;
             String tok = modTok.o2;
             
+            if(m == null){
+            	//we were unable to find it with the given path, so, there's nothing else to do here...
+            	return;
+            }
+            
             IToken[] globalTokens;
             if(tok != null && tok.length() > 0){
                 CompletionState state2 = new CompletionState(-1,-1,tok,nature);

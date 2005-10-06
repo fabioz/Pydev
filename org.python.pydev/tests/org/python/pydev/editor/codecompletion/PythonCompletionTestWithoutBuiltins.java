@@ -29,7 +29,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-          test.testWildImportRecursive3();
+          test.testProperties();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -186,6 +186,17 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 	    s = "from testrec2 import *\n" +
 	    "";
 	    requestCompl(s, -1, -1, new String[] { "Leaf"});
+	}
+	
+	public void testProperties() throws BadLocationException, IOException, Exception{
+		String s;
+		s = 
+		"class C:\n" +
+		"    \n" +
+		"    properties.create(test = 0)\n" +
+		"    \n" +
+		"c = C.";
+		requestCompl(s, -1, -1, new String[] { "test"});
 	}
 	
 	public void testImportMultipleFromImport() throws BadLocationException, IOException, Exception{
