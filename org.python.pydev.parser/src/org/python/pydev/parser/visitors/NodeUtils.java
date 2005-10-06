@@ -271,7 +271,7 @@ public class NodeUtils {
             }
         }
         
-        col = getFromRepresentation(v);
+        col = getEndColFromRepresentation(v);
         return new int[]{lineEnd, col};
     }
 
@@ -279,7 +279,7 @@ public class NodeUtils {
      * @param v
      * @return
      */
-    private static int getFromRepresentation(SimpleNode v) {
+    private static int getEndColFromRepresentation(SimpleNode v) {
         int col;
         String representationString = getFullRepresentationString(v);
         if(representationString == null){
