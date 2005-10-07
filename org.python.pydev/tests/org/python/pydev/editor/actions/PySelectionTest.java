@@ -129,6 +129,17 @@ public class PySelectionTest extends TestCase {
     	assertEquals(0, selection.getLineAvailableForImport());
     }
     
+    public void testImportLine5() {
+    	String strDoc = "" +
+    	"'''This is the data that should be set...\n"+
+    	"'''\n"+
+    	"\n"+
+    	"\n";
+    	Document document = new Document(strDoc);
+    	PySelection selection = new PySelection(document);
+    	assertEquals(2, selection.getLineAvailableForImport());
+    }
+    
     
     public void testSelectAll() {
         ps = new PySelection(doc, new TextSelection(doc, 0,0));

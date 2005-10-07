@@ -184,15 +184,21 @@ public class PySelection {
 
             //either, we are at the end of the document or we found a literal
             if(initialOffset < strDoc.length()-1){
+
+            	if(initialOffset == 0){ //first char of the document... this is ok
+	                int i = ParsingUtils.eatLiterals(strDoc, buf, initialOffset);
+	                return new int[]{initialOffset, i};
+            	}
+            	
             	char lastChar = strDoc.charAt(initialOffset-1);
             	//it is only global if after \r or \n
             	if(lastChar == '\r' || lastChar == '\n'){
 	                int i = ParsingUtils.eatLiterals(strDoc, buf, initialOffset);
 	                return new int[]{initialOffset, i};
-            	}else{
-            		//ok, still not found, let's keep going
-            		return getFirstGlobalLiteral(buf, initialOffset+1);
             	}
+            	
+                //ok, still not found, let's keep going
+        		return getFirstGlobalLiteral(buf, initialOffset+1);
             }else{
             	return new int[]{-1, -1};
             	
