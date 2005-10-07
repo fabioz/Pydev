@@ -183,9 +183,7 @@ public class PySelection {
             }
 
             //either, we are at the end of the document or we found a literal
-            if(initialOffset == strDoc.length()-1){
-                return new int[]{-1, -1};
-            }else{
+            if(initialOffset < strDoc.length()-1){
             	char lastChar = strDoc.charAt(initialOffset-1);
             	//it is only global if after \r or \n
             	if(lastChar == '\r' || lastChar == '\n'){
@@ -195,6 +193,9 @@ public class PySelection {
             		//ok, still not found, let's keep going
             		return getFirstGlobalLiteral(buf, initialOffset+1);
             	}
+            }else{
+            	return new int[]{-1, -1};
+            	
             }
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
