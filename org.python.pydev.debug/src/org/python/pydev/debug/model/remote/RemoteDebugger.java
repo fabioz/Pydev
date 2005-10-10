@@ -114,7 +114,9 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
 			reader = null;
 		}
         try {
-            target.terminate();
+        	if(target != null){
+        		target.terminate();
+        	}
         } catch (DebugException e) {
             throw new RuntimeException(e);
         }
