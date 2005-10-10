@@ -25,7 +25,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testClassMethodCls3();
+            analyzer2.testScopes8();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -860,6 +860,53 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 2);
         assertContainsMsg("Undefined variable: col", msgs, 2);
         assertContainsMsg("Unused variable: col", msgs, 4);
+    }
+    
+    public void testScopes7() {
+    	doc = new Document(
+    			"def ok():          \n"+
+    			"    def call():    \n"+
+    			"        call2()    \n"+
+    			"                   \n"+
+    			"    def call2():   \n"+
+    			"        pass\n"+
+    			""   
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs, 0);
+    }
+    
+    
+    public void testScopes8() {
+    	doc = new Document(
+			"def m1():                      \n"+
+			"    print (str(undef)).lower() \n"+
+			"                               \n"+
+			""   
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs, 1);
+        assertContainsMsg("Undefined variable: undef", msgs, 2);
+
+    }
+    
+    public void testScopes9() {
+    	doc = new Document(
+    			"def m1():                      \n"+
+    			"    undef = 10                 \n"+
+    			"    print (str(undef)).lower() \n"+
+    			"                               \n"+
+    			""   
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs, 0);
+    	
     }
     
     public void testSameName() {

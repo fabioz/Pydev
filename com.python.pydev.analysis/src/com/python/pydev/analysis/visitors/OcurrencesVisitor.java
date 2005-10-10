@@ -27,6 +27,7 @@ import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Subscript;
 import org.python.parser.ast.TryExcept;
 import org.python.parser.ast.TryFinally;
+import org.python.parser.ast.Tuple;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.While;
 import org.python.parser.ast.argumentsType;
@@ -179,8 +180,32 @@ public class OcurrencesVisitor extends VisitorBase{
     private void addToNamesToIgnore(SimpleNode node) {
         SourceToken token = AbstractVisitor.makeToken(node, "");
         stackNamesToIgnore.peek().put(token.getRepresentation(), token);
+        
+        //after adding it to the names to ignore, let's see if there is someone waiting for this declaration
+        //in the 'probably not defined' stack. 
+        for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
+            Found n = it.next();
+            
+            IToken tok = n.getSingle().tok;
+            String rep = tok.getRepresentation();
+            if(rep.equals(token.getRepresentation())){
+            	it.remove();
+            }
+        }
     }
 
+    
+    @Override
+    public Object visitTuple(Tuple node) throws Exception {
+    	return super.visitTuple(node);
+    }
+    
+    
+    @Override
+    public Object visitCall(Call node) throws Exception {
+    	return super.visitCall(node);
+    }
+    
     /**
      * we are starting a new scope when visiting a function 
      * @see org.python.parser.ast.VisitorIF#visitFunctionDef(org.python.parser.ast.FunctionDef)
@@ -383,6 +408,9 @@ public class OcurrencesVisitor extends VisitorBase{
 
         if(node.value instanceof Call){
             visitCallAttr(node);
+        }
+        if(node.value instanceof Tuple){
+        	visitTuple((Tuple) node.value);
         }
         if(node.value instanceof Subscript){
             this.traverse(((Subscript) node.value).slice);
