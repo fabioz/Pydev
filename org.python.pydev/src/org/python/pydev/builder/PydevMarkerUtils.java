@@ -181,6 +181,13 @@ public class PydevMarkerUtils {
                 PydevPlugin.log(e);
             }
         }else{
+        	//to check if it exists, we don't check all attributes, so, let's update those that we don't check.
+        	try {
+				marker.setAttribute(IMarker.LINE_NUMBER, new Integer(lineStart));
+				marker.setAttribute(IMarker.SEVERITY, new Integer(severity));
+			} catch (Exception e) {
+				PydevPlugin.log(e);
+			}
             existingMarkers.remove(marker);
         }
         return marker;
