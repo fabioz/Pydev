@@ -346,7 +346,19 @@ public class PyParser {
         StringReader inString = new StringReader(initialDoc);
         ReaderCharStream in = new ReaderCharStream(inString);
         IParserHost host = new CompilerAPI();
-        PythonGrammar grammar = new PythonGrammar(in, host);
+        PythonGrammar grammar = null;
+        try {
+			grammar = new PythonGrammar(in, host);
+		} catch (Error e) {
+			//PythonGrammar$LookaheadSuccess error: this happens sometimes when the file is
+			//not parseable
+			if(e.getClass().getName().indexOf("LookaheadSuccess") != -1){
+				return null;
+			}else{
+				throw e;
+			}
+		}
+		
         if(ENABLE_TRACING){
             //grammar has to be generated with debugging info for this to make a difference
             grammar.enable_tracing();
