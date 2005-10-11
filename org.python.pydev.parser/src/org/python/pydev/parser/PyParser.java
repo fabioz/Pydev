@@ -347,28 +347,17 @@ public class PyParser {
         ReaderCharStream in = new ReaderCharStream(inString);
         IParserHost host = new CompilerAPI();
         PythonGrammar grammar = null;
-        try {
-			grammar = new PythonGrammar(in, host);
-		} catch (Error e) {
-			//PythonGrammar$LookaheadSuccess error: this happens sometimes when the file is
-			//not parseable
-			if(e.getClass().getName().indexOf("LookaheadSuccess") != -1){
-				return null;
-			}else{
-				throw e;
-			}
-		}
-		
-        if(ENABLE_TRACING){
-            //grammar has to be generated with debugging info for this to make a difference
-            grammar.enable_tracing();
-        }
-
 
         try {
+        	grammar = new PythonGrammar(in, host);
+        	
+        	if(ENABLE_TRACING){
+        		//grammar has to be generated with debugging info for this to make a difference
+        		grammar.enable_tracing();
+        	}
             SimpleNode newRoot = grammar.file_input(); // parses the file
             return new Object[]{newRoot,null};
-
+		
 
         } catch (ParseException parseErr) {
             SimpleNode newRoot = null;
@@ -399,7 +388,17 @@ public class PyParser {
 
         } catch (Exception e) {
             Log.log(e);
-            return null;
+            return new Object[]{null, null};
+        
+        } catch (Throwable e) {
+			//PythonGrammar$LookaheadSuccess error: this happens sometimes when the file is
+			//not parseable
+			if(e.getClass().getName().indexOf("LookaheadSuccess") != -1){
+				//don't log this kind of error...
+			}else{
+				Log.log(e);
+			}
+			return new Object[]{null, null};
         }
     }
 
