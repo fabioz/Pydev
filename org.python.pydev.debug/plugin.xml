@@ -258,11 +258,12 @@
     	id="org.python.pydev.debug.WatchExpression" 
     	targetID="#PyEditContext">
 		<action
-               label="Watch"
-               class="org.python.pydev.debug.ui.actions.WatchExpressionAction"
-               menubarPath="org.python.pydev.editor.watchexpression"
-               icon="icons/watch_exp.gif"
-               id="org.python.pydev.debug.ui.actions.WatchExpression">
+        class="org.python.pydev.debug.ui.actions.WatchExpressionAction"
+        icon="icons/watch_exp.gif"
+        id="org.python.pydev.debug.ui.actions.WatchExpression"
+        label="Watch"
+        menubarPath="org.python.pydev.editor.watchexpression">
+        
          </action>
 	</viewerContribution>
 </extension>
