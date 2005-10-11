@@ -8,7 +8,7 @@ package org.python.pydev.editor;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.ListResourceBundle;
 import java.util.Map;
 
@@ -127,11 +127,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     Hyperlink fMouseListener;
 
     /** listeners that get notified of model changes */
-    ArrayList modelListeners;
+    List<IModelListener> modelListeners;
 
     public PyEdit() {
         super();
-        modelListeners = new ArrayList();
+        modelListeners = new ArrayList<IModelListener>();
         colorCache = new ColorCache(PydevPlugin.getChainedPrefStore());
         
         editConfiguration = new PyEditConfiguration(colorCache, this);
@@ -713,11 +713,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * @param root2
      */
     protected void fireModelChanged(AbstractNode root, SimpleNode root2) {
-        Iterator e = modelListeners.iterator();
-        while (e.hasNext()) {
-            IModelListener l = (IModelListener) e.next();
-            l.modelChanged(root, root2);
-        }
+    	//create a copy, to avoid concurrent modifications
+        for (IModelListener listener : new ArrayList<IModelListener>(modelListeners)) {
+        	listener.modelChanged(root, root2);
+		}
     }
 
     /**
