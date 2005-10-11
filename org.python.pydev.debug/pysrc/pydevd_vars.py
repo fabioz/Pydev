@@ -5,6 +5,7 @@ from types import *
 import urllib
 import threading
 import sys
+import pydevd_resolver
 
 try:
     __setFalse = False
@@ -12,176 +13,10 @@ except:
     False = 0
     True = 1
 
-class InspectStub:    
-    def isbuiltin(self, args):       
-        #return isinstance(args, types.BuiltinFunctionType)
-        return False
-    def isroutine(self, object):       
-        return False
-       
-try:
-    import inspect
-except:
-#    print "passou por except in import inspect"
-    inspect = InspectStub()
-
-try:
-    import java.lang
-except:
-    pass
-
-#types does not include a MethodWrapperType
-try:
-   MethodWrapperType = type([].__str__)   
-except:
-   MethodWrapperType = None
-
-
 class VariableError(Exception):
     def __init__(self, message):
         Exception.__init__(self, message)
-
-class Resolver:
-    def resolve(self, var, attribute):        
-        return getattr(var, attribute)
-    
-    def getDictionary(self,var):
-#        print "Resolver"
-               
-        if MethodWrapperType:
-            return self._getPyDictionary(var)
-        else:
-            return self._getJyDictionary(var)        
-
-    def _getJyDictionary(self,obj):
-        ret = {}
-        found = java.util.HashMap()
-    
-        #from java.lang.reflect import Field
-        #from java.lang.reflect import Method
-    
-        if hasattr(obj, '__class__') and obj.__class__ ==  java.lang.Class:
-#            print "dirObj"
-            declaredMethods = obj.getDeclaredMethods()
-            declaredFields = obj.getDeclaredFields()
-            for i in range(len(declaredMethods)):                
-                name = declaredMethods[i].getName()
-                ret[name] = declaredMethods[i].toString()
-                found.put(name, 1)
-                
-            for i in range(len(declaredFields)):
-                name = declaredFields[i].getName()
-                found.put(name, 1)
-                #if declaredFields[i].isAccessible():
-                ret[name] = declaredFields[i].get( declaredFields[i] )                    
-    
-        #this simple dir does not always get all the info, that's why we have the part before
-        #(e.g.: if we do a dir on String, some methods that are from other interfaces such as 
-        #charAt don't appear)        
-        d = []
-        if hasattr(obj, '__dict__'):
-            d = dir(obj)        
-#        print "d",d
-        for name in d:
-            if found.get(name) is not 1:
-                try:
-                    ret[name] = getattr(obj, name)
-                except:
-                    #import traceback
-                    #traceback.print_exc()
-                    pass
-        ret['type'] = type(obj).__name__
         
-        return ret
-
-    def _getPyDictionary(self,var):
-        filterPrivate = False
-        filterSpecial = True
-        filterFunction = True
-        filterBuiltIn = True
-        
-        names = dir(var)
-        d = {}
-        
-        #Be aware that the order in which the filters are applied attempts to 
-        #optimize the operation by removing as many items as possible in the 
-        #first filters, leaving fewer items for later filters
-        if filterSpecial:
-            names = [n for n in names if not (n.startswith('__') and n.endswith('__') )]        
-        if filterBuiltIn or filterFunction:
-            nametemp = []
-            for n in names:                
-                attr = getattr(var, n)                
-                if filterBuiltIn:
-                    if inspect.isbuiltin(attr):                        
-                        continue                
-                if filterFunction:
-                    isinst = False
-                    if inspect.isroutine(attr) or isinstance(attr, MethodWrapperType): 
-                        continue
-                
-                nametemp.append(n)
-                
-            names = nametemp
-        
-        if filterPrivate:
-            names = [n for n in names if not (n.startswith('_') and not n.endswith('__') )]     
-        
-        for n in names:
-            d[ n ] = getattr(var, n)        
-        d['type'] = type(var).__name__
-        return d        
-                
-class DictResolver(Resolver):
-    def resolve(self, dict, key):
-        return dict[key]
-    
-    def getDictionary(self, dict):
-#        print "DictResolver"
-        return dict
-
-class TupleResolver(Resolver): #to enumerate tuples and lists
-    def resolve(self, var, attribute):
-        return var[int(attribute)]
-    
-    def getDictionary(self, var):
-#        print "TupleResolver"
-        #return dict( [ (i, x) for i, x in enumerate(var) ] )
-        # modified 'cause jython does not have enumerate support
-        d = {}
-        for i, item in zip(range(len(var)), var):
-            d[ i ] = item        
-        return d
-        
-class InstanceResolver(Resolver):
-    def resolve(self, var, attribute):        
-        return getattr(var, attribute)
-    
-    def getDictionary(self,obj):
-#        print "InstanceResolver"
-        ret = {}       
-        
-        declaredFields = obj.__class__.getDeclaredFields()
-#        print "declared fields, len", len(declaredFields)
-        for i in range(len(declaredFields)):
-            name = declaredFields[i].getName()
-            #if declaredFields[i].isAccessible():
-            try:                
-                ret[name] = getattr( obj, name )                
-            except:
-                #import traceback
-                #traceback.print_exc()
-                # I don't know why I'm getting an exception
-                pass        
-        
-        ret['type'] = type(obj).__name__        
-        return ret
-        
-defaultResolver = Resolver()
-dictResolver = DictResolver()
-tupleResolver = TupleResolver()
-instanceResolver = InstanceResolver()
-
 typeMap = {}
 try:
     #jython does not have this types
@@ -195,9 +30,9 @@ try:
        ComplexType : (ComplexType, ComplexType.__name__, None),
        StringType : (StringType, StringType.__name__, None),
        UnicodeType : (UnicodeType, UnicodeType.__name__, None),
-       TupleType : (TupleType, TupleType.__name__, tupleResolver),
-       ListType : (ListType, ListType.__name__, tupleResolver),
-       DictType : (DictType, DictType.__name__, dictResolver)
+       TupleType : (TupleType, TupleType.__name__, pydevd_resolver.tupleResolver),
+       ListType : (ListType, ListType.__name__, pydevd_resolver.tupleResolver),
+       DictType : (DictType, DictType.__name__, pydevd_resolver.dictResolver)
    }
 except:   
    from org.python import core
@@ -208,11 +43,11 @@ except:
        core.PyFloat : ( core.PyFloat, core.PyFloat.__name__, None),
        core.PyComplex : ( core.PyComplex, core.PyComplex.__name__, None),
        core.PyString : ( core.PyString, core.PyString.__name__, None),       
-       core.PyTuple : ( core.PyTuple, core.PyTuple.__name__, tupleResolver),
-       core.PyList : ( core.PyList, core.PyList.__name__, tupleResolver),
-       core.PyDictionary: (core.PyDictionary, core.PyDictionary.__name__, dictResolver),
-       core.PyJavaInstance: (core.PyJavaInstance, core.PyJavaInstance.__name__, instanceResolver),
-       core.PyStringMap: (core.PyStringMap, core.PyStringMap.__name__, dictResolver)       
+       core.PyTuple : ( core.PyTuple, core.PyTuple.__name__, pydevd_resolver.tupleResolver),
+       core.PyList : ( core.PyList, core.PyList.__name__, pydevd_resolver.tupleResolver),
+       core.PyDictionary: (core.PyDictionary, core.PyDictionary.__name__, pydevd_resolver.dictResolver),
+       core.PyJavaInstance: (core.PyJavaInstance, core.PyJavaInstance.__name__, pydevd_resolver.instanceResolver),
+       core.PyStringMap: (core.PyStringMap, core.PyStringMap.__name__, pydevd_resolver.dictResolver)       
    }   
    pass
 
@@ -228,7 +63,9 @@ def getType(o):
     
     try:        
         if type(o).__name__=='org.python.core.PyJavaInstance':
-            return (type(o), type(o).__name__, instanceResolver)
+            return (type(o), type(o).__name__, pydevd_resolver.instanceResolver)
+        if type(o).__name__=='org.python.core.PyArray':
+            return (type(o), type(o).__name__, pydevd_resolver.jyArrayResolver)    
         for t in typeMap.keys():            
             if isinstance(o, t):                
                 return typeMap[t]
@@ -238,7 +75,7 @@ def getType(o):
         print dir( typeMap )
         
     #no match return default        
-    return (type(o), type(o).__name__, defaultResolver)
+    return (type(o), type(o).__name__, pydevd_resolver.defaultResolver)
 
 def varToXML(v, name):
     """ single variable or dictionary to xml representation """
@@ -293,8 +130,8 @@ def resolveCompoundVariable(thread, frame_id, scope, attrs):
         del attrList[0] # globals are special, and they get a single dummy unused attribute
     else:
         var = frame.f_locals
-#    print "attrList",attrList
-#    print "var",var    
+    # print "attrList",attrList
+    # print "var",var    
     for k in attrList:
 #        print "k", k
         (type, typeName, resolver) = getType(var)              
@@ -304,11 +141,14 @@ def resolveCompoundVariable(thread, frame_id, scope, attrs):
     
     try:        
         (type, typeName, resolver) = getType(var)        
+        # print 'var',var
+        # print 'type',type
+        # print 'typeName',typeName
+        # print 'resolver',resolver 
         return resolver.getDictionary(var)
     except:
         import traceback
         traceback.print_exc()
-
     
 def evaluateExpression( thread, frame_id, expression ):
     """returns the result of the evaluated expression"""

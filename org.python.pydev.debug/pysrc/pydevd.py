@@ -109,7 +109,13 @@ def pydevd_log(level, s):
 
 
 def NormFile(filename):
-    return os.path.normcase(os.path.realpath(filename))
+    try:
+        rPath = os.path.realpath
+    except:
+        # jython does not support os.path.realpath
+        # realpath is a no-op on systems without islink support
+        rPath = os.path.abspath    
+    return os.path.normcase(rPath(filename))
 
 
 #----------------------------------------------------------------------------------- SOCKET UTILITIES - READER
@@ -678,8 +684,7 @@ class PyDB:
         cmd = self.cmdFactory.makeThreadSuspendMessage(id(thread), frame, thread.stop_reason)
         self.writer.addCommand(cmd)
 
-        while thread.pydev_state == PyDB.STATE_SUSPEND:
-            #print "waiting on thread"
+        while thread.pydev_state == PyDB.STATE_SUSPEND:            
             self.processInternalCommands()
             time.sleep(0.1)
             
@@ -750,6 +755,8 @@ class PyDB:
         #so, that's why the additional checks are there.
         if not self.breakpoints.has_key(filename) and t.pydev_state == PyDB.STATE_RUN and t.pydev_step_stop is None and t.pydev_step_cmd is None:
             #print 'skipping', base, frame.f_lineno, t.pydev_state, t.pydev_step_stop, t.pydev_step_cmd
+            if hasattr(frame, 'f_trace'):
+                del frame.f_trace
             return None
         
         else:

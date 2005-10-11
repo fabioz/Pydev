@@ -389,10 +389,13 @@ public class PythonRunnerConfig {
             cmdArgs.add("-classpath");
             cmdArgs.add(interpreter+SimpleRunner.getPythonPathSeparator()+pythonpathUsed);
             cmdArgs.add("-Dpython.path="+pythonpathUsed); //will be added to the env variables in the run (check if this works on all platforms...)
-            cmdArgs.add("org.python.util.jython");
             
             if (isDebug) {
-                cmdArgs.add(getDebugScript());
+            	cmdArgs.add("-Dpython.security.respectJavaAccessibility=false"); //TODO: the user should configure this -- we use it so that 
+            																	 //we can access the variables during debugging. 
+            	cmdArgs.add("org.python.util.jython");
+
+            	cmdArgs.add(getDebugScript());
                 cmdArgs.add("--type");
                 cmdArgs.add("jython");
                 cmdArgs.add("--client");
@@ -400,6 +403,10 @@ public class PythonRunnerConfig {
                 cmdArgs.add("--port");
                 cmdArgs.add(Integer.toString(debugPort));
                 cmdArgs.add("--file");
+
+            }else{
+            	cmdArgs.add("org.python.util.jython");
+            	
             }
             
         }else{
