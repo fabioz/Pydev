@@ -11,14 +11,16 @@ org.python.core.SysPackageManager
 
 after 0.9.8.2
 
+- Debugger was improved to be faster (more info about it <a href="http://pydev.blogspot.com/2005/10/high-speed-debugger.html"> at my blog</a>).
+- Add watch added to the editor popup menu
 - Added syntax highlighting to the 'self' token
-- fixed some outline problems
-- debugger does not try to get breakpoints on closed projects anymore
-- some refreshing issues regarding the outline and colors when reusing the editor were fixed
-- code completion for relative imports has changed a lot (there were some pretty hard-to-find bugs in this area... 
-  -- which made the code evolve a lot on this aspect).
 - Code folding added for 'glued' imports
+- Fixed some outline problems
+- Debugger does not try to get breakpoints on closed projects anymore
+- Some refreshing issues regarding the outline and colors when reusing the editor were fixed
+- Code completion for relative imports has changed a lot (there were some pretty hard-to-find bugs in this area...)
 - Some move imports problems fixed
+- The auto-add '(self):' now works with tabs too
 
 after 0.9.8.1
 
