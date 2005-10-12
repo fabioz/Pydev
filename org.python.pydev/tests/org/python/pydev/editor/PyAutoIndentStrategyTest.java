@@ -280,6 +280,14 @@ public class PyAutoIndentStrategyTest extends TestCase {
         expected = "(self):";
         assertEquals(expected, docCmd.text);
         
+        //same as above, but with tabs
+        doc = "class c:\n" +
+        "\tdef met";
+        docCmd = new DocCmd(doc.length(), 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "(self):";
+        assertEquals(expected, docCmd.text);
+        
         doc = "class c(object): #";
         docCmd = new DocCmd(doc.length(), 0, "(");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);

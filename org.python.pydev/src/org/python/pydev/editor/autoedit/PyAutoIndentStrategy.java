@@ -149,7 +149,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                 if (shouldClose(ps)) {
 
                     boolean hasClass = line.indexOf("class ") != -1;
-                    boolean hasClassMethodDef = line.indexOf(" def ") != -1;
+                    boolean hasClassMethodDef = line.indexOf(" def ") != -1 || line.indexOf("\tdef ") != -1;
                     boolean hasMethodDef = line.indexOf("def ") != -1;
                     boolean hasNoDoublePoint = line.indexOf(":") == -1;
 
