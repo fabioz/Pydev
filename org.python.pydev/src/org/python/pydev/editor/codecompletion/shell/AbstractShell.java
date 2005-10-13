@@ -30,6 +30,15 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.runners.ThreadStreamReader;
 
+/**
+ * This is the shell that 'talks' to the python / jython process (it is intended to be subclassed so that
+ * we know how to deal with each). 
+ * 
+ * Its methods are synched to prevent concurrent access.
+ * 
+ * @author fabioz
+ *
+ */
 public abstract class AbstractShell {
 
     public static final int BUFFER_SIZE = 1024 ;
@@ -75,7 +84,7 @@ public abstract class AbstractShell {
     /**
      * simple stop of a shell (it may be later restarted)
      */
-    public static void stopServerShell(int relatedId, int id) {
+    public synchronized static void stopServerShell(int relatedId, int id) {
         Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
         AbstractShell pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
         
@@ -118,7 +127,7 @@ public abstract class AbstractShell {
      * @param relatedId the id that is related to the structure we want to get
      * @return a map with the type of the shell mapping to the shell itself
      */
-    private static Map<Integer, AbstractShell> getTypeToShellFromId(int relatedId) {
+    private synchronized static Map<Integer, AbstractShell> getTypeToShellFromId(int relatedId) {
         Map<Integer, AbstractShell> typeToShell = shells.get(relatedId);
         
         if (typeToShell == null) {
@@ -230,7 +239,7 @@ public abstract class AbstractShell {
     /**
      * Just wait a little...
      */
-    protected void sleepALittle(int t) {
+    protected synchronized void sleepALittle(int t) {
         try {
             synchronized(this){
                 wait(t); //millis
@@ -246,7 +255,7 @@ public abstract class AbstractShell {
      * @throws IOException
      * @throws CoreException
      */
-    public void startIt() throws IOException, Exception {
+    public synchronized void startIt() throws IOException, Exception {
         this.startIt(AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
     }
 
@@ -259,7 +268,7 @@ public abstract class AbstractShell {
      * @throws IOException is some error happens creating the sockets - the process is terminated.
      * @throws CoreException
      */
-    protected void startIt(int milisSleep) throws IOException, Exception {
+    protected synchronized void startIt(int milisSleep) throws IOException, Exception {
         if(finishedForGood){
             throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to restart it.");
         }
@@ -366,7 +375,7 @@ public abstract class AbstractShell {
 
 
 
-    private void afterCreateProcess() {
+    private synchronized void afterCreateProcess() {
         try {
             process.getOutputStream().close(); //we won't write to it...
         } catch (IOException e2) {
@@ -384,7 +393,7 @@ public abstract class AbstractShell {
     /**
      * @return the current output of the process
      */
-    protected String getProcessOutput(){
+    protected synchronized String getProcessOutput(){
         try {
             String output = "";
             output += "Std output:\n" + stdReader.contents.toString();
@@ -405,7 +414,7 @@ public abstract class AbstractShell {
      */
     protected abstract String createServerProcess(int pWrite, int pRead) throws IOException;
 
-    protected void communicateWork(String desc, Operation operation) {
+    protected synchronized void communicateWork(String desc, Operation operation) {
         if(operation != null){
             operation.monitor.setTaskName(desc);
             operation.monitor.worked(1);
@@ -494,7 +503,7 @@ public abstract class AbstractShell {
      * @return s string with the contents read.
      * @throws IOException
      */
-    protected String read() throws IOException {
+    protected synchronized String read() throws IOException {
         String r = read(null);
         //dbg("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r,ENCODING_UTF_8),ENCODING_UTF_8));
         return r;
@@ -517,7 +526,7 @@ public abstract class AbstractShell {
     /**
      * @throws IOException
      */
-    private void closeConn() throws IOException {
+    private synchronized void closeConn() throws IOException {
 //let's not send a message... just close the sockets and kill it
 //        try {
 //            write("@@KILL_SERVER_END@@");
@@ -552,7 +561,7 @@ public abstract class AbstractShell {
      * this function should be used with care... it only destroys our processes without closing the
      * connections correctly (intended for shutdowns)
      */
-    public void shutdown() {
+    public synchronized void shutdown() {
         socketToRead = null;
         socketToWrite = null;
         serverSocket = null;
@@ -567,7 +576,7 @@ public abstract class AbstractShell {
      * Kill our sub-process.
      * @throws IOException
      */
-    public void endIt() {
+    public synchronized void endIt() {
         
         try {
             closeConn();
@@ -581,7 +590,7 @@ public abstract class AbstractShell {
         
     }
 
-    public void sendGoToDirMsg(File file) {
+    public synchronized void sendGoToDirMsg(File file) {
         if(finishedForGood){
             throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to change the shell dir.");
         }
@@ -607,7 +616,7 @@ public abstract class AbstractShell {
         }
     }
 
-    private void checkShell() {
+    private synchronized void checkShell() {
         try {
             if (this.socketToWrite == null || !this.socketToWrite.isBound() || 
                 this.socketToRead == null  || !this.socketToRead.isBound()  ||
@@ -624,7 +633,7 @@ public abstract class AbstractShell {
      * @return list with tuples: new String[]{token, description}
      * @throws CoreException
      */
-    public List getImportCompletions(String str, List pythonpath) throws CoreException {
+    public synchronized List getImportCompletions(String str, List pythonpath) throws CoreException {
         changePythonPath(pythonpath);
         
         try {
@@ -639,7 +648,7 @@ public abstract class AbstractShell {
      * @param pythonpath
      * @throws CoreException
      */
-    public void changePythonPath(List pythonpath) throws CoreException {
+    public synchronized void changePythonPath(List pythonpath) throws CoreException {
         if(finishedForGood){
             throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to change its dir.");
         }
@@ -656,7 +665,7 @@ public abstract class AbstractShell {
         } 
     }
 
-    protected List getTheCompletions(String str) throws CoreException {
+    protected synchronized List getTheCompletions(String str) throws CoreException {
         try {
             this.write(str);
     
@@ -678,7 +687,7 @@ public abstract class AbstractShell {
      * @throws CoreException
      * 
      */
-    public void restartShell() throws CoreException {
+    public synchronized void restartShell() throws CoreException {
         if(finishedForGood){
             throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to restart a new shell.");
         }
@@ -697,7 +706,7 @@ public abstract class AbstractShell {
     /**
      * @return
      */
-    protected List getInvalidCompletion() {
+    protected synchronized List getInvalidCompletion() {
         List<String[]> l = new ArrayList<String[]>();
         return l;
     }
@@ -705,7 +714,7 @@ public abstract class AbstractShell {
     /**
      * @throws IOException
      */
-    protected List getCompletions() throws IOException {
+    protected synchronized List getCompletions() throws IOException {
         ArrayList<String[]> list = new ArrayList<String[]>();
         String string = this.read().replaceAll("\\(","").replaceAll("\\)","");
         StringTokenizer tokenizer = new StringTokenizer(string, ",");

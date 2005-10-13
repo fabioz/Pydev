@@ -10,7 +10,6 @@ import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.runners.SimplePythonRunner;
-import org.python.pydev.runners.ThreadStreamReaderPrinter;
 
 public class JythonShell extends AbstractShell{
 
@@ -20,7 +19,7 @@ public class JythonShell extends AbstractShell{
     
 
     @Override
-    protected String createServerProcess(int pWrite, int pRead) throws IOException {
+    protected synchronized String createServerProcess(int pWrite, int pRead) throws IOException {
         String args = pWrite+" "+pRead;
         String script = REF.getFileAbsolutePath(serverFile);
         String executableStr = SimpleJythonRunner.makeExecutableCommandStr(script);

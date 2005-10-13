@@ -13,7 +13,6 @@ import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
-import org.python.pydev.runners.ThreadStreamReaderPrinter;
 
 /**
  * @author Fabio Zadrozny
@@ -33,7 +32,7 @@ public class PythonShell extends AbstractShell{
 
 
     @Override
-    protected String createServerProcess(int pWrite, int pRead) throws IOException {
+    protected synchronized String createServerProcess(int pWrite, int pRead) throws IOException {
         String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
         File file = new File(interpreter);
         if(file.exists() == false ){
