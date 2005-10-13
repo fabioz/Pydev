@@ -77,16 +77,26 @@ def getType(o):
     #no match return default        
     return (type(o), type(o).__name__, pydevd_resolver.defaultResolver)
 
+
+def makeValidXmlValue( s):
+    return s.replace('<', '&lt;').replace('>', '&gt;')
+
+
 def varToXML(v, name):
     """ single variable or dictionary to xml representation """
     xml = ""
-    (type, typeName, resolver) = getType(v)    
+    type, typeName, resolver = getType(v)    
     
     value = str(v)
     
-    xml += '<var name="' + name + '" type="' + typeName + '"'
-    if value: xml += ' value="' + urllib.quote(value, '/>_= \t') + '"'
-    if resolver is not None: xml += ' isContainer="True"'
+    xml += '<var name="%s" type="%s"' % (name, typeName)
+    
+    if value: 
+        xml += ' value="%s"' % (makeValidXmlValue(urllib.quote(value, '/>_= \t')))
+        
+    if resolver is not None: 
+        xml += ' isContainer="True"'
+        
     xml += ' />\n'
     return xml
 

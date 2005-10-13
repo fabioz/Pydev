@@ -133,17 +133,13 @@ class ReaderThread(threading.Thread):
         sys.settrace(None) # no debugging on this thread
         buffer = ""
         try:
-            while(True):
-#                print >>sys.stderr, "waiting for input"
+            while True:
                 buffer += self.sock.recv(1024)
-#                print >>sys.stderr, "received input"
-                while (buffer.find('\n') != -1):
+                while buffer.find('\n') != -1:
                     [command, buffer] = buffer.split('\n', 1)
                     pydevd_log(1, "received command " + command)
                     args = command.split('\t', 2)
-#                    print "the args are", args[0], " 2 ", args[1], " 3 ", args[2]
                     PyDB.instance.processNetCommand(int(args[0]), int(args[1]), args[2])
-#                print >>sys.stderr, "processed input"
         except:
             print >>sys.stderr, "Exception in reader thread"
             raise
@@ -171,7 +167,7 @@ class WriterThread(threading.Thread):
         """ just loop and write responses """
         sys.settrace(None) # no debugging on this thread
         try:
-            while(True):
+            while True:
                 cmd = self.cmdQueue.get(1)
                 out = cmd.getOutgoing()
                 pydevd_log(1, "sending cmd " + out)
@@ -229,8 +225,8 @@ class NetCommandFactory:
 
     def threadToXML(self, thread):
         """ thread information as XML """
-        cmdText = '<thread name="' + urllib.quote(thread.getName()) + '"'
-        cmdText += ' id="' + str(id(thread)) + '" />'
+        name = pydevd_vars.makeValidXmlValue(thread.getName())
+        cmdText = '<thread name="%s" id="%s" />' % (urllib.quote(name), id(thread) )
         return cmdText
 
     def makeErrorMessage(self, seq, text):
@@ -298,7 +294,7 @@ class NetCommandFactory:
                 
                 variables = pydevd_vars.frameVarsToXML(curFrame)
 
-                cmdTextList.append( '<frame id="%s" name="%s" ' % (myId , myName)                      ) 
+                cmdTextList.append( '<frame id="%s" name="%s" ' % (myId , pydevd_vars.makeValidXmlValue(myName))) 
                 cmdTextList.append( 'file="%s" line="%s">"'     % (urllib.quote(myFile, '/>_= \t'), myLine)) 
                 cmdTextList.append( variables  ) 
                 cmdTextList.append( "</frame>" ) 

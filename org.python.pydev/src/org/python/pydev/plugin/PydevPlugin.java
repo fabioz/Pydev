@@ -699,7 +699,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return store;
     }
     
-    public static String getIFileOsString(IFile f) {
+    public static String getIResourceOSString(IResource f) {
         String fullPath = f.getRawLocation().toOSString();
         //now, we have to make sure it is canonical...
         File file = new File(fullPath);
