@@ -28,9 +28,12 @@ They will also be provided in many flavours, given their specific things. Namely
 	
 Saving data Implemented:
     - the PythonNature serializes the ASTManager 
-        - contains the projectModulesManager
-            - contains the pythonPathHelper - that is the only one with real information (modules and correspondent files)
         - it writes the info on the IProject.getWorkingLocation(PydevPlugin.getPluginID()) + asthelper.completions
+        
+        Actual data:
+        - contains the projectModulesManager - has the resolved modules (saves only the names and restores with the name pointing to empty modules - custom serialization)
+            - contains the pythonPathHelper - has the paths that constitutes the pythonpath
+        
     - the InterpreterEditor (in the InterpreterPreferencesPage) serializes things with the InterpreterManager
         - it writes the info on the getPreferenceStore() --> (IInterpreterManager.INTERPRETER_PATH)
         

@@ -77,6 +77,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * indexes used so that we can access the information faster - it is ordered through a tree map, and should be
      * very fast to access given its initials.
+     * 
+     * This is the map that is persisted.
      */
     protected TreeMap<String, List<IInfo>> initialsToInfo = new TreeMap<String, List<IInfo>>();
 
