@@ -3,6 +3,8 @@
  */
 package org.python.pydev.core;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.CoreException;
 
 /**
@@ -67,4 +69,9 @@ public interface IPythonNature {
      * @see #JYTHON_RELATED
      */
     int getRelatedId() throws CoreException;
+    
+    /**
+     * @return the directory where the completions should be saved (as well as deltas)
+     */
+    public File getCompletionsCacheDir();
 }

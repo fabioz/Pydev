@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -185,10 +186,7 @@ public abstract class ModulesManager implements Serializable {
                     toRemove.add(key);
                 }
             }
-            
-            for (Iterator iter = toRemove.iterator(); iter.hasNext();) {
-                getModules().remove(iter.next());
-            }
+            removeThem(toRemove);
         }
     }
 
@@ -256,12 +254,12 @@ public abstract class ModulesManager implements Serializable {
 
 
     /**
-     * @param toRem
+     * @param toRem the modules to be removed
      */
-    private void removeThem(List toRem) {
+    private void removeThem(Collection<ModulesKey> toRem) {
         //really remove them here.
         for (Iterator iter = toRem.iterator(); iter.hasNext();) {
-            getModules().remove(iter.next());
+            this.modules.remove(iter.next());
         }
     }
 

@@ -18,6 +18,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.DeltaSaver;
+import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -30,22 +32,56 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 /**
  * @author Fabio Zadrozny
  */
-public class ProjectModulesManager extends ModulesManager{
+public class ProjectModulesManager extends ModulesManager implements IDeltaProcessor{
 
      private static final long serialVersionUID = 1L;
     //these attributes must be set whenever this class is restored.
     private transient IProject project;
     private transient IPythonNature nature;
+    private transient DeltaSaver deltaSaver;
     
     /**
      * Set the project this modules manager works with.
      * 
      * @param project the project related to this manager
+     * @param restoreDeltas says whether deltas should be restored (if they are not, they should be discarded)
      */
-    public void setProject(IProject project){
+    public void setProject(IProject project, boolean restoreDeltas){
         this.project = project;
         this.nature = PythonNature.getPythonNature(project);
+        this.deltaSaver = new DeltaSaver(this.nature.getCompletionsCacheDir(), "astdelta");
+        if(!restoreDeltas){
+            deltaSaver.clearAll(); //remove any existing deltas
+        }else{
+            deltaSaver.processDeltas(this); //process the current deltas (clears current deltas automatically)
+        }
     }
+    
+    
+    // ------------------------ delta processing
+    
+
+    public void processUpdate(Object data) {
+        //updates are ignored because we always start with 'empty modules'.
+    }
+
+    public void processDelete(Object data) {
+        //TODO: FINISH IT
+    }
+
+    public void processInsert(Object data) {
+        //TODO: FINISH IT
+    }
+
+    public void endProcessing() {
+        //TODO: FINISH IT
+    }
+
+    
+    
+    
+    
+    
     
     /**
      * @param nature this is the nature for this project modules manager (can be used if no project is set)

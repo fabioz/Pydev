@@ -57,11 +57,9 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     
     /**
      * Set the project this ast manager works with.
-     * 
-     * @param project the project related to this ast manager
      */
-    public void setProject(IProject project){
-        projectModulesManager.setProject(project);
+    public void setProject(IProject project, boolean restoreDeltas){
+        projectModulesManager.setProject(project, restoreDeltas);
     }
 
     /**

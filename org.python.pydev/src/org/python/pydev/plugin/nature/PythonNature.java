@@ -235,7 +235,7 @@ public class PythonNature implements IProjectNature, IPythonNature {
                             PydevPlugin.log(e);
                         }
                     }else{
-                        astManager.setProject(getProject()); // this is the project related to it
+                        astManager.setProject(getProject(), true); // this is the project related to it, restore the deltas (we may have some crash)
 
                         List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
                         for (IInterpreterObserver observer : participants) {
@@ -258,7 +258,7 @@ public class PythonNature implements IProjectNature, IPythonNature {
      * @param p
      * @return
      */
-    private static File getCompletionsCacheDir(IProject p) {
+    public static File getCompletionsCacheDir(IProject p) {
         IPath location = p.getWorkingLocation(PydevPlugin.getPluginID());
         IPath path = location;
     
@@ -266,7 +266,8 @@ public class PythonNature implements IProjectNature, IPythonNature {
         return file;
     }
     
-    private File getCompletionsCacheDir() {
+    
+    public File getCompletionsCacheDir() {
         return getCompletionsCacheDir(getProject());
     }
 
@@ -289,7 +290,7 @@ public class PythonNature implements IProjectNature, IPythonNature {
                 if(astManager == null){
                     astManager = new ASTManager();
                 }
-                astManager.setProject(getProject());
+                astManager.setProject(getProject(), false); //it is a new manager, so, remove all deltas
                 
                 //begins task automatically
                 JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
