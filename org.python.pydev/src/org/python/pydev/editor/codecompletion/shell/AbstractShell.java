@@ -186,8 +186,10 @@ public abstract class AbstractShell {
             }else{
                 throw new RuntimeException("unknown related id");
             }
+            pythonShell.startIt(); //first start it
+            
+            //then make it accessible
             typeToShell.put(new Integer(id), pythonShell);
-            pythonShell.startIt();
         }
         return pythonShell;
     }

@@ -74,4 +74,10 @@ public interface IPythonNature {
      * @return the directory where the completions should be saved (as well as deltas)
      */
     public File getCompletionsCacheDir();
+
+    /**
+     * Saves the ast manager information so that we can retrieve it later.
+     */
+    public void saveAstManager();
+
 }

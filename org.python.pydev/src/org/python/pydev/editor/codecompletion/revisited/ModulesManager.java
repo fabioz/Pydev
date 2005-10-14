@@ -175,7 +175,7 @@ public abstract class ModulesManager implements Serializable {
         if (m != null) {
             //behaviour changed, now, only set it as an empty module (it will be parsed on demand)
             final ModulesKey key = new ModulesKey(m, f);
-            getModules().put(key, new EmptyModule(m, f));
+            doAddSingleModule(key, new EmptyModule(key.name, key.file));
 
             
         }else if (f != null){ //ok, remove the module that has a key with this file, as it can no longer be resolved
@@ -189,6 +189,7 @@ public abstract class ModulesManager implements Serializable {
             removeThem(toRemove);
         }
     }
+
 
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject,
@@ -254,21 +255,47 @@ public abstract class ModulesManager implements Serializable {
 
 
     /**
+     * This method that actually removes some keys from the modules. 
+     * 
      * @param toRem the modules to be removed
      */
-    private void removeThem(Collection<ModulesKey> toRem) {
+    protected void removeThem(Collection<ModulesKey> toRem) {
         //really remove them here.
-        for (Iterator iter = toRem.iterator(); iter.hasNext();) {
-            this.modules.remove(iter.next());
+        for (Iterator<ModulesKey> iter = toRem.iterator(); iter.hasNext();) {
+            doRemoveSingleModule(iter.next());
         }
     }
 
     /**
-     * @return
+     * This is the only method that should remove a module.
+     * No other method should remove them directly.
+     * 
+     * @param key this is the key that should be removed
      */
-    public Set getAllModuleNames() {
-        Set<ModulesKey> s = new HashSet<ModulesKey>();
-        s.addAll(getModules().keySet());
+    protected void doRemoveSingleModule(ModulesKey key) {
+        this.modules.remove(key);
+    }
+
+    /**
+     * This is the only method that should add / update a module.
+     * No other method should add it directly (unless it is loading or rebuilding it).
+     * 
+     * @param key this is the key that should be added
+     * @param n 
+     */
+    protected void doAddSingleModule(final ModulesKey key, AbstractModule n) {
+        this.modules.put(key, n);
+    }
+
+    /**
+     * @return a set of all module keys
+     */
+    public Set<String> getAllModuleNames() {
+        Set<String> s = new HashSet<String>();
+        Set<ModulesKey> moduleKeys = getModules().keySet();
+        for (ModulesKey key : moduleKeys) {
+            s.add(key.name);
+        }
         return s;
     }
 
@@ -312,7 +339,7 @@ public abstract class ModulesManager implements Serializable {
                 n = (AbstractModule) getModules().get(new ModulesKey(name, null));
                 if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ //still not created or not defined as compiled module (as it should be)
                     n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
-                    this.getModules().put(new ModulesKey(n.getName(), null), n);
+                    doAddSingleModule(new ModulesKey(n.getName(), null), n);
                 }
             }
         }
@@ -337,7 +364,7 @@ public abstract class ModulesManager implements Serializable {
             if (!s.isSynched()) {
                 //change it for an empty and proceed as usual.
                 n = new EmptyModule(s.getName(), s.getFile());
-                this.getModules().put(new ModulesKey(s.getName(), s.getFile()), n);
+                doAddSingleModule(new ModulesKey(s.getName(), s.getFile()), n);
             }
         }
 
@@ -354,7 +381,7 @@ public abstract class ModulesManager implements Serializable {
                 try {
                     n = AbstractModule.createModule(name, e.f, nature, -1);
                 } catch (FileNotFoundException exc) {
-                    this.getModules().remove(new ModulesKey(name, e.f));
+                    doRemoveSingleModule(new ModulesKey(name, e.f));
                     n = null;
                 }
 
@@ -363,7 +390,7 @@ public abstract class ModulesManager implements Serializable {
             }
             
             if (n != null) {
-                this.getModules().put(new ModulesKey(name, e.f), n);
+                doAddSingleModule(new ModulesKey(name, e.f), n);
             } else {
                 System.err.println("The module " + name + " could not be found nor created!");
             }

@@ -4,14 +4,14 @@
 package org.python.pydev.core;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
 
 public class DeltaSaverTest extends TestCase {
-
-    private DeltaSaver saver;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(DeltaSaverTest.class);
@@ -20,32 +20,43 @@ public class DeltaSaverTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
     }
+    
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        createDeltaSaver().clearAll(); //leave no traces
+        new DeltaSaver<Object>(new File("."), "deltatest", getCallBack()).clearAll(); //leave no traces
     }
 
-    private DeltaSaver createDeltaSaver() {
-        return new DeltaSaver(new File("."), "deltatest");
+    private ICallback<Object, ObjectInputStream> getCallBack() {
+        return new ICallback<Object, ObjectInputStream>(){
+
+            public Object call(ObjectInputStream arg) {
+                try {
+                    return arg.readObject();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }};
     }
-    
-    public static class DeltaProcessor implements IDeltaProcessor{
+
+    public static class DeltaProcessor implements IDeltaProcessor<String>{
 
         public List<String> state = new ArrayList<String>();
         
         public int processed;
 
-        public void processUpdate(Object data) {
+        public void processUpdate(String data) {
             throw new RuntimeException("should not be called");
         }
 
-        public void processDelete(Object data) {
+        public void processDelete(String data) {
             processed+=1;
             state.remove(data);
         }
 
-        public void processInsert(Object data) {
+        public void processInsert(String data) {
             processed+=1;
             state.add((String) data);
         }
@@ -56,12 +67,12 @@ public class DeltaSaverTest extends TestCase {
     }
 
     public void testSaveRestore() throws Exception {
-        saver = createDeltaSaver();
-        saver.addCommand(new DeltaSaver.DeltaInsertCommand("ins1"));
-        saver.addCommand(new DeltaSaver.DeltaInsertCommand("ins2"));
-        saver.addCommand(new DeltaSaver.DeltaDeleteCommand("ins1"));
+        DeltaSaver<String> saver = new DeltaSaver<String>(new File("."), "deltatest", getCallBack());
+        saver.addInsertCommand("ins1");
+        saver.addInsertCommand("ins2");
+        saver.addDeleteCommand("ins1");
         
-        DeltaSaver restorer = createDeltaSaver();
+        DeltaSaver<String> restorer = new DeltaSaver<String>(new File("."), "deltatest", getCallBack());
         assertEquals(3, restorer.availableDeltas());
         DeltaProcessor deltaProcessor = new DeltaProcessor();
         restorer.processDeltas(deltaProcessor);
@@ -69,44 +80,30 @@ public class DeltaSaverTest extends TestCase {
         assertEquals(1, deltaProcessor.state.size());
         assertEquals("ins2", deltaProcessor.state.get(0));
 
-        restorer = createDeltaSaver();
+        restorer = new DeltaSaver<String>(new File("."), "deltatest", getCallBack());
         assertEquals(0, restorer.availableDeltas());
         
     }
     
-    
-    public void testSaveRestore2() throws Exception {
-        saver = createDeltaSaver();
-        saver.addInsertCommand("ins1");
-        saver.addInsertCommand("ins2");
-        saver.addDeleteCommand("ins1");
-        
-        DeltaSaver restorer = createDeltaSaver();
-        assertEquals(3, restorer.availableDeltas());
-        restorer.clearAll();
-        
-        restorer = createDeltaSaver();
-        assertEquals(0, restorer.availableDeltas());
-    }
 
     
     
-    public static class InsertDeltaProcessor implements IDeltaProcessor{
+    public static class InsertDeltaProcessor implements IDeltaProcessor<Integer>{
 
         public List<String> state = new ArrayList<String>();
         
         public int processed;
 
-        public void processUpdate(Object data) {
+        public void processUpdate(Integer data) {
             throw new RuntimeException("should not be called");
         }
 
-        public void processDelete(Object data) {
+        public void processDelete(Integer data) {
             throw new RuntimeException("should not be called");
         }
 
-        public void processInsert(Object data) {
-            assertEquals(processed, data);
+        public void processInsert(Integer data) {
+            assertEquals((Object)processed, (Object)data);
             processed+=1;
         }
 
@@ -117,11 +114,11 @@ public class DeltaSaverTest extends TestCase {
 
     public void testSaveRestore3() throws Exception {
         //check if the order is correct
-        saver = createDeltaSaver();
+        DeltaSaver<Integer> saver = new DeltaSaver<Integer>(new File("."), "deltatest", getCallBack());
         for (int i = 0; i < 50; i++) {
             saver.addInsertCommand(i);
         }
-        DeltaSaver restorer = createDeltaSaver();
+        DeltaSaver<Integer> restorer = new DeltaSaver<Integer>(new File("."), "deltatest", getCallBack());
         assertEquals(50, restorer.availableDeltas());
         restorer.processDeltas(new InsertDeltaProcessor());
     }

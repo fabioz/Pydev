@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -19,10 +20,12 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.DeltaSaver;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -32,13 +35,23 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 /**
  * @author Fabio Zadrozny
  */
-public class ProjectModulesManager extends ModulesManager implements IDeltaProcessor{
+public class ProjectModulesManager extends ModulesManager implements IDeltaProcessor<ModulesKey>{
 
-     private static final long serialVersionUID = 1L;
+    /**
+     * This is the maximun number of deltas that can be generated before saving everything in a big chunck and 
+     * clearing the deltas
+     */
+    public static final int MAXIMUN_NUMBER_OF_DELTAS = 100;
+    
+    private static final long serialVersionUID = 1L;
     //these attributes must be set whenever this class is restored.
     private transient IProject project;
     private transient IPythonNature nature;
-    private transient DeltaSaver deltaSaver;
+    
+    /**
+     * Used to process deltas (in case we have the process killed for some reason)
+     */
+    private transient DeltaSaver<ModulesKey> deltaSaver;
     
     /**
      * Set the project this modules manager works with.
@@ -49,11 +62,20 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     public void setProject(IProject project, boolean restoreDeltas){
         this.project = project;
         this.nature = PythonNature.getPythonNature(project);
-        this.deltaSaver = new DeltaSaver(this.nature.getCompletionsCacheDir(), "astdelta");
+        this.deltaSaver = new DeltaSaver<ModulesKey>(this.nature.getCompletionsCacheDir(), "astdelta", new ICallback<Object, ObjectInputStream>(){
+
+            public ModulesKey call(ObjectInputStream arg) {
+                try {
+                    return (ModulesKey) arg.readObject();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }});
+        
         if(!restoreDeltas){
             deltaSaver.clearAll(); //remove any existing deltas
         }else{
-            deltaSaver.processDeltas(this); //process the current deltas (clears current deltas automatically)
+            deltaSaver.processDeltas(this); //process the current deltas (clears current deltas automatically and saves it when the processing is concluded)
         }
     }
     
@@ -61,25 +83,52 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     // ------------------------ delta processing
     
 
-    public void processUpdate(Object data) {
-        //updates are ignored because we always start with 'empty modules'.
+    public void processUpdate(ModulesKey data) {
+        //updates are ignored because we always start with 'empty modules' (so, we don't actually generate them -- updates are treated as inserts).
+        throw new RuntimeException("Not impl");
     }
 
-    public void processDelete(Object data) {
-        //TODO: FINISH IT
+    public void processDelete(ModulesKey key) {
+        super.doRemoveSingleModule(key);
     }
 
-    public void processInsert(Object data) {
-        //TODO: FINISH IT
+    public void processInsert(ModulesKey key) {
+        super.doAddSingleModule(key, new EmptyModule(key.name, key.file));
     }
 
     public void endProcessing() {
-        //TODO: FINISH IT
+        //save it with the updated info
+        nature.saveAstManager();
     }
 
+    @Override
+    protected void doRemoveSingleModule(ModulesKey key) {
+        super.doRemoveSingleModule(key);
+        //overriden to add delta
+        deltaSaver.addDeleteCommand(key);
+        checkDeltaSize();
+    }
     
+    @Override
+    protected void doAddSingleModule(ModulesKey key, AbstractModule n) {
+        super.doAddSingleModule(key, n);
+        //overriden to add delta
+        deltaSaver.addInsertCommand(key);
+        checkDeltaSize();
+    }
     
-    
+    /**
+     * If the delta size is big enough, save the current state and discard the deltas.
+     */
+    private void checkDeltaSize() {
+        if(deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
+            nature.saveAstManager();
+            deltaSaver.clearAll();
+        }
+    }
+
+
+    // ------------------------ end delta processing
     
     
     
@@ -104,10 +153,10 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     }
     
     /**
-     * @return
+     * @return a set with the names of all available modules
      */
     public Set<String> getAllModuleNames() {
-        Set s = new HashSet();
+        Set<String> s = new HashSet<String>();
         Set keySet = getModules().keySet();
         for (Object object : keySet) {
             ModulesKey m = (ModulesKey) object;
@@ -296,8 +345,11 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     }
 
     
-    public List getCompletePythonPath(){
-        ArrayList l = new ArrayList();
+    /**
+     * @return the paths that constitute the pythonpath as a list of strings
+     */
+    public List<String> getCompletePythonPath(){
+        List<String> l = new ArrayList<String>();
         ModulesManager[] managersInvolved = getManagersInvolved(true);
         for (int i = 0; i < managersInvolved.length; i++) {
             l.addAll(managersInvolved[i].pythonPathHelper.pythonpath);
@@ -307,3 +359,4 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     }
 
 }
+
