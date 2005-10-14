@@ -21,6 +21,7 @@ import org.python.parser.ast.Global;
 import org.python.parser.ast.If;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
+import org.python.parser.ast.Lambda;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
@@ -247,22 +248,12 @@ public class OcurrencesVisitor extends VisitorBase{
 
         //visit varargs
         if(args.vararg != null){
-            NameTok nameTok = (NameTok)args.vararg;
-            Name name = new Name((nameTok).id, Name.Load);
-            name.beginLine = nameTok.beginLine;
-            name.beginColumn = nameTok.beginColumn;
-            SourceToken token = AbstractVisitor.makeToken(name, moduleName);
-            scope.addToken(token, token, (nameTok).id);
+        	args.vararg.accept(visitor);
         }
         
         //visit kwargs
         if(args.kwarg != null){
-            NameTok nameTok = (NameTok)args.kwarg;
-            Name name = new Name((nameTok).id, Name.Load);
-            name.beginLine = nameTok.beginLine;
-            name.beginColumn = nameTok.beginColumn;
-            SourceToken token = AbstractVisitor.makeToken(name, moduleName);
-            scope.addToken(token, token, (nameTok).id);
+        	args.kwarg.accept(visitor);
         }
         scope.isInMethodDefinition = false;
         
@@ -279,6 +270,21 @@ public class OcurrencesVisitor extends VisitorBase{
         noSelfChecker.afterFunctionDef(node);
         endScope();
         return null;
+    }
+    
+    /**
+     * We want to make the name tok a regular name for interpreting purposes.
+     */
+    @Override
+    public Object visitNameTok(NameTok nameTok) throws Exception {
+    	if(nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg){
+            Name name = new Name((nameTok).id, Name.Load);
+            name.beginLine = nameTok.beginLine;
+            name.beginColumn = nameTok.beginColumn;
+            SourceToken token = AbstractVisitor.makeToken(name, moduleName);
+            scope.addToken(token, token, (nameTok).id);
+    	}
+    	return null;
     }
     
     /**
