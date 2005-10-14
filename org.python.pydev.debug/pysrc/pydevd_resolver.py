@@ -1,3 +1,4 @@
+import StringIO
 from types import *
 import urllib
 import sys
@@ -116,29 +117,38 @@ class Resolver:
         #Be aware that the order in which the filters are applied attempts to 
         #optimize the operation by removing as many items as possible in the 
         #first filters, leaving fewer items for later filters
-        if filterSpecial:
-            names = [n for n in names if not (n.startswith('__') and n.endswith('__') )]        
+
         if filterBuiltIn or filterFunction:
-            nametemp = []
             for n in names:                
-                attr = getattr(var, n)                
-                if filterBuiltIn:
-                    if inspect.isbuiltin(attr):                        
-                        continue                
-                if filterFunction:
-                    isinst = False
-                    if inspect.isroutine(attr) or isinstance(attr, MethodWrapperType): 
+                if filterSpecial:
+                    if n.startswith('__') and n.endswith('__'):
                         continue
+                    
+                if filterPrivate:
+                    if n.startswith('_') or n.endswith('__'):
+                        continue
+
+                try:
+                    attr = getattr(var, n)                
+    
+                    #filter builtins?
+                    if filterBuiltIn:
+                        if inspect.isbuiltin(attr):                        
+                            continue                
+                    
+                    #filter functions?
+                    if filterFunction:
+                        isinst = False
+                        if inspect.isroutine(attr) or isinstance(attr, MethodWrapperType): 
+                            continue
+                except:
+                    #if some error occurs getting it, let's put it to the user.
+                    strIO = StringIO.StringIO()
+                    import traceback;traceback.print_exc(file = strIO)
+                    attr = strIO.getvalue()
                 
-                nametemp.append(n)
-                
-            names = nametemp
-        
-        if filterPrivate:
-            names = [n for n in names if not (n.startswith('_') and not n.endswith('__') )]     
-        
-        for n in names:
-            d[ n ] = getattr(var, n)        
+                d[ n ] = attr        
+
         d['type'] = type(var).__name__
         return d        
                 
