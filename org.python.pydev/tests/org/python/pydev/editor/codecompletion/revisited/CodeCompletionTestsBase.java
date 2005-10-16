@@ -56,6 +56,7 @@ public class CodeCompletionTestsBase extends TestCase {
         super.setUp();
         BundleInfo.setBundleInfo(new BundleInfoStub());
         preferences = new Preferences();
+        ProjectModulesManager.IN_TESTS = true;
     }
     
     /*
@@ -64,6 +65,7 @@ public class CodeCompletionTestsBase extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         BundleInfo.setBundleInfo(null);
+        ProjectModulesManager.IN_TESTS = false;
     }
     
     protected boolean restoreProjectPythonPath(boolean force, String path){

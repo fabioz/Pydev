@@ -44,6 +44,12 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     public static final int MAXIMUN_NUMBER_OF_DELTAS = 100;
     
     private static final long serialVersionUID = 1L;
+
+    /**
+     * Determines whether we are testing it.
+     */
+    public static boolean IN_TESTS = false;
+    
     //these attributes must be set whenever this class is restored.
     private transient IProject project;
     private transient IPythonNature nature;
@@ -104,17 +110,22 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     @Override
     protected void doRemoveSingleModule(ModulesKey key) {
         super.doRemoveSingleModule(key);
-        //overriden to add delta
-        deltaSaver.addDeleteCommand(key);
-        checkDeltaSize();
+        if(deltaSaver != null || !IN_TESTS){ //we want the error if we are not in tests
+            //overriden to add delta
+            deltaSaver.addDeleteCommand(key);
+            checkDeltaSize();
+        }
     }
+        
     
     @Override
     protected void doAddSingleModule(ModulesKey key, AbstractModule n) {
         super.doAddSingleModule(key, n);
-        //overriden to add delta
-        deltaSaver.addInsertCommand(key);
-        checkDeltaSize();
+        if(deltaSaver != null || !IN_TESTS){ //we want the error if we are not in tests
+            //overriden to add delta
+            deltaSaver.addInsertCommand(key);
+            checkDeltaSize();
+        }
     }
     
     /**

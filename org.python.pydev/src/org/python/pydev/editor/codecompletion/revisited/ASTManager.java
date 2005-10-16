@@ -624,15 +624,40 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 	                modTok = findModuleFromPath(importedModule.getAsRelativeImport(currentModuleName), nature, true);
 	                mod = modTok.o1;
 	                if(mod != null && mod.getName().equals(currentModuleName) == false){
-	                	return fixTok(modTok, tok, activationToken);
+                        Tuple<AbstractModule, String> ret = fixTok(modTok, tok, activationToken);
+                        return ret;
 	                }
 	                
 	                //check as absolute with original rep
 	                modTok = findModuleFromPath(importedModule.getOriginalRep(), nature, false);
 	                mod = modTok.o1;
 	                if(mod != null && mod.getName().equals(currentModuleName) == false){
-	                	return fixTok(modTok, tok, activationToken);
+                        Tuple<AbstractModule, String> ret =  fixTok(modTok, tok, activationToken);
+                        return ret;
 	                }
+                    
+                    
+                    //ok, one last shot, to see a relative looking in folders __init__
+                    modTok = findModuleFromPath(importedModule.getAsRelativeImport(currentModuleName), nature, false);
+                    mod = modTok.o1;
+                    if(mod != null && mod.getName().equals(currentModuleName) == false){
+                        Tuple<AbstractModule, String> ret = fixTok(modTok, tok, activationToken);
+                        //now let's see if what we did when we found it as a relative import is correct:
+                        
+                        //if we didn't find it in an __init__ module, all should be ok
+                        if(!mod.getName().endsWith("__init__")){
+                            return ret;
+                        }
+                        //otherwise, we have to be more cautious...
+                        //if the activation token is empty, then it is the module we were looking for
+                        //if it is not the initial token we were looking for, it is correct
+                        //if it is in the global tokens of the found module it is correct
+                        //if none of this situations was found, we probably just found the same token we had when we started (unless I'm mistaken...)
+                        else if(activationToken.length() == 0 || ret.o2.equals(activationToken) == false || mod.isInGlobalTokens(activationToken, nature)){
+                            return ret;
+                        }
+                    }
+
 	            }
 	        }
         }   

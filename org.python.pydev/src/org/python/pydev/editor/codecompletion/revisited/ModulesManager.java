@@ -346,15 +346,16 @@ public abstract class ModulesManager implements Serializable {
 
 
         if(n == null){
-        	if(!isLookingForRelative){
-        		n = (AbstractModule) getModules().get(new ModulesKey(name + ".__init__", null));
-        	}
             if (n == null) {
                 n = (AbstractModule) getModules().get(new ModulesKey(name, null));
-            }else{
-            	if(!isLookingForRelative){
-            		name += ".__init__";
-            	}
+            }
+            if(!isLookingForRelative){
+                if(n == null){
+                    n = (AbstractModule) getModules().get(new ModulesKey(name + ".__init__", null));
+                    if(n != null){
+                        name += ".__init__";
+                    }
+                }
             }
         }
 
