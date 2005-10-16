@@ -25,7 +25,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testImportNotFound8();
+            analyzer2.testUndefinedWithTab();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -1706,5 +1706,19 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
 
+    public void testUndefinedWithTab() {
+        doc = new Document(
+            "def m():\n" +
+            "\tprint a\n" +
+            "\n" +
+            "" 
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        
+        printMessages(msgs, 1);
+        assertEquals("Undefined variable: a", msgs[0].getMessage());
+        assertEquals(8, msgs[0].getStartCol(doc));
+    }
     
 }
