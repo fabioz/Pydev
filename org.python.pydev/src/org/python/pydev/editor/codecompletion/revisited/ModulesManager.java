@@ -136,14 +136,35 @@ public abstract class ModulesManager implements Serializable {
             Object o = iterator.next();
             if (o instanceof File) {
                 File f = (File) o;
-                String m = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(f));
+                String fileAbsolutePath = REF.getFileAbsolutePath(f);
+                String m = pythonPathHelper.resolveModule(fileAbsolutePath);
 
                 monitor.setTaskName(new StringBuffer("Module resolved: ").append(j).append(" of ").append(total).append(" (").append(m)
                         .append(")").toString());
                 monitor.worked(1);
                 if (m != null) {
                     //we don't load them at this time.
-                    mods.put(new ModulesKey(m, f), AbstractModule.createEmptyModule(m, f));
+                    ModulesKey modulesKey = new ModulesKey(m, f);
+                    AbstractModule module = mods.get(modulesKey);
+                    
+                    //ok, now, let's resolve any conflicts that we might find...
+                    boolean add = false;
+                    
+                    //no conflict (easy)
+                    if(module == null){
+                        add = true;
+                    }else{
+                        //we have a conflict, so, let's resolve which one to keep (the old one or this one)
+                        if(PythonPathHelper.isValidSourceFile(fileAbsolutePath)){
+                            //source files have priority over other modules (dlls) -- if both are source, there is no real way to resolve
+                            //this priority, so, let's just add it over.
+                            add = true;
+                        }
+                    }
+                    
+                    if(add){
+                        mods.put(modulesKey, AbstractModule.createEmptyModule(m, f));
+                    }
                 }
             }
         }

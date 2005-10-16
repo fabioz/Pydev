@@ -19,7 +19,7 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
         try {
             PythonCompletionTestWithBuiltins builtins = new PythonCompletionTestWithBuiltins();
             builtins.setUp();
-            builtins.testWxPython1();
+            builtins.testPreferSrc();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionTestWithBuiltins.class);
@@ -111,6 +111,13 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
     }
 
     
+    
+    public void testPreferSrc() throws BadLocationException, IOException, Exception{
+        String s = ""+
+        "import prefersrc\n"+
+        "prefersrc.";
+        requestCompl(s, s.length(), -1, new String[]{"PreferSrc"});
+    }
     
     public void testWxPython1() throws BadLocationException, IOException, Exception{
         if(TestDependent.HAS_WXPYTHON_INSTALLED){ //we can only test what we have
