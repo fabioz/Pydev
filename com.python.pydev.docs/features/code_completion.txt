@@ -16,7 +16,7 @@ Additions:
 Not context-sensitive and Auto-import
 -------------------------------------
 
-The not context-sensitive code completion should work toghether with the auto-import feature.
+The not context-sensitive code completion should work toghether with the auto-import feature. - OK
 
 What will it contain:
 - modules available - OK

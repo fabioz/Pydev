@@ -22,7 +22,7 @@ Features that should be implemented
 
 - Make auto-import content assist - OK
 
-- Debug server
+- Debug server - OK
 
 They should be done in the order listed above.
 
