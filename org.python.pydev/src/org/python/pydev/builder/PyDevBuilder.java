@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -279,6 +280,9 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
             IFile file = (IFile) resource;
             try {
+                if(! file.isSynchronized(IResource.DEPTH_ZERO)){
+                    file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+                }
                 String encoding = file.getCharset();
                 InputStream stream = file.getContents();
                 StringBuffer buf = new StringBuffer();
