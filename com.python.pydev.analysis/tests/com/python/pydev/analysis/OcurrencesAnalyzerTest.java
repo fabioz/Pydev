@@ -25,7 +25,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testLambda2();
+            analyzer2.testImportNotFound8();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -346,6 +346,16 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
         
         printMessages(msgs,0);
+    }
+    
+    public void testRelImport() throws FileNotFoundException{
+        
+        analyzer = new OcurrencesAnalyzer();
+        String file = TestDependent.TEST_PYSRC_LOC+"relative/__init__.py";
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("relative.__init__", new File(file), nature, 0), prefs);
+        
+        //no unused import message is generated
+        printMessages(msgs, 0);
     }
     
     public void testImportNotFound8() throws FileNotFoundException{
