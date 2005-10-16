@@ -117,7 +117,7 @@ public class CodeCompletionTestsBase extends TestCase {
             //get default and restore the pythonpath
             InterpreterInfo info = getDefaultInterpreterInfo();
             info.restoreCompiledLibs(getProgressMonitor());
-            info.restorePythonpath(path, getProgressMonitor());
+            info.restorePythonpath(path, getProgressMonitor()); //here
 
             //postconditions
             afterRestorSystemPythonPath(info);

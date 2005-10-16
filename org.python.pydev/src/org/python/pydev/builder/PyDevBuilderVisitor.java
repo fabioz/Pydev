@@ -106,6 +106,9 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      */
     protected boolean isFullBuild(){
         Boolean b = (Boolean) memo.get(IS_FULL_BUILD);
+        if(b == null){
+            return false; // we surely will have it set when it is a full build. (the other way around may not be true).
+        }
         return b.booleanValue();
     }
     
