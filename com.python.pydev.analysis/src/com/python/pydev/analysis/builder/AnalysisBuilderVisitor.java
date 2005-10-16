@@ -4,21 +4,14 @@
 package com.python.pydev.analysis.builder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.builder.PyDevBuilder;
 import org.python.pydev.builder.PyDevBuilderVisitor;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -29,6 +22,7 @@ import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.OcurrencesAnalyzer;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.messages.IMessage;
 
@@ -55,6 +49,13 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         this.dependentModulesToAnalyze = new ArrayList<Tuple<String, PythonNature>>();
     }
 
+    /**
+     * When we finish visiting, the dependent modules found should be visited. When this analysis
+     * is done, it does not get dependencies for later analysis (all the dependent modules should be already
+     * set to be visited now).
+     *  
+     * @see org.python.pydev.builder.PyDevBuilderVisitor#visitingEnded(org.eclipse.core.runtime.IProgressMonitor)
+     */
     @Override
     public void visitingEnded(IProgressMonitor monitor) {
         super.visitingEnded(monitor);
@@ -107,23 +108,27 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         this.dependentModulesToAnalyze.clear();
     }
     
-    @Override
-    public void visitAddedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
-    	//the resource was added (not changed)... so, it could be a full build
-    	visitChangedResource(resource, document, null, false, monitor);
-    }
     
     @Override
     public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
-        if(AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SAVE){
-            visitChangedResource(resource, document, null, true, monitor);
+        boolean fullBuild = isFullBuild();
+        if(fullBuild ||
+           AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SAVE){
+            
+            boolean analyzeDependent;
+            if(fullBuild){
+                analyzeDependent = false;
+            }else{
+                analyzeDependent = true;
+            }
+            doVisitChangedResource(resource, document, null, analyzeDependent, monitor);
         }
     }
     
     /**
      * here we have to detect errors / warnings from the code analysis
      */
-    public void visitChangedResource(IResource resource, IDocument document, AbstractModule module, boolean analyzeDependent, IProgressMonitor monitor) {
+    public void doVisitChangedResource(IResource resource, IDocument document, AbstractModule module, boolean analyzeDependent, IProgressMonitor monitor) {
         AnalysisRunner runner = new AnalysisRunner();
         
         IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
@@ -146,7 +151,8 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         
         //remove dependency information (and anything else that was already generated), but first, gather the modules dependent on this one.
         fillDependenciesAndRemoveInfo(moduleName, nature, analyzeDependent, monitor);
-
+        recreateCtxInsensitiveInfo(resource, document);
+        
     	monitor.setTaskName("Analyzing module: "+moduleName);
     	monitor.worked(1);
         
@@ -181,6 +187,27 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
 
 
+    private void recreateCtxInsensitiveInfo(IResource resource, IDocument document) {
+        AbstractModule sourceModule = getSourceModule(resource, document);
+        PythonNature nature = getPythonNature(resource);
+
+        AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+        
+        //info.removeInfoFromModule(sourceModule.getName()); -- does not remove info from the module because this should be already
+        //done once it gets here (the AnalysisBuilder, that also makes dependency info should take care of this).
+        boolean generateDelta;
+        if(isFullBuild()){
+            generateDelta = false;
+        }else{
+            generateDelta = true;
+        }
+        
+        if (sourceModule instanceof SourceModule) {
+            SourceModule m = (SourceModule) sourceModule;
+            info.addSourceModuleInfo(m, nature, generateDelta);
+        }
+    }
+
     @Override
     public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         String moduleName = getModuleName(resource);
@@ -190,9 +217,9 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     }
 
     /**
-     * @param moduleName
-     * @param nature
-     * @param analyzeDependent 
+     * @param moduleName this is the module name
+     * @param nature this is the nature
+     * @param analyzeDependent determines if we should add dependent modules to be analyzed later
      */
     private void fillDependenciesAndRemoveInfo(String moduleName, PythonNature nature, boolean analyzeDependent, IProgressMonitor monitor) {
         AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
@@ -210,7 +237,13 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
                 this.dependentModulesToAnalyze.add(new Tuple<String, PythonNature>(dependentOn, nature));
             }
         }
-        info.removeInfoFromModule(moduleName);
+        boolean generateDelta;
+        if(isFullBuild()){
+            generateDelta = false;
+        }else{
+            generateDelta = true;
+        }
+        info.removeInfoFromModule(moduleName, generateDelta);
     }
 
 }

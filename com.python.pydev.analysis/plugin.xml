@@ -18,6 +18,7 @@
 	</extension>
 
    <extension point="org.python.pydev.pydev_builder">
+   		<!--Also does the ctx insensitive builder part (which was removed)-->
    		<builder_participant class="com.python.pydev.analysis.builder.AnalysisBuilderVisitor"/>
    </extension>
    
@@ -31,10 +32,6 @@
 
    <extension point="org.python.pydev.pydev_interpreter_observer">
   		<interpreter_observer class="com.python.pydev.analysis.additionalinfo.InterpreterObserver"/>
-   </extension>
-   
-   <extension point="org.python.pydev.pydev_builder">
-  		<builder_participant class="com.python.pydev.analysis.additionalinfo.builder.CtxInsensitiveBuilderVisitor"/>
    </extension>
    
    <extension point="org.python.pydev.pydev_ctrl_1">

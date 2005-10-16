@@ -92,11 +92,12 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * 
      * @param info information to be added
      */
-    private void add(IInfo info) {
+    protected void add(IInfo info, boolean generateDelta) {
         String name = info.getName();
         String initials = getInitials(name);
         List<IInfo> listForInitials = getAndCreateListForInitials(initials);
         listForInitials.add(info);
+
     }
 
     /**
@@ -130,20 +131,20 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * adds a method to the definition
      */
-    public void addMethod(FunctionDef def, String moduleDeclared) {
+    public void addMethod(FunctionDef def, String moduleDeclared, boolean generateDelta) {
         synchronized (lock) {
 	        FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared);
-	        add(info2);
+	        add(info2, generateDelta);
         }
     }
     
     /**
      * Adds a class to the definition
      */
-    public void addClass(ClassDef def, String moduleDeclared) {
+    public void addClass(ClassDef def, String moduleDeclared, boolean generateDelta) {
     	synchronized (lock) {
 	        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared);
-	        add(info);
+	        add(info, generateDelta);
     	}
     }
 
@@ -153,11 +154,11 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param classOrFunc the class or function we want to add
      * @param moduleDeclared the module where it is declared
      */
-    public void addClassOrFunc(SimpleNode classOrFunc, String moduleDeclared) {
+    public void addClassOrFunc(SimpleNode classOrFunc, String moduleDeclared, boolean generateDelta) {
         if(classOrFunc instanceof ClassDef){
-            addClass((ClassDef) classOrFunc, moduleDeclared);
+            addClass((ClassDef) classOrFunc, moduleDeclared, generateDelta);
         }else{
-            addMethod((FunctionDef) classOrFunc, moduleDeclared);
+            addMethod((FunctionDef) classOrFunc, moduleDeclared, generateDelta);
         }
     }
 
@@ -165,8 +166,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * Adds information for a source module
      * @param m the module we want to add to the info
      */
-    public void addSourceModuleInfo(SourceModule m, PythonNature nature) {
-        addAstInfo(m.getAst(), m.getName(), nature);
+    public void addSourceModuleInfo(SourceModule m, PythonNature nature, boolean generateDelta) {
+        addAstInfo(m.getAst(), m.getName(), nature, generateDelta);
     }
 
     
@@ -175,7 +176,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param node the ast root
      * @param m 
      */
-    public void addAstInfo(SimpleNode node, String moduleName, PythonNature nature) {
+    public void addAstInfo(SimpleNode node, String moduleName, PythonNature nature, boolean generateDelta) {
     	if(node == null || moduleName == null){
     		return;
     	}
@@ -190,7 +191,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
                 
                 if(entry.parent == null){ //we only want those that are in the global scope
 					SimpleNode classOrFunc = entry.node;
-	                addClassOrFunc(classOrFunc, moduleName);
+	                addClassOrFunc(classOrFunc, moduleName, generateDelta);
                 }
             }
             
@@ -204,7 +205,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * Removes all the info associated with a given module
      * @param moduleName the name of the module we want to remove info from
      */
-    public void removeInfoFromModule(String moduleName) {
+    public void removeInfoFromModule(String moduleName, boolean generateDelta) {
         synchronized (lock) {
 
 	        if(initialsToInfo == null){
@@ -225,7 +226,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
 	                    }
 	                }
 	            }
-	        }            
+	        }
         }
         
     }
@@ -302,7 +303,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * this can be used to save the file
      */
     public void save() {
-        String persistingLocation = getPersistingLocation();
+        File persistingLocation = getPersistingLocation();
         if(DEBUG_ADDITIONAL_INFO){
             System.out.println("Saving to "+persistingLocation);
         }
@@ -312,7 +313,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * @return the location where we can persist this info.
      */
-    protected abstract String getPersistingLocation();
+    protected abstract File getPersistingLocation();
 
 
     /**
@@ -326,7 +327,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * @return the path to the folder we want to keep things on
      */
-    protected static String getPersistingFolder() {
+    protected static File getPersistingFolder() {
         try {
             IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
             String osString = stateLocation.toOSString();
@@ -336,21 +337,21 @@ public abstract class AbstractAdditionalInterpreterInfo {
                     osString += '/';
                 }
             }
-            return osString;
+            return new File(osString);
         } catch (NullPointerException e) {
             //it may fail in tests... (save it in default folder in this cases)
             PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
-            return "";
+            return new File(".");
         }
     }
     
 
-    private void saveTo(String pathToSave) {
+    private void saveTo(File pathToSave) {
         synchronized (lock) {
 	        if(DEBUG_ADDITIONAL_INFO){
 	            System.out.println("Saving info "+this.getClass().getName()+" to file (size = "+getAllTokens().size()+") "+pathToSave);
 	        }
-	        REF.writeToFile(getInfoToSave(), new File(pathToSave));
+	        REF.writeToFile(getInfoToSave(), pathToSave);
         }
     }
 
@@ -366,7 +367,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @return true if it was successfully loaded and false otherwise
      */
     protected boolean load() {
-        File file = new File(getPersistingLocation());
+        File file = getPersistingLocation();
         if(file.exists() && file.isFile()){
             try {
                 restoreSavedInfo(IOUtils.readFromFile(file));
@@ -410,6 +411,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     	buffer.append("]");
     	return buffer.toString();
     }
+
 
 }
 

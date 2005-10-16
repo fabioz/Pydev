@@ -6,6 +6,8 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import java.io.File;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,11 +15,14 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.core.DeltaSaver;
+import org.python.pydev.core.ICallback;
+import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 
-public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependencyInfo{
+public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependencyInfo implements IDeltaProcessor<Object> {
 
     private IProject project;
     /**
@@ -25,17 +30,118 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      */
     private static Map<String, AbstractAdditionalDependencyInfo> additionalNatureInfo = new HashMap<String, AbstractAdditionalDependencyInfo>();
 
-    public AdditionalProjectInterpreterInfo(IProject project) {
-        this.project = project;
+
+    
+    //----------------------------------------------------------------------------- START DELTA RELATED 
+    /**
+     * Used to save things in a delta fashion (projects have deltas).
+     */
+    protected DeltaSaver<Object> deltaSaver;
+    
+    @Override
+    protected void add(IInfo info, boolean generateDelta) {
+        super.add(info, generateDelta);
+        //after adding any info, we have to save the delta.
+        if(generateDelta){
+            deltaSaver.addInsertCommand(info);
+            checkDeltaSize();
+        }
+    }
+
+    
+    @Override
+    public void removeInfoFromModule(String moduleName, boolean generateDelta) {
+        super.removeInfoFromModule(moduleName, generateDelta);
+        if(generateDelta){
+            this.deltaSaver.addDeleteCommand(moduleName);
+            checkDeltaSize();
+        }
     }
 
     @Override
-    protected String getPersistingLocation() {
+    protected void restoreSavedInfo(Object o) {
+        super.restoreSavedInfo(o);
+        //when we do a load, we have to process the deltas that may exist
+        if(deltaSaver.availableDeltas() > 0){
+            deltaSaver.processDeltas(this);
+        }
+    }
+
+    protected DeltaSaver<Object> createDeltaSaver() {
+        return new DeltaSaver<Object>(
+                AbstractAdditionalInterpreterInfo.getPersistingFolder(), 
+                project.getName()+"_projectinfodelta", 
+                new ICallback<Object, ObjectInputStream>(){
+
+            public Object call(ObjectInputStream arg) {
+                try {
+                    return arg.readObject();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }}
+        );
+    }
+    
+
+    
+    public void processUpdate(Object data) {
+        throw new RuntimeException("There is no update generation, only add.");
+    }
+
+    public void processDelete(Object data) {
+        //the moduleName is generated on delete
+        this.removeInfoFromModule((String) data, false);
+    }
+
+    public void processInsert(Object data) {
+        //the IInfo token is generated on insert
+        this.add((IInfo) data, false);
+    }
+
+    public void endProcessing() {
+        //save it when the processing is finished
+        this.save();
+    }
+    
+    
+    /**
+     * This is the maximun number of deltas that can be generated before saving everything in a big chunck and 
+     * clearing the deltas
+     */
+    public static final int MAXIMUN_NUMBER_OF_DELTAS = 100;
+
+    /**
+     * If the delta size is big enough, save the current state and discard the deltas.
+     */
+    private void checkDeltaSize() {
+        if(deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
+            this.save();
+            deltaSaver.clearAll();
+        }
+    }
+
+
+    //----------------------------------------------------------------------------- END DELTA RELATED
+    
+    
+    
+    
+    
+    
+    
+    public AdditionalProjectInterpreterInfo(IProject project) {
+        this.project = project;
+        deltaSaver = createDeltaSaver();
+    }
+
+    @Override
+    protected File getPersistingLocation() {
         String name = project.getName();
         if(name == null || name.trim().length() == 0){
             throw new RuntimeException("The name of the project is not valid: "+project);
         }
-        return getPersistingFolder()+name+".pydevinfo";
+        return new File(getPersistingFolder(), name+".pydevinfo");
     }
 
     @Override
@@ -111,5 +217,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         AbstractAdditionalDependencyInfo info = getAdditionalInfoForProject(project);
         return info.load();
     }
+
+
 
 }

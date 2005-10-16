@@ -6,6 +6,7 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,8 +26,8 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInterpret
     }
 
     @Override
-    protected String getPersistingLocation() {
-        return getPersistingFolder() + manager.getManagerRelatedName() + ".pydevsysteminfo";
+    protected File getPersistingLocation() {
+        return new File(getPersistingFolder(), manager.getManagerRelatedName() + ".pydevsysteminfo");
     }
 
     @Override

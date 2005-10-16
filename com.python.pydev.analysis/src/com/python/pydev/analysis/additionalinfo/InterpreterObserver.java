@@ -124,7 +124,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                             //SimpleNode node = FastParser.reparseDocument(REF.getFileContents(key.file));
 
                             if (node != null) {
-                                info.addAstInfo(node, key.name, nature);
+                                info.addAstInfo(node, key.name, nature, false);
                             }else{
                                 throw new RuntimeException("Unable to generate ast.");
                             }

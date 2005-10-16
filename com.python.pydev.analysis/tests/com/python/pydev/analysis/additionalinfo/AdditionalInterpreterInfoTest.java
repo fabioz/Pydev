@@ -3,6 +3,7 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public class AdditionalInterpreterInfoTest extends TestCase {
         info = new AbstractAdditionalDependencyInfo(){
 
             @Override
-            protected String getPersistingLocation() {
+            protected File getPersistingLocation() {
                 return null;
             }
 
@@ -43,12 +44,12 @@ public class AdditionalInterpreterInfoTest extends TestCase {
     
     
     public void testMap() {
-        info.addMethod(createFuncDef("metz" ), "mod1");
-        info.addMethod(createFuncDef("metZ" ), "mod1");
-        info.addMethod(createFuncDef("met9" ), "mod1");
-        info.addMethod(createFuncDef("met0" ), "mod1");
-        info.addMethod(createFuncDef("meta" ), "mod1");
-        info.addMethod(createFuncDef("metA" ), "mod1");
+        info.addMethod(createFuncDef("metz" ), "mod1", false);
+        info.addMethod(createFuncDef("metZ" ), "mod1", false);
+        info.addMethod(createFuncDef("met9" ), "mod1", false);
+        info.addMethod(createFuncDef("met0" ), "mod1", false);
+        info.addMethod(createFuncDef("meta" ), "mod1", false);
+        info.addMethod(createFuncDef("metA" ), "mod1", false);
         
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("met");
         assertEquals(6, tokensStartingWith.size());
@@ -58,10 +59,10 @@ public class AdditionalInterpreterInfoTest extends TestCase {
     }
     
     public void testMap2() {
-        info.addMethod(createFuncDef("m" ), "mod1");
-        info.addMethod(createFuncDef("mm" ), "mod1");
-        info.addMethod(createFuncDef("mmm" ), "mod1");
-        info.addMethod(createFuncDef("mmmm" ), "mod1");
+        info.addMethod(createFuncDef("m" )   , "mod1", false);
+        info.addMethod(createFuncDef("mm" )  , "mod1", false);
+        info.addMethod(createFuncDef("mmm" ) , "mod1", false);
+        info.addMethod(createFuncDef("mmmm" ), "mod1", false);
         
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("m");
         assertEquals(4, tokensStartingWith.size());
@@ -77,10 +78,10 @@ public class AdditionalInterpreterInfoTest extends TestCase {
     }
     
     public void testAddFunc() {
-        info.addMethod(createFuncDef("met1" ), "mod1");
-        info.addMethod(createFuncDef("met2" ), "mod1");
-        info.addMethod(createFuncDef("func1"), "mod1");
-        info.addMethod(createFuncDef("func2"), "mod1");
+        info.addMethod(createFuncDef("met1" ), "mod1", false);
+        info.addMethod(createFuncDef("met2" ), "mod1", false);
+        info.addMethod(createFuncDef("func1"), "mod1", false);
+        info.addMethod(createFuncDef("func2"), "mod1", false);
         
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("me");
         assertEquals(2, tokensStartingWith.size());
@@ -97,17 +98,17 @@ public class AdditionalInterpreterInfoTest extends TestCase {
     }
 
     public void testAddClass() {
-        info.addClass(createClassDef("cls1" ) , "mod1");
-        info.addClass(createClassDef("cls2" ) , "mod1");
-        info.addClass(createClassDef("class1"), "mod2");
-        info.addClass(createClassDef("class2"), "mod2");
+        info.addClass(createClassDef("cls1" ) , "mod1", false);
+        info.addClass(createClassDef("cls2" ) , "mod1", false);
+        info.addClass(createClassDef("class1"), "mod2", false);
+        info.addClass(createClassDef("class2"), "mod2", false);
         
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("cls");
         assertEquals(2, tokensStartingWith.size());
         assertIsIn("cls1", tokensStartingWith);
         assertIsIn("cls2", tokensStartingWith);
         
-        info.removeInfoFromModule("mod2");
+        info.removeInfoFromModule("mod2", false);
         tokensStartingWith = info.getTokensStartingWith("class");
         assertEquals(0, tokensStartingWith.size());
     }
@@ -170,7 +171,7 @@ public class AdditionalInterpreterInfoTest extends TestCase {
         assertTrue(dependenciesOn.contains("mod1"));
         assertTrue(dependenciesOn.contains("mod2"));
 
-        info.removeInfoFromModule("mod2"); //the other modules should still depend on it, altough its information is lost
+        info.removeInfoFromModule("mod2", false); //the other modules should still depend on it, altough its information is lost
         dependencies = info.getDependencies("mod1"); //does return mod2, even though it does not exist anymore
         assertEquals(1, dependencies.size());
 

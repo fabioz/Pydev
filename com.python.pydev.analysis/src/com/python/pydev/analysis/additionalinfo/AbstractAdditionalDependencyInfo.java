@@ -36,8 +36,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 	}
     
     @Override
-    public void removeInfoFromModule(String moduleName) {
-        super.removeInfoFromModule(moduleName);
+    public void removeInfoFromModule(String moduleName, boolean generateDelta) {
+        super.removeInfoFromModule(moduleName, generateDelta);
         synchronized (lock) {
         	this.moduleDependencies.remove(moduleName);
 		}

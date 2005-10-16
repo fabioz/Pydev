@@ -4,7 +4,6 @@
 package com.python.pydev.analysis.ctrl_1;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;

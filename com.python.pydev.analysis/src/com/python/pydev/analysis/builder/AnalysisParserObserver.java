@@ -40,7 +40,7 @@ public class AnalysisParserObserver implements IParserObserver{
             AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
             visitor.memo = new HashMap<String, Object>();
             visitor.visitingWillStart(new NullProgressMonitor());
-            visitor.visitChangedResource(fileAdapter, doc, module, true, new NullProgressMonitor()); //also analyze dependencies
+            visitor.doVisitChangedResource(fileAdapter, doc, module, true, new NullProgressMonitor()); //also analyze dependencies
             visitor.visitingEnded(new NullProgressMonitor());
         }
     }
