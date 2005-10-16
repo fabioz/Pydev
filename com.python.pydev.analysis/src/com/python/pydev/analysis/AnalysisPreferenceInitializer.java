@@ -21,6 +21,9 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final String NAMES_TO_IGNORE_UNUSED_VARIABLE = "NAMES_TO_IGNORE_UNUSED_VARIABLE";
     public static final String DEFAULT_NAMES_TO_IGNORE_UNUSED_VARIABLE = "dummy, _, unused";
     
+    public static final String NAMES_TO_IGNORE_UNUSED_IMPORT = "NAMES_TO_IGNORE_UNUSED_IMPORT";
+    public static final String DEFAULT_NAMES_TO_IGNORE_UNUSED_IMPORT = "__init__, *QT";
+    
     public static final String SEVERITY_UNUSED_IMPORT = "SEVERITY_UNUSED_IMPORT";
     public static final int DEFAULT_SEVERITY_UNUSED_IMPORT = IMarker.SEVERITY_WARNING;
 
@@ -53,6 +56,7 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
             
         }
         node.put   (NAMES_TO_IGNORE_UNUSED_VARIABLE, DEFAULT_NAMES_TO_IGNORE_UNUSED_VARIABLE);
+        node.put   (NAMES_TO_IGNORE_UNUSED_IMPORT, DEFAULT_NAMES_TO_IGNORE_UNUSED_IMPORT);
         node.putInt(WHEN_ANALYZE, DEFAULT_WHEN_ANALYZE);
     }
 

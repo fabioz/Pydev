@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -54,9 +56,16 @@ public class MessagesManager {
         if(moduleName == null){
             return true;
         }
-        if(moduleName.endsWith("__init__")){
-            return false;
+        String onlyModName = FullRepIterable.headAndTail(moduleName, true)[1];
+        Set<String> patternsToBeIgnored = this.prefs.getModuleNamePatternsToBeIgnored();
+        for (String pattern : patternsToBeIgnored) {
+            if(onlyModName.matches(pattern)){
+                return false;
+            }
         }
+//        if(moduleName.endsWith("__init__")){
+//            return false;
+//        }
         return true;
     }
     
@@ -181,7 +190,7 @@ public class MessagesManager {
      * this is ok, because every time we start an analysis session, this object is re-created, and the options
      * will not change all the time
      */
-    private List<String> namesToIgnoreCache = null;
+    private Set<String> namesToIgnoreCache = null;
 
     /**
      * This is the last scope. It is set after all the analysis ended, so that we can generate some

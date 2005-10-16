@@ -3,11 +3,10 @@
  */
 package com.python.pydev.analysis;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.Preferences;
 
@@ -94,11 +93,19 @@ public class AnalysisPreferences implements IAnalysisPreferences{
     /**
      * @see com.python.pydev.analysis.IAnalysisPreferences#getNamesIgnoredByUnusedVariable()
      */
-    public List<String> getNamesIgnoredByUnusedVariable() {
+    public Set<String> getNamesIgnoredByUnusedVariable() {
+        return getSetOfNames(AnalysisPreferenceInitializer.NAMES_TO_IGNORE_UNUSED_VARIABLE);
+    }
+
+    /**
+     * @param preferencesName
+     * @return
+     */
+    private Set<String> getSetOfNames(String preferencesName) {
         HashSet<String> names = new HashSet<String>();
         Preferences pluginPreferences = AnalysisPlugin.getDefault().getPluginPreferences();
 
-        String string = pluginPreferences.getString(AnalysisPreferenceInitializer.NAMES_TO_IGNORE_UNUSED_VARIABLE);
+        String string = pluginPreferences.getString(preferencesName);
         if(string != null){
             String[] strings = string.split(",");
             for (int i = 0; i < strings.length; i++) {
@@ -106,7 +113,20 @@ public class AnalysisPreferences implements IAnalysisPreferences{
             }
         }
         
-        return new ArrayList<String>(names);
+        return names;
+    }
+
+    /**
+     * @see com.python.pydev.analysis.IAnalysisPreferences#getModuleNamePatternsToBeIgnored()
+     */
+    public Set<String> getModuleNamePatternsToBeIgnored() {
+        Set<String> setOfNames = getSetOfNames(AnalysisPreferenceInitializer.NAMES_TO_IGNORE_UNUSED_IMPORT);
+        HashSet<String> ret = new HashSet<String>();
+        for (String string : setOfNames) {
+            //we have to make it a regular expression as java requires, so * is actually .*
+            ret.add(string.replaceAll("\\*", ".*"));
+        }
+        return ret;
     }
 
     /**
@@ -132,4 +152,5 @@ public class AnalysisPreferences implements IAnalysisPreferences{
         }
         return typeToIgnoreMessage.get(type);
     }
+
 }

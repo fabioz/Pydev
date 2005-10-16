@@ -3,8 +3,8 @@
  */
 package com.python.pydev.analysis;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.resources.IMarker;
 
@@ -64,9 +64,15 @@ public final class AnalysisPreferencesStub implements IAnalysisPreferences {
     /**
      * @see com.python.pydev.analysis.IAnalysisPreferences#getNamesIgnoredByUnusedVariable()
      */
-    public List<String> getNamesIgnoredByUnusedVariable() {
-        List<String> names = new ArrayList<String>();
+    public Set<String> getNamesIgnoredByUnusedVariable() {
+        Set<String> names = new HashSet<String>();
         names.add("dummy");
+        return names;
+    }
+    
+    public Set<String> getModuleNamePatternsToBeIgnored() {
+        Set<String> names = new HashSet<String>();
+        names.add("__init__");
         return names;
     }
 

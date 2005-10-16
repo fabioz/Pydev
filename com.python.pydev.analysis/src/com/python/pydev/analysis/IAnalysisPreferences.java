@@ -3,7 +3,7 @@
  */
 package com.python.pydev.analysis;
 
-import java.util.List;
+import java.util.Set;
 
 public interface IAnalysisPreferences {
     
@@ -65,7 +65,12 @@ public interface IAnalysisPreferences {
      * 
      * e.g.: if dummy is in the set, ignore names starting with 'dummy' that will be reported as unused variables
      */
-    List<String> getNamesIgnoredByUnusedVariable();
+    Set<String> getNamesIgnoredByUnusedVariable();
+    
+    /**
+     * @return a set with the names of the modules where unused imports should not be reported
+     */
+    Set<String> getModuleNamePatternsToBeIgnored();
     
     /**
      * The analysis preferences may have caches, so that we don't get all from the cache, but we must be able to clear them

@@ -11,6 +11,7 @@ import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.utils.LabelFieldEditor;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.AnalysisPreferenceInitializer;
@@ -33,6 +34,7 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
+        addField(new LabelFieldEditor("Analysis_pref_note", "NOTE: Any file with the comment below will not be analyzed.\n\n#@PydevCodeAnalysisIgnore\n\nOptions:\n\n", p));
         String[][] whenAnalyze = new String[][]{
                 {"Only on save"  , String.valueOf(IAnalysisPreferences.ANALYZE_ON_SAVE)},
                 {"On any successful parse", String.valueOf(IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE)}
@@ -48,10 +50,13 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
 
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNUSED_IMPORT, "Unused import", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNUSED_WILD_IMPORT, "Unused wild import", 3,values,p, true));
+        addField(new StringFieldEditor(AnalysisPreferenceInitializer.NAMES_TO_IGNORE_UNUSED_IMPORT, 
+                "Don't report unused imports in modules named: (separated by comma)",p ));
+        
         
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNUSED_VARIABLE, "Unused variable", 3,values,p, true));
         addField(new StringFieldEditor(AnalysisPreferenceInitializer.NAMES_TO_IGNORE_UNUSED_VARIABLE, 
-                "Don't report unused if name stars with: (separated by comma)",p ));
+                "Don't report unused variable if name stars with: (separated by comma)",p ));
         
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNDEFINED_VARIABLE, "Undefined variable", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_DUPLICATED_SIGNATURE, "Duplicated signature", 3,values,p, true));
