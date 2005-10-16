@@ -15,8 +15,8 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class CtxInsensitiveImportComplProposal extends PyCompletionProposal{
 
-    private String realImportRep;
-    private int lineToAddImport;
+    public String realImportRep;
+    public int lineToAddImport;
 
     public CtxInsensitiveImportComplProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, 
             String realImportRep, int lineToAddImport) {
