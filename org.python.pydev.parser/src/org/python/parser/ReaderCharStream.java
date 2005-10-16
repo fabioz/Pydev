@@ -160,10 +160,15 @@ public final class ReaderCharStream implements CharStream
         case '\n' :
            prevCharIsLF = true;
            break;
-        case '\t' :
-           column--;
-           column += (8 - (column & 07));
-           break;
+//ok, this was commented out because the position would not reflect correctly the positions found in the ast.
+//this may have other problems, but they have to be analyzed better to see the problems this may bring
+//(files that mix tabs and spaces may suffer, but I could not find out very well the problems -- anyway,
+//restricting the analysis to files that have only tabs or only spaces seems reasonable -- shortcuts are available
+//so that we can convert a file from one type to another, so, what remains is making some lint analysis to be sure of it).
+//        case '\t' :
+//           column--;
+//           column += (8 - (column & 07));
+//           break;
         default :
            break;
      }
