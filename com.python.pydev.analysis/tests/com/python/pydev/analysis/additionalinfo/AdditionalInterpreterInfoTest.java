@@ -130,6 +130,7 @@ public class AdditionalInterpreterInfoTest extends TestCase {
         return new FunctionDef(new NameTok(metName, NameTok.FunctionName), null, null, null);
     }
     
+    
     public void testDependencyInfo() throws Exception {
         String analyzedModule = "mod1";
         String dependsOn = "mod2";
@@ -176,4 +177,9 @@ public class AdditionalInterpreterInfoTest extends TestCase {
         assertEquals(1, dependencies.size());
 
     }
+
+    public void testDependencyInfo2() throws Exception {
+        
+    }
+
 }
