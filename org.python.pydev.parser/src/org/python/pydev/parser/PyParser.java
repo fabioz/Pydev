@@ -143,7 +143,9 @@ public class PyParser {
         if (document != null){
             document.removeDocumentListener(documentListener);
         }
-        parserListeners.clear();
+        synchronized(parserListeners){
+        	parserListeners.clear();
+        }
     }
 
     public SimpleNode getRoot() {
@@ -188,14 +190,19 @@ public class PyParser {
     /** stock listener implementation */
     public void addParseListener(IParserObserver listener) {
         Assert.isNotNull(listener);
-        if (!parserListeners.contains(listener))
-            parserListeners.add(listener);
+        synchronized(parserListeners){
+	        if (!parserListeners.contains(listener)){
+	            parserListeners.add(listener);
+	        }
+        }
     }
 
     /** stock listener implementation */
     public void removeParseListener(IParserObserver listener) {
         Assert.isNotNull(listener);
-        parserListeners.remove(listener);
+        synchronized(parserListeners){
+        	parserListeners.remove(listener);
+        }
     }
 
     
@@ -207,12 +214,11 @@ public class PyParser {
     protected void fireParserChanged(SimpleNode root, IAdaptable file, IDocument doc) {
         this.root = root;
         synchronized(parserListeners){
-            Iterator e = parserListeners.iterator();
-            while (e.hasNext()) {
-                IParserObserver l = (IParserObserver) e.next();
-                l.parserChanged(root, file, doc);
-            }
-            List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
+        	for (IParserObserver l : parserListeners) {
+        		l.parserChanged(root, file, doc);
+			}
+
+        	List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
             for (IParserObserver observer : participants) {
                 observer.parserChanged(root, file, doc);
             }
@@ -225,9 +231,7 @@ public class PyParser {
      */
     protected void fireParserError(Throwable error, IAdaptable file, IDocument doc) {
         synchronized(parserListeners){
-            Iterator e = parserListeners.iterator();
-            while (e.hasNext()) {
-                IParserObserver l = (IParserObserver) e.next();
+        	for (IParserObserver l : parserListeners) {
                 l.parserError(error, file, doc);
             }
             List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);

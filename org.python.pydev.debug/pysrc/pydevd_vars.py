@@ -87,7 +87,13 @@ def varToXML(v, name):
     xml = ""
     type, typeName, resolver = getType(v)    
     
-    value = str(v)
+    try:
+        value = str(v)
+    except:
+        try:
+            value = `v`
+        except:
+            value = 'Unable to get repr for %s' % v.__class__
     
     xml += '<var name="%s" type="%s"' % (name, typeName)
     

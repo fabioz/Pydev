@@ -5,6 +5,7 @@
  */
 package org.python.pydev.debug.model;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringBufferInputStream;
 import java.net.URLDecoder;
@@ -22,6 +23,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
+import org.python.pydev.core.REF;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -40,7 +42,7 @@ public class XMLUtils {
 		SAXParser parser = null;
 		try {
 			synchronized(parserFactory) {
-					parser = parserFactory.newSAXParser();
+				parser = parserFactory.newSAXParser();
 			}
 		} catch (ParserConfigurationException e) {
 			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML SAX error", e));
@@ -68,8 +70,9 @@ public class XMLUtils {
 					String name = attributes.getValue("name");
 					String id = attributes.getValue("id");
 					try {
-                        if (name != null)
+                        if (name != null){
                             name = URLDecoder.decode(name, "UTF-8");
+                        }
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -82,16 +85,12 @@ public class XMLUtils {
 	 * Creates IThread[] from the XML response
 	 */
 	static public IThread[] ThreadsFromXML(AbstractDebugTarget target, String payload) throws CoreException {
-		IThread[] threads = null;
 		try {
 			SAXParser parser = getSAXParser();
 			XMLToThreadInfo info = new XMLToThreadInfo(target);
 			parser.parse(new StringBufferInputStream(payload), info);
-			threads = new IThread[info.threads.size()];
-			Iterator it = info.threads.iterator();
-			int i = 0;
-			while (it.hasNext())
-				threads[i++] = (IThread)it.next();
+			return (IThread[]) info.threads.toArray(new IThread[0]);
+			
 		} catch (CoreException e) {
 			throw e;
 		} catch (SAXException e) {
@@ -99,7 +98,6 @@ public class XMLUtils {
 		} catch (IOException e) {
 			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
 		}
-		return threads;
 	}
 
 	/**
@@ -112,16 +110,19 @@ public class XMLUtils {
 		String type = attributes.getValue("type");
 		String value = attributes.getValue("value");
 		try {
-            if (value != null)
+            if (value != null){
                 value = URLDecoder.decode(value, "UTF-8");
+            }
+            
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 		String isContainer = attributes.getValue("isContainer");
-		if ("True".equals(isContainer))
+		if ("True".equals(isContainer)){
 			var = new PyVariableCollection(target, name, type, value, locator);
-		else 
+		}else{ 
 			var = new PyVariable(target,  name, type, value);
+		}
 		return var;
 	}
 
@@ -143,8 +144,10 @@ public class XMLUtils {
 		private void startThread(Attributes attributes) throws SAXException {
 			String target_id = attributes.getValue("id");
 			thread = target.findThreadByID(target_id);
-			if (thread == null)
+			if (thread == null){
 				throw new SAXException("Thread not found");		// can happen when debugger has been destroyed
+			}
+			
 			stop_reason = attributes.getValue("stop_reason");
 		}
 		
@@ -153,18 +156,21 @@ public class XMLUtils {
 			String id = attributes.getValue("id");
 			String file = attributes.getValue("file");
 			try {
-                if (file != null)
+                if (file != null){
                     file = URLDecoder.decode(file, "UTF-8");
+                    file = REF.getFileAbsolutePath(new File(file));
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+            
 			String line = attributes.getValue("line");
 			IPath filePath = new Path(file);
 			// Try to recycle old stack objects
 			currentFrame = thread.findStackFrameByID(id);
-			if (currentFrame == null)
+			if (currentFrame == null){
 				currentFrame = new PyStackFrame(thread, id, name, filePath, Integer.parseInt(line));
-			else { 
+			} else { 
 				currentFrame.setName(name);
 				currentFrame.setPath(filePath);
 				currentFrame.setLine(Integer.parseInt(line));
@@ -203,23 +209,31 @@ public class XMLUtils {
 							<var scope="local" name="self" type="ObjectType" value="<DeepThread>"/>
 						</frame>*
 				 */
-				if (qName.equals("thread"))
+				if (qName.equals("thread")){
 					startThread(attributes);
-				else if (qName.equals("frame")) 
+					
+				}else if (qName.equals("frame")){ 
 					startFrame(attributes);
-				else if (qName.equals("var"))
+					
+				}else if (qName.equals("var")){
 					startVar(attributes);
+				}
 		}
 		
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
 			if (qName.equals("frame")) {
 				// when frame ends, we need to assign all the local variables
-				if (locals == null)
+				if (locals == null){
 					initializeLocals();
+				}
+				
 				IVariable[] locArry = new IVariable[locals.size()];
-				for (int i=0; i < locArry.length; i++)
+				
+				for (int i=0; i < locArry.length; i++){
 					locArry[i] = (IVariable)locals.get(i);
+				}
+				
 				currentFrame.setVariables(locArry);
 				locals = null;
 			}
