@@ -195,7 +195,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
      * @return the offset of the closing peer
      * @throws IOException
      */
-    protected int searchForClosingPeer(int offset, int openingPeer, int closingPeer, IDocument document)
+    protected int searchForClosingPeer(int offset, char openingPeer, char closingPeer, IDocument document)
             throws IOException {
 
         fReader.configureForwardReader(document, offset + 1, document.getLength(), true, true);
@@ -227,25 +227,28 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
      * @return the offset of the opening peer
      * @throws IOException
      */
-    protected int searchForOpeningPeer(int offset, int openingPeer, int closingPeer, IDocument document)
-            throws IOException {
+    public int searchForOpeningPeer(int offset, char openingPeer, char closingPeer, IDocument document){
 
-        fReader.configureBackwardReader(document, offset, true, true);
+        try {
+			fReader.configureBackwardReader(document, offset, true, true);
 
-        int stack = 1;
-        int c = fReader.read();
-        while (c != PythonCodeReader.EOF) {
-            if (c == closingPeer && c != openingPeer)
-                stack++;
-            else if (c == openingPeer)
-                stack--;
+			int stack = 1;
+			int c = fReader.read();
+			while (c != PythonCodeReader.EOF) {
+				if (c == closingPeer && c != openingPeer)
+					stack++;
+				else if (c == openingPeer)
+					stack--;
 
-            if (stack == 0)
-                return fReader.getOffset();
+				if (stack == 0)
+					return fReader.getOffset();
 
-            c = fReader.read();
-        }
+				c = fReader.read();
+			}
 
-        return -1;
+			return -1;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
     }
 }

@@ -209,6 +209,43 @@ public class PyAutoIndentStrategyTest extends TestCase {
         
     }
     
+    public void testIndent3() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String doc = ""+
+		"properties.create(a = newClass(),\n" +
+		"                  b = newClass(),"; //don't indent after the '(' in this line, but to the default one
+    	DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "\n"+
+    	"                  ";
+    	assertEquals(expected, docCmd.text);
+    }
+    
+    public void testIndent4() { //even if it does not end with ',' we should indent in parenthesis
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String doc = ""+
+    	"properties.create(a = newClass(),\n" +
+    	"                  b = newClass("; //don't indent after the '(' in this line, but to the default one
+    	DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "\n"+
+    	"                                ";
+    	assertEquals(expected, docCmd.text);
+    }
+    
+    public void testDedent5() { 
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String doc = ""+
+    	"properties.create(a = newClass(),\n" +
+    	"                  b = newClass(\n" +
+    	"                               )"; //go to the last indentation
+    	DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "\n"+
+    	"                   ";
+    	assertEquals(expected, docCmd.text);
+    }
+    
     public void testIndentTabs() {
         //test after class xxx:\n
         strategy.setIndentPrefs(new TestIndentPrefs(false, 4));
@@ -261,6 +298,15 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(expected, docCmd.text);
     }        
 
+    public void testAutoClose() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
+        String doc = "class c(object): #";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "[");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "[]";
+        assertEquals(expected, docCmd.text);
+
+    }
     /**
      * Tests automatically adding/replacing brackets, colons, and parentheses.
      * @see PyAutoIndentStrategy

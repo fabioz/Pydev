@@ -10,6 +10,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
+import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
@@ -70,9 +72,6 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
     
                             text = initial + prefs.getIndentationString();
     
-                        } else if (lastChar == ',') {
-                            text = indentAfterCommaNewline(document, text, offset);
-                            
                         }else{
                             //ok, normal indent until now...
                             //let's check for dedents...
@@ -80,6 +79,8 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                             
                             if(startsWithDedentToken(trimmedLine)){
                                 text = dedent(text);
+                            }else{
+                            	text = indentAfterCommaNewline(document, text, offset);
                             }
                         }
                     }
@@ -142,11 +143,20 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             prefs.convertToStd(document, command);
             
 
-            if (command.text.equals("(") && prefs.getAutoParentesis()) {
+        	if (prefs.getAutoParentesis() && (command.text.equals("[") || command.text.equals("{")) ) {
+        		PySelection ps = new PySelection(document, command.offset);
+        		char c = command.text.charAt(0);
+        		if (shouldClose(ps, c)) {
+        			command.shiftsCaret = false;
+                    command.text = c+""+DocUtils.getPeer(c);
+                    command.caretOffset = command.offset+1;
+        		}
+        		
+        	}else if (prefs.getAutoParentesis() && command.text.equals("(")) {
                 PySelection ps = new PySelection(document, command.offset);
                 String line = ps.getLine();
 
-                if (shouldClose(ps)) {
+                if (shouldClose(ps, '(')) {
 
                     boolean hasClass = line.indexOf("class ") != -1;
                     boolean hasClassMethodDef = line.indexOf(" def ") != -1 || line.indexOf("\tdef ") != -1;
@@ -176,7 +186,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                 }
 
             }
-
+	            
             /*
              * The following code will auto-replace colons in function
              * declaractions
@@ -367,10 +377,11 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 
     /**
      * @param ps
+     * @param c the char to close
      * @return
      * @throws BadLocationException
      */
-    private boolean shouldClose(PySelection ps) throws BadLocationException {
+    private boolean shouldClose(PySelection ps, char c) throws BadLocationException {
         String line = ps.getLine();
 
         String lineContentsFromCursor = ps.getLineContentsFromCursor();
@@ -381,8 +392,8 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             }
         }
 
-        int i = PyAction.countChars('(', line);
-        int j = PyAction.countChars(')', line);
+        int i = PyAction.countChars(c, line);
+        int j = PyAction.countChars(c, line);
 
         if (j > i) {
             return false;
@@ -424,19 +435,37 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             if (theChar == '\r' || theChar == '\n')
                 break;
 
+            if (theChar == ')' || theChar == ']' || theChar == '}') {
+            	char peer = DocUtils.getPeer(theChar);
+            	if(PyAction.countChars(theChar, line) > PyAction.countChars(peer, line)){
+            		//ok, we have to do a dedent here
+            		PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
+            		int openingPeerPosition = matcher.searchForOpeningPeer(offset, peer, theChar, document);
+            		if(openingPeerPosition > 0){
+	            		IRegion lineInformationOfOffset = document.getLineInformationOfOffset(openingPeerPosition);
+	            		int j = openingPeerPosition - lineInformationOfOffset.getOffset();
+	            		return j+1;
+            		}
+            	}
+            }
+            
             if (theChar == '(' || theChar == '[' || theChar == '{') {
-                //ok, it's not just returning the line now, we have to check for tabs and make each
-                //tab count for the tabWidth.
-                int smartIndent = i+1;
-                String string = line.substring(0, smartIndent - 1);
-                
-                for (int j = 0; j < string.length(); j++) {
-                    char c = string.charAt(j);
-                    if (c == '\t') {
-                        smartIndent += prefs.getTabWidth() - 1;
-                    }
+                char peer = DocUtils.getPeer(theChar);
+                if(PyAction.countChars(theChar, line) > PyAction.countChars(peer, line)){
+
+	                //ok, it's not just returning the line now, we have to check for tabs and make each
+	                //tab count for the tabWidth.
+	                int smartIndent = i+1;
+	                String string = line.substring(0, smartIndent - 1);
+	                
+	                for (int j = 0; j < string.length(); j++) {
+	                    char c = string.charAt(j);
+	                    if (c == '\t') {
+	                        smartIndent += prefs.getTabWidth() - 1;
+	                    }
+	                }
+	                return smartIndent;
                 }
-                return smartIndent;
             }
         }
         return -1;

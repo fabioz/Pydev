@@ -140,7 +140,11 @@ public class DocUtils {
         for (int i = 0; i < BRACKETS.length; i++) {
             if(c == BRACKETS[i]){
                 int mod = i % 2;
-                return BRACKETS[i - mod];
+                if(mod == 0){
+                	return BRACKETS[i + 1];
+                }else{
+                	return BRACKETS[i - 1];
+                }
             }
         }
         
