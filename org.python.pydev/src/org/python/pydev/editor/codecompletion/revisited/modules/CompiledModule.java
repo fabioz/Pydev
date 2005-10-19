@@ -180,7 +180,7 @@ public class CompiledModule extends AbstractModule{
         
         
         if(tok.indexOf('.') == -1){
-            return super.isInGlobalTokens(tok, nature);
+            return super.isInDirectGlobalTokens(tok, nature);
         }else{
             CompletionState state = CompletionState.getEmptyCompletionState(nature);
             String[] headAndTail = FullRepIterable.headAndTail(tok);

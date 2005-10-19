@@ -629,17 +629,26 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             if (error instanceof ParseException) {
                 ParseException.verboseExceptions = true;
                 ParseException parseErr = (ParseException) error;
+                
                 // Figure out where the error is in the document, and create a
                 // marker for it
-                Token errorToken = parseErr.currentToken.next != null ? parseErr.currentToken.next : parseErr.currentToken;
-                IRegion startLine = doc.getLineInformation(errorToken.beginLine - 1);
-                IRegion endLine;
-                if (errorToken.endLine == 0)
-                    endLine = startLine;
-                else
-                    endLine = doc.getLineInformation(errorToken.endLine - 1);
-                errorStart = startLine.getOffset() + errorToken.beginColumn - 1;
-                errorEnd = endLine.getOffset() + errorToken.endColumn;
+                if(parseErr.currentToken == null){
+                	IRegion endLine = doc.getLineInformationOfOffset(doc.getLength());
+                	errorStart = endLine.getOffset();
+                	errorEnd = endLine.getOffset() + endLine.getLength();
+
+                }else{
+                	Token errorToken = parseErr.currentToken.next != null ? parseErr.currentToken.next : parseErr.currentToken;
+	                IRegion startLine = doc.getLineInformation(errorToken.beginLine - 1);
+	                IRegion endLine;
+	                if (errorToken.endLine == 0){
+	                    endLine = startLine;
+	                }else{
+	                    endLine = doc.getLineInformation(errorToken.endLine - 1);
+	                }
+	                errorStart = startLine.getOffset() + errorToken.beginColumn - 1;
+	                errorEnd = endLine.getOffset() + errorToken.endColumn;
+                }
                 message = parseErr.getMessage();
 
             } else {
@@ -669,10 +678,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
         } catch (CoreException e1) {
             // Whatever, could not create a marker. Swallow this one
-            e1.printStackTrace();
+            PydevPlugin.log(e1);
         } catch (BadLocationException e2) {
             // Whatever, could not create a marker. Swallow this one
-            e2.printStackTrace();
+        	PydevPlugin.log(e2);
         }
     }
 

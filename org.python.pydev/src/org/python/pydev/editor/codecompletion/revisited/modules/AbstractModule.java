@@ -63,17 +63,40 @@ public abstract class AbstractModule {
     }
 
     /**
-     * @param tok
-     * @return whether the passed token is part of the global tokens of this module.
+     * Checks if it is in the global tokens that were created in this module
+     * @param tok the token we are looking for
+     * @param nature the nature
+     * @return true if it was found and false otherwise
+     */
+    protected boolean isInDirectGlobalTokens(String tok, PythonNature nature){
+    	IToken[] tokens = getGlobalTokens();
+    	
+    	for (int i = 0; i < tokens.length; i++) {
+    		if(tokens[i].getRepresentation().equals(tok)){
+    			return true;
+    		}
+    	}
+    	return false;
+    	
+    }
+    /**
+     * @param tok the token we are looking for
+     * @return whether the passed token is part of the global tokens of this module (including imported tokens).
      */
     public boolean isInGlobalTokens(String tok, PythonNature nature){
-        IToken[] tokens = getGlobalTokens();
-        
-        for (int i = 0; i < tokens.length; i++) {
-            if(tokens[i].getRepresentation().equals(tok)){
+    	if(isInDirectGlobalTokens(tok, nature)){
+    		return true;
+    	}
+    	//if still not found, we have to get all the tokens, including regular and wild imports
+        CompletionState state = CompletionState.getEmptyCompletionState(nature);
+        ICodeCompletionASTManager astManager = nature.getAstManager();
+        IToken[] globalTokens = astManager.getCompletionsForModule(this, state);
+        for (IToken token : globalTokens) {
+            if(token.getRepresentation().equals(tok)){
                 return true;
             }
         }
+        //if not found until now, it is not defined
         return false;
     }
     

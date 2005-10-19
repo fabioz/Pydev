@@ -152,4 +152,11 @@ public class FullRepIterable implements Iterable<String>{
         }
     }
 
+    /**
+     * @return the name of the parent module of the module represented by currentModuleName
+     */
+	public static String getParentModule(String currentModuleName) {
+		return headAndTail(currentModuleName, true)[0];
+	}
+
 }

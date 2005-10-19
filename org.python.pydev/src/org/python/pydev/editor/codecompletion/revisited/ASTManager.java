@@ -222,7 +222,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 original = original.substring(0, original.length() - 1);
             }
 
-            Tuple<AbstractModule, String> modTok = findModuleFromPath(original, nature, false);
+            Tuple<AbstractModule, String> modTok = findModuleFromPath(original, nature, false, null); //the current module name is not used as it is not relative
             AbstractModule m = modTok.o1;
             String tok = modTok.o2;
             
@@ -621,7 +621,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 	            	AbstractModule mod = null;
 	                
 	                //check as relative with complete rep
-	                modTok = findModuleFromPath(importedModule.getAsRelativeImport(currentModuleName), nature, true);
+	                modTok = findModuleFromPath(importedModule.getAsRelativeImport(currentModuleName), nature, true, currentModuleName);
 	                mod = modTok.o1;
 	                if(mod != null && mod.getName().equals(currentModuleName) == false){
                         Tuple<AbstractModule, String> ret = fixTok(modTok, tok, activationToken);
@@ -629,7 +629,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 	                }
 	                
 	                //check as absolute with original rep
-	                modTok = findModuleFromPath(importedModule.getOriginalRep(), nature, false);
+	                modTok = findModuleFromPath(importedModule.getOriginalRep(), nature, false, null);
 	                mod = modTok.o1;
 	                if(mod != null && mod.getName().equals(currentModuleName) == false){
                         Tuple<AbstractModule, String> ret =  fixTok(modTok, tok, activationToken);
@@ -638,7 +638,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                     
                     
                     //ok, one last shot, to see a relative looking in folders __init__
-                    modTok = findModuleFromPath(importedModule.getAsRelativeImport(currentModuleName), nature, false);
+                    modTok = findModuleFromPath(importedModule.getAsRelativeImport(currentModuleName), nature, false, null);
                     mod = modTok.o1;
                     if(mod != null && mod.getName().equals(currentModuleName) == false){
                         Tuple<AbstractModule, String> ret = fixTok(modTok, tok, activationToken);
@@ -689,10 +689,11 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * that path until it finds the module or the path is empty.
      * 
      * @param rep
+     * @param currentModuleName this is the module name (used to check validity for relative imports) -- not used if isLookingForRelative is false
      * @return tuple with found module and the String removed from the path in
      * order to find the module.
      */
-    private Tuple<AbstractModule, String> findModuleFromPath(String rep, PythonNature nature, boolean isLookingForRelative){
+    private Tuple<AbstractModule, String> findModuleFromPath(String rep, PythonNature nature, boolean isLookingForRelative, String currentModuleName){
         String tok = "";
         AbstractModule mod = getModule(rep, nature, isLookingForRelative);
         String mRep = rep;
@@ -704,6 +705,18 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         }
         if (tok.endsWith(".")){
             tok = tok.substring(0, tok.length()-1); //remove last point if found.
+        }
+        
+        if(isLookingForRelative && currentModuleName != null && mod != null){
+        	String parentModule = FullRepIterable.getParentModule(currentModuleName);
+        	//if we are looking for some relative import token, it can only match if the name found is not less than the parent
+        	//of the current module because of the way in that relative imports are meant to be written.
+        	
+        	//if it equal, it should not match either, as it was found as the parent module... this can not happen because it must find
+        	//it with __init__ if it was the parent module
+        	if (mod.getName().length() <= parentModule.length()){
+        		return new Tuple<AbstractModule, String>(null, null);
+        	}
         }
         return new Tuple<AbstractModule, String>(mod, tok);
     }
