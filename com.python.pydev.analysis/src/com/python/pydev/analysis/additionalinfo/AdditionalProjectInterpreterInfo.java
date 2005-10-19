@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IDeltaProcessor;
+import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -70,7 +71,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     protected DeltaSaver<Object> createDeltaSaver() {
         return new DeltaSaver<Object>(
                 AbstractAdditionalInterpreterInfo.getPersistingFolder(), 
-                project.getName()+"_projectinfodelta", 
+                REF.getValidProjectName(project)+"_projectinfodelta", 
                 new ICallback<Object, ObjectInputStream>(){
 
             public Object call(ObjectInputStream arg) {
@@ -137,7 +138,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
 
     @Override
     protected File getPersistingLocation() {
-        String name = project.getName();
+        String name = REF.getValidProjectName(project);
         if(name == null || name.trim().length() == 0){
             throw new RuntimeException("The name of the project is not valid: "+project);
         }
@@ -195,7 +196,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      * @return the additional info for a given project (gotten from the cache with its name)
      */
     public static AbstractAdditionalDependencyInfo getAdditionalInfoForProject(IProject project) {
-        String name = project.getName();
+        String name = REF.getValidProjectName(project);
         AbstractAdditionalDependencyInfo info = additionalNatureInfo.get(name);
         if(info == null){
             info = new AdditionalProjectInterpreterInfo(project);
@@ -210,7 +211,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      * @param info the info to set
      */
     public static void setAdditionalInfoForProject(IProject project, AbstractAdditionalDependencyInfo info) {
-        additionalNatureInfo.put(project.getName(), info);
+        additionalNatureInfo.put(REF.getValidProjectName(project), info);
     }
 
     public static boolean loadAdditionalInfoForProject(IProject project) {
