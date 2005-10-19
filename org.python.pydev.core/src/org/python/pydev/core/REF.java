@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import org.eclipse.core.resources.IProject;
 import org.python.pydev.core.log.Log;
 
 import sun.misc.BASE64Encoder;
@@ -162,6 +163,21 @@ public class REF {
         }
         throw new RuntimeException("The method with name: "+name+" was not found (or maybe it was found but the parameters didn't match).");
     }
+
+    public static char [] INVALID_FILESYSTEM_CHARS = {
+    	'!', '@', '#', '$', '%', '^', '&', '*', 
+    	'(', ')', '[', ']', '{', '}', '=', '+',
+    	'.', ' ', '`', '~', '\'', '"', ',', ';'};
+
+    public static String getValidProjectName(IProject project) {
+		String name = project.getName();
+		
+		for (char c : INVALID_FILESYSTEM_CHARS) {
+			name = name.replace(c, '_');
+		}
+		
+		return name;
+	}
     
     
     
