@@ -4,11 +4,9 @@
 package com.python.pydev.analysis.visitors;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import org.eclipse.core.runtime.IStatus;
 import org.python.parser.SimpleNode;
@@ -21,7 +19,6 @@ import org.python.parser.ast.Global;
 import org.python.parser.ast.If;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
-import org.python.parser.ast.Lambda;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
@@ -67,11 +64,6 @@ public class OcurrencesVisitor extends VisitorBase{
      * manage the scopes...
      */
     private Scope scope;
-    
-    /**
-     * Stack for names that should not generate warnings, such as builtins, method names, etc.
-     */
-    private Stack<Map<String,IToken>> stackNamesToIgnore = new Stack<Map<String,IToken>>();
     
     /**
      * this should get the tokens that are probably not used, but may be if they are defined
@@ -123,7 +115,7 @@ public class OcurrencesVisitor extends VisitorBase{
         startScope(Scope.SCOPE_TYPE_GLOBAL); //initial scope - there is only one 'global' 
         List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(CompletionState.getEmptyCompletionState(nature), new ArrayList());
         for(IToken t : builtinCompletions){
-            stackNamesToIgnore.peek().put(t.getRepresentation(), t);
+            scope.getCurrScopeItems().namesToIgnore.put(t.getRepresentation(), t);
         }
     }
     
@@ -180,14 +172,14 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     private void addToNamesToIgnore(SimpleNode node) {
         SourceToken token = AbstractVisitor.makeToken(node, "");
-        stackNamesToIgnore.peek().put(token.getRepresentation(), token);
+        scope.getCurrScopeItems().namesToIgnore.put(token.getRepresentation(), token);
         
         //after adding it to the names to ignore, let's see if there is someone waiting for this declaration
         //in the 'probably not defined' stack. 
         for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
             Found n = it.next();
-            
-            IToken tok = n.getSingle().tok;
+            GenAndTok single = n.getSingle();
+			IToken tok = single.tok;
             String rep = tok.getRepresentation();
             if(rep.equals(token.getRepresentation())){
             	it.remove();
@@ -344,11 +336,11 @@ public class OcurrencesVisitor extends VisitorBase{
         SourceToken token = AbstractVisitor.makeToken(node, moduleName);
         if (node.ctx == Name.Store) {
             String rep = token.getRepresentation();
-            boolean inNamesToIgnore = isInNamesToIgnore(rep);
+            boolean inNamesToIgnore = scope.isInNamesToIgnore(rep);
             
             if(!inNamesToIgnore){
                 
-                if(!rep.equals("self")){ //TODO: after knowing about decorations, self should only be allowed in methods from a class
+                if(!rep.equals("self")){ 
                     scope.addToken(token,token);
                 }else{
                     addToNamesToIgnore(node); //ignore self
@@ -530,8 +522,6 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     private void startScope(int newScopeType) {
         scope.startScope(newScopeType);
-        Map<String, IToken> item = new HashMap<String, IToken>();
-        stackNamesToIgnore.push(item);
     }
     
     /**
@@ -566,8 +556,8 @@ public class OcurrencesVisitor extends VisitorBase{
             
             for(Found n : probablyNotDefined){
                 String rep = n.getSingle().tok.getRepresentation();
-                Map<String, IToken> lastInStack = stackNamesToIgnore.peek();
-                if(!findInNamesToIgnore(rep, lastInStack)){
+                Map<String, IToken> lastInStack = m.namesToIgnore;
+                if(!scope.findInNamesToIgnore(rep, lastInStack)){
                     messagesManager.addUndefinedMessage(n.getSingle().tok);
                 }
             }
@@ -585,27 +575,8 @@ public class OcurrencesVisitor extends VisitorBase{
             }
         }
         
-        stackNamesToIgnore.pop();
-        
     }
 
-    /**
-     * find out if an item is in the names to ignore given its full representation
-     */
-    private boolean findInNamesToIgnore(String fullRep, Map<String, IToken> lastInStack) {
-        
-        int i = fullRep.indexOf('.', 0);
-
-        while(i >= 0){
-            String sub = fullRep.substring(0,i);
-            i = fullRep.indexOf('.', i+1);
-            if(lastInStack.containsKey(sub)){
-                return true;
-            }
-        }
-
-        return lastInStack.containsKey(fullRep);
-    }
 
     
     /**
@@ -665,7 +636,7 @@ public class OcurrencesVisitor extends VisitorBase{
             //if it is an attribute, we have to check the names to ignore just with its first part
             rep = rep.substring(0, i);
         }
-        if(addToNotDefined && !found && !isInNamesToIgnore(rep)){
+        if(addToNotDefined && !found && !scope.isInNamesToIgnore(rep)){
             if(scope.size() > 1){
                 probablyNotDefined.add(new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems())); //we are not in the global scope, so it might be defined later...
             }else{
@@ -677,16 +648,5 @@ public class OcurrencesVisitor extends VisitorBase{
     }
 
 
-    /**
-     * checks if there is some token in the names that are defined (but should be ignored)
-     */
-    private boolean isInNamesToIgnore(String rep) {
-        for(Map<String,IToken> m : this.stackNamesToIgnore){
-            if(findInNamesToIgnore(rep, m)){
-                return true;
-            }
-        }
-        return false;
-    }
 
 }

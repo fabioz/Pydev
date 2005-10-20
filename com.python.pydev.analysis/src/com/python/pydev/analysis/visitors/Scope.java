@@ -6,12 +6,13 @@ package com.python.pydev.analysis.visitors;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
-public class Scope {
+public class Scope implements Iterable<ScopeItems>{
     
     /**
      * the scope type is a method
@@ -58,6 +59,8 @@ public class Scope {
     private MessagesManager messagesManager;
     
     private Stack<Integer> scopeId = new Stack<Integer>();
+
+    
     
     private int scopeUnique = 0;
 
@@ -166,6 +169,7 @@ public class Scope {
         int newId = getNewId();
         scope.push(new ScopeItems(newId, scopeType));
         scopeId.push(newId);
+        
     }
     
     public int getCurrScopeId(){
@@ -250,6 +254,43 @@ public class Scope {
 
     public ScopeItems getGlobalScope() {
         return scope.get(0);
+    }
+
+	public Iterator<ScopeItems> iterator() {
+		return this.scope.iterator();
+	}
+
+	
+    /**
+     * find out if an item is in the names to ignore given its full representation
+     */
+    public boolean findInNamesToIgnore(String fullRep, Map<String, IToken> lastInStack) {
+        
+        int i = fullRep.indexOf('.', 0);
+
+        while(i >= 0){
+            String sub = fullRep.substring(0,i);
+            i = fullRep.indexOf('.', i+1);
+            if(lastInStack.containsKey(sub)){
+                return true;
+            }
+        }
+
+        return lastInStack.containsKey(fullRep);
+    }
+
+    /**
+     * checks if there is some token in the names that are defined (but should be ignored)
+     */
+    public boolean isInNamesToIgnore(String rep) {
+    	
+        for(ScopeItems s : this.scope){
+        	Map<String,IToken> m = s.namesToIgnore;
+            if(findInNamesToIgnore(rep, m)){
+                return true;
+            }
+        }
+        return false;
     }
 
 }

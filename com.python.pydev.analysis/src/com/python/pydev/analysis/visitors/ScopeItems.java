@@ -10,9 +10,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.python.pydev.core.Tuple;
+import org.python.pydev.editor.codecompletion.revisited.IToken;
 
 public class ScopeItems {
     Map<String,Found> m = new HashMap<String,Found>();
+    
+    /**
+     * Stack for names that should not generate warnings, such as builtins, method names, etc.
+     */
+    Map<String, IToken> namesToIgnore = new HashMap<String, IToken>();
+    
     int ifSubScope = 0;
     private int scopeId;
     private int scopeType;
