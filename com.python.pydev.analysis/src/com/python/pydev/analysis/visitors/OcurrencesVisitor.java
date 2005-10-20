@@ -172,13 +172,20 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     private void addToNamesToIgnore(SimpleNode node) {
         SourceToken token = AbstractVisitor.makeToken(node, "");
-        scope.getCurrScopeItems().namesToIgnore.put(token.getRepresentation(), token);
+        ScopeItems currScopeItems = scope.getCurrScopeItems();
+		currScopeItems.namesToIgnore.put(token.getRepresentation(), token);
         
         //after adding it to the names to ignore, let's see if there is someone waiting for this declaration
         //in the 'probably not defined' stack. 
         for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
             Found n = it.next();
+
             GenAndTok single = n.getSingle();
+            int foundScopeType = single.scopeFound.getScopeType();
+        	//ok, if we are in a scope method, we may not get things that were defined in a class scope.
+            if(foundScopeType == Scope.SCOPE_TYPE_METHOD && scope.getCurrScopeItems().getScopeType() == Scope.SCOPE_TYPE_CLASS){
+            	continue;
+            }
 			IToken tok = single.tok;
             String rep = tok.getRepresentation();
             if(rep.equals(token.getRepresentation())){

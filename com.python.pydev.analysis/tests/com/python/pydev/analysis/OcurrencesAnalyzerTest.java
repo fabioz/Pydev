@@ -25,7 +25,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUndefinedWithTab();
+            analyzer2.testScopes10();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -937,7 +937,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     	doc = new Document(
 			"class C:\n"+
 			"    def m1(self):\n"+
-			"        pass\n"+
+			"        print m2\n"+ //should give error, as we are inside the method (and not in the class scope)
 			"    def m2(self):\n"+
 			"        print m1\n"+ //should give error, as we are inside the method (and not in the class scope)
 			"\n"+
@@ -949,9 +949,10 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     	analyzer = new OcurrencesAnalyzer();
     	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
     	
-    	printMessages(msgs, 1);
+    	printMessages(msgs, 2);
     	
     }
+    
     
     public void testSameName() {
         //2 messages with token with same name

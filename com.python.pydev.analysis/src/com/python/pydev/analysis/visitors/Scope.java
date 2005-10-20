@@ -283,8 +283,14 @@ public class Scope implements Iterable<ScopeItems>{
      * checks if there is some token in the names that are defined (but should be ignored)
      */
     public boolean isInNamesToIgnore(String rep) {
+    	int currScopeType = getCurrScopeItems().getScopeType();
     	
         for(ScopeItems s : this.scope){
+        	//ok, if we are in a scope method, we may not get things that were defined in a class scope.
+        	if(currScopeType == SCOPE_TYPE_METHOD && s.getScopeType() == SCOPE_TYPE_CLASS){
+    			continue;
+        	}
+        	
         	Map<String,IToken> m = s.namesToIgnore;
             if(findInNamesToIgnore(rep, m)){
                 return true;
