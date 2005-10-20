@@ -933,6 +933,26 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     	
     }
     
+    public void testScopes10() {
+    	doc = new Document(
+			"class C:\n"+
+			"    def m1(self):\n"+
+			"        pass\n"+
+			"    def m2(self):\n"+
+			"        print m1\n"+ //should give error, as we are inside the method (and not in the class scope)
+			"\n"+
+			"\n"+
+			"\n"+
+			"\n"+
+			""   
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs, 1);
+    	
+    }
+    
     public void testSameName() {
         //2 messages with token with same name
         doc = new Document(
