@@ -99,9 +99,9 @@ respect to a patent applicable to software (including a cross-claim or
 counterclaim in a lawsuit), then any patent licenses granted by that 
 Contributor to such Recipient under this Agreement shall terminate as of 
 the date such litigation is filed. In addition, if Recipient institutes 
-patent litigation against any entity (including a cross-claim or 
-counterclaim in a lawsuit) 
+patent litigation against any entity 
 
+(including a cross-claim or counterclaim in a lawsuit) 
 alleging that the Program itself 
 (excluding combinations of the Program 
 with other software or hardware) infringes such Recipient's patent

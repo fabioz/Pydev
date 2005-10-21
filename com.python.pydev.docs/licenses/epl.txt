@@ -95,8 +95,8 @@ EXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, NEITHER RECIPIENT NOR ANY CONTR
 If any provision of this Agreement is invalid or unenforceable under applicable law, it shall not affect the validity or enforceability of the remainder of the terms of this Agreement, and without further action by the parties hereto, such provision shall be reformed to the minimum extent necessary to make such provision valid and enforceable.
 
 If Recipient institutes patent litigation against any entity 
-(including a cross-claim or counterclaim in a lawsuit) 
 
+(including a cross-claim or counterclaim in a lawsuit) 
 alleging that the Program itself 
 (excluding combinations of the Program 
 with other software or hardware) infringes such Recipient's patent
