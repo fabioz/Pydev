@@ -528,7 +528,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         
         Location start = node.getStart();
         Location end = node.getEnd();
+        
+        if(start == null || end == null){
+        	return;
+        }
         IDocument document = getDocumentProvider().getDocument(getEditorInput());
+        if(document == null){
+        	return;
+        }
+        
         int offset, length;
 
         try {

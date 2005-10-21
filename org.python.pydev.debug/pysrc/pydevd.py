@@ -898,7 +898,7 @@ def processCommandLine(argv):
 def usage(doExit=0):
     print 'Usage:'
     print 'pydevd.py --port=N [(--client hostname) | --server] --file executable [file_options]'
-    if (doExit):
+    if doExit:
         sys.exit(0)
       
 def quittingNow():
@@ -965,11 +965,7 @@ if __name__ == '__main__':
     pydevd_log(2, "Executing file " + setup['file'])
     pydevd_log(2, "arguments:" + str(sys.argv))
  
-    import atexit
-    if setup['type']=='python':
-        atexit.register(quittingNow)
-    else:
-        atexit.register(quittingNowJython)
+    setupQuiting()
 
     global type
     type = setup['type']
