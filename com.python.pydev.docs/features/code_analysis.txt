@@ -19,30 +19,26 @@ Errors
 ------
 - Undefined variable - OK
 - Unexistant module - OK
-- Unexistant variable in some import (code analysis for token imports)
+** Unexistant variable in some import (code analysis for token imports)
 
 Concerns
 --------
 - Markers should only be deleted when they are not used (instead of removing all and recreating all again). - OK
 - Unused imports may or may not be detected on __init__ - OK
 - Only files that are in the specified source folders should be analyzed - OK
-- Dependent modules should be re-analyzed after a module changes.
+** Dependent modules should be re-analyzed after a module changes.
 - There should be a way to silent those warnings (with Ctrl+1) or even fix-them depending on the warning. - OK
-- Unused parameters on abstract methods should not be reported.
+- Unused parameters on abstract methods should not be reported. - OK
 
-e.g.:
-
-def DoUpdate(self, timestep):
-   raise NotImplementedError 
 
 To do later
 -----------
-- Unreachable code
-- Member X not found.
-- Base class' __init__ not called.
-- Redefining X from outer scope.
-- Calling function with wrong number of arguments (considerando *args e **kwargs, claro).
-- Keyword argument does not exist:
+** Unreachable code
+** Member X not found.
+** Base class' __init__ not called.
+** Redefining X from outer scope.
+** Calling function with wrong number of arguments (considerando *args e **kwargs, claro).
+** Keyword argument does not exist:
    def foo(a, b): pass
 
    foo(x=1)
