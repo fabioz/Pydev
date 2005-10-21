@@ -14,6 +14,7 @@ import org.python.parser.ast.Assign;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
+import org.python.parser.ast.Expr;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Global;
 import org.python.parser.ast.If;
@@ -22,6 +23,8 @@ import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
+import org.python.parser.ast.Raise;
+import org.python.parser.ast.Str;
 import org.python.parser.ast.Subscript;
 import org.python.parser.ast.TryExcept;
 import org.python.parser.ast.TryFinally;
@@ -102,7 +105,8 @@ public class OcurrencesVisitor extends VisitorBase{
      * Constructor
      * @param prefs 
      */
-    public OcurrencesVisitor(PythonNature nature, String moduleName, AbstractModule current, IAnalysisPreferences prefs) {
+    @SuppressWarnings("unchecked")
+	public OcurrencesVisitor(PythonNature nature, String moduleName, AbstractModule current, IAnalysisPreferences prefs) {
         this.current = current;
         this.nature = nature;
         this.moduleName = moduleName;
@@ -123,7 +127,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @return the generated messages.
      */
     public IMessage[] getMessages() {
-        endScope(); //have to end the scope that started when we created the class.
+        endScope(true); //have to end the scope that started when we created the class.
         
         return messagesManager.getMessages();
     }
@@ -162,7 +166,7 @@ public class OcurrencesVisitor extends VisitorBase{
         Object object = super.visitClassDef(node);
         noSelfChecker.afterClassDef(node);
         duplicationChecker.afterClassDef(node);
-        endScope();
+        endScope(true);
         
         return object;
     }
@@ -267,11 +271,31 @@ public class OcurrencesVisitor extends VisitorBase{
 
         duplicationChecker.afterFunctionDef(node);//duplication checker
         noSelfChecker.afterFunctionDef(node);
-        endScope();
+        endScope(!isVirtual(node)); //don't report unused variables if the method is virtual
         return null;
     }
     
     /**
+     * A method is virtual if it contains only raise statement an string statements 
+     */
+    private boolean isVirtual(FunctionDef node) {
+    	if(node.body != null){
+    		for(SimpleNode n : node.body){
+    			if(n instanceof Raise){
+    				continue;
+    			}
+    			if(n instanceof Expr){
+    				if(((Expr)n).value instanceof Str){
+    					continue;
+    				}
+    			}
+    			return false;
+    		}
+    	}
+		return true;
+	}
+
+	/**
      * We want to make the name tok a regular name for interpreting purposes.
      */
     @Override
@@ -533,8 +557,10 @@ public class OcurrencesVisitor extends VisitorBase{
     
     /**
      * finalizes the current scope
+     * @param reportUnused: defines whether we should report unused things found (we may not want to do that 
+     * when we have an abstract method)
      */
-    private void endScope() {
+    private void endScope(boolean reportUnused) {
         ScopeItems m = scope.endScope(); //clear the last scope
         for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
             Found n = it.next();
@@ -571,15 +597,17 @@ public class OcurrencesVisitor extends VisitorBase{
             messagesManager.setLastScope(m);
         }
         
-        //so, now, we clear the unused
-        int scopeType = m.getScopeType();
-        for (Found f : m.values()) {
-            if(!f.isUsed()){
-                // we don't get unused at the global scope or class definition scope unless it's an import
-                if(scopeType == Scope.SCOPE_TYPE_METHOD || f.isImport()){ //only within methods do we put things as unused 
-                    messagesManager.addUnusedMessage(f);
-                }
-            }
+        if(reportUnused){
+	        //so, now, we clear the unused
+	        int scopeType = m.getScopeType();
+	        for (Found f : m.values()) {
+	            if(!f.isUsed()){
+	                // we don't get unused at the global scope or class definition scope unless it's an import
+	                if(scopeType == Scope.SCOPE_TYPE_METHOD || f.isImport()){ //only within methods do we put things as unused 
+	                    messagesManager.addUnusedMessage(f);
+	                }
+	            }
+	        }
         }
         
     }

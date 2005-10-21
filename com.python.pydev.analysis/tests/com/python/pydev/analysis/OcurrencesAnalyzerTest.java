@@ -25,7 +25,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testScopes10();
+            analyzer2.testNotUnusedVariable8();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -673,6 +673,35 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs);
         assertEquals(0, msgs.length);
         
+    }
+    
+    public void testNotUnusedVariable7() {
+    	doc = new Document(
+    			"def m(a, b):                 \n"+  
+    			"    raise RuntimeError('err')\n"+       
+    			""      
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs, 0);
+    	assertEquals(0, msgs.length);
+    	
+    }
+    
+    public void testNotUnusedVariable8() {
+    	doc = new Document(
+    			"def m(a, b):                 \n"+  
+    			"    '''test'''               \n"+  
+    			"    raise RuntimeError('err')\n"+       
+    			""      
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs, 0);
+    	assertEquals(0, msgs.length);
+    	
     }
     
     public void testUnusedVariable8() {
