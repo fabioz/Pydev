@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
@@ -90,9 +91,12 @@ public abstract class AbstractModule {
     	//if still not found, we have to get all the tokens, including regular and wild imports
         CompletionState state = CompletionState.getEmptyCompletionState(nature);
         ICodeCompletionASTManager astManager = nature.getAstManager();
+        String[] headAndTail = FullRepIterable.headAndTail(tok);
+        state.activationToken = headAndTail[0];
+        String head = headAndTail[1];
         IToken[] globalTokens = astManager.getCompletionsForModule(this, state);
         for (IToken token : globalTokens) {
-            if(token.getRepresentation().equals(tok)){
+            if(token.getRepresentation().equals(head)){
                 return true;
             }
         }

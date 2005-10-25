@@ -15,6 +15,7 @@ import org.python.parser.ast.Name;
 import org.python.parser.ast.keywordType;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
@@ -136,5 +137,9 @@ public class SourceToken extends AbstractToken{
         }
 
         return false;
+    }
+
+    public boolean isWildImport() {
+    	return AbstractVisitor.isWildImport(getAst());
     }
 }

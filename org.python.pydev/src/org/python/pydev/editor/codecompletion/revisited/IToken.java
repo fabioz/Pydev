@@ -69,6 +69,11 @@ public interface IToken extends Serializable, Comparable{
      * @return whether the token we have wrapped is an import
      */
     public boolean isImport();
+
+    /**
+     * @return whether the token we have wrapped is a wild import
+     */
+    public boolean isWildImport();
     
     /**
      * @return the original representation (useful for imports)
