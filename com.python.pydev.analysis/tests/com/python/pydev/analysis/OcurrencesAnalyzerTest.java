@@ -25,7 +25,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testNotUnusedVariable8();
+            analyzer2.testImportAttr();
             analyzer2.tearDown();
             System.out.println("finished");
             

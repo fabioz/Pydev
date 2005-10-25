@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -88,8 +90,9 @@ public class Scope implements Iterable<ScopeItems>{
      * - wild imports (kind of obvious)
      * - imports such as import os.path (one token is created for os and one for os.path) 
      */
-    public void addTokens(List list, IToken generator) {
+    public void addImportTokens(List list, IToken generator) {
     	boolean requireTokensToBeImports = false;
+    	Tuple<AbstractModule, String> modAndTokResolved = null;
     	if(generator != null ){
     		//it will only enter here if it is a wild import (for other imports, the generator is equal to the
     		//import)
@@ -97,7 +100,7 @@ public class Scope implements Iterable<ScopeItems>{
     			throw new RuntimeException("Only imports should generate multiple tokens " +
     			"(it may be null for imports in the form import foo.bar, but then all its tokens must be imports).");
     		}
-            importChecker.visitImportToken(generator);
+            modAndTokResolved = importChecker.visitImportToken(generator);
 
     	}else{
     		requireTokensToBeImports = true;
@@ -106,16 +109,18 @@ public class Scope implements Iterable<ScopeItems>{
         ScopeItems m = scope.peek();
         for (Iterator iter = list.iterator(); iter.hasNext();) {
             IToken o = (IToken) iter.next();
+            Found found = addToken(generator, m, o, o.getRepresentation());
+
             //the token that we find here is either an import (in the case of some from xxx import yyy or import aa.bb)
             //or a Name, ClassDef, MethodDef, etc. (in the case of wild imports)
             if(requireTokensToBeImports){
             	if(!o.isImport()){
             		throw new RuntimeException("Expecting import token");
             	}
-            	importChecker.visitImportToken(o);
+            	modAndTokResolved = importChecker.visitImportToken(o);
             }
-            Found found = addToken(generator, m, o, o.getRepresentation());
-        	//check each import generated to see if we are able to resolve it.
+            //can be either the one resolved in the wild import or in this token (if it is not a wild import)
+        	found.modAndTokResolved = modAndTokResolved;
         }
     }
     

@@ -314,7 +314,7 @@ public class OcurrencesVisitor extends VisitorBase{
     public Object visitImport(Import node) throws Exception {
         List <IToken>list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
 
-        scope.addTokens(list, null);
+        scope.addImportTokens(list, null);
         return null;
     }
 
@@ -331,10 +331,10 @@ public class OcurrencesVisitor extends VisitorBase{
                 CompletionState state = CompletionState.getEmptyCompletionState(nature);
                 state.builtinsGotten = true; //we don't want any builtins
                 List completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList(), wildImport);
-                scope.addTokens(completionsForWildImport, wildImport);
+                scope.addImportTokens(completionsForWildImport, wildImport);
             }else{
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
-                scope.addTokens(list, null);
+                scope.addImportTokens(list, null);
             }
             
         } catch (Exception e) {
@@ -401,7 +401,7 @@ public class OcurrencesVisitor extends VisitorBase{
             //in a store attribute, the first part is always a load
             int i = fullRep.indexOf('.', 0);
             String sub = fullRep.substring(0,i);
-            markRead(token, sub, true);
+            markRead(token, sub, true, false);
             
         } else if (node.ctx == Attribute.Load) {
     
@@ -410,13 +410,14 @@ public class OcurrencesVisitor extends VisitorBase{
             
             while(it.hasNext()){
                 String sub = it.next();
-                if( markRead(token, sub, false) ){
-                    if (found == false){
-                        found = true;
-                    }
-                }
-                if(!it.hasNext()){
-                    markRead(token, fullRep, !found); //only set it to add to not defined if it was still not found
+                if(it.hasNext()){
+	                if( markRead(token, sub, false, false) ){
+	                    if (found == false){
+	                        found = true;
+	                    }
+	                }
+                }else{
+                    markRead(token, fullRep, !found, true); //only set it to add to not defined if it was still not found
                 }
             }
         }
@@ -633,7 +634,7 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     private void markRead(IToken token) {
         String rep = token.getRepresentation();
-        markRead(token, rep, true);
+        markRead(token, rep, true, false);
     }
 
     /**
@@ -644,7 +645,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @param addToNotDefined determines if it should be added to the 'not defined tokens' stack or not 
      * @return true if it was found
      */
-    private boolean markRead(IToken token, String rep, boolean addToNotDefined) {
+    private boolean markRead(IToken token, String rep, boolean addToNotDefined, boolean checkIfIsValidImportToken) {
         Iterator it = new FullRepIterable(rep, true).iterator();
         boolean found = false;
         Found foundAs = null;
@@ -676,12 +677,21 @@ public class OcurrencesVisitor extends VisitorBase{
 	                messagesManager.addUndefinedMessage(token);
 	            }
 	        }
-        }else{
-        	//ok, it was found, but how did this happen?
+        }else if(checkIfIsValidImportToken){
+        	//ok, it was found, but is it an attribute (and if so, are all the parts in the import defined?)
         	//if it was an attribute (say xxx and initially it was xxx.foo, we will have to check if the token foo
         	//really exists in xxx, if it was found as an import)
         	if(foundAs.isImport() && !rep.equals(foundAsStr)){
-        		System.out.println("here");
+        		//the foundAsStr equals the module resolved in the Found tok
+        		AbstractModule m = foundAs.modAndTokResolved.o1;
+        		String tok = foundAs.modAndTokResolved.o2;
+        		String tokToCheck = rep.substring(foundAsStr.length()+1);
+        		if(tok.length() > 0){
+        			tokToCheck = tok + "."+tokToCheck;
+        		}
+        		if(!m.isInGlobalTokens(tokToCheck, nature)){
+        			messagesManager.addUndefinedMessage(token);
+        		}
         	}
         }
         return found;
