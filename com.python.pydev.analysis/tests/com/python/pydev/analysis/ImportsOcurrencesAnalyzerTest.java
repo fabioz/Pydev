@@ -1,6 +1,7 @@
 package com.python.pydev.analysis;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
@@ -13,7 +14,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
         	ImportsOcurrencesAnalyzerTest analyzer2 = new ImportsOcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testModuleTokens2();
+            analyzer2.testRedefinedToken();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -52,4 +53,49 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
     	printMessages(msgs,0);
     }
 
+    public void testQtInit() throws Exception {
+    	if(TestDependent.HAS_QT_INSTALLED){
+	    	doc = new Document(
+	    			"import qt\n"+
+	    			"print qt.QWidget.__init__\n"+
+	    			"\n"+
+	    			"\n"
+	    	);
+	    	analyzer = new OcurrencesAnalyzer();
+	    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+	    	
+	    	printMessages(msgs,0);
+    	}		
+	}
+    
+    
+    public void testTokenFromWildImport() throws Exception {
+		doc = new Document(
+				"from testlib.unittest.anothertest import *\n"+
+				"AnotherTest.__init__\n"+
+				"\n"+
+				"\n"
+		);
+		analyzer = new OcurrencesAnalyzer();
+		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+		
+		printMessages(msgs,1); //unused imports
+    }
+    
+    
+    public void testRedefinedToken() throws Exception {
+    	doc = new Document(
+			"from testlib.unittest import anothertest\n"+
+			"anothertest = anothertest.AnotherTest()\n" +
+			"print anothertest.__init__\n"+
+			"\n"+
+			"\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs,0); 
+    }
+    
+    
 }

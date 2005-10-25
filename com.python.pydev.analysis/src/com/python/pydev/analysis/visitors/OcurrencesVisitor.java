@@ -371,6 +371,8 @@ public class OcurrencesVisitor extends VisitorBase{
         return null;
     }
     
+    
+    
     @Override
     public Object visitGlobal(Global node) throws Exception {
         for(String name :node.names){
@@ -684,12 +686,19 @@ public class OcurrencesVisitor extends VisitorBase{
         	try {
 				if (foundAs.isImport() && !rep.equals(foundAsStr)) {
 					//the foundAsStr equals the module resolved in the Found tok
+					
 					AbstractModule m = foundAs.modAndTokResolved.o1;
-					String tok = foundAs.modAndTokResolved.o2;
-					String tokToCheck = rep.substring(foundAsStr.length() + 1);
-					if (tok.length() > 0) {
-						tokToCheck = tok + "." + tokToCheck;
+					String tokToCheck;
+					if(foundAs.isWildImport()){
+						tokToCheck = foundAsStr;
+					}else{
+						String tok = foundAs.modAndTokResolved.o2;
+						tokToCheck = rep.substring(foundAsStr.length() + 1);
+						if (tok.length() > 0) {
+							tokToCheck = tok + "." + tokToCheck;
+						}
 					}
+					
 					if (!m.isInGlobalTokens(tokToCheck, nature)) {
 						messagesManager.addUndefinedMessage(token);
 					}
