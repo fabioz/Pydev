@@ -276,7 +276,7 @@ public class OcurrencesVisitor extends VisitorBase{
     }
     
     /**
-     * A method is virtual if it contains only raise statement an string statements 
+     * A method is virtual if it contains only raise and string statements 
      */
     private boolean isVirtual(FunctionDef node) {
     	if(node.body != null){
@@ -319,11 +319,12 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     public Object visitImport(Import node) throws Exception {
         List <IToken>list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
+
         for (IToken token : list) {
-            scope.addToken(token, token);
-            //check each import generated to see if we are able to resolve it.
-            importChecker.visitImportToken(token);
-        }
+        	//check each import generated to see if we are able to resolve it.
+			importChecker.visitImportToken(token);
+		}
+        scope.addTokens(list, null);
         return null;
     }
 
@@ -346,6 +347,7 @@ public class OcurrencesVisitor extends VisitorBase{
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
                 
                 for (IToken token : list) {
+                	//check each import generated to see if we are able to resolve it.
 					importChecker.visitImportToken(token);
 				}
                 scope.addTokens(list, null);
@@ -661,23 +663,42 @@ public class OcurrencesVisitor extends VisitorBase{
     private boolean markRead(IToken token, String rep, boolean addToNotDefined) {
         Iterator it = new FullRepIterable(rep, true).iterator();
         boolean found = false;
+        Found foundAs = null;
+        String foundAsStr = null;
+        
+        //search for it
         while (found == false && it.hasNext()){
-            found = scope.findFirst((String) it.next(), true) != null;
+            String nextTokToSearch = (String) it.next();
+			foundAs = scope.findFirst(nextTokToSearch, true);
+			found = foundAs != null;
+			if(found){
+				foundAsStr = nextTokToSearch;
+			}
         }
         
-        //this token might not be defined...
-        int i;
-        if((i = rep.indexOf('.')) != -1){
-            //if it is an attribute, we have to check the names to ignore just with its first part
-            rep = rep.substring(0, i);
-        }
-        if(addToNotDefined && !found && !scope.isInNamesToIgnore(rep)){
-            if(scope.size() > 1){
-                probablyNotDefined.add(new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems())); //we are not in the global scope, so it might be defined later...
-            }else{
-                //global scope, so, even if it is defined later, this is an error...
-                messagesManager.addUndefinedMessage(token);
-            }
+        
+        if(!found){
+	        //this token might not be defined... (still, might be in names to ignore)
+	        int i;
+	        if((i = rep.indexOf('.')) != -1){
+	            //if it is an attribute, we have to check the names to ignore just with its first part
+	            rep = rep.substring(0, i);
+	        }
+	        if(addToNotDefined && !scope.isInNamesToIgnore(rep)){
+	            if(scope.size() > 1){
+	                probablyNotDefined.add(new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems())); //we are not in the global scope, so it might be defined later...
+	            }else{
+	                //global scope, so, even if it is defined later, this is an error...
+	                messagesManager.addUndefinedMessage(token);
+	            }
+	        }
+        }else{
+        	//ok, it was found, but how did this happen?
+        	//if it was an attribute (say xxx and initially it was xxx.foo, we will have to check if the token foo
+        	//really exists in xxx, if it was found as an import)
+        	if(foundAs.isImport() && !rep.equals(foundAsStr)){
+        		System.out.println("here");
+        	}
         }
         return found;
     }

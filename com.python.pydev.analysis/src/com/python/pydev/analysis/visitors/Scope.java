@@ -74,32 +74,52 @@ public class Scope implements Iterable<ScopeItems>{
     }
 
     /**
-     * Adds many tokens at once (created by the same token -- e.g.: wild import)
+     * Adds many tokens at once (created by the same token -- 
+     * this ONLY happens for:
+     * - wild imports (kind of obvious)
+     * - imports such as import os.path (one token is created for os and one for os.path) 
      */
     public void addTokens(List list, IToken generator) {
+    	boolean requireTokensToBeImports = false;
+    	if(generator != null ){
+    		if(!generator.isImport() ){
+    			throw new RuntimeException("Only imports should generate multiple tokens " +
+    			"(it may be null for imports in the form import foo.bar, but then all its tokens must be imports).");
+    		}
+    	}else{
+    		requireTokensToBeImports = true;
+    	}
+    	
         ScopeItems m = scope.peek();
         for (Iterator iter = list.iterator(); iter.hasNext();) {
             IToken o = (IToken) iter.next();
+            //the token that we find here is either an import (in the case of some from xxx import yyy or import aa.bb)
+            //or a Name, ClassDef, MethodDef, etc. (in the case of wild imports)
+            if(requireTokensToBeImports){
+            	if(!o.isImport()){
+            		throw new RuntimeException("Expecting import token");
+            	}
+            }
             addToken(generator, m, o, o.getRepresentation());
         }
     }
     
-    public void addToken(IToken generator, IToken o) {
-        addToken(generator, o, o.getRepresentation());
+    public Found addToken(IToken generator, IToken o) {
+        return addToken(generator, o, o.getRepresentation());
         
     }
     
-    public void addToken(IToken generator, IToken o, String rep) {
+    public Found addToken(IToken generator, IToken o, String rep) {
         ScopeItems m = scope.peek();
-        addToken(generator, m, o, rep);
+        return addToken(generator, m, o, rep);
     }
 
     /**
      * Adds a token to the global scope
      */
-    public void addTokenToGlobalScope(IToken generator) {
+    public Found addTokenToGlobalScope(IToken generator) {
         ScopeItems globalScope = getGlobalScope();
-        addToken(generator, globalScope, generator, generator.getRepresentation());
+        return addToken(generator, globalScope, generator, generator.getRepresentation());
     }
 
     /**
@@ -110,8 +130,9 @@ public class Scope implements Iterable<ScopeItems>{
      * @param m the current scope items
      * @param o the generator token
      * @param rep the representation of the token (o) 
+     * @return 
      */
-    public void addToken(IToken generator, ScopeItems m, IToken o, String rep) {
+    public Found addToken(IToken generator, ScopeItems m, IToken o, String rep) {
         if(generator == null){
             generator = o;
         }
@@ -144,7 +165,7 @@ public class Scope implements Iterable<ScopeItems>{
                     
                     //ok, it was added, so, let's call this over because we've appended it to another found,
                     //no reason to re-add it again.
-                    return;
+                    return found;
                 }
             }
         }
@@ -155,6 +176,7 @@ public class Scope implements Iterable<ScopeItems>{
         if(isReimport){
             messagesManager.addReimportMessage(newFound);
         }
+        return newFound;
     }
     
     public ScopeItems getCurrScopeItems() {
