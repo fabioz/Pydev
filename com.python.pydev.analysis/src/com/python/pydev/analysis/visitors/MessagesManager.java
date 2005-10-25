@@ -135,15 +135,21 @@ public class MessagesManager {
         return msgs;
     }
 
+    public void addUndefinedMessage(IToken token) {
+    	addUndefinedMessage(token, null);
+    }
     
     /**
      * @param token adds a message saying that a token is not defined
      */
-    public void addUndefinedMessage(IToken token) {
+    public void addUndefinedMessage(IToken token, String rep) {
         if(token.getRepresentation().equals("_"))
             return; //TODO: check how to get tokens that are added to the builtins
         
-        String rep = token.getRepresentation();
+        if(rep == null){
+        	rep = token.getRepresentation();
+        }
+        
         int i;
         if((i = rep.indexOf('.')) != -1){
             rep = rep.substring(0,i);
