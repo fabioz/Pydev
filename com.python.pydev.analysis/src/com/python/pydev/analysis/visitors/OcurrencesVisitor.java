@@ -681,18 +681,22 @@ public class OcurrencesVisitor extends VisitorBase{
         	//ok, it was found, but is it an attribute (and if so, are all the parts in the import defined?)
         	//if it was an attribute (say xxx and initially it was xxx.foo, we will have to check if the token foo
         	//really exists in xxx, if it was found as an import)
-        	if(foundAs.isImport() && !rep.equals(foundAsStr)){
-        		//the foundAsStr equals the module resolved in the Found tok
-        		AbstractModule m = foundAs.modAndTokResolved.o1;
-        		String tok = foundAs.modAndTokResolved.o2;
-        		String tokToCheck = rep.substring(foundAsStr.length()+1);
-        		if(tok.length() > 0){
-        			tokToCheck = tok + "."+tokToCheck;
-        		}
-        		if(!m.isInGlobalTokens(tokToCheck, nature)){
-        			messagesManager.addUndefinedMessage(token);
-        		}
-        	}
+        	try {
+				if (foundAs.isImport() && !rep.equals(foundAsStr)) {
+					//the foundAsStr equals the module resolved in the Found tok
+					AbstractModule m = foundAs.modAndTokResolved.o1;
+					String tok = foundAs.modAndTokResolved.o2;
+					String tokToCheck = rep.substring(foundAsStr.length() + 1);
+					if (tok.length() > 0) {
+						tokToCheck = tok + "." + tokToCheck;
+					}
+					if (!m.isInGlobalTokens(tokToCheck, nature)) {
+						messagesManager.addUndefinedMessage(token);
+					}
+				}
+			} catch (Exception e) {
+				PydevPlugin.log("Error checking for valid tokens (imports) for "+moduleName,e);
+			}
         }
         return found;
     }

@@ -13,7 +13,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
         	ImportsOcurrencesAnalyzerTest analyzer2 = new ImportsOcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testModuleTokens();
+            analyzer2.testModuleTokens2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -38,5 +38,18 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
         	
         	printMessages(msgs,1);
 	}
+    
+    public void testModuleTokens2() throws Exception {
+    	doc = new Document(
+    			"from testlib.unittest import anothertest\n"+
+    			"print anothertest.AnotherTest.__init__\n"+
+    			"\n"+
+    			"\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs,0);
+    }
 
 }
