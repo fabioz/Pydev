@@ -11,6 +11,7 @@ import java.util.Stack;
 
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.plugin.nature.PythonNature;
 
 public class Scope implements Iterable<ScopeItems>{
     
@@ -34,6 +35,13 @@ public class Scope implements Iterable<ScopeItems>{
      */
     public boolean isInMethodDefinition = false;
     
+    
+    /**
+     * used to check for invalid imports
+     */
+    private ImportChecker importChecker;
+
+
     /**
      * @param scopeType
      * @return a string representing the scope type
@@ -69,8 +77,9 @@ public class Scope implements Iterable<ScopeItems>{
         return scopeUnique;
     }
     
-    public Scope(MessagesManager messagesManager) {
+    public Scope(MessagesManager messagesManager, PythonNature nature, String moduleName) {
         this.messagesManager = messagesManager;
+        this.importChecker = new ImportChecker(this.messagesManager, nature, moduleName);
     }
 
     /**
@@ -82,10 +91,14 @@ public class Scope implements Iterable<ScopeItems>{
     public void addTokens(List list, IToken generator) {
     	boolean requireTokensToBeImports = false;
     	if(generator != null ){
+    		//it will only enter here if it is a wild import (for other imports, the generator is equal to the
+    		//import)
     		if(!generator.isImport() ){
     			throw new RuntimeException("Only imports should generate multiple tokens " +
     			"(it may be null for imports in the form import foo.bar, but then all its tokens must be imports).");
     		}
+            importChecker.visitImportToken(generator);
+
     	}else{
     		requireTokensToBeImports = true;
     	}
@@ -99,8 +112,10 @@ public class Scope implements Iterable<ScopeItems>{
             	if(!o.isImport()){
             		throw new RuntimeException("Expecting import token");
             	}
+            	importChecker.visitImportToken(o);
             }
-            addToken(generator, m, o, o.getRepresentation());
+            Found found = addToken(generator, m, o, o.getRepresentation());
+        	//check each import generated to see if we are able to resolve it.
         }
     }
     

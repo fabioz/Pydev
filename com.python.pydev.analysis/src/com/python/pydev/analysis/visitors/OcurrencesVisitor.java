@@ -92,11 +92,6 @@ public class OcurrencesVisitor extends VisitorBase{
     private NoSelfChecker noSelfChecker;
     
     /**
-     * used to check for invalid imports
-     */
-    private ImportChecker importChecker;
-
-    /**
      * Used to manage the messages
      */
     private MessagesManager messagesManager;
@@ -111,10 +106,9 @@ public class OcurrencesVisitor extends VisitorBase{
         this.nature = nature;
         this.moduleName = moduleName;
         this.messagesManager = new MessagesManager(prefs, moduleName);
-        this.scope = new Scope(this.messagesManager);
+        this.scope = new Scope(this.messagesManager, nature, moduleName);
         this.duplicationChecker = new DuplicationChecker(this.messagesManager);
         this.noSelfChecker = new NoSelfChecker(this.messagesManager, moduleName);
-        this.importChecker = new ImportChecker(this.messagesManager, nature, moduleName);
         
         startScope(Scope.SCOPE_TYPE_GLOBAL); //initial scope - there is only one 'global' 
         List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(CompletionState.getEmptyCompletionState(nature), new ArrayList());
@@ -320,10 +314,6 @@ public class OcurrencesVisitor extends VisitorBase{
     public Object visitImport(Import node) throws Exception {
         List <IToken>list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
 
-        for (IToken token : list) {
-        	//check each import generated to see if we are able to resolve it.
-			importChecker.visitImportToken(token);
-		}
         scope.addTokens(list, null);
         return null;
     }
@@ -337,7 +327,6 @@ public class OcurrencesVisitor extends VisitorBase{
             
             if(AbstractVisitor.isWildImport(node)){
                 IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName);
-                importChecker.visitImportToken(wildImport);
                 
                 CompletionState state = CompletionState.getEmptyCompletionState(nature);
                 state.builtinsGotten = true; //we don't want any builtins
@@ -345,11 +334,6 @@ public class OcurrencesVisitor extends VisitorBase{
                 scope.addTokens(completionsForWildImport, wildImport);
             }else{
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
-                
-                for (IToken token : list) {
-                	//check each import generated to see if we are able to resolve it.
-					importChecker.visitImportToken(token);
-				}
                 scope.addTokens(list, null);
             }
             
