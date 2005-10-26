@@ -193,7 +193,7 @@ public class FastParser {
         else if((index = defaultVal.indexOf(".")) != -1){
             String id = defaultVal.substring(0,index);
             String attr = defaultVal.substring(index+1,defaultVal.length());
-            return new Attribute(new Name(id, Name.Load), attr, Attribute.Load);
+            return new Attribute(new Name(id, Name.Load), new NameTok(attr, NameTok.Attrib), Attribute.Load);
         }
         return new Str(defaultVal);
     }
