@@ -14,7 +14,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
         	ImportsOcurrencesAnalyzerTest analyzer2 = new ImportsOcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testMethod();
+            analyzer2.testModuleTokensErr3();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -27,7 +27,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
         System.exit(0);
     }
 
-    public void testModuleTokens() throws Exception {
+    public void testModuleTokensErr() throws Exception {
     	doc = new Document(
 			"from testlib.unittest import anothertest\n"+
 			"print anothertest.unexistant\n"+
@@ -41,6 +41,36 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
     	assertEquals("Undefined variable: unexistant", msgs[0].getMessage());
     	assertEquals(19, msgs[0].getStartCol(doc));
 	}
+    
+    public void testModuleTokensErr2() throws Exception {
+    	doc = new Document(
+    			"from testlib.unittest import anothertest\n"+
+    			"print anothertest.unexistant()\n"+
+    			"\n"+
+    			"\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs,1);
+    	assertEquals("Undefined variable: unexistant", msgs[0].getMessage());
+    	assertEquals(19, msgs[0].getStartCol(doc));
+    }
+    
+    public void testModuleTokensErr3() throws Exception {
+    	doc = new Document(
+    			"from testlib.unittest import anothertest\n"+
+    			"print anothertest.AnotherTest.unexistant()\n"+
+    			"\n"+
+    			"\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	
+    	printMessages(msgs,1);
+    	assertEquals("Undefined variable: unexistant", msgs[0].getMessage());
+    	assertEquals(31, msgs[0].getStartCol(doc));
+    }
     
     public void testModuleTokens2() throws Exception {
     	doc = new Document(
@@ -101,10 +131,10 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
     
     public void testMethod() throws Exception {
     	doc = new Document(
-    			"from testlib.unittest import anothertest\n"+
-    			"print anothertest.AnotherTest().another.__class__\n" + //we should just get to the AnotherTest() part
-    			"\n"+
-    			"\n"
+			"from testlib.unittest import anothertest\n"+
+			"print anothertest.AnotherTest().another.__class__\n" + //we should just get to the AnotherTest() part
+			"\n"+
+			"\n"
     	);
     	analyzer = new OcurrencesAnalyzer();
     	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);

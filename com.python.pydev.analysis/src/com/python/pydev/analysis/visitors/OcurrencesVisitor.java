@@ -40,7 +40,6 @@ import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
-import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -700,8 +699,11 @@ public class OcurrencesVisitor extends VisitorBase{
 						}
 					}
 					
-					if (!m.isInGlobalTokens(tokToCheck, nature)) {
-						messagesManager.addUndefinedMessage(findNameTok(token, tokToCheck), tokToCheck);
+					for(String repToCheck : new FullRepIterable(tokToCheck)){
+						if (!m.isInGlobalTokens(repToCheck, nature)) {
+							IToken foundTok = findNameTok(token, repToCheck);
+							messagesManager.addUndefinedMessage(foundTok, foundTok.getRepresentation());
+						}
 					}
 				}
 			} catch (Exception e) {
@@ -716,14 +718,15 @@ public class OcurrencesVisitor extends VisitorBase{
 			SourceToken s = (SourceToken) token;
 			SimpleNode ast = s.getAst();
 			
-			String searchFor = tokToCheck.split("\\.")[0];
+			String searchFor = FullRepIterable.getLastPart(tokToCheck);
 			while(ast instanceof Attribute){
 				Attribute a = (Attribute) ast;
 				
 				if(((NameTok)a.attr).id.equals(searchFor)){
-					return new SourceToken(a.attr, tokToCheck, "", "", token.getParentPackage());
+					return new SourceToken(a.attr, searchFor, "", "", token.getParentPackage());
+					
 				}else if(a.value.toString().equals(searchFor)){
-					return new SourceToken(a.value, tokToCheck, "", "", token.getParentPackage());
+					return new SourceToken(a.value, searchFor, "", "", token.getParentPackage());
 				}
 				ast = a.value;
 			}
