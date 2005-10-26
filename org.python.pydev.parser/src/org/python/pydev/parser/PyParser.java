@@ -48,7 +48,7 @@ public class PyParser {
     /**
      * just for tests, when we don't have any editor
      */
-    static boolean ACCEPT_NULL_EDITOR = false; 
+    public static boolean ACCEPT_NULL_EDITOR = false; 
 
     /**
      * this is the document we should parse 
@@ -78,7 +78,7 @@ public class PyParser {
     /**
      * used to enable tracing in the grammar
      */
-    static boolean ENABLE_TRACING = false;
+    public static boolean ENABLE_TRACING = false;
 
     /**
      * this is the object that will keep parser schedules for us (and will call us for doing parsing when requested)
@@ -98,7 +98,7 @@ public class PyParser {
     /**
      * should only be called for testing. does not register as a thread
      */
-    PyParser() {
+    public PyParser() {
         parserListeners = new ArrayList<IParserObserver>();
         scheduler = new ParserScheduler(this);
 

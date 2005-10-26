@@ -4,6 +4,9 @@
 package org.python.pydev.parser.visitors;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Attribute;
@@ -67,11 +70,15 @@ public class NodeUtils {
     	throw new RuntimeException("Expecting a String or a SimpleNode");
     }
     
+    public static String getRepresentationString(SimpleNode node) {
+    	return getRepresentationString(node, false);
+    }
+    
     /**
      * @param node this is the node from whom we want to get the representation
      * @return A suitable String representation for some node.
      */
-    public static String getRepresentationString(SimpleNode node) {
+    public static String getRepresentationString(SimpleNode node, boolean useTypeRepr) {
             
         if (REF.hasAttr(node, "name")) {
             Object attrObj = REF.getAttrObj(node, "name");
@@ -92,19 +99,27 @@ public class NodeUtils {
             
         }else if (node instanceof Call){
             Call call = ((Call)node);
-            return getRepresentationString(call.func);
+            return getRepresentationString(call.func, useTypeRepr);
             
         }else if (node instanceof org.python.parser.ast.List || node instanceof ListComp){
-            return "[]";
+            String val = "[]";
+            if(useTypeRepr){
+            	val = getBuiltinType(val);
+            }
+			return val;
     
         }else if (node instanceof Str){
-            return "'"+((Str)node).s+"'";
-            
+            String val = "'"+((Str)node).s+"'";
+            if(useTypeRepr){
+            	val = getBuiltinType(val);
+            }
+			return val;
+
         }else if (node instanceof Tuple){
             StringBuffer buf = new StringBuffer();
             Tuple t = (Tuple)node;
             for ( exprType e : t.elts){
-                buf.append(getRepresentationString(e));
+                buf.append(getRepresentationString(e, useTypeRepr));
                 buf.append(", ");
             }
             if(t.elts.length > 0){
@@ -112,10 +127,19 @@ public class NodeUtils {
                 buf.deleteCharAt(l-1);
                 buf.deleteCharAt(l-2);
             }
-            return "("+buf+")";
+            String val = "("+buf+")";
+            if(useTypeRepr){
+            	val = getBuiltinType(val);
+            }
+			return val;
+
             
         }else if (node instanceof Num){
-            return ((Num)node).n.toString();
+            String val = ((Num)node).n.toString();
+            if(useTypeRepr){
+            	val = getBuiltinType(val);
+            }
+            return val;
             
         }else if (node instanceof Import){
             aliasType[] names = ((Import)node).names;
@@ -160,7 +184,24 @@ public class NodeUtils {
         return null;
     }
 
+    
+    
     public static String getFullRepresentationString(SimpleNode node) {
+
+        
+        if (node instanceof Str || node instanceof Num){
+            return getRepresentationString(node, true);
+        } 
+        
+        if (node instanceof Tuple){
+            return getRepresentationString(node, true);
+        } 
+        
+        if (node instanceof Subscript){
+            return getFullRepresentationString(((Subscript)node).value);
+        } 
+        
+        
         if(node instanceof Call){
             Call c = (Call) node;
             node = c.func;
@@ -171,30 +212,35 @@ public class NodeUtils {
         
         
         if (node instanceof Attribute){
-            Attribute a = (Attribute)node;
-            String fullRepresentationString = getFullRepresentationString(a.value);
-            if(fullRepresentationString == null){
-                return null;
-            }
-            return fullRepresentationString + "."+ ((NameTok)a.attr).id;
+        	//attributes are tricky because we only have backwards access initially, so, we have to:
+        	
+        	//get it forwards
+        	List attributeParts = getAttributeParts((Attribute) node);
+        	StringBuffer buf = new StringBuffer();
+        	for (Object part : attributeParts) {
+				if(part instanceof Call){
+					//stop on a call (that's what we usually want, since the end will depend on the things that 
+					//return from the call).
+					return buf.toString();
+					
+				}else if (part instanceof Subscript){
+					//stop on a subscript : e.g.: in bb.cc[10].d we only want the bb.cc part
+		            return getFullRepresentationString(((Subscript)part).value);
+
+				}else{
+					//otherwise, just add another dot and keep going.
+					if(buf.length() > 0){
+						buf.append(".");
+					}
+					buf.append(getRepresentationString((SimpleNode) part, true));
+				}
+			}
+        	return buf.toString();
+        	
         } 
         
-        if (node instanceof Str || node instanceof Num){
-            return NodeUtils.getBuiltinType( getRepresentationString(node) );
-        } 
-        
-        if (node instanceof Tuple){
-            return NodeUtils.getBuiltinType( getRepresentationString(node) );
-        } 
-        
-        if (node instanceof Subscript){
-            return getFullRepresentationString(((Subscript)node).value);
-        } 
-        
-        
-        return getRepresentationString(node);
+        return getRepresentationString(node, true);
     }
-    
     
 
     /**
@@ -361,6 +407,41 @@ public class NodeUtils {
     public static String getNameFromNameTok(NameTok tok){
         return tok.id;
     }
+
+
+    /**
+     * Gets all the parts contained in some attribute in the right order (when we visit
+     * some attribute, we have to get that in a backwards fashion, since the attribute
+     * is only determined in the end of the token in the grammar)
+     * 
+     * @return a list with the attribute parts in its forward order, and not backward as presented
+     * in the grammar.
+     */
+	public static List getAttributeParts(Attribute node) {
+		ArrayList<Object> nodes = new ArrayList<Object>();
+		
+		nodes.add(node.attr);
+		SimpleNode s = node.value;
+		
+		while(true){
+			if(s instanceof Attribute){
+				nodes.add(s);
+				s = ((Attribute) s).value;
+				
+			}else if(s instanceof Call){
+				nodes.add(s);
+				s = ((Call) s).func;
+				
+			}else{
+				nodes.add(s);
+				break;
+			}
+		}
+		
+		Collections.reverse(nodes);
+		
+		return nodes;
+	}
 
     
 
