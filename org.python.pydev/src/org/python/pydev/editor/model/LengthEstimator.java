@@ -37,6 +37,7 @@ import org.python.parser.ast.List;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Module;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Pass;
 import org.python.parser.ast.Print;
@@ -84,7 +85,7 @@ public class LengthEstimator extends VisitorBase {
 	}
 
 	public Object visitAttribute(Attribute node) throws Exception {
-		length += node.attr.length() + 1;	// +1 for '.'
+		length += ((NameTok)node.attr).id.length() + 1;	// +1 for '.'
 		node.traverse(this);
 		return null;
 	}

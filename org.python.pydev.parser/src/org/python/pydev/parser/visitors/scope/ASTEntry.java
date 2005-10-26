@@ -72,7 +72,7 @@ public class ASTEntry{
             
         }else if(node instanceof Attribute){
             Attribute a = (Attribute) node;
-            name = a.attr;
+            name = ((NameTok)a.attr).id;
             
         }else if(node instanceof Name){
             Name a = (Name) node;

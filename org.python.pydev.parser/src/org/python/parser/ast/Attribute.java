@@ -6,16 +6,16 @@ import java.io.IOException;
 
 public class Attribute extends exprType implements expr_contextType {
     public exprType value;
-    public String attr;
+    public NameTokType attr;
     public int ctx;
 
-    public Attribute(exprType value, String attr, int ctx) {
+    public Attribute(exprType value, NameTokType attr, int ctx) {
         this.value = value;
         this.attr = attr;
         this.ctx = ctx;
     }
 
-    public Attribute(exprType value, String attr, int ctx, SimpleNode
+    public Attribute(exprType value, NameTokType attr, int ctx, SimpleNode
     parent) {
         this(value, attr, ctx);
         this.beginLine = parent.beginLine;
@@ -51,6 +51,8 @@ public class Attribute extends exprType implements expr_contextType {
     public void traverse(VisitorIF visitor) throws Exception {
         if (value != null)
             value.accept(visitor);
+        if (attr != null)
+            attr.accept(visitor);
     }
 
 }

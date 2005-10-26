@@ -6,6 +6,7 @@
 package org.python.pydev.editor.model;
 
 import org.python.parser.ast.Attribute;
+import org.python.parser.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
@@ -29,10 +30,10 @@ public class AttributeNode extends AbstractNode {
 	}
 
 	public String getName() {
-		return astNode.attr;
+		return ((NameTok)astNode.attr).id;
 	}
 	
 	public String toString() {
-		return super.toString()+ astNode.attr;
+		return super.toString()+ getName();
 	}
 }

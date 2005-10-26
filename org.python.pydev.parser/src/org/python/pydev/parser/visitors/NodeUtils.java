@@ -58,6 +58,9 @@ public class NodeUtils {
     	if(o instanceof String){
     		return (String) o;
     	}
+    	if(o instanceof NameTok){
+    	    return ((NameTok) o).id;
+    	}
     	if(o instanceof SimpleNode){
     		return getRepresentationString((SimpleNode) o);
     	}
@@ -162,7 +165,7 @@ public class NodeUtils {
             Call c = (Call) node;
             node = c.func;
             if (REF.hasAttr(node, "value") && REF.hasAttr(node, "attr")) {
-                return getFullRepresentationString((SimpleNode) REF.getAttrObj(node, "value")) + "." +REF.getAttrObj(node, "attr").toString();
+                return getFullRepresentationString((SimpleNode) REF.getAttrObj(node, "value")) + "." +discoverRep(REF.getAttrObj(node, "attr"));
             }
         }
         
@@ -173,7 +176,7 @@ public class NodeUtils {
             if(fullRepresentationString == null){
                 return null;
             }
-            return fullRepresentationString + "."+ a.attr;
+            return fullRepresentationString + "."+ ((NameTok)a.attr).id;
         } 
         
         if (node instanceof Str || node instanceof Num){

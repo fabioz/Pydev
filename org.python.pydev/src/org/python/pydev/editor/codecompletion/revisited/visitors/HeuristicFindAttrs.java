@@ -12,6 +12,7 @@ import org.python.parser.ast.Call;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.If;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.NameTok;
 
 /**
  * This class defines how we should find attributes. 
@@ -86,7 +87,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
 	        
 	        if (node.func instanceof Attribute){
 		        Attribute func = (Attribute)node.func;
-		        if(func.attr.equals(c[1])){
+		        if(((NameTok)func.attr).id.equals(c[1])){
 		        
 			        if(func.value instanceof Name){
 			            Name name = (Name) func.value;

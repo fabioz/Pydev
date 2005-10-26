@@ -193,7 +193,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             value = makeExpr();
             return new Subscript(value, slice, Subscript.Load);
         case JJTDOT_OP:
-            String attr = makeIdentifier();
+            NameTok attr = makeName(NameTok.Attrib);
             value = makeExpr();
             return new Attribute(value, attr, Attribute.Load);
         case JJTDEL_STMT:

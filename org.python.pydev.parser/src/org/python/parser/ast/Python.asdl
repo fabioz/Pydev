@@ -11,7 +11,7 @@ module Python
 
 	NameTok = NameTok(identifier id, name_context ctx)
 
-	name_context = ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule
+	name_context = ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule | Attrib
 
 	stmt = FunctionDef(NameTok name, arguments args, 
                            stmt* body, decorators* decs)
@@ -69,7 +69,7 @@ module Python
 	     -- other literals? bools?
 
 	     -- the following expression can appear in assignment context
-	     | Attribute(expr value, identifier attr, expr_context ctx)
+	     | Attribute(expr value, NameTok attr, expr_context ctx)
 	     | Subscript(expr value, slice slice, expr_context ctx)
 	     | Name(identifier id, expr_context ctx)
 	     | List(expr* elts, expr_context ctx) 
