@@ -159,4 +159,12 @@ public class FullRepIterable implements Iterable<String>{
 		return headAndTail(currentModuleName, true)[0];
 	}
 
+	public static String getLastPart(String tokToCheck) {
+		int i = tokToCheck.indexOf('.');
+		if(i == -1){
+			return tokToCheck;
+		}
+		return tokToCheck.substring(i+1);
+	}
+
 }

@@ -52,6 +52,9 @@ def GenerateImportsTipForModule( mod ):
     ret = []
     
     dirComps = dir( mod )
+    if hasattr(mod, '__dict__'):
+        dirComps.append('__dict__')
+        
     getCompleteInfo = True
     
     if len(dirComps) > 1000:
