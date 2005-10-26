@@ -712,25 +712,23 @@ public class OcurrencesVisitor extends VisitorBase{
     }
 
 	private IToken findNameTok(IToken token, String tokToCheck) {
+		if(token instanceof SourceToken){
+			SourceToken s = (SourceToken) token;
+			SimpleNode ast = s.getAst();
+			
+			String searchFor = tokToCheck.split("\\.")[0];
+			while(ast instanceof Attribute){
+				Attribute a = (Attribute) ast;
+				
+				if(((NameTok)a.attr).id.equals(searchFor)){
+					return new SourceToken(a.attr, tokToCheck, "", "", token.getParentPackage());
+				}else if(a.value.toString().equals(searchFor)){
+					return new SourceToken(a.value, tokToCheck, "", "", token.getParentPackage());
+				}
+				ast = a.value;
+			}
+		}
 		return token;
-//		if(token instanceof SourceToken){
-//			SourceToken s = (SourceToken) token;
-//			SimpleNode ast = s.getAst();
-//			
-//			while(ast instanceof Attribute){
-//				Attribute a = (Attribute) ast;
-//				
-//				String searchFor = tokToCheck.split("\\.")[0];
-//				
-//				if(a.attr.equals(searchFor)){
-//					return new SourceToken(a, tokToCheck, "", "", token.getParentPackage());
-//				}else if(a.value.toString().equals(searchFor)){
-//					return new SourceToken(a.value, tokToCheck, "", "", token.getParentPackage());
-//				}
-//				ast = a.value;
-//			}
-//		}
-//		return token;
 	}
 
 

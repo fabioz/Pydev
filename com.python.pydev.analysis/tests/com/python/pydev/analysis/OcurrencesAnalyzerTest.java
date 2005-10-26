@@ -25,10 +25,9 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testImportAttr();
+            analyzer2.testAttributeAccess2();
             analyzer2.tearDown();
             System.out.println("finished");
-            
             
             junit.textui.TestRunner.run(OcurrencesAnalyzerTest.class);
             System.out.println("finished all");
