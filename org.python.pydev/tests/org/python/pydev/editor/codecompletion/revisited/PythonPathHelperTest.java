@@ -77,7 +77,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         Document doc = new Document(sDoc);
         CompletionState state = new CompletionState(line,col, token, nature);
         comps = ((ICodeCompletionASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
-        assertEquals(6, comps.length);
+        assertEquals(9, comps.length);
 
         ASTManagerTest.assertIsIn("TestCase", comps);
         ASTManagerTest.assertIsIn("main", comps);
@@ -85,6 +85,9 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         ASTManagerTest.assertIsIn("GUITest", comps);
         ASTManagerTest.assertIsIn("testcase", comps);
         ASTManagerTest.assertIsIn("AnotherTest", comps);
+        ASTManagerTest.assertIsIn("anothertest", comps);
+        ASTManagerTest.assertIsIn("guitestcase", comps);
+        ASTManagerTest.assertIsIn("testcase", comps);
     }
     
     public void testRecursionModuleCompletion(){
@@ -204,7 +207,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         Document doc = new Document(sDoc);
         CompletionState state = new CompletionState(line,col, token, nature);
         comps = ((ICodeCompletionASTManager)nature.getAstManager()).getCompletionsForToken(doc, state);
-        assertEquals(6, comps.length);
+        assertEquals(9, comps.length);
 
         ASTManagerTest.assertIsIn("TestCase", comps);
         ASTManagerTest.assertIsIn("main", comps);
@@ -212,6 +215,9 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         ASTManagerTest.assertIsIn("GUITest", comps);
         ASTManagerTest.assertIsIn("testcase", comps);
         ASTManagerTest.assertIsIn("AnotherTest", comps);
+        ASTManagerTest.assertIsIn("anothertest", comps);
+        ASTManagerTest.assertIsIn("guitestcase", comps);
+        ASTManagerTest.assertIsIn("testcase", comps);
     }
     
     public void testImportAs2(){

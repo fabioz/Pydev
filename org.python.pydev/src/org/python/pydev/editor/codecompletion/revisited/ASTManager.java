@@ -29,6 +29,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -159,14 +160,14 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         Set<IToken> set = new HashSet<IToken>();
 
         //first we get the imports... that complete for the token.
-        getAbsoluteImportTokens(absoluteModule, set, PyCodeCompletion.TYPE_IMPORT);
+        getAbsoluteImportTokens(absoluteModule, set, PyCodeCompletion.TYPE_IMPORT, false);
 
         //Now, if we have an initial module, we have to get the completions
         //for it.
         getTokensForModule(original, nature, absoluteModule, set);
 
         if(relative != null && relative.equals(absoluteModule) == false){
-            getAbsoluteImportTokens(relative, set, PyCodeCompletion.TYPE_RELATIVE_IMPORT);
+            getAbsoluteImportTokens(relative, set, PyCodeCompletion.TYPE_RELATIVE_IMPORT, false);
             getTokensForModule(relative, nature, relative, set);
         }
         return (IToken[]) set.toArray(new IToken[0]);
@@ -176,14 +177,26 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @param moduleToGetTokensFrom the string that represents the token from where we are getting the imports
      * @param set the set where the tokens should be added
      */
-    private void getAbsoluteImportTokens(String moduleToGetTokensFrom, Set<IToken> set, int type) {
+    private void getAbsoluteImportTokens(String moduleToGetTokensFrom, Set<IToken> set, int type, boolean onlyFilesOnSameLevel) {
         for (Iterator iter = Arrays.asList(projectModulesManager.getAllModules()).iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
 
             String element = key.name;
 
             if (element.toLowerCase().startsWith(moduleToGetTokensFrom)) {
+                if(onlyFilesOnSameLevel && key.file != null && key.file.isDirectory()){
+                	continue; // we only want those that are in the same directory, and not in other directories...
+                }
                 element = element.substring(moduleToGetTokensFrom.length());
+                
+                //we just want those that are direct
+                //this means that if we had initially element = testlib.unittest.anothertest
+                //and element became later = .unittest.anothertest, it will be ignored (we
+                //should only analyze it if it was something as testlib.unittest and became .unittest
+                //we only check this if we only want file modules (in
+                if(onlyFilesOnSameLevel && PyAction.countChars('.', element) > 1){
+                	continue;
+                }
 
                 boolean goForIt = false;
                 //if initial is not empty only get those that start with a dot (submodules, not
@@ -360,6 +373,18 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                     }
 		        }
 
+		        //now, lets check if this is actually a module that is an __init__ (if so, we have to get all
+		        //the other .py files as modules that are in the same level as the __init__)
+		        String modName = module.getName();
+		        if(modName != null && modName.endsWith(".__init__")){
+		        	HashSet<IToken> gotten = new HashSet<IToken>();
+					getAbsoluteImportTokens(FullRepIterable.getParentModule(modName), gotten, PyCodeCompletion.TYPE_IMPORT, true);
+					for (IToken token : gotten) {
+						if(token.getRepresentation().equals("__init__") == false){
+							completions.add(token);
+						}
+					}
+		        }
                 return completions.toArray(new IToken[0]);
                 
             }else{ //ok, we have a token, find it and get its completions.

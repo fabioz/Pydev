@@ -29,7 +29,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-          test.testProperties();
+          test.testCompleteImportCompletion();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -124,6 +124,11 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
             , "TestCase"
             , "testcase"
             , "TestCaseAlias"
+            
+            //gotten because unittest is actually an __init__, so, gather others that are in the same level
+            , "anothertest"
+            , "guitestcase"
+            , "testcase"
             });
 	}
 	
