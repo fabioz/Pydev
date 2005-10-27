@@ -69,7 +69,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
         Object[] element = null;
         element = (Object[]) list.get(0);
         assertEquals("__doc__", element[0]);
-        assertEquals(29, list.size());
+        assertEquals(29+1, list.size()); //29+__dict__
 
         
     }
