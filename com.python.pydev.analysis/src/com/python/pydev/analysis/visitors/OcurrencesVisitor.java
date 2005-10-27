@@ -404,7 +404,10 @@ public class OcurrencesVisitor extends VisitorBase{
         if (node.ctx == Attribute.Store) {
             //in a store attribute, the first part is always a load
             int i = fullRep.indexOf('.', 0);
-            String sub = fullRep.substring(0,i);
+            String sub = fullRep;
+            if( i > 0){
+            	sub = fullRep.substring(0,i);
+            }
             markRead(token, sub, true, false);
             
         } else if (node.ctx == Attribute.Load) {

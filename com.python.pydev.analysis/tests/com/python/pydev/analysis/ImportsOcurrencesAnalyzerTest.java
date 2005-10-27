@@ -14,7 +14,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
         	ImportsOcurrencesAnalyzerTest analyzer2 = new ImportsOcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUnresolvedImport();
+            analyzer2.testAssignInImport();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -122,6 +122,19 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
 			"print anothertest.__init__\n"+
 			"\n"+
 			"\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,0); 
+    }
+    
+    public void testAssignInImport() throws Exception {
+    	doc = new Document(
+    			"import testlib.unittest\n"+            //as it resolves to testlib.unittest.__init__
+    			"print testlib.unittest.anothertest\n"+ //this line works
+    			"\n"+
+    			"\n"
     	);
     	analyzer = new OcurrencesAnalyzer();
     	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);

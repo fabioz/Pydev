@@ -68,7 +68,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals(IMarker.SEVERITY_ERROR, msgs[0].getSeverity());
         assertEquals(6, msgs[0].getStartCol(doc));
         assertEquals(31, msgs[0].getEndCol(doc));
-        assertEquals("Unused in wild import: main, TestCase, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
+        assertEquals("Unused in wild import: anothertest, guitestcase, main, TestCase, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
 
         
         //-----------------
@@ -81,7 +81,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         
         assertEquals(1, msgs.length);
         assertEquals(IMarker.SEVERITY_WARNING, msgs[0].getSeverity());
-        assertEquals("Unused in wild import: main, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
+        assertEquals("Unused in wild import: anothertest, guitestcase, main, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
         assertEquals("TestCase", msgs[0].getAdditionalInfo().get(0));
         
         //-----------------
@@ -95,7 +95,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         
         //even in ignore mode, we get the message
         assertEquals(1, msgs.length);
-        assertEquals("Unused in wild import: main, AnotherTest, TestCaseAlias, GUITest", msgs[0].getMessage());
+        assertEquals("Unused in wild import: anothertest, guitestcase, main, AnotherTest, TestCaseAlias, GUITest", msgs[0].getMessage());
         assertEquals("TestCase", msgs[0].getAdditionalInfo().get(0));
         assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
     }
