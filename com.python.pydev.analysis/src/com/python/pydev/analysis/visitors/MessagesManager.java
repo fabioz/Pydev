@@ -103,6 +103,7 @@ public class MessagesManager {
                 return;
             }
         }
+
         msgs.add(new Message(type, string,token, prefs));
     }
     /**
