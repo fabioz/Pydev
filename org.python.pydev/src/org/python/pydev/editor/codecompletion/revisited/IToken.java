@@ -50,6 +50,11 @@ public interface IToken extends Serializable, Comparable{
      * plus the module it was defined within without its head.
      */
     public String getAsRelativeImport(String baseModule);
+
+    /**
+     * Same as relative from "."
+     */
+    public String getAsAbsoluteImport();
     
     /**
      * Constant to indicate that it was not possible to know in which line the

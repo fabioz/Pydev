@@ -203,27 +203,27 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     }
 
     
-    public AbstractModule getModule(String name, PythonNature nature, boolean isLookingForRelative) {
-        return getModule(name, nature, true, isLookingForRelative);
+    public AbstractModule getModule(String name, PythonNature nature, boolean dontSearchInit) {
+        return getModule(name, nature, true, dontSearchInit);
     }
     
-    public AbstractModule getModule(String name, PythonNature nature, boolean checkSystemManager, boolean isLookingForRelative) {
+    public AbstractModule getModule(String name, PythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
         ModulesManager[] managersInvolved = this.getManagersInvolved(true); //only get the system manager here (to avoid recursion)
 
         for (ModulesManager m : managersInvolved) {
             AbstractModule module;
             if (m instanceof ProjectModulesManager) {
                 ProjectModulesManager pM = (ProjectModulesManager) m;
-                module = pM.getModule(name, nature, false, isLookingForRelative);
+                module = pM.getModule(name, nature, false, dontSearchInit);
 
             }else{
-                module = m.getModule(name, nature, isLookingForRelative); //we already have the system manager here...
+                module = m.getModule(name, nature, dontSearchInit); //we already have the system manager here...
             }
             if(module != null){
                 return module;
             }
         }
-        return super.getModule(name, nature, isLookingForRelative);
+        return super.getModule(name, nature, dontSearchInit);
     }
 
     /**

@@ -269,8 +269,8 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @param name
      * @return the module represented by this name
      */
-    public AbstractModule getModule(String name, PythonNature nature, boolean isLookingForRelative) {
-        return projectModulesManager.getModule(name, nature, isLookingForRelative);
+    public AbstractModule getModule(String name, PythonNature nature, boolean dontSearchInit) {
+        return projectModulesManager.getModule(name, nature, dontSearchInit);
     }
 
     /** 
@@ -361,7 +361,21 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
             IToken[] wildImportedModules = module.getWildImportedModules();
             
             
-            if (state.activationToken.length() == 0) {
+	        //now, lets check if this is actually a module that is an __init__ (if so, we have to get all
+	        //the other .py files as modules that are in the same level as the __init__)
+            Set<IToken> initial = new HashSet<IToken>();
+	        String modName = module.getName();
+	        if(modName != null && modName.endsWith(".__init__")){
+	        	HashSet<IToken> gotten = new HashSet<IToken>();
+				getAbsoluteImportTokens(FullRepIterable.getParentModule(modName), gotten, PyCodeCompletion.TYPE_IMPORT, true);
+				for (IToken token : gotten) {
+					if(token.getRepresentation().equals("__init__") == false){
+						initial.add(token);
+					}
+				}
+	        }
+
+	        if (state.activationToken.length() == 0) {
 
 		        List<IToken> completions = getGlobalCompletions(globalTokens, importedModules.toArray(new IToken[0]), wildImportedModules, state, module);
 		        
@@ -372,19 +386,8 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                         completions.add(localTokens[i]); 
                     }
 		        }
+		        completions.addAll(initial); //just addd all that are in the same level if it was an __init__
 
-		        //now, lets check if this is actually a module that is an __init__ (if so, we have to get all
-		        //the other .py files as modules that are in the same level as the __init__)
-		        String modName = module.getName();
-		        if(modName != null && modName.endsWith(".__init__")){
-		        	HashSet<IToken> gotten = new HashSet<IToken>();
-					getAbsoluteImportTokens(FullRepIterable.getParentModule(modName), gotten, PyCodeCompletion.TYPE_IMPORT, true);
-					for (IToken token : gotten) {
-						if(token.getRepresentation().equals("__init__") == false){
-							completions.add(token);
-						}
-					}
-		        }
                 return completions.toArray(new IToken[0]);
                 
             }else{ //ok, we have a token, find it and get its completions.
@@ -395,6 +398,19 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 if(t != null && t.length > 0){
                     return t;
                 }
+                
+                for (IToken token : initial) {
+					//ok, maybe it was from the set that is in the same level as this one (this will only happen if we are on an __init__ module)
+                	if(token.getRepresentation().equals(state.activationToken)){
+                		String absoluteImport = token.getAsAbsoluteImport();
+                		AbstractModule sameLevelMod = getModule(absoluteImport, state.nature, true);
+
+                		CompletionState copy = state.getCopy();
+                        copy.activationToken = "";
+                        copy.builtinsGotten = true; //we don't want builtins... 
+                        return getCompletionsForModule(sameLevelMod, copy);
+                	}
+				}
 
                 //wild imports: recursively go and get those completions and see if any matches it.
                 for (int i = 0; i < wildImportedModules.length; i++) {
@@ -714,25 +730,25 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * that path until it finds the module or the path is empty.
      * 
      * @param rep
-     * @param currentModuleName this is the module name (used to check validity for relative imports) -- not used if isLookingForRelative is false
+     * @param currentModuleName this is the module name (used to check validity for relative imports) -- not used if dontSearchInit is false
      * @return tuple with found module and the String removed from the path in
      * order to find the module.
      */
-    private Tuple<AbstractModule, String> findModuleFromPath(String rep, PythonNature nature, boolean isLookingForRelative, String currentModuleName){
+    private Tuple<AbstractModule, String> findModuleFromPath(String rep, PythonNature nature, boolean dontSearchInit, String currentModuleName){
         String tok = "";
-        AbstractModule mod = getModule(rep, nature, isLookingForRelative);
+        AbstractModule mod = getModule(rep, nature, dontSearchInit);
         String mRep = rep;
         int index;
         while(mod == null && (index = mRep.lastIndexOf('.')) != -1){
             tok = mRep.substring(index+1) + "."+tok;
             mRep = mRep.substring(0,index);
-            mod = getModule(mRep, nature, isLookingForRelative);
+            mod = getModule(mRep, nature, dontSearchInit);
         }
         if (tok.endsWith(".")){
             tok = tok.substring(0, tok.length()-1); //remove last point if found.
         }
         
-        if(isLookingForRelative && currentModuleName != null && mod != null){
+        if(dontSearchInit && currentModuleName != null && mod != null){
         	String parentModule = FullRepIterable.getParentModule(currentModuleName);
         	//if we are looking for some relative import token, it can only match if the name found is not less than the parent
         	//of the current module because of the way in that relative imports are meant to be written.

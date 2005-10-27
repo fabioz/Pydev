@@ -198,6 +198,10 @@ public abstract class AbstractToken implements IToken{
     	
     	return makeRelative(baseModule, completePath);
     }
+    
+    public String getAsAbsoluteImport() {
+    	return getAsRelativeImport(".");
+    }
 
     /**
      * @param baseModule this is the 'parent package'. The path passed will be made relative to it

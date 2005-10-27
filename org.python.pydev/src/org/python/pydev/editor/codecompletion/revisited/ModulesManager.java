@@ -342,10 +342,13 @@ public abstract class ModulesManager implements Serializable {
      * This method returns the module that corresponds to the path passed as a parameter.
      * 
      * @param name
-     * @param isLookingForRelative when looking for relative imports, we don't check for __init__
+     * @param dontSearchInit is used in a negative form because initially it was isLookingForRelative, but
+     * it actually defines if we should look in __init__ modules too, so, the name matches the old signature.
+     * 
+     * NOTE: isLookingForRelative description was: when looking for relative imports, we don't check for __init__
      * @return the module represented by this name
      */
-    public AbstractModule getModule(String name, PythonNature nature, boolean isLookingForRelative) {
+    public AbstractModule getModule(String name, PythonNature nature, boolean dontSearchInit) {
         AbstractModule n = null;
         
         //check for supported builtins these don't have files associated.
@@ -370,7 +373,7 @@ public abstract class ModulesManager implements Serializable {
             if (n == null) {
                 n = (AbstractModule) getModules().get(new ModulesKey(name, null));
             }
-            if(!isLookingForRelative){
+            if(!dontSearchInit){
                 if(n == null){
                     n = (AbstractModule) getModules().get(new ModulesKey(name + ".__init__", null));
                     if(n != null){
