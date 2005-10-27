@@ -26,7 +26,7 @@ public interface IAnalysisPreferences {
     public static final String MSG_TO_IGNORE_TYPE_REIMPORT                   = "@Reimport";
     public static final String MSG_TO_IGNORE_TYPE_UNRESOLVED_IMPORT          = "@UnresolvedImport";
     public static final String MSG_TO_IGNORE_TYPE_NO_SELF                    = "@NoSelf";
-    public static final String MSG_TO_IGNORE_TYPE_UNDEFINED_IMPORT_VARIABLE  = "@NoSelf";
+    public static final String MSG_TO_IGNORE_TYPE_UNDEFINED_IMPORT_VARIABLE  = "@UnusedImportVariable";
     
     
     /**
