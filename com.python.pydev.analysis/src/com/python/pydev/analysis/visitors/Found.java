@@ -11,6 +11,8 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 
+import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
+
 class GenAndTok{
     
     /**
@@ -67,7 +69,7 @@ public class Found implements Iterable<GenAndTok>{
     /**
      * If this is an import, it may be resolved to some module and some token within that module...
      */
-	public Tuple<AbstractModule, String> modAndTokResolved;
+	public ImportInfo importInfo;
     
     Found(IToken tok, IToken generator, int scopeId, ScopeItems scopeFound){
         this.found.add(new GenAndTok(generator, tok, scopeId, scopeFound));

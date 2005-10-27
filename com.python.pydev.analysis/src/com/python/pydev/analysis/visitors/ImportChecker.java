@@ -45,6 +45,25 @@ public class ImportChecker {
      */
     private String moduleName;
 
+    public static class ImportInfo{
+    	public AbstractModule mod;
+    	public String rep;
+    	public boolean wasResolved;
+	    	
+    	public ImportInfo(){
+    		this(null,null,false);
+    	}
+    	public ImportInfo(AbstractModule mod, String rep){
+    		this(mod, rep, false);
+    	}
+    	
+    	public ImportInfo(AbstractModule mod, String rep, boolean wasResolved){
+    		this.mod = mod;
+    		this.rep = rep;
+    		this.wasResolved = wasResolved;
+    	}
+    }
+    
     /**
      * constructor - will remove all dependency info on the project that we will start to analyze
      */
@@ -66,12 +85,11 @@ public class ImportChecker {
      * to get dependency info, because it is actually dependent on the module, event though it does not have the
      * token we were looking for.
      */
-    public Tuple<AbstractModule, String> visitImportToken(IToken token) {
+    public ImportInfo visitImportToken(IToken token) {
         //try to find it as a relative import
-    	Tuple<AbstractModule, String> modTok = null;
         boolean wasResolved = false;
-    	
-        if(token instanceof SourceToken){
+        Tuple<AbstractModule, String> modTok = null;
+		if(token instanceof SourceToken){
         	
         	modTok = nature.getAstManager().findOnImportedMods(new IToken[]{token}, nature, token.getRepresentation(), moduleName);
         	if(modTok != null && modTok.o1 != null){
@@ -124,7 +142,11 @@ public class ImportChecker {
         }
         
         //might still return a modTok, even if the token we were looking for was not found.
-        return modTok;
+        if(modTok != null){
+        	return new ImportInfo(modTok.o1, modTok.o2, wasResolved);
+        }else{
+        	return new ImportInfo(null, null, wasResolved);
+        }
     }
     
 

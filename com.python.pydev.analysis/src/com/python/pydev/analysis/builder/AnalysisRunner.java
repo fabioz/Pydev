@@ -13,10 +13,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PySelection;
 
-import com.python.pydev.analysis.AnalysisPreferences;
-import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
 
 public class AnalysisRunner {
@@ -72,17 +69,9 @@ public class AnalysisRunner {
      */
     public void addMarkers(IResource resource, IDocument document, IMessage[] messages, ArrayList<IMarker> existing) {
         try {
-            IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
             
             //add the markers... the id is put as additional info for it
             for (IMessage m : messages) {
-                String messageToIgnore = analysisPreferences.getRequiredMessageToIgnore(m.getType());
-                int startLine = m.getStartLine(document) - 1;
-                String line = PySelection.getLine(document, startLine);
-                if(line.indexOf(messageToIgnore) != -1){
-                    //keep going... nothing to see here...
-                    continue;
-                }
                 
                 HashMap<String, Object> additionalInfo = new HashMap<String, Object>();
                 additionalInfo.put(PYDEV_ANALYSIS_TYPE, m.getType());
@@ -93,6 +82,7 @@ public class AnalysisRunner {
                     additionalInfo.put(PYDEV_ANALYSIS_ADDITIONAL_INFO, infoForType);
                 }
                 
+                int startLine = m.getStartLine(document) - 1;
                 int startCol = m.getStartCol(document) - 1;
                 int endLine = m.getEndLine(document) - 1;
                 int endCol = m.getEndCol(document) - 1;

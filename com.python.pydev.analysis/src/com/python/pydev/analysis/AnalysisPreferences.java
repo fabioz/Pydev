@@ -10,7 +10,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Preferences;
 
-public class AnalysisPreferences implements IAnalysisPreferences{
+public class AnalysisPreferences extends AbstractAnalysisPreferences{
 
 
     /**
@@ -138,21 +138,5 @@ public class AnalysisPreferences implements IAnalysisPreferences{
         return pluginPreferences.getInt(AnalysisPreferenceInitializer.WHEN_ANALYZE);
     }
 
-    private Map<Integer, String> typeToIgnoreMessage;
-    public String getRequiredMessageToIgnore(int type) {
-        if(typeToIgnoreMessage == null){
-            typeToIgnoreMessage = new HashMap<Integer, String>();
-            typeToIgnoreMessage.put( TYPE_UNUSED_IMPORT               , MSG_TO_IGNORE_TYPE_UNUSED_IMPORT               );
-            typeToIgnoreMessage.put( TYPE_UNUSED_VARIABLE             , MSG_TO_IGNORE_TYPE_UNUSED_VARIABLE             );
-            typeToIgnoreMessage.put( TYPE_UNDEFINED_VARIABLE          , MSG_TO_IGNORE_TYPE_UNDEFINED_VARIABLE          );
-            typeToIgnoreMessage.put( TYPE_DUPLICATED_SIGNATURE        , MSG_TO_IGNORE_TYPE_DUPLICATED_SIGNATURE        );
-            typeToIgnoreMessage.put( TYPE_REIMPORT                    , MSG_TO_IGNORE_TYPE_REIMPORT                    );
-            typeToIgnoreMessage.put( TYPE_UNRESOLVED_IMPORT           , MSG_TO_IGNORE_TYPE_UNRESOLVED_IMPORT           );
-            typeToIgnoreMessage.put( TYPE_NO_SELF                     , MSG_TO_IGNORE_TYPE_NO_SELF                     );
-            typeToIgnoreMessage.put( TYPE_UNUSED_WILD_IMPORT          , MSG_TO_IGNORE_TYPE_UNUSED_WILD_IMPORT          );
-            typeToIgnoreMessage.put( TYPE_UNDEFINED_IMPORT_VARIABLE   , MSG_TO_IGNORE_TYPE_UNDEFINED_IMPORT_VARIABLE   );
-        }
-        return typeToIgnoreMessage.get(type);
-    }
 
 }

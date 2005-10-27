@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.plugin.nature.PythonNature;
+
+import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 
 public class Scope implements Iterable<ScopeItems>{
     
@@ -92,7 +92,7 @@ public class Scope implements Iterable<ScopeItems>{
      */
     public void addImportTokens(List list, IToken generator) {
     	boolean requireTokensToBeImports = false;
-    	Tuple<AbstractModule, String> modAndTokResolved = null;
+    	ImportInfo importInfo = null;
     	if(generator != null ){
     		//it will only enter here if it is a wild import (for other imports, the generator is equal to the
     		//import)
@@ -100,7 +100,7 @@ public class Scope implements Iterable<ScopeItems>{
     			throw new RuntimeException("Only imports should generate multiple tokens " +
     			"(it may be null for imports in the form import foo.bar, but then all its tokens must be imports).");
     		}
-            modAndTokResolved = importChecker.visitImportToken(generator);
+            importInfo = importChecker.visitImportToken(generator);
 
     	}else{
     		requireTokensToBeImports = true;
@@ -117,10 +117,10 @@ public class Scope implements Iterable<ScopeItems>{
             	if(!o.isImport()){
             		throw new RuntimeException("Expecting import token");
             	}
-            	modAndTokResolved = importChecker.visitImportToken(o);
+            	importInfo = importChecker.visitImportToken(o);
             }
             //can be either the one resolved in the wild import or in this token (if it is not a wild import)
-        	found.modAndTokResolved = modAndTokResolved;
+        	found.importInfo= importInfo;
         }
     }
     

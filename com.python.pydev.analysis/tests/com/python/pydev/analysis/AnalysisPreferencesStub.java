@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IMarker;
 
-public final class AnalysisPreferencesStub implements IAnalysisPreferences {
+public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
     public int severityForUnusedImport;
     public int severityForUnusedVariable;
     public int severityForUndefinedVariable;
@@ -89,7 +89,4 @@ public final class AnalysisPreferencesStub implements IAnalysisPreferences {
         return IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE;
     }
 
-    public String getRequiredMessageToIgnore(int type) {
-        throw new RuntimeException("unimplemented");
-    }
 }

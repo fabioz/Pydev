@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
@@ -43,10 +45,16 @@ public class MessagesManager {
      * Should be used to give the name of the module we are visiting
      */
     private String moduleName;
+
+    /**
+     * This is the document
+     */
+	private IDocument document;
     
-    public MessagesManager(IAnalysisPreferences prefs, String moduleName) {
+    public MessagesManager(IAnalysisPreferences prefs, String moduleName, IDocument doc) {
         this.prefs = prefs;
         this.moduleName = moduleName;
+        this.document = doc;
     }
     
     /**
@@ -104,7 +112,17 @@ public class MessagesManager {
             }
         }
 
-        msgs.add(new Message(type, string,token, prefs));
+        Message messageToAdd = new Message(type, string,token, prefs);
+        
+        String messageToIgnore = prefs.getRequiredMessageToIgnore(messageToAdd.getType());
+        int startLine = messageToAdd.getStartLine(document) - 1;
+        String line = PySelection.getLine(document, startLine);
+        if(line.indexOf(messageToIgnore) != -1){
+            //keep going... nothing to see here...
+            return;
+        }
+
+        msgs.add(messageToAdd);
     }
     /**
      * adds a message of some type for some Found instance

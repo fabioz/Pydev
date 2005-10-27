@@ -107,7 +107,7 @@ public class OcurrencesVisitor extends VisitorBase{
         this.current = current;
         this.nature = nature;
         this.moduleName = moduleName;
-        this.messagesManager = new MessagesManager(prefs, moduleName);
+        this.messagesManager = new MessagesManager(prefs, moduleName, document);
         this.scope = new Scope(this.messagesManager, nature, moduleName);
         this.duplicationChecker = new DuplicationChecker(this.messagesManager);
         this.noSelfChecker = new NoSelfChecker(this.messagesManager, moduleName);
@@ -686,15 +686,15 @@ public class OcurrencesVisitor extends VisitorBase{
         	//if it was an attribute (say xxx and initially it was xxx.foo, we will have to check if the token foo
         	//really exists in xxx, if it was found as an import)
         	try {
-				if (foundAs.isImport() && !rep.equals(foundAsStr)) {
+				if (foundAs.isImport() && !rep.equals(foundAsStr) && foundAs.importInfo.wasResolved) {
 					//the foundAsStr equals the module resolved in the Found tok
 					
-					AbstractModule m = foundAs.modAndTokResolved.o1;
+					AbstractModule m = foundAs.importInfo.mod;
 					String tokToCheck;
 					if(foundAs.isWildImport()){
 						tokToCheck = foundAsStr;
 					}else{
-						String tok = foundAs.modAndTokResolved.o2;
+						String tok = foundAs.importInfo.rep;
 						tokToCheck = rep.substring(foundAsStr.length() + 1);
 						if (tok.length() > 0) {
 							tokToCheck = tok + "." + tokToCheck;

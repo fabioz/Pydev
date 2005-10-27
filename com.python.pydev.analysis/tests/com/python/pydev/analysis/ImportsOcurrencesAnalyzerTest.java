@@ -145,14 +145,14 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testUnresolvedImport() throws Exception {
     	doc = new Document(
     			"from testlib import notexistant\n"+ //it is not resolved, 
-    			"print notexistant.foo\n" +   //as we cannot resolve it, the foo will throw a warning
+    			"print notexistant.foo\n" +   //as it is not resolved, it should not be analyzed
     			"\n"+
     			"\n"
     	);
     	analyzer = new OcurrencesAnalyzer();
     	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
-    	printMessages(msgs,2); 
+    	printMessages(msgs,1); 
     }
     
     public void testSilencedUnresolvedImport() throws Exception {
@@ -165,7 +165,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
     	analyzer = new OcurrencesAnalyzer();
     	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
-    	printMessages(msgs,1); 
+    	printMessages(msgs,0); 
     }
     
 
