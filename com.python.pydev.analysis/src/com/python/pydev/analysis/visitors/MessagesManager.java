@@ -63,9 +63,6 @@ public class MessagesManager {
                 return false;
             }
         }
-//        if(moduleName.endsWith("__init__")){
-//            return false;
-//        }
         return true;
     }
     
@@ -143,8 +140,31 @@ public class MessagesManager {
      * @param token adds a message saying that a token is not defined
      */
     public void addUndefinedMessage(IToken token, String rep) {
+    	Tuple<Boolean, String> undef = isActuallyUndefined(token, rep);
+        if(undef.o1){
+        	addMessage(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, token, undef.o2 );
+        }
+    }
+
+    /**
+     * @param token adds a message saying that a token gathered from an import is not defined
+     */
+	public void addUndefinedVarInImportMessage(IToken token, String rep) {
+    	Tuple<Boolean, String> undef = isActuallyUndefined(token, rep);
+        if(undef.o1){
+        	addMessage(IAnalysisPreferences.TYPE_UNDEFINED_IMPORT_VARIABLE, token, undef.o2 );
+        }
+	}
+    
+    /**
+     * Checks if some token is actually undefined and changes its representation if needed
+     * @return a tuple indicating if it really is undefined and the representation that should be used.
+     */
+    protected Tuple<Boolean, String> isActuallyUndefined(IToken token, String rep){
+    	boolean isActuallyUndefined = true;
+    	
         if(token.getRepresentation().equals("_"))
-            return; //TODO: check how to get tokens that are added to the builtins
+        	isActuallyUndefined = false; //TODO: check how to get tokens that are added to the builtins
         
         if(rep == null){
         	rep = token.getRepresentation();
@@ -157,10 +177,9 @@ public class MessagesManager {
 
         String builtinType = NodeUtils.getBuiltinType(rep);
         if(builtinType != null){
-            return; //this is a builtin, so, it is defined after all
+        	isActuallyUndefined = false; //this is a builtin, so, it is defined after all
         }
-        
-        addMessage(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, token, rep );
+        return new Tuple<Boolean, String>(isActuallyUndefined, rep);
     }
 
     /**

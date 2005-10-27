@@ -171,7 +171,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         
 
         //ok, let's do it
-        IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences);
+        IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences, document);
         monitor.setTaskName("Adding markers for module: "+moduleName);
         monitor.worked(1);
         runner.addMarkers(resource, document, messages, existing);

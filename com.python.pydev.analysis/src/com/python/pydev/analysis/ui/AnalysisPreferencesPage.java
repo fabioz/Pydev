@@ -59,6 +59,7 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
                 "Don't report unused variable if name stars with: (separated by comma)",p ));
         
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNDEFINED_VARIABLE, "Undefined variable", 3,values,p, true));
+        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNDEFINED_IMPORT_VARIABLE, "Undefined variable from import" , 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_DUPLICATED_SIGNATURE, "Duplicated signature", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_REIMPORT, "Import redefinition", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNRESOLVED_IMPORT, "Import not found", 3,values,p, true));

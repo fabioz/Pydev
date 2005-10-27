@@ -7,24 +7,26 @@ import java.util.Set;
 
 public interface IAnalysisPreferences {
     
-    public static final int TYPE_UNUSED_IMPORT        = 1;
-    public static final int TYPE_UNUSED_VARIABLE      = 2;
-    public static final int TYPE_UNDEFINED_VARIABLE   = 3;
-    public static final int TYPE_DUPLICATED_SIGNATURE = 4;
-    public static final int TYPE_REIMPORT             = 5;
-    public static final int TYPE_UNRESOLVED_IMPORT    = 6;
-    public static final int TYPE_NO_SELF              = 7;
-    public static final int TYPE_UNUSED_WILD_IMPORT   = 8;
+    public static final int TYPE_UNUSED_IMPORT              = 1;
+    public static final int TYPE_UNUSED_VARIABLE            = 2;
+    public static final int TYPE_UNDEFINED_VARIABLE         = 3;
+    public static final int TYPE_DUPLICATED_SIGNATURE       = 4;
+    public static final int TYPE_REIMPORT                   = 5;
+    public static final int TYPE_UNRESOLVED_IMPORT          = 6;
+    public static final int TYPE_NO_SELF                    = 7;
+    public static final int TYPE_UNUSED_WILD_IMPORT         = 8;
+    public static final int TYPE_UNDEFINED_IMPORT_VARIABLE  = 9;
     
     
-    public static final String MSG_TO_IGNORE_TYPE_UNUSED_IMPORT        = "@UnusedImport";
-    public static final String MSG_TO_IGNORE_TYPE_UNUSED_WILD_IMPORT   = "@UnusedWildImport";
-    public static final String MSG_TO_IGNORE_TYPE_UNUSED_VARIABLE      = "@UnusedVariable";
-    public static final String MSG_TO_IGNORE_TYPE_UNDEFINED_VARIABLE   = "@UndefinedVariable";
-    public static final String MSG_TO_IGNORE_TYPE_DUPLICATED_SIGNATURE = "@DuplicatedSignature";
-    public static final String MSG_TO_IGNORE_TYPE_REIMPORT             = "@Reimport";
-    public static final String MSG_TO_IGNORE_TYPE_UNRESOLVED_IMPORT    = "@UnresolvedImport";
-    public static final String MSG_TO_IGNORE_TYPE_NO_SELF              = "@NoSelf";
+    public static final String MSG_TO_IGNORE_TYPE_UNUSED_IMPORT              = "@UnusedImport";
+    public static final String MSG_TO_IGNORE_TYPE_UNUSED_WILD_IMPORT         = "@UnusedWildImport";
+    public static final String MSG_TO_IGNORE_TYPE_UNUSED_VARIABLE            = "@UnusedVariable";
+    public static final String MSG_TO_IGNORE_TYPE_UNDEFINED_VARIABLE         = "@UndefinedVariable";
+    public static final String MSG_TO_IGNORE_TYPE_DUPLICATED_SIGNATURE       = "@DuplicatedSignature";
+    public static final String MSG_TO_IGNORE_TYPE_REIMPORT                   = "@Reimport";
+    public static final String MSG_TO_IGNORE_TYPE_UNRESOLVED_IMPORT          = "@UnresolvedImport";
+    public static final String MSG_TO_IGNORE_TYPE_NO_SELF                    = "@NoSelf";
+    public static final String MSG_TO_IGNORE_TYPE_UNDEFINED_IMPORT_VARIABLE  = "@NoSelf";
     
     
     /**

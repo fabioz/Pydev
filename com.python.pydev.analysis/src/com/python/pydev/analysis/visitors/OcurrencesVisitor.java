@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Assign;
 import org.python.parser.ast.Attribute;
@@ -99,9 +100,10 @@ public class OcurrencesVisitor extends VisitorBase{
     /**
      * Constructor
      * @param prefs 
+     * @param document 
      */
     @SuppressWarnings("unchecked")
-	public OcurrencesVisitor(PythonNature nature, String moduleName, AbstractModule current, IAnalysisPreferences prefs) {
+	public OcurrencesVisitor(PythonNature nature, String moduleName, AbstractModule current, IAnalysisPreferences prefs, IDocument document) {
         this.current = current;
         this.nature = nature;
         this.moduleName = moduleName;
@@ -702,7 +704,7 @@ public class OcurrencesVisitor extends VisitorBase{
 					for(String repToCheck : new FullRepIterable(tokToCheck)){
 						if (!m.isInGlobalTokens(repToCheck, nature)) {
 							IToken foundTok = findNameTok(token, repToCheck);
-							messagesManager.addUndefinedMessage(foundTok, foundTok.getRepresentation());
+							messagesManager.addUndefinedVarInImportMessage(foundTok, foundTok.getRepresentation());
 						}
 					}
 				}

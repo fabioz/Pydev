@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -43,7 +44,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         prefs.severityForUnusedWildImport = IMarker.SEVERITY_ERROR;
         doc = new Document("import testlib\n");
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length);
         assertEquals("Unused import: testlib", msgs[0].getMessage());
@@ -53,7 +54,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         //-----------------
         doc = new Document("import testlib\nprint testlib");
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(0, msgs.length);
         
@@ -61,7 +62,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         sDoc = "from testlib.unittest import *";
         doc = new Document(sDoc);
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertEquals(IMarker.SEVERITY_ERROR, msgs[0].getSeverity());
@@ -76,7 +77,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         sDoc = "from testlib.unittest import *\nprint TestCase";
         doc = new Document(sDoc);
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length);
         assertEquals(IMarker.SEVERITY_WARNING, msgs[0].getSeverity());
@@ -90,7 +91,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         sDoc = "from testlib.unittest import *\nprint TestCase\nprint testcase";
         doc = new Document(sDoc);
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         //even in ignore mode, we get the message
         assertEquals(1, msgs.length);
@@ -106,7 +107,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "print xml"
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,1);
         assertContainsMsg("Unused in wild import: xml.dom.domreg, xml.dom", msgs);
@@ -119,7 +120,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
 			"import os.path"
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs,2);
     	
@@ -139,7 +140,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
 			"\n\nfrom testlib.unittest import *"
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs,1);
     	
@@ -155,7 +156,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length);
         assertContainsMsg("Unused import: otherthing", msgs);
@@ -170,7 +171,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 2);
         IMessage message = assertContainsMsg("Unused import: otherthing", msgs);
@@ -190,7 +191,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 2);
         IMessage message = assertContainsMsg("Unused import: unittest", msgs);
@@ -211,7 +212,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length);
         assertContainsMsg("Unused import: otherthing", msgs);
@@ -229,7 +230,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 0);
     }
@@ -242,7 +243,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                     ""
             );
             analyzer = new OcurrencesAnalyzer();
-            msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+            msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
             
             printMessages(msgs, 1);
             assertContainsMsg("Unused import: wxButton", msgs);
@@ -257,7 +258,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(2, msgs.length);
         assertContainsMsg("Unresolved import: invalidImport", msgs);
@@ -271,7 +272,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(2, msgs.length);
         assertContainsMsg("Unresolved import: invalidImport", msgs);
@@ -285,7 +286,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,3);
         assertContainsMsg("Unused import: os.notDefined", msgs);
@@ -300,7 +301,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,3);
         assertContainsMsg("Unresolved import: notDefined", msgs);
@@ -315,7 +316,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,1);
         assertContainsMsg("Unused import: otherThing", msgs);
@@ -328,7 +329,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,1);
         assertContainsMsg("Unused import: os", msgs);
@@ -342,7 +343,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,0);
     }
@@ -350,8 +351,9 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testRelImport() throws FileNotFoundException{
         
         analyzer = new OcurrencesAnalyzer();
-        String file = TestDependent.TEST_PYSRC_LOC+"relative/__init__.py";
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("relative.__init__", new File(file), nature, 0), prefs);
+        File file = new File(TestDependent.TEST_PYSRC_LOC+"relative/__init__.py");
+        Document doc = new Document(REF.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("relative.__init__", file, nature, 0), prefs, doc);
         
         //no unused import message is generated
         printMessages(msgs, 0);
@@ -360,8 +362,9 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testImportNotFound8() throws FileNotFoundException{
         
         analyzer = new OcurrencesAnalyzer();
-        String file = TestDependent.TEST_PYSRC_LOC+"testenc/encimport.py";
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testenc.encimport", new File(file), nature, 0), prefs);
+        File file = new File(TestDependent.TEST_PYSRC_LOC+"testenc/encimport.py");
+        Document doc = new Document(REF.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testenc.encimport", file, nature, 0), prefs, doc);
         
         printMessages(msgs, 0);
     }
@@ -369,8 +372,9 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testUnusedWildRelativeImport() throws FileNotFoundException{
         
         analyzer = new OcurrencesAnalyzer();
-        String file = TestDependent.TEST_PYSRC_LOC+"testOtherImports/f1.py";
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testOtherImports.f1", new File(file), nature, 0), prefs);
+        File file = new File(TestDependent.TEST_PYSRC_LOC+"testOtherImports/f1.py");
+        Document doc = new Document(REF.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testOtherImports.f1", file, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertContainsMsg("Unused in wild import: Test", msgs);
@@ -383,7 +387,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,1);
         assertContainsMsg("Unused import: otherThing", msgs);
@@ -396,7 +400,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,1);
         assertContainsMsg("Unused import: path", msgs);
@@ -410,7 +414,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 2);
         assertContainsMsg("Unused import: toimport", msgs);
@@ -420,8 +424,9 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testRelativeNotUndefined() throws FileNotFoundException{
         
         analyzer = new OcurrencesAnalyzer();
-        String file = TestDependent.TEST_PYSRC_LOC+"testlib/unittest/relative/testrelative.py";
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testlib.unittest.relative.testrelative", new File(file), nature, 0), prefs);
+        File file = new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/relative/testrelative.py");
+        Document doc = new Document(REF.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testlib.unittest.relative.testrelative", file, nature, 0), prefs, doc);
         
         printMessages(msgs, 0);
     }
@@ -429,8 +434,9 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testRelativeNotUndefined2() throws FileNotFoundException{
         
         analyzer = new OcurrencesAnalyzer();
-        String file = TestDependent.TEST_PYSRC_LOC+"relative/mod2.py";
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("relative.mod2", new File(file), nature, 0), prefs);
+        File file = new File(TestDependent.TEST_PYSRC_LOC+"relative/mod2.py");
+        Document doc = new Document(REF.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("relative.mod2", file, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertEquals("Unused import: mod1", msgs[0].getMessage());
@@ -443,7 +449,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertContainsMsg("Undefined variable: callit", msgs);
@@ -457,7 +463,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     			""
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs, 1);
     	assertContainsMsg("Undefined variable: callit", msgs);
@@ -472,7 +478,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length);
         assertContainsMsg("Import redefinition: os", msgs);
@@ -489,7 +495,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(2, msgs.length);
         assertContainsMsg("Import redefinition: os", msgs);
@@ -507,7 +513,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 2);
         assertEquals(2, msgs.length);
@@ -524,7 +530,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "        pass"
                 );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertEquals("Unused variable: a", msgs[0].getMessage());
@@ -536,7 +542,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "def m1():    \n" +
                 "    a = 1      ");
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length);
         assertEquals(TYPE_UNUSED_VARIABLE, msgs[0].getType());
@@ -544,7 +550,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         
         doc = new Document("a = 1;print a");
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(0, msgs.length);
         
@@ -560,7 +566,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "                   \n"     
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(2, msgs.length);
     }
@@ -575,7 +581,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "                       \n"     
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(0, msgs.length);
     }
@@ -585,7 +591,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "notdefined.aa().bb.cc\n"  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertEquals(1, msgs[0].getStartCol(doc));
@@ -596,7 +602,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "notdefined.aa[10].bb.cc\n"  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertEquals(1, msgs[0].getStartCol(doc));
@@ -613,7 +619,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "    print result   \n"      
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -631,7 +637,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""      
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -649,7 +655,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""      
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -667,7 +673,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""      
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -681,7 +687,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     			""      
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs, 0);
     	assertEquals(0, msgs.length);
@@ -696,7 +702,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     			""      
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs, 0);
     	assertEquals(0, msgs.length);
@@ -711,7 +717,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         ""      
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertEquals(1, msgs.length);
@@ -726,7 +732,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""      
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertEquals(1, msgs.length);
@@ -741,7 +747,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""      
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 2);
         assertEquals(2, msgs.length);
@@ -759,7 +765,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""      
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,2 );
         assertEquals(2, msgs.length);
@@ -776,7 +782,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""      
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,1 );
         assertEquals(1, msgs.length);
@@ -791,7 +797,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""      
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -806,7 +812,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""      
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -819,7 +825,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""      
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,1);
         assertEquals(1, msgs.length);
@@ -837,7 +843,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "    a = 10        "   
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -850,7 +856,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""   
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -864,7 +870,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""   
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -878,7 +884,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""   
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -892,7 +898,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""   
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -907,7 +913,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""   
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 2);
         assertContainsMsg("Undefined variable: col", msgs, 2);
@@ -925,7 +931,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     			""   
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs, 0);
     }
@@ -939,7 +945,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
 			""   
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs, 1);
         assertContainsMsg("Undefined variable: undef", msgs, 2);
@@ -955,7 +961,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     			""   
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs, 0);
     	
@@ -975,7 +981,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
 			""   
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs, 2);
     	
@@ -989,7 +995,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         "    a = 1\n"+
         "    a = 2" );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(2, msgs.length);
     }
@@ -1000,7 +1006,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "    print args   " 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(0, msgs.length);
     }
@@ -1012,7 +1018,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "    pass         " 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length);
         assertContainsMsg("Unused variable: args", msgs, 2);
@@ -1026,7 +1032,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "    print kwargs    " 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1039,7 +1045,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "        pass            " 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,1);
         assertEquals(1, msgs.length);
@@ -1057,7 +1063,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "def m2(  afff  ): \n"+   
             "    pass "             );                   
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(2, msgs.length);
     }
@@ -1069,7 +1075,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "print a" 
             );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length);
         assertEquals(TYPE_UNDEFINED_VARIABLE, msgs[0].getType());
@@ -1085,7 +1091,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "\n" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1099,7 +1105,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "\n" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         printMessages(msgs,1);
         IMessage msg = msgs[0];
         assertEquals("Undefined variable: notdefined", msg.getMessage());
@@ -1115,7 +1121,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "\n" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,1);
         assertEquals(1, msgs.length);
@@ -1135,7 +1141,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "print m1    \n"  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1149,7 +1155,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1163,7 +1169,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1176,7 +1182,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length);
         assertContainsMsg("Unused import: os.path", msgs);
@@ -1189,7 +1195,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1202,7 +1208,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,2);
         assertEquals(2, msgs.length);
@@ -1218,7 +1224,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(2, msgs.length);
         assertContainsMsg("Undefined variable: os", msgs);
@@ -1234,7 +1240,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1249,7 +1255,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1264,7 +1270,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1278,7 +1284,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1291,7 +1297,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length);
         assertEquals("Undefined variable: s", msgs[0].getMessage());
@@ -1308,7 +1314,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1326,7 +1332,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         //comp should be used
@@ -1344,7 +1350,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertEquals(1, msgs.length);
@@ -1360,7 +1366,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertEquals(1, msgs.length);
@@ -1376,7 +1382,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertEquals(1, msgs.length);
@@ -1394,7 +1400,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1410,7 +1416,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             ""  
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1425,7 +1431,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "    pass      \n" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1441,7 +1447,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "        pass            \n" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1455,7 +1461,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "              \n" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length);
     }
@@ -1468,7 +1474,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "              \n" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(2, msgs.length);
     }
@@ -1478,7 +1484,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "print False" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(0, msgs.length);
     }
@@ -1488,7 +1494,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "print __file__" //source folder always has the builtin __file__
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1499,7 +1505,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "print [].__str__" //[] is a builtin 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1513,7 +1519,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "        print self.m1.join('a').join('b')   \n" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1524,7 +1530,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "print file.read" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(0, msgs.length);
     }
@@ -1536,7 +1542,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "    print k[0].append(10)   " 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1548,7 +1554,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "    file( 10, 'r' ).read()" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(0, msgs.length);
     }
@@ -1560,7 +1566,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "    print v            " 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1573,7 +1579,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "    print v            " 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1586,7 +1592,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "    print v            " 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1598,7 +1604,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "    print [i for i in range(10)]" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1610,7 +1616,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "    print (0,0).__class__" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1627,7 +1633,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 0);
     }
@@ -1643,7 +1649,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 0);
     }
@@ -1659,7 +1665,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     			"" 
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs, 0);
     }
@@ -1675,7 +1681,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     			"" 
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs, 1);
     	assertEquals("Method 'm' should have cls as first parameter", msgs[0].toString());
@@ -1691,7 +1697,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 0);
     }
@@ -1706,7 +1712,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertEquals("Method 'm' should have self as first parameter", msgs[0].getMessage());
@@ -1718,7 +1724,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "    print (10 / 10).__class__" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs);
         assertEquals(0, msgs.length);
@@ -1732,7 +1738,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "    def m1(self):pass\n" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length);
         assertEquals(TYPE_DUPLICATED_SIGNATURE, msgs[0].getType());
@@ -1747,7 +1753,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
                 "    def m1(self):pass\n" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length); //it is created, but in ignore mode
         assertEquals(IMarker.SEVERITY_INFO, msgs[0].getSeverity());
@@ -1763,7 +1769,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             "" 
         );
         analyzer = new OcurrencesAnalyzer();
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
         assertEquals("Undefined variable: a", msgs[0].getMessage());

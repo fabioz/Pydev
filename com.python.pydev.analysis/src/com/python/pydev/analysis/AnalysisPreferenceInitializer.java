@@ -44,6 +44,9 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
 	
     public static final String SEVERITY_UNUSED_WILD_IMPORT = "SEVERITY_UNUSED_WILD_IMPORT";
 	public static final int DEFAULT_SEVERITY_UNUSED_WILD_IMPORT = IMarker.SEVERITY_WARNING;
+	
+	public static final String SEVERITY_UNDEFINED_IMPORT_VARIABLE = "SEVERITY_UNDEFINED_IMPORT_VARIABLE";
+	public static final int DEFAULT_SEVERITY_UNDEFINED_IMPORT_VARIABLE = IMarker.SEVERITY_ERROR;
     
 
     @Override

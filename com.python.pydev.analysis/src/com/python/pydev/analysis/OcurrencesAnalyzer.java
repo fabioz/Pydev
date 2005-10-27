@@ -4,6 +4,7 @@
 package com.python.pydev.analysis;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.plugin.PydevPlugin;
@@ -20,8 +21,8 @@ import com.python.pydev.analysis.visitors.OcurrencesVisitor;
 public class OcurrencesAnalyzer implements Analyzer {
 
 
-    public IMessage[] analyzeDocument(PythonNature nature, SourceModule module, IAnalysisPreferences prefs) {
-        OcurrencesVisitor visitor = new OcurrencesVisitor(nature, module.getName(), module, prefs);
+    public IMessage[] analyzeDocument(PythonNature nature, SourceModule module, IAnalysisPreferences prefs, IDocument document) {
+        OcurrencesVisitor visitor = new OcurrencesVisitor(nature, module.getName(), module, prefs, document);
         try {
             SimpleNode ast = module.getAst();
             if(ast != null){

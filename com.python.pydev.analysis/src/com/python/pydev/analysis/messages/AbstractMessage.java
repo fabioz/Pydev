@@ -57,6 +57,7 @@ public abstract class AbstractMessage implements IMessage{
             messages.put(IAnalysisPreferences.TYPE_REIMPORT, "Import redefinition: %s");
             messages.put(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, "Unresolved import: %s");
             messages.put(IAnalysisPreferences.TYPE_NO_SELF, "Method '%s' should have %s as first parameter");
+            messages.put(IAnalysisPreferences.TYPE_UNDEFINED_IMPORT_VARIABLE, "Undefined variable from import: %s");
         }
         return messages.get(getType());
 

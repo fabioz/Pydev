@@ -14,7 +14,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
         	ImportsOcurrencesAnalyzerTest analyzer2 = new ImportsOcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testModuleTokensErr3();
+//            analyzer2.testUnresolvedImport();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -35,10 +35,10 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
 			"\n"
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs,1);
-    	assertEquals("Undefined variable: unexistant", msgs[0].getMessage());
+    	assertEquals("Undefined variable from import: unexistant", msgs[0].getMessage());
     	assertEquals(19, msgs[0].getStartCol(doc));
 	}
     
@@ -50,10 +50,10 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs,1);
-    	assertEquals("Undefined variable: unexistant", msgs[0].getMessage());
+    	assertEquals("Undefined variable from import: unexistant", msgs[0].getMessage());
     	assertEquals(19, msgs[0].getStartCol(doc));
     }
     
@@ -65,10 +65,10 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs,1);
-    	assertEquals("Undefined variable: unexistant", msgs[0].getMessage());
+    	assertEquals("Undefined variable from import: unexistant", msgs[0].getMessage());
     	assertEquals(31, msgs[0].getStartCol(doc));
     }
     
@@ -80,7 +80,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
     			"\n"
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs,0);
     }
@@ -94,7 +94,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
 	    			"\n"
 	    	);
 	    	analyzer = new OcurrencesAnalyzer();
-	    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+	    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
 	    	
 	    	printMessages(msgs,0);
     	}		
@@ -109,7 +109,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
 				"\n"
 		);
 		analyzer = new OcurrencesAnalyzer();
-		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
 		
 		printMessages(msgs,1); //unused imports
     }
@@ -124,7 +124,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
 			"\n"
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs,0); 
     }
@@ -137,9 +137,35 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
 			"\n"
     	);
     	analyzer = new OcurrencesAnalyzer();
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs);
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
     	
     	printMessages(msgs,0); 
+    }
+    
+    public void testUnresolvedImport() throws Exception {
+    	doc = new Document(
+    			"from testlib import notexistant\n"+ //it is not resolved, 
+    			"print notexistant.foo\n" +   //as we cannot resolve it, the foo will throw a warning
+    			"\n"+
+    			"\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,2); 
+    }
+    
+    public void testSilencedUnresolvedImport() throws Exception {
+    	doc = new Document(
+    			"from testlib import notexistant #@UnresolvedImport\n"+ //it is not resolved, so, let's signal this
+    			"print notexistant.foo\n" +   //after silencing the unresolved import, this should also be silenced
+    			"\n"+
+    			"\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,1); 
     }
     
 
