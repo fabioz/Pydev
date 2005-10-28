@@ -182,8 +182,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
             ModulesKey key = (ModulesKey) iter.next();
 
             String element = key.name;
-
-            if (element.toLowerCase().startsWith(moduleToGetTokensFrom)) {
+			if (element.startsWith(moduleToGetTokensFrom)) {
                 if(onlyFilesOnSameLevel && key.file != null && key.file.isDirectory()){
                 	continue; // we only want those that are in the same directory, and not in other directories...
                 }
@@ -393,24 +392,16 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
             }else{ //ok, we have a token, find it and get its completions.
                 
                 //first check if the token is a module... if it is, get the completions for that module.
-                
-                final IToken[] t = searchOnImportedMods(importedModules.toArray(new IToken[0]), state, module);
+                IToken[] t = searchOnImportedMods(importedModules.toArray(new IToken[0]), state, module);
                 if(t != null && t.length > 0){
                     return t;
                 }
                 
-                for (IToken token : initial) {
-					//ok, maybe it was from the set that is in the same level as this one (this will only happen if we are on an __init__ module)
-                	if(token.getRepresentation().equals(state.activationToken)){
-                		String absoluteImport = token.getAsAbsoluteImport();
-                		AbstractModule sameLevelMod = getModule(absoluteImport, state.nature, true);
-
-                		CompletionState copy = state.getCopy();
-                        copy.activationToken = "";
-                        copy.builtinsGotten = true; //we don't want builtins... 
-                        return getCompletionsForModule(sameLevelMod, copy);
-                	}
-				}
+                //if it is an __init__, modules on the same level are treated as local tokens
+                t = searchOnSameLevelMods(initial, state);
+                if(t != null && t.length > 0){
+                	return t;
+                }
 
                 //wild imports: recursively go and get those completions and see if any matches it.
                 for (int i = 0; i < wildImportedModules.length; i++) {
@@ -461,6 +452,45 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     }
 
     /**
+     * Attempt to search on modules on the same level as this one (this will only happen if we are in an __init__
+     * module (otherwise, the initial set will be empty)
+     * 
+     * @param initial this is the set of tokens generated from modules in the same level
+     * @param state the current state of the completion
+     * 
+     * @return a list of tokens found.
+     */
+    private IToken[] searchOnSameLevelMods(Set<IToken> initial, CompletionState state) {
+        for (IToken token : initial) {
+			//ok, maybe it was from the set that is in the same level as this one (this will only happen if we are on an __init__ module)
+        	String rep = token.getRepresentation();
+        	
+			if(state.activationToken.startsWith(rep)){
+				String absoluteImport = token.getAsAbsoluteImport();
+				AbstractModule sameLevelMod = getModule(absoluteImport, state.nature, true);
+				if(sameLevelMod == null){
+					return null;
+				}
+				
+				String qualifier = state.activationToken.substring(rep.length());
+
+				CompletionState copy = state.getCopy();
+				copy.builtinsGotten = true; //we don't want builtins... 
+
+				if(state.activationToken.equals(rep)){
+					copy.activationToken = "";
+					return getCompletionsForModule(sameLevelMod, copy);
+					
+				} else if(qualifier.startsWith(".")){
+					copy.activationToken = qualifier.substring(1);
+					return getCompletionsForModule(sameLevelMod, copy);
+        		}
+        	}
+		}
+        return null;
+	}
+
+	/**
      * If we got here, either there really is no definition from the token
      * or it is not looking for a definition. This means that probably
      * it is something like.

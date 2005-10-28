@@ -277,4 +277,10 @@ public abstract class AbstractModule {
         return new ArrayList<IToken>();
     }
 
+    @Override
+    public String toString() {
+    	String n2 = this.getClass().getName();
+    	String n = n2.substring(n2.lastIndexOf('.')+1);
+		return this.getName()+" ("+n+")";
+    }
 }

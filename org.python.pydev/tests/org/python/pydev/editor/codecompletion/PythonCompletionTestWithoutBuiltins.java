@@ -14,6 +14,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
 /**
@@ -29,7 +30,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-          test.testCompleteImportCompletion();
+          test.testIsInGlobalTokens();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -216,6 +217,11 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 	    s = "import testlib.unittest.relative\n" +
 	    "testlib.";
 	    requestCompl(s, -1, 0, new String[] { });
+	}
+	
+	public void testIsInGlobalTokens() throws BadLocationException, IOException, Exception{
+		AbstractModule module = nature.getAstManager().getModule("testAssist.__init__", nature, true);
+		assertTrue(module.isInGlobalTokens("assist.ExistingClass.existingMethod", nature));
 	}
 	
 	
