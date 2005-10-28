@@ -246,6 +246,41 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	assertEquals(expected, docCmd.text);
     }
     
+    public void testNoSmartIndent() {
+    	
+    	TestIndentPrefs prefs = new TestIndentPrefs(false, 4, true);
+    	prefs.smartIndentAfterPar = false;
+		strategy.setIndentPrefs(prefs);
+
+		String doc = null;
+        DocCmd docCmd = null;
+        String expected = null;
+
+	    //test after [ a,\n
+        doc = "m = [a,";
+        docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "\n";
+        assertEquals(expected, docCmd.text);
+
+        //test after \t[ a,\n
+        doc = "\tm = [a,";
+        docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "\n" +
+                   "\t";
+        assertEquals(expected, docCmd.text);
+
+        //test after \t[ a,\n
+        doc = "\tm = [a,  ";
+        docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "\n" +
+                   "\t";
+        assertEquals(expected, docCmd.text);
+
+    }
+
     public void testIndentTabs() {
         //test after class xxx:\n
         strategy.setIndentPrefs(new TestIndentPrefs(false, 4));
@@ -522,6 +557,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         boolean autoColon = true;
         boolean autoBraces = true;
         boolean autoWriteImport = true;
+        boolean smartIndentAfterPar = true;
 
         public TestIndentPrefs(boolean useSpaces, int tabWidth){
             this.useSpaces = useSpaces;
@@ -557,6 +593,10 @@ public class PyAutoIndentStrategyTest extends TestCase {
         public boolean getAutoWriteImport() {
             return autoWriteImport;
         }
+
+		public boolean getSmartIndentPar() {
+			return smartIndentAfterPar;
+		}
 
     }
 

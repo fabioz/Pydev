@@ -78,6 +78,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String AUTO_PAR = "AUTO_PAR";
 	public static final boolean DEFAULT_AUTO_PAR = true;
 	
+	public static final String SMART_INDENT_PAR = "SMART_INDENT_PAR";
+	public static final boolean DEFAULT_SMART_INDENT_PAR = true;
+	
 	/**
 	 * fields for automatically replacing a colon
 	 * @see  
@@ -295,6 +298,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		//text
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_PAR));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SMART_INDENT_PAR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, MULTI_BLOCK_COMMENT_CHAR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, SINGLE_BLOCK_COMMENT_CHAR));
 		
@@ -414,6 +418,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
                 "def function(self):\n\n" +
                 "...with your cursor before the end parenthesis (after the 'f' in \"self\"), typing a ')' will " +
                 "simply move the cursor to the position after the ')' without inserting a new one.", TOOLTIP_WIDTH));
+        
+        //smart indent
+        b = addCheckBox(appearanceComposite, "Use smart-indent for '(', '[' and '{'?", SMART_INDENT_PAR, 0);
         
         //auto colon
         b = addCheckBox(appearanceComposite, "Automatic colon detection", AUTO_COLON, 0);

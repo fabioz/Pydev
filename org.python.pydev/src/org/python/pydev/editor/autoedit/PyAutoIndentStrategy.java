@@ -80,7 +80,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                             if(startsWithDedentToken(trimmedLine)){
                                 text = dedent(text);
                             }else{
-                            	text = indentAfterCommaNewline(document, text, offset);
+                            	text = smartIndentAfterPar(document, text, offset);
                             }
                         }
                     }
@@ -263,9 +263,14 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
      * @return Indentation String
      * @throws BadLocationException
      */
-    private String indentAfterCommaNewline(IDocument document, String text, int offset)
+    private String smartIndentAfterPar(IDocument document, String text, int offset)
             throws BadLocationException {
-        int smartIndent = totalIndentAmountAfterCommaNewline(document, offset);
+    	//if we should not use smart indent, this function has no use.
+    	if(!this.prefs.getSmartIndentPar()){
+    		return text;
+    	}
+
+    	int smartIndent = totalIndentAmountAfterCommaNewline(document, offset);
         if (smartIndent > 0) {
             String initial = text;
 
@@ -423,6 +428,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 	 */
     private int totalIndentAmountAfterCommaNewline(IDocument document, int offset)
             throws BadLocationException {
+    	
         int lineStart = document.getLineInformationOfOffset(offset).getOffset();
         String line = document.get(lineStart, offset - lineStart);
         int lineLength = line.length();

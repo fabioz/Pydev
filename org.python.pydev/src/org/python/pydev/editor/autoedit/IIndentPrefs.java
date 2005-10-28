@@ -68,4 +68,9 @@ public interface IIndentPrefs {
 	 * Get whether we should auto-write 'import' if we are in a from xxx import fff
 	 */
 	public boolean getAutoWriteImport();
+	
+	/**
+	 * Get whether we should smart-indent after a '('
+	 */
+	public boolean getSmartIndentPar();
 }
