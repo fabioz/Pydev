@@ -14,7 +14,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
         	ImportsOcurrencesAnalyzerTest analyzer2 = new ImportsOcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testImportFromInit2();
+            analyzer2.testModuleTokens3();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -70,6 +70,19 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
     	printMessages(msgs,1);
     	assertEquals("Undefined variable from import: unexistant", msgs[0].getMessage());
     	assertEquals(31, msgs[0].getStartCol(doc));
+    }
+    
+    public void testModuleTokens3() throws Exception {
+    	doc = new Document(
+    			"import testAssist\n"+
+    			"print testAssist.assist.ExistingClass.existingMethod\n"+
+    			"\n"+
+    			"\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,0);
     }
     
     public void testModuleTokens2() throws Exception {
