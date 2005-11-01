@@ -9,6 +9,54 @@ org.eclipse.ant.internal.ui.preferences.AntRuntimePreferencePage
 jython module management (may be handy)
 org.python.core.SysPackageManager
 
+after 0.9.8.3
+
+- Saving information as deltas
+- Option for not using smart-indent after opening brackets
+- License changed
+- Bugfixes
+
+
+
+Begginers guide draft (from Jack Trainor - given in the blog)
+
+* Unzip eclipse-SDK-3.1.1-win32.zip to c:\
+* Unzip org.python.pydev.feature-0_9_8_3.zip to c:\
+* Double-click c:\eclipse\eclipse.exe
+* Set default workspace where you want it.
+* Close Welcome splash pane.
+* Select Resource perspective: Window\Open Perspective\Other...\Select Perspective\Resource.
+* Click OK.
+* Select Window\Preferences\PyDev\Interpreter - Python.
+* Click top New... button and enter Python path, e.g., c:\Python24\python.exe
+* Click OK.
+* Click File\New\Project...
+* Select Simple\Project Wizard
+* Click Next.
+* Enter Project Name, e.g. SimpleProj1.
+* Click Finish.
+* Click File\New...\File.
+* Enter File Name, e.g. Py1.py.
+* Click Finish.
+* Right-click SimpleProj1 in Navigator pane and select Properties.
+* Click PyDev-PYTHONPATH.
+* Click top pane "Add source folder" button.
+* /SimpleProj1 should already be selected. Click OK.
+* Click top pane "Add source folder" button.
+* Add path to source folder on disk, e.g., C:\Dev\eclipse\SimpleProj1.
+* Click OK.
+* Add some Python code to Py1.py:
+print 'Hello from eclipse and python."
+* Save.
+* Right-click on Py1.py in Navigator pane.
+* Select Run as\Python run.
+* A console window should appear showing output from the Python program.
+
+I think the problem I experienced resulted from my closing all the eclipse windows and working from a bare desktop when I started. I thought that would make things simpler; apparently not so.
+
+Anyway, thanks for your work in putting Python on Eclipse.
+
+
 after 0.9.8.2
 
 - Debugger was improved to be faster (more info about it <a href="http://pydev.blogspot.com/2005/10/high-speed-debugger.html"> at my blog</a>).

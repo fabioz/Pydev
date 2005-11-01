@@ -115,7 +115,10 @@ public class PyOutlinePage extends ContentOutlinePage  {
 		return new ParsedModel(this, editorView);
 	}
 	
-		
+	public boolean isDisposed(){
+		return getTreeViewer().getTree().isDisposed();
+	}
+	
 	/*
 	 * called when model has structural changes, refreshes all items underneath
 	 * @param items: items to refresh, or null for the whole tree
@@ -126,17 +129,30 @@ public class PyOutlinePage extends ContentOutlinePage  {
             TreeViewer viewer = getTreeViewer();
             if (viewer != null) {
                 Tree treeWidget = viewer.getTree();
+                if(isDisposed()){
+                	return;
+                }
+
                 ScrollBar bar = treeWidget.getVerticalBar();
                 int barPosition = 0;
                 if (bar != null) {
                     barPosition = bar.getSelection();
                 }
-                if (items == null)
+                if (items == null){
+                    if(isDisposed()){
+                    	return;
+                    }
                     viewer.refresh();
-                else
+                
+                }else{
+                    if(isDisposed()){
+                    	return;
+                    }
                     for (int i = 0; i < items.length; i++) {
                         viewer.refresh(items[i]);
                     }
+                }
+                
                 if (barPosition != 0) {
                     bar.setSelection(Math.min(bar.getMaximum(), barPosition));
                 }
@@ -153,9 +169,13 @@ public class PyOutlinePage extends ContentOutlinePage  {
 	 * called when a single item changes
 	 */
 	public void updateItems(Object[] items) {
+        if(isDisposed()){
+        	return;
+        }
 		TreeViewer tree = getTreeViewer();
-		if (tree != null)
+		if (tree != null){
 			getTreeViewer().update(items, null);
+		}
 	}
 
 	/**

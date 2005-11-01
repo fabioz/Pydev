@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * Groups the visitors to be added and visits them according to their priority
@@ -36,6 +37,9 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
      * @param monitor 
      */
     private void visitWith(String name, boolean isAddOrChange, IResource resource, IDocument document, IProgressMonitor monitor){
+        if(!PythonNature.isResourceInPythonpath(resource)){
+        	return; // we only analyze resources that are in the pythonpath
+        }
         HashMap<String, Object> memo = new HashMap<String, Object>();
         memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false); //mark it as a delta build
         

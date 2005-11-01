@@ -161,6 +161,8 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
             moduleName = PythonNature.getModuleNameForResource(resource);
             if(moduleName != null){
                 setModuleNameInCache(moduleName);
+            }else{
+            	throw new RuntimeException("Unable to resolve module for:"+resource);
             }
         }
         return moduleName;

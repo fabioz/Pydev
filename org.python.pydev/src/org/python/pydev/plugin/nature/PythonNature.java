@@ -420,6 +420,13 @@ public class PythonNature implements IProjectNature, IPythonNature {
         return moduleName;
     }
 
+    /**
+     * @param resource the resource we want info on
+     * @return whether the passed resource is in the pythonpath or not (it must be in a source folder for that).
+     */
+    public static boolean isResourceInPythonpath(IResource resource) {
+    	return getModuleNameForResource(resource) != null; 
+    }
 }
 
 

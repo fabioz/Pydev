@@ -423,6 +423,19 @@ public abstract class AbstractShell {
         }
     }
 
+    public synchronized void clearSocket() throws IOException {
+    	while(true){ //clear until we get no message...
+	        byte[] b = new byte[AbstractShell.BUFFER_SIZE];
+	        this.socketToRead.getInputStream().read(b);
+	
+	        String s = new String(b);
+	        s = s.replaceAll((char)0+"",""); //python sends this char as payload.
+	        if(s.length() == 0){
+	        	return;
+	        }
+    	}        
+    }
+
     /**
      * @param operation
      * @return
@@ -443,6 +456,7 @@ public abstract class AbstractShell {
     
             String s = new String(b);
             
+            //processing without any status to present to the user
             if(s.indexOf("@@PROCESSING_END@@") != -1){ //each time we get a processing message, reset j to 0.
                 s = s.replaceAll("@@PROCESSING_END@@", "");
                 j = 0;
@@ -450,6 +464,7 @@ public abstract class AbstractShell {
             }
             
             
+            //processing with some kind of status
             if(s.indexOf("@@PROCESSING:") != -1){ //each time we get a processing message, reset j to 0.
                 s = s.replaceAll("@@PROCESSING:", "");
                 s = s.replaceAll("END@@", "");

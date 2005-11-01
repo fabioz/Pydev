@@ -23,7 +23,9 @@ public class ImportFromNode extends AbstractNode {
 		
 		setStart(new Location(astNode.module.beginLine - 1, astNode.module.beginColumn - 1));
 
-		findEnd(astNode.names);
+		if (!findEnd(astNode.names)){
+			setEnd(new Location(astNode.module.beginLine - 1, astNode.module.beginColumn - 1 + ((NameTok)astNode.module).id.length()));
+		}
 		properties = PROP_CLICKABLE;
 	}
 	

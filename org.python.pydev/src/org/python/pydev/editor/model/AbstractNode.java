@@ -8,10 +8,8 @@ package org.python.pydev.editor.model;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.python.parser.ast.NameTok;
 import org.python.parser.ast.aliasType;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * ModelNode is a superclass of all nodes.
@@ -107,14 +105,21 @@ public abstract class AbstractNode {
 		return parent.getPath();
 	}
 	
-	protected void findEnd(aliasType[] foundAlias) {
-		for(aliasType alias : foundAlias){
-			if(alias.asname != null){
-				setEnd(new Location(alias.asname.beginLine - 1, alias.asname.beginColumn - 1 + ((NameTok)alias.asname).id.length()));
-			}else{
-				setEnd(new Location(alias.name.beginLine - 1, alias.name.beginColumn - 1 + ((NameTok)alias.name).id.length()));
+	/**
+	 * @return whether we were able to find the end
+	 */
+	protected boolean findEnd(aliasType[] foundAlias) {
+		if(foundAlias != null && foundAlias.length > 0){
+			for(aliasType alias : foundAlias){
+				if(alias.asname != null){
+					setEnd(new Location(alias.asname.beginLine - 1, alias.asname.beginColumn - 1 + ((NameTok)alias.asname).id.length()));
+				}else{
+					setEnd(new Location(alias.name.beginLine - 1, alias.name.beginColumn - 1 + ((NameTok)alias.name).id.length()));
+				}
 			}
+			return true;
 		}
+		return false;
 	}
 
 	

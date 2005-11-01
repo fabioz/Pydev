@@ -5,11 +5,13 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.modules;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
@@ -51,57 +53,28 @@ public class CompiledModule extends AbstractModule{
         super(name);
         if(COMPILED_MODULES_ENABLED){
 	        try {
-	            AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
-	            synchronized(shell){
-		            List completions = shell.getImportCompletions(name, manager.getProjectModulesManager().getCompletePythonPath());
-		            
-		            ArrayList<IToken> array = new ArrayList<IToken>();
-		            
-		            for (Iterator iter = completions.iterator(); iter.hasNext();) {
-		                String[] element = (String[]) iter.next();
-	                    //let's make this less error-prone.
-		                try {
-	                        String o1 = element[0]; //this one is really, really needed
-	                        String o2 = "";
-	                        String o3 = "";
-	                        String o4;
-	                        
-	                        if(element.length > 0)
-	                            o2 = element[1];
-	                        
-	                        if(element.length > 0)
-	                            o3 = element[2];
-	                        
-	                        if(element.length > 0)
-	                            o4 = element[3];
-	                        else
-	                            o4 = ""+PyCodeCompletion.TYPE_BUILTIN;
-	                        
-	                        IToken t = new CompiledToken(o1, o2, o3, name, Integer.parseInt(o4));
-	                        array.add(t);
-	                    } catch (Exception e) {
-	                        String received = "";
-	                        for (int i = 0; i < element.length; i++) {
-	                            received += element[i];
-	                            received += "  ";
-	                        }
-	                        
-	                        PydevPlugin.log(IStatus.ERROR, "Error getting completions for compiled module "+name+" received = '"+received+"'", e);
-	                    }
-		            }
-	                
-	                //as we will use it for code completion on sources that map to modules, the __file__ should also
-	                //be added...
-	                if(array.size() > 0 && name.equals("__builtin__")){
-	                    array.add(new CompiledToken("__file__","","",name,PyCodeCompletion.TYPE_BUILTIN));
-	                }
-	                
-		            tokens = array.toArray(new CompiledToken[0]);
-	            }
+	            setTokens(name, manager);
 	        } catch (Exception e) {
-                tokens = new CompiledToken[0];
-	            e.printStackTrace();
-	            PydevPlugin.log(e);
+	        	//ok, something went wrong... let's give it another shot...
+	        	synchronized (this) {
+	        		try {
+						wait(10);
+					} catch (InterruptedException e1) {
+						//empty block
+					} //just wait a little before a retry...
+				};
+				
+	        	try {
+	        		AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
+	        		synchronized(shell){
+	        			shell.clearSocket();
+	        		}
+					setTokens(name, manager);
+				} catch (Exception e2) {
+					tokens = new CompiledToken[0];
+					e2.printStackTrace();
+					PydevPlugin.log(e2);
+				}
 	        }
         }else{
             //not used if not enabled.
@@ -109,6 +82,56 @@ public class CompiledModule extends AbstractModule{
         }
 
     }
+
+	private void setTokens(String name, ICodeCompletionASTManager manager) throws IOException, Exception, CoreException {
+		AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
+		synchronized(shell){
+		    List completions = shell.getImportCompletions(name, manager.getProjectModulesManager().getCompletePythonPath());
+		    
+		    ArrayList<IToken> array = new ArrayList<IToken>();
+		    
+		    for (Iterator iter = completions.iterator(); iter.hasNext();) {
+		        String[] element = (String[]) iter.next();
+		        //let's make this less error-prone.
+		        try {
+		            String o1 = element[0]; //this one is really, really needed
+		            String o2 = "";
+		            String o3 = "";
+		            String o4;
+		            
+		            if(element.length > 0)
+		                o2 = element[1];
+		            
+		            if(element.length > 0)
+		                o3 = element[2];
+		            
+		            if(element.length > 0)
+		                o4 = element[3];
+		            else
+		                o4 = ""+PyCodeCompletion.TYPE_BUILTIN;
+		            
+		            IToken t = new CompiledToken(o1, o2, o3, name, Integer.parseInt(o4));
+		            array.add(t);
+		        } catch (Exception e) {
+		            String received = "";
+		            for (int i = 0; i < element.length; i++) {
+		                received += element[i];
+		                received += "  ";
+		            }
+		            
+		            PydevPlugin.log(IStatus.ERROR, "Error getting completions for compiled module "+name+" received = '"+received+"'", e);
+		        }
+		    }
+		    
+		    //as we will use it for code completion on sources that map to modules, the __file__ should also
+		    //be added...
+		    if(array.size() > 0 && name.equals("__builtin__")){
+		        array.add(new CompiledToken("__file__","","",name,PyCodeCompletion.TYPE_BUILTIN));
+		    }
+		    
+		    tokens = array.toArray(new CompiledToken[0]);
+		}
+	}
     
     /**
      * Compiled modules do not have imports to be seen

@@ -271,7 +271,11 @@ public class DeltaSaver<X> {
     public void processDeltas(IDeltaProcessor<X> deltaProcessor) {
         
         for (DeltaCommand cmd : this.commands) {
-            cmd.processWith(deltaProcessor);
+            try {
+				cmd.processWith(deltaProcessor);
+			} catch (Exception e) {
+				Log.log(e);
+			}
         }
         deltaProcessor.endProcessing();
         this.clearAll();

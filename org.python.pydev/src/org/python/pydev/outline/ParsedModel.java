@@ -40,7 +40,7 @@ public class ParsedModel implements IOutlineModel {
 		modelListener = new IModelListener() {
 			public void modelChanged(AbstractNode root, SimpleNode ast) {
 				final AbstractNode myRoot = root;
-				Display.getDefault().syncExec( new Runnable() {
+				Display.getDefault().asyncExec( new Runnable() {
 					public void run() {
 						if (myRoot != null)
 							setRoot(new ParsedItem(null, myRoot));
@@ -100,6 +100,9 @@ public class ParsedModel implements IOutlineModel {
 			ArrayList itemsToUpdate = new ArrayList();
 			patchRootHelper(root, newRoot, itemsToRefresh, itemsToUpdate, true);
 			if (outline != null) {
+				if(outline.isDisposed()){
+					return;
+				}
 				outline.updateItems(itemsToUpdate.toArray());
 				outline.refreshItems(itemsToRefresh.toArray());
 			}

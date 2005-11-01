@@ -221,7 +221,13 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             i += 1;
             total += inc;
             IResource r = (IResource) iter.next();
-
+            if(!PythonNature.isResourceInPythonpath(r)){
+            	continue; // we only analyze resources that are in the pythonpath
+            }
+            String moduleNameForResource = PythonNature.getModuleNameForResource(r);
+            if(moduleNameForResource == null){
+            	PythonNature.getPythonNature(r.getProject());
+            }
             IDocument doc = getDocFromResource(r);
             
             HashMap<String, Object> memo = new HashMap<String, Object>();
