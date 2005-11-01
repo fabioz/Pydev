@@ -37,6 +37,9 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     
     @Override
     public void removeInfoFromModule(String moduleName, boolean generateDelta) {
+    	if(moduleName == null){
+    		throw new AssertionError("The module name may not be null.");
+    	}
         super.removeInfoFromModule(moduleName, generateDelta);
         synchronized (lock) {
         	this.moduleDependencies.remove(moduleName);
@@ -69,6 +72,12 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * representation.
      */
     public void addDependency(String analyzedModule, String dependsOn) {
+    	if(analyzedModule == null){
+    		throw new AssertionError("The analyzed module may not be null.");
+    	}
+    	if(dependsOn == null){
+    		throw new AssertionError("The module the analyzed module depends on may not be null.");
+    	}
         synchronized (lock) {
 	
 	        Set<String> dependencies = this.moduleDependencies.get(analyzedModule);
@@ -93,6 +102,9 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * TODO: use some graph theory to do this better!
      */
     public Set<String> getDependencies(String analyzedModule) {
+    	if(analyzedModule == null){
+    		throw new AssertionError("The analyzed module may not be null.");
+    	}
         synchronized (lock) {
 	
 	        Set<String> directDependencies = this.moduleDependencies.get(analyzedModule);
@@ -147,6 +159,9 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * getting dependent modules on mod3 should return mod1 and mod2
      */
     public Set<String> getModulesThatHaveDependenciesOn(String moduleToFindDependents) {
+    	if(moduleToFindDependents == null){
+    		throw new AssertionError("The module may not be null.");
+    	}
         synchronized (lock) {
 	
 	        HashSet<String> dependenciesOn = new HashSet<String>();

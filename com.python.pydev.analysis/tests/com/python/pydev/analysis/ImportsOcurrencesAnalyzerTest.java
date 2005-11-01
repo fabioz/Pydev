@@ -207,5 +207,20 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
     	printMessages(msgs,0); 
     }
     
+    public void testQt() throws Exception {
+    	if(TestDependent.HAS_QT_INSTALLED){
+	    	doc = new Document(
+	    			"import qt\n"+ 
+	    			"print qt.Qt.red\n" +   
+	    			"\n"+
+	    			"\n"
+	    	);
+	    	analyzer = new OcurrencesAnalyzer();
+	    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+	    	
+	    	printMessages(msgs,0);
+    	}
+    }
+    
 
 }
