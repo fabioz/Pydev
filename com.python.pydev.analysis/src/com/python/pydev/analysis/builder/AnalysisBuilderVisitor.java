@@ -144,6 +144,9 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         
         if(module == null){
             module = getSourceModule(resource, document);
+        }else{
+        	//this may happen if we are not in the regular visiting but in some parser changed (the module is passed, so we don't have to recreate it from the doc)
+        	setModuleInCache(module);
         }
 
         PythonNature nature = PythonNature.getPythonNature(resource.getProject());
