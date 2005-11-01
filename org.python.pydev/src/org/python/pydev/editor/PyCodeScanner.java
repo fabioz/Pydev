@@ -82,7 +82,7 @@ public class PyCodeScanner extends RuleBasedScanner {
          * @see org.eclipse.jface.text.rules.IWordDetector#isWordPart(char)
          */
         public boolean isWordPart(char c) {
-			return c != '\n' && c != '\r';
+			return c != '\n' && c != '\r' && c != '(';
         }
 	    
 	}
