@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
+import org.eclipse.jface.util.Assert;
 import org.python.parser.SimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 
@@ -51,6 +52,11 @@ public class Definition {
 
     
     public Definition(int line, int col, String value, SimpleNode ast, Scope scope, AbstractModule module){
+    	Assert.isNotNull(value, "Invalid value.");
+    	Assert.isNotNull(ast, "Invalid AST");
+    	Assert.isNotNull(scope, "Invalid Scope.");
+    	Assert.isNotNull(module, "Invalid Module.");
+
         this.line = line;
         this.col = col;
         this.value = value;
