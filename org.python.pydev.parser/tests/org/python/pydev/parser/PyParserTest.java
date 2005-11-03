@@ -4,14 +4,18 @@
 package org.python.pydev.parser;
 
 import java.io.File;
+import java.util.List;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Module;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.Str;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 public class PyParserTest extends PyParserTestBase{
 
@@ -19,7 +23,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testParser9();
+            test.testParser10();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -255,6 +259,21 @@ public class PyParserTest extends PyParserTestBase{
         "\n"+
         "\n";        
         parseLegalDocStr(s);
+    }
+    
+    /**
+     * l = [ "encode", "decode" ]
+     * 
+     * expected beginCols at: 7 and 17
+     */
+    public void testParser10() {
+    	String s = "" +
+    	"l = [ \"encode\", \"decode\" ] \n"+
+    	"\n";        
+    	SimpleNode node = parseLegalDocStr(s);
+    	List<ASTEntry> strs = SequencialASTIteratorVisitor.create(node).getAsList(new Class[]{Str.class});
+    	assertEquals(7, strs.get(0).node.beginColumn);
+    	assertEquals(17, strs.get(1).node.beginColumn);
     }
     
 }
