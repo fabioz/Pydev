@@ -103,24 +103,26 @@ public abstract class AbstractShell {
      *
      */
     public synchronized static void shutdownAllShells(){
-        for (Iterator<Map<Integer, AbstractShell>> iter = shells.values().iterator(); iter.hasNext();) {
-            finishedForGood = true;  //we may no longer restart shells
-            
-            Map<Integer,AbstractShell> rel = (Map<Integer, AbstractShell>) iter.next();
-            if(rel != null){
-                for (Iterator iter2 = rel.values().iterator(); iter.hasNext();) {
-                    AbstractShell element = (AbstractShell) iter2.next();
-                    if(element != null){
-                        try {
-                            element.shutdown(); //shutdown
-                        } catch (Exception e) {
-                            PydevPlugin.log(e); //let's log it... this should not happen
-                        }
-                    }
-                }
-            }
-        }
-        shells.clear();
+    	synchronized(shells){
+	        for (Iterator<Map<Integer, AbstractShell>> iter = shells.values().iterator(); iter.hasNext();) {
+	            finishedForGood = true;  //we may no longer restart shells
+	            
+	            Map<Integer,AbstractShell> rel = (Map<Integer, AbstractShell>) iter.next();
+	            if(rel != null){
+	                for (Iterator iter2 = rel.values().iterator(); iter.hasNext();) {
+	                    AbstractShell element = (AbstractShell) iter2.next();
+	                    if(element != null){
+	                        try {
+	                            element.shutdown(); //shutdown
+	                        } catch (Exception e) {
+	                            PydevPlugin.log(e); //let's log it... this should not happen
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	        shells.clear();
+    	}
     }
 
     /**
@@ -128,13 +130,15 @@ public abstract class AbstractShell {
      * @return a map with the type of the shell mapping to the shell itself
      */
     private synchronized static Map<Integer, AbstractShell> getTypeToShellFromId(int relatedId) {
-        Map<Integer, AbstractShell> typeToShell = shells.get(relatedId);
-        
-        if (typeToShell == null) {
-            typeToShell = new HashMap<Integer, AbstractShell>();
-            shells.put(relatedId, typeToShell);
-        }
-        return typeToShell;
+    	synchronized(shells){
+	        Map<Integer, AbstractShell> typeToShell = shells.get(relatedId);
+	        
+	        if (typeToShell == null) {
+	            typeToShell = new HashMap<Integer, AbstractShell>();
+	            shells.put(relatedId, typeToShell);
+	        }
+	        return typeToShell;
+    	}
     }
 
     /**
@@ -175,23 +179,25 @@ public abstract class AbstractShell {
      * @throws IOException
      */
     public synchronized static AbstractShell getServerShell(int relatedId, int id) throws IOException, Exception {
-        Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
-        AbstractShell pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
-        
-        if(pythonShell == null){
-            if(relatedId == IPythonNature.PYTHON_RELATED){
-                pythonShell = new PythonShell();
-            }else if(relatedId == IPythonNature.JYTHON_RELATED){
-                pythonShell = new JythonShell();
-            }else{
-                throw new RuntimeException("unknown related id");
-            }
-            pythonShell.startIt(); //first start it
-            
-            //then make it accessible
-            typeToShell.put(new Integer(id), pythonShell);
-        }
-        return pythonShell;
+    	synchronized(shells){
+	        Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
+	        AbstractShell pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
+	        
+	        if(pythonShell == null){
+	            if(relatedId == IPythonNature.PYTHON_RELATED){
+	                pythonShell = new PythonShell();
+	            }else if(relatedId == IPythonNature.JYTHON_RELATED){
+	                pythonShell = new JythonShell();
+	            }else{
+	                throw new RuntimeException("unknown related id");
+	            }
+	            pythonShell.startIt(); //first start it
+	            
+	            //then make it accessible
+	            typeToShell.put(new Integer(id), pythonShell);
+	        }
+	        return pythonShell;
+    	}
     }
 
     /**

@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
+import org.python.pydev.editor.codecompletion.PythonStringCompletionProcessor;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
 import org.python.pydev.editor.hover.PyAnnotationHover;
@@ -232,19 +233,18 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
      */
     public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
         // next create a content assistant processor to populate the completions window
-        IContentAssistProcessor processor = new PythonCompletionProcessor(this.getEdit());
+    	PythonCompletionProcessor processor = new PythonCompletionProcessor(this.getEdit());
+    	PythonCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(this.getEdit());
 
         // No code completion in comments
-        pyContentAssistant.setContentAssistProcessor(processor, PyPartitionScanner.PY_SINGLELINE_STRING);
-        pyContentAssistant.setContentAssistProcessor(processor, PyPartitionScanner.PY_MULTILINE_STRING);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, PyPartitionScanner.PY_SINGLELINE_STRING);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, PyPartitionScanner.PY_MULTILINE_STRING);
         pyContentAssistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
         pyContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
         pyContentAssistant.enableAutoActivation(true);
 
         //delay and auto activate set on PyContentAssistant constructor.
 
-//        Color bgColor = colorCache.getColor(new RGB(230, 255, 230));
-//        pyContentAssistant.setProposalSelectorBackground(bgColor);
         pyContentAssistant.setDocumentPartitioning(PyPartitionScanner.PYTHON_PARTITION_TYPE);
         
         return pyContentAssistant;
@@ -271,8 +271,6 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
         //delay and auto activate set on PyContentAssistant constructor.
 
-//        Color bgColor = colorCache.getColor(new RGB(230, 255, 230));
-//        assistant.setProposalSelectorBackground(bgColor);
         assistant.setDocumentPartitioning(PyPartitionScanner.PYTHON_PARTITION_TYPE);
         
         return assistant;
@@ -297,8 +295,6 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         
         //delay and auto activate set on PyContentAssistant constructor.
         
-//        Color bgColor = colorCache.getColor(new RGB(230, 255, 230));
-//        assistant.setProposalSelectorBackground(bgColor);
         assistant.setDocumentPartitioning(PyPartitionScanner.PYTHON_PARTITION_TYPE);
        
         assistant.enableAutoActivation(true);

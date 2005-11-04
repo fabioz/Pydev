@@ -420,11 +420,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     private static final String CORRECTIONASSIST_PROPOSAL_ID = "org.python.pydev.editors.PyEdit.CorrectionAssist";
 
     private static final String SIMPLEASSIST_PROPOSAL_ID = "org.python.pydev.editors.PyEdit.SimpleAssist";
-
+    
     public static final int CORRECTIONASSIST_PROPOSALS = 999777;
 
     public static final int SIMPLEASSIST_PROPOSALS = 999778;
-
+    
     private static class MyResources extends ListResourceBundle {
         public Object[][] getContents() {
             return contents;
@@ -443,6 +443,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
         MyResources resources = new MyResources();
 
+        // -------------------------------------------------------------------------------------
         //quick fix in editor.
         IAction action = new TextOperationAction(resources, "CorrectionAssist", this, CORRECTIONASSIST_PROPOSALS); //$NON-NLS-1$
 
@@ -451,18 +452,22 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         markAsStateDependentAction(CORRECTIONASSIST_PROPOSAL_ID, true); //$NON-NLS-1$ 
         setActionActivationCode(CORRECTIONASSIST_PROPOSAL_ID, '1', -1, SWT.CTRL);
 
+        
+        
+        
         // -------------------------------------------------------------------------------------
         //simple assistant for extending later
         action = new TextOperationAction(resources, "SimpleAssist", this, SIMPLEASSIST_PROPOSALS); //$NON-NLS-1$
         
         action.setActionDefinitionId(SIMPLEASSIST_PROPOSAL_ID);
         setAction(SIMPLEASSIST_PROPOSAL_ID, action); //$NON-NLS-1$ 
-//        markAsStateDependentAction(SIMPLEASSIST_PROPOSAL_ID, true); //$NON-NLS-1$ 
-//        setActionActivationCode(SIMPLEASSIST_PROPOSAL_ID, 'c', -1, SWT.NONE);
         
+        
+        
+        
+        // -------------------------------------------------------------------------------------
         // This action will fire a CONTENTASSIST_PROPOSALS operation
         // when executed
-        // -------------------------------------------------------------------------------------
         action = new TextOperationAction(resources, "ContentAssistProposal", this, SourceViewer.CONTENTASSIST_PROPOSALS);
 
         action.setActionDefinitionId(CONTENTASSIST_PROPOSAL_ID);
@@ -472,16 +477,21 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         // when Ctrl+Spacebar is pressed
         setActionActivationCode(CONTENTASSIST_PROPOSAL_ID, ' ', -1, SWT.CTRL);
 
-        //template proposals
+        
+        
         // ---------------------------------------------------------------------------------
+        //template proposals
         action = new TextOperationAction(resources, "TemplateProposals", this, ISourceViewer.CONTENTASSIST_PROPOSALS);
 
         action.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
         setAction(TEMPLATE_PROPOSALS_ID, action);
         markAsStateDependentAction(TEMPLATE_PROPOSALS_ID, true);
 
-        //open action
+        
+        
+        
         // ----------------------------------------------------------------------------------------
+        //open action
         IAction openAction = new PyOpenAction();
         setAction(ACTION_OPEN, openAction);
         enableBrowserLikeLinks();
