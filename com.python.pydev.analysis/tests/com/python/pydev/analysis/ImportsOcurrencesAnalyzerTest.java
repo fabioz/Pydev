@@ -14,7 +14,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
         	ImportsOcurrencesAnalyzerTest analyzer2 = new ImportsOcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testModuleTokens3();
+            analyzer2.testNested();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -198,6 +198,47 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
     	doc = new Document(
     			"from testlib import notexistant #@UnresolvedImport\n"+ //it is not resolved, so, let's signal this
     			"print notexistant.foo\n" +   //after silencing the unresolved import, this should also be silenced
+    			"\n"+
+    			"\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,0); 
+    }
+    
+    public void testStatic() throws Exception {
+    	doc = new Document(
+    			"import extendable.static\n"+ 
+    			"print extendable.static.TestStatic.static1\n" +   
+    			"\n"+
+    			"\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,0); 
+    }
+    
+    
+    public void testStatic2() throws Exception {
+    	doc = new Document(
+    			"from extendable import static\n"+ 
+    			"print static.TestStatic.static1\n" +   
+    			"\n"+
+    			"\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,0); 
+    }
+    
+    
+    public void testNested() throws Exception {
+    	doc = new Document(
+    			"from extendable import nested\n"+ 
+    			"print nested.NestedClass.nestedMethod\n" +   
     			"\n"+
     			"\n"
     	);
