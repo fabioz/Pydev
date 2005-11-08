@@ -5,9 +5,7 @@
  */
 package org.python.pydev.ui.interpreters;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,13 +19,13 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-import sun.misc.BASE64Decoder;
 
 
 /**
@@ -183,7 +181,17 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	        List<String> ret = new ArrayList<String>();
 
 	        try {
-		        List list = (List) IOUtils.getStrAsObj(persisted);
+		        List list = (List) REF.getStrAsObj(persisted, new ICallback<Object, ObjectInputStream>(){
+
+					public Object call(ObjectInputStream arg) {
+		                try {
+		                    return arg.readObject();
+		                } catch (IOException e) {
+		                    throw new RuntimeException(e);
+		                } catch (ClassNotFoundException e) {
+		                    throw new RuntimeException(e);
+		                }
+					}});
 	            
 	            for (Iterator iter = list.iterator(); iter.hasNext();) {
 	                InterpreterInfo info = (InterpreterInfo) iter.next();
@@ -257,21 +265,3 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 }
 
-class IOUtils {
-    /**
-     * @param persisted
-     * @return
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
-    public static Object getStrAsObj(String persisted) throws IOException, ClassNotFoundException {
-        BASE64Decoder decoder = new BASE64Decoder();
-        InputStream input = new ByteArrayInputStream(decoder.decodeBuffer(persisted));
-        ObjectInputStream in = new ObjectInputStream(input);
-        Object list = in.readObject();
-        in.close();
-        input.close();
-        return list;
-    }
-
-}

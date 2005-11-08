@@ -5,20 +5,23 @@
  */
 package org.python.pydev.core;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import org.apache.commons.codec.binary.Base64;
 import org.eclipse.core.resources.IProject;
 import org.python.pydev.core.log.Log;
 
-import sun.misc.BASE64Encoder;
 
 /**
  * @author Fabio Zadrozny
@@ -60,7 +63,8 @@ public class REF {
     }
 
     /**
-     * @param file
+     * @param file the file we want to read
+     * @return the contents of the fil as a string
      */
     public static String getFileContents(File file) {
         try {
@@ -75,22 +79,55 @@ public class REF {
     }
 
     /**
-     * @param list
-     * @return
+     * @param o the object we want as a string
+     * @return the string representing the object as base64
      */
-    public static String getObjAsStr(Object list) {
+    public static String getObjAsStr(Object o) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             ObjectOutputStream stream = new ObjectOutputStream(out);
-            stream.writeObject(list);
+            stream.writeObject(o);
             stream.close();
         } catch (Exception e) {
             Log.log(e);
             throw new RuntimeException(e);
         }
     
-        BASE64Encoder encoder = new BASE64Encoder();
-        return encoder.encode(out.toByteArray());
+        return new String(Base64.encodeBase64(out.toByteArray()));
+    }
+    
+    /**
+     * 
+     * @param persisted the base64 string that should be converted to an object.
+     * @param readFromFileMethod should be the calback from the plugin that is calling this function
+     * 
+     * 
+     * The callback should be something as:
+
+        new ICallback<Object, ObjectInputStream>(){
+
+            public Object call(ObjectInputStream arg) {
+                try {
+                    return arg.readObject();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }};
+
+     * 
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public static Object getStrAsObj(String persisted, ICallback<Object, ObjectInputStream> readFromFileMethod) throws IOException, ClassNotFoundException {
+        InputStream input = new ByteArrayInputStream(Base64.decodeBase64(persisted.getBytes()));
+        ObjectInputStream in = new ObjectInputStream(input);
+        Object o = readFromFileMethod.call(in);
+        in.close();
+        input.close();
+        return o;
     }
 
 

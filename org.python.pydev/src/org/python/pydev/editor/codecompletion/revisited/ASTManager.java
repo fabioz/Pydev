@@ -5,10 +5,8 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -40,7 +38,6 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.nature.PythonNature;
 
-import sun.misc.BASE64Decoder;
 
 /**
  * This structure should be in memory, so that it acts very quickly.
@@ -808,21 +805,6 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 
 
 class IOUtils {
-    /**
-     * @param persisted
-     * @return
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
-    public static Object getStrAsObj(String persisted) throws IOException, ClassNotFoundException {
-        BASE64Decoder decoder = new BASE64Decoder();
-        InputStream input = new ByteArrayInputStream(decoder.decodeBuffer(persisted));
-        ObjectInputStream in = new ObjectInputStream(input);
-        Object list = in.readObject();
-        in.close();
-        input.close();
-        return list;
-    }
 
     /**
      * @param astOutputFile

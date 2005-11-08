@@ -4,7 +4,8 @@ Bundle-Name: Core Plug-in
 Bundle-SymbolicName: org.python.pydev.core; singleton:=true
 Bundle-Version: 0.9.7.1
 Bundle-ClassPath: core.jar,
- retroweaver-rt.jar
+ retroweaver-rt.jar,
+ commons-codec.jar
 Bundle-Activator: org.python.pydev.core.CorePlugin
 Bundle-Vendor: Fabio Zadrozny
 Bundle-Localization: plugin
@@ -14,6 +15,11 @@ Require-Bundle: org.junit,
  org.eclipse.jface.text,
  org.eclipse.core.resources
 Eclipse-AutoStart: true
-Export-Package: org.python.pydev.core,
+Export-Package: org.apache.commons.codec,
+ org.apache.commons.codec.binary,
+ org.apache.commons.codec.digest,
+ org.apache.commons.codec.language,
+ org.apache.commons.codec.net,
+ org.python.pydev.core,
  org.python.pydev.core.docutils,
  org.python.pydev.core.log
