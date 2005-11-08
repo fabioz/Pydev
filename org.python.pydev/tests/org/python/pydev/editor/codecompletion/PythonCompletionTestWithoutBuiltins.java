@@ -30,7 +30,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-          test.testNestedImports();
+//          test.testNestedImports();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -225,6 +225,22 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 		s = "from extendable import nested\n"+ 
 		"print nested.NestedClass.";   
 		requestCompl(s, -1, 1, new String[] { "nestedMethod()" });
+	}
+	
+	
+	public void testSameName() throws BadLocationException, IOException, Exception{
+		String s;
+		s = "from extendable.namecheck import samename\n"+ 
+		"print samename.";   
+		requestCompl(s, -1, 1, new String[] { "method1()" });
+	}
+	
+	
+	public void testSameName2() throws BadLocationException, IOException, Exception{
+		String s;
+		s = "from extendable import namecheck\n"+ 
+		"print namecheck.samename.";   
+		requestCompl(s, -1, 1, new String[] { "method1()" });
 	}
 	
 	public void testIsInGlobalTokens() throws BadLocationException, IOException, Exception{

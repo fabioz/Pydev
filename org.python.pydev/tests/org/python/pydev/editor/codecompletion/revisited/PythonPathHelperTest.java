@@ -274,8 +274,8 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         try {
             PythonPathHelperTest test = new PythonPathHelperTest();
             test.setUp();
-            test.testClassHierarchyCompletion();
-            test.tearDown();
+//            test.testClassHierarchyCompletion();
+            test.testClassHierarchyCompletion2();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PythonPathHelperTest.class);
         } catch (Exception e) {
