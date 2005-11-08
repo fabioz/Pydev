@@ -30,7 +30,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-          test.testIsInGlobalTokens();
+          test.testNestedImports();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -217,6 +217,14 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 	    s = "import testlib.unittest.relative\n" +
 	    "testlib.";
 	    requestCompl(s, -1, 0, new String[] { });
+	}
+	
+	
+	public void testNestedImports() throws BadLocationException, IOException, Exception{
+		String s;
+		s = "from extendable import nested\n"+ 
+		"print nested.NestedClass.";   
+		requestCompl(s, -1, 1, new String[] { "nestedMethod()" });
 	}
 	
 	public void testIsInGlobalTokens() throws BadLocationException, IOException, Exception{

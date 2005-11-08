@@ -404,11 +404,12 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 for (int i = 0; i < wildImportedModules.length; i++) {
 
                     IToken name = wildImportedModules[i];
-                    AbstractModule mod = getModule(name.getAsRelativeImport(module.getName()), state.nature, true); //relative (for wild imports this is ok... only a module can be used in wild imports)
+                    AbstractModule mod = getModule(name.getAsRelativeImport(module.getName()), state.nature, false); //relative (for wild imports this is ok... only a module can be used in wild imports)
                     
                     if (mod == null) {
                         mod = getModule(name.getOriginalRep(), state.nature, false); //absolute
                     }
+                    
                     
                     if (mod != null) {
                         IToken[] completionsForModule = getCompletionsForModule(mod, state);
