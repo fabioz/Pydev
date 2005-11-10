@@ -1610,6 +1610,17 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals(0, msgs.length);
     }
     
+    public void testUnusedInFor() {
+    	doc = new Document(
+    			"for a in range(10):\n" + //a is unused
+    			"    pass" 
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs, 1);
+    }
+    
     public void testTupleVar() {
         doc = new Document(
             "def m1():\n" +
