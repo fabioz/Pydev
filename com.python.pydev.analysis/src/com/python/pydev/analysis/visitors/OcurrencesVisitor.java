@@ -16,6 +16,7 @@ import org.python.parser.ast.Attribute;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Expr;
+import org.python.parser.ast.For;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Global;
 import org.python.parser.ast.If;
@@ -466,6 +467,11 @@ public class OcurrencesVisitor extends VisitorBase{
             c.kwargs.accept(visitor);
     }
 
+    @Override
+    public Object visitFor(For node) throws Exception {
+    	return super.visitFor(node);
+    }
+    
     /**
      * overriden because we want the value to be visited before the targets 
      * @see org.python.parser.ast.VisitorIF#visitAssign(org.python.parser.ast.Assign)

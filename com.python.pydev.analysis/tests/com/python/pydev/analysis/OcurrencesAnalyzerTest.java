@@ -26,7 +26,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testAttributeAccess2();
+            analyzer2.testUnusedInFor();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -68,7 +68,6 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals(IMarker.SEVERITY_ERROR, msgs[0].getSeverity());
         assertEquals(6, msgs[0].getStartCol(doc));
         assertEquals(31, msgs[0].getEndCol(doc));
-        System.out.println(msgs[0].getMessage());
         assertEquals("Unused in wild import: anothertest, guitestcase, main, TestCase, AnotherTest, t, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
 
         
@@ -82,7 +81,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         
         assertEquals(1, msgs.length);
         assertEquals(IMarker.SEVERITY_WARNING, msgs[0].getSeverity());
-        assertEquals("Unused in wild import: anothertest, guitestcase, main, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
+        assertEquals("Unused in wild import: anothertest, guitestcase, main, AnotherTest, t, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
         assertEquals("TestCase", msgs[0].getAdditionalInfo().get(0));
         
         //-----------------
@@ -96,7 +95,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         
         //even in ignore mode, we get the message
         assertEquals(1, msgs.length);
-        assertEquals("Unused in wild import: anothertest, guitestcase, main, AnotherTest, TestCaseAlias, GUITest", msgs[0].getMessage());
+        assertEquals("Unused in wild import: anothertest, guitestcase, main, AnotherTest, t, TestCaseAlias, GUITest", msgs[0].getMessage());
         assertEquals("TestCase", msgs[0].getAdditionalInfo().get(0));
         assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
     }
@@ -1613,8 +1612,9 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     
     public void testUnusedInFor() {
     	doc = new Document(
-    			"for a in range(10):\n" + //a is unused
-    			"    pass" 
+    			"def test():\n" +
+    			"    for a in range(10):\n" + //a is unused
+    			"        pass" 
     	);
     	analyzer = new OcurrencesAnalyzer();
     	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
