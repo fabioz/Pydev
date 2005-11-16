@@ -26,7 +26,6 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
@@ -790,13 +789,13 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 			return false;
 		}
 		
-		if(currentModuleName != null && modName.endsWith(".__init__")){
-			//we have to check it without the __init__
-			String withoutLastPart = FullRepIterable.getWithoutLastPart(modName);
-			if(withoutLastPart.equals(currentModuleName)){
-				return false;
-			}
-		}
+//		if(currentModuleName != null && modName.endsWith(".__init__")){
+//			//we have to check it without the __init__
+//			String withoutLastPart = FullRepIterable.getWithoutLastPart(modName);
+//			if(withoutLastPart.equals(currentModuleName)){
+//				return false;
+//			}
+//		}
 		return true;
 	}
             
@@ -887,7 +886,7 @@ class IOUtils {
             input.close();
             return o;
         } catch (Exception e) {
-            Log.log(e);
+        	//ok, no need to log it.
             return null;
         }
     }
