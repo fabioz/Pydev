@@ -105,7 +105,7 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
 
         //check for builtins..3 (builtins should not be available because it is an import request for completions)
         requestCompl("from testlib.unittest import  ", new String[]{"__init__", "anothertest"
-                , "AnotherTest", "GUITest", "guitestcase", "main", "relative", "TestCase", "testcase", "TestCaseAlias"
+                , "AnotherTest", "GUITest", "guitestcase", "main", "relative", "t", "TestCase", "testcase", "TestCaseAlias"
                 });
 
     }
@@ -186,7 +186,7 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
         s = "" +
         "from testlib.unittest import anothertest\n"+
         "anothertest.";         
-        requestCompl(s, s.length(), 2, new String[]{"AnotherTest","testcase"});
+        requestCompl(s, s.length(), 2, new String[]{"AnotherTest","t"});
 
     }
     

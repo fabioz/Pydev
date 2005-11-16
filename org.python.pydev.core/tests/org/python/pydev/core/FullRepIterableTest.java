@@ -91,4 +91,16 @@ public class FullRepIterableTest extends TestCase {
         assertEquals("", strings[0]);
         assertEquals("aa", strings[1]);
     }
+    
+    public void testGetWithoutLastPart() throws Exception {
+		assertEquals("",FullRepIterable.getWithoutLastPart("test"));
+		assertEquals("test",FullRepIterable.getWithoutLastPart("test.__init__"));
+		assertEquals("test.test",FullRepIterable.getWithoutLastPart("test.test.__init__"));
+	}
+    
+    public void testGetLastPart() throws Exception {
+    	assertEquals("test",FullRepIterable.getLastPart("test"));
+    	assertEquals("__init__",FullRepIterable.getLastPart("test.__init__"));
+    	assertEquals("__init__",FullRepIterable.getLastPart("test.test.__init__"));
+    }
 }

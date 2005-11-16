@@ -160,11 +160,19 @@ public class FullRepIterable implements Iterable<String>{
 	}
 
 	public static String getLastPart(String tokToCheck) {
-		int i = tokToCheck.indexOf('.');
+		int i = tokToCheck.lastIndexOf('.');
 		if(i == -1){
 			return tokToCheck;
 		}
 		return tokToCheck.substring(i+1);
+	}
+
+	public static String getWithoutLastPart(String currentModuleName) {
+		int i = currentModuleName.lastIndexOf('.');
+		if(i == -1){
+			return "";
+		}
+		return currentModuleName.substring(0, i);
 	}
 
 }

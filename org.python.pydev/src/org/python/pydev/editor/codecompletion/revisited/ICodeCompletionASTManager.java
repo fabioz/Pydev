@@ -154,6 +154,16 @@ public interface ICodeCompletionASTManager {
      * @param line
      */
     public abstract IToken[] getCompletionsForModule(AbstractModule module, CompletionState state);
+    
+    /**
+     * @param file
+     * @param activationToken
+     * @param qualifier
+     * @param module
+     * @param col
+     * @param line
+     */
+    public abstract IToken[] getCompletionsForModule(AbstractModule module, CompletionState state, boolean searchSameLevelMods);
 
     /**
      * This method gets the completions for a wild import. 

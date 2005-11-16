@@ -30,7 +30,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-//          test.testNestedImports();
+          test.testNestedImports();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -90,6 +90,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
         , "guitestcase"
         , "main"
         , "relative"
+        , "t"
         , "TestCase"
         , "testcase"
         , "TestCaseAlias"

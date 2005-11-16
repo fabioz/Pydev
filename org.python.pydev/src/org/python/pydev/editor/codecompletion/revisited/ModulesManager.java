@@ -370,9 +370,6 @@ public abstract class ModulesManager implements Serializable {
 
 
         if(n == null){
-            if (n == null) {
-                n = (AbstractModule) getModules().get(new ModulesKey(name, null));
-            }
             if(!dontSearchInit){
                 if(n == null){
                     n = (AbstractModule) getModules().get(new ModulesKey(name + ".__init__", null));
@@ -380,6 +377,9 @@ public abstract class ModulesManager implements Serializable {
                         name += ".__init__";
                     }
                 }
+            }
+            if (n == null) {
+            	n = (AbstractModule) getModules().get(new ModulesKey(name, null));
             }
         }
 

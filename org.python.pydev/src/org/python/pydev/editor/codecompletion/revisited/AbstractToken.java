@@ -242,6 +242,22 @@ public abstract class AbstractToken implements IToken{
     public String getOriginalRep(){
         return originalRep;
     }
+    
+    /**
+     * @return the original representation without the actual representation (useful for imports, because
+     * we have to look within __init__ to check if the token is defined before trying to gather modules, if
+     * we have a name clash).
+     * 
+     * e.g.: if it was import from coilib.test import Exceptions, it would return coilib.test
+     */
+    public String getOriginalWithoutRep(){
+    	int i = originalRep.length() - rep.length() -1;
+    	if(i > 0){
+    		return originalRep.substring(0, i);
+    	}else{
+    		return "";
+    	}
+    }
 
     public int getLineDefinition() {
         return UNDEFINED;

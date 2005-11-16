@@ -80,11 +80,16 @@ public abstract class AbstractModule {
     	return false;
     	
     }
+
+    public boolean isInGlobalTokens(String tok, PythonNature nature){
+    	return isInGlobalTokens(tok, nature, true);
+    }
+    
     /**
      * @param tok the token we are looking for
      * @return whether the passed token is part of the global tokens of this module (including imported tokens).
      */
-    public boolean isInGlobalTokens(String tok, PythonNature nature){
+    public boolean isInGlobalTokens(String tok, PythonNature nature, boolean searchSameLevelMods){
     	if(isInDirectGlobalTokens(tok, nature)){
     		return true;
     	}
@@ -94,7 +99,7 @@ public abstract class AbstractModule {
         String[] headAndTail = FullRepIterable.headAndTail(tok);
         state.activationToken = headAndTail[0];
         String head = headAndTail[1];
-        IToken[] globalTokens = astManager.getCompletionsForModule(this, state);
+        IToken[] globalTokens = astManager.getCompletionsForModule(this, state, searchSameLevelMods);
         for (IToken token : globalTokens) {
             if(token.getRepresentation().equals(head)){
                 return true;

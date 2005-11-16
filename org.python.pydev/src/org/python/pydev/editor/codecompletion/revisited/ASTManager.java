@@ -335,6 +335,13 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
     public IToken[] getCompletionsForModule(AbstractModule module, CompletionState state) {
+    	return getCompletionsForModule(module, state, true);
+    }
+    
+    /** 
+     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState, boolean)
+     */
+    public IToken[] getCompletionsForModule(AbstractModule module, CompletionState state, boolean searchSameLevelMods) {
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
         if(state.localImportsGotten == false){
             //in the first analyzed module, we have to get the local imports too. 
@@ -360,16 +367,18 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 	        //now, lets check if this is actually a module that is an __init__ (if so, we have to get all
 	        //the other .py files as modules that are in the same level as the __init__)
             Set<IToken> initial = new HashSet<IToken>();
-	        String modName = module.getName();
-	        if(modName != null && modName.endsWith(".__init__")){
-	        	HashSet<IToken> gotten = new HashSet<IToken>();
-				getAbsoluteImportTokens(FullRepIterable.getParentModule(modName), gotten, PyCodeCompletion.TYPE_IMPORT, true);
-				for (IToken token : gotten) {
-					if(token.getRepresentation().equals("__init__") == false){
-						initial.add(token);
+            if(searchSameLevelMods){
+		        String modName = module.getName();
+		        if(modName != null && modName.endsWith(".__init__")){
+		        	HashSet<IToken> gotten = new HashSet<IToken>();
+					getAbsoluteImportTokens(FullRepIterable.getParentModule(modName), gotten, PyCodeCompletion.TYPE_IMPORT, true);
+					for (IToken token : gotten) {
+						if(token.getRepresentation().equals("__init__") == false){
+							initial.add(token);
+						}
 					}
-				}
-	        }
+		        }
+            }
 
 	        if (state.activationToken.length() == 0) {
 
@@ -395,9 +404,11 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 }
                 
                 //if it is an __init__, modules on the same level are treated as local tokens
-                t = searchOnSameLevelMods(initial, state);
-                if(t != null && t.length > 0){
-                	return t;
+                if(searchSameLevelMods){
+	                t = searchOnSameLevelMods(initial, state);
+	                if(t != null && t.length > 0){
+	                	return t;
+	                }
                 }
 
                 //wild imports: recursively go and get those completions and see if any matches it.
@@ -690,26 +701,55 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 	            	AbstractModule mod = null;
 	                
 	                //check as relative with complete rep
-	                modTok = findModuleFromPath(importedModule.getAsRelativeImport(currentModuleName), nature, true, currentModuleName);
+	                String asRelativeImport = importedModule.getAsRelativeImport(currentModuleName);
+					modTok = findModuleFromPath(asRelativeImport, nature, true, currentModuleName);
 	                mod = modTok.o1;
-	                if(mod != null && mod.getName().equals(currentModuleName) == false){
+	                if(checkValidity(currentModuleName, mod)){
                         Tuple<AbstractModule, String> ret = fixTok(modTok, tok, activationToken);
                         return ret;
 	                }
+                    
+
+                    
+                    //check if the import actually represents some token in an __init__ file
+	                String originalWithoutRep = importedModule.getOriginalWithoutRep();
+	                if(!originalWithoutRep.endsWith("__init__")){
+	                	originalWithoutRep = originalWithoutRep + ".__init__";
+	                }
+					modTok = findModuleFromPath(originalWithoutRep, nature, true, null);
+	                mod = modTok.o1;
+	                if(modTok.o2.endsWith("__init__") == false && checkValidity(currentModuleName, mod)){
+	                	if(mod.isInGlobalTokens(importedModule.getRepresentation(), nature, false)){
+	                		//then this is the token we're looking for (otherwise, it might be a module).
+	                		Tuple<AbstractModule, String> ret =  fixTok(modTok, tok, activationToken);
+	                		if(ret.o2.length() == 0){
+	                			ret.o2 = importedModule.getRepresentation();
+	                		}else{
+	                			ret.o2 = importedModule.getRepresentation()+"."+ret.o2;
+	                		}
+	                		return ret;
+	                	}
+	                }
 	                
-	                //check as absolute with original rep
+
+	                
+	                //the most 'simple' case: check as absolute with original rep
 	                modTok = findModuleFromPath(importedModule.getOriginalRep(), nature, false, null);
 	                mod = modTok.o1;
-	                if(mod != null && mod.getName().equals(currentModuleName) == false){
+	                if(checkValidity(currentModuleName, mod)){
                         Tuple<AbstractModule, String> ret =  fixTok(modTok, tok, activationToken);
                         return ret;
 	                }
-                    
-                    
-                    //ok, one last shot, to see a relative looking in folders __init__
-                    modTok = findModuleFromPath(importedModule.getAsRelativeImport(currentModuleName), nature, false, null);
+	                
+	                
+	                
+	                
+
+	                
+	                //ok, one last shot, to see a relative looking in folders __init__
+                    modTok = findModuleFromPath(asRelativeImport, nature, false, null);
                     mod = modTok.o1;
-                    if(mod != null && mod.getName().equals(currentModuleName) == false){
+                    if(checkValidity(currentModuleName, mod)){
                         Tuple<AbstractModule, String> ret = fixTok(modTok, tok, activationToken);
                         //now let's see if what we did when we found it as a relative import is correct:
                         
@@ -722,16 +762,43 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                         //if it is not the initial token we were looking for, it is correct
                         //if it is in the global tokens of the found module it is correct
                         //if none of this situations was found, we probably just found the same token we had when we started (unless I'm mistaken...)
-                        else if(activationToken.length() == 0 || ret.o2.equals(activationToken) == false || mod.isInGlobalTokens(activationToken, nature)){
+                        else if(activationToken.length() == 0 || ret.o2.equals(activationToken) == false || mod.isInGlobalTokens(activationToken, nature, false)){
                             return ret;
                         }
                     }
+                    
+                    
 
 	            }
 	        }
         }   
         return null;
     }
+
+	private boolean checkValidity(String currentModuleName, AbstractModule mod) {
+		if(mod == null){
+			return false;
+		}
+		
+		String modName = mod.getName();
+		if(modName == null){
+			return true;
+		}
+		
+		//still in the same module
+		if(modName.equals(currentModuleName)){
+			return false;
+		}
+		
+		if(currentModuleName != null && modName.endsWith(".__init__")){
+			//we have to check it without the __init__
+			String withoutLastPart = FullRepIterable.getWithoutLastPart(modName);
+			if(withoutLastPart.equals(currentModuleName)){
+				return false;
+			}
+		}
+		return true;
+	}
             
             
     /**

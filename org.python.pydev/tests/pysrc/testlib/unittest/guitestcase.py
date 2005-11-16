@@ -1,6 +1,6 @@
-from testlib.unittest import testcase
+from testlib.unittest import testcase as t
 
-class GUITest(testcase.TestCase):
+class GUITest(t.TestCase):
 
     def SetWidget(self, widget, show=None, wait=None):
         pass
