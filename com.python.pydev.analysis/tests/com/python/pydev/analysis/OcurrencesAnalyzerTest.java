@@ -68,7 +68,8 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals(IMarker.SEVERITY_ERROR, msgs[0].getSeverity());
         assertEquals(6, msgs[0].getStartCol(doc));
         assertEquals(31, msgs[0].getEndCol(doc));
-        assertEquals("Unused in wild import: anothertest, guitestcase, main, TestCase, AnotherTest, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
+        System.out.println(msgs[0].getMessage());
+        assertEquals("Unused in wild import: anothertest, guitestcase, main, TestCase, AnotherTest, t, TestCaseAlias, GUITest, testcase", msgs[0].getMessage());
 
         
         //-----------------
