@@ -73,4 +73,9 @@ public interface IIndentPrefs {
 	 * Get whether we should smart-indent after a '('
 	 */
 	public boolean getSmartIndentPar();
+	
+	/**
+	 * Get whether we should add 'self' automatically when declaring method
+	 */
+	public boolean getAutoAddSelf();
 }

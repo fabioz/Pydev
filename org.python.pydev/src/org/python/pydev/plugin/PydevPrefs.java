@@ -115,6 +115,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String SUBSTITUTE_TABS = "SUBSTITUTE_TABS";
 	public static final boolean DEFAULT_SUBSTITUTE_TABS = true;
 	
+	public static final String AUTO_ADD_SELF = "AUTO_ADD_SELF";
+	public static final boolean DEFAULT_AUTO_ADD_SELF = true;
+	
 	public static final String USE_CODE_FOLDING = "USE_CODE_FOLDING";
 	public static final boolean DEFAULT_USE_CODE_FOLDING = true;
 	
@@ -313,6 +316,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		
 		//checkbox		
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SUBSTITUTE_TABS));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_ADD_SELF));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, GUESS_TAB_SUBSTITUTION));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_CODE_FOLDING));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_USE_CUSTOM_CARETS));
@@ -434,7 +438,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
                 "'import' string when you write a space after you've written 'from xxx '.", TOOLTIP_WIDTH));
         
         
-		addCheckBox(appearanceComposite, "Substitute spaces for tabs?", SUBSTITUTE_TABS, 0);
+		addCheckBox(appearanceComposite, "Replace tabs with spaces when typing?", SUBSTITUTE_TABS, 0);
+		
+		addCheckBox(appearanceComposite, "Add 'self' automatically when declaring methods?", AUTO_ADD_SELF, 0);
 		
 		addCheckBox(appearanceComposite, "Assume tab spacing when files contain tabs?", GUESS_TAB_SUBSTITUTION, 0);
 		

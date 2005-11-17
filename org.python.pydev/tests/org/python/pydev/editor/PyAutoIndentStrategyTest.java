@@ -342,6 +342,24 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(expected, docCmd.text);
 
     }
+
+    public void testAutoSelf() {
+    	TestIndentPrefs testIndentPrefs = new TestIndentPrefs(false, 4, true);
+    	testIndentPrefs.autoAddSelf = false;
+		strategy.setIndentPrefs(testIndentPrefs);
+    	String doc = null;
+    	DocCmd docCmd = null;
+    	String expected = null;
+    	
+    	doc = "class c:\n" +
+    	"    def met";
+    	docCmd = new DocCmd(doc.length(), 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "():";
+    	assertEquals(expected, docCmd.text);
+    	
+    }
+    
     /**
      * Tests automatically adding/replacing brackets, colons, and parentheses.
      * @see PyAutoIndentStrategy
@@ -558,6 +576,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         boolean autoBraces = true;
         boolean autoWriteImport = true;
         boolean smartIndentAfterPar = true;
+        boolean autoAddSelf = true;
 
         public TestIndentPrefs(boolean useSpaces, int tabWidth){
             this.useSpaces = useSpaces;
@@ -596,6 +615,10 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
 		public boolean getSmartIndentPar() {
 			return smartIndentAfterPar;
+		}
+
+		public boolean getAutoAddSelf() {
+			return autoAddSelf;
 		}
 
     }

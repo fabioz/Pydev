@@ -170,7 +170,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                             //command.caretOffset = command.offset + 7;
                             command.text = "():";
                             command.caretOffset = command.offset + 1;
-                        } else if (hasClassMethodDef) {
+                        } else if (hasClassMethodDef && prefs.getAutoAddSelf()) {
                             command.text = "(self):";
                             command.caretOffset = command.offset + 5;
                         } else if (hasMethodDef) {

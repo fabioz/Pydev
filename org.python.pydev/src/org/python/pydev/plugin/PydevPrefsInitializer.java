@@ -31,6 +31,7 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         
         //checkboxes
         node.putBoolean(PydevPrefs.SUBSTITUTE_TABS, PydevPrefs.DEFAULT_SUBSTITUTE_TABS);
+        node.putBoolean(PydevPrefs.AUTO_ADD_SELF, PydevPrefs.DEFAULT_AUTO_ADD_SELF);
         node.putBoolean(PydevPrefs.GUESS_TAB_SUBSTITUTION, PydevPrefs.DEFAULT_GUESS_TAB_SUBSTITUTION);
         node.putBoolean(PydevPrefs.USE_CODE_FOLDING, PydevPrefs.DEFAULT_USE_CODE_FOLDING);
         node.put(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_USE_CUSTOM_CARETS, StringConverter.asString(PydevPrefs.DEFAULT_EDITOR_USE_CUSTOM_CARETS));
