@@ -132,6 +132,7 @@ public interface ICodeCompletionASTManager {
      * 1: tok
      */
     public abstract Tuple<AbstractModule, String> findOnImportedMods( IToken[] importedModules, PythonNature nature, String activationToken, String currentModuleName);
+    
 
 
     /**

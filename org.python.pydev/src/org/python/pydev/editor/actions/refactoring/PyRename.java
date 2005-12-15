@@ -19,14 +19,9 @@ public class PyRename extends PyRefactorAction {
      *     renameByCoordinates(filename, line, column, newname)
      */
     protected String perform(IAction action, String name, Operation operation) throws Exception {
-        
-        //testing first with whole lines.
-        int beginLine = getStartLine();
-        int beginCol  = getStartCol();
-
         String res = "";
         if(name.equals("") == false){
-	        res = AbstractPyRefactoring.getPyRefactoring().rename(getPyEdit(), beginLine, beginCol, name, operation);
+	        res = AbstractPyRefactoring.getPyRefactoring().rename(getRefactoringRequest(name, operation));
         }
         return res;
     }

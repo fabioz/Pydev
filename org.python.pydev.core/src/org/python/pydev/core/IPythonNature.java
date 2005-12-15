@@ -80,4 +80,7 @@ public interface IPythonNature {
      */
     public void saveAstManager();
 
+    IPythonPathNature getPythonPathNature();
+    
+    String resolveModule(File file);
 }

@@ -32,9 +32,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.IPythonPathNature;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 

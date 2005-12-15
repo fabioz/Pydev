@@ -8,7 +8,6 @@ package org.python.pydev.editor.actions.refactoring;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -29,12 +28,13 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.part.FileEditorInput;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.views.PyRefactorView;
 
 /**
@@ -94,6 +94,26 @@ public abstract class PyRefactorAction extends PyAction {
     protected String getDefaultValue() {
         return "";
     }
+    
+    public RefactoringRequest getRefactoringRequest(){
+    	return getRefactoringRequest(null, null);
+    }
+    public RefactoringRequest getRefactoringRequest(Operation operation){
+    	return getRefactoringRequest(null, operation);
+    }
+    public RefactoringRequest getRefactoringRequest(String name, Operation operation){
+        //testing first with whole lines.
+        RefactoringRequest request = new RefactoringRequest();
+		request.file      = getPyEdit().getEditorFile();
+		request.doc       = getPyEdit().getDocument();
+		request.ps        = ps;
+		request.name      = name;
+		request.operation = operation;
+		request.nature    = getPyEdit().getPythonNature();
+		request.pyEdit    = getPyEdit(); //may not be available in tests, that's why it is important to be able to operate without it
+
+		return request;
+    }
 
     private void refreshEditor(PyEdit edit) throws CoreException {
         IFile file = (IFile) ((FileEditorInput) edit.getEditorInput()).getAdapter(IFile.class);
@@ -142,9 +162,9 @@ public abstract class PyRefactorAction extends PyAction {
     /**
      * @param edit
      */
-    protected boolean areRefactorPreconditionsOK(PyEdit edit) {
+    protected boolean areRefactorPreconditionsOK(RefactoringRequest request) {
         try {
-            checkAvailableForRefactoring(edit);
+            checkAvailableForRefactoring(request);
         } catch (Exception e) {
             ErrorDialog.openError(null, "Error", "Unable to do requested action", 
                     new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, e.getMessage(), null));
@@ -176,33 +196,6 @@ public abstract class PyRefactorAction extends PyAction {
 
     protected PySelection ps;
 
-    /**
-     * @return
-     */
-    protected int getEndCol() {
-        return ps.getAbsoluteCursorOffset() + ps.getSelLength() - ps.getEndLine().getOffset();
-    }
-
-    /**
-     * @return
-     */
-    protected int getEndLine() {
-        return ps.getEndLineIndex() + 1;
-    }
-
-    /**
-     * @return
-     */
-    protected int getStartCol() {
-        return ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset();
-    }
-
-    /**
-     * @return
-     */
-    protected int getStartLine() {
-        return ps.getStartLineIndex() + 1;
-    }
 
     /*
      * (non-Javadoc)
@@ -213,7 +206,7 @@ public abstract class PyRefactorAction extends PyAction {
         // Select from text editor
         ps = new PySelection(getTextEditor());
 
-        if (areRefactorPreconditionsOK(getPyEdit()) == false) {
+        if (areRefactorPreconditionsOK(getRefactoringRequest()) == false) {
             return;
         }
 
@@ -302,9 +295,8 @@ public abstract class PyRefactorAction extends PyAction {
      * 
      * @param editor
      */
-    public static void checkAvailableForRefactoring(PyEdit editor) {
-        IProject project = editor.getProject();
-        PythonNature pythonNature = PythonNature.getPythonNature(project);
+    public static void checkAvailableForRefactoring(RefactoringRequest request) {
+        IPythonNature pythonNature = request.nature;
         if(pythonNature == null){
             throw new RuntimeException("Unable to do refactor because the file is an a project that does not have the pydev nature configured.");
         }

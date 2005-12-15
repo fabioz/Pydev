@@ -20,10 +20,10 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.osgi.service.environment.Constants;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.IPythonPathNature;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public abstract class SimpleRunner {

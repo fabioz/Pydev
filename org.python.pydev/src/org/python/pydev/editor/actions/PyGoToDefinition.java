@@ -13,6 +13,7 @@ import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
+import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -21,17 +22,18 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyGoToDefinition extends PyRefactorAction {
 
-    protected boolean areRefactorPreconditionsOK(PyEdit edit) {
+    protected boolean areRefactorPreconditionsOK(RefactoringRequest request) {
         try {
-            checkAvailableForRefactoring(edit);
+            checkAvailableForRefactoring(request);
         } catch (Exception e) {
+        	e.printStackTrace();
             ErrorDialog.openError(null, "Error", "Unable to do requested action", 
                     new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, e.getMessage(), null));
             return false;
         }
 
-        if (edit.isDirty())
-            edit.doSave(null);
+        if (request.pyEdit.isDirty())
+        	request.pyEdit.doSave(null);
 
         return true;
     }
@@ -46,7 +48,7 @@ public class PyGoToDefinition extends PyRefactorAction {
 
             ps = new PySelection(getTextEditor());
             PyEdit pyEdit = getPyEdit();
-            areRefactorPreconditionsOK(pyEdit);
+            areRefactorPreconditionsOK(getRefactoringRequest());
 
             PyOpenAction openAction = (PyOpenAction) pyEdit.getAction(PyEdit.ACTION_OPEN);
 
@@ -62,6 +64,7 @@ public class PyGoToDefinition extends PyRefactorAction {
                 PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
             }
         } catch (Exception e) {
+        	e.printStackTrace();
             ErrorDialog.openError(null, "Error", "Unable to do requested action", 
                     new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, e.getMessage(), null));
             
@@ -74,7 +77,7 @@ public class PyGoToDefinition extends PyRefactorAction {
      */
     private ItemPointer[] findDefinition(PyEdit pyEdit) {
         IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
-        return pyRefactoring.findDefinition(pyEdit, getStartLine(), getStartCol(), null);
+        return pyRefactoring.findDefinition(getRefactoringRequest());
     }
 
     protected String perform(IAction action, String name, Operation operation) throws Exception {

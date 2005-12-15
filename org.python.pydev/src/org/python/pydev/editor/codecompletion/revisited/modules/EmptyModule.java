@@ -24,6 +24,11 @@ public class EmptyModule extends AbstractModule implements Serializable {
      */
     private static final long serialVersionUID = 1L;
     public File f;
+    
+    @Override
+    public File getFile() {
+    	return f;
+    }
 
     /**
      * @param f

@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.ui.IPropertyListener;
+import org.python.pydev.core.ExtensionHelper;
 
 /**
  * @author Fabio Zadrozny
@@ -26,18 +27,17 @@ public abstract class AbstractPyRefactoring implements IPyRefactoring{
 
     public synchronized static IPyRefactoring getPyRefactoring(){
         if (AbstractPyRefactoring.pyRefactoring == null){
-            AbstractPyRefactoring.pyRefactoring = new PyRefactoring();
+        	IPyRefactoring r = (IPyRefactoring) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_REFACTORING);
+        	if(r != null){
+        		AbstractPyRefactoring.pyRefactoring = r;
+        	}else{
+        		//default one (provided by BRM)
+        		AbstractPyRefactoring.pyRefactoring = new PyRefactoring();
+        	}
         }
         return AbstractPyRefactoring.pyRefactoring;
     }
 
-    public synchronized static void setPyRefactoring( IPyRefactoring pyRefactoring){
-        if (AbstractPyRefactoring.pyRefactoring != null){
-            AbstractPyRefactoring.pyRefactoring.killShell();
-            AbstractPyRefactoring.pyRefactoring = null;
-        }
-        AbstractPyRefactoring.pyRefactoring = pyRefactoring;
-    }
 
     public void setLastRefactorResults(Object[] lastRefactorResults) {
         if(lastRefactorResults.length != 2){

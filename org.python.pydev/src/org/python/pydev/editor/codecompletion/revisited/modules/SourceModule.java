@@ -14,10 +14,12 @@ import java.util.List;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.ClassDef;
+import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
@@ -210,13 +212,9 @@ public class SourceModule extends AbstractModule {
 
     public Definition[] findDefinition(String token, int line, int col, PythonNature nature) throws Exception{
         //the line passed in starts at 1 and the lines for the visitor start at 0
-        ArrayList toRet = new ArrayList();
-        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
-        if (ast != null){
-            ast.accept(scopeVisitor);
-        }
+        ArrayList<Definition> toRet = new ArrayList<Definition>();
         
-        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(token, line, col, this);
+        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(token, line, col+1, this);
         if (ast != null){
             ast.accept(visitor);
         }
@@ -232,13 +230,42 @@ public class SourceModule extends AbstractModule {
 	            tok = o.o2;
             }
             
-            //mod == this
-            Definition d = mod.findGlobalTokDef(tok);
-            if(d != null)
-                toRet.add(d);
+            if(tok != null){
+            	if(tok.length() > 0){
+		            //mod == this (or maybe not)...heheheh
+		            Definition d = mod.findGlobalTokDef(tok);
+		            if(d != null){
+		                toRet.add(d);
+		                
+		            }else if(visitor.moduleImported != null){
+		            	//if it was found as some import (and is already stored as a dotted name), we must check for
+		            	//multiple representations in the absolute form:
+		            	//as a relative import
+		            	//as absolute import
+		            	String rel = AbstractToken.makeRelative(mod.getName(), visitor.moduleImported);
+		            	AbstractModule modFound = nature.getAstManager().getModule(rel, nature, false);
+		            	if(modFound == null){
+		            		modFound = nature.getAstManager().getModule(visitor.moduleImported, nature, false);
+		            	}
+		            	if(modFound != null){
+		            		//ok, found it
+		            		toRet.add(new Definition(1,1,"", null, null, modFound));
+		            	}
+		            }
+
+            	}else{
+            		//we found it, but it is an empty tok (which means that what we found is the actual module).
+            		toRet.add(new Definition(1,1,"",null,null,mod)); 
+            	}
+            }
             
         }else{
-	        for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {
+            FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
+            if (ast != null){
+                ast.accept(scopeVisitor);
+            }
+
+            for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {
 	            AssignDefinition element = (AssignDefinition) iter.next();
 	            if(element.target.startsWith("self") == false){
 		            if(element.scope.isOuterOrSameScope(scopeVisitor.scope)){
@@ -272,13 +299,33 @@ public class SourceModule extends AbstractModule {
                         PydevPlugin.log(e);
                     }
                 }
+                Tuple<Integer, Integer> def = getLineColForDefinition(a);
                 
-                return new Definition(a.beginLine, a.beginColumn, tok, a, scopeVisitor.scope, this);
+                //line, col
+                return new Definition(def.o1, def.o2, tok, a, scopeVisitor.scope, this);
             }
         }
         return null;
     }
-
+    
+    public Tuple<Integer, Integer> getLineColForDefinition(SimpleNode a){
+    	int line = a.beginLine;
+    	int col = a.beginColumn;
+    	
+    	if(a instanceof ClassDef){
+    		ClassDef c = (ClassDef)a;
+    		line = c.name.beginLine;
+    		col = c.name.beginColumn;
+    		
+    	} else if(a instanceof FunctionDef){
+    		FunctionDef c = (FunctionDef)a;
+    		line = c.name.beginLine;
+    		col = c.name.beginColumn;
+    	}
+    	
+    	return new Tuple<Integer, Integer>(line,col);
+    }
+    
     public IToken[] getLocalTokens(int line, int col){
         try {
 	        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);

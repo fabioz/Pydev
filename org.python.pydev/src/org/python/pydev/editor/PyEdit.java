@@ -330,7 +330,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * @param input
      * @return
      */
-    private IDocument getDocument() {
+    public IDocument getDocument() {
         return getDocumentProvider().getDocument(getEditorInput());
     }
     

@@ -27,6 +27,7 @@ public class ExtensionHelper {
     public static final String PYDEV_CTRL_1 = "org.python.pydev.pydev_ctrl_1";
     public static final String PYDEV_SIMPLE_ASSIST = "org.python.pydev.pydev_simpleassist";
     public static final String PYDEV_ORGANIZE_IMPORTS = "org.python.pydev.pydev_organize_imports";
+    public static final String PYDEV_REFACTORING = "org.python.pydev.pydev_refactoring";
     
     
     private static IExtension[] getExtensions(String type) {
@@ -49,6 +50,24 @@ public class ExtensionHelper {
         return extensions;
     }
     
+    public static Object getParticipant(String type) {
+    	//only one participant may be used for this
+    	List participants = getParticipants(type);
+    	if(participants.size() == 1){
+    		return participants.get(0);
+    	}
+    	
+    	if(participants.size() == 0){
+    		return null;
+    	}
+    	
+    	if(participants.size() > 1){
+    		throw new RuntimeException("More than one participant is registered for type:"+type);
+    	}
+    	
+    	throw new RuntimeException("Should never get here!");
+    	
+    }
     
     /**
      * @param type the extension we want to get

@@ -29,9 +29,11 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.utils.JobProgressComunicator;
@@ -419,13 +421,22 @@ public class PythonNature implements IProjectNature, IPythonNature {
         }
         return moduleName;
     }
-
+    
     /**
      * @param resource the resource we want info on
      * @return whether the passed resource is in the pythonpath or not (it must be in a source folder for that).
      */
     public static boolean isResourceInPythonpath(IResource resource) {
     	return getModuleNameForResource(resource) != null; 
+    }
+    
+    public String resolveModule(File file) {
+    	String moduleName = null;
+    	
+    	if(astManager != null){
+    		moduleName = astManager.getProjectModulesManager().resolveModule(REF.getFileAbsolutePath(file));
+    	}
+    	return moduleName;
     }
 }
 

@@ -4,7 +4,7 @@
  * 
  * @author Fabio Zadrozny
  */
-package org.python.pydev.plugin.nature;
+package org.python.pydev.core;
 
 import java.util.List;
 

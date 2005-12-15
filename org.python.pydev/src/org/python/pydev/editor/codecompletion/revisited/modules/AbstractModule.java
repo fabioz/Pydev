@@ -23,6 +23,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
@@ -38,6 +39,12 @@ public abstract class AbstractModule {
      * @return tokens for the wild imports.
      */
     public abstract IToken[] getWildImportedModules();
+    
+    /**
+     * @return the file correspondent to this module (may be null if we are unable to get it).
+     * Also, this may return a file that is not a source file (such as a .pyc or .pyd).
+     */
+    public abstract File getFile();
     
     /**
      * @return tokens for the imports in the format from xxx import yyy
@@ -224,11 +231,8 @@ public abstract class AbstractModule {
         return path.endsWith(".py") || path.endsWith(".pyw");
     }
     
-    /**
-     * @param name
-     * @param f
-     * @param doc
-     * @return
+    /** 
+     * This function creates the module given that you have a document (that will be parsed)
      */
     public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, PythonNature nature, int currLine) {
         //for doc, we are only interested in python files.
@@ -247,6 +251,19 @@ public abstract class AbstractModule {
         }
         return null;
     }
+    
+    /**
+     * This function creates a module and resolves the module name (use this function if only the file is available).
+     */
+	public static AbstractModule createModuleFromDoc(File file, IDocument doc, PythonNature pythonNature, int line, ProjectModulesManager projModulesManager) {
+		String moduleName = "";
+	    if(file != null){
+			moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
+	    }
+		AbstractModule module = createModuleFromDoc(moduleName, file, doc, pythonNature, line);
+	    return module;
+	}
+
 
     /**
      * Creates a source file generated only from an ast.
@@ -269,6 +286,24 @@ public abstract class AbstractModule {
     public static AbstractModule createModule(SimpleNode n, File file, String moduleName) {
         return new SourceModule(moduleName, file, n);
     }
+    
+    /**
+     * Creates a source file generated only from an ast (also discovers the module name).
+     * 
+     * @param n the ast root
+     * @param file the module file
+     * @param projModulesManager this is the manager (used to resolve the name of the module).
+     * 
+     * @return the module
+     */
+    public static AbstractModule createModule(SimpleNode n, File file, ProjectModulesManager projModulesManager) {
+		String moduleName = "";
+	    if(file != null){
+			moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
+	    }
+    	return createModule(n, file, moduleName);
+    }
+    
     /**
      * @param m
      * @param f
@@ -288,4 +323,5 @@ public abstract class AbstractModule {
     	String n = n2.substring(n2.lastIndexOf('.')+1);
 		return this.getName()+" ("+n+")";
     }
+
 }

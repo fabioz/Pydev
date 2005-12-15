@@ -75,17 +75,17 @@ public class PyRefactoring extends AbstractPyRefactoring {
      * @param editor
      * @return
      */
-    private String makeAction(String str, Operation operation, PyEdit editor){
-        PyRefactorAction.checkAvailableForRefactoring(editor);
+    private String makeAction(String str, RefactoringRequest request){
+        PyRefactorAction.checkAvailableForRefactoring(request);
 
         AbstractShell pytonShell;
         try {
-            pytonShell = AbstractShell.getServerShell(editor.getPythonNature(), AbstractShell.OTHERS_SHELL);
+            pytonShell = AbstractShell.getServerShell(request.nature, AbstractShell.OTHERS_SHELL);
 	        try {
-		        pytonShell.changePythonPath(((PythonNature)editor.getPythonNature()).getPythonPathNature().getCompleteProjectPythonPath());
+		        pytonShell.changePythonPath(request.nature.getPythonPathNature().getCompleteProjectPythonPath());
 	            pytonShell.write(str);
 	 
-	            return URLDecoder.decode(pytonShell.read(operation), "UTF-8");
+	            return URLDecoder.decode(pytonShell.read(request.operation), "UTF-8");
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            
@@ -107,19 +107,19 @@ public class PyRefactoring extends AbstractPyRefactoring {
      * @param name
      * @param operation
      */
-    public String extract(PyEdit editor, int beginLine, int beginCol, int endLine, int endCol, String name, Operation operation) {
-        File editorFile = editor.getEditorFile();
+    public String extract(RefactoringRequest request) {
+        File editorFile = request.file;
         String s = "@@BIKE";
         s+=        "extractMethod";
         s+=        "|"+REF.getFileAbsolutePath(editorFile);
-        s+=        "|"+beginLine;
-        s+=        "|"+beginCol;
-        s+=        "|"+endLine;
-        s+=        "|"+endCol;
-        s+=        "|"+name;
+        s+=        "|"+request.getBeginLine();
+        s+=        "|"+request.getBeginCol();
+        s+=        "|"+request.getEndLine();
+        s+=        "|"+request.getEndCol();
+        s+=        "|"+request.name;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
-        String string = makeAction(s, operation, editor);
+        String string = makeAction(s, request);
 //        System.out.println("REFACTOR RESULT:"+string);
         
         communicateRefactorResult(string);
@@ -133,17 +133,17 @@ public class PyRefactoring extends AbstractPyRefactoring {
      * @param name
      * @param operation
      */
-    public String rename(PyEdit editor, int beginLine, int beginCol, String name, Operation operation) {
-        File editorFile = editor.getEditorFile();
+    public String rename(RefactoringRequest request) {
+        File editorFile = request.file;
         String s = "@@BIKE";
         s+=        "renameByCoordinates";
         s+=        "|"+REF.getFileAbsolutePath(editorFile);
-        s+=        "|"+beginLine;
-        s+=        "|"+beginCol;
-        s+=        "|"+name;
+        s+=        "|"+request.getBeginLine();
+        s+=        "|"+request.getBeginCol();
+        s+=        "|"+request.name;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
-        String string = makeAction(s, operation, editor);
+        String string = makeAction(s, request);
         
 //        System.out.println("REFACTOR RESULT:"+string);
         communicateRefactorResult(string);
@@ -151,16 +151,16 @@ public class PyRefactoring extends AbstractPyRefactoring {
         
     }
 
-    public ItemPointer[] findDefinition(PyEdit editor, int beginLine, int beginCol, Operation operation) {
-        File editorFile = editor.getEditorFile();
+    public ItemPointer[] findDefinition(RefactoringRequest request) {
+        File editorFile = request.file;
         String s = "@@BIKE";
         s+=        "findDefinition";
         s+=        "|"+REF.getFileAbsolutePath(editorFile);
-        s+=        "|"+beginLine;
-        s+=        "|"+beginCol;
+        s+=        "|"+request.getBeginLine();
+        s+=        "|"+request.getBeginCol();
         s+=        "END@@";
 
-        String string = makeAction(s, operation, editor);
+        String string = makeAction(s, request);
         
         List l = new ArrayList();
 
@@ -196,16 +196,16 @@ public class PyRefactoring extends AbstractPyRefactoring {
      * @param operation
      * @return
      */
-    public String inlineLocalVariable(PyEdit editor, int beginLine, int beginCol, Operation operation) {
-        File editorFile = editor.getEditorFile();
+    public String inlineLocalVariable(RefactoringRequest request) {
+        File editorFile = request.file;
         String s = "@@BIKE";
         s+=        "inlineLocalVariable";
         s+=        "|"+REF.getFileAbsolutePath(editorFile);
-        s+=        "|"+beginLine;
-        s+=        "|"+beginCol;
+        s+=        "|"+request.getBeginLine();
+        s+=        "|"+request.getBeginCol();
         s+=        "END@@";
 //        System.out.println("Inline: "+s);
-        String string = makeAction(s, operation, editor);
+        String string = makeAction(s, request);
         
 //        System.out.println("REFACTOR RESULT:"+string);
         communicateRefactorResult(string);
@@ -222,19 +222,19 @@ public class PyRefactoring extends AbstractPyRefactoring {
      * @param operation
      * @return
      */
-    public String extractLocalVariable(PyEdit editor, int beginLine, int beginCol, int endLine, int endCol, String name, Operation operation) {
-        File editorFile = editor.getEditorFile();
+    public String extractLocalVariable(RefactoringRequest request) {
+        File editorFile = request.file;
         String s = "@@BIKE";
         s+=        "extractLocalVariable";
         s+=        "|"+REF.getFileAbsolutePath(editorFile);
-        s+=        "|"+beginLine;
-        s+=        "|"+beginCol;
-        s+=        "|"+endLine;
-        s+=        "|"+endCol;
-        s+=        "|"+name;
+        s+=        "|"+request.getBeginLine();
+        s+=        "|"+request.getBeginCol();
+        s+=        "|"+request.getEndLine();
+        s+=        "|"+request.getEndCol();
+        s+=        "|"+request.name;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
-        String string = makeAction(s, operation, editor);
+        String string = makeAction(s, request);
 //        System.out.println("REFACTOR RESULT:"+string);
         
         communicateRefactorResult(string);

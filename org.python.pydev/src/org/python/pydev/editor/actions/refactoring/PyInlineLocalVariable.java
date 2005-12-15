@@ -25,13 +25,7 @@ public class PyInlineLocalVariable extends PyRefactorAction {
      * @throws CoreException
      */
     protected String perform(IAction action, String name, Operation operation) throws BadLocationException, CoreException {
-        
-        //testing first with whole lines.
-        int beginLine = getStartLine();
-        int beginCol  = getStartCol();
-
-        return AbstractPyRefactoring.getPyRefactoring().inlineLocalVariable(getPyEdit(), beginLine, beginCol, operation);
-
+        return AbstractPyRefactoring.getPyRefactoring().inlineLocalVariable(getRefactoringRequest(operation));
     }
     
     protected String getInputMessage() {

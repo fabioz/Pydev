@@ -26,16 +26,9 @@ public class PyExtractLocalVariable extends PyRefactorAction {
      * @throws CoreException
      */
     protected String perform(IAction action, String name, Operation operation) throws BadLocationException, CoreException {
-        //testing first with whole lines.
-        int beginLine = getStartLine();
-        int beginCol  = getStartCol();
-
-        int endLine   = getEndLine();
-        int endCol    = getEndCol();
-        
         String res = "";
         if(name.equals("") == false){
-            res = AbstractPyRefactoring.getPyRefactoring().extractLocalVariable(getPyEdit(), beginLine, beginCol, endLine, endCol, name, operation);
+            res = AbstractPyRefactoring.getPyRefactoring().extractLocalVariable(getRefactoringRequest(name, operation));
         }
         return res;
 

@@ -242,6 +242,22 @@ public class NodeUtils {
         return getRepresentationString(node, true);
     }
     
+    
+    /**
+     * line and col start at 1
+     */
+    public static boolean isWithin(int line, int col, SimpleNode node){
+    	int colDefinition = NodeUtils.getColDefinition(node);
+    	int lineDefinition = NodeUtils.getLineDefinition(node);
+    	int[] colLineEnd = NodeUtils.getColLineEnd(node, false);
+    	
+    	if(lineDefinition <= line && colDefinition <= col &&
+    		colLineEnd[0] >= line && colLineEnd[1] >= col){
+    		return true;
+    	}
+    	return false;
+    }
+    
 
     /**
      * @param ast2 the node to work with
@@ -290,12 +306,15 @@ public class NodeUtils {
     }
 
 
+    public static int[] getColLineEnd(SimpleNode v) {
+    	return getColLineEnd(v, true);
+    }
 
     /**
      * @param v the token to work with
      * @return a tuple with [line, col] of the definition of a token
      */
-    public static int[] getColLineEnd(SimpleNode v) {
+    public static int[] getColLineEnd(SimpleNode v, boolean getOnlyToFirstDot) {
         int lineEnd = getLineEnd(v);
         int col = 0;
 
@@ -320,7 +339,7 @@ public class NodeUtils {
             }
         }
         
-        col = getEndColFromRepresentation(v);
+        col = getEndColFromRepresentation(v, getOnlyToFirstDot);
         return new int[]{lineEnd, col};
     }
 
@@ -328,17 +347,20 @@ public class NodeUtils {
      * @param v
      * @return
      */
-    private static int getEndColFromRepresentation(SimpleNode v) {
+    private static int getEndColFromRepresentation(SimpleNode v, boolean getOnlyToFirstDot) {
         int col;
         String representationString = getFullRepresentationString(v);
         if(representationString == null){
             return -1;
         }
         
-        int i;
-        if((i = representationString.indexOf('.') )  != -1){
-            representationString = representationString.substring(0,i);
+        if(getOnlyToFirstDot){
+	        int i;
+	        if((i = representationString.indexOf('.') )  != -1){
+	            representationString = representationString.substring(0,i);
+	        }
         }
+        
         int colDefinition = getColDefinition(v);
         if(colDefinition == -1){
             return -1;

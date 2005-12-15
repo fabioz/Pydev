@@ -283,15 +283,14 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @return
      */
     public static AbstractModule createModule(File file, IDocument doc, CompletionState state, ICodeCompletionASTManager manager) {
-        String moduleName = "";
-        if(file != null){
-            moduleName = manager.getProjectModulesManager().resolveModule(REF.getFileAbsolutePath(file));
-        }
-        AbstractModule module = AbstractModule.createModuleFromDoc(moduleName, file, doc, state.nature, state.line);
-        return module;
+    	PythonNature pythonNature = state.nature;
+    	int line = state.line;
+    	ProjectModulesManager projModulesManager = manager.getProjectModulesManager();
+
+    	return AbstractModule.createModuleFromDoc(file, doc, pythonNature, line, projModulesManager);
     }
 
-    /** 
+	/** 
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForToken(org.eclipse.jface.text.IDocument, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
     public IToken[] getCompletionsForToken(IDocument doc, CompletionState state) {
@@ -696,84 +695,94 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 	            final String modRep = importedModule.getRepresentation(); //this is its 'real' representation (alias) on the file (if it is from xxx import a as yyy, it is yyy)
 	            
 	            if(modRep.equals(tok)){
-	            	Tuple<AbstractModule, String> modTok = null;
-	            	AbstractModule mod = null;
-	                
-	                //check as relative with complete rep
-	                String asRelativeImport = importedModule.getAsRelativeImport(currentModuleName);
-					modTok = findModuleFromPath(asRelativeImport, nature, true, currentModuleName);
-	                mod = modTok.o1;
-	                if(checkValidity(currentModuleName, mod)){
-                        Tuple<AbstractModule, String> ret = fixTok(modTok, tok, activationToken);
-                        return ret;
-	                }
-                    
-
-                    
-                    //check if the import actually represents some token in an __init__ file
-	                String originalWithoutRep = importedModule.getOriginalWithoutRep();
-	                if(!originalWithoutRep.endsWith("__init__")){
-	                	originalWithoutRep = originalWithoutRep + ".__init__";
-	                }
-					modTok = findModuleFromPath(originalWithoutRep, nature, true, null);
-	                mod = modTok.o1;
-	                if(modTok.o2.endsWith("__init__") == false && checkValidity(currentModuleName, mod)){
-	                	if(mod.isInGlobalTokens(importedModule.getRepresentation(), nature, false)){
-	                		//then this is the token we're looking for (otherwise, it might be a module).
-	                		Tuple<AbstractModule, String> ret =  fixTok(modTok, tok, activationToken);
-	                		if(ret.o2.length() == 0){
-	                			ret.o2 = importedModule.getRepresentation();
-	                		}else{
-	                			ret.o2 = importedModule.getRepresentation()+"."+ret.o2;
-	                		}
-	                		return ret;
-	                	}
-	                }
-	                
-
-	                
-	                //the most 'simple' case: check as absolute with original rep
-	                modTok = findModuleFromPath(importedModule.getOriginalRep(), nature, false, null);
-	                mod = modTok.o1;
-	                if(checkValidity(currentModuleName, mod)){
-                        Tuple<AbstractModule, String> ret =  fixTok(modTok, tok, activationToken);
-                        return ret;
-	                }
-	                
-	                
-	                
-	                
-
-	                
-	                //ok, one last shot, to see a relative looking in folders __init__
-                    modTok = findModuleFromPath(asRelativeImport, nature, false, null);
-                    mod = modTok.o1;
-                    if(checkValidity(currentModuleName, mod)){
-                        Tuple<AbstractModule, String> ret = fixTok(modTok, tok, activationToken);
-                        //now let's see if what we did when we found it as a relative import is correct:
-                        
-                        //if we didn't find it in an __init__ module, all should be ok
-                        if(!mod.getName().endsWith("__init__")){
-                            return ret;
-                        }
-                        //otherwise, we have to be more cautious...
-                        //if the activation token is empty, then it is the module we were looking for
-                        //if it is not the initial token we were looking for, it is correct
-                        //if it is in the global tokens of the found module it is correct
-                        //if none of this situations was found, we probably just found the same token we had when we started (unless I'm mistaken...)
-                        else if(activationToken.length() == 0 || ret.o2.equals(activationToken) == false || mod.isInGlobalTokens(activationToken, nature, false)){
-                            return ret;
-                        }
-                    }
-                    
-                    
-
+	            	return findOnImportedMods(importedModule, tok, nature, activationToken, currentModuleName);
 	            }
 	        }
         }   
         return null;
     }
 
+    
+    /**
+     * Checks if some module can be resolved and returns the module it is resolved to (and to which token).
+     */
+    private Tuple<AbstractModule, String> findOnImportedMods(IToken importedModule, String tok, PythonNature nature, 
+    		String activationToken, String currentModuleName) {
+    	
+    	Tuple<AbstractModule, String> modTok = null;
+    	AbstractModule mod = null;
+        
+        //check as relative with complete rep
+        String asRelativeImport = importedModule.getAsRelativeImport(currentModuleName);
+		modTok = findModuleFromPath(asRelativeImport, nature, true, currentModuleName);
+        mod = modTok.o1;
+        if(checkValidity(currentModuleName, mod)){
+            Tuple<AbstractModule, String> ret = fixTok(modTok, tok, activationToken);
+            return ret;
+        }
+        
+
+        
+        //check if the import actually represents some token in an __init__ file
+        String originalWithoutRep = importedModule.getOriginalWithoutRep();
+        if(!originalWithoutRep.endsWith("__init__")){
+        	originalWithoutRep = originalWithoutRep + ".__init__";
+        }
+		modTok = findModuleFromPath(originalWithoutRep, nature, true, null);
+        mod = modTok.o1;
+        if(modTok.o2.endsWith("__init__") == false && checkValidity(currentModuleName, mod)){
+        	if(mod.isInGlobalTokens(importedModule.getRepresentation(), nature, false)){
+        		//then this is the token we're looking for (otherwise, it might be a module).
+        		Tuple<AbstractModule, String> ret =  fixTok(modTok, tok, activationToken);
+        		if(ret.o2.length() == 0){
+        			ret.o2 = importedModule.getRepresentation();
+        		}else{
+        			ret.o2 = importedModule.getRepresentation()+"."+ret.o2;
+        		}
+        		return ret;
+        	}
+        }
+        
+
+        
+        //the most 'simple' case: check as absolute with original rep
+        modTok = findModuleFromPath(importedModule.getOriginalRep(), nature, false, null);
+        mod = modTok.o1;
+        if(checkValidity(currentModuleName, mod)){
+            Tuple<AbstractModule, String> ret =  fixTok(modTok, tok, activationToken);
+            return ret;
+        }
+        
+        
+        
+        
+
+        
+        //ok, one last shot, to see a relative looking in folders __init__
+        modTok = findModuleFromPath(asRelativeImport, nature, false, null);
+        mod = modTok.o1;
+        if(checkValidity(currentModuleName, mod)){
+            Tuple<AbstractModule, String> ret = fixTok(modTok, tok, activationToken);
+            //now let's see if what we did when we found it as a relative import is correct:
+            
+            //if we didn't find it in an __init__ module, all should be ok
+            if(!mod.getName().endsWith("__init__")){
+                return ret;
+            }
+            //otherwise, we have to be more cautious...
+            //if the activation token is empty, then it is the module we were looking for
+            //if it is not the initial token we were looking for, it is correct
+            //if it is in the global tokens of the found module it is correct
+            //if none of this situations was found, we probably just found the same token we had when we started (unless I'm mistaken...)
+            else if(activationToken.length() == 0 || ret.o2.equals(activationToken) == false || mod.isInGlobalTokens(activationToken, nature, false)){
+                return ret;
+            }
+        }
+        
+        return null;    	
+    }
+    
+    
 	private boolean checkValidity(String currentModuleName, AbstractModule mod) {
 		if(mod == null){
 			return false;

@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.modules;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +37,13 @@ public class CompiledModule extends AbstractModule{
      * These are the tokens the compiled module has.
      */
     private CompiledToken[] tokens = null;
+    
+    private File file;
+    
+    @Override
+    public File getFile() {
+    	return file;
+    }
 
     /**
      * 

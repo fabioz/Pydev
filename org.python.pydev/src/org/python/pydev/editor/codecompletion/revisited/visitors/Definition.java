@@ -51,10 +51,14 @@ public class Definition {
     public Scope scope;
 
     
+    /**
+     * The ast and scope may be null if the definition points to the module (and not some token defined
+     * within it).
+     * 
+     * The line and col are defined starting at 1 (and not 0)
+     */
     public Definition(int line, int col, String value, SimpleNode ast, Scope scope, AbstractModule module){
     	Assert.isNotNull(value, "Invalid value.");
-    	Assert.isNotNull(ast, "Invalid AST");
-    	Assert.isNotNull(scope, "Invalid Scope.");
     	Assert.isNotNull(module, "Invalid Module.");
 
         this.line = line;

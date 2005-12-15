@@ -5,9 +5,8 @@
  */
 package org.python.pydev.editor.refactoring;
 
+
 import org.eclipse.ui.IPropertyListener;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.model.ItemPointer;
 
 /**
@@ -15,7 +14,7 @@ import org.python.pydev.editor.model.ItemPointer;
  */
 public interface IPyRefactoring {
 
-    public static final int REFACTOR_RESULT_PROP = 1;
+	public static final int REFACTOR_RESULT_PROP = 1;
 
     /**
      * Want to hear Refactoring things?
@@ -35,7 +34,7 @@ public interface IPyRefactoring {
      * @param name
      * @param operation
      */
-    public abstract String extract(PyEdit editor, int beginLine, int beginCol, int endLine, int endCol, String name, Operation operation);
+    public abstract String extract(RefactoringRequest request);
 
     /**
      * Rename something (class, method, local...)
@@ -46,7 +45,7 @@ public interface IPyRefactoring {
      * @param name
      * @param operation
      */
-    public abstract String rename(PyEdit editor, int beginLine, int beginCol, String name, Operation operation);
+    public abstract String rename(RefactoringRequest request);
 
     /**
      * Find where something is defined (many results because it may seem something is defined in several places)
@@ -57,7 +56,7 @@ public interface IPyRefactoring {
      * @param operation
      * @return
      */
-    public abstract ItemPointer[] findDefinition(PyEdit editor, int beginLine, int beginCol, Operation operation);
+    public abstract ItemPointer[] findDefinition(RefactoringRequest request);
 
     /**
      * Inline a local variable
@@ -68,7 +67,7 @@ public interface IPyRefactoring {
      * @param operation
      * @return
      */
-    public abstract String inlineLocalVariable(PyEdit editor, int beginLine, int beginCol, Operation operation);
+    public abstract String inlineLocalVariable(RefactoringRequest request);
 
     /**
      * Extract a local variable from something
@@ -82,8 +81,7 @@ public interface IPyRefactoring {
      * @param operation
      * @return
      */
-    public abstract String extractLocalVariable(PyEdit editor, int beginLine, int beginCol, int endLine, int endCol, String name,
-            Operation operation);
+    public abstract String extractLocalVariable(RefactoringRequest request);
 
 
     /**
@@ -92,7 +90,7 @@ public interface IPyRefactoring {
     public abstract void restartShell();
 
     /**
-     * This function kills the shell.
+     * This function kills the shell (if there is one).
      */
     public abstract void killShell();
 

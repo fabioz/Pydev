@@ -28,6 +28,7 @@ import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
@@ -618,12 +619,36 @@ public class PyCodeCompletion {
     }
 
     
-	private static String extractPrefix(IDocument document, int offset) {
-		int i= offset;
-		if (i > document.getLength())
-			return ""; //$NON-NLS-1$
-		
+    private static String extractPrefix(IDocument document, int offset) {
+    	return extractPrefix(document, offset, false).o1;
+    }
+    
+    /**
+     * 
+     * @param document
+     * @param offset
+     * @param getFullQualifier if true we get the full qualifier (even if it passes the current cursor location)
+     * @return
+     */
+	private static Tuple<String, Integer> extractPrefix(IDocument document, int offset, boolean getFullQualifier) {
 		try {
+			if(getFullQualifier){
+				//if we have to get the full qualifier, we'll have to walk the offset (cursor) forward
+				while(offset < document.getLength()){
+					char ch= document.getChar(offset);
+					if (Character.isJavaIdentifierPart(ch)){
+						offset++;
+					}else{
+						break;
+					}
+					
+				}
+			}
+			int i= offset;
+			
+			if (i > document.getLength())
+				return new Tuple<String, Integer>("", document.getLength()); //$NON-NLS-1$
+		
 			while (i > 0) {
 				char ch= document.getChar(i - 1);
 				if (!Character.isJavaIdentifierPart(ch))
@@ -631,9 +656,9 @@ public class PyCodeCompletion {
 				i--;
 			}
 
-			return document.get(i, offset - i);
+			return new Tuple<String, Integer>(document.get(i, offset - i), offset);
 		} catch (BadLocationException e) {
-			return ""; //$NON-NLS-1$
+			return new Tuple<String, Integer>("", offset); //$NON-NLS-1$
 		}
 	}
 
@@ -642,15 +667,27 @@ public class PyCodeCompletion {
         
     }
 	
+    public static String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset) {
+    	return getActivationTokenAndQual(theDoc, documentOffset, false);
+    }
+
     /**
      * Returns the activation token.
      * 
      * @param theDoc
-     * @param documentOffset
+     * @param documentOffset the current cursor offset (we may have to change it if getFullQualifier is true)
+     * @param getFullQualifier 
      * @return the activation token and the qualifier.
      */
-    public static String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset) {
-        String activationToken = extractPrefix(theDoc, documentOffset);
+    public static String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset, boolean getFullQualifier) {
+        Tuple<String, Integer> tupPrefix = extractPrefix(theDoc, documentOffset, getFullQualifier);
+        
+        if(getFullQualifier == true){
+        	//may have changed
+        	documentOffset = tupPrefix.o2;
+        }
+        
+		String activationToken = tupPrefix.o1;
         documentOffset = documentOffset-activationToken.length()-1;
 
         try {

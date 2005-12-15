@@ -298,6 +298,30 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
         assertEquals("ClassA.someMethod()." , strs[0]);
         assertEquals("ap", strs[1]);
         
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("foo.bar"), 2);
+        assertEquals("" , strs[0]);
+        assertEquals("fo", strs[1]);
+        
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("foo.bar"), 2, false);
+        assertEquals("" , strs[0]);
+        assertEquals("fo", strs[1]);
+        
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("foo.bar"), 2, true);
+        assertEquals("" , strs[0]);
+        assertEquals("foo", strs[1]);
+        
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("foo.bar   "), 2, true);
+        assertEquals("" , strs[0]);
+        assertEquals("foo", strs[1]);
+        
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("foo.bar   "), 5, true);
+        assertEquals("foo.", strs[0]);
+        assertEquals("bar", strs[1]);
+        
+        strs = PyCodeCompletion.getActivationTokenAndQual(new Document("foo.bar   "), 100, true); //out of the league
+        assertEquals("", strs[0]);
+        assertEquals("", strs[1]);
+        
         String importsTipperStr = PyCodeCompletion.getImportsTipperStr(new Document("from coilib.decorators import "), 30);
         assertEquals("coilib.decorators" , importsTipperStr);
         

@@ -18,8 +18,8 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.dialogs.PropertyPage;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.IPythonPathNature;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.editors.TreeWithAddRemove;
 
