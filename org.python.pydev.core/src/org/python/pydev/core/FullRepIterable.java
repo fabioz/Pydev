@@ -159,6 +159,9 @@ public class FullRepIterable implements Iterable<String>{
 		return headAndTail(currentModuleName, true)[0];
 	}
 
+	/**
+	 * @return All that is after the last dot (or the whole string if there is no dot)
+	 */
 	public static String getLastPart(String tokToCheck) {
 		int i = tokToCheck.lastIndexOf('.');
 		if(i == -1){
@@ -167,6 +170,20 @@ public class FullRepIterable implements Iterable<String>{
 		return tokToCheck.substring(i+1);
 	}
 
+	/**
+	 * @return All that is before the first dot (or the whole string if there is no dot)
+	 */
+	public static String getFirstPart(String tokToCheck) {
+		int i = tokToCheck.indexOf('.');
+		if(i == -1){
+			return tokToCheck;
+		}
+		return tokToCheck.substring(i+1);
+	}
+	
+	/**
+	 * @return All that is before the last dot (or an empty string if there is no dot)
+	 */
 	public static String getWithoutLastPart(String currentModuleName) {
 		int i = currentModuleName.lastIndexOf('.');
 		if(i == -1){

@@ -57,6 +57,20 @@ public class PySelection {
         this.textSelection = selection;
     }
 
+    public PySelection(IDocument doc, int line, int col) {
+    	this(doc, line, col, 0);
+    }
+    
+    public PySelection(IDocument doc, int line, int col, int len) {
+    	this.doc = doc;
+    	try {
+			IRegion offsetR = this.doc.getLineInformation(line);
+			this.textSelection = new TextSelection(doc, offsetR.getOffset() + col, 0);
+		} catch (BadLocationException e) {
+			throw new RuntimeException(e);
+		}
+    }
+    
     /**
      * @param document the document we are using to make the selection
      * @param offset the offset where the selection will happen (0 characters will be selected)

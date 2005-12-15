@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Attribute;
@@ -17,6 +18,7 @@ import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
@@ -140,7 +142,6 @@ public class SourceModule extends AbstractModule {
             this.lastModified = f.lastModified();
     }
 
-//    public IToken[] getGlobalTokens(String token, ASTManager manager, int line, int col, PythonNature nature) {
     
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
@@ -232,8 +233,8 @@ public class SourceModule extends AbstractModule {
             
             if(tok != null){
             	if(tok.length() > 0){
-		            //mod == this (or maybe not)...heheheh
-		            Definition d = mod.findGlobalTokDef(tok);
+		            //mod == this if we are now checking the globals (or maybe not)...heheheh
+		            Definition d = mod.findGlobalTokDef(tok, nature);
 		            if(d != null){
 		                toRet.add(d);
 		                
@@ -251,6 +252,9 @@ public class SourceModule extends AbstractModule {
 		            		//ok, found it
 		            		toRet.add(new Definition(1,1,"", null, null, modFound));
 		            	}
+		            }else{
+		            	//ok, we can still have it in wild imports
+		            	
 		            }
 
             	}else{
@@ -282,14 +286,24 @@ public class SourceModule extends AbstractModule {
 
     /**
      * @param tok
+     * @param nature 
      * @return
      */
-    public Definition findGlobalTokDef(String tok) {
-        SourceToken[] tokens = (SourceToken[]) getGlobalTokens();
-        
+    public Definition findGlobalTokDef(String tok, PythonNature nature) {
+    	String[] headAndTail = FullRepIterable.headAndTail(tok);
+    	String firstPart = headAndTail[0];
+    	String rep = headAndTail[1];
+    	
+    	IToken[] tokens = null;
+    	if(nature != null){
+    		tokens = nature.getAstManager().getCompletionsForModule(this, CompletionState.getEmptyCompletionState(firstPart, nature));
+    	}else{
+    		tokens = getGlobalTokens();
+    	}
+
         for (int i = 0; i < tokens.length; i++) {
-            if(tokens[i].getRepresentation().equals(tok)){
-                SimpleNode a = tokens[i].getAst();
+            if(tokens[i].getRepresentation().equals(rep)){
+                SimpleNode a = ((SourceToken)tokens[i]).getAst();
                 
                 FindScopeVisitor scopeVisitor = new FindScopeVisitor(a.beginLine, a.beginColumn);
                 if (ast != null){

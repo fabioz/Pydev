@@ -77,7 +77,7 @@ public class SourceModuleProposalTest extends TestCase {
         SourceModuleProposal s = new SourceModuleProposal("",0,0,0,null,"",null,"",mod, IPyCompletionProposal.PRIORITY_DEFAULT);
         s.doc = doc;
         if(tokDef != null)
-            s.definition = mod.findGlobalTokDef(tokDef);
+            s.definition = mod.findGlobalTokDef(tokDef, null);
         s.addTo = addTo;
         IRegion region = doc.getLineInformation(line);
         assertEquals(region.getOffset()+region.getLength(), s.getReplacementOffset());
