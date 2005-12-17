@@ -5,7 +5,6 @@ package com.python.pydev.analysis.additionalinfo;
 
 import java.io.File;
 import java.util.List;
-import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -131,55 +130,5 @@ public class AdditionalInterpreterInfoTest extends TestCase {
     }
     
     
-    public void testDependencyInfo() throws Exception {
-        String analyzedModule = "mod1";
-        String dependsOn = "mod2";
-        info.addDependency(analyzedModule, dependsOn);
-        
-        //flat dependencies
-        Set dependencies = info.getDependencies("mod1");
-        assertEquals(1, dependencies.size());
-        assertEquals("mod2", dependencies.iterator().next());
-        
-        Set<String> dependenciesOn = info.getModulesThatHaveDependenciesOn("mod2");
-        assertEquals(1, dependenciesOn.size());
-        assertEquals("mod1", dependenciesOn.iterator().next());
-        
-
-        //deep dependencies
-        info.addDependency("mod2", "mod3");
-        dependencies = info.getDependencies("mod1");
-        assertEquals(2, dependencies.size());
-        assertTrue(dependencies.contains("mod2"));
-        assertTrue(dependencies.contains("mod3"));
-
-        dependenciesOn = info.getModulesThatHaveDependenciesOn("mod3");
-        assertEquals(2, dependenciesOn.size());
-        assertTrue(dependenciesOn.contains("mod1"));
-        assertTrue(dependenciesOn.contains("mod2"));
-        
-        
-        //let's see how it goes with circular dependencies
-        info.addDependency("mod3", "mod1");
-        dependencies = info.getDependencies("mod1"); //does not return itself
-        assertEquals(2, dependencies.size());
-        assertTrue(dependencies.contains("mod2"));
-        assertTrue(dependencies.contains("mod3"));
-        
-
-        dependenciesOn = info.getModulesThatHaveDependenciesOn("mod3"); //does not return itself
-        assertEquals(2, dependenciesOn.size());
-        assertTrue(dependenciesOn.contains("mod1"));
-        assertTrue(dependenciesOn.contains("mod2"));
-
-        info.removeInfoFromModule("mod2", false); //the other modules should still depend on it, altough its information is lost
-        dependencies = info.getDependencies("mod1"); //does return mod2, even though it does not exist anymore
-        assertEquals(1, dependencies.size());
-
-    }
-
-    public void testDependencyInfo2() throws Exception {
-        
-    }
 
 }

@@ -5,13 +5,14 @@ package com.python.pydev.analysis.additionalinfo;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.python.pydev.core.Tuple;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 
-import com.python.pydev.analysis.builder.AnalysisBuilderVisitor;
+import com.python.pydev.analysis.additionalinfo.dependencies.DependencyCalculator;
+import com.python.pydev.analysis.additionalinfo.dependencies.PyStructuralChange;
 
 /**
  * Adds dependency information to the interpreter information. This should be used only for
@@ -21,14 +22,17 @@ import com.python.pydev.analysis.builder.AnalysisBuilderVisitor;
  */
 public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditionalInterpreterInfo{
     
+    /**
+     * A token (say a class named Test) points to a list of dependencies which use that token from
+     * imports.
+     */
+    public TreeMap<String, Set<DepInfo>> depInfo = new TreeMap<String, Set<DepInfo>>();
     
     /**
-     * used so that we can map module dependencies
-     * 
-     * the module (key) maps to its dependencies (values)
+     * A module (key) points to the wild imports it uses (values)
      */
-    protected Map<String,Set<String>> moduleDependencies = new TreeMap<String, Set<String>>();
-
+    public TreeMap<String, Set<String>> wildImportsInfo = new TreeMap<String, Set<String>>();
+    
     /**
      * default constructor
      */
@@ -41,175 +45,92 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     		throw new AssertionError("The module name may not be null.");
     	}
         super.removeInfoFromModule(moduleName, generateDelta);
-        synchronized (lock) {
-        	this.moduleDependencies.remove(moduleName);
-		}
     }
 
     @Override
     protected Object getInfoToSave() {
-        return new Tuple(this.initialsToInfo, this.moduleDependencies);
+        return new Tuple(this.initialsToInfo, null);
     }
     
     protected void restoreSavedInfo(Object o){
         Tuple readFromFile = (Tuple) o;
         this.initialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
-        this.moduleDependencies = (Map<String, Set<String>>) readFromFile.o2;
-
     }
 
     /**
-     * Adds dependency information.
-     * 
-     * @param analyzedModule this is the module that depends on some other module
-     * @param dependsOn this is the module it depends
-     * 
-     * Note: all paths should be full paths. Relative entries should not be added.
-     * This is important, because later it will be looked for with that name.
-     *  
-     * If the user has some import and it is unable to find it, it can be dependent on both representations
-     * (relative and absolute), so that later, if the module is created, it is re-analyzed for its correct 
-     * representation.
+     * Add a dependency
+     * @param currentModuleName this is the module that is being analyzed
+     * @param mod this is the module that was found to be used
+     * @param tok the token which it depends upon
+     * @param isWildImport determines if the import we are analyzing is a wild import
      */
-    public void addDependency(String analyzedModule, String dependsOn) {
-    	if(analyzedModule == null){
-    		throw new AssertionError("The analyzed module may not be null.");
-    	}
-    	if(dependsOn == null){
-    		throw new AssertionError("The module the analyzed module depends on may not be null.");
-    	}
-        synchronized (lock) {
-	
-	        Set<String> dependencies = this.moduleDependencies.get(analyzedModule);
-	        if(dependencies == null){
-	            dependencies = new HashSet<String>();
-	            this.moduleDependencies.put(analyzedModule, dependencies);
-	        }
-	        dependencies.add(dependsOn);
+    public void addDep(String currentModuleName, AbstractModule mod, String tok, boolean isWildImport) {
+        // add dependency for token (regular import)
+        if(tok != null && tok.length() > 0){
+            Set<DepInfo> deppies = depInfo.get(tok);
+            if(deppies == null){
+                deppies = new HashSet<DepInfo>();
+                depInfo.put(tok, deppies);
+            }
+            deppies.add(new DepInfo(currentModuleName, mod.getName()));
+            
+        }
+        
+        // also, add wild import info (if it is a wild import)
+        if (isWildImport){ 
+            Set<String> wildImps = wildImportsInfo.get(currentModuleName);
+            if(wildImps == null){
+                wildImps = new HashSet<String>();
+                wildImportsInfo.put(currentModuleName, wildImps);
+            }
+            
+            wildImps.add(mod.getName());
         }
     }
 
-    /**
-     * This scenario is not as simple as it looks...
-     * 
-     * when getting dependencies, we have to get 'deep' dependencies, such that if we have:
-     * mod1 > imports mod2
-     * mod2 > imports mod3
-     * mod3 > no dependency
-     * 
-     * getting dependencies for mod1 should return both, mod2 and mod3
-     * 
-     * TODO: use some graph theory to do this better!
-     */
-    public Set<String> getDependencies(String analyzedModule) {
-    	if(analyzedModule == null){
-    		throw new AssertionError("The analyzed module may not be null.");
-    	}
-        synchronized (lock) {
-	
-	        Set<String> directDependencies = this.moduleDependencies.get(analyzedModule);
-	        if(directDependencies == null){
-	            return new HashSet<String>();
-	        }
-	        
-	        //ok, there is something to return
-	        HashSet<String> toReturn = new HashSet<String>(directDependencies);
-	        
-	        //used to know what will we have to look in the next round
-	        HashSet<String> searchOnNextRound = new HashSet<String>(directDependencies);
-	        
-	        HashSet<String> alreadySeached = new HashSet<String>();
-	        alreadySeached.add(analyzedModule);//the initial has already been analyzed
-	        
-	        //now, for each of these we have to get their dependencies. Also, let's take
-	        //some measures to avoid recursing in this case
-	        do{
-	            //these are the ones we will have to go deeper on...
-	            HashSet<String> stillSearchOnThese = new HashSet<String>(searchOnNextRound);
-	
-	            //clear next searches
-	            searchOnNextRound.clear();
-	            for (String dependency : stillSearchOnThese) {
-	                alreadySeached.add(dependency);
-	                
-	                Set<String> dependencies = this.moduleDependencies.get(dependency);
-	                if(dependencies != null){
-	                    for (String dep : dependencies) {
-	                        if(alreadySeached.contains(dep) == false){
-	                            searchOnNextRound.add(dep);
-	                            toReturn.add(dep);
-	                        }
-	                    }
-	                }
-	            }
-	        }while(searchOnNextRound.size() != 0);
-	        
-	        return toReturn;
-        }
+    public Set<String> calculateDependencies(PyStructuralChange change) {
+        return new DependencyCalculator(this).calculateDependencies(change);
     }
 
     /**
-     * This scenario is not as simple as it looks...
+     * Check if we can get from the dependency passed to the module 
+     * (e.g.: to check if we can get to a module that has just changed)
      * 
-     * when getting dependencies, we have to get 'deep' dependencies, such that if we have:
-     * mod1 > imports mod2
-     * mod2 > imports mod3
-     * mod3 > no dependency
-     * 
-     * getting dependent modules on mod3 should return mod1 and mod2
+     * @param dep this is the starting place
+     * @param module this is the place we may get
+     * @return true if we can get a 'wild import path' to the passed module from the dep
      */
-    public Set<String> getModulesThatHaveDependenciesOn(String moduleToFindDependents) {
-    	if(moduleToFindDependents == null){
-    		throw new AssertionError("The module may not be null.");
-    	}
-        synchronized (lock) {
-	
-	        HashSet<String> dependenciesOn = new HashSet<String>();
-	
-	        //used to know what will we have to look in the next round
-	        HashSet<String> searchOnNextRound = new HashSet<String>();
-	        
-	        HashSet<String> alreadySeached = new HashSet<String>();
-	        alreadySeached.add(moduleToFindDependents);//the initial has already been analyzed
-	
-	        searchOnNextRound.add(moduleToFindDependents);
-	        
-	        if(AnalysisBuilderVisitor.DEBUG_DEPENDENCIES){
-	        	System.out.println("Getting modules that have dependencies on "+moduleToFindDependents);
-	        }
-	        
-	        do{
-	            //these are the ones we will have to go deeper on...
-	            HashSet<String> stillSearchOnThese = new HashSet<String>(searchOnNextRound);
-
-	
-	            searchOnNextRound.clear();
-	            
-	            for (String dependsOn : stillSearchOnThese) {
-	            	if(AnalysisBuilderVisitor.DEBUG_DEPENDENCIES){
-	            		System.out.println("\n\nModules that have dependencies on "+dependsOn);
-	            	}
-
-	            	alreadySeached.add(dependsOn);
-	                
-	                for (Map.Entry<String,Set<String>> dependencies : this.moduleDependencies.entrySet()) {
-	                    
-	                    if(dependencies.getValue().contains(dependsOn)){
-	                        String key = dependencies.getKey();
-	                        if(alreadySeached.contains(key) == false){
-	        	            	if(AnalysisBuilderVisitor.DEBUG_DEPENDENCIES){
-	        	            		System.out.println("-- "+key);
-	        	            	}
-	                            searchOnNextRound.add(key);
-	                            dependenciesOn.add(key);
-	                        }
-	                    }
-	                }
-	            }
-	        }while(searchOnNextRound.size() > 0);
-	        
-	        return dependenciesOn;
-        }
+    public boolean hasWildImportPath(String from, String module) {
+        HashSet<String> alreadyAnalyzed = new HashSet<String>();
+        HashSet<String> nextRound = new HashSet<String>();
+        nextRound.add(from);
+        
+        do{
+            HashSet<String> thisRound = new HashSet<String>(nextRound);
+            nextRound.clear();
+            
+            for (String mod : thisRound) {
+                Set<String> importsInModule = wildImportsInfo.get(mod);
+    
+                if(importsInModule != null){
+                    for (String wildImp : importsInModule) {
+                        
+                        //if it was not already analyzed
+                        if(!alreadyAnalyzed.contains(wildImp)){
+                            
+                            if(wildImp.equals(module)){
+                                return true;
+                            }
+                             
+                            nextRound.add(wildImp);
+                            alreadyAnalyzed.add(mod);
+                        }
+                    }
+                }
+            }
+        }while(nextRound.size() > 0);
+        
+        return false;
     }
 
 

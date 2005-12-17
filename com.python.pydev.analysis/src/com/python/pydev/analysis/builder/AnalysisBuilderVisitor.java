@@ -24,6 +24,7 @@ import com.python.pydev.analysis.OcurrencesAnalyzer;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.dependencies.PyStructuralChange;
 import com.python.pydev.analysis.messages.IMessage;
 
 public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
@@ -232,7 +233,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         	monitor.worked(1);
             if(DEBUG_DEPENDENCIES){ System.out.println(progressMsg);}
             
-            Set<String> dependenciesOn = info.getModulesThatHaveDependenciesOn(moduleName);
+            Set<String> dependenciesOn = info.calculateDependencies(new PyStructuralChange());
             for (String dependentOn : dependenciesOn) {
                 if(DEBUG_DEPENDENCIES){
                     System.out.println("Adding dependent module to be analyzed later: "+dependentOn);

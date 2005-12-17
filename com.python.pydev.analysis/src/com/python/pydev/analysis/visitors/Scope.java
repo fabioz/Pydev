@@ -85,8 +85,8 @@ public class Scope implements Iterable<ScopeItems>{
     }
 
     /**
-     * Adds many tokens at once (created by the same token -- 
-     * this ONLY happens for:
+     * Adds many tokens at once. (created by the same token) 
+     * Adding more than one ONLY happens for:
      * - wild imports (kind of obvious)
      * - imports such as import os.path (one token is created for os and one for os.path) 
      */
