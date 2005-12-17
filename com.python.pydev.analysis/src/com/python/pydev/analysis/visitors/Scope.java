@@ -13,6 +13,7 @@ import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.plugin.nature.PythonNature;
 
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 
 public class Scope implements Iterable<ScopeItems>{
@@ -79,9 +80,9 @@ public class Scope implements Iterable<ScopeItems>{
         return scopeUnique;
     }
     
-    public Scope(MessagesManager messagesManager, PythonNature nature, String moduleName) {
+    public Scope(MessagesManager messagesManager, PythonNature nature, String moduleName, AbstractAdditionalDependencyInfo infoForProject) {
         this.messagesManager = messagesManager;
-        this.importChecker = new ImportChecker(this.messagesManager, nature, moduleName);
+        this.importChecker = new ImportChecker(this.messagesManager, nature, moduleName, infoForProject);
     }
 
     /**

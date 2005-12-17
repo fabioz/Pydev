@@ -46,6 +46,8 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.messages.IMessage;
 
 /**
@@ -97,6 +99,8 @@ public class OcurrencesVisitor extends VisitorBase{
      * Used to manage the messages
      */
     private MessagesManager messagesManager;
+
+    private AbstractAdditionalDependencyInfo infoForProject;
     
     /**
      * Constructor
@@ -105,11 +109,12 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     @SuppressWarnings("unchecked")
 	public OcurrencesVisitor(PythonNature nature, String moduleName, AbstractModule current, IAnalysisPreferences prefs, IDocument document) {
+        this.infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
         this.current = current;
         this.nature = nature;
         this.moduleName = moduleName;
-        this.messagesManager = new MessagesManager(prefs, moduleName, document);
-        this.scope = new Scope(this.messagesManager, nature, moduleName);
+        this.messagesManager = new MessagesManager(prefs, moduleName, document, infoForProject);
+        this.scope = new Scope(this.messagesManager, nature, moduleName, infoForProject);
         this.duplicationChecker = new DuplicationChecker(this.messagesManager);
         this.noSelfChecker = new NoSelfChecker(this.messagesManager, moduleName);
         
@@ -594,6 +599,14 @@ public class OcurrencesVisitor extends VisitorBase{
                     messagesManager.addUndefinedMessage(n.getSingle().tok);
                 }
             }
+            List<org.python.pydev.core.Tuple<String,Found>> usedItems = m.getUsedItems(); //last scope
+            for (org.python.pydev.core.Tuple<String, Found> tuple : usedItems) {
+                if(AbstractVisitor.isWildImport(tuple.o2.getSingle().generator)){
+                    this.infoForProject.addDepFromWildImportTok(moduleName, tuple.o1);
+                    System.out.println("adding dep for wild import "+moduleName+" - "+tuple.o1);
+                }
+            }
+
             messagesManager.setLastScope(m);
         }
         
@@ -702,6 +715,7 @@ public class OcurrencesVisitor extends VisitorBase{
 					String tokToCheck;
 					if(foundAs.isWildImport()){
 						tokToCheck = foundAsStr;
+                        
 					}else{
 						String tok = foundAs.importInfo.rep;
 						tokToCheck = rep.substring(foundAsStr.length() + 1);

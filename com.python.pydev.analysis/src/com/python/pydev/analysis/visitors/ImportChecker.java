@@ -66,12 +66,12 @@ public class ImportChecker {
     /**
      * constructor - will remove all dependency info on the project that we will start to analyze
      */
-    public ImportChecker(MessagesManager messagesManager, PythonNature nature, String moduleName) {
+    public ImportChecker(MessagesManager messagesManager, PythonNature nature, String moduleName, AbstractAdditionalDependencyInfo infoForProject) {
         this.messagesManager = messagesManager;
         
         this.nature = nature;
         this.moduleName = moduleName;
-        this.infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+        this.infoForProject = infoForProject;
     }
 
     /**

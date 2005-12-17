@@ -12,9 +12,25 @@ public class DepInfo{
         this.importsFrom = importsFrom;
     }
     
+    /**
+     * This constructor should be used if it is a dependency generated from a wild import
+     * 
+     * @param moduleName this is the name of the module that is dependent on the token
+     */
+    public DepInfo(String moduleName){
+        this.moduleName = moduleName;
+        this.importsFrom = null;
+    }
+    
+    public boolean isFromWildImport() {
+        return this.importsFrom == null;
+    }
+    
     @Override
     public int hashCode() {
-        return this.moduleName.hashCode() + this.importsFrom.hashCode() * 7;
+        int modNameHashCode = this.moduleName.hashCode();
+        int importHashCode = this.importsFrom != null ? this.importsFrom.hashCode() : 9;
+        return modNameHashCode + importHashCode * 7;
     }
     
     @Override
@@ -26,4 +42,8 @@ public class DepInfo{
         return this.moduleName.equals(d.moduleName) && this.importsFrom.equals(d.importsFrom);
     }
 
+    @Override
+    public String toString() {
+        return "<DepInfo ["+moduleName+" depends on "+this.importsFrom+"]>";
+    }
 }

@@ -58,6 +58,16 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
 
     /**
+     * Add a dependency from a token gotten from a wild import
+     * 
+     * @param currentModuleName the module that is dependent on the token
+     * @param tok the token that was found from a wild import
+     */
+    public void addDepFromWildImportTok(String currentModuleName, String tok) {
+        addDepInfo(currentModuleName, null, tok);
+    }
+    
+    /**
      * Add a dependency
      * @param currentModuleName this is the module that is being analyzed
      * @param mod this is the module that was found to be used
@@ -66,15 +76,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      */
     public void addDep(String currentModuleName, AbstractModule mod, String tok, boolean isWildImport) {
         // add dependency for token (regular import)
-        if(tok != null && tok.length() > 0){
-            Set<DepInfo> deppies = depInfo.get(tok);
-            if(deppies == null){
-                deppies = new HashSet<DepInfo>();
-                depInfo.put(tok, deppies);
-            }
-            deppies.add(new DepInfo(currentModuleName, mod.getName()));
-            
-        }
+        addDepInfo(currentModuleName, mod, tok);
         
         // also, add wild import info (if it is a wild import)
         if (isWildImport){ 
@@ -85,6 +87,26 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             }
             
             wildImps.add(mod.getName());
+        }
+    }
+
+    /**
+     * @param currentModuleName the current module
+     * @param mod the module that is used from the current module (may be null if it is from a wild import)
+     * @param tok the token it is dependent upon
+     */
+    private void addDepInfo(String currentModuleName, AbstractModule mod, String tok) {
+        if(tok != null && tok.length() > 0){
+            Set<DepInfo> deppies = depInfo.get(tok);
+            if(deppies == null){
+                deppies = new HashSet<DepInfo>();
+                depInfo.put(tok, deppies);
+            }
+            if(mod != null){
+                deppies.add(new DepInfo(currentModuleName, mod.getName()));
+            }else{
+                deppies.add(new DepInfo(currentModuleName));
+            }
         }
     }
 

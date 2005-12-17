@@ -67,7 +67,10 @@ public class DependencyCalculator {
             
             //analyze the modules that may use it
             for (DepInfo depInfo : deppies) {
-                if(depInfo.importsFrom.equals(change.getModule()) || info.hasWildImportPath(depInfo.moduleName, change.getModule())){
+                if(depInfo.isFromWildImport() && info.hasWildImportPath(depInfo.moduleName, change.getModule())){
+                    mods.add(depInfo.moduleName);
+                    
+                } else if(depInfo.importsFrom.equals(change.getModule())){
                     mods.add(depInfo.moduleName);
                 }
             }
