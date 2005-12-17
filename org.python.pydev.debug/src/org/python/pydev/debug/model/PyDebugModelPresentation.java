@@ -41,8 +41,14 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 		if (element instanceof PyBreakpoint) {
 			try {
 				if (((PyBreakpoint)element).isEnabled())
+					if (((PyBreakpoint)element).isConditionEnabled())
+						return PydevDebugPlugin.getImageCache().get("icons/breakmarker_conditional.gif");
+					else
 					return PydevDebugPlugin.getImageCache().get("icons/breakmarker.gif");
 				else
+					if (((PyBreakpoint)element).isConditionEnabled())
+						return PydevDebugPlugin.getImageCache().get("icons/breakmarker_gray_conditional.gif");
+					else
 					return PydevDebugPlugin.getImageCache().get("icons/breakmarker_gray.gif");
 			} catch (CoreException e) {
 				PydevDebugPlugin.log(IStatus.ERROR, "getImage error", e);

@@ -142,7 +142,7 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 		try {
 			if (breakpoint instanceof PyBreakpoint && ((PyBreakpoint)breakpoint).isEnabled()) {
 				PyBreakpoint b = (PyBreakpoint)breakpoint;
-				SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, b.getFile(), b.getLine());
+				SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, b.getFile(), b.getLine(), b.getCondition());
 				debugger.postCommand(cmd);
 			}
 		} catch (CoreException e) {
@@ -483,15 +483,24 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
             
             try {
                 IMarker[] markers = project.findMarkers(PyBreakpoint.PY_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
+                IMarker[] condMarkers = project.findMarkers(PyBreakpoint.PY_CONDITIONAL_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
                 IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
                 
                 for (IMarker marker : markers) {
                     PyBreakpoint brk = (PyBreakpoint) breakpointManager.getBreakpoint(marker);
                     
                     if (brk.isEnabled()) {
-                        SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine());
+                        SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine(), brk.getCondition());
                         debugger.postCommand(cmd);
                     }
+                }
+                
+                for (IMarker marker: condMarkers) {
+                	PyBreakpoint brk = (PyBreakpoint) breakpointManager.getBreakpoint(marker);
+                	if (brk.isEnabled()) {
+                		SetBreakpointCommand cmd = new SetBreakpointCommand(debugger, brk.getFile(), brk.getLine(), brk.getCondition());
+                		debugger.postCommand(cmd);
+                	}
                 }
             } catch (Throwable t) {
                 PydevDebugPlugin.errorDialog("Error setting breakpoints", t);

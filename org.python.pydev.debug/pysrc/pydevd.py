@@ -20,25 +20,25 @@ each command has a format:
     101      RUN             RDB       -                   -
     102      LIST_THREADS    RDB                           RETURN with XML listing of all threads
     103      THREAD_CREATE   PYDB      -                   XML with thread information
-    104		 THREAD_KILL     RDB	   id			       kills the thread
+    104         THREAD_KILL     RDB       id                   kills the thread
                              PYDB      id                  nofies RDB that thread was killed
-	105		 THREAD_SUSPEND  RDB       XML of the stack,   suspends the thread
-									   reason for suspension
-							 PYDB      id                  notifies RDB that thread was suspended
-	106      THREAD_RUN      RDB       id                  resume the thread
-	                         PYDB      id \t reason        notifies RDB that thread was resumed
-	107      STEP_INTO       RDB       thread_id
-	108      STEP_OVER       RDB       thread_id
-	109      STEP_RETURN     RDB       thread_id
-	110		 GET_VARIABLE	 RDB       var_locator		   GET_VARIABLE with XML of var content
-									   see code for definition
-	111      SET_BREAK       RDB       file/line of the breakpoint
-	112      REMOVE_BREAK    RDB       file/line of the return
+    105         THREAD_SUSPEND  RDB       XML of the stack,   suspends the thread
+                                       reason for suspension
+                             PYDB      id                  notifies RDB that thread was suspended
+    106      THREAD_RUN      RDB       id                  resume the thread
+                             PYDB      id \t reason        notifies RDB that thread was resumed
+    107      STEP_INTO       RDB       thread_id
+    108      STEP_OVER       RDB       thread_id
+    109      STEP_RETURN     RDB       thread_id
+    110         GET_VARIABLE     RDB       var_locator           GET_VARIABLE with XML of var content
+                                       see code for definition
+    111      SET_BREAK       RDB       file/line of the breakpoint
+    112      REMOVE_BREAK    RDB       file/line of the return
     113      EVALUATE_EXPRESSION RDB   expression          result of evaluating the expression
 
 500 series diagnostics/ok
     901      VERSION       either      Version string (1.0)               Currently just used at startup
-    902      RETURN		   either      Depends on caller    -
+    902      RETURN           either      Depends on caller    -
 900 series: errors
     501      ERROR         either      -                   This is reserved for unexpected errors.
                                   
@@ -96,15 +96,15 @@ __all__ = ();
 
 #--------------------------------------------------------------------------------------------------- UTILITIES
 
-pydevd_trace = 0
+pydevd_trace = 2
 
 def pydevd_log(level, s):
     """ levels are: 
-    	0 most serious warnings/errors
+        0 most serious warnings/errors
         1 warnings/significant events
         2 informational trace
     """
-    if (level <= pydevd_trace):
+    if level <= pydevd_trace:
         print >>sys.stderr, s 
 
 
@@ -265,12 +265,12 @@ class NetCommandFactory:
     def makeThreadSuspendMessage(self, thread_id, frame, stop_reason):
         
         """ <xml>
-        	<thread id="id" stop_reason="reason">
- 		       	<frame id="id" name="functionName " file="file" line="line">
-        			<var variable stuffff....
-        		</frame>
-        	</thread>
-       	"""
+            <thread id="id" stop_reason="reason">
+                    <frame id="id" name="functionName " file="file" line="line">
+                    <var variable stuffff....
+                </frame>
+            </thread>
+           """
         try:
 #            print "makeThreadSuspendMessage"
             cmdTextList = ["<xml>"]
@@ -442,11 +442,11 @@ class PyDB:
     PyDB starts two threads on startup that connect to remote debugger (RDB)
     The threads continuously read & write commands to RDB.
     PyDB communicates with these threads through command queues.
-   	Every RDB command is processed by calling processNetCommand.
-   	Every PyDB net command is sent to the net by posting NetCommand to WriterThread queue
-   	
-   	Some commands need to be executed on the right thread (suspend/resume & friends)
-   	These are placed on the internal command queue.
+       Every RDB command is processed by calling processNetCommand.
+       Every PyDB net command is sent to the net by posting NetCommand to WriterThread queue
+       
+       Some commands need to be executed on the right thread (suspend/resume & friends)
+       These are placed on the internal command queue.
     """
     
     instance = None
@@ -593,21 +593,40 @@ class PyDB:
                     
                     
             elif id == CMD_SET_BREAK:
+#                #command to add some breakpoint.
+#                #text is file\tline. Add to breakpoints dictionary
+#                file, line = text.split('\t', 1)
+#                file = NormFile(file)
+#                line = int(line)
+#                
+#                if self.breakpoints.has_key(file):
+#                    breakDict = self.breakpoints[file]
+#                
+#                else:
+#                    breakDict = {}
+#                    
+#                breakDict[line] = True
+#                self.breakpoints[file] = breakDict
+#                pydevd_log(1, "Set breakpoint at %s %s" % (file, line))
+
                 #command to add some breakpoint.
-                #text is file\tline. Add to breakpoints dictionary
-                file, line = text.split('\t', 1)
-                file = NormFile(file)
-                line = int(line)
+                # text is file\tline. Add to breakpoints dictionary
+                file, line, condition = text.split( '\t', 2 )
+                file = NormFile( file )
                 
-                if self.breakpoints.has_key(file):
+                line = int( line )
+                if self.breakpoints.has_key( file ):
                     breakDict = self.breakpoints[file]
-                
                 else:
                     breakDict = {}
+
+                if len(condition) <= 0 or condition == None or "None" == condition:
+                    breakDict[line] = (True, None)
+                else:
+                    pydevd_log(2, "condition: "+condition+" laenge: "+str(len(condition)))
+                    breakDict[line] = (True, condition)
                     
-                breakDict[line] = True
                 self.breakpoints[file] = breakDict
-                pydevd_log(1, "Set breakpoint at %s %s" % (file, line))
                 
             elif id == CMD_REMOVE_BREAK:
                 #command to remove some breakpoint
@@ -746,24 +765,37 @@ class PyDB:
         
         # Let's check to see if we are in a line that has a breakpoint. If we don't have a breakpoint, 
         # we will return nothing for the next trace
-        
         #also, after we hit a breakpoint and go to some other debugging state, we have to force the set trace anyway,
         #so, that's why the additional checks are there.
         if not self.breakpoints.has_key(filename) and t.pydev_state == PyDB.STATE_RUN and t.pydev_step_stop is None and t.pydev_step_cmd is None:
             #print 'skipping', base, frame.f_lineno, t.pydev_state, t.pydev_step_stop, t.pydev_step_cmd
-            if hasattr(frame, 'f_trace'):
-                del frame.f_trace
-            return None
-        
+            return self.stopTracingFrame(frame)
+
         else:
             #print 'NOT skipped', base, frame.f_lineno, t.pydev_state, t.pydev_step_stop, t.pydev_step_cmd
             #We just hit a breakpoint or we are already in step mode. Either way, let's trace this frame
             frame.f_trace = self.trace_dispatch
-            
+        
+        
         
         try:
             line = int(frame.f_lineno)
             if t.pydev_state != PyDB.STATE_SUSPEND and self.breakpoints.has_key(filename) and self.breakpoints[filename].has_key(line):
+                #ok, hit breakpoint, now, we have to discover if it is a conditional breakpoint
+                # lets do the conditional stuff here
+                condition = self.breakpoints[filename][line][1]
+
+                if condition != None:
+                    try:
+                        val = eval(condition, frame.f_globals, frame.f_locals)
+                        if not val:# and not (t.pydev_step_cmd == CMD_STEP_INTO or t.pydev_step_cmd == CMD_STEP_OVER or t.pydev_step_cmd == CMD_STEP_RETURN ) :
+                            return self.stopTracingFrame(frame)
+                            
+                    except:
+                        print >> sys.stderr, 'Error while evaluating expression'
+                        import traceback;traceback.print_exc()
+                        return self.stopTracingFrame(frame)
+                
                 #when we hit a breakpoint, we set the tracing function for the callers of the current frame, because
                 #we may have to do some return
                 SetTraceForParents(frame, self.trace_dispatch)
@@ -802,6 +834,13 @@ class PyDB:
 
         return retVal
 
+    def stopTracingFrame(self, frame):
+        '''Removes the f_trace hook from the frame and returns None
+        '''
+        
+        if hasattr(frame, 'f_trace'):
+            del frame.f_trace
+        return None
 
     def run(self, file, globals=None, locals=None):
 

@@ -233,19 +233,20 @@
 	<viewerContribution 
     	id="org.python.pydev.debug.PyEditPopupActions" 
     	targetID="#TextRulerContext">
-<!--    	<action
-			id="org.python.pydev.actions.JavaBreakpointPropertiesRulerActionDelegate"
+		<action
+		    id="org.eclipse.jdt.debug.ui.actions.JavaBreakpointPropertiesRulerActionDelegate"
 			label="Breakpoint properties"
+            helpContextId="breakpoint_properties_action_context"
 			menubarPath="debug"
-			class="org.eclipse.jdt.internal.debug.ui.actions.JavaBreakpointPropertiesRulerActionDelegate">
+			class="org.python.pydev.debug.ui.actions.PythonBreakpointPropertiesRulerActionDelegate">
 		</action>
     	<action
 			id="org.eclipse.jdt.ui.actions.EnableDisableBreakpointRulerActionDelegate"
 			label="Enable breakpoint"
 			menubarPath="debug"
 			helpContextId="enable_disable_breakpoint_action_context"
-			class="org.eclipse.jdt.internal.debug.ui.actions.EnableDisableBreakpointRulerActionDelegate">
-		</action> -->
+			class="org.python.pydev.debug.ui.actions.EnableDisableBreakpointRulerActionDelegate">
+		</action>
 		<action
 			id="org.eclipse.jdt.ui.actions.ManageBreakpointRulerActionDelegate"
 			label="Add Breakpoint"
@@ -266,6 +267,19 @@
         
          </action>
 	</viewerContribution>
+ <objectContribution
+       adaptable="false"
+       id="org.python.pydev.debug.PythonBreakPointActions"
+       objectClass="org.python.pydev.debug.core.IPythonBreakpoint">
+    <action
+          class="org.python.pydev.debug.ui.actions.PythonBreakpointPropertiesRulerAction"
+          enablesFor="1"
+          helpContextId="breakpoint_suspend_policy_toggle_action_context"
+          icon="icons/full/elcl16/suspend_co.gif"
+          id="org.python.pydev.debug.PythonBreakpointProperties"
+          label="%breakpointPropertiesAction.label"
+          menubarPath="emptyBreakpointGroup"/>
+ </objectContribution>
 </extension>
 
 <!-- breakpoints
@@ -289,9 +303,16 @@
 
 <extension
 	point="org.eclipse.ui.ide.markerImageProviders">
-	<imageprovider id="pythonBreakPointImage"
-		markertype="org.python.pydev.debug.pyStopBreakpointMarker"
-		icon="icons/breakmarker.gif"/>
+	<imageprovider
+       class="org.python.pydev.debug.model.PyBreakpoint"
+       icon="icons/breakmarker.gif"
+       id="pythonBreakPointImage"
+       markertype="org.python.pydev.debug.pyStopBreakpointMarker"/>
+ <imageprovider
+       class="org.python.pydev.debug.model.PyBreakpoint"
+       icon="icons/breakmarker_conditional.gif"
+       id="pythonConditionalBreakPointImage"
+       markertype="org.python.pydev.debug.pyConditionalStopBreakpointMarker"/>
 </extension>
 
 <extension point = "org.eclipse.debug.ui.debugModelPresentations"> 
@@ -305,6 +326,15 @@
 	<watchExpressionDelegate 
 		debugModel="org.python.pydev.debug"
 		delegateClass="org.python.pydev.debug.model.PyWatchExpressionDelegate"/>
+</extension>
+<extension
+      point="org.eclipse.ui.propertyPages">
+   <page
+         adaptable="true"
+         class="org.python.pydev.debug.ui.propertypages.PythonBreakpointPage"
+         id="org.pydev.debug.ui.propertypages.common"
+         name="common"
+         objectClass="org.python.pydev.debug.model.PyBreakpoint"/>
 </extension>
 
 </plugin>

@@ -6,6 +6,7 @@
 package org.python.pydev.debug.ui.actions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -50,32 +51,19 @@ import org.python.pydev.editor.model.ModelUtils;
  * @see org.eclipse.jdt.internal.debug.ui.actions.ManageBreakpointRulerAction
  */
 
-public class BreakpointRulerAction extends Action implements IUpdate {
+public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
 
-	private IVerticalRulerInfo fRuler;
-	private ITextEditor fTextEditor;
 	private List fMarkers;
 
 	private String fAddLabel;
 	private String fRemoveLabel;
 	
 	public BreakpointRulerAction(ITextEditor editor, IVerticalRulerInfo ruler) {
-		fRuler= ruler;
-		fTextEditor= editor;
+		setInfo(ruler);
+		setTextEditor(editor);
+		setText("Breakpoint &Properties..."); 
 		fAddLabel= "Add Breakpoint"; 
 		fRemoveLabel= "Remove Breakpoint";
-	}
-	
-	/** 
-	 * @return the resource for which to create the marker or <code>null</code>
-	 */
-	protected IResource getResource() {
-		IEditorInput input= fTextEditor.getEditorInput();
-		IResource resource= (IResource) input.getAdapter(IFile.class);
-		if (resource == null) {
-			resource= (IResource) input.getAdapter(IResource.class);
-		}		
-		return resource;
 	}
 	
 	/**
@@ -89,7 +77,7 @@ public class BreakpointRulerAction extends Action implements IUpdate {
 		if (position != null) {
 			try {
 				int markerLine= document.getLineOfOffset(position.getOffset());
-				int line= fRuler.getLineOfLastMouseButtonActivity();
+				int line= getInfo().getLineOfLastMouseButtonActivity();
 				if (line == markerLine) {
 					return true;
 				}
@@ -99,32 +87,6 @@ public class BreakpointRulerAction extends Action implements IUpdate {
 		return false;
 	}
 	
-	/**
-	 * @return this action's vertical ruler
-	 */
-	protected IVerticalRulerInfo getVerticalRulerInfo() {
-		return fRuler;
-	}
-	
-	/**
-	 * @return this action's editor
-	 */
-	protected ITextEditor getTextEditor() {
-		return fTextEditor;
-	}
-	
-	/**
-	 * @return the marker annotation model of the editor's input.
-	 */
-	protected AbstractMarkerAnnotationModel getAnnotationModel() {
-		IDocumentProvider provider= fTextEditor.getDocumentProvider();
-		IAnnotationModel model= provider.getAnnotationModel(fTextEditor.getEditorInput());
-		if (model instanceof AbstractMarkerAnnotationModel) {
-			return (AbstractMarkerAnnotationModel) model;
-		}
-		return null;
-	}
-
 	/**
 	 * @return the document of the editor's input
 	 */
@@ -164,9 +126,14 @@ public class BreakpointRulerAction extends Action implements IUpdate {
 			try {
 				
 				IMarker[] markers= null;
-				if (resource instanceof IFile)
+				if (resource instanceof IFile) {
 					markers= resource.findMarkers(PyBreakpoint.PY_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
-				else {
+					List<IMarker> markerList = Arrays.asList(markers);
+					ArrayList<IMarker> fillMarkers = new ArrayList(markerList);
+					fillMarkers.addAll(Arrays.asList(resource.findMarkers(PyBreakpoint.PY_CONDITIONAL_BREAK_MARKER, true, IResource.DEPTH_INFINITE)));
+					markers = new IMarker[fillMarkers.size()];
+					markers = fillMarkers.toArray(markers);
+				} else {
 					IWorkspaceRoot root= ResourcesPlugin.getWorkspace().getRoot();
 					markers= root.findMarkers(PyBreakpoint.PY_BREAK_MARKER, true, IResource.DEPTH_INFINITE);
 				}
@@ -192,7 +159,7 @@ public class BreakpointRulerAction extends Action implements IUpdate {
 	protected void addMarker() {		
 		try {
 			IDocument document= getDocument();
-			int rulerLine= getVerticalRulerInfo().getLineOfLastMouseButtonActivity();
+			int rulerLine= getInfo().getLineOfLastMouseButtonActivity();
 			
 			int lineNumber = rulerLine + 1;
 			if (lineNumber < 0)

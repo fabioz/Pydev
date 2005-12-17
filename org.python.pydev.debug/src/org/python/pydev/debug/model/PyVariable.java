@@ -118,6 +118,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 				|| adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class)
 				|| adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)
 				||	adapter.equals(IResource.class)
+				|| adapter.equals(org.eclipse.core.resources.IFile.class)
 				)
 			return  super.getAdapter(adapter);
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
