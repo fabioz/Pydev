@@ -354,5 +354,13 @@ public class CodeCompletionTestsBase extends TestCase {
         return requestCompl(strDoc, new String[]{retCompl});
     }
 
-    
+    public static void assertContains(List<String> found, String toFind) {
+        for (String str : found) {
+            if (str.equals(toFind)){
+                return;
+            }
+        }
+        fail("The string "+toFind+" was not found amongst the passed strings.");
+    }
+
 }
