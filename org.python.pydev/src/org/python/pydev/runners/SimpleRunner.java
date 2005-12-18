@@ -202,6 +202,11 @@ public abstract class SimpleRunner {
         
         //if we have a project, get its complete pythonpath
         IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
+        if(pythonPathNature == null){
+            throw new RuntimeException("The project "+project.getName()+" does not have the pythonpath configured, \n" +
+                    "please configure it correcly (please check the pydev faq at \n" +
+                    "http://pydev.sf.net/faq.html for better information on how to do it).");
+        }
     	paths = pythonPathNature.getCompleteProjectPythonPath();
     
         String separator = getPythonPathSeparator();

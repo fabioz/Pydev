@@ -9,6 +9,11 @@ org.eclipse.ant.internal.ui.preferences.AntRuntimePreferencePage
 jython module management (may be handy)
 org.python.core.SysPackageManager
 
+
+after 0.9.8.5
+
+- Conditional breakpoint added
+
 after 0.9.8.3
 
 - Saving information as deltas
