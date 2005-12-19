@@ -25,7 +25,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 	//The shared instance.
 	private static PydevPlugin plugin;
 	private PydevExtensionNotifier notifier;
-	private static boolean validated;
+	private boolean validated;
 	
 	/**
 	 * The constructor.
@@ -33,7 +33,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 	public PydevPlugin() {
 		plugin = this;
 		
-		notifier = new PydevExtensionNotifier();
 		loadLicense();
 	}
 
@@ -49,8 +48,13 @@ public class PydevPlugin extends AbstractUIPlugin {
 	public void checkValid() {
 		loadLicense();
 		if( !validated ) {
-			notifier.setValidated( false );
-			notifier.start();
+			if(notifier == null){
+				notifier = new PydevExtensionNotifier();
+				notifier.setValidated( false );
+				notifier.start();
+			}
+		}else{
+			notifier.setValidated(true);
 		}
 	}
 
@@ -104,47 +108,41 @@ public class PydevPlugin extends AbstractUIPlugin {
 		}   			
     }
 	
-	protected void loadLicense() {    	
-    	Bundle bundle = Platform.getBundle("com.python.pydev");
-    	IPath path = Platform.getStateLocation( bundle );		
-    	path = path.addTrailingSeparator();
-    	path = path.append("license");
-    	try {
-			FileInputStream in = new FileInputStream(path.toString());
-			byte code[] = new byte[in.available()];
-			in.read(code);
-			in.close();
-			String license = new String(code);
-			license = ClientEncryption.getInstance().decrypt(license);
-			System.out.println("loadLicense: " + license);
-			
-			String name = license.substring( 0, license.indexOf("\n") );
-			String temp = license.substring( license.indexOf("\n")+1 );
-			String lic = temp.substring( 0, temp.indexOf("\n") );
-			temp = temp.substring( temp.indexOf("\n") + 1 );
-			
-			if( temp.equals(EnvGetter.getEnvVariables()) ) {
-				getPreferenceStore().setValue(PydevExtensionInitializer.USER_NAME_VALIDATE_EXTENSION,name);
-				getPreferenceStore().setValue(PydevExtensionInitializer.LICENSE_NUMBER_VALIDATE_EXTENSION,lic);
-				validated = true;
-			} else {
+	private void loadLicense() {
+		if(!validated){
+	    	Bundle bundle = Platform.getBundle("com.python.pydev");
+	    	IPath path = Platform.getStateLocation( bundle );		
+	    	path = path.addTrailingSeparator();
+	    	path = path.append("license");
+	    	try {
+				FileInputStream in = new FileInputStream(path.toString());
+				byte code[] = new byte[in.available()];
+				in.read(code);
+				in.close();
+				String license = new String(code);
+				license = ClientEncryption.getInstance().decrypt(license);
+				System.out.println("loadLicense: " + license);
+				
+				String name = license.substring( 0, license.indexOf("\n") );
+				String temp = license.substring( license.indexOf("\n")+1 );
+				String lic = temp.substring( 0, temp.indexOf("\n") );
+				temp = temp.substring( temp.indexOf("\n") + 1 );
+				
+				if( temp.equals(EnvGetter.getEnvVariables()) ) {
+					getPreferenceStore().setValue(PydevExtensionInitializer.USER_NAME_VALIDATE_EXTENSION,name);
+					getPreferenceStore().setValue(PydevExtensionInitializer.LICENSE_NUMBER_VALIDATE_EXTENSION,lic);
+					validated = true;
+				} else {
+					validated = false;
+				}
+			} catch (FileNotFoundException e) {
 				validated = false;
+				e.printStackTrace();
+			} catch (IOException e) {
+				validated = false;
+				e.printStackTrace();
 			}
-		} catch (FileNotFoundException e) {
-			validated = false;
-			e.printStackTrace();
-		} catch (IOException e) {
-			validated = false;
-			e.printStackTrace();
 		}
 	}
 	
-	public void setValidated( boolean valid ) {
-		validated = valid;
-		notifier.setValidated(valid);
-	}
-	
-	public static boolean isValidated() {
-    	return validated;
-    }
 }

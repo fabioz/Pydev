@@ -77,7 +77,7 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 						setErrorMessage("Invalid license number");
 					} else {					
 						PydevPlugin.getDefault().saveLicense( data );
-						PydevPlugin.getDefault().setValidated(true);
+						PydevPlugin.getDefault().checkValid();
 						setErrorMessage(null);
 						MessageBox message = new MessageBox( getShell(), SWT.OK | SWT.ICON_INFORMATION );
 						message.setText("Pydev extension");

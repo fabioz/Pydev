@@ -19,7 +19,8 @@ public class PydevExtensionNotifier extends Thread{
 	public void run() {	
 		while( !validated ) {
             try {
-                sleep( 6000 );
+            	int seconds = 30;
+                sleep( seconds * 1000);
                 final Display disp = Display.getDefault();
                 disp.asyncExec(new Runnable(){
                     public void run() {
