@@ -38,6 +38,7 @@ import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -276,68 +277,76 @@ public class PyCodeCompletion {
      * @return the same tokens added in theList
      */
     public static IToken[] getSelfCompletions(CompletionRequest request, List theList, CompletionState state, boolean getOnlySupers) {
+    	IToken[] comps = new IToken[0];
         SimpleNode s = (SimpleNode) PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, request.nature, state.line))[0];
         if(s != null){
             FindScopeVisitor visitor = new FindScopeVisitor(state.line, 0);
             try {
                 s.accept(visitor);
-                
-                while(visitor.scope.scope.size() > 0){
-                    SimpleNode node = (SimpleNode) visitor.scope.scope.pop();
-                    if(node instanceof ClassDef){
-                        ClassDef d = (ClassDef) node;
-                        IToken[] comps = new IToken[0];
-                        
-                        if(getOnlySupers){
-                            List gottenComps = new ArrayList();
-                            for (int i = 0; i < d.bases.length; i++) {
-	                            if(d.bases[i] instanceof Name){
-	                                Name n = (Name) d.bases[i];
-			                        state.activationToken = n.id;
-			        	            IToken[] completions = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
-			        	            gottenComps.addAll(Arrays.asList(completions));
-	                            }
-                            }
-                            comps = (IToken[]) gottenComps.toArray(new IToken[0]);
-                        }else{
-                            //ok, get the completions for the class, only thing we have to take care now is that we may 
-                            //not have only 'self' for completion, but somthing lile self.foo.
-                            //so, let's analyze our activation token to see what should we do.
-                            
-                            String trimmed = request.activationToken.replace('.', ' ').trim();
-                            String[] actTokStrs = trimmed.split(" ");
-                            if(actTokStrs.length == 0 || actTokStrs[0].equals("self") == false){
-                                throw new AssertionError("We need to have at least one token (self) for doing completions in the class.");
-                            }
-                            
-                            if(actTokStrs.length == 1){
-                                //ok, it's just really self, let's get on to get the completions
-		                        state.activationToken = NodeUtils.getNameFromNameTok((NameTok) d.name);
-		        	            comps = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
-		        	            
-                            }else{
-                                //it's not only self, so, first we have to get the definition of the token
-                                //the first one is self, so, just discard it, and go on, token by token to know what is the last 
-                                //one we are completing (e.g.: self.foo.bar)
-                                int line = request.doc.getLineOfOffset(request.documentOffset);
-                                IRegion region = request.doc.getLineInformationOfOffset(request.documentOffset);
-                                int col =  request.documentOffset - region.getOffset();
-                                AbstractModule module = AbstractModule.createModuleFromDoc("", null, request.doc, request.nature, line);
-                              
-                                ASTManager astMan = ((ASTManager)request.nature.getAstManager());
-                                comps = astMan.getAssignCompletions(module, new CompletionState(line, col, request.activationToken, request.nature));
-
-                            }
-                        }
-        	            theList.addAll(Arrays.asList(comps));
-                        return comps;
-                    }
-                }
+                comps = getSelfCompletions(visitor.scope, request, theList, state, getOnlySupers);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
         }
-        return new IToken[0];
+        return comps;
+    }
+    
+    /**
+     * Get self completions when you already have a scope
+     */
+    public static IToken[] getSelfCompletions(Scope scope, CompletionRequest request, List theList, CompletionState state, boolean getOnlySupers) throws BadLocationException {
+    	IToken[] comps = new IToken[0];
+        while(scope.scope.size() > 0){
+            SimpleNode node = (SimpleNode) scope.scope.pop();
+            if(node instanceof ClassDef){
+                ClassDef d = (ClassDef) node;
+                
+                if(getOnlySupers){
+                    List gottenComps = new ArrayList();
+                    for (int i = 0; i < d.bases.length; i++) {
+                        if(d.bases[i] instanceof Name){
+                            Name n = (Name) d.bases[i];
+	                        state.activationToken = n.id;
+	        	            IToken[] completions = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
+	        	            gottenComps.addAll(Arrays.asList(completions));
+                        }
+                    }
+                    comps = (IToken[]) gottenComps.toArray(new IToken[0]);
+                }else{
+                    //ok, get the completions for the class, only thing we have to take care now is that we may 
+                    //not have only 'self' for completion, but somthing lile self.foo.
+                    //so, let's analyze our activation token to see what should we do.
+                    
+                    String trimmed = request.activationToken.replace('.', ' ').trim();
+                    String[] actTokStrs = trimmed.split(" ");
+                    if(actTokStrs.length == 0 || actTokStrs[0].equals("self") == false){
+                        throw new AssertionError("We need to have at least one token (self) for doing completions in the class.");
+                    }
+                    
+                    if(actTokStrs.length == 1){
+                        //ok, it's just really self, let's get on to get the completions
+                        state.activationToken = NodeUtils.getNameFromNameTok((NameTok) d.name);
+        	            comps = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
+        	            
+                    }else{
+                        //it's not only self, so, first we have to get the definition of the token
+                        //the first one is self, so, just discard it, and go on, token by token to know what is the last 
+                        //one we are completing (e.g.: self.foo.bar)
+                        int line = request.doc.getLineOfOffset(request.documentOffset);
+                        IRegion region = request.doc.getLineInformationOfOffset(request.documentOffset);
+                        int col =  request.documentOffset - region.getOffset();
+                        AbstractModule module = AbstractModule.createModuleFromDoc("", null, request.doc, request.nature, line);
+                      
+                        ASTManager astMan = ((ASTManager)request.nature.getAstManager());
+                        comps = astMan.getAssignCompletions(module, new CompletionState(line, col, request.activationToken, request.nature));
+
+                    }
+                }
+	            theList.addAll(Arrays.asList(comps));
+            }
+        }
+        return comps;
+
     }
 
     /**

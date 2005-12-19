@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
@@ -24,13 +25,13 @@ import org.python.pydev.parser.visitors.NodeUtils;
  */
 public class Scope {
 
-    public Stack scope = new Stack();
+    public Stack<SimpleNode> scope = new Stack<SimpleNode>();
     
     public int scopeEndLine = -1;
 
     public int ifMainLine = -1;
     
-    public Scope(Stack scope){
+    public Scope(Stack<SimpleNode> scope){
         this.scope.addAll(scope);
     }
     
@@ -94,7 +95,7 @@ public class Scope {
     }
     
     public IToken[] getLocalTokens(int line, int col){
-        Set comps = new HashSet();
+        Set<SourceToken> comps = new HashSet<SourceToken>();
         
         for (Iterator iter = this.scope.iterator(); iter.hasNext();) {
             SimpleNode element = (SimpleNode) iter.next();
@@ -150,6 +151,15 @@ public class Scope {
         }
         return importedModules;
     }
+
+	public ClassDef getClassDef() {
+		for(SimpleNode node : this.scope){
+			if(node instanceof ClassDef){
+				return (ClassDef) node;
+			}
+		}
+		return null;
+	}
 }
 
 

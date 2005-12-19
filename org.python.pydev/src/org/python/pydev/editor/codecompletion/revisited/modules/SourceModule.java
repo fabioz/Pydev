@@ -21,6 +21,8 @@ import org.python.parser.ast.Str;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.editor.codecompletion.CompletionRequest;
+import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
@@ -211,63 +213,44 @@ public class SourceModule extends AbstractModule {
         return new IToken[0];
     }
 
-    public Definition[] findDefinition(String token, int line, int col, PythonNature nature) throws Exception{
+    public Definition[] findDefinition(String rep, int line, int col, PythonNature nature) throws Exception{
         //the line passed in starts at 1 and the lines for the visitor start at 0
         ArrayList<Definition> toRet = new ArrayList<Definition>();
         
-        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(token, line, col+1, this);
+        
+        //first thing is finding its scope
+        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
+        if (ast != null){
+        	ast.accept(scopeVisitor);
+        }
+
+        
+        
+        //well, first thing is check for locals and class definitions if it is a self.
+        IToken[] localTokens = scopeVisitor.scope.getLocalTokens(line, col);
+        for (IToken tok : localTokens) {
+        	if(tok.getRepresentation().equals(rep)){
+        		return new Definition[]{new Definition(tok, scopeVisitor.scope, this)};
+        	}
+        }
+        
+        //not found... check as local imports
+        List<IToken> localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
+        for (IToken tok : localImportedModules) {
+        	if(tok.getRepresentation().equals(rep)){
+        		return new Definition[]{new Definition(tok, scopeVisitor.scope, this)};
+        	}
+        }
+        
+        
+        //this visitor checks for assigns for the token
+        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(rep, line, col+1, this);
         if (ast != null){
             ast.accept(visitor);
         }
         
-        if(visitor.definitions.size() == 0){
-            //ok, it is not an assign, so, let's search the global tokens (and imports)
-            Tuple<AbstractModule, String> o = nature.getAstManager().findOnImportedMods(nature, token, this);
-            String tok = token;
-            SourceModule mod = this;
-            
-            if(o != null && o.o1 instanceof SourceModule){
-	            mod =  (SourceModule) o.o1;
-	            tok = o.o2;
-            }
-            
-            if(tok != null){
-            	if(tok.length() > 0){
-		            //mod == this if we are now checking the globals (or maybe not)...heheheh
-		            Definition d = mod.findGlobalTokDef(tok, nature);
-		            if(d != null){
-		                toRet.add(d);
-		                
-		            }else if(visitor.moduleImported != null){
-		            	//if it was found as some import (and is already stored as a dotted name), we must check for
-		            	//multiple representations in the absolute form:
-		            	//as a relative import
-		            	//as absolute import
-		            	String rel = AbstractToken.makeRelative(mod.getName(), visitor.moduleImported);
-		            	AbstractModule modFound = nature.getAstManager().getModule(rel, nature, false);
-		            	if(modFound == null){
-		            		modFound = nature.getAstManager().getModule(visitor.moduleImported, nature, false);
-		            	}
-		            	if(modFound != null){
-		            		//ok, found it
-		            		toRet.add(new Definition(1,1,"", null, null, modFound));
-		            	}
-		            }else{
-		            	//ok, we can still have it in wild imports
-		            	
-		            }
-
-            	}else{
-            		//we found it, but it is an empty tok (which means that what we found is the actual module).
-            		toRet.add(new Definition(1,1,"",null,null,mod)); 
-            	}
-            }
-            
-        }else{
-            FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
-            if (ast != null){
-                ast.accept(scopeVisitor);
-            }
+        if(visitor.definitions.size() > 0){
+        	//ok, it is an assign, so, let's get it
 
             for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {
 	            AssignDefinition element = (AssignDefinition) iter.next();
@@ -279,7 +262,77 @@ public class SourceModule extends AbstractModule {
 		            toRet.add(element);
 	            }
 	        }
+            return (Definition[]) toRet.toArray(new Definition[0]);
         }
+        	
+        
+        //ok, not assign, let's check if it is some self (we do not check for only 'self' because that would map to a
+        //parameter
+        if (rep.startsWith("self.")){
+        	//ok, it is some self, now, that is only valid if we are in some class definition
+        	ClassDef classDef = scopeVisitor.scope.getClassDef();
+        	if(classDef != null){
+        		//ok, we are in a class, so, let's get the self completions
+        		IToken[] globalTokens = getGlobalTokens(
+        				new CompletionState(line, col, NodeUtils.getRepresentationString(classDef), nature), 
+        				nature.getAstManager());
+        		String withoutSelf = rep.substring(5);
+        		for (IToken token : globalTokens) {
+					if(token.getRepresentation().equals(withoutSelf)){
+						String parentPackage = token.getParentPackage();
+						System.out.println("parentPackage = "+parentPackage);
+						AbstractModule module = nature.getAstManager().getModule(parentPackage, nature, true);
+						return new Definition[]{new Definition(token, null, module)};
+					}
+				}
+        	}
+        }
+        
+        	
+    	//ok, it is not an assign, so, let's search the global tokens (and imports)
+        Tuple<AbstractModule, String> o = nature.getAstManager().findOnImportedMods(nature, rep, this);
+        String tok = rep;
+        SourceModule mod = this;
+        
+        if(o != null && o.o1 instanceof SourceModule){
+            mod =  (SourceModule) o.o1;
+            tok = o.o2;
+        }
+        
+        if(tok != null){
+        	if(tok.length() > 0){
+	            //mod == this if we are now checking the globals (or maybe not)...heheheh
+	            Definition d = mod.findGlobalTokDef(tok, nature);
+	            if(d != null){
+	                toRet.add(d);
+	                
+	            }else if(visitor.moduleImported != null){
+	            	//if it was found as some import (and is already stored as a dotted name), we must check for
+	            	//multiple representations in the absolute form:
+	            	//as a relative import
+	            	//as absolute import
+	            	String rel = AbstractToken.makeRelative(mod.getName(), visitor.moduleImported);
+	            	AbstractModule modFound = nature.getAstManager().getModule(rel, nature, false);
+	            	if(modFound == null){
+	            		modFound = nature.getAstManager().getModule(visitor.moduleImported, nature, false);
+	            	}
+	            	if(modFound != null){
+	            		//ok, found it
+	            		toRet.add(new Definition(1,1,"", null, null, modFound));
+	            	}
+	            }
+
+        	}else{
+        		//we found it, but it is an empty tok (which means that what we found is the actual module).
+        		toRet.add(new Definition(1,1,"",null,null,mod)); 
+        	}
+        }
+            
+        if(toRet.size() > 0){
+        	return (Definition[]) toRet.toArray(new Definition[0]);
+        }
+        
+        
         return (Definition[]) toRet.toArray(new Definition[0]);
     }
 
@@ -300,11 +353,12 @@ public class SourceModule extends AbstractModule {
     	}else{
     		tokens = getGlobalTokens();
     	}
-
-        for (int i = 0; i < tokens.length; i++) {
-            if(tokens[i].getRepresentation().equals(rep)){
-                SimpleNode a = ((SourceToken)tokens[i]).getAst();
+        for (IToken token : tokens) {
+            if(token.getRepresentation().equals(rep) && token instanceof SourceToken){
+            	//ok, we found it
+                SimpleNode a = ((SourceToken)token).getAst();
                 
+                //this is just to get its scope...
                 FindScopeVisitor scopeVisitor = new FindScopeVisitor(a.beginLine, a.beginColumn);
                 if (ast != null){
                     try {
@@ -319,6 +373,8 @@ public class SourceModule extends AbstractModule {
                 return new Definition(def.o1, def.o2, tok, a, scopeVisitor.scope, this);
             }
         }
+        
+        //if it was not found, it probably is a local or a self, so, let's check it...
         return null;
     }
     

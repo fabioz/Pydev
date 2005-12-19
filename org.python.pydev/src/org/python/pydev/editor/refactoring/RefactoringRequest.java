@@ -72,5 +72,9 @@ public class RefactoringRequest{
         return ps.getStartLineIndex() + 1;
     }
 
+	public int getOffset() {
+		return ps.getAbsoluteCursorOffset();
+	}
+
 
 }

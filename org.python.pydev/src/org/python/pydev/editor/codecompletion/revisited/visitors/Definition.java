@@ -5,9 +5,11 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
+import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.util.Assert;
 import org.python.parser.SimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 /**
  * @author Fabio Zadrozny
@@ -67,6 +69,20 @@ public class Definition {
         this.ast = ast;
         this.scope = scope;
         this.module = module;
+    }
+    
+    public Definition(org.python.pydev.editor.codecompletion.revisited.IToken tok, Scope scope, AbstractModule module){
+    	Assert.isNotNull(tok, "Invalid value.");
+    	Assert.isNotNull(module, "Invalid Module.");
+    	
+    	this.line = tok.getLineDefinition();
+    	this.col = tok.getColDefinition();
+    	this.value = tok.getRepresentation();
+    	if(tok instanceof SourceToken){
+    		this.ast = ((SourceToken)tok).getAst();
+    	}
+    	this.scope = scope;
+    	this.module = module;
     }
     
     /** 

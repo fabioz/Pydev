@@ -78,7 +78,8 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
 
 		Document doc = new Document(d);
 		AbstractModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 9);
-		Definition[] defs = module.findDefinition("self.c", 2, 2, nature);
+		//self.c is found as an assign
+		Definition[] defs = module.findDefinition("self.c", 9, 8, nature);
 		
 		assertEquals(1, defs.length);
 		assertEquals("self.c", ((AssignDefinition)defs[0]).target);
