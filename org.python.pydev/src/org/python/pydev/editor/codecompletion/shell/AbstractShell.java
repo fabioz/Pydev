@@ -46,7 +46,19 @@ public abstract class AbstractShell {
     public static final int COMPLETION_SHELL = 1;
     protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000;
     protected static final boolean DEBUG_SHELL = false;
+    
+    /**
+     * Determines if we are already in a method that starts the shell
+     */
     private boolean inStart = false;
+
+    /**
+     * Determines if we are (theoretically) already connected (meaning that trying to start the shell
+     * again will not do anything)
+     * 
+     * Ending the shell sets this to false and starting it sets it to true (if successful) 
+     */
+    private boolean isConnected = false;
 
 
     private void dbg(Object string) {
@@ -282,7 +294,7 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     protected synchronized void startIt(int milisSleep) throws IOException, Exception {
-    	if(inStart){
+    	if(inStart || isConnected){
     		//it is already in the process of starting, so, if we are in another thread, just forget about it.
     		return;
     	}
@@ -397,6 +409,10 @@ public abstract class AbstractShell {
 		} finally {
 			this.inStart = false;
 		}
+		
+		
+		//if it got here, everything went ok (otherwise we would have gotten an exception).
+		isConnected = true;
     }
 
 
@@ -618,17 +634,19 @@ public abstract class AbstractShell {
      * @throws IOException
      */
     public synchronized void endIt() {
-        
         try {
             closeConn();
         } catch (Exception e) {
             //that's ok...
         }
+
+        //set that we are still not connected
+        isConnected = false;
+        
         if (process!= null){
             process.destroy();
             process = null;
         }
-        
     }
 
     public synchronized void sendGoToDirMsg(File file) {
