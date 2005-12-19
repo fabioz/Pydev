@@ -16,7 +16,7 @@ public class RefactorerTest extends CodeCompletionTestsBase {
 		try {
 			RefactorerTest test = new RefactorerTest();
 			test.setUp();
-			test.testSearch7();
+			test.testSearch8();
 			test.tearDown();
 
 			junit.textui.TestRunner.run(RefactorerTest.class);
@@ -140,6 +140,25 @@ public class RefactorerTest extends CodeCompletionTestsBase {
 		String line = "print TestStatic.static1";
 		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
 		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 1, line.length());
+		refactoringRequest.nature = nature;
+		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+		
+		assertEquals(1, pointers.length);
+		assertEquals(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static.py"), pointers[0].file);
+		//found the module
+		assertEquals(3, pointers[0].start.line);
+		assertEquals(8, pointers[0].start.column);
+	}
+	
+	public void testSearch8() throws Exception {
+//		from static import TestStatic
+//		print TestStatic.static1
+//		class TestStaticExt(TestStatic):
+//		    def __init__(self):
+//		        print self.static1
+		String line = "        print self.static1";
+		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
+		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 4, line.length());
 		refactoringRequest.nature = nature;
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
