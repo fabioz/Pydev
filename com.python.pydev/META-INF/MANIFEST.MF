@@ -8,7 +8,14 @@ Bundle-Vendor: Fabio Zadrozny
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.jface.text
+ org.eclipse.jface.text,
+ org.python.pydev
 Eclipse-AutoStart: true
 Bundle-ClassPath: pydev.jar,
  retroweaver-rt.jar
+Export-Package: com.python.pydev,
+ com.python.pydev.encryption,
+ com.python.pydev.license.defaults,
+ com.python.pydev.properties,
+ com.python.pydev.ui,
+ com.python.pydev.util

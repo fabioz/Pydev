@@ -8,15 +8,15 @@ Bundle-Vendor: Fabio Zadrozny
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.python.pydev,
  org.eclipse.jface.text,
+ org.python.pydev,
+ com.python.pydev,
  org.python.pydev.core,
  org.python.pydev.parser,
  org.junit,
  com.python.pydev.fastparser,
  org.eclipse.core.resources,
  com.python.pydev.analysis,
- org.eclipse.ui.editors,
- com.python.pydev
+ org.eclipse.ui.editors
 Eclipse-AutoStart: true
 Bundle-ClassPath: codecompletion.jar, retroweaver-rt.jar

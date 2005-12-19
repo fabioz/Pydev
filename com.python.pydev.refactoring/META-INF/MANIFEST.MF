@@ -8,13 +8,14 @@ Bundle-Vendor: Fabio Zadrozny
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.junit,
+ org.eclipse.jface.text,
  org.python.pydev,
+ com.python.pydev,
+ org.junit,
  org.python.pydev.ast,
  org.python.pydev.core,
  org.python.pydev.parser,
  org.eclipse.core.resources,
- org.eclipse.jface.text,
  com.python.pydev.analysis
 Eclipse-AutoStart: true
 Bundle-ClassPath: refactoring.jar,

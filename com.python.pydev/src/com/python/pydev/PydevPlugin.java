@@ -1,8 +1,21 @@
 package com.python.pydev;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import org.eclipse.ui.plugin.*;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.licensemanager.encryption.ClientEncryption;
+
+import com.python.pydev.util.EnvGetter;
+import com.python.pydev.util.PydevExtensionNotifier;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -11,12 +24,17 @@ public class PydevPlugin extends AbstractUIPlugin {
 
 	//The shared instance.
 	private static PydevPlugin plugin;
+	private PydevExtensionNotifier notifier;
+	private static boolean validated;
 	
 	/**
 	 * The constructor.
 	 */
 	public PydevPlugin() {
 		plugin = this;
+		
+		notifier = new PydevExtensionNotifier();
+		loadLicense();
 	}
 
 	/**
@@ -24,6 +42,16 @@ public class PydevPlugin extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		
+		checkValid();
+	}
+
+	public void checkValid() {
+		loadLicense();
+		if( !validated ) {
+			notifier.setValidated( false );
+			notifier.start();
+		}
 	}
 
 	/**
@@ -51,4 +79,72 @@ public class PydevPlugin extends AbstractUIPlugin {
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev", path);
 	}
+	
+	protected void initializeDefaultPreferences(IPreferenceStore store) {
+		store.setDefault( PydevExtensionInitializer.USER_NAME_VALIDATE_EXTENSION, "" );
+		store.setDefault( PydevExtensionInitializer.LICENSE_NUMBER_VALIDATE_EXTENSION, "" );
+		
+		store.setValue( PydevExtensionInitializer.USER_NAME_VALIDATE_EXTENSION, "" );
+		store.setValue( PydevExtensionInitializer.LICENSE_NUMBER_VALIDATE_EXTENSION, "" );
+	}
+	
+	public void saveLicense( String data ) {	
+		Bundle bundle = Platform.getBundle("com.python.pydev");
+		IPath path = Platform.getStateLocation( bundle );		
+    	path = path.addTrailingSeparator();
+    	path = path.append("license");
+    	try {
+			FileOutputStream file = new FileOutputStream(path.toString());
+			file.write( data.getBytes() );
+			file.close();
+		} catch (FileNotFoundException e) {		
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}   			
+    }
+	
+	protected void loadLicense() {    	
+    	Bundle bundle = Platform.getBundle("com.python.pydev");
+    	IPath path = Platform.getStateLocation( bundle );		
+    	path = path.addTrailingSeparator();
+    	path = path.append("license");
+    	try {
+			FileInputStream in = new FileInputStream(path.toString());
+			byte code[] = new byte[in.available()];
+			in.read(code);
+			in.close();
+			String license = new String(code);
+			license = ClientEncryption.getInstance().decrypt(license);
+			System.out.println("loadLicense: " + license);
+			
+			String name = license.substring( 0, license.indexOf("\n") );
+			String temp = license.substring( license.indexOf("\n")+1 );
+			String lic = temp.substring( 0, temp.indexOf("\n") );
+			temp = temp.substring( temp.indexOf("\n") + 1 );
+			
+			if( temp.equals(EnvGetter.getEnvVariables()) ) {
+				getPreferenceStore().setValue(PydevExtensionInitializer.USER_NAME_VALIDATE_EXTENSION,name);
+				getPreferenceStore().setValue(PydevExtensionInitializer.LICENSE_NUMBER_VALIDATE_EXTENSION,lic);
+				validated = true;
+			} else {
+				validated = false;
+			}
+		} catch (FileNotFoundException e) {
+			validated = false;
+			e.printStackTrace();
+		} catch (IOException e) {
+			validated = false;
+			e.printStackTrace();
+		}
+	}
+	
+	public void setValidated( boolean valid ) {
+		validated = valid;
+		notifier.setValidated(valid);
+	}
+	
+	public static boolean isValidated() {
+    	return validated;
+    }
 }

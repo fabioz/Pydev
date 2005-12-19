@@ -3,8 +3,9 @@ package com.python.pydev.analysis;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.ImageCache;
+
+import com.python.pydev.PydevPlugin;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -27,6 +28,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		PydevPlugin.getDefault().checkValid();
 	}
 
 	/**

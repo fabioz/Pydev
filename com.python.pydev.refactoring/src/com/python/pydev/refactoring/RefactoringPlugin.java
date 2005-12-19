@@ -1,7 +1,7 @@
 package com.python.pydev.refactoring;
 
-import org.eclipse.ui.plugin.*;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -24,6 +24,7 @@ public class RefactoringPlugin extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		com.python.pydev.PydevPlugin.getDefault().checkValid();
 	}
 
 	/**

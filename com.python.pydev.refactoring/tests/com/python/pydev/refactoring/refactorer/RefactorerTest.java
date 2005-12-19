@@ -2,6 +2,7 @@ package com.python.pydev.refactoring.refactorer;
 
 import java.io.File;
 
+import org.eclipse.jface.text.Document;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
@@ -150,24 +151,5 @@ public class RefactorerTest extends CodeCompletionTestsBase {
 	}
 	
 
-	/**
-	 * Same as 7, but with a module that was not created from a file
-	 */
-	public void testSearch7a() throws Exception {
-		String str = "from static import *\n"+
-		"print TestStatic.static1";
-		String line = "print TestStatic.static1";
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
-		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 1, line.length());
-		refactoringRequest.nature = nature;
-		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
-		
-		assertEquals(1, pointers.length);
-		assertEquals(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static.py"), pointers[0].file);
-		//found the module
-		assertEquals(3, pointers[0].start.line);
-		assertEquals(8, pointers[0].start.column);
-	}
-	
 	
 }

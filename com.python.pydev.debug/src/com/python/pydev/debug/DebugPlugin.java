@@ -1,10 +1,10 @@
 package com.python.pydev.debug;
 
-import org.eclipse.ui.plugin.*;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.python.pydev.debug.remote.RemoteDebuggerServer;
+import com.python.pydev.PydevPlugin;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -26,6 +26,7 @@ public class DebugPlugin extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		PydevPlugin.getDefault().checkValid();
 	}
 
 	/**
