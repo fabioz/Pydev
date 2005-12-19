@@ -46,6 +46,7 @@ public abstract class AbstractShell {
     public static final int COMPLETION_SHELL = 1;
     protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000;
     protected static final boolean DEBUG_SHELL = false;
+    private boolean inStart = false;
 
 
     private void dbg(Object string) {
@@ -191,7 +192,9 @@ public abstract class AbstractShell {
 	            }else{
 	                throw new RuntimeException("unknown related id");
 	            }
-	            pythonShell.startIt(); //first start it
+	            synchronized(pythonShell){
+	            	pythonShell.startIt(); //first start it
+	            }
 	            
 	            //then make it accessible
 	            typeToShell.put(new Integer(id), pythonShell);
@@ -264,7 +267,9 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     public synchronized void startIt() throws IOException, Exception {
-        this.startIt(AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
+    	synchronized(this){
+    		this.startIt(AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
+    	}
     }
 
 
@@ -277,108 +282,121 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     protected synchronized void startIt(int milisSleep) throws IOException, Exception {
-        if(finishedForGood){
-            throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to restart it.");
-        }
-
+    	if(inStart){
+    		//it is already in the process of starting, so, if we are in another thread, just forget about it.
+    		return;
+    	}
+    	inStart = true;
         try {
-    
-            int pWrite = SocketUtil.findUnusedLocalPort("127.0.0.1", 50000, 55000);
-            int pRead = SocketUtil.findUnusedLocalPort("127.0.0.1", 55001, 60000);
-    
-            if(process != null){
-                endIt(); //end the current process
-            }
-            
-            String execMsg = createServerProcess(pWrite, pRead);
-            dbg("executing "+execMsg);
-            
-            sleepALittle(200);
-            String osName = System.getProperty("os.name");
-            if(process == null){
-                String msg = "Error creating python process - got null process("+execMsg+") - os:"+osName;
-                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
-            }
-            try {
-                int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
-                String msg = "Error creating python process - exited before creating sockets - exitValue = ("+exitVal+")("+execMsg+") - os:"+osName;
-                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
-            } catch (IllegalThreadStateException e2) { //this is ok
-            }
-            
-            dbg("afterCreateProcess ");
-            //ok, process validated, so, let's get its output and store it for further use.
-            afterCreateProcess();
-            
-            boolean connected = false;
-            int attempts = 0;
-            
-            dbg("connecting ");
-            sleepALittle(milisSleep);
-            socketToWrite = null;
-            serverSocket = new ServerSocket(pRead); //read in this port
-            int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
-            while(!connected && attempts < maxAttempts && !finishedForGood){
-                attempts += 1;
-                try {
-                    if(socketToWrite == null || socketToWrite.isConnected() == false){
-                        socketToWrite = new Socket("127.0.0.1",pWrite); //we should write in this port
-                    }
-                    
-                    if(socketToWrite != null || socketToWrite.isConnected()){
-                        serverSocket.setSoTimeout(milisSleep*2); //let's give it a higher timeout, as we're already half - connected
-                        try {
-                            socketToRead = serverSocket.accept();
-                            connected = true;
-                        } catch (SocketTimeoutException e) {
-                            //that's ok, timeout for waiting connection expired, let's check it again in the next loop
-                        }
-                    }
-                } catch (IOException e1) {
-                    if(socketToWrite != null && socketToWrite.isConnected() == true){
-                        PydevPlugin.log(IStatus.ERROR, "Attempt: "+attempts+" of "+maxAttempts+" failed, trying again...(socketToWrite already binded)", e1);
-                    }
-                }
-                
-                //if not connected, let's sleep a little for another attempt
-                if(!connected){
-                    sleepALittle(milisSleep);
-                }
-            }
-            
-            if(!connected && !finishedForGood ){
-                dbg("NOT connected ");
+			if (finishedForGood) {
+				throw new RuntimeException(
+						"Shells are already finished for good, so, it is an invalid state to try to restart it.");
+			}
 
-                //what, after all this trouble we are still not connected????!?!?!?!
-                //let's communicate this to the user...
-                String isAlive;
-                try {
-                    int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
-                    isAlive = " - the process in NOT ALIVE anymore (output="+exitVal+") - ";
-                } catch (IllegalThreadStateException e2) { //this is ok
-                    isAlive = " - the process in still alive (killing it now)- ";
-                    process.destroy();
-                }
-                
+			try {
 
-                String output = getProcessOutput();
-                Exception exception = new Exception("Error connecting to python process (" + execMsg + ") "+isAlive+" the output of the process is: "+output);
-                try {
-                    Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Error connecting to python process (" + execMsg + ") "+isAlive+" the output of the process is: "+output, exception);
-                    throw new CoreException(status);
-                } catch (Exception e) {
-                    throw exception;
-                }
-            }
-            
-        } catch (IOException e) {
-            
-            if(process!=null){
-                process.destroy();
-                process = null;
-            }
-            throw e;
-        }
+				int pWrite = SocketUtil.findUnusedLocalPort("127.0.0.1", 50000, 55000);
+				int pRead = SocketUtil.findUnusedLocalPort("127.0.0.1", 55001, 60000);
+
+				if (process != null) {
+					endIt(); //end the current process
+				}
+
+				String execMsg = createServerProcess(pWrite, pRead);
+				dbg("executing " + execMsg);
+
+				sleepALittle(200);
+				String osName = System.getProperty("os.name");
+				if (process == null) {
+					String msg = "Error creating python process - got null process(" + execMsg + ") - os:" + osName;
+					throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
+				}
+				try {
+					int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
+					String msg = "Error creating python process - exited before creating sockets - exitValue = ("
+							+ exitVal + ")(" + execMsg + ") - os:" + osName;
+					throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
+				} catch (IllegalThreadStateException e2) { //this is ok
+				}
+
+				dbg("afterCreateProcess ");
+				//ok, process validated, so, let's get its output and store it for further use.
+				afterCreateProcess();
+
+				boolean connected = false;
+				int attempts = 0;
+
+				dbg("connecting ");
+				sleepALittle(milisSleep);
+				socketToWrite = null;
+				serverSocket = new ServerSocket(pRead); //read in this port
+				int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
+				while (!connected && attempts < maxAttempts && !finishedForGood) {
+					attempts += 1;
+					try {
+						if (socketToWrite == null || socketToWrite.isConnected() == false) {
+							socketToWrite = new Socket("127.0.0.1", pWrite); //we should write in this port
+						}
+
+						if (socketToWrite != null || socketToWrite.isConnected()) {
+							serverSocket.setSoTimeout(milisSleep * 2); //let's give it a higher timeout, as we're already half - connected
+							try {
+								socketToRead = serverSocket.accept();
+								connected = true;
+							} catch (SocketTimeoutException e) {
+								//that's ok, timeout for waiting connection expired, let's check it again in the next loop
+							}
+						}
+					} catch (IOException e1) {
+						if (socketToWrite != null && socketToWrite.isConnected() == true) {
+							PydevPlugin.log(IStatus.ERROR, "Attempt: " + attempts + " of " + maxAttempts
+									+ " failed, trying again...(socketToWrite already binded)", e1);
+						}
+					}
+
+					//if not connected, let's sleep a little for another attempt
+					if (!connected) {
+						sleepALittle(milisSleep);
+					}
+				}
+
+				if (!connected && !finishedForGood) {
+					dbg("NOT connected ");
+
+					//what, after all this trouble we are still not connected????!?!?!?!
+					//let's communicate this to the user...
+					String isAlive;
+					try {
+						int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
+						isAlive = " - the process in NOT ALIVE anymore (output=" + exitVal + ") - ";
+					} catch (IllegalThreadStateException e2) { //this is ok
+						isAlive = " - the process in still alive (killing it now)- ";
+						process.destroy();
+					}
+
+					String output = getProcessOutput();
+					Exception exception = new Exception("Error connecting to python process (" + execMsg + ") "
+							+ isAlive + " the output of the process is: " + output);
+					try {
+						Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Error connecting to python process ("
+								+ execMsg + ") " + isAlive + " the output of the process is: " + output, exception);
+						throw new CoreException(status);
+					} catch (Exception e) {
+						throw exception;
+					}
+				}
+
+			} catch (IOException e) {
+
+				if (process != null) {
+					process.destroy();
+					process = null;
+				}
+				throw e;
+			}
+		} finally {
+			this.inStart = false;
+		}
     }
 
 
@@ -720,7 +738,9 @@ public abstract class AbstractShell {
         } catch (Exception e) {
         }
         try {
-            this.startIt();
+        	synchronized(this){
+        		this.startIt();
+        	}
         } catch (Exception e) {
             PydevPlugin.log(IStatus.ERROR, "ERROR restarting shell.", e);
         }
