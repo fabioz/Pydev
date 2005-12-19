@@ -25,7 +25,7 @@ public class RefactoringRequest{
 	public RefactoringRequest() {
 		
 	}
-	
+
 	/**
 	 * If the file is passed, we also set the document automatically
 	 * @param f the file correspondent to this request
@@ -33,6 +33,15 @@ public class RefactoringRequest{
 	public RefactoringRequest(File f) {
 		this.file = f;
 		this.doc = new Document(REF.getFileContents(f));
+	}
+	
+
+	public String resolveModule(){
+		if (file != null){
+			return nature.resolveModule(file);
+		}else{
+			return null;
+		}
 	}
 	
     /**
