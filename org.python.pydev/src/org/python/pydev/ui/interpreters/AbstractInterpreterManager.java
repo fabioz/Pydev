@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IPythonNature;
@@ -141,13 +142,18 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     	        exeToInfo.put(info.executableOrJar, info);
     	        
     	    }else{ //it is null or no empty
-                String title = "Invalid interpreter:"+executable;
-                String msg = "Unable to get information on interpreter!";
-    	        String reason = "The interpreter (or jar): '"+executable+"' is not valid - info.executable found: "+info.executableOrJar;
+                final String title = "Invalid interpreter:"+executable;
+                final String msg = "Unable to get information on interpreter!";
+                final String reason = "The interpreter (or jar): '"+executable+"' is not valid - info.executable found: "+info.executableOrJar;
     	        
                 try {
-                    ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, reason, null));
-                } catch (Error e) {
+                    final Display disp = Display.getDefault();
+                    disp.asyncExec(new Runnable(){
+                        public void run() {
+                            ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, reason, null));
+                        }
+                    });
+                } catch (Throwable e) {
                     // ignore error comunication error
                 }
     	        throw new RuntimeException(reason);

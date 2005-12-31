@@ -24,7 +24,10 @@ Require-Bundle: org.junit,
  org.python.pydev.core,
  org.eclipse.jdt.launching,
  org.eclipse.jdt,
- org.eclipse.jdt.core
+ org.eclipse.jdt.core,
+ org.eclipse.search,
+ org.eclipse.debug.ui,
+ org.eclipse.ui.console
 Eclipse-AutoStart: true
 Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,

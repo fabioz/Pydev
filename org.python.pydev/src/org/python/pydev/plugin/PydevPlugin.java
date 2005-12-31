@@ -61,7 +61,7 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
  */
 public class PydevPlugin extends AbstractUIPlugin implements Preferences.IPropertyChangeListener {
-
+	
     private static IInterpreterManager pythonInterpreterManager;
     private static IInterpreterManager jythonInterpreterManager;
     public static void setPythonInterpreterManager(IInterpreterManager interpreterManager) {
