@@ -12,7 +12,11 @@ org.python.core.SysPackageManager
 
 after 0.9.8.5
 
-- Conditional breakpoint added
+- Conditional breakpoint added (Achim Nierbeck)
+- New python project (Mikko Ohtamaa)
+- New python module (Mikko Ohtamaa)
+- Python launch configuration tabs reworked (Mikko Ohtamaa)
+
 
 after 0.9.8.3
 

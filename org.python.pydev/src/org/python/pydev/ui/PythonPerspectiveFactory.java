@@ -59,8 +59,11 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
 		layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
 				
 		// new actions - Python project creation wizard
-		layout.addNewWizardShortcut("org.python.pydev.ui.PythonProjectWizard"); //$NON-NLS-1$
-		layout.addNewWizardShortcut("org.python.pydev.ui.PythonFileWizard"); //$NON-NLS-1$
+		layout.addNewWizardShortcut(PythonProjectWizard.WIZARD_ID); //$NON-NLS-1$		
+		layout.addNewWizardShortcut(PythonFileWizard.WIZARD_ID); //$NON-NLS-1$		
+		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//$NON-NLS-1$
+		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//$NON-NLS-1$
+		layout.addNewWizardShortcut("org.eclipse.ui.editors.wizards.UntitledTextFileWizard");//$NON-NLS-1$
 	}
 
 }

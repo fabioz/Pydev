@@ -17,6 +17,7 @@ import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -39,28 +40,18 @@ import org.python.pydev.ui.interpreters.IInterpreterManager;
  * <p>Interesting functionality: InterpreterEditor will try the verify the choice of an interpreter.
  * <p>Getting the ModifyListener to display the proper error message was tricky
  */
-public class MainTab extends AbstractLaunchConfigurationTab {
+public class ArgumentsTab extends AbstractLaunchConfigurationTab {
 
     // Widgets
-    Text locationField;
     Text baseDirectoryField;
     Text programArgumentField;
     Combo interpreterComboField;
-    
-    
+
     protected ModifyListener modifyListener = new ModifyListener() {
-        public void modifyText(ModifyEvent e) {
-            if(e.getSource() == locationField){
-                File file = new File(locationField.getText());
-                if(!file.exists()){
-                    setErrorMessage("The file in the location does not exist.");
-                }
-                if(!file.isFile()){
-                    setErrorMessage("The file in the location is not actually a file.");
-                }
-                
-            }else if(e.getSource() == baseDirectoryField){
-                File file = new File(locationField.getText());
+        public void modifyText(ModifyEvent e) {       
+            if(e.getSource() == baseDirectoryField){
+            	
+                File file = new File(baseDirectoryField.getText());
                 if(!file.exists()){
                     setErrorMessage("The directory in the Base Directory does not exist.");
                 }
@@ -74,7 +65,8 @@ public class MainTab extends AbstractLaunchConfigurationTab {
             }
             updateLaunchConfigurationDialog();
         }
-    };
+    };    
+    
     private IInterpreterManager interpreterManager;
     private Button button;
     private ILaunchConfigurationWorkingCopy workingCopyForCommandLineGeneration;
@@ -116,65 +108,52 @@ public class MainTab extends AbstractLaunchConfigurationTab {
         }};
     
 
-    public MainTab(IInterpreterManager interpreterManager) {
+    public ArgumentsTab(IInterpreterManager interpreterManager) {
         this.interpreterManager = interpreterManager;
     }
-
 
 
     public void createControl(Composite parent) {
         Composite comp = new Composite(parent, SWT.NONE);
         setControl(comp);
-        GridLayout gridLayout = new GridLayout ();
-        gridLayout.numColumns = 2;
+        GridLayout gridLayout = new GridLayout ();        
         comp.setLayout (gridLayout);
-
-        Label label0 = new Label (comp, SWT.NONE);
-        label0.setText ("Location");
-        GridData data = new GridData ();
-        data.horizontalSpan = 2;
-        data.grabExcessHorizontalSpace = true;
-        label0.setLayoutData (data);
-        locationField = new Text (comp, SWT.BORDER);
-        locationField.addModifyListener(modifyListener);
-        data = new GridData ();
-        data.horizontalAlignment = GridData.FILL;
-        data.horizontalSpan = 2;
-        locationField.setLayoutData (data);
-
+        
+        GridData data = new GridData (GridData.FILL_HORIZONTAL);
+         
         Label label2 = new Label (comp, SWT.NONE);
-        label2.setText ("Base directory");
-        data = new GridData ();
-        data.horizontalSpan = 2;
+        label2.setText ("Base directory:");
         label2.setLayoutData (data);
 
         baseDirectoryField = new Text (comp, SWT.BORDER);
         data = new GridData ();
         data.horizontalAlignment = GridData.FILL;
-        data.horizontalSpan = 2;
+        data.verticalAlignment = GridData.FILL;
+        data.horizontalSpan = 1;
+        data.verticalSpan = 2;
         baseDirectoryField.setLayoutData (data);
         baseDirectoryField.addModifyListener(modifyListener);
+        baseDirectoryField.setLayoutData(data);
+
         Label label4 = new Label (comp, SWT.NONE);
-        label4.setText ("Program arguments");
-        data = new GridData ();
-        data.horizontalSpan = 2;
+        data = new GridData (GridData.FILL_HORIZONTAL);
+        label4.setText ("Program Arguments:");
         label4.setLayoutData (data);
 
         programArgumentField = new Text (comp, SWT.BORDER | SWT.MULTI);
         data = new GridData ();
         data.horizontalAlignment = GridData.FILL;
         data.verticalAlignment = GridData.FILL;
-        data.horizontalSpan = 2;
+        data.horizontalSpan = 1;
         data.verticalSpan = 2;
         programArgumentField.setLayoutData (data);
         programArgumentField.addModifyListener(modifyListener);
 
         Label label6 = new Label (comp, SWT.NONE);
-        label6.setText ("Interpreter");
-        data = new GridData ();
+        label6.setText ("Interpreter:");
+        data = new GridData (GridData.FILL_HORIZONTAL);
         data.horizontalSpan = 2;
         label6.setLayoutData (data);
-
 
         interpreterComboField = new Combo (comp, SWT.DROP_DOWN);
         interpreterComboField.setItems (this.interpreterManager.getInterpreters());
@@ -239,37 +218,11 @@ public class MainTab extends AbstractLaunchConfigurationTab {
     }
 
     /**
-     * @param interpreter the interpreter to validate
-     * @return true if the interpreter is configured in pydev
-     */
-    protected boolean checkIfInterpreterExists(String interpreter) {
-        String[] interpreters = this.interpreterManager.getInterpreters();
-        for (int i = 0; i < interpreters.length; i++) {
-            if (interpreters[i] != null && interpreters[i].equals(interpreter)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-    
-    /**
-     * sets attributes in the working copy
-     */
-    private void setAttribute(ILaunchConfigurationWorkingCopy conf, String name, String value) {
-        if (value == null || value.length() == 0){
-            conf.setAttribute(name, (String)null);
-        }else{
-            conf.setAttribute(name, value);
-        }
-    }
-    
-    /**
      * this is the name that will appear to the user 
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
      */
     public String getName() {
-        return "Main";
+        return "Arguments";
     }
 
     /**
@@ -294,20 +247,18 @@ public class MainTab extends AbstractLaunchConfigurationTab {
         } catch (CoreException e1) {
             throw new RuntimeException(e1);
         }
-        
-        String location = "";
+                
         String baseDirectory = "";
         String interpreter = "";
         String arguments = "";
         try {
-            location = conf.getAttribute(Constants.ATTR_LOCATION, "");
             baseDirectory = conf.getAttribute(Constants.ATTR_WORKING_DIRECTORY, "");
             interpreter = conf.getAttribute(Constants.ATTR_INTERPRETER, "");
             arguments = conf.getAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "");
         }
         catch (CoreException e) {
         }
-        locationField.setText(location);
+        
         baseDirectoryField.setText(baseDirectory);
         programArgumentField.setText(arguments);
         String[] interpreters = interpreterComboField.getItems();
@@ -337,9 +288,7 @@ public class MainTab extends AbstractLaunchConfigurationTab {
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
     public void performApply(ILaunchConfigurationWorkingCopy conf) {
-        String value;
-        value = locationField.getText().trim();
-        setAttribute(conf, Constants.ATTR_LOCATION, value);
+        String value;        
 
         value = baseDirectoryField.getText().trim();
         setAttribute(conf, Constants.ATTR_WORKING_DIRECTORY, value);
@@ -351,4 +300,30 @@ public class MainTab extends AbstractLaunchConfigurationTab {
         setAttribute(conf, Constants.ATTR_INTERPRETER, value);
     }
     
+    /**
+     * @param interpreter the interpreter to validate
+     * @return true if the interpreter is configured in pydev
+     */
+    protected boolean checkIfInterpreterExists(String interpreter) {
+        String[] interpreters = this.interpreterManager.getInterpreters();
+        for (int i = 0; i < interpreters.length; i++) {
+            if (interpreters[i] != null && interpreters[i].equals(interpreter)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    /**
+     * sets attributes in the working copy
+     */
+    private void setAttribute(ILaunchConfigurationWorkingCopy conf, String name, String value) {
+        if (value == null || value.length() == 0){
+            conf.setAttribute(name, (String)null);
+        }else{
+            conf.setAttribute(name, value);
+        }
+    }
+        
 }

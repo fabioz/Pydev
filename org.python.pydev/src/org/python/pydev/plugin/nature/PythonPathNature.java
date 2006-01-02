@@ -42,6 +42,13 @@ public class PythonPathNature implements IPythonPathNature {
         }
         
         PythonNature nature = PythonNature.getPythonNature(project);
+        
+        if(nature.getAstManager() == null) {
+        	// AST manager might not be yet available
+        	// Code completion job is scheduled to be run
+        	return null;
+        }
+              
         ProjectModulesManager projectModulesManager = nature.getAstManager().getProjectModulesManager();
         return projectModulesManager.getCompletePythonPath();
     }

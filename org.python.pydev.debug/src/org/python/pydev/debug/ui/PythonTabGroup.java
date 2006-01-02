@@ -16,14 +16,16 @@ import org.python.pydev.plugin.PydevPlugin;
 /**
  * Create tabs for the debugger setup.
  * 
- * <p>Creates the tabs in the Debug setup window
+ * <p>Creates the tabs in the Debug setup window</p>
+ * 
+ * TODO: Fix tabs so that invalid configuration disables Apply and Run buttons always
  */
 public class PythonTabGroup extends AbstractLaunchConfigurationTabGroup {
 
 	public void createTabs(ILaunchConfigurationDialog arg0, String arg1) {
 		ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
-			new MainTab(PydevPlugin.getPythonInterpreterManager()),
-            new PythonProjectRelatedTab(PydevPlugin.getPythonInterpreterManager()),
+			new MainModuleTab(PydevPlugin.getPythonInterpreterManager()),
+			new ArgumentsTab(PydevPlugin.getPythonInterpreterManager()),          
 			new RefreshTab(),
 			new EnvironmentTab(),
 			new CommonTab()	};

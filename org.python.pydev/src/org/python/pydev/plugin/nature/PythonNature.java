@@ -209,10 +209,8 @@ public class PythonNature implements IProjectNature, IPythonNature {
         final PythonNature nature = this;
         if (initialized == false) {
             initialized = true;
-
-            astManager = null;
             
-            Job myJob = new Job("Pydev code completion") {
+            Job codeCompletionLoadJob = new Job("Pydev code completion") {
 
                 protected IStatus run(IProgressMonitor monitorArg) {
                     //begins task automatically
@@ -241,8 +239,9 @@ public class PythonNature implements IProjectNature, IPythonNature {
                     return Status.OK_STATUS;
                 }
             };
-            myJob.schedule();
-
+            
+            codeCompletionLoadJob.schedule();
+                        
         }
     }
 
@@ -282,9 +281,11 @@ public class PythonNature implements IProjectNature, IPythonNature {
         Job myJob = new Job("Pydev code completion: rebuilding modules") {
 
             protected IStatus run(IProgressMonitor monitorArg) {
-                if(astManager == null){
+
+            	if(astManager == null){
                     astManager = new ASTManager();
                 }
+            	            	
                 astManager.setProject(getProject(), false); //it is a new manager, so, remove all deltas
                 
                 //begins task automatically
@@ -297,6 +298,7 @@ public class PythonNature implements IProjectNature, IPythonNature {
                 }
 
                 saveAstManager();
+                                                
                 //end task
                 jobProgressComunicator.done();
                 return Status.OK_STATUS;
@@ -309,7 +311,7 @@ public class PythonNature implements IProjectNature, IPythonNature {
     /**
      * @return Returns the completionsCache.
      */
-    public ICodeCompletionASTManager getAstManager() {
+    public ICodeCompletionASTManager getAstManager() {    
         return astManager;
     }
     
