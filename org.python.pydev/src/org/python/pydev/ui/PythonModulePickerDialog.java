@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.eclipse.ui.dialogs.ISelectionStatusValidator;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -77,7 +78,7 @@ class PythonModuleContentProvider implements ITreeContentProvider {
                                     
             if (container.isAccessible()) {
                 try {
-                    List children = new ArrayList();
+                    List<IResource> children = new ArrayList<IResource>();
                     
                     IResource[] members = container.members();
                     
@@ -87,7 +88,7 @@ class PythonModuleContentProvider implements ITreeContentProvider {
                         	
                         	IFile file = (IFile) members[i];
                         	
-                        	if(file.getFileExtension().equalsIgnoreCase("py")) {
+                        	if(PythonPathHelper.isValidSourceFile(file)) {
                         		children.add(file);
                         	}
                         } else if(members[i] instanceof IContainer) {

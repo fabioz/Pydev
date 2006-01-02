@@ -279,7 +279,6 @@ public abstract class AbstractShell {
                 wait(t); //millis
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 

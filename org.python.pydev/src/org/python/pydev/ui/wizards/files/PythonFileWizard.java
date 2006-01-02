@@ -1,4 +1,4 @@
-package org.python.pydev.ui;
+package org.python.pydev.ui.wizards.files;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;

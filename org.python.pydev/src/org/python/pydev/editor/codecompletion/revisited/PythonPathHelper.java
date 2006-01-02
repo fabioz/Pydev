@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -166,8 +167,15 @@ public class PythonPathHelper implements Serializable{
      * @return if the path passed belongs to a valid python source file
      */
     public static boolean isValidSourceFile(String path) {
+        path = path.toLowerCase();
         return path.endsWith(".py") || path.endsWith(".pyw");
     }
+    
+    public static boolean isValidSourceFile(IFile file) {
+        String ext = file.getFileExtension().toLowerCase();
+        return ext.equals("py") || ext.equals("pyw");
+    }
+
     
     /**
      * 
@@ -365,7 +373,7 @@ public class PythonPathHelper implements Serializable{
      * @param string with paths separated by |
      * @return
      */
-    public List setPythonPath(String string) {
+    public List<String> setPythonPath(String string) {
         pythonpath.clear();
         String[] strings = string.split("\\|");
         for (int i = 0; i < strings.length; i++) {
@@ -379,7 +387,7 @@ public class PythonPathHelper implements Serializable{
                 }
             }
         }
-        return new ArrayList(pythonpath);
+        return new ArrayList<String>(pythonpath);
     }
 
     public static String getPythonFileEncoding(IDocument doc) {
@@ -455,4 +463,5 @@ public class PythonPathHelper implements Serializable{
         }
         return ret;
     }
+
 }

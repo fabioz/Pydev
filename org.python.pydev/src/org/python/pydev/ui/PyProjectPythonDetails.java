@@ -25,14 +25,69 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class PyProjectPythonDetails extends PropertyPage{
 
+    public static class RadioController{
+        public Button radioPy24;
+        public Button radioPy23;
+        public Button radioJy21;
+        /**
+         * @param p
+         * @return
+         */
+        public Control doCreateContents(Composite p) {
+            Composite topComp= new Composite(p, SWT.NONE);
+            GridLayout innerLayout= new GridLayout();
+            innerLayout.numColumns= 1;
+            innerLayout.marginHeight= 0;
+            innerLayout.marginWidth= 0;
+            topComp.setLayout(innerLayout);
+            GridData gd= new GridData(GridData.FILL_BOTH);
+            topComp.setLayoutData(gd);
 
+            
+            
+            Group group = new Group(topComp, SWT.NONE);
+            group.setText("Choose the project type");
+            GridLayout layout = new GridLayout();
+            layout.horizontalSpacing = 8;
+            layout.numColumns = 3;
+            group.setLayout(layout);
+            gd= new GridData(GridData.FILL_HORIZONTAL);
+            group.setLayoutData(gd);
+
+            
+            
+            radioPy23 = new Button(group, SWT.RADIO | SWT.LEFT);
+            radioPy23.setText(IPythonNature.PYTHON_VERSION_2_3);
+
+            radioPy24 = new Button(group, SWT.RADIO | SWT.LEFT);
+            radioPy24.setText(IPythonNature.PYTHON_VERSION_2_4);
+            
+            radioJy21 = new Button(group, SWT.RADIO | SWT.LEFT);
+            radioJy21.setText(IPythonNature.JYTHON_VERSION_2_1);
+            
+            return topComp;
+        }
+        
+        public String getSelected() {
+            if(radioPy23.getSelection()){
+                return IPythonNature.PYTHON_VERSION_2_3;
+            }
+            if(radioPy24.getSelection()){
+                return IPythonNature.PYTHON_VERSION_2_4;
+            }
+            if(radioJy21.getSelection()){
+                return IPythonNature.JYTHON_VERSION_2_1;
+            }
+            throw new RuntimeException("Some radio must be selected");
+        }
+
+    }
+    
 	/**
 	 * The element.
 	 */
-	private IAdaptable element;
-    private Button radioPy24;
-    private Button radioPy23;
-    private Button radioJy21;
+	public IAdaptable element;
+	public RadioController radioController = new RadioController();
 
 	/*
 	 *  (non-Javadoc)
@@ -55,38 +110,10 @@ public class PyProjectPythonDetails extends PropertyPage{
     }
 
     @Override
-    protected Control createContents(Composite p) {
-        Composite topComp= new Composite(p, SWT.NONE);
-        GridLayout innerLayout= new GridLayout();
-        innerLayout.numColumns= 1;
-        innerLayout.marginHeight= 0;
-        innerLayout.marginWidth= 0;
-        topComp.setLayout(innerLayout);
-        GridData gd= new GridData(GridData.FILL_BOTH);
-        topComp.setLayoutData(gd);
-
-        
-        
-        Group group = new Group(topComp, SWT.NONE);
-        group.setText("Choose the project type");
-        GridLayout layout = new GridLayout();
-        layout.horizontalSpacing = 8;
-        layout.numColumns = 3;
-        group.setLayout(layout);
-
-        
-        
-        radioPy23 = new Button(group, SWT.RADIO | SWT.LEFT);
-        radioPy23.setText(IPythonNature.PYTHON_VERSION_2_3);
-
-        radioPy24 = new Button(group, SWT.RADIO | SWT.LEFT);
-        radioPy24.setText(IPythonNature.PYTHON_VERSION_2_4);
-        
-        radioJy21 = new Button(group, SWT.RADIO | SWT.LEFT);
-        radioJy21.setText(IPythonNature.JYTHON_VERSION_2_1);
-        
+    public Control createContents(Composite p) {
+        Control contents = radioController.doCreateContents(p);
         setSelected();
-        return topComp;
+        return contents;
     }
     
     private void setSelected() {
@@ -94,31 +121,19 @@ public class PyProjectPythonDetails extends PropertyPage{
         try {
             String version = pythonNature.getVersion();
             if(version.equals(IPythonNature.PYTHON_VERSION_2_3)){
-                radioPy23.setSelection(true);
+                radioController.radioPy23.setSelection(true);
             }
             else if(version.equals(IPythonNature.PYTHON_VERSION_2_4)){
-                radioPy24.setSelection(true);
+                radioController.radioPy24.setSelection(true);
             }
             else if(version.equals(IPythonNature.JYTHON_VERSION_2_1)){
-                radioJy21.setSelection(true);
+                radioController.radioJy21.setSelection(true);
             }
         } catch (CoreException e) {
             PydevPlugin.log(e);
         }
     }
 
-    private String getSelected() {
-        if(radioPy23.getSelection()){
-            return IPythonNature.PYTHON_VERSION_2_3;
-        }
-        if(radioPy24.getSelection()){
-            return IPythonNature.PYTHON_VERSION_2_4;
-        }
-        if(radioJy21.getSelection()){
-            return IPythonNature.JYTHON_VERSION_2_1;
-        }
-        throw new RuntimeException("Some radio must be selected");
-    }
     
     protected void performApply() {
         doIt();
@@ -132,7 +147,7 @@ public class PyProjectPythonDetails extends PropertyPage{
         if (getProject()!= null) {
             PythonNature pythonNature = PythonNature.getPythonNature(getProject());
             try {
-                pythonNature.setVersion(getSelected());
+                pythonNature.setVersion(radioController.getSelected());
             } catch (CoreException e) {
                 PydevPlugin.log(e);
             }

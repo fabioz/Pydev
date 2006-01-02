@@ -174,7 +174,7 @@ public abstract class AbstractModule {
     public static AbstractModule createModule(String name, File f, PythonNature nature, int currLine) throws FileNotFoundException {
         String path = REF.getFileAbsolutePath(f);
         if(PythonPathHelper.isValidFileMod(path)){
-	        if(isValidSourceFile(path)){
+	        if(PythonPathHelper.isValidSourceFile(path)){
 	            FileInputStream stream = new FileInputStream(f);
 	            
 	            InputStreamReader in = null;
@@ -223,13 +223,6 @@ public abstract class AbstractModule {
     }
 
     
-    /**
-     * @param path
-     * @return
-     */
-    private static boolean isValidSourceFile(String path) {
-        return path.endsWith(".py") || path.endsWith(".pyw");
-    }
     
     /** 
      * This function creates the module given that you have a document (that will be parsed)
@@ -239,7 +232,7 @@ public abstract class AbstractModule {
         
         if(f != null){
 	        String absolutePath = REF.getFileAbsolutePath(f);
-	        if(isValidSourceFile(absolutePath)){
+	        if(PythonPathHelper.isValidSourceFile(absolutePath)){
 		        Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine));
 		        SimpleNode n = (SimpleNode) obj[0];
 		        return new SourceModule(name, f, n);

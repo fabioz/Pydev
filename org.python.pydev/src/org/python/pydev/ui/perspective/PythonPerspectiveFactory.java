@@ -1,4 +1,4 @@
-package org.python.pydev.ui;
+package org.python.pydev.ui.perspective;
 
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
@@ -11,6 +11,8 @@ import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.progress.IProgressConstants;
 import org.eclipse.debug.ui.IDebugUIConstants;
+import org.python.pydev.ui.wizards.files.PythonFileWizard;
+import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 
 /**
  * Python perspective constructor

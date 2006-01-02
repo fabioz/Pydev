@@ -801,13 +801,13 @@
       <wizard
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
-            class="org.python.pydev.ui.PythonProjectWizard"
+            class="org.python.pydev.ui.wizards.project.PythonProjectWizard"
             descriptionImage="icons/python-logo.png"
             finalPerspective="org.python.pydev.plugin.PythonPerspective"
             hasPages="true"
             icon="icons/python_16x16.png"
-            id="org.python.pydev.ui.PythonProjectWizard"
-            name="Python Project"
+            id="org.python.pydev.ui.wizards.project.PythonProjectWizard"
+            name="Pydev Project"
             preferredPerspectives="org.python.pydev.plugin.PythonPerspective"
             project="true"/>
       <category
@@ -816,23 +816,23 @@
       <wizard
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
-            class="org.python.pydev.ui.PythonFileWizard"
+            class="org.python.pydev.ui.wizards.files.PythonFileWizard"
             descriptionImage="icons/python-logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="icons/python.gif"
-            id="org.python.pydev.ui.PythonFileWizard"
-            name="Python Module"
+            id="org.python.pydev.ui.wizards.files.PythonFileWizard"
+            name="Pydev Module"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="org.python.pydev.ui.PythonPerspectiveFactory"
+            class="org.python.pydev.ui.perspective.PythonPerspectiveFactory"
             icon="icons/python_16x16.png"
             id="org.python.pydev.ui.PythonPerspective"
-            name="Python"/>
+            name="Pydev"/>
    </extension>
 	
 	
