@@ -20,7 +20,6 @@ import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
@@ -45,7 +44,7 @@ public abstract class AbstractShell {
     public static final int OTHERS_SHELL = 2;
     public static final int COMPLETION_SHELL = 1;
     protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000;
-    protected static final boolean DEBUG_SHELL = false;
+    protected static final int DEBUG_SHELL = 2;
     
     /**
      * Determines if we are already in a method that starts the shell
@@ -60,9 +59,16 @@ public abstract class AbstractShell {
      */
     private boolean isConnected = false;
 
+    private boolean isInRead = false;
+    private boolean isInWrite = false;
+    
+    /**
+     * Lock to know if there is someone already using this shell for some operation
+     */
+    private boolean isInOperation = false;
 
-    private void dbg(Object string) {
-        if(DEBUG_SHELL){
+    private void dbg(Object string, int priority) {
+        if(priority <= DEBUG_SHELL){
             System.out.println(string);
         }
     }
@@ -211,6 +217,11 @@ public abstract class AbstractShell {
 	            //then make it accessible
 	            typeToShell.put(new Integer(id), pythonShell);
 	        }
+            
+            //if the shell is still starting, we will not return it.
+            while(pythonShell.inStart){
+                pythonShell.sleepALittle(200);
+            }
 	        return pythonShell;
     	}
     }
@@ -315,30 +326,32 @@ public abstract class AbstractShell {
 				}
 
 				String execMsg = createServerProcess(pWrite, pRead);
-				dbg("executing " + execMsg);
+				dbg("executing " + execMsg,1);
 
 				sleepALittle(200);
 				String osName = System.getProperty("os.name");
 				if (process == null) {
 					String msg = "Error creating python process - got null process(" + execMsg + ") - os:" + osName;
+                    PydevPlugin.log(msg);
 					throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
 				}
 				try {
 					int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
 					String msg = "Error creating python process - exited before creating sockets - exitValue = ("
 							+ exitVal + ")(" + execMsg + ") - os:" + osName;
+					PydevPlugin.log(msg);
 					throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
 				} catch (IllegalThreadStateException e2) { //this is ok
 				}
 
-				dbg("afterCreateProcess ");
+				dbg("afterCreateProcess ",1);
 				//ok, process validated, so, let's get its output and store it for further use.
 				afterCreateProcess();
 
 				boolean connected = false;
 				int attempts = 0;
 
-				dbg("connecting ");
+				dbg("connecting... ",1);
 				sleepALittle(milisSleep);
 				socketToWrite = null;
 				serverSocket = new ServerSocket(pRead); //read in this port
@@ -355,6 +368,7 @@ public abstract class AbstractShell {
 							try {
 								socketToRead = serverSocket.accept();
 								connected = true;
+								dbg("connected! ",1);
 							} catch (SocketTimeoutException e) {
 								//that's ok, timeout for waiting connection expired, let's check it again in the next loop
 							}
@@ -363,6 +377,10 @@ public abstract class AbstractShell {
 						if (socketToWrite != null && socketToWrite.isConnected() == true) {
 							PydevPlugin.log(IStatus.ERROR, "Attempt: " + attempts + " of " + maxAttempts
 									+ " failed, trying again...(socketToWrite already binded)", e1);
+						}
+						if (socketToWrite != null && !socketToWrite.isConnected() == true) {
+						    PydevPlugin.log(IStatus.ERROR, "Attempt: " + attempts + " of " + maxAttempts
+						            + " failed, trying again...(socketToWrite still not binded)", e1);
 						}
 					}
 
@@ -373,7 +391,7 @@ public abstract class AbstractShell {
 				}
 
 				if (!connected && !finishedForGood) {
-					dbg("NOT connected ");
+					dbg("NOT connected ",1);
 
 					//what, after all this trouble we are still not connected????!?!?!?!
 					//let's communicate this to the user...
@@ -389,13 +407,8 @@ public abstract class AbstractShell {
 					String output = getProcessOutput();
 					Exception exception = new Exception("Error connecting to python process (" + execMsg + ") "
 							+ isAlive + " the output of the process is: " + output);
-					try {
-						Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Error connecting to python process ("
-								+ execMsg + ") " + isAlive + " the output of the process is: " + output, exception);
-						throw new CoreException(status);
-					} catch (Exception e) {
-						throw exception;
-					}
+                    PydevPlugin.log(exception);
+					throw exception;
 				}
 
 			} catch (IOException e) {
@@ -485,74 +498,90 @@ public abstract class AbstractShell {
         if(finishedForGood){
             throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to read from it.");
         }
-
-        StringBuffer str = new StringBuffer();
-        String tempStr = "";
-        int j = 0;
-        while(j != 100){
-            byte[] b = new byte[AbstractShell.BUFFER_SIZE];
-    
-            this.socketToRead.getInputStream().read(b);
-    
-            String s = new String(b);
-            
-            //processing without any status to present to the user
-            if(s.indexOf("@@PROCESSING_END@@") != -1){ //each time we get a processing message, reset j to 0.
-                s = s.replaceAll("@@PROCESSING_END@@", "");
-                j = 0;
-                communicateWork("Processing...", operation);
-            }
-            
-            
-            //processing with some kind of status
-            if(s.indexOf("@@PROCESSING:") != -1){ //each time we get a processing message, reset j to 0.
-                s = s.replaceAll("@@PROCESSING:", "");
-                s = s.replaceAll("END@@", "");
-                j = 0;
-                s = URLDecoder.decode(s, ENCODING_UTF_8);
-                if(s.trim().equals("") == false){
-                    communicateWork("Processing: "+s, operation);
-                }else{
-                    communicateWork("Processing...", operation);
-                }
-                s = "";
-            }
-    
-            
-            s = s.replaceAll((char)0+"",""); //python sends this char as payload.
-            str.append(s);
-            
-            if(str.indexOf("END@@") != -1){
-                break;
-            }else{
-                
-                if(tempStr.equals(str) == true){ //only raise if nothing was received.
-                    j++;
-                }else{
-                    j = 0; //we are receiving, even though that may take a long time if the namespace is really polluted...
-                }
-                sleepALittle(10);
-                tempStr = str.toString();
-            }
-            
+        if(inStart){
+            throw new RuntimeException("The shell is still not completely started, so, it is an invalid state to try to read from it..");
+        }
+        if(!isConnected){
+            throw new RuntimeException("The shell is still not connected, so, it is an invalid state to try to read from it..");
+        }
+        if(isInRead){
+            throw new RuntimeException("The shell is already in read mode, so, it is an invalid state to try to read from it..");
+        }
+        if(isInWrite){
+            throw new RuntimeException("The shell is already in write mode, so, it is an invalid state to try to read from it..");
         }
         
-        String ret = str.toString().replaceFirst("@@COMPLETIONS","");
-        //remove END@@
+        isInRead = true;
+
         try {
-            if(ret.indexOf("END@@")!= -1){
-                ret = ret.substring(0, ret.indexOf("END@@"));
-                return ret;
-            }else{
-                throw new RuntimeException("Couldn't find END@@ on received string.");
+            StringBuffer str = new StringBuffer();
+            String tempStr = "";
+            int j = 0;
+            while (j != 100) {
+                byte[] b = new byte[AbstractShell.BUFFER_SIZE];
+
+                this.socketToRead.getInputStream().read(b);
+
+                String s = new String(b);
+
+                //processing without any status to present to the user
+                if (s.indexOf("@@PROCESSING_END@@") != -1) { //each time we get a processing message, reset j to 0.
+                    s = s.replaceAll("@@PROCESSING_END@@", "");
+                    j = 0;
+                    communicateWork("Processing...", operation);
+                }
+
+                //processing with some kind of status
+                if (s.indexOf("@@PROCESSING:") != -1) { //each time we get a processing message, reset j to 0.
+                    s = s.replaceAll("@@PROCESSING:", "");
+                    s = s.replaceAll("END@@", "");
+                    j = 0;
+                    s = URLDecoder.decode(s, ENCODING_UTF_8);
+                    if (s.trim().equals("") == false) {
+                        communicateWork("Processing: " + s, operation);
+                    } else {
+                        communicateWork("Processing...", operation);
+                    }
+                    s = "";
+                }
+
+                s = s.replaceAll((char) 0 + "", ""); //python sends this char as payload.
+                str.append(s);
+
+                if (str.indexOf("END@@") != -1) {
+                    break;
+                } else {
+
+                    if (tempStr.equals(str) == true) { //only raise if nothing was received.
+                        j++;
+                    } else {
+                        j = 0; //we are receiving, even though that may take a long time if the namespace is really polluted...
+                    }
+                    sleepALittle(10);
+                    tempStr = str.toString();
+                }
+
             }
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            if(ret.length() > 500){
-                ret = ret.substring(0, 499)+"...(continued)...";//if the string gets too big, it can crash Eclipse...
+
+            String ret = str.toString().replaceFirst("@@COMPLETIONS", "");
+            //remove END@@
+            try {
+                if (ret.indexOf("END@@") != -1) {
+                    ret = ret.substring(0, ret.indexOf("END@@"));
+                    return ret;
+                } else {
+                    throw new RuntimeException("Couldn't find END@@ on received string.");
+                }
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+                if (ret.length() > 500) {
+                    ret = ret.substring(0, 499) + "...(continued)...";//if the string gets too big, it can crash Eclipse...
+                }
+                PydevPlugin.log(IStatus.ERROR, "ERROR WITH STRING:" + ret, e);
+                return "";
             }
-            PydevPlugin.log(IStatus.ERROR, "ERROR WITH STRING:"+ret, e);
-            return "";
+        } finally{
+            isInRead = false;
         }
     }
 
@@ -574,10 +603,29 @@ public abstract class AbstractShell {
         if(finishedForGood){
             throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to write to it.");
         }
+        if(inStart){
+            throw new RuntimeException("The shell is still not completely started, so, it is an invalid state to try to write to it.");
+        }
+        if(!isConnected){
+            throw new RuntimeException("The shell is still not connected, so, it is an invalid state to try to write to it.");
+        }
+        if(isInRead){
+            throw new RuntimeException("The shell is already in read mode, so, it is an invalid state to try to write to it.");
+        }
+        if(isInWrite){
+            throw new RuntimeException("The shell is already in write mode, so, it is an invalid state to try to write to it.");
+        }
+        
+        isInWrite = true;
+
         //dbg("WRITING:"+str);
-        OutputStream outputStream = this.socketToWrite.getOutputStream();
-        outputStream.write(str.getBytes());
-        outputStream.flush();
+        try {
+            OutputStream outputStream = this.socketToWrite.getOutputStream();
+            outputStream.write(str.getBytes());
+            outputStream.flush();
+        } finally {
+            isInWrite = false;
+        }
     }
 
     /**
@@ -650,28 +698,36 @@ public abstract class AbstractShell {
     }
 
     public synchronized void sendGoToDirMsg(File file) {
-        if(finishedForGood){
-            throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to change the shell dir.");
+        while(isInOperation){
+            sleepALittle(100);
         }
-        checkShell();
-        
+        isInOperation = true;
         try {
-            if(file.isDirectory() == false){
-                file = file.getParentFile();
+            if (finishedForGood) {
+                throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to change the shell dir.");
             }
-            
-            String str = REF.getFileAbsolutePath(file);
-            str = URLEncoder.encode(str, ENCODING_UTF_8);
-            this.write("@@CHANGE_DIR:"+str+"END@@");
-            this.read(); //this should be the ok message...
-            
-        } catch (IOException e) {
+            checkShell();
+
             try {
-                restartShell();
-            } catch (Exception e1) {
-                
+                if (file.isDirectory() == false) {
+                    file = file.getParentFile();
+                }
+
+                String str = REF.getFileAbsolutePath(file);
+                str = URLEncoder.encode(str, ENCODING_UTF_8);
+                this.write("@@CHANGE_DIR:" + str + "END@@");
+                this.read(); //this should be the ok message...
+
+            } catch (IOException e) {
+                try {
+                    restartShell();
+                } catch (Exception e1) {
+
+                }
+                PydevPlugin.log(IStatus.ERROR, "ERROR sending go to dir msg.", e);
             }
-            PydevPlugin.log(IStatus.ERROR, "ERROR sending go to dir msg.", e);
+        } finally {
+            isInOperation = false;
         }
     }
 
@@ -693,13 +749,21 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     public synchronized List getImportCompletions(String str, List pythonpath) throws CoreException {
-        changePythonPath(pythonpath);
-        
+        while(isInOperation){
+            sleepALittle(100);
+        }
+        isInOperation = true;
         try {
-            str = URLEncoder.encode(str, ENCODING_UTF_8);
-            return this.getTheCompletions("@@IMPORTS:" + str + "\nEND@@");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            internalChangePythonPath(pythonpath);
+
+            try {
+                str = URLEncoder.encode(str, ENCODING_UTF_8);
+                return this.getTheCompletions("@@IMPORTS:" + str + "\nEND@@");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } finally {
+            isInOperation = false;
         }
     }
 
@@ -708,6 +772,22 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     public synchronized void changePythonPath(List pythonpath) throws CoreException {
+        while(isInOperation){
+            sleepALittle(100);
+        }
+        isInOperation = true;
+        try {
+            internalChangePythonPath(pythonpath); 
+        } finally {
+            isInOperation = false;
+        } 
+    }
+
+
+    /**
+     * @param pythonpath
+     */
+    private void internalChangePythonPath(List pythonpath) {
         if(finishedForGood){
             throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to change its dir.");
         }
@@ -721,7 +801,7 @@ public abstract class AbstractShell {
             getTheCompletions("@@CHANGE_PYTHONPATH:" + URLEncoder.encode(buffer.toString(), ENCODING_UTF_8) + "\nEND@@");
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } 
+        }
     }
 
     protected synchronized List getTheCompletions(String str) throws CoreException {

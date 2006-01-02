@@ -275,6 +275,8 @@ class T( Thread ):
                 
             conn.close()
             self.ended = True
+            sys.exit(0) #connection broken
+            
             
         except:
             import traceback

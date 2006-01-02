@@ -26,7 +26,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static final boolean DEFAULT_USE_CODECOMPLETION = true;
     
     public static final String ATTEMPTS_CODECOMPLETION = "ATTEMPTS_CODECOMPLETION";
-    public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 10;
+    public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 20;
 
 	public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
 	public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
@@ -56,7 +56,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
         Composite p = getFieldEditorParent();
 
         addField(new IntegerFieldEditor(
-		        ATTEMPTS_CODECOMPLETION, "Number of attempts to connect to shell?\n(timeout between attempts is 1 sec.)\n\n", p));
+		        ATTEMPTS_CODECOMPLETION, "Timeout to connect to shell (secs).", p));
 
 		addField(new IntegerFieldEditor(
 		        AUTOCOMPLETE_DELAY, "Autocompletion delay: ", p));

@@ -16,7 +16,8 @@ after 0.9.8.5
 - New python project (Mikko Ohtamaa)
 - New python module (Mikko Ohtamaa)
 - Python launch configuration tabs reworked (Mikko Ohtamaa)
-
+- Some locking problems were fixed when doing code completion
+- Faq has been extended with more doubts
 
 after 0.9.8.3
 
