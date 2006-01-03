@@ -16,7 +16,7 @@ public class RefactorerTest extends CodeCompletionTestsBase {
 		try {
 			RefactorerTest test = new RefactorerTest();
 			test.setUp();
-			test.testSearch8();
+			test.testSearch9();
 			test.tearDown();
 
 			junit.textui.TestRunner.run(RefactorerTest.class);
@@ -135,8 +135,11 @@ public class RefactorerTest extends CodeCompletionTestsBase {
 	}
 
 	public void testSearch7() throws Exception {
-//		from static import *
+//		from static import TestStatic
 //		print TestStatic.static1
+//		class TestStaticExt(TestStatic):
+//		    def __init__(self):
+//		        print self.static1
 		String line = "print TestStatic.static1";
 		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
 		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 1, line.length());
@@ -169,6 +172,88 @@ public class RefactorerTest extends CodeCompletionTestsBase {
 		assertEquals(8, pointers[0].start.column);
 	}
 	
+	public void testSearch9() throws Exception {
+//		from static import TestStatic
+//		print TestStatic.static1
+//		class TestStaticExt(TestStatic):
+//			def __init__(self):
+//				print self.static1
+//      		from extendable.dependencies.file2 import Test
+        String line = "        from extendable.dependencies.file2 import Test";
+		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
+		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 5, line.length());
+		refactoringRequest.nature = nature;
+		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+		
+		assertEquals(1, pointers.length);
+		assertEquals(new File(TestDependent.TEST_PYSRC_LOC+"extendable/dependencies/file2.py"), pointers[0].file);
+		//found the module
+		assertEquals(0, pointers[0].start.line);
+		assertEquals(6, pointers[0].start.column);
+	}
+	
+	public void testSearch10() throws Exception {
+//		from static import TestStatic
+//		print TestStatic.static1
+//		class TestStaticExt(TestStatic):
+//		    def __init__(self):
+//		        print self.static1
+//		        from extendable.dependencies.file2 import Test
+//		        import extendable.dependencies.file2.Test
+		String line = "        import extendable.dependencies.file2.Test";
+		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
+		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 6, line.length());
+		refactoringRequest.nature = nature;
+		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+		
+		assertEquals(1, pointers.length);
+		assertEquals(new File(TestDependent.TEST_PYSRC_LOC+"extendable/dependencies/file2.py"), pointers[0].file);
+		//found the module
+		assertEquals(0, pointers[0].start.line);
+		assertEquals(6, pointers[0].start.column);
+	}
+	
 
+	public void testSearch11() throws Exception {
+//		from static import TestStatic
+//		print TestStatic.static1
+//		class TestStaticExt(TestStatic):
+//		    def __init__(self):
+//		        print self.static1
+//		        from extendable.dependencies.file2 import Test
+//		        import extendable.dependencies.file2.Test
+		String line = "        import extendable.dependencies.file2.Test";
+		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
+		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 6, line.length()-7); //find the file2 module itself
+		refactoringRequest.nature = nature;
+		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+		
+		assertEquals(1, pointers.length);
+		assertEquals(new File(TestDependent.TEST_PYSRC_LOC+"extendable/dependencies/file2.py"), pointers[0].file);
+		//found the module
+		assertEquals(0, pointers[0].start.line);
+		assertEquals(0, pointers[0].start.column);
+	}
+
+	public void testSearch12() throws Exception {
+//		from static import TestStatic
+//		print TestStatic.static1
+//		class TestStaticExt(TestStatic):
+//		    def __init__(self):
+//		        print self.static1
+//		        from extendable.dependencies.file2 import Test
+//		        import extendable.dependencies.file2.Test
+		String line = "        import extendable.dependencies.file2.Test";
+		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
+		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 6, line.length()-16); //find the dependencies module itself
+		refactoringRequest.nature = nature;
+		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+		
+		assertEquals(1, pointers.length);
+		assertEquals(new File(TestDependent.TEST_PYSRC_LOC+"extendable/dependencies/__init__.py"), pointers[0].file);
+		//found the module
+		assertEquals(0, pointers[0].start.line);
+		assertEquals(0, pointers[0].start.column);
+	}
 	
 }

@@ -33,7 +33,6 @@ public class Refactorer implements IPyRefactoring{
 		
 		List<ItemPointer> pointers = new ArrayList<ItemPointer>();
 		String[] tokenAndQual = PyCodeCompletion.getActivationTokenAndQual(request.doc, request.ps.getAbsoluteCursorOffset(), true);
-		System.out.println(StringUtils.format("act:%s qual:%s", tokenAndQual));
 		AbstractModule mod = AbstractModule.createModuleFromDoc(
 										   request.resolveModule(), request.file, request.doc, 
 										   (PythonNature)request.nature, request.getBeginLine());
