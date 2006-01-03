@@ -68,12 +68,6 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     }
     
     @Override
-    public Object visitImport(Import node) throws Exception {
-        List <IToken>list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
-    	return super.visitImport(node);
-    }
-
-    @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
     	String modRep = NodeUtils.getRepresentationString(node.module);
 		if( NodeUtils.isWithin(line, col, node.module) ){
@@ -94,7 +88,6 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     			}
     		}
     		moduleImported += modRep.substring(lastChar, i);
-    		System.out.println(modRep);
     	}else{
     		//it was not the module, so, we have to check for each name alias imported
     		for (aliasType alias: node.names){

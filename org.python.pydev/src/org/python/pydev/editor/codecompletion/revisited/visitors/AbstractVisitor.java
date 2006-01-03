@@ -218,7 +218,7 @@ public abstract class AbstractVisitor extends VisitorBase{
     public static IToken[] getTokens(SimpleNode ast, int which, String moduleName) {
         AbstractVisitor modelVisitor;
         if(which == INNER_DEFS){
-            modelVisitor = new InnerModelVisitor();
+            modelVisitor = new InnerModelVisitor(moduleName);
         }else{
             modelVisitor = new GlobalModelVisitor(which, moduleName);
         }

@@ -396,7 +396,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
             }else{ //ok, we have a token, find it and get its completions.
                 
                 //first check if the token is a module... if it is, get the completions for that module.
-                IToken[] t = searchOnImportedMods(importedModules.toArray(new IToken[0]), state, module);
+                IToken[] t = findTokensOnImportedMods(importedModules.toArray(new IToken[0]), state, module);
                 if(t != null && t.length > 0){
                     return t;
                 }
@@ -632,7 +632,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         return completions;
     }
 
-    private IToken[] searchOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current) {
+    public IToken[] findTokensOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current) {
         Tuple<AbstractModule, String> o = findOnImportedMods(importedModules, state.nature, state.activationToken, current.getName());
         
         if(o == null)

@@ -133,6 +133,10 @@ public interface ICodeCompletionASTManager {
      */
     public abstract Tuple<AbstractModule, String> findOnImportedMods( IToken[] importedModules, PythonNature nature, String activationToken, String currentModuleName);
     
+    /**
+     * Finds the tokens on the given imported modules
+     */
+    public IToken[] findTokensOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current);
 
 
     /**

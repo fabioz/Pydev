@@ -238,7 +238,13 @@ public class SourceModule extends AbstractModule {
         List<IToken> localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
         for (IToken tok : localImportedModules) {
         	if(tok.getRepresentation().equals(rep)){
-        		return new Definition[]{new Definition(tok, scopeVisitor.scope, this)};
+        		Tuple<AbstractModule, String> o = nature.getAstManager().findOnImportedMods(new IToken[]{tok}, nature, rep, this.getName());
+                if(o != null && o.o1 instanceof SourceModule){
+                    findDefinitionsFromModAndTok(nature, toRet, null, (SourceModule) o.o1, o.o2);
+                }
+                if(toRet.size() > 0){
+                	return (Definition[]) toRet.toArray(new Definition[0]);
+                }
         	}
         }
         
@@ -273,16 +279,23 @@ public class SourceModule extends AbstractModule {
         	ClassDef classDef = scopeVisitor.scope.getClassDef();
         	if(classDef != null){
         		//ok, we are in a class, so, let's get the self completions
-        		IToken[] globalTokens = getGlobalTokens(
-        				new CompletionState(line, col, NodeUtils.getRepresentationString(classDef), nature), 
+        		String classRep = NodeUtils.getRepresentationString(classDef);
+				IToken[] globalTokens = getGlobalTokens(
+        				new CompletionState(line, col, classRep, nature), 
         				nature.getAstManager());
+				
         		String withoutSelf = rep.substring(5);
         		for (IToken token : globalTokens) {
 					if(token.getRepresentation().equals(withoutSelf)){
 						String parentPackage = token.getParentPackage();
-						System.out.println("parentPackage = "+parentPackage);
 						AbstractModule module = nature.getAstManager().getModule(parentPackage, nature, true);
-						return new Definition[]{new Definition(token, null, module)};
+						if(module != null && token instanceof SourceToken){
+			                SimpleNode ast2 = ((SourceToken)token).getAst();
+							Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
+							return new Definition[]{new Definition(def.o1, def.o2, token.getRepresentation(), ast2, null, module)};
+						}else{
+							return new Definition[0];
+						}
 					}
 				}
         	}
@@ -290,36 +303,43 @@ public class SourceModule extends AbstractModule {
         
         	
     	//ok, it is not an assign, so, let's search the global tokens (and imports)
-        Tuple<AbstractModule, String> o = nature.getAstManager().findOnImportedMods(nature, rep, this);
         String tok = rep;
         SourceModule mod = this;
+
+        Tuple<AbstractModule, String> o = nature.getAstManager().findOnImportedMods(nature, rep, this);
         
         if(o != null && o.o1 instanceof SourceModule){
             mod =  (SourceModule) o.o1;
             tok = o.o2;
         }
         
-        if(tok != null){
+        //mod == this if we are now checking the globals (or maybe not)...heheheh
+        findDefinitionsFromModAndTok(nature, toRet, visitor.moduleImported, mod, tok);
+            
+        return (Definition[]) toRet.toArray(new Definition[0]);
+    }
+
+    /**
+     * 
+     * @param nature
+     * @param toRet used to return the values
+     * @param visitor
+     * @param mod
+     * @param tok
+     */
+	private void findDefinitionsFromModAndTok(PythonNature nature, ArrayList<Definition> toRet, String moduleImported, SourceModule mod, String tok) {
+		if(tok != null){
         	if(tok.length() > 0){
-	            //mod == this if we are now checking the globals (or maybe not)...heheheh
 	            Definition d = mod.findGlobalTokDef(tok, nature);
-	            if(d != null){
+				if(d != null){
 	                toRet.add(d);
 	                
-	            }else if(visitor.moduleImported != null){
+	            }else if(moduleImported != null){
 	            	//if it was found as some import (and is already stored as a dotted name), we must check for
 	            	//multiple representations in the absolute form:
 	            	//as a relative import
 	            	//as absolute import
-	            	String rel = AbstractToken.makeRelative(mod.getName(), visitor.moduleImported);
-	            	AbstractModule modFound = nature.getAstManager().getModule(rel, nature, false);
-	            	if(modFound == null){
-	            		modFound = nature.getAstManager().getModule(visitor.moduleImported, nature, false);
-	            	}
-	            	if(modFound != null){
-	            		//ok, found it
-	            		toRet.add(new Definition(1,1,"", null, null, modFound));
-	            	}
+	            	getModuleDefinition(nature, toRet, mod, moduleImported);
 	            }
 
         	}else{
@@ -327,14 +347,24 @@ public class SourceModule extends AbstractModule {
         		toRet.add(new Definition(1,1,"",null,null,mod)); 
         	}
         }
-            
-        if(toRet.size() > 0){
-        	return (Definition[]) toRet.toArray(new Definition[0]);
-        }
-        
-        
-        return (Definition[]) toRet.toArray(new Definition[0]);
-    }
+	}
+
+	private Definition getModuleDefinition(PythonNature nature, ArrayList<Definition> toRet, SourceModule mod, String moduleImported) {
+		String rel = AbstractToken.makeRelative(mod.getName(), moduleImported);
+		AbstractModule modFound = nature.getAstManager().getModule(rel, nature, false);
+		if(modFound == null){
+			modFound = nature.getAstManager().getModule(moduleImported, nature, false);
+		}
+		if(modFound != null){
+			//ok, found it
+			Definition definition = new Definition(1,1,"", null, null, modFound);
+			if(toRet != null){
+				toRet.add(definition);
+			}
+			return definition;
+		}
+		return null;
+	}
 
 
     /**
@@ -374,7 +404,6 @@ public class SourceModule extends AbstractModule {
             }
         }
         
-        //if it was not found, it probably is a local or a self, so, let's check it...
         return null;
     }
     

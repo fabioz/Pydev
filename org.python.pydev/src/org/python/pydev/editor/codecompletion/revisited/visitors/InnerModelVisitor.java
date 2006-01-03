@@ -27,7 +27,8 @@ public class InnerModelVisitor extends AbstractVisitor {
      */
     private List attrsHeuristics = new ArrayList();
     
-    public InnerModelVisitor(){
+    public InnerModelVisitor(String moduleName){
+    	this.moduleName = moduleName;
         attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_METHOD_CALL, HeuristicFindAttrs.IN_KEYWORDS, "properties.create"));
         attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_ANY	    , HeuristicFindAttrs.IN_ASSIGN  , ""));
     }
