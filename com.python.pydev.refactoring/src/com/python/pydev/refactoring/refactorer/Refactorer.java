@@ -3,29 +3,35 @@ package com.python.pydev.refactoring.refactorer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.ui.IPropertyListener;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
-import org.python.pydev.editor.refactoring.IPyRefactoring;
+import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.nature.PythonNature;
 
-public class Refactorer implements IPyRefactoring{
-
-	public void addPropertyListener(IPropertyListener l) {
-	}
+public class Refactorer extends AbstractPyRefactoring{
 
 	public String extract(RefactoringRequest request) {
 		return null;
 	}
+	public boolean canExtract(RefactoringRequest request) {
+		return false;
+	}
 
+	
 	public String rename(RefactoringRequest request) {
 		return null;
 	}
+	public boolean canRename(RefactoringRequest request) {
+		return false;
+	}
+
+	
+
+
 
 	public ItemPointer[] findDefinition(RefactoringRequest request) {
 		//ok, let's find the definition.
@@ -53,11 +59,22 @@ public class Refactorer implements IPyRefactoring{
 		
 		return pointers.toArray(new ItemPointer[0]);
 	}
+	public boolean canFindDefinition(RefactoringRequest request) {
+		return true;
+	}
 
+	
+	public boolean canInlineLocalVariable(RefactoringRequest request) {
+		return false;
+	}
 	public String inlineLocalVariable(RefactoringRequest request) {
 		return null;
 	}
 
+	
+	public boolean canExtractLocalVariable(RefactoringRequest request) {
+		return false;
+	}
 	public String extractLocalVariable(RefactoringRequest request) {
 		return null;
 	}
