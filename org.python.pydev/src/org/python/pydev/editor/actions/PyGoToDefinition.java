@@ -76,7 +76,7 @@ public class PyGoToDefinition extends PyRefactorAction {
      * @return
      */
     private ItemPointer[] findDefinition(PyEdit pyEdit) {
-        IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
+        IPyRefactoring pyRefactoring = getPyRefactoring("canFindDefinition");
         return pyRefactoring.findDefinition(getRefactoringRequest());
     }
 

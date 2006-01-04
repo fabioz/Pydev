@@ -25,7 +25,7 @@ public class PyInlineLocalVariable extends PyRefactorAction {
      * @throws CoreException
      */
     protected String perform(IAction action, String name, Operation operation) throws BadLocationException, CoreException {
-        return AbstractPyRefactoring.getPyRefactoring().inlineLocalVariable(getRefactoringRequest(operation));
+        return getPyRefactoring("canInlineLocalVariable").inlineLocalVariable(getRefactoringRequest(operation));
     }
     
     protected String getInputMessage() {

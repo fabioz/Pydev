@@ -13,13 +13,10 @@ import java.util.StringTokenizer;
 
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
-import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * This class is used to make the refactorings.
@@ -162,7 +159,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
 
         String string = makeAction(s, request);
         
-        List l = new ArrayList();
+        List<ItemPointer> l = new ArrayList<ItemPointer>();
 
         if (string.startsWith("BIKE_OK:")){
             string = string.replaceFirst("BIKE_OK:", "").replaceAll("\\[","").replaceAll("'","");
@@ -185,7 +182,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         }
 
         
-        return (ItemPointer[]) l.toArray(new ItemPointer[0]);
+        return l.toArray(new ItemPointer[0]);
         
     }
     
@@ -246,8 +243,8 @@ public class PyRefactoring extends AbstractPyRefactoring {
      * @param string
      * @return list of strings affected by the refactoring.
      */
-    private List refactorResultAsList(String string) {
-        List l = new ArrayList();
+    private List<String> refactorResultAsList(String string) {
+        List<String> l = new ArrayList<String>();
         
         if (string == null){
             return l;
@@ -274,6 +271,26 @@ public class PyRefactoring extends AbstractPyRefactoring {
     private void communicateRefactorResult(String string) {
         List l = refactorResultAsList(string);
         setLastRefactorResults(new Object[]{this, l});
+    }
+
+    public boolean canExtract(RefactoringRequest request) {
+        return true;
+    }
+
+    public boolean canRename(RefactoringRequest request) {
+        return true;
+    }
+
+    public boolean canFindDefinition(RefactoringRequest request) {
+        return true;
+    }
+
+    public boolean canInlineLocalVariable(RefactoringRequest request) {
+        return true;
+    }
+
+    public boolean canExtractLocalVariable(RefactoringRequest request) {
+        return true;
     }
 
 

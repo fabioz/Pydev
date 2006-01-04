@@ -8,7 +8,6 @@ package org.python.pydev.editor.actions.refactoring;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 
 /**
  * @author Fabio Zadrozny
@@ -28,7 +27,7 @@ public class PyExtractLocalVariable extends PyRefactorAction {
     protected String perform(IAction action, String name, Operation operation) throws BadLocationException, CoreException {
         String res = "";
         if(name.equals("") == false){
-            res = AbstractPyRefactoring.getPyRefactoring().extractLocalVariable(getRefactoringRequest(name, operation));
+            res = getPyRefactoring("canExtractLocalVariable").extractLocalVariable(getRefactoringRequest(name, operation));
         }
         return res;
 

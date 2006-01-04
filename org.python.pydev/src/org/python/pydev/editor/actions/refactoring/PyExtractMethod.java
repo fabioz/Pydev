@@ -31,7 +31,7 @@ public class PyExtractMethod extends PyRefactorAction {
         
         String res = "";
         if(name.equals("") == false){
-	        res = AbstractPyRefactoring.getPyRefactoring().extract(getRefactoringRequest(name, operation));
+	        res = getPyRefactoring("canExtract").extract(getRefactoringRequest(name, operation));
         }
         return res;
 

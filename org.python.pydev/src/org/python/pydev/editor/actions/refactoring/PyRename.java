@@ -21,7 +21,7 @@ public class PyRename extends PyRefactorAction {
     protected String perform(IAction action, String name, Operation operation) throws Exception {
         String res = "";
         if(name.equals("") == false){
-	        res = AbstractPyRefactoring.getPyRefactoring().rename(getRefactoringRequest(name, operation));
+	        res = getPyRefactoring("canRename").rename(getRefactoringRequest(name, operation));
         }
         return res;
     }

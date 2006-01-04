@@ -29,10 +29,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.REF;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.views.PyRefactorView;
@@ -93,6 +95,27 @@ public abstract class PyRefactorAction extends PyAction {
      */
     protected String getDefaultValue() {
         return "";
+    }
+    
+    /**
+     * @param conditionalMethod this is the conditional method that must return true so that the 
+     * object is used for what it is intended (like, checking if it can do a rename before asking it
+     * to really do one.
+     * @return the pyrefactoring to be used.
+     */
+    protected IPyRefactoring getPyRefactoring(String conditionalMethod){
+        IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
+        //check if it is able to do the method by checking its pre-condition
+        try {
+            if ((Boolean) REF.invoke(pyRefactoring, conditionalMethod, new Object[0])) {
+                return pyRefactoring;
+            }
+        } catch (Exception e) {
+            //probably some plugin contributed something faulty...
+            //just log it and ignore (keep with the default implementation, provided by brm)
+            PydevPlugin.log(e);
+        }
+        return AbstractPyRefactoring.getDefaultPyRefactoring();
     }
     
     public RefactoringRequest getRefactoringRequest(){
@@ -261,7 +284,7 @@ public abstract class PyRefactorAction extends PyAction {
     private void restartRefactorShell() {
         new Thread() {
             public void run() {
-                AbstractPyRefactoring.getPyRefactoring().restartShell();
+                AbstractPyRefactoring.restartShells();
             }
         }.start();
 

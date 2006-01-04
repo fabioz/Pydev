@@ -21,7 +21,7 @@ public interface IPyRefactoring {
      * 
      * @param l
      */
-    public abstract void addPropertyListener(IPropertyListener l);
+    public void addPropertyListener(IPropertyListener l);
 
     /**
      * Extract method
@@ -34,7 +34,8 @@ public interface IPyRefactoring {
      * @param name
      * @param operation
      */
-    public abstract String extract(RefactoringRequest request);
+    public String extract(RefactoringRequest request);
+    public boolean canExtract(RefactoringRequest request);
 
     /**
      * Rename something (class, method, local...)
@@ -45,7 +46,8 @@ public interface IPyRefactoring {
      * @param name
      * @param operation
      */
-    public abstract String rename(RefactoringRequest request);
+    public String rename(RefactoringRequest request);
+    public boolean canRename(RefactoringRequest request);
 
     /**
      * Find where something is defined (many results because it may seem something is defined in several places)
@@ -56,7 +58,8 @@ public interface IPyRefactoring {
      * @param operation
      * @return
      */
-    public abstract ItemPointer[] findDefinition(RefactoringRequest request);
+    public ItemPointer[] findDefinition(RefactoringRequest request);
+    public boolean canFindDefinition(RefactoringRequest request);
 
     /**
      * Inline a local variable
@@ -67,7 +70,8 @@ public interface IPyRefactoring {
      * @param operation
      * @return
      */
-    public abstract String inlineLocalVariable(RefactoringRequest request);
+    public String inlineLocalVariable(RefactoringRequest request);
+    public boolean canInlineLocalVariable(RefactoringRequest request);
 
     /**
      * Extract a local variable from something
@@ -81,26 +85,28 @@ public interface IPyRefactoring {
      * @param operation
      * @return
      */
-    public abstract String extractLocalVariable(RefactoringRequest request);
+    public String extractLocalVariable(RefactoringRequest request);
+    public boolean canExtractLocalVariable(RefactoringRequest request);
 
 
     /**
      * This function restarts the shell (if there is one).
      */
-    public abstract void restartShell();
+    public void restartShell();
 
     /**
      * This function kills the shell (if there is one).
      */
-    public abstract void killShell();
+    public void killShell();
 
     /**
      * @param lastRefactorResults The lastRefactorResults to set.
      */
-    public abstract void setLastRefactorResults(Object[] lastRefactorResults);
+    public void setLastRefactorResults(Object[] lastRefactorResults);
 
     /**
      * @return Returns the lastRefactorResults.
      */
-    public abstract Object[] getLastRefactorResults();
+    public Object[] getLastRefactorResults();
+    public void firePropertyChange();
 }
