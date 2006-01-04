@@ -17,25 +17,25 @@ public class PydevExtensionNotifier extends Thread{
 	
 	@Override
 	public void run() {	
-		while( !validated ) {
-            try {
-            	int seconds = 30;
-                sleep( seconds * 1000);
-                final Display disp = Display.getDefault();
-                disp.asyncExec(new Runnable(){
-                    public void run() {
-                        IWorkbenchWindow window = PydevPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
-                        Shell shell = window == null ? new Shell(disp) : window.getShell();
-                        MessageBox message = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-                        message.setText("Pydev extension");
-                        message.setMessage("Trial version");                                    
-                        message.open();
-                    }
-                });
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        }
+//		while( !validated ) {
+//            try {
+//            	int seconds = 30;
+//                sleep( seconds * 1000);
+//                final Display disp = Display.getDefault();
+//                disp.asyncExec(new Runnable(){
+//                    public void run() {
+//                        IWorkbenchWindow window = PydevPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
+//                        Shell shell = window == null ? new Shell(disp) : window.getShell();
+//                        MessageBox message = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
+//                        message.setText("Pydev extension");
+//                        message.setMessage("Trial version");                                    
+//                        message.open();
+//                    }
+//                });
+//            } catch (Throwable e) {
+//                e.printStackTrace();
+//            }
+//        }
 	}
 	
 	public void setValidated( boolean valid ) {

@@ -17,6 +17,8 @@ import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MessageBox;
@@ -26,6 +28,7 @@ import org.python.pydev.licensemanager.encryption.ClientEncryption;
 import org.python.pydev.licensemanager.persistence.businessrules.LicenseDefaults;
 import org.python.pydev.licensemanager.persistence.dao.ValueObject;
 import org.python.pydev.licensemanager.rmi.ILicenseManager;
+import org.python.pydev.utils.MultiStringFieldEditor;
 
 import com.python.pydev.PydevExtensionInitializer;
 import com.python.pydev.PydevPlugin;
@@ -44,9 +47,12 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 
 	@Override
     protected void createFieldEditors() {
-    	Composite composite = getFieldEditorParent();    	
+    	Composite composite = getFieldEditorParent();
+        composite.setLayoutData(new GridData(GridData.FILL_BOTH));
+        composite.setLayout(new GridLayout());
+
     	addField(new StringFieldEditor(PydevExtensionInitializer.USER_NAME_VALIDATE_EXTENSION, "User name", composite));
-    	addField(new StringFieldEditor(PydevExtensionInitializer.LICENSE_NUMBER_VALIDATE_EXTENSION, "License number", composite));
+    	addField(new MultiStringFieldEditor(PydevExtensionInitializer.LICENSE_NUMBER_VALIDATE_EXTENSION, "License", composite));
     	
     	Button btValidate = new Button(composite, SWT.PUSH);
     	btValidate.setText("Validate");

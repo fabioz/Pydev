@@ -32,8 +32,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 	 */
 	public PydevPlugin() {
 		plugin = this;
-		
-		loadLicense();
 	}
 
 	/**
