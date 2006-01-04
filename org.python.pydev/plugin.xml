@@ -742,7 +742,7 @@
             id="org.python.pydev"/>
       <view
             class="org.python.pydev.views.PyRefactorView"
-            icon="icons/python_refactor.gif"
+            icon="icons/python_refactor.png"
             category="org.python.pydev"
             name="Refactor Results View"
             id="org.python.pydev.views.PyRefactorView"/>
@@ -802,7 +802,7 @@
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.project.PythonProjectWizard"
-            descriptionImage="icons/python-logo.png"
+            descriptionImage="icons/python_logo.png"
             finalPerspective="org.python.pydev.plugin.PythonPerspective"
             hasPages="true"
             icon="icons/python_16x16.png"
@@ -817,7 +817,7 @@
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.files.PythonFileWizard"
-            descriptionImage="icons/python-logo.png"
+            descriptionImage="icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="icons/python.gif"
