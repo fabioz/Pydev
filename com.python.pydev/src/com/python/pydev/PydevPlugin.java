@@ -137,7 +137,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 				}
 			} catch (FileNotFoundException e) {
 				validated = false;
-				e.printStackTrace();
+				System.err.println("The license file: "+path.toOSString()+" was not found.");
 			} catch (IOException e) {
 				validated = false;
 				e.printStackTrace();
