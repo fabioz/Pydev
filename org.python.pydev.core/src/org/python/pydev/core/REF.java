@@ -93,8 +93,17 @@ public class REF {
             throw new RuntimeException(e);
         }
     
-        return new String(Base64.encodeBase64(out.toByteArray()));
+        return new String(encodeBase64(out));
     }
+
+	public static byte[] encodeBase64(ByteArrayOutputStream out) {
+		byte[] byteArray = out.toByteArray();
+		return encodeBase64(byteArray);
+	}
+
+	public static byte[] encodeBase64(byte[] byteArray) {
+		return Base64.encodeBase64(byteArray);
+	}
     
     /**
      * 
@@ -122,13 +131,17 @@ public class REF {
      * @throws ClassNotFoundException
      */
     public static Object getStrAsObj(String persisted, ICallback<Object, ObjectInputStream> readFromFileMethod) throws IOException, ClassNotFoundException {
-        InputStream input = new ByteArrayInputStream(Base64.decodeBase64(persisted.getBytes()));
+        InputStream input = new ByteArrayInputStream(decodeBase64(persisted));
         ObjectInputStream in = new ObjectInputStream(input);
         Object o = readFromFileMethod.call(in);
         in.close();
         input.close();
         return o;
     }
+
+	public static byte[] decodeBase64(String persisted) {
+		return Base64.decodeBase64(persisted.getBytes());
+	}
 
 
     /**
