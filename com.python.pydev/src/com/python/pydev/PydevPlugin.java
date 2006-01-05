@@ -43,7 +43,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 		checkValid();
 	}
 
-	public void checkValid() {
+	public boolean checkValid() {
 		loadLicense();
 		if( !validated ) {
 			if(notifier == null){
@@ -54,6 +54,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 		}else{
 			notifier.setValidated(true);
 		}
+		return validated;
 	}
 
 	/**

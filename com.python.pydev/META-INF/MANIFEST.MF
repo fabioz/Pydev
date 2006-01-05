@@ -17,7 +17,6 @@ Bundle-ClassPath: pydev.jar,
  licensemanagerClient.jar,
  mail.jar
 Export-Package: com.python.pydev,
- com.python.pydev.encryption,
  com.python.pydev.license.defaults,
  com.python.pydev.properties,
  com.python.pydev.ui,
