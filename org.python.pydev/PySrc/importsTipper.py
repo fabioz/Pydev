@@ -25,22 +25,29 @@ def _imp(name):
             raise RuntimeError(s)
 
 def Find( name ):
+    f = None
     mod = _imp(name)
+    if inspect.ismodule(mod) and hasattr(mod, '__file__'):
+        f = mod.__file__
+        
     components = name.split('.')
 
     for comp in components[1:]:
         mod = getattr(mod, comp)
-    return mod
+        if inspect.ismodule(mod) and hasattr(mod, '__file__'):
+            f = mod.__file__
+    return f, mod
 
 
 def GenerateTip( data ):
     data = data.replace( '\n', '' )
     if data.endswith( '.' ):
         data = data.rstrip( '.' )
-    
-    mod = Find( data )
+        
+    f, mod = Find( data )
+    #print >> open('temp.txt', 'w'), f
     tips = GenerateImportsTipForModule( mod )
-    return tips
+    return f,tips
     
     
 

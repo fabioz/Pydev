@@ -31,6 +31,7 @@ def _imp(name):
             raise RuntimeError(s)
 
 def Find( name ):
+    f = None
     if name.startswith('__builtin__'):
         if name == '__builtin__.str':
             name = 'org.python.core.PyString'
@@ -38,11 +39,16 @@ def Find( name ):
             name = 'org.python.core.PyDictionary'
             
     mod = _imp(name)
+    if hasattr(mod, '__file__'):
+        f = mod.__file__
+
     components = name.split('.')
 
     for comp in components[1:]:
         mod = getattr(mod, comp)
-    return mod
+        if hasattr(mod, '__file__'):
+            f = mod.__file__
+    return f, mod
 
 def formatParamClassName(paramClassName):
     if paramClassName.startswith('['):
@@ -66,9 +72,9 @@ def GenerateTip( data ):
     if data.endswith( '.' ):
         data = data.rstrip( '.' )
     
-    mod = Find( data )
+    f, mod = Find( data )
     tips = GenerateImportsTipForModule( mod )
-    return tips
+    return f, tips
     
 
 class Info:

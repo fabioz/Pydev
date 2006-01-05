@@ -2,6 +2,7 @@
 '''
 @author Fabio Zadrozny 
 '''
+SERVER_NAME = 'SERVER_NAME'
 #ok, let,s fix some things that may not work on jython depending on the version
 try:
     __setFalse = False
@@ -34,7 +35,6 @@ DEBUG = INFO1 | ERROR
 def dbg( s, prior ):
     if prior & DEBUG != 0:
         print s
-
         
 HOST = '127.0.0.1'               # Symbolic name meaning the local host
 
@@ -112,7 +112,7 @@ class KeepAliveThread( Thread ):
         sent = self.socket.send( self.lastMsg )
         if sent == 0:
             sys.exit(0) #connection broken
-            
+        
 class T( Thread ):
 
     def __init__( self, thisP, serverP ):
@@ -133,15 +133,15 @@ class T( Thread ):
             return urllib.quote_plus( msg )
         return ' '
     
-    def formatCompletionMessage( self, completionsList ):
+    def formatCompletionMessage( self, defFile, completionsList ):
         '''
         Format the completions suggestions in the following format:
         @@COMPLETIONS((token,description),(token,description),(token,description))END@@
         '''
         compMsg = []
+        compMsg.append( '%s' % defFile )
         for tup in completionsList:
-            if len( compMsg ) > 0:
-                compMsg.append( ',' )
+            compMsg.append( ',' )
                 
             compMsg.append( '(' )
             compMsg.append( str( self.removeInvalidChars( tup[0] ) ) ) #token
@@ -160,11 +160,11 @@ class T( Thread ):
         
         return '%s(%s)%s'%( MSG_COMPLETIONS, ''.join( compMsg ), MSG_END )
     
-    def getCompletionsMessage( self, completionsList ):
+    def getCompletionsMessage( self, defFile, completionsList ):
         '''
         get message with completions.
         '''
-        return self.formatCompletionMessage( completionsList )
+        return self.formatCompletionMessage( defFile, completionsList )
     
     def getTokenAndData( self, data ):
         '''
@@ -185,7 +185,7 @@ class T( Thread ):
         try:
             import socket
             
-            dbg( 'jycompletionserver creating socket' , INFO1 )
+            dbg( SERVER_NAME+' creating socket' , INFO1 )
             s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
             s.bind( ( HOST, self.thisPort ) )
             s.listen( 1 ) #socket to receive messages.
@@ -194,15 +194,15 @@ class T( Thread ):
             #we stay here until we are connected.
             #we only accept 1 client. 
             #the exit message for the server is @@KILL_SERVER_END@@
-            dbg( 'jycompletionserver waiting for connection' , INFO1 )
+            dbg( SERVER_NAME+' waiting for connection' , INFO1 )
             conn, addr = s.accept()
             time.sleep( 0.5 ) #wait a little before connecting to JAVA server
     
-            dbg( 'jycompletionserver waiting to java client' , INFO1 )
+            dbg( SERVER_NAME+' waiting to java client' , INFO1 )
             #after being connected, create a socket as a client.
             self.connectToServer()
             
-            dbg( 'jycompletionserver Connected by ' + str( addr ), INFO1 )
+            dbg( SERVER_NAME+' Connected by ' + str( addr ), INFO1 )
             
             
             while 1:
@@ -216,23 +216,21 @@ class T( Thread ):
                         sys.exit(0) #ok, connection ended
                     data += received
     
-                dbg( 'jycompletionserver ok, out of the while... treating received msg', INFO1 )
-                
                 try:
                     try:
                         if data.find( MSG_KILL_SERVER ) != -1:
-                            dbg( 'jycompletionserver kill message received', INFO1 )
+                            dbg( SERVER_NAME+' kill message received', INFO1 )
                             #break if we received kill message.
                             sys.exit(0)
             
-                        dbg( 'jycompletionserver starting keep alive thread', INFO2 )
+                        dbg( SERVER_NAME+' starting keep alive thread', INFO2 )
                         keepAliveThread.start()
                         
                         if data.find( MSG_PYTHONPATH ) != -1:
                             comps = []
                             for p in _sys_path:
                                 comps.append( ( p, ' ' ) )
-                            returnMsg = self.getCompletionsMessage( comps )
+                            returnMsg = self.getCompletionsMessage( None, comps )
     
                         else:
                             data = data[:data.rfind( MSG_END )]
@@ -240,8 +238,8 @@ class T( Thread ):
                             if data.startswith( MSG_IMPORTS ):
                                 data = data.replace( MSG_IMPORTS, '' )
                                 data = urllib.unquote_plus( data )
-                                comps = jyimportsTipper.GenerateTip( data )
-                                returnMsg = self.getCompletionsMessage( comps )
+                                defFile, comps = jyimportsTipper.GenerateTip( data )
+                                returnMsg = self.getCompletionsMessage( defFile, comps )
         
                             elif data.startswith( MSG_CHANGE_PYTHONPATH ):
                                 data = data.replace( MSG_CHANGE_PYTHONPATH, '' )
@@ -258,17 +256,17 @@ class T( Thread ):
                             else:
                                 returnMsg = MSG_INVALID_REQUEST
                     except :
-                        dbg( 'jycompletionserver exception ocurred', ERROR )
+                        dbg( SERVER_NAME+' exception ocurred', ERROR )
                         import traceback
                         import StringIO
     
                         s = StringIO.StringIO()
                         exc_info = sys.exc_info()
-    
                         traceback.print_exception( exc_info[0], exc_info[1], exc_info[2], limit=None, file = s )
+    
                         err = s.getvalue()
-                        dbg( 'jycompletionserver received error: '+str( err ), ERROR )
-                        returnMsg = self.getCompletionsMessage( [( 'ERROR:', '%s'%( err ), '' )] )
+                        dbg( SERVER_NAME+' received error: '+str(err), ERROR )
+                        returnMsg = self.getCompletionsMessage( None, [( 'ERROR:', '%s'%( err ), '' )] )
                     
                 finally:
                     keepAliveThread.lastMsg = returnMsg
@@ -287,7 +285,7 @@ class T( Thread ):
 
             traceback.print_exception( exc_info[0], exc_info[1], exc_info[2], limit=None, file = s )
             err = s.getvalue()
-            dbg( 'jycompletionserver received error: '+str( err ), ERROR )
+            dbg( SERVER_NAME+' received error: '+str( err ), ERROR )
             raise
 
 if __name__ == '__main__':
@@ -296,6 +294,6 @@ if __name__ == '__main__':
     serverPort = int( sys.argv[2] )#this is where we want to write messages.
     
     t = T( thisPort, serverPort )
-    dbg( 'jycompletionserver will start', INFO1 )
+    dbg( SERVER_NAME+' will start', INFO1 )
     t.start()
 

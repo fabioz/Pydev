@@ -1,6 +1,7 @@
 '''
 @author Fabio Zadrozny 
 '''
+
 import sys
 import os
 
@@ -33,15 +34,15 @@ class Test(unittest.TestCase):
         l.append(('Def1','description1', 'args1'))
         l.append(('Def2','description2', 'args2'))
         
-        msg = t.formatCompletionMessage(l)
-        self.assertEquals('@@COMPLETIONS((Def,description,args),(Def1,description1,args1),(Def2,description2,args2))END@@', msg)
+        msg = t.formatCompletionMessage(None,l)
+        self.assertEquals('@@COMPLETIONS(None,(Def,description,args),(Def1,description1,args1),(Def2,description2,args2))END@@', msg)
         
         l = []
         l.append(('Def','desc,,r,,i()ption',''  ))
         l.append(('Def(1','descriptio(n1',''))
         l.append(('De,f)2','de,s,c,ription2',''))
-        msg = t.formatCompletionMessage(l)
-        self.assertEquals('@@COMPLETIONS((Def,desc%2C%2Cr%2C%2Ci%28%29ption, ),(Def%281,descriptio%28n1, ),(De%2Cf%292,de%2Cs%2Cc%2Cription2, ))END@@', msg)
+        msg = t.formatCompletionMessage(None,l)
+        self.assertEquals('@@COMPLETIONS(None,(Def,desc%2C%2Cr%2C%2Ci%28%29ption, ),(Def%281,descriptio%28n1, ),(De%2Cf%292,de%2Cs%2Cc%2Cription2, ))END@@', msg)
 
     def createConnections(self, p1 = 50002,p2 = 50003):
         '''
@@ -64,11 +65,18 @@ class Test(unittest.TestCase):
         
 
     def readMsg(self):
-        msg = '@@PROCESSING_END@@'
-        while msg.startswith('@@PROCESSING'):
-            msg = self.connToRead.recv(1024*4)
-            if msg.startswith('@@PROCESSING:'):
+        finish = False
+        msg = ''
+        while finish == False:
+            m = self.connToRead.recv(1024*4)
+            
+            if m.startswith('@@PROCESSING'):
                 print 'Status msg:', msg
+            else:
+                msg += m
+
+            if 'END@@' in msg:
+                finish = True
 
         return msg
 
@@ -82,8 +90,8 @@ class Test(unittest.TestCase):
             completions = self.readMsg()
             #print urllib.unquote_plus(completions)
             
-            
-            start = '@@COMPLETIONS((__doc__,'
+            #math is a builtin and because of that, it starts with None as a file
+            start = '@@COMPLETIONS(None,(__doc__,'
             self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % ( completions, start) )
     
             self.assert_('@@COMPLETIONS' in completions)

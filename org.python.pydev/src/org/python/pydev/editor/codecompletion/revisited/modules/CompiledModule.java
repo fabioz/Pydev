@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
@@ -94,11 +95,20 @@ public class CompiledModule extends AbstractModule{
 	private void setTokens(String name, ICodeCompletionASTManager manager) throws IOException, Exception, CoreException {
 		AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
 		synchronized(shell){
-		    List completions = shell.getImportCompletions(name, manager.getProjectModulesManager().getCompletePythonPath());
-		    
+            Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, manager.getProjectModulesManager().getCompletePythonPath());
+            this.file = new File(completions.o1);
+
+            String f = completions.o1;
+            if(f.endsWith(".pyc")){
+                f = f.substring(0, f.length()-1); //remove the c from pyc
+                File f2 = new File(f);
+                if(f2.exists()){
+                    this.file = f2;
+                }
+            }
 		    ArrayList<IToken> array = new ArrayList<IToken>();
 		    
-		    for (Iterator iter = completions.iterator(); iter.hasNext();) {
+		    for (Iterator iter = completions.o2.iterator(); iter.hasNext();) {
 		        String[] element = (String[]) iter.next();
 		        //let's make this less error-prone.
 		        try {
@@ -186,7 +196,7 @@ public class CompiledModule extends AbstractModule{
 	        try {
 	            AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
 	            synchronized(shell){
-		            List completions = shell.getImportCompletions(name+"."+state.activationToken, manager.getProjectModulesManager().getCompletePythonPath());
+		            List<String[]> completions = shell.getImportCompletions(name+"."+state.activationToken, manager.getProjectModulesManager().getCompletePythonPath()).o2;
 		            
 		            ArrayList<IToken> array = new ArrayList<IToken>();
 		            
@@ -236,6 +246,10 @@ public class CompiledModule extends AbstractModule{
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
     public Definition[] findDefinition(String token, int line, int col, PythonNature nature) throws Exception {
+        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+        synchronized(shell){
+            shell.getLineCol(this.name, token);
+        }
         return new Definition[0];
     }
 

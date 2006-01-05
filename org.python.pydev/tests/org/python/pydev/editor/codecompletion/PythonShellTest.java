@@ -64,7 +64,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
     }
 
     public void testGetGlobalCompletions() throws IOException, CoreException {
-        List list = shell.getImportCompletions("math", new ArrayList());
+        List list = shell.getImportCompletions("math", new ArrayList()).o2;
 
         Object[] element = null;
         element = (Object[]) list.get(0);
@@ -76,7 +76,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
 
 
     public void testErrorOnCompletions() throws IOException, CoreException {
-        List list = shell.getImportCompletions("dfjslkfjds\n\n", getPythonpath());
+        List list = shell.getImportCompletions("dfjslkfjds\n\n", getPythonpath()).o2;
         assertEquals(0, list.size());
         //don't show completion errors!
     }
@@ -90,7 +90,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
 
     public void testGlu() throws IOException, CoreException {
         if(TestDependent.HAS_GLU_INSTALLED){
-            List list = shell.getImportCompletions("OpenGL.GLUT", getPythonpath());
+            List list = shell.getImportCompletions("OpenGL.GLUT", getPythonpath()).o2;
             
             assertTrue(list.size() > 10);
             assertIsIn(list, "glutInitDisplayMode");

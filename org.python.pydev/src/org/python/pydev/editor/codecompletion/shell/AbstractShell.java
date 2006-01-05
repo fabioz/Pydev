@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
@@ -747,7 +748,7 @@ public abstract class AbstractShell {
      * @return list with tuples: new String[]{token, description}
      * @throws CoreException
      */
-    public synchronized List getImportCompletions(String str, List pythonpath) throws CoreException {
+    public synchronized Tuple<String, List<String[]>> getImportCompletions(String str, List pythonpath) throws CoreException {
         while(isInOperation){
             sleepALittle(100);
         }
@@ -803,7 +804,7 @@ public abstract class AbstractShell {
         }
     }
 
-    protected synchronized List getTheCompletions(String str) throws CoreException {
+    protected synchronized Tuple<String, List<String[]>> getTheCompletions(String str) throws CoreException {
         try {
             this.write(str);
     
@@ -846,23 +847,26 @@ public abstract class AbstractShell {
     /**
      * @return
      */
-    protected synchronized List getInvalidCompletion() {
+    protected synchronized Tuple<String, List<String[]>> getInvalidCompletion() {
         List<String[]> l = new ArrayList<String[]>();
-        return l;
+        return new Tuple<String, List<String[]>>(null, l);
     }
 
     /**
      * @throws IOException
      */
-    protected synchronized List getCompletions() throws IOException {
+    protected synchronized Tuple<String, List<String[]>> getCompletions() throws IOException {
         ArrayList<String[]> list = new ArrayList<String[]>();
         String string = this.read().replaceAll("\\(","").replaceAll("\\)","");
         StringTokenizer tokenizer = new StringTokenizer(string, ",");
         
+        //the first token is always the file for the module (no matter what)
+        String file = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+        System.out.println(file);
         while(tokenizer.hasMoreTokens()){
             String token       = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
             if(!tokenizer.hasMoreTokens()){
-                return list;
+                return new Tuple<String, List<String[]>>(file, list);
             }
             String description = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
             
@@ -881,7 +885,17 @@ public abstract class AbstractShell {
                 list.add(new String[]{token, description, args, type});
             }
         }
-        return list;
+        return new Tuple<String, List<String[]>>(file, list);
+    }
+
+
+    /**
+     * @param moduleName the name of the module where the token is defined
+     * @param token the token we are looking for
+     * @return the file where the token was defined, its line and its column.
+     */
+    public Tuple<String,int []> getLineCol(String moduleName, String token) {
+        return null;
     }
 
 

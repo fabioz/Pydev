@@ -311,12 +311,21 @@ public class SourceModule extends AbstractModule {
         if(o != null && o.o1 instanceof SourceModule){
             mod =  (SourceModule) o.o1;
             tok = o.o2;
+            
+        }else if(o != null && o.o1 instanceof CompiledModule){
+            //ok, we have to check the compiled module
+            tok = o.o2;
+            if (tok == null || tok.length() == 0 ){
+                return new Definition[]{new Definition(1,1,"",null,null,o.o1)};
+            }else{
+                o.o1.findDefinition(tok, 0, 0, nature);
+            }
         }
         
         //mod == this if we are now checking the globals (or maybe not)...heheheh
         findDefinitionsFromModAndTok(nature, toRet, visitor.moduleImported, mod, tok);
             
-        return (Definition[]) toRet.toArray(new Definition[0]);
+        return toRet.toArray(new Definition[0]);
     }
 
     /**
