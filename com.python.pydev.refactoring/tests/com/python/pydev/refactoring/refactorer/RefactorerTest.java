@@ -16,7 +16,7 @@ public class RefactorerTest extends CodeCompletionTestsBase {
 		try {
 			RefactorerTest test = new RefactorerTest();
 			test.setUp();
-			test.testSearch9();
+			test.testBuiltinSearch();
 			test.tearDown();
 
 			junit.textui.TestRunner.run(RefactorerTest.class);
@@ -30,7 +30,7 @@ public class RefactorerTest extends CodeCompletionTestsBase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-        CompiledModule.COMPILED_MODULES_ENABLED = false;
+        CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(false);
         refactorer = new Refactorer();
 	}
@@ -256,4 +256,19 @@ public class RefactorerTest extends CodeCompletionTestsBase {
 		assertEquals(0, pointers[0].start.column);
 	}
 	
+
+    public void testBuiltinSearch() throws Exception {
+//      import os
+        String line = "import os";
+        RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"simpleosimport.py"));
+        refactoringRequest.ps = new PySelection(refactoringRequest.doc, 0, line.length()); //find the os module
+        refactoringRequest.nature = nature;
+        ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+        
+        assertEquals(1, pointers.length);
+        assertEquals(new File(TestDependent.PYTHON_LIB+"os.py"), pointers[0].file);
+        //found the module
+        assertEquals(0, pointers[0].start.line);
+        assertEquals(0, pointers[0].start.column);
+    }
 }
