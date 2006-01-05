@@ -1,6 +1,5 @@
 package com.python.pydev.encryption;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -15,10 +14,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 
+import org.python.pydev.core.REF;
 import org.python.pydev.licensemanager.encryption.AbstractEncryption;
-
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 public class PydevExtensionEncryption extends AbstractEncryption {
 	private static final String	UNICODE_FORMAT = "UTF8";
@@ -57,9 +54,8 @@ public class PydevExtensionEncryption extends AbstractEncryption {
 			byte[] cleartext = unencryptedString.getBytes( UNICODE_FORMAT );
 			byte[] ciphertext = cipher.doFinal( cleartext );
 
-			BASE64Encoder base64encoder = new BASE64Encoder();
-			System.out.println("encrypt:" + base64encoder.encode( ciphertext ));
-			return base64encoder.encode( ciphertext );
+			System.out.println("encrypt:" + new String(REF.encodeBase64( ciphertext )));
+			return new String(REF.encodeBase64( ciphertext ));
 		} catch (InvalidKeyException e) {
 			e.printStackTrace();
 		} catch (InvalidKeySpecException e) {
@@ -80,16 +76,13 @@ public class PydevExtensionEncryption extends AbstractEncryption {
 		try {
 			key = keyFactory.generateSecret( keySpec );
 			cipher.init( Cipher.DECRYPT_MODE, key );
-			BASE64Decoder base64decoder = new BASE64Decoder();
-			byte[] cleartext = base64decoder.decodeBuffer( encryptedString );
+			byte[] cleartext = REF.decodeBase64( encryptedString );
 			byte[] ciphertext = cipher.doFinal( cleartext );
 			System.out.println("decrypt:" + new String(ciphertext));
 			return new String( ciphertext );
 		} catch (InvalidKeySpecException e) {		
 			e.printStackTrace();
 		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (IllegalBlockSizeException e) {
 			e.printStackTrace();
