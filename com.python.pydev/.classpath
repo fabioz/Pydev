@@ -5,5 +5,7 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="mail.jar"/>
 	<classpathentry kind="lib" path="licensemanagerClient.jar"/>
+	<classpathentry kind="src" path="tests"/>
+	<classpathentry kind="lib" path="activation.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
