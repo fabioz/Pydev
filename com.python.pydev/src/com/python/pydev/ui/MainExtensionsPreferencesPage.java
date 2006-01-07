@@ -6,6 +6,7 @@
  */
 package com.python.pydev.ui;
 
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
@@ -33,6 +34,11 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 	private class GetInfoButtonListener implements SelectionListener{
 
 		public void widgetSelected(SelectionEvent e) {
+            //ok, let's ask the user about its info and send it to the e-mail
+            Dialog dialog = new GetInfoDialog(getShell());
+            dialog.setBlockOnOpen(true);
+            int ret = dialog.open();
+            System.out.println(ret);
 		}
 
 		public void widgetDefaultSelected(SelectionEvent e) {

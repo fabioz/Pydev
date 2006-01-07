@@ -31,6 +31,6 @@ public class SendApp {
 
     public static void main(String[] args) throws Exception {
         // Send a test message
-        send("esss.com.br", 25, "pydev@pydev.com.br", "fabiofz@gmail.com", "re: test", "Did it go?");
+        send("esss.com.br", 25, "pydev@pydev.com.br", "fabioz@esss.com.br", "re: test", "Did it go?");
     }
 }
