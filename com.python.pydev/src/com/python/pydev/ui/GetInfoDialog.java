@@ -3,9 +3,16 @@
  */
 package com.python.pydev.ui;
 
-import java.math.BigInteger;
+import java.util.Properties;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -22,6 +29,8 @@ import org.python.pydev.core.docutils.WordUtils;
 
 import com.python.pydev.license.ClientEncryption;
 import com.python.pydev.util.EnvGetter;
+import com.sun.mail.smtp.SMTPMessage;
+import com.sun.mail.smtp.SMTPTransport;
 
 public class GetInfoDialog extends Dialog {
     
@@ -44,8 +53,8 @@ public class GetInfoDialog extends Dialog {
         GridLayout layout = (GridLayout) composite.getLayout();
         layout.numColumns = 2;
         
-        String msg = "If you already paid for 'Pydev Extensions', please follow the instructions below in 'Request license'. If you still " +
-                "haven't paid for it, please go to xxxxxxxxxx and follow the instructions to pay for your copy of 'Pydev Extensions'.\n\n";
+        String msg = "If you already paid for the 'Pydev Extensions', please follow the instructions below in 'Request license'. If you still " +
+                "haven't, please go to xxxxxxxxxx and follow the instructions so that you can request your license for the 'Pydev Extensions'.\n\n";
         
         String msg1 = "Request license:\n";
         String msg2 = "Fill your complete name and e-mail (it MUST be the same e-mail you used in paypal) " +
@@ -53,14 +62,20 @@ public class GetInfoDialog extends Dialog {
                 "succeeds, press 'Send Information'. You'll receive your license through the e-mail you specified within 2 work days.\n\n";
         
         String msg3a = "Contact:\n";
-        String msg3 = "If you have some reason to believe that something went wrong, or you haven't received " +
-                "your license within 2 work days, please e-mail: fabiofz at gmail.com\n\n";
+        String msg3 = "If you have some reason to believe that something went wrong, haven't received " +
+                "your license within 2 work days, or have any doubts, please e-mail: fabiofz@gmail.com with the information that appears below.\n\n";
+        
+        String msg4 = "Note:\n";
+        String msg4a = "The license will only be valid for your current installation. If you need to install it in another computer, you'll have" +
+                "to follow the same steps to install 'Pydev Extensions' in the other computer and follow the same steps again.";
         
         MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg, 80), 2));
         MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg1, 80), 2));
         createLabel(composite, WordUtils.wrap(msg2, 100), 2);
         MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg3a, 80), 2));
         createLabel(composite, WordUtils.wrap(msg3, 100), 2);
+        MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg4, 80), 2));
+        createLabel(composite, WordUtils.wrap(msg4a, 100), 2);
         
         createLabel(composite, "Name (complete)"); 
         textName = createText(composite);
@@ -76,42 +91,22 @@ public class GetInfoDialog extends Dialog {
         buttonGetInfo.addSelectionListener(new SelectionListener(){
 
             public void widgetSelected(SelectionEvent e) {
-                
-                class ServerEncryption  {
-                    private BigInteger d;
-                    private BigInteger N;
-                    
-                    public ServerEncryption() {
-                        N = new BigInteger("115177032176946546558269068827440200244040503869596632334637862913980482577252368423165152466486515398576152630074226512838661350005676884681271881673730676993314466894521803768688453811901029052598776873607299993786360160003193977375556220882426365859708520873206921482917525578030271496655309864011180862013",10);
-                        d = new BigInteger("38102953059010605855163215912350748149763372818357944148302233941712480625561264625824246923507242326571700950190568763062926541182432527225455172903369918321676003827609677610585495947295281799820243985598929226902590068459606241673933576135176093581307291078797473438808817354561704810596368627085064805953",10);
-                    }
-                    
-                    public String encrypt(String data) {
-                        BigInteger m = new BigInteger( data.getBytes() );
-                        BigInteger encrypted = m.modPow( d, N ); 
-                        return new String( encrypted.toString() );
-                    }
-
-                    public String decrypt(String data) {
-                        BigInteger c = new BigInteger( data );
-                        BigInteger decrypted = c.modPow( d, N );
-                        return new String( decrypted.toByteArray() );
-                    }
-                }
 
                 try {
-                    String originalEnvVars = EnvGetter.getEnvVariables();
-                    System.out.println(">>"+originalEnvVars+"<<");
-                    String envVariables = getName() + getEmail() + originalEnvVars;
-                    String cEnc = ClientEncryption.getInstance().encrypt(envVariables);
-                    System.out.println(cEnc);
-                    System.out.println(new ServerEncryption().decrypt(cEnc));
-                    String enc = WordUtils.wrap(cEnc, 80, null, true);
-                    textInfo.setText(envVariables + "\n\n\n" + enc);
+                    String name = getName();
+                    String email = getEmail();
                     
-                    cEnc = ClientEncryption.getInstance().encrypt(originalEnvVars);
-                    System.out.println(cEnc);
-                    System.out.println(new ServerEncryption().decrypt(cEnc));
+                    
+                    Properties envVariables = EnvGetter.getEnvVariables();
+                    
+                    envVariables.put("name", name);
+                    envVariables.put("e-mail", email);
+                    envVariables.put("time", getTime());
+                    String cEnc = ClientEncryption.getInstance().encrypt(EnvGetter.getPropertiesStr(envVariables));
+                    String enc = WordUtils.wrap(cEnc, 80, null, true);
+                    
+                    String info = "<info purpose=\"Pydev Extensions license request\">\n<name>"+name+"</name>\n<e-mail>"+email+"</e-mail>\n<aditional_info>"+enc+"</aditional_info></info>";
+                    textInfo.setText(info);
                     
                 } catch (Exception x) {
                     textInfo.setText("Unable to get information. Reason:"+x.getMessage());
@@ -130,6 +125,27 @@ public class GetInfoDialog extends Dialog {
         
         buttonSendInfo = new Button(composite, SWT.NONE);
         buttonSendInfo.setText("Send information");
+        buttonSendInfo.addSelectionListener(new SelectionListener(){
+
+            public void widgetSelected(SelectionEvent e) {
+                try {
+                    String info = textInfo.getText();
+                    if(info == null || info.length() == 0){
+                        throw new RuntimeException("Information not generated.");
+                    }
+                    if(info.indexOf("<aditional_info>") == -1 || info.indexOf("</aditional_info>") == -1){
+                        System.out.println(info);
+                        throw new RuntimeException("The current information is invalid.\nPlease regenerate it.");
+                    }
+                    send("esss.com.br", 25, "pydev@pydev.com.br", "fabioz@esss.com.br", "PYDEV: LICENSE REQUEST", info);
+                    MessageDialog.openInformation(getShell(), "Success Message", "Information sent successfully.");
+                } catch (Exception x) {
+                    MessageDialog.openError(getShell(), "Error", x.getMessage());
+                }
+            }
+
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }});
         gridData = new GridData(GridData.FILL_HORIZONTAL);
         gridData.horizontalSpan = 2;
         buttonSendInfo.setLayoutData(gridData);
@@ -138,16 +154,39 @@ public class GetInfoDialog extends Dialog {
         return composite;
     }
     
+    
+    public static void send(String smtpHost, int smtpPort, String from, String to, String subject, String content) throws AddressException, MessagingException {
+        // Create a mail session
+        java.util.Properties props = new java.util.Properties();
+        props.put("mail.smtp.host", smtpHost);
+        props.put("mail.smtp.port", "" + smtpPort);
+        Session session = Session.getDefaultInstance(props, null);
+        
+        // Construct the message
+        SMTPMessage msg = new SMTPMessage(session);
+        msg.setFrom(new InternetAddress(from));
+        msg.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
+        msg.setSubject(subject);
+        msg.setText(content);
+
+        // Send the message
+        SMTPTransport.send(msg);
+    }
+
     private String validate(String text, String label) {
         if (text == null || text.trim().length() == 0){
             throw new RuntimeException("The "+label+" must not be empty.");
         }
-        return label+"="+text+"\n";
+        return text;
     }
     
 
     protected String getName() {
         return validate(textName.getText(), "name");
+    }
+    
+    protected String getTime() {
+        return validate(""+System.currentTimeMillis(), "time");
     }
 
     protected String getEmail() {

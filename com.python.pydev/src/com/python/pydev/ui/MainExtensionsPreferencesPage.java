@@ -40,8 +40,7 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
             //ok, let's ask the user about its info and send it to the e-mail
             Dialog dialog = new GetInfoDialog(getShell());
             dialog.setBlockOnOpen(true);
-            int ret = dialog.open();
-            System.out.println(ret);
+            dialog.open();
 		}
 
 		public void widgetDefaultSelected(SelectionEvent e) {
@@ -61,9 +60,9 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 		}
 		
 		private void doValidate() {
-			String userName = getFieldValue(PydevExtensionInitializer.USER_NAME_VALIDATE_EXTENSION);
-			String license = getFieldValue(PydevExtensionInitializer.LICENSE_NUMBER_VALIDATE_EXTENSION);
-			if( !fieldsValid( userName, license ) )
+			String userEmail = getFieldValue(PydevExtensionInitializer.USER_EMAIL);
+			String license = getFieldValue(PydevExtensionInitializer.LICENSE);
+			if( !fieldsValid( userEmail, license ) )
 				return;
 			
 			PydevPlugin.getDefault().saveLicense( license.trim() );
@@ -71,8 +70,9 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 			String txt = "Pydev extension";
 			String msg = "License validated";
 
-			if(!PydevPlugin.getDefault().checkValid()){
-				msg = "License not validated";
+			String validStr = PydevPlugin.getDefault().checkValidStr();
+            if(!PydevPlugin.getDefault().isValidated()){
+				msg = "License not validated.\nReason:\n\n"+validStr;
 			}
 			
 			MessageBox message = new MessageBox( getShell(), SWT.OK | SWT.ICON_INFORMATION );
@@ -81,8 +81,8 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 			message.open();
 		}
 
-		private boolean fieldsValid(String userName, String license) {
-			if( userName == null || userName.trim()=="" ) {
+		private boolean fieldsValid(String userEmail, String license) {
+			if( userEmail == null || userEmail.trim()=="" ) {
 				setErrorMessage( "User e-mail is missing" );
 				return false;
 				
@@ -116,17 +116,35 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
         composite.setLayout(new GridLayout());
 
         Label label = new Label(composite, SWT.NONE);
-        setLabelBold(composite, label);
-        String msg1 = "If you alredy received your license, please fill in your e-mail, paste the license you received and press 'Validate'.";
+//        setLabelBold(composite, label);
         String msg2 = "If you still haven't requested your license, press 'Request license' and follow the instructions.";
-        label.setText(WordUtils.wrap(msg1, 80)+"\n\n"+WordUtils.wrap(msg2, 80));
+        label.setText(WordUtils.wrap(msg2, 80));
         data = new GridData(GridData.FILL_HORIZONTAL);
         data.horizontalSpan = 2;
         data.grabExcessHorizontalSpace = true;
         label.setLayoutData(data);
         
-    	addField(new StringFieldEditor(PydevExtensionInitializer.USER_NAME_VALIDATE_EXTENSION, "User e-mail:", composite));
-    	addField(new MultiStringFieldEditor(PydevExtensionInitializer.LICENSE_NUMBER_VALIDATE_EXTENSION, "License:", composite));
+        
+        Button btGetInfo = new Button(composite, SWT.PUSH);
+        btGetInfo.setText("Request license");
+        btGetInfo.setFont( composite.getFont() );
+        btGetInfo.addSelectionListener(new GetInfoButtonListener());        
+        data = new GridData(GridData.FILL_HORIZONTAL);
+        data.horizontalSpan = 2;
+        data.grabExcessHorizontalSpace = true;
+        btGetInfo.setLayoutData(data);
+
+        String msg1 = "If you alredy received your license, please fill in your e-mail, paste the license you received and press 'Validate'.";
+        label = new Label(composite, SWT.NONE);
+//        setLabelBold(composite, label);
+        label.setText("\n\n"+WordUtils.wrap(msg1, 80));
+        data = new GridData(GridData.FILL_HORIZONTAL);
+        data.horizontalSpan = 2;
+        data.grabExcessHorizontalSpace = true;
+        label.setLayoutData(data);
+        
+        addField(new StringFieldEditor(PydevExtensionInitializer.USER_EMAIL, "User e-mail:", composite));
+    	addField(new MultiStringFieldEditor(PydevExtensionInitializer.LICENSE, "License:", composite));
     	
     	Button btValidate = new Button(composite, SWT.PUSH);
     	btValidate.setText("Validate");
@@ -136,15 +154,6 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
         data.horizontalSpan = 2;
         data.grabExcessHorizontalSpace = true;
         btValidate.setLayoutData(data);
-    	
-    	Button btGetInfo = new Button(composite, SWT.PUSH);
-    	btGetInfo.setText("Request license");
-    	btGetInfo.setFont( composite.getFont() );
-    	btGetInfo.addSelectionListener(new GetInfoButtonListener());    	
-    	data = new GridData(GridData.FILL_HORIZONTAL);
-    	data.horizontalSpan = 2;
-    	data.grabExcessHorizontalSpace = true;
-        btGetInfo.setLayoutData(data);
     }
 
 
