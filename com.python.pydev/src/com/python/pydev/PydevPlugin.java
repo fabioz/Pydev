@@ -2,7 +2,6 @@ package com.python.pydev;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,7 +9,6 @@ import java.util.Properties;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
@@ -53,15 +51,11 @@ public class PydevPlugin extends AbstractUIPlugin {
     
 	public String checkValidStr() {
 	    String result = loadLicense();
-	    if( !validated ) {
-	        if(notifier == null){
-	            notifier = new PydevExtensionNotifier();
-	            notifier.setValidated( false );
-	            notifier.start();
-	        }
-	    }else{
-	        notifier.setValidated(true);
-	    }
+        if(notifier == null){
+            notifier = new PydevExtensionNotifier();
+            notifier.setPriority(Thread.MIN_PRIORITY);
+            notifier.start();
+        }
         return result;
         
     }
@@ -149,15 +143,24 @@ public class PydevPlugin extends AbstractUIPlugin {
             Properties properties = new Properties();
             properties.load(new ByteArrayInputStream(license.getBytes()));
             
-            String eMail = properties.getProperty("e-mail");
-            String name  = properties.getProperty("name");
-            String time = properties.getProperty("time");
+            String eMail = (String) properties.remove("e-mail");
+            String name  = (String) properties.remove("name");
+            String time = (String) properties.remove("time");
+            
+            if(eMail == null && name == null && time == null){
+                throw new RuntimeException("The license is not correct, please re-paste it. If this error persists, please request a new license.");
+            }
+            
             if(!getPreferenceStore().getString(PydevExtensionInitializer.USER_EMAIL).equals(eMail)){
                 throw new RuntimeException("The e-mail specified is different from the e-mail in the license.");
             }
             getPreferenceStore().setValue(PydevExtensionInitializer.USER_NAME, name);
             getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TIME, time);
             Properties envVariables = EnvGetter.getEnvVariables();
+            
+            if(!envVariables.equals(properties)){
+                throw new RuntimeException("The license was generated for the e-mail provided, but not for this specific installation.\nPlease request a new license for this installation.");
+            }
             
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());

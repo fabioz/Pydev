@@ -15,8 +15,8 @@ Require-Bundle: org.eclipse.ui,
 Eclipse-AutoStart: true
 Bundle-ClassPath: pydev.jar,
  retroweaver-rt.jar,
- licensemanagerClient.jar,
- mail.jar
+ mail.jar,
+ activation.jar
 Export-Package: com.python.pydev,
  com.python.pydev.license.defaults,
  com.python.pydev.properties,

@@ -61,7 +61,7 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 		
 		private void doValidate() {
 			String userEmail = getFieldValue(PydevExtensionInitializer.USER_EMAIL);
-			String license = getFieldValue(PydevExtensionInitializer.LICENSE);
+			String license = getFieldValue(PydevExtensionInitializer.LICENSE).replaceAll("\n", "").replaceAll("\r", "").replaceAll(" ", "");
 			if( !fieldsValid( userEmail, license ) )
 				return;
 			

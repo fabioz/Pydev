@@ -9,39 +9,56 @@ import org.eclipse.ui.IWorkbenchWindow;
 import com.python.pydev.PydevPlugin;
 
 public class PydevExtensionNotifier extends Thread{
-	private boolean validated;
-	
-	public PydevExtensionNotifier() {
-		validated = false;
+	//all times here are in secs
+	private static final int FIRST_TIME = 60 * 30;
+    private static final int VALIDATED_TIME = FIRST_TIME;
+    private static final int MIN_TIME = 60;
+    private boolean inMessageBox = false;
+
+    public PydevExtensionNotifier() {
 	}
 	
 	@Override
 	public void run() {	
-//		while( !validated ) {
-//            try {
-//            	int seconds = 30;
-//                sleep( seconds * 1000);
-//                final Display disp = Display.getDefault();
-//                disp.asyncExec(new Runnable(){
-//                    public void run() {
-//                        IWorkbenchWindow window = PydevPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
-//                        Shell shell = window == null ? new Shell(disp) : window.getShell();
-//                        MessageBox message = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-//                        message.setText("Pydev extension");
-//                        message.setMessage("Trial version");                                    
-//                        message.open();
-//                    }
-//                });
-//            } catch (Throwable e) {
-//                e.printStackTrace();
-//            }
-//        }
+	    try {
+	        sleep( FIRST_TIME * 1000); //whenever we start the plugin, the first xxx minutes are 'free'
+	    } catch (Throwable e) {
+	        e.printStackTrace();
+	    }
+
+        int seconds = MIN_TIME;
+        while( true ) {
+            try {
+                sleep( seconds * 1000);
+                boolean validated = PydevPlugin.getDefault().isValidated();
+                if(!validated){
+                    seconds = MIN_TIME;
+                    final Display disp = Display.getDefault();
+                    disp.asyncExec(new Runnable(){
+                        public void run() {
+                            if(!inMessageBox){
+                                inMessageBox = true;
+                                try {
+                                    IWorkbenchWindow window = PydevPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
+                                    Shell shell = (window == null) ? new Shell(disp) : window.getShell();
+                                    MessageBox message = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+                                    message.setText("Pydev extension");
+                                    message.setMessage("Unlicensed version.");
+                                    message.open();
+                                } finally {
+                                    inMessageBox = false;
+                                }
+                            }
+                        }
+                    });
+                }else{
+                    seconds = VALIDATED_TIME; //make this less often... no need to spend too much time on validation once the user has validated once
+                }
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+        
 	}
 	
-	public void setValidated( boolean valid ) {
-		validated = valid;
-	}
-	public boolean isValid() {
-		return validated;
-	}
 }
