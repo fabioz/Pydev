@@ -5,15 +5,15 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.eclipse.ui.plugin.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.python.pydev.licensemanager.encryption.ClientEncryption;
 
+import com.python.pydev.license.ClientEncryption;
 import com.python.pydev.util.EnvGetter;
 import com.python.pydev.util.PydevExtensionNotifier;
 

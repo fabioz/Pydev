@@ -1,5 +1,12 @@
 package com.python.pydev.util;
 
+import java.net.URL;
+
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.osgi.service.datalocation.Location;
+
+import com.python.pydev.PydevPlugin;
+
 public class EnvGetter {
 	
 	public static String getEnvVariables() {
@@ -9,6 +16,23 @@ public class EnvGetter {
         data += getValue("os.version");       
         data += getValue("java.io.tmpdir");
         data += getValue("user.home");
+        
+        String ext = "null";
+        try {
+            Location installLocation = Platform.getInstallLocation();
+            URL url = installLocation.getURL();
+            ext = url.toExternalForm();
+        } catch (Exception e) {
+        }
+        data += "InstallLoc="+ext + "\n";
+        
+        String location = "null";
+        try {
+            location = PydevPlugin.getDefault().getBundle().getLocation();
+        } catch (Exception e) {
+        }
+        data += "BundleLoc="+location+"\n";
+        
 		return data;
 	}
 	
@@ -16,16 +40,13 @@ public class EnvGetter {
 		try {
             String data = System.getProperty(property);
             if (data != null) {
-                return data+"\n";
+                return property+"="+data+"\n";
             } else {
-                return "null"+"\n";
+                return property+"=null\n";
             } 
         } catch (Exception e) {
-            return "null"+"\n";
+            return property+"=null\n";
         }		
 	}
     
-    public static void main(String[] args) {
-        System.out.println(getEnvVariables());
-    }
 }
