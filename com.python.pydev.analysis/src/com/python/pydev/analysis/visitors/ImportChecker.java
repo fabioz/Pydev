@@ -13,7 +13,6 @@ import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
-import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 
 /**
  * The import checker not only generates information on errors for unresolved modules, but also gathers
@@ -86,10 +85,6 @@ public class ImportChecker {
      */
     public ImportInfo visitImportToken(IToken token) {
         //try to find it as a relative import
-        System.out.println("visiting in:"+ moduleName +": import token:"+token);
-        if(moduleName.equals("extendable.dependencies.file5")){
-            System.out.println("here");
-        }
         boolean wasResolved = false;
         Tuple<AbstractModule, String> modTok = null;
 		if(token instanceof SourceToken){

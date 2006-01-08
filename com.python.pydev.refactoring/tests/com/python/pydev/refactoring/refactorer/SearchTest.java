@@ -2,7 +2,6 @@ package com.python.pydev.refactoring.refactorer;
 
 import java.io.File;
 
-import org.eclipse.jface.text.Document;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
@@ -10,16 +9,16 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 
-public class RefactorerTest extends CodeCompletionTestsBase {
+public class SearchTest extends CodeCompletionTestsBase {
 
 	public static void main(String[] args) {
 		try {
-			RefactorerTest test = new RefactorerTest();
+			SearchTest test = new SearchTest();
 			test.setUp();
-			test.testBuiltinSearch();
+			test.testBuiltinSearch2();
 			test.tearDown();
 
-			junit.textui.TestRunner.run(RefactorerTest.class);
+			junit.textui.TestRunner.run(SearchTest.class);
 			
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -269,6 +268,21 @@ public class RefactorerTest extends CodeCompletionTestsBase {
         assertEquals(new File(TestDependent.PYTHON_LIB+"os.py"), pointers[0].file);
         //found the module
         assertEquals(0, pointers[0].start.line);
+        assertEquals(0, pointers[0].start.column);
+    }
+    
+    public void testBuiltinSearch2() throws Exception {
+//      import os.path.normpath
+        String line = "import os.path.normpath";
+        RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"definitions/__init__.py"));
+        refactoringRequest.ps = new PySelection(refactoringRequest.doc, 0, line.length()); //find the os.path.normpath func pos
+        refactoringRequest.nature = nature;
+        ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+        
+        assertEquals(1, pointers.length);
+        assertEquals(new File(TestDependent.PYTHON_LIB+"ntpath.py"), pointers[0].file);
+        //found the module
+        assertEquals(440, pointers[0].start.line);
         assertEquals(0, pointers[0].start.column);
     }
 }

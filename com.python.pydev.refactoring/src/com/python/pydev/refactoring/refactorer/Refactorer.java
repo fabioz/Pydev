@@ -17,7 +17,7 @@ public class Refactorer extends AbstractPyRefactoring{
 	public String extract(RefactoringRequest request) {
 		return null;
 	}
-	public boolean canExtract(RefactoringRequest request) {
+	public boolean canExtract() {
 		return false;
 	}
 
@@ -25,7 +25,7 @@ public class Refactorer extends AbstractPyRefactoring{
 	public String rename(RefactoringRequest request) {
 		return null;
 	}
-	public boolean canRename(RefactoringRequest request) {
+	public boolean canRename() {
 		return false;
 	}
 
@@ -59,12 +59,12 @@ public class Refactorer extends AbstractPyRefactoring{
 		
 		return pointers.toArray(new ItemPointer[0]);
 	}
-	public boolean canFindDefinition(RefactoringRequest request) {
+	public boolean canFindDefinition() {
 		return true;
 	}
 
 	
-	public boolean canInlineLocalVariable(RefactoringRequest request) {
+	public boolean canInlineLocalVariable() {
 		return false;
 	}
 	public String inlineLocalVariable(RefactoringRequest request) {
@@ -72,7 +72,7 @@ public class Refactorer extends AbstractPyRefactoring{
 	}
 
 	
-	public boolean canExtractLocalVariable(RefactoringRequest request) {
+	public boolean canExtractLocalVariable() {
 		return false;
 	}
 	public String extractLocalVariable(RefactoringRequest request) {

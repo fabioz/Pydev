@@ -12,7 +12,7 @@ public class PydevExtensionNotifier extends Thread{
 	//all times here are in secs
 	private static final int FIRST_TIME = 60 * 30;
     private static final int VALIDATED_TIME = FIRST_TIME;
-    private static final int MIN_TIME = 60;
+    private static final int MIN_TIME = 60 * 5;
     private boolean inMessageBox = false;
 
     public PydevExtensionNotifier() {
@@ -42,8 +42,8 @@ public class PydevExtensionNotifier extends Thread{
                                     IWorkbenchWindow window = PydevPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
                                     Shell shell = (window == null) ? new Shell(disp) : window.getShell();
                                     MessageBox message = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-                                    message.setText("Pydev extension");
-                                    message.setMessage("Unlicensed version.");
+                                    message.setText("Pydev extensions.");
+                                    message.setMessage("Pydev extensions:\nUnlicensed version.");
                                     message.open();
                                 } finally {
                                     inMessageBox = false;

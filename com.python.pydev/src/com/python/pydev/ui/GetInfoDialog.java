@@ -35,6 +35,8 @@ import com.sun.mail.smtp.SMTPTransport;
 public class GetInfoDialog extends Dialog {
     
 
+    private static final int REGULAR_COLS = 125;
+    private static final int BOLD_COLS = 95;
     private Text textEmail;
     private Text textName;
     private Button buttonGetInfo;
@@ -53,8 +55,8 @@ public class GetInfoDialog extends Dialog {
         GridLayout layout = (GridLayout) composite.getLayout();
         layout.numColumns = 2;
         
-        String msg = "If you already paid for the 'Pydev Extensions', please follow the instructions below in 'Request license'. If you still " +
-                "haven't, please go to xxxxxxxxxx and follow the instructions so that you can request your license for the 'Pydev Extensions'.\n\n";
+        String msg = "If you already paid for 'Pydev Extensions', please follow the instructions below in 'Request license'. If you still " +
+                "haven't, please go to xxxxxxxxxx and follow the instructions so that you can request your license for 'Pydev Extensions'.\n\n";
         
         String msg1 = "Request license:\n";
         String msg2 = "Fill your complete name and e-mail (it MUST be the same e-mail you used in paypal) " +
@@ -66,16 +68,16 @@ public class GetInfoDialog extends Dialog {
                 "your license within 2 work days, or have any doubts, please e-mail: fabiofz@gmail.com with the information that appears below.\n\n";
         
         String msg4 = "Note:\n";
-        String msg4a = "The license will only be valid for your current installation. If you need to install it in another computer, you'll have" +
-                "to follow the same steps to install 'Pydev Extensions' in the other computer and follow the same steps again.";
+        String msg4a = "The license will only be valid for your current installation. If you need to install it in another computer, you'll have " +
+                "to install 'Pydev Extensions' in the other computer and follow the same steps again.";
         
-        MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg, 80), 2));
-        MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg1, 80), 2));
-        createLabel(composite, WordUtils.wrap(msg2, 100), 2);
-        MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg3a, 80), 2));
-        createLabel(composite, WordUtils.wrap(msg3, 100), 2);
-        MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg4, 80), 2));
-        createLabel(composite, WordUtils.wrap(msg4a, 100), 2);
+        MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg, BOLD_COLS), 2));
+        MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg1, BOLD_COLS), 2));
+        createLabel(composite, WordUtils.wrap(msg2, REGULAR_COLS), 2);
+        MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg3a, BOLD_COLS), 2));
+        createLabel(composite, WordUtils.wrap(msg3, REGULAR_COLS), 2);
+        MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg4, BOLD_COLS), 2));
+        createLabel(composite, WordUtils.wrap(msg4a, REGULAR_COLS), 2);
         
         createLabel(composite, "Name (complete)"); 
         textName = createText(composite);
