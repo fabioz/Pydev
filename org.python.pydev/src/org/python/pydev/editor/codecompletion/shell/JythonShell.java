@@ -14,7 +14,7 @@ import org.python.pydev.runners.SimplePythonRunner;
 public class JythonShell extends AbstractShell{
 
     public JythonShell() throws IOException, CoreException {
-        super(PydevPlugin.getScriptWithinPySrc("jycompletionserver.py"));
+        super(PydevPlugin.getScriptWithinPySrc("pycompletionserver.py"));
     }
     
 

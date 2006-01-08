@@ -2,19 +2,37 @@
 '''
 @author Fabio Zadrozny 
 '''
-SERVER_NAME = 'pycompletionserver'
+
+try:
+    import java.lang
+    True = 1
+    False = 0
+    IS_JYTHON = True
+    SERVER_NAME = 'jycompletionserver'
+    from java.lang import Thread
+    import jyimportsTipper as importsTipper
+
+except:
+    
+    #it is python
+    IS_JYTHON = False
+    SERVER_NAME = 'pycompletionserver'
+    from threading import Thread
+    import refactoring
+    import importsTipper
+
+
 import sys
+#initial sys.path
 _sys_path = [p for p in sys.path]
 
+#initial sys.modules
 _sys_modules = {}
 for name, mod in sys.modules.items():
     _sys_modules[name] = mod
     
-from threading import Thread
 import time
-import refactoring
 import urllib
-import importsTipper
 
 INFO1 = 1
 INFO2 = 2
@@ -29,19 +47,20 @@ def dbg( s, prior ):
         
 HOST = '127.0.0.1'               # Symbolic name meaning the local host
 
-MSG_KILL_SERVER         = '@@KILL_SERVER_END@@'
-MSG_COMPLETIONS         = '@@COMPLETIONS'
-MSG_END                 = 'END@@'
-MSG_INVALID_REQUEST     = '@@INVALID_REQUEST'
-MSG_RELOAD_MODULES      = '@@RELOAD_MODULES_END@@'
-MSG_CHANGE_DIR          = '@@CHANGE_DIR:'
-MSG_OK                  = '@@MSG_OK_END@@'
-MSG_BIKE                = '@@BIKE'
-MSG_PROCESSING          = '@@PROCESSING_END@@'
-MSG_PROCESSING_PROGRESS = '@@PROCESSING:%sEND@@'
-MSG_IMPORTS             = '@@IMPORTS:'
-MSG_PYTHONPATH          = '@@PYTHONPATH_END@@'
-MSG_CHANGE_PYTHONPATH   = '@@CHANGE_PYTHONPATH:'
+MSG_KILL_SERVER             = '@@KILL_SERVER_END@@'
+MSG_COMPLETIONS             = '@@COMPLETIONS'
+MSG_END                     = 'END@@'
+MSG_INVALID_REQUEST         = '@@INVALID_REQUEST'
+MSG_JYTHON_INVALID_REQUEST  = '@@JYTHON_INVALID_REQUEST'
+MSG_RELOAD_MODULES          = '@@RELOAD_MODULES_END@@'
+MSG_CHANGE_DIR              = '@@CHANGE_DIR:'
+MSG_OK                      = '@@MSG_OK_END@@'
+MSG_BIKE                    = '@@BIKE'
+MSG_PROCESSING              = '@@PROCESSING_END@@'
+MSG_PROCESSING_PROGRESS     = '@@PROCESSING:%sEND@@'
+MSG_IMPORTS                 = '@@IMPORTS:'
+MSG_PYTHONPATH              = '@@PYTHONPATH_END@@'
+MSG_CHANGE_PYTHONPATH       = '@@CHANGE_PYTHONPATH:'
 
 BUFFER_SIZE = 1024
 
@@ -225,7 +244,7 @@ class T( Thread ):
                                 comps.append( ( p, ' ' ) )
                             returnMsg = self.getCompletionsMessage( None, comps )
     
-                        elif MSG_RELOAD_MODULES in data:
+                        elif data.find( MSG_RELOAD_MODULES ) != -1:
                             ReloadModules()
                             returnMsg = MSG_OK
                         
@@ -251,9 +270,12 @@ class T( Thread ):
                                 returnMsg = MSG_OK
                                 
                             elif data.startswith( MSG_BIKE ): 
-                                data = data.replace( MSG_BIKE, '' )
-                                data = urllib.unquote_plus( data )
-                                returnMsg = refactoring.HandleRefactorMessage( data, keepAliveThread )
+                                if IS_JYTHON:
+                                    returnMsg = MSG_JYTHON_INVALID_REQUEST
+                                else:
+                                    data = data.replace( MSG_BIKE, '' )
+                                    data = urllib.unquote_plus( data )
+                                    returnMsg = refactoring.HandleRefactorMessage( data, keepAliveThread )
                                 
                             else:
                                 returnMsg = MSG_INVALID_REQUEST

@@ -11,7 +11,7 @@ sys.argv[0] = os.path.dirname(sys.argv[0])
 sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
 
 import unittest
-import jycompletionserver
+import pycompletionserver as jycompletionserver
 import socket
 import urllib
 
