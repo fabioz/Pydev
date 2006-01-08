@@ -316,9 +316,14 @@ public class SourceModule extends AbstractModule {
             //ok, we have to check the compiled module
             tok = o.o2;
             if (tok == null || tok.length() == 0 ){
-                return new Definition[]{new Definition(1,1,"",null,null,o.o1)};
+                if(o.o1.getFile() == null){
+                    return new Definition[0];
+                    
+                }else{
+                    return new Definition[]{new Definition(1,1,"",null,null,o.o1)};
+                }
             }else{
-                o.o1.findDefinition(tok, 0, 0, nature);
+                return o.o1.findDefinition(tok, 0, 0, nature);
             }
         }
         

@@ -5,7 +5,8 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
-import org.eclipse.jface.text.rules.IToken;
+import java.io.File;
+
 import org.eclipse.jface.util.Assert;
 import org.python.parser.SimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -69,6 +70,11 @@ public class Definition {
         this.ast = ast;
         this.scope = scope;
         this.module = module;
+    }
+    
+    
+    public Definition(int line, int col, String value, SimpleNode ast, Scope scope, File file){
+        
     }
     
     public Definition(org.python.pydev.editor.codecompletion.revisited.IToken tok, Scope scope, AbstractModule module){

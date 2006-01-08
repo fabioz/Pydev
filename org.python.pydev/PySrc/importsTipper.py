@@ -1,3 +1,6 @@
+import os.path
+import re
+import linecache
 import inspect
 import sys
 
@@ -24,27 +27,106 @@ def _imp(name):
             s = 'Unable to import module: %s - sys.path: %s' % (str(name), sys.path)
             raise RuntimeError(s)
 
+def GetFile(mod):
+    f = None
+    try:
+        f = inspect.getsourcefile(mod) or inspect.getfile(mod)
+    except:
+        if hasattr(mod,'__file__'):
+            f = mod.__file__
+            if string.lower(f[-4:]) in ['.pyc', '.pyo']:
+                filename = f[:-4] + '.py'
+                if os.path.exists(filename):
+                    f = filename
+            
+    return f
+
 def Find( name ):
     f = None
+    parent = None
+    
     mod = _imp(name)
-    if inspect.ismodule(mod) and hasattr(mod, '__file__'):
-        f = mod.__file__
+    parent = mod
+    foundAs = ''
+    
+    if inspect.ismodule(mod):
+        f = GetFile(mod)
         
     components = name.split('.')
 
     for comp in components[1:]:
         mod = getattr(mod, comp)
-        if inspect.ismodule(mod) and hasattr(mod, '__file__'):
-            f = mod.__file__
-    return f, mod
+        if inspect.ismodule(mod):
+            f = GetFile(mod)
+        else:
+            if len(foundAs) > 0:
+                foundAs += '.'
+            foundAs += comp
+            
+    return f, mod, parent, foundAs
 
+def Search( data ):
+    '''@return file, line, col
+    '''
+    
+    data = data.replace( '\n', '' )
+    if data.endswith( '.' ):
+        data = data.rstrip( '.' )
+    f, mod, parent, foundAs = Find( data )
+    try:
+        return DoFind(f, mod), foundAs
+    except:
+        return DoFind(f, parent), foundAs
+    
+    
+def DoFind(f, mod):
+    if inspect.ismodule(mod):
+        return f, 0, 0
+    
+    lines = linecache.getlines(f)
+    if inspect.isclass(mod):
+        name = mod.__name__
+        pat = re.compile(r'^\s*class\s*' + name + r'\b')
+        for i in range(len(lines)):
+            if pat.match(lines[i]): 
+                return f, i, 0
+            
+        return f, 0, 0
 
+    if inspect.ismethod(mod):
+        mod = mod.im_func
+    if inspect.isfunction(mod):
+        mod = mod.func_code
+    if inspect.istraceback(mod):
+        mod = mod.tb_frame
+    if inspect.isframe(mod):
+        mod = mod.f_code
+
+    if inspect.iscode(mod):
+        if not hasattr(mod, 'co_filename'):
+            return None, 0, 0
+        if not hasattr(mod, 'co_firstlineno'):
+            return mod.co_filename, 0, 0
+        
+        lnum = mod.co_firstlineno - 1
+        pat = re.compile(r'^(\s*def\s)|(.*(?<!\w)lambda(:|\s))|^(\s*@)')
+        while lnum > 0:
+            if pat.match(lines[lnum]): break
+            lnum = lnum - 1
+        return f, lnum, 0
+
+    raise RuntimeError('Do not know about: '+data+' '+str(mod))
+        
+    
+    
+    
+    
 def GenerateTip( data ):
     data = data.replace( '\n', '' )
     if data.endswith( '.' ):
         data = data.rstrip( '.' )
         
-    f, mod = Find( data )
+    f, mod, parent, foundAs = Find( data )
     #print >> open('temp.txt', 'w'), f
     tips = GenerateImportsTipForModule( mod )
     return f,tips

@@ -259,7 +259,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#resolveModule(java.lang.String)
      */
     public String resolveModule(String full) {
-        return resolveModule(full, false);
+        return resolveModule(full, true);
     }
     
     /**

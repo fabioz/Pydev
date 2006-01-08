@@ -61,6 +61,7 @@ MSG_PROCESSING_PROGRESS     = '@@PROCESSING:%sEND@@'
 MSG_IMPORTS                 = '@@IMPORTS:'
 MSG_PYTHONPATH              = '@@PYTHONPATH_END@@'
 MSG_CHANGE_PYTHONPATH       = '@@CHANGE_PYTHONPATH:'
+MSG_SEARCH                  = '@@SEARCH'
 
 BUFFER_SIZE = 1024
 
@@ -141,14 +142,19 @@ class T( Thread ):
         s.connect( ( HOST, self.serverPort ) )
 
     def removeInvalidChars( self, msg ):
+        msg = str(msg)
         if msg:
-            return urllib.quote_plus( msg )
+            try:
+                return urllib.quote_plus( msg )
+            except:
+                print 'error making quote plus in', msg
+                raise
         return ' '
     
     def formatCompletionMessage( self, defFile, completionsList ):
         '''
         Format the completions suggestions in the following format:
-        @@COMPLETIONS((token,description),(token,description),(token,description))END@@
+        @@COMPLETIONS(modFile(token,description),(token,description),(token,description))END@@
         '''
         compMsg = []
         compMsg.append( '%s' % defFile )
@@ -233,6 +239,7 @@ class T( Thread ):
                         if data.find( MSG_KILL_SERVER ) != -1:
                             dbg( SERVER_NAME+' kill message received', INFO1 )
                             #break if we received kill message.
+                            self.ended = True
                             sys.exit(0)
             
                         dbg( SERVER_NAME+' starting keep alive thread', INFO2 )
@@ -263,6 +270,12 @@ class T( Thread ):
                                 ChangePythonPath( data )
                                 returnMsg = MSG_OK
         
+                            elif data.startswith( MSG_SEARCH ):
+                                data = data.replace( MSG_SEARCH, '' )
+                                data = urllib.unquote_plus( data )
+                                (f, line, col), foundAs = importsTipper.Search(data)
+                                returnMsg = self.getCompletionsMessage(f, [(line, col, foundAs)])
+                                
                             elif data.startswith( MSG_CHANGE_DIR ):
                                 data = data.replace( MSG_CHANGE_DIR, '' )
                                 data = urllib.unquote_plus( data )

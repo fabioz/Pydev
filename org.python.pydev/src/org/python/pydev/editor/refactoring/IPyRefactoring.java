@@ -35,7 +35,7 @@ public interface IPyRefactoring {
      * @param operation
      */
     public String extract(RefactoringRequest request);
-    public boolean canExtract(RefactoringRequest request);
+    public boolean canExtract();
 
     /**
      * Rename something (class, method, local...)
@@ -47,7 +47,7 @@ public interface IPyRefactoring {
      * @param operation
      */
     public String rename(RefactoringRequest request);
-    public boolean canRename(RefactoringRequest request);
+    public boolean canRename();
 
     /**
      * Find where something is defined (many results because it may seem something is defined in several places)
@@ -59,7 +59,7 @@ public interface IPyRefactoring {
      * @return
      */
     public ItemPointer[] findDefinition(RefactoringRequest request);
-    public boolean canFindDefinition(RefactoringRequest request);
+    public boolean canFindDefinition();
 
     /**
      * Inline a local variable
@@ -71,7 +71,7 @@ public interface IPyRefactoring {
      * @return
      */
     public String inlineLocalVariable(RefactoringRequest request);
-    public boolean canInlineLocalVariable(RefactoringRequest request);
+    public boolean canInlineLocalVariable();
 
     /**
      * Extract a local variable from something
@@ -86,7 +86,7 @@ public interface IPyRefactoring {
      * @return
      */
     public String extractLocalVariable(RefactoringRequest request);
-    public boolean canExtractLocalVariable(RefactoringRequest request);
+    public boolean canExtractLocalVariable();
 
 
     /**

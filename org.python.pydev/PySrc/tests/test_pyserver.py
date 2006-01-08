@@ -17,7 +17,6 @@ import socket
 import urllib
 
 
-
 class Test(unittest.TestCase):
 
     def setUp(self):
@@ -98,7 +97,28 @@ class Test(unittest.TestCase):
             self.assert_('END@@' in completions)
 
 
-        
+            #now, test search
+            msg = urllib.quote_plus('inspect.ismodule')
+            sToWrite.send('@@SEARCH%sEND@@'%msg) #math completions
+            found = self.readMsg()
+            self.assert_('inspect.py' in found)
+            self.assert_('33' in found)
+
+            #now, test search
+            msg = urllib.quote_plus('inspect.CO_NEWLOCALS')
+            sToWrite.send('@@SEARCH%sEND@@'%msg) #math completions
+            found = self.readMsg()
+            self.assert_('inspect.py' in found)
+            self.assert_('CO_NEWLOCALS' in found)
+
+            #now, test search
+            msg = urllib.quote_plus('inspect.ListReader.readline')
+            sToWrite.send('@@SEARCH%sEND@@'%msg) #math completions
+            found = self.readMsg()
+            self.assert_('inspect.py' in found)
+            print found
+#            self.assert_('CO_NEWLOCALS' in found)
+
         #reload modules test
 #        sToWrite.send('@@RELOAD_MODULES_END@@')
 #        ok = self.readMsg()
@@ -108,11 +128,12 @@ class Test(unittest.TestCase):
         
         finally:
             try:
+                print 'succedded...sending kill msg'
                 self.sendKillMsg(sToWrite)
                 
         
-                while not hasattr(t, 'ended'):
-                    pass #wait until it receives the message and quits.
+#                while not hasattr(t, 'ended'):
+#                    pass #wait until it receives the message and quits.
         
                     
                 sToRead.close()

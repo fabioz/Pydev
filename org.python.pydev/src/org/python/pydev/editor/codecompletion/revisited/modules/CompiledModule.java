@@ -14,7 +14,9 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.text.Document;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
@@ -71,7 +73,7 @@ public class CompiledModule extends AbstractModule{
 					} catch (InterruptedException e1) {
 						//empty block
 					} //just wait a little before a retry...
-				};
+				}
 				
 	        	try {
 	        		AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
@@ -96,9 +98,12 @@ public class CompiledModule extends AbstractModule{
 		AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
 		synchronized(shell){
             Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, manager.getProjectModulesManager().getCompletePythonPath());
-            this.file = new File(completions.o1);
+            String fPath = completions.o1;
+            if(!fPath.equals("None")){
+                this.file = new File(fPath);
+            }
 
-            String f = completions.o1;
+            String f = fPath;
             if(f.endsWith(".pyc")){
                 f = f.substring(0, f.length()-1); //remove the c from pyc
                 File f2 = new File(f);
@@ -248,9 +253,31 @@ public class CompiledModule extends AbstractModule{
     public Definition[] findDefinition(String token, int line, int col, PythonNature nature) throws Exception {
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
         synchronized(shell){
-            shell.getLineCol(this.name, token);
+            Tuple<String[],int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getProjectModulesManager().getCompletePythonPath());
+            String fPath = def.o1[0];
+            if(fPath.equals("None")){
+                return new Definition[0];
+            }
+            File f = new File(fPath);
+            String foundModName = nature.resolveModule(f);
+            String foundAs = def.o1[1];
+            
+            AbstractModule mod = nature.getAstManager().getModule(foundModName, nature, true);
+            int foundLine = def.o2[0];
+            if(foundLine == 0 && foundAs.length() > 0 && mod != null){
+                AbstractModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f, new Document(REF.getFileContents(f)), nature, 0);
+                if(sourceMod instanceof SourceModule){
+                    Definition[] definitions = sourceMod.findDefinition(foundAs, 0, 0, nature);
+                    if(definitions.length > 0){
+                        return definitions;
+                    }
+                }
+            }
+            if(mod == null){
+                mod = this;
+            }
+            return new Definition[]{new Definition(foundLine+1, def.o2[1], token, null, null, mod)};
         }
-        return new Definition[0];
     }
 
 }

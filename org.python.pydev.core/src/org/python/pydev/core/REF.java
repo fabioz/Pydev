@@ -166,6 +166,9 @@ public class REF {
         }
     }
 
+    public static String getFileAbsolutePath(String f) {
+        return getFileAbsolutePath(new File(f));
+    }
 
     /**
      * @param f
@@ -228,6 +231,7 @@ public class REF {
 		
 		return name;
 	}
+
     
     
     

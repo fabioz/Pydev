@@ -862,7 +862,6 @@ public abstract class AbstractShell {
         
         //the first token is always the file for the module (no matter what)
         String file = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
-        System.out.println(file);
         while(tokenizer.hasMoreTokens()){
             String token       = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
             if(!tokenizer.hasMoreTokens()){
@@ -894,8 +893,30 @@ public abstract class AbstractShell {
      * @param token the token we are looking for
      * @return the file where the token was defined, its line and its column.
      */
-    public Tuple<String,int []> getLineCol(String moduleName, String token) {
-        return null;
+    public Tuple<String[],int []> getLineCol(String moduleName, String token, List pythonpath) {
+        while(isInOperation){
+            sleepALittle(100);
+        }
+        isInOperation = true;
+        try {
+            String str = moduleName+"."+token;
+            internalChangePythonPath(pythonpath);
+
+            try {
+                str = URLEncoder.encode(str, ENCODING_UTF_8);
+                Tuple<String,List<String[]>> theCompletions = this.getTheCompletions("@@SEARCH" + str + "\nEND@@");
+                int line = Integer.parseInt(theCompletions.o2.get(0)[0]);
+                int col = Integer.parseInt(theCompletions.o2.get(0)[1]);
+                String foundAs = theCompletions.o2.get(0)[2];
+                return new Tuple<String[], int[]>(
+                        new String[]{theCompletions.o1, foundAs}, 
+                        new int[]{line, col});
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } finally {
+            isInOperation = false;
+        }
     }
 
 

@@ -273,23 +273,23 @@ public class PyRefactoring extends AbstractPyRefactoring {
         setLastRefactorResults(new Object[]{this, l});
     }
 
-    public boolean canExtract(RefactoringRequest request) {
+    public boolean canExtract() {
         return true;
     }
 
-    public boolean canRename(RefactoringRequest request) {
+    public boolean canRename() {
         return true;
     }
 
-    public boolean canFindDefinition(RefactoringRequest request) {
+    public boolean canFindDefinition() {
         return true;
     }
 
-    public boolean canInlineLocalVariable(RefactoringRequest request) {
+    public boolean canInlineLocalVariable() {
         return true;
     }
 
-    public boolean canExtractLocalVariable(RefactoringRequest request) {
+    public boolean canExtractLocalVariable() {
         return true;
     }
 
