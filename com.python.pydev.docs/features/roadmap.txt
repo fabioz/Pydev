@@ -12,17 +12,21 @@ Features that should be implemented
 
 - Enhanced code analysis:
 	- Analyze files faster (from within pydev) - OK
-	- make dependency analysis
+	- make dependency analysis - POSTPONED
 		
 - Enhanced Code completion
 	- Get packages with auto-import - OK
 	- Get classes and methods with auto-import - OK
 
-- Organize imports
+- Organize imports - POSTPONED
 
 - Make auto-import content assist - OK
 
 - Debug server - OK
+
+- go to definition - OK
+
+- offer python 'keywords' as suggestions when typing - OK
 
 They should be done in the order listed above.
 
@@ -55,7 +59,6 @@ package explorer
 Search: 
 	- find definition 
 	- find references
-	- go to definition
 	
 Refactoring
 
