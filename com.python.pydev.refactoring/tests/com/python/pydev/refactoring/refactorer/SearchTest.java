@@ -15,7 +15,7 @@ public class SearchTest extends CodeCompletionTestsBase {
 		try {
 			SearchTest test = new SearchTest();
 			test.setUp();
-			test.testBuiltinSearch2();
+			test.testSearch13();
 			test.tearDown();
 
 			junit.textui.TestRunner.run(SearchTest.class);
@@ -256,6 +256,23 @@ public class SearchTest extends CodeCompletionTestsBase {
 	}
 	
 
+	public void testSearch13() throws Exception {
+//		from f1 import *
+//		print Class1
+		
+		String line = "print Class1";
+		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"testrecwild/__init__.py"));
+		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 1, line.length()); 
+		refactoringRequest.nature = nature;
+		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+		
+		assertEquals(1, pointers.length);
+		assertEquals(new File(TestDependent.TEST_PYSRC_LOC+"testrecwild/f2.py"), pointers[0].file);
+		//found the module
+		assertEquals(0, pointers[0].start.line);
+		assertEquals(6, pointers[0].start.column);
+	}
+
     public void testBuiltinSearch() throws Exception {
 //      import os
         String line = "import os";
@@ -282,7 +299,7 @@ public class SearchTest extends CodeCompletionTestsBase {
         assertEquals(1, pointers.length);
         assertEquals(new File(TestDependent.PYTHON_LIB+"ntpath.py"), pointers[0].file);
         //found the module
-        assertEquals(440, pointers[0].start.line);
+        assertTrue(440 == pointers[0].start.line || 439 == pointers[0].start.line); //depends on python version
         assertEquals(0, pointers[0].start.column);
     }
 }
