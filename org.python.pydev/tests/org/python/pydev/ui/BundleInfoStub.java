@@ -9,7 +9,7 @@ import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.python.pydev.editor.codecompletion.revisited.TestDependent;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.IBundleInfo;
 
 
