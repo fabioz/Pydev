@@ -33,6 +33,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      */
     public TreeMap<String, Set<String>> wildImportsInfo = new TreeMap<String, Set<String>>();
     
+    public static boolean TESTING = false;
+    
     /**
      * default constructor
      */
@@ -64,7 +66,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * @param tok the token that was found from a wild import
      */
     public void addDepFromWildImportTok(String currentModuleName, String tok) {
-        addDepInfo(currentModuleName, null, tok);
+		addDepInfo(currentModuleName, null, tok);
     }
     
     /**
@@ -75,7 +77,14 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * @param isWildImport determines if the import we are analyzing is a wild import
      */
     public void addDep(String currentModuleName, AbstractModule mod, String tok, boolean isWildImport) {
-        // add dependency for token (regular import)
+    	if(currentModuleName == null){
+    		if(!TESTING){
+    			throw new RuntimeException("Current module name must NOT be null. Mod:"+mod.getName());
+    		}
+    		return;
+    	}
+
+    	// add dependency for token (regular import)
         addDepInfo(currentModuleName, mod, tok);
         
         // also, add wild import info (if it is a wild import)
@@ -96,6 +105,12 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * @param tok the token it is dependent upon
      */
     private void addDepInfo(String currentModuleName, AbstractModule mod, String tok) {
+    	if(currentModuleName == null){
+    		if(!TESTING){
+    			throw new RuntimeException("Current module name must NOT be null. Mod:"+mod.getName());
+    		}
+    		return;
+    	}
         if(tok != null && tok.length() > 0){
             Set<DepInfo> deppies = depInfo.get(tok);
             if(deppies == null){

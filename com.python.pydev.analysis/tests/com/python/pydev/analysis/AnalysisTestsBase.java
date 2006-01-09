@@ -12,6 +12,7 @@ import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.InterpreterObserver;
@@ -40,7 +41,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        
+        AbstractAdditionalDependencyInfo.TESTING = true;
         //additional info
         observer = new InterpreterObserver();
 
@@ -60,6 +61,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
      */
     protected void tearDown() throws Exception {
         super.tearDown();
+        AbstractAdditionalDependencyInfo.TESTING = false;
         CompiledModule.COMPILED_MODULES_ENABLED = false;
     }
 
