@@ -23,7 +23,7 @@ set BUILD_ID=0_9_8_6
 e:
 
 
-release for both (org and com)
+
 cd %EC_WORKSPACE%\org.python.pydev.releng 
 java5 -cp %EC_HOME%\startup.jar org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE% -DPYDEV_VERSION=%PYDEV_VERSION% -DBUILD_ID=%BUILD_ID%  -DRETROWEAVER_HOME=%RETROWEAVER_HOME% -DdontFetchAnything=True -DcleanAfter=True
 

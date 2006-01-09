@@ -19,7 +19,7 @@ body {
 	margin-top: 0px;
 	margin-right: 0px;
 	margin-bottom: 0px;
-	background-color:#DFE5D5 ; 
+	background-color:#ffffff ; 
 	color:#252020 ; 
 	
 }
@@ -123,10 +123,7 @@ div.plugin-detail-link
 	text-align: right;
 }
 
-
-
-
 .table2          { border-collapse: collapse;
-                   border: 5px solid white; }
-.td2             { border: 1px dashed black; padding: 10px; }
+                   border: 0px solid white; }
+.td2             { border: 1px dotted black; padding: 10px; }
 
