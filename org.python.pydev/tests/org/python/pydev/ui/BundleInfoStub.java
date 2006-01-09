@@ -9,6 +9,7 @@ import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.python.pydev.editor.codecompletion.revisited.TestDependent;
 import org.python.pydev.plugin.IBundleInfo;
 
 
@@ -16,13 +17,13 @@ public class BundleInfoStub implements IBundleInfo {
 
     public File getRelativePath(IPath relative) throws CoreException {
         if(relative.toString().indexOf("interpreterInfo.py") != -1){
-            return new File("./PySrc/interpreterInfo.py");
+            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"PySrc/interpreterInfo.py");
         }
         if(relative.toString().indexOf("pycompletionserver.py") != -1){
-            return new File("./PySrc/pycompletionserver.py");
+            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"PySrc/pycompletionserver.py");
         }
         if(relative.toString().indexOf("jycompletionserver.py") != -1){
-            return new File("./PySrc/jycompletionserver.py");
+            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"PySrc/jycompletionserver.py");
         }
         throw new RuntimeException("Not available info on: "+relative);
     }
