@@ -413,8 +413,13 @@ public class SourceModule extends AbstractModule {
                 }
                 Tuple<Integer, Integer> def = getLineColForDefinition(a);
                 
+                String parentPackage = token.getParentPackage();
+                AbstractModule module = nature.getAstManager().getModule(parentPackage, nature, true);
+                if(module == null){
+                	module = this;
+                }
                 //line, col
-                return new Definition(def.o1, def.o2, tok, a, scopeVisitor.scope, this);
+                return new Definition(def.o1, def.o2, tok, a, scopeVisitor.scope, module);
             }
         }
         

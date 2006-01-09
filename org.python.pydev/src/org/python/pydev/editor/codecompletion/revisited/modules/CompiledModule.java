@@ -276,7 +276,11 @@ public class CompiledModule extends AbstractModule{
             if(mod == null){
                 mod = this;
             }
-            return new Definition[]{new Definition(foundLine+1, def.o2[1], token, null, null, mod)};
+            int foundCol = def.o2[1];
+            if(foundCol < 0){
+            	foundCol = 0;
+            }
+			return new Definition[]{new Definition(foundLine+1, foundCol+1, token, null, null, mod)};
         }
     }
 
