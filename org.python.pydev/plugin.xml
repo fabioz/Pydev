@@ -812,7 +812,7 @@
             project="true"/>
       <category
             id="org.python.pydev.PythonCategory"
-            name="Python"/>
+            name="Pydev"/>
       <wizard
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
