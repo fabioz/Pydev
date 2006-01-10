@@ -17,7 +17,6 @@ import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -315,7 +314,9 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
                 return true;
             }
         }
-
+        if(interpreter.startsWith("${")){
+        	return true;
+        }
         return false;
     }
     
