@@ -111,7 +111,15 @@ def runtests(dirs, verbosity=2):
     print 'Finding files...',dirs
     names = []
     for dir in dirs:
-        names.extend(FindFiles(dir, ['*.py', '*.pyw'], '', True))
+        if os.path.isdir(dir):
+            names.extend(FindFiles(dir, ['*.py', '*.pyw'], '', True))
+            
+        elif os.path.isfile(dir):
+            names.append(dir)
+        
+        else:
+            print dir, 'is not a dir nor a file... so, what is it?'
+            
     print 'done.'
     print 'Importing test modules...',
     alltests = []
