@@ -158,6 +158,16 @@ public class PydevPlugin extends AbstractUIPlugin {
             getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TIME, time);
             Properties envVariables = EnvGetter.getEnvVariables();
             
+            String bund1 = (String) properties.remove("BundleLoc");
+            String bund2 = (String) envVariables.remove("BundleLoc");
+            String[] bundVersion = getBundVersion(bund1);
+            String[] bundVersion2 = getBundVersion(bund2);
+            
+            //don't take the version into consideration when checking this...
+            if(!bundVersion[0].equals(bundVersion2[0])){
+            	throw new RuntimeException("The license was generated for the e-mail provided, but not for this specific installation.\nPlease request a new license for this installation.");
+            }
+            
             if(!envVariables.equals(properties)){
                 throw new RuntimeException("The license was generated for the e-mail provided, but not for this specific installation.\nPlease request a new license for this installation.");
             }
@@ -169,5 +179,13 @@ public class PydevPlugin extends AbstractUIPlugin {
         //if it got here, everything is ok...
         return true;
     }
+
+	private String[] getBundVersion(String bund) {
+		String pluginName = "com.python.pydev";
+		int i = bund.indexOf(pluginName);
+		String loc = bund.substring(0, i+pluginName.length());
+		String version = bund.substring(i+pluginName.length(), bund.length());
+		return new String[]{loc, version};
+	}
 	
 }
