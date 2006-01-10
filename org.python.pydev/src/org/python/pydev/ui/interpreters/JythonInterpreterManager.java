@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.Preferences;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -39,7 +40,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
     }
 
     @Override
-    public InterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+    public Tuple<InterpreterInfo,String>createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
         return doCreateInterpreterInfo(executable, monitor);
     }
 
@@ -52,7 +53,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
      * 
      * @throws CoreException
      */
-    public static InterpreterInfo doCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
         boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
         
         if(!isJythonExecutable){
@@ -77,7 +78,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
         info.restoreCompiledLibs(monitor);
         
 
-        return info;
+        return new Tuple<InterpreterInfo,String>(info, output);
     }
 
     @Override

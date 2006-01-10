@@ -23,6 +23,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -120,7 +121,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @return the interpreter info for the executable
      * @throws CoreException 
      */
-    public abstract InterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException;
+    public abstract Tuple<InterpreterInfo,String> createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException;
     
     /**
      * @see org.python.pydev.ui.interpreters.IInterpreterManager#getInterpreterInfo(java.lang.String)
@@ -130,9 +131,11 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         if(info == null){
             monitor.worked(5);
             //ok, we have to get the info from the executable (and let's cache results for future use...
+            Tuple<InterpreterInfo,String> tup = null;
     		try {
 
-                info = createInterpreterInfo(executable, monitor);
+    			tup = createInterpreterInfo(executable, monitor);
+                info = tup.o1;
                 
     	    } catch (Exception e) {
     	        PydevPlugin.log(e);
@@ -141,10 +144,14 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     	    if(info.executableOrJar != null && info.executableOrJar.trim().length() > 0){
     	        exeToInfo.put(info.executableOrJar, info);
     	        
-    	    }else{ //it is null or no empty
+    	    }else{ //it is null or empty
                 final String title = "Invalid interpreter:"+executable;
                 final String msg = "Unable to get information on interpreter!";
-                final String reason = "The interpreter (or jar): '"+executable+"' is not valid - info.executable found: "+info.executableOrJar;
+                String reasonCreation = "The interpreter (or jar): '"+executable+"' is not valid - info.executable found: "+info.executableOrJar+"\n";
+                if(tup != null){
+                	reasonCreation += "The output gotten from the executed shell was: "+tup.o2;
+                }
+				final String reason = reasonCreation;
     	        
                 try {
                     final Display disp = Display.getDefault();

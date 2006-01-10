@@ -6,85 +6,51 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.ui.IEditorActionDelegate;
+import org.eclipse.ui.IEditorPart;
+import org.python.pydev.core.ExtensionHelper;
 
 /**
  * @author Fabio Zadrozny
  */
 public class PyShowOutline extends PyAction{
 
+	IEditorActionDelegate registered;
+	
     /* (non-Javadoc)
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
-        //TODO: Still trying to find out how to do this...
-        //As I couldn't find a good way to do it, I added a bug to see
-        //if the interface provided by Java can be generalized...
-        //
-        //The bug can be found at:
-        //
-        //https://bugs.eclipse.org/bugs/show_bug.cgi?id=70419
-        
-        
-        
-//        System.out.println("Show outline information...");
-//        InformationPresenter informationPresenter = getInformationPresenter();
-//        informationPresenter.setInformationProvider(getInformationProvider(), "Python Outline Content");
-//        informationPresenter.showInformation();
-//        System.out.println("Show outline information...OK");
+    	IEditorActionDelegate participant = getParticipant();
+    	if(participant != null){
+    		participant.run(action);
+    	}
+    }
+    
+    public void setActiveEditor(IAction action, IEditorPart targetEditor){
+    	IEditorActionDelegate participant = getParticipant();
+    	if(participant != null){
+    		participant.setActiveEditor(action, targetEditor);
+    	}
+    }
+    
+    @Override
+    public void selectionChanged(IAction action, ISelection selection) {
+    	IEditorActionDelegate participant = getParticipant();
+    	if(participant != null){
+    		participant.selectionChanged(action, selection);
+    	}
     }
 
-//    /**
-//     * @return
-//     */
-//    private IInformationProvider getInformationProvider() {
-//        return new IInformationProvider(){
-//
-//            public IRegion getSubject(ITextViewer textViewer, int offset) {
-//                return new IRegion(){
-//
-//                    public int getLength() {
-//                        return 20;
-//                    }
-//
-//                    public int getOffset() {
-//                        return 20;
-//                    }};
-//            }
-//
-//            public String getInformation(ITextViewer textViewer, IRegion subject) {
-//                return "Python Outline Content";
-//            }};
-//    }
-//
-//    /**
-//     * 
-//     * @return
-//     */
-//    private InformationPresenter getInformationPresenter() {
-//         return new InformationPresenter(getInformationControlCreator());
-//    }
-//
-//    /**
-//     * @return
-//     */
-//    private IInformationControlCreator getInformationControlCreator() {
-//        return new IInformationControlCreator (){
-//
-//            public IInformationControl createInformationControl(Shell parent) {
-//                return new PyInformationControl(parent);
-//            }};
-//    }
-//    
-//    class PyInformationControl extends DefaultInformationControl{
-//
-//        /**
-//         * @param parent
-//         */
-//        public PyInformationControl(Shell parent) {
-//            super(parent);
-//            setInformation("Python Outline Content");
-//        }
-//        
-//    }
+
+	private IEditorActionDelegate getParticipant() {
+		if(registered != null){
+			return registered;
+		}
+		
+		registered = (IEditorActionDelegate) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_QUICK_OUTLINE);
+    	return registered;
+	}
 
 }

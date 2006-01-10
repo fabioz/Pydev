@@ -28,6 +28,7 @@ public class ExtensionHelper {
     public static final String PYDEV_SIMPLE_ASSIST = "org.python.pydev.pydev_simpleassist";
     public static final String PYDEV_ORGANIZE_IMPORTS = "org.python.pydev.pydev_organize_imports";
     public static final String PYDEV_REFACTORING = "org.python.pydev.pydev_refactoring";
+    public static final String PYDEV_QUICK_OUTLINE = "org.python.pydev.pydev_quick_outline";
     
     
     private static IExtension[] getExtensions(String type) {

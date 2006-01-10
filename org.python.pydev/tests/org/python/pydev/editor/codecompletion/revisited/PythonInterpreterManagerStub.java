@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
@@ -72,7 +73,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     }
 
     @Override
-    public InterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+    public Tuple<InterpreterInfo,String> createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
         return PythonInterpreterManager.doCreateInterpreterInfo(executable, monitor);
     }
 

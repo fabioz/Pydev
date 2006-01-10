@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -37,7 +38,7 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
     }
 
     @Override
-    public InterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+    public Tuple<InterpreterInfo,String>createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
         return doCreateInterpreterInfo(executable, monitor);
     }
 
@@ -48,7 +49,7 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
      * @return the created interpreter info
      * @throws CoreException
      */
-    public static InterpreterInfo doCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
         boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
         if(isJythonExecutable){
             throw new RuntimeException("A jar cannot be used in order to get the info for the python interpreter.");
@@ -61,7 +62,7 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
         InterpreterInfo info = InterpreterInfo.fromString(output);
         info.restoreCompiledLibs(monitor);
         
-        return info;
+        return new Tuple<InterpreterInfo,String>(info, output);
     }
 
     @Override
