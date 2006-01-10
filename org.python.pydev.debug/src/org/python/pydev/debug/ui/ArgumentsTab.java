@@ -276,7 +276,11 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
             }
             
             if (selectThis == -1) {
-                setErrorMessage("Obsolete interpreter is selected. Choose a new one.");
+            	if (interpreter.startsWith("${")) {
+            		interpreterComboField.setText(interpreter);
+            	}else{
+            		setErrorMessage("Obsolete interpreter is selected. Choose a new one.");
+            	}
             }else{
                 interpreterComboField.select(selectThis);
             }

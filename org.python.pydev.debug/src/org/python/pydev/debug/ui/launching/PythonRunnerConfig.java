@@ -52,7 +52,7 @@ public class PythonRunnerConfig {
     
     
 	public IPath resource;
-	public String interpreter;
+	public IPath interpreter;
 	public String[] arguments;
 	public File workingDirectory;
 	public String pythonpathUsed;
@@ -182,6 +182,31 @@ public class PythonRunnerConfig {
         }
         return null;
     }
+    /**
+     * Expands and returns the python interprter attribute of the given launch
+     * configuration. The intepreter path is verified to point to an existing
+     * file in the local file system.
+     * 
+     * @param configuration launch configuration
+     * @return an absolute path to the interpreter in the local file system
+     * @throws CoreException if unable to retrieve the associated launch
+     * configuration attribute, if unable to resolve any variables, or if the
+     * resolved location does not point to an existing directory in the local
+     * file system
+     */
+    public static IPath getInterpreter(ILaunchConfiguration configuration) throws CoreException {
+        String location = configuration.getAttribute(Constants.ATTR_INTERPRETER, (String) null);
+        if (location == null) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get python interpreter for run", null));
+        } else {
+            String expandedLocation = getStringVariableManager().performStringSubstitution(location);
+            if (expandedLocation == null || expandedLocation.length() == 0) {
+                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get expanded interpreter for run", null));
+            } else {
+                return new Path(expandedLocation);
+            }
+        }
+    }
 
 
 	/**
@@ -193,10 +218,7 @@ public class PythonRunnerConfig {
 		isDebug = mode.equals(ILaunchManager.DEBUG_MODE);
 		
 		resource = getLocation(conf);
-		interpreter = conf.getAttribute(Constants.ATTR_INTERPRETER, "");
-        if(interpreter == null || interpreter.length() == 0){
-            throw new RuntimeException("the interpreter is not corretly specified for the run");
-        }
+		interpreter = getInterpreter(conf);
 		arguments = getArguments(conf);
 		IPath workingPath = getWorkingDirectory(conf);
 		workingDirectory = workingPath == null ? null : workingPath.toFile();
@@ -380,7 +402,7 @@ public class PythonRunnerConfig {
         if(isJython()){
             //"java.exe" -classpath "C:\bin\jython21\jython.jar" org.python.util.jython script %ARGS%
             String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getAbsolutePath();
-            if(!InterpreterInfo.isJythonExecutable(interpreter)){
+            if(!InterpreterInfo.isJythonExecutable(interpreter.toOSString())){
                 throw new RuntimeException("The jython jar must be specified as the interpreter to run. Found: "+interpreter);
             }
             cmdArgs.add(javaLoc);
@@ -411,7 +433,7 @@ public class PythonRunnerConfig {
             
         }else{
         
-    		cmdArgs.add(interpreter);
+    		cmdArgs.add(interpreter.toOSString());
     		// Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
     		cmdArgs.add("-u");
         
