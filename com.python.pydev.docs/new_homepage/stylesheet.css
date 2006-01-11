@@ -1,17 +1,3 @@
-/*** Nav bar styles ***/
-
-
-.linav {
-	margin: 10px;
-	padding: 0px;
-}
-
-.ulnav {
-	margin: 0px;
-	padding: 0px;
-}
-
-
 body {
 	padding-right: 0px;
 	padding-left: 0px;
@@ -20,13 +6,13 @@ body {
 	margin: 0px;
 	padding-top: 0px;
 	font: 11px/1.5em Verdana;
-	color: #3d3937;
+	color: #303030;
 }
 
 p {
 	margin: 2px 15px 7px;
 	font: 11px/1.5em Verdana;
-	color: #3d3937;
+	color: #303030;
 }
 
 .italic {
@@ -37,21 +23,16 @@ p {
 	margin: 5px 5px 5px 5px;
 	padding-top: 0px;
 	font: 11px/1.5em Verdana;
-	color: #3d3937;
+	color: #303030;
 	font-style: italic;
 	
 }
 
-.download_text {
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: large;
-	color: #666666;
-}
 .white_text {
+	font: 11px/1.0em Verdana;
 	font-size: small;
 	color: #ffffff;
-	font: 12px/1.5em Verdana;
-	font-style: bold;
+	font-weight: bold;
 }
 a:link {
 	text-decoration: none;
@@ -66,23 +47,23 @@ a:active {
 	text-decoration: none;
 }
 .header_text {
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: Verdana, Helvetica, sans-serif;
 	font-size: small;
 	color: #666666;
 	margin: 3px;
 }
 .menu_links {
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: Verdana, Helvetica, sans-serif;
 	font-size: small;
 	color: #666666;
 }
 .menu_links_normal {
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: Verdana, Helvetica, sans-serif;
 	font-size: normal;
 	color: #666666;
 }
 .menu_headings {
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: Verdana, Helvetica, sans-serif;
 	font-size: small;
 	color: #FFFFFF;
 	font-weight: bold;
@@ -99,17 +80,22 @@ a:active {
 	border-bottom-width: 1px;
 	border-bottom-style: solid;
 	border-bottom-color: #000000;
+	border-left-width: 0px;
+	border-right-width: 0px;
+	border-top-width: 0px;
 }
 .td_bottom{
 	border-collapse=collapse;
 	border-top-width: 1px;
 	border-top-style: solid;
 	border-top-color: #000000;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #000000;
 }
 
 .td_left {
 }
-
 
 .td_right {
 	border-collapse=collapse;
