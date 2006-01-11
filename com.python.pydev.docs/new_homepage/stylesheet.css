@@ -81,49 +81,28 @@ a:active {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: medium;
 }
-.screenshot {
-	float: left;
-	margin: 0px 9px 9px 0px;
-}
-.download {
-	float: right;
-}
 
-div.plugin-list-item
-{
-	padding-bottom: 10px;
+.td_top{
+	border-collapse=collapse;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #000000;
 }
-
-div.plugin-name
-{
-	font-weight: bold;
+.td_bottom{
+	border-collapse=collapse;
+	border-top-width: 1px;
+	border-top-style: solid;
+	border-top-color: #000000;
 }
 
-div.plugin-summary
-{
-	padding: 3px;
-	border: solid black 1px;
-	background: white;
+.td_left {
+	margin-left: 10px;
 }
 
-div.plugin-branch
-{
-	padding-top: 3px;
-	padding-left: 10px;
+.td_right {
+	border-collapse=collapse;
+	border-left-width: 1px;
+	border-left-style:dotted;
+	border-left-color: #000000;
+	
 }
-
-span.plugin-date
-{
-	font-size: smaller;
-}
-
-div.plugin-detail-link
-{
-	font-size: smaller;
-	text-align: right;
-}
-
-.table2          { border-collapse: collapse;
-                   border: 0px solid white; }
-.td2             { border: 1px dotted black; padding: 10px; }
-

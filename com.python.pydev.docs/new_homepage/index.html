@@ -1,9 +1,3 @@
-<!--Check: http://www.w3.org/TR/REC-CSS2/tables.html - Image of a table with header cells ("San Jose" and "Seattle") that are not in the same column or row as the data they apply to.-->
-
-
-
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -25,13 +19,13 @@ urchinTracker();
 
 </head>
 <body>
-<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<table border="0" width="100%" >
 <tbody>
 
 
 
 <tr align="center" bgcolor="#eeeeee" valign="middle">
-<td colspan="10" nowrap="nowrap">
+<td colspan="2" nowrap="nowrap" class="td_top">
 <center>
 <p class="header_text">Last Site Update: %(date)s |
 Latest Version: LAST_VERSION_TAG</p>
@@ -40,14 +34,11 @@ Latest Version: LAST_VERSION_TAG</p>
 </tr>
 
 
+<tr align="left" bgcolor="#ffffff"  class="td_left" >
 
-<table border="0" cellpadding="15%" cellspacing="0" width="100%" class="table2">
-<tbody>
-
-<tr align="left" bgcolor="#ffffff"  class="td2">
 <td  width="80%">
+<ul>
 <p class="body_text"><IMG src="images/logo.png" border="0"/></p>
-
 <br>
 <p class="body_text">'Pydev Extensions' is a plugin allows Python editing in Eclipse. 
 It works on top of Eclipse and Pydev, and adds features such as:</p>
@@ -60,13 +51,14 @@ It works on top of Eclipse and Pydev, and adds features such as:</p>
 </li><li class="body_text">Keywords presented as auto-completions as you type
 </li>
 </ul>
-
+</ul>
 </td>
 
-
-<td width="20%" class="td2"> 
+<td width="20%" class="td_right"> 
 <center>
 <p class="body_text">Buy!</p>
+<p class="body_text">Download</p>
+<p class="body_text">Download</p>
 <p class="body_text">Install</p>
 <p class="body_text">Manual</p>
 </center>
@@ -75,12 +67,10 @@ It works on top of Eclipse and Pydev, and adds features such as:</p>
 </tr>
 
 
-</tbody>
-
 
 
 <tr align="center" bgcolor="#eeeeee" valign="middle">
-<td colspan="10" nowrap="nowrap">
+<td colspan="2" nowrap="nowrap" class="td_bottom">
 <center>
 <p class="header_text">Copyright: Fabio Zadrozny</p>
 </center>
