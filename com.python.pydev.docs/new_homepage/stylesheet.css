@@ -13,27 +13,32 @@
 
 
 body {
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 13px;
-	margin-left: 0px;
-	margin-top: 0px;
-	margin-right: 0px;
-	margin-bottom: 0px;
-	background-color:#ffffff ; 
-	color:#252020 ; 
-	
+	padding-right: 0px;
+	padding-left: 0px;
+	background: #ffffff;
+	padding-bottom: 0px;
+	margin: 0px;
+	padding-top: 0px;
+	font: 11px/1.5em Verdana;
+	color: #3d3937;
+}
+
+p {
+	margin: 2px 15px 7px;
+	font: 11px/1.5em Verdana;
+	color: #3d3937;
 }
 
 .italic {
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 13px;
+	padding-right: 0px;
+	padding-left: 0px;
+	background: #ffffff;
+	padding-bottom: 0px;
+	margin: 5px 5px 5px 5px;
+	padding-top: 0px;
+	font: 11px/1.5em Verdana;
+	color: #3d3937;
 	font-style: italic;
-	margin-left: 0px;
-	margin-top: 0px;
-	margin-right: 0px;
-	margin-bottom: 0px;
-	background-color:#DFE5D5 ; 
-	color:#252020 ; 
 	
 }
 
@@ -41,6 +46,12 @@ body {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: large;
 	color: #666666;
+}
+.white_text {
+	font-size: small;
+	color: #ffffff;
+	font: 12px/1.5em Verdana;
+	font-style: bold;
 }
 a:link {
 	text-decoration: none;
@@ -77,13 +88,14 @@ a:active {
 	font-weight: bold;
 }
 
-.body_text {
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: medium;
-}
 
 .td_top{
 	border-collapse=collapse;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #000000;
+}
+.td_top2{
 	border-bottom-width: 1px;
 	border-bottom-style: solid;
 	border-bottom-color: #000000;
@@ -96,13 +108,33 @@ a:active {
 }
 
 .td_left {
-	margin-left: 10px;
 }
+
 
 .td_right {
 	border-collapse=collapse;
 	border-left-width: 1px;
-	border-left-style:dotted;
+	border-left-style: dotted;
 	border-left-color: #000000;
 	
+}
+
+.td_right1 {
+	border-collapse=collapse;
+	border-left-width: 1px;
+	border-left-style: dotted;
+	border-left-color: #000000;
+}
+.td_right2 {
+	border-collapse=collapse;
+}
+.td_right3 {
+	border-collapse=collapse;
+	
+	border-left-width: 1px;
+	border-left-style: dotted;
+	border-left-color: #000000;
+	border-top-width: 1px;
+	border-top-style: dotted;
+	border-top-color: #000000;
 }
