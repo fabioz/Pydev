@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.IPath;
@@ -16,7 +17,6 @@ import org.osgi.framework.BundleContext;
 import org.python.pydev.core.REF;
 
 import com.python.pydev.license.ClientEncryption;
-import com.python.pydev.util.EnvGetter;
 import com.python.pydev.util.PydevExtensionNotifier;
 
 /**
@@ -138,6 +138,8 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     private boolean isLicenseValid(String encLicense) {
         //already decrypted
+        getPreferenceStore().setValue(PydevExtensionInitializer.USER_NAME, "");
+        getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TIME, "");
         String license = ClientEncryption.getInstance().decrypt(encLicense);
         try {
             Properties properties = new Properties();
@@ -150,27 +152,20 @@ public class PydevPlugin extends AbstractUIPlugin {
             if(eMail == null && name == null && time == null){
                 throw new RuntimeException("The license is not correct, please re-paste it. If this error persists, please request a new license.");
             }
-            
             if(!getPreferenceStore().getString(PydevExtensionInitializer.USER_EMAIL).equals(eMail)){
-                throw new RuntimeException("The e-mail specified is different from the e-mail in the license.");
+                throw new RuntimeException("The e-mail specified is different from the e-mail this license was generated for.");
             }
+            
+            
+            Calendar currentCalendar = Calendar.getInstance();
+            Calendar licenseCalendar = getExpTime(time);
+            if(currentCalendar.after(licenseCalendar)){
+                throw new RuntimeException("The current license has already expired.");
+            }
+            
+            
             getPreferenceStore().setValue(PydevExtensionInitializer.USER_NAME, name);
             getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TIME, time);
-            Properties envVariables = EnvGetter.getEnvVariables();
-            
-            String bund1 = (String) properties.remove("BundleLoc");
-            String bund2 = (String) envVariables.remove("BundleLoc");
-            String[] bundVersion = getBundVersion(bund1);
-            String[] bundVersion2 = getBundVersion(bund2);
-            
-            //don't take the version into consideration when checking this...
-            if(!bundVersion[0].equals(bundVersion2[0])){
-            	throw new RuntimeException("The license was generated for the e-mail provided, but not for this specific installation.\nPlease request a new license for this installation.");
-            }
-            
-            if(!envVariables.equals(properties)){
-                throw new RuntimeException("The license was generated for the e-mail provided, but not for this specific installation.\nPlease request a new license for this installation.");
-            }
             
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
@@ -180,12 +175,15 @@ public class PydevPlugin extends AbstractUIPlugin {
         return true;
     }
 
-	private String[] getBundVersion(String bund) {
-		String pluginName = "com.python.pydev";
-		int i = bund.indexOf(pluginName);
-		String loc = bund.substring(0, i+pluginName.length());
-		String version = bund.substring(i+pluginName.length(), bund.length());
-		return new String[]{loc, version};
-	}
-	
+    public static Calendar getExpTime(String time) {
+        return getExpTime(Long.parseLong(time));
+    }
+
+    public static Calendar getExpTime(long lTime) {
+        Calendar licenseCalendar = Calendar.getInstance();
+        licenseCalendar.setTimeInMillis(lTime);
+        licenseCalendar.add(Calendar.YEAR, 1);
+        return licenseCalendar;
+    }
+
 }

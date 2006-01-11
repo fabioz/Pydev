@@ -99,7 +99,7 @@ public class GetInfoDialog extends Dialog {
                     String email = getEmail();
                     
                     
-                    Properties envVariables = EnvGetter.getEnvVariables();
+                    Properties envVariables = new Properties();
                     
                     envVariables.put("name", name);
                     envVariables.put("e-mail", email);

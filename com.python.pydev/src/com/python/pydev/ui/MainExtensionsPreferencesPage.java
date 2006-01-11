@@ -6,6 +6,10 @@
  */
 package com.python.pydev.ui;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
@@ -60,6 +64,7 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 		}
 		
 		private void doValidate() {
+		    updateLicInfo();
 			String userEmail = getFieldValue(PydevExtensionInitializer.USER_EMAIL);
 			String license = getFieldValue(PydevExtensionInitializer.LICENSE).replaceAll("\n", "").replaceAll("\r", "").replaceAll(" ", "");
 			if( !fieldsValid( userEmail, license ) )
@@ -79,6 +84,8 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 			message.setText(txt);
 			message.setMessage(msg);									
 			message.open();
+            updateLicInfo();
+
 		}
 
 		private boolean fieldsValid(String userEmail, String license) {
@@ -97,6 +104,9 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 		public void widgetDefaultSelected(SelectionEvent e) {
 		}    		
 	}
+
+    private Label labelUser;
+    private Label labelExp;
 
 	
 	//--------------------------------------------------------------------------------------------------------
@@ -154,6 +164,37 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
         data.horizontalSpan = 2;
         data.grabExcessHorizontalSpace = true;
         btValidate.setLayoutData(data);
+        
+        
+        labelUser = new Label(composite, SWT.NONE);
+        data = new GridData(GridData.FILL_HORIZONTAL);
+        data.horizontalSpan = 2;
+        data.grabExcessHorizontalSpace = true;
+        labelUser.setLayoutData(data);
+        
+        labelExp = new Label(composite, SWT.NONE);
+        data = new GridData(GridData.FILL_HORIZONTAL);
+        data.horizontalSpan = 2;
+        data.grabExcessHorizontalSpace = true;
+        labelExp.setLayoutData(data);
+
+        updateLicInfo();
+    }
+
+
+    /**
+     * 
+     */
+    private void updateLicInfo() {
+        try {
+            Calendar expTime = PydevPlugin.getExpTime(getFieldValue(PydevExtensionInitializer.LIC_TIME));
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            labelExp.setText("Expires at: " + format.format(new Date(expTime.getTimeInMillis())));
+        } catch (Exception e) {
+            labelExp.setText("Expires at: ");
+            
+        }
+        labelUser.setText("Registered to: "+getFieldValue(PydevExtensionInitializer.USER_NAME));
     }
 
 
