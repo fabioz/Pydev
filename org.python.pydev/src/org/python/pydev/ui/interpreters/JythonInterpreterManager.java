@@ -62,9 +62,10 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
         File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
         
         //gets the info for the python side
-        String output = new SimpleJythonRunner().runAndGetOutputWithJar(REF.getFileAbsolutePath(script), executable, null, null, null, monitor);
+        Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(REF.getFileAbsolutePath(script), executable, null, null, null, monitor);
+		String output = outTup.o1;
         
-        InterpreterInfo info = InterpreterInfo.fromString(output);
+        InterpreterInfo info = createInfoFromOutput(monitor, outTup);
         //the executable is the jar itself
         info.executableOrJar = executable;
         

@@ -13,6 +13,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -42,7 +43,7 @@ public class SimplePythonRunner extends SimpleRunner {
      * 
      * @return a string with the output of the process (stdout)
      */
-    public String runAndGetOutput(String script, String[] args, File workingDir, IProject project) {
+    public Tuple<String,String> runAndGetOutput(String script, String[] args, File workingDir, IProject project) {
         String executionString = makeExecutableCommandStr(script, args);
         return runAndGetOutput(executionString, workingDir, project);
     }
@@ -74,7 +75,7 @@ public class SimplePythonRunner extends SimpleRunner {
      * 
      * @return the stdout of the run (if any)
      */
-    public String runAndGetOutputWithInterpreter(String interpreter, String script, String[] args, File workingDir, IProject project, IProgressMonitor monitor) {
+    public Tuple<String,String>  runAndGetOutputWithInterpreter(String interpreter, String script, String[] args, File workingDir, IProject project, IProgressMonitor monitor) {
         monitor.setTaskName("Mounting executable string...");
         monitor.worked(5);
         
@@ -104,9 +105,9 @@ public class SimplePythonRunner extends SimpleRunner {
      * execute with the correct pythonpath environment variable).
      * @param monitor this is the monitor used to communicate the progress to the user
      * 
-     * @return the string that is the output of the process (stdout).
+     * @return the string that is the output of the process (stdout) and the stderr (o2)
      */
-    public String runAndGetOutput(String executionString, File workingDir, IProject project, IProgressMonitor monitor) {
+    public Tuple<String,String> runAndGetOutput(String executionString, File workingDir, IProject project, IProgressMonitor monitor) {
         monitor.setTaskName("Executing: "+executionString);
         monitor.worked(5);
         Process process = null;
@@ -143,7 +144,7 @@ public class SimplePythonRunner extends SimpleRunner {
                 throw new RuntimeException(e1);
             }
 
-            return std.contents.toString();
+            return new Tuple<String, String>(std.contents.toString(), err.contents.toString());
             
         } else {
             try {
@@ -154,7 +155,7 @@ public class SimplePythonRunner extends SimpleRunner {
             }
 
         }
-        return ""; //no output
+        return new Tuple<String, String>("","Error creating python process - got null process("+ executionString + ")"); //no output
     }
 
     

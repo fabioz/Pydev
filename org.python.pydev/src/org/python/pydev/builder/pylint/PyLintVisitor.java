@@ -27,6 +27,7 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimplePythonRunner;
@@ -161,7 +162,8 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             
             IProject project = resource.getProject();
             
-            String output = new SimplePythonRunner().runAndGetOutput(REF.getFileAbsolutePath(script), list.toArray(new String[0]), script.getParentFile(), project);
+            Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutput(REF.getFileAbsolutePath(script), list.toArray(new String[0]), script.getParentFile(), project);
+			String output = outTup.o1;
 
             StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
             
@@ -175,6 +177,10 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             if(output.indexOf("Traceback (most recent call last):") != -1){
                 PydevPlugin.log(new RuntimeException("PyLint ERROR: \n"+output));
                 return;
+            }
+            if(outTup.o2.indexOf("Traceback (most recent call last):") != -1){
+            	PydevPlugin.log(new RuntimeException("PyLint ERROR: \n"+output));
+            	return;
             }
             while(tokenizer.hasMoreTokens()){
                 String tok = tokenizer.nextToken();

@@ -22,6 +22,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.osgi.service.environment.Constants;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -253,28 +254,28 @@ public abstract class SimpleRunner {
     /**
      * shortcut
      */
-    public String runAndGetOutput(String executionString, File workingDir, IProgressMonitor monitor) {
+    public Tuple<String,String> runAndGetOutput(String executionString, File workingDir, IProgressMonitor monitor) {
         return runAndGetOutput(executionString, workingDir, null, monitor);
     }
     
     /**
      * shortcut
      */
-    public String runAndGetOutput(String executionString, File workingDir) {
+    public Tuple<String,String>  runAndGetOutput(String executionString, File workingDir) {
         return runAndGetOutput(executionString, workingDir, null, new NullProgressMonitor());
     }
     
     /**
      * shortcut
      */
-    public String runAndGetOutput(String executionString, File workingDir, IProject project) {
+    public Tuple<String,String>  runAndGetOutput(String executionString, File workingDir, IProject project) {
         return runAndGetOutput(executionString, workingDir, project, new NullProgressMonitor());
     }
     
     /**
      * shortcut
      */
-    public String runAndGetOutput(String script, String[] args, File workingDir) {
+    public Tuple<String,String>  runAndGetOutput(String script, String[] args, File workingDir) {
         return runAndGetOutput(script, args, workingDir, null);
     }
 
@@ -289,7 +290,7 @@ public abstract class SimpleRunner {
      * 
      * @return the string that is the output of the process (stdout).
      */
-    public abstract String runAndGetOutput(String executionString, File workingDir, IProject project, IProgressMonitor monitor);
+    public abstract Tuple<String,String>  runAndGetOutput(String executionString, File workingDir, IProject project, IProgressMonitor monitor);
 
     /**
      * Execute the script specified with the interpreter for a given project 
@@ -301,6 +302,6 @@ public abstract class SimpleRunner {
      * 
      * @return a string with the output of the process (stdout)
      */
-    public abstract String runAndGetOutput(String script, String args[], File workingDir, IProject project);
+    public abstract Tuple<String,String>  runAndGetOutput(String script, String args[], File workingDir, IProject project);
 
 }

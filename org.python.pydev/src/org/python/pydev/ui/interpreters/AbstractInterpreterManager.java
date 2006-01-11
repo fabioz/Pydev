@@ -122,7 +122,20 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @throws CoreException 
      */
     public abstract Tuple<InterpreterInfo,String> createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException;
-    
+
+    /**
+     * Creates the interpreter info from the output. Checks for errors.
+     */
+    protected static InterpreterInfo createInfoFromOutput(IProgressMonitor monitor, Tuple<String, String> outTup) {
+    	if(outTup.o1 == null || outTup.o1.trim().length() == 0){
+    		throw new RuntimeException(
+    				"No output was in the standard output when trying to create the interpreter info.\n" +
+    				"The error output contains:>>"+outTup.o2+"<<");
+    	}
+		InterpreterInfo info = InterpreterInfo.fromString(outTup.o1);
+		return info;
+	}
+
     /**
      * @see org.python.pydev.ui.interpreters.IInterpreterManager#getInterpreterInfo(java.lang.String)
      */
@@ -130,7 +143,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         InterpreterInfo info = (InterpreterInfo) exeToInfo.get(executable);
         if(info == null){
             monitor.worked(5);
-            //ok, we have to get the info from the executable (and let's cache results for future use...
+            //ok, we have to get the info from the executable (and let's cache results for future use)...
             Tuple<InterpreterInfo,String> tup = null;
     		try {
 
@@ -149,7 +162,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                 final String msg = "Unable to get information on interpreter!";
                 String reasonCreation = "The interpreter (or jar): '"+executable+"' is not valid - info.executable found: "+info.executableOrJar+"\n";
                 if(tup != null){
-                	reasonCreation += "The output gotten from the executed shell was: "+tup.o2;
+                	reasonCreation += "The standard output gotten from the executed shell was: >>"+tup.o2+"<<";
                 }
 				final String reason = reasonCreation;
     	        

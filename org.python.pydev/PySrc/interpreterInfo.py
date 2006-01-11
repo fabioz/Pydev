@@ -15,6 +15,12 @@ import sys
 import os
 
 if __name__ == '__main__':
+    try:
+        #just give some time to get the reading threads attached (just in case)
+        sleep(0.5)
+    except:
+        pass
+    
     executable = os.path.realpath(sys.executable)
     print 'EXECUTABLE:%s|' % executable
     

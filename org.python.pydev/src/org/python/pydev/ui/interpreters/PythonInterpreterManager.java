@@ -57,13 +57,13 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
 
         File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
 
-        String output = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
-        
-        InterpreterInfo info = InterpreterInfo.fromString(output);
+        Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
+        InterpreterInfo info = createInfoFromOutput(monitor, outTup);
         info.restoreCompiledLibs(monitor);
         
-        return new Tuple<InterpreterInfo,String>(info, output);
+        return new Tuple<InterpreterInfo,String>(info, outTup.o1);
     }
+
 
     @Override
     public boolean canGetInfoOnNature(IPythonNature nature) {

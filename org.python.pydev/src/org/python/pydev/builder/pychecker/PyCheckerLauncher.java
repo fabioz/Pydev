@@ -154,7 +154,7 @@ public class PyCheckerLauncher {
         
         String contents = "";
         try {
-            contents = new SimplePythonRunner().runAndGetOutput(pycheckerLocation, new String[]{resourceLocation}, new File(pycheckerLocation).getParentFile());
+            contents = new SimplePythonRunner().runAndGetOutput(pycheckerLocation, new String[]{resourceLocation}, new File(pycheckerLocation).getParentFile()).o1;
         } catch (RuntimeException e) {
             System.err.println("Exception during process creation of pychecker on resource: " + resourceLocation + ".");
             throw e;

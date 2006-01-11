@@ -49,7 +49,7 @@ public class SimplePythonRunnerTest extends TestCase {
     public void testEnv() throws CoreException, IOException {
         
         File relativePath = BundleInfo.getBundleInfo().getRelativePath(new Path("PySrc/interpreterInfo.py"));
-        String string = new SimplePythonRunner().runAndGetOutput(TestDependent.PYTHON_EXE+" "+relativePath.getCanonicalPath(), null);
+        String string = new SimplePythonRunner().runAndGetOutput(TestDependent.PYTHON_EXE+" "+relativePath.getCanonicalPath(), null).o1;
         assertNotNull(string);
         //System.out.println(string);
     }

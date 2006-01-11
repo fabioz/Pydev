@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -28,7 +29,7 @@ public class SimpleJythonRunner extends SimpleRunner{
      * 
      * @return the string that is the output of the process (stdout).
      */
-    public String runAndGetOutput(String executionString, File workingDir, IProject project, IProgressMonitor monitor) {
+    public Tuple<String,String> runAndGetOutput(String executionString, File workingDir, IProject project, IProgressMonitor monitor) {
         monitor.setTaskName("Executing: "+executionString);
         monitor.worked(5);
         Process process = null;
@@ -65,7 +66,7 @@ public class SimpleJythonRunner extends SimpleRunner{
                 throw new RuntimeException(e1);
             }
 
-            return std.contents.toString();
+            return new Tuple<String,String>(std.contents.toString(), err.contents.toString());
             
         } else {
             try {
@@ -76,10 +77,10 @@ public class SimpleJythonRunner extends SimpleRunner{
             }
 
         }
-        return ""; //no output
+        return new Tuple<String,String>("", "Error creating python process - got null process("+ executionString + ")"); //no output
     }
 
-    public String runAndGetOutputWithJar(String script, String jythonJar, String args, File workingDir, IProject project, IProgressMonitor monitor) {
+    public Tuple<String,String> runAndGetOutputWithJar(String script, String jythonJar, String args, File workingDir, IProject project, IProgressMonitor monitor) {
         //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21" 
         //-classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
         //used just for getting info without any classpath nor pythonpath
@@ -103,7 +104,7 @@ public class SimpleJythonRunner extends SimpleRunner{
         
     }
     @Override
-    public String runAndGetOutput(String script, String[] args, File workingDir, IProject project) {
+    public Tuple<String,String> runAndGetOutput(String script, String[] args, File workingDir, IProject project) {
         //"java.exe" -classpath "C:\bin\jython21\jython.jar" -Dpython.path xxx;xxx;xxx org.python.util.jython script %ARGS%
 
         try {
