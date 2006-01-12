@@ -67,17 +67,11 @@ public class GetInfoDialog extends Dialog {
         String msg3 = "If you have some reason to believe that something went wrong, haven't received " +
                 "your license within 2 work days, or have any doubts, please e-mail: fabiofz@gmail.com with the information that appears below.\n\n";
         
-        String msg4 = "Note:\n";
-        String msg4a = "The license will only be valid for your current installation. If you need to install it in another computer, you'll have " +
-                "to install 'Pydev Extensions' in the other computer and follow the same steps again.";
-        
         MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg, BOLD_COLS), 2));
         MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg1, BOLD_COLS), 2));
         createLabel(composite, WordUtils.wrap(msg2, REGULAR_COLS), 2);
         MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg3a, BOLD_COLS), 2));
         createLabel(composite, WordUtils.wrap(msg3, REGULAR_COLS), 2);
-        MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg4, BOLD_COLS), 2));
-        createLabel(composite, WordUtils.wrap(msg4a, REGULAR_COLS), 2);
         
         createLabel(composite, "Name (complete)"); 
         textName = createText(composite);
