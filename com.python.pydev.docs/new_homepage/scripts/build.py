@@ -35,6 +35,8 @@ def main():
     template('../template1.html', 'terms', 'Terms and Conditions')
     template('../template1.html', 'download', 'Download')
     template('../template1.html', 'buy', 'Buy')
+    template('../template1.html', 'manual', 'Manual')
+    template('../template1.html', 'about', 'About')
 
 if __name__ == '__main__':
     main()

@@ -12,7 +12,7 @@ public class PydevExtensionNotifier extends Thread{
 	//all times here are in secs
 	private static final int FIRST_TIME = 60 * 30;
     private static final int VALIDATED_TIME = FIRST_TIME;
-    private static final int MIN_TIME = 60 * 5;
+    private static final int MIN_TIME = 60 * 30;
     private boolean inMessageBox = false;
 
     public PydevExtensionNotifier() {
