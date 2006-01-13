@@ -96,7 +96,7 @@ __all__ = ();
 
 #--------------------------------------------------------------------------------------------------- UTILITIES
 
-pydevd_trace = 2
+pydevd_trace = 0
 
 def pydevd_log(level, s):
     """ levels are: 
