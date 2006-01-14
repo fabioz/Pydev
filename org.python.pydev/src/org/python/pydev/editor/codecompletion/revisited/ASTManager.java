@@ -32,6 +32,7 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule.FindInfo;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -523,7 +524,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         if (module instanceof SourceModule) {
             SourceModule s = (SourceModule) module;
             try {
-                Definition[] defs = s.findDefinition(state.activationToken, state.line, state.col, state.nature);
+                Definition[] defs = s.findDefinition(state.activationToken, state.line, state.col, state.nature, new ArrayList<FindInfo>());
                 for (int i = 0; i < defs.length; i++) {
                     if(!(defs[0].ast instanceof FunctionDef)){
                         //we might want to extend that later to check the return of some function...

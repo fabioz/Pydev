@@ -8,7 +8,10 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.io.File;
 import java.util.List;
 
+import junit.extensions.TestSetup;
+import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -22,6 +25,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -36,6 +40,8 @@ import org.python.pydev.utils.PrintProgressMonitor;
 public class CodeCompletionTestsBase extends TestCase {
 
     public static void main(String[] args) {
+        //for single setup / teardow, check http://www.beust.com/weblog/archives/000082.html
+        //(may be useful to get rid of the ThreadStreamReader threads)
         junit.textui.TestRunner.run(CodeCompletionTestsBase.class);
     }
 

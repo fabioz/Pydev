@@ -24,7 +24,8 @@ public class PyGoToDefinition extends PyRefactorAction {
 
     protected boolean areRefactorPreconditionsOK(RefactoringRequest request) {
         try {
-            checkAvailableForRefactoring(request);
+            IPyRefactoring pyRefactoring = getPyRefactoring("canFindDefinition");
+            pyRefactoring.checkAvailableForRefactoring(request);
         } catch (Exception e) {
         	e.printStackTrace();
             ErrorDialog.openError(null, "Error", "Unable to do requested action", 
@@ -48,20 +49,21 @@ public class PyGoToDefinition extends PyRefactorAction {
 
             ps = new PySelection(getTextEditor());
             PyEdit pyEdit = getPyEdit();
-            areRefactorPreconditionsOK(getRefactoringRequest());
+            if(areRefactorPreconditionsOK(getRefactoringRequest())){
 
-            PyOpenAction openAction = (PyOpenAction) pyEdit.getAction(PyEdit.ACTION_OPEN);
-
-            ItemPointer[] where = findDefinition(pyEdit);
-
-            if (where == null) {
-                return;
-            }
-
-            if (where.length > 0){
-                openAction.run(where[0]);
-            } else {
-                PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
+                PyOpenAction openAction = (PyOpenAction) pyEdit.getAction(PyEdit.ACTION_OPEN);
+    
+                ItemPointer[] where = findDefinition(pyEdit);
+    
+                if (where == null) {
+                    return;
+                }
+    
+                if (where.length > 0){
+                    openAction.run(where[0]);
+                } else {
+                    PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
+                }
             }
         } catch (Exception e) {
         	e.printStackTrace();

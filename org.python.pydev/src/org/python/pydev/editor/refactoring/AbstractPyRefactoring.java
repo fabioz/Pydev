@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.eclipse.ui.IPropertyListener;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 
 /**
  * @author Fabio Zadrozny
@@ -124,6 +125,9 @@ public abstract class AbstractPyRefactoring implements IPyRefactoring{
     }
 
 
+    public void checkAvailableForRefactoring(RefactoringRequest request) {
+        PyRefactorAction.checkAvailableForRefactoring(request);
+    }
 
 
 }

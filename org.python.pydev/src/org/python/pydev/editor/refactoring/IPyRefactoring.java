@@ -109,4 +109,9 @@ public interface IPyRefactoring {
      */
     public Object[] getLastRefactorResults();
     public void firePropertyChange();
+
+    /**
+     * Should throw an exception if it cannot do a refactoring based on the request.
+     */
+    public void checkAvailableForRefactoring(RefactoringRequest request);
 }

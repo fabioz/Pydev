@@ -5,12 +5,13 @@ package org.python.pydev.core;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 
 /**
  * @author Fabio
  */
-public interface IPythonNature {
+public interface IPythonNature extends IProjectNature{
 
     public static final String PYTHON_VERSION_2_3 = "python 2.3";
     public static final String PYTHON_VERSION_2_4 = "python 2.4";

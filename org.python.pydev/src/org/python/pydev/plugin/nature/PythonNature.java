@@ -33,7 +33,6 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.utils.JobProgressComunicator;
@@ -46,7 +45,7 @@ import org.python.pydev.utils.JobProgressComunicator;
  * 
  *  
  */
-public class PythonNature implements IProjectNature, IPythonNature {
+public class PythonNature implements IPythonNature {
 
     /**
      * This is the nature ID

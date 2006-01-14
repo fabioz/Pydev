@@ -22,6 +22,7 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule.FindInfo;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
@@ -248,9 +249,10 @@ public class CompiledModule extends AbstractModule{
     }
 
     /**
+     * @param findInfo 
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
-    public Definition[] findDefinition(String token, int line, int col, PythonNature nature) throws Exception {
+    public Definition[] findDefinition(String token, int line, int col, PythonNature nature, List<FindInfo> findInfo) throws Exception {
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
         synchronized(shell){
             Tuple<String[],int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getProjectModulesManager().getCompletePythonPath());
@@ -270,7 +272,7 @@ public class CompiledModule extends AbstractModule{
             if(foundLine == 0 && foundAs.length() > 0 && mod != null){
                 AbstractModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f, new Document(REF.getFileContents(f)), nature, 0);
                 if(sourceMod instanceof SourceModule){
-                    Definition[] definitions = sourceMod.findDefinition(foundAs, 0, 0, nature);
+                    Definition[] definitions = sourceMod.findDefinition(foundAs, 0, 0, nature, findInfo);
                     if(definitions.length > 0){
                         return definitions;
                     }

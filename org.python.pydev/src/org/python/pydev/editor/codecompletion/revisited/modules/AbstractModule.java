@@ -117,16 +117,27 @@ public abstract class AbstractModule {
     }
     
     /**
+     * This is a structure that is useful when debugging. It can store information created during
+     * a findDefinition method.
+     */
+    public static class FindInfo{
+
+        /**
+         * This contains the local tokens that are found
+         */
+        public IToken[] localTokens;
+        
+    }
+    
+    /**
      * This function can be called to find possible definitions of a token, based on its name, line and
      * column.
      * 
-     * @param token name
-     * @param line 
-     * @param col
+     * @param findInfo: this is debug information gathered during a find
      * @return array of definitions.
      * @throws Exception
      */
-    public abstract Definition[] findDefinition(String token, int line, int col, PythonNature nature) throws Exception;
+    public abstract Definition[] findDefinition(String token, int line, int col, PythonNature nature, List<FindInfo> findInfo) throws Exception;
 
     /**
      * This function should return all tokens that are global for a given token.

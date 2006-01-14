@@ -28,6 +28,7 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionExcep
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule.FindInfo;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
@@ -213,10 +214,11 @@ public class SourceModule extends AbstractModule {
         return new IToken[0];
     }
 
-    public Definition[] findDefinition(String rep, int line, int col, PythonNature nature) throws Exception{
+    public Definition[] findDefinition(String rep, int line, int col, PythonNature nature, List<FindInfo> lFindInfo) throws Exception{
         //the line passed in starts at 1 and the lines for the visitor start at 0
         ArrayList<Definition> toRet = new ArrayList<Definition>();
-        
+        FindInfo info = new FindInfo();
+        lFindInfo.add(info);
         
         //first thing is finding its scope
         FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
@@ -228,6 +230,7 @@ public class SourceModule extends AbstractModule {
         
         //well, first thing is check for locals and class definitions if it is a self.
         IToken[] localTokens = scopeVisitor.scope.getLocalTokens(line, col);
+        info.localTokens = localTokens;
         for (IToken tok : localTokens) {
         	if(tok.getRepresentation().equals(rep)){
         		return new Definition[]{new Definition(tok, scopeVisitor.scope, this)};
@@ -323,7 +326,7 @@ public class SourceModule extends AbstractModule {
                     return new Definition[]{new Definition(1,1,"",null,null,o.o1)};
                 }
             }else{
-                return o.o1.findDefinition(tok, 0, 0, nature);
+                return o.o1.findDefinition(tok, 0, 0, nature, lFindInfo);
             }
         }
         
