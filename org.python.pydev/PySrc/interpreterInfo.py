@@ -21,7 +21,10 @@ if __name__ == '__main__':
     except:
         pass
     
-    executable = os.path.realpath(sys.executable)
+    try:
+        executable = os.path.realpath(sys.executable)
+    except:
+        executable = sys.executable
     print 'EXECUTABLE:%s|' % executable
     
     def formatPath(p):

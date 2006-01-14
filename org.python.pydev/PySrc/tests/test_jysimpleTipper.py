@@ -49,11 +49,22 @@ class TestMod(unittest.TestCase):
             s += '\n'
         raise AssertionError('%s not in %s' % (tok, s))
 
+    def testImports1a(self):
+        f, tip = jyimportsTipper.GenerateTip('java.util.HashMap')
+        assert f.endswith('rt.jar')
+
+    def testImports1b(self):
+        try:
+            f, tip = jyimportsTipper.GenerateTip('__builtin__.m')
+            self.fail('err')
+        except:
+            pass
+
     def testImports1(self):
         f, tip = jyimportsTipper.GenerateTip('junit.framework.TestCase')
         assert f.endswith('junit.jar')
         ret = self.assertIn('assertEquals', tip)
-        self.assertEquals('', ret[2])
+#        self.assertEquals('', ret[2])
         
     def testImports2(self):
         f, tip = jyimportsTipper.GenerateTip('junit.framework')
@@ -160,7 +171,7 @@ class TestCompl(unittest.TestCase):
         isMet = ismethod(out.println)
         assert isMet[0]
         assert len(isMet[1]) == 10
-        assert isMet[1][0].basicAsStr() == "function:println args=[], varargs=None, kwargs=None, docs:None"
+        self.assertEquals(isMet[1][0].basicAsStr(), "function:println args=[], varargs=None, kwargs=None, docs:None")
         assert isMet[1][1].basicAsStr() == "function:println args=['long'], varargs=None, kwargs=None, docs:None"
         assert not isclass(out.println)
         

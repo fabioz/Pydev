@@ -30,7 +30,10 @@ _sys_path = [p for p in sys.path]
 _sys_modules = {}
 for name, mod in sys.modules.items():
     _sys_modules[name] = mod
-    
+
+
+import traceback
+import StringIO
 import time
 import urllib
 
@@ -44,6 +47,9 @@ DEBUG = INFO1 | ERROR
 def dbg( s, prior ):
     if prior & DEBUG != 0:
         print s
+#        f = open('c:/temp/test.txt', 'a')
+#        print >> f, s
+#        f.close()
         
 HOST = '127.0.0.1'               # Symbolic name meaning the local host
 
@@ -294,12 +300,8 @@ class T( Thread ):
                                 returnMsg = MSG_INVALID_REQUEST
                     except :
                         dbg( SERVER_NAME+' exception ocurred', ERROR )
-                        import traceback
-                        import StringIO
-    
                         s = StringIO.StringIO()
-                        exc_info = sys.exc_info()
-                        traceback.print_exception( exc_info[0], exc_info[1], exc_info[2], limit=None, file = s )
+                        traceback.print_exc(file = s)
     
                         err = s.getvalue()
                         dbg( SERVER_NAME+' received error: '+str(err), ERROR )
@@ -314,9 +316,6 @@ class T( Thread ):
             
             
         except:
-            import traceback
-            import StringIO
-
             s = StringIO.StringIO()
             exc_info = sys.exc_info()
 

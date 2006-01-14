@@ -10,6 +10,11 @@ jython module management (may be handy)
 org.python.core.SysPackageManager
 
 
+after 0.9.8.6
+
+- Fixed debugger so that tracing does not appear
+- Fixed jython shell
+
 after 0.9.8.5
 
 - Conditional breakpoint added (Achim Nierbeck)

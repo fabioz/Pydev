@@ -233,6 +233,7 @@ public class InterpreterInfo implements Serializable{
 
         if(isJythonInfo()){
             //by default, we don't want to force anything to python.
+            forcedLibs.add("StringIO"); //jython bug: StringIO is not added
         }else{
             //those are sources, but we want to get runtime info on them.
             forcedLibs.add("OpenGL");

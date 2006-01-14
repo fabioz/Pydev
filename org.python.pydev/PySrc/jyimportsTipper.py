@@ -1,6 +1,7 @@
+import StringIO
+import traceback
 from java.lang import StringBuffer
 from java.lang import String
-import traceback
 import java.lang
 import sys
 
@@ -82,7 +83,7 @@ class Info:
     def __init__(self, name, **kwargs):
         self.name = name
         self.doc = kwargs.get('doc', None)
-        self.args = kwargs.get('args', None) #tuple of strings
+        self.args = kwargs.get('args', ()) #tuple of strings
         self.varargs = kwargs.get('varargs', None) #string
         self.kwargs = kwargs.get('kwargs', None) #string
         self.ret = kwargs.get('ret', None) #string
@@ -135,96 +136,104 @@ def ismethod(func):
             we actually have many methods, each with its own set of arguments
     '''
     
-    if isinstance(func, core.PyFunction):
-        #ok, this is from python, created by jython
-        #print '    PyFunction'
-        
-        def getargs(func_code):
-            """Get information about the arguments accepted by a code object.
-        
-            Three things are returned: (args, varargs, varkw), where 'args' is
-            a list of argument names (possibly containing nested lists), and
-            'varargs' and 'varkw' are the names of the * and ** arguments or None."""
-        
-            nargs = func_code.co_argcount
-            names = func_code.co_varnames
-            args = list(names[:nargs])
-            step = 0
-        
-            varargs = None
-            if func_code.co_flags & func_code.CO_VARARGS:
-                varargs = func_code.co_varnames[nargs]
-                nargs = nargs + 1
-            varkw = None
-            if func_code.co_flags & func_code.CO_VARKEYWORDS:
-                varkw = func_code.co_varnames[nargs]
-            return args, varargs, varkw
-        
-        args = getargs(func.func_code)
-        return 1, [Info(func.func_name, args = args[0], varargs = args[1],  kwargs = args[2], doc = func.func_doc)]
-        
-    if isinstance(func, core.PyMethod):
-        #this is something from java itself, and jython just wrapped it...
-        
-        #things to play in func:
-        #['__call__', '__class__', '__cmp__', '__delattr__', '__dir__', '__doc__', '__findattr__', '__name__', '_doget', 'im_class',
-        #'im_func', 'im_self', 'toString']
-        #print '    PyMethod'
-        #that's the PyReflectedFunction... keep going to get it
-        func = func.im_func
-
-    if isinstance(func, PyReflectedFunction):
-        #this is something from java itself, and jython just wrapped it...
-        
-        #print '    PyReflectedFunction'
-        
-        infos = []
-        for i in range(len(func.argslist)):
-            #things to play in func.argslist[i]:
-                
-            #'PyArgsCall', 'PyArgsKeywordsCall', 'REPLACE', 'StandardCall', 'args', 'compare', 'compareTo', 'data', 'declaringClass'
-            #'flags', 'isStatic', 'matches', 'precedence']
+    try:
+        if isinstance(func, core.PyFunction):
+            #ok, this is from python, created by jython
+            #print '    PyFunction'
             
-            #print '        ', func.argslist[i].data.__class__
-            #func.argslist[i].data.__class__ == java.lang.reflect.Method
+            def getargs(func_code):
+                """Get information about the arguments accepted by a code object.
             
-            if func.argslist[i]:
-                met = func.argslist[i].data
-                name = met.getName()
-                ret = met.getReturnType()
-                parameterTypes = met.getParameterTypes()
+                Three things are returned: (args, varargs, varkw), where 'args' is
+                a list of argument names (possibly containing nested lists), and
+                'varargs' and 'varkw' are the names of the * and ** arguments or None."""
+            
+                nargs = func_code.co_argcount
+                names = func_code.co_varnames
+                args = list(names[:nargs])
+                step = 0
+            
+                varargs = None
+                if func_code.co_flags & func_code.CO_VARARGS:
+                    varargs = func_code.co_varnames[nargs]
+                    nargs = nargs + 1
+                varkw = None
+                if func_code.co_flags & func_code.CO_VARKEYWORDS:
+                    varkw = func_code.co_varnames[nargs]
+                return args, varargs, varkw
+            
+            args = getargs(func.func_code)
+            return 1, [Info(func.func_name, args = args[0], varargs = args[1],  kwargs = args[2], doc = func.func_doc)]
+            
+        if isinstance(func, core.PyMethod):
+            #this is something from java itself, and jython just wrapped it...
+            
+            #things to play in func:
+            #['__call__', '__class__', '__cmp__', '__delattr__', '__dir__', '__doc__', '__findattr__', '__name__', '_doget', 'im_class',
+            #'im_func', 'im_self', 'toString']
+            #print '    PyMethod'
+            #that's the PyReflectedFunction... keep going to get it
+            func = func.im_func
+    
+        if isinstance(func, PyReflectedFunction):
+            #this is something from java itself, and jython just wrapped it...
+            
+            #print '    PyReflectedFunction'
+            
+            infos = []
+            for i in range(len(func.argslist)):
+                #things to play in func.argslist[i]:
+                    
+                #'PyArgsCall', 'PyArgsKeywordsCall', 'REPLACE', 'StandardCall', 'args', 'compare', 'compareTo', 'data', 'declaringClass'
+                #'flags', 'isStatic', 'matches', 'precedence']
                 
-                args = []
-                for j in range(len(parameterTypes)):
-                    paramTypesClass = parameterTypes[j]
+                #print '        ', func.argslist[i].data.__class__
+                #func.argslist[i].data.__class__ == java.lang.reflect.Method
+                
+                if func.argslist[i]:
+                    met = func.argslist[i].data
+                    name = met.getName()
                     try:
-                        try:
-                            paramClassName = paramTypesClass.getName()
-                        except:
-                            paramClassName = paramTypesClass.getName(paramTypesClass)
+                        ret = met.getReturnType()
                     except AttributeError:
+                        ret = ''
+                    parameterTypes = met.getParameterTypes()
+                    
+                    args = []
+                    for j in range(len(parameterTypes)):
+                        paramTypesClass = parameterTypes[j]
                         try:
-                            paramClassName = repr(paramTypesClass) #should be something like <type 'object'>
-                            paramClassName = paramClassName.split('\'')[1]
-                        except:
-                            paramClassName = repr(paramTypesClass) #just in case something else happens... it will at least be visible
-                    #if the parameter equals [C, it means it it a char array, so, let's change it
-
-                    a = formatParamClassName(paramClassName)
-                    #a = a.replace('[]','Array')
-                    #a = a.replace('Object', 'obj')
-                    #a = a.replace('String', 's')
-                    #a = a.replace('Integer', 'i')
-                    #a = a.replace('Char', 'c')
-                    #a = a.replace('Double', 'd')
-                    args.append(a) #so we don't leave invalid code
-
-                
-                info = Info(name, args = args, ret = ret)
-                #print info.basicAsStr()
-                infos.append(info)
-
-        return 1, infos
+                            try:
+                                paramClassName = paramTypesClass.getName()
+                            except:
+                                paramClassName = paramTypesClass.getName(paramTypesClass)
+                        except AttributeError:
+                            try:
+                                paramClassName = repr(paramTypesClass) #should be something like <type 'object'>
+                                paramClassName = paramClassName.split('\'')[1]
+                            except:
+                                paramClassName = repr(paramTypesClass) #just in case something else happens... it will at least be visible
+                        #if the parameter equals [C, it means it it a char array, so, let's change it
+    
+                        a = formatParamClassName(paramClassName)
+                        #a = a.replace('[]','Array')
+                        #a = a.replace('Object', 'obj')
+                        #a = a.replace('String', 's')
+                        #a = a.replace('Integer', 'i')
+                        #a = a.replace('Char', 'c')
+                        #a = a.replace('Double', 'd')
+                        args.append(a) #so we don't leave invalid code
+    
+                    
+                    info = Info(name, args = args, ret = ret)
+                    #print info.basicAsStr()
+                    infos.append(info)
+    
+            return 1, infos
+    except Exception, e:
+        s = StringIO.StringIO()
+        traceback.print_exc(file=s)
+        return 1, [Info(str('ERROR'),  doc = s.getvalue())]
         
     return 0, None
 
@@ -240,24 +249,41 @@ def ismodule(mod):
 def dirObj(obj):
     ret = []
     found = java.util.HashMap()
-
+    original = obj
     if hasattr(obj, '__class__') and obj.__class__ ==  java.lang.Class:
-        declaredMethods = obj.getDeclaredMethods()
-        declaredFields = obj.getDeclaredFields()
-        for i in range(len(declaredMethods)):
-            name = declaredMethods[i].getName()
-            ret.append(name)
-            found.put(name, 1)
+
+        #get info about superclasses
+        classes = []
+        classes.append(obj)
+        c = obj.getSuperclass()
+        while c != None:
+            classes.append(c)
+            c = c.getSuperclass()
+        
+        #get info about interfaces
+        interfs = []
+        for obj in classes:
+            interfs.extend(obj.getInterfaces())
+        classes.extend(interfs)
             
-        for i in range(len(declaredFields)):
-            name = declaredFields[i].getName()
-            ret.append(name)
-            found.put(name, 1)
+        #now is the time when we actually get info on the declared methods and fields
+        for obj in classes:
+            declaredMethods = obj.getDeclaredMethods()
+            declaredFields = obj.getDeclaredFields()
+            for i in range(len(declaredMethods)):
+                name = declaredMethods[i].getName()
+                ret.append(name)
+                found.put(name, 1)
+                
+            for i in range(len(declaredFields)):
+                name = declaredFields[i].getName()
+                ret.append(name)
+                found.put(name, 1)
 
     #this simple dir does not always get all the info, that's why we have the part before
     #(e.g.: if we do a dir on String, some methods that are from other interfaces such as 
     #charAt don't appear)
-    d = dir(obj)
+    d = dir(original)
     for name in d:
         if found.get(name) is not 1:
             ret.append(name)

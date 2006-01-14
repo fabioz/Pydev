@@ -62,6 +62,7 @@ public abstract class AbstractShell {
 
     private boolean isInRead = false;
     private boolean isInWrite = false;
+    private boolean isInRestart = false;
     
     /**
      * Lock to know if there is someone already using this shell for some operation
@@ -479,13 +480,15 @@ public abstract class AbstractShell {
     public synchronized void clearSocket() throws IOException {
     	while(true){ //clear until we get no message...
 	        byte[] b = new byte[AbstractShell.BUFFER_SIZE];
-	        this.socketToRead.getInputStream().read(b);
-	
-	        String s = new String(b);
-	        s = s.replaceAll((char)0+"",""); //python sends this char as payload.
-	        if(s.length() == 0){
-	        	return;
-	        }
+            if(this.socketToRead != null){
+    	        this.socketToRead.getInputStream().read(b);
+    	
+    	        String s = new String(b);
+    	        s = s.replaceAll((char)0+"",""); //python sends this char as payload.
+    	        if(s.length() == 0){
+    	        	return;
+    	        }
+            }
     	}        
     }
 
@@ -515,9 +518,8 @@ public abstract class AbstractShell {
 
         try {
             StringBuffer str = new StringBuffer();
-            String tempStr = "";
             int j = 0;
-            while (j != 100) {
+            while (j < 200) {
                 byte[] b = new byte[AbstractShell.BUFFER_SIZE];
 
                 this.socketToRead.getInputStream().read(b);
@@ -552,13 +554,12 @@ public abstract class AbstractShell {
                     break;
                 } else {
 
-                    if (tempStr.equals(str) == true) { //only raise if nothing was received.
+                    if (s.length() == 0) { //only raise if nothing was received.
                         j++;
                     } else {
                         j = 0; //we are receiving, even though that may take a long time if the namespace is really polluted...
                     }
                     sleepALittle(10);
-                    tempStr = str.toString();
                 }
 
             }
@@ -816,7 +817,7 @@ public abstract class AbstractShell {
             
         } catch (Exception e) {
             PydevPlugin.log(IStatus.ERROR, "ERROR getting completions.", e);
-    
+            
             restartShell();
             return getInvalidCompletion();
         }
@@ -827,20 +828,27 @@ public abstract class AbstractShell {
      * 
      */
     public synchronized void restartShell() throws CoreException {
-        if(finishedForGood){
-            throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to restart a new shell.");
-        }
+        if(!isInRestart){// we don't want to end up in a loop here...
+            isInRestart = true;
+            try {
+                if (finishedForGood) {
+                    throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to restart a new shell.");
+                }
 
-        try {
-            this.endIt();
-        } catch (Exception e) {
-        }
-        try {
-        	synchronized(this){
-        		this.startIt();
-        	}
-        } catch (Exception e) {
-            PydevPlugin.log(IStatus.ERROR, "ERROR restarting shell.", e);
+                try {
+                    this.endIt();
+                } catch (Exception e) {
+                }
+                try {
+                    synchronized (this) {
+                        this.startIt();
+                    }
+                } catch (Exception e) {
+                    PydevPlugin.log(IStatus.ERROR, "ERROR restarting shell.", e);
+                }
+            } finally {
+                isInRestart = false;
+            }
         }
     }
 
@@ -861,27 +869,30 @@ public abstract class AbstractShell {
         StringTokenizer tokenizer = new StringTokenizer(string, ",");
         
         //the first token is always the file for the module (no matter what)
-        String file = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
-        while(tokenizer.hasMoreTokens()){
-            String token       = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
-            if(!tokenizer.hasMoreTokens()){
-                return new Tuple<String, List<String[]>>(file, list);
-            }
-            String description = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
-            
-            String args = "";
-            if(tokenizer.hasMoreTokens())
-                args = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
-            
-            String type =""+PyCodeCompletion.TYPE_UNKNOWN;
-            if(tokenizer.hasMoreTokens())
-                type = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
-  
-            //dbg(token);
-            //dbg(description);
-
-            if(!token.equals("ERROR:")){
-                list.add(new String[]{token, description, args, type});
+        String file = "";
+        if(tokenizer.hasMoreTokens()){
+            file = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+            while(tokenizer.hasMoreTokens()){
+                String token       = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+                if(!tokenizer.hasMoreTokens()){
+                    return new Tuple<String, List<String[]>>(file, list);
+                }
+                String description = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+                
+                String args = "";
+                if(tokenizer.hasMoreTokens())
+                    args = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+                
+                String type =""+PyCodeCompletion.TYPE_UNKNOWN;
+                if(tokenizer.hasMoreTokens())
+                    type = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+      
+                //dbg(token);
+                //dbg(description);
+    
+                if(!token.equals("ERROR:")){
+                    list.add(new String[]{token, description, args, type});
+                }
             }
         }
         return new Tuple<String, List<String[]>>(file, list);
@@ -891,7 +902,7 @@ public abstract class AbstractShell {
     /**
      * @param moduleName the name of the module where the token is defined
      * @param token the token we are looking for
-     * @return the file where the token was defined, its line and its column.
+     * @return the file where the token was defined, its line and its column (or null if it was not found)
      */
     public Tuple<String[],int []> getLineCol(String moduleName, String token, List pythonpath) {
         while(isInOperation){
@@ -905,12 +916,25 @@ public abstract class AbstractShell {
             try {
                 str = URLEncoder.encode(str, ENCODING_UTF_8);
                 Tuple<String,List<String[]>> theCompletions = this.getTheCompletions("@@SEARCH" + str + "\nEND@@");
-                int line = Integer.parseInt(theCompletions.o2.get(0)[0]);
-                int col = Integer.parseInt(theCompletions.o2.get(0)[1]);
-                String foundAs = theCompletions.o2.get(0)[2];
+                
+                List<String[]> def = theCompletions.o2;
+                if(def.size() == 0){
+                    return null;
+                }
+
+                String[] comps = def.get(0);
+                if(comps.length == 0){
+                    return null;
+                }
+                    
+                int line = Integer.parseInt(comps[0]);
+                int col = Integer.parseInt(comps[1]);
+                
+                String foundAs = comps[2];
                 return new Tuple<String[], int[]>(
                         new String[]{theCompletions.o1, foundAs}, 
                         new int[]{line, col});
+                
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

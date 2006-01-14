@@ -254,6 +254,9 @@ public class CompiledModule extends AbstractModule{
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
         synchronized(shell){
             Tuple<String[],int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getProjectModulesManager().getCompletePythonPath());
+            if(def == null){
+                return new Definition[0];
+            }
             String fPath = def.o1[0];
             if(fPath.equals("None")){
                 return new Definition[0];
