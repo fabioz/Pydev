@@ -11,6 +11,13 @@ public class ClassInfo extends AbstractInfo{
 
     private static final long serialVersionUID = 1L;
 
+    public static ClassInfo fromClassDef(ClassDef def, String moduleDeclared, String path) {
+        ClassInfo info = fromClassDef(def, moduleDeclared);
+        info.path = path;
+        return info;
+        
+    }
+    
     public static ClassInfo fromClassDef(ClassDef def, String moduleDeclared) {
         ClassInfo info = new ClassInfo();
         info.name = ((NameTok)def.name).id;

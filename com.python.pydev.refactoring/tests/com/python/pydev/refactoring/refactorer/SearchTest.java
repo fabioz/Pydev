@@ -15,7 +15,7 @@ public class SearchTest extends CodeCompletionTestsBase {
 		try {
 			SearchTest test = new SearchTest();
 			test.setUp();
-			test.testSearch13();
+			test.testSearchParameter();
 			test.tearDown();
 
 			junit.textui.TestRunner.run(SearchTest.class);
@@ -24,6 +24,7 @@ public class SearchTest extends CodeCompletionTestsBase {
 			e.printStackTrace();
 		}
 	}
+    
 
 	private Refactorer refactorer;
 
@@ -272,6 +273,28 @@ public class SearchTest extends CodeCompletionTestsBase {
 		assertEquals(0, pointers[0].start.line);
 		assertEquals(6, pointers[0].start.column);
 	}
+
+
+    public void testSearchParameter() throws Exception {
+//        class Param(object): - this is line 0
+//            
+//            def hasParams(self, aa, bb):
+//                #TestStatic has static1 and static2
+//                print aa.static1() - line 4
+//                print aa.static2()        
+        
+        String line = "print aa.static1()";
+        RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/parameters.py"));
+        refactoringRequest.ps = new PySelection(refactoringRequest.doc, 4, line.length()); 
+        refactoringRequest.nature = nature;
+        ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+        
+        assertEquals(1, pointers.length);
+        assertEquals(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static.py"), pointers[0].file);
+        //found the module
+        assertEquals(3, pointers[0].start.line);
+        assertEquals(8, pointers[0].start.column);
+    }
 
     public void testBuiltinSearch() throws Exception {
 //      import os

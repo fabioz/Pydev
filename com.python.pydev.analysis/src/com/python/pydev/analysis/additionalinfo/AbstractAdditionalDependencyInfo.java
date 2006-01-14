@@ -51,12 +51,13 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
     @Override
     protected Object getInfoToSave() {
-        return new Tuple(this.initialsToInfo, null);
+        return new Tuple(super.getInfoToSave(), null);
     }
     
+    @Override
     protected void restoreSavedInfo(Object o){
         Tuple readFromFile = (Tuple) o;
-        this.initialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
+        super.restoreSavedInfo(readFromFile.o1);
     }
 
     /**

@@ -18,6 +18,16 @@ public interface IInfo extends Serializable {
     String getDeclaringModuleName();
     
     /**
+     * @return the path within the module to the name. E.g.: When we have:
+     * class Test:
+     *      def m1(self):
+     *          pass
+     *          
+     * If this is the representation for the method m1, the path will be 'Test'
+     */
+    String getPath();
+    
+    /**
      * The type when it is a class with import
      */
     int CLASS_WITH_IMPORT_TYPE = 1;
@@ -26,6 +36,11 @@ public interface IInfo extends Serializable {
      * The type when it is a method with import
      */
     int METHOD_WITH_IMPORT_TYPE = 2;
+    
+    /**
+     * The type when it is a method with import
+     */
+    int ATTRIBUTE_WITH_IMPORT_TYPE = 3;
     
     /**
      * @return the type of the information we are holding (given constants)

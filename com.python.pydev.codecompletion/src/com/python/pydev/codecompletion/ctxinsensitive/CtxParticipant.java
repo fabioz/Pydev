@@ -37,55 +37,53 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
         String lowerQual = qual.toLowerCase();
         
         if(qual.length() >= 3){ //at least n characters required...
-            for (AbstractAdditionalInterpreterInfo additionalSystemInfo : AdditionalProjectInterpreterInfo.getAdditionalInfo(request.nature)){
-                List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith(qual);
+            List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, request.nature, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+            
+            for (IInfo info : tokensStartingWith) {
+                //there always must be a declaringModuleName
+                String declaringModuleName = info.getDeclaringModuleName();
                 
-                for (IInfo info : tokensStartingWith) {
-                    //there always must be a declaringModuleName
-                    String declaringModuleName = info.getDeclaringModuleName();
-                    
-                    String rep = info.getName();
-                    StringBuffer buffer = new StringBuffer();
-                    buffer.append("from ");
-                    buffer.append(declaringModuleName);
-                    buffer.append(" import ");
-                    buffer.append(rep);
-                    String realImportRep = buffer.toString();
-                    
-                    buffer = new StringBuffer();
-                    buffer.append(rep );
-                    buffer.append(" - ");
-                    buffer.append(declaringModuleName);
-                    String displayString = buffer.toString();
-    
-                    //get the image
-                    Image img;
-                    if(info.getType() == IInfo.CLASS_WITH_IMPORT_TYPE){
-                        img = classWithImport; 
-                    }else if(info.getType() == IInfo.METHOD_WITH_IMPORT_TYPE){
-                        img = methodWithImport; 
-                    }else{
-                        throw new RuntimeException("Undefined type.");
-                    }
-                    
-                    
-                    CtxInsensitiveImportComplProposal  proposal = new CtxInsensitiveImportComplProposal (
-                            rep,
-                            request.documentOffset - request.qlen, 
-                            request.qlen, 
-                            realImportRep.length(), 
-                            img, 
-                            displayString, 
-                            (IContextInformation)null, 
-                            "", 
-                            rep.toLowerCase().equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_1 : IPyCompletionProposal.PRIORITY_GLOBALS,
-                            realImportRep,
-                            lineAvailableForImport);
-                    
-                    completions.add(proposal);
+                String rep = info.getName();
+                StringBuffer buffer = new StringBuffer();
+                buffer.append("from ");
+                buffer.append(declaringModuleName);
+                buffer.append(" import ");
+                buffer.append(rep);
+                String realImportRep = buffer.toString();
+                
+                buffer = new StringBuffer();
+                buffer.append(rep );
+                buffer.append(" - ");
+                buffer.append(declaringModuleName);
+                String displayString = buffer.toString();
+
+                //get the image
+                Image img;
+                if(info.getType() == IInfo.CLASS_WITH_IMPORT_TYPE){
+                    img = classWithImport; 
+                }else if(info.getType() == IInfo.METHOD_WITH_IMPORT_TYPE){
+                    img = methodWithImport; 
+                }else{
+                    throw new RuntimeException("Undefined type.");
                 }
-    
+                
+                
+                CtxInsensitiveImportComplProposal  proposal = new CtxInsensitiveImportComplProposal (
+                        rep,
+                        request.documentOffset - request.qlen, 
+                        request.qlen, 
+                        realImportRep.length(), 
+                        img, 
+                        displayString, 
+                        (IContextInformation)null, 
+                        "", 
+                        rep.toLowerCase().equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_1 : IPyCompletionProposal.PRIORITY_GLOBALS,
+                        realImportRep,
+                        lineAvailableForImport);
+                
+                completions.add(proposal);
             }
+    
         }        
         return completions;
     }

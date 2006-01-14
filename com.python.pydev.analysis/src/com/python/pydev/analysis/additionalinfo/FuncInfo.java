@@ -14,6 +14,12 @@ public class FuncInfo extends AbstractInfo{
      * the parameters for the function (may be mull)
      */
     public String[] params;
+    
+    public static FuncInfo fromFunctionDef(FunctionDef def, String moduleDeclared, String path) {
+        FuncInfo info = fromFunctionDef(def, moduleDeclared);
+        info.path = path;
+        return info;
+    }
 
     public static FuncInfo fromFunctionDef(FunctionDef def, String moduleDeclared) {
         FuncInfo info = new FuncInfo();
@@ -21,6 +27,7 @@ public class FuncInfo extends AbstractInfo{
         info.moduleDeclared = moduleDeclared;
         return info;
     }
+    
     public int getType() {
         return METHOD_WITH_IMPORT_TYPE;
     }

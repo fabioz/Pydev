@@ -11,6 +11,11 @@ public abstract class AbstractInfo implements IInfo{
     public String name;
     
     /**
+     * This is the path (may be null)
+     */
+    public String path;
+    
+    /**
      * the name of the module where this function is declared
      */
     public String moduleDeclared;
@@ -22,6 +27,10 @@ public abstract class AbstractInfo implements IInfo{
 
     public String getDeclaringModuleName() {
         return moduleDeclared;
+    }
+    
+    public String getPath() {
+        return path;
     }
 
     @Override
@@ -44,6 +53,21 @@ public abstract class AbstractInfo implements IInfo{
             return false;
         }
         
+        //if one of them is null, the other must also be null...
+        if((i.getPath() == null || getPath() == null)){
+            if(i.getPath() != getPath()){
+                //one of them is not null
+                return false;
+            }
+            //both are null
+            return true;
+        }
+        
+        //they're not null
+        if(!i.getPath().equals(getPath())){
+            return false;
+        }
+        
         return true;
     }
     
@@ -54,6 +78,6 @@ public abstract class AbstractInfo implements IInfo{
     
     @Override
     public String toString() {
-    	return getName()+ " ("+getDeclaringModuleName()+")";
+    	return getName()+ " ("+getDeclaringModuleName()+") - Path:"+getPath();
     }
 }

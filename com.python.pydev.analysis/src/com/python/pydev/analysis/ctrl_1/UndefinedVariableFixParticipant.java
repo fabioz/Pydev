@@ -106,7 +106,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         //2. check if it is some global class or method
         List<AbstractAdditionalInterpreterInfo> additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(nature);
         for (AbstractAdditionalInterpreterInfo info : additionalInfo) {
-            List<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents);
+            List<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
             for (IInfo found : tokensEqualTo) {
                 //there always is a declaring module
                 String name = found.getName();

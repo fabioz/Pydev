@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.Stack;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -22,8 +23,10 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
@@ -75,15 +78,52 @@ public abstract class AbstractAdditionalInterpreterInfo {
     private static final boolean DEBUG_ADDITIONAL_INFO = true;
 
     /**
+     * Defines that some operation should be done on top level tokens
+     */
+    public final static int TOP_LEVEL = 1;
+    
+    /**
+     * Defines that some operation should be done on inner level tokens
+     */
+    public final static int INNER = 2;
+    
+
+    /**
      * indexes used so that we can access the information faster - it is ordered through a tree map, and should be
      * very fast to access given its initials.
      * 
-     * This is the map that is persisted.
+     * It contains only top/level information for a module
+     * 
+     * This map is persisted.
      */
-    protected TreeMap<String, List<IInfo>> initialsToInfo = new TreeMap<String, List<IInfo>>();
+    protected TreeMap<String, List<IInfo>> topLevelInitialsToInfo = new TreeMap<String, List<IInfo>>();
+    
+    /**
+     * indexes so that we can get 'inner information' from classes, such as methods or inner classes from a class 
+     */
+    protected TreeMap<String, List<IInfo>> innerInitialsToInfo = new TreeMap<String, List<IInfo>>();
 
     protected Object lock = new Object();
+
+
+    public interface Filter{
+        boolean doCompare(String lowerCaseQual, IInfo info);
+    }
     
+    private Filter equalsFilter  = new Filter(){
+        public boolean doCompare(String qualifier, IInfo info) {
+            return info.getName().equals(qualifier);
+        }
+    };
+
+    private Filter startingWithFilter = new Filter(){
+
+        public boolean doCompare(String lowerCaseQual, IInfo info) {
+            return info.getName().toLowerCase().startsWith(lowerCaseQual);
+        }
+        
+    };
+
     public AbstractAdditionalInterpreterInfo(){
     }
     
@@ -92,10 +132,27 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * 
      * @param info information to be added
      */
-    protected void add(IInfo info, boolean generateDelta) {
+    protected void add(IInfo info, boolean generateDelta, int doOn) {
         String name = info.getName();
         String initials = getInitials(name);
-        List<IInfo> listForInitials = getAndCreateListForInitials(initials);
+        TreeMap<String, List<IInfo>> initialsToInfo;
+        
+        if(doOn == TOP_LEVEL){
+            if(info.getPath() != null && info.getPath().length() > 0){
+                throw new RuntimeException("Error: the info being added is added as an 'top level' info, but has path. Info:"+info);
+            }
+            initialsToInfo = topLevelInitialsToInfo;
+            
+        }else if (doOn == INNER){
+            if(info.getPath() == null || info.getPath().length() == 0){
+                throw new RuntimeException("Error: the info being added is added as an 'inner' info, but does not have a path. Info: "+info);
+            }
+            initialsToInfo = innerInitialsToInfo;
+            
+        }else{
+            throw new RuntimeException("List to add is invalid: "+doOn);
+        }
+        List<IInfo> listForInitials = getAndCreateListForInitials(initials, initialsToInfo);
         listForInitials.add(info);
 
     }
@@ -113,13 +170,10 @@ public abstract class AbstractAdditionalInterpreterInfo {
     
     /**
      * @param initials the initials we are looking for
+     * @param initialsToInfo this is the list we should use (top level or inner)
      * @return the list of tokens with the specified initials (must be exact match)
      */
-    private List<IInfo> getAndCreateListForInitials(String initials) {
-        if(initialsToInfo == null){
-            PydevPlugin.log("Additional info not correctly generated.");
-            return new ArrayList<IInfo>();
-        }
+    private List<IInfo> getAndCreateListForInitials(String initials, TreeMap<String, List<IInfo>> initialsToInfo) {
         List<IInfo> lInfo = initialsToInfo.get(initials);
         if(lInfo == null){
             lInfo = new ArrayList<IInfo>();
@@ -130,21 +184,23 @@ public abstract class AbstractAdditionalInterpreterInfo {
 
     /**
      * adds a method to the definition
+     * @param doOn 
      */
-    public void addMethod(FunctionDef def, String moduleDeclared, boolean generateDelta) {
+    public void addMethod(FunctionDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
         synchronized (lock) {
-	        FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared);
-	        add(info2, generateDelta);
+	        FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared, path);
+	        add(info2, generateDelta, doOn);
         }
     }
     
     /**
      * Adds a class to the definition
+     * @param doOn 
      */
-    public void addClass(ClassDef def, String moduleDeclared, boolean generateDelta) {
+    public void addClass(ClassDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
     	synchronized (lock) {
-	        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared);
-	        add(info, generateDelta);
+	        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared, path);
+	        add(info, generateDelta, doOn);
     	}
     }
 
@@ -153,12 +209,13 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * 
      * @param classOrFunc the class or function we want to add
      * @param moduleDeclared the module where it is declared
+     * @param doOn 
      */
-    public void addClassOrFunc(SimpleNode classOrFunc, String moduleDeclared, boolean generateDelta) {
+    public void addClassOrFunc(SimpleNode classOrFunc, String moduleDeclared, boolean generateDelta, int doOn, String path) {
         if(classOrFunc instanceof ClassDef){
-            addClass((ClassDef) classOrFunc, moduleDeclared, generateDelta);
+            addClass((ClassDef) classOrFunc, moduleDeclared, generateDelta, doOn, path);
         }else{
-            addMethod((FunctionDef) classOrFunc, moduleDeclared, generateDelta);
+            addMethod((FunctionDef) classOrFunc, moduleDeclared, generateDelta, doOn, path);
         }
     }
 
@@ -190,8 +247,16 @@ public abstract class AbstractAdditionalInterpreterInfo {
                 ASTEntry entry = classesAndMethods.next();
                 
                 if(entry.parent == null){ //we only want those that are in the global scope
-					SimpleNode classOrFunc = entry.node;
-	                addClassOrFunc(classOrFunc, moduleName, generateDelta);
+	                addClassOrFunc(entry.node, moduleName, generateDelta, TOP_LEVEL, null);
+                }else{
+                    //ok, it has a parent, so, let's check to see if the path we got only has class definitions
+                    //as the parent (and get that path)
+                    String pathToRoot = getPathToRoot(entry);
+                    if(pathToRoot != null && pathToRoot.length() > 0){
+                        //if the root is not valid, it is not only classes in the path (could be a method inside
+                        //a method, or something similar).
+                        addClassOrFunc(entry.node, moduleName, generateDelta, INNER, pathToRoot);
+                    }
                 }
             }
             
@@ -201,34 +266,61 @@ public abstract class AbstractAdditionalInterpreterInfo {
 
     }
 
+    private String getPathToRoot(ASTEntry entry) {
+        if(entry.parent == null){
+            return null;
+        }
+        
+        Stack<ClassDef> stack = new Stack<ClassDef>();
+        while(entry.parent != null){
+            if(entry.parent.node instanceof ClassDef){
+                stack.push((ClassDef)entry.parent.node);
+            }else{
+                return null;
+            }
+            entry = entry.parent;
+        }
+        StringBuffer buf = new StringBuffer();
+        while(stack.size() > 0){
+            if(buf.length() > 0){
+                buf.append(".");
+            }
+            buf.append(NodeUtils.getRepresentationString(stack.pop()));
+        }
+        return buf.toString();
+    }
+
     /**
      * Removes all the info associated with a given module
      * @param moduleName the name of the module we want to remove info from
      */
     public void removeInfoFromModule(String moduleName, boolean generateDelta) {
         synchronized (lock) {
-
-	        if(initialsToInfo == null){
-	            PydevPlugin.log("Additional info not correctly generated. ("+this.getClass().getName()+")");
-	            return;
-	        }
-	
-	        Iterator<List<IInfo>> itListOfInfo = initialsToInfo.values().iterator();
-	        while (itListOfInfo.hasNext()) {
-	
-	            Iterator<IInfo> it = itListOfInfo.next().iterator();
-	            while (it.hasNext()) {
-	
-	                IInfo info = it.next();
-	                if(info != null && info.getDeclaringModuleName() != null){
-	                    if(info.getDeclaringModuleName().equals(moduleName)){
-	                        it.remove();
-	                    }
-	                }
-	            }
-	        }
+            removeInfoFromMap(moduleName, topLevelInitialsToInfo);
+            removeInfoFromMap(moduleName, innerInitialsToInfo);
         }
         
+    }
+
+    /**
+     * @param moduleName
+     * @param initialsToInfo
+     */
+    private void removeInfoFromMap(String moduleName, TreeMap<String, List<IInfo>> initialsToInfo) {
+        Iterator<List<IInfo>> itListOfInfo = initialsToInfo.values().iterator();
+        while (itListOfInfo.hasNext()) {
+
+            Iterator<IInfo> it = itListOfInfo.next().iterator();
+            while (it.hasNext()) {
+
+                IInfo info = it.next();
+                if(info != null && info.getDeclaringModuleName() != null){
+                    if(info.getDeclaringModuleName().equals(moduleName)){
+                        it.remove();
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -237,59 +329,74 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param qualifier the tokens returned have to start with the given qualifier
      * @return a list of info, all starting with the given qualifier
      */
-    public List<IInfo> getTokensStartingWith(String qualifier) {
+    public List<IInfo> getTokensStartingWith(String qualifier, int getWhat) {
         synchronized (lock) {
-	        ArrayList<IInfo> toks = new ArrayList<IInfo>();
-	        if(this.initialsToInfo == null){
-	            PydevPlugin.log("No additional info generated for a new completion.");
-	            return toks;
-	        }
-	        String initials = getInitials(qualifier);
-	        String lowerCaseQual = qualifier.toLowerCase();
-	        
-	        //get until the end of the alphabet
-	        SortedMap<String, List<IInfo>> subMap = this.initialsToInfo.subMap(initials, initials+"z");
-	        
-	        for (List<IInfo> listForInitials : subMap.values()) {
-	            
-	            for (IInfo info : listForInitials) {
-	                if(info.getName().toLowerCase().startsWith(lowerCaseQual)){
-	                    toks.add(info);
-	                }
-	            }
-	        }
-	        return toks;
+	        return getWithFilter(qualifier, getWhat, startingWithFilter, true);
         }
     }
 
-    public List<IInfo> getTokensEqualTo(String qualifier) {
+
+    public List<IInfo> getTokensEqualTo(String qualifier, int getWhat) {
         synchronized (lock) {
-	        String initials = getInitials(qualifier);
-	        ArrayList<IInfo> toks = new ArrayList<IInfo>();
-	        
-	        //get until the end of the alphabet
-	        SortedMap<String, List<IInfo>> subMap = this.initialsToInfo.subMap(initials, initials+"z");
-	        
-	        for (List<IInfo> listForInitials : subMap.values()) {
-	            
-	            for (IInfo info : listForInitials) {
-	                if(info.getName().equals(qualifier)){
-	                    toks.add(info);
-	                }
-	            }
-	        }
-	        return toks;
+            return getWithFilter(qualifier, getWhat, equalsFilter, false);
         }
     }
+    
+    private List<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual) {
+        ArrayList<IInfo> toks = new ArrayList<IInfo>();
+        
+        if((getWhat & TOP_LEVEL) != 0){
+            getWithFilter(qualifier, topLevelInitialsToInfo, toks, filter, useLowerCaseQual);
+        }
+        if((getWhat & INNER) != 0){
+            getWithFilter(qualifier, innerInitialsToInfo, toks, filter, useLowerCaseQual);
+        }
+        return toks;
+    }
+    
 
     /**
-     * @return all the tokens that are in this info
+     * @param qualifier
+     * @param initialsToInfo this is where we are going to get the info from (currently: inner or top level list)
+     * @param toks (out) the tokens will be added to this list
+     * @return
+     */
+    private void getWithFilter(String qualifier, TreeMap<String, List<IInfo>> initialsToInfo, ArrayList<IInfo> toks, Filter filter, boolean useLowerCaseQual) {
+        String initials = getInitials(qualifier);
+        String qualToCompare = qualifier;
+        if(useLowerCaseQual){
+            qualToCompare = qualifier.toLowerCase();
+        }
+        
+        //get until the end of the alphabet
+        SortedMap<String, List<IInfo>> subMap = initialsToInfo.subMap(initials, initials+"z");
+        
+        for (List<IInfo> listForInitials : subMap.values()) {
+            
+            for (IInfo info : listForInitials) {
+                if(filter.doCompare(qualToCompare, info)){
+                    toks.add(info);
+                }
+            }
+        }
+    }
+    
+
+    /**
+     * @return all the tokens that are in this info (top level or inner)
      */
     public Collection<IInfo> getAllTokens(){
         synchronized (lock) {
-	        Collection<List<IInfo>> lInfo = this.initialsToInfo.values();
+	        Collection<List<IInfo>> lInfo = this.topLevelInitialsToInfo.values();
 	        
 	        ArrayList<IInfo> toks = new ArrayList<IInfo>();
+	        for (List<IInfo> list : lInfo) {
+	            for (IInfo info : list) {
+	                toks.add(info);
+	            }
+	        }
+
+            lInfo = this.innerInitialsToInfo.values();
 	        for (List<IInfo> list : lInfo) {
 	            for (IInfo info : list) {
 	                toks.add(info);
@@ -358,8 +465,9 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * @return the information to be saved (if overriden, restoreSavedInfo should be overriden too)
      */
+    @SuppressWarnings("unchecked")
     protected Object getInfoToSave(){
-        return this.initialsToInfo;
+        return new Tuple(this.topLevelInitialsToInfo, this.innerInitialsToInfo);
     }
     
     /**
@@ -384,8 +492,11 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * Restores the saved info in the object (if overriden, getInfoToSave should be overriden too)
      * @param o the read object from the file
      */
+    @SuppressWarnings("unchecked")
     protected void restoreSavedInfo(Object o){
-        this.initialsToInfo = (TreeMap<String, List<IInfo>>) o;
+        Tuple readFromFile = (Tuple) o;
+        this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
+        this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
     }
 
     /**
@@ -398,18 +509,31 @@ public abstract class AbstractAdditionalInterpreterInfo {
     @Override
     public String toString() {
     	StringBuffer buffer = new StringBuffer();
-    	buffer.append("AdditionalInfo[");
+    	buffer.append("AdditionalInfo{");
 
-    	Set<Entry<String, List<IInfo>>> name = this.initialsToInfo.entrySet();
-    	for (Entry<String, List<IInfo>> entry : name) {
+    	buffer.append("topLevel=[");
+    	entrySetToString(buffer, this.topLevelInitialsToInfo.entrySet());
+    	buffer.append("]\n");
+    	buffer.append("inner=[");
+    	entrySetToString(buffer, this.innerInitialsToInfo.entrySet());
+    	buffer.append("]");
+
+        buffer.append("}");
+    	return buffer.toString();
+    }
+
+    /**
+     * @param buffer
+     * @param name
+     */
+    private void entrySetToString(StringBuffer buffer, Set<Entry<String, List<IInfo>>> name) {
+        for (Entry<String, List<IInfo>> entry : name) {
 			List<IInfo> value = entry.getValue();
 			for (IInfo info : value) {
 				buffer.append(info.toString());
 				buffer.append("\n");
 			}
 		}
-    	buffer.append("]");
-    	return buffer.toString();
     }
 
 

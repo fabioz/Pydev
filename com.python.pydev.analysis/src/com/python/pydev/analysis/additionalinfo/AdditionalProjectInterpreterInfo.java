@@ -18,9 +18,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IDeltaProcessor;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 
 
 public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependencyInfo implements IDeltaProcessor<Object> {
@@ -40,8 +40,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     protected DeltaSaver<Object> deltaSaver;
     
     @Override
-    protected void add(IInfo info, boolean generateDelta) {
-        super.add(info, generateDelta);
+    protected void add(IInfo info, boolean generateDelta, int doOn) {
+        super.add(info, generateDelta, doOn);
         //after adding any info, we have to save the delta.
         if(generateDelta){
             deltaSaver.addInsertCommand(info);
@@ -97,7 +97,14 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
 
     public void processInsert(Object data) {
         //the IInfo token is generated on insert
-        this.add((IInfo) data, false);
+        IInfo info = (IInfo) data;
+        if(info.getPath() == null || info.getPath().length() == 0){
+            this.add(info, false, TOP_LEVEL);
+            
+        }else{
+            this.add(info, false, INNER);
+            
+        }
     }
 
     public void endProcessing() {
@@ -159,7 +166,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      * @param nature the nature we want to get info on
      * @return all the additional info that is bounded with some nature (including related projects)
      */
-    public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(PythonNature nature) {
+    public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature) {
         List<AbstractAdditionalInterpreterInfo> ret = new ArrayList<AbstractAdditionalInterpreterInfo>();
         IProject project = nature.getProject();
         
@@ -220,5 +227,24 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     }
 
 
+    //interfaces that iterate through all of them
+    public static List<IInfo> getTokensEqualTo(String qualifier, IPythonNature nature, int getWhat) {
+        ArrayList<IInfo> ret = new ArrayList<IInfo>();
+        List<AbstractAdditionalInterpreterInfo> additionalInfo = getAdditionalInfo(nature);
+        for (AbstractAdditionalInterpreterInfo info : additionalInfo) {
+            ret.addAll(info.getTokensEqualTo(qualifier, getWhat));
+        }
+        return ret;
+    }
+
+    public static List<IInfo> getTokensStartingWith(String qualifier, IPythonNature nature, int getWhat) {
+        ArrayList<IInfo> ret = new ArrayList<IInfo>();
+        List<AbstractAdditionalInterpreterInfo> additionalInfo = getAdditionalInfo(nature);
+        for (AbstractAdditionalInterpreterInfo info : additionalInfo) {
+            ret.addAll(info.getTokensStartingWith(qualifier, getWhat));
+        }
+        return ret;
+    }
+    
 
 }
