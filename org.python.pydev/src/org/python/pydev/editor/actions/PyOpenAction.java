@@ -25,56 +25,46 @@ import org.python.pydev.plugin.PydevPlugin;
 /**
  * Opens an editor and selects text in it.
  * 
- * Inspired by org.eclipse.jdt.ui.actions.OpenAction, but simplifies
- * all handling in a single class.
+ * Inspired by org.eclipse.jdt.ui.actions.OpenAction, but simplifies all handling in a single class.
  */
 public class PyOpenAction extends Action {
-		
-	public IEditorPart editor;
 
+    public IEditorPart editor;
 
     public PyOpenAction() {
-	}
-		
-	private void showInEditor(
-		ITextEditor textEdit,
-		Location start,
-		Location end) {
-		try {
-			IDocument doc =
-				textEdit.getDocumentProvider().getDocument(
-					textEdit.getEditorInput());
-			int s;
-			s = start.toOffset(doc);
-			int e = end == null ? s : end.toOffset(doc);
-			TextSelection sel = new TextSelection(s, e - s);
-			textEdit.getSelectionProvider().setSelection(sel);
-		} catch (BadLocationException e1) {
-			PydevPlugin.log(IStatus.ERROR, "Error setting selection", e1);
-		}
-	}
-	
+    }
 
-	public void run(ItemPointer p) {
-		editor = null;
-		Object file = p.file;
-		
-        
-        if (file instanceof IFile){
-            IPath fullPath = ((IFile)file).getFullPath();
-			editor = PydevPlugin.doOpenEditor(fullPath, true);
-        
-        }else if (file instanceof IPath) {
-			IPath path = (IPath)file;
+    public void showInEditor(ITextEditor textEdit, Location start, Location end) {
+        try {
+            IDocument doc = textEdit.getDocumentProvider().getDocument(textEdit.getEditorInput());
+            int s = start.toOffset(doc);
+            int e = end == null ? s : end.toOffset(doc);
+            TextSelection sel = new TextSelection(s, e - s);
+            textEdit.getSelectionProvider().setSelection(sel);
+        } catch (BadLocationException e1) {
+            PydevPlugin.log(IStatus.ERROR, "Error setting selection", e1);
+        }
+    }
+
+    public void run(ItemPointer p) {
+        editor = null;
+        Object file = p.file;
+
+        if (file instanceof IFile) {
+            IPath fullPath = ((IFile) file).getFullPath();
+            editor = PydevPlugin.doOpenEditor(fullPath, true);
+
+        } else if (file instanceof IPath) {
+            IPath path = (IPath) file;
             editor = PydevPlugin.doOpenEditor(path, true);
-            
-		} else if (file instanceof File) {
-			Path path = new Path(REF.getFileAbsolutePath((File)file));
-			editor = PydevPlugin.doOpenEditor(path, true);
-		}
-        
-		if (editor instanceof ITextEditor && p.start.line >= 0) {
-			showInEditor((ITextEditor)editor, p.start, p.end);
-		}
-	}
+
+        } else if (file instanceof File) {
+            Path path = new Path(REF.getFileAbsolutePath((File) file));
+            editor = PydevPlugin.doOpenEditor(path, true);
+        }
+
+        if (editor instanceof ITextEditor && p.start.line >= 0) {
+            showInEditor((ITextEditor) editor, p.start, p.end);
+        }
+    }
 }

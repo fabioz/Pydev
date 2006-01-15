@@ -11,6 +11,7 @@ import java.util.List;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.Call;
+import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Expr;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Import;
@@ -259,6 +260,30 @@ public class NodeUtils {
     }
     
 
+    public static int getNameLineDefinition(SimpleNode ast2) {
+        if (ast2 instanceof ClassDef){
+            ClassDef c = (ClassDef) ast2;
+            return getLineDefinition(c.name);
+        }
+        if (ast2 instanceof FunctionDef){
+            FunctionDef c = (FunctionDef) ast2;
+            return getLineDefinition(c.name);
+        }
+        return getLineDefinition(ast2);
+    }
+    
+    public static int getNameColDefinition(SimpleNode ast2) {
+        if (ast2 instanceof ClassDef){
+            ClassDef c = (ClassDef) ast2;
+            return getColDefinition(c.name);
+        }
+        if (ast2 instanceof FunctionDef){
+            FunctionDef c = (FunctionDef) ast2;
+            return getColDefinition(c.name);
+        }
+        return getColDefinition(ast2);
+    }
+    
     /**
      * @param ast2 the node to work with
      * @return the line definition of a node

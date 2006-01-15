@@ -27,13 +27,20 @@ public class SWTTest extends TestCase{
         BundleInfo.setBundleInfo(new BundleInfoStub());
         try {
             if(TestDependent.HAS_SWT_ON_PATH){
-                display = new Display();
+                display = createDisplay();
                 createSShell();
             }
         } catch (UnsatisfiedLinkError e) {
             //ok, ignore it.
             e.printStackTrace();
         }
+    }
+
+    /**
+     * @return
+     */
+    protected Display createDisplay() {
+        return new Display();
     }
 
     /*

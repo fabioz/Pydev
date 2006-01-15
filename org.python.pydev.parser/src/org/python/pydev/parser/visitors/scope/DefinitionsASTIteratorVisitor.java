@@ -79,6 +79,9 @@ public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
      * Creates the iterator and transverses the passed root so that the results can be gotten.
      */
     public static DefinitionsASTIteratorVisitor create(SimpleNode root){
+        if(root == null){
+            return null;
+        }
         DefinitionsASTIteratorVisitor visitor = new DefinitionsASTIteratorVisitor();
         try {
             root.accept(visitor);
