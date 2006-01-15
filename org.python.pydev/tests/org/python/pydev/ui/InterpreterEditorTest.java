@@ -5,15 +5,7 @@
  */
 package org.python.pydev.ui;
 
-import java.net.MalformedURLException;
-
-import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.Preferences;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.python.pydev.core.TestDependent;
-import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor;
 import org.python.pydev.ui.pythonpathconf.PythonInterpreterEditor;
@@ -21,17 +13,10 @@ import org.python.pydev.ui.pythonpathconf.PythonInterpreterEditor;
 /**
  * @author Fabio Zadrozny
  */
-public class InterpreterEditorTest extends TestCase {
-
-    private Shell shell;
-    protected Display display;
+public class InterpreterEditorTest extends SWTTest {
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(InterpreterEditorTest.class);
-    }
-
-    private void createSShell() {
-        shell = new org.eclipse.swt.widgets.Shell();
     }
 
     /*
@@ -40,16 +25,6 @@ public class InterpreterEditorTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         AbstractInterpreterEditor.USE_ICONS = false;
-        BundleInfo.setBundleInfo(new BundleInfoStub());
-        try {
-            if(TestDependent.HAS_SWT_ON_PATH){
-                display = new Display();
-                createSShell();
-            }
-        } catch (UnsatisfiedLinkError e) {
-            //ok, ignore it.
-            e.printStackTrace();
-        }
     }
 
     /*
@@ -58,26 +33,10 @@ public class InterpreterEditorTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         AbstractInterpreterEditor.USE_ICONS = true;
-        BundleInfo.setBundleInfo(null);
     }
 
-    /**
-     * @param display
-     */
-    protected void goToManual(Display display) {
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch())
-                display.sleep();
-        }
-        System.out.println("finishing...");
-        display.dispose();
-    }
 
-    /**
-     * @throws MalformedURLException
-     * 
-     */
-    public void testIt() throws MalformedURLException {
+    public void testIt(){
         if(display != null){
             PythonInterpreterEditor editor = new PythonInterpreterEditor("label", shell, new PythonInterpreterManager(new Preferences()));
             shell.pack();
