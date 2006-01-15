@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.plugin.nature.PythonNature;
 

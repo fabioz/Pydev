@@ -3,7 +3,7 @@
  */
 package com.python.pydev.analysis.messages;
 
-import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.core.IToken;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 

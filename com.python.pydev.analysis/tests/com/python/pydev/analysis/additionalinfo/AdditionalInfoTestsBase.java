@@ -17,6 +17,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
@@ -41,7 +42,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         IDocument doc = new Document(strDoc);
         CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);
 
-        CompletionState state = CompletionState.getEmptyCompletionState(nature);
+        ICompletionState state = CompletionState.getEmptyCompletionState(nature);
         List props = new ArrayList(participant.getGlobalCompletions(request, state));
         ICompletionProposal[] codeCompletionProposals = codeCompletion.onlyValidSorted(props, request.qualifier);
         

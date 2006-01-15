@@ -9,11 +9,11 @@ import java.util.List;
 
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.ui.ImageCache;
 
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
@@ -24,7 +24,7 @@ import com.python.pydev.codecompletion.CodecompletionPlugin;
 
 public class CtxParticipant implements IPyDevCompletionParticipant{
 
-    public Collection getGlobalCompletions(CompletionRequest request, CompletionState state) {
+    public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
         ImageCache imageCache = CodecompletionPlugin.getImageCache();
         Image classWithImport = imageCache.get(CodecompletionPlugin.CLASS_WITH_IMPORT_ICON);
         Image methodWithImport = imageCache.get(CodecompletionPlugin.METHOD_WITH_IMPORT_ICON);

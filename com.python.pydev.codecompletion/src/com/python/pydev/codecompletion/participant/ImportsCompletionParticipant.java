@@ -11,20 +11,20 @@ import java.util.Set;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
-import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 
 public class ImportsCompletionParticipant implements IPyDevCompletionParticipant{
 
-    public Collection getGlobalCompletions(CompletionRequest request, CompletionState state) {
+    public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
         
         ArrayList list = new ArrayList();
         if(request.qualifier.length() >= 2){ //at least n characters required...
@@ -36,7 +36,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             PySelection selection = new PySelection(request.doc);
             int lineAvailableForImport = selection.getLineAvailableForImport();
 
-            ProjectModulesManager projectModulesManager = astManager.getProjectModulesManager();
+            IProjectModulesManager projectModulesManager = astManager.getProjectModulesManager();
             Set allModuleNames = projectModulesManager.getAllModuleNames();
             
             String lowerQual = request.qualifier.toLowerCase();

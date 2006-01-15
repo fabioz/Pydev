@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.core.IToken;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 

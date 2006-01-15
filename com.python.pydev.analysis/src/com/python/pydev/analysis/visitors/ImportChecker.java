@@ -4,10 +4,11 @@
 package com.python.pydev.analysis.visitors;
 
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
-import org.python.pydev.editor.codecompletion.revisited.IToken;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -44,18 +45,18 @@ public class ImportChecker {
     private String moduleName;
 
     public static class ImportInfo{
-    	public AbstractModule mod;
+    	public IModule mod;
     	public String rep;
     	public boolean wasResolved;
 	    	
     	public ImportInfo(){
     		this(null,null,false);
     	}
-    	public ImportInfo(AbstractModule mod, String rep){
+    	public ImportInfo(IModule mod, String rep){
     		this(mod, rep, false);
     	}
     	
-    	public ImportInfo(AbstractModule mod, String rep, boolean wasResolved){
+    	public ImportInfo(IModule mod, String rep, boolean wasResolved){
     		this.mod = mod;
     		this.rep = rep;
     		this.wasResolved = wasResolved;
@@ -86,7 +87,7 @@ public class ImportChecker {
     public ImportInfo visitImportToken(IToken token) {
         //try to find it as a relative import
         boolean wasResolved = false;
-        Tuple<AbstractModule, String> modTok = null;
+        Tuple<IModule, String> modTok = null;
 		if(token instanceof SourceToken){
         	
         	modTok = nature.getAstManager().findOnImportedMods(new IToken[]{token}, nature, token.getRepresentation(), moduleName);
@@ -120,7 +121,7 @@ public class ImportChecker {
     }
     
 
-    private boolean isRepAvailable(PythonNature nature, AbstractModule module, String qualifier) {
+    private boolean isRepAvailable(PythonNature nature, IModule module, String qualifier) {
         boolean found = false;
         if(module != null){
             if(qualifier.startsWith(".")){
@@ -138,7 +139,7 @@ public class ImportChecker {
             //actToken would be path
             
             //now, what we will do is try to do a code completion in os and see if path is found
-            CompletionState comp = CompletionState.getEmptyCompletionState(actToken, nature);
+            ICompletionState comp = CompletionState.getEmptyCompletionState(actToken, nature);
             IToken[] completionsForModule = nature.getAstManager().getCompletionsForModule(module, comp);
             for (IToken foundTok : completionsForModule) {
                 if(foundTok.getRepresentation().equals(hasToBeFound)){

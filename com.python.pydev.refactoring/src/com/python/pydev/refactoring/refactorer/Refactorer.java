@@ -3,10 +3,12 @@ package com.python.pydev.refactoring.refactorer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.FindInfo;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IModule;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule.FindInfo;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
@@ -45,7 +47,7 @@ public class Refactorer extends AbstractPyRefactoring{
 		
 		List<ItemPointer> pointers = new ArrayList<ItemPointer>();
 		String[] tokenAndQual = PyCodeCompletion.getActivationTokenAndQual(request.doc, request.ps.getAbsoluteCursorOffset(), true);
-		AbstractModule mod = AbstractModule.createModuleFromDoc(
+		IModule mod = AbstractModule.createModuleFromDoc(
 										   request.resolveModule(), request.file, request.doc, 
 										   (PythonNature)request.nature, request.getBeginLine());
 		
@@ -54,12 +56,8 @@ public class Refactorer extends AbstractPyRefactoring{
 		List<FindInfo> lFindInfo = new ArrayList<FindInfo>();
 		try {
             //2. check findDefinition (SourceModule)
-			Definition[] definitions = mod.findDefinition(tok, request.getBeginLine(), request.getBeginCol(), (PythonNature)request.nature, lFindInfo);
-			for (Definition definition : definitions) {
-				pointers.add(new ItemPointer(definition.module.getFile(),
-						new Location(definition.line-1, definition.col-1),
-						new Location(definition.line-1, definition.col-1)));
-			}
+			IDefinition[] definitions = mod.findDefinition(tok, request.getBeginLine(), request.getBeginCol(), (PythonNature)request.nature, lFindInfo);
+			getAsPointers(pointers, (Definition[]) definitions);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -74,18 +72,45 @@ public class Refactorer extends AbstractPyRefactoring{
 //                    }
 //                }
 //            }
+
             String lookForInterface = tokenAndQual[1];
             List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(lookForInterface, (PythonNature) request.nature,
                     AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);
             
             System.out.println("tokens with interface:"+lookForInterface);
+            ICodeCompletionASTManager manager = ((PythonNature)request.nature).getAstManager();
             for (IInfo info : tokensEqualTo) {
-                System.out.println(info);
+                mod = manager.getModule(info.getDeclaringModuleName(), (PythonNature)request.nature, true);
+                //ok, now that we found the module, we have to get the actual definition
+                tok = "";
+                String path = info.getPath();
+                if(path != null && path.length() > 0){
+                    tok = path+".";
+                }
+                tok += info.getName();
+                try {
+                    IDefinition[] definitions = mod.findDefinition(tok, 0, 0, (PythonNature) request.nature, new ArrayList<FindInfo>());
+                    getAsPointers(pointers, (Definition[]) definitions);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
             }
         }
 		
 		return pointers.toArray(new ItemPointer[0]);
 	}
+    /**
+     * @param pointers
+     * @param definitions
+     */
+    private void getAsPointers(List<ItemPointer> pointers, Definition[] definitions) {
+        for (Definition definition : definitions) {
+        	pointers.add(new ItemPointer(definition.module.getFile(),
+        			new Location(definition.line-1, definition.col-1),
+        			new Location(definition.line-1, definition.col-1)));
+        }
+    }
 	public boolean canFindDefinition() {
 		return true;
 	}
@@ -123,10 +148,6 @@ public class Refactorer extends AbstractPyRefactoring{
 
     public void checkAvailableForRefactoring(RefactoringRequest request) {
         //can always do it (does not depend upon the project)
-        IPythonNature pythonNature = request.nature;
-        if(pythonNature == null){
-            throw new RuntimeException("Unable to do refactor because the file is an a project that does not have the pydev nature configured.");
-        }
     }
 
 

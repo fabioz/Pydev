@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.editor.codecompletion.revisited.IToken;
 
 public class ScopeItems {
     Map<String,Found> m = new HashMap<String,Found>();

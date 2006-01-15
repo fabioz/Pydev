@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 
 import com.python.pydev.analysis.additionalinfo.dependencies.DependencyCalculator;
 import com.python.pydev.analysis.additionalinfo.dependencies.PyStructuralChange;
@@ -77,7 +77,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * @param tok the token which it depends upon
      * @param isWildImport determines if the import we are analyzing is a wild import
      */
-    public void addDep(String currentModuleName, AbstractModule mod, String tok, boolean isWildImport) {
+    public void addDep(String currentModuleName, IModule mod, String tok, boolean isWildImport) {
     	if(currentModuleName == null){
     		if(!TESTING){
     			throw new RuntimeException("Current module name must NOT be null. Mod:"+mod.getName());
@@ -105,7 +105,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * @param mod the module that is used from the current module (may be null if it is from a wild import)
      * @param tok the token it is dependent upon
      */
-    private void addDepInfo(String currentModuleName, AbstractModule mod, String tok) {
+    private void addDepInfo(String currentModuleName, IModule mod, String tok) {
     	if(currentModuleName == null){
     		if(!TESTING){
     			throw new RuntimeException("Current module name must NOT be null. Mod:"+mod.getName());

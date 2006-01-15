@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
+import org.python.pydev.core.IModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.parser.IParserObserver;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -34,7 +35,7 @@ public class AnalysisParserObserver implements IParserObserver{
             //create the module
             String file = fileAdapter.getRawLocation().toOSString();
             String moduleName = PythonNature.getModuleNameForResource(fileAdapter);
-            AbstractModule module = AbstractModule.createModule(root, new File(file), moduleName);
+            IModule module = AbstractModule.createModule(root, new File(file), moduleName);
             
             //visit it
             AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();

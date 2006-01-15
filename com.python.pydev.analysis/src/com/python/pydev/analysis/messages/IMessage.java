@@ -6,7 +6,7 @@ package com.python.pydev.analysis.messages;
 import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.core.IToken;
 
 public interface IMessage {
     

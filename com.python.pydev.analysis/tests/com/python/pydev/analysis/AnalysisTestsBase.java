@@ -6,10 +6,10 @@ package com.python.pydev.analysis;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;

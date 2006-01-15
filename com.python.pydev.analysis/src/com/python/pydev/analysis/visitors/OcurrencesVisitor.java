@@ -37,9 +37,10 @@ import org.python.parser.ast.argumentsType;
 import org.python.parser.ast.decoratorsType;
 import org.python.parser.ast.exprType;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
-import org.python.pydev.editor.codecompletion.revisited.IToken;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.plugin.PydevPlugin;
@@ -83,7 +84,7 @@ public class OcurrencesVisitor extends VisitorBase{
     /**
      * this is the module we are visiting
      */
-    private AbstractModule current;
+    private IModule current;
 
     /**
      * used to check for duplication in signatures
@@ -108,7 +109,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @param document 
      */
     @SuppressWarnings("unchecked")
-	public OcurrencesVisitor(PythonNature nature, String moduleName, AbstractModule current, IAnalysisPreferences prefs, IDocument document) {
+	public OcurrencesVisitor(PythonNature nature, String moduleName, IModule current, IAnalysisPreferences prefs, IDocument document) {
         this.infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
         this.current = current;
         this.nature = nature;
@@ -336,8 +337,8 @@ public class OcurrencesVisitor extends VisitorBase{
             if(AbstractVisitor.isWildImport(node)){
                 IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName);
                 
-                CompletionState state = CompletionState.getEmptyCompletionState(nature);
-                state.builtinsGotten = true; //we don't want any builtins
+                ICompletionState state = CompletionState.getEmptyCompletionState(nature);
+                state.setBuiltinsGotten (true); //we don't want any builtins
                 List completionsForWildImport = nature.getAstManager().getCompletionsForWildImport(state, current, new ArrayList(), wildImport);
                 scope.addImportTokens(completionsForWildImport, wildImport);
             }else{
@@ -711,7 +712,7 @@ public class OcurrencesVisitor extends VisitorBase{
 				if (foundAs.isImport() && !rep.equals(foundAsStr) && foundAs.importInfo.wasResolved) {
 					//the foundAsStr equals the module resolved in the Found tok
 					
-					AbstractModule m = foundAs.importInfo.mod;
+					IModule m = foundAs.importInfo.mod;
 					String tokToCheck;
 					if(foundAs.isWildImport()){
 						tokToCheck = foundAsStr;

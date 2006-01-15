@@ -19,8 +19,8 @@ import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.NameTok;
 import org.python.parser.ast.aliasType;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 

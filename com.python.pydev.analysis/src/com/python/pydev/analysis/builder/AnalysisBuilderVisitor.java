@@ -12,8 +12,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -129,7 +129,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     /**
      * here we have to detect errors / warnings from the code analysis
      */
-    public void doVisitChangedResource(IResource resource, IDocument document, AbstractModule module, boolean analyzeDependent, IProgressMonitor monitor) {
+    public void doVisitChangedResource(IResource resource, IDocument document, IModule module, boolean analyzeDependent, IProgressMonitor monitor) {
         AnalysisRunner runner = new AnalysisRunner();
         
         IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
@@ -192,7 +192,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
 
     private void recreateCtxInsensitiveInfo(IResource resource, IDocument document) {
-        AbstractModule sourceModule = getSourceModule(resource, document);
+        IModule sourceModule = getSourceModule(resource, document);
         PythonNature nature = getPythonNature(resource);
 
         AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());

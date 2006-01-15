@@ -10,11 +10,11 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.Document;
 import org.python.parser.SimpleNode;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -143,7 +143,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 
 
     public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor) {
-        ModulesManager m = nature.getAstManager().getProjectModulesManager();
+        ModulesManager m = (ModulesManager) nature.getAstManager().getProjectModulesManager();
         IProject project = nature.getProject();
         AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(monitor, m, 
                 "(project:"+project.getName()+")", new AdditionalProjectInterpreterInfo(project), nature);

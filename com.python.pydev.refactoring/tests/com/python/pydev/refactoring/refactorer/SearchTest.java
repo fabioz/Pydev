@@ -4,12 +4,13 @@ import java.io.File;
 
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.actions.PySelection;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 
-public class SearchTest extends CodeCompletionTestsBase {
+import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
+
+public class SearchTest extends AdditionalInfoTestsBase {
 
 	public static void main(String[] args) {
 		try {
@@ -36,7 +37,6 @@ public class SearchTest extends CodeCompletionTestsBase {
 	}
 
 	protected void tearDown() throws Exception {
-        CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();
 	}
 	
