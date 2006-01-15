@@ -11,7 +11,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jface.text,
  org.python.pydev,
  org.python.pydev.core,
- org.junit
+ org.junit,
+ org.python.pydev.ast,
+ org.python.pydev.parser
 Eclipse-AutoStart: true
 Bundle-ClassPath: pydev.jar,
  retroweaver-rt.jar,
