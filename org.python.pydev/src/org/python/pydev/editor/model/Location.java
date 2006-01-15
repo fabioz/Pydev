@@ -65,6 +65,20 @@ public class Location {
 			return -1;
 		return 0;
 	}
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Location)){
+            return false;
+        }
+        Location l = (Location) obj;
+        return l.line == line && l.column == column;
+    }
+    
+    @Override
+    public int hashCode() {
+        return (line * 99) + (column * 5);
+    }
 	
 	/**
 	 * Utility: Converts document's offset to Location

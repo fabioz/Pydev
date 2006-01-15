@@ -5,6 +5,7 @@
 package org.python.pydev.editor.actions;
 
 import java.io.File;
+import java.util.HashSet;
 
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
@@ -62,7 +63,12 @@ public class PyGoToDefinition extends PyRefactorAction {
             final PyEdit pyEdit = getPyEdit();
             if(areRefactorPreconditionsOK(getRefactoringRequest())){
 
-                final ItemPointer[] where = findDefinition(pyEdit);
+                HashSet<ItemPointer> set = new HashSet<ItemPointer>();
+                ItemPointer[] defs = findDefinition(pyEdit);
+                for (ItemPointer pointer : defs) {
+                    set.add(pointer);
+                }
+                final ItemPointer[] where = set.toArray(new ItemPointer[0]);
     
                 if (where == null) {
                     return;

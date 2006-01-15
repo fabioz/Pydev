@@ -26,4 +26,29 @@ public class ItemPointer {
 		this.start = start;
 		this.end = end;
 	}
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof ItemPointer)){
+            return false;
+        }
+        
+        ItemPointer i = (ItemPointer) obj;
+        if(!i.file.equals(file)){
+            return false;
+        }
+        if(!i.start.equals(start)){
+            return false;
+        }
+        if(!i.end.equals(end)){
+            return false;
+        }
+        
+        return true;
+    }
+    
+    @Override
+    public int hashCode() {
+        return this.file.hashCode() * 17;
+    }
 }
