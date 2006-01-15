@@ -132,10 +132,32 @@ public class REF {
      */
     public static Object getStrAsObj(String persisted, ICallback<Object, ObjectInputStream> readFromFileMethod) throws IOException, ClassNotFoundException {
         InputStream input = new ByteArrayInputStream(decodeBase64(persisted));
-        ObjectInputStream in = new ObjectInputStream(input);
-        Object o = readFromFileMethod.call(in);
-        in.close();
-        input.close();
+        Object o = readFromInputStreamAndCloseIt(readFromFileMethod, input);
+        return o;
+    }
+
+    /**
+     * @param readFromFileMethod
+     * @param input
+     * @return
+     * @throws IOException
+     */
+    public static Object readFromInputStreamAndCloseIt(ICallback<Object, ObjectInputStream> readFromFileMethod, InputStream input) {
+        ObjectInputStream in = null;
+        Object o = null;
+        try {
+            try {
+                in = new ObjectInputStream(input);
+                o = readFromFileMethod.call(in);
+            } finally {
+                if(in!=null){
+                    in.close();
+                }
+                input.close();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return o;
     }
 
@@ -151,18 +173,27 @@ public class REF {
     public static void writeToFile(Object o, File file) {
         try {
             OutputStream out = new FileOutputStream(file);
-            try {
-                ObjectOutputStream stream = new ObjectOutputStream(out);
-                stream.writeObject(o);
-                stream.close();
-            } catch (Exception e) {
-                Log.log(e);
-                throw new RuntimeException(e);
-            } finally{
-                out.close();
-            }
+            writeToStreamAndCloseIt(o, out);
         } catch (Exception e) {
             Log.log(e);
+        }
+    }
+
+    /**
+     * @param o
+     * @param out
+     * @throws IOException
+     */
+    public static void writeToStreamAndCloseIt(Object o, OutputStream out) throws IOException {
+        try {
+            ObjectOutputStream stream = new ObjectOutputStream(out);
+            stream.writeObject(o);
+            stream.close();
+        } catch (Exception e) {
+            Log.log(e);
+            throw new RuntimeException(e);
+        } finally{
+            out.close();
         }
     }
 

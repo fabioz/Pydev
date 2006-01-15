@@ -28,13 +28,15 @@ import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
-import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
-import org.python.pydev.editor.codecompletion.revisited.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
@@ -243,7 +245,7 @@ public class PyCodeCompletion {
         return ret;
     }
 
-    private Collection getGlobalsFromParticipants(CompletionRequest request, CompletionState state) {
+    private Collection getGlobalsFromParticipants(CompletionRequest request, ICompletionState state) {
         ArrayList ret = new ArrayList();
         
         List participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
@@ -335,7 +337,7 @@ public class PyCodeCompletion {
                         int line = request.doc.getLineOfOffset(request.documentOffset);
                         IRegion region = request.doc.getLineInformationOfOffset(request.documentOffset);
                         int col =  request.documentOffset - region.getOffset();
-                        AbstractModule module = AbstractModule.createModuleFromDoc("", null, request.doc, request.nature, line);
+                        IModule module = AbstractModule.createModuleFromDoc("", null, request.doc, request.nature, line);
                       
                         ASTManager astMan = ((ASTManager)request.nature.getAstManager());
                         comps = astMan.getAssignCompletions(module, new CompletionState(line, col, request.activationToken, request.nature));

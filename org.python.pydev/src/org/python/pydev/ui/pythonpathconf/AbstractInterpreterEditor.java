@@ -129,11 +129,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     }
     
 
-    protected void doLoad() {
-        super.doLoad();
-        updateTree();
-    }
-
 
     /**
      * @see org.eclipse.jface.preference.FieldEditor#createControl(org.eclipse.swt.widgets.Composite)
@@ -570,14 +565,37 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         return null;
     }
 
+    @Override
+    protected void doStore() {
+        String s = createList(list.getItems());
+        if (s != null){
+            getPreferenceStore().setValue(getPreferenceName(), s);
+        }
+    }
+    
+    @Override
+    protected void doLoad() {
+        if (list != null) {
+            String s = getPreferenceStore().getString(getPreferenceName());
+            String[] array = parseString(s);
+            for (int i = 0; i < array.length; i++) {
+                list.add(array[i]);
+            }
+        }
+        updateTree();
+    }
+
+    
     /** Overriden
      */
+    @Override
     protected String createList(String[] executables) {
         return interpreterManager.getStringToPersist(executables);
     }
     
     /** Overriden
      */
+    @Override
     protected String[] parseString(String stringList) {
         return interpreterManager.getInterpretersFromPersistedString(stringList);
     }

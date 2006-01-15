@@ -15,18 +15,20 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
-import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
-import org.python.pydev.editor.codecompletion.revisited.IToken;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule.FindInfo;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Fabio Zadrozny
@@ -190,8 +192,8 @@ public class CompiledModule extends AbstractModule{
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(CompletionState state, ICodeCompletionASTManager manager) {
-        Object v = cache.get(state.activationToken);
+    public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
+        Object v = cache.get(state.getActivationToken());
         if(v != null){
             return (IToken[]) v;
         }
@@ -202,7 +204,7 @@ public class CompiledModule extends AbstractModule{
 	        try {
 	            AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
 	            synchronized(shell){
-		            List<String[]> completions = shell.getImportCompletions(name+"."+state.activationToken, manager.getProjectModulesManager().getCompletePythonPath()).o2;
+		            List<String[]> completions = shell.getImportCompletions(name+"."+state.getActivationToken(), manager.getProjectModulesManager().getCompletePythonPath()).o2;
 		            
 		            ArrayList<IToken> array = new ArrayList<IToken>();
 		            
@@ -215,7 +217,7 @@ public class CompiledModule extends AbstractModule{
 		                
 		            }
 		            toks = (CompiledToken[]) array.toArray(new CompiledToken[0]);
-		            cache.put(state.activationToken, toks);
+		            cache.put(state.getActivationToken(), toks);
 	            }
 	        } catch (Exception e) {
 	            e.printStackTrace();
@@ -226,16 +228,16 @@ public class CompiledModule extends AbstractModule{
     }
     
     @Override
-    public boolean isInGlobalTokens(String tok, PythonNature nature) {
+    public boolean isInGlobalTokens(String tok, IPythonNature nature) {
         //we have to override because there is no way to check if it is in some import from some other place if it has dots on the tok...
         
         
         if(tok.indexOf('.') == -1){
             return super.isInDirectGlobalTokens(tok, nature);
         }else{
-            CompletionState state = CompletionState.getEmptyCompletionState(nature);
+            ICompletionState state = CompletionState.getEmptyCompletionState(nature);
             String[] headAndTail = FullRepIterable.headAndTail(tok);
-            state.activationToken = headAndTail[0];
+            state.setActivationToken (headAndTail[0]);
             String head = headAndTail[1];
             IToken[] globalTokens = getGlobalTokens(state, nature.getAstManager());
             for (IToken token : globalTokens) {
@@ -252,7 +254,7 @@ public class CompiledModule extends AbstractModule{
      * @param findInfo 
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
-    public Definition[] findDefinition(String token, int line, int col, PythonNature nature, List<FindInfo> findInfo) throws Exception {
+    public Definition[] findDefinition(String token, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception {
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
         synchronized(shell){
             Tuple<String[],int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getProjectModulesManager().getCompletePythonPath());
@@ -267,12 +269,12 @@ public class CompiledModule extends AbstractModule{
             String foundModName = nature.resolveModule(f);
             String foundAs = def.o1[1];
             
-            AbstractModule mod = nature.getAstManager().getModule(foundModName, nature, true);
+            IModule mod = nature.getAstManager().getModule(foundModName, nature, true);
             int foundLine = def.o2[0];
             if(foundLine == 0 && foundAs.length() > 0 && mod != null){
-                AbstractModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f, new Document(REF.getFileContents(f)), nature, 0);
+                IModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f, new Document(REF.getFileContents(f)), nature, 0);
                 if(sourceMod instanceof SourceModule){
-                    Definition[] definitions = sourceMod.findDefinition(foundAs, 0, 0, nature, findInfo);
+                    Definition[] definitions = (Definition[]) sourceMod.findDefinition(foundAs, 0, 0, nature, findInfo);
                     if(definitions.length > 0){
                         return definitions;
                     }

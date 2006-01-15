@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 
 /**
@@ -54,7 +55,7 @@ public abstract class AbstractToken implements IToken{
     
     
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IToken#getArgs()
+     * @see org.python.pydev.core.IToken#getArgs()
      */
     public String getArgs() {
         return args;
@@ -75,14 +76,14 @@ public abstract class AbstractToken implements IToken{
     }
     
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IToken#getParentPackage()
+     * @see org.python.pydev.core.IToken#getParentPackage()
      */
     public String getParentPackage() {
         return parentPackage;
     }
     
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IToken#getType()
+     * @see org.python.pydev.core.IToken#getType()
      */
     public int getType() {
         return type;
@@ -174,7 +175,7 @@ public abstract class AbstractToken implements IToken{
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.IToken#getOriginalRep(boolean)
+     * @see org.python.pydev.core.IToken#getOriginalRep(boolean)
      */
     private String getOriginalRep(boolean decorateWithModule) {
         if(!decorateWithModule){
@@ -191,7 +192,7 @@ public abstract class AbstractToken implements IToken{
     /**
      * Make our complete path relative to the base module.
      * 
-     * @see org.python.pydev.editor.codecompletion.revisited.IToken#getAsRelativeImport(java.lang.String)
+     * @see org.python.pydev.core.IToken#getAsRelativeImport(java.lang.String)
      */
     public String getAsRelativeImport(String baseModule) {
     	String completePath = getOriginalRep(true);

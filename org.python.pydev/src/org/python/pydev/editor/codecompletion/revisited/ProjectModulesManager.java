@@ -21,12 +21,16 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.ICallback;
+import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDeltaProcessor;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ISystemModulesManager;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
@@ -35,14 +39,8 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 /**
  * @author Fabio Zadrozny
  */
-public class ProjectModulesManager extends ModulesManager implements IDeltaProcessor<ModulesKey>{
+public class ProjectModulesManager extends ModulesManager implements IDeltaProcessor<ModulesKey>, IProjectModulesManager{
 
-    /**
-     * This is the maximun number of deltas that can be generated before saving everything in a big chunck and 
-     * clearing the deltas
-     */
-    public static final int MAXIMUN_NUMBER_OF_DELTAS = 100;
-    
     private static final long serialVersionUID = 1L;
 
     /**
@@ -59,11 +57,8 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      */
     private transient DeltaSaver<ModulesKey> deltaSaver;
     
-    /**
-     * Set the project this modules manager works with.
-     * 
-     * @param project the project related to this manager
-     * @param restoreDeltas says whether deltas should be restored (if they are not, they should be discarded)
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#setProject(org.eclipse.core.resources.IProject, boolean)
      */
     public void setProject(IProject project, boolean restoreDeltas){
         this.project = project;
@@ -89,19 +84,31 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     // ------------------------ delta processing
     
 
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#processUpdate(org.python.pydev.core.ModulesKey)
+     */
     public void processUpdate(ModulesKey data) {
         //updates are ignored because we always start with 'empty modules' (so, we don't actually generate them -- updates are treated as inserts).
         throw new RuntimeException("Not impl");
     }
 
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#processDelete(org.python.pydev.core.ModulesKey)
+     */
     public void processDelete(ModulesKey key) {
         super.doRemoveSingleModule(key);
     }
 
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#processInsert(org.python.pydev.core.ModulesKey)
+     */
     public void processInsert(ModulesKey key) {
         super.doAddSingleModule(key, new EmptyModule(key.name, key.file));
     }
 
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#endProcessing()
+     */
     public void endProcessing() {
         //save it with the updated info
         nature.saveAstManager();
@@ -143,28 +150,31 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     
     
     
-    /**
-     * @param nature this is the nature for this project modules manager (can be used if no project is set)
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#setPythonNature(org.python.pydev.core.IPythonNature)
      */
     public void setPythonNature(IPythonNature nature){
         this.nature = nature;
     }
     
-    /**
-     * @return the nature related to this manager
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#getNature()
      */
     public IPythonNature getNature() {
         return nature;
     }
     
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#getSystemModulesManager()
+     */
     public SystemModulesManager getSystemModulesManager(){
         IInterpreterManager iMan = PydevPlugin.getInterpreterManager(nature);
         InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
         return info.modulesManager;
     }
     
-    /**
-     * @return a set with the names of all available modules
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#getAllModuleNames()
      */
     public Set<String> getAllModuleNames() {
         Set<String> s = new HashSet<String>();
@@ -185,11 +195,17 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         return s;
     }
     
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#getOnlyDirectModules()
+     */
     @Override
     public ModulesKey[] getOnlyDirectModules() {
         return super.getAllModules();
     }
 
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#getAllModules()
+     */
     @Override
     public ModulesKey[] getAllModules() {
         List<ModulesKey> ret = new ArrayList<ModulesKey>();
@@ -203,17 +219,23 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     }
 
     
-    public AbstractModule getModule(String name, PythonNature nature, boolean dontSearchInit) {
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean)
+     */
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
         return getModule(name, nature, true, dontSearchInit);
     }
     
-    public AbstractModule getModule(String name, PythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean, boolean)
+     */
+    public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
         ModulesManager[] managersInvolved = this.getManagersInvolved(true); //only get the system manager here (to avoid recursion)
 
         for (ModulesManager m : managersInvolved) {
-            AbstractModule module;
+            IModule module;
             if (m instanceof ProjectModulesManager) {
-                ProjectModulesManager pM = (ProjectModulesManager) m;
+                IProjectModulesManager pM = (IProjectModulesManager) m;
                 module = pM.getModule(name, nature, false, dontSearchInit);
 
             }else{
@@ -226,19 +248,15 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         return super.getModule(name, nature, dontSearchInit);
     }
 
-    /**
-     * @param member the member we want to know if it is in the pythonpath
-     * @param container the project where the member is
-     * @return true if it is in the pythonpath and false otherwise
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#isInPythonPath(org.eclipse.core.resources.IResource, org.eclipse.core.resources.IProject)
      */
     public boolean isInPythonPath(IResource member, IProject container) {
         return resolveModule(member, container) != null;
     }
     
-    /**
-     * @param member this is the member file we are analyzing
-     * @param container the project where the file is contained
-     * @return the name of the module given the pythonpath
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#resolveModule(org.eclipse.core.resources.IResource, org.eclipse.core.resources.IProject)
      */
     public String resolveModule(IResource member, IProject container) {
         IPath location = PydevPlugin.getLocation(member.getFullPath(), container);
@@ -253,18 +271,15 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         }
     }
 
-    /**
-     * resolve module for all, including the system manager.
-     * 
-     * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#resolveModule(java.lang.String)
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#resolveModule(java.lang.String)
      */
     public String resolveModule(String full) {
         return resolveModule(full, true);
     }
     
-    /**
-     * @param full the full file-system path of the file to resolve
-     * @return the name of the module given the pythonpath
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#resolveModule(java.lang.String, boolean)
      */
     public String resolveModule(String full, boolean checkSystemManager) {
         ModulesManager[] managersInvolved = this.getManagersInvolved(checkSystemManager);
@@ -272,7 +287,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
             
             String mod;
             if (m instanceof ProjectModulesManager) {
-                ProjectModulesManager pM = (ProjectModulesManager) m;
+                IProjectModulesManager pM = (IProjectModulesManager) m;
                 mod = pM.resolveModule(full, false);
             
             }else{
@@ -286,12 +301,15 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         return super.resolveModule(full);
     }
 
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#changePythonPath(java.lang.String, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
+     */
     public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor) {
         super.changePythonPath(pythonpath, project, monitor);
     }
 
-    /**
-     * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#getSize()
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#getSize()
      */
     public int getSize() {
         int size = getModules().size();
@@ -302,14 +320,12 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         return size;
     }
 
-    /**
-     * Forced builtins are only specified in the system.
-     * 
-     * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#getBuiltins()
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#getBuiltins()
      */
     public String[] getBuiltins() {
         String[] builtins = null;
-        SystemModulesManager systemModulesManager = getSystemModulesManager();
+        ISystemModulesManager systemModulesManager = getSystemModulesManager();
         if(systemModulesManager != null){
             builtins = systemModulesManager.getBuiltins();
         }
@@ -336,9 +352,9 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
 	                if(nature!=null){
 	                    ICodeCompletionASTManager otherProjectAstManager = nature.getAstManager();
 	                    if(otherProjectAstManager != null){
-	                        ProjectModulesManager projectModulesManager = otherProjectAstManager.getProjectModulesManager();
+	                        IProjectModulesManager projectModulesManager = otherProjectAstManager.getProjectModulesManager();
 		                    if(projectModulesManager != null){
-		                        list.add(projectModulesManager);
+		                        list.add((ModulesManager) projectModulesManager);
 		                    }
 	                    }
 	                }
@@ -356,8 +372,8 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     }
 
     
-    /**
-     * @return the paths that constitute the pythonpath as a list of strings
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#getCompletePythonPath()
      */
     public List<String> getCompletePythonPath(){
         List<String> l = new ArrayList<String>();

@@ -39,7 +39,7 @@ public abstract class PythonListEditor extends FieldEditor {
     /**
      * The list widget; <code>null</code> if none (before creation or after disposal).
      */
-    private List list;
+    protected List list;
 
     /**
      * The button box containing the Add, Remove, Up, and Down buttons; <code>null</code> if none (before creation or after disposal).

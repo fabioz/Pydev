@@ -13,9 +13,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
+import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -49,7 +49,7 @@ public class PythonPathNature implements IPythonPathNature {
         	return null;
         }
               
-        ProjectModulesManager projectModulesManager = nature.getAstManager().getProjectModulesManager();
+        IProjectModulesManager projectModulesManager = nature.getAstManager().getProjectModulesManager();
         return projectModulesManager.getCompletePythonPath();
     }
 

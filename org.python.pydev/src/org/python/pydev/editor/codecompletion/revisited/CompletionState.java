@@ -8,23 +8,24 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Fabio Zadrozny
  */
-public class CompletionState {
+public class CompletionState implements ICompletionState {
     public String activationToken; 
     public int line;
     public int col;
-    public PythonNature nature;
+    public IPythonNature nature;
     
     public Memo<String> memory = new Memo<String>();
     public Memo<Definition> definitionMemory = new Memo<Definition>();
-    public Memo<AbstractModule> wildImportMemory = new Memo<AbstractModule>();
+    public Memo<IModule> wildImportMemory = new Memo<IModule>();
     
     public boolean builtinsGotten=false;
     public boolean localImportsGotten=false;
@@ -58,9 +59,9 @@ public class CompletionState {
          */
         private static final int MAX_NUMBER_OF_OCURRENCES = 5;
         
-        public Map<AbstractModule, Map<E, Integer>> memo = new HashMap<AbstractModule, Map<E, Integer>>();
+        public Map<IModule, Map<E, Integer>> memo = new HashMap<IModule, Map<E, Integer>>();
 
-        public boolean isInRecursion(AbstractModule caller, E def){
+        public boolean isInRecursion(IModule caller, E def){
             Map<E, Integer> val;
             
             boolean occuredMoreThanMax = false;
@@ -102,7 +103,7 @@ public class CompletionState {
      * @param qual
      * @param nature2
      */
-    public CompletionState(int line2, int col2, String token, PythonNature nature2) {
+    public CompletionState(int line2, int col2, String token, IPythonNature nature2) {
         this.line = line2;
         this.col = col2;
         this.activationToken = token;
@@ -118,7 +119,7 @@ public class CompletionState {
      * @param module
      * @param base
      */
-    public void checkWildImportInMemory(AbstractModule caller, AbstractModule wild) {
+    public void checkWildImportInMemory(IModule caller, IModule wild) {
         if(this.wildImportMemory.isInRecursion(caller, wild)){
             throw new CompletionRecursionException("Possible recursion found (caller: "+caller.getName()+", import: "+wild.getName()+" ) - stopping analysis.");
         }
@@ -129,8 +130,8 @@ public class CompletionState {
      * @param module
      * @param definition
      */
-    public void checkDefinitionMemory(AbstractModule module, Definition definition) {
-        if(this.definitionMemory.isInRecursion(module, definition)){
+    public void checkDefinitionMemory(IModule module, IDefinition definition) {
+        if(this.definitionMemory.isInRecursion(module, (Definition) definition)){
             throw new CompletionRecursionException("Possible recursion found (token: "+definition+") - stopping analysis.");
         }
 
@@ -139,7 +140,7 @@ public class CompletionState {
      * @param module
      * @param base
      */
-    public void checkMemory(SourceModule module, String base) {
+    public void checkMemory(IModule module, String base) {
         if(this.memory.isInRecursion(module, base)){
             throw new CompletionRecursionException("Possible recursion found (token: "+base+") - stopping analysis.");
         }
@@ -148,15 +149,59 @@ public class CompletionState {
     /**
      * @return a default completion state for globals (empty act. token)
      */
-    public static CompletionState getEmptyCompletionState(PythonNature nature) {
+    public static ICompletionState getEmptyCompletionState(IPythonNature nature) {
         return new CompletionState(0,0,"", nature);
     }
     
     /**
      * @return a default completion state for globals (act token defined)
      */
-    public static CompletionState getEmptyCompletionState(String token, PythonNature nature) {
+    public static ICompletionState getEmptyCompletionState(String token, IPythonNature nature) {
         return new CompletionState(0,0,token, nature);
+    }
+
+    public String getActivationToken() {
+        return activationToken;
+    }
+
+    public IPythonNature getNature() {
+        return nature;
+    }
+
+    public void setActivationToken(String string) {
+        activationToken = string;
+    }
+
+    public void setBuiltinsGotten(boolean b) {
+        builtinsGotten = b;
+    }
+
+    public void setCol(int i) {
+        col = i;
+    }
+
+    public void setLine(int i) {
+        line = i;
+    }
+
+    public void setLocalImportsGotten(boolean b) {
+        localImportsGotten = b;
+    }
+
+    public boolean getLocalImportsGotten() {
+        return localImportsGotten;
+    }
+
+    public int getLine() {
+        return line;
+    }
+
+    public int getCol() {
+        return col;
+    }
+
+    public boolean getBuiltinsGotten() {
+        return builtinsGotten;
     }
     
 }

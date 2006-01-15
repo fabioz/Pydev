@@ -27,7 +27,7 @@ public class InterpreterInfo implements Serializable{
     /**
      * check note on http://java.sun.com/j2se/1.5.0/docs/guide/serialization/spec/version.html#6678
      */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     
     /**
      * For jython, this is the jython.jar
@@ -50,7 +50,7 @@ public class InterpreterInfo implements Serializable{
      * 
      * for jython, the jars should appear here.
      */
-    public java.util.List dllLibs = new ArrayList(); 
+    public java.util.List<String> dllLibs = new ArrayList<String>(); 
     
     /**
      * __builtin__, os, math, etc for python 
@@ -60,24 +60,27 @@ public class InterpreterInfo implements Serializable{
      * 
      * for jython, this should 
      */
-    public Set forcedLibs = new TreeSet(); 
+    public Set<String> forcedLibs = new TreeSet<String>(); 
     
     /**
      * module management for the system is always binded to an interpreter (binded in this class)
+     * 
+     * The modules manager is no longer persisted. It is restored from a separate file, because we do
+     * not want to keep it in the 'configuration', as a giant Base64 string.
      */
     public SystemModulesManager modulesManager = new SystemModulesManager(forcedLibs);
     
-    public InterpreterInfo(String exe, Collection libs0){
+    public InterpreterInfo(String exe, Collection<String> libs0){
         this.executableOrJar = exe;
         libs.addAll(libs0);
     }
     
-    public InterpreterInfo(String exe, Collection libs0, Collection dlls){
+    public InterpreterInfo(String exe, Collection<String> libs0, Collection<String> dlls){
         this(exe, libs0);
         dllLibs.addAll(dlls);
     }
     
-    public InterpreterInfo(String exe, List libs0, List dlls, List forced) {
+    public InterpreterInfo(String exe, List<String> libs0, List<String> dlls, List<String> forced) {
         this(exe, libs0, dlls);
         forcedLibs.addAll(forced);
     }
@@ -118,6 +121,9 @@ public class InterpreterInfo implements Serializable{
      * Symbols ': @ $'
      */
     public static InterpreterInfo fromString(String received) {
+        if(received.toLowerCase().indexOf("executable") == -1){
+            throw new RuntimeException("Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information)");
+        }
     	received = received.replaceAll("\n", "").replaceAll("\r", "");
         String[] forcedSplit = received.split("\\$");
         String[] libsSplit = forcedSplit[0].split("\\@");
@@ -127,7 +133,7 @@ public class InterpreterInfo implements Serializable{
         
         String[] exeAndLibs1 = exeAndLibs.split("\\|");
         String executable = exeAndLibs1[0].substring(exeAndLibs1[0].indexOf(":")+1, exeAndLibs1[0].length());
-        ArrayList l = new ArrayList();
+        ArrayList<String> l = new ArrayList<String>();
         for (int i = 1; i < exeAndLibs1.length; i++) { //start at 1 (o is exe)
             String trimmed = exeAndLibs1[i].trim();
             if(trimmed.length() > 0){
@@ -135,7 +141,7 @@ public class InterpreterInfo implements Serializable{
             }
         }
 
-        ArrayList l1 = new ArrayList();
+        ArrayList<String> l1 = new ArrayList<String>();
         if(libsSplit.length > 1){
 	        String dllLibs = libsSplit[1];
 	        String[] dllLibs1 = dllLibs.split("\\|");
@@ -147,7 +153,7 @@ public class InterpreterInfo implements Serializable{
 	        }
         }
 	        
-        ArrayList l2 = new ArrayList();
+        ArrayList<String> l2 = new ArrayList<String>();
         if(forcedSplit.length > 1){
 	        String forcedLibs = forcedSplit[1];
 	        String[] forcedLibs1 = forcedLibs.split("\\|");
@@ -208,11 +214,11 @@ public class InterpreterInfo implements Serializable{
 	
 	    };
 
-	    List dlls = new ArrayList();
+	    List<File> dlls = new ArrayList<File>();
 	    for (Iterator iter = libs.iterator(); iter.hasNext();) {
             String folder = iter.next().toString();
             
-            List[] below = PydevPlugin.getPyFilesBelow(new File(folder), filter, monitor, false);
+            List<File>[] below = PydevPlugin.getPyFilesBelow(new File(folder), filter, monitor, false);
             dlls.addAll(below[0]);
         }
 	    
@@ -283,6 +289,25 @@ public class InterpreterInfo implements Serializable{
             return executable.endsWith(".jar\"");
         }
         return executable.endsWith(".jar");
+    }
+
+    public String getExeAsFileSystemValidPath() {
+        //   /\:*?"<>|
+        char[] invalidChars = new char[]{
+                '/',
+                '\\',
+                ':',
+                '*',
+                '?',
+                '"',
+                '<',
+                '>',
+                '|'};
+        String systemValid = new String(REF.encodeBase64(executableOrJar.getBytes()));
+        for (char c : invalidChars) {
+            systemValid = systemValid.replace(c, '_');
+        }
+        return systemValid;
     }
     
     

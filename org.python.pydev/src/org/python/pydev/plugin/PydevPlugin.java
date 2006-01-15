@@ -2,7 +2,11 @@ package org.python.pydev.plugin;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -24,6 +28,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -42,11 +47,14 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.copiedfromeclipsesrc.PydevFileEditorInput;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -616,7 +624,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 	                for (Iterator iter = foldersLater.iterator(); iter.hasNext();) {
 	                    File file2 = (File) iter.next();
 	                    if(file2.isDirectory() && addSubFolders){
-		                    List[] below = getPyFilesBelow(file2, filter, monitor, addSubFolders, level+1, checkHasInit);
+		                    List<File>[] below = getPyFilesBelow(file2, filter, monitor, addSubFolders, level+1, checkHasInit);
 		                    filesToReturn.addAll(below[0]);
 		                    folders.addAll(below[1]);
 		                    monitor.worked(1);
@@ -730,5 +738,46 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         
         //it may not be correct, but it was the best we could do...
         return fullPath;
+    }
+    
+    public static void writeToPlatformFile(Object obj, String fileName) {
+        Bundle bundle = Platform.getBundle("org.python.pydev");
+        IPath path = Platform.getStateLocation( bundle );       
+        path = path.addTrailingSeparator();
+        path = path.append(fileName);
+        try {
+            FileOutputStream out = new FileOutputStream(path.toFile());
+            REF.writeToStreamAndCloseIt(obj, out);
+            
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+            throw new RuntimeException(e);
+        }               
+    }
+
+    public static Object readFromPlatformFile(String fileName) {
+        Bundle bundle = Platform.getBundle("org.python.pydev");
+        IPath path = Platform.getStateLocation( bundle );       
+        path = path.addTrailingSeparator();
+        path = path.append(fileName);
+        
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(path.toFile());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        
+        return REF.readFromInputStreamAndCloseIt(new ICallback<Object, ObjectInputStream>(){
+
+            public Object call(ObjectInputStream arg) {
+                try{
+                    return arg.readObject();
+                }catch(Exception e){
+                    throw new RuntimeException(e);
+                }
+            }}, 
+            
+            fileInputStream);
     }
 }

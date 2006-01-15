@@ -12,9 +12,9 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
 /**
@@ -245,7 +245,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 	}
 	
 	public void testIsInGlobalTokens() throws BadLocationException, IOException, Exception{
-		AbstractModule module = nature.getAstManager().getModule("testAssist.__init__", nature, true);
+		IModule module = nature.getAstManager().getModule("testAssist.__init__", nature, true);
 		assertTrue(module.isInGlobalTokens("assist.ExistingClass.existingMethod", nature));
 	}
 	

@@ -9,13 +9,14 @@ import java.io.File;
 
 import org.eclipse.jface.util.Assert;
 import org.python.parser.SimpleNode;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 /**
  * @author Fabio Zadrozny
  */
-public class Definition {
+public class Definition implements IDefinition {
 
     /**
      * Line of the definition.
@@ -41,7 +42,7 @@ public class Definition {
     /**
      * This is the module where the definition is.
      */
-    public AbstractModule module;
+    public IModule module;
 
     /**
      * Assign ast.
@@ -60,7 +61,7 @@ public class Definition {
      * 
      * The line and col are defined starting at 1 (and not 0)
      */
-    public Definition(int line, int col, String value, SimpleNode ast, Scope scope, AbstractModule module){
+    public Definition(int line, int col, String value, SimpleNode ast, Scope scope, IModule module){
     	Assert.isNotNull(value, "Invalid value.");
     	Assert.isNotNull(module, "Invalid Module.");
 
@@ -77,7 +78,7 @@ public class Definition {
         
     }
     
-    public Definition(org.python.pydev.editor.codecompletion.revisited.IToken tok, Scope scope, AbstractModule module){
+    public Definition(org.python.pydev.core.IToken tok, Scope scope, IModule module){
     	Assert.isNotNull(tok, "Invalid value.");
     	Assert.isNotNull(module, "Invalid Module.");
     	

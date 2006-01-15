@@ -22,17 +22,23 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.FunctionDef;
+import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionRequest;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IToken;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule.FindInfo;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -85,7 +91,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
         projectModulesManager.changePythonPath(pythonpath, project, monitor);
     }
-    public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature) {
+    public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, IPythonNature nature) {
         projectModulesManager.rebuildModule(f, doc, project, monitor, nature);
     }
     public void removeModule(File file, IProject project, IProgressMonitor monitor) {
@@ -131,7 +137,8 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * or something like 'foo.bar' or an empty string (if only 'import').
      * @return a Set with the imports as tuples with the name, the docstring.
      */
-    public IToken[] getCompletionsForImport(final String original, CompletionRequest request) {
+    public IToken[] getCompletionsForImport(final String original, ICompletionRequest r) {
+        CompletionRequest request = (CompletionRequest) r;
         PythonNature nature = request.nature;
         
         String relative = null;
@@ -231,8 +238,8 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 original = original.substring(0, original.length() - 1);
             }
 
-            Tuple<AbstractModule, String> modTok = findModuleFromPath(original, nature, false, null); //the current module name is not used as it is not relative
-            AbstractModule m = modTok.o1;
+            Tuple<IModule, String> modTok = findModuleFromPath(original, nature, false, null); //the current module name is not used as it is not relative
+            IModule m = modTok.o1;
             String tok = modTok.o2;
             
             if(m == null){
@@ -265,15 +272,15 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @param name
      * @return the module represented by this name
      */
-    public AbstractModule getModule(String name, PythonNature nature, boolean dontSearchInit) {
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
         return projectModulesManager.getModule(name, nature, dontSearchInit);
     }
 
     /** 
-     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager#getCompletionsForToken(java.io.File, org.eclipse.jface.text.IDocument, org.python.pydev.editor.codecompletion.revisited.CompletionState)
+     * @see org.python.pydev.core.ICodeCompletionASTManager#getCompletionsForToken(java.io.File, org.eclipse.jface.text.IDocument, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
-    public IToken[] getCompletionsForToken(File file, IDocument doc, CompletionState state) {
-        AbstractModule module = createModule(file, doc, state, this);
+    public IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state) {
+        IModule module = createModule(file, doc, state, this);
         return getCompletionsForModule(module, state);
     }
 
@@ -283,10 +290,10 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @param state
      * @return
      */
-    public static AbstractModule createModule(File file, IDocument doc, CompletionState state, ICodeCompletionASTManager manager) {
-    	PythonNature pythonNature = state.nature;
-    	int line = state.line;
-    	ProjectModulesManager projModulesManager = manager.getProjectModulesManager();
+    public static IModule createModule(File file, IDocument doc, ICompletionState state, ICodeCompletionASTManager manager) {
+    	IPythonNature pythonNature = state.getNature();
+    	int line = state.getLine();
+    	IProjectModulesManager projModulesManager = manager.getProjectModulesManager();
 
     	return AbstractModule.createModuleFromDoc(file, doc, pythonNature, line, projModulesManager);
     }
@@ -294,12 +301,12 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 	/** 
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForToken(org.eclipse.jface.text.IDocument, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
-    public IToken[] getCompletionsForToken(IDocument doc, CompletionState state) {
+    public IToken[] getCompletionsForToken(IDocument doc, ICompletionState state) {
         IToken[] completionsForModule;
         try {
-	        Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, state.nature, state.line));
+	        Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, state.getNature(), state.getLine()));
 	        SimpleNode n = (SimpleNode) obj[0];
-	        AbstractModule module = AbstractModule.createModule(n);
+	        IModule module = AbstractModule.createModule(n);
         
             completionsForModule = getCompletionsForModule(module, state);
 
@@ -317,14 +324,14 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @param state
      * @return
      */
-    private IToken[] getBuiltinsCompletions(CompletionState state){
-        CompletionState state2 = state.getCopy();
+    private IToken[] getBuiltinsCompletions(ICompletionState state){
+        ICompletionState state2 = state.getCopy();
 
         //check for the builtin types.
-        state2.activationToken = NodeUtils.getBuiltinType(state.activationToken);
+        state2.setActivationToken (NodeUtils.getBuiltinType(state.getActivationToken()));
 
-        if(state2.activationToken != null){
-            AbstractModule m = getModule("__builtin__", state.nature, false);
+        if(state2.getActivationToken() != null){
+            IModule m = getModule("__builtin__", state.getNature(), false);
             return m.getGlobalTokens(state2, this);
         }
         return null;
@@ -333,20 +340,20 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     /** 
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
-    public IToken[] getCompletionsForModule(AbstractModule module, CompletionState state) {
+    public IToken[] getCompletionsForModule(IModule module, ICompletionState state) {
     	return getCompletionsForModule(module, state, true);
     }
     
     /** 
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState, boolean)
      */
-    public IToken[] getCompletionsForModule(AbstractModule module, CompletionState state, boolean searchSameLevelMods) {
+    public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods) {
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
-        if(state.localImportsGotten == false){
+        if(state.getLocalImportsGotten() == false){
             //in the first analyzed module, we have to get the local imports too. 
-            state.localImportsGotten = true;
+            state.setLocalImportsGotten (true);
             if(module != null){
-                importedModules.addAll(module.getLocalImportedModules(state.line, state.col));
+                importedModules.addAll(module.getLocalImportedModules(state.getLine(), state.getCol()));
             }
         }
 
@@ -379,13 +386,13 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
 		        }
             }
 
-	        if (state.activationToken.length() == 0) {
+	        if (state.getActivationToken().length() == 0) {
 
 		        List<IToken> completions = getGlobalCompletions(globalTokens, importedModules.toArray(new IToken[0]), wildImportedModules, state, module);
 		        
 		        //now find the locals for the module
-		        if (state.line >= 0){
-		            IToken[] localTokens = module.getLocalTokens(state.line, state.col);
+		        if (state.getLine() >= 0){
+		            IToken[] localTokens = module.getLocalTokens(state.getLine(), state.getCol());
 		            for (int i = 0; i < localTokens.length; i++) {
                         completions.add(localTokens[i]); 
                     }
@@ -414,10 +421,10 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 for (int i = 0; i < wildImportedModules.length; i++) {
 
                     IToken name = wildImportedModules[i];
-                    AbstractModule mod = getModule(name.getAsRelativeImport(module.getName()), state.nature, false); //relative (for wild imports this is ok... only a module can be used in wild imports)
+                    IModule mod = getModule(name.getAsRelativeImport(module.getName()), state.getNature(), false); //relative (for wild imports this is ok... only a module can be used in wild imports)
                     
                     if (mod == null) {
-                        mod = getModule(name.getOriginalRep(), state.nature, false); //absolute
+                        mod = getModule(name.getOriginalRep(), state.getNature(), false); //absolute
                     }
                     
                     
@@ -438,7 +445,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
                 }
                 
                 //If it was still not found, go to builtins.
-                AbstractModule builtinsMod = getModule("__builtin__", state.nature, false);
+                IModule builtinsMod = getModule("__builtin__", state.getNature(), false);
                 if(builtinsMod != null && builtinsMod != module){
 	                tokens = getCompletionsForModule( builtinsMod, state);
 	                if (tokens.length > 0){
@@ -468,29 +475,29 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * 
      * @return a list of tokens found.
      */
-    private IToken[] searchOnSameLevelMods(Set<IToken> initial, CompletionState state) {
+    private IToken[] searchOnSameLevelMods(Set<IToken> initial, ICompletionState state) {
         for (IToken token : initial) {
 			//ok, maybe it was from the set that is in the same level as this one (this will only happen if we are on an __init__ module)
         	String rep = token.getRepresentation();
         	
-			if(state.activationToken.startsWith(rep)){
+			if(state.getActivationToken().startsWith(rep)){
 				String absoluteImport = token.getAsAbsoluteImport();
-				AbstractModule sameLevelMod = getModule(absoluteImport, state.nature, true);
+				IModule sameLevelMod = getModule(absoluteImport, state.getNature(), true);
 				if(sameLevelMod == null){
 					return null;
 				}
 				
-				String qualifier = state.activationToken.substring(rep.length());
+				String qualifier = state.getActivationToken().substring(rep.length());
 
-				CompletionState copy = state.getCopy();
-				copy.builtinsGotten = true; //we don't want builtins... 
+				ICompletionState copy = state.getCopy();
+				copy.setBuiltinsGotten (true); //we don't want builtins... 
 
-				if(state.activationToken.equals(rep)){
-					copy.activationToken = "";
+				if(state.getActivationToken().equals(rep)){
+					copy.setActivationToken ("");
 					return getCompletionsForModule(sameLevelMod, copy);
 					
 				} else if(qualifier.startsWith(".")){
-					copy.activationToken = qualifier.substring(1);
+					copy.setActivationToken (qualifier.substring(1));
 					return getCompletionsForModule(sameLevelMod, copy);
         		}
         	}
@@ -520,19 +527,19 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @param col
      * @return
      */
-    public IToken[] getAssignCompletions( AbstractModule module, CompletionState state) {
+    public IToken[] getAssignCompletions( IModule module, ICompletionState state) {
         if (module instanceof SourceModule) {
             SourceModule s = (SourceModule) module;
             try {
-                Definition[] defs = s.findDefinition(state.activationToken, state.line, state.col, state.nature, new ArrayList<FindInfo>());
+                Definition[] defs = s.findDefinition(state.getActivationToken(), state.getLine(), state.getCol(), state.getNature(), new ArrayList<FindInfo>());
                 for (int i = 0; i < defs.length; i++) {
                     if(!(defs[0].ast instanceof FunctionDef)){
                         //we might want to extend that later to check the return of some function...
                                 
-	                    CompletionState copy = state.getCopy();
-	                    copy.activationToken = defs[i].value;
-	                    copy.line = defs[i].line;
-	                    copy.col = defs[i].col;
+	                    ICompletionState copy = state.getCopy();
+	                    copy.setActivationToken (defs[i].value);
+	                    copy.setLine(defs[i].line);
+	                    copy.setCol(defs[i].col);
 	                    module = defs[i].module;
 
 	                    state.checkDefinitionMemory(module, defs[i]);
@@ -558,7 +565,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     /** 
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getGlobalCompletions
      */
-    public List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, CompletionState state, AbstractModule current) {
+    public List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, ICompletionState state, IModule current) {
         List<IToken> completions = new ArrayList<IToken>();
 
         //in completion with nothing, just go for what is imported and global tokens.
@@ -578,8 +585,8 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
             getCompletionsForWildImport(state, current, completions, name);
         }
 
-        if(!state.builtinsGotten){
-            state.builtinsGotten = true;
+        if(!state.getBuiltinsGotten()){
+            state.setBuiltinsGotten (true) ;
             //last thing: get completions from module __builtin__
             getBuiltinCompletions(state, completions);
         }
@@ -589,8 +596,8 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getBuiltinCompletions
      */
-    public List getBuiltinCompletions(CompletionState state, List completions) {
-        AbstractModule builtMod = getModule("__builtin__", state.nature, false);
+    public List getBuiltinCompletions(ICompletionState state, List completions) {
+        IModule builtMod = getModule("__builtin__", state.getNature(), false);
         if(builtMod != null){
             IToken[] toks = builtMod.getGlobalTokens();
             for (int i = 0; i < toks.length; i++) {
@@ -603,19 +610,19 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForWildImport
      */
-    public List getCompletionsForWildImport(CompletionState state, AbstractModule current, List completions, IToken name) {
+    public List getCompletionsForWildImport(ICompletionState state, IModule current, List completions, IToken name) {
         try {
         	//this one is an exception... even though we are getting the name as a relative import, we say it
         	//is not because we want to get the module considering __init__
-        	AbstractModule mod = null;
+        	IModule mod = null;
         	
         	if(current != null){
         		//we cannot get the relative path if we don't have a current module
-        		mod = getModule(name.getAsRelativeImport(current.getName()), state.nature, false);
+        		mod = getModule(name.getAsRelativeImport(current.getName()), state.getNature(), false);
         	}
 
             if (mod == null) {
-                mod = getModule(name.getOriginalRep(), state.nature, false); //absolute import
+                mod = getModule(name.getOriginalRep(), state.getNature(), false); //absolute import
             }
 
             if (mod != null) {
@@ -633,26 +640,26 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         return completions;
     }
 
-    public IToken[] findTokensOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current) {
-        Tuple<AbstractModule, String> o = findOnImportedMods(importedModules, state.nature, state.activationToken, current.getName());
+    public IToken[] findTokensOnImportedMods( IToken[] importedModules, ICompletionState state, IModule current) {
+        Tuple<IModule, String> o = findOnImportedMods(importedModules, state.getNature(), state.getActivationToken(), current.getName());
         
         if(o == null)
             return null;
         
-        AbstractModule mod = o.o1;
+        IModule mod = o.o1;
         String tok = o.o2;
 
         if(tok.length() == 0){
             //the activation token corresponds to an imported module. We have to get its global tokens and return them.
-            CompletionState copy = state.getCopy();
-            copy.activationToken = "";
-            copy.builtinsGotten = true; //we don't want builtins... 
+            ICompletionState copy = state.getCopy();
+            copy.setActivationToken("");
+            copy.setBuiltinsGotten(true); //we don't want builtins... 
             return getCompletionsForModule(mod, copy);
         }else if (mod != null){
-            CompletionState copy = state.getCopy();
-            copy.activationToken = tok;
-            copy.col = -1;
-            copy.line = -1;
+            ICompletionState copy = state.getCopy();
+            copy.setActivationToken(tok);
+            copy.setCol(-1);
+            copy.setLine(-1);
             
             return getCompletionsForModule(mod, copy);
         }
@@ -667,7 +674,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * 0: mod
      * 1: tok
      */
-    public Tuple<AbstractModule, String> findOnImportedMods( PythonNature nature, String activationToken, AbstractModule current) {
+    public Tuple<IModule, String> findOnImportedMods( IPythonNature nature, String activationToken, IModule current) {
         IToken[] importedModules = current.getTokenImportedModules();
         return findOnImportedMods(importedModules, nature, activationToken, current.getName());
     }
@@ -687,7 +694,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * 0: mod
      * 1: tok
      */
-    public Tuple<AbstractModule, String> findOnImportedMods( IToken[] importedModules, PythonNature nature, String activationToken, String currentModuleName) {
+    public Tuple<IModule, String> findOnImportedMods( IToken[] importedModules, IPythonNature nature, String activationToken, String currentModuleName) {
         for (IToken importedModule : importedModules) {
         	
         	FullRepIterable iterable = new FullRepIterable(activationToken, true);
@@ -707,18 +714,18 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     /**
      * Checks if some module can be resolved and returns the module it is resolved to (and to which token).
      */
-    private Tuple<AbstractModule, String> findOnImportedMods(IToken importedModule, String tok, PythonNature nature, 
+    private Tuple<IModule, String> findOnImportedMods(IToken importedModule, String tok, IPythonNature nature, 
     		String activationToken, String currentModuleName) {
     	
-    	Tuple<AbstractModule, String> modTok = null;
-    	AbstractModule mod = null;
+    	Tuple<IModule, String> modTok = null;
+    	IModule mod = null;
         
         //check as relative with complete rep
         String asRelativeImport = importedModule.getAsRelativeImport(currentModuleName);
 		modTok = findModuleFromPath(asRelativeImport, nature, true, currentModuleName);
         mod = modTok.o1;
         if(checkValidity(currentModuleName, mod)){
-            Tuple<AbstractModule, String> ret = fixTok(modTok, tok, activationToken);
+            Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
             return ret;
         }
         
@@ -734,7 +741,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         if(modTok.o2.endsWith("__init__") == false && checkValidity(currentModuleName, mod)){
         	if(mod.isInGlobalTokens(importedModule.getRepresentation(), nature, false)){
         		//then this is the token we're looking for (otherwise, it might be a module).
-        		Tuple<AbstractModule, String> ret =  fixTok(modTok, tok, activationToken);
+        		Tuple<IModule, String> ret =  fixTok(modTok, tok, activationToken);
         		if(ret.o2.length() == 0){
         			ret.o2 = importedModule.getRepresentation();
         		}else{
@@ -750,7 +757,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         modTok = findModuleFromPath(importedModule.getOriginalRep(), nature, false, null);
         mod = modTok.o1;
         if(checkValidity(currentModuleName, mod)){
-            Tuple<AbstractModule, String> ret =  fixTok(modTok, tok, activationToken);
+            Tuple<IModule, String> ret =  fixTok(modTok, tok, activationToken);
             return ret;
         }
         
@@ -763,7 +770,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         modTok = findModuleFromPath(asRelativeImport, nature, false, null);
         mod = modTok.o1;
         if(checkValidity(currentModuleName, mod)){
-            Tuple<AbstractModule, String> ret = fixTok(modTok, tok, activationToken);
+            Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
             //now let's see if what we did when we found it as a relative import is correct:
             
             //if we didn't find it in an __init__ module, all should be ok
@@ -784,7 +791,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
     }
     
     
-	private boolean checkValidity(String currentModuleName, AbstractModule mod) {
+	private boolean checkValidity(String currentModuleName, IModule mod) {
 		if(mod == null){
 			return false;
 		}
@@ -815,7 +822,7 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * 
      * This means that if we had testcase.TestCase and found it as TestCase, the token is added with TestCase
      */
-    private Tuple<AbstractModule, String> fixTok(Tuple<AbstractModule, String> modTok, String tok, String activationToken) {
+    private Tuple<IModule, String> fixTok(Tuple<IModule, String> modTok, String tok, String activationToken) {
     	if(activationToken.length() > tok.length() && activationToken.startsWith(tok)){
     		String toAdd = activationToken.substring(tok.length() + 1);
     		if(modTok.o2.length() == 0){
@@ -838,9 +845,9 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
      * @return tuple with found module and the String removed from the path in
      * order to find the module.
      */
-    private Tuple<AbstractModule, String> findModuleFromPath(String rep, PythonNature nature, boolean dontSearchInit, String currentModuleName){
+    private Tuple<IModule, String> findModuleFromPath(String rep, IPythonNature nature, boolean dontSearchInit, String currentModuleName){
         String tok = "";
-        AbstractModule mod = getModule(rep, nature, dontSearchInit);
+        IModule mod = getModule(rep, nature, dontSearchInit);
         String mRep = rep;
         int index;
         while(mod == null && (index = mRep.lastIndexOf('.')) != -1){
@@ -860,10 +867,10 @@ public class ASTManager implements ICodeCompletionASTManager, Serializable{
         	//if it equal, it should not match either, as it was found as the parent module... this can not happen because it must find
         	//it with __init__ if it was the parent module
         	if (mod.getName().length() <= parentModule.length()){
-        		return new Tuple<AbstractModule, String>(null, null);
+        		return new Tuple<IModule, String>(null, null);
         	}
         }
-        return new Tuple<AbstractModule, String>(mod, tok);
+        return new Tuple<IModule, String>((AbstractModule)mod, tok);
     }
 
     /**

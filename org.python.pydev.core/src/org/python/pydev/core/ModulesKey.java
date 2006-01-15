@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion.revisited.modules;
+package org.python.pydev.core;
 
 import java.io.File;
 import java.io.Serializable;

@@ -9,11 +9,12 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
-import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
-import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.core.FindInfo;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Fabio Zadrozny
@@ -70,14 +71,14 @@ public class EmptyModule extends AbstractModule implements Serializable {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(CompletionState state, ICodeCompletionASTManager manager) {
+    public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
         throw new RuntimeException("Not intended to be called");
     }
 
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
-    public Definition[] findDefinition(String token, int line, int col, PythonNature nature, List<FindInfo> findInfo) throws Exception {
+    public Definition[] findDefinition(String token, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception {
         throw new RuntimeException("Not intended to be called");
     }
 

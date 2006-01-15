@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Attribute;
@@ -18,17 +17,19 @@ import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
+import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.editor.codecompletion.CompletionRequest;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
-import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
-import org.python.pydev.editor.codecompletion.revisited.IToken;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule.FindInfo;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
@@ -36,7 +37,6 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisito
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.
@@ -149,13 +149,13 @@ public class SourceModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
-    public IToken[] getGlobalTokens(CompletionState state, ICodeCompletionASTManager manager) {
+    public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
         IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
         
         if(t instanceof SourceToken[]){
 	        SourceToken[] tokens = (SourceToken[]) t;
 	        for (int i = 0; i < tokens.length; i++) {
-	            if(tokens[i].getRepresentation().equals(state.activationToken)){
+	            if(tokens[i].getRepresentation().equals(state.getActivationToken())){
 	                
 	                SimpleNode a = tokens[i].getAst();
 	                    
@@ -183,7 +183,7 @@ public class SourceModule extends AbstractModule {
                                     //    def b(self):
                                     //        pass
                                     state = state.getCopy();
-                                    state.activationToken = base;
+                                    state.setActivationToken(base);
 
                                     state.checkMemory(this, base);
 
@@ -194,7 +194,7 @@ public class SourceModule extends AbstractModule {
                                     String s = NodeUtils.getFullRepresentationString(attr);
 
                                     state = state.getCopy();
-                                    state.activationToken = s;
+                                    state.setActivationToken(s);
                                     final IToken[] comps = manager.getCompletionsForModule(this, state);
                                     modToks.addAll(Arrays.asList(comps));
                                 }
@@ -214,7 +214,7 @@ public class SourceModule extends AbstractModule {
         return new IToken[0];
     }
 
-    public Definition[] findDefinition(String rep, int line, int col, PythonNature nature, List<FindInfo> lFindInfo) throws Exception{
+    public Definition[] findDefinition(String rep, int line, int col, IPythonNature nature, List<FindInfo> lFindInfo) throws Exception{
         //the line passed in starts at 1 and the lines for the visitor start at 0
         ArrayList<Definition> toRet = new ArrayList<Definition>();
         FindInfo info = new FindInfo();
@@ -241,7 +241,7 @@ public class SourceModule extends AbstractModule {
         List<IToken> localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
         for (IToken tok : localImportedModules) {
         	if(tok.getRepresentation().equals(rep)){
-        		Tuple<AbstractModule, String> o = nature.getAstManager().findOnImportedMods(new IToken[]{tok}, nature, rep, this.getName());
+        		Tuple<IModule, String> o = nature.getAstManager().findOnImportedMods(new IToken[]{tok}, nature, rep, this.getName());
                 if(o != null && o.o1 instanceof SourceModule){
                     findDefinitionsFromModAndTok(nature, toRet, null, (SourceModule) o.o1, o.o2);
                 }
@@ -291,7 +291,7 @@ public class SourceModule extends AbstractModule {
         		for (IToken token : globalTokens) {
 					if(token.getRepresentation().equals(withoutSelf)){
 						String parentPackage = token.getParentPackage();
-						AbstractModule module = nature.getAstManager().getModule(parentPackage, nature, true);
+						IModule module = nature.getAstManager().getModule(parentPackage, nature, true);
 						if(module != null && token instanceof SourceToken){
 			                SimpleNode ast2 = ((SourceToken)token).getAst();
 							Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
@@ -309,7 +309,7 @@ public class SourceModule extends AbstractModule {
         String tok = rep;
         SourceModule mod = this;
 
-        Tuple<AbstractModule, String> o = nature.getAstManager().findOnImportedMods(nature, rep, this);
+        Tuple<IModule, String> o = nature.getAstManager().findOnImportedMods(nature, rep, this);
         
         if(o != null && o.o1 instanceof SourceModule){
             mod =  (SourceModule) o.o1;
@@ -326,7 +326,7 @@ public class SourceModule extends AbstractModule {
                     return new Definition[]{new Definition(1,1,"",null,null,o.o1)};
                 }
             }else{
-                return o.o1.findDefinition(tok, 0, 0, nature, lFindInfo);
+                return (Definition[]) o.o1.findDefinition(tok, 0, 0, nature, lFindInfo);
             }
         }
         
@@ -344,7 +344,7 @@ public class SourceModule extends AbstractModule {
      * @param mod
      * @param tok
      */
-	private void findDefinitionsFromModAndTok(PythonNature nature, ArrayList<Definition> toRet, String moduleImported, SourceModule mod, String tok) {
+	private void findDefinitionsFromModAndTok(IPythonNature nature, ArrayList<Definition> toRet, String moduleImported, SourceModule mod, String tok) {
 		if(tok != null){
         	if(tok.length() > 0){
 	            Definition d = mod.findGlobalTokDef(tok, nature);
@@ -366,9 +366,9 @@ public class SourceModule extends AbstractModule {
         }
 	}
 
-	private Definition getModuleDefinition(PythonNature nature, ArrayList<Definition> toRet, SourceModule mod, String moduleImported) {
+	private IDefinition getModuleDefinition(IPythonNature nature, ArrayList<Definition> toRet, SourceModule mod, String moduleImported) {
 		String rel = AbstractToken.makeRelative(mod.getName(), moduleImported);
-		AbstractModule modFound = nature.getAstManager().getModule(rel, nature, false);
+		IModule modFound = nature.getAstManager().getModule(rel, nature, false);
 		if(modFound == null){
 			modFound = nature.getAstManager().getModule(moduleImported, nature, false);
 		}
@@ -389,7 +389,7 @@ public class SourceModule extends AbstractModule {
      * @param nature 
      * @return
      */
-    public Definition findGlobalTokDef(String tok, PythonNature nature) {
+    public Definition findGlobalTokDef(String tok, IPythonNature nature) {
     	String[] headAndTail = FullRepIterable.headAndTail(tok);
     	String firstPart = headAndTail[0];
     	String rep = headAndTail[1];
@@ -417,7 +417,7 @@ public class SourceModule extends AbstractModule {
                 Tuple<Integer, Integer> def = getLineColForDefinition(a);
                 
                 String parentPackage = token.getParentPackage();
-                AbstractModule module = nature.getAstManager().getModule(parentPackage, nature, true);
+                IModule module = nature.getAstManager().getModule(parentPackage, nature, true);
                 if(module == null){
                 	module = this;
                 }

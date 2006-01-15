@@ -5,7 +5,7 @@ package org.python.pydev.editor.codecompletion;
 
 import java.util.Collection;
 
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.core.ICompletionState;
 
 public interface IPyDevCompletionParticipant {
 
@@ -20,8 +20,8 @@ public interface IPyDevCompletionParticipant {
      * @return a list of proposals or tokens
      * 
      * @see org.eclipse.jface.text.contentassist.ICompletionProposal
-     * @see org.python.pydev.editor.codecompletion.revisited.IToken
+     * @see org.python.pydev.core.IToken
      */
-    Collection getGlobalCompletions(CompletionRequest request, CompletionState state);
+    Collection getGlobalCompletions(CompletionRequest request, ICompletionState state);
 
 }

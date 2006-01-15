@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion;
 import java.io.File;
 
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -16,7 +17,7 @@ import org.python.pydev.plugin.nature.PythonNature;
  * This class defines the information used for a code completion request.
  * @author Fabio Zadrozny
  */
-public class CompletionRequest{
+public class CompletionRequest implements ICompletionRequest{
 
     public CompletionRequest(PyEdit edit, IDocument doc,
             String activationToken, int documentOffset, int qlen,

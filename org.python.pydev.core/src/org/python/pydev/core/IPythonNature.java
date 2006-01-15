@@ -84,4 +84,6 @@ public interface IPythonNature extends IProjectNature{
     IPythonPathNature getPythonPathNature();
     
     String resolveModule(File file);
+
+    ICodeCompletionASTManager getAstManager();
 }

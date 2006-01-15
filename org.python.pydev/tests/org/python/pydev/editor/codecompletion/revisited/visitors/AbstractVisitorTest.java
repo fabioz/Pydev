@@ -8,7 +8,7 @@ import org.eclipse.jface.text.Document;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
-import org.python.pydev.editor.codecompletion.revisited.IToken;
+import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;

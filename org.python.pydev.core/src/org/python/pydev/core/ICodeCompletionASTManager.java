@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion.revisited;
+package org.python.pydev.core;
 
 import java.io.File;
 import java.util.List;
@@ -11,11 +11,6 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.editor.codecompletion.CompletionRequest;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Fabio Zadrozny
@@ -49,7 +44,7 @@ public interface ICodeCompletionASTManager {
      * @param project: this is the project that is associated with this manager.
      * @param monitor: monitor for progress.
      */
-    public abstract void rebuildModule(final File file, final IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature);
+    public abstract void rebuildModule(final File file, final IDocument doc, final IProject project, IProgressMonitor monitor, IPythonNature nature);
 
     /**
      * This method provides a way to remove a module (remove delta).
@@ -63,7 +58,7 @@ public interface ICodeCompletionASTManager {
     /**
      * @return the modules manager associated with this manager.
      */
-    public abstract ProjectModulesManager getProjectModulesManager();
+    public abstract IProjectModulesManager getProjectModulesManager();
 
     /**
      * @return the nature associated to this manager
@@ -78,7 +73,7 @@ public interface ICodeCompletionASTManager {
      * @param initial: this is the initial module (e.g.: foo.bar) or an empty string.
      * @return a Set with the imports as tuples with the name, the docstring.
      */
-    public abstract IToken[] getCompletionsForImport(final String original, CompletionRequest request);
+    public abstract IToken[] getCompletionsForImport(final String original, ICompletionRequest request);
 
 
     /**
@@ -98,7 +93,7 @@ public interface ICodeCompletionASTManager {
      * @param state
      * @return
      */
-    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, CompletionState state);
+    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state);
     
     /**
      * 
@@ -106,7 +101,7 @@ public interface ICodeCompletionASTManager {
      * @param nature
      * @return the module with the specified name.
      */
-    public abstract AbstractModule getModule(String name, PythonNature nature, boolean dontSearchInit);
+    public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit);
 
     
     /**
@@ -114,7 +109,7 @@ public interface ICodeCompletionASTManager {
      * 0: mod
      * 1: tok
      */
-    public abstract Tuple<AbstractModule, String> findOnImportedMods( PythonNature nature, String activationToken, AbstractModule current);
+    public abstract Tuple<IModule, String> findOnImportedMods( IPythonNature nature, String activationToken, IModule current);
 
     /**
      * This function tries to find some activation token defined in some imported module.  
@@ -131,12 +126,12 @@ public interface ICodeCompletionASTManager {
      * 0: mod
      * 1: tok
      */
-    public abstract Tuple<AbstractModule, String> findOnImportedMods( IToken[] importedModules, PythonNature nature, String activationToken, String currentModuleName);
+    public abstract Tuple<IModule, String> findOnImportedMods( IToken[] importedModules, IPythonNature nature, String activationToken, String currentModuleName);
     
     /**
      * Finds the tokens on the given imported modules
      */
-    public IToken[] findTokensOnImportedMods( IToken[] importedModules, CompletionState state, AbstractModule current);
+    public IToken[] findTokensOnImportedMods( IToken[] importedModules, ICompletionState state, IModule current);
 
 
     /**
@@ -148,7 +143,7 @@ public interface ICodeCompletionASTManager {
      * @param qualifier
      * @return
      */
-    public abstract IToken[] getCompletionsForToken(IDocument doc, CompletionState state);
+    public abstract IToken[] getCompletionsForToken(IDocument doc, ICompletionState state);
 
     /**
      * @param file
@@ -158,7 +153,7 @@ public interface ICodeCompletionASTManager {
      * @param col
      * @param line
      */
-    public abstract IToken[] getCompletionsForModule(AbstractModule module, CompletionState state);
+    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state);
     
     /**
      * @param file
@@ -168,7 +163,7 @@ public interface ICodeCompletionASTManager {
      * @param col
      * @param line
      */
-    public abstract IToken[] getCompletionsForModule(AbstractModule module, CompletionState state, boolean searchSameLevelMods);
+    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods);
 
     /**
      * This method gets the completions for a wild import. 
@@ -179,7 +174,7 @@ public interface ICodeCompletionASTManager {
      * @param completions OUT this is were completions are added.
      * @param wildImport this is the token identifying the wild import
      */
-    public List getCompletionsForWildImport(CompletionState state, AbstractModule current, List completions, IToken wildImport);
+    public List getCompletionsForWildImport(ICompletionState state, IModule current, List completions, IToken wildImport);
 
     /**
      * This method returns the python builtins as completions
@@ -188,7 +183,7 @@ public interface ICodeCompletionASTManager {
      * @param completions OUT this is where the completions are added.
      * @return the same list that has been passed at completions
      */
-    public List getBuiltinCompletions(CompletionState state, List completions);
+    public List getBuiltinCompletions(ICompletionState state, List completions);
 
     /**
      * This method can get the global completions for a module (the activation token is usually empty in
@@ -204,7 +199,7 @@ public interface ICodeCompletionASTManager {
      * @param current the current module
      * @return a list of IToken
      */
-    public abstract List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, CompletionState state, AbstractModule current);
+    public abstract List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, ICompletionState state, IModule current);
 
     
 

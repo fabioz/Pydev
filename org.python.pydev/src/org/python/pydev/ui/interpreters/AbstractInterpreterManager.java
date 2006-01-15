@@ -5,25 +5,26 @@
  */
 package org.python.pydev.ui.interpreters;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -46,6 +47,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * Constructor
      */
+    @SuppressWarnings("unchecked")
     public AbstractInterpreterManager(Preferences prefs) {
         this.prefs = prefs;
         prefs.setDefault(getPreferenceName(), "");
@@ -79,7 +81,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
     public void clearAllBut(List<String> allButTheseInterpreters) {
         synchronized(exeToInfo){
-            ArrayList toRemove = new ArrayList();
+            ArrayList<String> toRemove = new ArrayList<String>();
             for (String interpreter : exeToInfo.keySet()) {
                 if(!allButTheseInterpreters.contains(interpreter)){
                     toRemove.add(interpreter);
@@ -207,25 +209,54 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	        List<String> ret = new ArrayList<String>();
 
 	        try {
-		        List list = (List) REF.getStrAsObj(persisted, new ICallback<Object, ObjectInputStream>(){
+	            List<InterpreterInfo> list = new ArrayList<InterpreterInfo>();	            
+                String[] strings = persisted.split("&&&&&");
+                
+                //first, get it...
+                for (String string : strings) {
+                    try {
+                        list.add(InterpreterInfo.fromString(string));
+                    } catch (Exception e) {
+                        PydevPlugin.log(e);
+                        //ok, its format might have changed
+                        
+                        final Display disp = Display.getDefault();
+                        disp.asyncExec(new Runnable(){
 
-					public Object call(ObjectInputStream arg) {
-		                try {
-		                    return arg.readObject();
-		                } catch (IOException e) {
-		                    throw new RuntimeException(e);
-		                } catch (ClassNotFoundException e) {
-		                    throw new RuntimeException(e);
-		                }
-					}});
-	            
-	            for (Iterator iter = list.iterator(); iter.hasNext();) {
-	                InterpreterInfo info = (InterpreterInfo) iter.next();
+                            public void run() {
+                                IWorkbenchWindow window = PydevPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
+                                Shell shell = (window == null) ? new Shell(disp) : window.getShell();
+                                MessageBox message = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+                                message.setText("Pydev: Error restoring System Information.");
+                                message.setMessage("The system information could not be restored.\n" +
+                                        "Please go to window > preferences > Pydev\n" +
+                                        "and restore the interpreter you had previously configured.");
+                                message.open();
+                            }});
+                        return new String[0];
+                    }
+                }
+                
+                //then, put it in cache
+                for (InterpreterInfo info: list) {
                     if(info != null && info.executableOrJar != null){
     	                this.exeToInfo.put(info.executableOrJar, info);
     	                ret.add(info.executableOrJar);
                     }
 	            }
+                
+                //and at last, restore the system info
+	            for (InterpreterInfo info: list) {
+	                try {
+                        info.modulesManager = (SystemModulesManager) PydevPlugin.readFromPlatformFile(info.getExeAsFileSystemValidPath());
+                    } catch (Exception e) {
+                        //ok, maybe its file-format changed... let's re-create it then.
+                        info.restorePythonpath(new NullProgressMonitor());
+                        //after restoring it, let's save it.
+                        PydevPlugin.writeToPlatformFile(info.modulesManager, info.getExeAsFileSystemValidPath());
+                    }
+                }
+                
             } catch (Exception e) {
                 PydevPlugin.log(e);
                 
@@ -243,14 +274,17 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @see org.python.pydev.ui.interpreters.IInterpreterManager#getStringToPersist(java.lang.String[])
      */
     public String getStringToPersist(String[] executables) {
-        ArrayList<InterpreterInfo> list = new ArrayList<InterpreterInfo>();
+        StringBuffer buf = new StringBuffer();
         for (String exe : executables) {
             InterpreterInfo info = this.exeToInfo.get(exe);
             if(info!=null){
-                list.add(info);
+                PydevPlugin.writeToPlatformFile(info.modulesManager, info.getExeAsFileSystemValidPath());
+                buf.append(info.toString());
+                buf.append("&&&&&");
             }
         }
-        return REF.getObjAsStr(list);
+        
+        return buf.toString();
     }
 
 

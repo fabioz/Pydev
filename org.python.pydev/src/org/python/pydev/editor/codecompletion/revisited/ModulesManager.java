@@ -23,14 +23,15 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.ModulesKey;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Fabio Zadrozny
@@ -145,7 +146,7 @@ public abstract class ModulesManager implements Serializable {
                 if (m != null) {
                     //we don't load them at this time.
                     ModulesKey modulesKey = new ModulesKey(m, f);
-                    AbstractModule module = mods.get(modulesKey);
+                    IModule module = mods.get(modulesKey);
                     
                     //ok, now, let's resolve any conflicts that we might find...
                     boolean add = false;
@@ -188,10 +189,10 @@ public abstract class ModulesManager implements Serializable {
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager#rebuildModule(java.io.File, org.eclipse.jface.text.IDocument,
+     * @see org.python.pydev.core.ICodeCompletionASTManager#rebuildModule(java.io.File, org.eclipse.jface.text.IDocument,
      *      org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
-    public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, PythonNature nature) {
+    public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, IPythonNature nature) {
         final String m = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(f));
         if (m != null) {
             //behaviour changed, now, only set it as an empty module (it will be parsed on demand)
@@ -213,7 +214,7 @@ public abstract class ModulesManager implements Serializable {
 
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject,
+     * @see org.python.pydev.core.ICodeCompletionASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject,
      *      org.eclipse.core.runtime.IProgressMonitor)
      */
     public void removeModule(File file, IProject project, IProgressMonitor monitor) {
@@ -348,7 +349,7 @@ public abstract class ModulesManager implements Serializable {
      * NOTE: isLookingForRelative description was: when looking for relative imports, we don't check for __init__
      * @return the module represented by this name
      */
-    public AbstractModule getModule(String name, PythonNature nature, boolean dontSearchInit) {
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
         AbstractModule n = null;
         
         //check for supported builtins these don't have files associated.

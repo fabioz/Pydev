@@ -18,8 +18,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManager;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -121,8 +122,8 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @param document the document with the resource contents
      * @return the module that is created by the given resource
      */
-    protected AbstractModule getSourceModule(IResource resource, IDocument document) {
-        AbstractModule module = (AbstractModule) memo.get(MODULE_CACHE);
+    protected IModule getSourceModule(IResource resource, IDocument document) {
+        IModule module = (IModule) memo.get(MODULE_CACHE);
         if(module == null){
             PythonNature nature = PythonNature.getPythonNature(resource.getProject());
             IFile f = (IFile) resource;
@@ -137,7 +138,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     /**
      * @param module this is the module to set in the cache
      */
-    protected void setModuleInCache(AbstractModule module) {
+    protected void setModuleInCache(IModule module) {
         memo.put(MODULE_CACHE, module);
     }
 
@@ -197,7 +198,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
         if(project != null && nature != null){
             ICodeCompletionASTManager astManager = nature.getAstManager();
             if(astManager != null){
-                ProjectModulesManager modulesManager = astManager.getProjectModulesManager();
+                IProjectModulesManager modulesManager = astManager.getProjectModulesManager();
                 return modulesManager.isInPythonPath(resource, project);
             }
         }

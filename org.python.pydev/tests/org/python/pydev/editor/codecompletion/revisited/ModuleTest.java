@@ -9,6 +9,8 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.python.parser.SimpleNode;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.parser.PyParser;
 
@@ -24,7 +26,7 @@ public class ModuleTest extends TestCase {
     public void testMod1(){
         Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(getDoc1()), false, null));
         SimpleNode n = (SimpleNode)obj[0];
-        AbstractModule module = AbstractModule.createModule(n);
+        IModule module = AbstractModule.createModule(n);
        
         IToken[] globalTokens = module.getGlobalTokens();
         assertEquals(5, globalTokens.length); //C c D d a

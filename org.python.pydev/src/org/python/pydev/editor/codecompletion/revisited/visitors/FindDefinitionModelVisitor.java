@@ -17,8 +17,8 @@ import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.NameTok;
 import org.python.parser.ast.aliasType;
-import org.python.pydev.editor.codecompletion.revisited.IToken;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IToken;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
@@ -44,7 +44,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     /**
      * This is the module we are visiting
      */
-    private AbstractModule module;
+    private IModule module;
     
     /**
      * It is only available if the cursor position is upon a NameTok in an import (it represents the complete
@@ -59,7 +59,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     /**
      * Constructor
      */
-    public FindDefinitionModelVisitor(String token, int line, int col, AbstractModule module){
+    public FindDefinitionModelVisitor(String token, int line, int col, IModule module){
         this.tokenToFind = token;
         this.module = module;
         this.line = line;
