@@ -21,7 +21,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         try {
             AdditionalInterpreterInfoTest test = new AdditionalInterpreterInfoTest();
             test.setUp();
-            test.testAddInner2();
+            test.testAddAttrs();
             test.tearDown();
 
             junit.textui.TestRunner.run(AdditionalInterpreterInfoTest.class);
@@ -143,6 +143,50 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         
     }
     
+    public void testAddAttrs() {
+        String doc = 
+"GLOBAL_ATTR = 1\n" +
+"GLOBAL2.IGNORE_THIS = 2\n" +
+"" +
+"class Test:\n" +
+"    test_attr = 1\n" +
+"    test_attr.ignore = 2\n" +
+"    test_attr2.ignore_this = 3\n" +
+"" +
+"    class Test2:\n" +
+"        def mmm(self):\n" +
+"            self.attr1 = 10";
+        
+        SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc), nature, 0);
+        info.addSourceModuleInfo(module, nature, false);
+        
+        List<IInfo> tokensStartingWith = null;
+        IInfo i = null;
+        
+        tokensStartingWith = info.getTokensStartingWith("global", AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);
+//        assertEquals(2, tokensStartingWith.size());
+        assertIsIn("GLOBAL_ATTR", tokensStartingWith);
+        assertIsIn("GLOBAL2", tokensStartingWith);
+        
+        tokensStartingWith = info.getTokensStartingWith("", AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);
+//        assertEquals(2, tokensStartingWith.size());
+        i = assertIsIn("Test", tokensStartingWith);
+        assertEquals(null, i.getPath());
+        
+        i = assertIsIn("Test2", tokensStartingWith);
+        assertEquals("Test", i.getPath());
+        
+        i = assertIsIn("test_attr", tokensStartingWith);
+        assertEquals("Test", i.getPath());
+        
+        i = assertIsIn("test_attr2", tokensStartingWith);
+        assertEquals("Test", i.getPath());
+        
+        i = assertIsIn("attr1", tokensStartingWith);
+        assertEquals("Test.Test2.mmm", i.getPath());
+
+    }
+
     public void testAddInner2() {
         String doc = 
             "class Test:\n" +

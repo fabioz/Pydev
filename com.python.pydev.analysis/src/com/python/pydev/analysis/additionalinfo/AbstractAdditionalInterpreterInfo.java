@@ -20,14 +20,18 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.Attribute;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
+import org.python.parser.ast.Name;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -203,6 +207,16 @@ public abstract class AbstractAdditionalInterpreterInfo {
 	        add(info, generateDelta, doOn);
     	}
     }
+    
+    /**
+     * Adds an attribute to the definition (this is either a global, a class attribute or an instance (self) attribute
+     */
+    public void addAttribute(String def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
+        synchronized (lock) {
+            AttrInfo info = AttrInfo.fromAssign(def, moduleDeclared, path);
+            add(info, generateDelta, doOn);
+        }
+    }
 
     /**
      * Adds a class or a function to the definition
@@ -216,6 +230,22 @@ public abstract class AbstractAdditionalInterpreterInfo {
             addClass((ClassDef) classOrFunc, moduleDeclared, generateDelta, doOn, path);
         }else{
             addMethod((FunctionDef) classOrFunc, moduleDeclared, generateDelta, doOn, path);
+        }
+    }
+
+    private void addAssignTargets(ASTEntry entry, String moduleName, boolean generateDelta, int doOn, String path, boolean lastIsMethod ) {
+        String rep = NodeUtils.getFullRepresentationString(entry.node);
+        if(lastIsMethod){
+            String[] parts = rep.split("\\.");
+            if(parts.length >= 2){
+                //at least 2 parts are required
+                if(parts[0].equals("self")){
+                    rep = parts[1];
+                    addAttribute(rep, moduleName, generateDelta, doOn, path);
+                }
+            }
+        }else{
+            addAttribute(FullRepIterable.getFirstPart(rep), moduleName, generateDelta, doOn, path);
         }
     }
 
@@ -239,23 +269,36 @@ public abstract class AbstractAdditionalInterpreterInfo {
     	}
     	
         try {
-            EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
+            DefinitionsASTIteratorVisitor visitor = new DefinitionsASTIteratorVisitor();
             node.accept(visitor);
-            Iterator<ASTEntry> classesAndMethods = visitor.getClassesAndMethodsIterator();
+            Iterator<ASTEntry> entries = visitor.getIterator(new Class[]{ClassDef.class, FunctionDef.class, Name.class, Attribute.class});
 
-            while (classesAndMethods.hasNext()) {
-                ASTEntry entry = classesAndMethods.next();
+            while (entries.hasNext()) {
+                ASTEntry entry = entries.next();
                 
                 if(entry.parent == null){ //we only want those that are in the global scope
-	                addClassOrFunc(entry.node, moduleName, generateDelta, TOP_LEVEL, null);
+                    if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
+                        addClassOrFunc(entry.node, moduleName, generateDelta, TOP_LEVEL, null);
+                    }else{
+                        //it is an assign
+                        addAssignTargets(entry, moduleName, generateDelta, TOP_LEVEL, null, false);
+                    }
                 }else{
-                    //ok, it has a parent, so, let's check to see if the path we got only has class definitions
-                    //as the parent (and get that path)
-                    String pathToRoot = getPathToRoot(entry);
-                    if(pathToRoot != null && pathToRoot.length() > 0){
-                        //if the root is not valid, it is not only classes in the path (could be a method inside
-                        //a method, or something similar).
-                        addClassOrFunc(entry.node, moduleName, generateDelta, INNER, pathToRoot);
+                    if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
+                        //ok, it has a parent, so, let's check to see if the path we got only has class definitions
+                        //as the parent (and get that path)
+                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, false);
+                        if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
+                            //if the root is not valid, it is not only classes in the path (could be a method inside
+                            //a method, or something similar).
+                            addClassOrFunc(entry.node, moduleName, generateDelta, INNER, pathToRoot.o1);
+                        }
+                    }else{
+                        //it is an assign
+                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, true);
+                        if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
+                            addAssignTargets(entry, moduleName, generateDelta, INNER, pathToRoot.o1, pathToRoot.o2);
+                        }
                     }
                 }
             }
@@ -266,20 +309,55 @@ public abstract class AbstractAdditionalInterpreterInfo {
 
     }
 
-    private String getPathToRoot(ASTEntry entry) {
+
+    /**
+     * @param lastMayBeMethod if true, it gets the path and accepts a method (if it is the last in the stack)
+     * if false, null is returned if a method is found. 
+     * 
+     * @return a tuple, where the first element is the path where the entry is located (may return null).
+     * and the second element is a boolen that indicates if the last was actually a method or not.
+     */
+    private Tuple<String, Boolean> getPathToRoot(ASTEntry entry, boolean lastMayBeMethod) {
         if(entry.parent == null){
             return null;
         }
+        boolean lastIsMethod = false; 
+        //if the last 'may be a method', in this case, we have to remember that it will actually be the first one 
+        //to be analyzed.
         
-        Stack<ClassDef> stack = new Stack<ClassDef>();
+        //let's get the stack
+        Stack<SimpleNode> stack = new Stack<SimpleNode>();
         while(entry.parent != null){
             if(entry.parent.node instanceof ClassDef){
-                stack.push((ClassDef)entry.parent.node);
+                stack.push(entry.parent.node);
+                
+            }else if(entry.parent.node instanceof FunctionDef){
+                if(lastIsMethod){
+                    //already found a method
+                    return null;
+                }
+                
+                if(!lastMayBeMethod){
+                    return null;
+                }
+                
+                //ok, the last one may be a method... (in this search, it MUST be the first one...)
+                if(stack.size() != 0){
+                    return null; 
+                }
+                
+                //ok, there was a class, so, let's go and set it
+                stack.push(entry.parent.node);
+                lastIsMethod = true;
+                
             }else{
                 return null;
+                
             }
             entry = entry.parent;
         }
+
+        //now that we have the stack, let's make it into a path...
         StringBuffer buf = new StringBuffer();
         while(stack.size() > 0){
             if(buf.length() > 0){
@@ -287,7 +365,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
             }
             buf.append(NodeUtils.getRepresentationString(stack.pop()));
         }
-        return buf.toString();
+        return new Tuple<String, Boolean>(buf.toString(), lastIsMethod);
     }
 
     /**
