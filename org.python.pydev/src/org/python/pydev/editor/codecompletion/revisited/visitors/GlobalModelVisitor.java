@@ -28,7 +28,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
      * @param moduleName
      * @param global_tokens2
      */
-    GlobalModelVisitor(int visitWhat, String moduleName) {
+    public GlobalModelVisitor(int visitWhat, String moduleName) {
         this.visitWhat = visitWhat;
         this.moduleName = moduleName;
     }

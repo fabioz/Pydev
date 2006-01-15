@@ -110,6 +110,18 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         return ret;
     }
     
+    protected boolean isInGlobal() {
+        Iterator iterator = stack.iterator();
+        while(iterator.hasNext()){
+            SimpleNode node = (SimpleNode) iterator.next();
+            if(node instanceof ClassDef || node instanceof FunctionDef){
+                return false;
+            }
+        }
+        return true;
+        
+    }
+    
     /**
      * @return wether we are in a class or method declaration scope
      */

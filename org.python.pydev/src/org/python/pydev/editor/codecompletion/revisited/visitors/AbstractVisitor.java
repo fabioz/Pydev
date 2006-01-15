@@ -206,6 +206,10 @@ public abstract class AbstractVisitor extends VisitorBase{
         return node.names.length > 0;
     }
     
+    public List<IToken> getTokens() {
+        return this.tokens;
+    }
+    
     /**
      * This method transverses the ast and returns a list of found tokens.
      * 

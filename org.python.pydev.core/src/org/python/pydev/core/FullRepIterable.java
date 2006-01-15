@@ -178,7 +178,7 @@ public class FullRepIterable implements Iterable<String>{
 		if(i == -1){
 			return tokToCheck;
 		}
-		return tokToCheck.substring(i+1);
+		return tokToCheck.substring(0, i);
 	}
 	
 	/**
