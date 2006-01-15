@@ -28,6 +28,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
         ImageCache imageCache = CodecompletionPlugin.getImageCache();
         Image classWithImport = imageCache.get(CodecompletionPlugin.CLASS_WITH_IMPORT_ICON);
         Image methodWithImport = imageCache.get(CodecompletionPlugin.METHOD_WITH_IMPORT_ICON);
+        Image attributeWithImport = imageCache.get(CodecompletionPlugin.ATTR_WITH_IMPORT_ICON);
 
         PySelection selection = new PySelection(request.doc);
         int lineAvailableForImport = selection.getLineAvailableForImport();
@@ -63,6 +64,8 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
                     img = classWithImport; 
                 }else if(info.getType() == IInfo.METHOD_WITH_IMPORT_TYPE){
                     img = methodWithImport; 
+                }else if(info.getType() == IInfo.ATTRIBUTE_WITH_IMPORT_TYPE){
+                    img = attributeWithImport; 
                 }else{
                     throw new RuntimeException("Undefined type.");
                 }

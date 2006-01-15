@@ -83,5 +83,6 @@ public class CodecompletionPlugin extends AbstractUIPlugin {
     
     public static final String CLASS_WITH_IMPORT_ICON = "icons/class_obj_imp.gif";
     public static final String METHOD_WITH_IMPORT_ICON = "icons/method_obj_imp.gif";
+    public static final String ATTR_WITH_IMPORT_ICON = "icons/attr_obj_imp.gif";
 
 }
