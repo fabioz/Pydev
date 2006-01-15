@@ -13,7 +13,12 @@ org.python.core.SysPackageManager
 after 0.9.8.6
 
 - Fixed debugger so that tracing does not appear
-- Fixed jython shell
+- Fixed jython shell (and extended it to get better information).
+- Changed the interpreter configuration so that it is backwards-compatible from now on 
+(but the current interpreters will be lost and will need to be configured)
+- Breakpoints can have conditionals (this was contributed by Achim Nierbeck, and was actually provided in release 0.9.8.6,
+but I forgot to put it in the release notes)
+
 
 after 0.9.8.5
 
