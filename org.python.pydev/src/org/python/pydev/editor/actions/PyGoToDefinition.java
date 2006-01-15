@@ -56,7 +56,7 @@ public class PyGoToDefinition extends PyRefactorAction {
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
-        final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+        final Shell shell = getShell();
         try {
 
             ps = new PySelection(getTextEditor());
@@ -137,6 +137,7 @@ public class PyGoToDefinition extends PyRefactorAction {
             
         }
     }
+
 
     /**
      * @param openAction

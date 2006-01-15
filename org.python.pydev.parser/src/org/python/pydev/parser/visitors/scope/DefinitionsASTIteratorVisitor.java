@@ -3,12 +3,17 @@
  */
 package org.python.pydev.parser.visitors.scope;
 
+import java.util.Iterator;
+
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Assign;
 import org.python.parser.ast.Attribute;
+import org.python.parser.ast.ClassDef;
+import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.exprType;
 
 /**
@@ -63,7 +68,11 @@ public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
                 }
             }
         }
-        return super.visitAssign(node);
+//        return VisitorBase.visitAssign(node);
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+
     }
 
     /**
@@ -77,6 +86,10 @@ public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
             throw new RuntimeException(e);
         }
         return visitor;
+    }
+
+    public Iterator<ASTEntry> getOutline() {
+        return getIterator(new Class[]{ClassDef.class, FunctionDef.class, Attribute.class, Name.class});
     }
 
 }

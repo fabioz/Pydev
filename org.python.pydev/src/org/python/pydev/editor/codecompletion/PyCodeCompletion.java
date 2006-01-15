@@ -123,7 +123,7 @@ public class PyCodeCompletion {
                 return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
 
             case PyCodeCompletion.TYPE_ATTR:
-                return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
+                return imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
 
             case PyCodeCompletion.TYPE_BUILTIN:
                 return imageCache.get(UIConstants.BUILTINS_ICON);

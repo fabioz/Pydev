@@ -12,6 +12,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
@@ -29,6 +30,10 @@ import org.python.pydev.plugin.PydevPrefs;
  * Subclasses should implement run(IAction action) method.
  */
 public abstract class PyAction implements IEditorActionDelegate {
+
+    public Shell getShell() {
+        return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+    }
 
 	// Always points to the current editor
 	protected IEditorPart targetEditor;
