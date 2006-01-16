@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.IProjectModulesManager;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -198,7 +198,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
         if(project != null && nature != null){
             ICodeCompletionASTManager astManager = nature.getAstManager();
             if(astManager != null){
-                IProjectModulesManager modulesManager = astManager.getProjectModulesManager();
+                IModulesManager modulesManager = astManager.getModulesManager();
                 return modulesManager.isInPythonPath(resource, project);
             }
         }

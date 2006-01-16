@@ -21,9 +21,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
@@ -32,11 +36,12 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Fabio Zadrozny
  */
-public abstract class ModulesManager implements Serializable {
+public abstract class ModulesManager implements IModulesManager, Serializable {
 
     /**
      * Modules that we have in memory. This is persisted when saved.
@@ -44,25 +49,35 @@ public abstract class ModulesManager implements Serializable {
      * Keys are ModulesKey with the name of the module. Values are AbstractModule objects.
      */
     protected transient Map<ModulesKey, AbstractModule> modules = new HashMap<ModulesKey, AbstractModule>();
+    
+    /**
+     * This is the set of files that was found just right after unpickle (it should not be changed after that,
+     * and serves only as a reference cache).
+     */
+    protected transient Set<File> files = new HashSet<File>();
 
     /**
      * Helper for using the pythonpath. Also persisted.
      */
     protected PythonPathHelper pythonPathHelper = new PythonPathHelper();
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     /**
      * Custom deserialization is needed.
      */
     private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
         modules = new HashMap<ModulesKey, AbstractModule>();
+        files = new HashSet<File>();
         aStream.defaultReadObject();
         Set set = (Set) aStream.readObject();
         for (Iterator iter = set.iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
             //restore with empty modules.
             modules.put(key, AbstractModule.createEmptyModule(key.name, key.file));
+            if(key.file != null){
+            	files.add(key.file);
+            }
         }
     }
 
@@ -72,7 +87,7 @@ public abstract class ModulesManager implements Serializable {
     private void writeObject(ObjectOutputStream aStream) throws IOException {
         aStream.defaultWriteObject();
         //write only the keys
-        aStream.writeObject(new HashSet(this.modules.keySet()));
+        aStream.writeObject(new HashSet<ModulesKey>(this.modules.keySet()));
     }
 
     /**
@@ -94,29 +109,57 @@ public abstract class ModulesManager implements Serializable {
      */
     public abstract String[] getBuiltins();
 
-    /**
-     * 
-     * @param pythonpath
-     * @param project may be null if there is no associated project.
-     * @param monitor
-     */
-    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
-        List pythonpathList = pythonPathHelper.setPythonPath(pythonpath);
+    
+	public void validatePathInfo(String pythonpath, final IProject project, IProgressMonitor monitor) {
+		//it is all comented because it could take quite some time to do that validation, so, we have to check 
+		//for a better way to do it...
+		
+//		List<String> lPythonpath = new ArrayList<String>();
+//		List<File> completions = new ArrayList<File>();
+//		List<String> fromJar = new ArrayList<String>();
+//
+//		int total = listFilesForCompletion(monitor, lPythonpath, completions, fromJar);
+//		
+//		this.pythonPathHelper.getPythonPathFromStr(pythonpath, lPythonpath);
+//		if(!this.pythonPathHelper.pythonpath.equals(lPythonpath)){
+//			// the pythonpath is not the same
+//			lPythonpath = pythonPathHelper.setPythonPath(pythonpath);
+//			PydevPlugin.log(IStatus.INFO, "The pythonpath was not valid and will be restored.", null, true);
+//			changePythonPath(pythonpath, project, monitor, lPythonpath, completions, fromJar, total);
+//		
+//		}else if(!validateFiles(completions)){
+//			//the files are not valid
+//			PydevPlugin.log(IStatus.INFO, "The pythonpath files were not valid and will be restored.", null, true);
+//			changePythonPath(pythonpath, project, monitor, lPythonpath, completions, fromJar, total);
+//		}
+	}
 
-        Map<ModulesKey, AbstractModule> mods = new HashMap<ModulesKey, AbstractModule>();
+	private boolean validateFiles(List<File> completions) {
+		for (File f : completions) {
+			if(!files.contains(f)){
+				return false;
+			}
+		}
+		return true;
+	}
 
-        List completions = new ArrayList();
-
-        List<String> fromJar = new ArrayList<String>();
-        int total = 0;
-
-        //first thing: get all files available from the python path and sum them up.
+	/**
+	 * 
+	 * @param monitor this is the monitor
+	 * @param pythonpathList this is the pythonpath
+	 * @param completions OUT - the files that were gotten as valid python modules 
+	 * @param fromJar OUT - the names of the modules that were found inside a jar
+	 * @return the total number of modules found (that's completions + fromJar)
+	 */
+	private int listFilesForCompletion(IProgressMonitor monitor, List<String> pythonpathList, List<File> completions, List<String> fromJar) {
+		int total = 0;
+		//first thing: get all files available from the python path and sum them up.
         for (Iterator iter = pythonpathList.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
             String element = (String) iter.next();
 
             //the slow part is getting the files... not much we can do (I think).
             File root = new File(element);
-            List[] below = pythonPathHelper.getModulesBelow(root, monitor);
+            List<File>[] below = pythonPathHelper.getModulesBelow(root, monitor);
             if(below != null){
                 completions.addAll(below[0]);
                 total += below[0].size();
@@ -129,7 +172,25 @@ public abstract class ModulesManager implements Serializable {
                 }
             }
         }
+		return total;
+	}
 
+	public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
+		List<String> pythonpathList = pythonPathHelper.setPythonPath(pythonpath);
+		List<File> completions = new ArrayList<File>();
+		List<String> fromJar = new ArrayList<String>();
+		int total = listFilesForCompletion(monitor, pythonpathList, completions, fromJar);
+		changePythonPath(pythonpath, project, monitor, pythonpathList, completions, fromJar, total);
+	}
+	
+    /**
+     * @param pythonpath string with the new pythonpath (separated by |)
+     * @param project may be null if there is no associated project.
+     */
+    private void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, 
+    		List<String> pythonpathList, List<File> completions, List<String> fromJar, int total) {
+
+    	Map<ModulesKey, AbstractModule> mods = new HashMap<ModulesKey, AbstractModule>();
         int j = 0;
 
         //now, create in memory modules for all the loaded files (empty modules).
@@ -187,6 +248,7 @@ public abstract class ModulesManager implements Serializable {
         this.setModules(mods);
 
     }
+
 
     /**
      * @see org.python.pydev.core.ICodeCompletionASTManager#rebuildModule(java.io.File, org.eclipse.jface.text.IDocument,
@@ -429,7 +491,36 @@ public abstract class ModulesManager implements Serializable {
 
     }
 
-    /**
+
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#isInPythonPath(org.eclipse.core.resources.IResource, org.eclipse.core.resources.IProject)
+     */
+    public boolean isInPythonPath(IResource member, IProject container) {
+        return resolveModule(member, container) != null;
+    }
+
+    
+    /** 
+     * @see org.python.pydev.core.IProjectModulesManager#resolveModule(org.eclipse.core.resources.IResource, org.eclipse.core.resources.IProject)
+     */
+    public String resolveModule(IResource member, IProject container) {
+        IPath location = PydevPlugin.getLocation(member.getFullPath(), container);
+        if(location == null){
+            //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
+            PydevPlugin.log(getResolveModuleErr(member));
+            return null;
+        }else{
+            File inOs = new File(location.toOSString());
+            return resolveModule(REF.getFileAbsolutePath(inOs));
+        }
+    }
+
+    protected String getResolveModuleErr(IResource member) {
+		return "Unable to find the path "+member+" in the project were it\n" +
+        "is added as a source folder for pydev."+this.getClass();
+	}
+
+	/**
      * @param full
      * @return
      */
@@ -437,7 +528,7 @@ public abstract class ModulesManager implements Serializable {
         return pythonPathHelper.resolveModule(full, false);
     }
 
-    public List getPythonPath(){
-        return new ArrayList(pythonPathHelper.pythonpath);
+    public List<String> getPythonPath(){
+        return new ArrayList<String>(pythonPathHelper.pythonpath);
     }
 }

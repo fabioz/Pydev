@@ -74,7 +74,7 @@ public class PythonPathHelper implements Serializable{
      * @param monitor
      * @return the files in position 0 and folders in position 1.
      */
-    public List[] getModulesBelow(File root, IProgressMonitor monitor){
+    public List<File>[] getModulesBelow(File root, IProgressMonitor monitor){
         if(!root.exists()){
             return null;
         }
@@ -375,7 +375,16 @@ public class PythonPathHelper implements Serializable{
      */
     public List<String> setPythonPath(String string) {
         pythonpath.clear();
-        String[] strings = string.split("\\|");
+        getPythonPathFromStr(string, pythonpath);
+        return new ArrayList<String>(pythonpath);
+    }
+
+    /**
+     * @param string this is the string that has the pythonpath (separated by |)
+     * @param lPath OUT: this list is filled with the pythonpath.
+     */
+	public void getPythonPathFromStr(String string, List<String> lPath) {
+		String[] strings = string.split("\\|");
         for (int i = 0; i < strings.length; i++) {
             String defaultPathStr = getDefaultPathStr(strings[i]);
             if(defaultPathStr != null && defaultPathStr.trim().length() > 0){
@@ -383,12 +392,11 @@ public class PythonPathHelper implements Serializable{
                 if(file.exists()){
                     //we have to get it with the appropriate cases and in a canonical form
                     String path = REF.getFileAbsolutePath(file);
-                    pythonpath.add(path);
+                    lPath.add(path);
                 }
             }
         }
-        return new ArrayList<String>(pythonpath);
-    }
+	}
 
     public static String getPythonFileEncoding(IDocument doc) {
         Reader inputStreamReader = new StringReader(doc.get());

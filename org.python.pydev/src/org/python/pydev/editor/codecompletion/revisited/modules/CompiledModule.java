@@ -100,7 +100,7 @@ public class CompiledModule extends AbstractModule{
 	private void setTokens(String name, ICodeCompletionASTManager manager) throws IOException, Exception, CoreException {
 		AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
 		synchronized(shell){
-            Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, manager.getProjectModulesManager().getCompletePythonPath());
+            Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, manager.getModulesManager().getCompletePythonPath());
             String fPath = completions.o1;
             if(!fPath.equals("None")){
                 this.file = new File(fPath);
@@ -204,7 +204,7 @@ public class CompiledModule extends AbstractModule{
 	        try {
 	            AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
 	            synchronized(shell){
-		            List<String[]> completions = shell.getImportCompletions(name+"."+state.getActivationToken(), manager.getProjectModulesManager().getCompletePythonPath()).o2;
+		            List<String[]> completions = shell.getImportCompletions(name+"."+state.getActivationToken(), manager.getModulesManager().getCompletePythonPath()).o2;
 		            
 		            ArrayList<IToken> array = new ArrayList<IToken>();
 		            
@@ -220,6 +220,7 @@ public class CompiledModule extends AbstractModule{
 		            cache.put(state.getActivationToken(), toks);
 	            }
 	        } catch (Exception e) {
+	        	System.err.println("Error while getting info for module:"+this.name);
 	            e.printStackTrace();
 	            PydevPlugin.log(e);
 	        }
@@ -257,7 +258,7 @@ public class CompiledModule extends AbstractModule{
     public Definition[] findDefinition(String token, int line, int col, IPythonNature nature, List<FindInfo> findInfo) throws Exception {
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
         synchronized(shell){
-            Tuple<String[],int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getProjectModulesManager().getCompletePythonPath());
+            Tuple<String[],int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getModulesManager().getCompletePythonPath());
             if(def == null){
                 return new Definition[0];
             }

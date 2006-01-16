@@ -23,7 +23,7 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.IProjectModulesManager;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
@@ -234,7 +234,7 @@ public abstract class AbstractModule implements IModule {
     /**
      * This function creates a module and resolves the module name (use this function if only the file is available).
      */
-	public static IModule createModuleFromDoc(File file, IDocument doc, IPythonNature pythonNature, int line, IProjectModulesManager projModulesManager) {
+	public static IModule createModuleFromDoc(File file, IDocument doc, IPythonNature pythonNature, int line, IModulesManager projModulesManager) {
 		String moduleName = "";
 	    if(file != null){
 			moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
@@ -275,7 +275,7 @@ public abstract class AbstractModule implements IModule {
      * 
      * @return the module
      */
-    public static IModule createModule(SimpleNode n, File file, IProjectModulesManager projModulesManager) {
+    public static IModule createModule(SimpleNode n, File file, IModulesManager projModulesManager) {
 		String moduleName = "";
 	    if(file != null){
 			moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));

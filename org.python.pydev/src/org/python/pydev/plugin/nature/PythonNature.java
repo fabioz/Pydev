@@ -228,7 +228,14 @@ public class PythonNature implements IPythonNature {
                         }
                     }else{
                         astManager.setProject(getProject(), true); // this is the project related to it, restore the deltas (we may have some crash)
+                        try {
+							astManager.validatePathInfo(pythonPathNature.getOnlyProjectPythonPathStr(), getProject(), jobProgressComunicator);
+						} catch (Exception e) {
+							//let it keep going if only the 'validate' fails.
 
+							//(but not silently)
+							PydevPlugin.log(e);
+						}
                         List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
                         for (IInterpreterObserver observer : participants) {
                             observer.notifyNatureRecreated(nature, jobProgressComunicator);
@@ -396,9 +403,13 @@ public class PythonNature implements IPythonNature {
     }
 
     public int getRelatedId() throws CoreException {
-        if(isPython()){
+    	return getRelatedId(this);
+    }
+    
+    public static int getRelatedId(IPythonNature nature) throws CoreException {
+        if(nature.isPython()){
             return PYTHON_RELATED;
-        }else if(isJython()){
+        }else if(nature.isJython()){
             return JYTHON_RELATED;
         }
         throw new RuntimeException("Unable to get the id to which this nature is related");
@@ -417,7 +428,7 @@ public class PythonNature implements IPythonNature {
             ICodeCompletionASTManager astManager = nature.getAstManager();
             
             if(astManager != null){
-                moduleName = astManager.getProjectModulesManager().resolveModule(file);
+                moduleName = astManager.getModulesManager().resolveModule(file);
             }
         }
         return moduleName;
@@ -435,7 +446,7 @@ public class PythonNature implements IPythonNature {
     	String moduleName = null;
     	
     	if(astManager != null){
-    		moduleName = astManager.getProjectModulesManager().resolveModule(REF.getFileAbsolutePath(file));
+    		moduleName = astManager.getModulesManager().resolveModule(REF.getFileAbsolutePath(file));
     	}
     	return moduleName;
     }

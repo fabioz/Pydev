@@ -85,7 +85,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
      * @return
      */
     private List getPythonpath() {
-        return nature.getAstManager().getProjectModulesManager().getCompletePythonPath();
+        return nature.getAstManager().getModulesManager().getCompletePythonPath();
     }
 
     public void testGlu() throws IOException, CoreException {

@@ -48,6 +48,7 @@ import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.python.copiedfromeclipsesrc.PydevFileEditorInput;
 import org.python.parser.ParseException;
 import org.python.parser.SimpleNode;
 import org.python.parser.Token;
@@ -55,6 +56,7 @@ import org.python.parser.TokenMgrError;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.REF;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -401,6 +403,18 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
             IPath path = file.getLocation().makeAbsolute();
             f = path.toFile();
+        
+        }else if (editorInput instanceof PydevFileEditorInput) {
+        	PydevFileEditorInput pyEditorInput = (PydevFileEditorInput) editorInput;
+        	f = pyEditorInput.getPath().toFile();
+        	
+        }else{
+        	try {
+				IPath path = (IPath) REF.invoke(editorInput, "getPath", new Object[0]);
+				f = path.toFile();
+			} catch (Exception e) {
+				//ok, it has no getPath
+			}
         }
         return f;
     }

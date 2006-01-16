@@ -5,7 +5,6 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import java.io.File;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +15,6 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.DeltaSaver;
@@ -24,11 +22,11 @@ import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.plugin.PydevPlugin;
@@ -248,28 +246,10 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         return super.getModule(name, nature, dontSearchInit);
     }
 
-    /** 
-     * @see org.python.pydev.core.IProjectModulesManager#isInPythonPath(org.eclipse.core.resources.IResource, org.eclipse.core.resources.IProject)
-     */
-    public boolean isInPythonPath(IResource member, IProject container) {
-        return resolveModule(member, container) != null;
-    }
-    
-    /** 
-     * @see org.python.pydev.core.IProjectModulesManager#resolveModule(org.eclipse.core.resources.IResource, org.eclipse.core.resources.IProject)
-     */
-    public String resolveModule(IResource member, IProject container) {
-        IPath location = PydevPlugin.getLocation(member.getFullPath(), container);
-        if(location == null){
-            //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
-            PydevPlugin.log("Unable to find the path "+member+" in the project were it\n" +
-                    "is added as a source folder for pydev (project: "+project.getName()+")");
-            return null;
-        }else{
-            File inOs = new File(location.toOSString());
-            return resolveModule(REF.getFileAbsolutePath(inOs));
-        }
-    }
+    protected String getResolveModuleErr(IResource member) {
+		return "Unable to find the path "+member+" in the project were it\n" +
+        "is added as a source folder for pydev (project: "+project.getName()+")";
+	}
 
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#resolveModule(java.lang.String)
@@ -352,7 +332,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
 	                if(nature!=null){
 	                    ICodeCompletionASTManager otherProjectAstManager = nature.getAstManager();
 	                    if(otherProjectAstManager != null){
-	                        IProjectModulesManager projectModulesManager = otherProjectAstManager.getProjectModulesManager();
+	                    	IModulesManager projectModulesManager = otherProjectAstManager.getModulesManager();
 		                    if(projectModulesManager != null){
 		                        list.add((ModulesManager) projectModulesManager);
 		                    }
@@ -384,6 +364,8 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         l.addAll(this.pythonPathHelper.pythonpath);
         return l;
     }
+
+
 
 }
 

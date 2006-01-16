@@ -261,10 +261,16 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      */
     public static void log(int errorLevel, String message, Throwable e, boolean printToConsole) {
         if(printToConsole){
-            System.out.println("error received...");
+        	if(errorLevel == IStatus.ERROR){
+        		System.out.println("Error received...");
+        	}else{
+        		System.out.println("Log received...");
+        	}
             System.out.println(message);
             System.err.println(message);
-            e.printStackTrace();
+            if(e != null){
+            	e.printStackTrace();
+            }
         }
         
         try {

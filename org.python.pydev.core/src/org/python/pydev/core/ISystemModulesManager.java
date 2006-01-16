@@ -7,7 +7,7 @@ import java.util.Collection;
 
 public interface ISystemModulesManager {
 
-    public abstract void regenerateForcedBuilltins(Collection forcedLibs);
+    public abstract void regenerateForcedBuilltins(Collection<String> forcedLibs);
 
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#getBuiltins()
@@ -17,6 +17,6 @@ public interface ISystemModulesManager {
     /**
      * @param forcedLibs
      */
-    public abstract void setBuiltins(Collection forcedLibs);
+    public abstract void setBuiltins(Collection<String> forcedLibs);
 
 }

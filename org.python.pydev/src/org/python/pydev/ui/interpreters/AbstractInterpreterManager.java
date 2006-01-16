@@ -13,17 +13,13 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
@@ -145,46 +141,48 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @see org.python.pydev.ui.interpreters.IInterpreterManager#getInterpreterInfo(java.lang.String)
      */
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
-        InterpreterInfo info = (InterpreterInfo) exeToInfo.get(executable);
-        if(info == null){
-            monitor.worked(5);
-            //ok, we have to get the info from the executable (and let's cache results for future use)...
-            Tuple<InterpreterInfo,String> tup = null;
-    		try {
-
-    			tup = createInterpreterInfo(executable, monitor);
-                info = tup.o1;
-                
-    	    } catch (Exception e) {
-    	        PydevPlugin.log(e);
-    	        throw new RuntimeException(e);
-    	    }
-    	    if(info.executableOrJar != null && info.executableOrJar.trim().length() > 0){
-    	        exeToInfo.put(info.executableOrJar, info);
-    	        
-    	    }else{ //it is null or empty
-                final String title = "Invalid interpreter:"+executable;
-                final String msg = "Unable to get information on interpreter!";
-                String reasonCreation = "The interpreter (or jar): '"+executable+"' is not valid - info.executable found: "+info.executableOrJar+"\n";
-                if(tup != null){
-                	reasonCreation += "The standard output gotten from the executed shell was: >>"+tup.o2+"<<";
-                }
-				final String reason = reasonCreation;
-    	        
-                try {
-                    final Display disp = Display.getDefault();
-                    disp.asyncExec(new Runnable(){
-                        public void run() {
-                            ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, reason, null));
-                        }
-                    });
-                } catch (Throwable e) {
-                    // ignore error comunication error
-                }
-    	        throw new RuntimeException(reason);
-    	    }
-        }
-        return info;
+    	synchronized(lock){
+	        InterpreterInfo info = (InterpreterInfo) exeToInfo.get(executable);
+	        if(info == null){
+	            monitor.worked(5);
+	            //ok, we have to get the info from the executable (and let's cache results for future use)...
+	            Tuple<InterpreterInfo,String> tup = null;
+	    		try {
+	
+	    			tup = createInterpreterInfo(executable, monitor);
+	                info = tup.o1;
+	                
+	    	    } catch (Exception e) {
+	    	        PydevPlugin.log(e);
+	    	        throw new RuntimeException(e);
+	    	    }
+	    	    if(info.executableOrJar != null && info.executableOrJar.trim().length() > 0){
+	    	        exeToInfo.put(info.executableOrJar, info);
+	    	        
+	    	    }else{ //it is null or empty
+	                final String title = "Invalid interpreter:"+executable;
+	                final String msg = "Unable to get information on interpreter!";
+	                String reasonCreation = "The interpreter (or jar): '"+executable+"' is not valid - info.executable found: "+info.executableOrJar+"\n";
+	                if(tup != null){
+	                	reasonCreation += "The standard output gotten from the executed shell was: >>"+tup.o2+"<<";
+	                }
+					final String reason = reasonCreation;
+	    	        
+	                try {
+	                    final Display disp = Display.getDefault();
+	                    disp.asyncExec(new Runnable(){
+	                        public void run() {
+	                            ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, reason, null));
+	                        }
+	                    });
+	                } catch (Throwable e) {
+	                    // ignore error comunication error
+	                }
+	    	        throw new RuntimeException(reason);
+	    	    }
+	        }
+	        return info;
+    	}
     }
 
     /**
@@ -195,6 +193,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         return info.executableOrJar;
     }
 
+    private Object lock = new Object();
     //little cache...
     private String persistedCache;
     private String [] persistedCacheRet;
@@ -203,82 +202,85 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @see org.python.pydev.ui.interpreters.IInterpreterManager#getInterpretersFromPersistedString(java.lang.String)
      */
     public String[] getInterpretersFromPersistedString(String persisted) {
-
-        if(persisted == null || persisted.trim().length() == 0){
-            return new String[0];
-        }
-        
-        if(persistedCache == null || persistedCache.equals(persisted) == false){
-	        List<String> ret = new ArrayList<String>();
-
-	        try {
-	            List<InterpreterInfo> list = new ArrayList<InterpreterInfo>();	            
-                String[] strings = persisted.split("&&&&&");
-                
-                //first, get it...
-                for (String string : strings) {
-                    try {
-                        list.add(InterpreterInfo.fromString(string));
-                    } catch (Exception e) {
-                    	//ok, its format might have changed
-                    	String errMsg = "Interpreter storage changed.\r\n" +
-                    	"Please restore it (window > preferences > Pydev > Interpreter)";
-                        PydevPlugin.log(errMsg, e);
-                        
-                        return new String[0];
-                    }
-                }
-                
-                //then, put it in cache
-                for (InterpreterInfo info: list) {
-                    if(info != null && info.executableOrJar != null){
-    	                this.exeToInfo.put(info.executableOrJar, info);
-    	                ret.add(info.executableOrJar);
-                    }
-	            }
-                
-                //and at last, restore the system info
-	            for (final InterpreterInfo info: list) {
-	                try {
-                        info.modulesManager = (SystemModulesManager) PydevPlugin.readFromPlatformFile(info.getExeAsFileSystemValidPath());
-                    } catch (Exception e) {
-                    	//if it does not work
-                    	final Display def = Display.getDefault();
-                    	def.syncExec(new Runnable(){
-
-							public void run() {
-								Shell shell = def.getActiveShell();
-		                    	ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
-		                        dialog.setBlockOnOpen(false);
-		                        try {
-									dialog.run(false, false, new IRunnableWithProgress(){
-
-										public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-											monitor.beginTask("Updating the interpreter info (internal storage format changed).", 100);
-											//ok, maybe its file-format changed... let's re-create it then.
-											doRestore(info, monitor);
-											monitor.done();
-										}}
-									);
-								} catch (Exception e) {
-									throw new RuntimeException(e);
+    	synchronized(lock){
+	        if(persisted == null || persisted.trim().length() == 0){
+	            return new String[0];
+	        }
+	        
+	        if(persistedCache == null || persistedCache.equals(persisted) == false){
+		        List<String> ret = new ArrayList<String>();
+	
+		        try {
+		            List<InterpreterInfo> list = new ArrayList<InterpreterInfo>();	            
+	                String[] strings = persisted.split("&&&&&");
+	                
+	                //first, get it...
+	                for (String string : strings) {
+	                    try {
+	                        list.add(InterpreterInfo.fromString(string));
+	                    } catch (Exception e) {
+	                    	//ok, its format might have changed
+	                    	String errMsg = "Interpreter storage changed.\r\n" +
+	                    	"Please restore it (window > preferences > Pydev > Interpreter)";
+	                        PydevPlugin.log(errMsg, e);
+	                        
+	                        return new String[0];
+	                    }
+	                }
+	                
+	                //then, put it in cache
+	                for (InterpreterInfo info: list) {
+	                    if(info != null && info.executableOrJar != null){
+	    	                this.exeToInfo.put(info.executableOrJar, info);
+	    	                ret.add(info.executableOrJar);
+	                    }
+		            }
+	                
+	                //and at last, restore the system info
+		            for (final InterpreterInfo info: list) {
+		                try {
+	                        info.modulesManager = (SystemModulesManager) PydevPlugin.readFromPlatformFile(info.getExeAsFileSystemValidPath());
+	                    } catch (Exception e) {
+	                    	PydevPlugin.log(e);
+	                    	
+	                    	//if it does not work
+	                    	final Display def = Display.getDefault();
+	                    	def.syncExec(new Runnable(){
+	
+								public void run() {
+									Shell shell = def.getActiveShell();
+			                    	ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
+			                        dialog.setBlockOnOpen(false);
+			                        try {
+										dialog.run(false, false, new IRunnableWithProgress(){
+	
+											public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+												monitor.beginTask("Updating the interpreter info (internal storage format changed).", 100);
+												//ok, maybe its file-format changed... let's re-create it then.
+												doRestore(info, monitor);
+												monitor.done();
+											}}
+										);
+									} catch (Exception e) {
+										throw new RuntimeException(e);
+									}
 								}
-							}
-							
-                		});
-                    	System.out.println("Finished restoring information for: "+info.executableOrJar);
-                    }
-                }
-                
-            } catch (Exception e) {
-                PydevPlugin.log(e);
-                
-                //ok, some error happened (maybe it's not configured)
-                return new String[0];
-            }
-            
-	        persistedCache = persisted;
-	        persistedCacheRet = ret.toArray(new String[0]);
+								
+	                		});
+	                    	System.out.println("Finished restoring information for: "+info.executableOrJar);
+	                    }
+	                }
+	                
+	            } catch (Exception e) {
+	                PydevPlugin.log(e);
+	                
+	                //ok, some error happened (maybe it's not configured)
+	                return new String[0];
+	            }
+	            
+		        persistedCache = persisted;
+		        persistedCacheRet = ret.toArray(new String[0]);
+	        }
         }
         return persistedCacheRet;
     }
@@ -326,15 +328,17 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * @see org.python.pydev.ui.interpreters.IInterpreterManager#restorePythopathFor(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
-    public void restorePythopathFor(String defaultSelectedInterpreter, IProgressMonitor monitor) {
-        final InterpreterInfo info = getInterpreterInfo(defaultSelectedInterpreter, monitor);
-        info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
-
-        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-        for (IInterpreterObserver observer : participants) {
-            observer.notifyDefaultPythonpathRestored(this, monitor);
-        }
-        
+    @SuppressWarnings("unchecked")
+	public void restorePythopathFor(String defaultSelectedInterpreter, IProgressMonitor monitor) {
+    	synchronized(lock){
+	        final InterpreterInfo info = getInterpreterInfo(defaultSelectedInterpreter, monitor);
+	        info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
+	
+	        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+	        for (IInterpreterObserver observer : participants) {
+	            observer.notifyDefaultPythonpathRestored(this, monitor);
+	        }
+    	}        
     }
 
 	private void doRestore(final InterpreterInfo info, IProgressMonitor monitor) {

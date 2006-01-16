@@ -58,7 +58,7 @@ public interface ICodeCompletionASTManager {
     /**
      * @return the modules manager associated with this manager.
      */
-    public abstract IProjectModulesManager getProjectModulesManager();
+    public abstract IModulesManager getModulesManager();
 
     /**
      * @return the nature associated to this manager
@@ -200,6 +200,11 @@ public interface ICodeCompletionASTManager {
      * @return a list of IToken
      */
     public abstract List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, ICompletionState state, IModule current);
+
+    /**
+     * This method validates the information from the modules it contains (and recreates it if needed).
+     */
+	public abstract void validatePathInfo(String pythonpath, final IProject project, IProgressMonitor monitor);
 
     
 
