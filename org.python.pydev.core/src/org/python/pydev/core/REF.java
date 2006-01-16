@@ -263,8 +263,18 @@ public class REF {
 		return name;
 	}
 
-    
-    
+    /**
+     * Makes an equal comparisson taking into account that one of the parameters may be null.
+     */
+    public static boolean nullEq(Object o1, Object o2){
+    	if (o1 == null && o2 == null){
+    		return true;
+    	}
+    	if(o1 == null || o2 == null){
+    		return false;
+    	}
+    	return o1.equals(o2);
+    }
     
 }
 
