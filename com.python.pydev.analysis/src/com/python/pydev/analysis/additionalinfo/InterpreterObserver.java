@@ -143,7 +143,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 
 
     public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor) {
-        ModulesManager m = (ModulesManager) nature.getAstManager().getProjectModulesManager();
+        ModulesManager m = (ModulesManager) nature.getAstManager().getModulesManager();
         IProject project = nature.getProject();
         AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(monitor, m, 
                 "(project:"+project.getName()+")", new AdditionalProjectInterpreterInfo(project), nature);

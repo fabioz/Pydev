@@ -13,7 +13,7 @@ import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
-import org.python.pydev.core.IProjectModulesManager;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
@@ -36,7 +36,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             PySelection selection = new PySelection(request.doc);
             int lineAvailableForImport = selection.getLineAvailableForImport();
 
-            IProjectModulesManager projectModulesManager = astManager.getProjectModulesManager();
+            IModulesManager projectModulesManager = astManager.getModulesManager();
             Set allModuleNames = projectModulesManager.getAllModuleNames();
             
             String lowerQual = request.qualifier.toLowerCase();

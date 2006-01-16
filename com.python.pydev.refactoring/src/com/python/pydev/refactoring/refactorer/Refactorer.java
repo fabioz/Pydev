@@ -14,7 +14,8 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -47,16 +48,35 @@ public class Refactorer extends AbstractPyRefactoring{
 		
 		List<ItemPointer> pointers = new ArrayList<ItemPointer>();
 		String[] tokenAndQual = PyCodeCompletion.getActivationTokenAndQual(request.doc, request.ps.getAbsoluteCursorOffset(), true);
+		
+		if(request.nature == null){
+			//the request is not associated to any project. It is probably a system file. So, let's check it...
+			SystemPythonNature systemPythonNature = new SystemPythonNature(PydevPlugin.getPythonInterpreterManager());
+			String modName = systemPythonNature.resolveModule(request.file);
+			if(modName == null){
+				systemPythonNature = new SystemPythonNature(PydevPlugin.getJythonInterpreterManager());
+				modName = systemPythonNature.resolveModule(request.file);
+			}
+			if(modName != null){
+				request.nature = systemPythonNature;
+				request.name = modName;
+			}
+		}
+		
+		String modName = request.resolveModule();
+		if(modName == null){
+			return new ItemPointer[0];
+		}
 		IModule mod = AbstractModule.createModuleFromDoc(
-										   request.resolveModule(), request.file, request.doc, 
-										   (PythonNature)request.nature, request.getBeginLine());
+										   modName, request.file, request.doc, 
+										   request.nature, request.getBeginLine());
 		
 		
 		String tok = tokenAndQual[0] + tokenAndQual[1];
 		List<FindInfo> lFindInfo = new ArrayList<FindInfo>();
 		try {
             //2. check findDefinition (SourceModule)
-			IDefinition[] definitions = mod.findDefinition(tok, request.getBeginLine(), request.getBeginCol(), (PythonNature)request.nature, lFindInfo);
+			IDefinition[] definitions = mod.findDefinition(tok, request.getBeginLine(), request.getBeginCol(), request.nature, lFindInfo);
 			getAsPointers(pointers, (Definition[]) definitions);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -74,12 +94,12 @@ public class Refactorer extends AbstractPyRefactoring{
 //            }
 
             String lookForInterface = tokenAndQual[1];
-            List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(lookForInterface, (PythonNature) request.nature,
+            List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(lookForInterface, request.nature,
                     AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);
             
-            ICodeCompletionASTManager manager = ((PythonNature)request.nature).getAstManager();
+            ICodeCompletionASTManager manager = request.nature.getAstManager();
             for (IInfo info : tokensEqualTo) {
-                mod = manager.getModule(info.getDeclaringModuleName(), (PythonNature)request.nature, true);
+                mod = manager.getModule(info.getDeclaringModuleName(), request.nature, true);
                 if(mod != null){
 	                //ok, now that we found the module, we have to get the actual definition
 	                tok = "";
@@ -89,7 +109,7 @@ public class Refactorer extends AbstractPyRefactoring{
 	                }
 	                tok += info.getName();
 	                try {
-	                    IDefinition[] definitions = mod.findDefinition(tok, 0, 0, (PythonNature) request.nature, new ArrayList<FindInfo>());
+	                    IDefinition[] definitions = mod.findDefinition(tok, 0, 0, request.nature, new ArrayList<FindInfo>());
 	                    getAsPointers(pointers, (Definition[]) definitions);
 	                } catch (Exception e) {
 	                    throw new RuntimeException(e);

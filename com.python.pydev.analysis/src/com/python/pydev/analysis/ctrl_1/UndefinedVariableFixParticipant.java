@@ -13,7 +13,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.IProjectModulesManager;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PySelection;
@@ -57,7 +57,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         if(imageCache != null){ //making tests
             importImage = imageCache.get(UIConstants.IMPORT_ICON);
         }
-        IProjectModulesManager projectModulesManager = nature.getAstManager().getProjectModulesManager();
+        IModulesManager projectModulesManager = nature.getAstManager().getModulesManager();
         Set<String> allModules = projectModulesManager.getAllModuleNames();
 
         //when an undefined variable is found, we can:

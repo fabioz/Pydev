@@ -175,25 +175,26 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         ret.add(systemInfo);
     
         //get for the current project
-        AbstractAdditionalInterpreterInfo additionalInfoForProject = getAdditionalInfoForProject(project);
-        if(additionalInfoForProject != null){
-            ret.add(additionalInfoForProject);
-        }
-        
-        try {
-            //get for the referenced projects
-            IProject[] referencedProjects = project.getReferencedProjects();
-            for (IProject refProject : referencedProjects) {
-                
-                additionalInfoForProject = getAdditionalInfoForProject(refProject);
-                if(additionalInfoForProject != null){
-                    ret.add(additionalInfoForProject);
-                }
-            }
-            
-            
-        } catch (CoreException e) {
-            throw new RuntimeException(e);
+        if(project != null){
+	        AbstractAdditionalInterpreterInfo additionalInfoForProject = getAdditionalInfoForProject(project);
+	        if(additionalInfoForProject != null){
+	            ret.add(additionalInfoForProject);
+	        }
+	        
+	        try {
+	            //get for the referenced projects
+	            IProject[] referencedProjects = project.getReferencedProjects();
+	            for (IProject refProject : referencedProjects) {
+	                
+	                additionalInfoForProject = getAdditionalInfoForProject(refProject);
+	                if(additionalInfoForProject != null){
+	                    ret.add(additionalInfoForProject);
+	                }
+	            }
+
+		    } catch (CoreException e) {
+		        throw new RuntimeException(e);
+		    }
         }
         return ret;
     }
