@@ -172,7 +172,11 @@ public class PythonPathHelper implements Serializable{
     }
     
     public static boolean isValidSourceFile(IFile file) {
-        String ext = file.getFileExtension().toLowerCase();
+        String ext = file.getFileExtension();
+        if(ext == null){ // no extension
+        	return false;
+        }
+		ext = ext.toLowerCase();
         return ext.equals("py") || ext.equals("pyw");
     }
 
