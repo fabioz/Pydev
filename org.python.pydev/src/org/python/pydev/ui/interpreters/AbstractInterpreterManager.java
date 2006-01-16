@@ -5,6 +5,7 @@
  */
 package org.python.pydev.ui.interpreters;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -218,10 +221,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         list.add(InterpreterInfo.fromString(string));
                     } catch (Exception e) {
                     	//ok, its format might have changed
-                    	String errMsg = "Interpreter information storage format changed.\r\n" +
-            			"The system information could not be restored.\r\n" +
-                    	"Please go to window > preferences > Pydev\r\n" +
-                    	"and restore the interpreter you had previously configured.";
+                    	String errMsg = "Interpreter storage changed.\r\n" +
+                    	"Please restore it (window > preferences > Pydev > Interpreter)";
                         PydevPlugin.log(errMsg, e);
                         
                         return new String[0];
@@ -237,14 +238,24 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	            }
                 
                 //and at last, restore the system info
-	            for (InterpreterInfo info: list) {
+	            for (final InterpreterInfo info: list) {
 	                try {
                         info.modulesManager = (SystemModulesManager) PydevPlugin.readFromPlatformFile(info.getExeAsFileSystemValidPath());
                     } catch (Exception e) {
-                        //ok, maybe its file-format changed... let's re-create it then.
-                        info.restorePythonpath(new NullProgressMonitor());
-                        //after restoring it, let's save it.
-                        PydevPlugin.writeToPlatformFile(info.modulesManager, info.getExeAsFileSystemValidPath());
+                    	Shell shell = Display.getCurrent().getActiveShell();
+                    	ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
+                        dialog.setBlockOnOpen(false);
+                        dialog.run(true, false, new IRunnableWithProgress(){
+
+							public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+								monitor.beginTask("Updating the interpreter info (internal storage format changed).", 100);
+								//ok, maybe its file-format changed... let's re-create it then.
+								info.restorePythonpath(monitor);
+								//after restoring it, let's save it.
+								PydevPlugin.writeToPlatformFile(info.modulesManager, info.getExeAsFileSystemValidPath());
+								monitor.done();
+							}}
+                        );
                     }
                 }
                 
