@@ -24,7 +24,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
@@ -113,12 +112,17 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 	public void validatePathInfo(String pythonpath, final IProject project, IProgressMonitor monitor) {
 		//it is all comented because it could take quite some time to do that validation, so, we have to check 
 		//for a better way to do it...
-		
-//		List<String> lPythonpath = new ArrayList<String>();
-//		List<File> completions = new ArrayList<File>();
-//		List<String> fromJar = new ArrayList<String>();
-//
-//		int total = listFilesForCompletion(monitor, lPythonpath, completions, fromJar);
+
+	    if(this.modules.size() < 10){
+            //either there are not many modules (in which case, we could restore it without many problems)
+            //or the data is not really valid (in which case, we must restore it).
+    		List<String> lPythonpath = new ArrayList<String>();
+    		List<File> completions = new ArrayList<File>();
+    		List<String> fromJar = new ArrayList<String>();
+    
+    		int total = listFilesForCompletion(monitor, lPythonpath, completions, fromJar);
+            changePythonPath(pythonpath, project, monitor, lPythonpath, completions, fromJar, total);
+        }
 //		
 //		this.pythonPathHelper.getPythonPathFromStr(pythonpath, lPythonpath);
 //		if(!this.pythonPathHelper.pythonpath.equals(lPythonpath)){

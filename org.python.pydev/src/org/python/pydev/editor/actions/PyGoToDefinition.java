@@ -20,6 +20,7 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
+import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
@@ -86,7 +87,7 @@ public class PyGoToDefinition extends PyRefactorAction {
                                 ElementListSelectionDialog dialog = new ElementListSelectionDialog(shell, new ILabelProvider(){
 
                                     public Image getImage(Object element) {
-                                        return null;
+                                        return PyCodeCompletion.getImageForType(PyCodeCompletion.TYPE_PACKAGE);
                                     }
 
                                     public String getText(Object element) {
@@ -109,6 +110,8 @@ public class PyGoToDefinition extends PyRefactorAction {
                                     public void removeListener(ILabelProviderListener listener) {
                                     }}
                                 );
+                                dialog.setTitle("Found matches");
+                                dialog.setTitle("Select the one you believe matches most your search.");
                                 dialog.setElements(where);
                                 dialog.open();
                                 Object[] result = dialog.getResult();
