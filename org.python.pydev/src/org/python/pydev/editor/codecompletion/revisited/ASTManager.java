@@ -41,6 +41,10 @@ public class ASTManager extends AbstractASTManager implements ICodeCompletionAST
         getProjectModulesManager().setProject(project, restoreDeltas);
     }
 
+    public IModulesManager getModulesManager(){
+        return getProjectModulesManager();
+    }
+
 	private IProjectModulesManager getProjectModulesManager() {
 		if(modulesManager == null){
 			modulesManager = new ProjectModulesManager();

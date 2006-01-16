@@ -3,13 +3,12 @@
  */
 package org.python.pydev.ui;
 
+import junit.framework.TestCase;
+
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.BundleInfo;
-import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor;
-
-import junit.framework.TestCase;
 
 public class SWTTest extends TestCase{
 
@@ -19,6 +18,10 @@ public class SWTTest extends TestCase{
         shell = new org.eclipse.swt.widgets.Shell();
     }
 
+    public void testIt(){
+    	
+    }
+    
     /*
      * @see TestCase#setUp()
      */

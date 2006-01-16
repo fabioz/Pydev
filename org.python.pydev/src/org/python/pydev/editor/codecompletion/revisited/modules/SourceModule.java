@@ -227,31 +227,6 @@ public class SourceModule extends AbstractModule {
         }
 
         
-        
-        //well, first thing is check for locals and class definitions if it is a self.
-        IToken[] localTokens = scopeVisitor.scope.getLocalTokens(line, col);
-        info.localTokens = localTokens;
-        for (IToken tok : localTokens) {
-        	if(tok.getRepresentation().equals(rep)){
-        		return new Definition[]{new Definition(tok, scopeVisitor.scope, this)};
-        	}
-        }
-        
-        //not found... check as local imports
-        List<IToken> localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
-        for (IToken tok : localImportedModules) {
-        	if(tok.getRepresentation().equals(rep)){
-        		Tuple<IModule, String> o = nature.getAstManager().findOnImportedMods(new IToken[]{tok}, nature, rep, this.getName());
-                if(o != null && o.o1 instanceof SourceModule){
-                    findDefinitionsFromModAndTok(nature, toRet, null, (SourceModule) o.o1, o.o2);
-                }
-                if(toRet.size() > 0){
-                	return (Definition[]) toRet.toArray(new Definition[0]);
-                }
-        	}
-        }
-        
-        
         //this visitor checks for assigns for the token
         FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(rep, line, col+1, this);
         if (ast != null){
@@ -272,6 +247,31 @@ public class SourceModule extends AbstractModule {
 	            }
 	        }
             return (Definition[]) toRet.toArray(new Definition[0]);
+        }
+        
+        
+        
+        //now, check for locals and class definitions if it is a self.
+        IToken[] localTokens = scopeVisitor.scope.getLocalTokens(line, col);
+        info.localTokens = localTokens;
+        for (IToken tok : localTokens) {
+        	if(tok.getRepresentation().equals(rep)){
+        		return new Definition[]{new Definition(tok, scopeVisitor.scope, this)};
+        	}
+        }
+        
+        //not found... check as local imports
+        List<IToken> localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
+        for (IToken tok : localImportedModules) {
+        	if(tok.getRepresentation().equals(rep)){
+        		Tuple<IModule, String> o = nature.getAstManager().findOnImportedMods(new IToken[]{tok}, nature, rep, this.getName());
+                if(o != null && o.o1 instanceof SourceModule){
+                    findDefinitionsFromModAndTok(nature, toRet, null, (SourceModule) o.o1, o.o2);
+                }
+                if(toRet.size() > 0){
+                	return (Definition[]) toRet.toArray(new Definition[0]);
+                }
+        	}
         }
         	
         
@@ -417,9 +417,12 @@ public class SourceModule extends AbstractModule {
                 Tuple<Integer, Integer> def = getLineColForDefinition(a);
                 
                 String parentPackage = token.getParentPackage();
-                IModule module = nature.getAstManager().getModule(parentPackage, nature, true);
-                if(module == null){
-                	module = this;
+                IModule module = this;
+                if(nature != null){
+                	IModule mod = nature.getAstManager().getModule(parentPackage, nature, true);
+                	if(mod != null){
+                		module = mod;
+                	}
                 }
                 //line, col
                 return new Definition(def.o1, def.o2, tok, a, scopeVisitor.scope, module);

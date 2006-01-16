@@ -30,7 +30,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-          test.testNestedImports();
+          test.testInnerCtxt();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -151,6 +151,20 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 	    requestCompl(s, s.length(), -1, new String[] { "met1()"});
 	}
 
+	
+	public void testInnerCtxt() throws CoreException, BadLocationException{
+		String s;
+		s = "" +
+		"class Test:\n"+
+		"    def findIt(self):\n"+
+		"        pass\n"+
+		"    \n"+
+		"def m1():\n"+
+		"    s = Test()\n"+
+		"    s.";
+		requestCompl(s, s.length(), -1, new String[] { "findIt()"});
+	}
+	
 	
 	public void testSelfReferenceWithTabs2() throws CoreException, BadLocationException{
 	    String s;
