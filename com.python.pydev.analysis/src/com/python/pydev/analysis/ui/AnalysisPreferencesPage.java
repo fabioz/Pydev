@@ -8,7 +8,11 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.utils.LabelFieldEditor;
@@ -33,8 +37,13 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
     @Override
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
-
+        
         addField(new LabelFieldEditor("Analysis_pref_note", "NOTE: Any file with the comment below will not be analyzed.\n\n#@PydevCodeAnalysisIgnore\n\nOptions:\n\n", p));
+
+        TabFolder tabFolder = new TabFolder(p, SWT.NONE);
+        tabFolder.setLayoutData(new GridData(GridData.FILL_BOTH));
+        
+        p = createTab(tabFolder, "Options");
         String[][] whenAnalyze = new String[][]{
                 {"Only on save"  , String.valueOf(IAnalysisPreferences.ANALYZE_ON_SAVE)},
                 {"On any successful parse", String.valueOf(IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE)}
@@ -48,23 +57,46 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
                 {"Ignore" , String.valueOf(IMarker.SEVERITY_INFO)}
         };
 
+        
+        p = createTab(tabFolder, "Unused");
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNUSED_IMPORT, "Unused import", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNUSED_WILD_IMPORT, "Unused wild import", 3,values,p, true));
         addField(new StringFieldEditor(AnalysisPreferenceInitializer.NAMES_TO_IGNORE_UNUSED_IMPORT, 
                 "Don't report unused imports in modules named: (separated by comma)",p ));
-        
-        
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNUSED_VARIABLE, "Unused variable", 3,values,p, true));
         addField(new StringFieldEditor(AnalysisPreferenceInitializer.NAMES_TO_IGNORE_UNUSED_VARIABLE, 
-                "Don't report unused variable if name stars with: (separated by comma)",p ));
+                "Don't report unused variable if name stars with: (separated by comma)",p ){
+            @Override
+            public int getNumberOfControls() {
+                return 1;
+            }
+        });
+
         
+        p = createTab(tabFolder, "Undefined");
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNDEFINED_VARIABLE, "Undefined variable", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNDEFINED_IMPORT_VARIABLE, "Undefined variable from import" , 3,values,p, true));
+        
+        p = createTab(tabFolder, "Others");
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_DUPLICATED_SIGNATURE, "Duplicated signature", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_REIMPORT, "Import redefinition", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNRESOLVED_IMPORT, "Import not found", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_NO_SELF, "'self' not specified in class method", 3,values,p, true));
 
+    }
+
+    /**
+     * @param tabFolder
+     * @param tabText TODO
+     * @return
+     */
+    private Composite createTab(TabFolder tabFolder, String tabText) {
+        TabItem item1 = new TabItem(tabFolder, SWT.NULL);
+        item1.setText(tabText);
+        Composite p1 = new Composite(tabFolder, SWT.NONE);
+        p1.setLayoutData(new GridData(GridData.FILL_BOTH));
+        item1.setControl(p1);
+        return p1;
     }
 
     public void init(IWorkbench workbench) {

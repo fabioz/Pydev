@@ -6,6 +6,7 @@ package com.python.pydev.codecompletion.simpleassist;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
@@ -61,46 +62,77 @@ yield
  */
 public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
 
-    public static final String[] KEYWORDS = new String[]{
-        "and ",
-        "assert ",
-        "break",
-        "class ",
-        "continue",
-        "def ",
-        "del ",
-        "elif ",
-        "else:",
-        "except:",
-        "exec",
-        "finally:",
-        "for ",
-        "from ",
-        "global ",
-        "if ",
-        "import ",
-        "in ",
-        "is ",
-        "lambda",
-        "not ",
-        "or ",
-        "pass",
-        "print ",
-        "raise ",
-        "return",
-        "try:",
-        "while ",
-        "yield ",
-        
-        //the ones below were not in the initial list
-        "self",
-        "__init__",
-        "as ",
-        "False", 
-        "None", 
-        "object", 
-        "True"
-    };
+    
+    public static String defaultKeywordsAsString(){
+        String[] KEYWORDS = new String[]{
+                "and ",
+                "assert ",
+                "break",
+                "class ",
+                "continue",
+                "def ",
+                "del ",
+                "elif ",
+                "else:",
+                "except:",
+                "exec",
+                "finally:",
+                "for ",
+                "from ",
+                "global ",
+                "if ",
+                "import ",
+                "in ",
+                "is ",
+                "lambda",
+                "not ",
+                "or ",
+                "pass",
+                "print ",
+                "raise ",
+                "return",
+                "try:",
+                "while ",
+                "yield ",
+                
+                //the ones below were not in the initial list
+                "self",
+                "__init__",
+                "as ",
+                "False", 
+                "None", 
+                "object", 
+                "True"
+            };
+        return wordsAsString(KEYWORDS);
+    }
+    
+    //very simple cache (this might be requested a lot).
+    private static String cache;
+    private static String[] cacheRet;
+    
+    public static String[] stringAsWords(String keywords){
+        if(cache != null && cache.equals(keywords)){
+            return cacheRet;
+        }
+        StringTokenizer tokenizer = new StringTokenizer(keywords);
+        ArrayList<String> strs = new ArrayList<String>();
+        while(tokenizer.hasMoreTokens()){
+            strs.add(tokenizer.nextToken());
+        }
+        cache = keywords;
+        cacheRet = strs.toArray(new String[0]);
+        return cacheRet;
+    }
+    
+    public static String wordsAsString(String [] keywords){
+        StringBuffer buf = new StringBuffer();
+        for (String string : keywords) {
+            buf.append(string);
+            buf.append("\n");
+        }
+        return buf.toString();
+    }
     
     public Collection<ICompletionProposal> computeCompletionProposals(String activationToken, String qualifier, PySelection ps, PyEdit edit, int offset) {
         List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
@@ -111,7 +143,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
         
         //get them
         if(activationToken.equals("") && qualifier.equals("") == false){
-            for (String keyw : KEYWORDS) {
+            for (String keyw : CodeCompletionPreferencesPage.getKeywords()) {
                 if(keyw.startsWith(qualifier)){
                     results.add(new SimpleAssistProposal(keyw, offset - qualifier.length(), qualifier.length(), keyw.length(), PyCompletionProposal.PRIORITY_DEFAULT));
                 }

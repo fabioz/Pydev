@@ -28,6 +28,9 @@ Features that should be implemented
 
 - offer python 'keywords' as suggestions when typing - OK
 
+- Quick outline - OK
+
+
 They should be done in the order listed above.
 
 

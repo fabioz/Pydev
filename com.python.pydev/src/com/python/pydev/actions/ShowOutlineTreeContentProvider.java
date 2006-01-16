@@ -63,6 +63,9 @@ public final class ShowOutlineTreeContentProvider implements ITreeContentProvide
 
     public Object[] getElements(Object inputElement) {
         visitor = DefinitionsASTIteratorVisitor.create((SimpleNode) inputElement);
+        if(visitor == null){
+            return new Object[0];
+        }
         Iterator<ASTEntry> it = visitor.getOutline();
         ArrayList<ASTEntry> list = new ArrayList<ASTEntry>();
         while(it.hasNext()){
