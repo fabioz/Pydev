@@ -217,22 +217,13 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     try {
                         list.add(InterpreterInfo.fromString(string));
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
-                        //ok, its format might have changed
+                    	//ok, its format might have changed
+                    	String errMsg = "Interpreter information storage format changed.\r\n" +
+            			"The system information could not be restored.\r\n" +
+                    	"Please go to window > preferences > Pydev\r\n" +
+                    	"and restore the interpreter you had previously configured.";
+                        PydevPlugin.log(errMsg, e);
                         
-                        final Display disp = Display.getDefault();
-                        disp.asyncExec(new Runnable(){
-
-                            public void run() {
-                                IWorkbenchWindow window = PydevPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
-                                Shell shell = (window == null) ? new Shell(disp) : window.getShell();
-                                MessageBox message = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-                                message.setText("Pydev: Error restoring System Information.");
-                                message.setMessage("The system information could not be restored.\n" +
-                                        "Please go to window > preferences > Pydev\n" +
-                                        "and restore the interpreter you had previously configured.");
-                                message.open();
-                            }});
                         return new String[0];
                     }
                 }
