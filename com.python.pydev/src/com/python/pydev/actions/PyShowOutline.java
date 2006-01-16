@@ -19,6 +19,8 @@ public class PyShowOutline extends PyAction{
         PyEdit pyEdit = getPyEdit();
         SimpleNode ast = pyEdit.getAST();
         TreeSelectionDialog dialog = new TreeSelectionDialog(getShell(), new ShowOutlineLabelProvider(), new ShowOutlineTreeContentProvider());
+        dialog.setTitle("Pydev: Quick Outline");
+        dialog.setMessage("Filter");
         dialog.setInput(ast);
         dialog.open();
         Object[] result = dialog.getResult();
