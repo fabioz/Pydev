@@ -8,8 +8,8 @@ COMP1
 set EC_HOME=C:\bin\eclipse311
 set EC_WORKSPACE=D:\eclipse_workspace
 set RETROWEAVER_HOME=E:\Dev.Java\retroweaver-all\retroweaver
-set PYDEV_VERSION=0.9.8.6a
-set BUILD_ID=0_9_8_6a
+set PYDEV_VERSION=0.9.8.7
+set BUILD_ID=0_9_8_7
 d:
 
 
@@ -18,8 +18,8 @@ COMP2
 set EC_HOME=D:\bin\eclipse\310
 set EC_WORKSPACE=E:\eclipse_workspace
 set RETROWEAVER_HOME=E:\install\Dev.Retroweaver
-set PYDEV_VERSION=0.9.8.6a
-set BUILD_ID=0_9_8_6a
+set PYDEV_VERSION=0.9.8.7
+set BUILD_ID=0_9_8_7
 e:
 
 
