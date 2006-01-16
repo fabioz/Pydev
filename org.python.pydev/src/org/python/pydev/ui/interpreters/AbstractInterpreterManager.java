@@ -242,20 +242,31 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	                try {
                         info.modulesManager = (SystemModulesManager) PydevPlugin.readFromPlatformFile(info.getExeAsFileSystemValidPath());
                     } catch (Exception e) {
-                    	Shell shell = Display.getCurrent().getActiveShell();
-                    	ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
-                        dialog.setBlockOnOpen(false);
-                        dialog.run(true, false, new IRunnableWithProgress(){
+                    	//if it does not work
+                    	final Display def = Display.getDefault();
+                    	def.syncExec(new Runnable(){
 
-							public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-								monitor.beginTask("Updating the interpreter info (internal storage format changed).", 100);
-								//ok, maybe its file-format changed... let's re-create it then.
-								info.restorePythonpath(monitor);
-								//after restoring it, let's save it.
-								PydevPlugin.writeToPlatformFile(info.modulesManager, info.getExeAsFileSystemValidPath());
-								monitor.done();
-							}}
-                        );
+							public void run() {
+								Shell shell = def.getActiveShell();
+		                    	ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
+		                        dialog.setBlockOnOpen(false);
+		                        try {
+									dialog.run(false, false, new IRunnableWithProgress(){
+
+										public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+											monitor.beginTask("Updating the interpreter info (internal storage format changed).", 100);
+											//ok, maybe its file-format changed... let's re-create it then.
+											doRestore(info, monitor);
+											monitor.done();
+										}}
+									);
+								} catch (Exception e) {
+									throw new RuntimeException(e);
+								}
+							}
+							
+                		});
+                    	System.out.println("Finished restoring information for: "+info.executableOrJar);
                     }
                 }
                 
@@ -325,5 +336,11 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         }
         
     }
+
+	private void doRestore(final InterpreterInfo info, IProgressMonitor monitor) {
+		info.restorePythonpath(monitor);
+		//after restoring it, let's save it.
+		PydevPlugin.writeToPlatformFile(info.modulesManager, info.getExeAsFileSystemValidPath());
+	}
 }
 
