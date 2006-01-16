@@ -3,6 +3,8 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import org.python.pydev.core.REF;
+
 public class DepInfo{
     public String moduleName;
     public String importsFrom;
@@ -39,9 +41,9 @@ public class DepInfo{
             return false;
         }
         DepInfo d = (DepInfo) obj;
-        return this.moduleName.equals(d.moduleName) && this.importsFrom.equals(d.importsFrom);
+        return this.moduleName.equals(d.moduleName) && REF.nullEq(importsFrom,d.importsFrom);
     }
-
+    
     @Override
     public String toString() {
         return "<DepInfo ["+moduleName+" depends on "+this.importsFrom+"]>";
