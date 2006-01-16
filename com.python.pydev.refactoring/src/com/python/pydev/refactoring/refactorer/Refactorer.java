@@ -77,24 +77,24 @@ public class Refactorer extends AbstractPyRefactoring{
             List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(lookForInterface, (PythonNature) request.nature,
                     AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);
             
-            System.out.println("tokens with interface:"+lookForInterface);
             ICodeCompletionASTManager manager = ((PythonNature)request.nature).getAstManager();
             for (IInfo info : tokensEqualTo) {
                 mod = manager.getModule(info.getDeclaringModuleName(), (PythonNature)request.nature, true);
-                //ok, now that we found the module, we have to get the actual definition
-                tok = "";
-                String path = info.getPath();
-                if(path != null && path.length() > 0){
-                    tok = path+".";
+                if(mod != null){
+	                //ok, now that we found the module, we have to get the actual definition
+	                tok = "";
+	                String path = info.getPath();
+	                if(path != null && path.length() > 0){
+	                    tok = path+".";
+	                }
+	                tok += info.getName();
+	                try {
+	                    IDefinition[] definitions = mod.findDefinition(tok, 0, 0, (PythonNature) request.nature, new ArrayList<FindInfo>());
+	                    getAsPointers(pointers, (Definition[]) definitions);
+	                } catch (Exception e) {
+	                    throw new RuntimeException(e);
+	                }
                 }
-                tok += info.getName();
-                try {
-                    IDefinition[] definitions = mod.findDefinition(tok, 0, 0, (PythonNature) request.nature, new ArrayList<FindInfo>());
-                    getAsPointers(pointers, (Definition[]) definitions);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-
             }
         }
 		
