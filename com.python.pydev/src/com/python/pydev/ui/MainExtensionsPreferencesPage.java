@@ -107,6 +107,7 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 
     private Label labelUser;
     private Label labelExp;
+    private Label labelType;
 
 	
 	//--------------------------------------------------------------------------------------------------------
@@ -120,33 +121,32 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 	@Override
     protected void createFieldEditors() {
 	    GridData data = null;
+        Label label = null;
         
     	Composite composite = getFieldEditorParent();
         composite.setLayoutData(new GridData(GridData.FILL_BOTH));
         composite.setLayout(new GridLayout());
 
-        Label label = new Label(composite, SWT.NONE);
-//        setLabelBold(composite, label);
-        String msg2 = "If you still haven't requested your license, press 'Request license' and follow the instructions.";
-        label.setText(WordUtils.wrap(msg2, 80));
-        data = new GridData(GridData.FILL_HORIZONTAL);
-        data.horizontalSpan = 2;
-        data.grabExcessHorizontalSpace = true;
-        label.setLayoutData(data);
-        
-        
-        Button btGetInfo = new Button(composite, SWT.PUSH);
-        btGetInfo.setText("Request license");
-        btGetInfo.setFont( composite.getFont() );
-        btGetInfo.addSelectionListener(new GetInfoButtonListener());        
-        data = new GridData(GridData.FILL_HORIZONTAL);
-        data.horizontalSpan = 2;
-        data.grabExcessHorizontalSpace = true;
-        btGetInfo.setLayoutData(data);
+//        Label label = new Label(composite, SWT.NONE);
+//        String msg2 = "If you still haven't requested your license, press 'Request license' and follow the instructions.";
+//        label.setText(WordUtils.wrap(msg2, 80));
+//        data = new GridData(GridData.FILL_HORIZONTAL);
+//        data.horizontalSpan = 2;
+//        data.grabExcessHorizontalSpace = true;
+//        label.setLayoutData(data);
+//        
+//        
+//        Button btGetInfo = new Button(composite, SWT.PUSH);
+//        btGetInfo.setText("Request license");
+//        btGetInfo.setFont( composite.getFont() );
+//        btGetInfo.addSelectionListener(new GetInfoButtonListener());        
+//        data = new GridData(GridData.FILL_HORIZONTAL);
+//        data.horizontalSpan = 2;
+//        data.grabExcessHorizontalSpace = true;
+//        btGetInfo.setLayoutData(data);
 
         String msg1 = "If you alredy received your license, please fill in your e-mail, paste the license you received and press 'Validate'.";
         label = new Label(composite, SWT.NONE);
-//        setLabelBold(composite, label);
         label.setText("\n\n"+WordUtils.wrap(msg1, 80));
         data = new GridData(GridData.FILL_HORIZONTAL);
         data.horizontalSpan = 2;
@@ -177,6 +177,12 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
         data.horizontalSpan = 2;
         data.grabExcessHorizontalSpace = true;
         labelExp.setLayoutData(data);
+        
+        labelType = new Label(composite, SWT.NONE);
+        data = new GridData(GridData.FILL_HORIZONTAL);
+        data.horizontalSpan = 2;
+        data.grabExcessHorizontalSpace = true;
+        labelType.setLayoutData(data);
 
         updateLicInfo();
     }
@@ -193,6 +199,24 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
         } catch (Exception e) {
             labelExp.setText("Expires at: ");
             
+        }
+        
+        try{
+            final String SINGLE = "Single Developer";
+            final String MULTI = "Multi Developer";
+
+            String type = getFieldValue(PydevExtensionInitializer.LIC_TYPE);
+            String devs = getFieldValue(PydevExtensionInitializer.LIC_DEVS);
+            
+            if(type.equals(SINGLE)){
+                labelType.setText("License: "+type);
+            }else if(type.equals(MULTI)){
+                labelType.setText("License: "+type+ " ("+devs+")");
+            }else{
+                labelType.setText("License: ");
+            }
+        } catch (Exception e) {
+            labelType.setText("License: ");
         }
         labelUser.setText("Registered to: "+getFieldValue(PydevExtensionInitializer.USER_NAME));
     }

@@ -148,8 +148,10 @@ public class PydevPlugin extends AbstractUIPlugin {
             String eMail = (String) properties.remove("e-mail");
             String name  = (String) properties.remove("name");
             String time = (String) properties.remove("time");
+            String licenseType = (String) properties.remove("licenseType");
+            String devs = (String) properties.remove("devs");
             
-            if(eMail == null && name == null && time == null){
+            if(eMail == null || name == null || time == null || licenseType == null || devs == null){
                 throw new RuntimeException("The license is not correct, please re-paste it. If this error persists, please request a new license.");
             }
             if(!getPreferenceStore().getString(PydevExtensionInitializer.USER_EMAIL).equals(eMail)){
@@ -166,6 +168,8 @@ public class PydevPlugin extends AbstractUIPlugin {
             
             getPreferenceStore().setValue(PydevExtensionInitializer.USER_NAME, name);
             getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TIME, time);
+            getPreferenceStore().setValue(PydevExtensionInitializer.LIC_TYPE, licenseType);
+            getPreferenceStore().setValue(PydevExtensionInitializer.LIC_DEVS, devs);
             
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());

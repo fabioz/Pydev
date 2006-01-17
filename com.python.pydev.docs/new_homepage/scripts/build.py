@@ -32,7 +32,7 @@ def getContents(contents_file, tag):
 
 def main():
     template('../template1.html', 'index', 'Pydev Extensions')
-    template('../template1.html', 'terms', 'Terms and Conditions')
+    template('../template1.html', 'terms', 'License')
     template('../template1.html', 'download', 'Download')
     template('../template1.html', 'buy', 'Buy')
     template('../template1.html', 'manual', 'Manual')
