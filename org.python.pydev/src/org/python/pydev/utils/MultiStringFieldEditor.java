@@ -50,8 +50,7 @@ public class MultiStringFieldEditor extends StringFieldEditor{
      */
     public Text getTextControl(Composite parent) {
         if (textField == null) {
-            System.out.println("creating");
-            textField = new Text(parent, SWT.MULTI | SWT.BORDER);
+            textField = new Text(parent, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
             textField.setFont(parent.getFont());
             switch (validateStrategy) {
             case VALIDATE_ON_KEY_STROKE:
@@ -109,6 +108,7 @@ public class MultiStringFieldEditor extends StringFieldEditor{
         // If another field editor has more columns then
         // we assume it is setting the width.
         gd.grabExcessHorizontalSpace = gd.horizontalSpan == 1;
+        gd.grabExcessVerticalSpace = true;
         gd.heightHint = 200;
     }
     /**
