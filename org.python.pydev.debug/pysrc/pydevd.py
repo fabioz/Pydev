@@ -10,22 +10,32 @@ class PyDBCtx:
     '''This class is used to keep track of the contexts we pass through (acting as a cache for them).
     '''
 
-    ctxs = dict()
+    threadToCtx = dict()
     
     @staticmethod
     def GetCtxs():
-        return PyDBCtx.ctxs.values()
+        ret = []
+        for v in PyDBCtx.threadToCtx.values():
+            ret += v.values()
+        return ret
     
     @staticmethod
     def GetCtx(frame, currThread):
-        try:
-            threadId = id(currThread)
-            key = (frame.f_code, threadId)
-            return PyDBCtx.ctxs[key]
-        except KeyError:
+        #we create a context for each thread
+        threadId = id(currThread)
+        ctxs = PyDBCtx.threadToCtx.get(threadId)
+        if ctxs is None:
+            ctxs = dict()
+            PyDBCtx.threadToCtx[threadId] = ctxs
+            
+        #and for each thread, the code for the frame
+        key = frame.f_code
+        ctx = ctxs.get(key)
+        if ctx is None:
             ctx = PyDBCtx(frame, threadId)
-            PyDBCtx.ctxs[key] = ctx
-            return ctx
+            ctxs[key] = ctx
+
+        return ctx
         
     @staticmethod
     def SetTraceForAllFileCtxs(f):
@@ -351,12 +361,9 @@ class PyDB:
             return None
         
         t = threading.currentThread()
-        try:
-            ctx = PyDBCtx.GetCtx(frame, t)
-            filename = ctx.filename
-            base = ctx.base
-        except:
-            import traceback;traceback.print_exc()
+        ctx = PyDBCtx.GetCtx(frame, t)
+        filename = ctx.filename
+        base = ctx.base
 
         if base in DONT_TRACE: #we don't want to debug pydevd or threading
             return None
