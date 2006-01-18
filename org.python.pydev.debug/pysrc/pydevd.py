@@ -1,3 +1,4 @@
+import weakref
 from pydevd_comm import *
 
 DONT_TRACE = ('pydevd.py' , 'threading.py', 'pydevd_vars.py')
@@ -8,7 +9,7 @@ connected = False
 class PyDBCtx:
     '''This class is used to keep track of the contexts we pass through (acting as a cache for them).
     '''
-    
+
     ctxs = dict()
     
     @staticmethod
@@ -16,12 +17,14 @@ class PyDBCtx:
         return PyDBCtx.ctxs.values()
     
     @staticmethod
-    def GetCtx(frame):
+    def GetCtx(frame, currThread):
         try:
-            return PyDBCtx.ctxs[frame]
+            threadId = id(currThread)
+            key = (frame.f_code, threadId)
+            return PyDBCtx.ctxs[key]
         except KeyError:
-            ctx = PyDBCtx(frame)
-            PyDBCtx.ctxs[frame] = ctx
+            ctx = PyDBCtx(frame, threadId)
+            PyDBCtx.ctxs[key] = ctx
             return ctx
         
     @staticmethod
@@ -32,11 +35,11 @@ class PyDBCtx:
                 if ctx.filename == f:
                     ctx.frame.f_trace = g.trace_dispatch
             
-    def __init__(self, frame):
+    def __init__(self, frame, threadId):
         self.filename = NormFile(frame.f_code.co_filename)
         self.base = os.path.basename( self.filename )
         self.frame = frame
-        self.thread_id = id(threading.currentThread())
+        self.thread_id = threadId
         
     def __str__(self):
         return 'PyDBCtx [%s %s %s]' % (self.base, self.thread_id, self.frame)
@@ -347,20 +350,22 @@ class PyDB:
         if event not in ('call', 'line', 'return'):
             return None
         
-        ctx = PyDBCtx.GetCtx(frame)
-        filename = ctx.filename
-        base = ctx.base
+        t = threading.currentThread()
+        try:
+            ctx = PyDBCtx.GetCtx(frame, t)
+            filename = ctx.filename
+            base = ctx.base
+        except:
+            import traceback;traceback.print_exc()
 
         if base in DONT_TRACE: #we don't want to debug pydevd or threading
             return None
 
-        t = threading.currentThread()
 
         # if thread is not alive, cancel trace_dispatch processing
         if not t.isAlive():
             self.processThreadNotAlive(t)
             return None # suspend tracing
-        
         wasSuspended = False        
 
         #let's decorate the thread we are in with debugging info
