@@ -797,8 +797,10 @@
    <extension-point id="pydev_refactoring" name="Pydev Refactoring" schema="schema/pydev_refactoring.exsd"/>
    <extension-point id="pydev_quick_outline" name="Pydev Quick Outline" schema="schema/pydev_quick_outline.exsd"/>
 <!-- wizards -->
-   <extension
-         point="org.eclipse.ui.newWizards">
+   <extension point="org.eclipse.ui.newWizards">
+      <category
+            id="org.python.pydev.PythonCategory"
+            name="Pydev"/>
       <wizard
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
@@ -811,24 +813,32 @@
             name="Pydev Project"
             preferredPerspectives="org.python.pydev.plugin.PythonPerspective"
             project="true"/>
-      <category
-            id="org.python.pydev.PythonCategory"
-            name="Pydev"/>
       <wizard
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
-            class="org.python.pydev.ui.wizards.files.PythonFileWizard"
+            class="org.python.pydev.ui.wizards.files.PythonModuleWizard"
             descriptionImage="icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="icons/python.gif"
-            id="org.python.pydev.ui.wizards.files.PythonFileWizard"
+            id="org.python.pydev.ui.wizards.files.PythonModuleWizard"
             name="Pydev Module"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
+      <wizard
+            canFinishEarly="false"
+            category="org.python.pydev.PythonCategory"
+            class="org.python.pydev.ui.wizards.files.PythonPackageWizard"
+            descriptionImage="icons/python_logo.png"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            hasPages="true"
+            icon="icons/python.gif"
+            id="org.python.pydev.ui.wizards.files.PythonPackageWizard"
+            name="Pydev Package"
+            preferredPerspectives="org.python.pydev.ui.PythonPerspective"
+            project="false"/>
    </extension>
-   <extension
-         point="org.eclipse.ui.perspectives">
+   <extension point="org.eclipse.ui.perspectives">
       <perspective
             class="org.python.pydev.ui.perspective.PythonPerspectiveFactory"
             icon="icons/python_16x16.png"

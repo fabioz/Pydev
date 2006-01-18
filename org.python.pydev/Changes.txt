@@ -10,6 +10,12 @@ jython module management (may be handy)
 org.python.core.SysPackageManager
 
 
+after 0.9.8.7
+
+- Minor bug: if there was no other project to reference in the new project wizard, it appeared next even though
+it didn't have a 'next' page.
+- Wizard to create new project has option for creating a default 'src' folder (and add it to the pythonpath).
+
 after 0.9.8.6
 
 - Fixed debugger so that tracing does not appear

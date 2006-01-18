@@ -1,17 +1,14 @@
 package org.python.pydev.ui.perspective;
 
-import org.eclipse.ui.IFolderLayout;
-import org.eclipse.ui.IPageLayout;
-import org.eclipse.ui.IPerspectiveFactory;
-import org.eclipse.ui.progress.IProgressConstants;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.progress.IProgressConstants;
-import org.eclipse.debug.ui.IDebugUIConstants;
-import org.python.pydev.ui.wizards.files.PythonFileWizard;
+import org.python.pydev.ui.wizards.files.PythonModuleWizard;
+import org.python.pydev.ui.wizards.files.PythonPackageWizard;
 import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 
 /**
@@ -62,7 +59,8 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
 				
 		// new actions - Python project creation wizard
 		layout.addNewWizardShortcut(PythonProjectWizard.WIZARD_ID); //$NON-NLS-1$		
-		layout.addNewWizardShortcut(PythonFileWizard.WIZARD_ID); //$NON-NLS-1$		
+		layout.addNewWizardShortcut(PythonModuleWizard.WIZARD_ID); //$NON-NLS-1$		
+		layout.addNewWizardShortcut(PythonPackageWizard.WIZARD_ID); //$NON-NLS-1$		
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//$NON-NLS-1$
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//$NON-NLS-1$
 		layout.addNewWizardShortcut("org.eclipse.ui.editors.wizards.UntitledTextFileWizard");//$NON-NLS-1$

@@ -61,7 +61,7 @@ import org.python.pydev.ui.PyProjectPythonDetails;
  * Changed to add the details for the python project type 
  */
 
-public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage {
+public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implements SelectionListener {
     // Whether to use default or custom project location
     private boolean useDefaults = true;
 
@@ -101,6 +101,10 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage {
         }
     };
 
+    private Button checkSrcFolder;
+
+    private boolean checkSrcFolderSelected = true;
+
     // constants
     private static final int SIZING_TEXT_FIELD_WIDTH = 250;
 
@@ -114,14 +118,6 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage {
         setPageComplete(false);
         initialLocationFieldValue = Platform.getLocation();
         customLocationFieldValue = ""; //$NON-NLS-1$
-    }
-
-    /* (non-Javadoc)
-     * Method declared on IWizardPage
-     */
-    public boolean canFlipToNextPage() {
-        // Already know there is a next page...
-        return isPageComplete();
     }
 
     /* (non-Javadoc)
@@ -139,7 +135,11 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage {
         createProjectNameGroup(composite);
         createProjectLocationGroup(composite);
         createProjectDetails(composite);
-
+        checkSrcFolder = new Button(composite , SWT.CHECK);
+        checkSrcFolder.setText("Create default 'src' folder and add it to the pythonpath?");
+        checkSrcFolder.setSelection(true);
+        checkSrcFolder.addSelectionListener(this);
+        
         validatePage();
 
         // Show description on opening
@@ -493,6 +493,19 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage {
         super.setVisible(visible);
         if (visible)
             projectNameField.setFocus();
+    }
+
+    public boolean shouldCreatSourceFolder() {
+        return checkSrcFolderSelected;
+    }
+
+    public void widgetSelected(SelectionEvent e) {
+        if(e.widget == checkSrcFolder){
+            checkSrcFolderSelected = checkSrcFolder.getSelection();
+        }
+    }
+
+    public void widgetDefaultSelected(SelectionEvent e) {
     }
 
 }
