@@ -153,7 +153,7 @@ def resolveCompoundVariable(thread, frame_id, scope, attrs):
     # print "var",var    
     for k in attrList:
 #        print "k", k
-        (type, typeName, resolver) = getType(var)              
+        type, typeName, resolver = getType(var)              
         var = resolver.resolve(var, k)
     
 #    print >>sys.stderr, "Got variable", var

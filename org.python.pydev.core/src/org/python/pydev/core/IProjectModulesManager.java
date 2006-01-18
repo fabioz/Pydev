@@ -32,8 +32,6 @@ public interface IProjectModulesManager extends IModulesManager {
 
 	public abstract void removeModule(File file, IProject project, IProgressMonitor monitor);
 
-	public abstract void validatePathInfo(String pythonpath, IProject project, IProgressMonitor monitor);
-
 
 
 }

@@ -70,11 +70,6 @@ public class ASTManager extends AbstractASTManager implements ICodeCompletionAST
         getProjectModulesManager().removeModule(file, project, monitor);
     }
 
-    public void validatePathInfo(String pythonpath, final IProject project, IProgressMonitor monitor) {
-    	getProjectModulesManager().validatePathInfo(pythonpath, project, monitor);
-    }
-    
-
     /**
      * @return
      */

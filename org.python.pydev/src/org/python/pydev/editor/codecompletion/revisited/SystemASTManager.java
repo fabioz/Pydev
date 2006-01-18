@@ -35,8 +35,4 @@ public class SystemASTManager extends AbstractASTManager{
 		throw new RuntimeException("Not implemented");
 	}
 
-	public void validatePathInfo(String pythonpath, IProject project, IProgressMonitor monitor) {
-		throw new RuntimeException("Not implemented");
-	}
-
 }

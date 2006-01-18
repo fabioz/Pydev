@@ -222,23 +222,19 @@ public class PythonNature implements IPythonNature {
                         try {
                             String pythonPathStr = pythonPathNature.getOnlyProjectPythonPathStr();
                             rebuildPath(pythonPathStr);
-                        } catch (CoreException e) {
-                            
+                        } catch (Exception e) {
                             PydevPlugin.log(e);
                         }
                     }else{
                         astManager.setProject(getProject(), true); // this is the project related to it, restore the deltas (we may have some crash)
-                        try {
-							astManager.validatePathInfo(pythonPathNature.getOnlyProjectPythonPathStr(), getProject(), jobProgressComunicator);
-						} catch (Exception e) {
-							//let it keep going if only the 'validate' fails.
-
-							//(but not silently)
-							PydevPlugin.log(e);
-						}
                         List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
                         for (IInterpreterObserver observer : participants) {
-                            observer.notifyNatureRecreated(nature, jobProgressComunicator);
+                            try {
+                                observer.notifyNatureRecreated(nature, jobProgressComunicator);
+                            } catch (Exception e) {
+                                //let's not fail because of other plugins
+                                PydevPlugin.log(e);
+                            }
                         }
                     }
                     jobProgressComunicator.done();
@@ -288,22 +284,31 @@ public class PythonNature implements IPythonNature {
 
             protected IStatus run(IProgressMonitor monitorArg) {
 
-            	if(astManager == null){
-                    astManager = new ASTManager();
-                }
-            	            	
-                astManager.setProject(getProject(), false); //it is a new manager, so, remove all deltas
-                
-                //begins task automatically
                 JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
-                astManager.changePythonPath(paths, project, jobProgressComunicator);
+            	try {
+                    if (astManager == null) {
+                        astManager = new ASTManager();
+                    }
 
-                List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-                for (IInterpreterObserver observer : participants) {
-                    observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
+                    astManager.setProject(getProject(), false); //it is a new manager, so, remove all deltas
+
+                    //begins task automatically
+                    astManager.changePythonPath(paths, project, jobProgressComunicator);
+                    saveAstManager();
+
+                    List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+                    for (IInterpreterObserver observer : participants) {
+                        try {
+                            //let's keep it safe
+                            observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
+                        } catch (Exception e) {
+                            PydevPlugin.log(e);
+                        }
+                    }
+
+                } catch (Exception e) {
+                    PydevPlugin.log(e);
                 }
-
-                saveAstManager();
                                                 
                 //end task
                 jobProgressComunicator.done();

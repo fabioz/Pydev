@@ -89,7 +89,7 @@ VERSION_STRING = "1.0"
 
 #--------------------------------------------------------------------------------------------------- UTILITIES
 
-pydevd_trace = 0
+pydevd_trace = -1
 
 def pydevd_log(level, s):
     """ levels are: 

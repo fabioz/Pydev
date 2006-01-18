@@ -71,7 +71,6 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
 	public abstract void removeModule(File file, IProject project, IProgressMonitor monitor) ;
 	
-	public abstract void validatePathInfo(String pythonpath, IProject project, IProgressMonitor monitor) ;
 
     /**
      * Returns the imports that start with a given string. The comparisson is not case dependent. Passes all the modules in the cache.

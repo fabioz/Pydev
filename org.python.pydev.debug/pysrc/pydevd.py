@@ -97,7 +97,10 @@ class PyDB:
         self.readyToRun = False
 
     def initializeNetwork(self, sock):
-        #sock.settimeout(None) # infinite, no timeouts from now on - jython does not have it
+        try:
+            sock.settimeout(None) # infinite, no timeouts from now on - jython does not have it
+        except:
+            pass
         self.writer = WriterThread(sock)
         self.writer.start()
         self.reader = ReaderThread(sock)
@@ -118,7 +121,11 @@ class PyDB:
         pydevd_log(1, "Connecting to " + host + ":" + str(port))
         try:
             s = socket(AF_INET, SOCK_STREAM);
-#            s.settimeout(10) # seconds - jython does not have it
+            try:
+                s.settimeout(10) # seconds - jython does not have it
+            except:
+                pass
+
             s.connect((host, port))
             pydevd_log(1, "Connected.")
             self.initializeNetwork(s)

@@ -108,45 +108,6 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
     public abstract String[] getBuiltins();
 
-    
-	public void validatePathInfo(String pythonpath, final IProject project, IProgressMonitor monitor) {
-		//it is all comented because it could take quite some time to do that validation, so, we have to check 
-		//for a better way to do it...
-
-	    if(this.modules.size() < 10){
-            //either there are not many modules (in which case, we could restore it without many problems)
-            //or the data is not really valid (in which case, we must restore it).
-    		List<String> lPythonpath = new ArrayList<String>();
-    		List<File> completions = new ArrayList<File>();
-    		List<String> fromJar = new ArrayList<String>();
-    
-    		int total = listFilesForCompletion(monitor, lPythonpath, completions, fromJar);
-            changePythonPath(pythonpath, project, monitor, lPythonpath, completions, fromJar, total);
-        }
-//		
-//		this.pythonPathHelper.getPythonPathFromStr(pythonpath, lPythonpath);
-//		if(!this.pythonPathHelper.pythonpath.equals(lPythonpath)){
-//			// the pythonpath is not the same
-//			lPythonpath = pythonPathHelper.setPythonPath(pythonpath);
-//			PydevPlugin.log(IStatus.INFO, "The pythonpath was not valid and will be restored.", null, true);
-//			changePythonPath(pythonpath, project, monitor, lPythonpath, completions, fromJar, total);
-//		
-//		}else if(!validateFiles(completions)){
-//			//the files are not valid
-//			PydevPlugin.log(IStatus.INFO, "The pythonpath files were not valid and will be restored.", null, true);
-//			changePythonPath(pythonpath, project, monitor, lPythonpath, completions, fromJar, total);
-//		}
-	}
-
-	private boolean validateFiles(List<File> completions) {
-		for (File f : completions) {
-			if(!files.contains(f)){
-				return false;
-			}
-		}
-		return true;
-	}
-
 	/**
 	 * 
 	 * @param monitor this is the monitor

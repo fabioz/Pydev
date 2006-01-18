@@ -201,10 +201,6 @@ public interface ICodeCompletionASTManager {
      */
     public abstract List getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, ICompletionState state, IModule current);
 
-    /**
-     * This method validates the information from the modules it contains (and recreates it if needed).
-     */
-	public abstract void validatePathInfo(String pythonpath, final IProject project, IProgressMonitor monitor);
 
     
 

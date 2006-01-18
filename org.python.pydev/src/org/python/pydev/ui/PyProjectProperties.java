@@ -10,8 +10,11 @@ package org.python.pydev.ui;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
@@ -109,6 +112,19 @@ public class PyProjectProperties extends PropertyPage {
                 data.grabExcessHorizontalSpace = true;
                 data.grabExcessVerticalSpace = true;
                 treeExternalLibs.setLayoutData(data);
+                
+                Button button = new Button(topComp, SWT.NONE);
+                button.setText("Force restore internal info");
+                button.addSelectionListener(new SelectionListener(){
+
+                    public void widgetSelected(SelectionEvent e) {
+                        doIt(true);
+                    }
+
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                    
+                });
             } catch (Exception e) {
                 PydevPlugin.log(e);
             }
@@ -124,21 +140,21 @@ public class PyProjectProperties extends PropertyPage {
      * @see org.eclipse.jface.preference.PreferencePage#performApply()
      */
     protected void performApply() {
-		doIt();
+		doIt(false);
     }
     
     /**
 	 * Saves values into the project and updates the code completion. 
 	 */
 	public boolean performOk() {
-		return doIt();
+		return doIt(false);
 	}
 
     /**
      * Save the pythonpath - only updates model if asked to.
      * @return
      */
-    private boolean doIt() {
+    private boolean doIt(boolean force) {
         if (project != null) {
 			try {
 			    boolean changed = false;
@@ -162,7 +178,7 @@ public class PyProjectProperties extends PropertyPage {
 			    }				
 
 			    PythonNature pythonNature = PythonNature.getPythonNature(project);
-			    if(pythonNature != null && (changed || pythonNature.getAstManager() == null)){
+			    if(pythonNature != null && (changed || force || pythonNature.getAstManager() == null)){
 			        pythonNature.rebuildPath(pythonPathNature.getOnlyProjectPythonPathStr());
 			    }
 				
