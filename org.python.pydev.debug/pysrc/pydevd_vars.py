@@ -20,7 +20,10 @@ class VariableError(Exception):
 typeMap = {}
 try:
     #jython does not have this types
-   typeMap[BooleanType] = (BooleanType, BooleanType.__name__, None)
+   try:
+       typeMap[BooleanType] = (BooleanType, BooleanType.__name__, None)
+   except NameError:
+       pass #early versions of python do not have it.
    typeMap[BufferType] = (BufferType, BufferType.__name__, None)   
    typeMap = {
        NoneType : (NoneType, NoneType.__name__, None),

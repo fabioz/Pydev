@@ -145,7 +145,7 @@ public class XMLUtils {
 			String target_id = attributes.getValue("id");
 			thread = target.findThreadByID(target_id);
 			if (thread == null){
-				throw new SAXException("Thread not found");		// can happen when debugger has been destroyed
+				throw new SAXException("Thread not found ("+target_id+")");	// can happen when debugger has been destroyed
 			}
 			
 			stop_reason = attributes.getValue("stop_reason");

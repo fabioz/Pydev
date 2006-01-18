@@ -6,29 +6,46 @@ connected = False
 
     
 class PyDBCtx:
-
+    '''This class is used to keep track of the contexts we pass through (acting as a cache for them).
+    '''
+    
     ctxs = dict()
+    
+    @staticmethod
+    def GetCtxs():
+        return PyDBCtx.ctxs.values()
     
     @staticmethod
     def GetCtx(frame):
         try:
-            return PyDBCtx.ctxs[frame.f_code]
+            return PyDBCtx.ctxs[frame]
         except KeyError:
             ctx = PyDBCtx(frame)
-            PyDBCtx.ctxs[frame.f_code] = ctx
+            PyDBCtx.ctxs[frame] = ctx
             return ctx
-
+        
+    @staticmethod
+    def SetTraceForAllFileCtxs(f):
+        g = GetGlobalDebugger()
+        if g:
+            for ctx in PyDBCtx.GetCtxs():
+                if ctx.filename == f:
+                    ctx.frame.f_trace = g.trace_dispatch
+            
     def __init__(self, frame):
         self.filename = NormFile(frame.f_code.co_filename)
         self.base = os.path.basename( self.filename )
+        self.frame = frame
+        self.thread_id = id(threading.currentThread())
         
+    def __str__(self):
+        return 'PyDBCtx [%s %s %s]' % (self.base, self.thread_id, self.frame)
         
-class PyDBCommandThread(threading.Thread):
+class PyDBCommandThread(PyDBDaemonThread):
     
     def __init__(self, pyDb):
-        threading.Thread.__init__(self)
+        PyDBDaemonThread.__init__(self)
         self.pyDb = pyDb
-        self.setDaemon(True)
 
     def run(self):
         sys.settrace(None) # no debugging on this thread
@@ -65,7 +82,6 @@ class PyDB:
         self.cmdQueue = {}     # the hash of Queues. Key is thread id, value is thread
         self.breakpoints = {}
         self.readyToRun = False
-        self.currentThread = None
 
     def initializeNetwork(self, sock):
         #sock.settimeout(None) # infinite, no timeouts from now on - jython does not have it
@@ -104,7 +120,7 @@ class PyDB:
         else:
             self.startServer(port)
         
-        PyDBCommandThread(self).start()
+#        PyDBCommandThread(self).start()
 
     def getInternalQueue(self, thread_id):
         """ returns intenal command queue for a given thread.
@@ -139,15 +155,17 @@ class PyDB:
             queue.put(int_cmd)
 
     def processInternalCommands(self):
-        if self.currentThread is not None:
-            queue = self.getInternalQueue(id(self.currentThread))
-            try:
-                while (True):
-                    int_cmd = queue.get(False)
-                    pydevd_log(2, "processign internal command " + str(int_cmd))
-                    int_cmd.doIt(self)
-            except PydevQueue.Empty:
-                pass # this is how we exit
+        threads = threading.enumerate()
+        for t in threads:
+            if not isinstance(t, PyDBDaemonThread):
+                queue = self.getInternalQueue(id(t))
+                try:
+                    while True:
+                        int_cmd = queue.get(False)
+                        pydevd_log(2, "processign internal command " + str(int_cmd))
+                        int_cmd.doIt(self)
+                except PydevQueue.Empty:
+                    pass # this is how we exit
       
     def processNetCommand(self, id, seq, text):
         try:
@@ -169,7 +187,8 @@ class PyDB:
                 
             elif id == CMD_THREAD_SUSPEND:
                 t = pydevd_findThreadById(text)
-                if t: self.setSuspend(t, CMD_THREAD_SUSPEND)
+                if t: 
+                    self.setSuspend(t, CMD_THREAD_SUSPEND)
 
             elif id  == CMD_THREAD_RUN:
                 t = pydevd_findThreadById(text)
@@ -217,10 +236,10 @@ class PyDB:
                 if len(condition) <= 0 or condition == None or "None" == condition:
                     breakDict[line] = (True, None)
                 else:
-                    pydevd_log(2, "condition: "+condition+" laenge: "+str(len(condition)))
                     breakDict[line] = (True, condition)
                     
                 self.breakpoints[file] = breakDict
+                PyDBCtx.SetTraceForAllFileCtxs(file)
                 
             elif id == CMD_REMOVE_BREAK:
                 #command to remove some breakpoint
@@ -254,7 +273,6 @@ class PyDB:
                 #I have no idea what this is all about
                 cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(id))
                 
-            pydevd_log(1, "processed command " + str (id))
             if cmd: 
                 self.writer.addCommand(cmd)
                 
@@ -274,7 +292,6 @@ class PyDB:
             thread.pydev_notify_kill = False
             
         if not wasNotified:
-            pydevd_log(1, "leaving stopped thread " + str(id(thread)))
             cmd = self.cmdFactory.makeThreadKilledMessage(id(thread))
             self.writer.addCommand(cmd)
             thread.pydev_notify_kill = True
@@ -289,12 +306,12 @@ class PyDB:
         Upon running, processes any outstanding Stepping commands.
         """
         #print >>sys.stderr, "thread suspended", thread.getName()
-     
+        self.processInternalCommands()
+
         cmd = self.cmdFactory.makeThreadSuspendMessage(id(thread), frame, thread.stop_reason)
         self.writer.addCommand(cmd)
 
         while thread.pydev_state == PyDB.STATE_SUSPEND:            
-            self.processInternalCommands()
             time.sleep(0.1)
             
         #process any stepping instructions 
@@ -311,7 +328,6 @@ class PyDB:
         elif thread.pydev_step_cmd == CMD_STEP_RETURN:
             thread.pydev_step_stop = frame.f_back
  
-        pydevd_log(1, "thread resumed " + thread.getName())  
         cmd = self.cmdFactory.makeThreadRunMessage(id(thread), thread.pydev_step_cmd)
         self.writer.addCommand(cmd)
                 
@@ -330,7 +346,7 @@ class PyDB:
         '''
         if event not in ('call', 'line', 'return'):
             return None
-
+        
         ctx = PyDBCtx.GetCtx(frame)
         filename = ctx.filename
         base = ctx.base
@@ -338,11 +354,8 @@ class PyDB:
         if base in DONT_TRACE: #we don't want to debug pydevd or threading
             return None
 
-#        self.processInternalCommands()
-
         t = threading.currentThread()
-        self.currentThread = t
-        
+
         # if thread is not alive, cancel trace_dispatch processing
         if not t.isAlive():
             self.processThreadNotAlive(t)
@@ -562,6 +575,10 @@ def setupQuiting():
         type = 'python'
 
 
+def SetTraceForAll(frame, dispatch_func):
+    frame.f_trace = dispatch_func
+    SetTraceForParents(frame, dispatch_func)
+    
 def SetTraceForParents(frame, dispatch_func):
     frame = frame.f_back
     while frame:

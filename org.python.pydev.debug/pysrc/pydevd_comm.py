@@ -110,6 +110,9 @@ def NormFile(filename):
         rPath = os.path.abspath    
     return os.path.normcase(rPath(filename))
 
+globalDbg = None
+def GetGlobalDebugger():
+    return globalDbg
 
 def SetGlobalDebugger(dbg):
     global globalDbg
@@ -118,15 +121,19 @@ def SetGlobalDebugger(dbg):
 
 #------------------------------------------------------------------- ACTUAL COMM
 
+class PyDBDaemonThread(threading.Thread):
 
-class ReaderThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.setDaemon(True)
+
+class ReaderThread(PyDBDaemonThread):
     """ reader thread reads and dispatches commands in an infinite loop """
     
     def __init__(self, sock):
-        threading.Thread.__init__(self)
+        PyDBDaemonThread.__init__(self)
         self.sock = sock
         self.setName("pydevd.Reader")
-        self.setDaemon(True)
      
     def run(self):
         sys.settrace(None) # no debugging on this thread
@@ -135,7 +142,7 @@ class ReaderThread(threading.Thread):
             while True:
                 buffer += self.sock.recv(1024)
                 while buffer.find('\n') != -1:
-                    [command, buffer] = buffer.split('\n', 1)
+                    command, buffer = buffer.split('\n', 1)
                     pydevd_log(1, "received command " + command)
                     args = command.split('\t', 2)
                     globalDbg.processNetCommand(int(args[0]), int(args[1]), args[2])
@@ -145,13 +152,12 @@ class ReaderThread(threading.Thread):
 
 
 #----------------------------------------------------------------------------------- SOCKET UTILITIES - WRITER
-class WriterThread(threading.Thread):
+class WriterThread(PyDBDaemonThread):
     """ writer thread writes out the commands in an infinite loop """
     def __init__(self, sock):
-        threading.Thread.__init__(self)
+        PyDBDaemonThread.__init__(self)
         self.sock = sock
         self.setName("pydevd.Writer")
-        self.setDaemon(True)
         self.cmdQueue = PydevQueue.Queue()
         if type=='python':
             self.timeout = 0
@@ -422,7 +428,9 @@ def pydevd_findThreadById(thread_id):
         threads = threading.enumerate()
 #        print >>sys.stderr, "done enumerating"
         for i in threads:
-            if int_id == id(i): return i
+            if int_id == id(i): 
+                return i
+            
         print >>sys.stderr, "could not find thread"
     except:
         print >>sys.stderr, "unexpected exceiton if findThreadById"
