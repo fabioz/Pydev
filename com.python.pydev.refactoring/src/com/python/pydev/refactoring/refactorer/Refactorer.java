@@ -16,6 +16,7 @@ import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -49,21 +50,59 @@ public class Refactorer extends AbstractPyRefactoring{
 		List<ItemPointer> pointers = new ArrayList<ItemPointer>();
 		String[] tokenAndQual = PyCodeCompletion.getActivationTokenAndQual(request.doc, request.ps.getAbsoluteCursorOffset(), true);
 		
+		String modName = null;
+		
+		//all that to try to give the user a 'default' interpreter manager, for whatever he is trying to search
+		//if it is in some pythonpath, that's easy, but if it is some file somewhere else in the computer, this
+		//might turn out a little tricky.
 		if(request.nature == null){
 			//the request is not associated to any project. It is probably a system file. So, let's check it...
-			SystemPythonNature systemPythonNature = new SystemPythonNature(PydevPlugin.getPythonInterpreterManager());
-			String modName = systemPythonNature.resolveModule(request.file);
-			if(modName == null){
-				systemPythonNature = new SystemPythonNature(PydevPlugin.getJythonInterpreterManager());
+			IInterpreterManager pythonInterpreterManager = PydevPlugin.getPythonInterpreterManager();
+			IInterpreterManager jythonInterpreterManager = PydevPlugin.getJythonInterpreterManager();
+
+			SystemPythonNature systemPythonNature = new SystemPythonNature(pythonInterpreterManager);
+			SystemPythonNature pySystemPythonNature = systemPythonNature;
+			SystemPythonNature jySystemPythonNature = null;
+			try {
 				modName = systemPythonNature.resolveModule(request.file);
+			} catch (Exception e) {
+				// that's ok
+			}
+			if(modName == null){
+				systemPythonNature = new SystemPythonNature(jythonInterpreterManager);
+				jySystemPythonNature = systemPythonNature;
+				try {
+					modName = systemPythonNature.resolveModule(request.file);
+				} catch (Exception e) {
+					// that's ok
+				}
 			}
 			if(modName != null){
 				request.nature = systemPythonNature;
 				request.name = modName;
+			}else{
+				//unable to discover it
+				try {
+					pythonInterpreterManager.getDefaultInterpreter();
+					request.nature = pySystemPythonNature; // the default one is python
+					modName = getModNameFromFile(request);
+				} catch (Exception e) {
+					//the python interpreter manager is not valid or not configured
+					try {
+						jythonInterpreterManager.getDefaultInterpreter();
+						request.nature = jySystemPythonNature; // the default one is jython
+						modName = getModNameFromFile(request);
+					} catch (Exception e1) {
+						// ok, nothing to do about it, no interpreter is configured
+						return new ItemPointer[0];
+					}
+				}
 			}
 		}
 		
-		String modName = request.resolveModule();
+		if(modName == null){
+			modName = request.resolveModule();
+		}
 		if(modName == null){
 			return new ItemPointer[0];
 		}
@@ -119,6 +158,17 @@ public class Refactorer extends AbstractPyRefactoring{
         }
 		
 		return pointers.toArray(new ItemPointer[0]);
+	}
+	private String getModNameFromFile(RefactoringRequest request) {
+		if(request.file == null){
+			return null;
+		}
+		String name = request.file.getName();
+		int i = name.indexOf('.');
+		if (i != -1){
+			return name.substring(0, i);
+		}
+		return name;
 	}
     /**
      * @param pointers
