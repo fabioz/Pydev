@@ -128,6 +128,12 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                 ASTEntry element = (ASTEntry) iter.next();
                 
                 int start = element.node.beginLine-1;
+                
+                if(element.node instanceof FunctionDef){
+                    FunctionDef f = (FunctionDef) element.node;
+                    start = f.name.beginLine -1;
+                }
+                
                 int end = element.endLine;
                 if (end == -1) {
                     end = start;

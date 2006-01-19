@@ -19,15 +19,16 @@ import org.python.pydev.parser.PyParser;
 public class EasyASTIteratorTest extends TestCase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(EasyASTIteratorTest.class);
-//        EasyASTIteratorTest test = new EasyASTIteratorTest();
-//        try {
-//            test.setUp();
-//            test.testMultiline2();
-//            test.tearDown();
-//        } catch (Throwable e) {
-//            e.printStackTrace();
-//        }
+        EasyASTIteratorTest test = new EasyASTIteratorTest();
+        try {
+            test.setUp();
+            test.testDecorator();
+            test.tearDown();
+
+            junit.textui.TestRunner.run(EasyASTIteratorTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     /*
@@ -155,6 +156,25 @@ public class EasyASTIteratorTest extends TestCase {
         assertFalse(iterator.hasNext());
     }
     
+    public void testDecorator() throws Exception {
+        EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
+        String str = "" +
+"class D:\n" +
+"    @foo\n" +
+"    def mmm(self):\n" +
+"        pass\n" +
+"\n" +
+"\n";
+
+        Object[] objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        SimpleNode root = (SimpleNode) objects[0];
+        root.accept(visitor);
+        Iterator iterator = visitor.getIterator();
+        check((ASTEntry) iterator.next(), "D", 1, 1, 4);
+        check((ASTEntry) iterator.next(), "mmm", 5, 2, 4);
+        assertFalse(iterator.hasNext());
+
+    }
     /**
      * @throws Exception
      * 
@@ -176,8 +196,8 @@ public class EasyASTIteratorTest extends TestCase {
         Iterator iterator = visitor.getIterator();
         check((ASTEntry) iterator.next(), "C", 1, 1, 6);
         check((ASTEntry) iterator.next(), "met1", 5, 2, 4);
-        check((ASTEntry) iterator.next(), "attr1", 9, 3, 3);
-        check((ASTEntry) iterator.next(), "attr2", 9, 4, 4);
+        check((ASTEntry) iterator.next(), "attr1", 14, 3, 3);
+        check((ASTEntry) iterator.next(), "attr2", 14, 4, 4);
         check((ASTEntry) iterator.next(), "classAttr", 5, 6, 6);
         assertFalse(iterator.hasNext());
         

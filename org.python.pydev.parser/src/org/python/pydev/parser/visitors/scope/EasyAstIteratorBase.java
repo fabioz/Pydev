@@ -9,6 +9,7 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.VisitorBase;
+import org.python.parser.ast.VisitorIF;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
@@ -36,7 +37,11 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @see org.python.parser.ast.VisitorBase#traverse(org.python.parser.SimpleNode)
      */
     public void traverse(SimpleNode node) throws Exception {
-        node.traverse(this);
+        if(node instanceof FunctionDef){
+            traverse((FunctionDef)node);
+        }else{
+            node.traverse(this);
+        }
     }
 
     
@@ -167,7 +172,26 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         
         return ret;
     }
-    
+
+    public void traverse(FunctionDef node) throws Exception {
+        if (node.decs != null) {
+            for (int i = 0; i < node.decs.length; i++) {
+                if (node.decs[i] != null)
+                    node.decs[i].accept(this);
+            }
+        }        
+
+        if (node.name != null)
+            node.name.accept(this);
+        if (node.args != null)
+            node.args.accept(this);
+        if (node.body != null) {
+            for (int i = 0; i < node.body.length; i++) {
+                if (node.body[i] != null)
+                    node.body[i].accept(this);
+            }
+        }
+    }
     /**
      * @return and iterator that passes through all the nodes
      */
