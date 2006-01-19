@@ -79,16 +79,23 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
 	}
 	
 	public void disconnect() {
-		try {
-			if (socket != null) {
-				socket.shutdownInput();	// trying to make my pydevd notice that the socket is gone
-				socket.shutdownOutput();	
+		if (socket != null) {
+			try {
+				socket.shutdownInput(); // trying to make my pydevd notice that the socket is gone
+			} catch (Exception e) {
+				// ok, ignore
+			}
+			try {
+				socket.shutdownOutput(); 
+			} catch (Exception e) {
+				// ok, ignore
+			}	
+			try {
 				socket.close();
+			} catch (Exception e) {
+				// ok, ignore
 			}
-			} catch (IOException e) {
-				e.printStackTrace();
-				// it is going away
-			}
+		}
 		socket = null;
 		if (target != null){
 			target.debuggerDisconnected();

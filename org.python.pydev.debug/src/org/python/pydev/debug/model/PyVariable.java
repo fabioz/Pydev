@@ -12,6 +12,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 
@@ -123,6 +124,9 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 			return  super.getAdapter(adapter);
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
 		// so I print them out as errors
+		if(adapter.equals(IDeferredWorkbenchAdapter.class)){
+			return new DeferredWorkbenchAdapter();
+		}
 		System.err.println("PyVariable Need adapter " + adapter.toString());
 		return super.getAdapter(adapter);
 	}

@@ -1,7 +1,8 @@
+import traceback
 import weakref
 from pydevd_comm import *
 
-DONT_TRACE = ('pydevd.py' , 'threading.py', 'pydevd_vars.py')
+DONT_TRACE = ('pydevd.py' , 'threading.py', 'pydevd_vars.py', 'pydevd_comm.py')
 
 connected = False
 
@@ -67,6 +68,13 @@ class PyDBCommandThread(PyDBDaemonThread):
             time.sleep(0.1)
             
 
+class PyDBAdditionalThreadInfo:
+    def __init__(self):
+        self.pydev_state = PyDB.STATE_RUN 
+        self.pydev_step_stop = None
+        self.pydev_step_cmd = None
+        self.pydev_notify_kill = False
+
 #---------------------------------------------------------------------------------------- THIS IS THE DEBUGGER
 
 class PyDB:
@@ -109,7 +117,6 @@ class PyDB:
         
     def startServer(self, port):
         """ binds to a port, waits for the debugger to connect """
-        # TODO untested
         s = socket(AF_INET, SOCK_STREAM)
         s.bind(('', port))
         s.listen(1)
@@ -140,7 +147,7 @@ class PyDB:
         else:
             self.startServer(port)
         
-#        PyDBCommandThread(self).start()
+        PyDBCommandThread(self).start()
 
     def getInternalQueue(self, thread_id):
         """ returns intenal command queue for a given thread.
@@ -165,12 +172,12 @@ class PyDB:
         
     def postInternalCommand(self, int_cmd, thread_id):
         """ if thread_id is *, post to all """
-#        print "Posting internal command for ", str(thread_id)
         if thread_id == "*":
             for k in self.cmdQueue.keys(): 
                 self.cmdQueue[k].put(int_cmd)
                 
         else:
+            assert isinstance(thread_id , long), 'the thread id must be a long (it is: %s)' % thread_id.__class__
             queue = self.getInternalQueue(thread_id)
             queue.put(int_cmd)
 
@@ -179,12 +186,20 @@ class PyDB:
         for t in threads:
             if not isinstance(t, PyDBDaemonThread):
                 queue = self.getInternalQueue(id(t))
+                cmdsToReadd = [] #some commands must be processed by the thread itself... if that's the case,
+                                 #we will re-add the commands to the queue after executing.
                 try:
                     while True:
                         int_cmd = queue.get(False)
-                        pydevd_log(2, "processign internal command " + str(int_cmd))
-                        int_cmd.doIt(self)
+                        if int_cmd.canBeExecutedBy(id(threading.currentThread())):
+                            pydevd_log(2, "processign internal command " + str(int_cmd))
+                            int_cmd.doIt(self)
+                        else:
+                            cmdsToReadd.append(int_cmd)
+                            
                 except PydevQueue.Empty:
+                    for int_cmd in cmdsToReadd:
+                        queue.put(int_cmd)
                     pass # this is how we exit
       
     def processNetCommand(self, id, seq, text):
@@ -213,32 +228,35 @@ class PyDB:
             elif id  == CMD_THREAD_RUN:
                 t = pydevd_findThreadById(text)
                 if t: 
-                    t.pydev_state = PyDB.STATE_RUN
-                    t.pydev_step_cmd = None
+                    t.additionalInfo.pydev_state = PyDB.STATE_RUN
+                    t.additionalInfo.pydev_step_cmd = None
                     
             elif id == CMD_STEP_INTO or id == CMD_STEP_OVER or id == CMD_STEP_RETURN:
                 #we received some command to make a single step
                 t = pydevd_findThreadById(text)
                 if t:
-                    t.pydev_state = PyDB.STATE_RUN
-                    t.pydev_step_cmd = id
+                    t.additionalInfo.pydev_state = PyDB.STATE_RUN
+                    t.additionalInfo.pydev_step_cmd = id
                     
                     
             elif id == CMD_GET_VARIABLE:
                 #we received some command to get a variable
                 #the text is: thread\tstackframe\tLOCAL|GLOBAL\tattributes*
                 
-                thread_id, frame_id, scopeattrs = text.split('\t', 2)
-                if scopeattrs.find('\t') != -1: # there are attibutes beyond scope
-                    (scope, attrs) = scopeattrs.split('\t', 1)
-                else:
-                    (scope, attrs) = (scopeattrs, None)
-                t = pydevd_findThreadById(thread_id)
-                if t:
-                    int_cmd = InternalGetVariable(seq, t, frame_id, scope, attrs)
+                try:
+                    thread_id, frame_id, scopeattrs = text.split('\t', 2)
+                    thread_id = long(thread_id)
+                    
+                    if scopeattrs.find('\t') != -1: # there are attibutes beyond scope
+                        scope, attrs = scopeattrs.split('\t', 1)
+                    else:
+                        scope, attrs = (scopeattrs, None)
+                    
+                    int_cmd = InternalGetVariable(seq, thread_id, frame_id, scope, attrs)
                     self.postInternalCommand(int_cmd, thread_id)
-                else:
-                    cmd = self.cmdFactory.makeErrorMessage(seq, "could not find thread for variable")
+                        
+                except:
+                    traceback.print_exc()
                     
                     
             elif id == CMD_SET_BREAK:
@@ -275,18 +293,16 @@ class PyDB:
                         if len(keys) is 0:
                             del self.breakpoints[file]
                     else:
-                        print sys.stderr, "breakpoint not found", file, str(line)
+                        pass
+                        #Sometimes, when adding a breakpoint, it adds a remove command before (don't really know why)
+                        #print >> sys.stderr, "breakpoint not found", file, str(line)
                         
             elif id == CMD_EVALUATE_EXPRESSION:
                 #command to evaluate the given expression
                 #text is: thread\tstackframe\tLOCAL\texpression
                 thread_id, frame_id, scope, expression = text.split('\t', 3)
-                t = pydevd_findThreadById(thread_id)
-                if t:
-                    int_cmd = InternalEvaluateExpression(seq, t, frame_id, expression)
-                    self.postInternalCommand(int_cmd, thread_id)
-                else:
-                    cmd = self.cmdFactory.makeErrorMessage(seq, "could not find thread for expression")
+                int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression)
+                self.postInternalCommand(int_cmd, thread_id)
                     
                     
             else:
@@ -297,27 +313,21 @@ class PyDB:
                 self.writer.addCommand(cmd)
                 
         except Exception, e:
-            import traceback
             traceback.print_exc(e)
             cmd = self.cmdFactory.makeErrorMessage(seq, "Unexpected exception in processNetCommand:" + str(e))
             self.writer.addCommand(cmd)
 
     def processThreadNotAlive(self, thread):
         """ if thread is not alive, cancel trace_dispatch processing """
-        wasNotified = False
-        
-        try:
-            wasNotified = thread.pydev_notify_kill
-        except AttributeError:
-            thread.pydev_notify_kill = False
+        wasNotified = thread.additionalInfo.pydev_notify_kill
             
         if not wasNotified:
             cmd = self.cmdFactory.makeThreadKilledMessage(id(thread))
             self.writer.addCommand(cmd)
-            thread.pydev_notify_kill = True
+            thread.additionalInfo.pydev_notify_kill = True
 
     def setSuspend(self, thread, stop_reason):
-        thread.pydev_state = PyDB.STATE_SUSPEND
+        thread.additionalInfo.pydev_state = PyDB.STATE_SUSPEND
         thread.stop_reason = stop_reason
 
     def doWaitSuspend(self, thread, frame, event, arg):
@@ -325,30 +335,29 @@ class PyDB:
         it expects thread's state as attributes of the thread.
         Upon running, processes any outstanding Stepping commands.
         """
-        #print >>sys.stderr, "thread suspended", thread.getName()
         self.processInternalCommands()
-
         cmd = self.cmdFactory.makeThreadSuspendMessage(id(thread), frame, thread.stop_reason)
         self.writer.addCommand(cmd)
-
-        while thread.pydev_state == PyDB.STATE_SUSPEND:            
+        
+        info = thread.additionalInfo
+        while info.pydev_state == PyDB.STATE_SUSPEND:            
+            self.processInternalCommands()
             time.sleep(0.1)
             
         #process any stepping instructions 
-        if thread.pydev_step_cmd == CMD_STEP_INTO:
-            thread.pydev_step_stop = None
+        if info.pydev_step_cmd == CMD_STEP_INTO:
+            info.pydev_step_stop = None
             
-        elif thread.pydev_step_cmd == CMD_STEP_OVER:
+        elif info.pydev_step_cmd == CMD_STEP_OVER:
             if event is 'return': # if we are returning from the function, stop in parent
-                #print "Stepping back one"
-                thread.pydev_step_stop = frame.f_back
+                info.pydev_step_stop = frame.f_back
             else:
-                thread.pydev_step_stop = frame
+                info.pydev_step_stop = frame
                 
-        elif thread.pydev_step_cmd == CMD_STEP_RETURN:
-            thread.pydev_step_stop = frame.f_back
+        elif info.pydev_step_cmd == CMD_STEP_RETURN:
+            info.pydev_step_stop = frame.f_back
  
-        cmd = self.cmdFactory.makeThreadRunMessage(id(thread), thread.pydev_step_cmd)
+        cmd = self.cmdFactory.makeThreadRunMessage(id(thread), info.pydev_step_cmd)
         self.writer.addCommand(cmd)
                 
 
@@ -362,17 +371,17 @@ class PyDB:
         The attributes added are:
             pydev_state
             pydev_step_stop
-            pydev_step_cmo
+            pydev_step_cmd
+            pydev_notify_kill 
         '''
         if event not in ('call', 'line', 'return'):
             return None
         
         t = threading.currentThread()
         ctx = PyDBCtx.GetCtx(frame, t)
-        filename = ctx.filename
         base = ctx.base
 
-        if base in DONT_TRACE: #we don't want to debug pydevd or threading
+        if base in DONT_TRACE: #we don't want to debug threading or anything related to pydevd
             return None
 
 
@@ -382,26 +391,24 @@ class PyDB:
             return None # suspend tracing
         wasSuspended = False        
 
-        #let's decorate the thread we are in with debugging info
-        if not hasattr(t, 'pydev_state'):
-            t.pydev_state = PyDB.STATE_RUN 
+        try:
+            additionalInfo = t.additionalInfo
+        except AttributeError:
+            additionalInfo = PyDBAdditionalThreadInfo()
+            t.additionalInfo = additionalInfo
             
-        if not hasattr(t, 'pydev_step_stop'):
-            t.pydev_step_stop = None
-            
-        if not hasattr(t, 'pydev_step_cmd'):
-            t.pydev_step_cmd = None
-        
+        filename = ctx.filename
         # Let's check to see if we are in a line that has a breakpoint. If we don't have a breakpoint, 
         # we will return nothing for the next trace
         #also, after we hit a breakpoint and go to some other debugging state, we have to force the set trace anyway,
         #so, that's why the additional checks are there.
-        if not self.breakpoints.has_key(filename) and t.pydev_state == PyDB.STATE_RUN and t.pydev_step_stop is None and t.pydev_step_cmd is None:
-            #print 'skipping', base, frame.f_lineno, t.pydev_state, t.pydev_step_stop, t.pydev_step_cmd
+        if not self.breakpoints.has_key(filename) and additionalInfo.pydev_state == PyDB.STATE_RUN and \
+           additionalInfo.pydev_step_stop is None and additionalInfo.pydev_step_cmd is None:
+            #print 'skipping', base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
             return self.stopTracingFrame(frame)
 
         else:
-            #print 'NOT skipped', base, frame.f_lineno, t.pydev_state, t.pydev_step_stop, t.pydev_step_cmd
+            #print 'NOT skipped', base, frame.f_lineno, additionalInfo.pydev_state, additionalInfo.pydev_step_stop, additionalInfo.pydev_step_cmd
             #We just hit a breakpoint or we are already in step mode. Either way, let's trace this frame
             frame.f_trace = self.trace_dispatch
         
@@ -409,7 +416,7 @@ class PyDB:
         
         try:
             line = int(frame.f_lineno)
-            if t.pydev_state != PyDB.STATE_SUSPEND and self.breakpoints.has_key(filename) and self.breakpoints[filename].has_key(line):
+            if additionalInfo.pydev_state != PyDB.STATE_SUSPEND and self.breakpoints.has_key(filename) and self.breakpoints[filename].has_key(line):
                 #ok, hit breakpoint, now, we have to discover if it is a conditional breakpoint
                 # lets do the conditional stuff here
                 condition = self.breakpoints[filename][line][1]
@@ -417,12 +424,12 @@ class PyDB:
                 if condition is not None:
                     try:
                         val = eval(condition, frame.f_globals, frame.f_locals)
-                        if not val:# and not (t.pydev_step_cmd == CMD_STEP_INTO or t.pydev_step_cmd == CMD_STEP_OVER or t.pydev_step_cmd == CMD_STEP_RETURN ) :
+                        if not val:
                             return self.stopTracingFrame(frame)
                             
                     except:
                         print >> sys.stderr, 'Error while evaluating expression'
-                        import traceback;traceback.print_exc()
+                        traceback.print_exc()
                         return self.stopTracingFrame(frame)
                 
                 #when we hit a breakpoint, we set the tracing function for the callers of the current frame, because
@@ -431,29 +438,29 @@ class PyDB:
                 self.setSuspend(t, CMD_SET_BREAK)
                 
             # if thread has a suspend flag, we suspend with a busy wait
-            if t.pydev_state == PyDB.STATE_SUSPEND:
+            if additionalInfo.pydev_state == PyDB.STATE_SUSPEND:
                 wasSuspended = True
                 self.doWaitSuspend(t, frame, event, arg)
                 return self.trace_dispatch
             
         except:
-            import traceback;traceback.print_exc()
+            traceback.print_exc()
             raise
 
         if not wasSuspended and (event == 'line' or event== 'return'):
             #step handling. We stop when we hit the right frame
             try:
-                if t.pydev_step_cmd == CMD_STEP_INTO:
+                if additionalInfo.pydev_step_cmd == CMD_STEP_INTO:
                     self.setSuspend(t, CMD_STEP_INTO)
                     self.doWaitSuspend(t, frame, event, arg)      
                     
                 
-                elif t.pydev_step_cmd == CMD_STEP_OVER or t.pydev_step_cmd == CMD_STEP_RETURN:
-                    if t.pydev_step_stop == frame:
-                        self.setSuspend(t, t.pydev_step_cmd)
+                elif additionalInfo.pydev_step_cmd == CMD_STEP_OVER or additionalInfo.pydev_step_cmd == CMD_STEP_RETURN:
+                    if additionalInfo.pydev_step_stop == frame:
+                        self.setSuspend(t, additionalInfo.pydev_step_cmd)
                         self.doWaitSuspend(t, frame, event, arg)
             except:
-                t.pydev_step_cmd = None
+                additionalInfo.pydev_step_cmd = None
         
         
         #if we are quitting, let's stop the tracing
@@ -578,8 +585,7 @@ def quittingNowJython():
         import sys
         sys.exit(0)        
     except:
-        print "Exception in quitting now jython"
-        raise
+        pass #just ignore it
 
 def setupQuiting():
     global type

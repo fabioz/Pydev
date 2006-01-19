@@ -73,7 +73,6 @@ public class PyBreakpoint extends LineBreakpoint {
 
 	public void setConditionEnabled(boolean conditionEnabled) throws CoreException {
 		setAttributes(new String[]{CONDITION_ENABLED}, new Object[]{new Boolean(conditionEnabled)});
-//		recreate();
 	}
 
 	public void setCondition(String condition) throws CoreException {
@@ -81,7 +80,6 @@ public class PyBreakpoint extends LineBreakpoint {
 			condition = null;
 		}
 		setAttributes(new String []{CONDITION}, new Object[]{condition});
-//		recreate();
 	}
 	
 	

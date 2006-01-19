@@ -20,9 +20,9 @@ each command has a format:
     101      RUN             RDB       -                   -
     102      LIST_THREADS    RDB                           RETURN with XML listing of all threads
     103      THREAD_CREATE   PYDB      -                   XML with thread information
-    104         THREAD_KILL     RDB       id                   kills the thread
+    104      THREAD_KILL     RDB       id                  kills the thread
                              PYDB      id                  nofies RDB that thread was killed
-    105         THREAD_SUSPEND  RDB       XML of the stack,   suspends the thread
+    105      THREAD_SUSPEND  RDB       XML of the stack,   suspends the thread
                                        reason for suspension
                              PYDB      id                  notifies RDB that thread was suspended
     106      THREAD_RUN      RDB       id                  resume the thread
@@ -30,21 +30,23 @@ each command has a format:
     107      STEP_INTO       RDB       thread_id
     108      STEP_OVER       RDB       thread_id
     109      STEP_RETURN     RDB       thread_id
-    110         GET_VARIABLE     RDB       var_locator           GET_VARIABLE with XML of var content
+    110      GET_VARIABLE    RDB       var_locator         GET_VARIABLE with XML of var content
                                        see code for definition
     111      SET_BREAK       RDB       file/line of the breakpoint
     112      REMOVE_BREAK    RDB       file/line of the return
     113      EVALUATE_EXPRESSION RDB   expression          result of evaluating the expression
 
 500 series diagnostics/ok
-    901      VERSION       either      Version string (1.0)               Currently just used at startup
-    902      RETURN           either      Depends on caller    -
+    901      VERSION         either      Version string (1.0)               Currently just used at startup
+    902      RETURN          either      Depends on caller    -
 900 series: errors
-    501      ERROR         either      -                   This is reserved for unexpected errors.
+    501      ERROR           either      -                 This is reserved for unexpected errors.
                                   
     * RDB - remote debugger, the java end
     * PYDB - pydevd, the python end
 """
+import traceback
+import StringIO
 
 try:
     __setFalse = False
@@ -147,8 +149,7 @@ class ReaderThread(PyDBDaemonThread):
                     args = command.split('\t', 2)
                     globalDbg.processNetCommand(int(args[0]), int(args[1]), args[2])
         except:
-            print >>sys.stderr, "Exception in reader thread"
-            raise
+            traceback.print_exc()
 
 
 #----------------------------------------------------------------------------------- SOCKET UTILITIES - WRITER
@@ -179,10 +180,7 @@ class WriterThread(PyDBDaemonThread):
                 bytesSent = self.sock.send(out) #TODO: this does not guarantee that all message are sent (and jython does not have a send all)
                 time.sleep(self.timeout)                
         except Exception, e:
-            print >>sys.stderr, "Exception in writer thread", str(e)
-        except:
-            print >>sys.stderr, "Exception in writer thread"
-            raise
+            traceback.print_exc()
     
     
 
@@ -191,7 +189,7 @@ class WriterThread(PyDBDaemonThread):
 
     
 #------------------------------------------------------------------------------------ MANY COMMUNICATION STUFF
-
+    
 class NetCommand:
     """ Commands received/sent over the network.
     
@@ -277,7 +275,6 @@ class NetCommandFactory:
             </thread>
            """
         try:
-#            print "makeThreadSuspendMessage"
             cmdTextList = ["<xml>"]
             cmdTextList.append('<thread id="%s" stop_reason="%s">' % (str(thread_id), str(stop_reason)))
             
@@ -334,6 +331,7 @@ class NetCommandFactory:
 INTERNAL_TERMINATE_THREAD = 1
 INTERNAL_SUSPEND_THREAD = 2
 
+
 class InternalThreadCommand:
     """ internal commands are generated/executed by the debugger.
     
@@ -341,16 +339,19 @@ class InternalThreadCommand:
     on specific threads. These are the InternalThreadCommands that get
     get posted to PyDB.cmdQueue.
     """
-    def __init__(self, id, payload):
-        self.id = id
+    
+    def canBeExecutedBy(self, thread_id):
+        '''By default, it must be in the same thread to be executed
+        '''
+        return self.thread_id == thread_id
 
     def doIt(self, dbg):
-        print "you have to override doIt"
+        raise NotImplementedError("you have to override doIt")
 
-class InternalTerminateThread:
+class InternalTerminateThread(InternalThreadCommand):
     def __init__(self, thread_id):
         self.thread_id = thread_id
-    
+
     def doIt(self, dbg):
         pydevd_log(1,  "killing " + str(self.thread_id))
         cmd = dbg.cmdFactory.makeThreadKilledMessage(self.thread_id)
@@ -358,82 +359,73 @@ class InternalTerminateThread:
         time.sleep(0.1)
         sys.exit()
 
-class InternalGetVariable:
+class InternalGetVariable(InternalThreadCommand):
     """ gets the value of a variable """
-    def __init__(self, seq, thread, frame_id, scope, attrs):
+    def __init__(self, seq, thread_id, frame_id, scope, attrs):
         self.sequence = seq
-        self.thread = thread
+        self.thread_id = thread_id
         self.frame_id = frame_id
         self.scope = scope
         self.attributes = attrs
      
     def doIt(self, dbg):
         """ Converts request into python variable """
-#        print "InternalGetVariable"
         try:
             xml = "<xml>"            
-            valDict = pydevd_vars.resolveCompoundVariable(self.thread, self.frame_id, self.scope, self.attributes)                        
+            valDict = pydevd_vars.resolveCompoundVariable(self.thread_id, self.frame_id, self.scope, self.attributes)                        
             keys = valDict.keys()
             keys.sort()
             for k in keys:
                 xml += pydevd_vars.varToXML(valDict[k], str(k))
+
             xml += "</xml>"
-#            print >>sys.stderr, "done to xml"
             cmd = dbg.cmdFactory.makeGetVariableMessage(self.sequence, xml)
-#            print >>sys.stderr, "sending command"
             dbg.writer.addCommand(cmd)
         except Exception:
             exc_info = sys.exc_info()
-            import StringIO
             s = StringIO.StringIO()
-            import traceback;traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = s)
+            traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = s)
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + s.getvalue())
-
-#            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + str(e))
             dbg.writer.addCommand(cmd)
 
            
-class InternalEvaluateExpression:
+class InternalEvaluateExpression(InternalThreadCommand):
     """ gets the value of a variable """
-    def __init__(self, seq, thread, frame_id, expression):
+
+    def __init__(self, seq, thread_id, frame_id, expression):
         self.sequence = seq
-        self.thread = thread
+        self.thread = thread_id
         self.frame_id = frame_id
         self.expression = expression
-     
+    
     def doIt(self, dbg):
         """ Converts request into python variable """
         try:
-#            print "InternalEvaluteExpression"
-            result = pydevd_vars.evaluateExpression( self.thread, self.frame_id, self.expression )
+            result = pydevd_vars.evaluateExpression( self.thread_id, self.frame_id, self.expression )
             xml = "<xml>"
             xml += pydevd_vars.varToXML(result, "")
             xml += "</xml>"
-#            print >>sys.stderr, "done to xml"
             cmd = dbg.cmdFactory.makeEvaluateExpressionMessage(self.sequence, xml)
-#            print >>sys.stderr, "sending command"
             dbg.writer.addCommand(cmd)
         except Exception, e:
+            traceback.print_exc()
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + str(e))
             dbg.writer.addCommand(cmd)
-            import traceback
-            traceback.print_exc(file=sys.stderr)
 
 
 def pydevd_findThreadById(thread_id):
     try:
         int_id = int(thread_id)
-#        print >>sys.stderr, "enumerating"
-# there was a deadlock here when I did not remove the tracing function when thread was dead
+        # there was a deadlock here when I did not remove the tracing function when thread was dead
         threads = threading.enumerate()
-#        print >>sys.stderr, "done enumerating"
         for i in threads:
             if int_id == id(i): 
                 return i
             
-        print >>sys.stderr, "could not find thread"
+        print >>sys.stderr, "could not find thread %s" % thread_id
     except:
-        print >>sys.stderr, "unexpected exceiton if findThreadById"
+        traceback.print_exc()
+        
     return None
 
 

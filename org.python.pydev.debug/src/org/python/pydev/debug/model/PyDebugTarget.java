@@ -76,8 +76,10 @@ public class PyDebugTarget extends AbstractDebugTarget {
         }
         
 		threads = new IThread[0];
-		process.terminate();
-        process = null;
+		if(process != null){
+			process.terminate();
+			process = null;
+		}
 		fireEvent(new DebugEvent(this, DebugEvent.TERMINATE));
 	}		
 	

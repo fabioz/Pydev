@@ -10,6 +10,7 @@ import pydevd_resolver
 try:
     __setFalse = False
 except:
+    #early versions of python do not have it.
     False = 0
     True = 1
 
@@ -127,52 +128,49 @@ def frameVarsToXML(frame):
             print >>sys.stderr,"unexpected error, recovered safely", str(e)
     return xml
 
-def findFrame(thread, frame_id):
+def findFrame(thread_id, frame_id):
     """ returns a frame on the thread that has a given frame_id """
-#    print "thread is ", str(thread)
-#    print "current thread is", str(threading.currentThread)
-    if thread != threading.currentThread() : raise VariableError("findFrame: must execute on same thread")
+    if thread_id != id(threading.currentThread()) : 
+        raise VariableError("findFrame: must execute on same thread")
+    
     curFrame = sys._getframe()
-    if frame_id == "*": return curFrame # any frame is specified with "*"
+    if frame_id == "*": 
+        return curFrame # any frame is specified with "*"
+    
     lookingFor = int(frame_id)
-    while (curFrame != None and lookingFor != id(curFrame)):
+    
+    while curFrame != None and lookingFor != id(curFrame):
         curFrame = curFrame.f_back
-    if curFrame == None : raise VariableError("findFrame: frame not found")
+        
+    if curFrame == None : 
+        raise VariableError("findFrame: frame not found")
+    
     return curFrame
 
-def resolveCompoundVariable(thread, frame_id, scope, attrs):
+def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
     """ returns the value of the compound variable as a dictionary"""    
-    frame = findFrame(thread, frame_id)    
+    frame = findFrame(thread_id, frame_id)    
     attrList = attrs.split('\t')
-    if (scope == "GLOBAL"):        
+    if scope == "GLOBAL":        
         var = frame.f_globals
         del attrList[0] # globals are special, and they get a single dummy unused attribute
     else:
         var = frame.f_locals
-    # print "attrList",attrList
-    # print "var",var    
+
     for k in attrList:
-#        print "k", k
         type, typeName, resolver = getType(var)              
         var = resolver.resolve(var, k)
     
-#    print >>sys.stderr, "Got variable", var
-    
     try:        
-        (type, typeName, resolver) = getType(var)        
-        # print 'var',var
-        # print 'type',type
-        # print 'typeName',typeName
-        # print 'resolver',resolver 
+        type, typeName, resolver = getType(var)        
         return resolver.getDictionary(var)
     except:
         import traceback
         traceback.print_exc()
     
-def evaluateExpression( thread, frame_id, expression ):
+def evaluateExpression( thread_id, frame_id, expression ):
     """returns the result of the evaluated expression"""
-#    print "evaluate expression"
-    frame = findFrame(thread, frame_id)
+    frame = findFrame(thread_id, frame_id)
     result = None    
     try:
         result = eval( expression, frame.f_globals, frame.f_locals )

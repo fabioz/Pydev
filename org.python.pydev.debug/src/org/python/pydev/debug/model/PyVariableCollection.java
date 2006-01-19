@@ -37,17 +37,6 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 	
 	public String getDetailText() throws DebugException {
 		return super.getDetailText();
-//		StringBuffer buf = new StringBuffer();
-//		buf.append("{ ");
-//		for (int i=0; i<variables.length; i++) {
-//			buf.append(variables[i].getName());
-//			buf.append(" : ");
-//			buf.append(variables[i].getValueString());
-//			if (i != variables.length - 1)
-//				buf.append(", ");
-//		}
-//		buf.append(" }");
-//		return buf.toString();
 	}
 
 	public String getPyDBLocation() {
@@ -63,33 +52,44 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 		return waitVariables;
 	}
 
+	/**
+	 * Received when the command has been completed.
+	 */
 	public void commandComplete(AbstractDebuggerCommand cmd) {
+		variables = getCommandVariables(cmd);
+		
+		requestedVariables = 2;
+		if (fireChangeEvent){
+			target.fireEvent(new DebugEvent(this, DebugEvent.CHANGE, DebugEvent.STATE));
+		}
+	}
+
+	/**
+	 * @return a list of variables resolved for some command
+	 */
+	public PyVariable[] getCommandVariables(AbstractDebuggerCommand cmd) {
+		PyVariable[] tempVariables = new PyVariable[0];
 		try {
 			String payload = ((GetVariableCommand) cmd).getResponse();
-			synchronized(variables) {
-				variables = XMLUtils.XMLToVariables(target, this, payload);
-			}
+			tempVariables = XMLUtils.XMLToVariables(target, this, payload);
 		} catch (CoreException e) {
-			variables = new PyVariable[1];
-			variables[0] = new PyVariable(target, "Error", "pydev ERROR", "Could not resolve variable");
+			tempVariables = new PyVariable[1];
+			tempVariables[0] = new PyVariable(target, "Error", "pydev ERROR", "Could not resolve variable");
 			PydevDebugPlugin.log(IStatus.ERROR, "Error fetching a variable", e);
 		}
-		requestedVariables = 2;
-		if (fireChangeEvent)
-			target.fireEvent(new DebugEvent(this, DebugEvent.CHANGE, DebugEvent.STATE));
+		return tempVariables;
 	}
 
 	public IVariable[] getVariables() throws DebugException {
-		if (requestedVariables == 2)
+		if (requestedVariables == 2){
 			return variables;
-		else if (requestedVariables == 1)
+		} else if (requestedVariables == 1){
 			return getWaitVariables();
+		}
 
-		AbstractRemoteDebugger dbg;
-		dbg = target.getDebugger();
-		
+		AbstractRemoteDebugger dbg = getDebugger();
 		// send the command, and then busy-wait
-		GetVariableCommand cmd = new GetVariableCommand(dbg, getPyDBLocation());
+		GetVariableCommand cmd = getVariableCommand(dbg);
 		cmd.setCompletionListener(this);
 		requestedVariables = 1;
 		fireChangeEvent = false;	// do not fire change event while we are waiting on response
@@ -111,6 +111,14 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 			return variables;
 		else
 			return getWaitVariables();
+	}
+
+	public AbstractRemoteDebugger getDebugger() {
+		return target.getDebugger();
+	}
+	
+	public GetVariableCommand getVariableCommand(AbstractRemoteDebugger dbg) {
+		return new GetVariableCommand(dbg, getPyDBLocation());
 	}
 
 	public boolean hasVariables() throws DebugException {
