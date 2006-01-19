@@ -2,6 +2,7 @@ import StringIO
 from types import *
 import urllib
 import sys
+import traceback
 
 try:
     __setFalse = False
@@ -11,7 +12,6 @@ except:
 
 class InspectStub:    
     def isbuiltin(self, args):       
-        #return isinstance(args, types.BuiltinFunctionType)
         return False
     def isroutine(self, object):       
         return False
@@ -19,7 +19,6 @@ class InspectStub:
 try:
     import inspect
 except:
-#    print "passou por except in import inspect"
     inspect = InspectStub()
 
 try:
@@ -35,22 +34,11 @@ except:
 
 
 class Resolver:
+
     def resolve(self, var, attribute):
-        #print "Resolver"
         return getattr(var, attribute)
-#==========================================v=====================================
-#        if MethodWrapperType:
-#            return getattr(var, attribute)
-#        else:
-#            field = var.__class__.getDeclaredField( attribute )
-#            print 'field',field
-#            field.setAccessible( True )
-#            return field.get( var )
-#===============================================================================
     
     def getDictionary(self,var):
-#        print "Resolver"
-               
         if MethodWrapperType:
             return self._getPyDictionary(var)
         else:
@@ -60,47 +48,56 @@ class Resolver:
         ret = {}
         found = java.util.HashMap()
     
+        original = obj
         if hasattr(obj, '__class__') and obj.__class__ ==  java.lang.Class:
-            # print "dirObj"
-            declaredMethods = obj.getDeclaredMethods()
-            declaredFields = obj.getDeclaredFields()
-            for i in range(len(declaredMethods)):
-                name = declaredMethods[i].getName()
-                # print 'method name', name
-                ret[name] = declaredMethods[i].toString()
-                found.put(name, 1)            
             
-            for i in range(len(declaredFields)):
-                name = declaredFields[i].getName()
-                # print 'field name', name
-                found.put(name, 1)
-                #if declaredFields[i].isAccessible():
-                declaredFields[i].setAccessible( True )
-                #ret[name] = declaredFields[i].get( declaredFields[i] )
-                try:
-                    ret[name] = declaredFields[i].get( obj )
-                except:
-                    ret[name] = declaredFields[i].toString()
+            #get info about superclasses
+            classes = []
+            classes.append(obj)
+            c = obj.getSuperclass()
+            while c != None:
+                classes.append(c)
+                c = c.getSuperclass()
+            
+            #get info about interfaces
+            interfs = []
+            for obj in classes:
+                interfs.extend(obj.getInterfaces())
+            classes.extend(interfs)
+                
+            #now is the time when we actually get info on the declared methods and fields
+            for obj in classes:
+
+                declaredMethods = obj.getDeclaredMethods()
+                declaredFields = obj.getDeclaredFields()
+                for i in range(len(declaredMethods)):
+                    name = declaredMethods[i].getName()
+                    ret[name] = declaredMethods[i].toString()
+                    found.put(name, 1)            
+                
+                for i in range(len(declaredFields)):
+                    name = declaredFields[i].getName()
+                    found.put(name, 1)
+                    #if declaredFields[i].isAccessible():
+                    declaredFields[i].setAccessible( True )
+                    #ret[name] = declaredFields[i].get( declaredFields[i] )
+                    try:
+                        ret[name] = declaredFields[i].get( original )
+                    except:
+                        ret[name] = declaredFields[i].toString()
     
         #this simple dir does not always get all the info, that's why we have the part before
         #(e.g.: if we do a dir on String, some methods that are from other interfaces such as 
         #charAt don't appear)
-#===============================================================================
-#        d = []
-#        if hasattr(obj, '__dict__'):
-#            d = dir(obj)
-#        print "d",d
-#        for name in d:
-#            print 'found.get( name )',found.get( name )
-#            if not found.get(name):
-#                try:
-#                    print "name", name
-#                    ret[name] = getattr(obj, name)
-#                except:
-#                    import traceback
-#                    traceback.print_exc()
-#                    #pass
-#===============================================================================
+        try:
+            d = dir(original)
+            for name in d:
+                if found.get(name) is not 1:
+                    ret[name] = getattr(original, name)
+        except:
+            #sometimes we're unable to do a dir
+            pass
+
         ret['type'] = type(obj).__name__
         
         return ret
@@ -144,7 +141,7 @@ class Resolver:
                 except:
                     #if some error occurs getting it, let's put it to the user.
                     strIO = StringIO.StringIO()
-                    import traceback;traceback.print_exc(file = strIO)
+                    traceback.print_exc(file = strIO)
                     attr = strIO.getvalue()
                 
                 d[ n ] = attr        
@@ -157,7 +154,6 @@ class DictResolver(Resolver):
         return dict[key]
     
     def getDictionary(self, dict):
-#        print "DictResolver"
         return dict
 
 class TupleResolver(Resolver): #to enumerate tuples and lists
@@ -165,7 +161,6 @@ class TupleResolver(Resolver): #to enumerate tuples and lists
         return var[int(attribute)]
     
     def getDictionary(self, var):
-#        print "TupleResolver"
         #return dict( [ (i, x) for i, x in enumerate(var) ] )
         # modified 'cause jython does not have enumerate support
         d = {}
@@ -180,39 +175,32 @@ class InstanceResolver(Resolver):
         return field.get( var )
     
     def getDictionary(self,obj):
-        # print "InstanceResolver"
         ret = {}        
         
         declaredFields = obj.__class__.getDeclaredFields()
         for i in range(len(declaredFields)):
             name = declaredFields[i].getName()
-            declaredFields[i].setAccessible( True )            
             try:               
+                declaredFields[i].setAccessible( True )            
                 ret[name] = declaredFields[i].get( obj )                
             except:
-                import traceback
                 traceback.print_exc()
-                # I don't know why I'm getting an exception
-                pass        
         
         ret['type'] = type(obj).__name__        
         return ret
 
+
 class JyArrayResolver(Resolver):
     def resolve(self, var, attribute):
-        # print 'var',var
-        # print 'attribute',attribute        
         return var
     
     def getDictionary(self,obj):
-        # print "PyArrayResolver"
         ret = {}       
         
         for i in range(len(obj)):
             try:        
                 ret[ obj[i] ] = obj[i]
             except:
-                import traceback
                 traceback.print_exc()
                 # I don't know why I'm getting an exception
                 pass        

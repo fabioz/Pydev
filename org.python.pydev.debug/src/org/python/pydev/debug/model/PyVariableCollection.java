@@ -51,6 +51,10 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 		}
 		return waitVariables;
 	}
+	
+	public IVariable[] getTimedoutVariables() {
+		return new IVariable[]{new PyVariable(target, "err:", "", "Timed out while getting var.")};
+	}
 
 	/**
 	 * Received when the command has been completed.

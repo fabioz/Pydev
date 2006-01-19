@@ -6,45 +6,42 @@ DONT_TRACE = ('pydevd.py' , 'threading.py', 'pydevd_vars.py', 'pydevd_comm.py')
 
 connected = False
 
-    
+#this is because jython does not have staticmethods
+PyDBCtx_threadToCtx = {}
+
+def PyDBCtx_GetCtxs():
+    ret = []
+    for v in PyDBCtx_threadToCtx.values():
+        ret += v.values()
+    return ret
+
+def PyDBCtx_GetCtx(frame, currThread):
+    #we create a context for each thread
+    threadId = id(currThread)
+    ctxs = PyDBCtx_threadToCtx.get(threadId)
+    if ctxs is None:
+        ctxs = {}
+        PyDBCtx_threadToCtx[threadId] = ctxs
+        
+    #and for each thread, the code for the frame
+    key = frame.f_code
+    ctx = ctxs.get(key)
+    if ctx is None:
+        ctx = PyDBCtx(frame, threadId)
+        ctxs[key] = ctx
+
+    return ctx
+
+def PyDBCtx_SetTraceForAllFileCtxs(f):
+    g = GetGlobalDebugger()
+    if g:
+        for ctx in PyDBCtx_GetCtxs():
+            if ctx.filename == f:
+                ctx.frame.f_trace = g.trace_dispatch
+                
 class PyDBCtx:
     '''This class is used to keep track of the contexts we pass through (acting as a cache for them).
     '''
-
-    threadToCtx = dict()
-    
-    @staticmethod
-    def GetCtxs():
-        ret = []
-        for v in PyDBCtx.threadToCtx.values():
-            ret += v.values()
-        return ret
-    
-    @staticmethod
-    def GetCtx(frame, currThread):
-        #we create a context for each thread
-        threadId = id(currThread)
-        ctxs = PyDBCtx.threadToCtx.get(threadId)
-        if ctxs is None:
-            ctxs = dict()
-            PyDBCtx.threadToCtx[threadId] = ctxs
-            
-        #and for each thread, the code for the frame
-        key = frame.f_code
-        ctx = ctxs.get(key)
-        if ctx is None:
-            ctx = PyDBCtx(frame, threadId)
-            ctxs[key] = ctx
-
-        return ctx
-        
-    @staticmethod
-    def SetTraceForAllFileCtxs(f):
-        g = GetGlobalDebugger()
-        if g:
-            for ctx in PyDBCtx.GetCtxs():
-                if ctx.filename == f:
-                    ctx.frame.f_trace = g.trace_dispatch
             
     def __init__(self, frame, threadId):
         self.filename = NormFile(frame.f_code.co_filename)
@@ -177,7 +174,6 @@ class PyDB:
                 self.cmdQueue[k].put(int_cmd)
                 
         else:
-            assert isinstance(thread_id , long), 'the thread id must be a long (it is: %s)' % thread_id.__class__
             queue = self.getInternalQueue(thread_id)
             queue.put(int_cmd)
 
@@ -277,7 +273,7 @@ class PyDB:
                     breakDict[line] = (True, condition)
                     
                 self.breakpoints[file] = breakDict
-                PyDBCtx.SetTraceForAllFileCtxs(file)
+                PyDBCtx_SetTraceForAllFileCtxs(file)
                 
             elif id == CMD_REMOVE_BREAK:
                 #command to remove some breakpoint
@@ -378,7 +374,7 @@ class PyDB:
             return None
         
         t = threading.currentThread()
-        ctx = PyDBCtx.GetCtx(frame, t)
+        ctx = PyDBCtx_GetCtx(frame, t)
         base = ctx.base
 
         if base in DONT_TRACE: #we don't want to debug threading or anything related to pydevd

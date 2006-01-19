@@ -37,7 +37,7 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
 			// of visibility.
 			// I try to minimize the occurence here, by giving pydevd time to complete the
 			// task before we are forced to do asynchronous notification.
-			int i = 10; 
+			int i = 50; 
 			while (--i > 0 && commandVariables == null){
 				Thread.sleep(50);
 			}
@@ -45,7 +45,10 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
 			e.printStackTrace();
 		}
 
-		return commandVariables;
+		if(commandVariables != null){
+			return commandVariables;
+		}
+		return new Object[0];
 	}
 
 	public Object getParent(Object o) {

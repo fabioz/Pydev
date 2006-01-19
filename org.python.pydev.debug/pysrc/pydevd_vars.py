@@ -6,6 +6,7 @@ import urllib
 import threading
 import sys
 import pydevd_resolver
+import traceback
 
 try:
     __setFalse = False
@@ -68,12 +69,15 @@ def getType(o):
     try:        
         if type(o).__name__=='org.python.core.PyJavaInstance':
             return (type(o), type(o).__name__, pydevd_resolver.instanceResolver)
+        
         if type(o).__name__=='org.python.core.PyArray':
             return (type(o), type(o).__name__, pydevd_resolver.jyArrayResolver)    
+        
         for t in typeMap.keys():            
             if isinstance(o, t):                
                 return typeMap[t]
     except:
+        traceback.print_exc()
         print typeMap
         print typeMap.__class__
         print dir( typeMap )
@@ -123,7 +127,6 @@ def frameVarsToXML(frame):
             v = frame.f_locals[k]            
             xml += varToXML(v, str(k))
         except Exception, e:
-            import traceback
             traceback.print_exc()
             print >>sys.stderr,"unexpected error, recovered safely", str(e)
     return xml
@@ -165,7 +168,6 @@ def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
         type, typeName, resolver = getType(var)        
         return resolver.getDictionary(var)
     except:
-        import traceback
         traceback.print_exc()
     
 def evaluateExpression( thread_id, frame_id, expression ):
