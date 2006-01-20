@@ -91,25 +91,32 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     }
 
     public void processDelete(Object data) {
-        //the moduleName is generated on delete
-        this.removeInfoFromModule((String) data, false);
+    	synchronized (lock) {
+	        //the moduleName is generated on delete
+	        this.removeInfoFromModule((String) data, false);
+    	}
     }
+    	
 
     public void processInsert(Object data) {
-        //the IInfo token is generated on insert
-        IInfo info = (IInfo) data;
-        if(info.getPath() == null || info.getPath().length() == 0){
-            this.add(info, false, TOP_LEVEL);
-            
-        }else{
-            this.add(info, false, INNER);
-            
+        synchronized (lock) {
+	        //the IInfo token is generated on insert
+	        IInfo info = (IInfo) data;
+	        if(info.getPath() == null || info.getPath().length() == 0){
+	            this.add(info, false, TOP_LEVEL);
+	            
+	        }else{
+	            this.add(info, false, INNER);
+	            
+	        }
         }
     }
 
     public void endProcessing() {
         //save it when the processing is finished
-        this.save();
+        synchronized (lock) {
+        	this.save();
+        }
     }
     
     
@@ -123,9 +130,11 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      * If the delta size is big enough, save the current state and discard the deltas.
      */
     private void checkDeltaSize() {
-        if(deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
-            this.save();
-            deltaSaver.clearAll();
+        synchronized (lock) {
+	        if(deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
+	            this.save();
+	            deltaSaver.clearAll();
+	        }
         }
     }
 

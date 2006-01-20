@@ -553,15 +553,17 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @return true if it was successfully loaded and false otherwise
      */
     protected boolean load() {
-        File file = getPersistingLocation();
-        if(file.exists() && file.isFile()){
-            try {
-                restoreSavedInfo(IOUtils.readFromFile(file));
-                setAsDefaultInfo();
-                return true;
-            } catch (Throwable e) {
-                PydevPlugin.log("Unable to restore previous info... new info should be restored in a thread.",e);
-            }
+        synchronized (lock) {
+	        File file = getPersistingLocation();
+	        if(file.exists() && file.isFile()){
+	            try {
+	                restoreSavedInfo(IOUtils.readFromFile(file));
+	                setAsDefaultInfo();
+	                return true;
+	            } catch (Throwable e) {
+	                PydevPlugin.log("Unable to restore previous info... new info should be restored in a thread.",e);
+	            }
+	        }
         }
         return false;
     }
@@ -572,9 +574,11 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     @SuppressWarnings("unchecked")
     protected void restoreSavedInfo(Object o){
-        Tuple readFromFile = (Tuple) o;
-        this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
-        this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
+        synchronized (lock) {
+	        Tuple readFromFile = (Tuple) o;
+	        this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
+	        this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
+        }
     }
 
     /**
@@ -586,18 +590,20 @@ public abstract class AbstractAdditionalInterpreterInfo {
 
     @Override
     public String toString() {
-    	StringBuffer buffer = new StringBuffer();
-    	buffer.append("AdditionalInfo{");
-
-    	buffer.append("topLevel=[");
-    	entrySetToString(buffer, this.topLevelInitialsToInfo.entrySet());
-    	buffer.append("]\n");
-    	buffer.append("inner=[");
-    	entrySetToString(buffer, this.innerInitialsToInfo.entrySet());
-    	buffer.append("]");
-
-        buffer.append("}");
-    	return buffer.toString();
+        synchronized (lock) {
+	    	StringBuffer buffer = new StringBuffer();
+	    	buffer.append("AdditionalInfo{");
+	
+	    	buffer.append("topLevel=[");
+	    	entrySetToString(buffer, this.topLevelInitialsToInfo.entrySet());
+	    	buffer.append("]\n");
+	    	buffer.append("inner=[");
+	    	entrySetToString(buffer, this.innerInitialsToInfo.entrySet());
+	    	buffer.append("]");
+	
+	        buffer.append("}");
+	    	return buffer.toString();
+        }
     }
 
     /**
@@ -605,13 +611,15 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param name
      */
     private void entrySetToString(StringBuffer buffer, Set<Entry<String, List<IInfo>>> name) {
-        for (Entry<String, List<IInfo>> entry : name) {
-			List<IInfo> value = entry.getValue();
-			for (IInfo info : value) {
-				buffer.append(info.toString());
-				buffer.append("\n");
+        synchronized (lock) {
+	        for (Entry<String, List<IInfo>> entry : name) {
+				List<IInfo> value = entry.getValue();
+				for (IInfo info : value) {
+					buffer.append(info.toString());
+					buffer.append("\n");
+				}
 			}
-		}
+        }
     }
 
 
