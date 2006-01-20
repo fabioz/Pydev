@@ -9,28 +9,47 @@ import org.python.pydev.debug.model.remote.ICommandResponseListener;
 
 public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapter implements IDeferredWorkbenchAdapter, ICommandResponseListener{
 
-	private PyVariableCollection variableCollection;
 	private PyVariable[] commandVariables;
+	private AbstractDebugTarget target;
+	private IVariableLocator locator;
+	private Object parent;
 	
 	public Object[] getChildren(Object o) {
-		if(variableCollection != null){
-			throw new RuntimeException("This object might not be reused.");
-		}
-
+		parent = o;
 		if(o instanceof PyVariableCollection){
-			variableCollection = (PyVariableCollection)o;
+			PyVariableCollection variableCollection = (PyVariableCollection)o;
 			
 			AbstractRemoteDebugger dbg = variableCollection.getDebugger();
+			target = dbg.getTarget();
+			locator = variableCollection;
+			
 			GetVariableCommand variableCommand = variableCollection.getVariableCommand(dbg);
 			variableCommand.setCompletionListener(this);
 			dbg.postCommand(variableCommand);
-			return waitForCommand(variableCollection);
+			return waitForCommand();
 			
+			
+		}else if (o instanceof PyStackFrame){
+			PyStackFrame f = (PyStackFrame) o;
+			
+			AbstractRemoteDebugger dbg = f.getDebugger();
+			target = dbg.getTarget();
+			locator = f;
+
+			GetVariableCommand variableCommand = f.getFrameCommand(dbg);
+			variableCommand.setCompletionListener(this);
+			dbg.postCommand(variableCommand);
+			return waitForCommand();
+			
+		}else if (o instanceof PyVariable){
+			return new Object[0];
+			
+		}else{
+			throw new RuntimeException("Unexpected class: "+o.getClass());
 		}
-		return new Object[0];
 	}
 
-	private Object[] waitForCommand(PyVariableCollection c) {
+	private PyVariable[] waitForCommand() {
 		try {
 			// VariablesView does not deal well with children changing asynchronously.
 			// it causes unneeded scrolling, because view preserves selection instead
@@ -48,7 +67,7 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
 		if(commandVariables != null){
 			return commandVariables;
 		}
-		return new Object[0];
+		return new PyVariable[0];
 	}
 
 	public Object getParent(Object o) {
@@ -57,7 +76,20 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
 	}
 
 	public void commandComplete(AbstractDebuggerCommand cmd) {
-		commandVariables = variableCollection.getCommandVariables(cmd);
+		PyVariable[] temp = PyVariableCollection.getCommandVariables(cmd, target, locator);
+		if(parent instanceof PyVariableCollection){
+			commandVariables = temp;
+			
+		} else if(parent instanceof PyStackFrame){
+			PyStackFrame f = (PyStackFrame) parent;
+			PyVariable[] temp1 = new PyVariable[temp.length +1];
+			System.arraycopy(temp,0,temp1,1,temp.length);
+			temp1[0] = new PyVariableCollection(target, "Globals", "frame.f_global", "Global variables", f.getGlobalLocator());
+			commandVariables = temp1;
+			
+		}else{
+			throw new RuntimeException("Unknown parent:"+parent.getClass());
+		}
 	}
 
 

@@ -92,7 +92,6 @@ def makeValidXmlValue( s):
 
 def varToXML(v, name):
     """ single variable or dictionary to xml representation """
-    xml = ""
     type, typeName, resolver = getType(v)    
     
     try:
@@ -103,16 +102,19 @@ def varToXML(v, name):
         except:
             value = 'Unable to get repr for %s' % v.__class__
     
-    xml += '<var name="%s" type="%s"' % (name, typeName)
+    xml = '<var name="%s" type="%s"' % (name, typeName)
     
     if value: 
-        xml += ' value="%s"' % (makeValidXmlValue(urllib.quote(value, '/>_= \t')))
+        xmlValue = ' value="%s"' % (makeValidXmlValue(urllib.quote(value, '/>_= \t')))
+    else:
+        xmlValue = ''
         
     if resolver is not None: 
-        xml += ' isContainer="True"'
+        xmlCont = ' isContainer="True"'
+    else:
+        xmlCont = ''
         
-    xml += ' />\n'
-    return xml
+    return ''.join((xml, xmlValue, xmlCont, ' />\n'))
 
 def frameVarsToXML(frame):
     """ dumps frame variables to XML
@@ -130,6 +132,7 @@ def frameVarsToXML(frame):
             traceback.print_exc()
             print >>sys.stderr,"unexpected error, recovered safely", str(e)
     return xml
+
 
 def findFrame(thread_id, frame_id):
     """ returns a frame on the thread that has a given frame_id """

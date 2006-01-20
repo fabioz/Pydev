@@ -68,14 +68,18 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 		}
 	}
 
+	public PyVariable[] getCommandVariables(AbstractDebuggerCommand cmd) {
+		return getCommandVariables(cmd, target, this);
+	}
+	
 	/**
 	 * @return a list of variables resolved for some command
 	 */
-	public PyVariable[] getCommandVariables(AbstractDebuggerCommand cmd) {
+	public static PyVariable[] getCommandVariables(AbstractDebuggerCommand cmd, AbstractDebugTarget target, IVariableLocator locator) {
 		PyVariable[] tempVariables = new PyVariable[0];
 		try {
 			String payload = ((GetVariableCommand) cmd).getResponse();
-			tempVariables = XMLUtils.XMLToVariables(target, this, payload);
+			tempVariables = XMLUtils.XMLToVariables(target, locator, payload);
 		} catch (CoreException e) {
 			tempVariables = new PyVariable[1];
 			tempVariables[0] = new PyVariable(target, "Error", "pydev ERROR", "Could not resolve variable");

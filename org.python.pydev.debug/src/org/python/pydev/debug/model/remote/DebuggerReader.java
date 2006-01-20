@@ -1,7 +1,6 @@
 package org.python.pydev.debug.model.remote;
 
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,6 +11,7 @@ import java.util.Hashtable;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Reads and dispatches commands
@@ -101,6 +101,7 @@ public class DebuggerReader implements Runnable {
                 cmd.processResponse(cmdCode, payload);
             }
         } catch (Exception e) {
+        	PydevPlugin.log(e);
             throw new RuntimeException(e);
         }
 	}

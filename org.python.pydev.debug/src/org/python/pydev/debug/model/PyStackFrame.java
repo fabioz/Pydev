@@ -18,15 +18,19 @@ import org.eclipse.debug.core.model.IRegisterGroup;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
+import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
+import org.python.pydev.debug.model.remote.GetFrameCommand;
+import org.python.pydev.debug.model.remote.GetVariableCommand;
 
 /**
  * Represents a stack entry.
  * 
  * Needs to integrate with the source locator
  */
-public class PyStackFrame extends PlatformObject implements IStackFrame {
+public class PyStackFrame extends PlatformObject implements IStackFrame, IVariableLocator {
 
 	private String name;
 	private PyThread thread;
@@ -36,8 +40,11 @@ public class PyStackFrame extends PlatformObject implements IStackFrame {
 	private IVariable[] variables;
 	private IVariableLocator localsLocator;
 	private IVariableLocator globalsLocator;
+	private IVariableLocator frameLocator;
+	private AbstractDebugTarget target;
+	private static final IVariable[] EMPTY_IVARIABLE_ARRAY = new IVariable[0]; 
 
-	public PyStackFrame(PyThread in_thread, String in_id, String name, IPath file, int line) {
+	public PyStackFrame(PyThread in_thread, String in_id, String name, IPath file, int line, AbstractDebugTarget target) {
 		this.id = in_id;
 		this.name = name;
 		this.path = file;
@@ -48,11 +55,17 @@ public class PyStackFrame extends PlatformObject implements IStackFrame {
 				return thread.getId() + "\t" + id + "\tLOCAL"; 
 			}
 		};
+		frameLocator = new IVariableLocator() {
+			public String getPyDBLocation() {
+				return thread.getId() + "\t" + id + "\tFRAME"; 
+			}
+		};
 		globalsLocator = new IVariableLocator() {
 			public String getPyDBLocation() {
 				return thread.getId() + "\t" + id + "\tGLOBAL"; 
 			}
 		};
+		this.target = target;
 	}
 
 	public String getId() {
@@ -92,7 +105,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame {
 	}
 	
 	public IVariable[] getVariables() throws DebugException {
-		return variables;
+		return EMPTY_IVARIABLE_ARRAY;
 	}
 
     /**
@@ -109,7 +122,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame {
 	}
 	
 	public boolean hasVariables() throws DebugException {
-		return (variables != null);
+		return true;
 	}
 
 	public int getLineNumber() throws DebugException {
@@ -126,7 +139,6 @@ public class PyStackFrame extends PlatformObject implements IStackFrame {
 
 	public String getName() throws DebugException {
 		return name + " [" + path.lastSegment() + ":" + Integer.toString(line) + "]";
-//		return "(" + id + ")" + name + " [" + path.lastSegment() + ":" + Integer.toString(line) + "]";
 	}
 
 	public IRegisterGroup[] getRegisterGroups() throws DebugException {
@@ -211,16 +223,26 @@ public class PyStackFrame extends PlatformObject implements IStackFrame {
 
 	public Object getAdapter(Class adapter) {
 		if (adapter.equals(ILaunch.class) ||
-			adapter.equals(IResource.class))
+			adapter.equals(IResource.class)){
 			return thread.getAdapter(adapter);
-		else if (adapter.equals(ITaskListResourceAdapter.class))
+		}	
+		
+		if (adapter.equals(ITaskListResourceAdapter.class)){
 			return null;
-		else if (adapter.equals(IPropertySource.class) 
+		}
+		
+		if (adapter.equals(IPropertySource.class) 
 			|| adapter.equals(ITaskListResourceAdapter.class)
 			|| adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class)
 			|| adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)
-			)
+			){
 			return  super.getAdapter(adapter);
+		}
+		
+		if (adapter.equals(IDeferredWorkbenchAdapter.class)){
+			return new DeferredWorkbenchAdapter();
+		}
+		
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
 //		System.err.println("PyStackFrame Need adapter " + adapter.toString());
 		return super.getAdapter(adapter);
@@ -246,4 +268,17 @@ public class PyStackFrame extends PlatformObject implements IStackFrame {
         }
         return false;
     }
+	
+	public GetVariableCommand getFrameCommand(AbstractRemoteDebugger dbg) {
+		return new GetFrameCommand(dbg, frameLocator.getPyDBLocation());
+	}
+
+	public String getPyDBLocation() {
+		return this.frameLocator.getPyDBLocation();
+	}
+
+	public AbstractRemoteDebugger getDebugger() {
+		return target.getDebugger();
+	}
+
 }

@@ -5,12 +5,12 @@
  */
 package org.python.pydev.debug.model;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringBufferInputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -58,7 +58,7 @@ public class XMLUtils {
 	static class XMLToThreadInfo extends DefaultHandler {
 		
 		public AbstractDebugTarget target;
-		public ArrayList threads = new ArrayList();
+		public List<PyThread> threads = new ArrayList<PyThread>();
 		
 		public XMLToThreadInfo(AbstractDebugTarget target) {
 			this.target = target;
@@ -88,7 +88,7 @@ public class XMLUtils {
 		try {
 			SAXParser parser = getSAXParser();
 			XMLToThreadInfo info = new XMLToThreadInfo(target);
-			parser.parse(new StringBufferInputStream(payload), info);
+			parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
 			return (IThread[]) info.threads.toArray(new IThread[0]);
 			
 		} catch (CoreException e) {
@@ -132,8 +132,8 @@ public class XMLUtils {
 	static class XMLToStackInfo extends DefaultHandler {
 		public PyThread thread;
 		public String stop_reason;
-		public ArrayList stack = new ArrayList();
-		public ArrayList locals;
+		public List<IStackFrame> stack = new ArrayList<IStackFrame>();
+		public List<PyVariable> locals;
 		public AbstractDebugTarget target;
 		PyStackFrame currentFrame;
 		
@@ -169,7 +169,7 @@ public class XMLUtils {
 			// Try to recycle old stack objects
 			currentFrame = thread.findStackFrameByID(id);
 			if (currentFrame == null){
-				currentFrame = new PyStackFrame(thread, id, name, filePath, Integer.parseInt(line));
+				currentFrame = new PyStackFrame(thread, id, name, filePath, Integer.parseInt(line), target);
 			} else { 
 				currentFrame.setName(name);
 				currentFrame.setPath(filePath);
@@ -179,7 +179,7 @@ public class XMLUtils {
 		}
 		
 		private void initializeLocals() {
-			locals = new ArrayList();
+			locals = new ArrayList<PyVariable>();
 			PyVariableCollection global = new PyVariableCollection(target, "Globals", "frame.f_global", "Global variables", currentFrame.getGlobalLocator());
 			locals.add(global);	// locals always include global as the top
 		}
@@ -228,12 +228,7 @@ public class XMLUtils {
 					initializeLocals();
 				}
 				
-				IVariable[] locArry = new IVariable[locals.size()];
-				
-				for (int i=0; i < locArry.length; i++){
-					locArry[i] = (IVariable)locals.get(i);
-				}
-				
+				IVariable[] locArry = locals.toArray(new IVariable[0]);
 				currentFrame.setVariables(locArry);
 				locals = null;
 			}
@@ -250,12 +245,10 @@ public class XMLUtils {
 		try {
 			SAXParser parser = getSAXParser();
 			XMLToStackInfo info = new XMLToStackInfo(target);
-			parser.parse(new StringBufferInputStream(payload), info);
-			stack = new IStackFrame[info.stack.size()];
-			Iterator it = info.stack.iterator();
-			int i = 0;
-			while (it.hasNext())
-				stack[i++] = (IStackFrame)it.next();
+			parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
+			
+			stack = info.stack.toArray(new IStackFrame[0]);
+			
 			retVal[0] = info.thread;
 			retVal[1] = info.stop_reason;
 			retVal[2] = stack;
@@ -277,12 +270,12 @@ public class XMLUtils {
 	static class XMLToVariableInfo extends DefaultHandler {
 		private AbstractDebugTarget target;
 		private IVariableLocator locator;
-		public ArrayList vars;
+		public List<PyVariable> vars;
 		
 		public XMLToVariableInfo(AbstractDebugTarget target, IVariableLocator locator) {
 			this.target = target;
 			this.locator = locator;
-			vars = new ArrayList();
+			vars = new ArrayList<PyVariable>();
 		}
 		
 		public void startElement(String uri, String localName, String qName,
@@ -298,7 +291,7 @@ public class XMLUtils {
 		try {
 			SAXParser parser = getSAXParser();
 			XMLToVariableInfo info = new XMLToVariableInfo(target, locator);
-			parser.parse(new StringBufferInputStream(payload), info);
+			parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
 			PyVariable[] vars = new PyVariable[info.vars.size()];
 			for (int i =0; i< info.vars.size(); i++)
 				vars[i] = (PyVariable)info.vars.get(i);

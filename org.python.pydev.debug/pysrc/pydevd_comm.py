@@ -82,6 +82,7 @@ CMD_GET_VARIABLE = 110
 CMD_SET_BREAK = 111
 CMD_REMOVE_BREAK = 112
 CMD_EVALUATE_EXPRESSION = 113
+CMD_GET_FRAME = 114
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -128,7 +129,17 @@ class PyDBDaemonThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.setDaemon(True)
+        self.killReceived = False
 
+    def doKill(self):
+        self.killReceived = True
+        if hasattr(self, 'sock'):
+            try:
+                self.sock.close()
+            except:
+                #just ignore that
+                pass
+            
 class ReaderThread(PyDBDaemonThread):
     """ reader thread reads and dispatches commands in an infinite loop """
     
@@ -141,7 +152,7 @@ class ReaderThread(PyDBDaemonThread):
         sys.settrace(None) # no debugging on this thread
         buffer = ""
         try:
-            while True:
+            while not self.killReceived:
                 buffer += self.sock.recv(1024)
                 while buffer.find('\n') != -1:
                     command, buffer = buffer.split('\n', 1)
@@ -173,7 +184,7 @@ class WriterThread(PyDBDaemonThread):
         """ just loop and write responses """
         sys.settrace(None) # no debugging on this thread
         try:
-            while True:
+            while not self.killReceived:
                 cmd = self.cmdQueue.get(1)
                 out = cmd.getOutgoing()
                 pydevd_log(1, "sending cmd " + out)
@@ -294,8 +305,10 @@ class NetCommandFactory:
                 myLine = str(curFrame.f_lineno)
                 #print "line is ", myLine
                 
-                variables = pydevd_vars.frameVarsToXML(curFrame)
+                #the variables are all goten 'on-demand'
+                #variables = pydevd_vars.frameVarsToXML(curFrame)
 
+                variables = ''
                 cmdTextList.append( '<frame id="%s" name="%s" ' % (myId , pydevd_vars.makeValidXmlValue(myName))) 
                 cmdTextList.append( 'file="%s" line="%s">"'     % (urllib.quote(myFile, '/>_= \t'), myLine)) 
                 cmdTextList.append( variables  ) 
@@ -304,7 +317,7 @@ class NetCommandFactory:
             
             cmdTextList.append( "</thread></xml>" )
             cmdText = ''.join(cmdTextList)
-            
+            print cmdText
             return NetCommand(CMD_THREAD_SUSPEND, 0, cmdText)
         except:
             return self.makeErrorMessage(0, str(sys.exc_info()[0]))
@@ -318,6 +331,12 @@ class NetCommandFactory:
     def makeGetVariableMessage(self, seq, payload):
         try:
             return NetCommand(CMD_GET_VARIABLE, seq, payload)
+        except Exception, e:
+            return self.makeErrorMessage(seq, str(e))
+
+    def makeGetFrameMessage(self, seq, payload):
+        try:
+            return NetCommand(CMD_GET_FRAME, seq, payload)
         except Exception, e:
             return self.makeErrorMessage(seq, str(e))
 
@@ -357,7 +376,11 @@ class InternalTerminateThread(InternalThreadCommand):
         cmd = dbg.cmdFactory.makeThreadKilledMessage(self.thread_id)
         dbg.writer.addCommand(cmd)
         time.sleep(0.1)
-        sys.exit()
+        try:
+            import java.lang.System
+            java.lang.System.exit(0)
+        except:
+            sys.exit(0)
 
 class InternalGetVariable(InternalThreadCommand):
     """ gets the value of a variable """
@@ -387,6 +410,32 @@ class InternalGetVariable(InternalThreadCommand):
             traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = s)
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving variables " + s.getvalue())
             dbg.writer.addCommand(cmd)
+
+
+class InternalGetFrame(InternalThreadCommand):
+    """ gets the value of a variable """
+    def __init__(self, seq, thread_id, frame_id):
+        self.sequence = seq
+        self.thread_id = thread_id
+        self.frame_id = frame_id
+     
+    def doIt(self, dbg):
+        """ Converts request into python variable """
+        try:
+            xml = "<xml>"            
+            frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
+            xml += pydevd_vars.frameVarsToXML(frame)
+            xml += "</xml>"
+            cmd = dbg.cmdFactory.makeGetFrameMessage(self.sequence, xml)
+            dbg.writer.addCommand(cmd)
+        except Exception:
+            exc_info = sys.exc_info()
+            s = StringIO.StringIO()
+            traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = s)
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving frame" + s.getvalue())
+            dbg.writer.addCommand(cmd)
+
+           
 
            
 class InternalEvaluateExpression(InternalThreadCommand):

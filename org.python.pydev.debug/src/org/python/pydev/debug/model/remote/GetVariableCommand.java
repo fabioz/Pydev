@@ -28,7 +28,7 @@ public class GetVariableCommand extends AbstractDebuggerCommand {
 	}
 
 	public String getOutgoing() {
-		return makeCommand(CMD_GET_VARIABLE, sequence, locator);
+		return makeCommand(getCommandId(), sequence, locator);
 	}
 
 	public boolean needResponse() {
@@ -37,12 +37,16 @@ public class GetVariableCommand extends AbstractDebuggerCommand {
 
 	public void processOKResponse(int cmdCode, String payload) {
 		responseCode = cmdCode;
-		if (cmdCode == CMD_GET_VARIABLE)
+		if (cmdCode == getCommandId())
 			this.payload = payload;
 		else {
 			isError = true;
-			PydevDebugPlugin.log(IStatus.ERROR, "Unexpected response to GetVariableCommand", null);
+			PydevDebugPlugin.log(IStatus.ERROR, "Unexpected response to "+this.getClass(), null);
 		}
+	}
+
+	protected int getCommandId() {
+		return CMD_GET_VARIABLE;
 	}
 	
 	public void processErrorResponse(int cmdCode, String payload) {

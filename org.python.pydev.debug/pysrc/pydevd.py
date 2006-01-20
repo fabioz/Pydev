@@ -60,7 +60,7 @@ class PyDBCommandThread(PyDBDaemonThread):
 
     def run(self):
         sys.settrace(None) # no debugging on this thread
-        while True:
+        while not self.killReceived:
             self.pyDb.processInternalCommands()
             time.sleep(0.1)
             
@@ -144,7 +144,6 @@ class PyDB:
         else:
             self.startServer(port)
         
-        PyDBCommandThread(self).start()
 
     def getInternalQueue(self, thread_id):
         """ returns intenal command queue for a given thread.
@@ -179,8 +178,10 @@ class PyDB:
 
     def processInternalCommands(self):
         threads = threading.enumerate()
+        foundNonPyDBDaemonThread = False
         for t in threads:
             if not isinstance(t, PyDBDaemonThread):
+                foundNonPyDBDaemonThread = True
                 queue = self.getInternalQueue(id(t))
                 cmdsToReadd = [] #some commands must be processed by the thread itself... if that's the case,
                                  #we will re-add the commands to the queue after executing.
@@ -197,6 +198,17 @@ class PyDB:
                     for int_cmd in cmdsToReadd:
                         queue.put(int_cmd)
                     pass # this is how we exit
+
+        if not foundNonPyDBDaemonThread:
+            #that was not working very well because jython gave some socket errors
+            #for t in threads: 
+            #    t.doKill()
+            time.sleep(0.1)
+            try:
+                import java.lang.System
+                java.lang.System.exit(0)
+            except:
+                sys.exit(0)
       
     def processNetCommand(self, id, seq, text):
         try:
@@ -254,6 +266,12 @@ class PyDB:
                 except:
                     traceback.print_exc()
                     
+            elif id == CMD_GET_FRAME:
+                thread_id, frame_id, scope = text.split('\t', 2)
+                thread_id = long(thread_id)
+                
+                int_cmd = InternalGetFrame(seq, thread_id, frame_id)
+                self.postInternalCommand(int_cmd, thread_id)
                     
             elif id == CMD_SET_BREAK:
                 #command to add some breakpoint.
@@ -310,7 +328,7 @@ class PyDB:
                 
         except Exception, e:
             traceback.print_exc(e)
-            cmd = self.cmdFactory.makeErrorMessage(seq, "Unexpected exception in processNetCommand:" + str(e))
+            cmd = self.cmdFactory.makeErrorMessage(seq, "Unexpected exception in processNetCommand: %s\nInitial params: %s" % (str(e), (id, seq, text)))
             self.writer.addCommand(cmd)
 
     def processThreadNotAlive(self, thread):
@@ -571,28 +589,14 @@ def usage(doExit=0):
     print 'pydevd.py --port=N [(--client hostname) | --server] --file executable [file_options]'
     if doExit:
         sys.exit(0)
-      
-def quittingNow():
-    pydevd_log(1, "Debugger exiting. Over & out....\n")
 
-def quittingNowJython():
-    try:
-        pydevd_log(1, "Debugger exiting. Over & out ( Jython )....\n")        
-        import sys
-        sys.exit(0)        
-    except:
-        pass #just ignore it
 
-def setupQuiting():
+def setupType():
     global type
-    type = 'jython'
-    
-    import atexit
     try:
         import java.lang
-        atexit.register(quittingNowJython)
+        type = 'jython'
     except:
-        atexit.register(quittingNow)
         type = 'python'
 
 
@@ -611,7 +615,7 @@ def settrace():
     if not connected :
         connected = True  
         
-        setupQuiting()
+        setupType()
         
         debugger = PyDB()
         debugger.connect('localhost', 5678)
@@ -627,6 +631,7 @@ def settrace():
         debugger.setSuspend(t, CMD_SET_BREAK)
         
         sys.settrace(debugger.trace_dispatch)
+        PyDBCommandThread(debugger).start()
     
 if __name__ == '__main__':
     print >>sys.stderr, "pydev debugger"
@@ -639,7 +644,7 @@ if __name__ == '__main__':
     pydevd_log(2, "Executing file " + setup['file'])
     pydevd_log(2, "arguments:" + str(sys.argv))
  
-    setupQuiting()
+    setupType()
 
     global type
     type = setup['type']
@@ -647,4 +652,5 @@ if __name__ == '__main__':
     debugger = PyDB()
     debugger.connect(setup['client'], setup['port'])
     debugger.run(setup['file'], None, None)
+    PyDBCommandThread(debugger).start()
     
