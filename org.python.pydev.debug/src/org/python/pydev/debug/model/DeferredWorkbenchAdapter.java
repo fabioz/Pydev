@@ -1,7 +1,9 @@
 package org.python.pydev.debug.model;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.ui.DeferredDebugElementWorkbenchAdapter;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
+import org.eclipse.ui.progress.IElementCollector;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
@@ -13,9 +15,45 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
 	private AbstractDebugTarget target;
 	private IVariableLocator locator;
 	private Object parent;
+	private IProgressMonitor monitor;
 	
+	public DeferredWorkbenchAdapter(Object parent) {
+		this.parent = parent;
+	}
+	
+	@Override
+	public boolean isContainer() {
+		if(parent instanceof PyVariableCollection){
+			return true;
+		}else if (parent instanceof PyStackFrame){
+			return true;
+		}
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.progress.IDeferredWorkbenchAdapter#fetchDeferredChildren(java.lang.Object, org.eclipse.ui.progress.IElementCollector, org.eclipse.core.runtime.IProgressMonitor)
+	 */
+	public void fetchDeferredChildren(Object object, IElementCollector collector, IProgressMonitor monitor) {
+		this.monitor = monitor;
+		if (monitor.isCanceled()) {
+			return;
+		}
+	    Object[] children = getChildren(object);
+	    if (monitor.isCanceled()) {
+	    	return;
+	    }
+	    if (children != null && children.length > 0) {
+	        collector.add(children, monitor);
+	    }
+	    collector.done();
+	}
+
 	public Object[] getChildren(Object o) {
-		parent = o;
+		if(parent != o){
+			throw new RuntimeException("This is valid only for a single getChildren!");
+		}
+		
 		if(o instanceof PyVariableCollection){
 			PyVariableCollection variableCollection = (PyVariableCollection)o;
 			
@@ -58,6 +96,10 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
 			// task before we are forced to do asynchronous notification.
 			int i = 50; 
 			while (--i > 0 && commandVariables == null){
+				if(this.monitor != null && this.monitor.isCanceled() == true){
+					//canceled request... let's return
+					return new PyVariable[0];
+				}
 				Thread.sleep(50);
 			}
 		} catch (InterruptedException e) {
@@ -72,7 +114,7 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
 
 	public Object getParent(Object o) {
 		//do we really need that?
-		return null;
+		return parent;
 	}
 
 	public void commandComplete(AbstractDebuggerCommand cmd) {

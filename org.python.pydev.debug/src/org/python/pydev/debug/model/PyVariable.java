@@ -125,7 +125,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue {
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
 		// so I print them out as errors
 		if(adapter.equals(IDeferredWorkbenchAdapter.class)){
-			return new DeferredWorkbenchAdapter();
+			return new DeferredWorkbenchAdapter(this);
 		}
 		System.err.println("PyVariable Need adapter " + adapter.toString());
 		return super.getAdapter(adapter);

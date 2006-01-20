@@ -149,7 +149,7 @@ public class DeltaSaver<X> {
     public DeltaSaver(File dirToSaveDeltas, String extension, ICallback<Object, ObjectInputStream> readFromFileMethod) {
         this.dirToSaveDeltas = dirToSaveDeltas;
         this.suffix = "."+extension;
-        this.commands = new ArrayList<DeltaCommand>();
+        this.commands = Collections.synchronizedList(new ArrayList<DeltaCommand>());
         this.readFromFileMethod = readFromFileMethod;
         validateDir();
         loadDeltas();
@@ -172,15 +172,17 @@ public class DeltaSaver<X> {
      * Gets existing deltas in the disk
      */
     private void loadDeltas() {
-        ArrayList<File> deltasFound = findDeltas();
-        for (File file : deltasFound) {
-            try {
-                DeltaCommand cmd = (DeltaCommand) IOUtils.readFromFile(file, this.readFromFileMethod);
-                addRestoredCommand(cmd);
-            } catch (Exception e) {
-                Log.log(e);
-            }
-        }
+    	synchronized(this.commands){
+	        ArrayList<File> deltasFound = findDeltas();
+	        for (File file : deltasFound) {
+	            try {
+	                DeltaCommand cmd = (DeltaCommand) IOUtils.readFromFile(file, this.readFromFileMethod);
+	                addRestoredCommand(cmd);
+	            } catch (Exception e) {
+	                Log.log(e);
+	            }
+	        }
+    	}
         
     }
 
@@ -222,23 +224,27 @@ public class DeltaSaver<X> {
      * @param command the command to be added
      */
     public void addCommand(DeltaCommand command) {
-        File file = new File(this.dirToSaveDeltas, nCommands+suffix);
-        nCommands++;
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        //always write the command and its data separately
-        IOUtils.writeToFile(command, command.data, file);
-        this.commands.add(command);
+    	synchronized(this.commands){
+	        File file = new File(this.dirToSaveDeltas, nCommands+suffix);
+	        nCommands++;
+	        try {
+	            file.createNewFile();
+	        } catch (IOException e) {
+	            throw new RuntimeException(e);
+	        }
+	        //always write the command and its data separately
+	        IOUtils.writeToFile(command, command.data, file);
+	        this.commands.add(command);
+    	}
     }
 
     /**
      * @return the number of available deltas
      */
     public int availableDeltas() {
-        return this.commands.size();
+    	synchronized(this.commands){
+    		return this.commands.size();
+    	}
     }
 
     /**
@@ -269,16 +275,17 @@ public class DeltaSaver<X> {
      * Passes the current deltas to the delta processor.
      */
     public void processDeltas(IDeltaProcessor<X> deltaProcessor) {
-        
-        for (DeltaCommand cmd : this.commands) {
-            try {
-				cmd.processWith(deltaProcessor);
-			} catch (Exception e) {
-				Log.log(e);
-			}
-        }
-        deltaProcessor.endProcessing();
-        this.clearAll();
+    	synchronized(this.commands){
+	        for (DeltaCommand cmd : this.commands) {
+	            try {
+					cmd.processWith(deltaProcessor);
+				} catch (Exception e) {
+					Log.log(e);
+				}
+	        }
+	        deltaProcessor.endProcessing();
+	        this.clearAll();
+    	}
     }
 
 }

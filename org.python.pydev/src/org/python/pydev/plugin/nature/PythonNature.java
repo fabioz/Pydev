@@ -226,15 +226,17 @@ public class PythonNature implements IPythonNature {
                             PydevPlugin.log(e);
                         }
                     }else{
-                        astManager.setProject(getProject(), true); // this is the project related to it, restore the deltas (we may have some crash)
-                        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-                        for (IInterpreterObserver observer : participants) {
-                            try {
-                                observer.notifyNatureRecreated(nature, jobProgressComunicator);
-                            } catch (Exception e) {
-                                //let's not fail because of other plugins
-                                PydevPlugin.log(e);
-                            }
+                    	synchronized(astManager){
+	                        astManager.setProject(getProject(), true); // this is the project related to it, restore the deltas (we may have some crash)
+	                        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+	                        for (IInterpreterObserver observer : participants) {
+	                            try {
+	                                observer.notifyNatureRecreated(nature, jobProgressComunicator);
+	                            } catch (Exception e) {
+	                                //let's not fail because of other plugins
+	                                PydevPlugin.log(e);
+	                            }
+	                        }
                         }
                     }
                     jobProgressComunicator.done();
@@ -286,26 +288,28 @@ public class PythonNature implements IPythonNature {
 
                 JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
             	try {
-                    if (astManager == null) {
-                        astManager = new ASTManager();
+            		ICodeCompletionASTManager tempAstManager = astManager;
+                    if (tempAstManager == null) {
+                    	tempAstManager = new ASTManager();
                     }
-
-                    astManager.setProject(getProject(), false); //it is a new manager, so, remove all deltas
-
-                    //begins task automatically
-                    astManager.changePythonPath(paths, project, jobProgressComunicator);
-                    saveAstManager();
-
-                    List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-                    for (IInterpreterObserver observer : participants) {
-                        try {
-                            //let's keep it safe
-                            observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
-                        } catch (Exception e) {
-                            PydevPlugin.log(e);
-                        }
+                    synchronized(tempAstManager){
+                    	tempAstManager.setProject(getProject(), false); //it is a new manager, so, remove all deltas
+	
+	                    //begins task automatically
+                    	tempAstManager.changePythonPath(paths, project, jobProgressComunicator);
+                    	astManager = tempAstManager;
+	                    saveAstManager();
+	
+	                    List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+	                    for (IInterpreterObserver observer : participants) {
+	                        try {
+	                            //let's keep it safe
+	                            observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
+	                        } catch (Exception e) {
+	                            PydevPlugin.log(e);
+	                        }
+	                    }
                     }
-
                 } catch (Exception e) {
                     PydevPlugin.log(e);
                 }
@@ -404,7 +408,9 @@ public class PythonNature implements IPythonNature {
     }
     
     public void saveAstManager() {
-        REF.writeToFile(astManager, getAstOutputFile());
+    	synchronized(astManager){
+    		REF.writeToFile(astManager, getAstOutputFile());
+    	}
     }
 
     public int getRelatedId() throws CoreException {

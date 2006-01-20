@@ -240,7 +240,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 		}
 		
 		if (adapter.equals(IDeferredWorkbenchAdapter.class)){
-			return new DeferredWorkbenchAdapter();
+			return new DeferredWorkbenchAdapter(this);
 		}
 		
 		// ongoing, I do not fully understand all the interfaces they'd like me to support
