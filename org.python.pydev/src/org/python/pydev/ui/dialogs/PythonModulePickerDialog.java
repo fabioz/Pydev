@@ -1,4 +1,4 @@
-package org.python.pydev.ui;
+package org.python.pydev.ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.List;

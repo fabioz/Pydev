@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.dialogs.ProjectFolderSelectionDialog;
 
@@ -87,7 +88,7 @@ public class TreeWithAddRemove extends Composite{
         data.grabExcessHorizontalSpace = true;
         buttonRemSourceFolder.setLayoutData(data);
 
-        String[] its = getStrAsStrItems(initialItems);
+        String[] its = PythonNature.getStrAsStrItems(initialItems);
         for (int i = 0; i < its.length; i++) {
             addTreeItem(its[i]);
         }
@@ -242,9 +243,6 @@ public class TreeWithAddRemove extends Composite{
         }
     }
 
-    public String[] getStrAsStrItems(String str){
-        return str.split("\\|");
-    }
     public String getTreeItemsAsStr(){
         StringBuffer ret = new StringBuffer();
         TreeItem[] items = tree.getItems();

@@ -455,6 +455,10 @@ public class PythonNature implements IPythonNature {
     	}
     	return moduleName;
     }
+
+    public static String[] getStrAsStrItems(String str){
+        return str.split("\\|");
+    }
 }
 
 

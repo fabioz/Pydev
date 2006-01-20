@@ -131,7 +131,7 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
                 IFolder folder = projectHandle.getFolder("src");
                 folder.create(true, true, monitor);
             
-                nature.getPythonPathNature().setProjectSourcePath("/src");
+                nature.getPythonPathNature().setProjectSourcePath(folder.getFullPath().toString());
             }
         } finally {
             monitor.done();
@@ -231,7 +231,7 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
      * Set Python logo to top bar
      */
     protected void initializeDefaultPageImageDescriptor() {
-        ImageDescriptor desc = PydevPlugin.imageDescriptorFromPlugin(PydevPlugin.getPluginID(), "icons/python-logo.png");//$NON-NLS-1$
+        ImageDescriptor desc = PydevPlugin.imageDescriptorFromPlugin(PydevPlugin.getPluginID(), "icons/python_logo.png");//$NON-NLS-1$
         setDefaultPageImageDescriptor(desc);
     }
 

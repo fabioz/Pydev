@@ -39,7 +39,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.PythonModulePickerDialog;
+import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 /**
