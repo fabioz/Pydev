@@ -317,7 +317,6 @@ class NetCommandFactory:
             
             cmdTextList.append( "</thread></xml>" )
             cmdText = ''.join(cmdTextList)
-            print cmdText
             return NetCommand(CMD_THREAD_SUSPEND, 0, cmdText)
         except:
             return self.makeErrorMessage(0, str(sys.exc_info()[0]))
@@ -443,7 +442,7 @@ class InternalEvaluateExpression(InternalThreadCommand):
 
     def __init__(self, seq, thread_id, frame_id, expression):
         self.sequence = seq
-        self.thread = thread_id
+        self.thread_id = thread_id
         self.frame_id = frame_id
         self.expression = expression
     
@@ -464,11 +463,11 @@ class InternalEvaluateExpression(InternalThreadCommand):
 
 def pydevd_findThreadById(thread_id):
     try:
-        int_id = int(thread_id)
+        thread_id = long(thread_id)
         # there was a deadlock here when I did not remove the tracing function when thread was dead
         threads = threading.enumerate()
         for i in threads:
-            if int_id == id(i): 
+            if thread_id == id(i): 
                 return i
             
         print >>sys.stderr, "could not find thread %s" % thread_id

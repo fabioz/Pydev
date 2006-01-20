@@ -192,6 +192,7 @@ class PyDB:
                             pydevd_log(2, "processign internal command " + str(int_cmd))
                             int_cmd.doIt(self)
                         else:
+                            pydevd_log(2, "NOT processign internal command " + str(int_cmd))
                             cmdsToReadd.append(int_cmd)
                             
                 except PydevQueue.Empty:
@@ -315,6 +316,7 @@ class PyDB:
                 #command to evaluate the given expression
                 #text is: thread\tstackframe\tLOCAL\texpression
                 thread_id, frame_id, scope, expression = text.split('\t', 3)
+                thread_id = long(thread_id)
                 int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression)
                 self.postInternalCommand(int_cmd, thread_id)
                     
