@@ -74,7 +74,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             }
             return interpreter;
         }else{
-            throw new NotConfiguredInterpreterException(getNotConfiguredInterpreterMsg());
+            throw new NotConfiguredInterpreterException(this.getClass().getName()+":"+getNotConfiguredInterpreterMsg());
         }
     }
 
@@ -336,7 +336,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	
 	        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
 	        for (IInterpreterObserver observer : participants) {
-	            observer.notifyDefaultPythonpathRestored(this, monitor);
+	            observer.notifyDefaultPythonpathRestored(this, defaultSelectedInterpreter, monitor);
 	        }
     	}        
     }

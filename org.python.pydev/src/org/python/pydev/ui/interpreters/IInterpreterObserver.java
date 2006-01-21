@@ -12,9 +12,10 @@ public interface IInterpreterObserver {
      * Notifies observers that the pythonpath has just been restored with the given interpreter information.
      * 
      * @param manager the manager that had its default system information just restored
+     * @param defaultSelectedInterpreter 
      * @param monitor the monitor used in the restore
      */
-    void notifyDefaultPythonpathRestored(IInterpreterManager manager, IProgressMonitor monitor);
+    void notifyDefaultPythonpathRestored(IInterpreterManager manager, String defaultSelectedInterpreter, IProgressMonitor monitor);
 
     /**
      * Notifies observers that the given interpreter manager has just been recreated (this is due to restarting the plugin)
