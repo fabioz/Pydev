@@ -11,13 +11,16 @@ def template( template, contents, title ):
     contents_file = file( contents_file, 'r' ).read()
     
     contents = file( template, 'r' ).read()
-    contents = contents.replace('%(contents_area)s', getContents(contents_file, 'contents_area'))
-    contents = contents.replace('%(right_area)s', getContents(contents_file, 'right_area'))
-    contents = contents.replace('%(image_area)s', getContents(contents_file, 'image_area'))
-    contents = contents.replace('%(quote_area)s', getContents(contents_file, 'quote_area'))
-    contents = contents.replace('%(title)s', title)
-    contents = contents.replace('%(date)s', datetime.datetime.now().strftime('%d %B %Y'))
-    contents = contents.replace('LAST_VERSION_TAG', LAST_VERSION_TAG)
+    toReplace = ['contents_area', 'right_area' , 'image_area',  'quote_area',
+                 'prev', 'next', 'root']
+    
+    for r in toReplace:
+        contents = contents.replace('%('+r+')s', getContents(contents_file, r))
+    
+    contents = contents.replace('%(title)s',         title)
+    contents = contents.replace('%(date)s',          datetime.datetime.now().strftime('%d %B %Y'))
+    contents = contents.replace('LAST_VERSION_TAG',  LAST_VERSION_TAG)
+    
     file( target_file, 'w' ).write( contents ) 
 
 def getContents(contents_file, tag):
@@ -37,7 +40,8 @@ def main():
     template('../template1.html', 'buy', 'Buy')
     template('../template1.html', 'manual', 'Manual')
     template('../template1.html', 'about', 'About')
-    template('../template1.html', 'manual_101', 'Getting Started')
+    template('../templateManual.html', 'manual_101_root', 'Getting Started')
+    template('../templateManual.html', 'manual_101_interpreter', 'Configuring the interpreter')
 
 if __name__ == '__main__':
     main()
