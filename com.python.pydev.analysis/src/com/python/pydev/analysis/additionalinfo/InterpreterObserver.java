@@ -32,21 +32,28 @@ public class InterpreterObserver implements IInterpreterObserver {
     /**
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyDefaultPythonpathRestored(org.python.pydev.ui.interpreters.AbstractInterpreterManager, org.eclipse.core.runtime.IProgressMonitor)
      */
-    public void notifyDefaultPythonpathRestored(IInterpreterManager manager, IProgressMonitor monitor) {
+    public void notifyDefaultPythonpathRestored(IInterpreterManager manager, String defaultSelectedInterpreter, IProgressMonitor monitor){
         if(DEBUG_INTERPRETER_OBSERVER){
-            System.out.println("notifyDefaultPythonpathRestored "+ manager.getDefaultInterpreter());
+            System.out.println("notifyDefaultPythonpathRestored "+ defaultSelectedInterpreter);
         }
         try {
-            InterpreterInfo defaultInterpreterInfo = manager.getDefaultInterpreterInfo(monitor);
-            SystemModulesManager m = defaultInterpreterInfo.modulesManager;
-            AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, 
-                    "(system: "+manager.getManagerRelatedName()+")", new AdditionalSystemInterpreterInfo(manager), null);
+            try {
+                InterpreterInfo defaultInterpreterInfo = manager.getInterpreterInfo(defaultSelectedInterpreter, monitor);
+                SystemModulesManager m = defaultInterpreterInfo.modulesManager;
+                AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, "(system: " + manager.getManagerRelatedName() + ")",
+                        new AdditionalSystemInterpreterInfo(manager), null);
 
-            //ok, set it and save it
-            AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, additionalSystemInfo);
-            AbstractAdditionalInterpreterInfo.saveAdditionalSystemInfo(manager);
-        } catch (NotConfiguredInterpreterException e) {
-            //ok, nothing configured, nothing to do...
+                if (additionalSystemInfo != null) {
+                    //ok, set it and save it
+                    AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, additionalSystemInfo);
+                    AbstractAdditionalInterpreterInfo.saveAdditionalSystemInfo(manager);
+                }
+            } catch (NotConfiguredInterpreterException e) {
+                //ok, nothing configured, nothing to do...
+                PydevPlugin.log(e);
+            }
+        } catch (Throwable e) {
+            PydevPlugin.log(e);
         }
     }
 
@@ -65,10 +72,13 @@ public class InterpreterObserver implements IInterpreterObserver {
                 
                 @Override
                 protected IStatus run(IProgressMonitor monitorArg) {
-                    JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev... Restoring additional info", 
-                            IProgressMonitor.UNKNOWN, this);
-                    notifyDefaultPythonpathRestored(manager, jobProgressComunicator);
-                    jobProgressComunicator.done();
+                    try {
+                        JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev... Restoring additional info", IProgressMonitor.UNKNOWN, this);
+                        notifyDefaultPythonpathRestored(manager, manager.getDefaultInterpreter(), jobProgressComunicator);
+                        jobProgressComunicator.done();
+                    } catch (Exception e) {
+                        PydevPlugin.log(e);
+                    }
                     return Status.OK_STATUS;
                 }
                 
@@ -94,6 +104,9 @@ public class InterpreterObserver implements IInterpreterObserver {
         ModulesKey[] allModules = m.getOnlyDirectModules();
         int i = 0;
         for (ModulesKey key : allModules) {
+            if(monitor.isCanceled()){
+                return null;
+            }
             i++;
 
             if (key.file != null) { //otherwise it should be treated as a compiled module (no ast generation)
@@ -148,9 +161,11 @@ public class InterpreterObserver implements IInterpreterObserver {
         AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(monitor, m, 
                 "(project:"+project.getName()+")", new AdditionalProjectInterpreterInfo(project), nature);
         
-        //ok, set it and save it
-        AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
-        AdditionalProjectInterpreterInfo.saveAdditionalInfoForProject(project);
+        if(info != null){
+            //ok, set it and save it
+            AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
+            AdditionalProjectInterpreterInfo.saveAdditionalInfoForProject(project);
+        }
     }
 
     public void notifyNatureRecreated(final PythonNature nature, IProgressMonitor monitor) {

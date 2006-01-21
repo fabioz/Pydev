@@ -11,6 +11,7 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -74,8 +75,9 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
             IProgressMonitor monitor = new NullProgressMonitor();
             
             //try to load it from previous session
-            if(!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(getInterpreterManager())){
-                observer.notifyDefaultPythonpathRestored(getInterpreterManager(), monitor);
+            IInterpreterManager interpreterManager = getInterpreterManager();
+            if(!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(interpreterManager)){
+                observer.notifyDefaultPythonpathRestored(interpreterManager, interpreterManager.getDefaultInterpreter(), monitor);
             }
         }
         return restored;
