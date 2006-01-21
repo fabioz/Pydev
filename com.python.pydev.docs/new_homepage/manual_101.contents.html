@@ -1,0 +1,53 @@
+<contents_area>
+<p>This manual assumes that you have already installed <strong>Eclipse and Pydev Extensions</strong>. If you have still not done so, please
+go to the <a href="download.html">download area</a> and follow its instructions. <strong>Python and/or Jython</strong> installed in your machine
+is also a 'must'.
+</p><br/>
+
+<p>
+You can verify if it is correctly installed going to the menu <strong>'help > about > plug in details'</strong> and 
+checking if there are at least 5 plugins starting with <strong>'com.python.pydev'</strong> listed with the correct version.
+</p><br/>
+
+<p>
+If at any time you wish to stop using the Pydev extensions plugin (or any other Eclipse plugin), you can disable it by going to the menu 
+<strong>'help > software updates > manage configuration'</strong>, selecting the plugin and clicking 'disable'.
+</p><br/>
+
+<p>
+After installing it, the first thing you must do is configure the <strong>python and/or jython interpreter</strong>. To configure the interpreter:
+
+<ul>
+<li>1. Go to: window > preferences > pydev > Interpreter - (Jython/Python).
+</li><li>2. Choose the interpreter you have installed in your computer (such as python.exe or jython.jar)
+</li>
+</ul>
+
+<p>After those steps, you should have a screen as presented below:</p><br/>
+
+<p align="center"><IMG src="images/interpreter.png" border="1"/></p><br/>
+
+<p>
+<strong>How to check if the information was correctly gotten:</strong> <br/><br/>
+
+Make sure that you have lots of 'Forced builtin libs'. These are the libraries that are built-in the interpreter, such as __builtin__, sha, etc.
+For python, you should have about 50 libs and for jython about 30 libs. Additionally, you may add other libraries that you want to treat as 
+builtins, such as os, wxPython, OpenGL, etc. This is very important, because Pydev works on the java side only with static information, but 
+some modules don't have much information when analyzed statically, so, Pydev creates a shell to get information on these modules. Another important
+thing is that they must be on your system pythonpath (otherwise, the shell will be unable to get that information). 
+
+</p>
+
+</contents_area>
+
+
+
+<right_area>
+<p>Getting started with Pydev!</p>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area><strong>Pydev 101</strong></quote_area>

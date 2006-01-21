@@ -1,23 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<feature
-      id="com.python.pydev.extensions"
-      label="PyDev Extensions"
-      version="0.9.7.1"
-      provider-name="Fabio Zadrozny"
-      plugin="com.python.pydev">
-
-   <description url="http://www.example.com/description">
-      This feature enables PyDev extensions. It may not be re-distributed
-nor used without consent of Fabio Zadrozny
-   </description>
-
-   <copyright url="http://www.example.com/copyright">
-      ¬© Fabio Zadrozny
-   </copyright>
-
-   <license url="http://www.example.com/license">
 License Agreement
-This License Agreement is a legal contract between you (either as an individual or as an entity) and Fabio Zadrozny for the Pydev Extensions Software (‚ÄúSoftware‚Äù).
+This License Agreement is a legal contract between you (either as an individual or as an entity) and Fabio Zadrozny for the Pydev Extensions Software (ìSoftwareî).
 
 You should carefully read the following terms and conditions before using the Software. Installation or use of the Software indicates your acceptance of this License Agreement.
 
@@ -77,55 +59,3 @@ You agree that this Agreement expresses the entire understanding between you and
 
 COPYRIGHT 2006 FABIO ZADROZNY
 
-   </license>
-
-   <requires>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.junit"/>
-      <import plugin="org.python.pydev.core"/>
-      <import plugin="org.python.pydev.ast"/>
-      <import plugin="org.python.pydev"/>
-      <import plugin="org.python.pydev.parser"/>
-      <import plugin="org.eclipse.jface.text"/>
-      <import plugin="org.eclipse.core.resources"/>
-      <import feature="org.python.pydev.feature" version="0.9.7.1" match="greaterOrEqual"/>
-   </requires>
-
-   <plugin
-         id="com.python.pydev"
-         download-size="0"
-         install-size="0"
-         version="0.9.7.1"/>
-
-   <plugin
-         id="com.python.pydev.analysis"
-         download-size="0"
-         install-size="0"
-         version="0.9.7.1"/>
-
-   <plugin
-         id="com.python.pydev.fastparser"
-         download-size="0"
-         install-size="0"
-         version="0.9.7.1"/>
-
-   <plugin
-         id="com.python.pydev.codecompletion"
-         download-size="0"
-         install-size="0"
-         version="0.9.7.1"/>
-
-   <plugin
-         id="com.python.pydev.debug"
-         download-size="0"
-         install-size="0"
-         version="0.9.7.1"/>
-
-   <plugin
-         id="com.python.pydev.refactoring"
-         download-size="0"
-         install-size="0"
-         version="0.9.7.1"/>
-
-</feature>

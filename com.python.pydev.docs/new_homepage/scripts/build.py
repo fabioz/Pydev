@@ -37,6 +37,7 @@ def main():
     template('../template1.html', 'buy', 'Buy')
     template('../template1.html', 'manual', 'Manual')
     template('../template1.html', 'about', 'About')
+    template('../template1.html', 'manual_101', 'Getting Started')
 
 if __name__ == '__main__':
     main()
