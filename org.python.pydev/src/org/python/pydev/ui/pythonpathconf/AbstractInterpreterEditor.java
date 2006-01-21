@@ -7,6 +7,7 @@ package org.python.pydev.ui.pythonpathconf;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -172,9 +173,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      */
     protected void removePressed() {
         super.removePressed();
-        //we need that because if we stay without any elements, we want to remove the libs...
         updateTree();
         changed = true;
+        //we need that because when the user remove something, we want to remove the cache for that.
+        this.store();
     }
 
     protected void addPressed() {
