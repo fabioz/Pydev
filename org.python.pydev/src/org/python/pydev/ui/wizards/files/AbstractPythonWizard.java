@@ -4,6 +4,9 @@
 package org.python.pydev.ui.wizards.files;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -16,7 +19,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 import org.python.pydev.plugin.PydevPlugin;
 
-public class AbstractPythonWizard extends Wizard implements INewWizard {
+public abstract class AbstractPythonWizard extends Wizard implements INewWizard {
 
 
     /**
@@ -53,10 +56,15 @@ public class AbstractPythonWizard extends Wizard implements INewWizard {
      * @see org.eclipse.jface.wizard.IWizard#addPages()
      */
     public void addPages() {
-        filePage = new PythonAbstractPathPage("Create a new Python module", selection);
+        filePage = createPathPage();
         filePage.setDescription("Create a new Python module");
         addPage(filePage);
     }
+
+    /**
+     * @return
+     */
+    protected abstract PythonAbstractPathPage createPathPage();
 
     
     /**
@@ -64,29 +72,39 @@ public class AbstractPythonWizard extends Wizard implements INewWizard {
      */
     @Override
     public boolean performFinish() {
-        // Create file object
-        IFile file = filePage.createNewFile();
-        if (file == null){
-            return false;
-        }
-
-        // Scroll to file in package explorer
-        BasicNewResourceWizard.selectAndReveal(file, workbench.getActiveWorkbenchWindow());
-
-        // Open editor on new file.
-        IWorkbenchWindow dw = workbench.getActiveWorkbenchWindow();
         try {
-            if (dw != null) {
-                IWorkbenchPage page = dw.getActivePage();
-                if (page != null) {
-                    IDE.openEditor(page, file, true);
-                }
+            IFile file = doCreateNew(new NullProgressMonitor());
+            // Create file object
+            if (file == null) {
+                return false;
             }
-        } catch (PartInitException e) {
+
+            // Scroll to file in package explorer
+            BasicNewResourceWizard.selectAndReveal(file, workbench.getActiveWorkbenchWindow());
+
+            // Open editor on new file.
+            IWorkbenchWindow dw = workbench.getActiveWorkbenchWindow();
+            try {
+                if (dw != null) {
+                    IWorkbenchPage page = dw.getActivePage();
+                    if (page != null) {
+                        IDE.openEditor(page, file, true);
+                    }
+                }
+            } catch (PartInitException e) {
+                PydevPlugin.log(e);
+            }
+        } catch (Exception e) {
             PydevPlugin.log(e);
         }
-
         return true;
     }
+
+    /**
+     * This method must be overriden to create the needed resource (either the package -- in which case it will return the __init__.py
+     * or the file, in which case it will return the file itself).
+     * @return the created resource
+     */
+    protected abstract IFile doCreateNew(IProgressMonitor monitor) throws CoreException;
 
 }

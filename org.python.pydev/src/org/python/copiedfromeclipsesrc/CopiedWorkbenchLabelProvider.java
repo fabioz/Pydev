@@ -151,7 +151,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
     /* (non-Javadoc)
      * Method declared on ILabelProvider
      */
-    public final Image getImage(Object element) {
+    public Image getImage(Object element) {
         //obtain the base image by querying the element
         IWorkbenchAdapter adapter = getAdapter(element);
         if (adapter == null) {

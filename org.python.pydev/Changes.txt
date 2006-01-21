@@ -14,10 +14,13 @@ after 0.9.8.7
 
 - Minor bug: if there was no other project to reference in the new project wizard, it appeared next even though
 it didn't have a 'next' page.
-- Wizard to create new project has option for creating a default 'src' folder (and add it to the pythonpath).
 - Debugger speed up (on par with the best debuggers available)
 - Debugger now gets the variables 'on-demand'
 - The variables returned for jython are much more complete
+- Wizard to create new project has option for creating a default 'src' folder (and add it to the pythonpath).
+- The create new python module and new python package have been reviewed (you can still use
+the regular ones, but the new ones are really reccommended -- also it will help in making sure you have your pythonpath
+correctly configured!).
 
 after 0.9.8.6
 

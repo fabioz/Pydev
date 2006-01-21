@@ -32,7 +32,7 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
 		//folder.addView(JavaUI.ID_PACKAGES);
 		//folder.addView(JavaUI.ID_TYPE_HIERARCHY);
 		folder.addView(IPageLayout.ID_RES_NAV);
-		folder.addPlaceholder(IPageLayout.ID_RES_NAV);
+		//folder.addPlaceholder(IPageLayout.ID_RES_NAV);
 		
 		IFolderLayout outputfolder= layout.createFolder("bottom", IPageLayout.BOTTOM, (float)0.75, editorArea); //$NON-NLS-1$
 		outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);		

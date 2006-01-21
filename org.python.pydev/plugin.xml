@@ -822,7 +822,7 @@
             hasPages="true"
             icon="icons/python.gif"
             id="org.python.pydev.ui.wizards.files.PythonModuleWizard"
-            name="Pydev Module"
+            name="Pydev Module (file)"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
       <wizard
@@ -834,7 +834,7 @@
             hasPages="true"
             icon="icons/python.gif"
             id="org.python.pydev.ui.wizards.files.PythonPackageWizard"
-            name="Pydev Package"
+            name="Pydev Package (folder)"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
    </extension>
