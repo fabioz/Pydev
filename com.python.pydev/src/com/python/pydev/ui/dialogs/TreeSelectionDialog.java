@@ -6,6 +6,8 @@ package com.python.pydev.ui.dialogs;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -17,6 +19,7 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -36,15 +39,47 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     private DefaultFilterMatcher fFilterMatcher = new DefaultFilterMatcher();
     private ITreeContentProvider contentProvider;
 
+    class UpdateJob extends Thread{
+        IProgressMonitor monitor = new NullProgressMonitor(); //only thing it implements is the cancelled
+        
+        public UpdateJob(){
+            setPriority(Thread.MIN_PRIORITY);
+        }
+        @Override
+        public void run() {
+            try {
+                sleep(300);
+            } catch (InterruptedException e) {
+                //ignore
+            }
+            if(!monitor.isCanceled()){
+                Display display = Display.getDefault();
+                display.asyncExec(new Runnable(){
+    
+                    public void run() {
+                        if(!monitor.isCanceled()){
+                            setFilter(text.getText(), monitor);
+                        }
+                    }
+                    
+                });
+            }
+        }
+        public void cancel(){
+            this.monitor.setCanceled(true);
+        }
+    }
 
     public TreeSelectionDialog(Shell parent, ILabelProvider labelProvider, ITreeContentProvider contentProvider) {
         super(parent, labelProvider, contentProvider);
+
         this.labelProvider = labelProvider;
         this.contentProvider = contentProvider;
     }
     
     private int fWidth = 60;
     private Text text;
+    private UpdateJob updateJob;
 
 
     @Override
@@ -79,7 +114,11 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
         
         Listener listener = new Listener() {
             public void handleEvent(Event e) {
-                setFilter(text.getText());
+                if(updateJob != null){
+                    updateJob.cancel(); //cancel it if it was already in progress
+                }
+                updateJob = new UpdateJob();
+                updateJob.start();
             }
 
         };
@@ -101,19 +140,36 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     
     
     //filtering things...
-    protected void setFilter(String text) {
+    protected void setFilter(String text, IProgressMonitor monitor) {
+        if(monitor.isCanceled())
+            return;
+        
+        if(fFilterMatcher.lastPattern.equals(text)){
+            //no actual change...
+            return;
+        }
         fFilterMatcher.setFilter(text);
+        if(monitor.isCanceled())
+            return;
+
         getTreeViewer().getTree().setRedraw(false);
+        getTreeViewer().getTree().getParent().setRedraw(false);
         try {
+            if(monitor.isCanceled())
+                return;
             getTreeViewer().refresh();
+            if(monitor.isCanceled())
+                return;
             getTreeViewer().expandAll();
         } finally {
             getTreeViewer().getTree().setRedraw(true);
+            getTreeViewer().getTree().getParent().setRedraw(true);
         }
     }
     
     private class DefaultFilterMatcher {
         public StringMatcher fMatcher;
+        public String lastPattern;
 
         public DefaultFilterMatcher(){
             setFilter("");
@@ -125,6 +181,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
         
         private void setFilter(String pattern, boolean ignoreCase, boolean ignoreWildCards) {
             fMatcher = new StringMatcher(pattern + '*', ignoreCase, ignoreWildCards);
+            this.lastPattern = pattern;
         }
 
         public boolean match(Object element) {
