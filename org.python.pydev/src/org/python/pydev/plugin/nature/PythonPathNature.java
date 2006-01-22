@@ -177,7 +177,7 @@ public class PythonPathNature implements IPythonPathNature {
                 if(nature != null){
                     //yeap, everything has to be done from scratch, as all the filesystem paths have just
                     //been turned to dust!
-                    nature.rebuildPath(projectSourcePath);
+                    nature.rebuildPath(getOnlyProjectPythonPathStr());
                 }
             }
             return projectSourcePath;

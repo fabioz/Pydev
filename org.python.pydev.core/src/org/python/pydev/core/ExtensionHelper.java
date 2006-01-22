@@ -74,6 +74,7 @@ public class ExtensionHelper {
      * @param type the extension we want to get
      * @return a list of classes created from those extensions
      */
+    @SuppressWarnings("unchecked")
     public static List getParticipants(String type) {
         ArrayList list = new ArrayList();
         IExtension[] extensions = getExtensions(type);

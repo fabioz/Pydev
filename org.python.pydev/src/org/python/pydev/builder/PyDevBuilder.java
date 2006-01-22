@@ -32,6 +32,7 @@ import org.python.pydev.builder.pycremover.PycRemoverBuilderVisitor;
 import org.python.pydev.builder.pylint.PyLintVisitor;
 import org.python.pydev.builder.todo.PyTodoVisitor;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -49,6 +50,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * 
      * @return a list of visitors for building the application.
      */
+    @SuppressWarnings("unchecked")
     public List<PyDevBuilderVisitor> getVisitors() {
         List<PyDevBuilderVisitor> list = new ArrayList<PyDevBuilderVisitor>();
         list.add(new PyTodoVisitor());
@@ -117,6 +119,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         //we need the project...
         if (project != null) {
             PythonNature nature = PythonNature.getPythonNature(project);
+            IPythonPathNature pythonPathNature = nature.getPythonPathNature();
+            pythonPathNature.getProjectSourcePath(); //this is just to update the paths (in case the project name has just changed)
             
             //and the nature...
             if (nature != null){
