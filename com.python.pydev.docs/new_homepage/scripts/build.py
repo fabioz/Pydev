@@ -1,5 +1,5 @@
 import datetime
-LAST_VERSION_TAG='0.9.8.6'
+LAST_VERSION_TAG='0.9.8.8'
 
 
 
@@ -43,6 +43,7 @@ def main():
     template('../templateManual.html', 'manual_101_root', 'Getting Started')
     template('../templateManual.html', 'manual_101_interpreter', 'Configuring the interpreter')
     template('../templateManual.html', 'manual_101_project_conf', 'Creating a project')
+    template('../templateManual.html', 'manual_101_project_conf2', 'Creating a project')
 
 if __name__ == '__main__':
     main()
