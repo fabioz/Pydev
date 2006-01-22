@@ -211,6 +211,7 @@ public class PythonNature implements IPythonNature {
             
             Job codeCompletionLoadJob = new Job("Pydev code completion") {
 
+                @SuppressWarnings("unchecked")
                 protected IStatus run(IProgressMonitor monitorArg) {
                     //begins task automatically
                     JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev restoring cache info...", IProgressMonitor.UNKNOWN, this);
@@ -284,6 +285,7 @@ public class PythonNature implements IPythonNature {
         final PythonNature nature = this;
         Job myJob = new Job("Pydev code completion: rebuilding modules") {
 
+            @SuppressWarnings("unchecked")
             protected IStatus run(IProgressMonitor monitorArg) {
 
                 JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);

@@ -73,10 +73,11 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
     @Override
     public boolean performFinish() {
         try {
-            IFile file = doCreateNew(new NullProgressMonitor());
             // Create file object
+            IFile file = doCreateNew(new NullProgressMonitor());
             if (file == null) {
-                return false;
+                //that's ok, as it just didn't create a file (but maybe a folder)...
+                return true;
             }
 
             // Scroll to file in package explorer
@@ -93,9 +94,11 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
                 }
             } catch (PartInitException e) {
                 PydevPlugin.log(e);
+                return false;
             }
         } catch (Exception e) {
             PydevPlugin.log(e);
+            return false;
         }
         return true;
     }

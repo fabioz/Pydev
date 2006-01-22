@@ -26,6 +26,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -53,9 +55,15 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
      */
     private IContainer validatedPackage;
     /**
+     * This is the project
+     */
+    private IProject validatedProject;
+    /**
      * It is not null only when the name was correctly validated
      */
     private String validatedName;
+    private Text textProject;
+    private Button btBrowseProject;
     
     public IContainer getValidatedSourceFolder(){
         return validatedSourceFolder;
@@ -65,6 +73,9 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
     }
     public String getValidatedName(){
         return validatedName;
+    }
+    public IProject getValidatedProject(){
+        return validatedProject;
     }
 
     protected PythonAbstractPathPage(String pageName, IStructuredSelection selection) {
@@ -81,21 +92,34 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         topLevel.setLayout(gridLayout);
         topLevel.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_FILL));
         topLevel.setFont(parent.getFont());
-
-        boolean sourceFolderFilled = createSourceFolderSelect(topLevel);
-        if(shouldCreatePackageSelect()){
-            sourceFolderFilled = createPackageSelect(topLevel, sourceFolderFilled);
+        
+        boolean previousFilled = true;
+        //create either source folder
+        if(shouldCreateSourceFolderSelect()){
+            previousFilled = createSourceFolderSelect(topLevel);
         }else{
-            createPackageSelect(topLevel, sourceFolderFilled);
+            //or the project selection
+            previousFilled = createProjectSelect(topLevel);
         }
-        createNameSelect(topLevel, sourceFolderFilled);
+        
+        //always call the package create (but not always will it create
+        if(shouldCreatePackageSelect()){
+            previousFilled = createPackageSelect(topLevel, previousFilled);
+        }else{
+            createPackageSelect(topLevel, previousFilled);
+        }
+
+        //always create the name
+        createNameSelect(topLevel, previousFilled);
         
         // Show description on opening
         setErrorMessage(null);
         setMessage(null);
         setControl(topLevel);
     }
-
+    protected boolean shouldCreateSourceFolderSelect() {
+        return true;
+    }
     protected abstract boolean shouldCreatePackageSelect() ;
 
     /**
@@ -115,6 +139,53 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
             textName.setFocus();
             textName.setSelection(textName.getText().length());
         }
+    }
+
+
+    private boolean createProjectSelect(Composite topLevel) {
+        Label label;
+        label = new Label(topLevel, SWT.NONE);
+        label.setText("Project");
+        textProject = new Text(topLevel, SWT.BORDER);
+        textProject.addKeyListener(this);
+        btBrowseProject = new Button(topLevel, SWT.NONE);
+        setLayout(label, textProject, btBrowseProject);
+        textProject.setFocus();
+
+        btBrowseProject.addSelectionListener(new SelectionListener(){
+
+            public void widgetSelected(SelectionEvent e) {
+                ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(), new WorkbenchLabelProvider());
+                dialog.setTitle("Project selection");
+                dialog.setTitle("Select a project.");
+                dialog.setElements(ResourcesPlugin.getWorkspace().getRoot().getProjects());
+                dialog.open();
+                
+                Object[] result = dialog.getResult();
+                if(result != null && result.length > 0){
+                    textProject.setText(((IProject)result[0]).getName());
+                }
+            }
+
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+            
+        });
+        
+        Object element = selection.getFirstElement();
+        
+        if (element instanceof IResource) {
+            IResource f = (IResource) element;
+            element = f.getProject();
+        }
+        
+        if (element instanceof IProject) {
+            textProject.setText(((IProject)element).getName());
+            return true;
+        }
+            
+
+        return false;
     }
 
     /**
@@ -331,6 +402,11 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
 
     private void validatePage() {
         try {
+            if (textProject != null) {
+                if(checkError(checkValidProject(textProject.getText()))){
+                    return;
+                }
+            }
             if (textSourceFolder != null) {
                 if(checkError(checkValidSourceFolder(textSourceFolder.getText()))){
                     return;
@@ -357,6 +433,20 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         }
     }
     
+    private String checkValidProject(String text) {
+        validatedProject = null;
+        if(text == null || text.trim().length() == 0 ){
+            return "The project name must be filled.";
+        }
+        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        IProject project = root.getProject(text);
+        if(!project.exists()){
+            return "The project selected does not exist in the workspace.";
+        }
+        validatedProject = project;
+        return null;
+    }
+    
     private boolean checkError(String error) {
         if (error != null) {
             setErrorMessage(error);
@@ -372,8 +462,12 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         if(text == null || text.trim().length() == 0 ){
             return "The name must be filled.";
         }
-        if(validatedSourceFolder == null){
-            return "The source folder was not correctly validated.";
+        if(shouldCreateSourceFolderSelect()){
+            if(validatedSourceFolder == null){
+                return "The source folder was not correctly validated.";
+            }
+        }else if(validatedProject == null){
+            return "The project was not correctly validated.";
         }
         if(shouldCreatePackageSelect()){
             if(validatedPackage == null){

@@ -816,13 +816,13 @@
       <wizard
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
-            class="org.python.pydev.ui.wizards.files.PythonModuleWizard"
+            class="org.python.pydev.ui.wizards.files.PythonSourceFolderWizard"
             descriptionImage="icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
-            icon="icons/python.gif"
-            id="org.python.pydev.ui.wizards.files.PythonModuleWizard"
-            name="Pydev Module (file)"
+            icon="icons/packagefolder_obj.gif"
+            id="org.python.pydev.ui.wizards.files.PythonSourceFolderWizard"
+            name="Source Folder"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
       <wizard
@@ -832,9 +832,21 @@
             descriptionImage="icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
-            icon="icons/python.gif"
+            icon="icons/package_obj.gif"
             id="org.python.pydev.ui.wizards.files.PythonPackageWizard"
-            name="Pydev Package (folder)"
+            name="Pydev Package"
+            preferredPerspectives="org.python.pydev.ui.PythonPerspective"
+            project="false"/>
+      <wizard
+            canFinishEarly="false"
+            category="org.python.pydev.PythonCategory"
+            class="org.python.pydev.ui.wizards.files.PythonModuleWizard"
+            descriptionImage="icons/python_logo.png"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            hasPages="true"
+            icon="icons/python.gif"
+            id="org.python.pydev.ui.wizards.files.PythonModuleWizard"
+            name="Pydev Module"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
    </extension>
