@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.Document;
 import org.python.parser.SimpleNode;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
@@ -98,7 +99,7 @@ public class InterpreterObserver implements IInterpreterObserver {
      * 
      * @return the info generated from the module manager
      */
-    private AbstractAdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, ModulesManager m, String additionalFeedback, 
+    private AbstractAdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m, String additionalFeedback, 
             AbstractAdditionalInterpreterInfo info, PythonNature nature) {
 
         ModulesKey[] allModules = m.getOnlyDirectModules();
@@ -156,10 +157,12 @@ public class InterpreterObserver implements IInterpreterObserver {
 
 
     public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor) {
-        ModulesManager m = (ModulesManager) nature.getAstManager().getModulesManager();
+        IModulesManager m = nature.getAstManager().getModulesManager();
         IProject project = nature.getProject();
-        AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(monitor, m, 
-                "(project:"+project.getName()+")", new AdditionalProjectInterpreterInfo(project), nature);
+        AdditionalProjectInterpreterInfo newProjectInfo = new AdditionalProjectInterpreterInfo(project);
+        String feedback = "(project:"+project.getName()+")";
+        AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) 
+                                            restoreInfoForModuleManager(monitor, m, feedback, newProjectInfo, nature);
         
         if(info != null){
             //ok, set it and save it
