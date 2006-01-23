@@ -1,5 +1,5 @@
 <contents_area>
-
+<h3>Installing with the update site</h3>
 <p>
 To install Pydev and Pydev Extensions from the Eclipse Update Manager, you need to go to the install menu:
 </p>
@@ -11,15 +11,47 @@ you already have an older version installed).</p>
 
 <br/><p align="center"><IMG src="images/install_select_new.png" border="1"/></p><br/>
 
-TODO: FINISH IT (DEPENDS ON THE UPDATE SITE ADDRESS)
+<p>In the next screen (below), click 'new remote site'</p>
 
+<br/><p align="center"><IMG src="images/update_sites.png" border="1"/></p><br/>
+
+<p>Set the 'Pydev Extensions' update site: http://www.pydev.com.br/updates</p>
+
+<br/><p align="center"><IMG src="images/update_address.png" border="1"/></p><br/>
+
+<p>Click 'Finish'. You should be presented with the screen below:</p>
+
+<br/><p align="center"><IMG src="images/found_features.png" border="1"/></p><br/>
+
+<p>Select both features and click 'next'... </p>
+
+<br/><p align="center"><IMG src="images/update_license.png" border="1"/></p><br/>
+
+<p>Now, you'll have to accept the license, click 'next' and in the next screen, review it and click 'finish'. Eclipse should automatically download
+the plugin contents and present you to a dialog asking if you want to restart (to which you should say <strong>yes</strong>).</p>
+
+
+
+
+<h3>Installing with the zip file</h3>
+
+<p>After downloading the zip file (from <a href="http://www.pydev.com.br/zips">http://www.pydev.com.br/zips</a>), you have to extract it 
+yourself on top of Eclipse. If you choose to do it, just make sure the plugins folder 
+is extracted on top of the Eclipse plugins folder. After that, restart it with the '-clean' flag, to
+make sure Eclipse finds out about it.</p>
+
+
+
+<h3>Checking the installation</h3>
 <p>
 You can verify if it is correctly installed going to the menu <strong>'help > about > plug in details'</strong> and 
-checking if there are at least 5 plugins starting with <strong>'com.python.pydev'</strong> listed with the correct version.
-</p><br/>
+checking if there are at least 5 plugins with the 'plug-in Id' starting with <strong>'com.python.pydev'</strong> and at least other 5 starting with 
+<strong>'org.python.pydev'</strong> (and check if they have the version you got).
+</p>
 
+<h3>Uninstalling</h3>
 <p>
-<strong>NOTE:</strong>If at any time you wish to stop using the Pydev extensions plugin (or any other Eclipse plugin), you can disable it by going to the menu 
+If at any time you wish to stop using the Pydev extensions plugin (or any other Eclipse plugin), you can disable it by going to the menu 
 <strong>'help > software updates > manage configuration'</strong>, selecting the plugin and clicking 'disable'.
 </p><br/>
 

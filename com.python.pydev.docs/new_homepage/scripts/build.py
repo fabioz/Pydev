@@ -12,7 +12,7 @@ def template( template, contents, title ):
     
     contents = file( template, 'r' ).read()
     toReplace = ['contents_area', 'right_area' , 'image_area',  'quote_area',
-                 'prev', 'next', 'root']
+                 'prev', 'title_prev', 'next', 'title_next', 'root']
     
     for r in toReplace:
         contents = contents.replace('%('+r+')s', getContents(contents_file, r))
