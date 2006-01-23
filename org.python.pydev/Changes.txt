@@ -21,6 +21,7 @@ it didn't have a 'next' page.
 - The create new python module and new python package have been reviewed (you can still use
 the regular ones, but the new ones are really reccommended -- also it will help in making sure you have your pythonpath
 correctly configured!).
+- Create new source folder option added.
 
 after 0.9.8.6
 
