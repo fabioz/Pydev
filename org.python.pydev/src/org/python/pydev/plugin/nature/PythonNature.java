@@ -295,11 +295,11 @@ public class PythonNature implements IPythonNature {
                     	tempAstManager = new ASTManager();
                     }
                     synchronized(tempAstManager){
+                    	astManager = tempAstManager;
                     	tempAstManager.setProject(getProject(), false); //it is a new manager, so, remove all deltas
 	
 	                    //begins task automatically
                     	tempAstManager.changePythonPath(paths, project, jobProgressComunicator);
-                    	astManager = tempAstManager;
 	                    saveAstManager();
 	
 	                    List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
