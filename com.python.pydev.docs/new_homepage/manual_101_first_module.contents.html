@@ -1,6 +1,6 @@
 <contents_area>
 
-<p>Let's create our first module (now that the interpreter and the project are already configured).
+<p><strong>Creating our first module</strong> (now that the interpreter and the project are already configured).
 </p><br/>
 
 <p>
@@ -11,8 +11,8 @@ just in case, you can open it by going to the menu: window > open perspective > 
 <br/><p align="center"><IMG src="images/open_perspective.png" border="1"/></p><br/>
 
 <p>
-A perspective just 'defines' what appears in your window and which actions are enabled... If you want to add something (even some menu), you can
-go to the menu: window > customize perspective. For the first module, we will use the default pydev perspective, as it already has the wizard shortcuts
+A perspective 'defines' what appears in your window and which actions are enabled... If you want to add something (even some menu), you can
+go to the menu: window > customize perspective. To create our first module, we will use the default pydev perspective, as it already has the wizard shortcuts
 pre-defined in the 'file > new' menu (if you had an earlier version of pydev installed, you can close the perspective and open it again, as older
 versions of it may not have everything needed for this example).
 </p>
@@ -39,7 +39,7 @@ module name as below (again, the other fields should be automatically filled).
 </p>
 <br/><p align="center"><IMG src="images/new_module.png" border="1"/></p><br/>
 
-<p>The file '/root/nested/example.py' should have been created, so, to finish this example, with the empty file, press Ctrl+Space (that's the 
+<p>The file '/root/nested/example.py' should have been created, so, to finish this example, in the empty file, press Ctrl+Space (that's the 
 shortcut for the pydev code-completion). Once you do that, the 'context-sensitive' completions should appear (as below). 
 </p>
 <br/><p align="center"><IMG src="images/codecompl1.png" border="1"/></p><br/>
@@ -47,13 +47,13 @@ shortcut for the pydev code-completion). Once you do that, the 'context-sensitiv
 <p><strong>NOTE:</strong> If the code-completion does not work, you should check:
 <ul>
 <li>If you do not have a firewall that is blocking communication from the shell.</li>
-<li>If your timeout to connect to the shell is enough for your system (in the menu: window > preferences > Pydev > code completion).</li>
+<li>If the timeout to connect to the shell is enough for your system (in the menu: window > preferences > Pydev > code completion).</li>
 </ul>
 
 
 <p><strong>NOTE FOR JYTHON USERS:</strong> If you are in <strong>jython</strong>, the first activation might take a while. This usually happens when jython has to do the processing
-of new jars. If the next time you start it, it takes the same time, it could be that for some reason your jython 'cache-dir' is not writable, so, you can
-create a script with the code below to see the cache dir and check its permissions (or if there is no permission problem, you can try deleting the dir and
+of new jars. The next time you start it, if it takes the same time, it could be that your jython 'cache-dir' is not writable, so, you can
+create a script with the code below to see where is the cache dir and check its permissions (or if there is no permission problem, you can try deleting the dir and
 seeing if it gets correctly recreated in the next jython activation).<br/>
 <br/>
 <strong>Code:</strong><br/>
