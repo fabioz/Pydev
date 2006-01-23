@@ -1,0 +1,65 @@
+<contents_area>
+
+<p>Ok, now that you're already up and running with Pydev Extensions, let's <strong>run a program from within Eclipse</strong> with Pydev.
+</p>
+
+<p>For that, we will extend the module we created in the previous chapter with the following program:<br/><br/>
+if __name__ == '__main__':<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;print 'Hello World'<br/>
+<br/>
+Then, with the keyboard, go to the menu: Alt + R + S + The number of the Run you wish (It can be Python, Jython, unit-test, etc). For now,
+let's make a 'Python run' or 'Jython run'.
+</p>
+
+<br/><p align="center"><IMG src="images/menu_run.png" border="1"/></p><br/>
+
+
+<p>Doing so, the console should be brough forward with the output of the code (if you had some exception raised, clicking on
+it would bring you to the code in the stack-trace).
+</p>
+
+<p>After the first run, if you type <strong>Ctrl+F11</strong>, the last file ran is re-run. Or, if you type just <strong>F11</strong>, a debug session is started with 
+your last run. Let's test this...
+</p>
+
+<p>First, you'll need to add a breakpoint in the "print 'Hello World'" line. To do so, go to the line and type <strong>Ctrl+F10</strong> and select 
+'Add breakpoint', then type <strong>F11</strong>. Doing so, will trigger you to go to the 'debug perspective'. You should say <strong>'yes'</strong> to this dialog.
+</p>
+
+<br/><p align="center"><IMG src="images/perspective_to_debug.png" border="1"/></p><br/>
+
+<p>After saying yes, you should be brought to the perspective below.
+</p>
+
+<br/><p align="center"><IMG src="images/debug_perspective.png" border="1"/></p><br/>
+
+<p>In this perspective, the debug actions are activated and presented to you, so, you can use:<br/><br/>
+<strong>F5</strong>: Step into<br/>
+<strong>F6</strong>: Step over<br/>
+<strong>F7</strong>: Step return<br/>
+<strong>F8</strong>: Resume execution<br/>
+
+</p>
+
+<p>After the debug session, you can return to the previous perspective by typing <strong>'Ctrl+F8'</strong>
+</p>
+
+</contents_area>
+
+
+
+<right_area>
+<p>Some useful tips!</p>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area><strong>Pydev 101</strong></quote_area>
+
+<next>manual_101_tips</next>
+<prev>manual_101_first_module</prev>
+<root>manual_101_root</root>
+<title_next>(Tips)</title_next>
+<title_prev>(First Module)</title_prev>

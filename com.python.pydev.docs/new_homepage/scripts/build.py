@@ -46,6 +46,9 @@ def main():
     template('../templateManual.html', 'manual_101_project_conf', 'Creating a project')
     template('../templateManual.html', 'manual_101_project_conf2', 'Configuring a project')
     template('../templateManual.html', 'manual_101_first_module', 'Creating a module')
+    template('../templateManual.html', 'manual_101_run', 'Running your first program')
+    template('../templateManual.html', 'manual_101_tips', 'Some useful tips')
+    template('../templateManual.html', 'manual_advanced', 'Features Available')
 
 if __name__ == '__main__':
     main()
