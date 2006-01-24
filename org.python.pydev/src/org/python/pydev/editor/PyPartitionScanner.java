@@ -94,6 +94,8 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
 		//- also, if we first add the """ rule and after the ''' rule, the bug happens with ''' and not """
 		//- if the user later changes the first line of that multiline or a line above it, it ends up parsing correctly again
 		//- if we let just one of the constructs, no problem happens
+		//
+		//I also tried creating a new token for it, but it had problems too (not the same ones, but had other problems).
 	}
 
 	private void addCommentRule(List<IPredicateRule> rules) {
@@ -142,4 +144,8 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
             }
         }
     }
+    
+    
+    
+    
 }
