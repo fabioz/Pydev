@@ -23,6 +23,13 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
 
+	public static final int PRIORITY_CODE_COMPLETION = PRIORITY_DEFAULT;
+	
+	@Override
+	protected int getPriority() {
+		return PRIORITY_CODE_COMPLETION;
+	}
+	
     /**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#shouldVisitInitDependency()
      */

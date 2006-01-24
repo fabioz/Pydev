@@ -289,6 +289,12 @@ public class PythonPathHelper implements Serializable{
                         if(isValid){
                             if(moduleFile.isFile()){
                                 s = stripExtension(s);
+                            }else if(moduleFile.exists() == false){
+                            	//ok, it does not exist, so isFile will not work, let's just check if it is
+                            	//a valid module (ends with .py or .pyw) and if it is, strip the extension
+                            	if(isValidFileMod(s)){
+                            		s = stripExtension(s);
+                            	}
                             }
 	                        return s;
                         }
