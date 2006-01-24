@@ -37,12 +37,21 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
         String qual = request.qualifier;
         String lowerQual = qual.toLowerCase();
         
+        String initialModule = request.nature.resolveModule(request.editorFile);
         if(qual.length() >= 3){ //at least n characters required...
             List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, request.nature, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
             
             for (IInfo info : tokensStartingWith) {
                 //there always must be a declaringModuleName
                 String declaringModuleName = info.getDeclaringModuleName();
+                if(initialModule.equals(declaringModuleName)){
+                	continue;
+                }
+                boolean hasInit = false;
+                if(declaringModuleName.endsWith(".__init__")){
+                	declaringModuleName = declaringModuleName.substring(0, declaringModuleName.length()-9);//remove the .__init__
+                	hasInit = true;
+                }
                 
                 String rep = info.getName();
                 StringBuffer buffer = new StringBuffer();
@@ -56,6 +65,9 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
                 buffer.append(rep );
                 buffer.append(" - ");
                 buffer.append(declaringModuleName);
+                if(hasInit){
+                	buffer.append(".__init__");
+                }
                 String displayString = buffer.toString();
 
                 //get the image
