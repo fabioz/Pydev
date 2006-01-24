@@ -14,6 +14,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -40,6 +41,10 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
      */
     public static final boolean DEBUG_DEPENDENCIES = false;
 
+    @Override
+    protected int getPriority() {
+    	return PyCodeCompletionVisitor.PRIORITY_CODE_COMPLETION+1; //just after the code-completion priority
+    }
 
     @Override
     public void visitingWillStart(IProgressMonitor monitor) {
@@ -112,8 +117,21 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     
     @Override
     public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+    	//we may need to 'force' the analysis when a module is renamed, because the first message we receive is
+    	//a 'delete' and after that an 'add' -- which is later mapped to this method, so, if we don't have info
+    	//on the module we should analyze it because it is 'probably' a rename.
+        String moduleName = getModuleName(resource);
+        PythonNature nature = getPythonNature(resource);
+        boolean force = false;
+        if(nature != null && moduleName != null){
+        	AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+        	if(!info.hasInfoOn(moduleName)){
+        		force = true;
+        	}
+        }
+
         boolean fullBuild = isFullBuild();
-        if(fullBuild ||
+        if(fullBuild || force ||
            AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SAVE){
             
             boolean analyzeDependent;

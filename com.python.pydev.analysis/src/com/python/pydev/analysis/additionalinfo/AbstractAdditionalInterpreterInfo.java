@@ -32,7 +32,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
-import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
@@ -401,7 +400,31 @@ public abstract class AbstractAdditionalInterpreterInfo {
         }
     }
 
+
     /**
+     * Checks if there is some available info on the given module
+     */
+	public boolean hasInfoOn(String moduleName) {
+		//we just check the top level (it is not possible to have info on an inner structure without
+		//having it in the top level too).
+        Iterator<List<IInfo>> itListOfInfo = topLevelInitialsToInfo.values().iterator();
+        while (itListOfInfo.hasNext()) {
+
+            Iterator<IInfo> it = itListOfInfo.next().iterator();
+            while (it.hasNext()) {
+
+                IInfo info = it.next();
+                if(info != null && info.getDeclaringModuleName() != null){
+                    if(info.getDeclaringModuleName().equals(moduleName)){
+                        return true;
+                    }
+                }
+            }
+        }
+		return false;
+	}
+	
+	/**
      * This is the function for which we are most optimized!
      * 
      * @param qualifier the tokens returned have to start with the given qualifier
@@ -621,6 +644,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
 			}
         }
     }
+
 
 
 }
