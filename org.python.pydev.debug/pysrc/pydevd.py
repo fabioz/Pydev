@@ -612,7 +612,7 @@ def SetTraceForParents(frame, dispatch_func):
         frame.f_trace = dispatch_func
         frame = frame.f_back
 
-def settrace():
+def settrace(host='localhost'):
     global connected
     if not connected :
         connected = True  
@@ -620,7 +620,7 @@ def settrace():
         setupType()
         
         debugger = PyDB()
-        debugger.connect('localhost', 5678)
+        debugger.connect(host, 5678)
         
         net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.reader" id="-1"/></xml>')
         debugger.writer.addCommand(net)
