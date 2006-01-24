@@ -33,6 +33,9 @@ public class AssistDocString implements IAssistProps {
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, PyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>(); 
         Tuple<List<String>, Integer> tuple = ps.getInsideParentesisToks(false);
+        if(tuple == null){
+        	tuple = new Tuple<List<String>, Integer>(new ArrayList<String>(), offset);
+        }
         List params = tuple.o1;
         
 	    String initial = PyAction.getIndentationFromLine(ps.getCursorLineContents());
