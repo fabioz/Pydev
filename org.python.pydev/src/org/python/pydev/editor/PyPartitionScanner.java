@@ -17,6 +17,7 @@ import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.MultiLineRule;
+import org.eclipse.jface.text.rules.PatternRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
@@ -45,37 +46,57 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
     
 	public PyPartitionScanner() {
 		super();
-		List rules = new ArrayList();
+		List<IPredicateRule> rules = new ArrayList<IPredicateRule>();
 
-		addCommentRule(rules);
 		addMultilineStringRule(rules);
 		addSinglelineStringRule(rules);
 		addReprRule(rules);
+		addCommentRule(rules);
 		
-		IPredicateRule[] result = new IPredicateRule[rules.size()];
-		rules.toArray(result);
-		setPredicateRules(result);
+		setPredicateRules(rules.toArray(new IPredicateRule[0]));
 	}
 
-	private void addReprRule(List rules) {
+	private void addReprRule(List<IPredicateRule> rules) {
 		rules.add(new SingleLineRule("`", "`", new Token(PY_BACKQUOTES)));
 	}
 
-	private void addSinglelineStringRule(List rules) {
+	private void addSinglelineStringRule(List<IPredicateRule> rules) {
+//		IToken singleLineString = new Token(PY_SINGLELINE_STRING);
+//		rules.add(new SingleLineRule("\"", "\"", singleLineString, '\\'));
+//		rules.add(new SingleLineRule("'", "'", singleLineString, '\\')); -- changed to the construct below because we need to continue on escape
+
+		
 		IToken singleLineString = new Token(PY_SINGLELINE_STRING);
 		// deal with "" and '' strings
-		rules.add(new SingleLineRule("\"", "\"", singleLineString, '\\'));
-		rules.add(new SingleLineRule("'", "'", singleLineString, '\\'));
+		boolean breaksOnEOL = true;
+		boolean breaksOnEOF = false;
+		boolean escapeContinuesLine = true;
+		rules.add(new PatternRule("'", "'", singleLineString, '\\', breaksOnEOL, breaksOnEOF, escapeContinuesLine));
+		rules.add(new PatternRule("\"", "\"", singleLineString, '\\', breaksOnEOL, breaksOnEOF, escapeContinuesLine));
 	}
 
-	private void addMultilineStringRule(List rules) {
+	private void addMultilineStringRule(List<IPredicateRule> rules) {
 		IToken multiLineString = new Token(PY_MULTILINE_STRING);
 		// deal with ''' and """ strings
-		rules.add(new MultiLineRule("'''", "'''", multiLineString, '\\'));
+		rules.add(new MultiLineRule("'''", "'''", multiLineString, '\\')); 
 		rules.add(new MultiLineRule("\"\"\"", "\"\"\"", multiLineString,'\\'));
+		
+		//there is a bug in this construct: When parsing a simple document such as:
+		//
+		//"""ttt"""
+		//print 'a'
+		//
+		//if lines are feed after 'ttt', it ends up considering the whole document as a multiline string.
+		//the bug is reported at: http://sourceforge.net/tracker/index.php?func=detail&aid=1402165&group_id=85796&atid=577329
+		//
+		//some regards on the bug:
+		//- it does not happen if the multiline has ''' instead of """
+		//- also, if we first add the """ rule and after the ''' rule, the bug happens with ''' and not """
+		//- if the user later changes the first line of that multiline or a line above it, it ends up parsing correctly again
+		//- if we let just one of the constructs, no problem happens
 	}
 
-	private void addCommentRule(List rules) {
+	private void addCommentRule(List<IPredicateRule> rules) {
 		IToken comment = new Token(PY_COMMENT);
 		rules.add(new EndOfLineRule("#", comment));
 	}
