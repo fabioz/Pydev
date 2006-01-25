@@ -27,15 +27,24 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
 	 * Copied from org.eclipse.jdt.internal.ui.JavaPerspectiveFactory
 	 */
 	public void createInitialLayout(IPageLayout layout) {
- 		String editorArea = layout.getEditorArea();
+		defineLayout(layout);
+		defineActions(layout);
+	}
+    
+
+
+    /**
+     * @param layout
+     * @param editorArea
+     */
+    public void defineLayout(IPageLayout layout) {
+                  String editorArea = layout.getEditorArea();
+        IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, (float)0.26, editorArea); //$NON-NLS-1$
+        topLeft.addView(IPageLayout.ID_RES_NAV);
 		
-		IFolderLayout folder= layout.createFolder("left", IPageLayout.LEFT, (float)0.25, editorArea); //$NON-NLS-1$
-		//folder.addView(JavaUI.ID_PACKAGES);
-		//folder.addView(JavaUI.ID_TYPE_HIERARCHY);
-		folder.addView(IPageLayout.ID_RES_NAV);
-		//folder.addPlaceholder(IPageLayout.ID_RES_NAV);
-		
-		IFolderLayout outputfolder= layout.createFolder("bottom", IPageLayout.BOTTOM, (float)0.75, editorArea); //$NON-NLS-1$
+        
+        
+        IFolderLayout outputfolder= layout.createFolder("bottom", IPageLayout.BOTTOM, (float)0.75, editorArea); //$NON-NLS-1$
 		outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);		
 		outputfolder.addPlaceholder(NewSearchUI.SEARCH_VIEW_ID);
 		outputfolder.addPlaceholder(IConsoleConstants.ID_CONSOLE_VIEW);
@@ -43,29 +52,32 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
 		outputfolder.addPlaceholder(IProgressConstants.PROGRESS_VIEW_ID);
 		
 		layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, (float)0.75, editorArea);
-		
-		layout.addActionSet(IDebugUIConstants.LAUNCH_ACTION_SET);
-		layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
+    }
 
-		// views - search
+    /**
+     * @param layout
+     */
+    public void defineActions(IPageLayout layout) {
+        layout.addNewWizardShortcut(PythonProjectWizard.WIZARD_ID); //$NON-NLS-1$		
+        layout.addNewWizardShortcut(PythonSourceFolderWizard.WIZARD_ID); //$NON-NLS-1$		
+        layout.addNewWizardShortcut(PythonPackageWizard.WIZARD_ID); //$NON-NLS-1$		
+        layout.addNewWizardShortcut(PythonModuleWizard.WIZARD_ID); //$NON-NLS-1$		
+        layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//$NON-NLS-1$
+        layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//$NON-NLS-1$
+        layout.addNewWizardShortcut("org.eclipse.ui.editors.wizards.UntitledTextFileWizard");//$NON-NLS-1$
+
 		layout.addShowViewShortcut(NewSearchUI.SEARCH_VIEW_ID);
-		
-		// views - debugging
 		layout.addShowViewShortcut(IConsoleConstants.ID_CONSOLE_VIEW);
-
-		// views - standard workbench
 		layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
 		layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
 		layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
+		layout.addShowViewShortcut("org.eclipse.pde.runtime.LogView");
+        layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
+        
+        layout.addActionSet(IDebugUIConstants.LAUNCH_ACTION_SET);
+        layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
 				
-		// new actions - Python project creation wizard
-		layout.addNewWizardShortcut(PythonProjectWizard.WIZARD_ID); //$NON-NLS-1$		
-		layout.addNewWizardShortcut(PythonSourceFolderWizard.WIZARD_ID); //$NON-NLS-1$		
-		layout.addNewWizardShortcut(PythonPackageWizard.WIZARD_ID); //$NON-NLS-1$		
-		layout.addNewWizardShortcut(PythonModuleWizard.WIZARD_ID); //$NON-NLS-1$		
-		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//$NON-NLS-1$
-		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//$NON-NLS-1$
-		layout.addNewWizardShortcut("org.eclipse.ui.editors.wizards.UntitledTextFileWizard");//$NON-NLS-1$
-	}
+        layout.addShowInPart(IPageLayout.ID_RES_NAV);
+    }
 
 }
