@@ -70,6 +70,19 @@ a:active {
 }
 
 
+.td_header{
+	background-color: #a0a0ff;
+	border-collapse=collapse;
+	border-top-width: 10px;
+	border-top-style: solid;
+	border-top-color: #ffffff;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #000000;
+	border-left-width: 0px;
+	border-right-width: 0px;
+}
+
 .td_top{
 	border-collapse=collapse;
 	border-bottom-width: 1px;
@@ -89,6 +102,12 @@ a:active {
 	border-top-width: 1px;
 	border-top-style: solid;
 	border-top-color: #000000;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #000000;
+}
+.td_bottom2{
+	border-collapse=collapse;
 	border-bottom-width: 1px;
 	border-bottom-style: solid;
 	border-bottom-color: #000000;
