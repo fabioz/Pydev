@@ -13,7 +13,6 @@ import org.python.parser.SimpleNode;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
-import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.parser.PyParser;
