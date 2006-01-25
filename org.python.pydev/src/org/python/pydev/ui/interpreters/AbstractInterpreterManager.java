@@ -25,6 +25,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -333,10 +334,22 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     	synchronized(lock){
 	        final InterpreterInfo info = getInterpreterInfo(defaultSelectedInterpreter, monitor);
 	        info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
-	
+	        
 	        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
 	        for (IInterpreterObserver observer : participants) {
-	            observer.notifyDefaultPythonpathRestored(this, defaultSelectedInterpreter, monitor);
+	            try {
+					observer.notifyDefaultPythonpathRestored(this, defaultSelectedInterpreter, monitor);
+				} catch (Exception e) {
+					PydevPlugin.log(e);
+				}
+	        }
+	        
+	        //update the natures...
+	        List<IPythonNature> pythonNatures = PythonNature.getAllPythonNatures();
+	        System.out.println("getAllPythonNatures size:"+pythonNatures.size());
+	        for (IPythonNature nature : pythonNatures) {
+	        	System.out.println("rebuilding path:"+nature);
+	        	nature.rebuildPath();
 	        }
     	}        
     }

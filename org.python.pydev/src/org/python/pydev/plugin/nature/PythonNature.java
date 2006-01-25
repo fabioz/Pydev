@@ -8,6 +8,7 @@
 package org.python.pydev.plugin.nature;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.ICommand;
@@ -16,6 +17,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -216,28 +219,42 @@ public class PythonNature implements IPythonNature {
                     //begins task automatically
                     JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev restoring cache info...", IProgressMonitor.UNKNOWN, this);
 
-                    astManager = (ICodeCompletionASTManager) ASTManager.loadFromFile(getAstOutputFile());
+                    try {
+						astManager = (ICodeCompletionASTManager) ASTManager.loadFromFile(getAstOutputFile());
+						if (astManager != null) {
+							synchronized (astManager) {
+								astManager.setProject(getProject(), true); // this is the project related to it, restore the deltas (we may have some crash)
+
+								//just a little validation so that we restore the needed info if we did not get the modules
+								if (astManager.getModulesManager().getOnlyDirectModules().length < 5) {
+									astManager = null;
+								}
+
+								if (astManager != null) {
+									List<IInterpreterObserver> participants = ExtensionHelper
+											.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+									for (IInterpreterObserver observer : participants) {
+										try {
+											observer.notifyNatureRecreated(nature, jobProgressComunicator);
+										} catch (Exception e) {
+											//let's not fail because of other plugins
+											PydevPlugin.log(e);
+										}
+									}
+								}
+							}
+						}
+					} catch (Exception e) {
+						PydevPlugin.log(e);
+						astManager = null;
+					}
                     
                     //errors can happen when restoring it
                     if(astManager == null){
                         try {
-                            String pythonPathStr = pythonPathNature.getOnlyProjectPythonPathStr();
-                            rebuildPath(pythonPathStr);
+                            rebuildPath();
                         } catch (Exception e) {
                             PydevPlugin.log(e);
-                        }
-                    }else{
-                    	synchronized(astManager){
-	                        astManager.setProject(getProject(), true); // this is the project related to it, restore the deltas (we may have some crash)
-	                        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-	                        for (IInterpreterObserver observer : participants) {
-	                            try {
-	                                observer.notifyNatureRecreated(nature, jobProgressComunicator);
-	                            } catch (Exception e) {
-	                                //let's not fail because of other plugins
-	                                PydevPlugin.log(e);
-	                            }
-	                        }
                         }
                     }
                     jobProgressComunicator.done();
@@ -279,6 +296,18 @@ public class PythonNature implements IPythonNature {
     }
 
     /**
+     * Can be called to refresh internal info (or after changing the path in the preferences).
+     */
+    public void rebuildPath() {
+    	try {
+			String pythonPathStr = this.pythonPathNature.getOnlyProjectPythonPathStr();
+			this.rebuildPath(pythonPathStr);
+		} catch (CoreException e) {
+			throw new RuntimeException(e);
+		}
+    }
+    
+    /**
      * This method is called whenever the pythonpath for the project with this nature is changed. 
      */
     public void rebuildPath(final String paths) {
@@ -305,9 +334,9 @@ public class PythonNature implements IPythonNature {
 	                    List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
 	                    for (IInterpreterObserver observer : participants) {
 	                        try {
-	                            //let's keep it safe
 	                            observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
 	                        } catch (Exception e) {
+	                        	//let's keep it safe
 	                            PydevPlugin.log(e);
 	                        }
 	                    }
@@ -347,6 +376,23 @@ public class PythonNature implements IPythonNature {
         }
         return null;
     }
+
+    /**
+     * @return all the python natures available in the workspace 
+     */
+    public static List<IPythonNature> getAllPythonNatures() {
+    	List<IPythonNature> natures = new ArrayList<IPythonNature>();
+    	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+    	IProject[] projects = root.getProjects();
+    	for (IProject project : projects) {
+			PythonNature nature = getPythonNature(project);
+			if(nature != null){
+				natures.add(nature);
+			}
+		}
+    	return natures;
+    }
+    
     /**
      * @param project the project we want to know about (if it is null, null is returned)
      * @return the python nature for a project (or null if it does not exist for the project)
@@ -410,8 +456,13 @@ public class PythonNature implements IPythonNature {
     }
     
     public void saveAstManager() {
-    	synchronized(astManager){
-    		REF.writeToFile(astManager, getAstOutputFile());
+    	if(astManager == null){
+    		REF.writeToFile(null, getAstOutputFile());
+    		
+    	}else{
+	    	synchronized(astManager){
+	    		REF.writeToFile(astManager, getAstOutputFile());
+	    	}
     	}
     }
 

@@ -177,7 +177,9 @@ public class DeltaSaver<X> {
 	        for (File file : deltasFound) {
 	            try {
 	                DeltaCommand cmd = (DeltaCommand) IOUtils.readFromFile(file, this.readFromFileMethod);
-	                addRestoredCommand(cmd);
+	                if(cmd != null && cmd.data != null){
+	                	addRestoredCommand(cmd);
+	                }
 	            } catch (Exception e) {
 	                Log.log(e);
 	            }
@@ -253,7 +255,9 @@ public class DeltaSaver<X> {
     public void clearAll() {
         ArrayList<File> deltas = findDeltas();
         for (File file : deltas) {
-            file.delete();
+        	if(file.exists()){
+        		file.delete();
+        	}
         }
         this.commands.clear();
         nCommands = 0;
@@ -276,14 +280,19 @@ public class DeltaSaver<X> {
      */
     public void processDeltas(IDeltaProcessor<X> deltaProcessor) {
     	synchronized(this.commands){
+			boolean processed = false;
 	        for (DeltaCommand cmd : this.commands) {
 	            try {
 					cmd.processWith(deltaProcessor);
+					processed = false;
 				} catch (Exception e) {
 					Log.log(e);
 				}
 	        }
-	        deltaProcessor.endProcessing();
+	        if(processed){
+	        	//if nothing happened, we don't end the processing (no need to do it)
+	        	deltaProcessor.endProcessing();
+	        }
 	        this.clearAll();
     	}
     }
@@ -319,15 +328,33 @@ class IOUtils {
      */
     public static Object readFromFile(File astOutputFile, ICallback<Object, ObjectInputStream> readFromFileMethod) {
         try {
+        	boolean deletFile = false;
+        	//the file is not even there
+        	if(!astOutputFile.exists()){
+        		return null;
+        	}
             InputStream input = new FileInputStream(astOutputFile);
             ObjectInputStream in = new ObjectInputStream(input);
-            DeltaSaver.DeltaCommand o = (DeltaSaver.DeltaCommand) in.readObject();
-            o.readData(readFromFileMethod, in);
-            in.close();
-            input.close();
+            DeltaSaver.DeltaCommand o = null;
+            try {
+				o = (DeltaSaver.DeltaCommand) in.readObject();
+				o.readData(readFromFileMethod, in);
+            } catch (Exception e) {
+            	//the format has changed (no real problem here... just erase the file)
+            	deletFile = true;
+            	o = null;
+			} finally {
+				in.close();
+				input.close();
+			}
+			if(deletFile){
+				if(astOutputFile.exists()){
+					astOutputFile.delete();
+				}
+			}
             return o;
         } catch (Exception e) {
-            Log.log(e);
+            Log.log(e); 
             return null;
         }
     }

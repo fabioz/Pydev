@@ -87,4 +87,8 @@ public class SystemPythonNature implements IPythonNature{
 	public void setProject(IProject project) {
 	}
 
+	public void rebuildPath() {
+		throw new RuntimeException("Not Implemented");
+	}
+
 }

@@ -179,7 +179,7 @@ public class PyProjectProperties extends PropertyPage {
 
 			    PythonNature pythonNature = PythonNature.getPythonNature(project);
 			    if(pythonNature != null && (changed || force || pythonNature.getAstManager() == null)){
-			        pythonNature.rebuildPath(pythonPathNature.getOnlyProjectPythonPathStr());
+			        pythonNature.rebuildPath();
 			    }
 				
 			} catch (Exception e) {

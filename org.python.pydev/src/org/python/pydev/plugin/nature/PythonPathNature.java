@@ -148,6 +148,10 @@ public class PythonPathNature implements IPythonPathNature {
         synchronized(project){
             boolean restore = false;
             String projectSourcePath = project.getPersistentProperty(PythonPathNature.PROJECT_SOURCE_PATH);
+            if(projectSourcePath == null){
+            	//has not been set
+            	return "";
+            }
             //we have to validate it, because as we store the values relative to the workspace, and not to the 
             //project, the path may become invalid (in which case we have to make it compatible again).
             StringBuffer buffer = new StringBuffer();
@@ -177,7 +181,7 @@ public class PythonPathNature implements IPythonPathNature {
                 if(nature != null){
                     //yeap, everything has to be done from scratch, as all the filesystem paths have just
                     //been turned to dust!
-                    nature.rebuildPath(getOnlyProjectPythonPathStr());
+                    nature.rebuildPath();
                 }
             }
             return projectSourcePath;
@@ -187,7 +191,11 @@ public class PythonPathNature implements IPythonPathNature {
     public String getProjectExternalSourcePath() throws CoreException {
         synchronized(project){
             //no need to validate because those are always 'file-system' related
-            return project.getPersistentProperty(PythonPathNature.PROJECT_EXTERNAL_SOURCE_PATH);
+            String extPath = project.getPersistentProperty(PythonPathNature.PROJECT_EXTERNAL_SOURCE_PATH);
+            if(extPath == null){
+            	extPath = "";
+            }
+			return extPath;
         }
     }
 

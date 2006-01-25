@@ -86,4 +86,9 @@ public interface IPythonNature extends IProjectNature{
     String resolveModule(File file);
 
     ICodeCompletionASTManager getAstManager();
+
+    /**
+     * Rebuilds the path with the current path information (just to refresh it).
+     */
+	void rebuildPath();
 }
