@@ -642,10 +642,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * 1: tok
      */
     public Tuple<IModule, String> findOnImportedMods( IToken[] importedModules, IPythonNature nature, String activationToken, String currentModuleName) {
-        for (IToken importedModule : importedModules) {
         	
-        	FullRepIterable iterable = new FullRepIterable(activationToken, true);
-        	for(String tok : iterable){
+    	FullRepIterable iterable = new FullRepIterable(activationToken, true);
+    	for(String tok : iterable){
+    		for (IToken importedModule : importedModules) {
         	
 	            final String modRep = importedModule.getRepresentation(); //this is its 'real' representation (alias) on the file (if it is from xxx import a as yyy, it is yyy)
 	            

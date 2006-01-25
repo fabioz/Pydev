@@ -30,7 +30,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-          test.testInnerCtxt();
+          test.testCompositeImport();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -256,6 +256,13 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 		s = "from extendable import namecheck\n"+ 
 		"print namecheck.samename.";   
 		requestCompl(s, -1, 1, new String[] { "method1()" });
+	}
+	
+	public void testCompositeImport() throws BadLocationException, IOException, Exception{
+		String s;
+		s = "import xml.sax\n"+ 
+		"print xml.sax.";   
+		requestCompl(s, -1, -1, new String[] { "default_parser_list" });
 	}
 	
 	public void testIsInGlobalTokens() throws BadLocationException, IOException, Exception{
