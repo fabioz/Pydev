@@ -89,7 +89,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         if(ret){
             //try to load it from previous session
             if(!AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature.getProject())){
-                observer.notifyProjectPythonpathRestored(nature, new NullProgressMonitor());
+                observer.notifyProjectPythonpathRestored(nature, new NullProgressMonitor(), null);
             }
         }
         return ret;

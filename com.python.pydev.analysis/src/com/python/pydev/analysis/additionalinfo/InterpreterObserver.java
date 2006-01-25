@@ -155,19 +155,24 @@ public class InterpreterObserver implements IInterpreterObserver {
     }
 
 
-    public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor) {
-        IModulesManager m = nature.getAstManager().getModulesManager();
-        IProject project = nature.getProject();
-        AdditionalProjectInterpreterInfo newProjectInfo = new AdditionalProjectInterpreterInfo(project);
-        String feedback = "(project:"+project.getName()+")";
-        AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) 
-                                            restoreInfoForModuleManager(monitor, m, feedback, newProjectInfo, nature);
-        
-        if(info != null){
-            //ok, set it and save it
-            AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
-            AdditionalProjectInterpreterInfo.saveAdditionalInfoForProject(project);
-        }
+    public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor, final String defaultSelectedInterpreter) {
+        try {
+			IModulesManager m = nature.getAstManager().getModulesManager();
+			IProject project = nature.getProject();
+			AdditionalProjectInterpreterInfo newProjectInfo = new AdditionalProjectInterpreterInfo(project);
+			String feedback = "(project:" + project.getName() + ")";
+			AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(
+					monitor, m, feedback, newProjectInfo, nature);
+
+			if (info != null) {
+				//ok, set it and save it
+				AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
+				AdditionalProjectInterpreterInfo.saveAdditionalInfoForProject(project);
+			}
+		} catch (Exception e) {
+			PydevPlugin.log(e);
+			throw new RuntimeException(e);
+		}
     }
 
     public void notifyNatureRecreated(final PythonNature nature, IProgressMonitor monitor) {
@@ -175,7 +180,7 @@ public class InterpreterObserver implements IInterpreterObserver {
             if(DEBUG_INTERPRETER_OBSERVER){
                 System.out.println("Unable to load the info correctly... restoring info from the pythonpath");
             }
-            notifyProjectPythonpathRestored(nature, monitor);
+            notifyProjectPythonpathRestored(nature, monitor, null);
         }
     }
 

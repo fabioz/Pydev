@@ -18,7 +18,9 @@ import com.python.pydev.analysis.messages.IMessage;
 
 public class AnalysisRunner {
 
-    /**
+    public static final String PYDEV_CODE_ANALYSIS_IGNORE = "#@PydevCodeAnalysisIgnore";
+
+	/**
      * Indicates the type of the message given the constants in com.python.pydev.analysis.IAnalysisPreferences (unused import, 
      * undefined variable...)
      */
@@ -44,7 +46,7 @@ public class AnalysisRunner {
      * @return true if we can analyze it and false if there is some flag saying that we shouldn't
      */
     public boolean canDoAnalysis(IDocument document) {
-        return document.get().indexOf("#@PydevCodeAnalysisIgnore") == -1;
+        return document.get().indexOf(PYDEV_CODE_ANALYSIS_IGNORE) == -1;
     }
 
 
