@@ -31,7 +31,7 @@ public class SocketUtil {
 	 */
 	public static int findUnusedLocalPort(String host, int searchFrom, int searchTo) {
 
-		for (int i= 0; i < 10; i++) {
+		for (int i= 0; i < 15; i++) {
 			Socket s= null;
 			int port= getRandomPort(searchFrom, searchTo);
 			try {
@@ -48,7 +48,7 @@ public class SocketUtil {
 				}
 			}
 		}
-		return -1;
+		throw new RuntimeException("Unable to find an unused local port (is your firewall enabled?) [host:"+host+" from:"+searchFrom+" to:"+searchTo+"]");
 	}
 	
 	private static int getRandomPort(int low, int high) {

@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IPythonNature;
@@ -88,6 +89,10 @@ public class SystemPythonNature implements IPythonNature{
 	}
 
 	public void rebuildPath() {
+		throw new RuntimeException("Not Implemented");
+	}
+
+	public void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor) {
 		throw new RuntimeException("Not Implemented");
 	}
 

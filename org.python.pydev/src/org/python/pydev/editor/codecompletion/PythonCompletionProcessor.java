@@ -88,6 +88,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
 	            } catch (Exception e) {
 	                //if we don't suceed, we don't have to fail... just go on and try
 	                // to complete...
+	            	PydevPlugin.log(e);
 	            }
 	
                 Object[] objects = new Object[]{new ArrayList(), new Boolean(true)};

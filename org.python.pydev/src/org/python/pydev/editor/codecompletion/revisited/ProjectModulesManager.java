@@ -162,12 +162,20 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         return nature;
     }
     
+    public SystemModulesManager getSystemModulesManager(){
+    	return getSystemModulesManager(null);
+    }
+    
     /** 
+     * @param defaultSelectedInterpreter 
      * @see org.python.pydev.core.IProjectModulesManager#getSystemModulesManager()
      */
-    public SystemModulesManager getSystemModulesManager(){
+    public SystemModulesManager getSystemModulesManager(String defaultSelectedInterpreter){
         IInterpreterManager iMan = PydevPlugin.getInterpreterManager(nature);
-        InterpreterInfo info = iMan.getDefaultInterpreterInfo(new NullProgressMonitor());
+        if(defaultSelectedInterpreter == null){
+        	defaultSelectedInterpreter = iMan.getDefaultInterpreter();
+        }
+        InterpreterInfo info = iMan.getInterpreterInfo(defaultSelectedInterpreter, new NullProgressMonitor());
         return info.modulesManager;
     }
     
@@ -284,8 +292,8 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#changePythonPath(java.lang.String, org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
      */
-    public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor) {
-        super.changePythonPath(pythonpath, project, monitor);
+    public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter) {
+        super.changePythonPath(pythonpath, project, monitor, defaultSelectedInterpreter);
     }
 
     /** 
@@ -300,12 +308,16 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         return size;
     }
 
+    public String[] getBuiltins() {
+    	return getBuiltins(null);
+    }
+
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#getBuiltins()
      */
-    public String[] getBuiltins() {
+    public String[] getBuiltins(String defaultSelectedInterpreter) {
         String[] builtins = null;
-        ISystemModulesManager systemModulesManager = getSystemModulesManager();
+        ISystemModulesManager systemModulesManager = getSystemModulesManager(defaultSelectedInterpreter);
         if(systemModulesManager != null){
             builtins = systemModulesManager.getBuiltins();
         }
@@ -319,7 +331,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      */
     protected ModulesManager[] getManagersInvolved(boolean checkSystemManager) {
         ArrayList<ModulesManager> list = new ArrayList<ModulesManager>();
-        SystemModulesManager systemModulesManager = getSystemModulesManager();
+        SystemModulesManager systemModulesManager = getSystemModulesManager(null);
         if(checkSystemManager && systemModulesManager != null){
             list.add(systemModulesManager);
         }

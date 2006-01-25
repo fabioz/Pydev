@@ -19,10 +19,6 @@ public class SystemASTManager extends AbstractASTManager{
 		setNature(nature);
 	}
 
-	public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor) {
-		throw new RuntimeException("Not implemented");
-	}
-
 	public void setProject(IProject project, boolean restoreDeltas) {
 		throw new RuntimeException("Not implemented");
 	}
@@ -32,6 +28,10 @@ public class SystemASTManager extends AbstractASTManager{
 	}
 
 	public void removeModule(File file, IProject project, IProgressMonitor monitor) {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter) {
 		throw new RuntimeException("Not implemented");
 	}
 

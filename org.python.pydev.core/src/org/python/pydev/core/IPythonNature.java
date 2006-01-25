@@ -7,6 +7,7 @@ import java.io.File;
 
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
  * @author Fabio
@@ -91,4 +92,9 @@ public interface IPythonNature extends IProjectNature{
      * Rebuilds the path with the current path information (just to refresh it).
      */
 	void rebuildPath();
+
+	/**
+	 * Rebuilds the path with the current path information, but using the interpreter passed
+	 */
+	void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor);
 }

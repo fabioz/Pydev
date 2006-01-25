@@ -36,6 +36,10 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
         this.builtins = (String[]) forcedLibs.toArray(new String[0]);
     }
     
+    public String[] getBuiltins(String defaultSelectedInterpreter) {
+    	return getBuiltins();
+    }
+    
     /** 
      * @see org.python.pydev.core.ISystemModulesManager#getBuiltins()
      */

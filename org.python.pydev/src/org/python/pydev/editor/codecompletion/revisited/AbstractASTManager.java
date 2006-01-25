@@ -63,8 +63,6 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     }
     
     
-	public abstract void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor) ;
-
 	public abstract void setProject(IProject project, boolean restoreDeltas) ;
 
 	public abstract void rebuildModule(File file, IDocument doc, IProject project, IProgressMonitor monitor, IPythonNature nature) ;

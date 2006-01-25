@@ -105,8 +105,9 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 
     /**
      * Must be overriden so that the available builtins (forced or not) are returned.
+     * @param defaultSelectedInterpreter 
      */
-    public abstract String[] getBuiltins();
+    public abstract String[] getBuiltins(String defaultSelectedInterpreter);
 
 	/**
 	 * 
@@ -140,12 +141,12 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 		return total;
 	}
 
-	public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
+	public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter) {
 		List<String> pythonpathList = pythonPathHelper.setPythonPath(pythonpath);
 		List<File> completions = new ArrayList<File>();
 		List<String> fromJar = new ArrayList<String>();
 		int total = listFilesForCompletion(monitor, pythonpathList, completions, fromJar);
-		changePythonPath(pythonpath, project, monitor, pythonpathList, completions, fromJar, total);
+		changePythonPath(pythonpath, project, monitor, pythonpathList, completions, fromJar, total, defaultSelectedInterpreter);
 	}
 	
     /**
@@ -153,7 +154,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @param project may be null if there is no associated project.
      */
     private void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, 
-    		List<String> pythonpathList, List<File> completions, List<String> fromJar, int total) {
+    		List<String> pythonpathList, List<File> completions, List<String> fromJar, int total, String defaultSelectedInterpreter) {
 
     	Map<ModulesKey, AbstractModule> mods = new HashMap<ModulesKey, AbstractModule>();
         int j = 0;
@@ -201,7 +202,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         }
 
         //create the builtin modules
-        String[] builtins = getBuiltins();
+        String[] builtins = getBuiltins(defaultSelectedInterpreter);
         if(builtins != null){
 	        for (int i = 0; i < builtins.length; i++) {
 	            String name = builtins[i];

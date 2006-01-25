@@ -20,12 +20,13 @@ public interface ICodeCompletionASTManager {
     /**
      * This method rebuilds the paths that can be used for the code completion.
      * It doesn't load the modules, only the paths. 
+     * @param defaultSelectedInterpreter 
      * 
      * @param pythonpath: string with paths separated by |
      * @param project: this is the project that is associated with this manager.
      * @param monitor: monitor for progress.
      */
-    public abstract void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor);
+    public abstract void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter);
     
     /**
      * Set the project this ast manager works with.

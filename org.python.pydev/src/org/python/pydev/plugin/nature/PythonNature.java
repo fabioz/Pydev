@@ -299,18 +299,23 @@ public class PythonNature implements IPythonNature {
      * Can be called to refresh internal info (or after changing the path in the preferences).
      */
     public void rebuildPath() {
-    	try {
-			String pythonPathStr = this.pythonPathNature.getOnlyProjectPythonPathStr();
-			this.rebuildPath(pythonPathStr);
-		} catch (CoreException e) {
-			throw new RuntimeException(e);
-		}
+		this.rebuildPath(null, new NullProgressMonitor());
     }
     
+    
+	public void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor) {
+		try {
+			String paths = this.pythonPathNature.getOnlyProjectPythonPathStr();
+			this.rebuildPath(defaultSelectedInterpreter, paths);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
     /**
      * This method is called whenever the pythonpath for the project with this nature is changed. 
      */
-    public void rebuildPath(final String paths) {
+    private void rebuildPath(final String defaultSelectedInterpreter, final String paths) {
         final PythonNature nature = this;
         Job myJob = new Job("Pydev code completion: rebuilding modules") {
 
@@ -328,13 +333,13 @@ public class PythonNature implements IPythonNature {
                     	tempAstManager.setProject(getProject(), false); //it is a new manager, so, remove all deltas
 	
 	                    //begins task automatically
-                    	tempAstManager.changePythonPath(paths, project, jobProgressComunicator);
+                    	tempAstManager.changePythonPath(paths, project, jobProgressComunicator, defaultSelectedInterpreter);
 	                    saveAstManager();
 	
 	                    List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
 	                    for (IInterpreterObserver observer : participants) {
 	                        try {
-	                            observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
+	                            observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator, defaultSelectedInterpreter);
 	                        } catch (Exception e) {
 	                        	//let's keep it safe
 	                            PydevPlugin.log(e);
@@ -518,6 +523,7 @@ public class PythonNature implements IPythonNature {
     public static String[] getStrAsStrItems(String str){
         return str.split("\\|");
     }
+
 }
 
 

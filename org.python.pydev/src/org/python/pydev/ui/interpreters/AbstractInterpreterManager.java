@@ -346,10 +346,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	        
 	        //update the natures...
 	        List<IPythonNature> pythonNatures = PythonNature.getAllPythonNatures();
-	        System.out.println("getAllPythonNatures size:"+pythonNatures.size());
 	        for (IPythonNature nature : pythonNatures) {
-	        	System.out.println("rebuilding path:"+nature);
-	        	nature.rebuildPath();
+	        	nature.rebuildPath(defaultSelectedInterpreter, monitor);
 	        }
     	}        
     }

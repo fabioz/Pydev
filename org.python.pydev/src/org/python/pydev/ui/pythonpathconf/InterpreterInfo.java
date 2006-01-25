@@ -256,7 +256,7 @@ public class InterpreterInfo implements Serializable{
     public void restorePythonpath(String path, IProgressMonitor monitor) {
         //no managers involved here...
         modulesManager.setBuiltins(forcedLibs);
-        modulesManager.changePythonPath(path, null, monitor);
+        modulesManager.changePythonPath(path, null, monitor, null);
     }
     
     /**

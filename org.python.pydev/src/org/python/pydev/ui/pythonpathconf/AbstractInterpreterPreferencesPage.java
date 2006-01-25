@@ -53,10 +53,10 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @see org.eclipse.jface.preference.PreferencePage#performApply()
      */
     protected void performApply() {
+        restoreModules();
         changed = false;
         setEditorUnchanged();
         super.performApply();
-        restoreModules();
     }
     
 
@@ -86,11 +86,10 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @see org.eclipse.jface.preference.IPreferencePage#performOk()
      */
     public boolean performOk() {
-    	boolean ret = super.performOk();
         if(hasChanged()){
             restoreModules();
         }
-		return ret;
+        return super.performOk();
     }
 
     /**

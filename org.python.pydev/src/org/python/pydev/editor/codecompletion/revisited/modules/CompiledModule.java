@@ -37,6 +37,8 @@ public class CompiledModule extends AbstractModule{
     
     public static boolean COMPILED_MODULES_ENABLED = true; 
 
+    public static boolean TRACE_COMPILED_MODULES = false; 
+    
     private HashMap<String, IToken[]> cache = new HashMap<String, IToken[]>();
     
     /**
@@ -98,6 +100,9 @@ public class CompiledModule extends AbstractModule{
     }
 
 	private void setTokens(String name, ICodeCompletionASTManager manager) throws IOException, Exception, CoreException {
+		if(TRACE_COMPILED_MODULES){
+			PydevPlugin.log(IStatus.INFO, "Compiled modules: getting info for:"+name, null);
+		}
 		AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
 		synchronized(shell){
             Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, manager.getModulesManager().getCompletePythonPath());

@@ -65,7 +65,7 @@ public interface IModulesManager {
      */
     public abstract String resolveModule(String full, boolean checkSystemManager);
 
-    public abstract void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor);
+    public abstract void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter);
 
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#getSize()
