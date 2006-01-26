@@ -451,7 +451,6 @@ public class PythonRunnerConfig {
     		if(isCoverage()){
     			cmdArgs.add(getCoverageScript());
     			String coverageFileLocation = PyCoverage.getCoverageFileLocation();
-                System.out.println("coverageFileLocation "+coverageFileLocation);
                 cmdArgs.add(coverageFileLocation);
     			cmdArgs.add("-x");
     			if (!isFile()){

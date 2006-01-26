@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.REF;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -103,6 +104,12 @@ public class PyCoverage {
             try {
 
                 p = execute(cmdLine);
+                try {
+                    p.exitValue();
+                    throw new RuntimeException("Some error happened... the process could not be created.");
+                } catch (Exception e) {
+                    //that's ok
+                }
                 //we have the process...
                 int bufsize = 32; // small bufsize so that we can see the progress
                 BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()), bufsize);
@@ -124,6 +131,7 @@ public class PyCoverage {
                 monitor.setTaskName("Getting coverage info...(please wait, this could take a while)");
                 monitor.worked(1);
                 while ((str = in.readLine()) != null) {
+                    //System.out.println("Analyzing line:"+str);
                     analyzeReadLine(monitor, str);
                 }
                 in.close();
@@ -151,20 +159,20 @@ public class PyCoverage {
     private void analyzeReadLine(IProgressMonitor monitor, String str) {
 //        System.out.println("read line "+ str);
         boolean added = false;
-        StringTokenizer tokenizer = new StringTokenizer(str);
+        StringTokenizer tokenizer = new StringTokenizer(str, "@");
         int nTokens = tokenizer.countTokens();
         String[] strings = new String[nTokens];
 
         int k = 0;
         while (tokenizer.hasMoreElements()) {
-            strings[k] = tokenizer.nextToken();
+            strings[k] = tokenizer.nextToken().trim();
             k++;
         }
         if (nTokens == 5 || nTokens == 4) {
 
             try {
                 if (strings[1].equals("Stmts") == false && strings[0].equals("TOTAL") == false) {
-                    //information in the format: D:\dev_programs\test\test1.py 11 0 0% 1,2,4-23
+                    //information in the format: D:\dev_programs\test\test1.py @ 11 @ 0 @ 0% @ 1,2,4-23
                     File f = new File(strings[0]);
                     if (nTokens == 4) {
                         cache.addFile(f, f.getParentFile(), Integer.parseInt(strings[1]), Integer.parseInt(strings[2]), "");
@@ -197,7 +205,10 @@ public class PyCoverage {
             try {
                 File f = new File(strings[0]);
                 if(f.exists() && f.isFile()){ //this is probably an error...
-                    cache.addFile(f, f.getParentFile(), getError(strings));
+                    if(!f.getName().equals(".coverage")){
+                        //System.out.println("Adding file:"+f);
+                        cache.addFile(f, f.getParentFile(), getError(strings));
+                    }
                 }
                 
             } catch (Exception e) {
@@ -265,12 +276,9 @@ public class PyCoverage {
     }
 
     public static String getCoverageFileLocation() {
-        try {
-            File pySrcPath = PydevDebugPlugin.getPySrcPath();
-            return "\"" + REF.getFileAbsolutePath(pySrcPath) + "/.coverage" + "\"";
-        } catch (CoreException e) {
-            throw new RuntimeException(e);
-        }
+        IPath stateLocation = PydevDebugPlugin.getDefault().getStateLocation();
+        stateLocation = stateLocation.append(".coverage");
+        return REF.getFileAbsolutePath(stateLocation.toFile());
     }
 
 }

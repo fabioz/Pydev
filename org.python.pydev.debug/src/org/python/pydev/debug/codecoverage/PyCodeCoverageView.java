@@ -114,10 +114,14 @@ public class PyCodeCoverageView extends ViewPart {
      */
     private final class RefreshAction extends ProgressAction {
         public void run() {
-            PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenFile, this.monitor);
+            try {
+                PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenFile, this.monitor);
 
-            viewer.setInput(lastChosenFile); //new files may have been added.
-            text.setText("Refreshed info.");
+                viewer.setInput(lastChosenFile); //new files may have been added.
+                text.setText("Refreshed info.");
+            } catch (Exception e) {
+                PydevPlugin.log(e);
+            }
         }
     }
 

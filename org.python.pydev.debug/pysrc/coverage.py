@@ -406,8 +406,8 @@ class coverage:
         The report is created in the following format:
         Name            Stmts   Exec  Cover   Missing
         ---------------------------------------------
-        file_to_test        7      6    85%   8
-        file_to_test2      13      9    69%   12-14, 17
+        file_to_test    @    7   @   6  @  85%  @ 8
+        file_to_test2   @   13   @   9  @  69%  @ 12-14, 17
         ---------------------------------------------
         TOTAL              20     15    75%   
         
@@ -422,10 +422,10 @@ class coverage:
         fmt_name = "%%- %ds  " % max_name
         fmt_err = fmt_name + "%s: %s"
         header = fmt_name % "Name" + " Stmts   Exec  Cover"
-        fmt_coverage = fmt_name + "% 6d % 6d % 5d%%"
+        fmt_coverage = fmt_name + "@% 6d @% 6d @% 5d%%"
         if show_missing:
             header = header + "   Missing"
-            fmt_coverage = fmt_coverage + "   %s"
+            fmt_coverage = fmt_coverage + "@   %s"
         print >> out,  header
         print >> out,  "-" * len(header)
         total_statements = 0
@@ -648,4 +648,4 @@ if __name__ == '__main__':
 #
 #
 #
-# $Id: coverage.py,v 1.5 2004-10-19 11:12:17 fabioz Exp $
+# $Id: coverage.py,v 1.6 2006-01-26 23:38:07 fabioz Exp $
