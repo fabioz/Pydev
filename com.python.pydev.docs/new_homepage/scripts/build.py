@@ -50,6 +50,10 @@ def main():
     template('../templateManual.html', 'manual_101_tips', 'Some useful tips')
     template('../templateManual.html', 'manual_adv_root', "What's available")
     template('../templateManual.html', 'manual_adv_features', "Features")
+    template('../templateManual.html', 'manual_adv_editor_prefs', "Editor preferences")
+    template('../templateManual.html', 'manual_adv_refactoring', "Refactoring")
+    template('../templateManual.html', 'manual_adv_assistants', "Content Assistants")
+
 
 if __name__ == '__main__':
     main()

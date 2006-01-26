@@ -1,0 +1,94 @@
+<doc>
+<contents_area>
+
+	<p>
+		Well, let's see how refactoring works... and le's make it by example :-P
+	</p>
+
+		
+	<p>
+		As our 'base', we will use the example below:
+	</p>
+	<p align="center"><IMG src="images/refactor/refactor_base.png" border="1"/></p><br/>
+	
+	
+	<p>
+		<strong>Extracting a method</strong>: Let's mark the '100+500' and press <strong>Alt+Shift+M</strong> (alternatively,
+		you could use a context menu: press the right button and select: refactoring > Extract Method). And set the name of the
+		new method to 'newMethod'.
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_extract_method1.png" border="1"/></p><br/>
+
+	
+	<p>
+		That would give us the following result:
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_extract_method2.png" border="1"/></p><br/>
+
+	<hr/>
+	<p>
+		<strong>Inlining a variable</strong>: Let's say that we are still not satisfied with that, we wouldn't like that 'var'
+		variable, so, we want to remove the reference to it and call the method directly. To do that, mark the 'var' and press
+		<strong>Alt+Shift+I</strong>.
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_inline1.png" border="1"/></p><br/>
+
+	
+	<p>
+		That would give us the following result:
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_inline2.png" border="1"/></p><br/>
+
+	
+	<hr/>
+	<p>
+		<strong>Extracting a variable</strong>: Ok, it just wasn't what we wanted, so, let's make the opposite refactoring,
+		let's extract a variable from the self.newMethod() call. Mark it and press <strong>Alt+Shift+L</strong> and set the
+		name to 'newVar'
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_extract_var1.png" border="1"/></p><br/>
+
+	
+	<p>
+		That would give us the following result:
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_extract_var2.png" border="1"/></p><br/>
+
+	
+	<hr/>
+	<p>
+		<strong>Renaming</strong>: (Use this with care... it is only 'well' suited for local variables and parameters)
+		Let's say we want to rename our 'newVar', and call it 'renamedVar'. To do that, mark it and press <strong>Alt+Shift+R</strong>
+		and set the name to 'renamedVar'
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_rename1.png" border="1"/></p><br/>
+
+	
+	<p>
+		That would give us the following result:
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_rename2.png" border="1"/></p><br/>
+	<p>
+		And that's it for the refactoring... hope you enjoy it.
+	</p>
+
+</contents_area>
+
+
+
+<right_area>
+<p>Refactoring!</p>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area><strong>Pydev 101</strong></quote_area>
+
+<next>manual_adv_</next>
+<prev>manual_adv_features</prev>
+<title_next></title_next>
+<title_prev>(Features)</title_prev>
+<root>manual</root>
+</doc>
