@@ -44,8 +44,10 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
             for (IInfo info : tokensStartingWith) {
                 //there always must be a declaringModuleName
                 String declaringModuleName = info.getDeclaringModuleName();
-                if(initialModule.equals(declaringModuleName)){
-                	continue;
+                if(initialModule != null && declaringModuleName != null){
+                    if(initialModule.equals(declaringModuleName)){
+                    	continue;
+                    }
                 }
                 boolean hasInit = false;
                 if(declaringModuleName.endsWith(".__init__")){

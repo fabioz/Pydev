@@ -53,6 +53,8 @@ def main():
     template('../templateManual.html', 'manual_adv_editor_prefs', "Editor preferences")
     template('../templateManual.html', 'manual_adv_refactoring', "Refactoring")
     template('../templateManual.html', 'manual_adv_assistants', "Content Assistants")
+    template('../templateManual.html', 'manual_adv_coverage', "Code Coverage")
+    template('../templateManual.html', 'manual_adv_tasks', "Tasks")
 
 
 if __name__ == '__main__':
