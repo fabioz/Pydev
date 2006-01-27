@@ -56,6 +56,8 @@ def main():
     template('../templateManual.html', 'manual_adv_coverage', "Code Coverage")
     template('../templateManual.html', 'manual_adv_tasks', "Tasks")
     template('../templateManual.html', 'manual_adv_code_analysis', "Code Analysis")
+    template('../templateManual.html', 'manual_adv_quick_outline', "Quick Outline")
+    template('../templateManual.html', 'manual_adv_gotodef', "Go to Definition")
 
 
 if __name__ == '__main__':
