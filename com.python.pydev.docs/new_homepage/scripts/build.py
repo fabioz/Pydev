@@ -58,6 +58,10 @@ def main():
     template('../templateManual.html', 'manual_adv_code_analysis', "Code Analysis")
     template('../templateManual.html', 'manual_adv_quick_outline', "Quick Outline")
     template('../templateManual.html', 'manual_adv_gotodef', "Go to Definition")
+    template('../templateManual.html', 'manual_adv_compltemp', "Templates completion")
+    template('../templateManual.html', 'manual_adv_complctx', "Context-sensitive completions")
+    template('../templateManual.html', 'manual_adv_complnoctx', "Context-insensitive completions")
+    template('../templateManual.html', 'manual_adv_complauto', "Auto-suggest keywords")
 
 
 if __name__ == '__main__':
