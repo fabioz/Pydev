@@ -62,6 +62,8 @@ def main():
     template('../templateManual.html', 'manual_adv_complctx', "Context-sensitive completions")
     template('../templateManual.html', 'manual_adv_complnoctx', "Context-insensitive completions")
     template('../templateManual.html', 'manual_adv_complauto', "Auto-suggest keywords")
+    template('../templateManual.html', 'manual_adv_debugger', "Debugger")
+    template('../templateManual.html', 'manual_adv_remote_debugger', "Remote Debugger")
 
 
 if __name__ == '__main__':
