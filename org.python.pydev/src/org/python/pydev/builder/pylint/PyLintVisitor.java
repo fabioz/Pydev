@@ -7,6 +7,8 @@
 package org.python.pydev.builder.pylint;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +26,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IOConsoleOutputStream;
+import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.core.REF;
@@ -31,6 +37,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimplePythonRunner;
+import org.python.pydev.ui.UIConstants;
 
 /**
  * 
@@ -46,6 +53,8 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
     public static final String PYLINT_PROBLEM_MARKER = "org.python.pydev.pylintproblemmarker";
 
     public static List pyLintThreads = new ArrayList();
+    
+    private static MessageConsole fConsole;
     
     /**
      * This class runs as a thread to get the markers, and only stops the IDE when the markers are being added.
@@ -83,7 +92,18 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         public void run() {
             try {
                 if(canPassPyLint()){
-	                passPyLint(resource);
+                	
+                	IOConsoleOutputStream out=null;
+                	try {
+                		MessageConsole console = getConsole();
+                		if(console != null){
+                			out = console.newOutputStream();
+                		}
+        			} catch (MalformedURLException e3) {
+        				throw new RuntimeException(e3);
+        			}
+
+	                passPyLint(resource, out);
 	                
 	                new Job("Adding markers"){
 	                
@@ -102,7 +122,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 	                            int priority = ((Integer)el[2]).intValue();
 	                            String id    = (String) el[3];
 	                            int line     = ((Integer)el[4]).intValue();
-	        		            PydevMarkerUtils.createMarker(resource, "ID:"+id+" "+tok , line,  type, priority);
+	        		            PydevMarkerUtils.createMarker(resource, document, "ID:"+id+" "+tok , 
+	        		            		line, 0,line, 0,  
+	        		            		type, priority);
 	                        }
 	
 	                        return PydevPlugin.makeStatus(Status.OK, "", null);
@@ -126,6 +148,18 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             }
         }
 
+		private MessageConsole getConsole() throws MalformedURLException {
+			if(PyLintPrefPage.useConsole()){
+				if (fConsole == null){
+					fConsole = new MessageConsole("", PydevPlugin.getImageCache().getDescriptor(UIConstants.PY_ICON));
+					ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[]{fConsole});
+				}
+			}else{
+				return null;
+			}
+			return fConsole;
+		}
+
 
         /**
          * @param tok
@@ -140,11 +174,12 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         
         /**
          * @param resource
+         * @param out 
          * @param document
          * @param location
          * @throws CoreException
          */
-        private void passPyLint(IResource resource) throws CoreException {
+        private void passPyLint(IResource resource, IOConsoleOutputStream out) throws CoreException {
             File script = new File(PyLintPrefPage.getPyLintLocation());
             File arg = new File(location.toOSString());
 
@@ -162,7 +197,15 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             
             IProject project = resource.getProject();
             
-            Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutput(REF.getFileAbsolutePath(script), list.toArray(new String[0]), script.getParentFile(), project);
+            String scriptToExe = REF.getFileAbsolutePath(script);
+			String[] paramsToExe = list.toArray(new String[0]);
+			String cmdLineToExe = SimplePythonRunner.makeExecutableCommandStr(scriptToExe, paramsToExe);
+			write("Pylint: Executing command line:'"+cmdLineToExe+"'", out);
+			
+			Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutput(cmdLineToExe, script.getParentFile(), project);
+			write("Pylint: The stdout of the command line is: "+outTup.o1, out);
+			write("Pylint: The stderr of the command line is: "+outTup.o2, out);
+			
 			String output = outTup.o1;
 
             StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
@@ -179,7 +222,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                 return;
             }
             if(outTup.o2.indexOf("Traceback (most recent call last):") != -1){
-            	PydevPlugin.log(new RuntimeException("PyLint ERROR: \n"+output));
+            	PydevPlugin.log(new RuntimeException("PyLint ERROR: \n"+outTup.o2));
             	return;
             }
             while(tokenizer.hasMoreTokens()){
@@ -259,7 +302,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                 continue;
 
                             tok = tok.substring(i+1);
-                            addToMarkers(tok, type, priority, id, line);
+                            addToMarkers(tok, type, priority, id, line-1);
                         }
                     } catch (RuntimeException e2) {
                         PydevPlugin.log(e2);
@@ -305,7 +348,19 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         }
     }
     
-    /**
+    public static void write(String cmdLineToExe, IOConsoleOutputStream out) {
+    	try {
+    		if(fConsole != null && out != null){
+    			synchronized(fConsole){
+    				out.write(cmdLineToExe);
+    			}
+    		}
+		} catch (IOException e) {
+			PydevPlugin.log(e);
+		}
+	}
+
+	/**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
     public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {

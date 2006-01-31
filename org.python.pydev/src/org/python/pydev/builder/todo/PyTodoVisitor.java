@@ -47,7 +47,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
 	                        String element = (String) iter.next();
 	
 	                        if ((index = tok.indexOf(element)) != -1) {
-	                            PydevMarkerUtils.createMarker(resource, tok.substring(index).trim(), line + 1, IMarker.TASK, IMarker.SEVERITY_WARNING, false, false);
+	                            PydevMarkerUtils.createMarker(resource, document, tok.substring(index).trim(), line, IMarker.TASK, IMarker.SEVERITY_WARNING, false, false, null);
 	                        }
 	
 	                    }

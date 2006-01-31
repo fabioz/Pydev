@@ -54,4 +54,7 @@ public class UIConstants {
 //libraries
 	public static final String LIB_SYSTEM_ROOT = "icons/library_obj.gif";
 	public static final String LIB_SYSTEM = "icons/jar_l_obj.gif";
+	
+//general
+	public static final String PY_ICON = "icons/python.gif";
 }

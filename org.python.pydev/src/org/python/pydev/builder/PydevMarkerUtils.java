@@ -55,6 +55,7 @@ public class PydevMarkerUtils {
     public static IMarker markerExists(IResource resource, String message, int lineNumber, String type) {
         return markerExists(resource, message, lineNumber, lineNumber, type, null);
     }
+    
     /**
      * Checks pre-existance of marker.
      * 
@@ -80,32 +81,6 @@ public class PydevMarkerUtils {
         return null;
     }
 
-    /**
-     * Creates the marker for the problem.
-     * 
-     * @param resource resource for wich marker will be created
-     * @param message message for marker
-     * @param lineNumber line number of where marker will be tagged on to resource
-     * @return
-     */
-    public static void createProblemMarker(IResource resource, String message, int lineNumber) {
-        String markerType = IMarker.PROBLEM;
-    
-        PydevMarkerUtils.createWarningMarker(resource, message, lineNumber, markerType);
-    }
-
-    /**
-     * @param resource
-     * @param message
-     * @param lineNumber
-     * @param markerType
-     * @return
-     */
-    public static void createWarningMarker(IResource resource, String message, int lineNumber, String markerType) {
-    
-        int severity = IMarker.SEVERITY_WARNING;
-        PydevMarkerUtils.createMarker(resource, message, lineNumber, markerType, severity);
-    }
 
     public static void createMarker(IResource resource, IDocument doc, String message, 
             int lineStart, int colStart, int lineEnd, int colEnd, 
@@ -172,8 +147,10 @@ public class PydevMarkerUtils {
                 map.put(IMarker.SEVERITY, new Integer(severity));
                 
                 //add the additional info
-                for (Map.Entry<String, Object> entry : additionalInfo.entrySet()) {
-                    map.put(entry.getKey(), entry.getValue());
+                if(additionalInfo != null){
+	                for (Map.Entry<String, Object> entry : additionalInfo.entrySet()) {
+	                    map.put(entry.getKey(), entry.getValue());
+	                }
                 }
                 
                 MarkerUtilities.createMarker(resource, map, markerType);
@@ -209,69 +186,19 @@ public class PydevMarkerUtils {
             } catch (CoreException e) {
                 throw new RuntimeException(e);
             }
+        }else{
+        	existingMarkers = new ArrayList<IMarker>();
         }
         return existingMarkers;
     }
     
-    public static IMarker createMarker(IResource resource, String message, int lineNumber, String markerType, int severity) {
-    	if(message == null){
-    		throw new RuntimeException("The marker message may not be null.");
-    	}
-        return createMarker(resource, message, lineNumber, markerType, severity, null);
-    }
 
-    public static IMarker createMarker(IResource resource, String message, int lineNumber, String markerType, int severity, List<IMarker> existingMarkers) {
-        if(lineNumber <= 0){
-            lineNumber = 0;
-        }
-        existingMarkers = checkExistingMarkers(resource, markerType, existingMarkers);
-        IMarker marker = markerExists(resource, message, lineNumber, markerType, existingMarkers);
-        if (marker == null) {
-            try {
-                HashMap<String, Object> map = new HashMap<String, Object>();
-                map.put(IMarker.MESSAGE, message);
-                map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
-                map.put(IMarker.SEVERITY, new Integer(severity));
-    
-                MarkerUtilities.createMarker(resource, map, markerType);
-            } catch (CoreException e) {
-                throw new RuntimeException(e);
-            }
-        }else{
-            existingMarkers.remove(marker);
-        }
-        return marker;
-    }
 
-    public static IMarker createMarker(IResource resource, String message, int lineNumber, String markerType, int severity, boolean userEditable, boolean istransient) {
-        return createMarker(resource, message, lineNumber, markerType, severity, userEditable, istransient, null);
-    }
-    
-    public static IMarker createMarker(IResource resource, String message, int lineNumber, String markerType, int severity, boolean userEditable, boolean istransient, List<IMarker> existingMarkers) {
-        if(lineNumber <= 0){
-            lineNumber = 0;
-        }
-        
-        existingMarkers = checkExistingMarkers(resource, markerType, existingMarkers);
-        IMarker marker = markerExists(resource, message, lineNumber, markerType);
-
-        if (marker == null) {
-            try {
-                HashMap<String, Object> map = new HashMap<String, Object>();
-                map.put(IMarker.MESSAGE, message);
-                map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
-                map.put(IMarker.SEVERITY, new Integer(severity));
-                map.put(IMarker.USER_EDITABLE, new Boolean(userEditable));
-                map.put(IMarker.TRANSIENT, new Boolean(istransient));
-    
-                MarkerUtilities.createMarker(resource, map, markerType);
-            } catch (CoreException e) {
-                throw new RuntimeException(e);
-            }
-        }else{
-            existingMarkers.remove(marker);
-        }
-        return marker;
+    public static IMarker createMarker(IResource resource, IDocument doc, String message, int lineNumber, String markerType, int severity, boolean userEditable, boolean istransient, List<IMarker> existingMarkers) {
+    	HashMap<String, Object> map = new HashMap<String, Object>();
+    	map.put(IMarker.USER_EDITABLE, new Boolean(userEditable));
+    	map.put(IMarker.TRANSIENT, new Boolean(istransient));
+        return createMarker(resource, doc, message, lineNumber, 0, lineNumber, 0, markerType, severity, map, existingMarkers);
     }
 
 }

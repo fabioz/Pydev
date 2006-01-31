@@ -22,6 +22,9 @@ it didn't have a 'next' page.
 the regular ones, but the new ones are really reccommended -- also it will help in making sure you have your pythonpath
 correctly configured!).
 - Create new source folder option added.
+- Pylint can now give the output to the console too (configurable).
+- Pylint 0.9.0 tested
+- Pylint errors now show in the hover
 
 after 0.9.8.6
 

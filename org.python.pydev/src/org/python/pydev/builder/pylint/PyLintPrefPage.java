@@ -44,6 +44,9 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     public static final String USE_REFACTOR = "USE_REFACTOR";
     public static final boolean DEFAULT_USE_REFACTOR = false;
+    
+    public static final String USE_CONSOLE = "USE_CONSOLE";
+    public static final boolean DEFAULT_USE_CONSOLE = true;
 
     public static final String PYLINT_ARGS = "PYLINT_ARGS";
 
@@ -68,6 +71,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         Composite p = getFieldEditorParent();
 
         addField(new BooleanFieldEditor(USE_PYLINT, "Use pylint?", p));
+        addField(new BooleanFieldEditor(USE_CONSOLE, "Redirect Pylint output to console?", p));
         addField(new IntegerFieldEditor(MAX_PYLINT_DELTA, "Max delta to run PyLint?", p));
         FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of pylint (lint.py):", true, p);
         addField(fileField);
@@ -168,6 +172,10 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
     public static boolean useRefactorTips() {
         return PydevPrefs.getPreferences().getBoolean(USE_REFACTOR);
     }
+    
+    public static boolean useConsole() {
+    	return PydevPrefs.getPreferences().getBoolean(USE_CONSOLE);
+    }
 
     public static String getPylintArgs() {
         return PydevPrefs.getPreferences().getString(PYLINT_ARGS);
@@ -176,5 +184,6 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
     public static int getMaxPyLintDelta() {
         return PydevPrefs.getPreferences().getInt(MAX_PYLINT_DELTA);
     }
+
 
 }

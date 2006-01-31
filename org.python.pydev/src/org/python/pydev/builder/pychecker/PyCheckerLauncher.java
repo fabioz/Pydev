@@ -193,7 +193,7 @@ public class PyCheckerLauncher {
             int index = line.indexOf(':');
             int lineNumber = Integer.parseInt(line.substring(0, index)); /* line number (chars between ':') */
             String message = line.substring(index + 1); /* warning associated to line number */
-            PydevMarkerUtils.createProblemMarker(resource, message, lineNumber);
+//            PydevMarkerUtils.createProblemMarker(resource, message, lineNumber);
         }
     }
 }
