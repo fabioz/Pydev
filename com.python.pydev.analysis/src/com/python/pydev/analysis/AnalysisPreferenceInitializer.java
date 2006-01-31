@@ -48,6 +48,9 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
 	public static final String SEVERITY_UNDEFINED_IMPORT_VARIABLE = "SEVERITY_UNDEFINED_IMPORT_VARIABLE";
 	public static final int DEFAULT_SEVERITY_UNDEFINED_IMPORT_VARIABLE = IMarker.SEVERITY_ERROR;
     
+	public static final String DO_CODE_ANALYSIS = "DO_CODE_ANALYSIS";
+	public static final boolean DEFAULT_DO_CODE_ANALYSIS = true;
+	
 
     @Override
     public void initializeDefaultPreferences() {
@@ -61,6 +64,7 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
         node.put   (NAMES_TO_IGNORE_UNUSED_VARIABLE, DEFAULT_NAMES_TO_IGNORE_UNUSED_VARIABLE);
         node.put   (NAMES_TO_IGNORE_UNUSED_IMPORT, DEFAULT_NAMES_TO_IGNORE_UNUSED_IMPORT);
         node.putInt(WHEN_ANALYZE, DEFAULT_WHEN_ANALYZE);
+        node.putBoolean(DO_CODE_ANALYSIS, DEFAULT_DO_CODE_ANALYSIS);
     }
 
 

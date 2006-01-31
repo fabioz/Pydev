@@ -88,7 +88,8 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
      * @see com.python.pydev.analysis.IAnalysisPreferences#makeCodeAnalysis()
      */
     public boolean makeCodeAnalysis() {
-        return true;
+        Preferences pluginPreferences = AnalysisPlugin.getDefault().getPluginPreferences();
+        return pluginPreferences.getBoolean(AnalysisPreferenceInitializer.DO_CODE_ANALYSIS);
     }
 
     /**

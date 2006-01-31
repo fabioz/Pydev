@@ -4,6 +4,7 @@
 package com.python.pydev.analysis.ui;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
@@ -48,6 +49,7 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
                 {"Only on save"  , String.valueOf(IAnalysisPreferences.ANALYZE_ON_SAVE)},
                 {"On any successful parse", String.valueOf(IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE)}
         };
+        addField(new BooleanFieldEditor(AnalysisPreferenceInitializer.DO_CODE_ANALYSIS, "Do code analysis?", BooleanFieldEditor.DEFAULT,p));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.WHEN_ANALYZE, "When do we analyze?", 2,whenAnalyze,p, true));
 
         
