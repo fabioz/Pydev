@@ -1,7 +1,73 @@
 <doc>
 <contents_area>
 
+	<h3>Remote Debugger</h3>
+	<p>	
+		In Pydev Extensions you can debug a remote program (a file that is not launched from within Eclipse). 
+	</p>
 	
+	<p>
+		The steps to debug an external program are:
+		<ul>
+			<li>Start the remote debugger server (in Pydev Extensions)</li>
+			<li>Go to the debug perspective</li>
+			<li>Start the external program with the file 'pydevd.py' in its pythonpath</li>
+			<li>Call pydevd.settrace()</li>
+		</ul>
+	</p>
+	<p>
+		Let's see a simple 'step-by-step' example on how this works:
+	</p>
+	<p>
+		<strong>1. Start the remote debugger server</strong>: To start the remote debugger server, you have to click the 
+		green button pointed by '1' in the image below. After doing that, it will show a message in the console (indicated by '2') to
+		confirm that the server is listening for incoming connections.
+		
+<br/><p align="center"><IMG src="images/debugger/remotedebugger1.png" border="1"/></p>
+<br/><p align="center"><strong>Image:</strong> Remote Debugger Server</p>
+	</p>
+	<p>
+		<strong>2. Go to the debug perspective</strong>: This is needed because it has no actual 'signal' that it reached a breakpoint when
+		doing remote debugging. So, if you already have it open, just cicle to it with <strong>Ctrl+F8</strong>. Otherwise, go to the menu:
+		window > Open Perspective > Other > Debug.
+	</p>
+	<p>
+		Note that there should appear a process named 'Debug Server' in the debug view.
+	</p>
+<br/><p align="center"><IMG src="images/debugger/remotedebugger2.png" border="1"/></p>
+<br/><p align="center"><strong>Image:</strong> Debug perspective</p>
+	<p>
+		<strong>3. Make sure pydevd.py is in your pythonpath</strong>: This file is included in the org.python.pydev.debug plugin. So,
+		you'll have to add it to the pythonpath. It's exact location will depend upon the eclipse location and the plugin version, being
+		something like: eclipse/plugins/org.python.pydev.debug_x.x.x/pysrc/pydevd.py (so, the container folder must be in your pythonpath).
+		If you choose to execute it from another machine, you need to copy all the files within that folder to the
+		target machine in order to be able to debug it.
+	</p>	
+	<p>
+		<strong>4. Call pydevd.settrace()</strong>: Now that the pydevd.py module is already on your pythonpath, you can use the 
+		template provided: 'pydevd' to make the call: import pydevd;pydevd.settrace(). When that call is reached, it will automatically 
+		suspend the execution and show the debugger (in Pydev Extensions).
+	</p>
+<br/><p align="center"><IMG src="images/debugger/remotedebugger3.png" border="1"/></p>
+<br/><p align="center"><strong>Image:</strong> pydevd.settrace called</p>
+	
+<hr/>
+<h3>Important Notes</h3>
+	<p>
+		<strong>NOTE 1</strong>: the settrace() function can have an optional parameter to specify the host where the remote
+		debugger is listening. E.g.: pydevd.settrace('10.0.0.1')
+	</p>
+	<p>
+		<strong>NOTE 2</strong>: You can have the running program in one machine and Pydev Extensions on another machine,
+		but there is currently one limitation to that approach:<br/><br/>
+		When a breakpoint is resolved to know if we should suspend execution, it checks it in a 'file-system dependent way',
+		so, if you have set breakpoints, they are probably not going to have any effect if the modules actually map to different
+		files. There are already plans to identify the breakpoints with the name of the module, and not the actual file when
+		doing remote debugging, but for now this is a 'known limitation' (the python modules must map to the same files on both
+		machines).<br/><br/>
+		There are already plans to overcome this limitation, but the roadmap is not fixed (the roadmap will be traced depending
+		on the input of the users that licensed Pydev Extensions).
+	</p>	
 </contents_area>
 
 
