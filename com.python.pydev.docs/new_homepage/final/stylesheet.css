@@ -28,6 +28,18 @@ p {
 	
 }
 
+.bold {
+	padding-right: 0px;
+	padding-left: 0px;
+	background: #ffffff;
+	padding-bottom: 0px;
+	margin: 5px 5px 5px 5px;
+	padding-top: 0px;
+	font: 11px/1.5em Verdana;
+	color: #000000;
+	font-weight:bold;
+}
+
 .white_text {
 	font: 11px/1.0em Verdana;
 	font-size: small;

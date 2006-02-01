@@ -48,7 +48,6 @@ def main():
     template('../templateManual.html', 'manual_101_first_module', 'Creating a module')
     template('../templateManual.html', 'manual_101_run', 'Running your first program')
     template('../templateManual.html', 'manual_101_tips', 'Some useful tips')
-    template('../templateManual.html', 'manual_adv_root', "What's available")
     template('../templateManual.html', 'manual_adv_features', "Features")
     template('../templateManual.html', 'manual_adv_editor_prefs', "Editor preferences")
     template('../templateManual.html', 'manual_adv_refactoring', "Refactoring")
@@ -64,6 +63,7 @@ def main():
     template('../templateManual.html', 'manual_adv_complauto', "Auto-suggest keywords")
     template('../templateManual.html', 'manual_adv_debugger', "Debugger")
     template('../templateManual.html', 'manual_adv_remote_debugger', "Remote Debugger")
+    template('../templateManual.html', 'manual_adv_keybindings', "Keybindings")
 
 
 if __name__ == '__main__':
