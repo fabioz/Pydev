@@ -1,6 +1,8 @@
 import datetime
 LAST_VERSION_TAG='0.9.8.8'
 
+#http://www.fabioz.com/pydev/successful_payment.html
+#http://www.fabioz.com/pydev/cancel_payment.html
 
 
 def template( template, contents, title ):
