@@ -26,6 +26,7 @@ correctly configured!).
 - Pylint 0.9.0 tested
 - Pylint errors now show in the hover
 - The Pydev perspective was changed (so, please, close the current and open a new one)
+- Templates were added for the keywords
 
 after 0.9.8.6
 
