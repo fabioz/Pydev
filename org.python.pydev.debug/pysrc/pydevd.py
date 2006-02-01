@@ -613,6 +613,10 @@ def SetTraceForParents(frame, dispatch_func):
         frame = frame.f_back
 
 def settrace(host='localhost'):
+    '''
+    @param host: the user may specify another host, 
+    '''
+    
     global connected
     if not connected :
         connected = True  
@@ -629,7 +633,13 @@ def settrace(host='localhost'):
         
         SetTraceForParents(sys._getframe(), debugger.trace_dispatch)
         
-        t = threading.currentThread()        
+        t = threading.currentThread()      
+        try:
+            additionalInfo = t.additionalInfo
+        except AttributeError:
+            additionalInfo = PyDBAdditionalThreadInfo()
+            t.additionalInfo = additionalInfo
+  
         debugger.setSuspend(t, CMD_SET_BREAK)
         
         sys.settrace(debugger.trace_dispatch)

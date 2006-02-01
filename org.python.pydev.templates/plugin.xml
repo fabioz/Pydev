@@ -39,6 +39,15 @@ if __name__ == '__main__':
       </template>
       <template
             autoinsert="true"
+            name="pydevd"
+            icon="icons/template.gif"
+            description="pydevd.settrace()"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.pydevd">
+         <pattern>import pydevd;pydevd.settrace()</pattern>
+      </template>
+      <template
+            autoinsert="true"
             name="stdout"
             icon="icons/template.gif"
             description="Prints to sys.stdout"
