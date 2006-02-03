@@ -57,4 +57,11 @@ public class UIConstants {
 	
 //general
 	public static final String PY_ICON = "icons/python.gif";
+	
+//browser
+	public static final String STOP = "icons/showerr_tsk.gif";
+	public static final String REFRESH = "icons/refresh_nav.gif";
+	public static final String FORWARD = "icons/forward_nav.gif";
+	public static final String BACK = "icons/backward_nav.gif";
+	public static final String HOME = "icons/home_nav.gif";
 }
