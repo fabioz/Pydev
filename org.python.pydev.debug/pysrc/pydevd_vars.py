@@ -96,7 +96,13 @@ def varToXML(v, name):
     
     try:
         if hasattr(v, '__class__'):
-            value = '%s: %s' % (str(v.__class__).split('.')[-1], v)
+            try:
+                cName = str(v.__class__).split('.')[-1]
+                if cName.endswith("'>"):
+                    cName = cName[:-2]
+            except:
+                cName = str(v.__class__)
+            value = '%s: %s' % (cName, v)
         else:
             value = str(v)
     except:
