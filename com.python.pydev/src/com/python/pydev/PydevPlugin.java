@@ -53,7 +53,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 	    String result = loadLicense();
         if(notifier == null){
             notifier = new PydevExtensionNotifier();
-            notifier.setPriority(Thread.MIN_PRIORITY);
             notifier.start();
         }
         return result;

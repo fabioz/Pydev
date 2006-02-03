@@ -1,17 +1,130 @@
 package com.python.pydev.util;
 
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.python.pydev.core.docutils.WordUtils;
 
 import com.python.pydev.PydevPlugin;
+import com.python.pydev.ui.MainExtensionsPreferencesPage;
 
+final class DialogNotifier extends Dialog{
+    
+    private static final int BOLD_COLS = 120;
+
+    public DialogNotifier(Shell shell) {
+        super(shell);
+        setShellStyle(getShellStyle()| SWT.RESIZE | SWT.MAX);
+    }
+    
+    @Override
+    protected Point getInitialSize() {
+        return new Point(800,600);
+    }
+
+    protected Control createDialogArea(Composite parent) {
+        Composite composite= (Composite) super.createDialogArea(parent);
+
+        GridData gridData = null;
+        GridLayout layout = (GridLayout) composite.getLayout();
+        layout.numColumns = 1;
+
+        
+        String msg = "Unlicensed version of Pydev Extensions.";
+        MainExtensionsPreferencesPage.setLabelBold(composite, createLabel(composite, WordUtils.wrap(msg, BOLD_COLS), 1));
+
+
+        try {
+            String html = "<html><head>"+
+            "<base href=\"http://www.fabioz.com/pydev/\" >"+
+//          "<base href=\"file://D:/eclipse_workspace/com.python.pydev.docs/new_homepage/final/\" >"+
+            "<title>Licensing Pydev Extensions and other info</title></head>"+
+            "<body>" +
+            "<strong>Thank you for evaluating Pydev Extensions. </strong><br/><br/>" +
+            "If you wish to license Pydev Extensions, please visit the link " +
+            "below for instructions on how to buy your license:<br/><br/>" +
+            "" +
+            "<a href=\"buy.html\"><strong>Buy</strong></a>" +
+            "<br/>" +
+            "<br/>" +
+            "When you license it, not only will you get rid of this dialog, " +
+            "but you will also help fostering the Pydev Open Source version.<br/><br/>" +
+            "" +
+            "If you wish more information on the available features, you can check it on the link below:<br/><br/>" +
+            "" +
+            "<a href=\"manual_adv_features.html\"><strong>Features Matrix</strong></a><br/><br/>" +
+            "" +
+            "Or you may browse the homepage starting at its initial page:<br/><br/>" +
+            "<a href=\"index.html\"><strong>Pydev Extensions Main Page</strong></a><br/><br/>" +
+            
+            "</body></html>";
+//            throw new RuntimeException("testing");
+            Browser browser = new Browser(composite, SWT.BORDER);
+            browser.setText(html);
+            gridData = new GridData(GridData.FILL_BOTH);
+            browser.setLayoutData(gridData);
+        } catch (Exception e) {
+            //some error might happen creating it according to the docs, so, let's put another text into the widget
+            String msg2 = "Thank you for evaluating Pydev Extensions.\n\n" +
+                    "If you wish to license Pydev Extensions, please visit:\n\n" +
+                    "http://www.fabioz.com/pydev/buy.html.\n\n" +
+                    "When you license it, not only will you get rid of this dialog, " +
+                    "but you will also help fostering the Pydev Open Source version.\n\n\n\n\n" +
+                    "If you wish more information on the available features, you can check it on the link below:\n\n" +
+                    "http://www.fabioz.com/pydev/manual_adv_features.html.\n\n" +
+                    "Or you may browse the homepage starting at its initial page:\n\n" +
+                    "http://www.fabioz.com/pydev/index.html.\n\n" +
+                    "";
+            createText(composite, msg2, 1);
+        }
+
+        
+        return composite;
+    }
+    
+    /**
+     * @param composite
+     * @param labelMsg 
+     * @return 
+     */
+    private Text createText(Composite composite, String labelMsg, int colSpan) {
+        Text text= new Text(composite, SWT.BORDER|SWT.MULTI|SWT.READ_ONLY);
+        GridData gridData = new GridData(GridData.FILL_BOTH);
+        gridData.horizontalSpan = colSpan;
+        text.setLayoutData(gridData);
+        text.setText(labelMsg);
+        return text;
+    }
+    /**
+     * @param composite
+     * @param labelMsg 
+     * @return 
+     */
+    private Label createLabel(Composite composite, String labelMsg, int colSpan) {
+        Label label= new Label(composite, SWT.NONE);
+        GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
+        gridData.horizontalSpan = colSpan;
+        label.setLayoutData(gridData);
+        label.setText(labelMsg);
+        return label;
+    }
+
+}
 public class PydevExtensionNotifier extends Thread{
+    
 	//all times here are in secs
-	private static final int FIRST_TIME = 60 * 30;
-    private static final int VALIDATED_TIME = FIRST_TIME;
+	private static final int FIRST_TIME = 60*30;
+    private static final int VALIDATED_TIME = 60 * 60;
     private static final int MIN_TIME = 60 * 30;
     private boolean inMessageBox = false;
 
@@ -20,16 +133,18 @@ public class PydevExtensionNotifier extends Thread{
 	
 	@Override
 	public void run() {	
-	    try {
-	        sleep( FIRST_TIME * 1000); //whenever we start the plugin, the first xxx minutes are 'free'
-	    } catch (Throwable e) {
-	        e.printStackTrace();
-	    }
+        boolean firstTime = true;
 
         int seconds = MIN_TIME;
         while( true ) {
             try {
-                sleep( seconds * 1000);
+                if(firstTime){
+                    firstTime = false;
+                    sleep( FIRST_TIME * 1000); //whenever we start the plugin, the first xxx minutes are 'free'
+                }else{
+                    sleep( seconds * 1000);
+                }
+                
                 boolean validated = PydevPlugin.getDefault().isValidated();
                 if(!validated){
                     seconds = MIN_TIME;
@@ -41,10 +156,17 @@ public class PydevExtensionNotifier extends Thread{
                                 try {
                                     IWorkbenchWindow window = PydevPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
                                     Shell shell = (window == null) ? new Shell(disp) : window.getShell();
-                                    MessageBox message = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-                                    message.setText("Pydev extensions.");
-                                    message.setMessage("Pydev extensions:\nUnlicensed version.");
-                                    message.open();
+                                    DialogNotifier notifier = new DialogNotifier(shell);
+                                    notifier.setBlockOnOpen(true);
+                                    notifier.open();
+                                    
+//                                    MessageBox message = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+//                                    message.setText("Pydev extensions.");
+//                                    String msg = "Pydev extensions:\nUnlicensed version.\n\n";
+//                                    msg += "To license Pydev Extensions, follow the instructions at \n" +
+//                                            "http://www.fabioz.com/pydev/buy.html";
+//                                    message.setMessage(msg);
+//                                    message.open();
                                 } finally {
                                     inMessageBox = false;
                                 }
