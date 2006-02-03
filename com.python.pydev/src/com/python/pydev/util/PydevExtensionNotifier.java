@@ -75,8 +75,6 @@ final class DialogNotifier extends Dialog{
             
             "</body></html>";
     		ToolBar navBar = new ToolBar(composite, SWT.NONE);
-    		String a = null;
-    		a.charAt(10);
     		final Browser browser = new Browser(composite, SWT.BORDER);
     		browser.setText(html);
     		gridData = new GridData(GridData.FILL_BOTH);
