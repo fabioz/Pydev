@@ -43,7 +43,7 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="F10"
+            sequence="Ctrl+F9"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.debug.ui.actions.runEditorAsJython"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">

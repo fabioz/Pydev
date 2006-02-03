@@ -95,7 +95,10 @@ def varToXML(v, name):
     type, typeName, resolver = getType(v)    
     
     try:
-        value = str(v)
+        if hasattr(v, '__class__'):
+            value = '%s: %s' % (str(v.__class__).split('.')[-1], v)
+        else:
+            value = str(v)
     except:
         try:
             value = `v`
@@ -133,25 +136,51 @@ def frameVarsToXML(frame):
             print >>sys.stderr,"unexpected error, recovered safely", str(e)
     return xml
 
+def iterFrames(initialFrame):
+    '''Iterates through all the frames starting at the specified frame (which will be the first returned item)'''
+    while initialFrame is not None:
+        yield initialFrame
+        initialFrame = initialFrame.f_back
 
+    raise StopIteration()
+    
 def findFrame(thread_id, frame_id):
     """ returns a frame on the thread that has a given frame_id """
     if thread_id != id(threading.currentThread()) : 
         raise VariableError("findFrame: must execute on same thread")
-    
+
     curFrame = sys._getframe()
     if frame_id == "*": 
         return curFrame # any frame is specified with "*"
     
+    frameFound = None
     lookingFor = int(frame_id)
     
-    while curFrame != None and lookingFor != id(curFrame):
-        curFrame = curFrame.f_back
+    for frame in iterFrames(curFrame):
+        if lookingFor == id(frame):
+            frameFound = frame
+            break
         
-    if curFrame == None : 
-        raise VariableError("findFrame: frame not found")
+    if frameFound == None: 
+        msgFrames = ''
+        i = 0
+        for frame in iterFrames(sys._getframe()):
+            i += 1
+            msgFrames += str(id(frame))
+            if i % 5 == 0:
+                msgFrames += '\n'
+            else:
+                msgFrames += '  -  '
+                
+        errMsg = '''findFrame: frame not found.
+Looking for thread_id:%s, frame_id:%s
+Current     thread_id:%s, available frames:
+%s
+''' % (thread_id, lookingFor, id(threading.currentThread()), msgFrames)
+
+        raise VariableError(errMsg)
     
-    return curFrame
+    return frameFound
 
 def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
     """ returns the value of the compound variable as a dictionary"""    
