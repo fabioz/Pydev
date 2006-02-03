@@ -97,7 +97,13 @@ def varToXML(v, name):
     try:
         if hasattr(v, '__class__'):
             try:
-                cName = str(v.__class__).split('.')[-1]
+                cName = str(v.__class__)
+                if cName.find('.') != -1:
+                    cName = cName.split('.')[-1]
+                
+                elif cName.find("'") != -1: #does not have '.' (could be something like <type 'int'>)
+                    cName = cName[cName.index("'")+1:]
+                    
                 if cName.endswith("'>"):
                     cName = cName[:-2]
             except:
