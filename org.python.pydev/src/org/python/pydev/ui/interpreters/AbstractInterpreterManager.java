@@ -347,7 +347,14 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	        //update the natures...
 	        List<IPythonNature> pythonNatures = PythonNature.getAllPythonNatures();
 	        for (IPythonNature nature : pythonNatures) {
-	        	nature.rebuildPath(defaultSelectedInterpreter, monitor);
+	        	try {
+	        		//if they have the same type of the interpreter manager.
+					if (this.isPython() == nature.isPython() || this.isJython() == nature.isJython()) {
+						nature.rebuildPath(defaultSelectedInterpreter, monitor);
+					}
+				} catch (Exception e) {
+					PydevPlugin.log(e);
+				}
 	        }
     	}        
     }
