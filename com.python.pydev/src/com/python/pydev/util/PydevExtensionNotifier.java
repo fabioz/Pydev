@@ -9,11 +9,16 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.python.pydev.core.docutils.WordUtils;
+import org.python.pydev.ui.UIConstants;
 
 import com.python.pydev.PydevPlugin;
 import com.python.pydev.ui.MainExtensionsPreferencesPage;
@@ -45,9 +50,10 @@ final class DialogNotifier extends Dialog{
 
 
         try {
-            String html = "<html><head>"+
+            final String html = "<html><head>"+
             "<base href=\"http://www.fabioz.com/pydev/\" >"+
 //          "<base href=\"file://D:/eclipse_workspace/com.python.pydev.docs/new_homepage/final/\" >"+
+//          "<base href=\"file://E:/eclipse_workspace/com.python.pydev.docs/new_homepage/final/\" >"+
             "<title>Licensing Pydev Extensions and other info</title></head>"+
             "<body>" +
             "<strong>Thank you for evaluating Pydev Extensions. </strong><br/><br/>" +
@@ -68,11 +74,56 @@ final class DialogNotifier extends Dialog{
             "<a href=\"index.html\"><strong>Pydev Extensions Main Page</strong></a><br/><br/>" +
             
             "</body></html>";
-//            throw new RuntimeException("testing");
-            Browser browser = new Browser(composite, SWT.BORDER);
-            browser.setText(html);
-            gridData = new GridData(GridData.FILL_BOTH);
-            browser.setLayoutData(gridData);
+    		ToolBar navBar = new ToolBar(composite, SWT.NONE);
+    		String a = null;
+    		a.charAt(10);
+    		final Browser browser = new Browser(composite, SWT.BORDER);
+    		browser.setText(html);
+    		gridData = new GridData(GridData.FILL_BOTH);
+    		browser.setLayoutData(gridData);
+
+    		final ToolItem back = new ToolItem(navBar, SWT.PUSH);
+    		back.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.BACK));
+    		
+    		final ToolItem forward = new ToolItem(navBar, SWT.PUSH);
+    		forward.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.FORWARD));
+    		
+    		final ToolItem stop = new ToolItem(navBar, SWT.PUSH);
+    		stop.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.STOP));
+    		
+    		final ToolItem refresh = new ToolItem(navBar, SWT.PUSH);
+    		refresh.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.REFRESH));
+
+    		final ToolItem home = new ToolItem(navBar, SWT.PUSH);
+    		home.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.HOME));
+    		
+    		back.addListener(SWT.Selection, new Listener() {
+    			public void handleEvent(Event event) {
+    				browser.back();
+    			}
+    		});
+    		forward.addListener(SWT.Selection, new Listener() {
+    			public void handleEvent(Event event) {
+    				browser.forward();
+    			}
+    		});
+    		stop.addListener(SWT.Selection, new Listener() {
+    			public void handleEvent(Event event) {
+    				browser.stop();
+    			}
+    		});
+    		refresh.addListener(SWT.Selection, new Listener() {
+    			public void handleEvent(Event event) {
+    				browser.refresh();
+    			}
+    		});
+    		home.addListener(SWT.Selection, new Listener() {
+    			public void handleEvent(Event event) {
+    				browser.setText(html);
+    			}
+    		});
+
+    		
         } catch (Exception e) {
             //some error might happen creating it according to the docs, so, let's put another text into the widget
             String msg2 = "Thank you for evaluating Pydev Extensions.\n\n" +
@@ -123,7 +174,7 @@ final class DialogNotifier extends Dialog{
 public class PydevExtensionNotifier extends Thread{
     
 	//all times here are in secs
-	private static final int FIRST_TIME = 60*30;
+	private static final int FIRST_TIME = 1;
     private static final int VALIDATED_TIME = 60 * 60;
     private static final int MIN_TIME = 60 * 30;
     private boolean inMessageBox = false;
