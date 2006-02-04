@@ -1,0 +1,276 @@
+<h2>New on: 0.9.8.7!!</h2>
+
+<br>
+<li><strong>The debugger tracing was turned off </strong> (this was a bug in 0.9.8.6 and could make debugging much slower)
+</li><li><strong>Fixed jython shell</strong> (and extended it to get better information on code-completion).
+</li><li><strong>Changed the interpreter configuration so that it is backwards-compatible from now on...</strong>(but the current interpreters will be lost and will need to be configured)
+</li><li><strong>Breakpoints can have conditionals</strong>(this was contributed by Achim Nierbeck, and was actually provided in release 0.9.8.6, but I forgot to put it in the release notes)
+</li><li>Some other bugfixes are also in this build.
+</li>
+<br>
+
+
+<br>
+<hr/>
+<h2>All Features (release LAST_VERSION_TAG):</h2>
+
+<h3>Editor:</h3>
+
+<LI>Jython and Python support!</li>
+<LI>Nice PYTHONPATH configuration!</li>
+<LI>Project and module creation wizards</li>
+<LI>Ctrl+Shift+O: Organizes imports or sorts selection alphabetically</li>
+<LI>Ctrl+Shift+F: Autoformat your code (preferences can be set)</li>
+<li>Python 2.4 syntax supported</li>
+<li>PyDev builders can be disabled</li>
+<li>Syntax highlighting</li>
+<li>Hovering in errors shows descriptions</li>
+<li>Matching brackets highlighted.</li>
+<li>Parser errors marked in the task list</li>
+<li>Outline view with imports/functions/classes</li>
+<li>Tabs or spaces preference</li>
+<LI>Smart indentation (indent and dedent)</li>
+<li>Navigation: keyboard shortcuts to previous or next function. <EM>Default: (Ctrl+Shift+Up and Ctrl+Shift+Down) </EM></li>
+<li>Comment and uncomment commands (on the popup menu) and keybindings. <EM>Default: (Ctrl+3 and Ctrl+Shift+3) </EM></li>
+<li>hyperlinks over functions//import statements</li>
+<li>Code folding</li>
+<LI><a href="refactoring.html">Refactoring</a> with <A href="http://bicyclerepair.sourceforge.net/">bicycle repair man</A>.</li>
+<LI><a href="codecompletion.html">Code Completion</a> <EM>(Ctrl+Space) </EM> </li>
+<LI>Templates Completion <EM>(Ctrl+Space Too) </EM></li>
+<LI>Go to definition with <EM>F3</EM> (powered by <A href="http://bicyclerepair.sourceforge.net/">bicycle repair man</A>)</li>
+<LI><a href="contentassist.html">Content Assistant</a> <EM>(Ctrl+1)</EM></li>
+<LI><a href="codecoverage.html">Code Coverage</a></li>
+<LI><a href="pylint.html">Pylint </a></li>
+<LI><a href="tasks.html">TODO tasks</a> </li>
+<LI>Background and current line color chooser.</li>
+
+
+
+<h3>Debugger</h3>
+
+<li>Python and Jython support</li>
+<LI>Watch</li>
+<li>Breakpoints</li>
+<li>Step in/out/over</li>
+<li>Multiple threads</li>
+<li>Variable display</li>
+<li>File hyperlinks in the console output (you can click on stack traces)</li>
+
+
+
+<H3>Help</H3>
+
+<LI>This homepage, so that you can browse it offline.</li>
+
+
+
+<hr/>
+<h2>Features History</h2>
+
+
+<h2>New on: 0.9.8.6!!</h2>
+
+<br>
+<li><strong>Added a new 'Pydev project' wizard (Mikko Ohtamaa contribution) </strong>-- it is named as Pydev Project instead of Python project
+because it creates Python and Jython projects.
+</li><li><strong>Added a new 'Pydev module' wizard (Mikko Ohtamaa contribution)</strong> -- NOTE: it still needs some work.
+</li><li><strong>Changes in the shell spawning were done, and no hangs should appear when trying to do code-completion anymore </strong>
+(if it still hapens, please report it as a bug -- NOTE: a little delay on the first time code-completion is executed
+is expected, as this is the time the shell is started).
+</li>
+<br>
+
+
+
+<h2>New on: 0.9.8.5!!</h2>
+
+<br>
+<li>Removed the dependency on packages 'sun.xxxx.Base64', so that other VMs can be targetted
+</li><li>Some code-completion problems in the 'resolution order' regarding tokens in __init__ were solved
+</li><li>Added option so that the user can choose whether to automatically add 'self' or not in method declarations
+</li>
+<br>
+
+
+<h2>New on: 0.9.8.4!!</h2>
+
+<br>
+<li>The license was changed to EPL. It can be found at: <a href="http://www.opensource.org/licenses/eclipse-1.0.php">http://www.opensource.org/licenses/eclipse-1.0.php</a>
+</li><li>Code-completion information is now saved in deltas instead of "saving only at shutdown" (being so, it does not loose information if it does not have a regular shut-down).
+</li><li>Added option for not using the smart-indent after opening brackets
+</li>
+<br>
+
+
+
+<h2>New on: 0.9.8.3!!</h2>
+
+
+<br>
+<li>Debugger was improved to be faster (more info about it <a href="http://pydev.blogspot.com/2005/10/high-speed-debugger.html"> at my blog</a>).
+</li><li>Add watch added to the editor popup menu
+</li><li>Added syntax highlighting to the 'self' token
+</li><li>Code folding added for 'glued' imports
+</li><li>Fixed some outline problems
+</li><li>Debugger does not try to get breakpoints on closed projects anymore
+</li><li>Some refreshing issues regarding the outline and colors when reusing the editor were fixed
+</li><li>Code completion for relative imports has changed a lot (there were some pretty hard-to-find bugs in this area...)
+</li><li>Some move imports problems fixed
+</li><li>The auto-add '(self):' now works with tabs too
+</li>
+<br>
+
+
+
+<h2>New on: 0.9.8.2!!</h2>
+
+<br>
+<li><strong><a href="contentassist.html">Content assistants</a> reviewed (and better documented on the homepage -- I really reccomend checking <a href="contentassist.html">it</a>)</strong>
+</li><li><strong>Timeout parsing options added (this is available in the builder preferences page)</strong>
+</li><li><strong>Auto-dedent added</strong>
+</li><li>.pyc is removed when the corresponding .py file is removed.
+</li><li>Debugger has been changed so that it becomes faster (still not as fast as I would like, but still... faster)
+</li><li>Some escaped quotes problems fixed when formatting code
+</li><li>Navigation with Ctrl+Shift+ (up or down) has been slightly improved, so that it goes to the start or the end of the file when no other class or method declaration is found
+</li><li>Other bug-fixes (as ususal)
+</li>
+<br>
+
+
+
+<h2>New on 0.9.8.1!!</h2>
+
+<li><strong>Java 1.4 support reintroduced</strong>. 
+</li><li><strong>Styles added for syntax highlighting (bold and italic), contributed by Gerhard Kalab</strong>.
+</li><li>zombie process after exiting eclipse should not happen anymore
+</li><li>paths with '.' are accepted for the pythonpath (unless they start with a '.', because it may not accept relative paths).
+</li><li>relative imports are added to code-completion
+</li><li>local imports are taken into consideration when doing code completion
+</li><li>debugger has 'change support', so, changed variables in a scope appear red
+</li>
+
+
+<h2>New on 0.9.8!!</h2>
+
+<li>jython integration supports spaces for jython.jar and java install
+</li><li>jython code-completion support for new style objects (jython 2.2a1) has been enhanced.
+</li><li>many templates were added
+</li><li>the grammar evolved a lot, so, now you actually have decorators in the grammar, list comprehension on method calls and tuples and the new from xxx import (a,b,c) syntax.
+</li><li>pylint supports spaces
+</li><li>pylint is no longer distributed with pydev (it must be installed in the site-packages and its location must be specified in the preferences)
+</li><li>some problems regarding 'zombie processes' after eclipse exit with the shells used for code-completion should be fixed
+</li>
+
+<h2>New on 0.9.7.99!!</h2>
+
+<li><strong>PyDev has its first shot at Jython</strong>. you should be able to use many things already, meaning: all the common editor features and code completion.
+</li><li><strong>The debugger is working</strong>.
+</li><li>Code completion has been improved for supporting wild imports and relative imports better (sometimes it had some problems).
+</li><li>There are hovers for the text and annotations (when you pass the mouse through an error it will show its description).
+</li><li>Block comment (Ctrl+4) now uses the size defined for the print margin.
+</li><li>New block-comment style added (Ctrl+Shift+4).
+</li><li>New icons were created.
+</li><li>Many other bug-fixes as usual.
+</li>
+
+
+<h2>New on 0.9.7!!</h2>
+
+<li>This release contains some high-priority bug fixes...
+</li>
+
+
+<h2>New on 0.9.6!!</h2>
+
+<li><strong>Eclipse 3.1 is supported</strong>
+<li><strong>Only java 5 is supported</strong>
+</li><li>Pydev builder ignores team private members
+</li><li>Print Margin indicator now displays correctly
+</li><li>Help docs are shown again
+</li><li>Text editor configurations are inherited from the text editor (and just extended in the preferences)
+</li><li>Auto-close parentesis and 'eat colon' (courtesy from Karol Pietrzak)
+</li><li>Some more bugs...
+</li>
+
+
+<h2>New on 0.9.5!!</h2>
+
+<li><strong>Last release with java 1.4 support</strong>
+</li><li>File encodings now follow the python convention
+</li><li>Overview ruler now works 
+</li><li>Editor is synchronized when working in multiple windows with the same file
+</li><li>Code folding improved
+</li><li>Syntax highlighting is not confused by escaped quote + triple quote anymore
+</li><li>Insertion of parentheses now replaces selected text
+</li>
+
+
+<h2>New on 0.9.4!!</h2>
+
+<li>Nice PYTHONPATH configuration, and it is used for running your files, PyLint, code completion...
+</li><li>Integrated Scott Schleiser patches for the debugger (you won't see any 'implement me' anymore!).
+</li><li>Integrated Heikki Toivonen patch for <a href="pylint.html">PyLint</a> using the project pythonpath. 
+</li><li>Integrated Heikki Toivonen patch for indentation after '(', '[' and '{' (if the line ends with a comma).
+</li><li>Some StackOverflow errors were removed from code completion.
+</li><li>Keybindings added for <a href="refactoring.html">Refactoring</a> (powered by bycicle repair man) - check the <a href="faq.html">FAQ</a>.
+</li>
+
+
+<h2>New on 0.9.3!!</h2>
+<li>Code completion is finished until 1.0 is released, so, if you`re missing something, please report it!
+</li><li>New <a href="contentassist.html">Content Assistants</a> added. Not very well documented right now, but I'll do it later...
+</li><li>Removed dependecy on java.internals packages, so, this should solve the problems some people had when updating to 0.9.2
+</li><li>Latest PyLint integrated.
+</li>
+
+
+<h2>New on 0.9.2!!</h2>
+<li>Scott Schleiser inside the editor... now on apply, it applies new settings, without restarting the editor.
+</li><li>Scott Schleiser inside the debugger... most 'implement me' and 'volunteers needed' were fixed.
+</li><li>New <a href="contentassist.html">Content Assistants</a> added. 
+</li><li>Docstrings in national encodings should work.
+</li><li>from foo import bar, xxx, yyy... should work.
+</li><li>Custom colors for decorators and numbers.
+</li><li>Matching brackets highlighted.
+</li><li>Bugs: code-formatting and others...
+</li>
+
+
+<h2>New on 0.9.1:</h2>
+<LI>Ctrl+Shift+O: Organizes imports or sorts selection alphabetically</li>
+<LI>Ctrl+Shift+F: Autoformat your code (preferences can be set)</li>
+<LI>Namespace and PYTHONPATH now are the same for debug and run</li>
+<LI><a href="codecompletion.html">Code Completion</a> has been improved: Parameters are gotten
+as completions, builtins like -- [], {} and '' --  
+return completions. Relative imports should be working (along with some other bug-fixes).</li>
+<LI><a href="pylint.html">PyLint 0.6.3</a> integrated.</li>
+
+
+<h2>New on 0.9.0:</h2>
+<LI><a href="codecompletion.html">Code Completion</a> bug for python 2.4 fixed.</li>
+<LI><a href="codecompletion.html">Code Completion</a> has other bug-fixes solved, mostly due to imports that it was unable to find.</li>
+<LI><a href="pylint.html">PyLint 0.6</a> integrated.</li>
+<LI>New Python 2.4 syntax supported <a href="">see notes here.</a></li>
+<LI>PyDev builders can be disabled (NOTE: some features might not work when this is done - see the <a href="faq.html">FAQ</a>).</li>
+<br>
+
+<h2>New on 0.8.5:</h2>
+<LI>Better <a href="codecompletion.html">Code Completion</a> <EM>(Ctrl+Space) </EM> </li>
+<LI>Watch in debugger.</li>
+<LI>Background and current line color chooser.</li>
+<br>
+
+<h2>New on 0.8:</h2>
+<LI><a href="pylint.html">Pylint integrated</a></li>
+<LI><a href="tasks.html">TODO tasks</a> supported</li>
+<br>
+
+<h2>New on 0.7.1:</h2>
+<LI><a href="codecoverage.html">Code Coverage</a></li>
+<LI><a href="run.html">Run subset from dir</a> (this is not unit-test, but it can be really useful if you do tests).</li>
+<LI><a href="contentassist.html">New Content Assistants</a> <EM>(Ctrl+1)</EM></li>
+<LI>
+	Integrated new <a href="refactoring.html">refactorings</a> from <A href="http://bicyclerepair.sourceforge.net/">bicycle repair man</A> 
+	(inline local variable and extract local variable)
+</li>
+<br>

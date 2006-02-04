@@ -1,0 +1,53 @@
+<H3>This are the features I am planning to have implemented... </H3>
+
+<P>The roadmap is just what I'm thinking, but it depends on other contributors too.</P>
+<strong><P>Target for 1.0.</P></strong>
+
+
+Bug-fixes (and some improvements) on the current set of features... 
+(anyway, new features might be added if someone else decides to contribute something).
+
+
+<strong><P>After 1.0</P></strong>
+<LI>Make some content assistants to help in TDD (as the Java ones, for creating new class, method, etc.).
+</LI><LI>Quick outline (like java does - it seems that eclipse is working on support for plugins)
+</LI><LI>Package explorer (probably similar to java)
+</LI><LI>Interactive shell (probably with IPython)
+</LI><LI>Wizards (create class / module)
+</LI><LI>Improve the pyunit integration. 
+</LI><LI>Pydev perspective. 
+</LI>
+<br>
+<br>
+
+
+
+
+
+
+
+<H3>You'd like to give it a try?</H3>
+
+<P>You can download the latest source 
+		from sourceforge. </P>
+
+<STRONG>Compiling the code:</STRONG><br/>
+<P>To compile, you need to set the following preferences:</P>
+
+<P>'Plug-In Development: Java Build Path Control: Use classpath containers' to true</P>
+
+<P>'Plug-In Development: Target Platform' select "this application" and enable all plugins.</P>
+
+<P>Most of the code is well-documented in javadoc. I try 
+	to cc every answer to a coding question to pydev-code, so you can look there for 
+	hints too. That's it. If you have not developed Eclipse plugins before, I 
+	recommend reading the online documentation and trying out a sample plugin. 
+	Doing some prep work before jumping in will really pay off.</P>
+
+<STRONG>Compiling the tests:</STRONG><br/>
+<P>If you are compiling the tests too, you have to create a file named 
+	org.python.pydev.editor.codecompletion.revisited.TestDependent.java. There is a file named
+	TestDependent.template that can be used as a base for it (there are many system-dependent things
+	that have to be specified for running tests).
+</P>
+<STRONG>Then, it is all up to you.</STRONG>
