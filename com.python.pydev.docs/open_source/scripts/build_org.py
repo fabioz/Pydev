@@ -154,14 +154,16 @@ def Main():
     Template( '_template.htm', 'editor'                  , 'Editor'                   ,None             , channelPydevEditor       , _otherFeatures())
     Template( '_template.htm', 'pylint'                  , 'PyLint'                   ,None             , channelPydevPyLint       , _otherFeatures())
     Template( '_template.htm', 'tasks'                   , 'Tasks'                    ,None             , channelPydevTasks        , _otherFeatures())
-    print "done"
     
-if __name__ == '__main__':
-
+def DoIt():
     import faqbuild
     faqbuild.Generate('scripts/_new_faq.template', '_faq.contents.htm')
     
     Main()    
+    print "built org"
+
+if __name__ == '__main__':
+    DoIt()
     
     
     

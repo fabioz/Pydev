@@ -99,7 +99,9 @@ def main():
     
     template('../templateManual.html', 'manual_adv_keybindings'    , 'Keybindings'                     )
 
+def DoIt():
+    main()
+    print 'built com'
 
 if __name__ == '__main__':
-    main()
-    print 'built'
+    DoIt()
