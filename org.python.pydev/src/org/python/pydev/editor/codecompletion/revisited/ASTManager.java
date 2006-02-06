@@ -32,7 +32,11 @@ import org.python.pydev.core.IPythonNature;
  */
 public class ASTManager extends AbstractASTManager implements ICodeCompletionASTManager, Serializable{
 
-    protected static final long serialVersionUID = 1L;
+	
+	/**
+	 * changed to 10L on release 1.0
+	 */
+    protected static final long serialVersionUID = 10L;
     
     /**
      * Set the project this ast manager works with.

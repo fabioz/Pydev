@@ -18,7 +18,7 @@ import org.python.pydev.core.ISystemModulesManager;
  */
 public class SystemModulesManager extends ModulesManager implements ISystemModulesManager{
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private String[] builtins;
 	private IPythonNature nature;
 

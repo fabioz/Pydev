@@ -26,8 +26,10 @@ public class InterpreterInfo implements Serializable{
     
     /**
      * check note on http://java.sun.com/j2se/1.5.0/docs/guide/serialization/spec/version.html#6678
+     * 
+     * changed to 10L with the release 1.0
      */
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 10L;
     
     /**
      * For jython, this is the jython.jar
@@ -183,7 +185,7 @@ public class InterpreterInfo implements Serializable{
         if(dllLibs.size() > 0){
 	        for (Iterator iter = dllLibs.iterator(); iter.hasNext();) {
 	            buffer.append("|");
-	            buffer.append(iter.next().toString());
+//	            buffer.append(iter.next().toString());
 	        }
         }
         
