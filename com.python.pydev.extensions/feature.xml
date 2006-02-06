@@ -6,18 +6,18 @@
       provider-name="Fabio Zadrozny"
       plugin="com.python.pydev">
 
-   <description url="http://www.example.com/description">
+   <description url="http://www.fabioz.com/pydev">
       This feature enables PyDev extensions.
    </description>
 
-   <copyright url="http://www.example.com/copyright">
+   <copyright>
       © Fabio Zadrozny
    </copyright>
 
-   <license url="http://www.example.com/license">
-License Agreement This License Agreement is a legal contract between you (either
+   <license url="http://www.fabioz.com/pydev/terms.html">
+      License Agreement This License Agreement is a legal contract between you (either
 as an individual or as an entity) and Fabio Zadrozny for the Pydev Extensions
-Software ("Software").
+Software (&quot;Software&quot;).
 
 You should carefully read the following terms and conditions before using the
 Software. Installation or use of the Software indicates your acceptance of this
@@ -110,7 +110,7 @@ license.
 DISCLAIMER OF WARRANTY
 
 FABIO ZADROZNY EXPRESSLY DISCLAIMS ANY WARRANTY FOR THE SOFTWARE. THE SOFTWARE
-AND ANY RELATED DOCUMENTATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,
+AND ANY RELATED DOCUMENTATION IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTY OF ANY KIND,
 EITHER EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES
 OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT. THE
 ENTIRE RISK ARISING OUT OF USE OR PERFORMANCE OF THE SOFTWARE REMAINS WITH YOU.
@@ -146,6 +146,10 @@ relating to the Software.
 
 COPYRIGHT 2006 FABIO ZADROZNY
    </license>
+
+   <url>
+      <update label="Pydev Extensions Update" url="http://www.fabioz.com/pydev/updates"/>
+   </url>
 
    <requires>
       <import plugin="org.eclipse.ui"/>
