@@ -24,6 +24,7 @@ Aleks and Fabio
 
    <url>
       <update label="PyDev update" url="http://pydev.sourceforge.net/updates"/>
+      <discovery label="Pydev Extensions discovery site" url="http://www.fabioz.com/pydev/updates"/>
    </url>
 
    <requires>
