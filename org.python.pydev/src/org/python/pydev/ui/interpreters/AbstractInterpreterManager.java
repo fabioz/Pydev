@@ -352,7 +352,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 					if (this.isPython() == nature.isPython() || this.isJython() == nature.isJython()) {
 						nature.rebuildPath(defaultSelectedInterpreter, monitor);
 					}
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					PydevPlugin.log(e);
 				}
 	        }

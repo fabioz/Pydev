@@ -346,7 +346,7 @@ public class PythonNature implements IPythonNature {
 	                        }
 	                    }
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     PydevPlugin.log(e);
                 }
                                                 

@@ -185,7 +185,7 @@ public class InterpreterInfo implements Serializable{
         if(dllLibs.size() > 0){
 	        for (Iterator iter = dllLibs.iterator(); iter.hasNext();) {
 	            buffer.append("|");
-//	            buffer.append(iter.next().toString());
+	            buffer.append(iter.next().toString());
 	        }
         }
         
