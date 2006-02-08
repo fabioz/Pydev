@@ -26,7 +26,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUnusedInFor();
+            analyzer2.testDictAcess();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -1786,6 +1786,39 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 1);
         assertEquals("Undefined variable: a", msgs[0].getMessage());
         assertEquals(8, msgs[0].getStartCol(doc));
+    }
+    
+    public void testUnusedVar() {
+    	doc = new Document(
+			"def test(data):\n"+
+			"    return str(data)[0].strip()\n"+
+			"\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs, 0);
+    }
+    
+    public void testUndefinedVar1() {
+    	doc = new Document(
+    			"return (data)[0].strip()"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs, 1);
+    	assertEquals("Undefined variable: data", msgs[0].getMessage());
+    }
+    
+    public void testColError() {
+    	doc = new Document("print function()[0].strip()");
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs, 1);
+    	assertEquals("Undefined variable: function", msgs[0].getMessage());
+    	assertEquals(7, msgs[0].getStartCol(doc));
     }
     
 }

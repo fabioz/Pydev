@@ -402,6 +402,33 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitAttribute(org.python.parser.ast.Attribute)
      */
     public Object visitAttribute(Attribute node) throws Exception {
+        final exprType value = node.value;
+        if(value instanceof Subscript){
+        	Subscript subs = (Subscript) value;
+            this.traverse(subs.slice);
+            if(subs.value instanceof Name){
+            	visitName((Name) subs.value);
+            }else{
+            	this.traverse(subs.value);
+            }
+        	//No need to keep visiting. Reason:
+            //Let's take the example:
+            //print function()[0].strip()
+            //function()[0] is part 1 of attribute
+            //
+            //and the .strip will constitute the second part of the attribute
+            //and its value (from the subscript) constitutes the 'function' part,
+            //so, when we visit it directly, we don't have to visit the first part anymore,
+            //because it was just visited... kind of strange to think about it though.
+        	return null;
+        }
+		if(value instanceof Call){
+            visitCallAttr(node);
+        }
+        if(value instanceof Tuple){
+        	visitTuple((Tuple) value);
+        }
+
         SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName);
         if(token.getRepresentation().equals("")){
             return null;
@@ -436,15 +463,6 @@ public class OcurrencesVisitor extends VisitorBase{
             }
         }
 
-        if(node.value instanceof Call){
-            visitCallAttr(node);
-        }
-        if(node.value instanceof Tuple){
-        	visitTuple((Tuple) node.value);
-        }
-        if(node.value instanceof Subscript){
-            this.traverse(((Subscript) node.value).slice);
-        }
         return null;
     }
 
