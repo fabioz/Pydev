@@ -243,7 +243,7 @@ final class DialogNotifier extends Dialog{
 public class PydevExtensionNotifier extends Thread{
     
 	//all times here are in secs
-	private static final int FIRST_TIME = 1;//60*30;
+	private static final int FIRST_TIME = 60*30;
     private static final int VALIDATED_TIME = 60 * 60;
     private static final int MIN_TIME = 60 * 30;
     private boolean inMessageBox = false;

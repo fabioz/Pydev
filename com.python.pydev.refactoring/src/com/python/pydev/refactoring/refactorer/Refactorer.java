@@ -14,6 +14,7 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterManager;
@@ -137,6 +138,10 @@ public class Refactorer extends AbstractPyRefactoring{
                     AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);
             
             ICodeCompletionASTManager manager = request.nature.getAstManager();
+            if (tokensEqualTo.size() > 100){
+            	//too many matches for that...
+            	throw new TooManyMatchesException("Too Many matches ("+tokensEqualTo.size()+") were found for the requested token:"+lookForInterface, tokensEqualTo.size());
+            }
             for (IInfo info : tokensEqualTo) {
                 mod = manager.getModule(info.getDeclaringModuleName(), request.nature, true);
                 if(mod != null){
