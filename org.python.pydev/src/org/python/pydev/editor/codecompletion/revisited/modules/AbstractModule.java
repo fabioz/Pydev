@@ -170,7 +170,16 @@ public abstract class AbstractModule implements IModule {
 	                //This is way too decoupled from the workbench itself so that we
 	                //can have this kind of thing... 
 	                String encoding = PythonPathHelper.getPythonFileEncoding(f);
-	                
+	                if(encoding != null){
+	                	//some common errors...
+	                	if(encoding.trim().equals("latin-1")){
+	                		encoding = "latin1";
+	                	
+	                	}else if(encoding.equals("utf_8")){
+	                		encoding = "utf-8";
+	                	}
+	                	
+	                }
 	                if(encoding != null){
 	                    in = new InputStreamReader(stream, encoding);
 	                }else{

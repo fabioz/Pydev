@@ -607,6 +607,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             copy.setActivationToken(tok);
             copy.setCol(-1);
             copy.setLine(-1);
+            copy.raiseNFindTokensOnImportedModsCalled(mod, tok);
             
             return getCompletionsForModule(mod, copy);
         }

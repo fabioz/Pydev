@@ -65,13 +65,18 @@ public class PyGoToDefinition extends PyRefactorAction {
 
                 HashSet<ItemPointer> set = new HashSet<ItemPointer>();
                 ItemPointer[] defs = findDefinition(pyEdit);
+                if(defs == null){
+                	shell.getDisplay().beep();
+                	return;
+                }
                 for (ItemPointer pointer : defs) {
                     set.add(pointer);
                 }
                 final ItemPointer[] where = set.toArray(new ItemPointer[0]);
     
                 if (where == null) {
-                    return;
+                	shell.getDisplay().beep();
+                	return;
                 }
     
                 if (where.length > 0){

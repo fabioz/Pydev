@@ -58,7 +58,7 @@ public interface IPyRefactoring {
      * @param operation
      * @return
      */
-    public ItemPointer[] findDefinition(RefactoringRequest request);
+    public ItemPointer[] findDefinition(RefactoringRequest request) throws TooManyMatchesException;
     public boolean canFindDefinition();
 
     /**

@@ -471,7 +471,7 @@ public class PythonPathHelper implements Serializable{
                         lEnc = lEnc.substring(1);
                     }
     
-                    ret = buffer.toString();
+                    ret = buffer.toString().trim();
                 }
             }
         } catch (IOException e) {

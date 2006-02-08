@@ -8,6 +8,8 @@ import sys
 import pydevd_resolver
 import traceback
 
+#-------------------------------------------------------------------------- defining true and false for earlier versions
+
 try:
     __setFalse = False
 except:
@@ -15,10 +17,21 @@ except:
     False = 0
     True = 1
 
-class VariableError(Exception):
-    def __init__(self, message):
-        Exception.__init__(self, message)
-        
+#let's see if we can use yield
+try:
+    def yieldStmt():yield(True)
+    yieldStmt()
+    hasYield = True
+except:
+    hasYield = False
+
+#------------------------------------------------------------------------------------------------------ class for errors
+
+class VariableError(RuntimeError):pass
+
+
+#------------------------------------------------------------------------------------------------------ resolvers in map
+
 typeMap = {}
 try:
     #jython does not have this types
@@ -148,14 +161,27 @@ def frameVarsToXML(frame):
             print >>sys.stderr,"unexpected error, recovered safely", str(e)
     return xml
 
-def iterFrames(initialFrame):
-    '''Iterates through all the frames starting at the specified frame (which will be the first returned item)'''
-    while initialFrame is not None:
-        yield initialFrame
-        initialFrame = initialFrame.f_back
+if not hasYield:
+    def iterFrames(initialFrame):
+        '''NO-YIELD VERSION: Iterates through all the frames starting at the specified frame (which will be the first returned item)'''
+        #cannot use yield
+        frames = []
+        
+        while initialFrame is not None:
+            frames.append(initialFrame)
+            initialFrame = initialFrame.f_back
+            
+        return frames
+else:
+    def iterFrames(initialFrame):
+        '''Iterates through all the frames starting at the specified frame (which will be the first returned item)'''
+        #let's use yield
+        while initialFrame is not None:
+            yield (initialFrame)
+            initialFrame = initialFrame.f_back
+            
+        raise StopIteration()
 
-    raise StopIteration()
-    
 def findFrame(thread_id, frame_id):
     """ returns a frame on the thread that has a given frame_id """
     if thread_id != id(threading.currentThread()) : 

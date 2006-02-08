@@ -10,6 +10,20 @@ jython module management (may be handy)
 org.python.core.SysPackageManager
 
 
+after 1.0.1
+
+- debugging for jython (yield)
+
+Extensions:
+
+- too many matches when go to definition could cause it to hang (for a really, really long time).
+- code analysis fixes 
+- Error when opening browser catched
+
+after 1.0
+
+- Single fix: out of memory setting interpreter
+
 after 0.9.8.7
 
 - Minor bug: if there was no other project to reference in the new project wizard, it appeared next even though

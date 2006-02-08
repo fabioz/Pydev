@@ -18,6 +18,8 @@ public interface ICompletionState {
 
     void setBuiltinsGotten(boolean b);
 
+    void raiseNFindTokensOnImportedModsCalled(IModule mod, String tok);
+    
     void setCol(int i);
 
     void setLine(int i);
@@ -37,5 +39,6 @@ public interface ICompletionState {
     boolean getBuiltinsGotten();
 
     void checkMemory(IModule module, String base);
+
 
 }

@@ -26,6 +26,7 @@ public class CompletionState implements ICompletionState {
     public Memo<String> memory = new Memo<String>();
     public Memo<Definition> definitionMemory = new Memo<Definition>();
     public Memo<IModule> wildImportMemory = new Memo<IModule>();
+    public Memo<String> importedModsCalled = new Memo<String>();
     
     public boolean builtinsGotten=false;
     public boolean localImportsGotten=false;
@@ -35,6 +36,7 @@ public class CompletionState implements ICompletionState {
         state.activationToken = activationToken;
         state.line = line;
         state.col = col;
+        state.importedModsCalled = importedModsCalled;
         state.nature = nature;
         
         state.memory = memory;
@@ -54,6 +56,16 @@ public class CompletionState implements ICompletionState {
      */
     static class Memo<E>{
         
+    	private int max;
+
+		public Memo(){
+    		this.max = MAX_NUMBER_OF_OCURRENCES;
+    	}
+    	
+		public Memo(int max){
+    		this.max = max;
+    	}
+    	
         /**
          * if more than this number of ocurrences is found, we are in a recursion
          */
@@ -78,7 +90,7 @@ public class CompletionState implements ICompletionState {
                     Integer numberOfOccurences = val.get(def);
                     
                     //should never be null...
-                    if(numberOfOccurences > MAX_NUMBER_OF_OCURRENCES){
+                    if(numberOfOccurences > max){
                         occuredMoreThanMax = true; //ok, we are recursing...
                     }
                 }
@@ -203,5 +215,12 @@ public class CompletionState implements ICompletionState {
     public boolean getBuiltinsGotten() {
         return builtinsGotten;
     }
+
+	public void raiseNFindTokensOnImportedModsCalled(IModule mod, String tok) {
+		if(this.importedModsCalled.isInRecursion(mod, tok)){
+			System.out.println("found rec");
+			throw new CompletionRecursionException("Possible recursion found (mod: "+mod.getName()+", tok: "+ tok +" ) - stopping analysis.");
+		}
+	}
     
 }
