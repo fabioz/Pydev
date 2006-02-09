@@ -83,6 +83,7 @@ CMD_SET_BREAK = 111
 CMD_REMOVE_BREAK = 112
 CMD_EVALUATE_EXPRESSION = 113
 CMD_GET_FRAME = 114
+CMD_EXEC_EXPRESSION = 115
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -440,16 +441,17 @@ class InternalGetFrame(InternalThreadCommand):
 class InternalEvaluateExpression(InternalThreadCommand):
     """ gets the value of a variable """
 
-    def __init__(self, seq, thread_id, frame_id, expression):
+    def __init__(self, seq, thread_id, frame_id, expression, doExec):
         self.sequence = seq
         self.thread_id = thread_id
         self.frame_id = frame_id
         self.expression = expression
+        self.doExec = doExec
     
     def doIt(self, dbg):
         """ Converts request into python variable """
         try:
-            result = pydevd_vars.evaluateExpression( self.thread_id, self.frame_id, self.expression )
+            result = pydevd_vars.evaluateExpression( self.thread_id, self.frame_id, self.expression, self.doExec )
             xml = "<xml>"
             xml += pydevd_vars.varToXML(result, "")
             xml += "</xml>"

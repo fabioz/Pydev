@@ -23,16 +23,22 @@ public class EvaluateExpressionCommand extends AbstractDebuggerCommand {
 	boolean isError = false;
 	int responseCode;
 	String payload;
+	private boolean doExec;
 
-	public EvaluateExpressionCommand(AbstractRemoteDebugger debugger, String expression, String locator) {
+	
+	public EvaluateExpressionCommand(AbstractRemoteDebugger debugger, String expression, String locator, boolean doExec) {
 		super(debugger);
-		
+		this.doExec = doExec;
 		this.locator = locator;
 		this.expression = expression.replaceAll("\r","").replaceAll("\n","");
 	}
 
 	public String getOutgoing() {
-		return makeCommand(CMD_EVALUATE_EXPRESSION, sequence, locator + "\t" + expression);
+		int cmd = CMD_EVALUATE_EXPRESSION;
+		if(doExec){
+			cmd = CMD_EXEC_EXPRESSION;
+		}
+		return makeCommand(cmd, sequence, locator + "\t" + expression);
 	}
 
 	public boolean needResponse() {
@@ -41,7 +47,7 @@ public class EvaluateExpressionCommand extends AbstractDebuggerCommand {
 
 	public void processOKResponse(int cmdCode, String payload) {
 		responseCode = cmdCode;
-		if (cmdCode == CMD_EVALUATE_EXPRESSION)
+		if (cmdCode == CMD_EVALUATE_EXPRESSION || cmdCode == CMD_EXEC_EXPRESSION)
 			this.payload = payload;
 		else {
 			isError = true;

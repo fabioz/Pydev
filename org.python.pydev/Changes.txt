@@ -19,6 +19,7 @@ Extensions:
 - too many matches when go to definition could cause it to hang (for a really, really long time).
 - code analysis fixes 
 - Error when opening browser catched
+- Debugger: you can use the console when in 'suspendend mode'
 
 after 1.0
 

@@ -76,6 +76,10 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 		return localsLocator;
 	}
 	
+	public IVariableLocator getFrameLocator() {
+		return frameLocator;
+	}
+	
 	public IVariableLocator getGlobalLocator() {
 		return globalsLocator;
 	}

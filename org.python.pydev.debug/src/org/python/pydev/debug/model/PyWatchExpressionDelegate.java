@@ -42,8 +42,7 @@ public class PyWatchExpressionDelegate
 			
 			// send the command, and then busy-wait
 			EvaluateExpressionCommand cmd = new EvaluateExpressionCommand( 
-				dbg, expression,
-				((PyStackFrame)context).getLocalsLocator().getPyDBLocation() );
+				dbg, expression,((PyStackFrame)context).getLocalsLocator().getPyDBLocation(), false );
 			cmd.setCompletionListener(this);
 			dbg.postCommand(cmd);
 			

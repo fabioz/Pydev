@@ -119,6 +119,7 @@ public class PythonRunner {
 		launch.setSourceLocator(new PySourceLocator());
 		debugger.startTransmission(); // this starts reading/writing from sockets
 		t.initialize();
+		t.addConsoleInputListener();
 	}
 
     private static void doIt(PythonRunnerConfig config, IProgressMonitor monitor, String [] envp, String[] cmdLine, File workingDirectory, ILaunch launch) throws CoreException{

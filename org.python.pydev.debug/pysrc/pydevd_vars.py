@@ -240,12 +240,21 @@ def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
     except:
         traceback.print_exc()
     
-def evaluateExpression( thread_id, frame_id, expression ):
-    """returns the result of the evaluated expression"""
+def evaluateExpression( thread_id, frame_id, expression, doExec ):
+    '''returns the result of the evaluated expression
+    @param doExec: determines if we should do an exec or an eval
+    '''
     frame = findFrame(thread_id, frame_id)
-    result = None    
-    try:
-        result = eval( expression, frame.f_globals, frame.f_locals )
-    except Exception, e:
-        result = str( e )
-    return result
+    
+    expression = expression.replace('@LINE@', '\n')
+    if doExec:
+        exec expression in frame.f_globals, frame.f_locals
+        return 
+    
+    else:
+        result = None    
+        try:
+            result = eval( expression, frame.f_globals, frame.f_locals )
+        except Exception, e:
+            result = str( e )
+        return result

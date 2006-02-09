@@ -312,12 +312,12 @@ class PyDB:
                         #Sometimes, when adding a breakpoint, it adds a remove command before (don't really know why)
                         #print >> sys.stderr, "breakpoint not found", file, str(line)
                         
-            elif id == CMD_EVALUATE_EXPRESSION:
+            elif id == CMD_EVALUATE_EXPRESSION or id == CMD_EXEC_EXPRESSION:
                 #command to evaluate the given expression
                 #text is: thread\tstackframe\tLOCAL\texpression
                 thread_id, frame_id, scope, expression = text.split('\t', 3)
                 thread_id = long(thread_id)
-                int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression)
+                int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression, id == CMD_EXEC_EXPRESSION)
                 self.postInternalCommand(int_cmd, thread_id)
                     
                     
