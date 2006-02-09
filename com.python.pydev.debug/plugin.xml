@@ -55,4 +55,8 @@
   </actionSet>
 </extension>
 
+   <extension point="org.python.pydev.debug.pydev_debug_console_input_listener">
+  		<builder_participant class="com.python.pydev.debug.console.EvaluationConsoleInputListener"/>
+   </extension>
+
 </plugin>
