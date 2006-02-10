@@ -237,15 +237,15 @@ class PyDB:
             elif id  == CMD_THREAD_RUN:
                 t = pydevd_findThreadById(text)
                 if t: 
-                    t.additionalInfo.pydev_state = PyDB.STATE_RUN
                     t.additionalInfo.pydev_step_cmd = None
+                    t.additionalInfo.pydev_state = PyDB.STATE_RUN
                     
             elif id == CMD_STEP_INTO or id == CMD_STEP_OVER or id == CMD_STEP_RETURN:
                 #we received some command to make a single step
                 t = pydevd_findThreadById(text)
                 if t:
-                    t.additionalInfo.pydev_state = PyDB.STATE_RUN
                     t.additionalInfo.pydev_step_cmd = id
+                    t.additionalInfo.pydev_state = PyDB.STATE_RUN
                     
                     
             elif id == CMD_GET_VARIABLE:
