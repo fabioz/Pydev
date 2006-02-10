@@ -13,6 +13,7 @@ org.python.core.SysPackageManager
 after 1.0.1
 
 - debugging for jython (yield)
+- code coverage does not report docstrings as not being executed
 
 Extensions:
 
@@ -20,6 +21,7 @@ Extensions:
 - code analysis fixes 
 - Error when opening browser catched
 - Debugger: you can use the console when in 'suspendend mode'
+
 
 after 1.0
 
