@@ -218,7 +218,6 @@ public class CompletionState implements ICompletionState {
 
 	public void raiseNFindTokensOnImportedModsCalled(IModule mod, String tok) {
 		if(this.importedModsCalled.isInRecursion(mod, tok)){
-			System.out.println("found rec");
 			throw new CompletionRecursionException("Possible recursion found (mod: "+mod.getName()+", tok: "+ tok +" ) - stopping analysis.");
 		}
 	}
