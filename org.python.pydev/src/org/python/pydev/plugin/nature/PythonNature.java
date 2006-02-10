@@ -412,7 +412,7 @@ public class PythonNature implements IPythonNature {
 	                }
                 }
             } catch (CoreException e) {
-                PydevPlugin.log(e);
+                PydevPlugin.logInfo(e);
             }
         }
         return null;

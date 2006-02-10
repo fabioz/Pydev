@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -242,7 +243,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 		                try {
 	                        info.modulesManager = (SystemModulesManager) PydevPlugin.readFromPlatformFile(info.getExeAsFileSystemValidPath());
 	                    } catch (Exception e) {
-	                    	PydevPlugin.log(e);
+	                        PydevPlugin.logInfo(e);
 	                    	
 	                    	//if it does not work
 	                    	final Display def = Display.getDefault();

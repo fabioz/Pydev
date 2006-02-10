@@ -1,3 +1,4 @@
+import threading
 import traceback
 import weakref
 from pydevd_comm import *
@@ -52,18 +53,6 @@ class PyDBCtx:
     def __str__(self):
         return 'PyDBCtx [%s %s %s]' % (self.base, self.thread_id, self.frame)
         
-class PyDBCommandThread(PyDBDaemonThread):
-    
-    def __init__(self, pyDb):
-        PyDBDaemonThread.__init__(self)
-        self.pyDb = pyDb
-
-    def run(self):
-        sys.settrace(None) # no debugging on this thread
-        while not self.killReceived:
-            self.pyDb.processInternalCommands()
-            time.sleep(0.1)
-            
 
 class PyDBAdditionalThreadInfo:
     def __init__(self):
@@ -100,6 +89,7 @@ class PyDB:
         self.cmdQueue = {}     # the hash of Queues. Key is thread id, value is thread
         self.breakpoints = {}
         self.readyToRun = False
+        self.lock = threading.Lock()
 
     def initializeNetwork(self, sock):
         try:
@@ -167,7 +157,7 @@ class PyDB:
         return self.cmdQueue[thread_id]
         
     def postInternalCommand(self, int_cmd, thread_id):
-        """ if thread_id is *, post to all """
+        """ if thread_id is *, post to all the threads (key)"""
         if thread_id == "*":
             for k in self.cmdQueue.keys(): 
                 self.cmdQueue[k].put(int_cmd)
@@ -177,170 +167,184 @@ class PyDB:
             queue.put(int_cmd)
 
     def processInternalCommands(self):
-        threads = threading.enumerate()
-        foundNonPyDBDaemonThread = False
-        for t in threads:
-            if not isinstance(t, PyDBDaemonThread):
-                foundNonPyDBDaemonThread = True
-                queue = self.getInternalQueue(id(t))
-                cmdsToReadd = [] #some commands must be processed by the thread itself... if that's the case,
-                                 #we will re-add the commands to the queue after executing.
-                try:
-                    while True:
-                        int_cmd = queue.get(False)
-                        if int_cmd.canBeExecutedBy(id(threading.currentThread())):
-                            pydevd_log(2, "processign internal command " + str(int_cmd))
-                            int_cmd.doIt(self)
-                        else:
-                            pydevd_log(2, "NOT processign internal command " + str(int_cmd))
-                            cmdsToReadd.append(int_cmd)
-                            
-                except PydevQueue.Empty:
-                    for int_cmd in cmdsToReadd:
-                        queue.put(int_cmd)
-                    pass # this is how we exit
-
-        if not foundNonPyDBDaemonThread:
-            #that was not working very well because jython gave some socket errors
-            #for t in threads: 
-            #    t.doKill()
-            time.sleep(0.1)
-            try:
-                import java.lang.System
-                java.lang.System.exit(0)
-            except:
-                sys.exit(0)
-      
-    def processNetCommand(self, id, seq, text):
+        self.lock.acquire()
         try:
-            cmd = None
-            if id == CMD_RUN:
-                self.readyToRun = True
-                
-            elif id == CMD_VERSION: 
-                # response is version number
-                cmd = self.cmdFactory.makeVersionMessage(seq)
-                
-            elif id == CMD_LIST_THREADS: 
-                # response is a list of threads
-                cmd = self.cmdFactory.makeListThreadsMessage(seq)
-                
-            elif id == CMD_THREAD_KILL:
-                int_cmd = InternalTerminateThread(text)
-                self.postInternalCommand(int_cmd, text)
-                
-            elif id == CMD_THREAD_SUSPEND:
-                t = pydevd_findThreadById(text)
-                if t: 
-                    self.setSuspend(t, CMD_THREAD_SUSPEND)
-
-            elif id  == CMD_THREAD_RUN:
-                t = pydevd_findThreadById(text)
-                if t: 
-                    t.additionalInfo.pydev_step_cmd = None
-                    t.additionalInfo.pydev_state = PyDB.STATE_RUN
-                    
-            elif id == CMD_STEP_INTO or id == CMD_STEP_OVER or id == CMD_STEP_RETURN:
-                #we received some command to make a single step
-                t = pydevd_findThreadById(text)
-                if t:
-                    t.additionalInfo.pydev_step_cmd = id
-                    t.additionalInfo.pydev_state = PyDB.STATE_RUN
-                    
-                    
-            elif id == CMD_GET_VARIABLE:
-                #we received some command to get a variable
-                #the text is: thread\tstackframe\tLOCAL|GLOBAL\tattributes*
-                
+            threads = threading.enumerate()
+            foundNonPyDBDaemonThread = False
+            for t in threads:
+                if not isinstance(t, PyDBDaemonThread):
+                    foundNonPyDBDaemonThread = True
+                    queue = self.getInternalQueue(id(t))
+                    cmdsToReadd = [] #some commands must be processed by the thread itself... if that's the case,
+                                     #we will re-add the commands to the queue after executing.
+                    try:
+                        while True:
+                            int_cmd = queue.get(False)
+                            if int_cmd.canBeExecutedBy(id(threading.currentThread())):
+                                pydevd_log(2, "processign internal command " + str(int_cmd))
+                                int_cmd.doIt(self)
+                            else:
+                                pydevd_log(2, "NOT processign internal command " + str(int_cmd))
+                                cmdsToReadd.append(int_cmd)
+                                
+                    except PydevQueue.Empty:
+                        for int_cmd in cmdsToReadd:
+                            queue.put(int_cmd)
+                        pass # this is how we exit
+    
+            if not foundNonPyDBDaemonThread:
+                #that was not working very well because jython gave some socket errors
+                #for t in threads: 
+                #    t.doKill()
+                time.sleep(0.1)
                 try:
-                    thread_id, frame_id, scopeattrs = text.split('\t', 2)
+                    import java.lang.System
+                    java.lang.System.exit(0)
+                except:
+                    sys.exit(0)
+        finally:
+            self.lock.release()
+      
+        
+    def processNetCommand(self, id, seq, text):
+        self.lock.acquire()
+        try:
+            try:
+                cmd = None
+                if id == CMD_RUN:
+                    self.readyToRun = True
+                    
+                elif id == CMD_VERSION: 
+                    # response is version number
+                    cmd = self.cmdFactory.makeVersionMessage(seq)
+                    
+                elif id == CMD_LIST_THREADS: 
+                    # response is a list of threads
+                    cmd = self.cmdFactory.makeListThreadsMessage(seq)
+                    
+                elif id == CMD_THREAD_KILL:
+                    int_cmd = InternalTerminateThread(text)
+                    self.postInternalCommand(int_cmd, text)
+                    
+                elif id == CMD_THREAD_SUSPEND:
+                    t = pydevd_findThreadById(text)
+                    if t: 
+                        self.setSuspend(t, CMD_THREAD_SUSPEND)
+    
+                elif id  == CMD_THREAD_RUN:
+                    t = pydevd_findThreadById(text)
+                    if t: 
+                        t.additionalInfo.pydev_step_cmd = None
+                        t.additionalInfo.pydev_state = PyDB.STATE_RUN
+                        
+                elif id == CMD_STEP_INTO or id == CMD_STEP_OVER or id == CMD_STEP_RETURN:
+                    #we received some command to make a single step
+                    t = pydevd_findThreadById(text)
+                    if t:
+                        t.additionalInfo.pydev_step_cmd = id
+                        t.additionalInfo.pydev_state = PyDB.STATE_RUN
+                        
+                        
+                elif id == CMD_GET_VARIABLE:
+                    #we received some command to get a variable
+                    #the text is: thread\tstackframe\tLOCAL|GLOBAL\tattributes*
+                    
+                    try:
+                        thread_id, frame_id, scopeattrs = text.split('\t', 2)
+                        thread_id = long(thread_id)
+                        
+                        if scopeattrs.find('\t') != -1: # there are attibutes beyond scope
+                            scope, attrs = scopeattrs.split('\t', 1)
+                        else:
+                            scope, attrs = (scopeattrs, None)
+                        
+                        int_cmd = InternalGetVariable(seq, thread_id, frame_id, scope, attrs)
+                        self.postInternalCommand(int_cmd, thread_id)
+                            
+                    except:
+                        traceback.print_exc()
+                        
+                elif id == CMD_GET_FRAME:
+                    thread_id, frame_id, scope = text.split('\t', 2)
                     thread_id = long(thread_id)
                     
-                    if scopeattrs.find('\t') != -1: # there are attibutes beyond scope
-                        scope, attrs = scopeattrs.split('\t', 1)
-                    else:
-                        scope, attrs = (scopeattrs, None)
-                    
-                    int_cmd = InternalGetVariable(seq, thread_id, frame_id, scope, attrs)
+                    int_cmd = InternalGetFrame(seq, thread_id, frame_id)
                     self.postInternalCommand(int_cmd, thread_id)
                         
-                except:
-                    traceback.print_exc()
+                elif id == CMD_SET_BREAK:
+                    #command to add some breakpoint.
+                    # text is file\tline. Add to breakpoints dictionary
+                    file, line, condition = text.split( '\t', 2 )
+                    file = NormFile( file )
                     
-            elif id == CMD_GET_FRAME:
-                thread_id, frame_id, scope = text.split('\t', 2)
-                thread_id = long(thread_id)
-                
-                int_cmd = InternalGetFrame(seq, thread_id, frame_id)
-                self.postInternalCommand(int_cmd, thread_id)
-                    
-            elif id == CMD_SET_BREAK:
-                #command to add some breakpoint.
-                # text is file\tline. Add to breakpoints dictionary
-                file, line, condition = text.split( '\t', 2 )
-                file = NormFile( file )
-                
-                line = int( line )
-                if self.breakpoints.has_key( file ):
-                    breakDict = self.breakpoints[file]
-                else:
-                    breakDict = {}
-
-                if len(condition) <= 0 or condition == None or "None" == condition:
-                    breakDict[line] = (True, None)
-                else:
-                    breakDict[line] = (True, condition)
-                    
-                self.breakpoints[file] = breakDict
-                PyDBCtx_SetTraceForAllFileCtxs(file)
-                
-            elif id == CMD_REMOVE_BREAK:
-                #command to remove some breakpoint
-                #text is file\tline. Remove from breakpoints dictionary
-                file, line = text.split('\t', 1)
-                file = NormFile(file)
-                line = int(line)
-                
-                if self.breakpoints.has_key(file):
-                    if self.breakpoints[file].has_key(line):
-                        del self.breakpoints[file][line]
-                        keys = self.breakpoints[file].keys()
-                        if len(keys) is 0:
-                            del self.breakpoints[file]
+                    line = int( line )
+                    if self.breakpoints.has_key( file ):
+                        breakDict = self.breakpoints[file]
                     else:
-                        pass
-                        #Sometimes, when adding a breakpoint, it adds a remove command before (don't really know why)
-                        #print >> sys.stderr, "breakpoint not found", file, str(line)
+                        breakDict = {}
+    
+                    if len(condition) <= 0 or condition == None or "None" == condition:
+                        breakDict[line] = (True, None)
+                    else:
+                        breakDict[line] = (True, condition)
                         
-            elif id == CMD_EVALUATE_EXPRESSION or id == CMD_EXEC_EXPRESSION:
-                #command to evaluate the given expression
-                #text is: thread\tstackframe\tLOCAL\texpression
-                thread_id, frame_id, scope, expression = text.split('\t', 3)
-                thread_id = long(thread_id)
-                int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression, id == CMD_EXEC_EXPRESSION)
-                self.postInternalCommand(int_cmd, thread_id)
+                    self.breakpoints[file] = breakDict
+                    PyDBCtx_SetTraceForAllFileCtxs(file)
                     
+                elif id == CMD_REMOVE_BREAK:
+                    #command to remove some breakpoint
+                    #text is file\tline. Remove from breakpoints dictionary
+                    file, line = text.split('\t', 1)
+                    file = NormFile(file)
+                    line = int(line)
                     
-            else:
-                #I have no idea what this is all about
-                cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(id))
-                
-            if cmd: 
+                    if self.breakpoints.has_key(file):
+                        if self.breakpoints[file].has_key(line):
+                            del self.breakpoints[file][line]
+                            keys = self.breakpoints[file].keys()
+                            if len(keys) is 0:
+                                del self.breakpoints[file]
+                        else:
+                            pass
+                            #Sometimes, when adding a breakpoint, it adds a remove command before (don't really know why)
+                            #print >> sys.stderr, "breakpoint not found", file, str(line)
+                            
+                elif id == CMD_EVALUATE_EXPRESSION or id == CMD_EXEC_EXPRESSION:
+                    #command to evaluate the given expression
+                    #text is: thread\tstackframe\tLOCAL\texpression
+                    thread_id, frame_id, scope, expression = text.split('\t', 3)
+                    thread_id = long(thread_id)
+                    int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression, id == CMD_EXEC_EXPRESSION)
+                    self.postInternalCommand(int_cmd, thread_id)
+                        
+                        
+                else:
+                    #I have no idea what this is all about
+                    cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(id))
+                    
+                if cmd: 
+                    self.writer.addCommand(cmd)
+                    
+            except Exception, e:
+                traceback.print_exc(e)
+                cmd = self.cmdFactory.makeErrorMessage(seq, "Unexpected exception in processNetCommand: %s\nInitial params: %s" % (str(e), (id, seq, text)))
                 self.writer.addCommand(cmd)
-                
-        except Exception, e:
-            traceback.print_exc(e)
-            cmd = self.cmdFactory.makeErrorMessage(seq, "Unexpected exception in processNetCommand: %s\nInitial params: %s" % (str(e), (id, seq, text)))
-            self.writer.addCommand(cmd)
+        finally:
+            self.lock.release()
 
     def processThreadNotAlive(self, thread):
         """ if thread is not alive, cancel trace_dispatch processing """
-        wasNotified = thread.additionalInfo.pydev_notify_kill
-            
-        if not wasNotified:
-            cmd = self.cmdFactory.makeThreadKilledMessage(id(thread))
-            self.writer.addCommand(cmd)
-            thread.additionalInfo.pydev_notify_kill = True
+        self.lock.acquire()
+        try:
+            wasNotified = thread.additionalInfo.pydev_notify_kill
+                
+            if not wasNotified:
+                cmd = self.cmdFactory.makeThreadKilledMessage(id(thread))
+                self.writer.addCommand(cmd)
+                thread.additionalInfo.pydev_notify_kill = True
+        finally:
+            self.lock.release()
+
 
     def setSuspend(self, thread, stop_reason):
         thread.additionalInfo.pydev_state = PyDB.STATE_SUSPEND
@@ -643,7 +647,6 @@ def settrace(host='localhost'):
         debugger.setSuspend(t, CMD_SET_BREAK)
         
         sys.settrace(debugger.trace_dispatch)
-        PyDBCommandThread(debugger).start()
     
 if __name__ == '__main__':
     print >>sys.stderr, "pydev debugger"
@@ -664,5 +667,4 @@ if __name__ == '__main__':
     debugger = PyDB()
     debugger.connect(setup['client'], setup['port'])
     debugger.run(setup['file'], None, None)
-    PyDBCommandThread(debugger).start()
     

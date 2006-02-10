@@ -255,7 +255,11 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     public static void log(String message, Throwable e, boolean printToConsole) {
         log(IStatus.ERROR, message, e, printToConsole);
     }
-    
+
+    public static void logInfo(Exception e) {
+        log(IStatus.INFO, e.getMessage(), e, false);
+	}
+
     /**
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
      */
