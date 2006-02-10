@@ -345,7 +345,9 @@ class coverage:
         import token
         while token.ISNONTERMINAL(tree[0]):
             tree = tree[1]
-        dict[tree[2]] = 1
+            
+        if tree[0] != token.STRING: # ignore doc strings
+            dict[tree[2]] = 1
 
     # format_lines(statements, lines).  Format a list of line numbers
     # for printing by coalescing groups of lines as long as the lines
@@ -648,4 +650,4 @@ if __name__ == '__main__':
 #
 #
 #
-# $Id: coverage.py,v 1.6 2006-01-26 23:38:07 fabioz Exp $
+# $Id: coverage.py,v 1.7 2006-02-10 12:04:18 fabioz Exp $
