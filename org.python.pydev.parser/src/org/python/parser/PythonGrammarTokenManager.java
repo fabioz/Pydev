@@ -41,7 +41,7 @@ public class PythonGrammarTokenManager implements PythonGrammarConstants
         return t;
     }
 
-    void addSpecialToken(Token t){
+    void addSpecialToken(Object t){
         specialTokens.add(t);
     }
 

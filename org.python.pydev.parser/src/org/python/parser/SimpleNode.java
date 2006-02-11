@@ -17,8 +17,12 @@ public class SimpleNode implements Node {
      * each node may have a number of associated comments, altought they are not in the visiting structure by default
      * (it appears separately from that in this attribute, so, when doing a traverse in some node, the comments
      * will NOT be added in the visitor by default, as in the grammar it is not associated).
+     * 
+     * If they are not of commentType, they should be strings, with things such as colons, parenthesis, etc, to help
+     * in the process of pretty-printing the ast.
      */
-    public List<commentType> comments = new ArrayList<commentType>();
+    public List<Object> specialsBefore = new ArrayList<Object>();
+    public List<Object> specialsAfter  = new ArrayList<Object>();
 
     public SimpleNode() { }
 
@@ -38,14 +42,45 @@ public class SimpleNode implements Node {
     }
 
     /**
-     * @param special The 'special token' added (comment)
+     * @param special The 'special token' added (comment or some literal)
      * @param after defines if it was found before or after the token
      */
-    public void addSpecial(Token special, boolean after) {
+    public void addSpecial(Object special, boolean after) {
         if(special != null){
-            special.image = special.image.trim();
-//            System.out.println("Adding:"+special+" after:"+after+" to:"+this);
+            if(special instanceof Token){
+                Token t = (Token) special;
+                commentType comment = new commentType(t.image.trim());
+                comment.beginColumn = t.beginColumn;
+                comment.beginLine = t.beginLine;
+                special = comment;
+            }
+            
+            if(after){
+                if(special instanceof commentType){
+                    specialsAfter.add(special);
+                }else{
+                    specialsAfter.add(countStrings(), special);
+                }
+            }else{
+                specialsBefore.add(special);
+            }
+//            if(this instanceof DefaultArg){
+//                DefaultArg a = (DefaultArg) this;
+//                System.out.println("Adding:"+special+" after:"+after+" to:"+a.parameter);
+//            }else{
+//                System.out.println("Adding:"+special+" after:"+after+" to:"+this);
+//            }
         }
+    }
+
+    private int countStrings() {
+        int i=0;
+        for(Object o : specialsAfter){
+            if (o instanceof String){
+                i++;
+            }
+        }
+        return i;
     }
 
     /* You can override these two methods in subclasses of SimpleNode to

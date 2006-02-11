@@ -98,12 +98,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         return exprs;
     }
 
-    private exprType makeExpr(SimpleNode node) {
-        return (exprType) node;
-    }
-
     private exprType makeExpr() {
-        return makeExpr((SimpleNode) stack.popNode());
+        return (exprType) stack.popNode();
     }
 
     private String makeIdentifier() {
@@ -115,6 +111,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         NameTok n = new NameTok(name.id, ctx);
         n.beginColumn = name.beginColumn;
         n.beginLine = name.beginLine;
+        n.specialsBefore = name.specialsBefore;
+        n.specialsAfter = name.specialsAfter;
         return n;
     }
     
@@ -305,7 +303,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                             })
                         };
                 }else{
-                    args[i] = makeExpr(tmparr[i]);
+                    args[i] = (exprType) tmparr[i];
                 }
             }
 
@@ -519,7 +517,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 if (arr[j].getId() == JJTCOLON)
                     k++;
                 else
-                    values[k] = makeExpr(arr[j]);
+                    values[k] = (exprType) arr[j];
             }
             if (k == 0) {
                 return new Index(values[0]);
@@ -734,7 +732,16 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         int startofdefaults = 0;
         for(int i = 0 ; i< def.length; i++){
             DefaultArg node = def[i];
-            fpargs[i] = node.parameter;
+            exprType parameter = node.parameter;
+            fpargs[i] = parameter;
+//            node.specialsBefore.addAll(parameter.specialsBefore);
+//            node.specialsAfter.addAll(parameter.specialsAfter);
+//            parameter.specialsAfter = node.specialsAfter;
+//            parameter.specialsBefore = node.specialsBefore;
+
+            parameter.specialsBefore.addAll(node.specialsBefore);
+            parameter.specialsAfter.addAll(node.specialsAfter);
+            
             ctx.setStore(fpargs[i]);
             defaults[i] = node.value;
             if (node.value != null){
