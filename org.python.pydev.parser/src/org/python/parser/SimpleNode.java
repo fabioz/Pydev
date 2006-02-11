@@ -1,14 +1,24 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.parser;
 
-import org.python.parser.ast.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.python.parser.ast.VisitorIF;
+import org.python.parser.ast.commentType;
 
 public class SimpleNode implements Node {
+    
     public int beginLine, beginColumn;
-
-    public boolean from_future_checked = false; // from __future__ support
+    
+    /**
+     * each node may have a number of associated comments, altought they are not in the visiting structure by default
+     * (it appears separately from that in this attribute, so, when doing a traverse in some node, the comments
+     * will NOT be added in the visitor by default, as in the grammar it is not associated).
+     */
+    public List<commentType> comments = new ArrayList<commentType>();
 
     public SimpleNode() { }
 
@@ -25,6 +35,17 @@ public class SimpleNode implements Node {
     }
 
     public void setImage(Object image) {
+    }
+
+    /**
+     * @param special The 'special token' added (comment)
+     * @param after defines if it was found before or after the token
+     */
+    public void addSpecial(Token special, boolean after) {
+        if(special != null){
+            special.image = special.image.trim();
+//            System.out.println("Adding:"+special+" after:"+after+" to:"+this);
+        }
     }
 
     /* You can override these two methods in subclasses of SimpleNode to

@@ -110,4 +110,5 @@ module Python
 	--it works basically equal to the call.
 	decorators = (expr func, expr* args, keyword* keywords, expr? starargs, expr? kwargs)
 
+	comment = (identifier id)
 }

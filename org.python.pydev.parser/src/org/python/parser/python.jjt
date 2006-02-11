@@ -9,7 +9,7 @@ options
     NODE_USES_PARSER      = true;
     STATIC                = false;  // multiple parsers
     COMMON_TOKEN_ACTION   = true;   // CommonTokenAction(Token)
-
+    OPTIMIZE_TOKEN_MANAGER=true;
     DEBUG_PARSER          = false;  // must be used to enable tracing 
     DEBUG_TOKEN_MANAGER   = false;  // used to debug the tokens we have generating 
 
@@ -23,11 +23,16 @@ options
 PARSER_BEGIN(PythonGrammar)
 package org.python.parser;
 import org.python.parser.ast.modType;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class PythonGrammar
 {
-    public IParserHost hostLiteralMkr;
 
+    public IParserHost hostLiteralMkr;
+    private SimpleNode prev;
+    
     void jjtreeOpenNodeScope(Node n) {
         Token t = getToken(1);
         jjtree.pushNodePos(t.beginLine, t.beginColumn);
@@ -35,7 +40,25 @@ public class PythonGrammar
 
     void jjtreeCloseNodeScope(Node n) {
         jjtree.setNodePos();
+        List specialTokens = token_source.specialTokens;
+        //System.out.println("closing scope "+n);
+        boolean after = true;
+        if(n instanceof SimpleNode){
+            if(specialTokens.size() > 0){
+                if(prev == null){
+                    after = false;
+                    prev = (SimpleNode) jjtree.peekNode();
+                }
+                for (Iterator iter = specialTokens.iterator(); iter.hasNext();) {
+                    Token element = (Token) iter.next();
+                    prev.addSpecial(element, after);
+                }
+                specialTokens.clear();
+            }
+            prev = (SimpleNode) jjtree.peekNode();
+        }
     }
+
 
     Object makeInt(String s, int radix) {
         if (s.endsWith("L") || s.endsWith("l")) {
@@ -193,6 +216,8 @@ TOKEN_MGR_DECLS:
 
     public boolean single_input = false;
 
+    public List specialTokens = new ArrayList();
+
     // parsing of partial sentence (interactive) mode
     public boolean partial = false;
     // control whether empty new lines on EOF force sentence closing NEWLINE even if indent
@@ -212,6 +237,10 @@ TOKEN_MGR_DECLS:
         previous.next = t;
         return t;
     }
+    
+    void addSpecialToken(Token t){
+    	specialTokens.add(t);
+    }
 
     void CommonTokenAction(Token t) {
         /*
@@ -220,7 +249,14 @@ TOKEN_MGR_DECLS:
                otherwise      : [NEWLINE] necessary DEDENT EOF
            if partial: EOF expansion happens only if EOF preceded by empty line (etc),
            i.e. lexer is in MAYBE_FORCE_NEWLINE_IF_EOF state
+
+        System.out.println("Token:'"+t+"'");
+        System.out.println("Special:'"+t.specialToken+"'");
         */
+        if(t.specialToken != null){
+        	this.addSpecialToken(t.specialToken);
+        }
+		
         if (t.kind == EOF) {
             // System.out.println("EOF: "+single_input+", "+curLexState+", "+level);
             if (!partial || curLexState == MAYBE_FORCE_NEWLINE_IF_EOF) {
@@ -359,18 +395,22 @@ SKIP :
 }
 
 
-<DEFAULT> SPECIAL_TOKEN: /* COMMENTS */
+<DEFAULT> SPECIAL_TOKEN: /* COMMENTS 1*/
 {
-    <TRAILING_COMMENT: "#" (~["\n","\r"])* >
-}
-
-<INDENTING, INDENTATION_UNCHANGED> SPECIAL_TOKEN: /* COMMENTS */
-{
-    <SINGLE_LINE_COMMENT: "#" (~["\n","\r"])* ("\r\n" | "\n" | "\r")> {
-        indenting(0);
+    <TRAILING_COMMENT: "#" (~["\n","\r"])* >{
+//    System.out.println("TRAILING_COMMENT "+image);
+//    matchedToken.image = image.toString();
     }
 }
 
+<INDENTING, INDENTATION_UNCHANGED> SPECIAL_TOKEN: /* COMMENTS 2*/
+{
+    <SINGLE_LINE_COMMENT: "#" (~["\n","\r"])* ("\r\n" | "\n" | "\r")> {
+//    System.out.println("SINGLE_LINE_COMMENT "+image);
+//    matchedToken.image = image.toString();
+        indenting(0);
+    }
+}
 
 TOKEN : /* SEPARATORS */
 {
@@ -485,14 +525,6 @@ TOKEN : /* Numeric literals */
 |   < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
 |   < #DIGIT: ["0" - "9"] >
 }
-
-/*TOKEN : { <STRING: (["r", "R"])? ["'", "\"", "'''", "\"\"\""] >
-    {
-        int nquotes = matchedToken.image.length() > 2 ? 3 : 1;
-        char quote = matchedToken.image.charAt(matchedToken.image.length()-1);
-
-    }
-}*/
 
 
 MORE : /* Strings */
