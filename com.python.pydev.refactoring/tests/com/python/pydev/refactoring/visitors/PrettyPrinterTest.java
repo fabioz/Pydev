@@ -51,7 +51,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         String s = "#comment00\n" +
         "class Class1:#comment0\n" +
         "    #comment1\n" +
-        "    def met1(self,a):#comment2\n\n" +
+        "    def met1(self,a):#comment2\n" +
         "        pass#comment3\n" +
         "\n";
         SimpleNode node = parseLegalDocStr(s);

@@ -5,9 +5,9 @@ package com.python.pydev.refactoring.visitors;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Stack;
 
 import org.python.parser.SimpleNode;
-import org.python.parser.ast.NameTok;
 import org.python.parser.ast.commentType;
 
 /**
@@ -15,9 +15,14 @@ import org.python.parser.ast.commentType;
  */
 public class AuxSpecials {
 
+    public static class AuxState{
+        boolean writtenComment;
+    }
+    
     private WriteState state;
     private Writer writer;
     private PrettyPrinterPrefs prefs;
+    private Stack<AuxState> auxState = new Stack<AuxState>();
 
     public AuxSpecials(WriteState state, Writer writer, PrettyPrinterPrefs prefs) {
         this.state = state;
@@ -31,11 +36,18 @@ public class AuxSpecials {
             if(c instanceof commentType){
                 writer.write(((commentType)c).id);
                 state.writeNewLine();
+                setStateWritten();
             }else if(c instanceof String){
                 writer.write((String)c);
             }else{
                 throw new RuntimeException("Unexpected special: "+node);
             }
+        }
+    }
+
+    private void setStateWritten() {
+        if(auxState.size() > 0){
+            auxState.peek().writtenComment = true;
         }
     }
 
@@ -48,6 +60,7 @@ public class AuxSpecials {
                 }
                 writer.write(((commentType)o).id);
                 state.writeNewLine();
+                setStateWritten();
             }else if(o instanceof String){
                 writer.write((String)o);
             }else{
@@ -56,20 +69,16 @@ public class AuxSpecials {
         }
     }
 
-    public boolean writeStringsAfter(SimpleNode node) throws IOException {
-        boolean written = false;
+    public void writeStringsAfter(SimpleNode node) throws IOException {
         for (Object o : node.specialsAfter){
             if(o instanceof String){
                 writer.write((String)o);
-                written = true;
             }
         }
-        return written;
     }
 
     
-    public boolean writeCommentsAfter(SimpleNode node) throws IOException {
-        boolean written = false;
+    public void writeCommentsAfter(SimpleNode node) throws IOException {
         for (Object o : node.specialsAfter){
             if(o instanceof commentType){
                 commentType c = (commentType) o;
@@ -78,10 +87,22 @@ public class AuxSpecials {
                 }
                 writer.write(((commentType)o).id);
                 state.writeNewLine();
-                written = true;
+                setStateWritten();
             }
         }
-        return written;
     }
+
+    public AuxState startRecord() {
+        return auxState.push(new AuxState());
+    }
+
+    public AuxState endRecord() {
+        return auxState.pop();
+    }
+
+    public boolean wasNewLineWritten() {
+        return auxState.peek().writtenComment;
+    }
+
     
 }

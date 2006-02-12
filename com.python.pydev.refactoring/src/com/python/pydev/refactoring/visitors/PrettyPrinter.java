@@ -47,8 +47,9 @@ public class PrettyPrinter extends VisitorBase{
         auxComment.writeStringsAfter(name);
         state.indent();
         {
-            boolean written = auxComment.writeCommentsAfter(name);
-            if(!written){
+            auxComment.startRecord();
+            auxComment.writeCommentsAfter(name);
+            if(!auxComment.wasNewLineWritten()){
                 state.writeNewLine();
             }
             for(SimpleNode n: node.body){
@@ -97,19 +98,19 @@ public class PrettyPrinter extends VisitorBase{
     }
     
     private boolean makeArgs(exprType[] args) throws Exception {
-        boolean writtenNewLine = false;
         exprType prev = null;
+        boolean written = false;
         for (exprType type : args) {
-            writtenNewLine = false;
+            auxComment.startRecord();
             if(prev != null && prev.specialsAfter.size() > 1){
                 //has some comment (not only ',')
                 state.writeIndent(1);
-                writtenNewLine = true;
             }
             type.accept(this);
             prev = type;
+            written = auxComment.endRecord().writtenComment;
         }
-        return writtenNewLine;
+        return written;
     }
 
     @Override
@@ -127,7 +128,7 @@ public class PrettyPrinter extends VisitorBase{
         auxComment.writeSpecialsBefore(node);
         writer.write(node.id);
         auxComment.writeStringsAfter(node);
-        System.out.println("written:"+auxComment.writeCommentsAfter(node));
+        auxComment.writeCommentsAfter(node);
         return null;
     }
     
