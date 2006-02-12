@@ -18,7 +18,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-//            test.testComments1();
+            test.testComments1();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -30,9 +30,8 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testNoComments() throws Exception {
         String s = ""+
         "class Class1:\n" +
-        "    \n" +
         "    def met1(self,a):\n" +
-        "        pass\n\n";
+        "        pass\n";
         SimpleNode node = parseLegalDocStr(s);
         Module m = (Module) node;
         
@@ -52,8 +51,9 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         String s = "#comment00\n" +
         "class Class1:#comment0\n" +
         "    #comment1\n" +
-        "    def met1(self,a):#comment2\n" +
-        "        pass#comment3\n\n";
+        "    def met1(self,a):#comment2\n\n" +
+        "        pass#comment3\n" +
+        "\n";
         SimpleNode node = parseLegalDocStr(s);
         Module m = (Module) node;
 

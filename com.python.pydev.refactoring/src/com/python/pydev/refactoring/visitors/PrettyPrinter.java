@@ -12,7 +12,6 @@ import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Pass;
 import org.python.parser.ast.VisitorBase;
-import org.python.parser.ast.argumentsType;
 import org.python.parser.ast.exprType;
 
 public class PrettyPrinter extends VisitorBase{
@@ -77,8 +76,13 @@ public class PrettyPrinter extends VisitorBase{
         writer.write("(");
 
         //arguments
-        makeArgs(node.args.args);
+        boolean writtenNewLine = makeArgs(node.args.args);
         //end arguments
+        
+        if(!writtenNewLine){
+            state.writeNewLine();
+        }
+        
         state.indent();
         {
             for(SimpleNode n: node.body){
@@ -92,17 +96,20 @@ public class PrettyPrinter extends VisitorBase{
         return null;
     }
     
-    private void makeArgs(exprType[] args) throws Exception {
+    private boolean makeArgs(exprType[] args) throws Exception {
         boolean writtenNewLine = false;
         exprType prev = null;
         for (exprType type : args) {
+            writtenNewLine = false;
             if(prev != null && prev.specialsAfter.size() > 1){
                 //has some comment (not only ',')
                 state.writeIndent(1);
+                writtenNewLine = true;
             }
             type.accept(this);
             prev = type;
         }
+        return writtenNewLine;
     }
 
     @Override
