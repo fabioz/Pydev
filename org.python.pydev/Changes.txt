@@ -14,6 +14,7 @@ after 1.0.1
 
 - debugging for jython (yield)
 - code coverage does not report docstrings as not being executed
+- freezing the debugger fix (this could happen due to some threading problems).
 
 Extensions:
 
