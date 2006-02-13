@@ -19,7 +19,7 @@ import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
 public final class ShowOutlineTreeContentProvider implements ITreeContentProvider {
     
     private DefinitionsASTIteratorVisitor visitor;
-    private Map cache = new HashMap();
+    private Map<Object, ASTEntry[]> cache = new HashMap<Object, ASTEntry[]>();
 
     public Object[] getChildren(Object element) {
         Object[] ret = (Object[]) cache.get(element);

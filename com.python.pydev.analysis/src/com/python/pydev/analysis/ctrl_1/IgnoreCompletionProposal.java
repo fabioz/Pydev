@@ -10,7 +10,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
-import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class IgnoreCompletionProposal extends PyCompletionProposal {

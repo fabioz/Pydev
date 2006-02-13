@@ -10,7 +10,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
@@ -35,24 +34,6 @@ import com.python.pydev.PydevPlugin;
 
 
 public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
-	
-	
-	//--------------------------------------------------------------------------------------------------------
-	private class GetInfoButtonListener implements SelectionListener{
-
-		public void widgetSelected(SelectionEvent e) {
-            //ok, let's ask the user about its info and send it to the e-mail
-            Dialog dialog = new GetInfoDialog(getShell());
-            dialog.setBlockOnOpen(true);
-            dialog.open();
-		}
-
-		public void widgetDefaultSelected(SelectionEvent e) {
-		}
-		
-	}
-
-	
 	
 	
 	//--------------------------------------------------------------------------------------------------------
