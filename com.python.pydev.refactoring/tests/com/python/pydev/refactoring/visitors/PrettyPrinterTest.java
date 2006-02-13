@@ -19,7 +19,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testComments1();
+            test.testIfElse();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -66,7 +66,74 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "        pass\n";
         checkPrettyPrintEqual(s);
     }
+    
+    public void testIfElse() throws Exception {
+        String s = ""+
+        "if a:\n"+
+        "    a = 1\n"+
+        "elif b:\n"+
+        "    b = 2\n"+
+        "elif c:\n"+
+        "    c = 3\n"+
+        "else:\n"+
+        "    d = 4\n";
+        checkPrettyPrintEqual(s);
+    }
 
+    public void testPlus() throws Exception {
+        String s = ""+
+        "a = 1 + 1\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testMinus() throws Exception {
+        String s = ""+
+        "a = 1 - 1\n";
+        checkPrettyPrintEqual(s);
+    }
+
+    public void testPow() throws Exception {
+        String s = ""+
+        "a = 1 ** 1\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testLShift() throws Exception {
+        String s = ""+
+        "a = 1 << 1\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testRShift() throws Exception {
+        String s = ""+
+        "a = 1 >> 1\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testBitOr() throws Exception {
+        String s = ""+
+        "a = 1 | 1\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testBitXOr() throws Exception {
+        String s = ""+
+        "a = 1 ^ 1\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testBitAnd() throws Exception {
+        String s = ""+
+        "a = 1 & 1\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testFloorDiv() throws Exception {
+        String s = ""+
+        "a = 1 // 1\n";
+        checkPrettyPrintEqual(s);
+    }
+    
     public void testNoComments2() throws Exception {
         prefs.setSpacesAfterComma(1);
         String s = ""+
