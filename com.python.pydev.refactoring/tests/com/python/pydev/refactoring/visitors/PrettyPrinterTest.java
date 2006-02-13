@@ -3,9 +3,7 @@
  */
 package com.python.pydev.refactoring.visitors;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.StringWriter;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Module;
@@ -19,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testIfElse();
+            test.testIfElse3();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -46,11 +44,9 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         SimpleNode node = parseLegalDocStr(s);
         Module m = (Module) node;
         
-        StringWriter stringWriter = new StringWriter();
-        BufferedWriter bufferedWriter = new BufferedWriter(stringWriter);
-        PrettyPrinter printer = new PrettyPrinter(prefs, bufferedWriter);
+        final WriterEraser stringWriter = new WriterEraser();
+		PrettyPrinter printer = new PrettyPrinter(prefs, stringWriter);
         m.accept(printer);
-        bufferedWriter.flush();
         if(DEBUG){
             System.out.println("\n\nResult:\n");
             System.out.println("'"+stringWriter.getBuffer().toString()+"'");
@@ -67,6 +63,19 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         checkPrettyPrintEqual(s);
     }
     
+    public void testDocStrings() throws Exception {
+    	String s = ""+
+    	"class Class1:\n" +
+    	"    '''docstring1'''\n" +
+    	"    a = '''str1'''\n" +
+    	"    def met1(self,a):\n" +
+    	"        '''docstring2\n" +
+    	"        foo\n" +
+    	"        '''\n" +
+    	"        pass\n";
+    	checkPrettyPrintEqual(s);
+    }
+    
     public void testIfElse() throws Exception {
         String s = ""+
         "if a:\n"+
@@ -79,6 +88,33 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "    d = 4\n";
         checkPrettyPrintEqual(s);
     }
+    public void testIfElse2() throws Exception {
+    	String s = ""+
+    	"if a:\n"+
+    	"    a = 1#comment1\n"+
+    	"elif b:\n"+
+    	"    b = 2#comment2\n"+
+    	"elif c:\n"+
+    	"    c = 3#comment3\n"+
+    	"else:\n"+
+    	"    d = 4#comment4\n";
+    	checkPrettyPrintEqual(s);
+    }
+    
+    public void testIfElse3() throws Exception {
+    	String s = "#commentbefore\n"+
+    	"if a:#commentIf\n"+
+    	"    a = 1\n"+
+    	"elif b:#commentElif\n"+
+    	"    b = 2\n"+
+    	"elif c:\n"+
+    	"    c = 3\n"+
+    	"else:#commentElse\n"+
+    	"    d = 4\n" +
+    	"outOfIf = True\n";
+    	checkPrettyPrintEqual(s);
+    }
+    
 
     public void testPlus() throws Exception {
         String s = ""+
@@ -161,7 +197,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "    #comment1\n" +
         "    def met1(self,a):#comment2\n" +
         "        pass#comment3\n" +
-        "\n";
+        "        \n";
         checkPrettyPrintEqual(s);
     }
     

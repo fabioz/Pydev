@@ -3,8 +3,6 @@
  */
 package com.python.pydev.refactoring.visitors;
 
-import java.io.Writer;
-
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Assign;
 import org.python.parser.ast.BinOp;
@@ -15,6 +13,7 @@ import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Pass;
+import org.python.parser.ast.Str;
 import org.python.parser.ast.UnaryOp;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.exprType;
@@ -22,11 +21,11 @@ import org.python.parser.ast.exprType;
 public class PrettyPrinter extends VisitorBase{
 
     protected PrettyPrinterPrefs prefs;
-    private Writer writer;
+    private IWriterEraser writer;
     private WriteState state;
     private AuxSpecials auxComment;
 
-    public PrettyPrinter(PrettyPrinterPrefs prefs, Writer writer){
+    public PrettyPrinter(PrettyPrinterPrefs prefs, IWriterEraser writer){
         this.prefs = prefs;
         this.writer = writer;
         state = new WriteState(writer, prefs);
@@ -35,6 +34,7 @@ public class PrettyPrinter extends VisitorBase{
     
     @Override
     public Object visitAssign(Assign node) throws Exception {
+    	state.pushInStmt(node);
         auxComment.writeSpecialsBefore(node);
         for (SimpleNode target : node.targets) {
             target.accept(this);
@@ -46,7 +46,9 @@ public class PrettyPrinter extends VisitorBase{
         
         if(!auxComment.endRecord().writtenComment){
             state.writeNewLine();
+            state.writeIndent();
         }
+        state.popInStmt();
         return null;
     }
     
@@ -96,23 +98,34 @@ public class PrettyPrinter extends VisitorBase{
     @Override
     public Object visitIf(If node) throws Exception {
         auxComment.writeSpecialsBefore(node);
+        auxComment.startRecord();
         node.test.accept(this);
         state.indent();
-        state.writeNewLine();
-        state.writeIndent();
+        boolean writtenComment = auxComment.endRecord().writtenComment;
+		if(!writtenComment){
+        	state.writeNewLine();
+        }
+		state.writeIndent();
         for (SimpleNode n : node.body){
             auxComment.writeSpecialsBefore(n);
             n.accept(this);
             auxComment.writeSpecialsAfter(n);
         }
+        state.eraseIndent();
         state.dedent();
         
         
         if(node.orelse != null && node.orelse.length > 0){
+        	boolean inElse = false;
+        	auxComment.startRecord();
             auxComment.writeSpecialsAfter(node);
             if(node.specialsAfter.contains("else:")){
+            	inElse = true;
                 state.indent();
-                state.writeNewLine();
+                writtenComment = auxComment.endRecord().writtenComment;
+                if(!writtenComment){
+                	state.writeNewLine();
+                }
                 state.writeIndent();
             }
             for (SimpleNode n : node.orelse) {
@@ -120,9 +133,27 @@ public class PrettyPrinter extends VisitorBase{
                 n.accept(this);
 //                auxComment.writeSpecialsAfter(n); // same as the initial
             }
+            if(inElse){
+            	state.eraseIndent();
+            	state.dedent();
+            }
         }
         
         return null;
+    }
+    
+    @Override
+    public Object visitStr(Str node) throws Exception {
+    	auxComment.writeSpecialsBefore(node);
+    	writer.write("'''");
+    	writer.write(node.s);
+    	writer.write("'''");
+    	if(!state.inStmt()){
+	    	state.writeNewLine();
+	    	state.writeIndent();
+    	}
+    	auxComment.writeSpecialsAfter(node);
+    	return null;
     }
 
     @Override
@@ -139,7 +170,7 @@ public class PrettyPrinter extends VisitorBase{
         //we want the comments to be indented too
         state.indent();
         {
-            auxComment.writeSpecialsAfter(name);
+        	auxComment.writeSpecialsAfter(name);
     
             if(node.bases.length > 0){
                 writer.write("(");
@@ -149,6 +180,7 @@ public class PrettyPrinter extends VisitorBase{
             }
             if(!auxComment.endRecord().writtenComment){
                 state.writeNewLine();
+                state.writeIndent();
             }
             for(SimpleNode n: node.body){
                 n.accept(this);
@@ -166,7 +198,6 @@ public class PrettyPrinter extends VisitorBase{
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         auxComment.writeSpecialsBefore(node);
         auxComment.writeSpecialsBefore(node.name);
-        state.writeIndent();
         writer.write("def ");
         
         
@@ -174,16 +205,16 @@ public class PrettyPrinter extends VisitorBase{
         writer.write(name.id);
         writer.write("(");
 
-        //arguments
-        boolean writtenNewLine = makeArgs(node.args.args);
-        //end arguments
-        
-        if(!writtenNewLine){
-            state.writeNewLine();
-        }
-        
         state.indent();
+        
         {
+        	//arguments
+        	boolean writtenNewLine = makeArgs(node.args.args);
+        	//end arguments
+        	if(!writtenNewLine){
+        		state.writeNewLine();
+        		state.writeIndent();
+        	}
             for(SimpleNode n: node.body){
                 n.accept(this);
             }
@@ -196,16 +227,10 @@ public class PrettyPrinter extends VisitorBase{
     }
     
     private boolean makeArgs(exprType[] args) throws Exception {
-        exprType prev = null;
         boolean written = false;
         for (exprType type : args) {
             auxComment.startRecord();
-            if(prev != null && prev.specialsAfter.size() > 1){
-                //has some comment (not only ',')
-                state.writeIndent(1);
-            }
             type.accept(this);
-            prev = type;
             written = auxComment.endRecord().writtenComment;
         }
         return written;
@@ -213,7 +238,6 @@ public class PrettyPrinter extends VisitorBase{
 
     @Override
     public Object visitPass(Pass node) throws Exception {
-        state.writeIndent();
         auxComment.writeSpecialsBefore(node);
         writer.write("pass");
         auxComment.writeSpecialsAfter(node);

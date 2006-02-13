@@ -4,7 +4,6 @@
 package com.python.pydev.refactoring.visitors;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Stack;
 
 import org.python.parser.SimpleNode;
@@ -20,11 +19,11 @@ public class AuxSpecials {
     }
     
     private WriteState state;
-    private Writer writer;
+    private IWriterEraser writer;
     private PrettyPrinterPrefs prefs;
     private Stack<AuxState> auxState = new Stack<AuxState>();
 
-    public AuxSpecials(WriteState state, Writer writer, PrettyPrinterPrefs prefs) {
+    public AuxSpecials(WriteState state, IWriterEraser writer, PrettyPrinterPrefs prefs) {
         this.state = state;
         this.writer = writer;
         this.prefs = prefs;
@@ -54,12 +53,9 @@ public class AuxSpecials {
     public void writeSpecialsAfter(SimpleNode node) throws IOException {
         for (Object o : node.specialsAfter){
             if(o instanceof commentType){
-                commentType c = (commentType) o;
-                if(node.beginLine != c.beginLine){
-                    state.writeIndent();
-                }
                 writer.write(((commentType)o).id);
                 state.writeNewLine();
+                state.writeIndent();
                 setStateWritten();
             }else if(o instanceof String){
                 writer.write(prefs.getReplacement((String)o));
@@ -82,11 +78,9 @@ public class AuxSpecials {
         for (Object o : node.specialsAfter){
             if(o instanceof commentType){
                 commentType c = (commentType) o;
-                if(node.beginLine != c.beginLine){
-                    state.writeIndent();
-                }
                 writer.write(((commentType)o).id);
                 state.writeNewLine();
+                state.writeIndent();
                 setStateWritten();
             }
         }

@@ -4,15 +4,18 @@
 package com.python.pydev.refactoring.visitors;
 
 import java.io.IOException;
-import java.io.Writer;
+import java.util.Stack;
+
+import org.python.parser.ast.stmtType;
 
 public class WriteState {
 
-    private Writer writer;
+    private IWriterEraser writer;
     private PrettyPrinterPrefs prefs;
     private StringBuffer indentation = new StringBuffer();
+    private Stack<stmtType> stmtStack = new Stack<stmtType>();
     
-    public WriteState(Writer writer, PrettyPrinterPrefs prefs) {
+    public WriteState(IWriterEraser writer, PrettyPrinterPrefs prefs) {
         this.writer = writer;
         this.prefs = prefs;
     }
@@ -42,6 +45,24 @@ public class WriteState {
         }
         
     }
+
+	public void pushInStmt(stmtType node) {
+		stmtStack.push(node);
+	}
+
+	public stmtType popInStmt() {
+		return stmtStack.pop();
+	}
+
+	public boolean inStmt() {
+		return stmtStack.size() > 0;
+	}
+
+	public void eraseIndent() {
+		if(indentation.toString().length() > 0){
+			writer.erase(prefs.getIndent());
+		}
+	}
 
 
 }
