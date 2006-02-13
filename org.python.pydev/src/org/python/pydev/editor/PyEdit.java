@@ -140,7 +140,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         
         //initialize the 'save' listeners of PyEdit
         if (saveListeners == null){
-        	saveListeners = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYEDIT_ON_SAVE);
+        	saveListeners = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYEDIT_LISTENER);
         }
         
         modelListeners = new ArrayList<IModelListener>();
