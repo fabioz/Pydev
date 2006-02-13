@@ -3,6 +3,8 @@
  */
 package com.python.pydev.refactoring.visitors;
 
+import java.io.IOException;
+
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Assign;
 import org.python.parser.ast.BinOp;
@@ -100,33 +102,29 @@ public class PrettyPrinter extends VisitorBase{
         auxComment.writeSpecialsBefore(node);
         auxComment.startRecord();
         node.test.accept(this);
-        state.indent();
-        boolean writtenComment = auxComment.endRecord().writtenComment;
-		if(!writtenComment){
-        	state.writeNewLine();
-        }
-		state.writeIndent();
+        
+        //write the 'if test:'
+        makeIfIndent();
+		
+		//write the body and dedent
         for (SimpleNode n : node.body){
             auxComment.writeSpecialsBefore(n);
             n.accept(this);
             auxComment.writeSpecialsAfter(n);
         }
-        state.eraseIndent();
-        state.dedent();
+        makeEndIfDedent();
         
         
         if(node.orelse != null && node.orelse.length > 0){
         	boolean inElse = false;
         	auxComment.startRecord();
             auxComment.writeSpecialsAfter(node);
+            
+            //now, if it is an elif, it will end up calling the 'visitIf' again,
+            //but if it is an 'else:' we will have to make the indent again
             if(node.specialsAfter.contains("else:")){
             	inElse = true;
-                state.indent();
-                writtenComment = auxComment.endRecord().writtenComment;
-                if(!writtenComment){
-                	state.writeNewLine();
-                }
-                state.writeIndent();
+            	makeIfIndent();
             }
             for (SimpleNode n : node.orelse) {
                 auxComment.writeSpecialsBefore(n);
@@ -134,13 +132,26 @@ public class PrettyPrinter extends VisitorBase{
 //                auxComment.writeSpecialsAfter(n); // same as the initial
             }
             if(inElse){
-            	state.eraseIndent();
-            	state.dedent();
+            	makeEndIfDedent();
             }
         }
         
         return null;
     }
+
+	private void makeEndIfDedent() {
+		state.eraseIndent();
+        state.dedent();
+	}
+
+	private void makeIfIndent() throws IOException {
+		state.indent();
+        boolean writtenComment = auxComment.endRecord().writtenComment;
+		if(!writtenComment){
+        	state.writeNewLine();
+        }
+		state.writeIndent();
+	}
     
     @Override
     public Object visitStr(Str node) throws Exception {
