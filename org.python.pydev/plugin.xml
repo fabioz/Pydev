@@ -786,6 +786,7 @@
    <extension-point id="pydev_organize_imports" name="Pydev Organize Imports" schema="schema/pydev_organize_imports.exsd"/>
    <extension-point id="pydev_refactoring" name="Pydev Refactoring" schema="schema/pydev_refactoring.exsd"/>
    <extension-point id="pydev_quick_outline" name="Pydev Quick Outline" schema="schema/pydev_quick_outline.exsd"/>
+   <extension-point id="pydev_pyedit_listener" name="PyEdit Listener" schema="schema/pydev_pyedit_listener.exsd"/>
 <!-- wizards -->
    <extension point="org.eclipse.ui.newWizards">
       <category

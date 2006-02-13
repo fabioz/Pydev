@@ -54,6 +54,7 @@ import org.python.parser.SimpleNode;
 import org.python.parser.Token;
 import org.python.parser.TokenMgrError;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
@@ -131,8 +132,17 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     /** listeners that get notified of model changes */
     List<IModelListener> modelListeners;
 
-    public PyEdit() {
+    private static List<IPyEditListener> saveListeners;
+    
+    @SuppressWarnings("unchecked")
+	public PyEdit() {
         super();
+        
+        //initialize the 'save' listeners of PyEdit
+        if (saveListeners == null){
+        	saveListeners = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYEDIT_ON_SAVE);
+        }
+        
         modelListeners = new ArrayList<IModelListener>();
         colorCache = new ColorCache(PydevPlugin.getChainedPrefStore());
         
@@ -343,7 +353,13 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         fixEncoding(getEditorInput(), getDocument());
         super.performSave(overwrite, progressMonitor);
         parser.notifySaved();
+        if(saveListeners != null){
+	        for(IPyEditListener listener : saveListeners){
+	        	listener.onSave(this);
+	        }
+        }
     }
+    
     /**
      * Forces the encoding to the one specified in the file
      * 
