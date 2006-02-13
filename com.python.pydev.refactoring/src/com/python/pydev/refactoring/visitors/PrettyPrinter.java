@@ -6,10 +6,12 @@ package com.python.pydev.refactoring.visitors;
 import java.io.Writer;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.Assign;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
+import org.python.parser.ast.Num;
 import org.python.parser.ast.Pass;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.exprType;
@@ -26,6 +28,31 @@ public class PrettyPrinter extends VisitorBase{
         this.writer = writer;
         state = new WriteState(writer, prefs);
         auxComment = new AuxSpecials(state, writer, prefs);
+    }
+    
+    @Override
+    public Object visitAssign(Assign node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        for (SimpleNode target : node.targets) {
+            target.accept(this);
+        }
+        writer.write(" = ");
+        auxComment.startRecord();
+        node.value.accept(this);
+        auxComment.writeSpecialsAfter(node);
+        
+        if(!auxComment.endRecord().writtenComment){
+            state.writeNewLine();
+        }
+        return null;
+    }
+    
+    @Override
+    public Object visitNum(Num node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        writer.write(node.n.toString());
+        auxComment.writeSpecialsAfter(node);
+        return null;
     }
 
     @Override

@@ -4,6 +4,7 @@
 package com.python.pydev.refactoring.visitors;
 
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.StringWriter;
 
 import org.python.parser.SimpleNode;
@@ -18,7 +19,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testComments1();
+            test.testAssign();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -27,11 +28,13 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         }
     }
     
-    public void testNoComments() throws Exception {
-        String s = ""+
-        "class Class1:\n" +
-        "    def met1(self,a):\n" +
-        "        pass\n";
+
+    /**
+     * @param s
+     * @throws Exception
+     * @throws IOException
+     */
+    protected void checkPrettyPrintEqual(String s) throws Exception, IOException {
         SimpleNode node = parseLegalDocStr(s);
         Module m = (Module) node;
         
@@ -45,6 +48,27 @@ public class PrettyPrinterTest  extends PyParserTestBase{
             System.out.println("'"+stringWriter.getBuffer().toString()+"'");
         }
         assertEquals(s, stringWriter.getBuffer().toString());
+    }
+    
+
+    public void testNoComments() throws Exception {
+        String s = ""+
+        "class Class1:\n" +
+        "    def met1(self,a):\n" +
+        "        pass\n";
+        checkPrettyPrintEqual(s);
+    }
+
+    public void testAssign() throws Exception {
+        String s = ""+
+        "a = 1\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testAssign2() throws Exception {
+        String s = ""+
+        "a = 1#comment\n";
+        checkPrettyPrintEqual(s);
     }
     
     public void testComments1() throws Exception {
@@ -54,19 +78,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "    def met1(self,a):#comment2\n" +
         "        pass#comment3\n" +
         "\n";
-        SimpleNode node = parseLegalDocStr(s);
-        Module m = (Module) node;
-
-        StringWriter stringWriter = new StringWriter();
-        BufferedWriter bufferedWriter = new BufferedWriter(stringWriter);
-        PrettyPrinter printer = new PrettyPrinter(new PrettyPrinterPrefs("\n"), bufferedWriter);
-        m.accept(printer);
-        bufferedWriter.flush();
-        if(DEBUG){
-            System.out.println("\n\nResult:\n");
-            System.out.println("'"+stringWriter.getBuffer().toString()+"'");
-        }
-        assertEquals(s, stringWriter.getBuffer().toString());
+        checkPrettyPrintEqual(s);
     }
     
     public void testComments2() throws Exception {
@@ -76,19 +88,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "    def m1(self,a,#c1\n" +
         "        b):#c2\n" +
         "        pass\n";
-        SimpleNode node = parseLegalDocStr(s);
-        Module m = (Module) node;
-        
-        StringWriter stringWriter = new StringWriter();
-        BufferedWriter bufferedWriter = new BufferedWriter(stringWriter);
-        PrettyPrinter printer = new PrettyPrinter(new PrettyPrinterPrefs("\n"), bufferedWriter);
-        m.accept(printer);
-        bufferedWriter.flush();
-        if(DEBUG){
-            System.out.println("\n\nResult:\n");
-            System.out.println("'"+stringWriter.getBuffer().toString()+"'");
-        }
-        assertEquals(s, stringWriter.getBuffer().toString());
+        checkPrettyPrintEqual(s);
         
     }
 
