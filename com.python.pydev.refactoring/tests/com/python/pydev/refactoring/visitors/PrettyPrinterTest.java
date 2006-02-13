@@ -68,9 +68,10 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     }
 
     public void testNoComments2() throws Exception {
+        prefs.setSpacesAfterComma(1);
         String s = ""+
-        "class Class1:\n" +
-        "    def met1(self,a):\n" +
+        "class Class1(obj1, obj2):\n" +
+        "    def met1(self, a, b):\n" +
         "        pass\n";
         checkPrettyPrintEqual(s);
     }

@@ -38,7 +38,7 @@ public class AuxSpecials {
                 state.writeNewLine();
                 setStateWritten();
             }else if(c instanceof String){
-                writer.write((String)c);
+                writer.write(prefs.getReplacement((String)c));
             }else{
                 throw new RuntimeException("Unexpected special: "+node);
             }
@@ -62,7 +62,7 @@ public class AuxSpecials {
                 state.writeNewLine();
                 setStateWritten();
             }else if(o instanceof String){
-                writer.write((String)o);
+                writer.write(prefs.getReplacement((String)o));
             }else{
                 throw new RuntimeException("Unexpected special: "+node);
             }
@@ -72,7 +72,7 @@ public class AuxSpecials {
     public void writeStringsAfter(SimpleNode node) throws IOException {
         for (Object o : node.specialsAfter){
             if(o instanceof String){
-                writer.write((String)o);
+                writer.write(prefs.getReplacement((String)o));
             }
         }
     }
