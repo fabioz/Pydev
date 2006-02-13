@@ -831,11 +831,11 @@ void compound_stmt() #void : { token_source.compound = true; }
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {}
 {
-    <IF> test() <COLON> {this.addSpecialToken(":");} suite()
-         (<ELIF> test() 
+    <IF> {this.addSpecialToken("if ");}test() <COLON> {this.addSpecialToken(":");} suite()
+         (<ELIF> {this.addSpecialToken("elif ");}test() 
          <COLON> {this.addSpecialToken(":");}
          suite())* [ <ELSE> 
-         <COLON> {this.addSpecialToken(":");}
+         <COLON> {this.addSpecialToken("else:");}
          suite()]
 }
 

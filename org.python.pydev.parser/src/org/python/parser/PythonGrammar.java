@@ -712,7 +712,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
         ExtraArgList();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
-                                    this.addSpecialToken(",");
+                                            this.addSpecialToken(",");
           jj_consume_token(COMMA);
           ExtraKeywordList();
           break;
@@ -2378,9 +2378,10 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
   jjtreeOpenNodeScope(jjtn000);
     try {
       jj_consume_token(IF);
+          this.addSpecialToken("if ");
       test();
       jj_consume_token(COLON);
-                         this.addSpecialToken(":");
+                                                       this.addSpecialToken(":");
       suite();
       label_21:
       while (true) {
@@ -2393,6 +2394,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
           break label_21;
         }
         jj_consume_token(ELIF);
+                  this.addSpecialToken("elif ");
         test();
         jj_consume_token(COLON);
                   this.addSpecialToken(":");
@@ -2402,7 +2404,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
       case ELSE:
         jj_consume_token(ELSE);
         jj_consume_token(COLON);
-                  this.addSpecialToken(":");
+                  this.addSpecialToken("else:");
         suite();
         break;
       default:
@@ -6795,6 +6797,11 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
+  final private boolean jj_3_5() {
+    if (jj_3R_47()) return true;
+    return false;
+  }
+
   final private boolean jj_3R_48() {
     Token xsp;
     xsp = jj_scanpos;
@@ -6851,11 +6858,6 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
 
   final private boolean jj_3_3() {
     if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_47()) return true;
-    return false;
-  }
-
-  final private boolean jj_3_5() {
     if (jj_3R_47()) return true;
     return false;
   }

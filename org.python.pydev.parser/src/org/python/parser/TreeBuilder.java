@@ -233,15 +233,24 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             return new While(test, body, orelse);
         case JJTIF_STMT:
             orelse = null;
-            if (arity % 2 == 1)
-                orelse = popSuite();
-            body = popSuite();
+            
+            if (arity % 2 == 1){
+                orelse = getBodyAndSpecials();
+            }
+            
+            Suite suite = (Suite)popNode();
+            body = suite.body;
             test = makeExpr();
             If last = new If(test, body, orelse);
+            addSpecials(suite, last);
+            
             for (int i = 0; i < (arity / 2)-1; i++) {
-                body = popSuite();
+                suite = (Suite)popNode();
+                body = suite.body;
                 test = makeExpr();
-                last = new If(test, body, new stmtType[] { last });
+                stmtType[] newOrElse = new stmtType[] { last };
+                last = new If(test, body, newOrElse);
+                addSpecials(suite, last);
             }
             return last;
         case JJTPASS_STMT:
@@ -608,6 +617,24 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             System.out.println("default "+n.getId());
             return null;
         }
+    }
+
+    private void addSpecials(SimpleNode from, SimpleNode to) {
+        to.specialsBefore.addAll(from.specialsBefore);
+        to.specialsAfter.addAll(from.specialsAfter);
+    }
+
+    /**
+     * @param suite
+     * @return
+     */
+    private stmtType[] getBodyAndSpecials() {
+        Suite suite = (Suite)popNode();
+        stmtType[] body;
+        body = suite.body;
+        body[0].specialsBefore.addAll(suite.specialsBefore);
+        body[body.length-1].specialsAfter.addAll(suite.specialsAfter);
+        return body;
     }
 
     
