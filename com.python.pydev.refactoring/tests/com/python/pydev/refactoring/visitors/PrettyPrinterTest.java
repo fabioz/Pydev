@@ -19,7 +19,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testAssign();
+            test.testComments1();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -27,7 +27,15 @@ public class PrettyPrinterTest  extends PyParserTestBase{
             e.printStackTrace();
         }
     }
+
+    private PrettyPrinterPrefs prefs;
     
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        prefs = new PrettyPrinterPrefs("\n");
+    }
 
     /**
      * @param s
@@ -40,7 +48,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         
         StringWriter stringWriter = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(stringWriter);
-        PrettyPrinter printer = new PrettyPrinter(new PrettyPrinterPrefs("\n"), bufferedWriter);
+        PrettyPrinter printer = new PrettyPrinter(prefs, bufferedWriter);
         m.accept(printer);
         bufferedWriter.flush();
         if(DEBUG){
@@ -59,6 +67,14 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         checkPrettyPrintEqual(s);
     }
 
+    public void testNoComments2() throws Exception {
+        String s = ""+
+        "class Class1:\n" +
+        "    def met1(self,a):\n" +
+        "        pass\n";
+        checkPrettyPrintEqual(s);
+    }
+    
     public void testAssign() throws Exception {
         String s = ""+
         "a = 1\n";
@@ -84,7 +100,6 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testComments2() throws Exception {
         String s = ""+
         "class Foo(object):#test comment\n" +
-        "\n" +
         "    def m1(self,a,#c1\n" +
         "        b):#c2\n" +
         "        pass\n";

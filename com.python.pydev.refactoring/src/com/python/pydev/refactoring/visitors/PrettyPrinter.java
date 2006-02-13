@@ -63,20 +63,21 @@ public class PrettyPrinter extends VisitorBase{
         
         
         NameTok name = (NameTok) node.name;
-        writer.write(name.id);
-        if(node.bases.length > 0){
-            writer.write("(");
-            for (exprType expr : node.bases) {
-                expr.accept(this);
-            }
-        }
 
-        auxComment.writeStringsAfter(name);
+        auxComment.startRecord();
+        writer.write(name.id);
+        //we want the comments to be indented too
         state.indent();
         {
-            auxComment.startRecord();
-            auxComment.writeCommentsAfter(name);
-            if(!auxComment.wasNewLineWritten()){
+            auxComment.writeSpecialsAfter(name);
+    
+            if(node.bases.length > 0){
+                writer.write("(");
+                for (exprType expr : node.bases) {
+                    expr.accept(this);
+                }
+            }
+            if(!auxComment.endRecord().writtenComment){
                 state.writeNewLine();
             }
             for(SimpleNode n: node.body){
