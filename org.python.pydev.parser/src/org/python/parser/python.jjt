@@ -1128,10 +1128,10 @@ void normalargs() #void: {}
 { argument() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> argument())* }
 
 void ExtraArgValueList(): {}
-{ <MULTIPLY> test() }
+{ <MULTIPLY> {this.addSpecialToken("*", STRATEGY_ADD_NEXT);}test() }
 
 void ExtraKeywordValueList(): {}
-{ (<POWER>|<MULTIPLY> <MULTIPLY>) test() }
+{ (<POWER>{this.addSpecialToken("**", STRATEGY_ADD_NEXT);}|<MULTIPLY>{this.addSpecialToken("*", STRATEGY_ADD_NEXT);} <MULTIPLY>{this.addSpecialToken("*", STRATEGY_ADD_NEXT);}) test() }
 
 
 //argument: [test '='] test     # Really [keyword '='] test

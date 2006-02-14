@@ -285,11 +285,15 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
 
             l = arity - 1;
             if (l > 0 && peekNode().getId() == JJTEXTRAKEYWORDVALUELIST) {
-                kwargs = ((ExtraArgValue) popNode()).value;
+                ExtraArgValue nkwargs = (ExtraArgValue) popNode();
+                kwargs = nkwargs.value;
+                this.addSpecials(nkwargs, kwargs);
                 l--;
             }
             if (l > 0 && peekNode().getId() == JJTEXTRAARGVALUELIST) {
-                starargs = ((ExtraArgValue) popNode()).value;
+                ExtraArgValue nstarargs = (ExtraArgValue) popNode();
+                starargs = nstarargs.value;
+                this.addSpecials(nstarargs, starargs);
                 l--;
             }
             
