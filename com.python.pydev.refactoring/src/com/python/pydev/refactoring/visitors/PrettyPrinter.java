@@ -161,19 +161,26 @@ public class PrettyPrinter extends VisitorBase{
         if(args.length == 0){
             auxComment.startRecord();
         }
-//        keywordType[] keywords = node.keywords;
-//        if (keywords != null) {
-//            for (int i = 0; i < keywords.length; i++) {
-//                if (keywords[i] != null)
-//                    keywords[i].accept(this);
-//            }
-//        }
-//        exprType starargs = node.starargs;
-//        if (starargs != null)
-//            starargs.accept(this);
-//        exprType kwargs = node.kwargs;
-//        if (kwargs != null)
-//            kwargs.accept(this);
+        keywordType[] keywords = node.keywords;
+        if (keywords != null) {
+            for (int i = 0; i < keywords.length; i++) {
+                if (keywords[i] != null){
+                    auxComment.writeSpecialsBefore(keywords[i]);
+                    keywords[i].arg.accept(this);
+                    writer.write("=");
+                    keywords[i].value.accept(this);
+                    auxComment.writeSpecialsAfter(keywords[i]);
+                }
+            }
+        }
+        exprType starargs = node.starargs;
+        if (starargs != null){
+            starargs.accept(this);
+        }
+        exprType kwargs = node.kwargs;
+        if (kwargs != null){
+            kwargs.accept(this);
+        }
         
         auxComment.writeCommentsAfter(node);
         if(auxComment.endRecord().writtenComment){
