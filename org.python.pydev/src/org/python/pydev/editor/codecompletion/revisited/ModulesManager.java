@@ -44,6 +44,25 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public abstract class ModulesManager implements IModulesManager, Serializable {
 
+	private final class ModulesManagerCache extends LRUCache<ModulesKey, AbstractModule> {
+		private ModulesManagerCache(int size) {
+			super(size);
+		}
+
+		/**
+		 * Overriden so that if we do not find the key, we have the chance to create it.
+		 */
+		public AbstractModule getObj(ModulesKey key) {
+			AbstractModule obj = super.getObj(key);
+			if(obj == null && modulesKeys.containsKey(key)){
+				key = modulesKeys.get(key); //get the 'real' key
+				obj = AbstractModule.createEmptyModule(key.name, key.file);
+				this.add(key, obj);
+			}
+			return obj;
+		}
+	}
+
 	public ModulesManager(){
 	}
 	
@@ -57,21 +76,12 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
 //    protected transient Map<ModulesKey, AbstractModule> modules = new HashMap<ModulesKey, AbstractModule>();
 	protected transient Map<ModulesKey, ModulesKey> modulesKeys = new HashMap<ModulesKey, ModulesKey>();
-	protected transient Cache<ModulesKey, AbstractModule> cache = new LRUCache<ModulesKey, AbstractModule>(300){
-		/**
-		 * Overriden so that if we do not find the key, we have the chance to create it.
-		 */
-		public AbstractModule getObj(ModulesKey key) {
-			AbstractModule obj = super.getObj(key);
-        	if(obj == null && modulesKeys.containsKey(key)){
-        		key = modulesKeys.get(key); //get the 'real' key
-        		obj = AbstractModule.createEmptyModule(key.name, key.file);
-        		this.add(key, obj);
-        	}
-			return obj;
-		}
-	};
+	protected transient Cache<ModulesKey, AbstractModule> cache = createCache();
     
+	protected Cache<ModulesKey, AbstractModule> createCache(){
+		return new ModulesManagerCache(300);
+	}
+	
     /**
      * This is the set of files that was found just right after unpickle (it should not be changed after that,
      * and serves only as a reference cache).
@@ -89,7 +99,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * Custom deserialization is needed.
      */
     private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
-    	cache = new LRUCache<ModulesKey, AbstractModule>(300);
+    	cache = createCache();
     	modulesKeys = new HashMap<ModulesKey, ModulesKey>();
     	
         files = new HashSet<File>();
@@ -111,7 +121,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     private void writeObject(ObjectOutputStream aStream) throws IOException {
         aStream.defaultWriteObject();
         //write only the keys
-        aStream.writeObject(modulesKeys);
+        aStream.writeObject(new HashSet(modulesKeys.keySet()));
     }
 
     /**
@@ -121,13 +131,13 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         this.modulesKeys = keys;
     }
     
-//
-//    /**
-//     * @return Returns the modules.
-//     */
-//    protected Map<ModulesKey, AbstractModule> getModules() {
-//        return modules;
-//    }
+
+    /**
+     * @return Returns the modules.
+     */
+    protected Map<ModulesKey, AbstractModule> getModules() {
+        throw new RuntimeException("Deprecated");
+    }
 
     /**
      * Must be overriden so that the available builtins (forced or not) are returned.
