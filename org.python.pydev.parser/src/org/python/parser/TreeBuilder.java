@@ -338,7 +338,12 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             argumentsType arguments = makeArguments(stack.nodeArity() - 2);
             NameTok nameTok = makeName(NameTok.FunctionName);
             Decorators decs = (Decorators) popNode() ;
-            return new FunctionDef(nameTok, arguments, body, decs.exp);
+            decoratorsType[] decsexp = decs.exp;
+            FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, decsexp);
+            if(decs.exp.length == 0){
+                addSpecialsBefore(decs, funcDef);
+            }
+            return funcDef;
         case JJTDEFAULTARG:
             value = (arity == 1) ? null : makeExpr();
             return new DefaultArg(makeExpr(), value);
@@ -628,6 +633,11 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
     private void addSpecials(SimpleNode from, SimpleNode to) {
         to.specialsBefore.addAll(from.specialsBefore);
         to.specialsAfter.addAll(from.specialsAfter);
+    }
+    
+    private void addSpecialsBefore(SimpleNode from, SimpleNode to) {
+        to.specialsBefore.addAll(from.specialsBefore);
+        to.specialsBefore.addAll(from.specialsAfter);
     }
 
     /**

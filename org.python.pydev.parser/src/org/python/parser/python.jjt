@@ -39,7 +39,6 @@ public class PythonGrammar
         jjtree.pushNodePos(t.beginLine, t.beginColumn);
     }
 
-
     void jjtreeCloseNodeScope(Node n) {
         jjtree.setNodePos();
         List specialTokens = token_source.specialTokens;
@@ -66,13 +65,34 @@ public class PythonGrammar
                         ((SimpleNode)jjtree.peekNode()).addSpecial(next, false);
                     }else{
                         //may still add before the next, if there was no prev (we can check that by the 'after' variable)
-                        prev.addSpecial(next, after);
+                        //in this case, we'll do some checks to see if it is really correct (checking for the line and column)
+                        
+                        if(next instanceof Token){
+                            findTokenToAdd((Token)next).addSpecial(next, after);
+                        }else{
+                            prev.addSpecial(next, after);
+                        }
                     }
                 }
                 specialTokens.clear();
             }
             prev = (SimpleNode) jjtree.peekNode();
         }
+    }
+
+    private SimpleNode findTokenToAdd(Token next) {
+        SimpleNode curr = (SimpleNode) jjtree.peekNode();
+        if(curr != prev){
+            //let's see which one is better suited
+            if(prev.beginLine == next.beginLine){
+                return prev;
+            }
+            if(curr.beginLine == next.beginLine){
+                return curr;
+            }
+        }
+        return prev;
+        
     }
 
     /**
@@ -1136,7 +1156,7 @@ void ExtraKeywordValueList(): {}
 
 //argument: [test '='] test     # Really [keyword '='] test
 void argument() #void: {}
-{ ([LOOKAHEAD(2) AnyName() <EQUAL>] test()) #Keyword(>1) }
+{ ([LOOKAHEAD(2) AnyName() <EQUAL>{this.addSpecialToken("=");}] test()) #Keyword(>1) }
 
 
 void Number() #Num :

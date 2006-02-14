@@ -16,7 +16,6 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
         jjtree.pushNodePos(t.beginLine, t.beginColumn);
     }
 
-
     void jjtreeCloseNodeScope(Node n) {
         jjtree.setNodePos();
         List specialTokens = token_source.specialTokens;
@@ -43,13 +42,34 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
                         ((SimpleNode)jjtree.peekNode()).addSpecial(next, false);
                     }else{
                         //may still add before the next, if there was no prev (we can check that by the 'after' variable)
-                        prev.addSpecial(next, after);
+                        //in this case, we'll do some checks to see if it is really correct (checking for the line and column)
+
+                        if(next instanceof Token){
+                            findTokenToAdd((Token)next).addSpecial(next, after);
+                        }else{
+                            prev.addSpecial(next, after);
+                        }
                     }
                 }
                 specialTokens.clear();
             }
             prev = (SimpleNode) jjtree.peekNode();
         }
+    }
+
+    private SimpleNode findTokenToAdd(Token next) {
+        SimpleNode curr = (SimpleNode) jjtree.peekNode();
+        if(curr != prev){
+            //let's see which one is better suited
+            if(prev.beginLine == next.beginLine){
+                return prev;
+            }
+            if(curr.beginLine == next.beginLine){
+                return curr;
+            }
+        }
+        return prev;
+
     }
 
     /**
@@ -5225,6 +5245,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
       if (jj_2_27(2)) {
         AnyName();
         jj_consume_token(EQUAL);
+                                   this.addSpecialToken("=");
       } else {
         ;
       }
@@ -6317,102 +6338,6 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     finally { jj_save(26, xla); }
   }
 
-  final private boolean jj_3R_171() {
-    if (jj_scan_token(HEXNUMBER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_167() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_171()) {
-    jj_scanpos = xsp;
-    if (jj_3R_172()) {
-    jj_scanpos = xsp;
-    if (jj_3R_173()) {
-    jj_scanpos = xsp;
-    if (jj_3R_174()) {
-    jj_scanpos = xsp;
-    if (jj_3R_175()) return true;
-    }
-    }
-    }
-    }
-    return false;
-  }
-
-  final private boolean jj_3_6() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_49()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_62() {
-    if (jj_scan_token(LPAREN)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_22() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_51()) return true;
-    return false;
-  }
-
-  final private boolean jj_3_27() {
-    if (jj_3R_58()) return true;
-    if (jj_scan_token(EQUAL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_57() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_27()) jj_scanpos = xsp;
-    if (jj_3R_51()) return true;
-    return false;
-  }
-
-  final private boolean jj_3_26() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_57()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_60() {
-    if (jj_scan_token(MULTIPLY)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_169() {
-    if (jj_scan_token(POWER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_165() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_169()) {
-    jj_scanpos = xsp;
-    if (jj_3R_170()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_61() {
-    if (jj_3R_59()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_49() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_61()) {
-    jj_scanpos = xsp;
-    if (jj_3R_62()) return true;
-    }
-    return false;
-  }
-
   final private boolean jj_3R_46() {
     if (jj_3R_49()) return true;
     return false;
@@ -7443,6 +7368,102 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
 
   final private boolean jj_3R_172() {
     if (jj_scan_token(OCTNUMBER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_171() {
+    if (jj_scan_token(HEXNUMBER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_167() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_171()) {
+    jj_scanpos = xsp;
+    if (jj_3R_172()) {
+    jj_scanpos = xsp;
+    if (jj_3R_173()) {
+    jj_scanpos = xsp;
+    if (jj_3R_174()) {
+    jj_scanpos = xsp;
+    if (jj_3R_175()) return true;
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  final private boolean jj_3_6() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_49()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_62() {
+    if (jj_scan_token(LPAREN)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_22() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
+  final private boolean jj_3_27() {
+    if (jj_3R_58()) return true;
+    if (jj_scan_token(EQUAL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_57() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_27()) jj_scanpos = xsp;
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
+  final private boolean jj_3_26() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_57()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_60() {
+    if (jj_scan_token(MULTIPLY)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_169() {
+    if (jj_scan_token(POWER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_165() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_169()) {
+    jj_scanpos = xsp;
+    if (jj_3R_170()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_61() {
+    if (jj_3R_59()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_49() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_61()) {
+    jj_scanpos = xsp;
+    if (jj_3R_62()) return true;
+    }
     return false;
   }
 
