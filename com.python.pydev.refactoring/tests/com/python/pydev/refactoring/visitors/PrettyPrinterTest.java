@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testComments1();
+            test.testDefaults2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -69,7 +69,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "def defaults(a,x,lo=foo,hi=None):\n" +
         "    if hi is None:\n" +
         "        hi = a\n" +
-        "        \n";
+        "    ";
         checkPrettyPrintEqual(s);
         
     }
