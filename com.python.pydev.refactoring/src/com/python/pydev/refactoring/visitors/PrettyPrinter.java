@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Assign;
 import org.python.parser.ast.BinOp;
+import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Compare;
 import org.python.parser.ast.FunctionDef;
@@ -21,6 +22,7 @@ import org.python.parser.ast.UnaryOp;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.argumentsType;
 import org.python.parser.ast.exprType;
+import org.python.parser.ast.keywordType;
 
 public class PrettyPrinter extends VisitorBase{
 
@@ -139,6 +141,49 @@ public class PrettyPrinter extends VisitorBase{
         auxComment.writeSpecialsAfter(node);
         return null;
     }
+
+    @Override
+    public Object visitCall(Call node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        
+        //make the visit
+        node.func.accept(this);
+        exprType[] args = node.args;
+        boolean startedRecord = false;
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] != null){
+                if(i == args.length-1){
+                    auxComment.startRecord();
+                }
+                args[i].accept(this);
+            }
+        }
+        if(args.length == 0){
+            auxComment.startRecord();
+        }
+//        keywordType[] keywords = node.keywords;
+//        if (keywords != null) {
+//            for (int i = 0; i < keywords.length; i++) {
+//                if (keywords[i] != null)
+//                    keywords[i].accept(this);
+//            }
+//        }
+//        exprType starargs = node.starargs;
+//        if (starargs != null)
+//            starargs.accept(this);
+//        exprType kwargs = node.kwargs;
+//        if (kwargs != null)
+//            kwargs.accept(this);
+        
+        auxComment.writeCommentsAfter(node);
+        if(auxComment.endRecord().writtenComment){
+            //some comment was written
+            state.writeIndent(1);
+        }
+        auxComment.writeStringsAfter(node);
+        state.writeNewLine();
+        return null;
+    }
     
     @Override
     public Object visitIf(If node) throws Exception {
@@ -242,7 +287,7 @@ public class PrettyPrinter extends VisitorBase{
         	auxComment.writeSpecialsAfter(name);
     
             if(node.bases.length > 0){
-                writer.write("(");
+//                writer.write("(");
                 for (exprType expr : node.bases) {
                     expr.accept(this);
                 }
@@ -272,7 +317,8 @@ public class PrettyPrinter extends VisitorBase{
         
         NameTok name = (NameTok) node.name;
         writer.write(name.id);
-        writer.write("(");
+        auxComment.writeSpecialsAfter(node);
+//        writer.write("(");
 
         state.indent();
         
@@ -291,7 +337,6 @@ public class PrettyPrinter extends VisitorBase{
             state.dedent();
         }
         auxComment.writeSpecialsAfter(node.name);
-        auxComment.writeSpecialsAfter(node);
         return null;
     }
     
