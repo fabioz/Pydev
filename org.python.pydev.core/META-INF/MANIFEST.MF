@@ -21,5 +21,6 @@ Export-Package: org.apache.commons.codec,
  org.apache.commons.codec.language,
  org.apache.commons.codec.net,
  org.python.pydev.core,
+ org.python.pydev.core.cache,
  org.python.pydev.core.docutils,
  org.python.pydev.core.log

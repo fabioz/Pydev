@@ -223,11 +223,11 @@ public abstract class AbstractToken implements IToken{
     		baseModule = FullRepIterable.headAndTail(baseModule)[0];
     		
     		if(baseModule.length() == 0){
-    			if(relative.charAt(0) == '.'){
+    			if(relative.length() > 0 && relative.charAt(0) == '.'){
     				return relative.substring(1);
     			}
     		}
-    		if(relative.charAt(0) == '.'){
+    		if(relative.length() > 0 && relative.charAt(0) == '.'){
     			return baseModule+relative;
     		}else{
     			return baseModule+'.'+relative;

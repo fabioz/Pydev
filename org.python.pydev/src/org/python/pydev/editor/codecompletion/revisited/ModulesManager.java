@@ -30,6 +30,8 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.cache.Cache;
+import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -42,12 +44,33 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public abstract class ModulesManager implements IModulesManager, Serializable {
 
+	public ModulesManager(){
+	}
+	
     /**
      * Modules that we have in memory. This is persisted when saved.
      * 
      * Keys are ModulesKey with the name of the module. Values are AbstractModule objects.
+     * 
+     * Implementation changed to contain a cache, so that it does not grow to much (some out of memo errors
+     * were thrown because of the may size when having too many modules).
      */
-    protected transient Map<ModulesKey, AbstractModule> modules = new HashMap<ModulesKey, AbstractModule>();
+//    protected transient Map<ModulesKey, AbstractModule> modules = new HashMap<ModulesKey, AbstractModule>();
+	protected transient Map<ModulesKey, ModulesKey> modulesKeys = new HashMap<ModulesKey, ModulesKey>();
+	protected transient Cache<ModulesKey, AbstractModule> cache = new LRUCache<ModulesKey, AbstractModule>(300){
+		/**
+		 * Overriden so that if we do not find the key, we have the chance to create it.
+		 */
+		public AbstractModule getObj(ModulesKey key) {
+			AbstractModule obj = super.getObj(key);
+        	if(obj == null && modulesKeys.containsKey(key)){
+        		key = modulesKeys.get(key); //get the 'real' key
+        		obj = AbstractModule.createEmptyModule(key.name, key.file);
+        		this.add(key, obj);
+        	}
+			return obj;
+		}
+	};
     
     /**
      * This is the set of files that was found just right after unpickle (it should not be changed after that,
@@ -66,14 +89,16 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * Custom deserialization is needed.
      */
     private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
-        modules = new HashMap<ModulesKey, AbstractModule>();
+    	cache = new LRUCache<ModulesKey, AbstractModule>(300);
+    	modulesKeys = new HashMap<ModulesKey, ModulesKey>();
+    	
         files = new HashSet<File>();
         aStream.defaultReadObject();
         Set set = (Set) aStream.readObject();
         for (Iterator iter = set.iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
             //restore with empty modules.
-            modules.put(key, AbstractModule.createEmptyModule(key.name, key.file));
+            modulesKeys.put(key, key);
             if(key.file != null){
             	files.add(key.file);
             }
@@ -86,22 +111,23 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     private void writeObject(ObjectOutputStream aStream) throws IOException {
         aStream.defaultWriteObject();
         //write only the keys
-        aStream.writeObject(new HashSet<ModulesKey>(this.modules.keySet()));
+        aStream.writeObject(modulesKeys);
     }
 
     /**
      * @param modules The modules to set.
      */
-    private void setModules(Map<ModulesKey, AbstractModule> modules) {
-        this.modules = modules;
+    private void setModules(HashMap<ModulesKey, ModulesKey> keys) {
+        this.modulesKeys = keys;
     }
-
-    /**
-     * @return Returns the modules.
-     */
-    protected Map<ModulesKey, AbstractModule> getModules() {
-        return modules;
-    }
+    
+//
+//    /**
+//     * @return Returns the modules.
+//     */
+//    protected Map<ModulesKey, AbstractModule> getModules() {
+//        return modules;
+//    }
 
     /**
      * Must be overriden so that the available builtins (forced or not) are returned.
@@ -156,7 +182,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     private void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, 
     		List<String> pythonpathList, List<File> completions, List<String> fromJar, int total, String defaultSelectedInterpreter) {
 
-    	Map<ModulesKey, AbstractModule> mods = new HashMap<ModulesKey, AbstractModule>();
+    	HashMap<ModulesKey, ModulesKey> keys = new HashMap<ModulesKey, ModulesKey>();
         int j = 0;
 
         //now, create in memory modules for all the loaded files (empty modules).
@@ -173,13 +199,12 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                 if (m != null) {
                     //we don't load them at this time.
                     ModulesKey modulesKey = new ModulesKey(m, f);
-                    IModule module = mods.get(modulesKey);
                     
                     //ok, now, let's resolve any conflicts that we might find...
                     boolean add = false;
                     
                     //no conflict (easy)
-                    if(module == null){
+                    if(!keys.containsKey(modulesKey)){
                         add = true;
                     }else{
                         //we have a conflict, so, let's resolve which one to keep (the old one or this one)
@@ -191,14 +216,17 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                     }
                     
                     if(add){
-                        mods.put(modulesKey, AbstractModule.createEmptyModule(m, f));
+                    	//the previous must be removed (if there was any)
+                    	keys.remove(modulesKey);
+                    	keys.put(modulesKey, modulesKey);
                     }
                 }
             }
         }
         
         for (String modName : fromJar) {
-            mods.put(new ModulesKey(modName, null), AbstractModule.createEmptyModule(modName, null));
+        	final ModulesKey k = new ModulesKey(modName, null);
+			keys.put(k, k);
         }
 
         //create the builtin modules
@@ -206,12 +234,13 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         if(builtins != null){
 	        for (int i = 0; i < builtins.length; i++) {
 	            String name = builtins[i];
-	            mods.put(new ModulesKey(name, null), AbstractModule.createEmptyModule(name, null));
+	            final ModulesKey k = new ModulesKey(name, null);
+				keys.put(k, k);
 	        }
         }
 
         //assign to instance variable
-        this.setModules(mods);
+        this.setModules(keys);
 
     }
 
@@ -230,7 +259,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             
         }else if (f != null){ //ok, remove the module that has a key with this file, as it can no longer be resolved
             Set<ModulesKey> toRemove = new HashSet<ModulesKey>();
-            for (Iterator iter = getModules().keySet().iterator(); iter.hasNext();) {
+            for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
                 ModulesKey key = (ModulesKey) iter.next();
                 if(key.file != null && key.file.equals(f)){
                     toRemove.add(key);
@@ -271,7 +300,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         }
         
         List<ModulesKey> toRem = new ArrayList<ModulesKey>();
-        for (Iterator iter = getModules().keySet().iterator(); iter.hasNext();) {
+        for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
             if (key.file != null && key.file.equals(file)) {
                 toRem.add(key);
@@ -293,7 +322,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         String absolutePath = REF.getFileAbsolutePath(file);
         List<ModulesKey> toRem = new ArrayList<ModulesKey>();
         
-        for (Iterator iter = getModules().keySet().iterator(); iter.hasNext();) {
+        for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
             ModulesKey key = (ModulesKey) iter.next();
             if (key.file != null && REF.getFileAbsolutePath(key.file).startsWith(absolutePath)) {
                 toRem.add(key);
@@ -323,7 +352,8 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @param key this is the key that should be removed
      */
     protected void doRemoveSingleModule(ModulesKey key) {
-        this.modules.remove(key);
+        this.modulesKeys.remove(key);
+        this.cache.remove(key);
     }
 
     /**
@@ -334,7 +364,8 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @param n 
      */
     protected void doAddSingleModule(final ModulesKey key, AbstractModule n) {
-        this.modules.put(key, n);
+    	this.modulesKeys.put(key, key);
+        this.cache.add(key, n);
     }
 
     /**
@@ -342,8 +373,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
     public Set<String> getAllModuleNames() {
         Set<String> s = new HashSet<String>();
-        Set<ModulesKey> moduleKeys = getModules().keySet();
-        for (ModulesKey key : moduleKeys) {
+        for (ModulesKey key : this.modulesKeys.keySet()) {
             s.add(key.name);
         }
         return s;
@@ -353,7 +383,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @return a Set of strings with all the modules.
      */
     public ModulesKey[] getAllModules() {
-        return (ModulesKey[]) getModules().keySet().toArray(new ModulesKey[0]);
+        return (ModulesKey[]) this.modulesKeys.keySet().toArray(new ModulesKey[0]);
     }
     
     public ModulesKey[] getOnlyDirectModules() {
@@ -364,7 +394,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @return
      */
     public int getSize() {
-        return getModules().size();
+        return this.modulesKeys.size();
     }
 
     /**
@@ -389,7 +419,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         
         for (int i = 0; i < builtins.length; i++) {
             if (name.equals(builtins[i])) {
-                n = (AbstractModule) getModules().get(new ModulesKey(name, null));
+                n = cache.getObj(new ModulesKey(name, null));
                 if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ //still not created or not defined as compiled module (as it should be)
                     n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
                     doAddSingleModule(new ModulesKey(n.getName(), null), n);
@@ -401,14 +431,15 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         if(n == null){
             if(!dontSearchInit){
                 if(n == null){
-                    n = (AbstractModule) getModules().get(new ModulesKey(name + ".__init__", null));
+                    n = cache.getObj(new ModulesKey(name + ".__init__", null));
                     if(n != null){
                         name += ".__init__";
                     }
                 }
             }
             if (n == null) {
-            	n = (AbstractModule) getModules().get(new ModulesKey(name, null));
+            	ModulesKey key = new ModulesKey(name, null);
+            	n = cache.getObj(key);
             }
         }
 

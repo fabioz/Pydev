@@ -233,7 +233,8 @@ public class CodeCompletionTestsBase extends TestCase {
         InterpreterInfo info = iMan.getDefaultInterpreterInfo(getProgressMonitor());
         int size = ((ASTManager)nature.getAstManager()).getSize();
         assertTrue(info.modulesManager.getSize() > 0);
-        assertTrue(""+info.modulesManager.getSize()+" "+size , info.modulesManager.getSize() < size );
+        assertTrue("Interpreter size:"+info.modulesManager.getSize()+" should be smaller than project size:"+size+" " +
+        		"(because it contains system+project info)" , info.modulesManager.getSize() < size );
     }
    
 

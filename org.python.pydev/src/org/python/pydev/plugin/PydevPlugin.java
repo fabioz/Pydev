@@ -257,7 +257,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     public static void logInfo(Exception e) {
-        log(IStatus.INFO, e.getMessage(), e, false);
+        log(IStatus.INFO, e.getMessage(), e, true);
 	}
 
     /**

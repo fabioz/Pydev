@@ -184,16 +184,14 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      */
     public Set<String> getAllModuleNames() {
         Set<String> s = new HashSet<String>();
-        Set keySet = getModules().keySet();
-        for (Object object : keySet) {
+        for (Object object : this.modulesKeys.keySet()) {
             ModulesKey m = (ModulesKey) object;
             s.add(m.name);
         }
 
         ModulesManager[] managersInvolved = this.getManagersInvolved(true);
         for (int i = 0; i < managersInvolved.length; i++) {
-            keySet = managersInvolved[i].getModules().keySet();
-            for (Object object : keySet) {
+            for (Object object : managersInvolved[i].modulesKeys.keySet()) {
                 ModulesKey m = (ModulesKey) object;
                 s.add(m.name);
             }
@@ -300,10 +298,10 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      * @see org.python.pydev.core.IProjectModulesManager#getSize()
      */
     public int getSize() {
-        int size = getModules().size();
+        int size = this.modulesKeys.size();
         ModulesManager[] managersInvolved = this.getManagersInvolved(true);
         for (int i = 0; i < managersInvolved.length; i++) {
-            size += managersInvolved[i].getModules().size();
+            size += managersInvolved[i].modulesKeys.size();
         }
         return size;
     }

@@ -4,7 +4,8 @@ Bundle-Name: Pydev - Python Development Environment
 Bundle-SymbolicName: org.python.pydev; singleton:=true
 Bundle-Version: 0.9.7.1
 Bundle-ClassPath: pydev.jar,
- retroweaver-rt.jar
+ retroweaver-rt.jar,
+ shiftone-cache.jar
 Bundle-Activator: org.python.pydev.plugin.PydevPlugin
 Bundle-Vendor: Fabio Zadrozny / Aleks Totic
 Bundle-Localization: plugin
@@ -64,6 +65,9 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.ui.dialogs,
  org.python.pydev.ui.editors,
  org.python.pydev.ui.interpreters,
+ org.python.pydev.ui.perspective,
  org.python.pydev.ui.pythonpathconf,
+ org.python.pydev.ui.wizards.files,
+ org.python.pydev.ui.wizards.project,
  org.python.pydev.utils,
  org.python.pydev.views
