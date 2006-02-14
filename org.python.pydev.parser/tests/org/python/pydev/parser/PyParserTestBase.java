@@ -64,4 +64,6 @@ public class PyParserTestBase extends TestCase {
 	    return (SimpleNode) objects[0];
 	}
 
+    public void testEmpty() {
+    }
 }

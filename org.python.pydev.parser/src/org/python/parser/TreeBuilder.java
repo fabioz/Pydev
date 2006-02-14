@@ -759,6 +759,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         exprType fpargs[] = new exprType[def.length];
         exprType defaults[] = new exprType[def.length];
         int startofdefaults = 0;
+        boolean defaultsSet = false;
         for(int i = 0 ; i< def.length; i++){
             DefaultArg node = def[i];
             exprType parameter = node.parameter;
@@ -773,7 +774,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             
             ctx.setStore(fpargs[i]);
             defaults[i] = node.value;
-            if (node.value != null){
+            if (node.value != null && defaultsSet == false){
+                defaultsSet = true;
                 startofdefaults = i;
             }
         }
