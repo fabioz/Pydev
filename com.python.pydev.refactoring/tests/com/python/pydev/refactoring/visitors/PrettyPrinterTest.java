@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testCall4();
+            test.testCall2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -65,7 +65,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testCall2() throws Exception {
         String s = ""+
         "callIt(1#param1\n" +
-        "    )\n" +
+        "        )\n" +
         "";
         checkPrettyPrintEqual(s);
     }
@@ -81,6 +81,17 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testCall4() throws Exception {
         String s = ""+
         "callIt(a=2,*args,**kwargs)\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    
+    public void testCall5() throws Exception {
+        String s = ""+
+        "m1(a,#d1\n" +
+        "    b,#d2\n" +
+        "    c#d3\n" +
+        "        )\n" +
         "";
         checkPrettyPrintEqual(s);
     }

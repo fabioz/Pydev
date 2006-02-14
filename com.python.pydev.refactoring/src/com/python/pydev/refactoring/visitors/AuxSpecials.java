@@ -32,9 +32,9 @@ public class AuxSpecials {
     public void writeSpecialsBefore(SimpleNode node) throws IOException {
         for (Object c : node.specialsBefore){
             if(c instanceof commentType){
-            	state.writeIndent();
                 writer.write(((commentType)c).id);
                 state.writeNewLine();
+                state.writeIndent();
                 setStateWritten();
             }else if(c instanceof String){
                 writer.write(prefs.getReplacement((String)c));

@@ -21,6 +21,7 @@ import org.python.parser.ast.Str;
 import org.python.parser.ast.UnaryOp;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.argumentsType;
+import org.python.parser.ast.decoratorsType;
 import org.python.parser.ast.exprType;
 import org.python.parser.ast.keywordType;
 
@@ -149,15 +150,17 @@ public class PrettyPrinter extends VisitorBase{
         //make the visit
         node.func.accept(this);
         exprType[] args = node.args;
-        boolean startedRecord = false;
+        state.indent();
         for (int i = 0; i < args.length; i++) {
             if (args[i] != null){
-                if(i == args.length-1){
+                boolean last = i == args.length-1;
+                if(last){
                     auxComment.startRecord();
                 }
                 args[i].accept(this);
             }
         }
+        state.dedent();
         if(args.length == 0){
             auxComment.startRecord();
         }
@@ -166,9 +169,9 @@ public class PrettyPrinter extends VisitorBase{
             for (int i = 0; i < keywords.length; i++) {
                 if (keywords[i] != null){
                     auxComment.writeSpecialsBefore(keywords[i]);
-                    keywords[i].arg.accept(this);
-                    writer.write("=");
-                    keywords[i].value.accept(this);
+                    state.indent();
+                    keywords[i].accept(this);
+                    state.dedent();
                     auxComment.writeSpecialsAfter(keywords[i]);
                 }
             }
@@ -317,6 +320,11 @@ public class PrettyPrinter extends VisitorBase{
 
     @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
+        decoratorsType[] decs = node.decs;
+        for (decoratorsType dec : decs) {
+            auxComment.writeSpecialsBefore(dec);
+            auxComment.writeSpecialsAfter(dec);
+        }
         auxComment.writeSpecialsBefore(node);
         auxComment.writeSpecialsBefore(node.name);
         writer.write("def ");
