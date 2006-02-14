@@ -17,6 +17,9 @@
 <edge WIDTH="thin"/>
 </node>
 <node CREATED="1139596523890" ID="Freemind_Link_1004815783" MODIFIED="1139596670812" TEXT="def Load(self):&#xa;    #Is giving Unused variable: i&#xa;    for i in xrange(10):    &#xa;        coerce(dict[i].text.strip())"/>
+<node CREATED="1139915855015" ID="Freemind_Link_577285573" MODIFIED="1139915931671" TEXT="Limit the number of modules with the AST&#xa;that can be in the memory at any time.">
+<icon BUILTIN="full-1"/>
+</node>
 </node>
 <node CREATED="1139594227703" ID="Freemind_Link_1643430887" MODIFIED="1139594232546" POSITION="right" TEXT="Code Completion">
 <node CREATED="1139594237328" ID="Freemind_Link_215044614" MODIFIED="1139835764546" TEXT="Code Completion for parameters: &#xa;bring the data as &apos;ctx insensitive after &apos;x&apos; characters">
