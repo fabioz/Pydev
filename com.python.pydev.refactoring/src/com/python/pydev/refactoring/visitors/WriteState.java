@@ -6,14 +6,14 @@ package com.python.pydev.refactoring.visitors;
 import java.io.IOException;
 import java.util.Stack;
 
-import org.python.parser.ast.stmtType;
+import org.python.parser.SimpleNode;
 
 public class WriteState {
 
     private IWriterEraser writer;
     private PrettyPrinterPrefs prefs;
     private StringBuffer indentation = new StringBuffer();
-    private Stack<stmtType> stmtStack = new Stack<stmtType>();
+    private Stack<SimpleNode> stmtStack = new Stack<SimpleNode>();
     
     public WriteState(IWriterEraser writer, PrettyPrinterPrefs prefs) {
         this.writer = writer;
@@ -46,11 +46,11 @@ public class WriteState {
         
     }
 
-	public void pushInStmt(stmtType node) {
+	public void pushInStmt(SimpleNode node) {
 		stmtStack.push(node);
 	}
 
-	public stmtType popInStmt() {
+	public SimpleNode popInStmt() {
 		return stmtStack.pop();
 	}
 

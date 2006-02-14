@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testIfElse3();
+            test.testFloorDiv();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -74,6 +74,27 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     	"        '''\n" +
     	"        pass\n";
     	checkPrettyPrintEqual(s);
+    }
+    
+    public void testDocStrings2() throws Exception {
+        String s = ""+
+        "class Class1:\n" +
+        "    \"\"\"docstring1\"\"\"\n" +
+        "    a = 'str1'\n" +
+        "    def met1(self,a):\n" +
+        "        \"docstring2\"\n" +
+        "        ur'unicoderaw'\n" +
+        "        ";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testDocStrings3() throws Exception {
+        String s = ""+
+        "class Class1:\n" +
+        "    def met1(self,a):\n" +
+        "        ur'unicoderaw' + 'foo'\n" +
+        "        ";
+        checkPrettyPrintEqual(s);
     }
     
     public void testIfElse() throws Exception {

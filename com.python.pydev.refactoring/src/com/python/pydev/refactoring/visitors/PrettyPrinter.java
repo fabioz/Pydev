@@ -82,10 +82,21 @@ public class PrettyPrinter extends VisitorBase{
     @Override
     public Object visitBinOp(BinOp node) throws Exception {
         auxComment.writeSpecialsBefore(node);
+        state.pushInStmt(node);
         node.left.accept(this);
         writer.write(operatorMapping[node.op]);
         node.right.accept(this);
+        state.popInStmt();
+
+        auxComment.startRecord();
         auxComment.writeSpecialsAfter(node);
+        
+        if(!state.inStmt()){
+            if(!auxComment.endRecord().writtenComment){
+                state.writeNewLine();
+                state.writeIndent();
+            }
+        }
         return null;
     }
     
@@ -153,12 +164,27 @@ public class PrettyPrinter extends VisitorBase{
 		state.writeIndent();
 	}
     
+    private static final String[] strTypes = new String[]{
+        "'''",
+        "\"\"\"",
+        "'",
+        "\""
+    };
+    
     @Override
     public Object visitStr(Str node) throws Exception {
     	auxComment.writeSpecialsBefore(node);
-    	writer.write("'''");
+        if(node.unicode){
+            writer.write("u");
+        }
+        if(node.raw){
+            writer.write("r");
+        }
+        final String s = strTypes[node.type-1];
+        
+    	writer.write(s);
     	writer.write(node.s);
-    	writer.write("'''");
+    	writer.write(s);
     	if(!state.inStmt()){
 	    	state.writeNewLine();
 	    	state.writeIndent();
