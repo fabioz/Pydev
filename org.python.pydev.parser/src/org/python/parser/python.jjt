@@ -39,6 +39,7 @@ public class PythonGrammar
         jjtree.pushNodePos(t.beginLine, t.beginColumn);
     }
 
+
     void jjtreeCloseNodeScope(Node n) {
         jjtree.setNodePos();
         List specialTokens = token_source.specialTokens;
@@ -47,11 +48,26 @@ public class PythonGrammar
         if(n instanceof SimpleNode){
             if(specialTokens.size() > 0){
                 if(prev == null){
+                        //it was not previously set, let's get the current and add it before that token
                     after = false;
                     prev = (SimpleNode) jjtree.peekNode();
                 }
+
                 for (Iterator iter = specialTokens.iterator(); iter.hasNext();) {
-                    prev.addSpecial(iter.next(), after);
+                    Object next = iter.next();
+                    int strategy = STRATEGY_ADD_PREV; //default strategy
+                    if(next instanceof Object[]){
+                        strategy = (Integer)((Object[])next)[1];
+                        next = ((Object[])next)[0];
+                    }
+
+
+                    if(strategy == STRATEGY_ADD_NEXT){ //try to set 'before the next' and not after prev token
+                        ((SimpleNode)jjtree.peekNode()).addSpecial(next, false);
+                    }else{
+                        //may still add before the next, if there was no prev (we can check that by the 'after' variable)
+                        prev.addSpecial(next, after);
+                    }
                 }
                 specialTokens.clear();
             }
@@ -59,9 +75,23 @@ public class PythonGrammar
         }
     }
 
-    private void addSpecialToken(Object o) {
-        token_source.specialTokens.add(o);
+    /**
+     * Default: add after the previous found token
+     */
+    public static final int STRATEGY_ADD_PREV = 0;
+    
+    /**
+     * Add before the 'next token' strategy
+     */
+    public static final int STRATEGY_ADD_NEXT = 1;
+    private void addSpecialToken(Object o, int strategy) {
+    	token_source.specialTokens.add(new Object[]{o, strategy});
     }
+    private void addSpecialToken(Object o) {
+    	//the default is adding after the previous token
+        token_source.specialTokens.add(new Object[]{o, STRATEGY_ADD_PREV});
+    }
+
 
 
 
@@ -862,7 +892,7 @@ void compound_stmt() #void : { token_source.compound = true; }
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {}
 {
-    <IF> {this.addSpecialToken("if ");}test() <COLON> {this.addSpecialToken(":");} suite()
+    <IF> {this.addSpecialToken("if ",STRATEGY_ADD_NEXT);}test() <COLON> {this.addSpecialToken(":");} suite()
          (<ELIF> {this.addSpecialToken("elif ");}test() 
          <COLON> {this.addSpecialToken(":");}
          suite())* [ <ELSE> 
