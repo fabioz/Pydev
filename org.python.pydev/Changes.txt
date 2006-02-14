@@ -22,6 +22,7 @@ Extensions:
 - code analysis fixes 
 - Error when opening browser catched
 - Debugger: you can use the console when in 'suspendend mode'
+- Consider tokens added to globals for code-analysis purposes
 
 
 after 1.0
