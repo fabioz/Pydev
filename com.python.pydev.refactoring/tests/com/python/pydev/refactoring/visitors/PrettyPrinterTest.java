@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testFloorDiv();
+            test.testComments1();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -55,11 +55,30 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     }
     
 
+    public void testDefaults() throws Exception {
+        String s = ""+
+        "def defaults(hi=None):\n" +
+        "    if False:\n" +
+        "        pass\n" +
+        "    ";
+        checkPrettyPrintEqual(s);
+        
+    }
+    public void testDefaults2() throws Exception {
+        String s = ""+
+        "def defaults(a,x,lo=foo,hi=None):\n" +
+        "    if hi is None:\n" +
+        "        hi = a\n" +
+        "        \n";
+        checkPrettyPrintEqual(s);
+        
+    }
     public void testNoComments() throws Exception {
         String s = ""+
         "class Class1:\n" +
         "    def met1(self,a):\n" +
-        "        pass\n";
+        "        pass\n" +
+        "        ";
         checkPrettyPrintEqual(s);
     }
     
@@ -72,7 +91,8 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     	"        '''docstring2\n" +
     	"        foo\n" +
     	"        '''\n" +
-    	"        pass\n";
+    	"        pass\n" +
+        "        ";
     	checkPrettyPrintEqual(s);
     }
     
@@ -196,7 +216,8 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         String s = ""+
         "class Class1(obj1, obj2):\n" +
         "    def met1(self, a, b):\n" +
-        "        pass\n";
+        "        pass\n" +
+        "        ";
         checkPrettyPrintEqual(s);
     }
     
@@ -218,7 +239,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "    #comment1\n" +
         "    def met1(self,a):#comment2\n" +
         "        pass#comment3\n" +
-        "        \n";
+        "        ";
         checkPrettyPrintEqual(s);
     }
     
@@ -227,7 +248,8 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "class Foo(object):#test comment\n" +
         "    def m1(self,a,#c1\n" +
         "        b):#c2\n" +
-        "        pass\n";
+        "        pass\n" +
+        "        ";
         checkPrettyPrintEqual(s);
         
     }

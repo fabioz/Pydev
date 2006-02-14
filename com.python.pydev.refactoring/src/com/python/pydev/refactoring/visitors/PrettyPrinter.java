@@ -9,6 +9,7 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.Assign;
 import org.python.parser.ast.BinOp;
 import org.python.parser.ast.ClassDef;
+import org.python.parser.ast.Compare;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.If;
 import org.python.parser.ast.Name;
@@ -18,6 +19,7 @@ import org.python.parser.ast.Pass;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.UnaryOp;
 import org.python.parser.ast.VisitorBase;
+import org.python.parser.ast.argumentsType;
 import org.python.parser.ast.exprType;
 
 public class PrettyPrinter extends VisitorBase{
@@ -97,6 +99,36 @@ public class PrettyPrinter extends VisitorBase{
                 state.writeIndent();
             }
         }
+        return null;
+    }
+    
+    public static final String[] cmpop= new String[] {
+        "<undef>",
+        " == ",
+        " != ",
+        "Lt",
+        "LtE",
+        "Gt",
+        "GtE",
+        " is ",
+        " is not ",
+        " in ",
+        " not in ",
+    };
+
+    @Override
+    public Object visitCompare(Compare node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        node.left.accept(this);
+        
+        for(int op : node.ops){
+            writer.write(cmpop[op]);
+        }
+        
+        for (SimpleNode n : node.comparators){
+            n.accept(this);
+        }
+        auxComment.writeSpecialsAfter(node);
         return null;
     }
     
@@ -246,7 +278,7 @@ public class PrettyPrinter extends VisitorBase{
         
         {
         	//arguments
-        	boolean writtenNewLine = makeArgs(node.args.args);
+        	boolean writtenNewLine = makeArgs(node.args.args, node.args);
         	//end arguments
         	if(!writtenNewLine){
         		state.writeNewLine();
@@ -263,12 +295,30 @@ public class PrettyPrinter extends VisitorBase{
         return null;
     }
     
-    private boolean makeArgs(exprType[] args) throws Exception {
+    private boolean makeArgs(exprType[] args, argumentsType completeArgs) throws Exception {
         boolean written = false;
+        exprType[] d = completeArgs.defaults;
+        int argsLen = args.length;
+        int defaultsLen = d.length;
+        int diff = argsLen-defaultsLen;
+        
+        int i = 0;
         for (exprType type : args) {
             auxComment.startRecord();
+            if(i >= diff){
+                writer.pushTempBuffer();
+                exprType arg = d[i-diff];
+                if(arg != null){
+                    arg.accept(this);
+                    type.specialsAfter.add(0, writer.popTempBuffer());
+                    type.specialsAfter.add(0, "=");
+                }else{
+                    writer.popTempBuffer();
+                }
+            }
             type.accept(this);
             written = auxComment.endRecord().writtenComment;
+            i++;
         }
         return written;
     }
@@ -277,8 +327,12 @@ public class PrettyPrinter extends VisitorBase{
     public Object visitPass(Pass node) throws Exception {
         auxComment.writeSpecialsBefore(node);
         writer.write("pass");
+        auxComment.startRecord();
         auxComment.writeSpecialsAfter(node);
-        state.writeNewLine();
+        if(!auxComment.endRecord().writtenComment){
+            state.writeNewLine();
+            state.writeIndent();
+        }
         return null;
     }
     

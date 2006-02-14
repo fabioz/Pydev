@@ -1,21 +1,40 @@
 package com.python.pydev.refactoring.visitors;
 
+import java.util.Stack;
+
 public class WriterEraser implements IWriterEraser{
 
-	StringBuffer buf = new StringBuffer();
+	Stack<StringBuffer> buf = new Stack<StringBuffer>();
 	
+    public WriterEraser(){
+        pushTempBuffer(); //this is the initial buffer (should never be removed)
+    }
+    
 	public void write(String o) {
-		buf.append(o);
+		buf.peek().append(o);
 	}
 
 	public void erase(String o) {
+        StringBuffer buffer = buf.peek();
 		int len = o.length();
-		int bufLen = buf.length();
-		buf.delete(bufLen-len, bufLen);
+		int bufLen = buffer.length();
+        buffer.delete(bufLen-len, bufLen);
 	}
 
 	public StringBuffer getBuffer() {
-		return buf;
+		return buf.peek();
 	}
 
+    public void pushTempBuffer() {
+        buf.push(new StringBuffer());
+    }
+
+    public String popTempBuffer() {
+        return buf.pop().toString();
+    }
+
+    @Override
+    public String toString() {
+        return "WriterEraser<"+buf.peek().toString()+">";
+    }
 }
