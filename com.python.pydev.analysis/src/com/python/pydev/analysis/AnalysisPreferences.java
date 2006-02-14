@@ -98,6 +98,10 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
     public Set<String> getNamesIgnoredByUnusedVariable() {
         return getSetOfNames(AnalysisPreferenceInitializer.NAMES_TO_IGNORE_UNUSED_VARIABLE);
     }
+    
+    public Set<String> getTokensAlwaysInGlobals() {
+    	return getSetOfNames(AnalysisPreferenceInitializer.NAMES_TO_CONSIDER_GLOBALS);
+    }
 
     /**
      * @param preferencesName

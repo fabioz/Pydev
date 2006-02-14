@@ -51,6 +51,9 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
 	public static final String DO_CODE_ANALYSIS = "DO_CODE_ANALYSIS";
 	public static final boolean DEFAULT_DO_CODE_ANALYSIS = true;
 	
+	public static final String NAMES_TO_CONSIDER_GLOBALS = "NAMES_TO_CONSIDER_GLOBALS";
+	public static final String DEFAULT_NAMES_TO_CONSIDER_GLOBALS = "_";
+	
 
     @Override
     public void initializeDefaultPreferences() {
@@ -63,6 +66,7 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
         }
         node.put   (NAMES_TO_IGNORE_UNUSED_VARIABLE, DEFAULT_NAMES_TO_IGNORE_UNUSED_VARIABLE);
         node.put   (NAMES_TO_IGNORE_UNUSED_IMPORT, DEFAULT_NAMES_TO_IGNORE_UNUSED_IMPORT);
+        node.put   (NAMES_TO_CONSIDER_GLOBALS, DEFAULT_NAMES_TO_CONSIDER_GLOBALS);
         node.putInt(WHEN_ANALYZE, DEFAULT_WHEN_ANALYZE);
         node.putBoolean(DO_CODE_ANALYSIS, DEFAULT_DO_CODE_ANALYSIS);
     }

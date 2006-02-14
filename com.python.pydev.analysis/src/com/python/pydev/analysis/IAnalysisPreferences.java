@@ -75,6 +75,11 @@ public interface IAnalysisPreferences {
     Set<String> getModuleNamePatternsToBeIgnored();
     
     /**
+     * @return a set with the names of the tokens that should be considered in the globals at all times
+     */
+    Set<String> getTokensAlwaysInGlobals();
+    
+    /**
      * The analysis preferences may have caches, so that we don't get all from the cache, but we must be able to clear them
      * if something changes (if user changes the preferences).
      */

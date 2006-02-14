@@ -81,6 +81,12 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
         return names;
     }
 
+    public Set<String> getTokensAlwaysInGlobals() {
+    	Set<String> names = new HashSet<String>();
+    	names.add("considerGlobal");
+    	return names;
+    }
+    
     public void clearCaches() {
         //no caches here
     }

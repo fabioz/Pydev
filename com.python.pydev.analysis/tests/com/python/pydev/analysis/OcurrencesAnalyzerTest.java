@@ -100,6 +100,16 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
     }
 
+    public void testConsiderAsGlobals(){
+    	doc = new Document(
+			"print considerGlobal"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,0);
+    	
+    }
     public void testUnusedImports2(){
         
         doc = new Document(

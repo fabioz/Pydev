@@ -186,8 +186,9 @@ public class MessagesManager {
     protected Tuple<Boolean, String> isActuallyUndefined(IToken token, String rep){
     	boolean isActuallyUndefined = true;
     	
-        if(token.getRepresentation().equals("_"))
-        	isActuallyUndefined = false; //TODO: check how to get tokens that are added to the builtins
+    	if(this.prefs.getTokensAlwaysInGlobals().contains(token.getRepresentation())){
+    		isActuallyUndefined = false; 
+    	}
         
         if(rep == null){
         	rep = token.getRepresentation();
