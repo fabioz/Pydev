@@ -169,7 +169,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             return new Num(n.getImage());
         case JJTUNICODE:
         case JJTSTRING:
-            return new Str(n.getImage().toString());
+            Object[] image = (Object[]) n.getImage();
+            return new Str((String)image[0], (Integer)image[3], (Boolean)image[1], (Boolean)image[2]);
 
         case JJTSUITE:
             stmtType[] stmts = new stmtType[arity];
@@ -505,9 +506,10 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTSTR_1OP:
             return new Repr(makeExpr());
         case JJTSTRJOIN:
-            String str2 = ((Str) popNode()).s;
+            Str foundStr2 = (Str) popNode();
+            String str2 = foundStr2.s;
             String str1 = ((Str) popNode()).s;
-            return new Str(str1 + str2);
+            return new Str(str1 + str2, Str.SingleDouble, true, true);
         case JJTLAMBDEF:
             test = makeExpr();
             arguments = makeArguments(arity - 1);

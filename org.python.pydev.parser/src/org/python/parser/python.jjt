@@ -26,6 +26,7 @@ import org.python.parser.ast.modType;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.python.parser.ast.Str;
 
 public class PythonGrammar
 {
@@ -98,8 +99,15 @@ public class PythonGrammar
         return hostLiteralMkr.newImaginary(Double.valueOf(s).doubleValue());
     }
 
-    String makeString(String s, int quotes) {
-        //System.out.println("string: "+s);
+    /**
+     * Return a Tuple where:
+     * 0 = the string
+     * 1 = boolean indicating unicode
+     * 2 = boolean indicating raw
+     * 3 = style
+     */
+    Object[] makeString(String s, int quotes) {
+        //System.out.println("enter: "+s);
         char quoteChar = s.charAt(0);
         int start=0;
         boolean ustring = false;
@@ -109,16 +117,39 @@ public class PythonGrammar
         }
         quoteChar = s.charAt(start);
         if (quoteChar == 'r' || quoteChar == 'R') {
-            return s.substring(quotes+start+1, s.length()-quotes);
+            //raw string (does not decode slashes)
+            String str = s.substring(quotes+start+1, s.length()-quotes);
+            //System.out.println("out: "+str);
+            return new Object[]{str,ustring, true, getType(s.charAt(start+1), quotes)};
+
         } else {
             StringBuffer sb = new StringBuffer(s.length());
             char[] ca = s.toCharArray();
             int n = ca.length-quotes;
             int i=quotes+start;
-            int last_i=i;
 
-            return hostLiteralMkr.decode_UnicodeEscape(s, i, n, "strict", ustring);
+            String str = hostLiteralMkr.decode_UnicodeEscape(s, i, n, "strict", ustring);
+            //System.out.println("out: "+str);
+            return new Object[]{str, ustring, false, getType(s.charAt(start), quotes)};
         }
+    }
+    
+    private int getType(char c, int quotes){
+        if(quotes == 1){
+            if (c == '\''){
+                return Str.SingleSingle;
+            }
+            if(c == '"'){
+                return Str.SingleDouble;
+            }
+        }
+        if (c == '\''){
+            return Str.TripleSingle;
+        }
+        if(c == '"'){
+            return Str.TripleDouble;
+        }
+        throw new RuntimeException("Unable to determine type. Char: "+c+" quotes:"+quotes );
     }
 
     // ! maximal currently used LOOKAHEAD is 3
