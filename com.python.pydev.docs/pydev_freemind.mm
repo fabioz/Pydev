@@ -52,5 +52,8 @@
 <node CREATED="1139852657828" ID="Freemind_Link_1434142630" MODIFIED="1139852688406" TEXT="Thread that does analysis should stop&#xa;when a new request is done, instead&#xa;of the other way around, as it is now."/>
 </node>
 </node>
+<node CREATED="1139937919875" ID="Freemind_Link_342607119" MODIFIED="1139937929359" POSITION="left" TEXT="other improvements">
+<node CREATED="1139937931906" ID="Freemind_Link_1003255905" MODIFIED="1139937941671" TEXT="make memory profiling"/>
+</node>
 </node>
 </map>
