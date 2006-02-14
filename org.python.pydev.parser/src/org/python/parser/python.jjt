@@ -717,11 +717,11 @@ void funcdef(): {}
 //@ call, name, attr ... <nl>
 void decorators(): {}
 {
-	(<AT> dotted_name() (<LPAREN> insidetuporcall() <RPAREN>  {this.addSpecialToken(")");} )* <NEWLINE> )* 
+	(<AT> dotted_name() (<LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);} insidetuporcall() <RPAREN>  {this.addSpecialToken(")");} )* <NEWLINE> )* 
 }
 //parameters: '(' [varargslist] ')'
 void parameters() #void: {}
-{ <LPAREN>  [varargslist()] <RPAREN>  {this.addSpecialToken(")");} }
+{ <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}  [varargslist()] <RPAREN>  {this.addSpecialToken(")");} }
 
 //varargslist: (fpdef ['=' test] ',')* ('*' NAME [',' ('**'|'*' '*') NAME] | ('**'|'*' '*') NAME) | fpdef ['=' test] (',' fpdef ['=' test])* [',']
 void varargslist() #void: {}
@@ -746,7 +746,7 @@ void defaultarg(): {}
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
-{ Name() | <LPAREN>   fplist() <RPAREN> {this.addSpecialToken(")");}  }
+{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}   fplist() <RPAREN> {this.addSpecialToken(")");}  }
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
@@ -853,7 +853,7 @@ void ImportFrom(): { String mod; String name; }
 (
     <MULTIPLY> //from xx import *
     | (name=import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) //from xxx import a,b,c
-    | <LPAREN>   name=import_as_name() ((<NEWLINE>)* {this.addSpecialToken(",");} <COMMA> (<NEWLINE>)* import_as_name())* 
+    | <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}   name=import_as_name() ((<NEWLINE>)* {this.addSpecialToken(",");} <COMMA> (<NEWLINE>)* import_as_name())* 
     <RPAREN>  {this.addSpecialToken(")");}  //from xxx import (a,b,c)
 )
 }
@@ -1024,8 +1024,8 @@ void atomtrailer() #void: {}
 {
 atom() 
 (
-		LOOKAHEAD(2) <LPAREN> <RPAREN>  {this.addSpecialToken(")");} #Call_Op(1)
-	|   LOOKAHEAD(2)(<LPAREN>  insidetuporcall() <RPAREN>  {this.addSpecialToken(")");} ) #Call_Op(jjtree.nodeArity()+1) //with list comprehension: fabioz
+		LOOKAHEAD(2) <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);} <RPAREN>  {this.addSpecialToken(")");} #Call_Op(1)
+	|   LOOKAHEAD(2)(<LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}  insidetuporcall() <RPAREN>  {this.addSpecialToken(")");} ) #Call_Op(jjtree.nodeArity()+1) //with list comprehension: fabioz
 	|   <LBRACKET> subscriptlist() <RBRACKET> #Index_Op(2)
 	|   <DOT> AnyName() #Dot_Op(2) 
 )*
@@ -1035,9 +1035,9 @@ atom()
 //atom: '(' [testlist] ')' | '[' [testlist] ']' | '{' [dictmaker] '}' | '`' testlist '`' | NAME | NUMBER | STRING+
 void atom() #void: {}
 {
-    LOOKAHEAD(2) (  <LPAREN>   <RPAREN>  {this.addSpecialToken(")");} ) #tuple
-|   LOOKAHEAD(2) (  <LPAREN>   insidetuporcall() <RPAREN>  {this.addSpecialToken(")");}  ) #tuple
-|   ( <LPAREN>   [SmartTestList()] <RPAREN>  {this.addSpecialToken(")");}  )
+    LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}   <RPAREN>  {this.addSpecialToken(")");} ) #tuple
+|   LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}   insidetuporcall() <RPAREN>  {this.addSpecialToken(")");}  ) #tuple
+|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}   [SmartTestList()] <RPAREN>  {this.addSpecialToken(")");}  )
 |   ( <LBRACKET> [listmaker()] <RBRACKET> ) #list
 |   ( <LBRACE> [dictmaker()] <RBRACE> ) #dictionary
 |   "`" SmartTestList() "`" #str_1op(1)
@@ -1111,7 +1111,7 @@ void list_for(): {}
 
 //classdef: 'class' NAME ['(' testlist ')'] ':' suite
 void classdef(): {}
-{<CLASS> Name() [<LPAREN>   testlist() <RPAREN>  {this.addSpecialToken(")");} ] <COLON> {this.addSpecialToken(":");} suite()}
+{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}   testlist() <RPAREN>  {this.addSpecialToken(")");} ] <COLON> {this.addSpecialToken(":");} suite()}
 
 //arglist: (argument ',')*
 //              (argument [',']| '*' test [',' '**' test] | '**' test)
