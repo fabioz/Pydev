@@ -54,14 +54,14 @@ public class PythonGrammar
 
                 for (Iterator iter = specialTokens.iterator(); iter.hasNext();) {
                     Object next = iter.next();
-                    int strategy = STRATEGY_ADD_PREV; //default strategy
+                    int strategy = STRATEGY_ADD_AFTER_PREV; //default strategy
                     if(next instanceof Object[]){
                         strategy = (Integer)((Object[])next)[1];
                         next = ((Object[])next)[0];
                     }
 
 
-                    if(strategy == STRATEGY_ADD_NEXT){ //try to set 'before the next' and not after prev token
+                    if(strategy == STRATEGY_BEFORE_NEXT){ //try to set 'before the next' and not after prev token
                         ((SimpleNode)jjtree.peekNode()).addSpecial(next, false);
                     }else{
                         //may still add before the next, if there was no prev (we can check that by the 'after' variable)
@@ -98,18 +98,18 @@ public class PythonGrammar
     /**
      * Default: add after the previous found token
      */
-    public static final int STRATEGY_ADD_PREV = 0;
+    public static final int STRATEGY_ADD_AFTER_PREV = 0;
     
     /**
      * Add before the 'next token' strategy
      */
-    public static final int STRATEGY_ADD_NEXT = 1;
+    public static final int STRATEGY_BEFORE_NEXT = 1;
     private void addSpecialToken(Object o, int strategy) {
     	token_source.specialTokens.add(new Object[]{o, strategy});
     }
     private void addSpecialToken(Object o) {
     	//the default is adding after the previous token
-        token_source.specialTokens.add(new Object[]{o, STRATEGY_ADD_PREV});
+        token_source.specialTokens.add(new Object[]{o, STRATEGY_ADD_AFTER_PREV});
     }
 
 
@@ -737,11 +737,11 @@ void funcdef(): {}
 //@ call, name, attr ... <nl>
 void decorators(): {}
 {
-	(<AT> dotted_name() (<LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);} insidetuporcall() <RPAREN>  {this.addSpecialToken(")");} )* <NEWLINE> )* 
+	(<AT> dotted_name() (<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.addSpecialToken(")");} )* <NEWLINE> )* 
 }
 //parameters: '(' [varargslist] ')'
 void parameters() #void: {}
-{ <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}  [varargslist()] <RPAREN>  {this.addSpecialToken(")");} }
+{ <LPAREN>  {this.addSpecialToken("(");}  [varargslist()] <RPAREN>  {this.addSpecialToken(")");} }
 
 //varargslist: (fpdef ['=' test] ',')* ('*' NAME [',' ('**'|'*' '*') NAME] | ('**'|'*' '*') NAME) | fpdef ['=' test] (',' fpdef ['=' test])* [',']
 void varargslist() #void: {}
@@ -766,7 +766,7 @@ void defaultarg(): {}
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
-{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}   fplist() <RPAREN> {this.addSpecialToken(")");}  }
+{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   fplist() <RPAREN> {this.addSpecialToken(")");}  }
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
@@ -819,12 +819,12 @@ void expr_stmt() #void: {}
 //print_stmt: 'print' (test ',')* [test] | 'print' '>>' test (, test)+ [,]
 void print_stmt() #void: {}
 {
-    LOOKAHEAD(2) <PRINT> <RSHIFT> (test()
+    LOOKAHEAD(2) <PRINT> {this.addSpecialToken("print ", STRATEGY_BEFORE_NEXT);} <RSHIFT> {this.addSpecialToken(">> ", STRATEGY_BEFORE_NEXT);} (test()
         [ (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())+ [Comma()] ]
         )#printext_stmt
-|   LOOKAHEAD(2) <PRINT> (test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()]
+|   LOOKAHEAD(2) <PRINT> {this.addSpecialToken("print ", STRATEGY_BEFORE_NEXT);} (test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()]
         )#print_stmt
-|   <PRINT>
+|   <PRINT> {this.addSpecialToken("print ", STRATEGY_BEFORE_NEXT);}
         #print_stmt
 }
 
@@ -873,7 +873,7 @@ void ImportFrom(): { String mod; String name; }
 (
     <MULTIPLY> //from xx import *
     | (name=import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) //from xxx import a,b,c
-    | <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}   name=import_as_name() ((<NEWLINE>)* {this.addSpecialToken(",");} <COMMA> (<NEWLINE>)* import_as_name())* 
+    | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   name=import_as_name() ((<NEWLINE>)* {this.addSpecialToken(",");} <COMMA> (<NEWLINE>)* import_as_name())* 
     <RPAREN>  {this.addSpecialToken(")");}  //from xxx import (a,b,c)
 )
 }
@@ -912,7 +912,7 @@ void compound_stmt() #void : { token_source.compound = true; }
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {}
 {
-    <IF> {this.addSpecialToken("if ",STRATEGY_ADD_NEXT);}test() <COLON> {this.addSpecialToken(":");} suite()
+    <IF> {this.addSpecialToken("if ",STRATEGY_BEFORE_NEXT);}test() <COLON> {this.addSpecialToken(":");} suite()
          (<ELIF> {this.addSpecialToken("elif ");}test() 
          <COLON> {this.addSpecialToken(":");}
          suite())* [ <ELSE> 
@@ -1044,9 +1044,9 @@ void atomtrailer() #void: {}
 {
 atom() 
 (
-		LOOKAHEAD(2) <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);} <RPAREN>  {this.addSpecialToken(")");} #Call_Op(1)
-	|   LOOKAHEAD(2)(<LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}  insidetuporcall() <RPAREN>  {this.addSpecialToken(")");} ) #Call_Op(jjtree.nodeArity()+1) //with list comprehension: fabioz
-	|   <LBRACKET> subscriptlist() <RBRACKET> #Index_Op(2)
+		LOOKAHEAD(2) <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);} <RPAREN>  {this.addSpecialToken(")");} #Call_Op(1)
+	|   LOOKAHEAD(2)(<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}  insidetuporcall() <RPAREN>  {this.addSpecialToken(")");} ) #Call_Op(jjtree.nodeArity()+1) //with list comprehension: fabioz
+	|   <LBRACKET> {this.addSpecialToken("[",STRATEGY_BEFORE_NEXT);}  subscriptlist() <RBRACKET>{this.addSpecialToken("]");}  #Index_Op(2)
 	|   <DOT> AnyName() #Dot_Op(2) 
 )*
 }
@@ -1055,10 +1055,10 @@ atom()
 //atom: '(' [testlist] ')' | '[' [testlist] ']' | '{' [dictmaker] '}' | '`' testlist '`' | NAME | NUMBER | STRING+
 void atom() #void: {}
 {
-    LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}   <RPAREN>  {this.addSpecialToken(")");} ) #tuple
-|   LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}   insidetuporcall() <RPAREN>  {this.addSpecialToken(")");}  ) #tuple
-|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}   [SmartTestList()] <RPAREN>  {this.addSpecialToken(")");}  )
-|   ( <LBRACKET> [listmaker()] <RBRACKET> ) #list
+    LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   <RPAREN>  {this.addSpecialToken(")");} ) #tuple
+|   LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   insidetuporcall() <RPAREN>  {this.addSpecialToken(")");}  ) #tuple
+|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] <RPAREN>  {this.addSpecialToken(")");}  )
+|   ( <LBRACKET> {this.addSpecialToken("[",STRATEGY_BEFORE_NEXT);} [listmaker()] <RBRACKET> {this.addSpecialToken("]");} ) #list
 |   ( <LBRACE> [dictmaker()] <RBRACE> ) #dictionary
 |   "`" SmartTestList() "`" #str_1op(1)
 |   Name() 
@@ -1131,7 +1131,7 @@ void list_for(): {}
 
 //classdef: 'class' NAME ['(' testlist ')'] ':' suite
 void classdef(): {}
-{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_NEXT);}   testlist() <RPAREN>  {this.addSpecialToken(")");} ] <COLON> {this.addSpecialToken(":");} suite()}
+{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   testlist() <RPAREN>  {this.addSpecialToken(")");} ] <COLON> {this.addSpecialToken(":");} suite()}
 
 //arglist: (argument ',')*
 //              (argument [',']| '*' test [',' '**' test] | '**' test)
@@ -1148,10 +1148,10 @@ void normalargs() #void: {}
 { argument() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> argument())* }
 
 void ExtraArgValueList(): {}
-{ <MULTIPLY> {this.addSpecialToken("*", STRATEGY_ADD_NEXT);}test() }
+{ <MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}test() }
 
 void ExtraKeywordValueList(): {}
-{ (<POWER>{this.addSpecialToken("**", STRATEGY_ADD_NEXT);}|<MULTIPLY>{this.addSpecialToken("*", STRATEGY_ADD_NEXT);} <MULTIPLY>{this.addSpecialToken("*", STRATEGY_ADD_NEXT);}) test() }
+{ (<POWER>{this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY>{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}) test() }
 
 
 //argument: [test '='] test     # Really [keyword '='] test

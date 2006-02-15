@@ -68,7 +68,7 @@ public class SimpleNode implements Node {
 //                DefaultArg a = (DefaultArg) this;
 //                System.out.println("Adding:"+special+" after:"+after+" to:"+a.parameter);
 //            }else{
-//                System.out.println("Adding:"+special+" after:"+after+" to:"+this);
+                System.out.println("Adding:"+special+" after:"+after+" to:"+this);
 //            }
         }
     }
