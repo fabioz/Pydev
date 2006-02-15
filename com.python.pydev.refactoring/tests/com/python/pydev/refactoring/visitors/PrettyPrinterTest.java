@@ -65,7 +65,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testCall2() throws Exception {
         String s = ""+
         "callIt(1#param1\n" +
-        "        )\n" +
+        "    )\n" +
         "";
         checkPrettyPrintEqual(s);
     }
@@ -91,7 +91,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "m1(a,#d1\n" +
         "    b,#d2\n" +
         "    c#d3\n" +
-        "        )\n" +
+        "    )\n" +
         "";
         checkPrettyPrintEqual(s);
     }

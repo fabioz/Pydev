@@ -82,12 +82,28 @@ public class PrettyPrinter extends VisitorBase{
         node.value.accept(this);
         auxComment.writeSpecialsAfter(node);
         
+        checkEndRecord();
+        state.popInStmt();
+        return null;
+    }
+
+    private void checkEndRecord() throws IOException {
+        checkEndRecord(null);
+        
+    }
+    /**
+     * @param node 
+     * @throws IOException
+     */
+    private void checkEndRecord(SimpleNode node) throws IOException {
+        if(node != null){
+            auxComment.writeSpecialsAfter(node);
+        }
+
         if(!auxComment.endRecord().writtenComment){
             state.writeNewLine();
             state.writeIndent();
         }
-        state.popInStmt();
-        return null;
     }
     
     @Override
@@ -128,10 +144,7 @@ public class PrettyPrinter extends VisitorBase{
         auxComment.writeSpecialsAfter(node);
         
         if(!state.inStmt()){
-            if(!auxComment.endRecord().writtenComment){
-                state.writeNewLine();
-                state.writeIndent();
-            }
+            checkEndRecord();
         }
         return null;
     }
@@ -205,11 +218,7 @@ public class PrettyPrinter extends VisitorBase{
     	auxComment.startRecord();
     	super.visitPrint(node);
     	state.popInStmt();
-    	auxComment.writeSpecialsAfter(node);
-    	if(!auxComment.endRecord().writtenComment){
-    		state.writeNewLine();
-    		state.writeIndent();
-    	}
+    	checkEndRecord(node);
     	return null;
     }
 
@@ -232,7 +241,7 @@ public class PrettyPrinter extends VisitorBase{
                 args[i].accept(this);
             }
         }
-        state.dedent();
+        dedent();
         if(args.length == 0){
             auxComment.startRecord();
         }
@@ -243,7 +252,7 @@ public class PrettyPrinter extends VisitorBase{
                     auxComment.writeSpecialsBefore(keywords[i]);
                     state.indent();
                     keywords[i].accept(this);
-                    state.dedent();
+                    dedent();
                     auxComment.writeSpecialsAfter(keywords[i]);
                 }
             }
@@ -284,7 +293,7 @@ public class PrettyPrinter extends VisitorBase{
             n.accept(this);
             auxComment.writeSpecialsAfter(n);
         }
-        makeEndIfDedent();
+        dedent();
         
         
         if(node.orelse != null && node.orelse.length > 0){
@@ -304,17 +313,12 @@ public class PrettyPrinter extends VisitorBase{
 //                auxComment.writeSpecialsAfter(n); // same as the initial
             }
             if(inElse){
-            	makeEndIfDedent();
+            	dedent();
             }
         }
         
         return null;
     }
-
-	private void makeEndIfDedent() {
-		state.eraseIndent();
-        state.dedent();
-	}
 
 	private void makeIfIndent() throws IOException {
 		state.indent();
@@ -378,10 +382,7 @@ public class PrettyPrinter extends VisitorBase{
                     expr.accept(this);
                 }
             }
-            if(!auxComment.endRecord().writtenComment){
-                state.writeNewLine();
-                state.writeIndent();
-            }
+            checkEndRecord();
             for(SimpleNode n: node.body){
                 n.accept(this);
             }
@@ -418,11 +419,7 @@ public class PrettyPrinter extends VisitorBase{
     }
 
     private void afterNode(SimpleNode node) throws IOException {
-        auxComment.writeSpecialsAfter(node);
-        if(!auxComment.endRecord().writtenComment){
-            state.writeNewLine();
-            state.writeIndent();
-        }
+        checkEndRecord(node);
     }
     
     @Override
@@ -509,11 +506,7 @@ public class PrettyPrinter extends VisitorBase{
         auxComment.writeSpecialsBefore(node);
         state.write("pass");
         auxComment.startRecord();
-        auxComment.writeSpecialsAfter(node);
-        if(!auxComment.endRecord().writtenComment){
-            state.writeNewLine();
-            state.writeIndent();
-        }
+        checkEndRecord(node);
         return null;
     }
     
