@@ -98,5 +98,14 @@ public class AuxSpecials {
         return auxState.peek().writtenComment;
     }
 
+    public boolean inRecord() {
+        return auxState.size() > 0;
+    }
+    
+    @Override
+    public String toString() {
+        return "AuxSpecials<auxState size="+auxState.size()+">";
+    }
+
     
 }

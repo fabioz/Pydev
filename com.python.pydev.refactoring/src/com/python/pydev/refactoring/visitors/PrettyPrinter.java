@@ -3,7 +3,6 @@
  */
 package com.python.pydev.refactoring.visitors;
 
-import java.io.IOException;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Assign;
@@ -58,11 +57,7 @@ import org.python.parser.ast.keywordType;
  * 
  * @author Fabio
  */
-public class PrettyPrinter extends VisitorBase{
-
-    protected PrettyPrinterPrefs prefs;
-    private WriteState state;
-    private AuxSpecials auxComment;
+public class PrettyPrinter extends PrettyPrinterUtils{
 
     public PrettyPrinter(PrettyPrinterPrefs prefs, IWriterEraser writer){
         this.prefs = prefs;
@@ -87,25 +82,6 @@ public class PrettyPrinter extends VisitorBase{
         return null;
     }
 
-    private void checkEndRecord() throws IOException {
-        checkEndRecord(null);
-        
-    }
-    /**
-     * @param node 
-     * @throws IOException
-     */
-    private void checkEndRecord(SimpleNode node) throws IOException {
-        if(node != null){
-            auxComment.writeSpecialsAfter(node);
-        }
-
-        if(!auxComment.endRecord().writtenComment){
-            state.writeNewLine();
-            state.writeIndent();
-        }
-    }
-    
     @Override
     public Object visitUnaryOp(UnaryOp node) throws Exception {
         auxComment.writeSpecialsBefore(node);
@@ -115,22 +91,6 @@ public class PrettyPrinter extends VisitorBase{
     }
     
     
-    public static final String[] operatorMapping = new String[] {
-        "<undef>",
-        " + ",
-        " - ",
-        " * ",
-        " / ",
-        " % ",
-        " ** ",
-        " << ",
-        " >> ",
-        " | ",
-        " ^ ",
-        " & ",
-        " // ",
-    };
-
     @Override
     public Object visitBinOp(BinOp node) throws Exception {
         auxComment.writeSpecialsBefore(node);
@@ -140,7 +100,9 @@ public class PrettyPrinter extends VisitorBase{
         node.right.accept(this);
         state.popInStmt();
 
-        auxComment.startRecord();
+        if(!state.inStmt()){
+            auxComment.startRecord();
+        }
         auxComment.writeSpecialsAfter(node);
         
         if(!state.inStmt()){
@@ -149,20 +111,6 @@ public class PrettyPrinter extends VisitorBase{
         return null;
     }
     
-    public static final String[] cmpop= new String[] {
-        "<undef>",
-        " == ",
-        " != ",
-        "Lt",
-        "LtE",
-        "Gt",
-        "GtE",
-        " is ",
-        " is not ",
-        " in ",
-        " not in ",
-    };
-
     @Override
     public Object visitCompare(Compare node) throws Exception {
         auxComment.writeSpecialsBefore(node);
@@ -218,7 +166,7 @@ public class PrettyPrinter extends VisitorBase{
     	auxComment.startRecord();
     	super.visitPrint(node);
     	state.popInStmt();
-    	checkEndRecord(node);
+    	afterNode(node);
     	return null;
     }
 
@@ -314,29 +262,15 @@ public class PrettyPrinter extends VisitorBase{
             }
             if(inElse){
             	dedent();
+            }else{
+                auxComment.endRecord();
             }
         }
         
         return null;
     }
 
-	private void makeIfIndent() throws IOException {
-		state.indent();
-        boolean writtenComment = auxComment.endRecord().writtenComment;
-		if(!writtenComment){
-        	state.writeNewLine();
-        }
-		state.writeIndent();
-	}
-    
-    private static final String[] strTypes = new String[]{
-        "'''",
-        "\"\"\"",
-        "'",
-        "\""
-    };
-    
-    @Override
+	@Override
     public Object visitStr(Str node) throws Exception {
     	auxComment.writeSpecialsBefore(node);
         if(node.unicode){
@@ -393,16 +327,6 @@ public class PrettyPrinter extends VisitorBase{
         return null;
     }
 
-    /**
-     * 
-     */
-    private void dedent() {
-        if(state.lastIsIndent()){
-            state.eraseIndent();
-        }
-        state.dedent();
-    }
-
     @Override
     public Object visitYield(Yield node) throws Exception {
         fixNewStatementCondition();
@@ -413,15 +337,6 @@ public class PrettyPrinter extends VisitorBase{
         return null;
     }
 
-    private void beforeNode(SimpleNode node) throws IOException {
-        auxComment.writeSpecialsBefore(node);
-        auxComment.startRecord();
-    }
-
-    private void afterNode(SimpleNode node) throws IOException {
-        checkEndRecord(node);
-    }
-    
     @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         fixNewStatementCondition();
@@ -463,17 +378,7 @@ public class PrettyPrinter extends VisitorBase{
         return null;
     }
 
-    /**
-     * @throws IOException
-     */
-    private void fixNewStatementCondition() throws IOException {
-        if(state.lastIsWrite()){
-            state.writeNewLine();
-            state.writeIndent();
-        }
-    }
-    
-    private boolean makeArgs(exprType[] args, argumentsType completeArgs) throws Exception {
+    protected boolean makeArgs(exprType[] args, argumentsType completeArgs) throws Exception {
         boolean written = false;
         exprType[] d = completeArgs.defaults;
         int argsLen = args.length;
@@ -506,7 +411,7 @@ public class PrettyPrinter extends VisitorBase{
         auxComment.writeSpecialsBefore(node);
         state.write("pass");
         auxComment.startRecord();
-        checkEndRecord(node);
+        afterNode(node);
         return null;
     }
     
@@ -514,8 +419,7 @@ public class PrettyPrinter extends VisitorBase{
     public Object visitName(Name node) throws Exception {
         auxComment.writeSpecialsBefore(node);
         state.write(node.id);
-        auxComment.writeStringsAfter(node);
-        auxComment.writeCommentsAfter(node);
+        auxComment.writeSpecialsAfter(node);
         return null;
     }
     
@@ -524,11 +428,6 @@ public class PrettyPrinter extends VisitorBase{
         auxComment.writeSpecialsBefore(node);
         state.write(node.id);
         auxComment.writeSpecialsAfter(node);
-        return null;
-    }
-
-    @Override
-    protected Object unhandled_node(SimpleNode node) throws Exception {
         return null;
     }
 

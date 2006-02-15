@@ -52,6 +52,8 @@ public class PrettyPrinterTest  extends PyParserTestBase{
             System.out.println("'"+stringWriter.getBuffer().toString()+"'");
         }
         assertEquals(s, stringWriter.getBuffer().toString());
+        assertTrue(! printer.state.inStmt());
+        assertTrue("Should not be in record:"+printer.auxComment, ! printer.auxComment.inRecord());
     }
     
 
@@ -246,7 +248,18 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         checkPrettyPrintEqual(s);
     }
     
-    public void testIfElse() throws Exception {
+    public void testIfElse0() throws Exception {
+        String s = ""+
+        "if a:\n"+
+        "    a = 1\n"+
+        "elif b:\n"+
+        "    b = 2\n"+
+        "elif c:\n"+
+        "    c = 3#foo\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testIfElse1() throws Exception {
         String s = ""+
         "if a:\n"+
         "    a = 1\n"+
