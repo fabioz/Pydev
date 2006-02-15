@@ -24,6 +24,7 @@ import org.python.parser.ast.Subscript;
 import org.python.parser.ast.Tuple;
 import org.python.parser.ast.UnaryOp;
 import org.python.parser.ast.VisitorBase;
+import org.python.parser.ast.Yield;
 import org.python.parser.ast.argumentsType;
 import org.python.parser.ast.decoratorsType;
 import org.python.parser.ast.exprType;
@@ -355,10 +356,7 @@ public class PrettyPrinter extends VisitorBase{
 
     @Override
     public Object visitClassDef(ClassDef node) throws Exception {
-        if(state.lastIsWrite()){
-            state.writeNewLine();
-            state.writeIndent();
-        }
+        fixNewStatementCondition();
 
         auxComment.writeSpecialsBefore(node.name);
         auxComment.writeSpecialsBefore(node);
@@ -388,23 +386,48 @@ public class PrettyPrinter extends VisitorBase{
                 n.accept(this);
             }
         
-            state.dedent();
-            if(state.lastIsIndent()){
-                state.eraseIndent();
-            }
+            dedent();
         }   
         auxComment.writeSpecialsAfter(node);
         return null;
     }
 
-    
+    /**
+     * 
+     */
+    private void dedent() {
+        if(state.lastIsIndent()){
+            state.eraseIndent();
+        }
+        state.dedent();
+    }
 
     @Override
-    public Object visitFunctionDef(FunctionDef node) throws Exception {
-        if(state.lastIsWrite()){
+    public Object visitYield(Yield node) throws Exception {
+        fixNewStatementCondition();
+        state.write("yield ");
+        beforeNode(node);
+        super.visitYield(node);
+        afterNode(node);
+        return null;
+    }
+
+    private void beforeNode(SimpleNode node) throws IOException {
+        auxComment.writeSpecialsBefore(node);
+        auxComment.startRecord();
+    }
+
+    private void afterNode(SimpleNode node) throws IOException {
+        auxComment.writeSpecialsAfter(node);
+        if(!auxComment.endRecord().writtenComment){
             state.writeNewLine();
             state.writeIndent();
         }
+    }
+    
+    @Override
+    public Object visitFunctionDef(FunctionDef node) throws Exception {
+        fixNewStatementCondition();
         decoratorsType[] decs = node.decs;
         for (decoratorsType dec : decs) {
             auxComment.writeSpecialsBefore(dec);
@@ -438,9 +461,19 @@ public class PrettyPrinter extends VisitorBase{
                 n.accept(this);
             }
         
-            state.dedent();
+            dedent();
         }
         return null;
+    }
+
+    /**
+     * @throws IOException
+     */
+    private void fixNewStatementCondition() throws IOException {
+        if(state.lastIsWrite()){
+            state.writeNewLine();
+            state.writeIndent();
+        }
     }
     
     private boolean makeArgs(exprType[] args, argumentsType completeArgs) throws Exception {

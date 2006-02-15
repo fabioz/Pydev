@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testVarious();
+            test.testYield();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -113,6 +113,26 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         checkPrettyPrintEqual(s);
     }
     
+    public void testYield() throws Exception {
+        String s = ""+
+        "def foo():\n" +
+        "    yield 10\n" +
+        "print 'foo'\n" +
+        "a = 3\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testYield2() throws Exception {
+        String s = ""+
+        "def foo():\n" +
+        "    yield (10)#comment1\n" +
+        "    print 'foo'\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    
     public void testPrint() throws Exception {
     	String s = ""+
     	"print >> a,'foo'\n" +
@@ -125,7 +145,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
 		"def test():#comm1\n" +
 		"    print >> (a,#comm2\n" +
 		"    'foo')#comm3\n" +
-    	"    ";
+    	"";
     	checkPrettyPrintEqual(s);
     }
     
@@ -169,7 +189,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "def defaults(hi=None):\n" +
         "    if False:\n" +
         "        pass\n" +
-        "    ";
+        "";
         checkPrettyPrintEqual(s);
         
     }
@@ -178,7 +198,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "def defaults(a,x,lo=foo,hi=None):\n" +
         "    if hi is None:\n" +
         "        hi = a\n" +
-        "    ";
+        "";
         checkPrettyPrintEqual(s);
         
     }
@@ -187,7 +207,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "class Class1:\n" +
         "    def met1(self,a):\n" +
         "        pass\n" +
-        "        ";
+        "";
         checkPrettyPrintEqual(s);
     }
     
@@ -201,7 +221,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     	"        foo\n" +
     	"        '''\n" +
     	"        pass\n" +
-        "        ";
+        "";
     	checkPrettyPrintEqual(s);
     }
     
@@ -213,7 +233,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "    def met1(self,a):\n" +
         "        \"docstring2\"\n" +
         "        ur'unicoderaw'\n" +
-        "        ";
+        "";
         checkPrettyPrintEqual(s);
     }
     
@@ -222,7 +242,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "class Class1:\n" +
         "    def met1(self,a):\n" +
         "        ur'unicoderaw' + 'foo'\n" +
-        "        ";
+        "";
         checkPrettyPrintEqual(s);
     }
     
@@ -326,7 +346,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "class Class1(obj1, obj2):\n" +
         "    def met1(self, a, b):\n" +
         "        pass\n" +
-        "        ";
+        "";
         checkPrettyPrintEqual(s);
     }
     
@@ -348,7 +368,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "    #comment1\n" +
         "    def met1(self,a):#comment2\n" +
         "        pass#comment3\n" +
-        "        ";
+        "";
         checkPrettyPrintEqual(s);
     }
     
@@ -358,7 +378,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "    def m1(self,a,#c1\n" +
         "        b):#c2\n" +
         "        pass\n" +
-        "        ";
+        "";
         checkPrettyPrintEqual(s);
         
     }
