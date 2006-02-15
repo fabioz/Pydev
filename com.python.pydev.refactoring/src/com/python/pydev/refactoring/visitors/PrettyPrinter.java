@@ -11,6 +11,7 @@ import org.python.parser.ast.BinOp;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Compare;
+import org.python.parser.ast.Dict;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.If;
 import org.python.parser.ast.Name;
@@ -133,6 +134,27 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     	super.visitTuple(node);
     	auxComment.writeSpecialsAfter(node);
     	return null;
+    }
+    
+    @Override
+    public Object visitDict(Dict node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        exprType[] keys = node.keys;
+        exprType[] values = node.values;
+        for (int i = 0; i < values.length; i++) {
+            keys[i].accept(this);
+            values[i].accept(this);
+        }
+        auxComment.writeSpecialsAfter(node);
+        return null;
+    }
+    
+    @Override
+    public Object visitList(org.python.parser.ast.List node) throws Exception{
+        auxComment.writeSpecialsBefore(node);
+        super.visitList(node);
+        auxComment.writeSpecialsAfter(node);
+        return null;
     }
     
     @Override
