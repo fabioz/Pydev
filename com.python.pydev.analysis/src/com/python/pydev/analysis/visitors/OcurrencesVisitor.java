@@ -15,6 +15,7 @@ import org.python.parser.ast.Assign;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
+import org.python.parser.ast.Dict;
 import org.python.parser.ast.Expr;
 import org.python.parser.ast.For;
 import org.python.parser.ast.FunctionDef;
@@ -402,6 +403,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitAttribute(org.python.parser.ast.Attribute)
      */
     public Object visitAttribute(Attribute node) throws Exception {
+    	boolean valueVisited = false;
         final exprType value = node.value;
         if(value instanceof Subscript){
         	Subscript subs = (Subscript) value;
@@ -423,10 +425,21 @@ public class OcurrencesVisitor extends VisitorBase{
         	return null;
         }
 		if(value instanceof Call){
-            visitCallAttr(node);
-        }
-        if(value instanceof Tuple){
+            visitCallAttr((Call) value);
+            valueVisited = true;
+            
+        }else if(value instanceof Tuple){
         	visitTuple((Tuple) value);
+        	valueVisited = true;
+        	
+        }else if(value instanceof Dict){
+        	visitDict((Dict) value);
+        	return null;
+        }
+        if(!valueVisited){
+        	if(visitNeededValues(value)){
+        		return null;
+        	}
         }
 
         SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName);
@@ -462,16 +475,25 @@ public class OcurrencesVisitor extends VisitorBase{
                 }
             }
         }
-
         return null;
     }
 
-    /**
+    private boolean visitNeededValues(exprType value) throws Exception {
+    	if(value instanceof Name){
+    		return false;
+    	}else if (value instanceof Attribute){
+    		return visitNeededValues(((Attribute)value).value);
+    	}else{
+    		value.accept(this);
+    		return true;
+    	}
+	}
+
+	/**
      * used if we want to visit all in a call but the func itself (that's the call name).
      */
-    private void visitCallAttr(Attribute node) throws Exception {
+    private void visitCallAttr(Call c) throws Exception {
         //now, visit all inside it but the func itself 
-        Call c = (Call)node.value;
         OcurrencesVisitor visitor = this;
         if (c.args != null) {
             for (int i = 0; i < c.args.length; i++) {

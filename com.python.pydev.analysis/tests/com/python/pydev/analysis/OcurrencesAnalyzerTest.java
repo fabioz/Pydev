@@ -26,7 +26,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testDictAcess();
+            analyzer2.test5UnusedVariables();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -1819,6 +1819,30 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     	
     	printMessages(msgs, 1);
     	assertEquals("Undefined variable: data", msgs[0].getMessage());
+    }
+    
+    public void testEmptyDict() {
+    	doc = new Document(
+    			"for k,v in {}.iteritmes(): print k,v"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs, 0);
+    }
+    
+    
+    public void testDirectDictAccess() {
+    	doc = new Document(
+			"def Load(self):\n"+
+			"    #Is giving Unused variable: i\n"+
+			"    for i in xrange(10):    \n"+
+			"        coerce(dict[i].text.strip())\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs, 0);
     }
     
     public void testColError() {

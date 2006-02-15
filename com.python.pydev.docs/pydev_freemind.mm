@@ -16,7 +16,9 @@
 <node CREATED="1139595096843" ID="Freemind_Link_148953784" MODIFIED="1139596781765" TEXT="&#xa;def Foo(self):&#xa;    print _Bar()&#xa;&#xa;def _Bar():&#xa;    pass&#xa;&#xa;try:&#xa;    # Should show duplicated error (shows unused import)&#xa;    from empty2 import Bar2 as _Bar &#xa;except:&#xa;    #if available, use it&#xa;    pass&#xa;">
 <edge WIDTH="thin"/>
 </node>
-<node CREATED="1139596523890" ID="Freemind_Link_1004815783" MODIFIED="1139596670812" TEXT="def Load(self):&#xa;    #Is giving Unused variable: i&#xa;    for i in xrange(10):    &#xa;        coerce(dict[i].text.strip())"/>
+<node CREATED="1139596523890" ID="Freemind_Link_1004815783" MODIFIED="1139999195250" TEXT="def Load(self):&#xa;    #Is giving Unused variable: i&#xa;    for i in xrange(10):    &#xa;        coerce(dict[i].text.strip())">
+<icon BUILTIN="button_ok"/>
+</node>
 <node CREATED="1139915855015" ID="Freemind_Link_577285573" MODIFIED="1139915931671" TEXT="Limit the number of modules with the AST&#xa;that can be in the memory at any time.">
 <icon BUILTIN="full-1"/>
 </node>
