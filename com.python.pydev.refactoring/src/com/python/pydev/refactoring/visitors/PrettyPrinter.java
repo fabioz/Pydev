@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.Assign;
+import org.python.parser.ast.Attribute;
 import org.python.parser.ast.BinOp;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
@@ -163,6 +164,14 @@ public class PrettyPrinter extends VisitorBase{
     }
     
     @Override
+    public Object visitAttribute(Attribute node) throws Exception {
+        node.value.accept(this);
+        writer.write(".");
+        node.attr.accept(this);
+        return null;
+    }
+    
+    @Override
     public Object visitPrint(Print node) throws Exception {
     	auxComment.writeSpecialsBefore(node);
     	state.pushInStmt(node);
@@ -179,10 +188,10 @@ public class PrettyPrinter extends VisitorBase{
 
     @Override
     public Object visitCall(Call node) throws Exception {
-        auxComment.writeSpecialsBefore(node);
         
         //make the visit
         node.func.accept(this);
+        auxComment.writeSpecialsBefore(node);
         exprType[] args = node.args;
         state.indent();
         for (int i = 0; i < args.length; i++) {
