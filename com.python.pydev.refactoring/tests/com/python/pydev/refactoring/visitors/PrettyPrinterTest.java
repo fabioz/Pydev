@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testAttrCall();
+            test.testVarious();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -97,6 +97,22 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     }
     
     
+    public void testVarious() throws Exception {
+        String s = ""+
+        "class Foo:\n" +
+        "    def __init__(self,a,b):\n" +
+        "        print self,#comment0\n" +
+        "        a,b\n" +
+        "    def met1(self,a):#ok comment1\n" +
+        "        a,b\n" +
+        "        class Inner(object):\n" +
+        "            pass\n" +
+        "        self.met1(a)\n" +
+        "print 'ok'\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
     public void testPrint() throws Exception {
     	String s = ""+
     	"print >> a,'foo'\n" +
@@ -109,7 +125,6 @@ public class PrettyPrinterTest  extends PyParserTestBase{
 		"def test():#comm1\n" +
 		"    print >> (a,#comm2\n" +
 		"    'foo')#comm3\n" +
-    	"    \n" +
     	"    ";
     	checkPrettyPrintEqual(s);
     }

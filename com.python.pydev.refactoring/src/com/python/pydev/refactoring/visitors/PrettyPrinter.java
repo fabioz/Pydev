@@ -29,16 +29,42 @@ import org.python.parser.ast.decoratorsType;
 import org.python.parser.ast.exprType;
 import org.python.parser.ast.keywordType;
 
+/**
+ * statements that 'need' to be on a new line:
+ * print
+ * del
+ * pass
+ * flow
+ * import
+ * global
+ * exec
+ * assert
+ * 
+ * 
+ * flow:
+ * return
+ * yield
+ * raise
+ * 
+ * 
+ * compound:
+ * if
+ * while
+ * for
+ * try
+ * func
+ * class
+ * 
+ * @author Fabio
+ */
 public class PrettyPrinter extends VisitorBase{
 
     protected PrettyPrinterPrefs prefs;
-    private IWriterEraser writer;
     private WriteState state;
     private AuxSpecials auxComment;
 
     public PrettyPrinter(PrettyPrinterPrefs prefs, IWriterEraser writer){
         this.prefs = prefs;
-        this.writer = writer;
         state = new WriteState(writer, prefs);
         auxComment = new AuxSpecials(state, writer, prefs);
     }
@@ -50,7 +76,7 @@ public class PrettyPrinter extends VisitorBase{
         for (SimpleNode target : node.targets) {
             target.accept(this);
         }
-        writer.write(" = ");
+        state.write(" = ");
         auxComment.startRecord();
         node.value.accept(this);
         auxComment.writeSpecialsAfter(node);
@@ -66,7 +92,7 @@ public class PrettyPrinter extends VisitorBase{
     @Override
     public Object visitUnaryOp(UnaryOp node) throws Exception {
         auxComment.writeSpecialsBefore(node);
-        writer.write(node.operand.toString());
+        state.write(node.operand.toString());
         auxComment.writeSpecialsAfter(node);
         return null;
     }
@@ -93,7 +119,7 @@ public class PrettyPrinter extends VisitorBase{
         auxComment.writeSpecialsBefore(node);
         state.pushInStmt(node);
         node.left.accept(this);
-        writer.write(operatorMapping[node.op]);
+        state.write(operatorMapping[node.op]);
         node.right.accept(this);
         state.popInStmt();
 
@@ -129,7 +155,7 @@ public class PrettyPrinter extends VisitorBase{
         node.left.accept(this);
         
         for(int op : node.ops){
-            writer.write(cmpop[op]);
+            state.write(cmpop[op]);
         }
         
         for (SimpleNode n : node.comparators){
@@ -150,7 +176,7 @@ public class PrettyPrinter extends VisitorBase{
     @Override
     public Object visitNum(Num node) throws Exception {
         auxComment.writeSpecialsBefore(node);
-        writer.write(node.n.toString());
+        state.write(node.n.toString());
         auxComment.writeSpecialsAfter(node);
         return null;
     }
@@ -166,7 +192,7 @@ public class PrettyPrinter extends VisitorBase{
     @Override
     public Object visitAttribute(Attribute node) throws Exception {
         node.value.accept(this);
-        writer.write(".");
+        state.write(".");
         node.attr.accept(this);
         return null;
     }
@@ -175,9 +201,9 @@ public class PrettyPrinter extends VisitorBase{
     public Object visitPrint(Print node) throws Exception {
     	auxComment.writeSpecialsBefore(node);
     	state.pushInStmt(node);
+    	auxComment.startRecord();
     	super.visitPrint(node);
     	state.popInStmt();
-    	auxComment.startRecord();
     	auxComment.writeSpecialsAfter(node);
     	if(!auxComment.endRecord().writtenComment){
     		state.writeNewLine();
@@ -309,16 +335,16 @@ public class PrettyPrinter extends VisitorBase{
     public Object visitStr(Str node) throws Exception {
     	auxComment.writeSpecialsBefore(node);
         if(node.unicode){
-            writer.write("u");
+            state.write("u");
         }
         if(node.raw){
-            writer.write("r");
+            state.write("r");
         }
         final String s = strTypes[node.type-1];
         
-    	writer.write(s);
-    	writer.write(node.s);
-    	writer.write(s);
+    	state.write(s);
+    	state.write(node.s);
+    	state.write(s);
     	if(!state.inStmt()){
 	    	state.writeNewLine();
 	    	state.writeIndent();
@@ -329,22 +355,27 @@ public class PrettyPrinter extends VisitorBase{
 
     @Override
     public Object visitClassDef(ClassDef node) throws Exception {
+        if(state.lastIsWrite()){
+            state.writeNewLine();
+            state.writeIndent();
+        }
+
         auxComment.writeSpecialsBefore(node.name);
         auxComment.writeSpecialsBefore(node);
-        writer.write("class ");
+        state.write("class ");
         
         
         NameTok name = (NameTok) node.name;
 
         auxComment.startRecord();
-        writer.write(name.id);
+        state.write(name.id);
         //we want the comments to be indented too
         state.indent();
         {
         	auxComment.writeSpecialsAfter(name);
     
             if(node.bases.length > 0){
-//                writer.write("(");
+//                state.write("(");
                 for (exprType expr : node.bases) {
                     expr.accept(this);
                 }
@@ -358,6 +389,9 @@ public class PrettyPrinter extends VisitorBase{
             }
         
             state.dedent();
+            if(state.lastIsIndent()){
+                state.eraseIndent();
+            }
         }   
         auxComment.writeSpecialsAfter(node);
         return null;
@@ -367,6 +401,10 @@ public class PrettyPrinter extends VisitorBase{
 
     @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
+        if(state.lastIsWrite()){
+            state.writeNewLine();
+            state.writeIndent();
+        }
         decoratorsType[] decs = node.decs;
         for (decoratorsType dec : decs) {
             auxComment.writeSpecialsBefore(dec);
@@ -374,11 +412,11 @@ public class PrettyPrinter extends VisitorBase{
         }
         auxComment.writeSpecialsBefore(node);
         auxComment.writeSpecialsBefore(node.name);
-        writer.write("def ");
+        state.write("def ");
         
         
         NameTok name = (NameTok) node.name;
-        writer.write(name.id);
+        state.write(name.id);
         auxComment.writeSpecialsAfter(node);
         auxComment.startRecord();
         auxComment.writeSpecialsAfter(node.name);
@@ -416,14 +454,14 @@ public class PrettyPrinter extends VisitorBase{
         for (exprType type : args) {
             auxComment.startRecord();
             if(i >= diff){
-                writer.pushTempBuffer();
+                state.pushTempBuffer();
                 exprType arg = d[i-diff];
                 if(arg != null){
                     arg.accept(this);
-                    type.specialsAfter.add(0, writer.popTempBuffer());
+                    type.specialsAfter.add(0, state.popTempBuffer());
                     type.specialsAfter.add(0, "=");
                 }else{
-                    writer.popTempBuffer();
+                    state.popTempBuffer();
                 }
             }
             type.accept(this);
@@ -436,7 +474,7 @@ public class PrettyPrinter extends VisitorBase{
     @Override
     public Object visitPass(Pass node) throws Exception {
         auxComment.writeSpecialsBefore(node);
-        writer.write("pass");
+        state.write("pass");
         auxComment.startRecord();
         auxComment.writeSpecialsAfter(node);
         if(!auxComment.endRecord().writtenComment){
@@ -449,7 +487,7 @@ public class PrettyPrinter extends VisitorBase{
     @Override
     public Object visitName(Name node) throws Exception {
         auxComment.writeSpecialsBefore(node);
-        writer.write(node.id);
+        state.write(node.id);
         auxComment.writeStringsAfter(node);
         auxComment.writeCommentsAfter(node);
         return null;
@@ -458,7 +496,7 @@ public class PrettyPrinter extends VisitorBase{
     @Override
     public Object visitNameTok(NameTok node) throws Exception {
         auxComment.writeSpecialsBefore(node);
-        writer.write(node.id);
+        state.write(node.id);
         auxComment.writeSpecialsAfter(node);
         return null;
     }

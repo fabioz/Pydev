@@ -8,13 +8,19 @@ import java.util.Stack;
 
 import org.python.parser.SimpleNode;
 
-public class WriteState {
+public class WriteState implements IWriterEraser {
 
     private IWriterEraser writer;
     private PrettyPrinterPrefs prefs;
     private StringBuffer indentation = new StringBuffer();
     private Stack<SimpleNode> stmtStack = new Stack<SimpleNode>();
-    private Stack<Boolean> stopNewLine = new Stack<Boolean>();
+    
+    public final static int INITIAL_STATE = -1;
+    public final static int LAST_STATE_NEW_LINE = 0;
+    public final static int LAST_STATE_INDENT = 1;
+    public final static int LAST_STATE_WRITE = 2;
+    
+    int lastState=INITIAL_STATE;
     
     public WriteState(IWriterEraser writer, PrettyPrinterPrefs prefs) {
         this.writer = writer;
@@ -31,14 +37,17 @@ public class WriteState {
     }
 
     public void writeIndent() throws IOException {
+        lastState = LAST_STATE_INDENT;
         writer.write(indentation.toString());
     }
     
     public void writeNewLine() throws IOException {
+        lastState = LAST_STATE_NEW_LINE;
         writer.write(prefs.getNewLine());
     }
 
     public void writeIndent(int i) throws IOException {
+        lastState = LAST_STATE_INDENT;
         writeIndent();
         String indent = prefs.getIndent();
         for (int j = 0; j < i; j++) {
@@ -64,5 +73,30 @@ public class WriteState {
 			writer.erase(prefs.getIndent());
 		}
 	}
+
+    public void write(String o) {
+        lastState = LAST_STATE_WRITE;
+        writer.write(o);
+    }
+
+    public void erase(String o) {
+        writer.erase(o);
+    }
+
+    public void pushTempBuffer() {
+        writer.pushTempBuffer();
+    }
+
+    public String popTempBuffer() {
+        return writer.popTempBuffer();
+    }
+
+    public boolean lastIsWrite() {
+        return lastState == LAST_STATE_WRITE;
+    }
+
+    public boolean lastIsIndent() {
+        return lastState == LAST_STATE_INDENT;
+    }
     
 }
