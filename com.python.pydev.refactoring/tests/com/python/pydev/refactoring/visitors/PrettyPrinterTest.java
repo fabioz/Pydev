@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testCall2();
+            test.testPrintComment();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -94,6 +94,31 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "        )\n" +
         "";
         checkPrettyPrintEqual(s);
+    }
+    
+    
+    public void testPrint() throws Exception {
+    	String s = ""+
+    	"print >> a,'foo'\n" +
+    	"";
+    	checkPrettyPrintEqual(s);
+    }
+    
+    public void testPrintComment() throws Exception {
+    	String s = ""+
+		"def test():#comm1\n" +
+		"    print >> (a,#comm2\n" +
+		"    'foo')#comm3\n" +
+    	"    \n" +
+    	"    ";
+    	checkPrettyPrintEqual(s);
+    }
+    
+    public void testSubscript() throws Exception {
+    	String s = ""+
+    	"print a[0]\n" +
+    	"";
+    	checkPrettyPrintEqual(s);
     }
     
     public void testDefaults() throws Exception {

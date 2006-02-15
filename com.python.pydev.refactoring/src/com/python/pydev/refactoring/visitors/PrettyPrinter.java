@@ -17,7 +17,10 @@ import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Pass;
+import org.python.parser.ast.Print;
 import org.python.parser.ast.Str;
+import org.python.parser.ast.Subscript;
+import org.python.parser.ast.Tuple;
 import org.python.parser.ast.UnaryOp;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.argumentsType;
@@ -136,11 +139,42 @@ public class PrettyPrinter extends VisitorBase{
     }
     
     @Override
+    public Object visitTuple(Tuple node) throws Exception {
+    	auxComment.writeSpecialsBefore(node);
+    	super.visitTuple(node);
+    	auxComment.writeSpecialsAfter(node);
+    	return null;
+    }
+    
+    @Override
     public Object visitNum(Num node) throws Exception {
         auxComment.writeSpecialsBefore(node);
         writer.write(node.n.toString());
         auxComment.writeSpecialsAfter(node);
         return null;
+    }
+    
+    @Override
+    public Object visitSubscript(Subscript node) throws Exception {
+    	auxComment.writeSpecialsBefore(node);
+    	super.visitSubscript(node);
+    	auxComment.writeSpecialsAfter(node);
+    	return null;
+    }
+    
+    @Override
+    public Object visitPrint(Print node) throws Exception {
+    	auxComment.writeSpecialsBefore(node);
+    	state.pushInStmt(node);
+    	super.visitPrint(node);
+    	state.popInStmt();
+    	auxComment.startRecord();
+    	auxComment.writeSpecialsAfter(node);
+    	if(!auxComment.endRecord().writtenComment){
+    		state.writeNewLine();
+    		state.writeIndent();
+    	}
+    	return null;
     }
 
     @Override
@@ -333,13 +367,17 @@ public class PrettyPrinter extends VisitorBase{
         NameTok name = (NameTok) node.name;
         writer.write(name.id);
         auxComment.writeSpecialsAfter(node);
-//        writer.write("(");
-
+        auxComment.startRecord();
+        auxComment.writeSpecialsAfter(node.name);
+        boolean writtenNewLine = auxComment.endRecord().writtenComment;
         state.indent();
+        if(writtenNewLine){
+        	state.writeIndent();
+        }
         
         {
         	//arguments
-        	boolean writtenNewLine = makeArgs(node.args.args, node.args);
+        	writtenNewLine = makeArgs(node.args.args, node.args) || writtenNewLine;
         	//end arguments
         	if(!writtenNewLine){
         		state.writeNewLine();
@@ -351,7 +389,6 @@ public class PrettyPrinter extends VisitorBase{
         
             state.dedent();
         }
-        auxComment.writeSpecialsAfter(node.name);
         return null;
     }
     
