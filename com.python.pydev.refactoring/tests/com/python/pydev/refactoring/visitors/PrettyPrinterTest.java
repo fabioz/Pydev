@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testYield();
+            test.testTuple2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -245,6 +245,21 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "    def met1(self,a):\n" +
         "        ur'unicoderaw' + 'foo'\n" +
         "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testTuple() throws Exception {
+        String s = ""+
+        "if a:\n"+
+        "    a = (a,b,c)\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testTuple2() throws Exception {
+        String s = ""+
+        "if a:\n"+
+        "    a = (a,b,#comment\n" +
+        "    c)";
         checkPrettyPrintEqual(s);
     }
     
