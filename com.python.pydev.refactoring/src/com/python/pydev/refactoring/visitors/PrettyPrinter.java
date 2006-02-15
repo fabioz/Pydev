@@ -190,7 +190,9 @@ public class PrettyPrinter extends VisitorBase{
     public Object visitCall(Call node) throws Exception {
         
         //make the visit
+        state.pushInStmt(node);
         node.func.accept(this);
+        state.popInStmt();
         auxComment.writeSpecialsBefore(node);
         exprType[] args = node.args;
         state.indent();
@@ -234,7 +236,9 @@ public class PrettyPrinter extends VisitorBase{
             state.writeIndent(1);
         }
         auxComment.writeStringsAfter(node);
-        state.writeNewLine();
+        if(!state.inStmt()){
+            state.writeNewLine();
+        }
         return null;
     }
     

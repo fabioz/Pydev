@@ -14,6 +14,7 @@ public class WriteState {
     private PrettyPrinterPrefs prefs;
     private StringBuffer indentation = new StringBuffer();
     private Stack<SimpleNode> stmtStack = new Stack<SimpleNode>();
+    private Stack<Boolean> stopNewLine = new Stack<Boolean>();
     
     public WriteState(IWriterEraser writer, PrettyPrinterPrefs prefs) {
         this.writer = writer;
@@ -63,6 +64,5 @@ public class WriteState {
 			writer.erase(prefs.getIndent());
 		}
 	}
-
-
+    
 }
