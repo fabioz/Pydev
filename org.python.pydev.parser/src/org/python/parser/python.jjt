@@ -1059,7 +1059,7 @@ void atom() #void: {}
 |   LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   insidetuporcall() <RPAREN>  {this.addSpecialToken(")");}  ) #tuple
 |   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] <RPAREN>  {this.addSpecialToken(")");}  )
 |   ( <LBRACKET> {this.addSpecialToken("[",STRATEGY_BEFORE_NEXT);} [listmaker()] <RBRACKET> {this.addSpecialToken("]");} ) #list
-|   ( <LBRACE> [dictmaker()] <RBRACE> ) #dictionary
+|   ( <LBRACE> {this.addSpecialToken("{",STRATEGY_BEFORE_NEXT);} [dictmaker()] <RBRACE> {this.addSpecialToken("}");} ) #dictionary
 |   "`" SmartTestList() "`" #str_1op(1)
 |   Name() 
 |   Number()

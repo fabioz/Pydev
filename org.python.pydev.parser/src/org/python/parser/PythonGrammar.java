@@ -4221,6 +4221,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
       jjtreeOpenNodeScope(jjtn004);
         try {
           jj_consume_token(LBRACE);
+                this.addSpecialToken("{",STRATEGY_BEFORE_NEXT);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case LPAREN:
           case LBRACE:
@@ -4253,6 +4254,10 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
             ;
           }
           jj_consume_token(RBRACE);
+                                                                                          jjtree.closeNodeScope(jjtn004, true);
+                                                                                          jjtc004 = false;
+                                                                                          jjtreeCloseNodeScope(jjtn004);
+                                                                                         this.addSpecialToken("}");
         } catch (Throwable jjte004) {
       if (jjtc004) {
         jjtree.clearNodeScope(jjtn004);
