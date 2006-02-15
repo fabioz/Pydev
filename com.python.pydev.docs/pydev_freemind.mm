@@ -53,6 +53,9 @@
 <node CREATED="1139852644671" ID="Freemind_Link_34736996" MODIFIED="1139852656953" TEXT="making analysis">
 <node CREATED="1139852657828" ID="Freemind_Link_1434142630" MODIFIED="1139852688406" TEXT="Thread that does analysis should stop&#xa;when a new request is done, instead&#xa;of the other way around, as it is now."/>
 </node>
+<node CREATED="1139999886640" ID="Freemind_Link_1097638367" MODIFIED="1139999908078" TEXT="analyze &apos;self&apos; attributes"/>
+<node CREATED="1139999925890" ID="Freemind_Link_901862754" MODIFIED="1139999937390" TEXT="make dict.foo give an error"/>
+<node CREATED="1139999953484" ID="Freemind_Link_382561698" MODIFIED="1140000010671" TEXT="Enable the user to &apos;annotate&apos; classes as &apos;dynamic&apos; &#xa;classes (and make it automatic if it has __getattr__)"/>
 </node>
 <node CREATED="1139937919875" ID="Freemind_Link_342607119" MODIFIED="1139937929359" POSITION="left" TEXT="other improvements">
 <node CREATED="1139937931906" ID="Freemind_Link_1003255905" MODIFIED="1139937941671" TEXT="make memory profiling"/>
