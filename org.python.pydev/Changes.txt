@@ -12,17 +12,20 @@ org.python.core.SysPackageManager
 
 after 1.0.1
 
-- debugging for jython (yield)
-- code coverage does not report docstrings as not being executed
-- freezing the debugger fix (this could happen due to some threading problems).
+Pydev:
 
-Extensions:
+- Jython debugging now working.
+- Code coverage does not report docstrings as not being executed.
+- Freeze when making a 'step-in' fixed in the debugger.
+- Grammar generated with javacc version 4.0 
 
-- too many matches when go to definition could cause it to hang (for a really, really long time).
-- code analysis fixes 
-- Error when opening browser catched
-- Debugger: you can use the console when in 'suspendend mode'
-- Consider tokens added to globals for code-analysis purposes
+Pydev Extensions:
+
+- New feature in the debugger: the console is available for probing when in 'suspendend mode'
+- New feature in code analysis: Provided a way to consider tokens that should be in the globals
+- Halt fix when too many matches where found in the go to definition.
+- Code analysis minor bugs fixed.
+- Error when opening browser fixed.
 
 
 after 1.0
