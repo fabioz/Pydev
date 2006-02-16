@@ -12,9 +12,16 @@ try:
     from java.lang import Thread
     import jyimportsTipper as importsTipper
 
-except:
+except ImportError:
     
     #it is python
+    try:
+        IS_JYTHON = False
+    except NameError:
+        #it is an early version of python
+        True = 1
+        False = 0
+        
     IS_JYTHON = False
     SERVER_NAME = 'pycompletionserver'
     from threading import Thread
