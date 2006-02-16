@@ -121,6 +121,9 @@
 <node COLOR="#00b439" CREATED="1139937931906" ID="Freemind_Link_1003255905" MODIFIED="1140001041875" TEXT="make memory profiling">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
+<node COLOR="#00b439" CREATED="1140106715906" ID="Freemind_Link_1375402745" MODIFIED="1140106864265" TEXT="Make script to handle all the buld proccess:&#xa;- Creating build: OK&#xa;- Creating e-mail message:&#xa;- Uploading files to sourceforge (partial: only html)&#xa;- Uploading files to fabioz.com&#xa;- Updating site.xml&#xa;- Printing what else needs to be done in sf">
+<font NAME="SansSerif" SIZE="16"/>
+</node>
 </node>
 </node>
 </map>
