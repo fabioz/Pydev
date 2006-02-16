@@ -1,5 +1,4 @@
 import datetime
-LAST_VERSION_TAG='0.9.8.8'
 
 #http://www.fabioz.com/pydev/successful_payment.html
 #http://www.fabioz.com/pydev/cancel_payment.html
@@ -28,7 +27,9 @@ manual_adv = \
 ('manual_adv_complnoctx'     , 'Context-insensitive completions' ),
 ('manual_adv_complauto'      , 'Auto-suggest keywords'           ),
 ('manual_adv_debugger'       , 'Debugger'                        ),
-('manual_adv_remote_debugger', 'Remote Debugger'                 ))
+('manual_adv_remote_debugger', 'Remote Debugger'                 ),
+('manual_adv_debug_console'  , 'Debug Console'                   ),
+)
 
 def template( template, contents, title, **kwargs ):
 
@@ -96,6 +97,7 @@ def main():
     template('../templateManual.html', 'manual_adv_complauto'      , 'Auto-suggest keywords'           )
     template('../templateManual.html', 'manual_adv_debugger'       , 'Debugger'                        )
     template('../templateManual.html', 'manual_adv_remote_debugger', 'Remote Debugger'                 )
+    template('../templateManual.html', 'manual_adv_debug_console'  , 'Debug Console'                   )
     
     template('../templateManual.html', 'manual_adv_keybindings'    , 'Keybindings'                     )
 

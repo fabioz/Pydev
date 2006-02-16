@@ -1,29 +1,16 @@
-<h2>New on: 1.0.1 </h2>
-<li><strong>Fix for an out-of-memory error when restoring the interpreter</strong> (single thing in this release)
-<br/>
-<br/>
+<h2>New on: 1.0.2</h2>
 
-<h2>New on: 1.0</h2>
-
-<br>
-<li><strong>High-speed Debugger</strong> (on par with the best debuggers available)
-</li><li>Debugger now gets the variables 'on-demand'
-</li><li>The variables returned for jython are much more complete
-</li><li>Wizard to create new project has option for creating a default 'src' folder (and add it to the pythonpath).
-</li><li>The create new python module and new python package have been reviewed (you can still use the regular ones, but the new ones are really reccommended -- also it will help in making sure you have your pythonpath correctly configured!).
-</li><li>Create new source folder option added.
-</li><li>Pylint can now give the output to the console (configurable).
-</li><li>Pylint 0.9.0 tested
-</li><li>Pylint errors now show in the hover
-</li><li>The Pydev perspective was changed (so, please, close the current and ro-open it)
-</li><li>Templates were added for the keywords
-</li><li>Keybindings were added to run the current editor as python (F9) or as jython (Ctrl+F9). Those are customizable in the 'keys' preferences 
-</li><li>And many other bug-fixes as usual
+<br/>
+<li>Jython debugging now working.
+</li><li>Code coverage does not report docstrings as not being executed.
+</li><li>Freeze when making a 'step-in' fixed in the debugger.
+</li><li>Grammar generated with javacc version 4.0 
 </li>
-<br>
+
+<br/>
 
 
-<br>
+<br/>
 <hr/>
 <h2>All Features (release LAST_VERSION_TAG):</h2>
 
@@ -71,30 +58,50 @@
 
 
 
-<H3>Help</H3>
-
-<LI>This homepage, so that you can browse it offline.</li>
-
-
 
 <hr/>
 <h2>Features History</h2>
 
+<h2>New on: 1.0.1 </h2>
+<li><strong>Fix for an out-of-memory error when restoring the interpreter</strong> (single thing in this release)
+<br/>
+<br/>
+
+<h2>New on: 1.0</h2>
+
+<br/>
+<li><strong>High-speed Debugger</strong> (on par with the best debuggers available)
+</li><li>Debugger now gets the variables 'on-demand'
+</li><li>The variables returned for jython are much more complete
+</li><li>Wizard to create new project has option for creating a default 'src' folder (and add it to the pythonpath).
+</li><li>The create new python module and new python package have been reviewed (you can still use the regular ones, but the new ones are really reccommended -- also it will help in making sure you have your pythonpath correctly configured!).
+</li><li>Create new source folder option added.
+</li><li>Pylint can now give the output to the console (configurable).
+</li><li>Pylint 0.9.0 tested
+</li><li>Pylint errors now show in the hover
+</li><li>The Pydev perspective was changed (so, please, close the current and ro-open it)
+</li><li>Templates were added for the keywords
+</li><li>Keybindings were added to run the current editor as python (F9) or as jython (Ctrl+F9). Those are customizable in the 'keys' preferences 
+</li><li>And many other bug-fixes as usual
+</li>
+<br/>
+
+
 <h2>New on: 0.9.8.7!!</h2>
 
-<br>
+<br/>
 <li><strong>The debugger tracing was turned off </strong> (this was a bug in 0.9.8.6 and could make debugging much slower)
 </li><li><strong>Fixed jython shell</strong> (and extended it to get better information on code-completion).
 </li><li><strong>Changed the interpreter configuration so that it is backwards-compatible from now on...</strong>(but the current interpreters will be lost and will need to be configured)
 </li><li><strong>Breakpoints can have conditionals</strong>(this was contributed by Achim Nierbeck, and was actually provided in release 0.9.8.6, but I forgot to put it in the release notes)
 </li><li>Some other bugfixes are also in this build.
 </li>
-<br>
+<br/>
 
 
 <h2>New on: 0.9.8.6!!</h2>
 
-<br>
+<br/>
 <li><strong>Added a new 'Pydev project' wizard (Mikko Ohtamaa contribution) </strong>-- it is named as Pydev Project instead of Python project
 because it creates Python and Jython projects.
 </li><li><strong>Added a new 'Pydev module' wizard (Mikko Ohtamaa contribution)</strong> -- NOTE: it still needs some work.
@@ -102,35 +109,35 @@ because it creates Python and Jython projects.
 (if it still hapens, please report it as a bug -- NOTE: a little delay on the first time code-completion is executed
 is expected, as this is the time the shell is started).
 </li>
-<br>
+<br/>
 
 
 
 <h2>New on: 0.9.8.5!!</h2>
 
-<br>
+<br/>
 <li>Removed the dependency on packages 'sun.xxxx.Base64', so that other VMs can be targetted
 </li><li>Some code-completion problems in the 'resolution order' regarding tokens in __init__ were solved
 </li><li>Added option so that the user can choose whether to automatically add 'self' or not in method declarations
 </li>
-<br>
+<br/>
 
 
 <h2>New on: 0.9.8.4!!</h2>
 
-<br>
+<br/>
 <li>The license was changed to EPL. It can be found at: <a href="http://www.opensource.org/licenses/eclipse-1.0.php">http://www.opensource.org/licenses/eclipse-1.0.php</a>
 </li><li>Code-completion information is now saved in deltas instead of "saving only at shutdown" (being so, it does not loose information if it does not have a regular shut-down).
 </li><li>Added option for not using the smart-indent after opening brackets
 </li>
-<br>
+<br/>
 
 
 
 <h2>New on: 0.9.8.3!!</h2>
 
 
-<br>
+<br/>
 <li>Debugger was improved to be faster (more info about it <a href="http://pydev.blogspot.com/2005/10/high-speed-debugger.html"> at my blog</a>).
 </li><li>Add watch added to the editor popup menu
 </li><li>Added syntax highlighting to the 'self' token
@@ -142,13 +149,13 @@ is expected, as this is the time the shell is started).
 </li><li>Some move imports problems fixed
 </li><li>The auto-add '(self):' now works with tabs too
 </li>
-<br>
+<br/>
 
 
 
 <h2>New on: 0.9.8.2!!</h2>
 
-<br>
+<br/>
 <li><strong><a href="contentassist.html">Content assistants</a> reviewed (and better documented on the homepage -- I really reccomend checking <a href="contentassist.html">it</a>)</strong>
 </li><li><strong>Timeout parsing options added (this is available in the builder preferences page)</strong>
 </li><li><strong>Auto-dedent added</strong>
@@ -158,7 +165,7 @@ is expected, as this is the time the shell is started).
 </li><li>Navigation with Ctrl+Shift+ (up or down) has been slightly improved, so that it goes to the start or the end of the file when no other class or method declaration is found
 </li><li>Other bug-fixes (as ususal)
 </li>
-<br>
+<br/>
 
 
 
@@ -276,18 +283,18 @@ return completions. Relative imports should be working (along with some other bu
 <LI><a href="pylint.html">PyLint 0.6</a> integrated.</li>
 <LI>New Python 2.4 syntax supported <a href="">see notes here.</a></li>
 <LI>PyDev builders can be disabled (NOTE: some features might not work when this is done - see the <a href="faq.html">FAQ</a>).</li>
-<br>
+<br/>
 
 <h2>New on 0.8.5:</h2>
 <LI>Better <a href="codecompletion.html">Code Completion</a> <EM>(Ctrl+Space) </EM> </li>
 <LI>Watch in debugger.</li>
 <LI>Background and current line color chooser.</li>
-<br>
+<br/>
 
 <h2>New on 0.8:</h2>
 <LI><a href="pylint.html">Pylint integrated</a></li>
 <LI><a href="tasks.html">TODO tasks</a> supported</li>
-<br>
+<br/>
 
 <h2>New on 0.7.1:</h2>
 <LI><a href="codecoverage.html">Code Coverage</a></li>
@@ -297,4 +304,4 @@ return completions. Relative imports should be working (along with some other bu
 	Integrated new <a href="refactoring.html">refactorings</a> from <A href="http://bicyclerepair.sourceforge.net/">bicycle repair man</A> 
 	(inline local variable and extract local variable)
 </li>
-<br>
+<br/>
