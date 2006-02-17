@@ -77,4 +77,8 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
 		return PydevPrefs.getPreferences().getBoolean(PydevPrefs.AUTO_ADD_SELF);
 	}
 
+    public boolean getAutoDedentElse() {
+        return PydevPrefs.getPreferences().getBoolean(PydevPrefs.AUTO_DEDENT_ELSE);
+    }
+
 }

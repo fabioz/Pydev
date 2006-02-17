@@ -8,6 +8,7 @@
 package org.python.pydev.editor.actions;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -585,51 +586,109 @@ public class PySelection {
                 break;
             }
             ch = doc.getChar(end);
-        };
+        }
         return doc.get(absoluteCursorOffset, end-absoluteCursorOffset);
     }
 
   
       /**
-       * This function gets the tokens inside the parenthesis that start 
-       * at the current selection line
-       * 
-       * @param addSelf: this defines whether tokens named self should be added if it is found.
-       * 
-       * @return a Tuple so that the first param is the list and the second the offset of the end of the parentesis
-       *         it may return null if no starting parentesis was found at the current line
-       */
-      public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf) {
-          List<String> l = new ArrayList<String>();
-          
-          String line = getLine();
-          int openParIndex = line.indexOf('(');
-          if(openParIndex == -1){ // we are in a line that does not have a parentesis
-              return null;
-          }
-          int lineOffset = getStartLineOffset();
-          StringBuffer buf = new StringBuffer();
-          String docContents = doc.get();
-          int i = lineOffset + openParIndex;
-          int j = ParsingUtils.eatPar(docContents, i, buf);
-          String insideParentesisTok = docContents.substring(i+1, j);
-  
-          StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");
-          while (tokenizer.hasMoreTokens()) {
-              String tok = tokenizer.nextToken();
-              String trimmed = tok.split("=")[0].trim();
-              trimmed = trimmed.replaceAll("\\(", "");
-              trimmed = trimmed.replaceAll("\\)", "");
-              if (!addSelf && trimmed.equals("self")) {
-                  // don't add self...
-              } else {
-                  l.add(trimmed);
-              }
-          }
-          return new Tuple<List<String>, Integer>(l, j);
-      }
+         * This function gets the tokens inside the parenthesis that start at the current selection line
+         * 
+         * @param addSelf: this defines whether tokens named self should be added if it is found.
+         * 
+         * @return a Tuple so that the first param is the list and the second the offset of the end of the parentesis it may return null if no starting parentesis was found at the current line
+         */
+    public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf) {
+        List<String> l = new ArrayList<String>();
+
+        String line = getLine();
+        int openParIndex = line.indexOf('(');
+        if (openParIndex == -1) { // we are in a line that does not have a parentesis
+            return null;
+        }
+        int lineOffset = getStartLineOffset();
+        StringBuffer buf = new StringBuffer();
+        String docContents = doc.get();
+        int i = lineOffset + openParIndex;
+        int j = ParsingUtils.eatPar(docContents, i, buf);
+        String insideParentesisTok = docContents.substring(i + 1, j);
+
+        StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");
+        while (tokenizer.hasMoreTokens()) {
+            String tok = tokenizer.nextToken();
+            String trimmed = tok.split("=")[0].trim();
+            trimmed = trimmed.replaceAll("\\(", "");
+            trimmed = trimmed.replaceAll("\\)", "");
+            if (!addSelf && trimmed.equals("self")) {
+                // don't add self...
+            } else {
+                l.add(trimmed);
+            }
+        }
+        return new Tuple<List<String>, Integer>(l, j);
+    }
 
 
+    /**
+     * This function replaces all the contents in the current line before the cursor for the contents passed
+     * as parameter 
+     */
+    public void replaceLineContentsToSelection(String newContents) throws BadLocationException {
+        int lineOfOffset = getDoc().getLineOfOffset(getAbsoluteCursorOffset());
+        IRegion lineInformation = getDoc().getLineInformation(lineOfOffset);
+        getDoc().replace(lineInformation.getOffset(), getAbsoluteCursorOffset() - lineInformation.getOffset(), newContents);
+
+    }
+
+
+    /**
+     * This function goes backward in the document searching for an 'if' and returns the line that has it.
+     * 
+     * May return null if it was not found.
+     */
+    public String getPreviousIfLine() {
+        DocIterator iterator = new DocIterator(this.getCursorLine(), false);
+        while(iterator.hasNext()){
+            String line = (String) iterator.next();
+            String trimmed = line.trim();
+            if(trimmed.startsWith("if ") || trimmed.startsWith("if(")){
+                return line;
+            }
+        }
+        return null;
+    }
+
+    class DocIterator implements Iterator{
+        private int startingLine;
+        private boolean forward;
+
+        public DocIterator(int startingLine, boolean forward){
+            this.startingLine = startingLine;
+            this.forward = forward;
+        }
+
+        public boolean hasNext() {
+            if(forward){
+                throw new RuntimeException("Forward iterator not implemented.");
+            }else{
+                return startingLine >= 0;
+            }
+        }
+
+        public Object next() {
+            String line = getLine(startingLine);
+            if(forward){
+                throw new RuntimeException("Forward iterator not implemented.");
+            }else{
+                startingLine--;
+            }
+            return line;
+        }
+
+        public void remove() {
+            throw new RuntimeException("Remove not implemented.");
+        }
+    }
 
 
   

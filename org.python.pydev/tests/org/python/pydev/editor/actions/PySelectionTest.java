@@ -172,6 +172,15 @@ public class PySelectionTest extends TestCase {
         
     }
     
+    public void testReplaceToSelection() throws Exception {
+        String s = "vvvvppppaaaa";
+        doc = new Document(s);
+        ps = new PySelection(doc, 4);
+        ps.replaceLineContentsToSelection("xxxx");
+        assertEquals("xxxxppppaaaa", ps.getDoc().get());
+    }
+    
+    
     public void testGetInsideParentesis() throws Exception {
         String s = "def m1(self, a, b)";
         doc = new Document(s);
@@ -219,6 +228,23 @@ public class PySelectionTest extends TestCase {
         assertEquals("c", insideParentesisToks.get(2));
         assertEquals("d", insideParentesisToks.get(3));
         
+        
+    }
+    
+    public void testGetLastIf() throws Exception {
+        String s = 
+            "if False:\n" +
+            "    print foo";
+        doc = new Document(s);
+        ps = new PySelection(doc, doc.getLength());
+        assertEquals("if False:", ps.getPreviousIfLine());
+
+        s = 
+        "while False:\n" +
+        "    print foo";
+        doc = new Document(s);
+        ps = new PySelection(doc, doc.getLength());
+        assertEquals(null, ps.getPreviousIfLine());
         
     }
 }

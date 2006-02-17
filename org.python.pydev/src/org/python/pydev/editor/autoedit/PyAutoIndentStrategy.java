@@ -12,6 +12,7 @@ import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PySelection;
@@ -130,6 +131,13 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
         }
         return text;
     }
+    private Tuple<String, Integer> removeFirstIndent(String text) {
+        String indentationString = prefs.getIndentationString();
+        if(text.startsWith(indentationString)){
+            return new Tuple<String, Integer>(text.substring(indentationString.length()), indentationString.length());
+        }
+        return new Tuple<String, Integer>(text, 0);
+    }
 
     /**
      * @see org.eclipse.jface.text.IAutoEditStrategy#customizeDocumentCommand(IDocument, DocumentCommand)
@@ -140,7 +148,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 
         try {
             command.text = autoIndentNewline(document, command.length, command.text, command.offset);
-            prefs.convertToStd(document, command);
+            getIndentPrefs().convertToStd(document, command);
             
 
         	if (prefs.getAutoParentesis() && (command.text.equals("[") || command.text.equals("{")) ) {
@@ -187,18 +195,25 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 
             }
 	            
-            /*
-             * The following code will auto-replace colons in function
-             * declaractions
-             * e.g.,
-             * def something(self):
-             *                    ^ cursor before the end colon
-             * 
-             * Typing another colon (i.e, ':') at that position will not insert
-             * another colon
-             */
-            else if (command.text.equals(":") && prefs.getAutoColon()) {
-                performColonReplacement(document, command);
+            else if (command.text.equals(":")) {
+                /*
+                 * The following code will auto-replace colons in function
+                 * declaractions
+                 * e.g.,
+                 * def something(self):
+                 *                    ^ cursor before the end colon
+                 * 
+                 * Typing another colon (i.e, ':') at that position will not insert
+                 * another colon
+                 */
+                if(prefs.getAutoColon()){
+                    performColonReplacement(document, command);
+                }
+
+                /*
+                 * Now, let's also check if we are in an 'else:' that must be dedented in the doc
+                 */
+                autoDedentElse(document, command);
             }
 
             /*
@@ -239,6 +254,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                     }
                 }
             }
+            
 
         }
         /*
@@ -252,6 +268,34 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             throw new RuntimeException(e);
         }
 
+    }
+
+    /**
+     * This function makes the else auto-dedent (if available)
+     * @return the new indent and the number of chars it has been dedented (so, that has to be considered as a shift to the left
+     * on subsequent things).
+     */
+    public Tuple<String, Integer> autoDedentElse(IDocument document, DocumentCommand command) throws BadLocationException {
+        if(getIndentPrefs().getAutoDedentElse()){
+            PySelection ps = new PySelection(document, command.offset);
+            String lineContents = ps.getCursorLineContents();
+            if(lineContents.trim().equals("else")){
+                
+                String previousIfLine = ps.getPreviousIfLine();
+                
+                String ifIndent = PyAction.getIndentationFromLine(previousIfLine);
+                String lineIndent = PyAction.getIndentationFromLine(lineContents);
+                
+                String indent = prefs.getIndentationString();
+                if(lineIndent.length() == ifIndent.length()+indent.length()){
+                    Tuple<String,Integer> dedented = removeFirstIndent(lineContents);
+                    ps.replaceLineContentsToSelection(dedented.o1);
+                    command.offset = command.offset - dedented.o2;
+                    return dedented;
+                }
+            }        
+        }
+        return null;
     }
 
     /**

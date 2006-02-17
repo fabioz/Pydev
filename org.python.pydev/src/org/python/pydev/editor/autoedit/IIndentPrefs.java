@@ -78,4 +78,9 @@ public interface IIndentPrefs {
 	 * Get whether we should add 'self' automatically when declaring method
 	 */
 	public boolean getAutoAddSelf();
+
+    /**
+     * Get whether we should auto-dedent 'else:'
+     */
+    public boolean getAutoDedentElse();
 }

@@ -6,8 +6,8 @@
 package org.python.pydev.editor;
 
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.DocumentCommand;
 import org.python.pydev.editor.autoedit.AbstractIndentPrefs;
+import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 
 import junit.framework.TestCase;
@@ -23,7 +23,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testIndent2();
+            s.testElse();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -515,6 +515,47 @@ public class PyAutoIndentStrategyTest extends TestCase {
 		assertEquals(0, docCmd.caretOffset);
     }
     
+    public void testElse() {
+        //first part of test - simple case
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+        String strDoc = "if foo:\n" +
+                     "    print a\n" +
+                     "    else";
+        int initialOffset = strDoc.length();
+        DocCmd docCmd = new DocCmd(initialOffset, 0, ":");
+        Document doc = new Document(strDoc);
+        strategy.customizeDocumentCommand(doc, docCmd);
+        String expected = ":";
+        assertEquals(docCmd.offset, initialOffset-4);
+        assertEquals(expected, docCmd.text);
+        assertEquals(
+                "if foo:\n" +
+                "    print a\n" +
+                "else",
+                doc.get());
+        
+        //second part of test - should not dedent
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+        strDoc = 
+        "if foo:\n" +
+        "    if somethingElse:" +
+        "        print a\n" +
+        "    else";
+        initialOffset = strDoc.length();
+        docCmd = new DocCmd(initialOffset, 0, ":");
+        doc = new Document(strDoc);
+        strategy.customizeDocumentCommand(doc, docCmd);
+        expected = ":";
+        assertEquals(expected, docCmd.text);
+        assertEquals(docCmd.offset, initialOffset);
+        assertEquals(
+                "if foo:\n" +
+                "    if somethingElse:" +
+                "        print a\n" +
+                "    else",
+                doc.get());
+        
+    }
     public void testAutoImportStr() {
         strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
         String doc = "from xxx";
@@ -577,6 +618,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         boolean autoWriteImport = true;
         boolean smartIndentAfterPar = true;
         boolean autoAddSelf = true;
+        private boolean autoElse;
 
         public TestIndentPrefs(boolean useSpaces, int tabWidth){
             this.useSpaces = useSpaces;
@@ -584,8 +626,13 @@ public class PyAutoIndentStrategyTest extends TestCase {
         }
 
         public TestIndentPrefs(boolean useSpaces, int tabWidth, boolean autoPar){
+            this(useSpaces,tabWidth, autoPar, true);
+        }
+
+        public TestIndentPrefs(boolean useSpaces, int tabWidth, boolean autoPar, boolean autoElse){
             this(useSpaces,tabWidth);
             this.autoPar = autoPar;
+            this.autoElse = autoElse;
         }
         
         public boolean getUseSpaces() {
@@ -621,14 +668,10 @@ public class PyAutoIndentStrategyTest extends TestCase {
 			return autoAddSelf;
 		}
 
-    }
-
-    public static class DocCmd extends DocumentCommand{
-        public DocCmd(int offset, int length, String text){
-            this.offset = offset;
-            this.length = length;
-            this.text   = text;
+        public boolean getAutoDedentElse() {
+            return autoElse;
         }
+
     }
 
 }

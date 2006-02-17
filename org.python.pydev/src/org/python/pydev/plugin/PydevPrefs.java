@@ -78,6 +78,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String AUTO_PAR = "AUTO_PAR";
 	public static final boolean DEFAULT_AUTO_PAR = true;
 	
+	public static final String AUTO_DEDENT_ELSE = "AUTO_DEDENT_ELSE";
+	public static final boolean DEFAULT_AUTO_DEDENT_ELSE = true;
+	
 	public static final String SMART_INDENT_PAR = "SMART_INDENT_PAR";
 	public static final boolean DEFAULT_SMART_INDENT_PAR = true;
 	
@@ -301,6 +304,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		//text
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_PAR));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_DEDENT_ELSE));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SMART_INDENT_PAR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, MULTI_BLOCK_COMMENT_CHAR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, SINGLE_BLOCK_COMMENT_CHAR));
@@ -414,6 +418,9 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
         b.setToolTipText(WordUtils.wrap("Enabling this option will enable automatic insertion of parentheses.  " +
                 "Specifically, whenever you hit a brace such as '(', '{', or '[', its related peer will be inserted " +
                 "and your cursor will be placed between the two braces.", TOOLTIP_WIDTH));
+        
+        //auto dedent 'else:'
+        b = addCheckBox(appearanceComposite, "Automatic dedent of 'else:'", AUTO_DEDENT_ELSE, 0);
         
         //auto braces
         b = addCheckBox(appearanceComposite, "Automatically skip matching braces when typing", AUTO_BRACES, 0);
