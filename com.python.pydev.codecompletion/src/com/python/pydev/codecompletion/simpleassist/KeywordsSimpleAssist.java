@@ -16,8 +16,12 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PySelection;
+import org.python.pydev.editor.autoedit.DocCmd;
+import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
@@ -168,13 +172,36 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
 
         public SimpleAssistProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority) {
             super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority);
-            
         }
+        
+        private int changeInCursorPos = 0;
+        
+        public Point getSelection(IDocument document) {
+            return new Point(fReplacementOffset + fCursorPosition + changeInCursorPos, 0);
+        }
+
 
         public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
             try {
-                int dif = offset - fReplacementOffset;
-                viewer.getDocument().replace(offset, 0, fReplacementString.substring(dif));
+                IDocument doc = viewer.getDocument();
+                if(fReplacementString.equals("else:")){
+                    //make the replacement for the 'else'
+                    int dif = offset - fReplacementOffset;
+                    String replacementString = fReplacementString.substring(0, fReplacementString.length()-1);
+                    doc.replace(offset, 0, replacementString.substring(dif));
+                    
+                    //and now check the ':'
+                    PyAutoIndentStrategy strategy = new PyAutoIndentStrategy();
+                    DocCmd cmd = new DocCmd(offset+replacementString.length()-dif, 0, ":"); 
+                    Tuple<String, Integer> dedented = strategy.autoDedentElse(doc, cmd);
+                    doc.replace(cmd.offset, 0, ":");
+                    if(dedented != null){
+                        changeInCursorPos = -dedented.o2;
+                    }
+                }else{
+                    int dif = offset - fReplacementOffset;
+                    doc.replace(offset, 0, fReplacementString.substring(dif));
+                }
             } catch (BadLocationException x) {
                 // ignore
             }
