@@ -95,22 +95,45 @@ public class PythonGrammar
         
     }
 
+
     /**
      * Default: add after the previous found token
      */
     public static final int STRATEGY_ADD_AFTER_PREV = 0;
-    
+
     /**
      * Add before the 'next token' strategy
      */
     public static final int STRATEGY_BEFORE_NEXT = 1;
+    
     private void addSpecialToken(Object o, int strategy) {
-    	token_source.specialTokens.add(new Object[]{o, strategy});
+        token_source.specialTokens.add(new Object[]{o, strategy});
     }
+    
     private void addSpecialToken(Object o) {
-    	//the default is adding after the previous token
+        //the default is adding after the previous token
         token_source.specialTokens.add(new Object[]{o, STRATEGY_ADD_AFTER_PREV});
     }
+
+    private boolean findTokenAndAdd(String token) {
+    	return findTokenAndAdd(token, token);
+    }
+    
+	private boolean findTokenAndAdd(String token, String put) {
+		Token t;
+		t = this.jj_lastpos;
+		while(t != null && t.image != null && t.image.equals(token) == false){
+			t = t.next;
+		}
+		if(t != null){
+			token_source.specialTokens.add(new Object[]{new SpecialStr(put,t.beginLine, t.beginColumn), STRATEGY_ADD_AFTER_PREV});
+			return true;
+		}
+		
+		//did not work... put in the 'default' way
+		token_source.specialTokens.add(new Object[]{put, STRATEGY_ADD_AFTER_PREV});
+		return false;
+	}
 
 
 
@@ -737,11 +760,11 @@ void funcdef(): {}
 //@ call, name, attr ... <nl>
 void decorators(): {}
 {
-	(<AT> dotted_name() (<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.addSpecialToken(")");} )* <NEWLINE> )* 
+	(<AT> dotted_name() (<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} )* <NEWLINE> )* 
 }
 //parameters: '(' [varargslist] ')'
 void parameters() #void: {}
-{ <LPAREN>  {this.addSpecialToken("(");}  [varargslist()] <RPAREN>  {this.addSpecialToken(")");} }
+{ <LPAREN>  {this.addSpecialToken("(");}  [varargslist()] <RPAREN>  {this.findTokenAndAdd(")");} }
 
 //varargslist: (fpdef ['=' test] ',')* ('*' NAME [',' ('**'|'*' '*') NAME] | ('**'|'*' '*') NAME) | fpdef ['=' test] (',' fpdef ['=' test])* [',']
 void varargslist() #void: {}
@@ -766,7 +789,7 @@ void defaultarg(): {}
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
-{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   fplist() <RPAREN> {this.addSpecialToken(")");}  }
+{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   fplist() <RPAREN> {this.findTokenAndAdd(")");}  }
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
@@ -874,7 +897,7 @@ void ImportFrom(): { String mod; String name; }
     <MULTIPLY> //from xx import *
     | (name=import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) //from xxx import a,b,c
     | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   name=import_as_name() ((<NEWLINE>)* {this.addSpecialToken(",");} <COMMA> (<NEWLINE>)* import_as_name())* 
-    <RPAREN>  {this.addSpecialToken(")");}  //from xxx import (a,b,c)
+    <RPAREN>  {this.findTokenAndAdd(")");}  //from xxx import (a,b,c)
 )
 }
 
@@ -916,7 +939,7 @@ void if_stmt(): {}
          (<ELIF> {this.addSpecialToken("elif ");}test() 
          <COLON> {this.addSpecialToken(":");}
          suite())* [ <ELSE> 
-         <COLON> {this.addSpecialToken("else:");}
+         <COLON> {this.findTokenAndAdd("else","else:");}
          suite()]
 }
 
@@ -1044,8 +1067,8 @@ void atomtrailer() #void: {}
 {
 atom() 
 (
-		LOOKAHEAD(2) <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);} <RPAREN>  {this.addSpecialToken(")");} #Call_Op(1)
-	|   LOOKAHEAD(2)(<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}  insidetuporcall() <RPAREN>  {this.addSpecialToken(")");} ) #Call_Op(jjtree.nodeArity()+1) //with list comprehension: fabioz
+		LOOKAHEAD(2) <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);} <RPAREN>  {this.findTokenAndAdd(")");} #Call_Op(1)
+	|   LOOKAHEAD(2)(<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}  insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} ) #Call_Op(jjtree.nodeArity()+1) //with list comprehension: fabioz
 	|   <LBRACKET> {this.addSpecialToken("[",STRATEGY_BEFORE_NEXT);}  subscriptlist() <RBRACKET>{this.addSpecialToken("]");}  #Index_Op(2)
 	|   <DOT> AnyName() #Dot_Op(2) 
 )*
@@ -1055,9 +1078,9 @@ atom()
 //atom: '(' [testlist] ')' | '[' [testlist] ']' | '{' [dictmaker] '}' | '`' testlist '`' | NAME | NUMBER | STRING+
 void atom() #void: {}
 {
-    LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   <RPAREN>  {this.addSpecialToken(")");} ) #tuple
-|   LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   insidetuporcall() <RPAREN>  {this.addSpecialToken(")");}  ) #tuple
-|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] <RPAREN>  {this.addSpecialToken(")");}  )
+    LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   <RPAREN>  {this.findTokenAndAdd(")");} ) #tuple
+|   LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");}  ) #tuple
+|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] <RPAREN>  {this.findTokenAndAdd(")");}  )
 |   ( <LBRACKET> {this.addSpecialToken("[",STRATEGY_BEFORE_NEXT);} [listmaker()] <RBRACKET> {this.addSpecialToken("]");} ) #list
 |   ( <LBRACE> {this.addSpecialToken("{",STRATEGY_BEFORE_NEXT);} [dictmaker()] <RBRACE> {this.addSpecialToken("}");} ) #dictionary
 |   "`" SmartTestList() "`" #str_1op(1)
@@ -1131,7 +1154,7 @@ void list_for(): {}
 
 //classdef: 'class' NAME ['(' testlist ')'] ':' suite
 void classdef(): {}
-{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   testlist() <RPAREN>  {this.addSpecialToken(")");} ] <COLON> {this.addSpecialToken(":");} suite()}
+{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   testlist() <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> {this.addSpecialToken(":");} suite()}
 
 //arglist: (argument ',')*
 //              (argument [',']| '*' test [',' '**' test] | '**' test)
