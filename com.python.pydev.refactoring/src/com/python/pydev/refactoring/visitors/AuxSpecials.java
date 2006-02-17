@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Stack;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.SpecialStr;
 import org.python.parser.ast.commentType;
 
 /**
@@ -38,6 +39,9 @@ public class AuxSpecials {
                 setStateWritten();
             }else if(c instanceof String){
                 writer.write(prefs.getReplacement((String)c));
+            }else if(c instanceof SpecialStr){
+            	SpecialStr s = (SpecialStr) c;
+            	writer.write(prefs.getReplacement(s.str));
             }else{
                 throw new RuntimeException("Unexpected special: "+node);
             }
@@ -51,12 +55,34 @@ public class AuxSpecials {
     }
 
     public void writeSpecialsAfter(SimpleNode node) throws IOException {
+    	writeSpecialsAfter(node, false);
+    }
+    public void writeSpecialsAfter(SimpleNode node, boolean isNewScope) throws IOException {
+    	int line = node.beginLine;
+    	
         for (Object o : node.specialsAfter){
             if(o instanceof commentType){
-                writer.write(((commentType)o).id);
+                commentType c = (commentType)o;
+                if(c.beginLine > line){
+                	state.writeNewLine();
+                	if(isNewScope){
+                		state.writeIndent(1);
+                	}else{
+                		state.writeIndent(1);
+                	}
+                }
+				writer.write(c.id);
                 state.writeNewLine();
+                line = c.beginLine + 1;
+                
                 state.writeIndent();
                 setStateWritten();
+                
+            }else if(o instanceof SpecialStr){
+            	SpecialStr s = (SpecialStr) o;
+            	writer.write(prefs.getReplacement(s.str));
+            	line = s.beginLine;
+            	
             }else if(o instanceof String){
                 writer.write(prefs.getReplacement((String)o));
             }else{
@@ -69,6 +95,8 @@ public class AuxSpecials {
         for (Object o : node.specialsAfter){
             if(o instanceof String){
                 writer.write(prefs.getReplacement((String)o));
+            }else if(o instanceof SpecialStr){
+            	writer.write(prefs.getReplacement(o.toString()));
             }
         }
     }

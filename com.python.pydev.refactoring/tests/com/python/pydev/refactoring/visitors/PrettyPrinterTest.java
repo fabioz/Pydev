@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testDict();
+            test.testComments2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -132,6 +132,15 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "    print 'foo'\n" +
         "";
         checkPrettyPrintEqual(s);
+    }
+    
+    public void testYield3() throws Exception {
+    	String s = ""+
+    	"def foo():\n" +
+    	"    #comment0\n" +
+    	"    print 'foo'\n" +
+    	"";
+    	checkPrettyPrintEqual(s);
     }
     
     
@@ -314,16 +323,17 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     }
     
     public void testIfElse3() throws Exception {
-    	String s = "#commentbefore\n"+
-    	"if a:#commentIf\n"+
-    	"    a = 1\n"+
-    	"elif b:#commentElif\n"+
-    	"    b = 2\n"+
-    	"elif c:\n"+
-    	"    c = 3\n"+
-    	"else:#commentElse\n"+
-    	"    d = 4\n" +
-    	"outOfIf = True\n";
+    	String s = 
+    	"#commentbefore\n"+      //1
+    	"if a:#commentIf\n"+     //2
+    	"    a = 1\n"+           //3
+    	"elif b:#commentElif\n"+ //4
+    	"    b = 2\n"+           //5
+    	"elif c:\n"+             //6
+    	"    c = 3\n"+           //7
+    	"else:#commentElse\n"+   //8
+    	"    d = 4\n" +          //9
+    	"outOfIf = True\n";      //10
     	checkPrettyPrintEqual(s);
     }
     

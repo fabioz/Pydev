@@ -5,6 +5,7 @@ package com.python.pydev.refactoring.visitors;
 
 
 import org.python.parser.SimpleNode;
+import org.python.parser.SpecialStr;
 import org.python.parser.ast.Assign;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.BinOp;
@@ -23,7 +24,6 @@ import org.python.parser.ast.Str;
 import org.python.parser.ast.Subscript;
 import org.python.parser.ast.Tuple;
 import org.python.parser.ast.UnaryOp;
-import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.Yield;
 import org.python.parser.ast.argumentsType;
 import org.python.parser.ast.decoratorsType;
@@ -267,13 +267,17 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         
         
         if(node.orelse != null && node.orelse.length > 0){
+        	if(node.specialsAfter.contains(new SpecialStr("else:",0,0))){
+        		System.out.println("break here");
+        	}
+        	
         	boolean inElse = false;
         	auxComment.startRecord();
             auxComment.writeSpecialsAfter(node);
             
             //now, if it is an elif, it will end up calling the 'visitIf' again,
             //but if it is an 'else:' we will have to make the indent again
-            if(node.specialsAfter.contains("else:")){
+            if(node.specialsAfter.contains(new SpecialStr("else:",0,0))){ //the SpecialStr only compares with its String
             	inElse = true;
             	makeIfIndent();
             }
