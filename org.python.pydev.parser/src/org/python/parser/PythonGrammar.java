@@ -85,9 +85,33 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
         token_source.specialTokens.add(new Object[]{o, strategy});
     }
     private void addSpecialToken(Object o) {
+    	if(o.equals(")")){
+    		if(findToken(")",")")){
+    			return;
+    		}
+    		
+    	}
+    	if(o.equals("else:")){
+    		if(findToken("else","else:")){
+    			return;
+    		}
+    	}
         //the default is adding after the previous token
         token_source.specialTokens.add(new Object[]{o, STRATEGY_ADD_AFTER_PREV});
     }
+
+	private boolean findToken(String token, String put) {
+		Token t;
+		t = this.jj_lastpos;
+		while(t != null && t.image != null && t.image.equals(token) == false){
+			t = t.next;
+		}
+		if(t != null){
+			token_source.specialTokens.add(new Object[]{new SpecialStr(put,t.beginLine, t.beginColumn), STRATEGY_ADD_AFTER_PREV});
+			return true;
+		}
+		return false;
+	}
 
 
 

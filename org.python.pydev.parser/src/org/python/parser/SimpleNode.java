@@ -76,7 +76,7 @@ public class SimpleNode implements Node {
     private int countStrings() {
         int i=0;
         for(Object o : specialsAfter){
-            if (o instanceof String){
+            if (o instanceof String || o instanceof SpecialStr){
                 i++;
             }
         }

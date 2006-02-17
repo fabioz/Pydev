@@ -243,6 +243,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             body = suite.body;
             test = makeExpr();
             If last = new If(test, body, orelse);
+            last.beginLine = suite.beginLine+1;
+            last.beginColumn = suite.beginColumn;
             addSpecials(suite, last);
             
             for (int i = 0; i < (arity / 2)-1; i++) {
@@ -251,6 +253,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 test = makeExpr();
                 stmtType[] newOrElse = new stmtType[] { last };
                 last = new If(test, body, newOrElse);
+                last.beginLine = suite.beginLine+1;
+                last.beginColumn = suite.beginColumn;
                 addSpecials(suite, last);
             }
             return last;
