@@ -160,38 +160,45 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                     command.caretOffset = command.offset+1;
         		}
         		
-        	}else if (prefs.getAutoParentesis() && command.text.equals("(")) {
-                PySelection ps = new PySelection(document, command.offset);
-                String line = ps.getLine();
+        	}else if (command.text.equals("(")) {
+            	/*
+            	 * Now, let's also check if we are in an 'elif ' that must be dedented in the doc
+            	 */
+            	autoDedentElif(document, command);
 
-                if (shouldClose(ps, '(')) {
-
-                    boolean hasClass = line.indexOf("class ") != -1;
-                    boolean hasClassMethodDef = line.indexOf(" def ") != -1 || line.indexOf("\tdef ") != -1;
-                    boolean hasMethodDef = line.indexOf("def ") != -1;
-                    boolean hasNoDoublePoint = line.indexOf(":") == -1;
-
-                    command.shiftsCaret = false;
-                    if (hasNoDoublePoint && (hasClass || hasClassMethodDef || hasMethodDef)) {
-                        if (hasClass) {
-                            //command.text = "(object):"; //TODO: put some option in the interface for that
-                            //command.caretOffset = command.offset + 7;
-                            command.text = "():";
-                            command.caretOffset = command.offset + 1;
-                        } else if (hasClassMethodDef && prefs.getAutoAddSelf()) {
-                            command.text = "(self):";
-                            command.caretOffset = command.offset + 5;
-                        } else if (hasMethodDef) {
-                            command.text = "():";
-                            command.caretOffset = command.offset + 1;
-                        } else {
-                            throw new RuntimeException(getClass().toString() + ": customizeDocumentCommand()");
-                        }
-                    } else {
-                        command.text = "()";
-                        command.caretOffset = command.offset + 1;
-                    }
-                }
+            	if(prefs.getAutoParentesis()){
+	                PySelection ps = new PySelection(document, command.offset);
+	                String line = ps.getLine();
+	
+	                if (shouldClose(ps, '(')) {
+	
+	                    boolean hasClass = line.indexOf("class ") != -1;
+	                    boolean hasClassMethodDef = line.indexOf(" def ") != -1 || line.indexOf("\tdef ") != -1;
+	                    boolean hasMethodDef = line.indexOf("def ") != -1;
+	                    boolean hasNoDoublePoint = line.indexOf(":") == -1;
+	
+	                    command.shiftsCaret = false;
+	                    if (hasNoDoublePoint && (hasClass || hasClassMethodDef || hasMethodDef)) {
+	                        if (hasClass) {
+	                            //command.text = "(object):"; //TODO: put some option in the interface for that
+	                            //command.caretOffset = command.offset + 7;
+	                            command.text = "():";
+	                            command.caretOffset = command.offset + 1;
+	                        } else if (hasClassMethodDef && prefs.getAutoAddSelf()) {
+	                            command.text = "(self):";
+	                            command.caretOffset = command.offset + 5;
+	                        } else if (hasMethodDef) {
+	                            command.text = "():";
+	                            command.caretOffset = command.offset + 1;
+	                        } else {
+	                            throw new RuntimeException(getClass().toString() + ": customizeDocumentCommand()");
+	                        }
+	                    } else {
+	                        command.text = "()";
+	                        command.caretOffset = command.offset + 1;
+	                    }
+	                }
+        		}
 
             }
 	            
@@ -220,16 +227,24 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
              * this is a space... so, if we are in 'from xxx ', we may auto-write
              * the import 
              */
-            else if (command.text.equals(" ") && prefs.getAutoWriteImport()) {
-                PySelection ps = new PySelection(document, command.offset);
-                String completeLine = ps.getLineWithoutComments();
-                String lineToCursor = ps.getLineContentsToCursor().trim();
-                if(completeLine.indexOf("import") == -1){
-                    String importsTipperStr = PyCodeCompletion.getImportsTipperStr(lineToCursor, false);
-                    if(importsTipperStr.length() > 0){
-                        command.text = " import ";
-                    }
-                }
+            else if (command.text.equals(" ")) {
+            	if( prefs.getAutoWriteImport()){
+	                PySelection ps = new PySelection(document, command.offset);
+	                String completeLine = ps.getLineWithoutComments();
+	                String lineToCursor = ps.getLineContentsToCursor().trim();
+	                if(completeLine.indexOf("import") == -1){
+	                    String importsTipperStr = PyCodeCompletion.getImportsTipperStr(lineToCursor, false);
+	                    if(importsTipperStr.length() > 0){
+	                        command.text = " import ";
+	                    }
+	                }
+            	}
+            	
+            	
+            	/*
+            	 * Now, let's also check if we are in an 'elif ' that must be dedented in the doc
+            	 */
+            	autoDedentElif(document, command);
             }
             
             /*
@@ -269,17 +284,16 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
         }
 
     }
-
     /**
      * This function makes the else auto-dedent (if available)
      * @return the new indent and the number of chars it has been dedented (so, that has to be considered as a shift to the left
      * on subsequent things).
      */
-    public Tuple<String, Integer> autoDedentElse(IDocument document, DocumentCommand command) throws BadLocationException {
+    public Tuple<String, Integer> autoDedentElse(IDocument document, DocumentCommand command, String tok) throws BadLocationException {
         if(getIndentPrefs().getAutoDedentElse()){
             PySelection ps = new PySelection(document, command.offset);
             String lineContents = ps.getCursorLineContents();
-            if(lineContents.trim().equals("else")){
+            if(lineContents.trim().equals(tok)){
                 
                 String previousIfLine = ps.getPreviousIfLine();
                 
@@ -297,6 +311,20 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
         }
         return null;
     }
+    
+    public Tuple<String, Integer> autoDedentElse(IDocument document, DocumentCommand command) throws BadLocationException {
+    	return autoDedentElse(document, command, "else");
+    }
+
+    /**
+     * This function makes the else auto-dedent (if available)
+     * @return the new indent and the number of chars it has been dedented (so, that has to be considered as a shift to the left
+     * on subsequent things).
+     */
+    public Tuple<String, Integer> autoDedentElif(IDocument document, DocumentCommand command) throws BadLocationException {
+    	return autoDedentElse(document, command, "elif");
+    }
+    
 
     /**
      * Create the indentation string after comma and a newline.

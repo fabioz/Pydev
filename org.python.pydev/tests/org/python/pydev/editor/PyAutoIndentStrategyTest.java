@@ -23,7 +23,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testElse();
+            s.testElifWithPar();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -555,6 +555,90 @@ public class PyAutoIndentStrategyTest extends TestCase {
                 "    else",
                 doc.get());
         
+    }
+    
+    public void testElif() {
+    	//first part of test - simple case
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+    	String strDoc = "if foo:\n" +
+    	"    print a\n" +
+    	"    elif";
+    	int initialOffset = strDoc.length();
+    	DocCmd docCmd = new DocCmd(initialOffset, 0, " ");
+    	Document doc = new Document(strDoc);
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	String expected = " ";
+    	assertEquals(docCmd.offset, initialOffset-4);
+    	assertEquals(expected, docCmd.text);
+    	assertEquals(
+    			"if foo:\n" +
+    			"    print a\n" +
+    			"elif",
+    			doc.get());
+    	
+    	//second part of test - should not dedent
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+    	strDoc = 
+    		"if foo:\n" +
+    		"    if somethingElse:" +
+    		"        print a\n" +
+    		"    elif";
+    	initialOffset = strDoc.length();
+    	docCmd = new DocCmd(initialOffset, 0, " ");
+    	doc = new Document(strDoc);
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	expected = " ";
+    	assertEquals(expected, docCmd.text);
+    	assertEquals(docCmd.offset, initialOffset);
+    	assertEquals(
+    			"if foo:\n" +
+    			"    if somethingElse:" +
+    			"        print a\n" +
+    			"    elif",
+    			doc.get());
+    	
+    }
+    
+    public void testElifWithPar() {
+    	//first part of test - simple case
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+    	String strDoc = "if foo:\n" +
+    	"    print a\n" +
+    	"    elif";
+    	int initialOffset = strDoc.length();
+    	DocCmd docCmd = new DocCmd(initialOffset, 0, "(");
+    	Document doc = new Document(strDoc);
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	String expected = "()";
+    	assertEquals(docCmd.offset, initialOffset-4);
+    	assertEquals(expected, docCmd.text);
+    	assertEquals(
+    			"if foo:\n" +
+    			"    print a\n" +
+    			"elif",
+    			doc.get());
+    	
+    	//second part of test - should not dedent
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+    	strDoc = 
+    		"if foo:\n" +
+    		"    if somethingElse:" +
+    		"        print a\n" +
+    		"    elif";
+    	initialOffset = strDoc.length();
+    	docCmd = new DocCmd(initialOffset, 0, "(");
+    	doc = new Document(strDoc);
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	expected = "()";
+    	assertEquals(expected, docCmd.text);
+    	assertEquals(docCmd.offset, initialOffset);
+    	assertEquals(
+    			"if foo:\n" +
+    			"    if somethingElse:" +
+    			"        print a\n" +
+    			"    elif",
+    			doc.get());
+    	
     }
     public void testAutoImportStr() {
         strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
