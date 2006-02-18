@@ -2743,8 +2743,8 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
   jjtreeOpenNodeScope(jjtn000);
     try {
       jj_consume_token(TRY);
-         this.addSpecialToken("try");
-                                        this.addSpecialToken(":");
+         this.addSpecialToken("try", STRATEGY_BEFORE_NEXT);
+                                                              this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);
       jj_consume_token(COLON);
     } finally {
     if (jjtc000) {
