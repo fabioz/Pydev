@@ -20,6 +20,7 @@ import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Pass;
 import org.python.parser.ast.Print;
+import org.python.parser.ast.Raise;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.Subscript;
 import org.python.parser.ast.TryExcept;
@@ -182,6 +183,16 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         auxComment.writeSpecialsBefore(node);
         state.write(node.n.toString());
         auxComment.writeSpecialsAfter(node);
+        return null;
+    }
+    
+    
+    @Override
+    public Object visitRaise(Raise node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        auxComment.startRecord();
+        super.visitRaise(node);
+        afterNode(node);
         return null;
     }
     
