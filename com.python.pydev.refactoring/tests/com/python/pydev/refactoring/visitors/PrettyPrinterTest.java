@@ -61,7 +61,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         String s = ""+
         "try:\n" +
         "    print 'foo'\n" +
-        "except: \n" +
+        "except:\n" +
         "    pass\n" +
         "";
         checkPrettyPrintEqual(s);

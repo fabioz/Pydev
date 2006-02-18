@@ -107,6 +107,8 @@ public abstract class PrettyPrinterUtils extends VisitorBase{
         if(state.lastIsWrite()){
             state.writeNewLine();
             state.writeIndent();
+        }else if(state.lastIsNewLine()){
+            state.writeIndent();
         }
     }
 

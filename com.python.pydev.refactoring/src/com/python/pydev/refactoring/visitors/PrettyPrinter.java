@@ -66,7 +66,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     public PrettyPrinter(PrettyPrinterPrefs prefs, IWriterEraser writer){
         this.prefs = prefs;
         state = new WriteState(writer, prefs);
-        auxComment = new AuxSpecials(state, writer, prefs);
+        auxComment = new AuxSpecials(state, prefs);
     }
     
     @Override
@@ -207,7 +207,9 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         for(excepthandlerType h:node.handlers){
             state.indent();
             auxComment.writeSpecialsBefore(h);
-            state.write(" ");
+            if(h.type != null || h.name != null){
+                state.write(" ");
+            }
             if(h.type != null){
                 h.type.accept(this);
             }
