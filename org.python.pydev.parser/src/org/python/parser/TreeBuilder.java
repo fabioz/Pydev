@@ -233,29 +233,40 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             body = popSuite();
             exprType test = makeExpr();
             return new While(test, body, orelse);
+        case JJTIF_BEG_STMT:
+            return new If(null, null, null);
+        case JJTELIF_BEG_STMT:
+            return new If(null, null, null);
         case JJTIF_STMT:
             orelse = null;
-            
-            if (arity % 2 == 1){
+            //arity--;//because of the beg if stmt
+            if (arity % 3 == 1){
                 orelse = getBodyAndSpecials();
             }
             
+            //make the suite
             Suite suite = (Suite)popNode();
             body = suite.body;
             test = makeExpr();
-            If last = new If(test, body, orelse);
-            last.beginLine = suite.beginLine+1;
-            last.beginColumn = suite.beginColumn;
+            
+            //make the if
+            If last = (If) popNode();
+            last.test = test;
+            last.body = body;
+            last.orelse = orelse;
             addSpecials(suite, last);
             
-            for (int i = 0; i < (arity / 2)-1; i++) {
+            for (int i = 0; i < (arity / 3)-1; i++) {
+                //arity--;//because of the beg if stmt
+
                 suite = (Suite)popNode();
                 body = suite.body;
                 test = makeExpr();
                 stmtType[] newOrElse = new stmtType[] { last };
-                last = new If(test, body, newOrElse);
-                last.beginLine = suite.beginLine+1;
-                last.beginColumn = suite.beginColumn;
+                last = (If) popNode();
+                last.test = test;
+                last.body = body;
+                last.orelse = newOrElse;
                 addSpecials(suite, last);
             }
             return last;

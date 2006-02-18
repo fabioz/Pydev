@@ -21,7 +21,15 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 public class SourceModuleProposalTest extends TestCase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(SourceModuleProposalTest.class);
+        try {
+            SourceModuleProposalTest test = new SourceModuleProposalTest();
+            test.setUp();
+            test.testOffset();
+            test.tearDown();
+            junit.textui.TestRunner.run(SourceModuleProposalTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     /*
@@ -46,8 +54,8 @@ public class SourceModuleProposalTest extends TestCase {
         "if __name__ == '__main__': \n" +
         "    pass                   \n";
         
-        checkProposal(docStr, 2, null, SourceModuleProposal.ADD_TO_LAST_LINE_BEFORE_MAIN);
         checkProposal(docStr, 2, "A" , SourceModuleProposal.ADD_TO_LAST_CLASS_LINE);
+        checkProposal(docStr, 2, null, SourceModuleProposal.ADD_TO_LAST_LINE_BEFORE_MAIN);
 
         docStr = ""+
         "class A:                   \n" +

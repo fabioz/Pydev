@@ -23,7 +23,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testParser10();
+            test.testParser11();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -274,6 +274,20 @@ public class PyParserTest extends PyParserTestBase{
     	List<ASTEntry> strs = SequencialASTIteratorVisitor.create(node).getAsList(new Class[]{Str.class});
     	assertEquals(7, strs.get(0).node.beginColumn);
     	assertEquals(17, strs.get(1).node.beginColumn);
+    }
+    
+    
+    public void testParser11() {
+        String s = "" +
+        "if True:\n"+        
+        "    pass\n"+        
+        "elif True:\n"+        
+        "    pass\n"+        
+        "else:\n"+        
+        "    pass\n"+        
+        "\n"+        
+        "\n";        
+        parseLegalDocStr(s);
     }
     
 }

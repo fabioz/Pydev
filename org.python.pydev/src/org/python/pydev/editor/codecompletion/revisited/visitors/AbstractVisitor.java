@@ -250,14 +250,14 @@ public abstract class AbstractVisitor extends VisitorBase{
     			&& ((Name)compareNode.left).id.equals("__name__")
     			&& compareNode.ops != null
     			&& compareNode.ops.length == 1 
-    			&& compareNode.ops[0] == Compare.Eq)
-    			if ( true
-    			&& compareNode.comparators != null
-    			&& compareNode.comparators.length == 1
-    			&& compareNode.comparators[0] instanceof Str 
-    			&& ((Str)compareNode.comparators[0]).s.equals("__main__"))
-    		{
-    			return true;
+    			&& compareNode.ops[0] == Compare.Eq){
+                
+    		    if ( compareNode.comparators != null
+        			&& compareNode.comparators.length == 1
+        			&& compareNode.comparators[0] instanceof Str 
+        			&& ((Str)compareNode.comparators[0]).s.equals("__main__")){
+        			return true;
+                }
     		}
     	}
         return false;

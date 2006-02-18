@@ -934,17 +934,26 @@ void compound_stmt() #void : { token_source.compound = true; }
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {}
 {
-    <IF> {this.addSpecialToken("if ",STRATEGY_BEFORE_NEXT);}test() <COLON> {this.addSpecialToken(":");} suite()
-         (<ELIF> {this.addSpecialToken("elif ");}test() 
+    if_beg_stmt() test() <COLON> {this.addSpecialToken(":");} suite()
+         (elif_beg_stmt() test() 
          <COLON> {this.addSpecialToken(":");}
          suite())* [ <ELSE> 
          <COLON> {this.findTokenAndAdd("else","else:");}
          suite()]
 }
 
+void if_beg_stmt(): {}
+{ <IF> {this.addSpecialToken("if ",STRATEGY_BEFORE_NEXT);}
+}
+
+void elif_beg_stmt(): {}
+{ <ELIF> {this.addSpecialToken("elif ",STRATEGY_BEFORE_NEXT);}
+}
+
+
 //while_stmt: 'while' test ':' suite ['else' ':' suite]
 void while_stmt(): {}
-{ <WHILE> test() 
+{ <WHILE>  {this.addSpecialToken("while ");} test() 
   <COLON> {this.addSpecialToken(":");} 
   suite() [<ELSE> 
   <COLON> {this.addSpecialToken(":");} 
