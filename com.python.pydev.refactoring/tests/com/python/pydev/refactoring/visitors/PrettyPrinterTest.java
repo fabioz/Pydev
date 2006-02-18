@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testTryExcept();
+            test.testTryExcept6();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -61,12 +61,69 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         String s = ""+
         "try:\n" +
         "    print 'foo'\n" +
-        "except:\n" +
+        "except: \n" +
         "    pass\n" +
         "";
         checkPrettyPrintEqual(s);
     }
+    
+    public void testTryExcept2() throws Exception {
+        String s = ""+
+        "try:\n" +
+        "    socket_map\n" +
+        "except NameError:\n" +
+        "    socket_map = {}\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testTryExcept3() throws Exception {
+        String s = ""+
+        "try:\n" +
+        "    print 'foo'\n" +
+        "except (NameError,e):\n" +
+        "    print 'err'\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testTryExcept4() throws Exception {
+        String s = ""+
+        "try:\n" +
+        "    print 'foo'\n" +
+        "except (NameError,e):\n" +
+        "    print 'err'\n" +
+        "else:\n" +
+        "    print 'else'\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testTryExcept5() throws Exception {
+        String s = ""+
+        "try:\n" +
+        "    print 'foo'\n" +
+        "except (NameError,e):\n" +
+        "    print 'name'\n" +
+        "except (TypeError,e2):\n" +
+        "    print 'type'\n" +
+        "else:\n" +
+        "    print 'else'\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
 
+    public void testTryExcept6() throws Exception {
+        String s = ""+
+        "def read(obj):\n" +
+        "    try:\n" +
+        "        obj.handle_read_event()\n" +
+        "    except:\n" +
+        "        obj.handle_error()\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
     public void testCall() throws Exception {
         String s = ""+
         "callIt(1)\n" +
@@ -127,6 +184,24 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "";
         checkPrettyPrintEqual(s);
         
+    }
+    
+    public void testTupleDict() throws Exception {
+        String s = ""+
+        "a = (1,#this is 1\n" +
+        "2)\n" +
+        "a = {1:'foo'}\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testDict2() throws Exception {
+        String s = ""+
+        "a = {1:2,#this is 1\n" +
+        "2:2}\n" +
+        "a = {1:'foo'}\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     public void testVarious() throws Exception {
@@ -312,7 +387,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         String s = ""+
         "if a:\n"+
         "    a = (a,b,#comment\n" +
-        "    c)";
+        "    c)\n";
         checkPrettyPrintEqual(s);
     }
     

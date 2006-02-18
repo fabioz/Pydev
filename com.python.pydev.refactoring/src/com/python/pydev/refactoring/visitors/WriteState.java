@@ -99,4 +99,8 @@ public class WriteState implements IWriterEraser {
         return lastState == LAST_STATE_INDENT;
     }
     
+    @Override
+    public String toString() {
+        return writer.toString();
+    }
 }

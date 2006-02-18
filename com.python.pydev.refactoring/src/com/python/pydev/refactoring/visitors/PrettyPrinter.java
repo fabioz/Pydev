@@ -90,14 +90,6 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         state.popInStmt();
         return null;
     }
-
-    @Override
-    public Object visitUnaryOp(UnaryOp node) throws Exception {
-        auxComment.writeSpecialsBefore(node);
-        state.write(node.operand.toString());
-        auxComment.writeSpecialsAfter(node);
-        return null;
-    }
     
     
     @Override
@@ -136,23 +128,19 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return null;
     }
     
-    @Override
-    public Object visitTuple(Tuple node) throws Exception {
-    	auxComment.writeSpecialsBefore(node);
-    	super.visitTuple(node);
-    	auxComment.writeSpecialsAfter(node);
-    	return null;
-    }
     
     @Override
     public Object visitDict(Dict node) throws Exception {
         auxComment.writeSpecialsBefore(node);
         exprType[] keys = node.keys;
         exprType[] values = node.values;
+        //start a new record because if there is an outer record it will not want to know about that...
+        auxComment.startRecord();
         for (int i = 0; i < values.length; i++) {
             keys[i].accept(this);
             values[i].accept(this);
         }
+        auxComment.endRecord();
         auxComment.writeSpecialsAfter(node);
         return null;
     }
@@ -167,6 +155,27 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         auxComment.writeSpecialsAfter(node);
         return null;
     }
+    
+
+    @Override
+    public Object visitUnaryOp(UnaryOp node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        state.write(node.operand.toString());
+        auxComment.writeSpecialsAfter(node);
+        return null;
+    }
+
+    @Override
+    public Object visitTuple(Tuple node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        //start a new record because if there is an outer record it will not want to know about that...
+        auxComment.startRecord();
+        super.visitTuple(node);
+        auxComment.endRecord();
+        auxComment.writeSpecialsAfter(node);
+        return null;
+    }
+
     
     @Override
     public Object visitNum(Num node) throws Exception {
@@ -190,15 +199,39 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         for(stmtType st:node.body){
             st.accept(this);
         }
+        fixNewStatementCondition();
+
         dedent();
-        //else:
-        state.indent();
-        auxComment.startRecord();
-        afterNode(node);
+        //except:
+        auxComment.writeSpecialsAfter(node);
         for(excepthandlerType h:node.handlers){
-            h.accept(this);
+            state.indent();
+            auxComment.writeSpecialsBefore(h);
+            state.write(" ");
+            if(h.type != null){
+                h.type.accept(this);
+            }
+            if(h.name != null){
+                h.name.accept(this);
+            }
+            fixNewStatementCondition();
+            for (stmtType st : h.body) {
+                st.accept(this);
+            }
+            dedent();
+            auxComment.writeSpecialsAfter(h);
         }
-        dedent();
+        if(node.orelse != null){
+            auxComment.startRecord();
+            auxComment.writeSpecialsBefore(node.orelse);
+            state.indent();
+            afterNode(node.orelse);
+            for (stmtType st : node.orelse.body){
+                st.accept(this);
+            }
+            auxComment.writeSpecialsAfter(node.orelse);
+            dedent();
+        }
         return null;
     }
     
@@ -499,4 +532,8 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         node.traverse(this);
     }
 
+    @Override
+    public String toString() {
+        return state.toString();
+    }
 }
