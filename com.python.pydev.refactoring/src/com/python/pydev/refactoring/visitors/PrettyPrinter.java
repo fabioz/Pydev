@@ -22,13 +22,16 @@ import org.python.parser.ast.Pass;
 import org.python.parser.ast.Print;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.Subscript;
+import org.python.parser.ast.TryExcept;
 import org.python.parser.ast.Tuple;
 import org.python.parser.ast.UnaryOp;
 import org.python.parser.ast.Yield;
 import org.python.parser.ast.argumentsType;
 import org.python.parser.ast.decoratorsType;
+import org.python.parser.ast.excepthandlerType;
 import org.python.parser.ast.exprType;
 import org.python.parser.ast.keywordType;
+import org.python.parser.ast.stmtType;
 
 /**
  * statements that 'need' to be on a new line:
@@ -76,9 +79,14 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         state.write(" = ");
         auxComment.startRecord();
         node.value.accept(this);
-        auxComment.writeSpecialsAfter(node);
-        
         checkEndRecord();
+
+        if(auxComment.hasCommentsAfter(node)){
+            auxComment.startRecord();
+            auxComment.writeSpecialsAfter(node);
+            checkEndRecord();
+        }
+        
         state.popInStmt();
         return null;
     }
@@ -152,7 +160,10 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     @Override
     public Object visitList(org.python.parser.ast.List node) throws Exception{
         auxComment.writeSpecialsBefore(node);
+        //start a new record because if there is an outer record it will not want to know about that...
+        auxComment.startRecord();
         super.visitList(node);
+        auxComment.endRecord();
         auxComment.writeSpecialsAfter(node);
         return null;
     }
@@ -162,6 +173,32 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         auxComment.writeSpecialsBefore(node);
         state.write(node.n.toString());
         auxComment.writeSpecialsAfter(node);
+        return null;
+    }
+    
+    @Override
+    public Object visitTryExcept(TryExcept node) throws Exception {
+        auxComment.startRecord();
+        state.indent();
+        //try:
+        auxComment.writeSpecialsBefore(node);
+        if(!auxComment.endRecord().writtenComment){
+            state.writeNewLine();
+            state.writeIndent();
+        }
+        
+        for(stmtType st:node.body){
+            st.accept(this);
+        }
+        dedent();
+        //else:
+        state.indent();
+        auxComment.startRecord();
+        afterNode(node);
+        for(excepthandlerType h:node.handlers){
+            h.accept(this);
+        }
+        dedent();
         return null;
     }
     
@@ -261,7 +298,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         for (SimpleNode n : node.body){
             auxComment.writeSpecialsBefore(n);
             n.accept(this);
-            auxComment.writeSpecialsAfter(n);
+//            auxComment.writeSpecialsAfter(n);
         }
         dedent();
         

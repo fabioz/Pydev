@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testComments2();
+            test.testTryExcept();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -56,6 +56,16 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         assertTrue("Should not be in record:"+printer.auxComment, ! printer.auxComment.inRecord());
     }
     
+    
+    public void testTryExcept() throws Exception {
+        String s = ""+
+        "try:\n" +
+        "    print 'foo'\n" +
+        "except:\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
 
     public void testCall() throws Exception {
         String s = ""+
@@ -98,6 +108,26 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         checkPrettyPrintEqual(s);
     }
     
+    public void testIfElse() throws Exception {
+        String s = ""+
+        "if True:\n" +
+        "    if foo:\n" +
+        "        pass\n" +
+        "    else:\n" +
+        "        pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testListDict() throws Exception {
+        String s = ""+
+        "a = [1,#this is 1\n" +
+        "2]\n" +
+        "a = {1:'foo'}\n" +
+        "";
+        checkPrettyPrintEqual(s);
+        
+    }
     
     public void testVarious() throws Exception {
         String s = ""+

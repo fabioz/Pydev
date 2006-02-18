@@ -16,9 +16,12 @@ public class WriterEraser implements IWriterEraser{
 
 	public void erase(String o) {
         StringBuffer buffer = buf.peek();
-		int len = o.length();
-		int bufLen = buffer.length();
-        buffer.delete(bufLen-len, bufLen);
+        if(buffer.toString().endsWith(o)){
+            //only delete if it ends with what was passed
+    		int len = o.length();
+    		int bufLen = buffer.length();
+            buffer.delete(bufLen-len, bufLen);
+        }
 	}
 
 	public StringBuffer getBuffer() {

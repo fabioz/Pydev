@@ -8,6 +8,7 @@ import java.util.Stack;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.SpecialStr;
+import org.python.parser.ast.Assign;
 import org.python.parser.ast.commentType;
 
 /**
@@ -113,6 +114,14 @@ public class AuxSpecials {
             }
         }
     }
+    public boolean hasCommentsAfter(Assign node) {
+        for (Object o : node.specialsAfter){
+            if(o instanceof commentType){
+                return true;
+            }
+        }
+        return false;
+    }
 
     public AuxState startRecord() {
         return auxState.push(new AuxState());
@@ -134,6 +143,7 @@ public class AuxSpecials {
     public String toString() {
         return "AuxSpecials<auxState size="+auxState.size()+">";
     }
+
 
     
 }
