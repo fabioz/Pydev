@@ -1907,6 +1907,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
   jjtreeOpenNodeScope(jjtn000);
     try {
       jj_consume_token(RAISE);
+           this.addSpecialToken("raise", STRATEGY_BEFORE_NEXT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LPAREN:
       case LBRACE:
@@ -1935,12 +1936,12 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
         test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
-                    this.addSpecialToken(",");
+                                                                           this.addSpecialToken(",");
           jj_consume_token(COMMA);
           test();
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case COMMA:
-                                                                 this.addSpecialToken(",");
+                                                                                                                        this.addSpecialToken(",");
             jj_consume_token(COMMA);
             test();
             break;

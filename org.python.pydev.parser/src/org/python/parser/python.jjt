@@ -879,7 +879,7 @@ void yield_stmt(): {}
 
 //raise_stmt: 'raise' [test [',' test [',' test]]]
 void raise_stmt(): {}
-{ <RAISE> [test() [{this.addSpecialToken(",");} <COMMA> test() [{this.addSpecialToken(",");} <COMMA> test()]]] }
+{ <RAISE> {this.addSpecialToken("raise", STRATEGY_BEFORE_NEXT);} [test() [{this.addSpecialToken(",");} <COMMA> test() [{this.addSpecialToken(",");} <COMMA> test()]]] }
 
 //import_stmt: 'import' dotted_name (',' dotted_name)* | 'from' dotted_name 'import' ('*' | NAME (',' NAME)*)
 void import_stmt() #void: {}
