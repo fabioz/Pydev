@@ -32,7 +32,7 @@ module Python
 
 	      -- 'type' is a bad name
 	      | Raise(expr? type, expr? inst, expr? tback)
-	      | TryExcept(stmt* body, excepthandler* handlers, stmt* orelse)
+	      | TryExcept(stmt* body, excepthandler* handlers, suite orelse)
 	      | TryFinally(stmt* body, stmt* finalbody)
 	      | Assert(expr test, expr? msg)
 
@@ -98,6 +98,8 @@ module Python
 
 	-- not sure what to call the first argument for raise and except
 
+	suite = (stmt* body)
+	
 	excepthandler = (expr? type, expr? name, stmt* body)
 
 	arguments = (expr* args, NameTok? vararg, 

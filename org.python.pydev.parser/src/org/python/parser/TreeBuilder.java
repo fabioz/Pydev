@@ -62,6 +62,7 @@ import org.python.parser.ast.expr_contextType;
 import org.python.parser.ast.keywordType;
 import org.python.parser.ast.sliceType;
 import org.python.parser.ast.stmtType;
+import org.python.parser.ast.suiteType;
 
 public class TreeBuilder implements PythonGrammarTreeConstants {
     private JJTPythonGrammarState stack;
@@ -393,10 +394,15 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             //we do that just to get the specials
             return new TryExcept(null, null, null);
         case JJTTRY_STMT:
-            orelse = null;
+            suiteType orelseSuite = null;
             if (peekNode() instanceof Suite) {
                 arity--;
-                orelse = popSuite();
+                arity--;
+                
+                Suite s = (Suite) popNode();
+                orelseSuite = (suiteType) popNode();
+                orelseSuite.body = s.body;
+                addSpecials(s, orelseSuite);
             }
             l = arity - 1;
             excepthandlerType[] handlers = new excepthandlerType[l];
@@ -407,10 +413,13 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             TryExcept tryExc = (TryExcept) popNode();
             tryExc.body = s.body;
             tryExc.handlers = handlers;
-            tryExc.orelse = orelse;
+            tryExc.orelse = orelseSuite;
             addSpecials(s, tryExc);
             addSpecialsBeforeToAfter(s.body[0], tryExc);
             return tryExc;
+        case JJTTRY_ELSE_STMT:
+            //we do that just to get the specials
+            return new suiteType(null);
         case JJTEXCEPT_CLAUSE:
             s = (Suite) popNode();
             body = s.body;

@@ -4,30 +4,30 @@ import org.python.parser.SimpleNode;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class commentType extends SimpleNode {
-    public String id;
+public class suiteType extends SimpleNode {
+    public stmtType[] body;
 
-    public commentType(String id) {
-        this.id = id;
+    public suiteType(stmtType[] body) {
+        this.body = body;
     }
 
-    public commentType(String id, SimpleNode parent) {
-        this(id);
+    public suiteType(stmtType[] body, SimpleNode parent) {
+        this(body);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer("comment[");
-        sb.append("id=");
-        sb.append(dumpThis(this.id));
+        StringBuffer sb = new StringBuffer("suite[");
+        sb.append("body=");
+        sb.append(dumpThis(this.body));
         sb.append("]");
         return sb.toString();
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(57, ostream);
-        pickleThis(this.id, ostream);
+        pickleThis(51, ostream);
+        pickleThis(this.body, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {
@@ -36,6 +36,12 @@ public class commentType extends SimpleNode {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
+        if (body != null) {
+            for (int i = 0; i < body.length; i++) {
+                if (body[i] != null)
+                    body[i].accept(visitor);
+            }
+        }
     }
 
 }

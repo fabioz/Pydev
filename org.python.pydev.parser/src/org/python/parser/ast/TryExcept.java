@@ -7,17 +7,17 @@ import java.io.IOException;
 public class TryExcept extends stmtType {
     public stmtType[] body;
     public excepthandlerType[] handlers;
-    public stmtType[] orelse;
+    public suiteType orelse;
 
     public TryExcept(stmtType[] body, excepthandlerType[] handlers,
-    stmtType[] orelse) {
+    suiteType orelse) {
         this.body = body;
         this.handlers = handlers;
         this.orelse = orelse;
     }
 
     public TryExcept(stmtType[] body, excepthandlerType[] handlers,
-    stmtType[] orelse, SimpleNode parent) {
+    suiteType orelse, SimpleNode parent) {
         this(body, handlers, orelse);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
@@ -61,12 +61,8 @@ public class TryExcept extends stmtType {
                     handlers[i].accept(visitor);
             }
         }
-        if (orelse != null) {
-            for (int i = 0; i < orelse.length; i++) {
-                if (orelse[i] != null)
-                    orelse[i].accept(visitor);
-            }
-        }
+        if (orelse != null)
+            orelse.accept(visitor);
     }
 
 }
