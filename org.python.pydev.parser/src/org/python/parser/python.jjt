@@ -9,7 +9,6 @@ options
     NODE_USES_PARSER      = true;
     STATIC                = false;  // multiple parsers
     COMMON_TOKEN_ACTION   = true;   // CommonTokenAction(Token)
-    OPTIMIZE_TOKEN_MANAGER=true;
     DEBUG_PARSER          = false;  // must be used to enable tracing 
     DEBUG_TOKEN_MANAGER   = false;  // used to debug the tokens we have generating 
 
@@ -42,7 +41,6 @@ public class PythonGrammar
     void jjtreeCloseNodeScope(Node n) {
         jjtree.setNodePos();
         List specialTokens = token_source.specialTokens;
-        //System.out.println("closing scope "+n);
         boolean after = true;
         if(n instanceof SimpleNode){
             if(specialTokens.size() > 0){
@@ -51,6 +49,7 @@ public class PythonGrammar
                     after = false;
                     prev = (SimpleNode) jjtree.peekNode();
                 }
+                //System.out.println("closing scope "+jjtree.peekNode().getClass());
 
                 for (Iterator iter = specialTokens.iterator(); iter.hasNext();) {
                     Object next = iter.next();
@@ -964,16 +963,21 @@ void for_stmt(): {}
 //try_stmt: ('try' ':' suite (except_clause ':' suite)+ #diagram:break
 //           ['else' ':' suite] | 'try' ':' suite 'finally' ':' suite)
 void try_stmt() #void: {}
-{ <TRY> <COLON> {this.addSpecialToken(":");} suite() (
+{ try_beg_stmt() suite() (
     ((except_clause())+ [<ELSE> <COLON> {this.addSpecialToken(":");} suite()])
         #try_stmt(jjtree.nodeArity()+1)
     | <FINALLY> <COLON> {this.addSpecialToken(":");} suite()
         #tryfinally_stmt(jjtree.nodeArity()+1))
 }
 
+//this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.
+void try_beg_stmt(): {}
+{ <TRY> {this.addSpecialToken("try");} {this.addSpecialToken(":");} <COLON> 
+}
+
 //except_clause: 'except' [test [',' test]]
 void except_clause(): {}
-{ <EXCEPT> [test() [{this.addSpecialToken(",");} <COMMA> test()]] <COLON> {this.addSpecialToken(":");} suite() }
+{ <EXCEPT> {this.addSpecialToken("except");} [test() [{this.addSpecialToken(",");} <COMMA> test()]] <COLON> {this.addSpecialToken(":");} suite() }
 
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 void suite(): {}

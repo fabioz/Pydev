@@ -389,9 +389,9 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             exprType msg = arity == 2 ? makeExpr() : null;
             test = makeExpr();
             return new Assert(test, msg);
-        case JJTTRYFINALLY_STMT:
-            orelse = popSuite();
-            return new TryFinally(popSuite(), orelse);
+        case JJTTRY_BEG_STMT:
+            //we do that just to get the specials
+            return new TryExcept(null, null, null);
         case JJTTRY_STMT:
             orelse = null;
             if (peekNode() instanceof Suite) {
@@ -403,14 +403,29 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             for (int i = l - 1; i >= 0; i--) {
                 handlers[i] = (excepthandlerType) popNode();
             }
-            return new TryExcept(popSuite(), handlers, orelse);
+            Suite s = (Suite)popNode();
+            TryExcept tryExc = (TryExcept) popNode();
+            tryExc.body = s.body;
+            tryExc.handlers = handlers;
+            tryExc.orelse = orelse;
+            addSpecials(s, tryExc);
+            addSpecialsBeforeToAfter(s.body[0], tryExc);
+            return tryExc;
         case JJTEXCEPT_CLAUSE:
-            body = popSuite();
+            s = (Suite) popNode();
+            body = s.body;
             exprType excname = arity == 3 ? makeExpr() : null;
-            if (excname != null)    
+            if (excname != null){    
                 ctx.setStore(excname);
+            }
             type = arity >= 2 ? makeExpr() : null;
-            return new excepthandlerType(type, excname, body);
+            excepthandlerType handler = new excepthandlerType(type, excname, body);
+            addSpecials(s, handler);
+            return handler;
+        case JJTTRYFINALLY_STMT:
+            orelse = popSuite();
+            return new TryFinally(popSuite(), orelse);
+            
         case JJTOR_BOOLEAN:
             return new BoolOp(BoolOp.Or, makeExprs());
         case JJTAND_BOOLEAN:
@@ -629,7 +644,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTCOLON:
             return n;
         default:
-            System.out.println("default "+n.getId());
+            System.out.println("Error at TreeBuilder: default not treated:"+n.getId());
             return null;
         }
     }
@@ -639,6 +654,10 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         to.specialsAfter.addAll(from.specialsAfter);
     }
     
+    private void addSpecialsBeforeToAfter(SimpleNode from, SimpleNode to) {
+        to.specialsAfter.addAll(from.specialsBefore);
+        from.specialsBefore.clear();
+    }
     private void addSpecialsBefore(SimpleNode from, SimpleNode to) {
         to.specialsBefore.addAll(from.specialsBefore);
         to.specialsBefore.addAll(from.specialsAfter);

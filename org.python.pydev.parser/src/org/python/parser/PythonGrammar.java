@@ -19,7 +19,6 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     void jjtreeCloseNodeScope(Node n) {
         jjtree.setNodePos();
         List specialTokens = token_source.specialTokens;
-        //System.out.println("closing scope "+n);
         boolean after = true;
         if(n instanceof SimpleNode){
             if(specialTokens.size() > 0){
@@ -28,6 +27,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
                     after = false;
                     prev = (SimpleNode) jjtree.peekNode();
                 }
+                //System.out.println("closing scope "+jjtree.peekNode().getClass());
 
                 for (Iterator iter = specialTokens.iterator(); iter.hasNext();) {
                     Object next = iter.next();
@@ -2645,9 +2645,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
 //try_stmt: ('try' ':' suite (except_clause ':' suite)+ #diagram:break
 //           ['else' ':' suite] | 'try' ':' suite 'finally' ':' suite)
   final public void try_stmt() throws ParseException {
-    jj_consume_token(TRY);
-    jj_consume_token(COLON);
-                 this.addSpecialToken(":");
+    try_beg_stmt();
     suite();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case EXCEPT:
@@ -2738,6 +2736,26 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     }
   }
 
+//this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.
+  final public void try_beg_stmt() throws ParseException {
+                      /*@bgen(jjtree) try_beg_stmt */
+  SimpleNode jjtn000 = (SimpleNode)SimpleNode.jjtCreate(this, JJTTRY_BEG_STMT);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+  jjtreeOpenNodeScope(jjtn000);
+    try {
+      jj_consume_token(TRY);
+         this.addSpecialToken("try");
+                                        this.addSpecialToken(":");
+      jj_consume_token(COLON);
+    } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtreeCloseNodeScope(jjtn000);
+    }
+    }
+  }
+
 //except_clause: 'except' [test [',' test]]
   final public void except_clause() throws ParseException {
                        /*@bgen(jjtree) except_clause */
@@ -2747,6 +2765,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
   jjtreeOpenNodeScope(jjtn000);
     try {
       jj_consume_token(EXCEPT);
+            this.addSpecialToken("except");
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LPAREN:
       case LBRACE:
@@ -2775,7 +2794,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
         test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
-                     this.addSpecialToken(",");
+                                                       this.addSpecialToken(",");
           jj_consume_token(COMMA);
           test();
           break;
@@ -2789,7 +2808,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
         ;
       }
       jj_consume_token(COLON);
-                                                                           this.addSpecialToken(":");
+                                                                                                             this.addSpecialToken(":");
       suite();
     } catch (Throwable jjte000) {
     if (jjtc000) {
@@ -6734,21 +6753,6 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3R_121() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_139()) {
-    jj_scanpos = xsp;
-    if (jj_3R_140()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_139() {
-    if (jj_scan_token(IMPORT)) return true;
-    return false;
-  }
-
   final private boolean jj_3R_110() {
     if (jj_scan_token(GLOBAL)) return true;
     return false;
@@ -6764,17 +6768,27 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3R_149() {
-    if (jj_scan_token(RAISE)) return true;
-    return false;
-  }
-
   final private boolean jj_3R_107() {
     if (jj_scan_token(FROM)) return true;
     return false;
   }
 
   final private boolean jj_3R_106() {
+    if (jj_scan_token(IMPORT)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_121() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_139()) {
+    jj_scanpos = xsp;
+    if (jj_3R_140()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_139() {
     if (jj_scan_token(IMPORT)) return true;
     return false;
   }
@@ -6789,13 +6803,13 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3R_148() {
-    if (jj_scan_token(YIELD)) return true;
+  final private boolean jj_3R_103() {
+    if (jj_scan_token(CONTINUE)) return true;
     return false;
   }
 
-  final private boolean jj_3R_103() {
-    if (jj_scan_token(CONTINUE)) return true;
+  final private boolean jj_3R_149() {
+    if (jj_scan_token(RAISE)) return true;
     return false;
   }
 
@@ -6814,13 +6828,13 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3R_147() {
-    if (jj_scan_token(RETURN)) return true;
+  final private boolean jj_3R_99() {
+    if (jj_scan_token(FINALLY)) return true;
     return false;
   }
 
-  final private boolean jj_3R_99() {
-    if (jj_scan_token(FINALLY)) return true;
+  final private boolean jj_3R_148() {
+    if (jj_scan_token(YIELD)) return true;
     return false;
   }
 
@@ -6839,13 +6853,43 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
+  final private boolean jj_3R_95() {
+    if (jj_scan_token(TRY)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_147() {
+    if (jj_scan_token(RETURN)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_94() {
+    if (jj_scan_token(FOR)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_93() {
+    if (jj_scan_token(WHILE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_92() {
+    if (jj_scan_token(ELIF)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_91() {
+    if (jj_scan_token(ELSE)) return true;
+    return false;
+  }
+
   final private boolean jj_3R_138() {
     if (jj_3R_149()) return true;
     return false;
   }
 
-  final private boolean jj_3R_95() {
-    if (jj_scan_token(TRY)) return true;
+  final private boolean jj_3R_90() {
+    if (jj_scan_token(IF)) return true;
     return false;
   }
 
@@ -6854,8 +6898,8 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3R_94() {
-    if (jj_scan_token(FOR)) return true;
+  final private boolean jj_3R_89() {
+    if (jj_scan_token(LAMBDA)) return true;
     return false;
   }
 
@@ -6869,13 +6913,13 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3R_93() {
-    if (jj_scan_token(WHILE)) return true;
+  final private boolean jj_3R_88() {
+    if (jj_scan_token(IN)) return true;
     return false;
   }
 
-  final private boolean jj_3R_92() {
-    if (jj_scan_token(ELIF)) return true;
+  final private boolean jj_3R_87() {
+    if (jj_scan_token(IS)) return true;
     return false;
   }
 
@@ -6903,38 +6947,8 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3R_91() {
-    if (jj_scan_token(ELSE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_90() {
-    if (jj_scan_token(IF)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_89() {
-    if (jj_scan_token(LAMBDA)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_88() {
-    if (jj_scan_token(IN)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_87() {
-    if (jj_scan_token(IS)) return true;
-    return false;
-  }
-
   final private boolean jj_3R_86() {
     if (jj_scan_token(NOT_BOOL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_119() {
-    if (jj_scan_token(PASS)) return true;
     return false;
   }
 
@@ -7050,19 +7064,13 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
+  final private boolean jj_3R_119() {
+    if (jj_scan_token(PASS)) return true;
+    return false;
+  }
+
   final private boolean jj_3R_118() {
     if (jj_scan_token(DEL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_8() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_51()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_133() {
-    if (jj_scan_token(PRINT)) return true;
     return false;
   }
 
@@ -7081,8 +7089,8 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3_11() {
-    if (jj_scan_token(PRINT)) return true;
+  final private boolean jj_3_8() {
+    if (jj_scan_token(COMMA)) return true;
     if (jj_3R_51()) return true;
     return false;
   }
@@ -7107,22 +7115,8 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3_10() {
+  final private boolean jj_3R_133() {
     if (jj_scan_token(PRINT)) return true;
-    if (jj_scan_token(RSHIFT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_117() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_10()) {
-    jj_scanpos = xsp;
-    if (jj_3_11()) {
-    jj_scanpos = xsp;
-    if (jj_3R_133()) return true;
-    }
-    }
     return false;
   }
 
@@ -7133,6 +7127,12 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
 
   final private boolean jj_3R_175() {
     if (jj_scan_token(SINGLE_STRING2)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_11() {
+    if (jj_scan_token(PRINT)) return true;
+    if (jj_3R_51()) return true;
     return false;
   }
 
@@ -7169,6 +7169,25 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
+  final private boolean jj_3_10() {
+    if (jj_scan_token(PRINT)) return true;
+    if (jj_scan_token(RSHIFT)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_117() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_10()) {
+    jj_scanpos = xsp;
+    if (jj_3_11()) {
+    jj_scanpos = xsp;
+    if (jj_3R_133()) return true;
+    }
+    }
+    return false;
+  }
+
   final private boolean jj_3R_115() {
     if (jj_scan_token(AS)) return true;
     return false;
@@ -7199,8 +7218,18 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
+  final private boolean jj_3R_172() {
+    if (jj_scan_token(FLOAT)) return true;
+    return false;
+  }
+
   final private boolean jj_3R_71() {
     if (jj_3R_124()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_171() {
+    if (jj_scan_token(DECNUMBER)) return true;
     return false;
   }
 
@@ -7220,13 +7249,13 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3R_172() {
-    if (jj_scan_token(FLOAT)) return true;
+  final private boolean jj_3R_68() {
+    if (jj_3R_121()) return true;
     return false;
   }
 
-  final private boolean jj_3R_68() {
-    if (jj_3R_121()) return true;
+  final private boolean jj_3R_170() {
+    if (jj_scan_token(OCTNUMBER)) return true;
     return false;
   }
 
@@ -7237,11 +7266,6 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
 
   final private boolean jj_3R_66() {
     if (jj_3R_119()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_171() {
-    if (jj_scan_token(DECNUMBER)) return true;
     return false;
   }
 
@@ -7291,11 +7315,6 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3R_170() {
-    if (jj_scan_token(OCTNUMBER)) return true;
-    return false;
-  }
-
   final private boolean jj_3R_169() {
     if (jj_scan_token(HEXNUMBER)) return true;
     return false;
@@ -7326,11 +7345,6 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3R_62() {
-    if (jj_scan_token(LPAREN)) return true;
-    return false;
-  }
-
   final private boolean jj_3_22() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_51()) return true;
@@ -7357,8 +7371,8 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3R_60() {
-    if (jj_scan_token(MULTIPLY)) return true;
+  final private boolean jj_3R_62() {
+    if (jj_scan_token(LPAREN)) return true;
     return false;
   }
 
@@ -7377,6 +7391,17 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
+  final private boolean jj_3R_60() {
+    if (jj_scan_token(MULTIPLY)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_56() {
+    if (jj_scan_token(MULTIPLY)) return true;
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
   final private boolean jj_3R_61() {
     if (jj_3R_59()) return true;
     return false;
@@ -7392,14 +7417,13 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3R_46() {
-    if (jj_3R_49()) return true;
+  final private boolean jj_3R_143() {
+    if (jj_3R_57()) return true;
     return false;
   }
 
-  final private boolean jj_3R_56() {
-    if (jj_scan_token(MULTIPLY)) return true;
-    if (jj_3R_51()) return true;
+  final private boolean jj_3R_46() {
+    if (jj_3R_49()) return true;
     return false;
   }
 
@@ -7411,27 +7435,6 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
 
   final private boolean jj_3_5() {
     if (jj_3R_47()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_48() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(33)) {
-    jj_scanpos = xsp;
-    if (jj_3R_60()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_143() {
-    if (jj_3R_57()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_47() {
-    if (jj_scan_token(MULTIPLY)) return true;
-    if (jj_3R_59()) return true;
     return false;
   }
 
@@ -7457,20 +7460,18 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
-  final private boolean jj_3_4() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_48()) return true;
+  final private boolean jj_3R_48() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(33)) {
+    jj_scanpos = xsp;
+    if (jj_3R_60()) return true;
+    }
     return false;
   }
 
   final private boolean jj_3_24() {
     if (jj_3R_56()) return true;
-    return false;
-  }
-
-  final private boolean jj_3_3() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_47()) return true;
     return false;
   }
 
@@ -7492,6 +7493,24 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
 
   final private boolean jj_3R_128() {
     if (jj_3R_143()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_47() {
+    if (jj_scan_token(MULTIPLY)) return true;
+    if (jj_3R_59()) return true;
+    return false;
+  }
+
+  final private boolean jj_3_4() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_48()) return true;
+    return false;
+  }
+
+  final private boolean jj_3_3() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_47()) return true;
     return false;
   }
 

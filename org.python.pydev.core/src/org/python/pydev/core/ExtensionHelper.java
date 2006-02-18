@@ -20,6 +20,8 @@ public class ExtensionHelper {
 
     
     private static Map<String, IExtension[]> extensionsCache = new HashMap<String, IExtension[]>();
+    
+    //pydev
     public final static String PYDEV_COMPLETION = "org.python.pydev.pydev_completion";
     public final static String PYDEV_BUILDER = "org.python.pydev.pydev_builder";
     public final static String PYDEV_INTERPRETER_OBSERVER = "org.python.pydev.pydev_interpreter_observer";
@@ -29,9 +31,11 @@ public class ExtensionHelper {
     public static final String PYDEV_ORGANIZE_IMPORTS = "org.python.pydev.pydev_organize_imports";
     public static final String PYDEV_REFACTORING = "org.python.pydev.pydev_refactoring";
     public static final String PYDEV_QUICK_OUTLINE = "org.python.pydev.pydev_quick_outline";
-    public static final String PYDEV_DEBUG_CONSOLE_INPUT_LISTENER = "org.python.pydev.debug.pydev_debug_console_input_listener";
     public static final String PYDEV_PYEDIT_LISTENER = "org.python.pydev.pydev_pyedit_listener";
-    
+    public static final String PYDEV_FORMATTER = "org.python.pydev.pydev_formatter";
+
+    //debug
+    public static final String PYDEV_DEBUG_CONSOLE_INPUT_LISTENER = "org.python.pydev.debug.pydev_debug_console_input_listener";
     
     private static IExtension[] getExtensions(String type) {
         IExtension[] extensions = extensionsCache.get(type);

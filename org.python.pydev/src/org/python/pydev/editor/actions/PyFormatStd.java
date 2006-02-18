@@ -10,13 +10,15 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextSelection;
+import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.visitors.ParsingUtils;
 import org.python.pydev.plugin.PyCodeFormatterPage;
 
 /**
  * @author Fabio Zadrozny
  */
-public class PyFormatStd extends PyAction{
+public class PyFormatStd extends PyAction implements IFormatter{
 
     public static class FormatStd{
         public boolean spaceAfterComma;
@@ -27,30 +29,40 @@ public class PyFormatStd extends PyAction{
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
-		try 
-		{
-			PySelection ps = new PySelection ( getTextEditor ( ));
-			IDocument doc = ps.getDoc();
-			
-			int startLine = ps.getStartLineIndex();
+		try {
+            IFormatter participant = (IFormatter) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_FORMATTER);
+            if(participant==null){
+                participant = this;
+            }
+            PySelection ps = new PySelection ( getTextEditor ());
+            IDocument doc = ps.getDoc();
+            
+            int startLine = ps.getStartLineIndex();
             if(ps.getTextSelection().getLength() == 0){
-			    performFormatAll(doc);
-			}else{
-			    performFormatSelection(doc, startLine, ps.getEndLineIndex());
-			}
-			
+                participant.formatAll(doc, getPyEdit());
+            }else{
+                participant.formatSelection(doc, startLine, ps.getEndLineIndex(), getPyEdit(), ps);
+            }
+            
             if(startLine >= doc.getNumberOfLines()){
                 startLine = doc.getNumberOfLines()-1;
             }
             TextSelection sel = new TextSelection(doc, doc.getLineOffset(startLine), 0);
             getTextEditor().getSelectionProvider().setSelection(sel);
-		} 
-		catch ( Exception e ) 
-		{
+
+		} catch ( Exception e ) {
 			beep ( e );
 		}		
     }
 
+    public void formatSelection(IDocument doc, int startLine, int endLineIndex, PyEdit edit, PySelection ps){
+        performFormatSelection(doc, startLine, endLineIndex);
+    }
+    
+    public void formatAll(IDocument doc, PyEdit edit) {
+        performFormatAll(doc);
+    }
+    
     /**
      * @param doc
      * @param endLineDelim
