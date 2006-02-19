@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testIfElse();
+            test.testCall();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -406,6 +406,13 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     	"print a[0]\n" +
     	"";
     	checkPrettyPrintEqual(s);
+    }
+    
+    public void testSubscript2() throws Exception {
+        String s = ""+
+        "[0]\n" +
+        "";
+        checkPrettyPrintEqual(s);
     }
     
     public void testDefaults() throws Exception {

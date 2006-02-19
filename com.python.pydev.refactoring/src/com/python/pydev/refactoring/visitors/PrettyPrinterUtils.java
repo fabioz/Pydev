@@ -4,11 +4,19 @@
 package com.python.pydev.refactoring.visitors;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.Import;
+import org.python.parser.ast.List;
 import org.python.parser.ast.Pass;
+import org.python.parser.ast.Print;
+import org.python.parser.ast.Subscript;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.Yield;
+import org.python.pydev.core.REF;
 
 public class PrettyPrinterUtils extends VisitorBase{
 
@@ -31,8 +39,9 @@ public class PrettyPrinterUtils extends VisitorBase{
         }
     
         if(!auxComment.endRecord().writtenComment){
-            state.writeNewLine();
-            state.writeIndent();
+            if(!state.inStmt()){
+                fixNewStatementCondition();
+            }
         }
     }
 
@@ -123,11 +132,67 @@ public class PrettyPrinterUtils extends VisitorBase{
         node.traverse(this);
     }
 
+    //useful for some reflection tricks, so that we can reuse some chunks of code...
+    // -- sometimes I fell that python would make that so much easier... --
+    public final static Map<String, Method> superMethods = new HashMap<String, Method>();
+    public static void addMethod(String methodRep, String parentRep){
+        superMethods.put(methodRep, REF.findMethod(PrettyPrinterUtils.class, parentRep, new Object[]{SimpleNode.class}));
+    }
+    static{
+        addMethod("visitYield" , "superYield" );
+        addMethod("visitPass"  , "superPass"  );
+        addMethod("visitImport", "superImport");
+        addMethod("visitPrint" , "superPrint");
+        addMethod("visitSubscript" , "superSubscript");
+        addMethod("visitList" , "superList");
+    }
+    
+    
+    public Object visitGeneric(SimpleNode node, String superMethod) throws IOException{
+        return visitGeneric(node, superMethod, true);
+    }
+    
+    public Object visitGeneric(SimpleNode node, String superMethod, boolean requiresNewLine) throws IOException{
+        return visitGeneric(node, superMethod, requiresNewLine, null);
+    }
+    
+    public Object visitGeneric(SimpleNode node, String superMethod, boolean requiresNewLine, String strToWrite) throws IOException{
+        if(requiresNewLine){
+            fixNewStatementCondition();
+        }
+        beforeNode(node);
+        state.pushInStmt(node);
+        if(strToWrite != null){
+            state.write(strToWrite);
+        }else{
+            REF.invoke(this, superMethods.get(superMethod), node);
+        }
+        state.popInStmt();
+        afterNode(node);
+        return null;
+    }
+
     public Object superYield(Yield node) throws Exception {
         return super.visitYield(node);
     }
     
     public Object superPass(Pass node) throws Exception {
         return super.visitPass(node);
+    }
+    
+    public Object superImport(Import node) throws Exception {
+        return super.visitImport(node);
+    }
+    
+    public Object superPrint(Print node) throws Exception {
+        return super.visitPrint(node);
+    }
+    
+    public Object superSubscript(Subscript node) throws Exception {
+        return super.visitSubscript(node);
+    }
+    
+    public Object superList(List node) throws Exception {
+        return super.visitList(node);
     }
 }
