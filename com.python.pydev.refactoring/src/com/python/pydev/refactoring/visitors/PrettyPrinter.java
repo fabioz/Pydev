@@ -26,6 +26,7 @@ import org.python.parser.ast.Subscript;
 import org.python.parser.ast.TryExcept;
 import org.python.parser.ast.Tuple;
 import org.python.parser.ast.UnaryOp;
+import org.python.parser.ast.While;
 import org.python.parser.ast.Yield;
 import org.python.parser.ast.argumentsType;
 import org.python.parser.ast.decoratorsType;
@@ -156,7 +157,22 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         auxComment.writeSpecialsAfter(node);
         return null;
     }
-    
+    @Override
+    public Object visitWhile(While node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        state.indent();
+        auxComment.startRecord();
+        state.pushInStmt(node.test);
+        node.test.accept(this);
+        state.popInStmt();
+        afterNode(node);
+        fixNewStatementCondition();
+        for(SimpleNode n: node.body){
+            n.accept(this);
+        }
+        dedent();
+        return null;
+    }
 
     @Override
     public Object visitUnaryOp(UnaryOp node) throws Exception {
