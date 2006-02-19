@@ -112,8 +112,9 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         NameTok n = new NameTok(name.id, ctx);
         n.beginColumn = name.beginColumn;
         n.beginLine = name.beginLine;
-        n.specialsBefore = name.specialsBefore;
-        n.specialsAfter = name.specialsAfter;
+        addSpecials(name, n);
+        name.specialsBefore = n.specialsBefore;
+        name.specialsAfter = n.specialsAfter;
         return n;
     }
     
@@ -667,13 +668,23 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             return new Import(makeAliases());
     
         case JJTDOTTED_NAME:
+            Name name = new Name(null, Name.Load);
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < arity; i++) {
-                if (i > 0)
+                if (i > 0){
                     sb.insert(0, '.');
-                sb.insert(0, makeIdentifier());
+                }
+                Name name0 = (Name) stack.popNode();
+                sb.insert(0, name0.id);
+                addSpecials(name0, name);
+                //we have to set that, because if we later add things to the previous Name, we will now want it to be added to
+                //the new name (comments will only appear later and may be added to the previous name -- so, we replace the previous
+                //name specials list).
+                name0.specialsBefore = name.specialsBefore;
+                name0.specialsAfter = name.specialsAfter;
             }
-            return new Name(sb.toString(), Name.Load);
+            name.id = sb.toString();
+            return name;
 
         case JJTDOTTED_AS_NAME:
             NameTok asname = null;

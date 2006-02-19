@@ -224,8 +224,26 @@ public class REF {
     public static Object invoke(Object obj, String name, Object... args) {
         //the args are not checked for the class because if a subclass is passed, the method is not correctly gotten
         //another method might do it...
+        Method m = findMethod(obj, name, args);
+        return invoke(obj, m, args);
+    }
+
+    
+    public static Object invoke(Object obj, Method m, Object... args) {
         try {
-            Method[] methods = obj.getClass().getMethods();
+            return m.invoke(obj, args);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public static Method findMethod(Object obj, String name, Object... args) {
+        return findMethod(obj.getClass(), name, args);   
+    }
+    
+    public static Method findMethod(Class class_, String name, Object... args) {
+        try {
+            Method[] methods = class_.getMethods();
             for (Method method : methods) {
 
                 Class[] parameterTypes = method.getParameterTypes();
@@ -239,7 +257,7 @@ public class REF {
                         i++;
                     }
                     //invoke it
-                    return method.invoke(obj, args);
+                    return method;
                 }
             }
         } catch (Exception e) {

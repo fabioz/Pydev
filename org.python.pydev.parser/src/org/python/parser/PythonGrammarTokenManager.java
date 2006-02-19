@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.python.parser.ast.Str;
+import org.python.parser.ast.Import;
 
 public class PythonGrammarTokenManager implements PythonGrammarConstants
 {
