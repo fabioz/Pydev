@@ -226,13 +226,19 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             exprType target = makeExpr();
             ctx.setStore(target);
             return new For(target, iter, body, orelse);
+        case JJTBEGIN_WHILE_STMT:
+            return new While(null, null, null);
         case JJTWHILE_STMT:
             orelse = null;
-            if (stack.nodeArity() == 3)
+            if (stack.nodeArity() == 4)
                 orelse = popSuite();
             body = popSuite();
             exprType test = makeExpr();
-            return new While(test, body, orelse);
+            While w = (While) popNode();
+            w.test = test;
+            w.body = body;
+            w.orelse = orelse;
+            return w;
         case JJTIF_BEG_STMT:
             return new If(null, null, null);
         case JJTELIF_BEG_STMT:

@@ -953,11 +953,15 @@ void elif_beg_stmt(): {}
 
 //while_stmt: 'while' test ':' suite ['else' ':' suite]
 void while_stmt(): {}
-{ <WHILE>  {this.addSpecialToken("while ");} test() 
+{ begin_while_stmt() test() 
   <COLON> {this.addSpecialToken(":");} 
   suite() [<ELSE> 
   <COLON> {this.addSpecialToken(":");} 
   suite()] }
+
+void begin_while_stmt(): {}
+{ {this.addSpecialToken("while ",STRATEGY_BEFORE_NEXT);} <WHILE> 
+}
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
