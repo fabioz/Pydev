@@ -43,7 +43,7 @@ public class FunctionDef extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(6, ostream);
+        pickleThis(7, ostream);
         pickleThis(this.name, ostream);
         pickleThis(this.args, ostream);
         pickleThis(this.body, ostream);

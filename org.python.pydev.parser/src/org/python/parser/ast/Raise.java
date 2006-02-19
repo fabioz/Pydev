@@ -37,7 +37,7 @@ public class Raise extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(17, ostream);
+        pickleThis(18, ostream);
         pickleThis(this.type, ostream);
         pickleThis(this.inst, ostream);
         pickleThis(this.tback, ostream);

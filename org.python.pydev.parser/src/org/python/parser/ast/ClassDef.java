@@ -37,7 +37,7 @@ public class ClassDef extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(7, ostream);
+        pickleThis(8, ostream);
         pickleThis(this.name, ostream);
         pickleThis(this.bases, ostream);
         pickleThis(this.body, ostream);

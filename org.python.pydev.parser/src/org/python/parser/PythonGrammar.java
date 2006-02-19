@@ -2598,13 +2598,11 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
       begin_while_stmt();
       test();
       jj_consume_token(COLON);
-           this.addSpecialToken(":");
+                                     this.addSpecialToken(":");
       suite();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ELSE:
-        jj_consume_token(ELSE);
-        jj_consume_token(COLON);
-           this.addSpecialToken(":");
+        beg_else_stmt();
         suite();
         break;
       default:
@@ -2642,6 +2640,25 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     try {
    this.addSpecialToken("while ",STRATEGY_BEFORE_NEXT);
       jj_consume_token(WHILE);
+    } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtreeCloseNodeScope(jjtn000);
+    }
+    }
+  }
+
+  final public void beg_else_stmt() throws ParseException {
+                       /*@bgen(jjtree) beg_else_stmt */
+  SimpleNode jjtn000 = (SimpleNode)SimpleNode.jjtCreate(this, JJTBEG_ELSE_STMT);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+  jjtreeOpenNodeScope(jjtn000);
+    try {
+      jj_consume_token(ELSE);
+          this.addSpecialToken("else",STRATEGY_BEFORE_NEXT);
+                                                               this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);
+      jj_consume_token(COLON);
     } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);

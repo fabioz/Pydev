@@ -26,7 +26,7 @@ public class suiteType extends SimpleNode {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(51, ostream);
+        pickleThis(6, ostream);
         pickleThis(this.body, ostream);
     }
 

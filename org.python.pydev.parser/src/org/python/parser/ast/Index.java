@@ -26,7 +26,7 @@ public class Index extends sliceType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(49, ostream);
+        pickleThis(50, ostream);
         pickleThis(this.value, ostream);
     }
 

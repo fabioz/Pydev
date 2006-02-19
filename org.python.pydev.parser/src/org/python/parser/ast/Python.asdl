@@ -13,6 +13,10 @@ module Python
 
 	name_context = ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule | Attrib
 
+	-- the body is an array of statements (this is not used for all constructs because initially the suite was 'inlined'
+	-- in the constructs, but some information was lost in this way).
+	suite = (stmt* body)
+
 	stmt = FunctionDef(NameTok name, arguments args, 
                            stmt* body, decorators* decs)
 	      | ClassDef(NameTok name, expr* bases, stmt* body)
@@ -27,7 +31,7 @@ module Python
 
 	      -- use 'orelse' because else is a keyword in target languages
 	      | For(expr target, expr iter, stmt* body, stmt* orelse)
-	      | While(expr test, stmt* body, stmt* orelse)
+	      | While(expr test, stmt* body, suite orelse)
 	      | If(expr test, stmt* body, stmt* orelse)
 
 	      -- 'type' is a bad name
@@ -97,8 +101,6 @@ module Python
 	comprehension = (expr target, expr iter, expr* ifs)
 
 	-- not sure what to call the first argument for raise and except
-
-	suite = (stmt* body)
 	
 	excepthandler = (expr? type, expr? name, stmt* body)
 

@@ -7,15 +7,15 @@ import java.io.IOException;
 public class While extends stmtType {
     public exprType test;
     public stmtType[] body;
-    public stmtType[] orelse;
+    public suiteType orelse;
 
-    public While(exprType test, stmtType[] body, stmtType[] orelse) {
+    public While(exprType test, stmtType[] body, suiteType orelse) {
         this.test = test;
         this.body = body;
         this.orelse = orelse;
     }
 
-    public While(exprType test, stmtType[] body, stmtType[] orelse,
+    public While(exprType test, stmtType[] body, suiteType orelse,
     SimpleNode parent) {
         this(test, body, orelse);
         this.beginLine = parent.beginLine;
@@ -37,7 +37,7 @@ public class While extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(15, ostream);
+        pickleThis(16, ostream);
         pickleThis(this.test, ostream);
         pickleThis(this.body, ostream);
         pickleThis(this.orelse, ostream);
@@ -56,12 +56,8 @@ public class While extends stmtType {
                     body[i].accept(visitor);
             }
         }
-        if (orelse != null) {
-            for (int i = 0; i < orelse.length; i++) {
-                if (orelse[i] != null)
-                    orelse[i].accept(visitor);
-            }
-        }
+        if (orelse != null)
+            orelse.accept(visitor);
     }
 
 }

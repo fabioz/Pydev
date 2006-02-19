@@ -38,7 +38,7 @@ public class comprehensionType extends SimpleNode {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(50, ostream);
+        pickleThis(51, ostream);
         pickleThis(this.target, ostream);
         pickleThis(this.iter, ostream);
         pickleThis(this.ifs, ostream);

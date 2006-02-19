@@ -26,7 +26,7 @@ public class Repr extends exprType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(38, ostream);
+        pickleThis(39, ostream);
         pickleThis(this.value, ostream);
     }
 

@@ -32,7 +32,7 @@ public class ImportFrom extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(22, ostream);
+        pickleThis(23, ostream);
         pickleThis(this.module, ostream);
         pickleThis(this.names, ostream);
     }

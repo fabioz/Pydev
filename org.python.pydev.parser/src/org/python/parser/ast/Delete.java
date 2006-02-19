@@ -26,7 +26,7 @@ public class Delete extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(10, ostream);
+        pickleThis(11, ostream);
         pickleThis(this.targets, ostream);
     }
 

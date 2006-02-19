@@ -26,7 +26,7 @@ public class Return extends stmtType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(8, ostream);
+        pickleThis(9, ostream);
         pickleThis(this.value, ostream);
     }
 

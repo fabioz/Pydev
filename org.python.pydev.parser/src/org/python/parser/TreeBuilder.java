@@ -226,18 +226,25 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             exprType target = makeExpr();
             ctx.setStore(target);
             return new For(target, iter, body, orelse);
+        case JJTBEG_ELSE_STMT:
+            return new suiteType(null);
         case JJTBEGIN_WHILE_STMT:
             return new While(null, null, null);
         case JJTWHILE_STMT:
-            orelse = null;
-            if (stack.nodeArity() == 4)
-                orelse = popSuite();
+            suiteType orelseSuite = null;
+            if (stack.nodeArity() == 5){
+                Suite s = (Suite) popNode();
+                orelseSuite = (suiteType) popNode();
+                orelseSuite.body = s.body;
+                addSpecials(s, orelseSuite);
+            }
+            
             body = popSuite();
             exprType test = makeExpr();
             While w = (While) popNode();
             w.test = test;
             w.body = body;
-            w.orelse = orelse;
+            w.orelse = orelseSuite;
             return w;
         case JJTIF_BEG_STMT:
             return new If(null, null, null);
@@ -411,7 +418,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             //we do that just to get the specials
             return new TryExcept(null, null, null);
         case JJTTRY_STMT:
-            suiteType orelseSuite = null;
+            orelseSuite = null;
             if (peekNode() instanceof Suite) {
                 arity--;
                 arity--;

@@ -37,7 +37,7 @@ public class AugAssign extends stmtType implements operatorType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(12, ostream);
+        pickleThis(13, ostream);
         pickleThis(this.target, ostream);
         pickleThis(this.op, ostream);
         pickleThis(this.value, ostream);
