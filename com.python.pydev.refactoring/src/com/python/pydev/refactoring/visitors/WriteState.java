@@ -36,6 +36,11 @@ public class WriteState implements IWriterEraser {
         indentation.delete(len-prefs.getIndent().length(), len);
     }
 
+    public void writeIndentString() throws IOException {
+        lastState = LAST_STATE_INDENT;
+        writer.write(prefs.getIndent());
+    }
+    
     public void writeIndent() throws IOException {
         lastState = LAST_STATE_INDENT;
         writer.write(indentation.toString());

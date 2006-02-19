@@ -74,18 +74,6 @@ public class PrettyPrinterUtils extends VisitorBase{
             " not in ",
         };
 
-    /**
-     * Does the indent, and when ending the recording, if some comment was written, a new line will be added.
-     */
-    protected void makeIfIndent() throws IOException {
-    	state.indent();
-        boolean writtenComment = auxComment.endRecord().writtenComment;
-    	if(!writtenComment){
-        	state.writeNewLine();
-        }
-    	state.writeIndent();
-    }
-
     protected static final String[] strTypes = new String[]{
             "'''",
             "\"\"\"",
@@ -112,15 +100,19 @@ public class PrettyPrinterUtils extends VisitorBase{
     }
 
     /**
+     * @return whether we changed something in this method or not.
      * @throws IOException
      */
-    protected void fixNewStatementCondition() throws IOException {
+    protected boolean fixNewStatementCondition() throws IOException {
         if(state.lastIsWrite()){
             state.writeNewLine();
             state.writeIndent();
+            return true;
         }else if(state.lastIsNewLine()){
             state.writeIndent();
+            return true;
         }
+        return false;
     }
 
     protected Object unhandled_node(SimpleNode node) throws Exception {

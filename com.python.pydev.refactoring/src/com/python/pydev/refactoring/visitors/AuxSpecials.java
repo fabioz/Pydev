@@ -48,8 +48,8 @@ public class AuxSpecials {
     }
 
     private void setStateWritten() {
-        if(auxState.size() > 0){
-            auxState.peek().writtenComment = true;
+        for(AuxState st : auxState){
+            st.writtenComment = true;
         }
     }
 

@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testCall();
+            test.testVarious();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -310,9 +310,11 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "class Foo:\n" +
         "    def __init__(self,a,b):\n" +
         "        print self,#comment0\n" +
-        "        a,b\n" +
+        "        a,\n" +
+        "        b\n" +
         "    def met1(self,a):#ok comment1\n" +
-        "        a,b\n" +
+        "        a,\n" +
+        "        b\n" +
         "        class Inner(object):\n" +
         "            pass\n" +
         "        self.met1(a)\n" +

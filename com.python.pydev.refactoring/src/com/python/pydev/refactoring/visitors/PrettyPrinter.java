@@ -211,6 +211,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     public Object visitFor(For node) throws Exception {
         //for a in b: xxx else: yyy
         
+        state.pushInStmt(node);
         //for
         auxComment.writeSpecialsBefore(node);
         state.indent();
@@ -224,7 +225,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         node.iter.accept(this);
         state.popInStmt();
         afterNode(node);
-        
+        state.popInStmt();
         
         fixNewStatementCondition();
         for(SimpleNode n: node.body){
@@ -277,14 +278,10 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     
     @Override
     public Object visitTryExcept(TryExcept node) throws Exception {
-        auxComment.startRecord();
         state.indent();
         //try:
         auxComment.writeSpecialsBefore(node);
-        if(!auxComment.endRecord().writtenComment){
-            state.writeNewLine();
-            state.writeIndent();
-        }
+        fixNewStatementCondition();
         
         for(stmtType st:node.body){
             st.accept(this);
@@ -295,6 +292,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         //except:
         auxComment.writeSpecialsAfter(node);
         for(excepthandlerType h:node.handlers){
+            state.pushInStmt(h);
             state.indent();
             auxComment.writeSpecialsBefore(h);
             if(h.type != null || h.name != null){
@@ -306,6 +304,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             if(h.name != null){
                 h.name.accept(this);
             }
+            state.popInStmt();
             fixNewStatementCondition();
             for (stmtType st : h.body) {
                 st.accept(this);
@@ -345,11 +344,13 @@ public class PrettyPrinter extends PrettyPrinterUtils{
 
     @Override
     public Object visitAttribute(Attribute node) throws Exception {
+        state.pushInStmt(node);
         auxComment.writeSpecialsBefore(node);
         node.value.accept(this);
         state.write(".");
         node.attr.accept(this);
         auxComment.writeSpecialsAfter(node);
+        state.popInStmt();
         return null;
     }
     
@@ -372,16 +373,15 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             }
         }
         dedent();
+        state.pushInStmt(node);
         keywordType[] keywords = node.keywords;
         if (keywords != null) {
             for (int i = 0; i < keywords.length; i++) {
                 if (keywords[i] != null){
-                    state.pushInStmt(keywords[i]);
                     auxComment.writeSpecialsBefore(keywords[i]);
                     state.indent();
                     keywords[i].accept(this);
                     auxComment.writeSpecialsAfter(keywords[i]);
-                    state.popInStmt();
                     dedent();
                 }
             }
@@ -394,7 +394,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         if (kwargs != null){
             kwargs.accept(this);
         }
-        
+        state.popInStmt();
         auxComment.writeCommentsAfter(node);
         if(state.lastIsIndent()){ //we must indent one more level (because we had the dedent)
             state.writeIndent(1);
@@ -409,13 +409,15 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     @Override
     public Object visitIf(If node) throws Exception {
         auxComment.writeSpecialsBefore(node);
-        auxComment.startRecord();
         state.pushInStmt(node.test);
         node.test.accept(this);
         state.popInStmt();
         
         //write the 'if test:'
-        makeIfIndent();
+        state.indent();
+        if(!fixNewStatementCondition()){
+            state.writeIndentString();
+        }
 		
 		//write the body and dedent
         for (SimpleNode n : node.body){
@@ -426,22 +428,22 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         
         if(node.orelse != null && node.orelse.length > 0){
         	boolean inElse = false;
-        	auxComment.startRecord();
             auxComment.writeSpecialsAfter(node);
             
             //now, if it is an elif, it will end up calling the 'visitIf' again,
             //but if it is an 'else:' we will have to make the indent again
             if(node.specialsAfter.contains(new SpecialStr("else:",0,0))){ //the SpecialStr only compares with its String
             	inElse = true;
-            	makeIfIndent();
+            	state.indent();
+                if(!fixNewStatementCondition()){
+                    state.writeIndentString();
+                }
             }
             for (SimpleNode n : node.orelse) {
                 n.accept(this);
             }
             if(inElse){
             	dedent();
-            }else{
-                auxComment.endRecord();
             }
         }
         
@@ -463,8 +465,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     	state.write(node.s);
     	state.write(s);
     	if(!state.inStmt()){
-	    	state.writeNewLine();
-	    	state.writeIndent();
+            fixNewStatementCondition();
     	}
     	auxComment.writeSpecialsAfter(node);
     	return null;
@@ -490,7 +491,9 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     
             if(node.bases.length > 0){
                 for (exprType expr : node.bases) {
+                    state.pushInStmt(expr);
                     expr.accept(this);
+                    state.popInStmt();
                 }
             }
             checkEndRecord();
@@ -501,6 +504,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             dedent();
         }   
         auxComment.writeSpecialsAfter(node);
+        fixNewStatementCondition();
         return null;
     }
 
@@ -521,22 +525,21 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         NameTok name = (NameTok) node.name;
         state.write(name.id);
         auxComment.writeSpecialsAfter(node);
-        auxComment.startRecord();
         auxComment.writeSpecialsAfter(node.name);
-        boolean writtenNewLine = auxComment.endRecord().writtenComment;
         state.indent();
-        if(writtenNewLine){
-        	state.writeIndent();
-        }
         
         {
         	//arguments
-        	writtenNewLine = makeArgs(node.args.args, node.args) || writtenNewLine;
+            auxComment.startRecord();
+        	makeArgs(node.args.args, node.args);
         	//end arguments
-        	if(!writtenNewLine){
-        		state.writeNewLine();
-        		state.writeIndent();
-        	}
+            if(!fixNewStatementCondition()){
+                if(!auxComment.endRecord().writtenComment){
+                    state.writeIndentString();
+                }
+            }else{
+                auxComment.endRecord();
+            }
             for(SimpleNode n: node.body){
                 n.accept(this);
             }
@@ -546,8 +549,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return null;
     }
 
-    protected boolean makeArgs(exprType[] args, argumentsType completeArgs) throws Exception {
-        boolean written = false;
+    protected void makeArgs(exprType[] args, argumentsType completeArgs) throws Exception {
         exprType[] d = completeArgs.defaults;
         int argsLen = args.length;
         int defaultsLen = d.length;
@@ -555,7 +557,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         
         int i = 0;
         for (exprType type : args) {
-            auxComment.startRecord();
+            state.pushInStmt(type);
             if(i >= diff){
                 state.pushTempBuffer();
                 exprType arg = d[i-diff];
@@ -568,10 +570,9 @@ public class PrettyPrinter extends PrettyPrinterUtils{
                 }
             }
             type.accept(this);
-            written = auxComment.endRecord().writtenComment;
             i++;
+            state.popInStmt();
         }
-        return written;
     }
 
 
@@ -593,18 +594,15 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     @Override
     public Object visitNum(Num node) throws Exception {
         return visitGeneric(node, "visitNum", false, node.n.toString());
-//        auxComment.writeSpecialsBefore(node);
-//        state.write(node.n.toString());
-//        auxComment.writeSpecialsAfter(node);
-//        return null;
     }
 
     @Override
     public Object visitName(Name node) throws Exception {
-        auxComment.writeSpecialsBefore(node);
-        state.write(node.id);
-        auxComment.writeSpecialsAfter(node);
-        return null;
+        return visitGeneric(node, "visitName", false, node.id);
+//        auxComment.writeSpecialsBefore(node);
+//        state.write(node.id);
+//        auxComment.writeSpecialsAfter(node);
+//        return null;
     }
     
     @Override
