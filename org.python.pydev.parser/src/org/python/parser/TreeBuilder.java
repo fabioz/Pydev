@@ -226,7 +226,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             exprType target = makeExpr();
             ctx.setStore(target);
             return new For(target, iter, body, orelse);
-        case JJTBEG_ELSE_STMT:
+        case JJTBEGIN_ELSE_STMT:
             return new suiteType(null);
         case JJTBEGIN_WHILE_STMT:
             return new While(null, null, null);
@@ -246,9 +246,9 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             w.body = body;
             w.orelse = orelseSuite;
             return w;
-        case JJTIF_BEG_STMT:
+        case JJTBEGIN_IF_STMT:
             return new If(null, null, null);
-        case JJTELIF_BEG_STMT:
+        case JJTBEGIN_ELIF_STMT:
             return new If(null, null, null);
         case JJTIF_STMT:
             orelse = null;
@@ -414,7 +414,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             exprType msg = arity == 2 ? makeExpr() : null;
             test = makeExpr();
             return new Assert(test, msg);
-        case JJTTRY_BEG_STMT:
+        case JJTBEGIN_TRY_STMT:
             //we do that just to get the specials
             return new TryExcept(null, null, null);
         case JJTTRY_STMT:
@@ -441,7 +441,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             addSpecials(s, tryExc);
             addSpecialsBeforeToAfter(s.body[0], tryExc);
             return tryExc;
-        case JJTTRY_ELSE_STMT:
+        case JJTBEGIN_TRY_ELSE_STMT:
             //we do that just to get the specials
             return new suiteType(null);
         case JJTEXCEPT_CLAUSE:

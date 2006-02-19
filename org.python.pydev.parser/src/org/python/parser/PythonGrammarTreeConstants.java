@@ -45,16 +45,16 @@ public interface PythonGrammarTreeConstants
   public int JJTEXEC_STMT = 38;
   public int JJTASSERT_STMT = 39;
   public int JJTIF_STMT = 40;
-  public int JJTIF_BEG_STMT = 41;
-  public int JJTELIF_BEG_STMT = 42;
+  public int JJTBEGIN_IF_STMT = 41;
+  public int JJTBEGIN_ELIF_STMT = 42;
   public int JJTWHILE_STMT = 43;
   public int JJTBEGIN_WHILE_STMT = 44;
-  public int JJTBEG_ELSE_STMT = 45;
+  public int JJTBEGIN_ELSE_STMT = 45;
   public int JJTFOR_STMT = 46;
   public int JJTTRY_STMT = 47;
   public int JJTTRYFINALLY_STMT = 48;
-  public int JJTTRY_BEG_STMT = 49;
-  public int JJTTRY_ELSE_STMT = 50;
+  public int JJTBEGIN_TRY_STMT = 49;
+  public int JJTBEGIN_TRY_ELSE_STMT = 50;
   public int JJTEXCEPT_CLAUSE = 51;
   public int JJTSUITE = 52;
   public int JJTOR_BOOLEAN = 53;
@@ -153,16 +153,16 @@ public interface PythonGrammarTreeConstants
     "exec_stmt",
     "assert_stmt",
     "if_stmt",
-    "if_beg_stmt",
-    "elif_beg_stmt",
+    "begin_if_stmt",
+    "begin_elif_stmt",
     "while_stmt",
     "begin_while_stmt",
-    "beg_else_stmt",
+    "begin_else_stmt",
     "for_stmt",
     "try_stmt",
     "tryfinally_stmt",
-    "try_beg_stmt",
-    "try_else_stmt",
+    "begin_try_stmt",
+    "begin_try_else_stmt",
     "except_clause",
     "suite",
     "or_boolean",

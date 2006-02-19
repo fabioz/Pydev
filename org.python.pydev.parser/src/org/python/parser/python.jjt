@@ -118,6 +118,9 @@ public class PythonGrammar
     	return findTokenAndAdd(token, token);
     }
     
+    /**
+     * This is sa that we add the String with the beginLine and beginColumn
+     */
 	private boolean findTokenAndAdd(String token, String put) {
 		Token t;
 		t = this.jj_lastpos;
@@ -934,19 +937,16 @@ void compound_stmt() #void : { token_source.compound = true; }
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {}
 {
-    if_beg_stmt() test() <COLON> {this.addSpecialToken(":");} suite()
-         (elif_beg_stmt() test() 
-         <COLON> {this.addSpecialToken(":");}
-         suite())* [ <ELSE> 
-         <COLON> {this.findTokenAndAdd("else","else:");}
-         suite()]
+    begin_if_stmt() test() <COLON> {this.addSpecialToken(":");} suite()
+         (begin_elif_stmt() test() <COLON> {this.addSpecialToken(":");} suite())* 
+	         [ <ELSE> <COLON> {this.findTokenAndAdd("else","else:");} suite()]
 }
 
-void if_beg_stmt(): {}
+void begin_if_stmt(): {}
 { <IF> {this.addSpecialToken("if ",STRATEGY_BEFORE_NEXT);}
 }
 
-void elif_beg_stmt(): {}
+void begin_elif_stmt(): {}
 { <ELIF> {this.addSpecialToken("elif ",STRATEGY_BEFORE_NEXT);}
 }
 
@@ -954,12 +954,12 @@ void elif_beg_stmt(): {}
 //while_stmt: 'while' test ':' suite ['else' ':' suite]
 void while_stmt(): {}
 { begin_while_stmt() test() <COLON> {this.addSpecialToken(":");} suite() 
-  [ beg_else_stmt()  suite()] }
+  [ begin_else_stmt()  suite()] }
 
 void begin_while_stmt(): {}
 { {this.addSpecialToken("while ",STRATEGY_BEFORE_NEXT);} <WHILE> 
 }
-void beg_else_stmt(): {}
+void begin_else_stmt(): {}
 { <ELSE> {this.addSpecialToken("else",STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} <COLON>  
 }
 
@@ -977,10 +977,10 @@ void for_stmt(): {}
 //           ['else' ':' suite] | 'try' ':' suite 'finally' ':' suite)
 void try_stmt() #void: {}
 { 
-    try_beg_stmt() suite() (
+    begin_try_stmt() suite() (
     ((except_clause())+ 
     
-    [try_else_stmt()  suite()])
+    [begin_try_else_stmt()  suite()])
         #try_stmt(jjtree.nodeArity()+1)
         
     | <FINALLY> <COLON> {this.addSpecialToken(":");} suite()
@@ -988,10 +988,10 @@ void try_stmt() #void: {}
 }
 
 //this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.
-void try_beg_stmt(): {}
+void begin_try_stmt(): {}
 { <TRY> {this.addSpecialToken("try", STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
 }
-void try_else_stmt(): {}
+void begin_try_else_stmt(): {}
 { <ELSE> {this.addSpecialToken("else", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);}<COLON>
 }
 
