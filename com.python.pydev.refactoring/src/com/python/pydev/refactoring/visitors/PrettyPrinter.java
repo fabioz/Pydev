@@ -16,6 +16,7 @@ import org.python.parser.ast.Dict;
 import org.python.parser.ast.For;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.If;
+import org.python.parser.ast.Import;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Num;
@@ -70,6 +71,15 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         this.prefs = prefs;
         state = new WriteState(writer, prefs);
         auxComment = new AuxSpecials(state, prefs);
+    }
+    
+    @Override
+    public Object visitImport(Import node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        auxComment.startRecord();
+        super.visitImport(node);
+        afterNode(node);
+        return null;
     }
     
     @Override

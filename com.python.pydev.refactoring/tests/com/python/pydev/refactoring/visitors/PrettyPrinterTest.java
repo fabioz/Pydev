@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testForElse();
+            test.testImport2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -56,14 +56,21 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         assertTrue("Should not be in record:"+printer.auxComment, ! printer.auxComment.inRecord());
     }
     
-//    public void test() throws Exception {
-//        String s = ""+
-//        "\n" +
-//        "";
-//        checkPrettyPrintEqual(s);
-//    }
+    public void testImport() throws Exception {
+        String s = ""+
+        "import foo\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
     
-  public void testFor() throws Exception {
+    public void testImport2() throws Exception {
+        String s = ""+
+        "import foo.bla#comment\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testFor() throws Exception {
         String s = "" +
         "for a in b:\n" +
         "    print a\n" +
@@ -71,15 +78,15 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         checkPrettyPrintEqual(s);
     }
   
-  public void testForElse() throws Exception {
-      String s = "" +
-      "for a in b:\n" +
-      "    print a\n" +
-      "else:\n" +
-      "    pass\n" +
-      "";
-      checkPrettyPrintEqual(s);
-  }
+    public void testForElse() throws Exception {
+        String s = "" +
+        "for a in b:\n" +
+        "    print a\n" +
+        "else:\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
     
     
     public void testWhile() throws Exception {
