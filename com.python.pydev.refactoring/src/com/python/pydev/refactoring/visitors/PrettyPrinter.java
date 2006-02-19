@@ -171,6 +171,16 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             n.accept(this);
         }
         dedent();
+        
+        if(node.orelse != null){
+            auxComment.startRecord();
+            state.indent();
+            auxComment.writeSpecialsBefore(node.orelse);
+            auxComment.writeSpecialsAfter(node.orelse);
+            afterNode(node.orelse);
+            node.orelse.accept(this);
+            dedent();
+        }
         return null;
     }
 

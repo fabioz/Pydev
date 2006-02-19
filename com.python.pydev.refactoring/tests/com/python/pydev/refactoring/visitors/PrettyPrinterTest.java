@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testWhile2();
+            test.testWhileElse();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -75,6 +75,16 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testWhile2() throws Exception {
         String s = ""+
         "while ((a + 1 < 0)):#comment\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testWhileElse() throws Exception {
+        String s = ""+
+        "while True:\n" +
+        "    pass\n" +
+        "else:\n" +
         "    pass\n" +
         "";
         checkPrettyPrintEqual(s);
