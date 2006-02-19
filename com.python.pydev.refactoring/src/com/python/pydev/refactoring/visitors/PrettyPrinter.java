@@ -13,6 +13,7 @@ import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Compare;
 import org.python.parser.ast.Dict;
+import org.python.parser.ast.For;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.If;
 import org.python.parser.ast.Name;
@@ -157,6 +158,8 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         auxComment.writeSpecialsAfter(node);
         return null;
     }
+    
+    
     @Override
     public Object visitWhile(While node) throws Exception {
         auxComment.writeSpecialsBefore(node);
@@ -166,6 +169,44 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         node.test.accept(this);
         state.popInStmt();
         afterNode(node);
+        fixNewStatementCondition();
+        for(SimpleNode n: node.body){
+            n.accept(this);
+        }
+        dedent();
+        
+        if(node.orelse != null){
+            auxComment.startRecord();
+            state.indent();
+            auxComment.writeSpecialsBefore(node.orelse);
+            auxComment.writeSpecialsAfter(node.orelse);
+            afterNode(node.orelse);
+            node.orelse.accept(this);
+            dedent();
+        }
+        return null;
+    }
+    
+    
+    @Override
+    public Object visitFor(For node) throws Exception {
+        //for a in b: xxx else: yyy
+        
+        //for
+        auxComment.writeSpecialsBefore(node);
+        state.indent();
+        auxComment.startRecord();
+        
+        //a
+        node.target.accept(this);
+        
+        //in b
+        state.pushInStmt(node.iter);
+        node.iter.accept(this);
+        state.popInStmt();
+        afterNode(node);
+        
+        
         fixNewStatementCondition();
         for(SimpleNode n: node.body){
             n.accept(this);
