@@ -217,21 +217,36 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             }
             exprs = makeExprs(stack.nodeArity()-1);
             return new Print(makeExpr(), exprs, nl);
+        case JJTBEGIN_FOR_STMT:
+            return new For(null,null,null,null);
         case JJTFOR_STMT:
-            stmtType[] orelse = null;
-            if (stack.nodeArity() == 4)
-                orelse = popSuite();
+            suiteType orelseSuite = null;
+            if (stack.nodeArity() == 6){
+                Suite s = (Suite) popNode();
+                orelseSuite = (suiteType) popNode();
+                orelseSuite.body = s.body;
+                addSpecials(s, orelseSuite);
+            }
+            
             stmtType[] body = popSuite();
             exprType iter = makeExpr();
             exprType target = makeExpr();
             ctx.setStore(target);
-            return new For(target, iter, body, orelse);
+            
+            For forStmt = (For) popNode();
+            forStmt.target = target;
+            forStmt.iter = iter;
+            forStmt.body = body;
+            forStmt.orelse = orelseSuite;
+            return forStmt;
+        case JJTBEGIN_FOR_ELSE_STMT:
+            return new suiteType(null);
         case JJTBEGIN_ELSE_STMT:
             return new suiteType(null);
         case JJTBEGIN_WHILE_STMT:
             return new While(null, null, null);
         case JJTWHILE_STMT:
-            suiteType orelseSuite = null;
+            orelseSuite = null;
             if (stack.nodeArity() == 5){
                 Suite s = (Suite) popNode();
                 orelseSuite = (suiteType) popNode();
@@ -251,7 +266,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTBEGIN_ELIF_STMT:
             return new If(null, null, null);
         case JJTIF_STMT:
-            orelse = null;
+            stmtType[] orelse = null;
             //arity--;//because of the beg if stmt
             if (arity % 3 == 1){
                 orelse = getBodyAndSpecials();

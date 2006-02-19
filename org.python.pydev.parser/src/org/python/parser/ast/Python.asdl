@@ -30,7 +30,7 @@ module Python
  	      | Print(expr? dest, expr* values, bool nl)
 
 	      -- use 'orelse' because else is a keyword in target languages
-	      | For(expr target, expr iter, stmt* body, stmt* orelse)
+	      | For(expr target, expr iter, stmt* body, suite orelse)
 	      | While(expr test, stmt* body, suite orelse)
 	      | If(expr test, stmt* body, stmt* orelse)
 

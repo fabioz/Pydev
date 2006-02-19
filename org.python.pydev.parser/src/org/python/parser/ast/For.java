@@ -8,9 +8,9 @@ public class For extends stmtType {
     public exprType target;
     public exprType iter;
     public stmtType[] body;
-    public stmtType[] orelse;
+    public suiteType orelse;
 
-    public For(exprType target, exprType iter, stmtType[] body, stmtType[]
+    public For(exprType target, exprType iter, stmtType[] body, suiteType
     orelse) {
         this.target = target;
         this.iter = iter;
@@ -18,7 +18,7 @@ public class For extends stmtType {
         this.orelse = orelse;
     }
 
-    public For(exprType target, exprType iter, stmtType[] body, stmtType[]
+    public For(exprType target, exprType iter, stmtType[] body, suiteType
     orelse, SimpleNode parent) {
         this(target, iter, body, orelse);
         this.beginLine = parent.beginLine;
@@ -65,12 +65,8 @@ public class For extends stmtType {
                     body[i].accept(visitor);
             }
         }
-        if (orelse != null) {
-            for (int i = 0; i < orelse.length; i++) {
-                if (orelse[i] != null)
-                    orelse[i].accept(visitor);
-            }
-        }
+        if (orelse != null)
+            orelse.accept(visitor);
     }
 
 }

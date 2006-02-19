@@ -965,14 +965,17 @@ void begin_else_stmt(): {}
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
-{   <FOR> exprlist() <IN> SmartTestList() 
-	<COLON> {this.addSpecialToken(":");} 
-  		suite()
-	[<ELSE> 
-	<COLON> {this.addSpecialToken(":");} 
-		suite()]
+{   begin_for_stmt() exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() <COLON> {this.addSpecialToken(":");} suite()
+	[begin_for_else_stmt() suite()]
 }
 
+void begin_for_stmt(): {}
+{ <FOR> {this.addSpecialToken("for ",STRATEGY_BEFORE_NEXT);} 
+}
+
+void begin_for_else_stmt(): {}
+{ <ELSE> {this.addSpecialToken("else",STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} <COLON>  
+}
 //try_stmt: ('try' ':' suite (except_clause ':' suite)+ #diagram:break
 //           ['else' ':' suite] | 'try' ':' suite 'finally' ':' suite)
 void try_stmt() #void: {}
