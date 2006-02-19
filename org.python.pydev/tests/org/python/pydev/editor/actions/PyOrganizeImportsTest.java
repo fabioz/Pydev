@@ -15,7 +15,15 @@ import junit.framework.TestCase;
 public class PyOrganizeImportsTest extends TestCase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(PyOrganizeImportsTest.class);
+        try {
+            PyOrganizeImportsTest test = new PyOrganizeImportsTest();
+            test.setUp();
+            test.testPerform5();
+            test.tearDown();
+            junit.textui.TestRunner.run(PyOrganizeImportsTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     /*
@@ -146,6 +154,27 @@ String result = ""+header+
 
 		assertEquals(result, doc.get());
 
+    }
+    
+    public void testPerform5() {
+        
+        
+        String d = ""+
+        "import sys\n"+
+        "from os import (pipe,\n"+
+        "path)\n"+
+        "import time\n";
+        
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n");
+        
+        String result = ""+
+        "from os import (pipe,\n"+
+        "path)\n"+
+        "import sys\n"+
+        "import time\n";
+        assertEquals(result, doc.get());
+        
     }
 
     

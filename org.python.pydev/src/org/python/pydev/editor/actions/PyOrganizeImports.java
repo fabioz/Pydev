@@ -83,6 +83,15 @@ public class PyOrganizeImports extends PyAction{
 		    
 		    if(inComment == false && (str.startsWith("import ") || str.startsWith("from "))){
                 int iToAdd = i;
+                if(str.indexOf('(') != -1){ //we have something like from os import (pipe,\nfoo)
+                    i++;
+                    while(i < lines && str.indexOf(')') == -1){
+                        String str1 = PySelection.getLine(doc, i);
+                        str += PyAction.getDelimiter(doc);
+                        str += str1;
+                        i++;
+                    }
+                }
                 if(WordUtils.endsWith(str, '\\')){
                     i++;
                     while(i < lines && WordUtils.endsWith(str, '\\')){
