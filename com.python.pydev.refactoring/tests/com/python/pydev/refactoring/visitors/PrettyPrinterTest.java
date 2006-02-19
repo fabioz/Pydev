@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testImport2();
+            test.testIfElse();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -63,10 +63,33 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         checkPrettyPrintEqual(s);
     }
     
+    public void testReturn() throws Exception {
+        String s = ""+
+        "def a():\n" +
+        "    return 0\n" +
+        "";
+//        checkPrettyPrintEqual(s);
+    }
+    
     public void testImport2() throws Exception {
         String s = ""+
         "import foo.bla#comment\n" +
         "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testImport3() throws Exception {
+        String s = ""+
+        "from foo.bla import bla1#comment\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testImport4() throws Exception {
+        String s = ""+
+        "from foo.bla import bla1\n" +
+        "import foo\n" +
+        "from bla import (a,b,c)\n";
         checkPrettyPrintEqual(s);
     }
     
@@ -235,6 +258,14 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         checkPrettyPrintEqual(s);
     }
     
+    public void testIf() throws Exception {
+        String s = ""+
+        "if i % target == 0:\n"+
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+        
+    }
     public void testIfElse() throws Exception {
         String s = ""+
         "if True:\n" +
@@ -352,6 +383,13 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testAttr3() throws Exception {
         String s = ""+
         "print a.d()\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testAttr4() throws Exception {
+        String s = ""+
+        "hub.fun#comment\n" +
         "";
         checkPrettyPrintEqual(s);
     }

@@ -4,6 +4,11 @@
 package com.python.pydev.refactoring.visitors;
 
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.python.parser.SimpleNode;
 import org.python.parser.SpecialStr;
 import org.python.parser.ast.Assign;
@@ -17,12 +22,14 @@ import org.python.parser.ast.For;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.If;
 import org.python.parser.ast.Import;
+import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Num;
 import org.python.parser.ast.Pass;
 import org.python.parser.ast.Print;
 import org.python.parser.ast.Raise;
+import org.python.parser.ast.Return;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.Subscript;
 import org.python.parser.ast.TryExcept;
@@ -30,12 +37,14 @@ import org.python.parser.ast.Tuple;
 import org.python.parser.ast.UnaryOp;
 import org.python.parser.ast.While;
 import org.python.parser.ast.Yield;
+import org.python.parser.ast.aliasType;
 import org.python.parser.ast.argumentsType;
 import org.python.parser.ast.decoratorsType;
 import org.python.parser.ast.excepthandlerType;
 import org.python.parser.ast.exprType;
 import org.python.parser.ast.keywordType;
 import org.python.parser.ast.stmtType;
+import org.python.pydev.core.REF;
 
 /**
  * statements that 'need' to be on a new line:
@@ -67,6 +76,15 @@ import org.python.parser.ast.stmtType;
  */
 public class PrettyPrinter extends PrettyPrinterUtils{
 
+    //useful for some reflection tricks, so that we can reuse some chunks of code...
+    public final static Map<String, Method> superMethods = new HashMap<String, Method>();
+    static{
+        superMethods.put("visitYield", REF.findMethod(PrettyPrinterUtils.class, "superYield", new Object[]{Yield.class}));
+        superMethods.put("visitPass", REF.findMethod(PrettyPrinterUtils.class, "superPass", new Object[]{Yield.class}));
+    }
+    
+    
+    
     public PrettyPrinter(PrettyPrinterPrefs prefs, IWriterEraser writer){
         this.prefs = prefs;
         state = new WriteState(writer, prefs);
@@ -82,6 +100,21 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return null;
     }
     
+    @Override
+    public Object visitImportFrom(ImportFrom node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        auxComment.startRecord();
+        node.module.accept(this);
+        
+        for (aliasType name : node.names){
+            auxComment.writeSpecialsBefore(name);
+            name.accept(this);
+            auxComment.writeSpecialsAfter(name);
+        }
+        afterNode(node);
+        return null;
+    }
+
     @Override
     public Object visitAssign(Assign node) throws Exception {
     	state.pushInStmt(node);
@@ -335,12 +368,20 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     
     @Override
     public Object visitAttribute(Attribute node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
         node.value.accept(this);
         state.write(".");
         node.attr.accept(this);
+        auxComment.writeSpecialsAfter(node);
         return null;
     }
     
+    
+    @Override
+    public Object visitReturn(Return node) throws Exception {
+        return super.visitReturn(node);
+    }
+
     @Override
     public Object visitPrint(Print node) throws Exception {
     	auxComment.writeSpecialsBefore(node);
@@ -412,25 +453,21 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     public Object visitIf(If node) throws Exception {
         auxComment.writeSpecialsBefore(node);
         auxComment.startRecord();
+        state.pushInStmt(node.test);
         node.test.accept(this);
+        state.popInStmt();
         
         //write the 'if test:'
         makeIfIndent();
 		
 		//write the body and dedent
         for (SimpleNode n : node.body){
-            auxComment.writeSpecialsBefore(n);
             n.accept(this);
-//            auxComment.writeSpecialsAfter(n);
         }
         dedent();
         
         
         if(node.orelse != null && node.orelse.length > 0){
-        	if(node.specialsAfter.contains(new SpecialStr("else:",0,0))){
-        		System.out.println("break here");
-        	}
-        	
         	boolean inElse = false;
         	auxComment.startRecord();
             auxComment.writeSpecialsAfter(node);
@@ -442,9 +479,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             	makeIfIndent();
             }
             for (SimpleNode n : node.orelse) {
-                auxComment.writeSpecialsBefore(n);
                 n.accept(this);
-//                auxComment.writeSpecialsAfter(n); // same as the initial
             }
             if(inElse){
             	dedent();
@@ -513,15 +548,6 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return null;
     }
 
-    @Override
-    public Object visitYield(Yield node) throws Exception {
-        fixNewStatementCondition();
-        state.write("yield ");
-        beforeNode(node);
-        super.visitYield(node);
-        afterNode(node);
-        return null;
-    }
 
     @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
@@ -592,13 +618,22 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return written;
     }
 
-    @Override
-    public Object visitPass(Pass node) throws Exception {
-        auxComment.writeSpecialsBefore(node);
-        state.write("pass");
-        auxComment.startRecord();
+    public Object visitGeneric(SimpleNode node, String superMethod) throws IOException{
+        fixNewStatementCondition();
+        beforeNode(node);
+        REF.invoke(this, superMethods.get(superMethod), node);
         afterNode(node);
         return null;
+    }
+
+    @Override
+    public Object visitYield(Yield node) throws Exception {
+        return visitGeneric(node, "visitYield");
+    }
+
+    @Override
+    public Object visitPass(Pass node) throws Exception {
+        return visitGeneric(node, "visitPass");
     }
     
     @Override
@@ -617,10 +652,6 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return null;
     }
 
-    @Override
-    public void traverse(SimpleNode node) throws Exception {
-        node.traverse(this);
-    }
 
     @Override
     public String toString() {

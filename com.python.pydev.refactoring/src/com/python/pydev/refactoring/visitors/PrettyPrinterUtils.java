@@ -6,9 +6,11 @@ package com.python.pydev.refactoring.visitors;
 import java.io.IOException;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.Pass;
 import org.python.parser.ast.VisitorBase;
+import org.python.parser.ast.Yield;
 
-public abstract class PrettyPrinterUtils extends VisitorBase{
+public class PrettyPrinterUtils extends VisitorBase{
 
     protected PrettyPrinterPrefs prefs;
     protected WriteState state;
@@ -116,4 +118,16 @@ public abstract class PrettyPrinterUtils extends VisitorBase{
         return null;
     }
 
+    @Override
+    public void traverse(SimpleNode node) throws Exception {
+        node.traverse(this);
+    }
+
+    public Object superYield(Yield node) throws Exception {
+        return super.visitYield(node);
+    }
+    
+    public Object superPass(Pass node) throws Exception {
+        return super.visitPass(node);
+    }
 }
