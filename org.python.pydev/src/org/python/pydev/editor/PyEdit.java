@@ -355,7 +355,12 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         parser.notifySaved();
         if(saveListeners != null){
 	        for(IPyEditListener listener : saveListeners){
-	        	listener.onSave(this);
+	        	try {
+                    listener.onSave(this);
+                } catch (Exception e) {
+                    //must not fail
+                    PydevPlugin.log(e);
+                }
 	        }
         }
     }
