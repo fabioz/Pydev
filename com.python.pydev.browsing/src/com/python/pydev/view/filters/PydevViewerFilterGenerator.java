@@ -15,6 +15,11 @@ public class PydevViewerFilterGenerator {
 		
 		filters.add( DotResourceFilter.class );
 		filters.add( PycFilter.class );
+		filters.add( EmptyPackageFilter.class );
+		filters.add( PythonFileFilter.class );
+		filters.add( NonPydevProjectsFilter.class );
+		filters.add( NonSharedProjectFilter.class );
+		filters.add( ClosedProjectFilter.class );		
 	}
 	
 	public static FilterDescriptor[] getBuiltinViewrFilter() {

@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.parser,
  org.python.pydev.core,
  org.eclipse.ui.workbench.texteditor,
- org.eclipse.ui.editors
+ org.eclipse.ui.editors,
+ org.eclipse.team.core
 Eclipse-AutoStart: true
 Bundle-ClassPath: browsing.jar, retroweaver-rt.jar
 Export-Package: com.python.pydev.browsing,

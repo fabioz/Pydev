@@ -55,6 +55,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
@@ -149,7 +150,7 @@ public class PydevPackageExplorer extends ViewPart implements ISetSelectionTarge
 	public void createPartControl(Composite parent) {
 		fLabelProvider = new PackageExplorerLabelProvider();		
 		
-		treeViewer = new TreeViewer(parent);
+		treeViewer = new TreeViewer(parent, SWT.NONE);
 		
 		//PydevPackageExplorerContentProvider.getInstance().setViewer( treeViewer );
 		//PydevPackageExplorerContentProvider.getInstance().setWorkingSetModel( fWorkingSetModel );
@@ -320,7 +321,7 @@ public class PydevPackageExplorer extends ViewPart implements ISetSelectionTarge
 					action.run( new ItemPointer( element ) );				
 				} else if( element instanceof CompositeASTEntry ) {
 					ASTEntry entry = ((CompositeASTEntry)element ).getEntry();
-					Location location = new Location( entry.node.beginLine-1, entry.node.beginColumn );					
+					Location location = new Location( entry.node.beginLine-1, entry.node.beginColumn-1 );					
 					action = new PyOpenAction();
 					action.run( new ItemPointer( ((CompositeASTEntry)element ).getFile(), location, location ) );					
 				} else if(treeViewer.isExpandable(element)) {
