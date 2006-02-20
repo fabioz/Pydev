@@ -865,8 +865,8 @@ void pass_stmt(): {}
 //flow_stmt: break_stmt | continue_stmt | return_stmt | yield_stmt | raise_stmt
 void flow_stmt() #void: {}
 {
-    <BREAK> #break_stmt(0)
-|   <CONTINUE> #continue_stmt(0)
+    <BREAK> {((SimpleNode)jjtree.peekNode()).addSpecial("break",true);} #break_stmt(0)
+|   <CONTINUE>  {((SimpleNode)jjtree.peekNode()).addSpecial("continue",true);} #continue_stmt(0)
 |   return_stmt()
 |   yield_stmt()
 |   raise_stmt()
@@ -910,7 +910,7 @@ void ImportFrom(): { String mod; String name; }
 
 //dotted_as_name: dotted_name [NAME NAME]
 void dotted_as_name(): {}
-{ dotted_name() [<AS> Name()] }
+{ dotted_name() [<AS> {this.addSpecialToken(" as ");} Name()] }
 
 //dotted_name: NAME ('.' NAME)*
 String dotted_name(): { Token t; StringBuffer sb = new StringBuffer(); }
@@ -921,7 +921,7 @@ String dotted_name(): { Token t; StringBuffer sb = new StringBuffer(); }
 
 //import_as_name: NAME [NAME NAME]
 String import_as_name(): { Token t; }
-{ t=AnyName() [<AS> Name()] { return t.image; } }
+{ t=AnyName() [<AS> {this.addSpecialToken(" as ");} Name()] { return t.image; } }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
@@ -1015,7 +1015,7 @@ void suite(): {}
 
 //test: and_test ('or' and_test)* | lambdef
 void test() #or_boolean(>1): {}
-{ lambdef() | and_test() (<OR_BOOL> and_test())* }
+{ lambdef() | and_test() (<OR_BOOL>  {this.addSpecialToken(" or ");} and_test())* }
 
 //and_test: not_test ('and' not_test)*
 void and_test() #and_boolean(>1): {}
