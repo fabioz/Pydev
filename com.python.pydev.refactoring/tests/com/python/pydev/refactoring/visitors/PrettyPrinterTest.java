@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testTryExcept7();
+            test.testTryExcept();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -67,11 +67,11 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         String s = ""+
         "try:\n" +
         "    pass\n" +
-        "except select.error, err:\n" +
+        "except select.error,err:\n" +
         "    if False:\n" +
         "        raise\n" +
         "    else:\n" +
-        "        return\n" +
+        "        return \n" +
         "";
         checkPrettyPrintEqual(s);
     }

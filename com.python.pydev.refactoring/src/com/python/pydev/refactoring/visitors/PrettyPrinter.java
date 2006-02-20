@@ -299,6 +299,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             state.pushInStmt(h);
             state.indent();
             auxComment.writeSpecialsBefore(h);
+            
             if(h.type != null || h.name != null){
                 state.write(" ");
             }
@@ -309,12 +310,12 @@ public class PrettyPrinter extends PrettyPrinterUtils{
                 h.name.accept(this);
             }
             state.popInStmt();
+            auxComment.writeSpecialsAfter(h);
             fixNewStatementCondition();
             for (stmtType st : h.body) {
                 st.accept(this);
             }
             dedent();
-            auxComment.writeSpecialsAfter(h);
         }
         if(node.orelse != null){
             auxComment.startRecord();
@@ -338,7 +339,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     
     @Override
     public Object visitReturn(Return node) throws Exception {
-        return super.visitReturn(node);
+    	return visitGeneric(node, "visitReturn");
     }
 
     @Override
