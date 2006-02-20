@@ -455,20 +455,24 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             tryExc.handlers = handlers;
             tryExc.orelse = orelseSuite;
             addSpecials(s, tryExc);
-            addSpecialsBeforeToAfter(s.body[0], tryExc);
             return tryExc;
         case JJTBEGIN_TRY_ELSE_STMT:
             //we do that just to get the specials
             return new suiteType(null);
+        case JJTBEGIN_EXCEPT_CLAUSE:
+        	return new excepthandlerType(null,null,null);
         case JJTEXCEPT_CLAUSE:
             s = (Suite) popNode();
             body = s.body;
-            exprType excname = arity == 3 ? makeExpr() : null;
+            exprType excname = arity == 4 ? makeExpr() : null;
             if (excname != null){    
                 ctx.setStore(excname);
             }
-            type = arity >= 2 ? makeExpr() : null;
-            excepthandlerType handler = new excepthandlerType(type, excname, body);
+            type = arity >= 3 ? makeExpr() : null;
+            excepthandlerType handler = (excepthandlerType) popNode(); 
+        	handler.type = type;
+        	handler.name = excname;
+        	handler.body = body;
             addSpecials(s, handler);
             return handler;
         case JJTTRYFINALLY_STMT:

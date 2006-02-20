@@ -38,6 +38,10 @@ public class PythonGrammar
         jjtree.pushNodePos(t.beginLine, t.beginColumn);
     }
 
+    void addToPeek(Object t, boolean after){
+	    ((SimpleNode)jjtree.peekNode()).addSpecial(t,after);
+    }
+
     void jjtreeCloseNodeScope(Node n) {
         jjtree.setNodePos();
         List specialTokens = token_source.specialTokens;
@@ -61,7 +65,7 @@ public class PythonGrammar
 
 
                     if(strategy == STRATEGY_BEFORE_NEXT){ //try to set 'before the next' and not after prev token
-                        ((SimpleNode)jjtree.peekNode()).addSpecial(next, false);
+                        addToPeek(next, false);
                     }else{
                         //may still add before the next, if there was no prev (we can check that by the 'after' variable)
                         //in this case, we'll do some checks to see if it is really correct (checking for the line and column)
@@ -813,7 +817,7 @@ void small_stmt() #void: {SimpleNode simpleNode;}
     expr_stmt()
 |   print_stmt()
 |   del_stmt()
-|   pass_stmt() {((SimpleNode)jjtree.peekNode()).addSpecial("pass",false); }
+|   pass_stmt() {addToPeek("pass", false); }
 |   flow_stmt()
 |   import_stmt()
 |   global_stmt()
@@ -865,8 +869,8 @@ void pass_stmt(): {}
 //flow_stmt: break_stmt | continue_stmt | return_stmt | yield_stmt | raise_stmt
 void flow_stmt() #void: {}
 {
-    <BREAK> {((SimpleNode)jjtree.peekNode()).addSpecial("break",true);} #break_stmt(0)
-|   <CONTINUE>  {((SimpleNode)jjtree.peekNode()).addSpecial("continue",true);} #continue_stmt(0)
+    <BREAK> {addToPeek("break",true);} #break_stmt(0)
+|   <CONTINUE>  {addToPeek("continue",true);} #continue_stmt(0)
 |   return_stmt()
 |   yield_stmt()
 |   raise_stmt()
@@ -983,10 +987,10 @@ void begin_for_else_stmt(): {}
 }
 //try_stmt: ('try' ':' suite (except_clause ':' suite)+ #diagram:break
 //           ['else' ':' suite] | 'try' ':' suite 'finally' ':' suite)
-void try_stmt() #void: {}
+void try_stmt() #void: {SimpleNode tryNode;}
 { 
-    begin_try_stmt() suite() (
-    ((except_clause())+ 
+    begin_try_stmt() {tryNode = (SimpleNode)jjtree.peekNode();}  suite() (
+    ((except_clause(tryNode))+ 
     
     [begin_try_else_stmt()  suite()])
         #try_stmt(jjtree.nodeArity()+1)
@@ -1004,8 +1008,12 @@ void begin_try_else_stmt(): {}
 }
 
 //except_clause: 'except' [test [',' test]]
-void except_clause(): {}
-{ <EXCEPT> {this.addSpecialToken("except");} [test() [{this.addSpecialToken(",");} <COMMA> test()]] <COLON> {this.addSpecialToken(":");} suite() }
+void except_clause(SimpleNode tryNode): {}
+{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.addSpecialToken(",");} <COMMA> test()]] <COLON> { this.addSpecialToken(":");} suite() }
+
+void begin_except_clause(): {}
+{ <EXCEPT> }
+
 
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 void suite(): {}
