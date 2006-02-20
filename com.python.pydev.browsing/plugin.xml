@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>   
+<!-- view for refactoring -->
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Pydev"
+            id="org.python.pydev"/>
+      <view
+            class="com.python.pydev.browsing.view.PydevPackageExplorer"
+            icon="icons/python_refactor.png"
+            category="org.python.pydev"
+            name="Package Explorer View"
+            id="com.python.pydev.browsing.view.PydevPackageExplorer"/>
+   </extension>	
+   
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<builder_participant class="com.python.pydev.browsing.view.PydevPackageExplorerContentProvider"/>
+   </extension>
+</plugin>

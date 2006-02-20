@@ -1,0 +1,29 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Browsing Plug-in
+Bundle-SymbolicName: com.python.pydev.browsing; singleton:=true
+Bundle-Version: 0.9.7.1
+Bundle-Activator: com.python.pydev.browsing.BrowsingPlugin
+Bundle-Vendor: Fabio Zadrozny
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.python.pydev,
+ org.eclipse.jdt.ui,
+ org.eclipse.core.resources,
+ org.eclipse.jface.text,
+ org.eclipse.jdt.core,
+ org.eclipse.ui.ide,
+ org.python.pydev.ast,
+ org.python.pydev.parser,
+ org.python.pydev.core,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.ui.editors
+Eclipse-AutoStart: true
+Bundle-ClassPath: browsing.jar, retroweaver-rt.jar
+Export-Package: com.python.pydev.browsing,
+ com.python.pydev.browsing.ui,
+ com.python.pydev.browsing.view,
+ com.python.pydev.view.copiedfromeclipsesrc,
+ com.python.pydev.view.copiedfromeclipsesrc.actions,
+ com.python.pydev.view.filters
