@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.BoolOp;
+import org.python.parser.ast.Break;
+import org.python.parser.ast.Continue;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.List;
 import org.python.parser.ast.Pass;
@@ -44,6 +47,12 @@ public class PrettyPrinterUtils extends VisitorBase{
             }
         }
     }
+    
+    public static final String[] boolOperatorMapping = new String[] {
+        "<undef>",
+        " and ",
+        " or ",
+    };
 
     public static final String[] operatorMapping = new String[] {
             "<undef>",
@@ -137,6 +146,9 @@ public class PrettyPrinterUtils extends VisitorBase{
         addMethod("visitPrint" , "superPrint");
         addMethod("visitSubscript" , "superSubscript");
         addMethod("visitList" , "superList");
+        addMethod("visitBreak" , "superBreak");
+        addMethod("visitContinue" , "superContinue");
+        addMethod("visitBoolOp" , "superBoolOp");
     }
     
     
@@ -186,5 +198,17 @@ public class PrettyPrinterUtils extends VisitorBase{
     
     public Object superList(List node) throws Exception {
         return super.visitList(node);
+    }
+    
+    public Object superBreak(Break node) throws Exception {
+        return super.visitBreak(node);
+    }
+    
+    public Object superContinue(Continue node) throws Exception {
+        return super.visitContinue(node);
+    }
+    
+    public Object superBoolOp(BoolOp node) throws Exception {
+        return super.visitBoolOp(node);
     }
 }

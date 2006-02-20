@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testVarious();
+            test.testTryExcept7();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -63,12 +63,114 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         checkPrettyPrintEqual(s);
     }
     
+    public void testTryExcept7() throws Exception {
+        String s = ""+
+        "try:\n" +
+        "    pass\n" +
+        "except select.error, err:\n" +
+        "    if False:\n" +
+        "        raise\n" +
+        "    else:\n" +
+        "        return\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testIf4() throws Exception {
+        String s = ""+
+        "if map:\n" +
+        "    if True:\n" +
+        "        time.sleep(timeout)\n" +
+        "    else:\n" +
+        "        pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testIf3() throws Exception {
+        String s = ""+
+        "if aaa or bbb:\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testEq() throws Exception {
+        String s = ""+
+        "if [] == r == w == e:\n" +
+        "    time.sleep(timeout)\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testImportAs() throws Exception {
+        String s = ""+
+        "import foo as bla\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testImportAs2() throws Exception {
+        String s = ""+
+        "from a import foo as bla\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testIf2() throws Exception {
+        String s = ""+
+        "def readwrite():\n" +
+        "    if True:\n" +
+        "        a.b()\n" +
+        "    if False:\n" +
+        "        pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testBreak() throws Exception {
+        String s = ""+
+        "for a in b:\n" +
+        "    if True:\n" +
+        "        break\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testContinue() throws Exception {
+        String s = ""+
+        "for a in b:\n" +
+        "    if True:\n" +
+        "        continue\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testBreak2() throws Exception {
+        String s = ""+
+        "for a in b:\n" +
+        "    if True:\n" +
+        "        break#comment\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testBreak3() throws Exception {
+        String s = ""+
+        "for a in b:\n" +
+        "    if True:\n" +
+        "        #comment\n" +
+        "        break#comment\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
     public void testReturn() throws Exception {
         String s = ""+
         "def a():\n" +
         "    return 0\n" +
         "";
-//        checkPrettyPrintEqual(s);
+        checkPrettyPrintEqual(s);
     }
     
     public void testImport2() throws Exception {

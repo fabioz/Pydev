@@ -4,16 +4,17 @@
 package com.python.pydev.refactoring.visitors;
 
 
-import java.io.IOException;
-
 import org.python.parser.SimpleNode;
 import org.python.parser.SpecialStr;
 import org.python.parser.ast.Assign;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.BinOp;
+import org.python.parser.ast.BoolOp;
+import org.python.parser.ast.Break;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Compare;
+import org.python.parser.ast.Continue;
 import org.python.parser.ast.Dict;
 import org.python.parser.ast.For;
 import org.python.parser.ast.FunctionDef;
@@ -41,7 +42,6 @@ import org.python.parser.ast.excepthandlerType;
 import org.python.parser.ast.exprType;
 import org.python.parser.ast.keywordType;
 import org.python.parser.ast.stmtType;
-import org.python.pydev.core.REF;
 
 /**
  * statements that 'need' to be on a new line:
@@ -139,19 +139,23 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         }
         return null;
     }
+
+    @Override
+    public Object visitBoolOp(BoolOp node) throws Exception {
+        return visitGeneric(node, "visitBoolOp", false);
+    }
     
+
     @Override
     public Object visitCompare(Compare node) throws Exception {
         auxComment.writeSpecialsBefore(node);
         node.left.accept(this);
         
-        for(int op : node.ops){
-            state.write(cmpop[op]);
+        for (int i = 0; i < node.comparators.length; i++) {
+            state.write(cmpop[node.ops[i]]);
+            node.comparators[i].accept(this);
         }
         
-        for (SimpleNode n : node.comparators){
-            n.accept(this);
-        }
         auxComment.writeSpecialsAfter(node);
         return null;
     }
@@ -401,13 +405,14 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         }
         auxComment.writeStringsAfter(node);
         if(!state.inStmt()){
-            state.writeNewLine();
+            fixNewStatementCondition();
         }
         return null;
     }
     
     @Override
     public Object visitIf(If node) throws Exception {
+        fixNewStatementCondition();
         auxComment.writeSpecialsBefore(node);
         state.pushInStmt(node.test);
         node.test.accept(this);
@@ -599,10 +604,16 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     @Override
     public Object visitName(Name node) throws Exception {
         return visitGeneric(node, "visitName", false, node.id);
-//        auxComment.writeSpecialsBefore(node);
-//        state.write(node.id);
-//        auxComment.writeSpecialsAfter(node);
-//        return null;
+    }
+
+    @Override
+    public Object visitBreak(Break node) throws Exception {
+        return visitGeneric(node, "visitBreak");
+    }
+    
+    @Override
+    public Object visitContinue(Continue node) throws Exception {
+        return visitGeneric(node, "visitContinue");
     }
     
     @Override
