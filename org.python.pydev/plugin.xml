@@ -692,7 +692,7 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+B"
+            sequence="Ctrl+Shift+T"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.pyShowBrowser"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
