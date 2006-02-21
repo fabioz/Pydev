@@ -41,6 +41,9 @@
    <extension point="org.python.pydev.pydev_ctrl_1">
   		<builder_participant class="com.python.pydev.analysis.ctrl_1.DontAnalyzeFileMarkerParticipant"/>
    </extension>
+   <extension point="org.python.pydev.pydev_globals_browser">
+   		<globals_browser_participant class="com.python.pydev.analysis.actions.PyGlobalsBrowser"/>
+   </extension>
 <!--    still not finished
    <extension point="org.python.pydev.pydev_organize_imports">
   		<builder_participant class="com.python.pydev.analysis.organizeimports.OrganizeImports"/>
