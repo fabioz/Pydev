@@ -291,6 +291,13 @@
                id="org.python.pydev.editor.actions.navigation.pyShowOutline">
          </action>
          <action
+               definitionId="org.python.pydev.editor.actions.pyShowBrowser"
+               label="Show Class Browser"
+               class="org.python.pydev.editor.actions.PyShowBrowser"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.navigation.pyShowBrowser">
+         </action>
+         <action
                definitionId="org.python.pydev.editor.actions.pyOrganizeImports"
                label="Organize Imports"
                class="org.python.pydev.editor.actions.PyOrganizeImports"
@@ -520,6 +527,13 @@
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.pyShowOutline">
       </command>
+<!-- command: Show browser-->
+      <command
+            name="Python Show Class Browser"
+            description="Show Class Browser"
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pyShowBrowser">
+      </command>
 <!-- command: Organize Imports-->
       <command
             name="Python Organize Imports"
@@ -678,6 +692,12 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
+            sequence="Ctrl+B"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.editor.actions.pyShowBrowser"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
             sequence="Ctrl+Shift+O"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.pyOrganizeImports"
@@ -788,6 +808,7 @@
    <extension-point id="pydev_quick_outline" name="Pydev Quick Outline" schema="schema/pydev_quick_outline.exsd"/>
    <extension-point id="pydev_pyedit_listener" name="PyEdit Listener" schema="schema/pydev_pyedit_listener.exsd"/>
    <extension-point id="pydev_formatter" name="Pydev Formatter" schema="schema/pydev_formatter.exsd"/>
+   <extension-point id="pydev_globals_browser" name="Pydev Globals Browser" schema="schema/pydev_globals_browser.exsd"/>
 <!-- wizards -->
    <extension point="org.eclipse.ui.newWizards">
       <category

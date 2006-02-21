@@ -33,9 +33,11 @@ public class ExtensionHelper {
     public static final String PYDEV_QUICK_OUTLINE = "org.python.pydev.pydev_quick_outline";
     public static final String PYDEV_PYEDIT_LISTENER = "org.python.pydev.pydev_pyedit_listener";
     public static final String PYDEV_FORMATTER = "org.python.pydev.pydev_formatter";
+    public static final String PYDEV_GLOBALS_BROWSER = "org.python.pydev.pydev_globals_browser";
 
     //debug
     public static final String PYDEV_DEBUG_CONSOLE_INPUT_LISTENER = "org.python.pydev.debug.pydev_debug_console_input_listener";
+
     
     private static IExtension[] getExtensions(String type) {
         IExtension[] extensions = extensionsCache.get(type);

@@ -16,7 +16,7 @@ import org.python.pydev.core.ExtensionHelper;
  */
 public class PyShowOutline extends PyAction{
 
-	IEditorActionDelegate registered;
+	protected IEditorActionDelegate registered;
 	
     /* (non-Javadoc)
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
@@ -44,13 +44,17 @@ public class PyShowOutline extends PyAction{
     }
 
 
-	private IEditorActionDelegate getParticipant() {
+	protected IEditorActionDelegate getParticipant() {
 		if(registered != null){
 			return registered;
 		}
 		
-		registered = (IEditorActionDelegate) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_QUICK_OUTLINE);
+		registered = (IEditorActionDelegate) ExtensionHelper.getParticipant(getExtensionName());
     	return registered;
+	}
+
+	protected String getExtensionName() {
+		return ExtensionHelper.PYDEV_QUICK_OUTLINE;
 	}
 
 }
