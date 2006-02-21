@@ -515,7 +515,10 @@ public class OcurrencesVisitor extends VisitorBase{
 
     @Override
     public Object visitFor(For node) throws Exception {
-    	return super.visitFor(node);
+        scope.addIfSubScope();
+    	Object ret = super.visitFor(node);
+        scope.removeIfSubScope();
+        return ret;
     }
     
     /**

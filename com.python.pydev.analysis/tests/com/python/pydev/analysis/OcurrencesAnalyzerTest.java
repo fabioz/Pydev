@@ -1632,6 +1632,20 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     	printMessages(msgs, 1);
     }
     
+    public void testUnusedInFor2() {
+        doc = new Document(
+            "def problemFunct():\n" +
+            "    msg='initialised'\n" +
+            "    for i in []:\n" +
+            "        msg='success at %s' % i\n" +
+            "    return msg\n"
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 0);
+    }
+    
     public void testTupleVar() {
         doc = new Document(
             "def m1():\n" +
