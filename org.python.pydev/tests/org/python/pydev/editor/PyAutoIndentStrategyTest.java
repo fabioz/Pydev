@@ -599,6 +599,55 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	
     }
     
+    
+    public void testElseInFor() {
+        //first part of test - simple case
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+        String strDoc = 
+        "for i in []:\n" +
+        "    msg=\"success at %s\" % i\n" +
+        "    else" +
+        "";
+        int initialOffset = strDoc.length();
+        DocCmd docCmd = new DocCmd(initialOffset, 0, ":");
+        Document doc = new Document(strDoc);
+        strategy.customizeDocumentCommand(doc, docCmd);
+        String expected = ":";
+        assertEquals(docCmd.offset, initialOffset-4);
+        assertEquals(expected, docCmd.text);
+        assertEquals(
+                "for i in []:\n" +
+                "    msg=\"success at %s\" % i\n" +
+                "else" +
+                "",
+                doc.get());
+    }
+    
+    public void testElseInTry() {
+        //first part of test - simple case
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+        String strDoc = 
+            "try:\n" +
+            "    print a\n" +
+            "except:\n" +
+            "    pass\n" +
+            "    else";
+        int initialOffset = strDoc.length();
+        DocCmd docCmd = new DocCmd(initialOffset, 0, ":");
+        Document doc = new Document(strDoc);
+        strategy.customizeDocumentCommand(doc, docCmd);
+        String expected = ":";
+        assertEquals(docCmd.offset, initialOffset-4);
+        assertEquals(expected, docCmd.text);
+        assertEquals(
+                "try:\n" +
+                "    print a\n" +
+                "except:\n" +
+                "    pass\n" +
+                "else",
+                doc.get());
+    }
+    
     public void testElifWithPar() {
     	//first part of test - simple case
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));

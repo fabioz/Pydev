@@ -237,14 +237,14 @@ public class PySelectionTest extends TestCase {
             "    print foo";
         doc = new Document(s);
         ps = new PySelection(doc, doc.getLength());
-        assertEquals("if False:", ps.getPreviousIfLine());
+        assertEquals("if False:", ps.getPreviousLineThatAcceptsElse());
 
         s = 
         "while False:\n" +
         "    print foo";
         doc = new Document(s);
         ps = new PySelection(doc, doc.getLength());
-        assertEquals(null, ps.getPreviousIfLine());
+        assertEquals(null, ps.getPreviousLineThatAcceptsElse());
         
     }
 }

@@ -646,12 +646,13 @@ public class PySelection {
      * 
      * May return null if it was not found.
      */
-    public String getPreviousIfLine() {
+    public String getPreviousLineThatAcceptsElse() {
         DocIterator iterator = new DocIterator(this.getCursorLine(), false);
         while(iterator.hasNext()){
             String line = (String) iterator.next();
             String trimmed = line.trim();
-            if(trimmed.startsWith("if ") || trimmed.startsWith("if(")){
+            if(trimmed.startsWith("if ") || trimmed.startsWith("if(") || trimmed.startsWith("for ")  || trimmed.startsWith("for(") 
+                    || trimmed.startsWith("except")|| trimmed.startsWith("except(") ){
                 return line;
             }
         }

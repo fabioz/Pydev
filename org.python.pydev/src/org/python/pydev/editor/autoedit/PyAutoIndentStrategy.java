@@ -295,17 +295,18 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             String lineContents = ps.getCursorLineContents();
             if(lineContents.trim().equals(tok)){
                 
-                String previousIfLine = ps.getPreviousIfLine();
-                
-                String ifIndent = PyAction.getIndentationFromLine(previousIfLine);
-                String lineIndent = PyAction.getIndentationFromLine(lineContents);
-                
-                String indent = prefs.getIndentationString();
-                if(lineIndent.length() == ifIndent.length()+indent.length()){
-                    Tuple<String,Integer> dedented = removeFirstIndent(lineContents);
-                    ps.replaceLineContentsToSelection(dedented.o1);
-                    command.offset = command.offset - dedented.o2;
-                    return dedented;
+                String previousIfLine = ps.getPreviousLineThatAcceptsElse();
+                if(previousIfLine != null){
+                    String ifIndent = PyAction.getIndentationFromLine(previousIfLine);
+                    String lineIndent = PyAction.getIndentationFromLine(lineContents);
+                    
+                    String indent = prefs.getIndentationString();
+                    if(lineIndent.length() == ifIndent.length()+indent.length()){
+                        Tuple<String,Integer> dedented = removeFirstIndent(lineContents);
+                        ps.replaceLineContentsToSelection(dedented.o1);
+                        command.offset = command.offset - dedented.o2;
+                        return dedented;
+                    }
                 }
             }        
         }
