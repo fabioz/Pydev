@@ -51,6 +51,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.copiedfromeclipsesrc.PydevFileEditorInput;
 import org.python.pydev.core.ICallback;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.PyEdit;
@@ -61,7 +62,6 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.pyunit.ITestRunListener;
 import org.python.pydev.pyunit.PyUnitTestRunner;
 import org.python.pydev.ui.ImageCache;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
@@ -293,6 +293,11 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten.", e, printToConsole);
     }
 
+    public static void logInfo(String msg) {
+        IStatus s = PydevPlugin.makeStatus(IStatus.INFO, msg, null);
+        getDefault().getLog().log(s);
+    }
+    
     public static CoreException log(String msg) {
         IStatus s = PydevPlugin.makeStatus(IStatus.ERROR, msg, new RuntimeException(msg));
         CoreException e = new CoreException(s);

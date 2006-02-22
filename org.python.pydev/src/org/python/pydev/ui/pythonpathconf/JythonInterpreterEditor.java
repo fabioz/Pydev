@@ -7,7 +7,7 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import org.eclipse.swt.widgets.Composite;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
+import org.python.pydev.core.IInterpreterManager;
 
 public class JythonInterpreterEditor extends AbstractInterpreterEditor{
 

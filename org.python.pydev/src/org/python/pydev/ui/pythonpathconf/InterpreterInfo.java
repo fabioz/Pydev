@@ -16,13 +16,14 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 
 
-public class InterpreterInfo implements Serializable{
+public class InterpreterInfo implements Serializable, IInterpreterInfo{
     
     /**
      * check note on http://java.sun.com/j2se/1.5.0/docs/guide/serialization/spec/version.html#6678

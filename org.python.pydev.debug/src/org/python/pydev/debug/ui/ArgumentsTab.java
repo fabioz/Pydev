@@ -27,11 +27,11 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.docutils.WordUtils;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 /**
  * The main Python debug setup tab.

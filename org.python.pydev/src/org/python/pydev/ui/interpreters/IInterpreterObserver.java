@@ -4,6 +4,7 @@
 package org.python.pydev.ui.interpreters;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public interface IInterpreterObserver {

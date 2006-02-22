@@ -4,8 +4,8 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.runners.SimplePythonRunner;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 public class PythonInterpreterEditor extends AbstractInterpreterEditor{
 

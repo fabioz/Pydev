@@ -6,8 +6,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class SystemASTManager extends AbstractASTManager{
 	
@@ -15,7 +16,8 @@ public class SystemASTManager extends AbstractASTManager{
 
 	public SystemASTManager(IInterpreterManager manager, IPythonNature nature) {
 		this.manager = manager;
-		this.modulesManager = this.manager.getDefaultInterpreterInfo(new NullProgressMonitor()).modulesManager;
+		InterpreterInfo info = (InterpreterInfo) this.manager.getDefaultInterpreterInfo(new NullProgressMonitor());
+        this.modulesManager = info.modulesManager;
 		setNature(nature);
 	}
 

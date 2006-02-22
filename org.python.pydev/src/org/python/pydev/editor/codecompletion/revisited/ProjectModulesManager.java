@@ -21,6 +21,7 @@ import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDeltaProcessor;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
@@ -31,7 +32,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -175,7 +175,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         if(defaultSelectedInterpreter == null){
         	defaultSelectedInterpreter = iMan.getDefaultInterpreter();
         }
-        InterpreterInfo info = iMan.getInterpreterInfo(defaultSelectedInterpreter, new NullProgressMonitor());
+        InterpreterInfo info = (InterpreterInfo) iMan.getInterpreterInfo(defaultSelectedInterpreter, new NullProgressMonitor());
         return info.modulesManager;
     }
     

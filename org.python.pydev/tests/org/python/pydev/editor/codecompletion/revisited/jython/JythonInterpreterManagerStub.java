@@ -40,7 +40,7 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
     }
     
     /**
-     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
+     * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
         
@@ -52,7 +52,7 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
     }
     
     /**
-     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getDefaultJavaLocation()
+     * @see org.python.pydev.core.IInterpreterManager#getDefaultJavaLocation()
      */
     public String getDefaultJavaLocation() {
         return TestDependent.JAVA_LOCATION;

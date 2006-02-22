@@ -97,4 +97,6 @@ public interface IPythonNature extends IProjectNature{
 	 * Rebuilds the path with the current path information, but using the interpreter passed
 	 */
 	void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor);
+    
+    IInterpreterManager getRelatedInterpreterManager();
 }

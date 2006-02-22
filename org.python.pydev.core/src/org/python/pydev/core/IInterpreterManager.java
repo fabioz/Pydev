@@ -3,13 +3,11 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.ui.interpreters;
+package org.python.pydev.core;
 
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.python.pydev.core.IPythonNature;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * @author Fabio Zadrozny
@@ -46,13 +44,13 @@ public interface IInterpreterManager {
      * @param executable this is the executable from where we want to get the info
      * @return information on the executable
      */
-    public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor);
+    public IInterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor);
 
     /**
      * @param monitor monitor to report the progress.
      * @return the default interpreter info.
      */
-    public InterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor);
+    public IInterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor);
     
     /**
      * This function should be used to add an interpreter to the system. Note that it should not be

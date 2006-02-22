@@ -22,6 +22,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
@@ -65,7 +66,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     
     /**
      * @throws NotConfiguredInterpreterException
-     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getDefaultInterpreter()
+     * @see org.python.pydev.core.IInterpreterManager#getDefaultInterpreter()
      */
     public String getDefaultInterpreter() throws NotConfiguredInterpreterException {
         String[] interpreters = getInterpreters();
@@ -101,14 +102,14 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     protected abstract String getNotConfiguredInterpreterMsg(); 
 
     /**
-     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getInterpreters()
+     * @see org.python.pydev.core.IInterpreterManager#getInterpreters()
      */
     public String[] getInterpreters() {
         return getInterpretersFromPersistedString(prefs.getString(getPreferenceName()));
     }
     
     /**
-     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getDefaultInterpreterInfo(org.eclipse.core.runtime.IProgressMonitor)
+     * @see org.python.pydev.core.IInterpreterManager#getDefaultInterpreterInfo(org.eclipse.core.runtime.IProgressMonitor)
      */
     public InterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor) {
         String interpreter = getDefaultInterpreter();
@@ -140,7 +141,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 	}
 
     /**
-     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getInterpreterInfo(java.lang.String)
+     * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String)
      */
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
     	synchronized(lock){
@@ -188,7 +189,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     /**
-     * @see org.python.pydev.ui.interpreters.IInterpreterManager#addInterpreter(java.lang.String)
+     * @see org.python.pydev.core.IInterpreterManager#addInterpreter(java.lang.String)
      */
     public String addInterpreter(String executable, IProgressMonitor monitor) {
         InterpreterInfo info = getInterpreterInfo(executable, monitor);
@@ -201,7 +202,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     private String [] persistedCacheRet;
     
     /**
-     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getInterpretersFromPersistedString(java.lang.String)
+     * @see org.python.pydev.core.IInterpreterManager#getInterpretersFromPersistedString(java.lang.String)
      */
     public String[] getInterpretersFromPersistedString(String persisted) {
     	synchronized(lock){
@@ -288,7 +289,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     /**
-     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getStringToPersist(java.lang.String[])
+     * @see org.python.pydev.core.IInterpreterManager#getStringToPersist(java.lang.String[])
      */
     public String getStringToPersist(String[] executables) {
         StringBuffer buf = new StringBuffer();
@@ -311,7 +312,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     public abstract boolean canGetInfoOnNature(IPythonNature nature);
     
     /**
-     * @see org.python.pydev.ui.interpreters.IInterpreterManager#hasInfoOnDefaultInterpreter(IPythonNature)
+     * @see org.python.pydev.core.IInterpreterManager#hasInfoOnDefaultInterpreter(IPythonNature)
      */
     public boolean hasInfoOnDefaultInterpreter(IPythonNature nature) {
         if(!canGetInfoOnNature(nature)){
@@ -328,7 +329,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     /**
-     * @see org.python.pydev.ui.interpreters.IInterpreterManager#restorePythopathFor(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
+     * @see org.python.pydev.core.IInterpreterManager#restorePythopathFor(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
     @SuppressWarnings("unchecked")
 	public void restorePythopathFor(String defaultSelectedInterpreter, IProgressMonitor monitor) {

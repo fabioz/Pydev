@@ -3,9 +3,9 @@
  */
 package org.python.pydev.debug.ui.launching;
 
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 public class JythonLaunchShortcut extends AbstractLaunchShortcut{
 

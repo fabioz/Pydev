@@ -11,10 +11,10 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 public class JythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage{
 

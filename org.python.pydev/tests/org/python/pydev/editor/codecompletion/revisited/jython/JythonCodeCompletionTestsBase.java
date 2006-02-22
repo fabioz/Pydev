@@ -8,11 +8,11 @@ import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.ICallback;
 

@@ -7,11 +7,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class SystemPythonNature implements IPythonNature{
@@ -22,7 +22,7 @@ public class SystemPythonNature implements IPythonNature{
 	public SystemPythonNature(IInterpreterManager manager){
 		this.manager = manager;
 	}
-	
+    
 	public String getVersion() throws CoreException {
 		throw new RuntimeException("Not Implemented");
 	}
@@ -64,7 +64,7 @@ public class SystemPythonNature implements IPythonNature{
 	}
 
 	public String resolveModule(File file) {
-		InterpreterInfo info = this.manager.getDefaultInterpreterInfo(new NullProgressMonitor());
+		InterpreterInfo info = (InterpreterInfo) this.manager.getDefaultInterpreterInfo(new NullProgressMonitor());
 		return info.modulesManager.resolveModule(REF.getFileAbsolutePath(file));
 	}
 
@@ -95,5 +95,9 @@ public class SystemPythonNature implements IPythonNature{
 	public void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor) {
 		throw new RuntimeException("Not Implemented");
 	}
+
+    public IInterpreterManager getRelatedInterpreterManager() {
+        return manager;
+    }
 
 }

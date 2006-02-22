@@ -9,10 +9,10 @@ package org.python.pydev.editor.codecompletion.revisited;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -44,7 +44,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     }
     
     /**
-     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
+     * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
         
@@ -56,7 +56,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     }
     
     /**
-     * @see org.python.pydev.ui.interpreters.IInterpreterManager#getDefaultJavaLocation()
+     * @see org.python.pydev.core.IInterpreterManager#getDefaultJavaLocation()
      */
     public String getDefaultJavaLocation() {
         throw new RuntimeException("not impl");

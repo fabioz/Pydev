@@ -8,10 +8,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.io.File;
 import java.util.List;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,16 +18,15 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.BundleInfoStub;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PrintProgressMonitor;
 
@@ -139,7 +135,7 @@ public class CodeCompletionTestsBase extends TestCase {
      */
     protected InterpreterInfo getDefaultInterpreterInfo() {
         IInterpreterManager iMan = getInterpreterManager();
-        InterpreterInfo info = iMan.getDefaultInterpreterInfo(getProgressMonitor());
+        InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
         return info;
     }
 
@@ -172,7 +168,7 @@ public class CodeCompletionTestsBase extends TestCase {
 
         //and it must be registered as the pydev interpreter manager
         IInterpreterManager iMan2 = getInterpreterManager();
-        InterpreterInfo info2 = iMan2.getDefaultInterpreterInfo(getProgressMonitor());
+        InterpreterInfo info2 = (InterpreterInfo) iMan2.getDefaultInterpreterInfo(getProgressMonitor());
         assertTrue(info2 == info);
         
         //does it have the loaded modules?
@@ -230,7 +226,7 @@ public class CodeCompletionTestsBase extends TestCase {
      */
     protected void checkSize() {
         IInterpreterManager iMan = getInterpreterManager();
-        InterpreterInfo info = iMan.getDefaultInterpreterInfo(getProgressMonitor());
+        InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
         int size = ((ASTManager)nature.getAstManager()).getSize();
         assertTrue(info.modulesManager.getSize() > 0);
         assertTrue("Interpreter size:"+info.modulesManager.getSize()+" should be smaller than project size:"+size+" " +

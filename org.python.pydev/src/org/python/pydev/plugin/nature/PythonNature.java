@@ -32,6 +32,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
@@ -522,6 +523,20 @@ public class PythonNature implements IPythonNature {
 
     public static String[] getStrAsStrItems(String str){
         return str.split("\\|");
+    }
+
+    public IInterpreterManager getRelatedInterpreterManager() {
+        try {
+            if (isPython()) {
+                return PydevPlugin.getPythonInterpreterManager();
+            } else if (isJython()) {
+                return PydevPlugin.getJythonInterpreterManager();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        throw new RuntimeException("Unable to find the related interpreter manager.");
+        
     }
 
 }

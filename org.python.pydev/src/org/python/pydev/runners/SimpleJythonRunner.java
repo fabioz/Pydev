@@ -12,9 +12,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class SimpleJythonRunner extends SimpleRunner{
@@ -137,7 +137,7 @@ public class SimpleJythonRunner extends SimpleRunner{
         
         
         String jythonJar = interpreterManager.getDefaultInterpreter();
-        InterpreterInfo info = interpreterManager.getInterpreterInfo(jythonJar, new NullProgressMonitor());
+        InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(jythonJar, new NullProgressMonitor());
 
         StringBuffer jythonPath = new StringBuffer();
         String pathSeparator = SimpleRunner.getPythonPathSeparator();

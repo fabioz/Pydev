@@ -36,9 +36,9 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 
 /**
  * Field editor for a list of python interpreter with executable verifier.
@@ -359,7 +359,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 public void widgetSelected(SelectionEvent event) {
                     if (listControl.getSelectionCount() == 1) {
                         String executable = listControl.getSelection()[0];
-                        InterpreterInfo info = interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
+                        InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
 
                     
                         Widget widget = event.widget;
@@ -404,7 +404,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     protected void addOthers() {
         if (listControl.getSelectionCount() == 1) {
             String executable = listControl.getSelection()[0];
-	        InterpreterInfo info = interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
+	        InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
 	        
 	        InputDialog d = new InputDialog(this.getShell(), "Builtin to add", "Builtin to add", "", null);
 	        
@@ -426,7 +426,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             String executable = listControl.getSelection()[0];
             String builtin = listBuiltins.getSelection()[0];
             
-	        InterpreterInfo info = interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
+	        InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
 	        info.forcedLibs.remove(builtin);
 	        changed = true;
         }
@@ -487,7 +487,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 	    	item.setText("System libs");
 	    	item.setImage(imageSystemLibRoot);
 
-	    	InterpreterInfo info = interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
+	    	InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
 	    	
 	    	for (Iterator iter = info.libs.iterator(); iter.hasNext();) {
 	            TreeItem subItem = new TreeItem(item, SWT.NONE);
