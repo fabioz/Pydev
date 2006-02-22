@@ -44,35 +44,7 @@ public class PyGlobalsBrowser extends PyAction{
                 return;
             }
         }
-		TwoPaneElementSelector dialog = new TwoPaneElementSelector(getShell(), new LabelProvider(){
-            @Override
-            public String getText(Object element) {
-                IInfo info = (IInfo) element;
-                return info.getName();
-            }
-            @Override
-            public Image getImage(Object element) {
-                IInfo info = (IInfo) element;
-                return AnalysisPlugin.getImageForTypeInfo(info);
-            }
-            
-        }, new LabelProvider(){
-            @Override
-            public String getText(Object element) {
-                IInfo info = (IInfo) element;
-                StringBuffer buf = new StringBuffer(info.getDeclaringModuleName());
-                String path = info.getPath();
-                if(path != null && path.length() > 0){
-                    buf.append("/");
-                    buf.append(path);
-                }
-                return buf.toString();
-            }
-            @Override
-            public Image getImage(Object element) {
-                return org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.COMPLETION_PACKAGE_ICON);
-            }
-        });
+		TwoPaneElementSelector dialog = new GlobalsTwoPaneElementSelector(getShell());
         dialog.setTitle("Pydev: Globals Browser");
         dialog.setMessage("Filter");
         List<IInfo> lst = new ArrayList<IInfo>();
