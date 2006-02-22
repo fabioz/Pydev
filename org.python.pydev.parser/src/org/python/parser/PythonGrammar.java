@@ -2589,7 +2589,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
          jjtree.closeNodeScope(jjtn000, true);
          jjtc000 = false;
          jjtreeCloseNodeScope(jjtn000);
-        this.addSpecialToken("if ",STRATEGY_BEFORE_NEXT);
+        this.addToPeek("if ",false);
     } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
@@ -2609,7 +2609,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
            jjtree.closeNodeScope(jjtn000, true);
            jjtc000 = false;
            jjtreeCloseNodeScope(jjtn000);
-          this.addSpecialToken("elif ",STRATEGY_BEFORE_NEXT);
+          this.addToPeek("elif ",false);
     } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
@@ -3193,7 +3193,6 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
             break label_24;
           }
           jj_consume_token(OR_BOOL);
-                                      this.addSpecialToken(" or ");
           and_test();
         }
         break;

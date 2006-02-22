@@ -952,11 +952,11 @@ void if_stmt(): {}
 }
 
 void begin_if_stmt(): {}
-{ <IF> {this.addSpecialToken("if ",STRATEGY_BEFORE_NEXT);}
+{ <IF> {this.addToPeek("if ",false);}
 }
 
 void begin_elif_stmt(): {}
-{ <ELIF> {this.addSpecialToken("elif ",STRATEGY_BEFORE_NEXT);}
+{ <ELIF> {this.addToPeek("elif ",false);}
 }
 
 
@@ -1023,7 +1023,7 @@ void suite(): {}
 
 //test: and_test ('or' and_test)* | lambdef
 void test() #or_boolean(>1): {}
-{ lambdef() | and_test() (<OR_BOOL>  {this.addSpecialToken(" or ");} and_test())* }
+{ lambdef() | and_test() (<OR_BOOL> and_test())* }
 
 //and_test: not_test ('and' not_test)*
 void and_test() #and_boolean(>1): {}
