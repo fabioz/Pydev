@@ -4,12 +4,13 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 /**
  * The main plugin class to be used in the desktop.
  */
-public class CorePlugin extends Plugin {
+public class CorePlugin extends AbstractUIPlugin {
 	//The shared instance.
 	private static CorePlugin plugin;
 	//Resource bundle.
