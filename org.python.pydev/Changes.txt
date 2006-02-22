@@ -13,11 +13,12 @@ org.python.core.SysPackageManager
 after 1.0.2
 
 Pydev:
-- Error while organizing imports with the construct from xxx import (a,b\n c)
+- Fixed error while organizing imports with the construct from xxx import (a,b\n c)
 
 Pydev Extensions:
 - Added open declaration 'quick dialog' - Ctrl+Shift+T: Enables the user to find any global (class, method or attribute) declaration,
 including methods and attributes from classes (does not show only 'top-level' tokens).
+- Code analysis minor bugs fixed
 
 after 1.0.1
 
