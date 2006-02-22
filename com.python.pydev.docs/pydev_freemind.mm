@@ -55,6 +55,9 @@
 <node COLOR="#00b439" CREATED="1139594431937" ID="Freemind_Link_1599281754" MODIFIED="1140001041734" TEXT="calltips for methods should be implemented">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
+<node COLOR="#00b439" CREATED="1140628578109" ID="Freemind_Link_1136288053" MODIFIED="1140628630953" TEXT="Should recognize assignment in range()&#xa;E.g.:&#xa;class A:&#xa;    a,b,c = range(3)&#xa;&#xa;A.a should appear in code-completion">
+<font NAME="SansSerif" SIZE="16"/>
+</node>
 </node>
 <node COLOR="#0033ff" CREATED="1139594461453" ID="Freemind_Link_521048315" MODIFIED="1140001041734" POSITION="left" TEXT="Extensions">
 <font NAME="SansSerif" SIZE="18"/>
