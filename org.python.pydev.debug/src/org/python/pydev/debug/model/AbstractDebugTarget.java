@@ -121,13 +121,16 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 	}
 
 	public void suspend() throws DebugException {
-		for (int i=0; i< threads.length; i++)
+		for (int i=0; i< threads.length; i++){
 			threads[i].suspend();
+		}
 	}
 	
 	public IThread[] getThreads() throws DebugException {
-		if (debugger == null)
+		if (debugger == null){
 			return null;
+		}
+		
 		if (threads == null) {
 			ThreadListCommand cmd = new ThreadListCommand(debugger, this);
 			debugger.postCommand(cmd);

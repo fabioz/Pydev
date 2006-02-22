@@ -1,7 +1,6 @@
 package org.python.pydev.debug.model.remote;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -59,7 +58,9 @@ public class DebuggerWriter implements Runnable {
 						out.write("\n");
 						out.flush();
 				}
-				Thread.sleep(100);
+				synchronized (this) {
+					Thread.sleep(100);
+				}
 			} catch (InterruptedException e) {
 				done = true;
 			} catch (IOException e1) {

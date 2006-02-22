@@ -119,7 +119,9 @@ public class DebuggerReader implements Runnable {
                 if(cmdLine != null){                	
 					processCommand(cmdLine);
 				}
-				Thread.sleep(50);
+                synchronized (this) {
+                	Thread.sleep(50);
+				}
 			} catch (Exception e1) {
                 done = true;
                 //that's ok, it means that the client finished

@@ -133,6 +133,11 @@ def varToXML(v, name):
     xml = '<var name="%s" type="%s"' % (name, typeName)
     
     if value: 
+        #cannot be too big... communication does not handle it.
+        if len(value) >  200:
+            value = value[0:200]
+            value += '...'
+
         xmlValue = ' value="%s"' % (makeValidXmlValue(urllib.quote(value, '/>_= \t')))
     else:
         xmlValue = ''

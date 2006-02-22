@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.model.IThread;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.AbstractDebugTarget;
-import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.XMLUtils;
 
 /**
@@ -34,7 +33,9 @@ public class ThreadListCommand extends AbstractDebuggerCommand {
 	public void waitUntilDone(int timeout) throws InterruptedException {
 		while (!done && timeout > 0) {
 			timeout -= 100;
-			Thread.sleep(100);
+			synchronized (this) {
+				Thread.sleep(100);
+			}
 		}
 		if (timeout < 0)
 			throw new InterruptedException();
