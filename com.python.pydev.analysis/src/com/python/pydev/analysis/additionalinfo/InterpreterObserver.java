@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.Document;
 import org.python.parser.SimpleNode;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
@@ -19,7 +20,6 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
-import org.python.pydev.ui.interpreters.IInterpreterManager;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.JobProgressComunicator;
@@ -38,7 +38,7 @@ public class InterpreterObserver implements IInterpreterObserver {
         }
         try {
             try {
-                InterpreterInfo defaultInterpreterInfo = manager.getInterpreterInfo(defaultSelectedInterpreter, monitor);
+                InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(defaultSelectedInterpreter, monitor);
                 SystemModulesManager m = defaultInterpreterInfo.modulesManager;
                 AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, "(system: " + manager.getManagerRelatedName() + ")",
                         new AdditionalSystemInterpreterInfo(manager), null);

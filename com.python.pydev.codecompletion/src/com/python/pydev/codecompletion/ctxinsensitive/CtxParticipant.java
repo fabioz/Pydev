@@ -8,28 +8,21 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
-import org.python.pydev.ui.ImageCache;
 
+import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
-import com.python.pydev.codecompletion.CodecompletionPlugin;
 
 public class CtxParticipant implements IPyDevCompletionParticipant{
 
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
-        ImageCache imageCache = CodecompletionPlugin.getImageCache();
-        Image classWithImport = imageCache.get(CodecompletionPlugin.CLASS_WITH_IMPORT_ICON);
-        Image methodWithImport = imageCache.get(CodecompletionPlugin.METHOD_WITH_IMPORT_ICON);
-        Image attributeWithImport = imageCache.get(CodecompletionPlugin.ATTR_WITH_IMPORT_ICON);
-
         PySelection selection = new PySelection(request.doc);
         int lineAvailableForImport = selection.getLineAvailableForImport();
         
@@ -72,25 +65,12 @@ public class CtxParticipant implements IPyDevCompletionParticipant{
                 }
                 String displayString = buffer.toString();
 
-                //get the image
-                Image img;
-                if(info.getType() == IInfo.CLASS_WITH_IMPORT_TYPE){
-                    img = classWithImport; 
-                }else if(info.getType() == IInfo.METHOD_WITH_IMPORT_TYPE){
-                    img = methodWithImport; 
-                }else if(info.getType() == IInfo.ATTRIBUTE_WITH_IMPORT_TYPE){
-                    img = attributeWithImport; 
-                }else{
-                    throw new RuntimeException("Undefined type.");
-                }
-                
-                
                 CtxInsensitiveImportComplProposal  proposal = new CtxInsensitiveImportComplProposal (
                         rep,
                         request.documentOffset - request.qlen, 
                         request.qlen, 
                         realImportRep.length(), 
-                        img, 
+                        AnalysisPlugin.getImageForAutoImportTypeInfo(info), 
                         displayString, 
                         (IContextInformation)null, 
                         "", 

@@ -10,7 +10,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.python.pydev.ui.interpreters.IInterpreterManager;
+import org.python.pydev.core.IInterpreterManager;
 
 
 public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInterpreterInfo{
