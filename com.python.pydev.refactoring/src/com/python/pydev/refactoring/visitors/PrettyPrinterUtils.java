@@ -54,6 +54,13 @@ public class PrettyPrinterUtils extends VisitorBase{
         " and ",
         " or ",
     };
+    public static final String[] unaryopOperatorMapping = new String[] {
+        "<undef>",
+        "Invert",
+        "not ",
+        "UAdd",
+        "USub",
+    };
 
     public static final String[] operatorMapping = new String[] {
             "<undef>",
@@ -149,7 +156,6 @@ public class PrettyPrinterUtils extends VisitorBase{
         addMethod("visitList" , "superList");
         addMethod("visitBreak" , "superBreak");
         addMethod("visitContinue" , "superContinue");
-        addMethod("visitBoolOp" , "superBoolOp");
         addMethod("visitReturn" , "superReturn");
     }
     

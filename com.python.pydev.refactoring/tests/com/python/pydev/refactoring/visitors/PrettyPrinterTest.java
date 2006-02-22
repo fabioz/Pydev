@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testTryExcept();
+            test.testNot();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -59,6 +59,35 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testImport() throws Exception {
         String s = ""+
         "import foo\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testNot() throws Exception {
+        String s = ""+
+        "def recv(self,buffer_size):\n" +
+        "    data = self.socket.recv(buffer_size)\n" +
+        "    if not data:\n" +
+        "        pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testIfAnd() throws Exception {
+        String s = ""+
+        "if aaa and bbb:\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+
+    public void testAnd() throws Exception {
+        String s = ""+
+        "def listen(self,num):\n" +
+        "    self.accepting = True\n" +
+        "    if os.name == 'nt' and num > 5:\n" +
+        "        num = 1\n" +
+        "    return self.socket.listen(num)\n" +
         "";
         checkPrettyPrintEqual(s);
     }

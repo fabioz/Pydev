@@ -141,8 +141,34 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     }
 
     @Override
+    public Object visitUnaryOp(UnaryOp node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        state.pushInStmt(node);
+        state.write(unaryopOperatorMapping[node.op]);
+        node.operand.accept(this);
+        
+        auxComment.writeSpecialsAfter(node);
+        state.popInStmt();
+        if(!state.inStmt()){
+            checkEndRecord();
+        }
+        return null;
+    }
+
+    @Override
     public Object visitBoolOp(BoolOp node) throws Exception {
-        return visitGeneric(node, "visitBoolOp", false);
+        auxComment.writeSpecialsBefore(node);
+        state.pushInStmt(node);
+        node.values[0].accept(this);
+        state.write(boolOperatorMapping[node.op]);
+        node.values[1].accept(this);
+        
+        auxComment.writeSpecialsAfter(node);
+        state.popInStmt();
+        if(!state.inStmt()){
+            checkEndRecord();
+        }
+        return null;
     }
     
 
@@ -249,13 +275,6 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return null;
     }
 
-    @Override
-    public Object visitUnaryOp(UnaryOp node) throws Exception {
-        auxComment.writeSpecialsBefore(node);
-        state.write(node.operand.toString());
-        auxComment.writeSpecialsAfter(node);
-        return null;
-    }
 
     @Override
     public Object visitTuple(Tuple node) throws Exception {
