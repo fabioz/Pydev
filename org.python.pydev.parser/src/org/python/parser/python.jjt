@@ -379,10 +379,6 @@ TOKEN_MGR_DECLS:
         return t;
     }
     
-    void addSpecialToken(Object t){
-    	specialTokens.add(t);
-    }
-
     void CommonTokenAction(Token t) {
         /*
            if not partial: EOF is expanded to token sequences comprising
@@ -390,12 +386,14 @@ TOKEN_MGR_DECLS:
                otherwise      : [NEWLINE] necessary DEDENT EOF
            if partial: EOF expansion happens only if EOF preceded by empty line (etc),
            i.e. lexer is in MAYBE_FORCE_NEWLINE_IF_EOF state
+           System.out.println("Token:'"+t+"'");
+           System.out.println("Special:'"+t.specialToken+"'");
 
-        System.out.println("Token:'"+t+"'");
-        System.out.println("Special:'"+t.specialToken+"'");
         */
-        if(t.specialToken != null){
-        	this.addSpecialToken(t.specialToken);
+        int i = specialTokens.size();
+        while(t.specialToken != null){
+                this.specialTokens.add(i, t.specialToken);
+                t = t.specialToken;
         }
 		
         if (t.kind == EOF) {
