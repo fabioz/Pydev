@@ -1,7 +1,7 @@
-<!--
 <project name="jython-parser" default="parser" basedir="E:\eclipse_workspace\org.python.pydev.parser\src\org\python\parser">
--->
+<!--
 <project name="jython-parser" default="parser" basedir="D:\eclipse_workspace\org.python.pydev.parser\src\org\python\parser">
+-->
 
     <property name="javaccHome" value="E:\install\Dev.JavaCC\javacc-4.0" />
     <property name="parser.dir" value="${basedir}" />

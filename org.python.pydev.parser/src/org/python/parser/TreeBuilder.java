@@ -203,13 +203,19 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             return new Delete(exprs);
         case JJTPRINT_STMT:
             boolean nl = true;
-            if (stack.nodeArity() == 0)
-                return new Print(null, null, true);
+            if (stack.nodeArity() == 0){
+            	Print p = new Print(null, null, true);
+            	p.specialsBefore.add(0, "print ");
+                return p;
+            }
+            
             if (peekNode().getId() == JJTCOMMA) {
                 popNode();
                 nl = false;
             }
-            return new Print(null, makeExprs(), nl);
+            Print p = new Print(null, makeExprs(), nl);
+        	p.specialsBefore.add(0, "print ");
+            return p;
         case JJTPRINTEXT_STMT:
             nl = true;
             if (peekNode().getId() == JJTCOMMA) {
@@ -217,7 +223,10 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 nl = false;
             }
             exprs = makeExprs(stack.nodeArity()-1);
-            return new Print(makeExpr(), exprs, nl);
+            p = new Print(makeExpr(), exprs, nl);
+            p.specialsBefore.add(0, ">> ");
+        	p.specialsBefore.add(0, "print ");
+            return p;
         case JJTBEGIN_FOR_STMT:
             return new For(null,null,null,null);
         case JJTFOR_STMT:
@@ -374,7 +383,9 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 keywords[i - nargs] = (keywordType) tmparr[i];
             }
             exprType func = makeExpr();
-            return new Call(func, args, keywords, starargs, kwargs);
+            Call c = new Call(func, args, keywords, starargs, kwargs);
+            addSpecialsAndClearOriginal(n, c);
+            return c;
         case JJTFUNCDEF:
             //get the decorators
             //and clear them for the next call (they always must be before a function def)
@@ -569,7 +580,9 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 }
                 return new ListComp(makeExpr(), generators);
             }
-            return new Tuple(makeExprs(), Tuple.Load);
+            Tuple t = new Tuple(makeExprs(), Tuple.Load);
+            addSpecialsAndClearOriginal(n, t);
+            return t;
         case JJTLIST:
             if (stack.nodeArity() > 0 && peekNode() instanceof comprehensionType) {
                 comprehensionType[] generators = new comprehensionType[arity-1];
@@ -729,7 +742,13 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         }
     }
 
-    private void addSpecials(SimpleNode from, SimpleNode to) {
+    private void addSpecialsAndClearOriginal(SimpleNode from, SimpleNode to) {
+    	addSpecials(from, to);
+    	from.specialsBefore.clear();
+    	from.specialsAfter.clear();
+	}
+
+	private void addSpecials(SimpleNode from, SimpleNode to) {
         to.specialsBefore.addAll(from.specialsBefore);
         to.specialsAfter.addAll(from.specialsAfter);
     }

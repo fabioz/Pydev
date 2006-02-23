@@ -26,23 +26,39 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.Import;
+import org.python.parser.ast.Yield;
 
 public class PythonGrammar
 {
 
     public IParserHost hostLiteralMkr;
     private SimpleNode prev;
-    
+    private SimpleNode lastIdNode;
+
     void jjtreeOpenNodeScope(Node n) {
+    	//System.out.println("opening scope:"+n);
         Token t = getToken(1);
+        lastIdNode = (SimpleNode) n;
         jjtree.pushNodePos(t.beginLine, t.beginColumn);
     }
 
     void addToPeek(Object t, boolean after){
-	    ((SimpleNode)jjtree.peekNode()).addSpecial(t,after);
+    	addToPeek(t, after, null);
+    }
+    
+    void addToPeek(Object t, boolean after, Class class_){
+	    SimpleNode n = (SimpleNode)jjtree.peekNode();
+	    if(class_ != null){
+	    	//just check if  it is the class we were expecting.
+			if (n.getClass().equals(class_) == false){
+				throw new RuntimeException("Error, expecting another class.");
+			}
+		}
+	    n.addSpecial(t,after);
     }
 
     void jjtreeCloseNodeScope(Node n) {
+    	//System.out.println("closing scope:"+n);
         jjtree.setNodePos();
         List specialTokens = token_source.specialTokens;
         boolean after = true;
@@ -69,7 +85,7 @@ public class PythonGrammar
                     }else{
                         //may still add before the next, if there was no prev (we can check that by the 'after' variable)
                         //in this case, we'll do some checks to see if it is really correct (checking for the line and column)
-                        
+
                         if(next instanceof Token){
                             findTokenToAdd((Token)next).addSpecial(next, after);
                         }else{
@@ -83,6 +99,17 @@ public class PythonGrammar
         }
     }
 
+
+    /**
+     * Default: add after the previous found token
+     */
+    public static final int STRATEGY_ADD_AFTER_PREV = 0;
+
+    /**
+     * Add before the 'next token' strategy
+     */
+    public static final int STRATEGY_BEFORE_NEXT = 1;
+    
     private SimpleNode findTokenToAdd(Token next) {
         SimpleNode curr = (SimpleNode) jjtree.peekNode();
         if(curr != prev){
@@ -98,17 +125,6 @@ public class PythonGrammar
         
     }
 
-
-    /**
-     * Default: add after the previous found token
-     */
-    public static final int STRATEGY_ADD_AFTER_PREV = 0;
-
-    /**
-     * Add before the 'next token' strategy
-     */
-    public static final int STRATEGY_BEFORE_NEXT = 1;
-    
     private void addSpecialToken(Object o, int strategy) {
         token_source.specialTokens.add(new Object[]{o, strategy});
     }
@@ -123,7 +139,7 @@ public class PythonGrammar
     }
     
     /**
-     * This is sa that we add the String with the beginLine and beginColumn
+     * This is so that we add the String with the beginLine and beginColumn
      */
 	private boolean findTokenAndAdd(String token, String put) {
 		Token t;
@@ -141,7 +157,17 @@ public class PythonGrammar
 		return false;
 	}
 
-
+	/**
+	 * Used so that we can add it to the last id node (we have to add it to the correct token at the TreeBuilder later)
+	 */
+    private void addToLastIdNode(String token, boolean after){
+    	//System.out.println("addToLastIdNode:"+token+ " to "+lastIdNode);
+    	if(after){
+    		lastIdNode.specialsAfter.add(token);
+    	}else{
+    		lastIdNode.specialsBefore.add(token);
+    	}
+    }
 
 
 
@@ -766,11 +792,11 @@ void funcdef(): {}
 //@ call, name, attr ... <nl>
 void decorators(): {}
 {
-	(<AT> dotted_name() (<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} )* <NEWLINE> )* 
+	(<AT> dotted_name() (<LPAREN>  {addToLastIdNode("(", false);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} )* <NEWLINE> )* 
 }
 //parameters: '(' [varargslist] ')'
 void parameters() #void: {}
-{ <LPAREN>  {this.addSpecialToken("(");}  [varargslist()] <RPAREN>  {this.findTokenAndAdd(")");} }
+{ <LPAREN>  {this.addSpecialToken("(", STRATEGY_ADD_AFTER_PREV);}  [varargslist()] <RPAREN>  {this.findTokenAndAdd(")");} }
 
 //varargslist: (fpdef ['=' test] ',')* ('*' NAME [',' ('**'|'*' '*') NAME] | ('**'|'*' '*') NAME) | fpdef ['=' test] (',' fpdef ['=' test])* [',']
 void varargslist() #void: {}
@@ -848,13 +874,14 @@ void expr_stmt() #void: {}
 //print_stmt: 'print' (test ',')* [test] | 'print' '>>' test (, test)+ [,]
 void print_stmt() #void: {}
 {
-    LOOKAHEAD(2) <PRINT> {this.addSpecialToken("print ", STRATEGY_BEFORE_NEXT);} <RSHIFT> {this.addSpecialToken(">> ", STRATEGY_BEFORE_NEXT);} (test()
-        [ (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())+ [Comma()] ]
-        )#printext_stmt
-|   LOOKAHEAD(2) <PRINT> {this.addSpecialToken("print ", STRATEGY_BEFORE_NEXT);} (test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()]
-        )#print_stmt
-|   <PRINT> {this.addSpecialToken("print ", STRATEGY_BEFORE_NEXT);}
-        #print_stmt
+    LOOKAHEAD(2) <PRINT> <RSHIFT>  
+    (test() [ (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())+ [Comma()] ] )#printext_stmt
+    
+|   LOOKAHEAD(2) <PRINT> 
+	(test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()])#print_stmt
+
+|   <PRINT>  #print_stmt
+
 }
 
 
@@ -887,7 +914,7 @@ void begin_return_stmt(): {}
 
 //yield_stmt: 'yield' [testlist]
 void yield_stmt(): {}
-{ <YIELD>{this.addSpecialToken("yield ",STRATEGY_BEFORE_NEXT);} SmartTestList() }
+{ <YIELD> SmartTestList() {this.addToPeek("yield ",false, Yield.class);}}
 
 //raise_stmt: 'raise' [test [',' test [',' test]]]
 void raise_stmt(): {}
@@ -1113,7 +1140,7 @@ void atomtrailer() #void: {}
 atom() 
 (
 		LOOKAHEAD(2) <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);} <RPAREN>  {this.findTokenAndAdd(")");} #Call_Op(1)
-	|   LOOKAHEAD(2)(<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}  insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} ) #Call_Op(jjtree.nodeArity()+1) //with list comprehension: fabioz
+	|   LOOKAHEAD(2)(<LPAREN>  {addToLastIdNode("(", false);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} ) #Call_Op(jjtree.nodeArity()+1) //with list comprehension: fabioz
 	|   <LBRACKET> {this.addSpecialToken("[",STRATEGY_BEFORE_NEXT);}  subscriptlist() <RBRACKET>{this.addSpecialToken("]");}  #Index_Op(2)
 	|   <DOT> AnyName() #Dot_Op(2) 
 )*
@@ -1124,7 +1151,7 @@ atom()
 void atom() #void: {}
 {
     LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   <RPAREN>  {this.findTokenAndAdd(")");} ) #tuple
-|   LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");}  ) #tuple
+|   LOOKAHEAD(2) (  <LPAREN>  {addToLastIdNode("(", false);} insidetuporcall() <RPAREN>   {this.findTokenAndAdd(")");}  ) #tuple
 |   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] <RPAREN>  {this.findTokenAndAdd(")");}  )
 |   ( <LBRACKET> {this.addSpecialToken("[",STRATEGY_BEFORE_NEXT);} [listmaker()] <RBRACKET> {this.addSpecialToken("]");} ) #list
 |   ( <LBRACE> {this.addSpecialToken("{",STRATEGY_BEFORE_NEXT);} [dictmaker()] <RBRACE> {this.addSpecialToken("}");} ) #dictionary
