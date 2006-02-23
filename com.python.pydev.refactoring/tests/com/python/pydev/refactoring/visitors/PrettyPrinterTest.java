@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testStarArgs();
+            test.testComment();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -61,6 +61,17 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "import foo\n" +
         "";
         checkPrettyPrintEqual(s);
+    }
+    
+    public void testComment() throws Exception {
+    	String s = ""+
+		"# comment1\n" +
+		"# comment2\n" +
+		"# comment3\n" +
+		"# comment4\n" +
+		"'''str'''\n" +
+    	"";
+    	checkPrettyPrintEqual(s);
     }
     
     public void testStarArgs() throws Exception {
