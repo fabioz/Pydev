@@ -605,12 +605,25 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
 
             exprType[] values = new exprType[3];
             int k = 0;
+            java.util.List<Object> specialsBefore = new ArrayList<Object>();
+            java.util.List<Object> specialsAfter = new ArrayList<Object>();
             for (int j = 0; j < arity; j++) {
-                if (arr[j].getId() == JJTCOLON)
+                if (arr[j].getId() == JJTCOLON){
+                    specialsBefore.addAll(arr[j].specialsBefore);
+                    specialsAfter.addAll(arr[j].specialsAfter);
+                    arr[j].specialsBefore.clear(); //this nodes may be reused among parses, so, we have to erase the specials
+                    arr[j].specialsAfter.clear();
                     k++;
-                else
+                }else{
                     values[k] = (exprType) arr[j];
+                    values[k].specialsBefore.addAll(specialsBefore);
+                    values[k].specialsBefore.addAll(specialsAfter);
+                    specialsBefore.clear();
+                    specialsAfter.clear();
+                }
             }
+            specialsBefore.clear();
+            specialsAfter.clear();
             if (k == 0) {
                 return new Index(values[0]);
             } else {

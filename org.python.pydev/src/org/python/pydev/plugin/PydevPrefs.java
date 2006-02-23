@@ -420,7 +420,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
                 "and your cursor will be placed between the two braces.", TOOLTIP_WIDTH));
         
         //auto dedent 'else:'
-        b = addCheckBox(appearanceComposite, "Automatic dedent of 'else:'", AUTO_DEDENT_ELSE, 0);
+        b = addCheckBox(appearanceComposite, "Automatic dedent of 'else:' and 'elif:'", AUTO_DEDENT_ELSE, 0);
         
         //auto braces
         b = addCheckBox(appearanceComposite, "Automatically skip matching braces when typing", AUTO_BRACES, 0);
