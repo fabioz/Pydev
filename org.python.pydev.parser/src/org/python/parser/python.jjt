@@ -878,7 +878,12 @@ void flow_stmt() #void: {}
 
 //return_stmt: 'return' [testlist]
 void return_stmt(): {}
-{ <RETURN> {this.addSpecialToken("return ",STRATEGY_BEFORE_NEXT);} [SmartTestList()] }
+{ begin_return_stmt() [SmartTestList()] }
+
+void begin_return_stmt(): {}
+{ <RETURN> {this.addToPeek("return ",false);}
+}
+
 
 //yield_stmt: 'yield' [testlist]
 void yield_stmt(): {}

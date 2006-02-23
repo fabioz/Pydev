@@ -409,9 +409,13 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             exprType[] bases = makeExprs(stack.nodeArity() - 1);
             nameTok = makeName(NameTok.ClassName);
             return new ClassDef(nameTok, bases, body);
+        case JJTBEGIN_RETURN_STMT:
+            return new Return(null);
         case JJTRETURN_STMT:
-            value = arity == 1 ? makeExpr() : null;
-            return new Return(value);
+            value = arity == 2 ? makeExpr() : null;
+            Return ret = (Return) popNode();
+            ret.value = value;
+            return ret;
         case JJTYIELD_STMT:
             return new Yield(makeExpr());
         case JJTRAISE_STMT:

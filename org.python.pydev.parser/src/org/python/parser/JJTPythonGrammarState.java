@@ -151,7 +151,11 @@ class JJTPythonGrammarState {
             if (newNode == null) {
                 throw new ParseException("Internal AST builder error");
             }
-            mk = marks.pop();
+            if(marks.sp > 0){
+                mk = marks.pop();
+            }else{
+                mk = 0;
+            }
             pushNode(newNode);
             node_created = true;
         } else {
