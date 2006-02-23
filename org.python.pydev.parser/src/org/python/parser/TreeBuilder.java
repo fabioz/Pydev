@@ -197,10 +197,14 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             NameTok attr = makeName(NameTok.Attrib);
             value = makeExpr();
             return new Attribute(value, attr, Attribute.Load);
+        case JJTBEGIN_DEL_STMT:
+        	return new Delete(null);
         case JJTDEL_STMT:
-            exprs = makeExprs(arity);
+            exprs = makeExprs(arity-1);
             ctx.setDelete(exprs);
-            return new Delete(exprs);
+            Delete d = (Delete) popNode();
+            d.targets = exprs;
+            return d;
         case JJTPRINT_STMT:
             boolean nl = true;
             if (stack.nodeArity() == 0){
@@ -235,7 +239,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 Suite s = (Suite) popNode();
                 orelseSuite = (suiteType) popNode();
                 orelseSuite.body = s.body;
-                addSpecials(s, orelseSuite);
+                addSpecialsAndClearOriginal(s, orelseSuite);
             }
             
             stmtType[] body = popSuite();
@@ -261,7 +265,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 Suite s = (Suite) popNode();
                 orelseSuite = (suiteType) popNode();
                 orelseSuite.body = s.body;
-                addSpecials(s, orelseSuite);
+                addSpecialsAndClearOriginal(s, orelseSuite);
             }
             
             body = popSuite();
@@ -292,7 +296,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             last.test = test;
             last.body = body;
             last.orelse = orelse;
-            addSpecials(suite, last);
+            addSpecialsAndClearOriginal(suite, last);
             
             for (int i = 0; i < (arity / 3)-1; i++) {
                 //arity--;//because of the beg if stmt
@@ -305,7 +309,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 last.test = test;
                 last.body = body;
                 last.orelse = newOrElse;
-                addSpecials(suite, last);
+                addSpecialsAndClearOriginal(suite, last);
             }
             return last;
         case JJTPASS_STMT:
@@ -341,13 +345,13 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             if (l > 0 && peekNode().getId() == JJTEXTRAKEYWORDVALUELIST) {
                 ExtraArgValue nkwargs = (ExtraArgValue) popNode();
                 kwargs = nkwargs.value;
-                this.addSpecials(nkwargs, kwargs);
+                this.addSpecialsAndClearOriginal(nkwargs, kwargs);
                 l--;
             }
             if (l > 0 && peekNode().getId() == JJTEXTRAARGVALUELIST) {
                 ExtraArgValue nstarargs = (ExtraArgValue) popNode();
                 starargs = nstarargs.value;
-                this.addSpecials(nstarargs, starargs);
+                this.addSpecialsAndClearOriginal(nstarargs, starargs);
                 l--;
             }
             
@@ -787,11 +791,15 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             SimpleNode node = (SimpleNode) iter.next();
             
         
-            if (node.getId() == JJTEXTRAKEYWORDVALUELIST) {
-                kwargs = ((ExtraArgValue) popNode()).value;
+			if (node.getId() == JJTEXTRAKEYWORDVALUELIST) {
+				final ExtraArgValue extraArg = (ExtraArgValue) popNode();
+                kwargs = (extraArg).value;
+                this.addSpecialsAndClearOriginal(extraArg, kwargs);
             }
             else if (node.getId() == JJTEXTRAARGVALUELIST) {
-                starargs = ((ExtraArgValue) popNode()).value;
+            	final ExtraArgValue extraArg = (ExtraArgValue) popNode();
+                starargs = extraArg.value;
+                this.addSpecialsAndClearOriginal(extraArg, starargs);
                 
             } else if(node instanceof keywordType){
                 //keyword
@@ -867,31 +875,18 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             if(node.getId() == JJTEXTRAKEYWORDLIST){
                 ExtraArg a = (ExtraArg)node;
                 kwarg = a.tok;
+                addSpecialsAndClearOriginal(a, kwarg);
                 
             }else if(node.getId() == JJTEXTRAARGLIST){
                 ExtraArg a = (ExtraArg)node;
                 varg = a.tok;
+                addSpecialsAndClearOriginal(a, varg);
             }
         }
         return new NameTok[]{varg, kwarg};
     }
     
-    argumentsType makeArguments(java.util.List args) throws Exception {
-        java.util.List defArg = new ArrayList();
-        for (Iterator iter = args.iterator(); iter.hasNext();) {
-            SimpleNode node = (SimpleNode) iter.next();
-            if(node.getId() != JJTEXTRAKEYWORDLIST && node.getId() == JJTEXTRAARGLIST){
-                defArg.add(node);
-            }
-        }
-        NameTok[] vargAndKwarg = getVargAndKwarg(args);
-        NameTok varg = vargAndKwarg[0];
-        NameTok kwarg = vargAndKwarg[1];
-        
-        return makeArguments((DefaultArg[])defArg.toArray(new DefaultArg[0]), varg, kwarg);
-    }
-    
-    argumentsType makeArguments(DefaultArg[] def, NameTok varg, NameTok kwarg) throws Exception {
+    private argumentsType makeArguments(DefaultArg[] def, NameTok varg, NameTok kwarg) throws Exception {
         exprType fpargs[] = new exprType[def.length];
         exprType defaults[] = new exprType[def.length];
         int startofdefaults = 0;
@@ -900,10 +895,6 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             DefaultArg node = def[i];
             exprType parameter = node.parameter;
             fpargs[i] = parameter;
-//            node.specialsBefore.addAll(parameter.specialsBefore);
-//            node.specialsAfter.addAll(parameter.specialsAfter);
-//            parameter.specialsAfter = node.specialsAfter;
-//            parameter.specialsBefore = node.specialsBefore;
 
             parameter.specialsBefore.addAll(node.specialsBefore);
             parameter.specialsAfter.addAll(node.specialsAfter);
@@ -924,16 +915,20 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
 
     }
     
-    argumentsType makeArguments(int l) throws Exception {
+    private argumentsType makeArguments(int l) throws Exception {
         NameTok kwarg = null;
         NameTok stararg = null;
         if (l > 0 && peekNode().getId() == JJTEXTRAKEYWORDLIST) {
-            kwarg = ((ExtraArg) popNode()).tok;
+        	ExtraArg node = (ExtraArg) popNode();
+            kwarg = node.tok;
             l--;
+            addSpecialsAndClearOriginal(node, kwarg);
         }
         if (l > 0 && peekNode().getId() == JJTEXTRAARGLIST) {
-            stararg = ((ExtraArg) popNode()).tok;
+        	ExtraArg node = (ExtraArg) popNode();
+            stararg = node.tok;
             l--;
+            addSpecialsAndClearOriginal(node, stararg);
         }
         ArrayList list = new ArrayList();
         for (int i = l-1; i >= 0; i--) {

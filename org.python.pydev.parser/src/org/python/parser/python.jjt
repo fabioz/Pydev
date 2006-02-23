@@ -811,10 +811,10 @@ void varargslist() #void: {}
 }
 
 void ExtraArgList(): {}
-{ <MULTIPLY> Name() }
+{ <MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} Name() }
 
 void ExtraKeywordList(): {}
-{ (<POWER>|<MULTIPLY> <MULTIPLY>) Name() }
+{ (<POWER>|<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
 
 void defaultarg(): {}
 { fpdef() [<EQUAL> test()] }
@@ -887,7 +887,11 @@ void print_stmt() #void: {}
 
 //del_stmt: 'del' exprlist
 void del_stmt(): {}
-{ <DEL> exprlist() }
+{ begin_del_stmt() exprlist() }
+
+void begin_del_stmt(): {}
+{ <DEL> {this.addToPeek("del ",false);}
+}
 
 //pass_stmt: 'pass'
 void pass_stmt(): {}
@@ -1139,9 +1143,9 @@ void atomtrailer() #void: {}
 {
 atom() 
 (
-		LOOKAHEAD(2) <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);} <RPAREN>  {this.findTokenAndAdd(")");} #Call_Op(1)
-	|   LOOKAHEAD(2)(<LPAREN>  {addToLastIdNode("(", false);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} ) #Call_Op(jjtree.nodeArity()+1) //with list comprehension: fabioz
-	|   <LBRACKET> {this.addSpecialToken("[",STRATEGY_BEFORE_NEXT);}  subscriptlist() <RBRACKET>{this.addSpecialToken("]");}  #Index_Op(2)
+		LOOKAHEAD(2) <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_AFTER_PREV);} <RPAREN>  {this.findTokenAndAdd(")");} #Call_Op(1)
+	|   LOOKAHEAD(2)(<LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_AFTER_PREV);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} ) #Call_Op(jjtree.nodeArity()+1) //with list comprehension: fabioz
+	|   {this.addSpecialToken("[",STRATEGY_ADD_AFTER_PREV);} <LBRACKET> subscriptlist() <RBRACKET>{this.addSpecialToken("]");}  #Index_Op(2)
 	|   <DOT> AnyName() #Dot_Op(2) 
 )*
 }
@@ -1220,7 +1224,7 @@ void complistmaker() #void: {}
 
 //list_for: 'for' exprlist 'in' testlist list_iter
 void list_for(): {}
-{ <FOR> exprlist() <IN> SmartTestList() (<IF> test())* }
+{ <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() (<IF>  {this.addSpecialToken("if ");} test())* }
 
 
 
