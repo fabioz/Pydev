@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testReturn2();
+            test.testStarArgs();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -61,6 +61,43 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "import foo\n" +
         "";
         checkPrettyPrintEqual(s);
+    }
+    
+    public void testStarArgs() throws Exception {
+    	String s = ""+
+    	"def recv(self,*args):\n" +
+    	"    pass\n" +
+    	"";
+    	checkPrettyPrintEqual(s);
+    }
+    
+    public void testListComp() throws Exception {
+    	String s = ""+
+    	"print [x for x in tbinfo]\n" +
+    	"";
+    	checkPrettyPrintEqual(s);
+    }
+    
+    public void testSub() throws Exception {
+    	String s = ""+
+    	"print tbinfo[-1]\n" +
+    	"";
+    	checkPrettyPrintEqual(s);
+    }
+    
+    public void testDel() throws Exception {
+    	String s = ""+
+    	"del foo\n" +
+    	"";
+    	checkPrettyPrintEqual(s);
+    }
+    
+    public void testPar2() throws Exception {
+    	String s = ""+
+		"def log(self,message):\n" +
+		"    sys.stderr.write('log: %s' % str(message))\n" +
+    	"";
+    	checkPrettyPrintEqual(s);
     }
     
     public void testPar() throws Exception {

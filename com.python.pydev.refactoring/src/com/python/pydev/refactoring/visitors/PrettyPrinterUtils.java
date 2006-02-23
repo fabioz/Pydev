@@ -12,9 +12,11 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.BoolOp;
 import org.python.parser.ast.Break;
 import org.python.parser.ast.Continue;
+import org.python.parser.ast.Delete;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.Index;
 import org.python.parser.ast.List;
+import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Pass;
 import org.python.parser.ast.Print;
 import org.python.parser.ast.Return;
@@ -61,7 +63,7 @@ public class PrettyPrinterUtils extends VisitorBase{
         "Invert",
         "not ",
         "UAdd",
-        "USub",
+        "-",
     };
 
     public static final String[] operatorMapping = new String[] {
@@ -161,6 +163,8 @@ public class PrettyPrinterUtils extends VisitorBase{
         addMethod("visitReturn" , "superReturn");
         addMethod("visitSlice" , "superSlice");
         addMethod("visitIndex" , "superIndex");
+        addMethod("visitDelete" , "superDelete");
+        addMethod("visitListComp" , "superListComp");
     }
     
     
@@ -173,20 +177,28 @@ public class PrettyPrinterUtils extends VisitorBase{
     }
     
     public Object visitGeneric(SimpleNode node, String superMethod, boolean requiresNewLine, String strToWrite) throws IOException{
-        if(requiresNewLine){
-            fixNewStatementCondition();
-        }
-        beforeNode(node);
-        state.pushInStmt(node);
+        genericBefore(node, requiresNewLine);
         if(strToWrite != null){
             state.write(strToWrite);
         }else{
             REF.invoke(this, superMethods.get(superMethod), node);
         }
-        state.popInStmt();
-        afterNode(node);
+        genericAfter(node);
         return null;
     }
+
+	protected void genericAfter(SimpleNode node) throws IOException {
+		state.popInStmt();
+        afterNode(node);
+	}
+
+	protected void genericBefore(SimpleNode node, boolean requiresNewLine) throws IOException {
+		if(requiresNewLine){
+            fixNewStatementCondition();
+        }
+        beforeNode(node);
+        state.pushInStmt(node);
+	}
 
     public Object superYield(Yield node) throws Exception {
         return super.visitYield(node);
@@ -234,5 +246,13 @@ public class PrettyPrinterUtils extends VisitorBase{
     
     public Object superIndex(Index node) throws Exception {
         return super.visitIndex(node);
+    }
+    
+    public Object superDelete(Delete node) throws Exception {
+    	return super.visitDelete(node);
+    }
+    
+    public Object superListComp(ListComp node) throws Exception {
+    	return super.visitListComp(node);
     }
 }

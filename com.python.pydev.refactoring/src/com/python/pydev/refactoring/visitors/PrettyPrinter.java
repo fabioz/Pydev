@@ -15,6 +15,7 @@ import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Compare;
 import org.python.parser.ast.Continue;
+import org.python.parser.ast.Delete;
 import org.python.parser.ast.Dict;
 import org.python.parser.ast.For;
 import org.python.parser.ast.FunctionDef;
@@ -22,6 +23,7 @@ import org.python.parser.ast.If;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Index;
+import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Num;
@@ -156,6 +158,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         }
         return null;
     }
+    
 
     @Override
     public Object visitBoolOp(BoolOp node) throws Exception {
@@ -209,8 +212,17 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     public Object visitList(org.python.parser.ast.List node) throws Exception{
         return visitGeneric(node, "visitList", false);
     }
-    
-    
+
+    @Override
+    public Object visitDelete(Delete node) throws Exception {
+    	return visitGeneric(node, "visitDelete", false);
+    }
+
+    @Override
+    public Object visitListComp(ListComp node) throws Exception {
+    	return visitGeneric(node, "visitListComp", false);
+    }
+
     @Override
     public Object visitWhile(While node) throws Exception {
         auxComment.writeSpecialsBefore(node);
@@ -611,6 +623,14 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             i++;
             state.popInStmt();
         }
+
+        if(completeArgs.vararg != null){
+        	completeArgs.vararg.accept(this);
+        }
+        if(completeArgs.kwarg != null){
+        	completeArgs.kwarg.accept(this);
+        }
+        
     }
 
 
