@@ -21,6 +21,7 @@ import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.If;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
+import org.python.parser.ast.Index;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Num;
@@ -28,6 +29,7 @@ import org.python.parser.ast.Pass;
 import org.python.parser.ast.Print;
 import org.python.parser.ast.Raise;
 import org.python.parser.ast.Return;
+import org.python.parser.ast.Slice;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.Subscript;
 import org.python.parser.ast.TryExcept;
@@ -351,7 +353,18 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     }
     
     @Override
+    public Object visitSlice(Slice node) throws Exception {
+        return visitGeneric(node, "visitSlice", false);
+    }
+    
+    @Override
+    public Object visitIndex(Index node) throws Exception {
+        return visitGeneric(node, "visitIndex", false);
+    }
+    
+    @Override
     public Object visitSubscript(Subscript node) throws Exception {
+        //the slice could be a Slice, an Index
         return visitGeneric(node, "visitSubscript", false);
     }
     

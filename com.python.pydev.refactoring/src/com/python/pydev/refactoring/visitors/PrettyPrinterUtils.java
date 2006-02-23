@@ -13,10 +13,12 @@ import org.python.parser.ast.BoolOp;
 import org.python.parser.ast.Break;
 import org.python.parser.ast.Continue;
 import org.python.parser.ast.Import;
+import org.python.parser.ast.Index;
 import org.python.parser.ast.List;
 import org.python.parser.ast.Pass;
 import org.python.parser.ast.Print;
 import org.python.parser.ast.Return;
+import org.python.parser.ast.Slice;
 import org.python.parser.ast.Subscript;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.Yield;
@@ -157,6 +159,8 @@ public class PrettyPrinterUtils extends VisitorBase{
         addMethod("visitBreak" , "superBreak");
         addMethod("visitContinue" , "superContinue");
         addMethod("visitReturn" , "superReturn");
+        addMethod("visitSlice" , "superSlice");
+        addMethod("visitIndex" , "superIndex");
     }
     
     
@@ -222,5 +226,13 @@ public class PrettyPrinterUtils extends VisitorBase{
     
     public Object superReturn(Return node) throws Exception {
     	return super.visitReturn(node);
+    }
+    
+    public Object superSlice(Slice node) throws Exception {
+        return super.visitSlice(node);
+    }
+    
+    public Object superIndex(Index node) throws Exception {
+        return super.visitIndex(node);
     }
 }
