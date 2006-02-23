@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testSubs();
+            test.testPrintComment();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -59,6 +59,21 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testImport() throws Exception {
         String s = ""+
         "import foo\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testPar() throws Exception {
+        String s = ""+
+        "print (not connected) or len(foo)\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testReturn2() throws Exception {
+        String s = ""+
+        "def writable():\n" +
+        "	return (not connected) or len(foo)\n" +
         "";
         checkPrettyPrintEqual(s);
     }
