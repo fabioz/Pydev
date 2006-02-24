@@ -790,8 +790,12 @@ void funcdef(): {}
 //@ call, name, attr ... <nl>
 void decorators(): {}
 {
-	(<AT> dotted_name() (<LPAREN>  {addToLastIdNode("(", false);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} )* <NEWLINE> )* 
+	(begin_decorator() (<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} )* <NEWLINE> )* 
 }
+void begin_decorator(): {}
+{ <AT> dotted_name()
+}
+
 //parameters: '(' [varargslist] ')'
 void parameters() #void: {}
 { <LPAREN>  {this.addSpecialToken("(", STRATEGY_ADD_AFTER_PREV);}  [varargslist()] <RPAREN>  {this.findTokenAndAdd(")");} }

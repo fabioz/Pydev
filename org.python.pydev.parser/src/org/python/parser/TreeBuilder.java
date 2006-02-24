@@ -165,7 +165,9 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             return new Expression(makeExpr());
 
         case JJTNAME:
-            return new Name(n.getImage().toString(), Name.Load);
+            Name name = new Name(n.getImage().toString(), Name.Load);
+            addSpecialsAndClearOriginal(n, name);
+            return name;
         case JJTNUM:
             //throw new RuntimeException("how to handle this? -- fabio")
             return new Num(n.getImage());
@@ -318,12 +320,14 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             return new Break();
         case JJTCONTINUE_STMT:
             return new Continue();
+        case JJTBEGIN_DECORATOR:
+            return new decoratorsType(null,null,null,null, null);
         case JJTDECORATORS:
             ArrayList list2 = new ArrayList();
+            ArrayList listArgs = new ArrayList();
             while(stack.nodeArity() > 0){
-                ArrayList listArgs = new ArrayList();
                 SimpleNode node = (SimpleNode) stack.popNode();
-                while(isArg(node) || node instanceof comprehensionType){
+                while(!(node instanceof decoratorsType)){
                     if(node instanceof comprehensionType){
                         listArgs.add(node);
                         listArgs.add(stack.popNode()); //target
@@ -333,8 +337,9 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                     }
                     node = (SimpleNode) stack.popNode();
                 }
-                listArgs.add(node);
-                list2.add(makeCallOrDecorator(listArgs, false));
+                listArgs.add(node);//the decoratorsType
+                list2.add(0,makeDecorator(listArgs));
+                listArgs.clear();
             }
             return new Decorators((decoratorsType[]) list2.toArray(new decoratorsType[0]), JJTDECORATORS);
         case JJTCALL_OP:
@@ -706,7 +711,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             return new Import(makeAliases());
     
         case JJTDOTTED_NAME:
-            Name name = new Name(null, Name.Load);
+            name = new Name(null, Name.Load);
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < arity; i++) {
                 if (i > 0){
@@ -780,7 +785,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
     }
 
     
-    SimpleNode makeCallOrDecorator(java.util.List nodes, boolean isCall){
+    SimpleNode makeDecorator(java.util.List nodes){
         exprType starargs = null;
         exprType kwargs = null;
 
@@ -792,14 +797,18 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             
         
 			if (node.getId() == JJTEXTRAKEYWORDVALUELIST) {
-				final ExtraArgValue extraArg = (ExtraArgValue) popNode();
+				final ExtraArgValue extraArg = (ExtraArgValue) node;
                 kwargs = (extraArg).value;
                 this.addSpecialsAndClearOriginal(extraArg, kwargs);
-            }
-            else if (node.getId() == JJTEXTRAARGVALUELIST) {
-            	final ExtraArgValue extraArg = (ExtraArgValue) popNode();
+                extraArg.specialsBefore = kwargs.specialsBefore;
+                extraArg.specialsAfter = kwargs.specialsAfter;
+                
+            } else if (node.getId() == JJTEXTRAARGVALUELIST) {
+            	final ExtraArgValue extraArg = (ExtraArgValue) node;
                 starargs = extraArg.value;
                 this.addSpecialsAndClearOriginal(extraArg, starargs);
+                extraArg.specialsBefore = starargs.specialsBefore;
+                extraArg.specialsAfter = starargs.specialsAfter;
                 
             } else if(node instanceof keywordType){
                 //keyword
@@ -811,19 +820,24 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
 
             } else if(node instanceof comprehensionType){
                 //list comp (2 nodes: comp type and the elt -- what does elt mean by the way?) 
-                argsl.add( 
-                    new ListComp((exprType)iter.next(), new comprehensionType[]{(comprehensionType)node}));
+                argsl.add( new ListComp((exprType)iter.next(), new comprehensionType[]{(comprehensionType)node}));
+                
+            } else if(node instanceof decoratorsType){
+                func = (exprType) popNode();//the func is the last thing in the stack
+                decoratorsType d = (decoratorsType) node;
+                d.func = func; 
+                d.args = (exprType[]) argsl.toArray(new exprType[0]); 
+                d.keywords = (keywordType[]) keywordsl.toArray(new keywordType[0]); 
+                d.starargs = starargs; 
+                d.kwargs = kwargs;
+                return d;
+                
             } else {
-                //name
-                func = (exprType) node;
+                argsl.add(node);
             }
             
         }
-        if(isCall){
-            return new Call(func, (exprType[]) argsl.toArray(new exprType[0]), (keywordType[]) keywordsl.toArray(new keywordType[0]), starargs, kwargs);
-        } else {
-            return new decoratorsType(func, (exprType[]) argsl.toArray(new exprType[0]), (keywordType[]) keywordsl.toArray(new keywordType[0]), starargs, kwargs);
-        }
+        throw new RuntimeException("Something wrong happened while making the decorators...");
 
     }
     
