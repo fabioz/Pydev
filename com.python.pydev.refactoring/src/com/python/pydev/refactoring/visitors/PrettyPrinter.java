@@ -558,15 +558,19 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return null;
     }
 
-
     @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
-        fixNewStatementCondition();
         decoratorsType[] decs = node.decs;
         for (decoratorsType dec : decs) {
             auxComment.writeSpecialsBefore(dec);
+            fixNewStatementCondition();
+            state.write("@");
+            state.pushInStmt(node);
+            dec.accept(this);
+            state.popInStmt();
             auxComment.writeSpecialsAfter(dec);
         }
+        fixNewStatementCondition();
         auxComment.writeSpecialsBefore(node);
         auxComment.writeSpecialsBefore(node.name);
         state.write("def ");

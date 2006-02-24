@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testComment();
+            test.testDecorator3();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -59,6 +59,34 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testImport() throws Exception {
         String s = ""+
         "import foo\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testDecorator() throws Exception {
+        String s = ""+
+        "@decorator1\n" +
+        "def m1():\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+
+    public void testDecorator3() throws Exception {
+        String s = ""+
+        "@decorator1\n" +
+        "@decorator2\n" +
+        "def m1():\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testDecorator2() throws Exception {
+        String s = ""+
+        "@decorator1(1,*args,**kwargs)\n" +
+        "def m1():\n" +
+        "    pass\n" +
         "";
         checkPrettyPrintEqual(s);
     }
