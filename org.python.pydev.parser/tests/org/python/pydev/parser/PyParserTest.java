@@ -23,7 +23,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testParser11();
+            test.testEndWithComment();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -188,6 +188,14 @@ public class PyParserTest extends PyParserTestBase{
     
     public void testParser() {
         String s = "class C: pass";
+        parseLegalDocStr(s);
+    }
+
+    public void testEndWithComment() {
+        String s = "class C: \n" +
+                "    pass\n" +
+                "#end\n" +
+                "";
         parseLegalDocStr(s);
     }
     
