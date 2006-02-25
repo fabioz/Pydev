@@ -19,6 +19,7 @@ import org.python.parser.ast.Compare;
 import org.python.parser.ast.Continue;
 import org.python.parser.ast.Delete;
 import org.python.parser.ast.Dict;
+import org.python.parser.ast.Exec;
 import org.python.parser.ast.For;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.If;
@@ -343,9 +344,13 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             for (stmtType st : orelse.body){
                 st.accept(this);
             }
-//            auxComment.writeSpecialsAfter(orelse);
+            auxComment.writeSpecialsAfter(orelse);
             dedent();
         }
+    }
+    @Override
+    public Object visitExec(Exec node) throws Exception {
+        return visitGeneric(node, "visitExec");
     }
     
     @Override

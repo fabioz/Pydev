@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testTryExcept8();
+            test.testExec();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -64,8 +64,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     }
     
     public void testExec() throws Exception {
-        String s = "exec cmd in globals, locals\n"+
-        "\n" +
+        String s = "exec cmd in globals,locals\n"+
         "";
         checkPrettyPrintEqual(s);
     }

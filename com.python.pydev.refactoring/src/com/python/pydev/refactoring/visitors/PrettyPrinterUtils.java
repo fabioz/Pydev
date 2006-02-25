@@ -13,6 +13,7 @@ import org.python.parser.ast.BoolOp;
 import org.python.parser.ast.Break;
 import org.python.parser.ast.Continue;
 import org.python.parser.ast.Delete;
+import org.python.parser.ast.Exec;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.Index;
 import org.python.parser.ast.List;
@@ -165,6 +166,7 @@ public class PrettyPrinterUtils extends VisitorBase{
         addMethod("visitIndex" , "superIndex");
         addMethod("visitDelete" , "superDelete");
         addMethod("visitListComp" , "superListComp");
+        addMethod("visitExec" , "superExec");
     }
     
     
@@ -254,5 +256,9 @@ public class PrettyPrinterUtils extends VisitorBase{
     
     public Object superListComp(ListComp node) throws Exception {
     	return super.visitListComp(node);
+    }
+    
+    public Object superExec(Exec node) throws Exception {
+        return super.visitExec(node);
     }
 }
