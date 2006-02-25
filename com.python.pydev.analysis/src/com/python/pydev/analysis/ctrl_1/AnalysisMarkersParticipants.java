@@ -10,8 +10,8 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.PydevPlugin;
@@ -58,7 +58,7 @@ public class AnalysisMarkersParticipants implements IAssistProps{
     /**
      * It is valid if any marker generated from the analysis is found
      *  
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.editor.actions.PySelection, java.lang.String, org.python.pydev.editor.PyEdit, int)
+     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection, java.lang.String, org.python.pydev.editor.PyEdit, int)
      */
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
         PySourceViewer s = edit.getPySourceViewer();

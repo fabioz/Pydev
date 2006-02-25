@@ -3,7 +3,7 @@ package com.python.pydev.refactoring.refactorer;
 import java.io.File;
 
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.actions.PySelection;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.RefactoringRequest;

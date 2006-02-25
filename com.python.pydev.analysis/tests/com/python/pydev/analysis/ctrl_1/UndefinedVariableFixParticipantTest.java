@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.editor.actions.PySelection;
+import org.python.pydev.core.docutils.PySelection;
 
 import com.python.pydev.analysis.AnalysisPreferencesStub;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;

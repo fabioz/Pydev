@@ -9,8 +9,8 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.IAnalysisPreferences;

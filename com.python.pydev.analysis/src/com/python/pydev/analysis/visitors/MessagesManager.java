@@ -16,7 +16,7 @@ import org.python.parser.ast.ImportFrom;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.editor.actions.PySelection;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.visitors.NodeUtils;

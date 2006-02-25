@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.ICompletionState;
-import org.python.pydev.editor.actions.PySelection;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
