@@ -470,7 +470,7 @@ class PyDB:
                         try:
                             val = eval(condition, frame.f_globals, frame.f_locals)
                             if not val:
-                                return self.stopTracingFrame(frame)
+                                return None
                                 
                         except:
                             print >> sys.stderr, 'Error while evaluating expression'
