@@ -1033,7 +1033,7 @@ void try_stmt() #void: {SimpleNode tryNode;}
     [begin_try_else_stmt()  suite()])
         #try_stmt(jjtree.nodeArity()+1)
         
-    | <FINALLY> <COLON> {this.addSpecialToken(":");} suite()
+    | begin_finally_stmt() suite()
         #tryfinally_stmt(jjtree.nodeArity()+1))
 }
 
@@ -1043,6 +1043,10 @@ void begin_try_stmt(): {}
 }
 void begin_try_else_stmt(): {}
 { <ELSE> {this.addSpecialToken("else", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);}<COLON>
+}
+
+void begin_finally_stmt(): {}
+{ <FINALLY> {this.addSpecialToken("finally", STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
 }
 
 //except_clause: 'except' [test [',' test]]

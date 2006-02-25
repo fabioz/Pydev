@@ -37,7 +37,7 @@ module Python
 	      -- 'type' is a bad name
 	      | Raise(expr? type, expr? inst, expr? tback)
 	      | TryExcept(stmt* body, excepthandler* handlers, suite orelse)
-	      | TryFinally(stmt* body, stmt* finalbody)
+	      | TryFinally(stmt* body, suite finalbody)
 	      | Assert(expr test, expr? msg)
 
 	      | Import(alias* names)

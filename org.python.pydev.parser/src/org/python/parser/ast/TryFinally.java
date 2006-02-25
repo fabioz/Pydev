@@ -6,14 +6,14 @@ import java.io.IOException;
 
 public class TryFinally extends stmtType {
     public stmtType[] body;
-    public stmtType[] finalbody;
+    public suiteType finalbody;
 
-    public TryFinally(stmtType[] body, stmtType[] finalbody) {
+    public TryFinally(stmtType[] body, suiteType finalbody) {
         this.body = body;
         this.finalbody = finalbody;
     }
 
-    public TryFinally(stmtType[] body, stmtType[] finalbody, SimpleNode
+    public TryFinally(stmtType[] body, suiteType finalbody, SimpleNode
     parent) {
         this(body, finalbody);
         this.beginLine = parent.beginLine;
@@ -48,12 +48,8 @@ public class TryFinally extends stmtType {
                     body[i].accept(visitor);
             }
         }
-        if (finalbody != null) {
-            for (int i = 0; i < finalbody.length; i++) {
-                if (finalbody[i] != null)
-                    finalbody[i].accept(visitor);
-            }
-        }
+        if (finalbody != null)
+            finalbody.accept(visitor);
     }
 
 }

@@ -238,10 +238,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTFOR_STMT:
             suiteType orelseSuite = null;
             if (stack.nodeArity() == 6){
-                Suite s = (Suite) popNode();
-                orelseSuite = (suiteType) popNode();
-                orelseSuite.body = s.body;
-                addSpecialsAndClearOriginal(s, orelseSuite);
+                orelseSuite = popSuiteAndSuiteType();
             }
             
             stmtType[] body = popSuite();
@@ -264,10 +261,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTWHILE_STMT:
             orelseSuite = null;
             if (stack.nodeArity() == 5){
-                Suite s = (Suite) popNode();
-                orelseSuite = (suiteType) popNode();
-                orelseSuite.body = s.body;
-                addSpecialsAndClearOriginal(s, orelseSuite);
+                orelseSuite = popSuiteAndSuiteType();
             }
             
             body = popSuite();
@@ -463,10 +457,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 arity--;
                 arity--;
                 
-                Suite s = (Suite) popNode();
-                orelseSuite = (suiteType) popNode();
-                orelseSuite.body = s.body;
-                addSpecials(s, orelseSuite);
+                orelseSuite = popSuiteAndSuiteType();
             }
             l = arity - 1;
             excepthandlerType[] handlers = new excepthandlerType[l];
@@ -499,9 +490,18 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         	handler.body = body;
             addSpecials(s, handler);
             return handler;
+        case JJTBEGIN_FINALLY_STMT:
+            //we do that just to get the specials
+            return new suiteType(null);
         case JJTTRYFINALLY_STMT:
-            orelse = popSuite();
-            return new TryFinally(popSuite(), orelse);
+            suiteType finalBody = popSuiteAndSuiteType();
+            body = popSuite();
+            //We have a try..except in the stack, but we will change it for a try..finally
+            //This is because we recognize a try..except in the 'try:' token, but actually end up with a try..finally
+            TryExcept tryExcept = (TryExcept) popNode();
+            TryFinally tryFinally = new TryFinally(body, finalBody);
+            addSpecialsAndClearOriginal(tryExcept, tryFinally);
+            return tryFinally;
             
         case JJTOR_BOOLEAN:
             return new BoolOp(BoolOp.Or, makeExprs());
@@ -749,6 +749,14 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             System.out.println("Error at TreeBuilder: default not treated:"+n.getId());
             return null;
         }
+    }
+
+    private suiteType popSuiteAndSuiteType() {
+        Suite s = (Suite) popNode();
+        suiteType orelseSuite = (suiteType) popNode();
+        orelseSuite.body = s.body;
+        addSpecialsAndClearOriginal(s, orelseSuite);
+        return orelseSuite;
     }
 
     private void addSpecialsAndClearOriginal(SimpleNode from, SimpleNode to) {
