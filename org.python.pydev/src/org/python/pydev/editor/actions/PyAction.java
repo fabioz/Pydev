@@ -17,8 +17,9 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.parser.visitors.ParsingUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
@@ -61,7 +62,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 	}
 
 	public static String getDelimiter(IDocument doc){
-	    return getDelimiter(doc, 0);
+	    return PySelection.getDelimiter(doc);
 	}
 	
 	/**
@@ -72,19 +73,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 	 * @throws BadLocationException
 	 */
 	public static String getDelimiter(IDocument doc, int line){
-		String endLineDelim;
-        try {
-			if (doc.getNumberOfLines() > 1){
-			    endLineDelim = doc.getLineDelimiter(line);
-		        if (endLineDelim == null) {
-					endLineDelim = doc.getLegalLineDelimiters()[0];
-				}
-				return endLineDelim;
-			}
-        } catch (BadLocationException e) {
-            PydevPlugin.log(e);
-        }
-		return System.getProperty("line.separator"); 
+		return PySelection.getDelimiter(doc, line); 
 		
 	}
 

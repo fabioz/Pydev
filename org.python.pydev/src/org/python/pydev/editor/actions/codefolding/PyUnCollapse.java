@@ -7,8 +7,8 @@ package org.python.pydev.editor.actions.codefolding;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.actions.PySelection;
 
 /**
  * This could be also called expand...

@@ -14,10 +14,10 @@ import org.eclipse.jface.text.IRegion;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.parser.visitors.ParsingUtils;
 
 /**
  * Class which implements the following behaviors:

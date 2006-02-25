@@ -12,9 +12,9 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
@@ -30,7 +30,7 @@ import org.python.pydev.ui.UIConstants;
 public class AssistOverride implements IAssistProps {
 
     /**
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.editor.actions.PySelection, org.python.pydev.ui.ImageCache)
+     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.ui.ImageCache)
      */
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File file, PythonNature nature, PyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
@@ -99,7 +99,7 @@ public class AssistOverride implements IAssistProps {
     }
 
     /**
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.editor.actions.PySelection, java.lang.String)
+     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection, java.lang.String)
      */
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
         return sel.indexOf("def ") != -1;

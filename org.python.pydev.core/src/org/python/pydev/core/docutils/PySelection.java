@@ -5,7 +5,7 @@
  * License: Common Public License v1.0
  */
 
-package org.python.pydev.editor.actions;
+package org.python.pydev.core.docutils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -20,8 +20,7 @@ import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.parser.visitors.ParsingUtils;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 /**
  * Redone the whole class, so that the interface is better defined and no
@@ -224,7 +223,7 @@ public class PySelection {
     }
 
     protected static void beep(Exception e) {
-        PydevPlugin.log(e);
+        Log.log(e);
         PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
     }
 
@@ -307,12 +306,41 @@ public class PySelection {
     }
 
     /**
+     * Removes comments at the end of the document
+     * @param doc this is the document from where the comments must be removed
+     * @return a StringBuffer with the comments that have been removed
+     */
+    public static StringBuffer removeEndingComments(IDocument doc){
+        StringBuffer comments = new StringBuffer();
+        int lines = doc.getNumberOfLines();
+        String delimiter = PySelection.getDelimiter(doc);
+        for (int i = lines-1; i >= 0; i--) {
+            String line = PySelection.getLine(doc, i);
+            String trimmed = line.trim();
+            if(trimmed.length() > 0 && trimmed.charAt(0) != '#'){
+                return comments;
+            }
+            comments.insert(0,line);
+            comments.insert(0,delimiter);
+            try {
+                if(line.length() > 0){
+                    PySelection.deleteLine(doc, i);
+                }
+            } catch (Exception e) {
+                //ignore
+            }
+        }
+        return comments;
+    }
+    
+    /**
      * Deletes a line from the document
      * @param i
      */
     public static void deleteLine(IDocument doc, int i) {
         try {
-            int offset = doc.getLineInformation(i).getOffset();
+            IRegion lineInformation = doc.getLineInformation(i);
+            int offset = lineInformation.getOffset();
             
             int length = -1;
             
@@ -320,7 +348,7 @@ public class PySelection {
 	            int nextLineOffset = doc.getLineInformation(i+1).getOffset();
 	            length = nextLineOffset - offset;
             }else{
-                length = doc.getLineInformation(i).getLength();
+                length = lineInformation.getLength();
             }
             
             if(length > -1){
@@ -451,17 +479,44 @@ public class PySelection {
             int end = getEndLine().getOffset() + getEndLine().getLength();
             return this.doc.get(start, end-start);
         } catch (BadLocationException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return "";
     }
 
+    public static String getDelimiter(IDocument doc){
+        return getDelimiter(doc, 0);
+    }
+    
+    /**
+     * This method returns the delimiter for the document
+     * @param doc
+     * @param startLineIndex
+     * @return  delimiter for the document (\n|\r\|r\n)
+     * @throws BadLocationException
+     */
+    public static String getDelimiter(IDocument doc, int line){
+        String endLineDelim;
+        try {
+            if (doc.getNumberOfLines() > 1){
+                endLineDelim = doc.getLineDelimiter(line);
+                if (endLineDelim == null) {
+                    endLineDelim = doc.getLegalLineDelimiters()[0];
+                }
+                return endLineDelim;
+            }
+        } catch (BadLocationException e) {
+            Log.log(e);
+        }
+        return System.getProperty("line.separator"); 
+        
+    }
 
     /**
      * @return Returns the endLineDelim.
      */
     public String getEndLineDelim() {
-        return PyAction.getDelimiter(getDoc());
+        return getDelimiter(getDoc());
     }
 
     /**
@@ -471,7 +526,7 @@ public class PySelection {
         try {
             return getDoc().getLineInformation(getStartLineIndex());
         } catch (BadLocationException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return null;
     }
@@ -483,7 +538,7 @@ public class PySelection {
         try {
             return getDoc().getLineInformation(getEndLineIndex());
         } catch (BadLocationException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return null;
     }

@@ -11,8 +11,9 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.parser.visitors.ParsingUtils;
 import org.python.pydev.plugin.PyCodeFormatterPage;
 
 /**

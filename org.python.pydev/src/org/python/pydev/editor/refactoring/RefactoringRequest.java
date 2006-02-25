@@ -9,8 +9,8 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 
 public class RefactoringRequest{

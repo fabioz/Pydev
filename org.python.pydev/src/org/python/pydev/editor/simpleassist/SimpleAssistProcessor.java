@@ -14,8 +14,8 @@ import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PySelection;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 
 public class SimpleAssistProcessor implements IContentAssistProcessor {

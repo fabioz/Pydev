@@ -9,6 +9,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**

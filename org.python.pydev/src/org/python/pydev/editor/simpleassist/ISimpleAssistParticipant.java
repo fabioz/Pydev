@@ -6,8 +6,8 @@ package org.python.pydev.editor.simpleassist;
 import java.util.Collection;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PySelection;
 
 public interface ISimpleAssistParticipant {
     

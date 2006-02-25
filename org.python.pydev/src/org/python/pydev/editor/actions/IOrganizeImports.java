@@ -3,6 +3,7 @@
  */
 package org.python.pydev.editor.actions;
 
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 
 public interface IOrganizeImports {

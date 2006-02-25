@@ -7,6 +7,7 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.action.IAction;
+import org.python.pydev.core.docutils.PySelection;
 
 
 /**

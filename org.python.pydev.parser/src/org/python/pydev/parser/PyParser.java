@@ -32,6 +32,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 
 /**
@@ -341,7 +342,11 @@ public class PyParser {
      */
     public static Object[] reparseDocument(ParserInfo info) {
         // create a stream with document's data
-        String initialDoc = info.document.get();
+        IDocument newDoc = new Document(info.document.get());
+        
+        StringBuffer endingComments = PySelection.removeEndingComments(newDoc);
+        
+        String initialDoc = newDoc.get();
         
         if(info.initial == null){
             info.initial = initialDoc;

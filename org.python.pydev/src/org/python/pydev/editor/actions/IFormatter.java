@@ -4,6 +4,7 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 
 /**

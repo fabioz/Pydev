@@ -8,6 +8,7 @@ package org.python.pydev.editor.actions;
 
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.IAction;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 

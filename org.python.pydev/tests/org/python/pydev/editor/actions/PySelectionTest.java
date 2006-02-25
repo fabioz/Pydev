@@ -10,6 +10,7 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
+import org.python.pydev.core.docutils.PySelection;
 
 import junit.framework.TestCase;
 
@@ -231,6 +232,36 @@ public class PySelectionTest extends TestCase {
         
     }
     
+    public void testRemoveEndingComments() throws Exception {
+        String s = "class Foo:pass\n" +
+                "#comm1\n" +
+                "#comm2\n" +
+                "print 'no comm'\n" +
+                "#comm3\n" +
+                "#comm4";
+        doc = new Document(s);
+        StringBuffer buffer = PySelection.removeEndingComments(doc);
+        
+        assertEquals("\n#comm3\n" +
+                "#comm4", buffer.toString());
+        assertEquals("class Foo:pass\n" +
+                "#comm1\n" +
+                "#comm2\n" +
+                "print 'no comm'\n", doc.get());
+    }
+    public void testRemoveEndingComments2() throws Exception {
+        String s = "class C: \n" +
+        "    pass\n" +
+        "#end\n" +
+        "";
+        doc = new Document(s);
+        StringBuffer buffer = PySelection.removeEndingComments(doc);
+        
+        assertEquals("\n#end\n" , buffer.toString());
+        assertEquals("class C: \n" +
+                "    pass\n" 
+                , doc.get());
+    }
     public void testGetLastIf() throws Exception {
         String s = 
             "if False:\n" +

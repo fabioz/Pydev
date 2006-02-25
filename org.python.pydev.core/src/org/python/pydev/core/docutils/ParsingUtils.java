@@ -1,7 +1,7 @@
 /*
  * Created on 13/07/2005
  */
-package org.python.pydev.parser.visitors;
+package org.python.pydev.core.docutils;
 
 
 

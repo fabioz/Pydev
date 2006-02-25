@@ -3,6 +3,8 @@
  */
 package org.python.pydev.parser.visitors;
 
+import org.python.pydev.core.docutils.ParsingUtils;
+
 import junit.framework.TestCase;
 
 public class ParsingUtilsTest extends TestCase {
