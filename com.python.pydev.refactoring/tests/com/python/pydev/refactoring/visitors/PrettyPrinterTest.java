@@ -17,7 +17,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testDecorator3();
+            test.testTryExcept8();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -59,6 +59,26 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testImport() throws Exception {
         String s = ""+
         "import foo\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testExec() throws Exception {
+        String s = "exec cmd in globals, locals\n"+
+        "\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    public void testTryExcept8() throws Exception {
+        String s = ""+
+        "try:\n" +
+        "    try:\n" +
+        "        pass\n" +
+        "    except BdbQuit:\n" +
+        "        pass\n" +
+        "finally:\n" +
+        "    self.quitting = 1\n" +
+        "    sys.settrace(None)\n" +
         "";
         checkPrettyPrintEqual(s);
     }

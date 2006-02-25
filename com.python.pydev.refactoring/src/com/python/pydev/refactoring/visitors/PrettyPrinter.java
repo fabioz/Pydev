@@ -4,6 +4,8 @@
 package com.python.pydev.refactoring.visitors;
 
 
+import java.io.IOException;
+
 import org.python.parser.SimpleNode;
 import org.python.parser.SpecialStr;
 import org.python.parser.ast.Assign;
@@ -35,6 +37,7 @@ import org.python.parser.ast.Slice;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.Subscript;
 import org.python.parser.ast.TryExcept;
+import org.python.parser.ast.TryFinally;
 import org.python.parser.ast.Tuple;
 import org.python.parser.ast.UnaryOp;
 import org.python.parser.ast.While;
@@ -46,6 +49,7 @@ import org.python.parser.ast.excepthandlerType;
 import org.python.parser.ast.exprType;
 import org.python.parser.ast.keywordType;
 import org.python.parser.ast.stmtType;
+import org.python.parser.ast.suiteType;
 
 /**
  * statements that 'need' to be on a new line:
@@ -312,22 +316,48 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         afterNode(node);
         return null;
     }
+
     
-    @Override
-    public Object visitTryExcept(TryExcept node) throws Exception {
+    public void visitTryPart(SimpleNode node, stmtType[] body) throws Exception{
         state.indent();
         //try:
         auxComment.writeSpecialsBefore(node);
         fixNewStatementCondition();
         
-        for(stmtType st:node.body){
+        for(stmtType st:body){
             st.accept(this);
         }
         fixNewStatementCondition();
 
         dedent();
-        //except:
         auxComment.writeSpecialsAfter(node);
+
+    }
+    
+    public void visitOrElsePart(suiteType orelse) throws Exception{
+        if(orelse != null){
+            auxComment.startRecord();
+            auxComment.writeSpecialsBefore(orelse);
+            state.indent();
+            afterNode(orelse);
+            for (stmtType st : orelse.body){
+                st.accept(this);
+            }
+//            auxComment.writeSpecialsAfter(orelse);
+            dedent();
+        }
+    }
+    
+    @Override
+    public Object visitTryFinally(TryFinally node) throws Exception {
+        visitTryPart(node, node.body);
+        visitOrElsePart(node.finalbody);
+        return null;
+    }
+
+    @Override
+    public Object visitTryExcept(TryExcept node) throws Exception {
+        visitTryPart(node, node.body);
         for(excepthandlerType h:node.handlers){
             state.pushInStmt(h);
             state.indent();
@@ -350,17 +380,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             }
             dedent();
         }
-        if(node.orelse != null){
-            auxComment.startRecord();
-            auxComment.writeSpecialsBefore(node.orelse);
-            state.indent();
-            afterNode(node.orelse);
-            for (stmtType st : node.orelse.body){
-                st.accept(this);
-            }
-            auxComment.writeSpecialsAfter(node.orelse);
-            dedent();
-        }
+        visitOrElsePart(node.orelse);
         return null;
     }
     
