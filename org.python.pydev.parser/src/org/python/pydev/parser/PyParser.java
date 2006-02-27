@@ -28,6 +28,8 @@ import org.python.parser.PythonGrammar;
 import org.python.parser.ReaderCharStream;
 import org.python.parser.SimpleNode;
 import org.python.parser.TokenMgrError;
+import org.python.parser.ast.Module;
+import org.python.parser.ast.commentType;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
@@ -342,15 +344,15 @@ public class PyParser {
      */
     public static Object[] reparseDocument(ParserInfo info) {
         // create a stream with document's data
-        IDocument newDoc = new Document(info.document.get());
-        
+        String startDoc = info.document.get();
+        if(info.initial == null){
+            info.initial = startDoc;
+        }
+
+        IDocument newDoc = new Document(startDoc);
         StringBuffer endingComments = PySelection.removeEndingComments(newDoc);
-        
         String initialDoc = newDoc.get();
         
-        if(info.initial == null){
-            info.initial = initialDoc;
-        }
         
         StringReader inString = new StringReader(initialDoc);
         ReaderCharStream in = new ReaderCharStream(inString);
@@ -365,6 +367,10 @@ public class PyParser {
         		grammar.enable_tracing();
         	}
             SimpleNode newRoot = grammar.file_input(); // parses the file
+            if(newRoot != null){
+                Module m = (Module) newRoot;
+                m.addSpecial(new commentType(endingComments.toString()), true);
+            }
             return new Object[]{newRoot,null};
 		
 

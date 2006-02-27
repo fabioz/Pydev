@@ -971,7 +971,7 @@ void global_stmt(): {}
 
 //exec_stmt: 'exec' expr ['in' test [',' test]]
 void exec_stmt(): {}
-{ <EXEC>{this.addSpecialToken("exec ");} expr() [<IN>{this.addSpecialToken(" in ");} test() [{this.addSpecialToken(",");} <COMMA> test()]] }
+{ <EXEC>{this.addSpecialToken("exec ", STRATEGY_BEFORE_NEXT);} expr() [<IN>{this.addSpecialToken(" in ");} test() [{this.addSpecialToken(",");} <COMMA> test()]] }
 
 //assert_stmt: 'assert' test [',' test]
 void assert_stmt(): {}
@@ -1197,7 +1197,7 @@ void subscript() #void: {}
 void slice() #void: {}
 { Colon() [test()] (Colon() [test()])? }
 
-void Colon(): {} {<COLON> {this.addSpecialToken(":");}}
+void Colon(): {} {{this.addSpecialToken(":");} <COLON> }
 void Comma(): {} {{this.addSpecialToken(",");} <COMMA>}
 
 //exprlist: expr (',' expr)* [',']

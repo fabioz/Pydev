@@ -2496,16 +2496,16 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
   jjtreeOpenNodeScope(jjtn000);
     try {
       jj_consume_token(EXEC);
-         this.addSpecialToken("exec ");
+         this.addSpecialToken("exec ", STRATEGY_BEFORE_NEXT);
       expr();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IN:
         jj_consume_token(IN);
-                                                      this.addSpecialToken(" in ");
+                                                                            this.addSpecialToken(" in ");
         test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
-                                                                                              this.addSpecialToken(",");
+                                                                                                                    this.addSpecialToken(",");
           jj_consume_token(COMMA);
           test();
           break;
@@ -5007,11 +5007,8 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
+                   this.addSpecialToken(":");
       jj_consume_token(COLON);
-                            jjtree.closeNodeScope(jjtn000, true);
-                            jjtc000 = false;
-                            jjtreeCloseNodeScope(jjtn000);
-                           this.addSpecialToken(":");
     } finally {
                     if (jjtc000) {
                       jjtree.closeNodeScope(jjtn000, true);
