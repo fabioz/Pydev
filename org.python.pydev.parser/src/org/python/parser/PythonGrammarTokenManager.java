@@ -7,6 +7,7 @@ import java.util.Iterator;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.Yield;
+import org.python.parser.ast.Tuple;
 
 public class PythonGrammarTokenManager implements PythonGrammarConstants
 {

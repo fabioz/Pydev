@@ -31,16 +31,19 @@ public class PyParserTestBase extends TestCase {
 	 * @param s
 	 * @return 
 	 */
-	protected SimpleNode parseLegalDocStr(String s, Object ... additionalErrInfo) {
+	protected static SimpleNode parseLegalDocStr(String s, Object ... additionalErrInfo) {
 	    Document doc = new Document(s);
-	    return parseLegalDoc(doc, additionalErrInfo);
+	    return parseLegalDoc(doc, additionalErrInfo, new PyParser());
 	}
 
+	protected SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo) {
+	    return parseLegalDoc(doc, additionalErrInfo, parser);
+    }
 	/**
 	 * @param additionalErrInfo 
 	 * @param parser
 	 */
-	protected SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo) {
+	protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
 	    parser.setDocument(doc, false);
 	    Object[] objects = parser.reparseDocument((IPythonNature)null);
 	    Object err = objects[1];

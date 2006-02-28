@@ -27,6 +27,7 @@ import java.util.Iterator;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.Yield;
+import org.python.parser.ast.Tuple;
 
 public class PythonGrammar
 {
@@ -34,9 +35,12 @@ public class PythonGrammar
     public IParserHost hostLiteralMkr;
     private SimpleNode prev;
     private SimpleNode lastIdNode;
+    private static boolean DEBUG = false;
 
     void jjtreeOpenNodeScope(Node n) {
-    	//System.out.println("opening scope:"+n);
+	    if(DEBUG){
+	    	System.out.println("opening scope:"+n);
+	    }
         Token t = getToken(1);
         lastIdNode = (SimpleNode) n;
         jjtree.pushNodePos(t.beginLine, t.beginColumn);
@@ -58,7 +62,9 @@ public class PythonGrammar
     }
 
     void jjtreeCloseNodeScope(Node n) {
-    	//System.out.println("closing scope:"+n);
+	    if(DEBUG){
+	    	System.out.println("closing scope:"+n);
+	    }
         jjtree.setNodePos();
         List specialTokens = token_source.specialTokens;
         boolean after = true;
@@ -69,7 +75,9 @@ public class PythonGrammar
                     after = false;
                     prev = (SimpleNode) jjtree.peekNode();
                 }
-                //System.out.println("closing scope "+jjtree.peekNode().getClass());
+        	    if(DEBUG){
+	                System.out.println("closing scope "+jjtree.peekNode().getClass());
+	            }
 
                 for (Iterator iter = specialTokens.iterator(); iter.hasNext();) {
                     Object next = iter.next();
@@ -138,30 +146,38 @@ public class PythonGrammar
     	return findTokenAndAdd(token, token);
     }
     
-    /**
-     * This is so that we add the String with the beginLine and beginColumn
-     */
-	private boolean findTokenAndAdd(String token, String put) {
+	private Object createSpecialStr(String token) {
+		return createSpecialStr(token, token);
+	}
+	
+	private Object createSpecialStr(String token, String put) {
 		Token t;
 		t = this.jj_lastpos;
 		while(t != null && t.image != null && t.image.equals(token) == false){
 			t = t.next;
 		}
 		if(t != null){
-			token_source.specialTokens.add(new Object[]{new SpecialStr(put,t.beginLine, t.beginColumn), STRATEGY_ADD_AFTER_PREV});
-			return true;
+			return new SpecialStr(put,t.beginLine, t.beginColumn);
 		}
-		
-		//did not work... put in the 'default' way
-		token_source.specialTokens.add(new Object[]{put, STRATEGY_ADD_AFTER_PREV});
-		return false;
+		return put;
+	}
+	
+    /**
+     * This is so that we add the String with the beginLine and beginColumn
+     */
+	private boolean findTokenAndAdd(String token, String put) {
+		Object s = createSpecialStr(token, put);
+		token_source.specialTokens.add(new Object[]{s, STRATEGY_ADD_AFTER_PREV});
+		return s instanceof SpecialStr;
 	}
 
 	/**
 	 * Used so that we can add it to the last id node (we have to add it to the correct token at the TreeBuilder later)
 	 */
     private void addToLastIdNode(String token, boolean after){
-    	//System.out.println("addToLastIdNode:"+token+ " to "+lastIdNode);
+	    if(DEBUG){
+	    	System.out.println("addToLastIdNode:"+token+ " to "+lastIdNode);
+	    }
     	if(after){
     		lastIdNode.specialsAfter.add(token);
     	}else{
@@ -816,7 +832,7 @@ void ExtraArgList(): {}
 { <MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} Name() }
 
 void ExtraKeywordList(): {}
-{ (<POWER>|<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
+{ (<POWER>{this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
 
 void defaultarg(): {}
 { fpdef() [<EQUAL> test()] }
@@ -1161,9 +1177,9 @@ atom()
 void atom() #void: {}
 {
     LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   <RPAREN>  {this.findTokenAndAdd(")");} ) #tuple
-|   LOOKAHEAD(2) (  <LPAREN>  {addToLastIdNode("(", false);} insidetuporcall() <RPAREN>   {this.findTokenAndAdd(")");}  ) #tuple
+|   LOOKAHEAD(2) (  <LPAREN>  insidetuporcall() <RPAREN> ) #tuple {addToPeek(createSpecialStr("("), false); addToPeek(createSpecialStr(")"), true);}
 |   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] <RPAREN>  {this.findTokenAndAdd(")");}  )
-|   ( <LBRACKET> {this.addSpecialToken("[",STRATEGY_BEFORE_NEXT);} [listmaker()] <RBRACKET> {this.addSpecialToken("]");} ) #list
+|   ( <LBRACKET> [listmaker()] <RBRACKET>  ) #list {addToPeek("[", false); addToPeek("]", true);}
 |   ( <LBRACE> {this.addSpecialToken("{",STRATEGY_BEFORE_NEXT);} [dictmaker()] <RBRACE> {this.addSpecialToken("}");} ) #dictionary
 |   "`" SmartTestList() "`" #str_1op(1)
 |   Name() 
