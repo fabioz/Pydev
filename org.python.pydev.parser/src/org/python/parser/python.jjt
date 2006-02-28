@@ -24,6 +24,7 @@ import org.python.parser.ast.modType;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.python.parser.ast.Call;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.Yield;
@@ -36,6 +37,7 @@ public class PythonGrammar
     private SimpleNode prev;
     private SimpleNode lastIdNode;
     private static boolean DEBUG = false;
+    private final static boolean DEFAULT_SEARCH_ON_LAST = false;
 
     void jjtreeOpenNodeScope(Node n) {
 	    if(DEBUG){
@@ -50,6 +52,12 @@ public class PythonGrammar
     	addToPeek(t, after, null);
     }
     
+    void addToPeekCallFunc(Object t, boolean after){
+        Call n = (Call) jjtree.peekNode();
+        n.func.addSpecial(t, after);
+    }
+    
+
     void addToPeek(Object t, boolean after, Class class_){
 	    SimpleNode n = (SimpleNode)jjtree.peekNode();
 	    if(class_ != null){
@@ -143,30 +151,41 @@ public class PythonGrammar
     }
 
     private boolean findTokenAndAdd(String token) {
-    	return findTokenAndAdd(token, token);
+    	return findTokenAndAdd(token, token, DEFAULT_SEARCH_ON_LAST);
     }
     
 	private Object createSpecialStr(String token) {
 		return createSpecialStr(token, token);
 	}
+	private Object createSpecialStr(String token, boolean searchOnLast) {
+		return createSpecialStr(token, token, searchOnLast);
+	}
 	
 	private Object createSpecialStr(String token, String put) {
+		return createSpecialStr(token, put, DEFAULT_SEARCH_ON_LAST);
+	}
+	private Object createSpecialStr(String token, String put, boolean searchOnLast) {
 		Token t;
-		t = this.jj_lastpos;
+		if(searchOnLast){
+			t = jj_lastpos;
+		}else{
+			t = this.token;
+		}
 		while(t != null && t.image != null && t.image.equals(token) == false){
 			t = t.next;
 		}
 		if(t != null){
 			return new SpecialStr(put,t.beginLine, t.beginColumn);
 		}
-		return put;
+		//return put;
+	    throw new RuntimeException("Unable to find to create token:"+token);
 	}
 	
     /**
      * This is so that we add the String with the beginLine and beginColumn
      */
-	private boolean findTokenAndAdd(String token, String put) {
-		Object s = createSpecialStr(token, put);
+	private boolean findTokenAndAdd(String token, String put, boolean searchOnLast) {
+		Object s = createSpecialStr(token, put, searchOnLast);
 		token_source.specialTokens.add(new Object[]{s, STRATEGY_ADD_AFTER_PREV});
 		return s instanceof SpecialStr;
 	}
@@ -404,8 +423,8 @@ TOKEN_MGR_DECLS:
            i.e. lexer is in MAYBE_FORCE_NEWLINE_IF_EOF state
            System.out.println("Token:'"+t+"'");
            System.out.println("Special:'"+t.specialToken+"'");
-
         */
+
         int i = specialTokens.size();
         while(t.specialToken != null){
                 this.specialTokens.add(i, t.specialToken);
@@ -814,7 +833,10 @@ void begin_decorator(): {}
 
 //parameters: '(' [varargslist] ')'
 void parameters() #void: {}
-{ <LPAREN>  {this.addSpecialToken("(", STRATEGY_ADD_AFTER_PREV);}  [varargslist()] <RPAREN>  {this.findTokenAndAdd(")");} }
+{ <LPAREN>{this.findTokenAndAdd("(");}
+  [varargslist()] 
+  <RPAREN>{this.findTokenAndAdd(")");} 
+  }
 
 //varargslist: (fpdef ['=' test] ',')* ('*' NAME [',' ('**'|'*' '*') NAME] | ('**'|'*' '*') NAME) | fpdef ['=' test] (',' fpdef ['=' test])* [',']
 void varargslist() #void: {}
@@ -1002,11 +1024,11 @@ void if_stmt(): {}
 {
     begin_if_stmt() test() <COLON> {this.addSpecialToken(":");} suite()
          (begin_elif_stmt() test() <COLON> {this.addSpecialToken(":");} suite())* 
-	         [ <ELSE> <COLON> {this.findTokenAndAdd("else","else:");} suite()]
+	         [ <ELSE> <COLON> {this.findTokenAndAdd("else","else:",true);} suite()]
 }
 
-void begin_if_stmt(): {}
-{ <IF> {this.addToPeek("if ",false);}
+void begin_if_stmt(): {Object spStr;}
+{ {spStr = createSpecialStr("if","if ", false);} <IF> {this.addToPeek(spStr,false);} 
 }
 
 void begin_elif_stmt(): {}
@@ -1162,25 +1184,55 @@ void power() #void: {}
 { atomtrailer() (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
-void atomtrailer() #void: {}
+void atomtrailer() #void: {Object spStr;Object spStr2;}
 {
 atom() 
 (
-		LOOKAHEAD(2) <LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_AFTER_PREV);} <RPAREN>  {this.findTokenAndAdd(")");} #Call_Op(1)
-	|   LOOKAHEAD(2)(<LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_AFTER_PREV);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} ) #Call_Op(jjtree.nodeArity()+1) //with list comprehension: fabioz
-	|   {this.addSpecialToken("[",STRATEGY_ADD_AFTER_PREV);} <LBRACKET> subscriptlist() <RBRACKET>{this.addSpecialToken("]");}  #Index_Op(2)
-	|   <DOT> AnyName() #Dot_Op(2) 
+    LOOKAHEAD(2) (  
+	{spStr  = createSpecialStr("(", false);} <LPAREN>  
+	{spStr2 = createSpecialStr(")", false);} <RPAREN> 
+	)#Call_Op(1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
+
+|   LOOKAHEAD(2) (  
+	{spStr  = createSpecialStr("(", false);} <LPAREN>  
+	insidetuporcall() 
+	{spStr2 = createSpecialStr(")", false);} <RPAREN> 
+	) #Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
+
+
+|   {spStr = createSpecialStr("[", false);} <LBRACKET> 
+	subscriptlist()
+	{spStr2 = createSpecialStr("]", false);} <RBRACKET>  
+	#Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
+
+|   <DOT> AnyName() #Dot_Op(2) 
 )*
 }
 
 
 //atom: '(' [testlist] ')' | '[' [testlist] ']' | '{' [dictmaker] '}' | '`' testlist '`' | NAME | NUMBER | STRING+
-void atom() #void: {}
+void atom() #void: {Object spStr;Object spStr2;}
 {
-    LOOKAHEAD(2) (  <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   <RPAREN>  {this.findTokenAndAdd(")");} ) #tuple
-|   LOOKAHEAD(2) (  <LPAREN>  insidetuporcall() <RPAREN> ) #tuple {addToPeek(createSpecialStr("("), false); addToPeek(createSpecialStr(")"), true);}
+    LOOKAHEAD(2) (  
+	{spStr  = createSpecialStr("(", false);} <LPAREN>  
+	{spStr2 = createSpecialStr(")", false);} <RPAREN> 
+	) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
+
+|   LOOKAHEAD(2) (  
+	{spStr  = createSpecialStr("(", false);} <LPAREN>  
+	insidetuporcall() 
+	{spStr2 = createSpecialStr(")", false);} <RPAREN> 
+	) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
+
+
 |   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] <RPAREN>  {this.findTokenAndAdd(")");}  )
-|   ( <LBRACKET> [listmaker()] <RBRACKET>  ) #list {addToPeek("[", false); addToPeek("]", true);}
+
+|   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
+	  [listmaker()] 
+	  {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
+	  ) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
+	  
+	  
 |   ( <LBRACE> {this.addSpecialToken("{",STRATEGY_BEFORE_NEXT);} [dictmaker()] <RBRACE> {this.addSpecialToken("}");} ) #dictionary
 |   "`" SmartTestList() "`" #str_1op(1)
 |   Name() 
@@ -1214,7 +1266,7 @@ void subscript() #void: {}
 void slice() #void: {}
 { Colon() [test()] (Colon() [test()])? }
 
-void Colon(): {} {{this.addSpecialToken(":");} <COLON> }
+void Colon(): {} {{this.addSpecialToken(createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
 void Comma(): {} {{this.addSpecialToken(",");} <COMMA>}
 
 //exprlist: expr (',' expr)* [',']
@@ -1247,7 +1299,7 @@ void complistmaker() #void: {}
 
 //list_for: 'for' exprlist 'in' testlist list_iter
 void list_for(): {}
-{ <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() (<IF>  {this.addSpecialToken("if ");} test())* }
+{ <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() (<IF>  {this.addSpecialToken(" if ");} test())* }
 
 
 
@@ -1270,7 +1322,7 @@ void normalargs() #void: {}
 { argument() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> argument())* }
 
 void ExtraArgValueList(): {}
-{ <MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}test() }
+{ {this.addSpecialToken(createSpecialStr("*", false));} <MULTIPLY> test() }
 
 void ExtraKeywordValueList(): {}
 { (<POWER>{this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY>{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}) test() }

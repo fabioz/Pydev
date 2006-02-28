@@ -659,13 +659,18 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                     specialsAfter.clear();
                 }
             }
+            SimpleNode sliceRet;
+            if (k == 0) {
+                sliceRet = new Index(values[0]);
+            } else {
+                sliceRet = new Slice(values[0], values[1], values[2]);
+            }
+            //this may happen if we have no values
+            sliceRet.specialsBefore.addAll(specialsBefore);
+            sliceRet.specialsAfter.addAll(specialsAfter);
             specialsBefore.clear();
             specialsAfter.clear();
-            if (k == 0) {
-                return new Index(values[0]);
-            } else {
-                return new Slice(values[0], values[1], values[2]);
-            }
+            return sliceRet;
         case JJTSUBSCRIPTLIST:
             sliceType[] dims = new sliceType[arity];
             for (int i = arity - 1; i >= 0; i--) {

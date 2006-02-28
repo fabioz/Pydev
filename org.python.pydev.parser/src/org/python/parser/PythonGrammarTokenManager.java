@@ -4,6 +4,7 @@ import org.python.parser.ast.modType;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.python.parser.ast.Call;
 import org.python.parser.ast.Str;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.Yield;
@@ -54,8 +55,8 @@ public class PythonGrammarTokenManager implements PythonGrammarConstants
            i.e. lexer is in MAYBE_FORCE_NEWLINE_IF_EOF state
            System.out.println("Token:'"+t+"'");
            System.out.println("Special:'"+t.specialToken+"'");
-
         */
+
         int i = specialTokens.size();
         while(t.specialToken != null){
                 this.specialTokens.add(i, t.specialToken);

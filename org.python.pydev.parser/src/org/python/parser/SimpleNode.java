@@ -59,20 +59,22 @@ public class SimpleNode implements Node {
                 if(special instanceof commentType){
                     specialsAfter.add(special);
                 }else{
-                    specialsAfter.add(countStrings(), special);
+                    int addAt = countAfter(special);
+                    specialsAfter.add(addAt, special);
                 }
             }else{
                 if(special instanceof commentType){
                     specialsBefore.add(special);
                 }else{
-                    specialsBefore.add(countStringsBefore(), special);
+                    int addAt = countBefore(special);
+                    specialsBefore.add(addAt, special);
                 }
             }
 //            if(this instanceof DefaultArg){
 //                DefaultArg a = (DefaultArg) this;
 //                System.out.println("Adding:"+special+" after:"+after+" to:"+a.parameter);
 //            }else{
-//                System.out.println("Adding:"+special+" after:"+after+" to:"+this);
+//                System.out.println("Adding:"+special+" after:"+after+" to:"+this+" class:"+special.getClass());
 //            }
         }
     }
@@ -84,6 +86,62 @@ public class SimpleNode implements Node {
     private int countStringsBefore() {
         List l = specialsBefore;
         return doCount(l);
+    }
+    
+    private int countAfter(Object special) {
+        int[] lineCol = getLineCol(special);
+        if(lineCol == null){
+            return countStrings();
+        }
+        
+        return getIndex(lineCol, specialsAfter);
+    }
+    
+    private int countBefore(Object special) {
+        int[] lineCol = getLineCol(special);
+        if(lineCol == null){
+            return countStringsBefore();
+        }
+        
+        return getIndex(lineCol, specialsBefore);
+    }
+
+    /**
+     * @param lineCol
+     * @param l
+     * @return
+     */
+    private int getIndex(int[] lineCol, List l) {
+        int i=0;
+        for(Object o : l){
+            int[] existing = getLineCol(o);
+            if(existing == null){
+                //do nothing... (will be after it)
+                
+            }else if(existing[0] > lineCol[0]){
+                return i;
+                
+            } else if(existing[0] == lineCol[0]){
+                if(existing[1] > lineCol[1]){
+                    return i;
+                }
+                
+            }
+            i++;
+        }
+        return i;
+    }
+
+    private int[] getLineCol(Object o) {
+        if (o instanceof SpecialStr){
+            SpecialStr s = (SpecialStr) o;
+            return new int[]{s.beginLine, s.beginCol};
+        }
+        if (o instanceof commentType){
+            commentType c = (commentType) o;
+            return new int[]{c.beginLine, c.beginColumn};
+        }
+        return null;
     }
 
     /**
