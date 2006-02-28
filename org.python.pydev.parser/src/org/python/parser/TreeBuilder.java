@@ -14,6 +14,7 @@ import org.python.parser.ast.Break;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Compare;
+import org.python.parser.ast.Comprehension;
 import org.python.parser.ast.Continue;
 import org.python.parser.ast.Delete;
 import org.python.parser.ast.Dict;
@@ -44,6 +45,7 @@ import org.python.parser.ast.Repr;
 import org.python.parser.ast.Return;
 import org.python.parser.ast.Slice;
 import org.python.parser.ast.Str;
+import org.python.parser.ast.StrJoin;
 import org.python.parser.ast.Subscript;
 import org.python.parser.ast.Suite;
 import org.python.parser.ast.TryExcept;
@@ -613,10 +615,19 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTSTR_1OP:
             return new Repr(makeExpr());
         case JJTSTRJOIN:
-            Str foundStr2 = (Str) popNode();
-            String str2 = foundStr2.s;
-            String str1 = ((Str) popNode()).s;
-            return new Str(str1 + str2, Str.SingleDouble, true, true);
+            Str str2 = (Str) popNode();
+            Object o = popNode();
+            if(o instanceof Str){
+                Str str1 = (Str) o;
+                return new StrJoin(new exprType[]{str1, str2});
+            }else{
+                StrJoin strJ = (StrJoin) o;
+                exprType[] newStrs = new exprType[strJ.strs.length +1];
+                System.arraycopy(strJ.strs, 0, newStrs, 0, strJ.strs.length);
+                newStrs[strJ.strs.length] = str2;
+                strJ.strs = newStrs;
+                return strJ;
+            }
         case JJTLAMBDEF:
             test = makeExpr();
             arguments = makeArguments(arity - 1);
@@ -703,7 +714,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             iter = makeExpr();
             target = makeExpr();
             ctx.setStore(target);
-            return new comprehensionType(target, iter, ifs);
+            return new Comprehension(target, iter, ifs);
         case JJTIMPORTFROM:
             aliasType[] aliases = makeAliases(arity - 1);
             return new ImportFrom(makeName(NameTok.ImportModule), aliases);

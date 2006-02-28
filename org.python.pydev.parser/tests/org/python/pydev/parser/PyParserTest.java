@@ -23,7 +23,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testEndWithComment();
+            test.testOnDocBaseHTTPServer();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -165,6 +165,12 @@ public class PyParserTest extends PyParserTestBase{
     
     public void testOnCodecsMod() {
         String loc = TestDependent.PYTHON_LIB+"codecs.py";
+        String s = REF.getFileContents(new File(loc));
+        parseLegalDocStr(s);
+    }
+    
+    public void testOnDocBaseHTTPServer() {
+        String loc = TestDependent.PYTHON_LIB+"BaseHTTPServer.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }

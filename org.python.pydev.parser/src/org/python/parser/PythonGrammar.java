@@ -1256,6 +1256,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
       break;
     case ASSERT:
       assert_stmt();
+                   addToPeek("assert ", false);
       break;
     default:
       jj_la1[20] = jj_gen;
@@ -2038,7 +2039,7 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
   jjtreeOpenNodeScope(jjtn000);
     try {
       jj_consume_token(RAISE);
-           this.addSpecialToken("raise", STRATEGY_BEFORE_NEXT);
+           this.addSpecialToken("raise ", STRATEGY_BEFORE_NEXT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LPAREN:
       case LBRACE:
@@ -2067,12 +2068,12 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
         test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
-                                                                           this.addSpecialToken(",");
+                                                                            this.addSpecialToken(",");
           jj_consume_token(COMMA);
           test();
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case COMMA:
-                                                                                                                        this.addSpecialToken(",");
+                                                                                                                         this.addSpecialToken(",");
             jj_consume_token(COMMA);
             test();
             break;
@@ -2196,6 +2197,10 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case MULTIPLY:
         jj_consume_token(MULTIPLY);
+                 jjtree.closeNodeScope(jjtn000, true);
+                 jjtc000 = false;
+                 jjtreeCloseNodeScope(jjtn000);
+                this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);
         break;
       case OR_BOOL:
       case AND_BOOL:
@@ -3287,6 +3292,10 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LAMBDA:
         lambdef();
+              jjtree.closeNodeScope(jjtn000, jjtree.nodeArity() > 1);
+              jjtc000 = false;
+              jjtreeCloseNodeScope(jjtn000);
+             addToPeek("lambda ", false);
         break;
       case LPAREN:
       case LBRACE:
@@ -6716,6 +6725,11 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     return false;
   }
 
+  final private boolean jj_3R_74() {
+    if (jj_3R_127()) return true;
+    return false;
+  }
+
   final private boolean jj_3R_132() {
     if (jj_3R_148()) return true;
     return false;
@@ -6744,11 +6758,6 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
 
   final private boolean jj_3R_158() {
     if (jj_3R_55()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_74() {
-    if (jj_3R_127()) return true;
     return false;
   }
 

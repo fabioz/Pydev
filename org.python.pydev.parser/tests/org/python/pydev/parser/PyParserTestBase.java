@@ -15,6 +15,7 @@ public class PyParserTestBase extends TestCase {
     protected void setUp() throws Exception {
         PyParser.ACCEPT_NULL_EDITOR = true;
         PyParser.ENABLE_TRACING = true;
+        PyParser.TRY_REPARSE = false;
         ParseException.verboseExceptions = true;
         parser = new PyParser();
         super.setUp();
@@ -23,6 +24,7 @@ public class PyParserTestBase extends TestCase {
     protected void tearDown() throws Exception {
         PyParser.ACCEPT_NULL_EDITOR = false;
         PyParser.ENABLE_TRACING = false;
+        PyParser.TRY_REPARSE = true;
         ParseException.verboseExceptions = false;
         super.tearDown();
     }

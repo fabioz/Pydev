@@ -51,7 +51,12 @@ public class PyParser {
     /**
      * just for tests, when we don't have any editor
      */
-    public static boolean ACCEPT_NULL_EDITOR = false; 
+    public static boolean ACCEPT_NULL_EDITOR = false;
+    
+    /**
+     * To know whether we should try to do some reparse changing the input
+     */
+    public static boolean TRY_REPARSE = true; 
 
     /**
      * this is the document we should parse 
@@ -381,22 +386,25 @@ public class PyParser {
                 info.parseErr = parseErr;
             }
             
-            if (info.stillTryToChangeCurrentLine){
-                newRoot = tryReparseAgain(info, info.parseErr);
-            } else {
-                info.currentLine = -1;
-                info.document = new Document(info.initial);
-                newRoot = tryReparseAgain(info, info.parseErr);
+            if(TRY_REPARSE){
+                if (info.stillTryToChangeCurrentLine){
+                    newRoot = tryReparseAgain(info, info.parseErr);
+                } else {
+                    info.currentLine = -1;
+                    info.document = new Document(info.initial);
+                    newRoot = tryReparseAgain(info, info.parseErr);
+                }
             }
-            
             return new Object[]{newRoot, parseErr};
             
         
         } catch (TokenMgrError tokenErr) {
             SimpleNode newRoot = null;
-    
-            if (info.stillTryToChangeCurrentLine){
-                newRoot = tryReparseAgain(info, tokenErr);
+            
+            if(TRY_REPARSE){
+                if (info.stillTryToChangeCurrentLine){
+                    newRoot = tryReparseAgain(info, tokenErr);
+                }
             }
             
             return new Object[]{newRoot, tokenErr};

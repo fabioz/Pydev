@@ -866,7 +866,7 @@ void small_stmt() #void: {SimpleNode simpleNode;}
 |   import_stmt()
 |   global_stmt()
 |   exec_stmt()
-|   assert_stmt()
+|   assert_stmt() {addToPeek("assert ", false); }
 }
 
 //expr_stmt: testlist (augassign testlist | ('=' testlist)*)
@@ -940,7 +940,7 @@ void yield_stmt(): {}
 
 //raise_stmt: 'raise' [test [',' test [',' test]]]
 void raise_stmt(): {}
-{ <RAISE> {this.addSpecialToken("raise", STRATEGY_BEFORE_NEXT);} [test() [{this.addSpecialToken(",");} <COMMA> test() [{this.addSpecialToken(",");} <COMMA> test()]]] }
+{ <RAISE> {this.addSpecialToken("raise ", STRATEGY_BEFORE_NEXT);} [test() [{this.addSpecialToken(",");} <COMMA> test() [{this.addSpecialToken(",");} <COMMA> test()]]] }
 
 //import_stmt: 'import' dotted_name (',' dotted_name)* | 'from' dotted_name 'import' ('*' | NAME (',' NAME)*)
 void import_stmt() #void: {Import imp;}
@@ -959,7 +959,7 @@ void ImportFrom(): { String mod; String name; }
 {
     mod=dotted_name() <IMPORT> {this.addSpecialToken(" import ");}
 (
-    <MULTIPLY> //from xx import *
+    <MULTIPLY> {this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
     | (name=import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) //from xxx import a,b,c
     | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   name=import_as_name() ((<NEWLINE>)* {this.addSpecialToken(",");} <COMMA> (<NEWLINE>)* import_as_name())* 
     <RPAREN>  {this.findTokenAndAdd(")");}  //from xxx import (a,b,c)
@@ -1082,7 +1082,7 @@ void suite(): {}
 
 //test: and_test ('or' and_test)* | lambdef
 void test() #or_boolean(>1): {}
-{ lambdef() | and_test() (<OR_BOOL> and_test())* }
+{ lambdef() {addToPeek("lambda ", false); } | and_test() (<OR_BOOL> and_test())* }
 
 //and_test: not_test ('and' not_test)*
 void and_test() #and_boolean(>1): {}

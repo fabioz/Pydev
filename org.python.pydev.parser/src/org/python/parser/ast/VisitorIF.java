@@ -42,6 +42,7 @@ public interface VisitorIF {
     public Object visitRepr(Repr node) throws Exception;
     public Object visitNum(Num node) throws Exception;
     public Object visitStr(Str node) throws Exception;
+    public Object visitStrJoin(StrJoin node) throws Exception;
     public Object visitAttribute(Attribute node) throws Exception;
     public Object visitSubscript(Subscript node) throws Exception;
     public Object visitName(Name node) throws Exception;
@@ -51,4 +52,5 @@ public interface VisitorIF {
     public Object visitSlice(Slice node) throws Exception;
     public Object visitExtSlice(ExtSlice node) throws Exception;
     public Object visitIndex(Index node) throws Exception;
+    public Object visitComprehension(Comprehension node) throws Exception;
 }

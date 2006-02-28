@@ -243,6 +243,12 @@ public abstract class VisitorBase implements VisitorIF {
         return ret;
     }
 
+    public Object visitStrJoin(StrJoin node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
     public Object visitAttribute(Attribute node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
@@ -292,6 +298,12 @@ public abstract class VisitorBase implements VisitorIF {
     }
 
     public Object visitIndex(Index node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitComprehension(Comprehension node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;

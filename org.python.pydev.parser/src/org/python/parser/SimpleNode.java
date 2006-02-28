@@ -62,7 +62,11 @@ public class SimpleNode implements Node {
                     specialsAfter.add(countStrings(), special);
                 }
             }else{
-                specialsBefore.add(special);
+                if(special instanceof commentType){
+                    specialsBefore.add(special);
+                }else{
+                    specialsBefore.add(countStringsBefore(), special);
+                }
             }
 //            if(this instanceof DefaultArg){
 //                DefaultArg a = (DefaultArg) this;
@@ -74,8 +78,21 @@ public class SimpleNode implements Node {
     }
 
     private int countStrings() {
+        List l = specialsAfter;
+        return doCount(l);
+    }
+    private int countStringsBefore() {
+        List l = specialsBefore;
+        return doCount(l);
+    }
+
+    /**
+     * @param l
+     * @return
+     */
+    private int doCount(List l) {
         int i=0;
-        for(Object o : specialsAfter){
+        for(Object o : l){
             if (o instanceof String || o instanceof SpecialStr){
                 i++;
             }

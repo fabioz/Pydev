@@ -38,7 +38,7 @@ public class Subscript extends exprType implements expr_contextType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(43, ostream);
+        pickleThis(44, ostream);
         pickleThis(this.value, ostream);
         pickleThis(this.slice, ostream);
         pickleThis(this.ctx, ostream);

@@ -17,10 +17,10 @@ module Python
 	-- in the constructs, but some information was lost in this way).
 	suite = (stmt* body)
 
-	stmt = FunctionDef(NameTok name, arguments args, 
-                           stmt* body, decorators* decs)
+	stmt = FunctionDef(NameTok name, arguments args, stmt* body, decorators* decs)
 	      | ClassDef(NameTok name, expr* bases, stmt* body)
-	      | Return(expr? value) | Yield(expr value)
+	      | Return(expr? value) 
+	      | Yield(expr value)
 
 	      | Delete(expr* targets)
 	      | Assign(expr* targets, expr value)
@@ -74,6 +74,7 @@ module Python
 	     | Repr(expr value)
 	     | Num(object n) -- a number as a PyObject.
 	     | Str(string s, str_type type, bool unicode, bool raw) 
+	     | StrJoin(expr* strs) -- the inner expr should always be of type Str
 	     -- other literals? bools?
 
 	     -- the following expression can appear in assignment context
@@ -98,7 +99,7 @@ module Python
 
 	cmpop = Eq | NotEq | Lt | LtE | Gt | GtE | Is | IsNot | In | NotIn
 
-	comprehension = (expr target, expr iter, expr* ifs)
+	comprehension = Comprehension(expr target, expr iter, expr* ifs)
 
 	-- not sure what to call the first argument for raise and except
 	
