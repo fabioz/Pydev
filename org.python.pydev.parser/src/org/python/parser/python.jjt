@@ -1030,10 +1030,11 @@ void begin_else_stmt(): {}
 void for_stmt(): {}
 {   begin_for_stmt() exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() <COLON> {this.addSpecialToken(":");} suite()
 	[begin_for_else_stmt() suite()]
-}
+	
+} 
 
 void begin_for_stmt(): {}
-{ <FOR> {this.addSpecialToken("for ",STRATEGY_BEFORE_NEXT);} 
+{ <FOR> {this.addToPeek("for ",false);} 
 }
 
 void begin_for_else_stmt(): {}
