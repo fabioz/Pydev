@@ -394,7 +394,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTFUNCDEF:
             //get the decorators
             //and clear them for the next call (they always must be before a function def)
-            body = popSuite();
+            Suite s = (Suite) popNode();
+            body = s.body;
             
             argumentsType arguments = makeArguments(stack.nodeArity() - 2);
             NameTok nameTok = makeName(NameTok.FunctionName);
@@ -404,6 +405,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             if(decs.exp.length == 0){
                 addSpecialsBefore(decs, funcDef);
             }
+            addSpecialsAndClearOriginal(s, funcDef);
             return funcDef;
         case JJTDEFAULTARG:
             value = (arity == 1) ? null : makeExpr();
@@ -466,7 +468,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             for (int i = l - 1; i >= 0; i--) {
                 handlers[i] = (excepthandlerType) popNode();
             }
-            Suite s = (Suite)popNode();
+            s = (Suite)popNode();
             TryExcept tryExc = (TryExcept) popNode();
             tryExc.body = s.body;
             tryExc.handlers = handlers;
@@ -631,7 +633,13 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTLAMBDEF:
             test = makeExpr();
             arguments = makeArguments(arity - 1);
-            return new Lambda(arguments, test);
+            Lambda lambda = new Lambda(arguments, test);
+            if(arguments == null || arguments.args == null || arguments.args.length == 0){
+                lambda.specialsBefore.add("lambda");
+            }else{
+                lambda.specialsBefore.add("lambda ");
+            }
+            return lambda;
         case JJTELLIPSES:
             return new Ellipsis();
         case JJTSLICE:

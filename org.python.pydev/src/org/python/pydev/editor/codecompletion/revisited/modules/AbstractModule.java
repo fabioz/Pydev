@@ -172,10 +172,10 @@ public abstract class AbstractModule implements IModule {
 	                String encoding = PythonPathHelper.getPythonFileEncoding(f);
 	                if(encoding != null){
 	                	//some common errors...
-	                	if(encoding.trim().equals("latin-1")){
+	                	if(encoding.toLowerCase().trim().equals("latin-1")){
 	                		encoding = "latin1";
 	                	
-	                	}else if(encoding.equals("utf_8")){
+	                	}else if(encoding.toLowerCase().equals("utf_8")){
 	                		encoding = "utf-8";
 	                	}
 	                	

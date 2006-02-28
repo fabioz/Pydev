@@ -136,6 +136,11 @@ public class PythonGrammar
             if(curr.beginLine == next.beginLine){
                 return curr;
             }
+            //if it was found later than both, let's get the current
+            if(next.beginLine > prev.beginLine && next.beginLine > curr.beginLine){
+                return curr;
+            }
+
         }
         return prev;
         
@@ -1104,7 +1109,7 @@ void suite(): {}
 
 //test: and_test ('or' and_test)* | lambdef
 void test() #or_boolean(>1): {}
-{ lambdef() {addToPeek("lambda ", false); } | and_test() (<OR_BOOL> and_test())* }
+{ lambdef() | and_test() (<OR_BOOL> and_test())* }
 
 //and_test: not_test ('and' not_test)*
 void and_test() #and_boolean(>1): {}
@@ -1214,14 +1219,14 @@ atom()
 void atom() #void: {Object spStr;Object spStr2;}
 {
     LOOKAHEAD(2) (  
-	{spStr  = createSpecialStr("(", false);} <LPAREN>  
-	{spStr2 = createSpecialStr(")", false);} <RPAREN> 
+	  {spStr  = createSpecialStr("(", false);} <LPAREN>  
+	  {spStr2 = createSpecialStr(")", false);} <RPAREN> 
 	) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-	{spStr  = createSpecialStr("(", false);} <LPAREN>  
-	insidetuporcall() 
-	{spStr2 = createSpecialStr(")", false);} <RPAREN> 
+	  {spStr  = createSpecialStr("(", false);} <LPAREN>  
+	  insidetuporcall() 
+	  {spStr2 = createSpecialStr(")", false);} <RPAREN> 
 	) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 
@@ -1230,10 +1235,14 @@ void atom() #void: {Object spStr;Object spStr2;}
 |   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
 	  [listmaker()] 
 	  {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
-	  ) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
+	) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
 	  
 	  
-|   ( <LBRACE> {this.addSpecialToken("{",STRATEGY_BEFORE_NEXT);} [dictmaker()] <RBRACE> {this.addSpecialToken("}");} ) #dictionary
+|   ( {spStr  = createSpecialStr("{", false);}<LBRACE> 
+	  [dictmaker()] 
+	  {spStr2  = createSpecialStr("}", false);} <RBRACE> 
+	) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
+	
 |   "`" SmartTestList() "`" #str_1op(1)
 |   Name() 
 |   Number()
@@ -1247,8 +1256,9 @@ void insidetuporcall() #void: {}
 }
 
 //lambdef: 'lambda' [varargslist] ':' test
-void lambdef():{}
-{ <LAMBDA> [varargslist()] <COLON> {this.addSpecialToken(":");} test() }
+//we add the colon to the args if there is some argument... otherwise, we add it to the first token that appears on the test
+void lambdef():{boolean hasArgs=false;}
+{ <LAMBDA> [varargslist(){hasArgs=true;}] <COLON> {if(hasArgs)this.addSpecialToken(":");else this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} test() }
 
 //subscriptlist: subscript (',' subscript)* [',']
 void subscriptlist() #void: {}
@@ -1325,7 +1335,9 @@ void ExtraArgValueList(): {}
 { {this.addSpecialToken(createSpecialStr("*", false));} <MULTIPLY> test() }
 
 void ExtraKeywordValueList(): {}
-{ (<POWER>{this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY>{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}) test() }
+{ ({this.addSpecialToken(createSpecialStr("**", false));} <POWER>
+  |{this.addSpecialToken(createSpecialStr("**", false));} <MULTIPLY> <MULTIPLY>)
+  test() }
 
 
 //argument: [test '='] test     # Really [keyword '='] test
