@@ -69,7 +69,8 @@ import org.python.parser.ast.suiteType;
 public class TreeBuilder implements PythonGrammarTreeConstants {
     private JJTPythonGrammarState stack;
     CtxVisitor ctx;
-
+    private SimpleNode lastPop;
+    
     public TreeBuilder(JJTPythonGrammarState stack) {
         this.stack = stack;
         ctx = new CtxVisitor();
@@ -96,7 +97,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
     private exprType[] makeExprs(int l) {
         exprType[] exprs = new exprType[l];
         for (int i = l-1; i >= 0; i--) {
-            exprs[i] = makeExpr();
+            lastPop = (SimpleNode) stack.popNode();
+            exprs[i] = (exprType) lastPop;
         }
         return exprs;
     }
@@ -593,9 +595,17 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 }
                 return new ListComp(makeExpr(), generators);
             }
-            Tuple t = new Tuple(makeExprs(), Tuple.Load);
-            addSpecialsAndClearOriginal(n, t);
-            return t;
+            try {
+                exprType[] exp = makeExprs();
+                Tuple t = new Tuple(exp, Tuple.Load);
+                addSpecialsAndClearOriginal(n, t);
+                return t;
+            } catch (ClassCastException e) {
+                if(e.getMessage().equals(ExtraArgValue.class.getName())){
+                    throw new ParseException("Token: '*' is not expected inside tuples.", lastPop);
+                }
+                throw new ParseException("Syntax error while detecting tuple.", lastPop);
+            }
         case JJTLIST:
             if (stack.nodeArity() > 0 && peekNode() instanceof comprehensionType) {
                 comprehensionType[] generators = new comprehensionType[arity-1];

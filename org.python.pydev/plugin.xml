@@ -870,7 +870,12 @@
             id="org.python.pydev.ui.PythonPerspective"
             name="Pydev"/>
    </extension>
-	
+   <extension point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension targetID="org.python.pydev.ui.PythonPerspective">
+         <showInPart id="org.eclipse.ui.views.ResourceNavigator"/>
+      </perspectiveExtension>
+   </extension>
+
 	
 	
 </plugin>

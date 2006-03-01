@@ -16,6 +16,7 @@ Pydev:
 - Fixed error while organizing imports with the construct from xxx import (a,b\n c)
 - Fixed debugger error: it could halt when getting some variable representation if the variable translated in a string that was huge
 - Fixed error while debugging with conditional breakpoint (only evaluated the first time) -- Thank Achim Nierbeck for this fix
+- Show in view: Resource Navigator (Ctrl+Alt+W) now is always active on the pydev view
 
 Pydev Extensions:
 - Added open declaration 'quick dialog' - Ctrl+Shift+T: Enables the user to find any global (class, method or attribute) declaration,
