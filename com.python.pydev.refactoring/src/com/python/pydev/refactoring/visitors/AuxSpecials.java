@@ -4,12 +4,19 @@
 package com.python.pydev.refactoring.visitors;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.SpecialStr;
 import org.python.parser.ast.Assign;
+import org.python.parser.ast.Call;
 import org.python.parser.ast.commentType;
+import org.python.parser.ast.exprType;
 
 /**
  * This class is used as a helper to write special tokens, such as comments and other literals.
@@ -30,21 +37,56 @@ public class AuxSpecials {
     }
 
     public void writeSpecialsBefore(SimpleNode node) throws IOException {
+        writeSpecialsBefore(node, null, null, true);
+    }
+    public void writeSpecialsBefore(SimpleNode node, String[] ignore, String[] write, boolean writeComments) throws IOException {
         for (Object c : node.specialsBefore){
             if(c instanceof commentType){
-                state.write(((commentType)c).id);
-                state.writeNewLine();
-                state.writeIndent();
-                setStateWritten();
+                if(writeComments){
+                    state.write(((commentType)c).id);
+                    state.writeNewLine();
+                    state.writeIndent();
+                    setStateWritten();
+                }
             }else if(c instanceof String){
-                state.write(prefs.getReplacement((String)c));
+                String str = (String) c;
+                if(canWrite(str, ignore, write)){
+                    state.write(prefs.getReplacement(str));
+                }
             }else if(c instanceof SpecialStr){
             	SpecialStr s = (SpecialStr) c;
-            	state.write(prefs.getReplacement(s.str));
+            	String str = s.str;
+            	if(canWrite(str, ignore, write)){
+            	    state.write(prefs.getReplacement(str));
+                }
             }else{
                 throw new RuntimeException("Unexpected special: "+node);
             }
         }
+    }
+
+    private boolean canWrite(String str, String[] ignore, String[] write) {
+        if(ignore == null && write == null){
+            return true;
+        }
+        //ignore is a black-list
+        if(ignore != null){
+            for (String s : ignore) {
+                if(s.equals(str)){
+                    return false;
+                }
+            }
+        }
+        //write is a white-list
+        if(write != null){
+            for (String s : write) {
+                if(s.equals(str)){
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
     }
 
     private void setStateWritten() {
@@ -54,7 +96,7 @@ public class AuxSpecials {
     }
 
     public void writeSpecialsAfter(SimpleNode node) throws IOException {
-    	writeSpecialsAfter(node, false);
+    	writeSpecialsAfter(node, true);
     }
     public void writeSpecialsAfter(SimpleNode node, boolean isNewScope) throws IOException {
     	int line = node.beginLine;
@@ -67,7 +109,7 @@ public class AuxSpecials {
                 	if(isNewScope){
                 		state.writeIndent(1);
                 	}else{
-                		state.writeIndent(1);
+                		state.writeIndent();
                 	}
                 }
 				state.write(c.id);
@@ -104,7 +146,6 @@ public class AuxSpecials {
     public void writeCommentsAfter(SimpleNode node) throws IOException {
         for (Object o : node.specialsAfter){
             if(o instanceof commentType){
-                commentType c = (commentType) o;
                 state.write(((commentType)o).id);
                 state.writeNewLine();
                 state.writeIndent();
@@ -112,7 +153,7 @@ public class AuxSpecials {
             }
         }
     }
-    public boolean hasCommentsAfter(Assign node) {
+    public boolean hasCommentsAfter(SimpleNode node) {
         for (Object o : node.specialsAfter){
             if(o instanceof commentType){
                 return true;
@@ -141,6 +182,22 @@ public class AuxSpecials {
     public String toString() {
         return "AuxSpecials<auxState size="+auxState.size()+">";
     }
+
+    /**
+     * Moves all the comments after a node to the start of the other
+     * @param from comments will be removed from this node
+     * @param to comments will be added to this node
+     */
+    public void moveComments(SimpleNode from, SimpleNode to) {
+        for (Iterator iter = from.specialsAfter.iterator(); iter.hasNext();) {
+            Object o = iter.next();
+            if(o instanceof commentType){
+                to.addSpecial(o, false);
+                iter.remove();
+            }
+        }
+    }
+
 
 
     

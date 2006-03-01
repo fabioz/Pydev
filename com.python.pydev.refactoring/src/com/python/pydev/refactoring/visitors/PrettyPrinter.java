@@ -8,14 +8,17 @@ import java.io.IOException;
 
 import org.python.parser.SimpleNode;
 import org.python.parser.SpecialStr;
+import org.python.parser.ast.Assert;
 import org.python.parser.ast.Assign;
 import org.python.parser.ast.Attribute;
+import org.python.parser.ast.AugAssign;
 import org.python.parser.ast.BinOp;
 import org.python.parser.ast.BoolOp;
 import org.python.parser.ast.Break;
 import org.python.parser.ast.Call;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.Compare;
+import org.python.parser.ast.Comprehension;
 import org.python.parser.ast.Continue;
 import org.python.parser.ast.Delete;
 import org.python.parser.ast.Dict;
@@ -26,7 +29,9 @@ import org.python.parser.ast.If;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Index;
+import org.python.parser.ast.Lambda;
 import org.python.parser.ast.ListComp;
+import org.python.parser.ast.Module;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
 import org.python.parser.ast.Num;
@@ -36,6 +41,7 @@ import org.python.parser.ast.Raise;
 import org.python.parser.ast.Return;
 import org.python.parser.ast.Slice;
 import org.python.parser.ast.Str;
+import org.python.parser.ast.StrJoin;
 import org.python.parser.ast.Subscript;
 import org.python.parser.ast.TryExcept;
 import org.python.parser.ast.TryFinally;
@@ -45,6 +51,7 @@ import org.python.parser.ast.While;
 import org.python.parser.ast.Yield;
 import org.python.parser.ast.aliasType;
 import org.python.parser.ast.argumentsType;
+import org.python.parser.ast.commentType;
 import org.python.parser.ast.decoratorsType;
 import org.python.parser.ast.excepthandlerType;
 import org.python.parser.ast.exprType;
@@ -89,6 +96,17 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         auxComment = new AuxSpecials(state, prefs);
     }
     
+
+    @Override
+    public Object visitModule(Module node) throws Exception {
+        super.visitModule(node);
+        for(Object o :node.specialsAfter){
+            commentType t = (commentType) o;
+            String c = t.id.trim();
+            state.write(c);
+        }
+        return null;
+    }
     
     @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
@@ -104,19 +122,42 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         afterNode(node);
         return null;
     }
+    
+    @Override
+    public Object visitImport(Import node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        auxComment.startRecord();
+        
+        for (aliasType name : node.names){
+            auxComment.writeSpecialsBefore(name);
+            name.accept(this);
+            auxComment.writeSpecialsAfter(name);
+        }
+        afterNode(node);
+        return null;
+    }
 
     @Override
     public Object visitAssign(Assign node) throws Exception {
     	state.pushInStmt(node);
         auxComment.writeSpecialsBefore(node);
-        for (SimpleNode target : node.targets) {
+        for (int i = 0; i < node.targets.length; i++) {
+            exprType target = node.targets[i];
+            if(i == node.targets.length -1){
+                //last one: cannot have comments, if it has, we will have to move them to the next node.
+                auxComment.moveComments(target, node.value);
+            }
+            if(i >= 1){ //more than one assign
+                state.write(" = ");
+            }
             target.accept(this);
         }
         state.write(" = ");
+        
         auxComment.startRecord();
         node.value.accept(this);
-        checkEndRecord();
 
+        checkEndRecord();
         if(auxComment.hasCommentsAfter(node)){
             auxComment.startRecord();
             auxComment.writeSpecialsAfter(node);
@@ -128,16 +169,13 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return null;
     }
     
-    
-    @Override
-    public Object visitBinOp(BinOp node) throws Exception {
+    public void visitBeforeLeft(SimpleNode node) throws IOException{
         auxComment.writeSpecialsBefore(node);
         state.pushInStmt(node);
-        node.left.accept(this);
-        state.write(operatorMapping[node.op]);
-        node.right.accept(this);
+    }
+    public void visitAfterRight(SimpleNode node) throws IOException{
         state.popInStmt();
-
+        
         if(!state.inStmt()){
             auxComment.startRecord();
         }
@@ -146,21 +184,35 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         if(!state.inStmt()){
             checkEndRecord();
         }
+        
+    }
+    
+    @Override
+    public Object visitAugAssign(AugAssign node) throws Exception {
+        visitBeforeLeft(node);
+        node.target.accept(this);
+        state.write(augOperatorMapping[node.op]);
+        node.value.accept(this);
+        visitAfterRight(node);
+        return null;
+    }
+    
+    @Override
+    public Object visitBinOp(BinOp node) throws Exception {
+        visitBeforeLeft(node);
+        node.left.accept(this);
+        state.write(operatorMapping[node.op]);
+        node.right.accept(this);
+        visitAfterRight(node);
         return null;
     }
 
     @Override
     public Object visitUnaryOp(UnaryOp node) throws Exception {
-        auxComment.writeSpecialsBefore(node);
-        state.pushInStmt(node);
+        visitBeforeLeft(node);
         state.write(unaryopOperatorMapping[node.op]);
         node.operand.accept(this);
-        
-        auxComment.writeSpecialsAfter(node);
-        state.popInStmt();
-        if(!state.inStmt()){
-            checkEndRecord();
-        }
+        visitAfterRight(node);
         return null;
     }
     
@@ -172,15 +224,19 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         node.values[0].accept(this);
         state.write(boolOperatorMapping[node.op]);
         node.values[1].accept(this);
-        
-        auxComment.writeSpecialsAfter(node);
-        state.popInStmt();
-        if(!state.inStmt()){
-            checkEndRecord();
-        }
+        visitAfterRight(node);
         return null;
     }
     
+    @Override
+    public Object visitSubscript(Subscript node) throws Exception {
+        node.value.accept(this);
+        
+        visitBeforeLeft(node);
+        node.slice.accept(this);
+        visitAfterRight(node);
+        return null;
+    }
 
     @Override
     public Object visitCompare(Compare node) throws Exception {
@@ -199,6 +255,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     
     @Override
     public Object visitDict(Dict node) throws Exception {
+        state.indent();
         auxComment.writeSpecialsBefore(node);
         exprType[] keys = node.keys;
         exprType[] values = node.values;
@@ -210,12 +267,18 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         }
         auxComment.endRecord();
         auxComment.writeSpecialsAfter(node);
+        dedent();
         return null;
     }
     
     @Override
+    public Object visitLambda(Lambda node) throws Exception {
+        return visitGeneric(node, "visitLambda", false);
+    }
+    
+    @Override
     public Object visitList(org.python.parser.ast.List node) throws Exception{
-        return visitGeneric(node, "visitList", false);
+        return visitGeneric(node, "visitList", false, null, true);
     }
 
     @Override
@@ -228,6 +291,11 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     	return visitGeneric(node, "visitListComp", false);
     }
 
+    @Override
+    public Object visitComprehension(Comprehension node) throws Exception {
+        return visitGeneric(node, "visitComprehension", false);
+    }
+    
     @Override
     public Object visitWhile(While node) throws Exception {
         auxComment.writeSpecialsBefore(node);
@@ -297,12 +365,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
 
     @Override
     public Object visitTuple(Tuple node) throws Exception {
-        auxComment.writeSpecialsBefore(node);
-        //start a new record because if there is an outer record it will not want to know about that...
-        auxComment.startRecord();
-        super.visitTuple(node);
-        auxComment.endRecord();
-        auxComment.writeSpecialsAfter(node);
+        visitGeneric(node, "visitTuple", false, null, true);
         return null;
     }
 
@@ -311,10 +374,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     
     @Override
     public Object visitRaise(Raise node) throws Exception {
-        auxComment.writeSpecialsBefore(node);
-        auxComment.startRecord();
-        super.visitRaise(node);
-        afterNode(node);
+        visitGeneric(node, "visitRaise", true);
         return null;
     }
 
@@ -400,15 +460,8 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     }
     
     @Override
-    public Object visitSubscript(Subscript node) throws Exception {
-        //the slice could be a Slice, an Index
-        return visitGeneric(node, "visitSubscript", false);
-    }
-    
-    
-    @Override
     public Object visitReturn(Return node) throws Exception {
-    	return visitGeneric(node, "visitReturn");
+    	return visitGeneric(node, "visitReturn", true);
     }
 
     @Override
@@ -433,10 +486,11 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     public Object visitCall(Call node) throws Exception {
         
         //make the visit
+        auxComment.writeSpecialsBefore(node, new String[]{"("}, null, false);
         state.pushInStmt(node);
         node.func.accept(this);
         state.popInStmt();
-        auxComment.writeSpecialsBefore(node);
+        auxComment.writeSpecialsBefore(node, null, new String[]{"("}, true);
         exprType[] args = node.args;
         state.indent();
         for (int i = 0; i < args.length; i++) {
@@ -469,11 +523,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             kwargs.accept(this);
         }
         state.popInStmt();
-        auxComment.writeCommentsAfter(node);
-        if(state.lastIsIndent()){ //we must indent one more level (because we had the dedent)
-            state.writeIndent(1);
-        }
-        auxComment.writeStringsAfter(node);
+        auxComment.writeSpecialsAfter(node);
         if(!state.inStmt()){
             fixNewStatementCondition();
         }
@@ -525,6 +575,16 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return null;
     }
 
+    @Override
+    public Object visitStrJoin(StrJoin node) throws Exception {
+        return super.visitGeneric(node, "visitStrJoin", false);
+    }
+    
+    @Override
+    public Object visitAssert(Assert node) throws Exception {
+        return super.visitGeneric(node, "visitAssert", true);
+    }
+    
 	@Override
     public Object visitStr(Str node) throws Exception {
     	auxComment.writeSpecialsBefore(node);
@@ -597,14 +657,10 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         }
         fixNewStatementCondition();
         auxComment.writeSpecialsBefore(node);
-        auxComment.writeSpecialsBefore(node.name);
         state.write("def ");
         
-        
-        NameTok name = (NameTok) node.name;
-        state.write(name.id);
-        auxComment.writeSpecialsAfter(node);
-        auxComment.writeSpecialsAfter(node.name);
+        node.name.accept(this);
+        auxComment.writeStringsAfter(node);
         state.indent();
         
         {
@@ -625,6 +681,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         
             dedent();
         }
+        auxComment.writeCommentsAfter(node);
         return null;
     }
 
@@ -673,11 +730,6 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return visitGeneric(node, "visitPass");
     }
     
-    @Override
-    public Object visitImport(Import node) throws Exception {
-        return visitGeneric(node, "visitImport");
-    }
-
     @Override
     public Object visitNum(Num node) throws Exception {
         return visitGeneric(node, "visitNum", false, node.n.toString());

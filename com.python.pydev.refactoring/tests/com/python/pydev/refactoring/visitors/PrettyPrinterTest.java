@@ -9,15 +9,15 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.Module;
 import org.python.pydev.parser.PyParserTestBase;
 
-public class PrettyPrinterTest  extends PyParserTestBase{
+public class PrettyPrinterTest extends PyParserTestBase{
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     public static void main(String[] args) {
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testExec();
+            test.testKwArgs2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -25,40 +25,251 @@ public class PrettyPrinterTest  extends PyParserTestBase{
             e.printStackTrace();
         }
     }
-
-    private PrettyPrinterPrefs prefs;
-    
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        prefs = new PrettyPrinterPrefs("\n");
-    }
-
-    /**
-     * @param s
-     * @throws Exception
-     * @throws IOException
-     */
-    protected void checkPrettyPrintEqual(String s) throws Exception, IOException {
-        SimpleNode node = parseLegalDocStr(s);
-        Module m = (Module) node;
-        
-        final WriterEraser stringWriter = new WriterEraser();
-		PrettyPrinter printer = new PrettyPrinter(prefs, stringWriter);
-        m.accept(printer);
-        if(DEBUG){
-            System.out.println("\n\nResult:\n");
-            System.out.println("'"+stringWriter.getBuffer().toString()+"'");
-        }
-        assertEquals(s, stringWriter.getBuffer().toString());
-        assertTrue(! printer.state.inStmt());
-        assertTrue("Should not be in record:"+printer.auxComment, ! printer.auxComment.inRecord());
-    }
     
     public void testImport() throws Exception {
         String s = ""+
         "import foo\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testKwArgs2() throws Exception {
+        String s = ""+
+        "HTTPS(host,None,**(x509 or {}))\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testImport5() throws Exception {
+        String s = ""+
+        "import foo,bar\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testLambda3() throws Exception {
+        String s = ""+
+        "lambda a:(1 + 2)\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    
+    public void testLambda2() throws Exception {
+        String s = ""+
+        "a = lambda:None\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testDict3() throws Exception {
+        String s = ""+
+        "d = {#comm1\n" +
+        "    1:2}\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testFuncAndComment2() throws Exception {
+        String s = ""+
+        "class Foo:\n" +
+        "    def func1(self):\n" +
+        "        pass\n" +
+        "    # ------ Head elements\n" +
+        "    def func2(self):\n" +
+        "        pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testFuncAndComment() throws Exception {
+        String s = ""+
+        "class Foo:\n" +
+        "    def func1(self):pass\n" +
+        "    # ------ Head elements\n" +
+        "    def func2(self):pass\n" +
+        "";
+        
+        String expected = ""+
+        "class Foo:\n" +
+        "    def func1(self):\n" +
+        "        pass\n" +
+        "    # ------ Head elements\n" +
+        "    def func2(self):\n" +
+        "        pass\n" +
+        "";
+        checkPrettyPrintEqual(s, expected);
+    }
+    
+    public void testSubscript4() throws Exception {
+        String s = ""+
+        "print a[b:c()]\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testAssign3() throws Exception {
+        String s = ""+
+        "a = b = 0\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testComment1() throws Exception {
+        String s = ""+
+        "del a[-1]#comment\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testArgs() throws Exception {
+        String s = ""+
+        "def func():\n" +
+        "    return a(*b)\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testArgs2() throws Exception {
+        String s = ""+
+        "def func():\n" +
+        "    return a(*(b))\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testListComp4() throws Exception {
+        String s = ""+
+        "print [e for e in group if e[0] in a]\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testReturn3() throws Exception {
+        String s = ""+
+        "if a:\n" +
+        "    return foo(other)#comment\n" +
+        "shouldround = 1\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+
+    public void testAssert() throws Exception {
+        String s = ""+
+        "assert a not in b\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testStr2() throws Exception {
+        String s = ""+
+        "r\"foo\"\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testStr() throws Exception {
+        String s = ""+
+        "a = (r\"a\"#comm1\n" +
+        "    r'\"b\"'#comm2\n" +
+        "    )\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testAdd() throws Exception {
+        String s = ""+
+        "m += 'a'\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testWildImport() throws Exception {
+        String s = ""+
+        "from a import *\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testRaise() throws Exception {
+        String s = ""+
+            "try:\n" +
+            "    pass\n" +
+            "except:\n" +
+            "    raise SystemError,'err'\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testLambda() throws Exception {
+        String s = ""+
+        "print lambda n:n\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testListComp3() throws Exception {
+        String s = ""+
+        "print [s2 for s1 in b for s2 in a]\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testList2() throws Exception {
+        String s = ""+
+        "print [(a,b)]\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testList3() throws Exception {
+        String s = ""+
+        "all = [#comm1\n" +
+        "    'encode','decode',]\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testListComp2() throws Exception {
+        String s = ""+
+        "for (raw,cooked) in foo:\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testKwArgs() throws Exception {
+        String s = ""+
+        "def a(**kwargs):\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    
+    public void testTryExcept9() throws Exception {
+        String s = ""+
+        "def run():\n" +
+        "    try:\n" +
+        "        exec cmd\n" +
+        "    except BdbQuit:\n" +
+        "        pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testSubscript3() throws Exception {
+        String s = ""+
+        "for a in b[:]:\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testEndComments() throws Exception {
+        String s = ""+
+        "import foo\n" +
+        "#end" +
         "";
         checkPrettyPrintEqual(s);
     }
@@ -223,7 +434,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "    pass\n" +
         "except select.error,err:\n" +
         "    if False:\n" +
-        "        raise\n" +
+        "        raise \n" +
         "    else:\n" +
         "        return \n" +
         "";
@@ -313,8 +524,8 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         String s = ""+
         "for a in b:\n" +
         "    if True:\n" +
-        "        #comment\n" +
-        "        break#comment\n" +
+        "        #comment1\n" +
+        "        break#comment2\n" +
         "";
         checkPrettyPrintEqual(s);
     }
@@ -401,7 +612,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "try:\n" +
         "    print 'foo'\n" +
         "except:\n" +
-        "    raise\n" +
+        "    raise \n" +
         "";
         checkPrettyPrintEqual(s);
     }
@@ -483,7 +694,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testCall2() throws Exception {
         String s = ""+
         "callIt(1#param1\n" +
-        "    )\n" +
+        ")\n" +
         "";
         checkPrettyPrintEqual(s);
     }
@@ -509,7 +720,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         "m1(a,#d1\n" +
         "    b,#d2\n" +
         "    c#d3\n" +
-        "    )\n" +
+        ")\n" +
         "";
         checkPrettyPrintEqual(s);
     }
@@ -536,7 +747,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testListDict() throws Exception {
         String s = ""+
         "a = [1,#this is 1\n" +
-        "2]\n" +
+        "    2]\n" +
         "a = {1:'foo'}\n" +
         "";
         checkPrettyPrintEqual(s);
@@ -546,7 +757,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testTupleDict() throws Exception {
         String s = ""+
         "a = (1,#this is 1\n" +
-        "2)\n" +
+        "    2)\n" +
         "a = {1:'foo'}\n" +
         "";
         checkPrettyPrintEqual(s);
@@ -555,7 +766,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     public void testDict2() throws Exception {
         String s = ""+
         "a = {1:2,#this is 1\n" +
-        "2:2}\n" +
+        "    2:2}\n" +
         "a = {1:'foo'}\n" +
         "";
         checkPrettyPrintEqual(s);
@@ -607,7 +818,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     	checkPrettyPrintEqual(s);
     }
     
-    public void testYield3() throws Exception {
+    public void testFuncComment() throws Exception {
     	String s = ""+
     	"def foo():\n" +
     	"    #comment0\n" +
@@ -628,7 +839,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
     	String s = ""+
 		"def test():#comm1\n" +
 		"    print >> (a,#comm2\n" +
-		"    'foo')#comm3\n" +
+		"        'foo')#comm3\n" +
     	"";
     	checkPrettyPrintEqual(s);
     }
@@ -769,7 +980,7 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         String s = ""+
         "if a:\n"+
         "    a = (a,b,#comment\n" +
-        "    c)\n";
+        "        c)\n";
         checkPrettyPrintEqual(s);
     }
     
@@ -922,5 +1133,56 @@ public class PrettyPrinterTest  extends PyParserTestBase{
         
     }
 
+
+    private PrettyPrinterPrefs prefs;
+    
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        prefs = new PrettyPrinterPrefs("\n");
+    }
+
+    public void checkPrettyPrintEqual(String s, String expected) throws Exception, IOException {
+        checkPrettyPrintEqual(s, prefs, expected);
+        
+    }
+    public void checkPrettyPrintEqual(String s) throws Exception, IOException {
+        checkPrettyPrintEqual(s, s);
+    }
+    
+    /**
+     * @param s
+     * @throws Exception
+     * @throws IOException
+     */
+    public static void checkPrettyPrintEqual(String s, PrettyPrinterPrefs prefs, String expected) throws Exception, IOException {
+        SimpleNode node = parseLegalDocStr(s);
+        final WriterEraser stringWriter = makePrint(prefs, node);
+
+        assertEquals(expected, stringWriter.getBuffer().toString());
+    }
+
+    /**
+     * @param prefs
+     * @param node
+     * @return
+     * @throws Exception
+     */
+    public static WriterEraser makePrint(PrettyPrinterPrefs prefs, SimpleNode node) throws Exception {
+        Module m = (Module) node;
+        
+        final WriterEraser stringWriter = new WriterEraser();
+        PrettyPrinter printer = new PrettyPrinter(prefs, stringWriter);
+        m.accept(printer);
+        if(DEBUG){
+            System.out.println("\n\nResult:\n");
+            System.out.println("'"+stringWriter.getBuffer().toString()+"'");
+        }
+        assertTrue(! printer.state.inStmt());
+        assertTrue("Should not be in record:"+printer.auxComment, ! printer.auxComment.inRecord());
+        return stringWriter;
+    }
+    
 
 }

@@ -9,20 +9,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.Assert;
 import org.python.parser.ast.BoolOp;
 import org.python.parser.ast.Break;
+import org.python.parser.ast.Comprehension;
 import org.python.parser.ast.Continue;
 import org.python.parser.ast.Delete;
 import org.python.parser.ast.Exec;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.Index;
+import org.python.parser.ast.Lambda;
 import org.python.parser.ast.List;
 import org.python.parser.ast.ListComp;
 import org.python.parser.ast.Pass;
 import org.python.parser.ast.Print;
+import org.python.parser.ast.Raise;
 import org.python.parser.ast.Return;
 import org.python.parser.ast.Slice;
+import org.python.parser.ast.StrJoin;
 import org.python.parser.ast.Subscript;
+import org.python.parser.ast.Tuple;
 import org.python.parser.ast.VisitorBase;
 import org.python.parser.ast.Yield;
 import org.python.pydev.core.REF;
@@ -82,6 +88,22 @@ public class PrettyPrinterUtils extends VisitorBase{
             " & ",
             " // ",
         };
+    
+    public static final String[] augOperatorMapping = new String[] {
+        "<undef>",
+        " += ",
+        " -= ",
+        " *= ",
+        " /= ",
+        " %= ",
+        " **= ",
+        " <<= ",
+        " >>= ",
+        " |= ",
+        " ^= ",
+        " &= ",
+        " //= ",
+    };
     public static final String[] cmpop = new String[] {
             "<undef>",
             " == ",
@@ -167,6 +189,12 @@ public class PrettyPrinterUtils extends VisitorBase{
         addMethod("visitDelete" , "superDelete");
         addMethod("visitListComp" , "superListComp");
         addMethod("visitExec" , "superExec");
+        addMethod("visitTuple" , "superTuple");
+        addMethod("visitLambda" , "superLambda");
+        addMethod("visitComprehension" , "superComprehension");
+        addMethod("visitRaise" , "superRaise");
+        addMethod("visitStrJoin" , "superStrJoin");
+        addMethod("visitAssert" , "superAssert");
     }
     
     
@@ -179,6 +207,13 @@ public class PrettyPrinterUtils extends VisitorBase{
     }
     
     public Object visitGeneric(SimpleNode node, String superMethod, boolean requiresNewLine, String strToWrite) throws IOException{
+        return visitGeneric(node, superMethod, requiresNewLine, strToWrite, false);
+    }
+    
+    public Object visitGeneric(SimpleNode node, String superMethod, boolean requiresNewLine, String strToWrite, boolean needIndent) throws IOException{
+        if(needIndent){
+            state.indent();
+        }
         genericBefore(node, requiresNewLine);
         if(strToWrite != null){
             state.write(strToWrite);
@@ -186,6 +221,9 @@ public class PrettyPrinterUtils extends VisitorBase{
             REF.invoke(this, superMethods.get(superMethod), node);
         }
         genericAfter(node);
+        if(needIndent){
+            dedent();
+        }
         return null;
     }
 
@@ -260,5 +298,29 @@ public class PrettyPrinterUtils extends VisitorBase{
     
     public Object superExec(Exec node) throws Exception {
         return super.visitExec(node);
+    }
+    
+    public Object superTuple(Tuple node) throws Exception {
+        return super.visitTuple(node);
+    }
+    
+    public Object superLambda(Lambda node) throws Exception {
+        return super.visitLambda(node);
+    }
+    
+    public Object superComprehension(Comprehension node) throws Exception {
+        return super.visitComprehension(node);
+    }
+    
+    public Object superRaise(Raise node) throws Exception {
+        return super.visitRaise(node);
+    }
+    
+    public Object superStrJoin(StrJoin node) throws Exception {
+        return super.visitStrJoin(node);
+    }
+    
+    public Object superAssert(Assert node) throws Exception {
+        return super.visitAssert(node);
     }
 }
