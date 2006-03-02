@@ -330,6 +330,7 @@ public class PyParser {
         public String initial = null;
         public List linesChanged = new ArrayList();
         public ParseException parseErr;
+        public boolean tryReparse = TRY_REPARSE;
         
         public ParserInfo(IDocument document, boolean changedCurrentLine, IPythonNature nature){
             this.document = document;
@@ -386,7 +387,7 @@ public class PyParser {
                 info.parseErr = parseErr;
             }
             
-            if(TRY_REPARSE){
+            if(info.tryReparse){
                 if (info.stillTryToChangeCurrentLine){
                     newRoot = tryReparseAgain(info, info.parseErr);
                 } else {
@@ -401,7 +402,7 @@ public class PyParser {
         } catch (TokenMgrError tokenErr) {
             SimpleNode newRoot = null;
             
-            if(TRY_REPARSE){
+            if(info.tryReparse){
                 if (info.stillTryToChangeCurrentLine){
                     newRoot = tryReparseAgain(info, tokenErr);
                 }

@@ -94,7 +94,14 @@ public class Scope {
         return true;
     }
     
-    public IToken[] getLocalTokens(int line, int col){
+    public IToken[] getAllLocalTokens(){
+        return getLocalTokens(Integer.MAX_VALUE, Integer.MAX_VALUE);
+    }
+    
+    /**
+     * @param endLine tokens will only be recognized if its beginLine is higher than this parameter.
+     */
+    public IToken[] getLocalTokens(int endLine, int col){
         Set<SourceToken> comps = new HashSet<SourceToken>();
         
         for (Iterator iter = this.scope.iterator(); iter.hasNext();) {
@@ -117,7 +124,7 @@ public class Scope {
                             
                             //if it is found here, it is a local type
                             tok.type = PyCodeCompletion.TYPE_PARAM;
-                            if(tok.getAst().beginLine <= line){
+                            if(tok.getAst().beginLine <= endLine){
                                 comps.add(tok);
                             }
                             

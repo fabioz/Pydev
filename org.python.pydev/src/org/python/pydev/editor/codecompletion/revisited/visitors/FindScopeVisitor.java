@@ -11,6 +11,7 @@ import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.If;
+import org.python.parser.ast.Module;
 
 /**
  * @author Fabio Zadrozny
@@ -58,12 +59,12 @@ public class FindScopeVisitor extends AbstractVisitor {
      */
     protected Object unhandled_node(SimpleNode node) throws Exception {
         //the line passed in starts at 1 and the lines for the visitor nodes start at 0
-        if(! found){
+        if(! found && !(node instanceof Module)){
 	        if(line <= node.beginLine ){
 	            //scope is locked at this time.
 	            found = true;
 	            int original = scope.ifMainLine;
-	            scope = new Scope(this.stackScope);
+	            scope = new Scope((Stack<SimpleNode>) this.stackScope.clone());
 	            scope.ifMainLine = original;
 	        }
         }else{

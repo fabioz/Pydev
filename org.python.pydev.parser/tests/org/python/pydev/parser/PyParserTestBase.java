@@ -38,12 +38,16 @@ public class PyParserTestBase extends TestCase {
 	    return parseLegalDoc(doc, additionalErrInfo, new PyParser());
 	}
 
+	protected SimpleNode parseLegalDoc(IDocument doc) {
+        return parseLegalDoc(doc);
+    }
+    
 	protected SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo) {
 	    return parseLegalDoc(doc, additionalErrInfo, parser);
     }
 	/**
-	 * @param additionalErrInfo 
-	 * @param parser
+	 * @param additionalErrInfo can be used to add additional errors to the fail message if the doc is not parseable
+	 * @param parser the parser to be used to do the parsing.
 	 */
 	protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
 	    parser.setDocument(doc, false);

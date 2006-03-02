@@ -94,4 +94,9 @@ public interface IToken extends Serializable, Comparable{
      * e.g.: if it was import from coilib.test import Exceptions, it would return coilib.test
      */
 	public String getOriginalWithoutRep();
+    
+    /**
+     * @return
+     */
+    public int[] getLineColEnd();
 }

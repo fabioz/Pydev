@@ -7,11 +7,13 @@ import java.io.File;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.parser.SimpleNode;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
+import org.python.pydev.parser.PyParser;
 
 public class RefactoringRequest{
 	public File file;
@@ -21,6 +23,7 @@ public class RefactoringRequest{
 	public Operation operation;
 	public IPythonNature nature;
 	public PyEdit pyEdit;
+    private SimpleNode ast;
 
 	public RefactoringRequest() {
 		
@@ -75,6 +78,19 @@ public class RefactoringRequest{
 	public int getOffset() {
 		return ps.getAbsoluteCursorOffset();
 	}
+
+    public SimpleNode getAST() {
+        if(this.ast == null){
+            PyParser.ParserInfo info = new PyParser.ParserInfo(doc, true, nature);
+            info.tryReparse = false;
+            Object[] parse = PyParser.reparseDocument(info);
+            if(parse[0] == null){
+                throw new RuntimeException("Unable to get the ast.");
+            }
+            this.ast = (SimpleNode) parse[0];
+        }
+        return this.ast;
+    }
 
 
 }
