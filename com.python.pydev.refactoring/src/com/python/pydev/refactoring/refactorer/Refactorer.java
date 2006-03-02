@@ -47,7 +47,7 @@ public class Refactorer extends AbstractPyRefactoring{
 		//1. we have to know what we're looking for (activationToken)
 		
 		List<ItemPointer> pointers = new ArrayList<ItemPointer>();
-		String[] tokenAndQual = PyCodeCompletion.getActivationTokenAndQual(request.doc, request.ps.getAbsoluteCursorOffset(), true);
+		String[] tokenAndQual = request.getTokenAndQual();
 		
 		String modName = null;
 		
@@ -72,9 +72,7 @@ public class Refactorer extends AbstractPyRefactoring{
 		if(modName == null){
 			return new ItemPointer[0];
 		}
-		IModule mod = AbstractModule.createModuleFromDoc(
-										   modName, request.file, request.doc, 
-										   request.nature, request.getBeginLine());
+		IModule mod = request.getModule();
 		
 		
 		String tok = tokenAndQual[0] + tokenAndQual[1];

@@ -69,6 +69,10 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     	return name;
     }
 
+	/**
+	 * @param file the file we want to get info on.
+	 * @return a tuple with the pythonnature to be used and the name of the module represented by the file in that scenario.
+	 */
     public static Tuple<SystemPythonNature, String> getInfoForFile(File file){
         String modName = null;
         IInterpreterManager pythonInterpreterManager = org.python.pydev.plugin.PydevPlugin.getPythonInterpreterManager();

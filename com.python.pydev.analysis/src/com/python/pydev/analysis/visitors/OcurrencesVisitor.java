@@ -62,17 +62,17 @@ public class OcurrencesVisitor extends VisitorBase{
     /**
      * nature is needed for imports
      */
-    private PythonNature nature;
+    protected PythonNature nature;
     
     /**
      * this is the name of the module we are visiting
      */
-    private String moduleName;
+    protected String moduleName;
     
     /**
      * manage the scopes...
      */
-    private Scope scope;
+    protected Scope scope;
     
     /**
      * this should get the tokens that are probably not used, but may be if they are defined
@@ -80,29 +80,32 @@ public class OcurrencesVisitor extends VisitorBase{
      * 
      * objects should not be added to it if we are at the global scope.
      */
-    private List<Found> probablyNotDefined = new ArrayList<Found>();
+    protected List<Found> probablyNotDefined = new ArrayList<Found>();
     
     /**
      * this is the module we are visiting
      */
-    private IModule current;
+    protected IModule current;
 
     /**
      * used to check for duplication in signatures
      */
-    private DuplicationChecker duplicationChecker;
+    protected DuplicationChecker duplicationChecker;
     
     /**
      * used to check if a signature from a method starts with self (if it is not a staticmethod)
      */
-    private NoSelfChecker noSelfChecker;
+    protected NoSelfChecker noSelfChecker;
     
     /**
      * Used to manage the messages
      */
-    private MessagesManager messagesManager;
+    protected MessagesManager messagesManager;
 
-    private AbstractAdditionalDependencyInfo infoForProject;
+    /**
+     * It is needed so that we add 'dependency info' to it.
+     */
+    protected AbstractAdditionalDependencyInfo infoForProject;
     
     /**
      * Constructor
@@ -115,7 +118,7 @@ public class OcurrencesVisitor extends VisitorBase{
         this.current = current;
         this.nature = nature;
         this.moduleName = moduleName;
-        this.messagesManager = new MessagesManager(prefs, moduleName, document, infoForProject);
+        this.messagesManager = new MessagesManager(prefs, moduleName, document);
         this.scope = new Scope(this.messagesManager, nature, moduleName, infoForProject);
         this.duplicationChecker = new DuplicationChecker(this.messagesManager);
         this.noSelfChecker = new NoSelfChecker(this.messagesManager, moduleName);
@@ -137,7 +140,9 @@ public class OcurrencesVisitor extends VisitorBase{
     }
     
     /**
-     * nothing is additionally handled here 
+     * nothing is additionally handled here (but all functions even the ones that treat it forward the call
+     * to this method, so, it might be useful in subclasses).
+     *  
      * @see org.python.parser.ast.VisitorBase#unhandled_node(org.python.parser.SimpleNode)
      */
     protected Object unhandled_node(SimpleNode node) throws Exception {
@@ -178,7 +183,7 @@ public class OcurrencesVisitor extends VisitorBase{
     /**
      * used so that the token is added to the names to ignore...
      */
-    private void addToNamesToIgnore(SimpleNode node) {
+    protected void addToNamesToIgnore(SimpleNode node) {
         SourceToken token = AbstractVisitor.makeToken(node, "");
         ScopeItems currScopeItems = scope.getCurrScopeItems();
 		currScopeItems.namesToIgnore.put(token.getRepresentation(), token);
@@ -203,22 +208,12 @@ public class OcurrencesVisitor extends VisitorBase{
     }
 
     
-    @Override
-    public Object visitTuple(Tuple node) throws Exception {
-    	return super.visitTuple(node);
-    }
-    
-    
-    @Override
-    public Object visitCall(Call node) throws Exception {
-    	return super.visitCall(node);
-    }
-    
     /**
      * we are starting a new scope when visiting a function 
      * @see org.python.parser.ast.VisitorIF#visitFunctionDef(org.python.parser.ast.FunctionDef)
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
+    	unhandled_node(node);
         addToNamesToIgnore(node);
 
         OcurrencesVisitor visitor = this;
@@ -282,7 +277,7 @@ public class OcurrencesVisitor extends VisitorBase{
     /**
      * A method is virtual if it contains only raise and string statements 
      */
-    private boolean isVirtual(FunctionDef node) {
+    protected boolean isVirtual(FunctionDef node) {
     	if(node.body != null){
     		for(SimpleNode n : node.body){
     			if(n instanceof Raise){
@@ -304,6 +299,7 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     @Override
     public Object visitNameTok(NameTok nameTok) throws Exception {
+    	unhandled_node(nameTok);
     	if(nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg){
             Name name = new Name((nameTok).id, Name.Load);
             name.beginLine = nameTok.beginLine;
@@ -322,6 +318,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitImport(org.python.parser.ast.Import)
      */
     public Object visitImport(Import node) throws Exception {
+    	unhandled_node(node);
         List <IToken>list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
 
         scope.addImportTokens(list, null);
@@ -333,6 +330,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitImportFrom(org.python.parser.ast.ImportFrom)
      */
     public Object visitImportFrom(ImportFrom node) throws Exception {
+    	unhandled_node(node);
         try {
             
             if(AbstractVisitor.isWildImport(node)){
@@ -359,6 +357,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitName(org.python.parser.ast.Name)
      */
     public Object visitName(Name node) throws Exception {
+    	unhandled_node(node);
         //when visiting the global namespace, we don't go into any inner scope.
         SourceToken token = AbstractVisitor.makeToken(node, moduleName);
         if (node.ctx == Name.Store) {
@@ -385,6 +384,7 @@ public class OcurrencesVisitor extends VisitorBase{
     
     @Override
     public Object visitGlobal(Global node) throws Exception {
+    	unhandled_node(node);
         for(String name :node.names){
             Name nameAst = new Name(name, Name.Store);
             nameAst.beginLine = node.beginLine;
@@ -403,6 +403,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitAttribute(org.python.parser.ast.Attribute)
      */
     public Object visitAttribute(Attribute node) throws Exception {
+    	unhandled_node(node);
     	boolean valueVisited = false;
         final exprType value = node.value;
         if(value instanceof Subscript){
@@ -478,7 +479,7 @@ public class OcurrencesVisitor extends VisitorBase{
         return null;
     }
 
-    private boolean visitNeededValues(exprType value) throws Exception {
+    protected boolean visitNeededValues(exprType value) throws Exception {
     	if(value instanceof Name){
     		return false;
     	}else if (value instanceof Attribute){
@@ -492,7 +493,7 @@ public class OcurrencesVisitor extends VisitorBase{
 	/**
      * used if we want to visit all in a call but the func itself (that's the call name).
      */
-    private void visitCallAttr(Call c) throws Exception {
+    protected void visitCallAttr(Call c) throws Exception {
         //now, visit all inside it but the func itself 
         OcurrencesVisitor visitor = this;
         if (c.args != null) {
@@ -526,6 +527,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitAssign(org.python.parser.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
+    	unhandled_node(node);
         OcurrencesVisitor visitor = this;
         
         //in 'm = a', this is 'a'
@@ -585,6 +587,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.parser.ast.VisitorIF#visitListComp(org.python.parser.ast.ListComp)
      */
     public Object visitListComp(ListComp node) throws Exception {
+    	unhandled_node(node);
         if (node.generators != null) {
             for (int i = 0; i < node.generators.length; i++) {
                 if (node.generators[i] != null)
@@ -600,7 +603,7 @@ public class OcurrencesVisitor extends VisitorBase{
     /**
      * initializes a new scope
      */
-    private void startScope(int newScopeType) {
+    protected void startScope(int newScopeType) {
         scope.startScope(newScopeType);
     }
     
@@ -609,7 +612,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @param reportUnused: defines whether we should report unused things found (we may not want to do that 
      * when we have an abstract method)
      */
-    private void endScope(boolean reportUnused) {
+    protected void endScope(boolean reportUnused) {
         ScopeItems m = scope.endScope(); //clear the last scope
         for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
             Found n = it.next();
@@ -674,7 +677,7 @@ public class OcurrencesVisitor extends VisitorBase{
     /**
      * Finds an item given its full representation (so, os.path can be found as 'os' and 'os.path')
      */
-    private List<Found> find(ScopeItems m, String fullRep) {
+    protected List<Found> find(ScopeItems m, String fullRep) {
         ArrayList<Found> foundItems = new ArrayList<Found>();
         if(m == null){
             return foundItems;
@@ -702,7 +705,7 @@ public class OcurrencesVisitor extends VisitorBase{
     /**
      * we just found a token, so let's mark the correspondent tokens read (or undefined)
      */
-    private void markRead(IToken token) {
+    protected void markRead(IToken token) {
         String rep = token.getRepresentation();
         markRead(token, rep, true, false);
     }
@@ -715,7 +718,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @param addToNotDefined determines if it should be added to the 'not defined tokens' stack or not 
      * @return true if it was found
      */
-    private boolean markRead(IToken token, String rep, boolean addToNotDefined, boolean checkIfIsValidImportToken) {
+    protected boolean markRead(IToken token, String rep, boolean addToNotDefined, boolean checkIfIsValidImportToken) {
         Iterator it = new FullRepIterable(rep, true).iterator();
         boolean found = false;
         Found foundAs = null;
@@ -782,7 +785,7 @@ public class OcurrencesVisitor extends VisitorBase{
         return found;
     }
 
-	private IToken findNameTok(IToken token, String tokToCheck) {
+	protected IToken findNameTok(IToken token, String tokToCheck) {
 		if(token instanceof SourceToken){
 			SourceToken s = (SourceToken) token;
 			SimpleNode ast = s.getAst();

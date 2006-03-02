@@ -22,7 +22,6 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor
 import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.messages.CompositeMessage;
 import com.python.pydev.analysis.messages.IMessage;
 import com.python.pydev.analysis.messages.Message;
@@ -52,13 +51,10 @@ public class MessagesManager {
      */
 	private IDocument document;
 
-    private AbstractAdditionalDependencyInfo infoForProject;
-    
-    public MessagesManager(IAnalysisPreferences prefs, String moduleName, IDocument doc, AbstractAdditionalDependencyInfo infoForProject) {
+    public MessagesManager(IAnalysisPreferences prefs, String moduleName, IDocument doc) {
         this.prefs = prefs;
         this.moduleName = moduleName;
         this.document = doc;
-        this.infoForProject = infoForProject;
     }
     
     /**
