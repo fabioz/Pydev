@@ -12,6 +12,7 @@ import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
+import org.python.parser.ast.NameTok;
 import org.python.parser.ast.keywordType;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
@@ -142,4 +143,15 @@ public class SourceToken extends AbstractToken{
     public boolean isWildImport() {
     	return AbstractVisitor.isWildImport(getAst());
     }
+    /**
+     * This representation may not be accurate depending on which tokens we are dealing with. 
+     */
+    public int[] getLineColEnd() {
+    	if(ast instanceof NameTok || ast instanceof Name){
+    		//those are the ones that we can be certain of...
+    		return new int[]{getLineDefinition(), getColDefinition()+getRepresentation().length()};
+    	}
+    	throw new RuntimeException("Unable to get the lenght of the token:"+ast.getClass().getName());
+    }
+
 }

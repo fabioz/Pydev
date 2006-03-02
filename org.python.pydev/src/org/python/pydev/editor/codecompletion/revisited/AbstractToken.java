@@ -280,6 +280,6 @@ public abstract class AbstractToken implements IToken{
      * This representation may not be accurate depending on which tokens we are dealing with. 
      */
     public int[] getLineColEnd() {
-        return new int[]{getLineDefinition(), getColDefinition()+getRepresentation().length()};
+    	return new int[]{UNDEFINED, UNDEFINED};
     }
 }
