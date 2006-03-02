@@ -11,6 +11,8 @@ import org.eclipse.jface.util.Assert;
 import org.python.parser.SimpleNode;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IToken;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 /**
@@ -54,14 +56,21 @@ public class Definition implements IDefinition {
      */
     public Scope scope;
 
+    /**
+     * Determines whether this definition was found as a local.
+     */
+    private boolean foundAsLocal;
     
+    public Definition(int line, int col, String value, SimpleNode ast, Scope scope, IModule module){
+    	this(line, col, value, ast, scope, module, false);
+    }
     /**
      * The ast and scope may be null if the definition points to the module (and not some token defined
      * within it).
      * 
      * The line and col are defined starting at 1 (and not 0)
      */
-    public Definition(int line, int col, String value, SimpleNode ast, Scope scope, IModule module){
+    public Definition(int line, int col, String value, SimpleNode ast, Scope scope, IModule module, boolean foundAsLocal){
     	Assert.isNotNull(value, "Invalid value.");
     	Assert.isNotNull(module, "Invalid Module.");
 
@@ -71,14 +80,15 @@ public class Definition implements IDefinition {
         this.ast = ast;
         this.scope = scope;
         this.module = module;
+        this.foundAsLocal = foundAsLocal;
     }
     
-    
-    public Definition(int line, int col, String value, SimpleNode ast, Scope scope, File file){
-        
-    }
     
     public Definition(org.python.pydev.core.IToken tok, Scope scope, IModule module){
+    	this(tok, scope, module, false);
+    }
+    
+    public Definition(org.python.pydev.core.IToken tok, Scope scope, IModule module, boolean foundAsLocal){
     	Assert.isNotNull(tok, "Invalid value.");
     	Assert.isNotNull(module, "Invalid Module.");
     	
@@ -92,7 +102,7 @@ public class Definition implements IDefinition {
     	this.module = module;
     }
     
-    /** 
+	/** 
      * @see java.lang.Object#toString()
      */
     public String toString() {

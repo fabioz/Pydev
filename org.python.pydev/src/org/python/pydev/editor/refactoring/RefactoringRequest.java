@@ -12,19 +12,59 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
+import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.nature.PythonNature;
 
+/**
+ * This class encapsulates all the info needed in order to do a refactoring
+ */
 public class RefactoringRequest{
+	
+	/**
+	 * The file associated with the editor where the refactoring is being requested
+	 */
 	public File file;
+	
+	/**
+	 * The document used in the refactoring 
+	 */
 	public IDocument doc;
+	
+	/**
+	 * The current selection when the refactoring was requested
+	 */
 	public PySelection ps;
+	
+	/**
+	 * The new name in a refactoring (may be null if not applicable)
+	 */
 	public String name;
+
+	/**
+	 * The operation that does the refactoring. Used to give feedback to the user 
+	 */
 	public Operation operation;
+	
+	/**
+	 * The nature used 
+	 */
 	public IPythonNature nature;
+	
+	/**
+	 * The python editor. May be null (especially on tests)
+	 */
 	public PyEdit pyEdit;
-    private SimpleNode ast;
+	
+	/**
+	 * The module for the passed document
+	 */
+    private IModule module;
+    
+    /**
+     * The module name (may be null)
+     */
 	private String moduleName;
 
 
@@ -45,16 +85,20 @@ public class RefactoringRequest{
 		this.nature = nature2;
 		this.pyEdit = pyEdit2;
 		if(f != null){
-			this.moduleName = nature.resolveModule(f);
+			this.moduleName = resolveModule();
 		}
 	}
 
+	/**
+	 * @return the module name or null if it is not possible to determine the module name
+	 */
 	public String resolveModule(){
-		if (file != null){
-			return nature.resolveModule(file);
-		}else{
-			return null;
+		if(moduleName == null){
+			if (file != null){
+				moduleName = nature.resolveModule(file);
+			}
 		}
+		return moduleName;
 	}
 	
     /**
@@ -89,22 +133,35 @@ public class RefactoringRequest{
 		return ps.getAbsoluteCursorOffset();
 	}
 
+	/**
+	 * @return the module for the document
+	 */
 	public IModule getModule() {
-		return new SourceModule(moduleName, file, getAST());
+		if(module == null){
+			module= AbstractModule.createModuleFromDoc(
+				   resolveModule(), file, doc, 
+				   nature, getBeginLine());
+		}
+		return module;
 	}
 	
+	/**
+	 * @return the ast for the current module
+	 */
     public SimpleNode getAST() {
-        if(this.ast == null){
-            PyParser.ParserInfo info = new PyParser.ParserInfo(doc, true, nature);
-            info.tryReparse = false;
-            Object[] parse = PyParser.reparseDocument(info);
-            if(parse[0] == null){
-                throw new RuntimeException("Unable to get the ast.");
-            }
-            this.ast = (SimpleNode) parse[0];
-        }
-        return this.ast;
+    	IModule mod = getModule();
+    	if(mod instanceof SourceModule){
+    		((SourceModule)mod).getAst();
+    	}
+        return null;
     }
+
+    /**
+     * @return the token and the full qualifier.
+     */
+	public String[] getTokenAndQual() {
+		return PyCodeCompletion.getActivationTokenAndQual(doc, ps.getAbsoluteCursorOffset(), true);
+	}
 
 
 }

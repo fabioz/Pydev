@@ -251,12 +251,12 @@ public class SourceModule extends AbstractModule {
         
         
         
-        //now, check for locals and class definitions if it is a self.
-        IToken[] localTokens = scopeVisitor.scope.getLocalTokens(line, col);
+        //now, check for locals
+        IToken[] localTokens = scopeVisitor.scope.getAllLocalTokens();
         info.localTokens = localTokens;
         for (IToken tok : localTokens) {
         	if(tok.getRepresentation().equals(rep)){
-        		return new Definition[]{new Definition(tok, scopeVisitor.scope, this)};
+        		return new Definition[]{new Definition(tok, scopeVisitor.scope, this, true)};
         	}
         }
         
@@ -275,8 +275,8 @@ public class SourceModule extends AbstractModule {
         }
         	
         
-        //ok, not assign, let's check if it is some self (we do not check for only 'self' because that would map to a
-        //parameter
+        //ok, not assign nor import, let's check if it is some self (we do not check for only 'self' because that would map to a
+        //local (which has already been covered).
         if (rep.startsWith("self.")){
         	//ok, it is some self, now, that is only valid if we are in some class definition
         	ClassDef classDef = scopeVisitor.scope.getClassDef();
