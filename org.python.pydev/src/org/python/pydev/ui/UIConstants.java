@@ -19,6 +19,7 @@ public class UIConstants {
 	public static final String PUBLIC_ATTR_ICON = "icons/attrpub_obj.gif";
 	public static final String MAIN_FUNCTION_ICON = "icons/mainfunction.gif";
     public static final String COMPLETION_PACKAGE_ICON = "icons/package_obj.gif";
+	public static final String COMPLETION_TEMPLATE = "icons/template.gif";
 
 // Actions
 	public static final String ALPHA_SORT = "icons/alphab_sort_co.gif";
@@ -38,8 +39,8 @@ public class UIConstants {
 	public static final String COMPLETION_PARAMETERS_ICON = "icons/parameters_obj.gif";
 
 //content assist
-	public static final String ASSIST_TRY_EXCEPT = "icons/template.gif";
-	public static final String ASSIST_TRY_FINNALLY = "icons/template.gif";
+	public static final String ASSIST_TRY_EXCEPT = COMPLETION_TEMPLATE;
+	public static final String ASSIST_TRY_FINNALLY = COMPLETION_TEMPLATE;
 
 	public static final String ASSIST_NEW_METHOD = "icons/add_correction.gif";
 	public static final String ASSIST_NEW_CLASS = "icons/class_obj.gif";
@@ -49,7 +50,7 @@ public class UIConstants {
 	public static final String ASSIST_ASSIGN_TO_LOCAL = "icons/methpub_obj.gif";
 	public static final String ASSIST_ASSIGN_TO_CLASS = "icons/methpub_obj.gif";
 	
-	public static final String ASSIST_DOCSTRING = "icons/template.gif";
+	public static final String ASSIST_DOCSTRING = COMPLETION_TEMPLATE;
 	
 //libraries
 	public static final String LIB_SYSTEM_ROOT = "icons/library_obj.gif";

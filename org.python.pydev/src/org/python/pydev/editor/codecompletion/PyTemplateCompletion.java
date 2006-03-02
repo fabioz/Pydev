@@ -5,10 +5,8 @@
  */
 package org.python.pydev.editor.codecompletion;
 
-import java.io.File;
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -16,15 +14,14 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateCompletionProcessor;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.REF;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.UIConstants;
 
 /**
  * @author Fabio Zadrozny
  */
 public class PyTemplateCompletion extends TemplateCompletionProcessor{
-
     /*
      * (non-Javadoc)
      * 
@@ -52,13 +49,7 @@ public class PyTemplateCompletion extends TemplateCompletionProcessor{
      * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getImage(org.eclipse.jface.text.templates.Template)
      */
     protected Image getImage(Template template) {
-        try {
-            File file = PydevPlugin.getImageWithinIcons("template.gif");
-            return new Image(null, REF.getFileAbsolutePath(file));
-        } catch (CoreException e) {
-            e.printStackTrace();
-        }
-        return null;
+    	return PydevPlugin.getImageCache().get(UIConstants.COMPLETION_TEMPLATE);
     }
 
     /**
