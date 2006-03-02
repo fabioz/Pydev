@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.actions.refactoring;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IFile;
@@ -18,6 +19,7 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
@@ -126,14 +128,11 @@ public abstract class PyRefactorAction extends PyAction {
     }
     public RefactoringRequest getRefactoringRequest(String name, Operation operation){
         //testing first with whole lines.
-        RefactoringRequest request = new RefactoringRequest();
-		request.file      = getPyEdit().getEditorFile();
-		request.doc       = getPyEdit().getDocument();
-		request.ps        = ps;
-		request.name      = name;
-		request.operation = operation;
-		request.nature    = getPyEdit().getPythonNature();
-		request.pyEdit    = getPyEdit(); //may not be available in tests, that's why it is important to be able to operate without it
+		File file = getPyEdit().getEditorFile();
+		IDocument doc = getPyEdit().getDocument();
+		IPythonNature nature = getPyEdit().getPythonNature();
+		PyEdit pyEdit = getPyEdit(); //may not be available in tests, that's why it is important to be able to operate without it
+		RefactoringRequest request = new RefactoringRequest(file, doc, ps, name, operation, nature, pyEdit);
 
 		return request;
     }
