@@ -9,6 +9,8 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisito
 import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 
+import com.python.pydev.analysis.visitors.OcurrencesVisitor;
+
 /**
  * Rename to a local variable...
  * 
@@ -76,6 +78,7 @@ public class RenameLocalVariableRefactoring extends AbstractRefactoring{
             
             //TODO: instead of using this 'simple' scope visitor, we should extend the OcurrencesVisitor to 
             //lend us a 'complete' scope.
+//            new OcurrencesVisitor(request.nature, );
             FindScopeVisitor visitor = new FindScopeVisitor(line, col);
             ast.accept(visitor);
             Scope scope = visitor.scope;

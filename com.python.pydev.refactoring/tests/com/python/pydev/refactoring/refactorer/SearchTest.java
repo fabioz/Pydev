@@ -2,6 +2,8 @@ package com.python.pydev.refactoring.refactorer;
 
 import java.io.File;
 
+import org.eclipse.jface.text.Document;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -45,9 +47,8 @@ public class SearchTest extends AdditionalInfoTestsBase {
 		//Line contents (1):
 		//from toimport import Test1
 		String line = "from toimport import Test1";
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/relative/testrelative.py"));
-		refactoringRequest.ps = new PySelection(refactoringRequest.doc, line.length());
-		refactoringRequest.nature = nature;
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/relative/testrelative.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
 		assertEquals(1, pointers.length);
@@ -58,9 +59,8 @@ public class SearchTest extends AdditionalInfoTestsBase {
 
 	public void testSearch2() throws Exception {
 		String line = "from testlib.unittest import testcase as t";
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/anothertest.py"));
-		refactoringRequest.ps = new PySelection(refactoringRequest.doc, line.length());
-		refactoringRequest.nature = nature;
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/anothertest.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
 		assertEquals(1, pointers.length);
@@ -70,13 +70,18 @@ public class SearchTest extends AdditionalInfoTestsBase {
 		assertEquals(0, pointers[0].start.column);
 		
 	}
+
+	private RefactoringRequest createRefactoringRequest(String line, final File file) {
+		return new RefactoringRequest(	file, new PySelection(new Document(REF.getFileContents(file)), line.length()),	nature);
+	}
 	
 	public void testSearch3() throws Exception {
 		String line = "from testlib.unittest import testcase as t";
 		//            "from testlib.unittest import test" < -- that's the cursor pos
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/anothertest.py"));
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/anothertest.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
 		refactoringRequest.ps = new PySelection(refactoringRequest.doc, line.length()-9);
-		refactoringRequest.nature = nature;
+		
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
 		assertEquals(1, pointers.length);
@@ -90,9 +95,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
 	public void testSearch4() throws Exception {
 		String line = "from testlib.unittest import testcase as t";
 		//            "from testlib.unitt" < -- that's the cursor pos
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/anothertest.py"));
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/anothertest.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
 		refactoringRequest.ps = new PySelection(refactoringRequest.doc, line.length()-24);
-		refactoringRequest.nature = nature;
+		
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
 		assertEquals(1, pointers.length);
@@ -106,9 +112,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
 	public void testSearch5() throws Exception {
 		//ring line = "from testlib.unittest import testcase as t";
 		//            "from " < -- that's the cursor pos
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/anothertest.py"));
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/anothertest.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest("", file);
 		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 6);
-		refactoringRequest.nature = nature;
+		
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
 		assertEquals(1, pointers.length);
@@ -122,9 +129,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
 		//from testlib.unittest import testcase as t
 		String line = "class AnotherTest(t.TestCase):";
 		//            "from " < -- that's the cursor pos
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/anothertest.py"));
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/anothertest.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
 		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 2, line.length() - 5);
-		refactoringRequest.nature = nature;
+		
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
 		assertEquals(1, pointers.length);
@@ -141,9 +149,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
 //		    def __init__(self):
 //		        print self.static1
 		String line = "print TestStatic.static1";
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
 		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 1, line.length());
-		refactoringRequest.nature = nature;
+		
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
 		assertEquals(1, pointers.length);
@@ -160,9 +169,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
 //		    def __init__(self):
 //		        print self.static1
 		String line = "        print self.static1";
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
 		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 4, line.length());
-		refactoringRequest.nature = nature;
+		
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
 		assertEquals(1, pointers.length);
@@ -180,9 +190,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
 //				print self.static1
 //      		from extendable.dependencies.file2 import Test
         String line = "        from extendable.dependencies.file2 import Test";
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
 		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 5, line.length());
-		refactoringRequest.nature = nature;
+		
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
 		assertEquals(1, pointers.length);
@@ -201,9 +212,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
 //		        from extendable.dependencies.file2 import Test
 //		        import extendable.dependencies.file2.Test
 		String line = "        import extendable.dependencies.file2.Test";
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
 		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 6, line.length());
-		refactoringRequest.nature = nature;
+		
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
 		assertEquals(1, pointers.length);
@@ -223,9 +235,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
 //		        from extendable.dependencies.file2 import Test
 //		        import extendable.dependencies.file2.Test
 		String line = "        import extendable.dependencies.file2.Test";
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
 		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 6, line.length()-7); //find the file2 module itself
-		refactoringRequest.nature = nature;
+		
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
 		assertEquals(1, pointers.length);
@@ -244,9 +257,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
 //		        from extendable.dependencies.file2 import Test
 //		        import extendable.dependencies.file2.Test
 		String line = "        import extendable.dependencies.file2.Test";
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py"));
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/static2.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
 		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 6, line.length()-16); //find the dependencies module itself
-		refactoringRequest.nature = nature;
+		
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
 		assertEquals(1, pointers.length);
@@ -262,9 +276,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
 //		print Class1
 		
 		String line = "print Class1";
-		RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"testrecwild/__init__.py"));
+		final File file = new File(TestDependent.TEST_PYSRC_LOC+"testrecwild/__init__.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
 		refactoringRequest.ps = new PySelection(refactoringRequest.doc, 1, line.length()); 
-		refactoringRequest.nature = nature;
+		
 		ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 		
 		assertEquals(1, pointers.length);
@@ -284,9 +299,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
 //                print aa.static2()        
         
         String line = "print aa.static1()";
-        RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"extendable/parameters.py"));
+        final File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/parameters.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
         refactoringRequest.ps = new PySelection(refactoringRequest.doc, 4, line.length()); 
-        refactoringRequest.nature = nature;
+        
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
         
         assertEquals(1, pointers.length);
@@ -299,9 +315,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
     public void testBuiltinSearch() throws Exception {
 //      import os
         String line = "import os";
-        RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"simpleosimport.py"));
+        final File file = new File(TestDependent.TEST_PYSRC_LOC+"simpleosimport.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
         refactoringRequest.ps = new PySelection(refactoringRequest.doc, 0, line.length()); //find the os module
-        refactoringRequest.nature = nature;
+        
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
         
         assertEquals(1, pointers.length);
@@ -314,9 +331,10 @@ public class SearchTest extends AdditionalInfoTestsBase {
     public void testBuiltinSearch2() throws Exception {
 //      import os.path.normpath
         String line = "import os.path.normpath";
-        RefactoringRequest refactoringRequest = new RefactoringRequest(new File(TestDependent.TEST_PYSRC_LOC+"definitions/__init__.py"));
+        final File file = new File(TestDependent.TEST_PYSRC_LOC+"definitions/__init__.py");
+		RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
         refactoringRequest.ps = new PySelection(refactoringRequest.doc, 0, line.length()); //find the os.path.normpath func pos
-        refactoringRequest.nature = nature;
+        
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
         
         assertEquals(1, pointers.length);
