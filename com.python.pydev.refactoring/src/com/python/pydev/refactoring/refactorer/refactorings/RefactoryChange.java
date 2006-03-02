@@ -9,4 +9,12 @@ package com.python.pydev.refactoring.refactorer.refactorings;
  */
 public class RefactoryChange {
 
+    /**
+     * Actually performs the refactoring.
+     * @param change the change (that may have been previewed) that does the actual refactoring.
+     */
+    public void performRefactoring(){
+    	
+    }
+
 }

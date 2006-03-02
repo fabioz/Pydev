@@ -8,8 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 

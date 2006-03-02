@@ -40,7 +40,7 @@ public class RenameLocalVariableRefactoringTest extends PyParserTestBase {
         RefactoringRequest request = new RefactoringRequest();
         request.doc = doc;
         request.name = "bbb";
-        int line = 0;
+        int line = 1;
         int col = 4;
         request.ps = new PySelection(doc, line, col);
         RenameLocalVariableRefactoring refactoring = new RenameLocalVariableRefactoring(request);

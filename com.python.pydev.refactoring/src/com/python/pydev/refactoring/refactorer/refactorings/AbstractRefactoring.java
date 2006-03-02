@@ -13,10 +13,4 @@ public abstract class AbstractRefactoring {
      * used to preview the changes, and should contain all the info for that.
      */
     public abstract RefactoryChange getRefactoringChange();
-
-    /**
-     * Actually performs the refactoring.
-     * @param change the change (that may have been previewed) that does the actual refactoring.
-     */
-    public abstract void performRefactoring(RefactoryChange change);
 }
