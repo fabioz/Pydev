@@ -52,6 +52,8 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.put(PydevPrefs.STRING_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_STRING_COLOR));
         node.put(PydevPrefs.COMMENT_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_COMMENT_COLOR));
         node.put(PydevPrefs.BACKQUOTES_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_BACKQUOTES_COLOR));
+        node.put(PydevPrefs.CLASS_NAME_COLOR, StringConverter.asString(PydevPrefs.DEFAULT_CLASS_NAME_COLOR));
+        node.put(PydevPrefs.FUNC_NAME_COLOR,  StringConverter.asString(PydevPrefs.DEFAULT_FUNC_NAME_COLOR));
         //for selection colors see initializeDefaultColors()
         
         //font style
@@ -63,6 +65,8 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.putInt(PydevPrefs.STRING_STYLE, PydevPrefs.DEFAULT_STRING_STYLE);
         node.putInt(PydevPrefs.COMMENT_STYLE, PydevPrefs.DEFAULT_COMMENT_STYLE);
         node.putInt(PydevPrefs.BACKQUOTES_STYLE, PydevPrefs.DEFAULT_BACKQUOTES_STYLE);
+        node.putInt(PydevPrefs.CLASS_NAME_STYLE, PydevPrefs.DEFAULT_CLASS_NAME_STYLE);
+        node.putInt(PydevPrefs.FUNC_NAME_STYLE, PydevPrefs.DEFAULT_FUNC_NAME_STYLE);
         
         //no UI
         node.putInt(PydevPrefs.CONNECT_TIMEOUT, PydevPrefs.DEFAULT_CONNECT_TIMEOUT);

@@ -165,6 +165,12 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	public static final String BACKQUOTES_COLOR = "BACKQUOTES_COLOR";
 	public static final RGB DEFAULT_BACKQUOTES_COLOR = new RGB(0, 0, 0);
 	
+	public static final String CLASS_NAME_COLOR = "CLASS_NAME_COLOR";
+	public static final RGB DEFAULT_CLASS_NAME_COLOR = new RGB(0, 0, 0);
+	
+	public static final String FUNC_NAME_COLOR = "FUNC_NAME_COLOR";
+	public static final RGB DEFAULT_FUNC_NAME_COLOR = new RGB(0, 0, 0);
+	
 	//see initializeDefaultColors for selection defaults
 	public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
 	public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
@@ -193,6 +199,12 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 	
 	public static final String BACKQUOTES_STYLE = "BACKQUOTES_STYLE";
 	public static final int DEFAULT_BACKQUOTES_STYLE = SWT.BOLD;
+	
+	public static final String CLASS_NAME_STYLE = "CLASS_NAME_STYLE";
+	public static final int DEFAULT_CLASS_NAME_STYLE = SWT.BOLD;
+	
+	public static final String FUNC_NAME_STYLE = "FUNC_NAME_STYLE";
+	public static final int DEFAULT_FUNC_NAME_STYLE = SWT.BOLD;
 
 
 
@@ -210,6 +222,8 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		{"Strings", STRING_COLOR, null},
 		{"Comments", COMMENT_COLOR, null},
 		{"Backquotes", BACKQUOTES_COLOR, null},
+		{"Class Name", CLASS_NAME_COLOR, null},
+		{"Function Name", FUNC_NAME_COLOR, null},
 	};
 	
 	private final String[][] fAppearanceFontListModel= new String[][] {
@@ -222,6 +236,8 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		{"Strings", STRING_STYLE, null},
 		{"Comments", COMMENT_STYLE, null},
 		{"Backquotes", BACKQUOTES_STYLE, null},
+		{"Class Name", CLASS_NAME_STYLE, null},
+		{"Function Name", FUNC_NAME_STYLE, null},
 	};
 	
 	private OverlayPreferenceStore fOverlayStore;
@@ -335,6 +351,8 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, STRING_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, COMMENT_COLOR));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, BACKQUOTES_COLOR));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, CLASS_NAME_COLOR));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, FUNC_NAME_COLOR));
 		
 		//font style
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, CODE_STYLE));
@@ -345,6 +363,8 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, STRING_STYLE));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, COMMENT_STYLE));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, BACKQUOTES_STYLE));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, CLASS_NAME_STYLE));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, FUNC_NAME_STYLE));
 		
 		OverlayPreferenceStore.OverlayKey[] keys= new OverlayPreferenceStore.OverlayKey[overlayKeys.size()];
 		overlayKeys.toArray(keys);

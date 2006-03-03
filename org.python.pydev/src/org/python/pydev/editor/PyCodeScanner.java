@@ -6,7 +6,9 @@
 package org.python.pydev.editor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.TextAttribute;
@@ -37,10 +39,21 @@ public class PyCodeScanner extends RuleBasedScanner {
         "finally","for","from","global",
         "if","import","in","is","lambda","not",
         "or","pass","print","raise","return",
-        "try","while","yield","False", "None", "True" };
+        "self", "try","while","yield","False", "None", "True" };
 
     private ColorCache colorCache;
-	
+
+    private IToken keywordToken  ; 
+    private IToken selfToken     ; 
+    private IToken defaultToken  ; 
+    private IToken decoratorToken; 
+    private IToken numberToken   ; 
+    private IToken classNameToken; 
+    private IToken funcNameToken ; 
+    
+    
+    
+    
 	/**
 	 * Whitespace detector.
 	 * 
@@ -150,16 +163,17 @@ public class PyCodeScanner extends RuleBasedScanner {
 		setupRules();
 	}
 	
-	private void setupRules() {
+    private void setupRules() {
 		IPreferenceStore preferences = PydevPlugin.getChainedPrefStore();
-		IToken keywordToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.KEYWORD_COLOR), null, preferences.getInt(PydevPrefs.KEYWORD_STYLE)));
-		IToken selfToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.SELF_COLOR), null, preferences.getInt(PydevPrefs.SELF_STYLE)));
-		IToken defaultToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR), null, preferences.getInt(PydevPrefs.CODE_STYLE)));
-		IToken decoratorToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.DECORATOR_COLOR), null, preferences.getInt(PydevPrefs.DECORATOR_STYLE)));
-		IToken numberToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.NUMBER_COLOR), null, preferences.getInt(PydevPrefs.NUMBER_STYLE)));
-		IToken errorToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR), null, preferences.getInt(PydevPrefs.CODE_STYLE))); // Includes operators, brackets, numbers etc.
+		keywordToken   = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.KEYWORD_COLOR), null, preferences.getInt(PydevPrefs.KEYWORD_STYLE)));
+		selfToken      = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.SELF_COLOR), null, preferences.getInt(PydevPrefs.SELF_STYLE)));
+		defaultToken   = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR), null, preferences.getInt(PydevPrefs.CODE_STYLE)));
+		decoratorToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.DECORATOR_COLOR), null, preferences.getInt(PydevPrefs.DECORATOR_STYLE)));
+		numberToken    = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.NUMBER_COLOR), null, preferences.getInt(PydevPrefs.NUMBER_STYLE)));
+		classNameToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CLASS_NAME_COLOR), null, preferences.getInt(PydevPrefs.CLASS_NAME_STYLE)));
+		funcNameToken  = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.FUNC_NAME_COLOR), null, preferences.getInt(PydevPrefs.FUNC_NAME_STYLE)));
 		
-		setDefaultReturnToken(errorToken);
+		setDefaultReturnToken(defaultToken);
 		List<IRule> rules = new ArrayList<IRule>();
 		
 		// Scanning strategy:
@@ -169,11 +183,17 @@ public class PyCodeScanner extends RuleBasedScanner {
 		
 		rules.add(new WhitespaceRule(new GreatWhite()));
 		
-		WordRule wordRule = new WordRule(new GreatKeywordDetector(), defaultToken);
-		for (String keyword : KEYWORDS) {
-			wordRule.addWord( keyword, keywordToken);
+        Map<String,IToken> defaults = new HashMap<String, IToken>();
+        defaults.put("self", selfToken);
+        
+        PyWordRule wordRule = new PyWordRule(new GreatKeywordDetector(), defaultToken, classNameToken, funcNameToken);
+        for (String keyword : KEYWORDS) {
+            IToken token = defaults.get(keyword);
+            if(token == null){
+                token = keywordToken;
+            }
+			wordRule.addWord( keyword, token);
 		}
-		wordRule.addWord("self", selfToken);
 		rules.add(wordRule);
 
 		
