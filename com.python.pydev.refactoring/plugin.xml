@@ -4,9 +4,10 @@
    <extension point="org.python.pydev.pydev_refactoring">
   		<refactoring_participant class="com.python.pydev.refactoring.refactorer.Refactorer"/>
    </extension>
+<!-- still not ready
    <extension point="org.python.pydev.pydev_formatter">
   		<refactoring_participant class="com.python.pydev.refactoring.visitors.Formatter"/>
    </extension>
-
+-->
 
 </plugin>
