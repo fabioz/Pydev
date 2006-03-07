@@ -5,14 +5,10 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
-import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 import java.io.File;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IProgressMonitor;
