@@ -129,10 +129,6 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                 
                 int start = element.node.beginLine-1;
                 
-                if(element.node instanceof FunctionDef){
-                    FunctionDef f = (FunctionDef) element.node;
-                    start = f.name.beginLine -1;
-                }
                 
                 int end = element.endLine;
                 if (end == -1) {
@@ -148,7 +144,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                             if(isImportNode(nextElement) && nextElement.endLine == end+1){
                                 end++;
                             }else{
-
+                            	//will add the import node
                                 addFoldingMark(element, start, end, model, collapsed);
                                 element = nextElement;
                                 start = element.node.beginLine-1;
@@ -160,6 +156,10 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                         }
                     }
 
+                    if(element.node instanceof FunctionDef){
+                        FunctionDef f = (FunctionDef) element.node;
+                        start = f.name.beginLine -1;
+                    }
                 
                     addFoldingMark(element, start, end, model, collapsed);
                 } catch (BadLocationException e) {
