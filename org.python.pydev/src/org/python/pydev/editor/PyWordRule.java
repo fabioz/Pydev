@@ -97,7 +97,7 @@ public class PyWordRule implements IRule {
         fColumn= column;
     }
 
-    private String lastFound;
+    private String lastFound="";
     public IToken evaluate(ICharacterScanner scanner) {
         int c= scanner.read();
         if (fDetector.isWordStart((char) c)) {

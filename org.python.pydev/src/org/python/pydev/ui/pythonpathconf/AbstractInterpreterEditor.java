@@ -5,13 +5,19 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
+import java.io.ByteArrayOutputStream;
+import java.io.CharArrayWriter;
 import java.io.File;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.ProgressMonitorWrapper;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -525,43 +531,61 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     /** Overriden
      */
     protected String getNewInputObject() {
-        FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
+    	CharArrayWriter charWriter = new CharArrayWriter();
+    	PrintWriter logger = new PrintWriter(charWriter);
+    	logger.println("Information about process of adding new interpreter:");
+        try {
+        	
+			FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
 
-        String[] filterExtensions = getInterpreterFilterExtensions();
-        if(filterExtensions != null){
-            dialog.setFilterExtensions(filterExtensions);
-        }
+			String[] filterExtensions = getInterpreterFilterExtensions();
+			if (filterExtensions != null) {
+				dialog.setFilterExtensions(filterExtensions);
+			}
 
-        if (lastPath != null) {
-            if (new File(lastPath).exists())
-                dialog.setFilterPath(lastPath);
-        }
+			if (lastPath != null) {
+				if (new File(lastPath).exists())
+					dialog.setFilterPath(lastPath);
+			}
 
-        String file = dialog.open();
-        if (file != null) {
-            file = file.trim();
-            if (file.length() == 0)
-                return null;
-            lastPath = file;
-        }
+			logger.println("- Opening dialog to request executable (or jar).");
+			String file = dialog.open();
+			if (file != null) {
+				logger.println("- Chosen interpreter file:'"+file);
+				file = file.trim();
+				if (file.length() == 0){
+					logger.println("- When trimmed, the chosen file was empty (returning null).");
+					return null;
+				}
+				lastPath = file;
+			}else{
+				logger.println("- The file chosen was null (returning null).");
+				return null;
+			}
+			
+			if (file != null) {
+				//ok, now that we got the file, let's see if it is valid and get the library info.
+				logger.println("- Ok, file is non-null. Getting info on:"+file);
+				ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
+				monitorDialog.setBlockOnOpen(false);
+				Operation operation = new Operation(file, logger);
+				monitorDialog.run(true, false, operation);
 
-        if(file!= null){
-	        //ok, now that we got the file, let's see if it is valid and get the library info.
-            ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
-            monitorDialog.setBlockOnOpen(false);
-            try {
-                Operation operation = new Operation(file);
-                monitorDialog.run(true, false, operation);
-                
-                if(operation.e != null){
-                    throw operation.e;
-                }
-                
-                return operation.result;
-            } catch (Exception e) {
-                PydevPlugin.log(e);
-                return null;
-            }
+				if (operation.e != null) {
+					logger.println("- Some error happened while getting info on the interpreter:");
+					operation.e.printStackTrace(logger);
+					throw operation.e;
+				}
+
+				logger.println("- Success getting the info. Result:"+operation.result);
+				return operation.result;
+			}
+			
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+            return null;
+        } finally {
+        	PydevPlugin.logInfo(charWriter.toString());
         }
         
         return null;
@@ -602,27 +626,64 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         return interpreterManager.getInterpretersFromPersistedString(stringList);
     }
 
+    private static class OperationMonitor extends ProgressMonitorWrapper{
+
+		private PrintWriter logger;
+
+		protected OperationMonitor(IProgressMonitor monitor, PrintWriter logger) {
+			super(monitor);
+			this.logger = logger;
+		}
+    	
+		@Override
+		public void beginTask(String name, int totalWork) {
+			super.beginTask(name, totalWork);
+			logger.print("- Beggining task:");
+			logger.print(name);
+			logger.print(" totalWork:");
+			logger.println(totalWork);
+		}
+		
+		@Override
+		public void setTaskName(String name) {
+			super.setTaskName(name);
+			logger.print("- Setting task name:");
+			logger.println(name);
+		}
+		
+		@Override
+		public void subTask(String name) {
+			super.subTask(name);
+			logger.print("- Sub Task:");
+			logger.println(name);
+		}
+    }
     private class Operation implements IRunnableWithProgress{
 
         public String result;
         public String file;
         public Exception e;
+		private PrintWriter logger;
         
         /**
          * @param file2
+         * @param logger 
          */
-        public Operation(String file2) {
+        public Operation(String file2, PrintWriter logger) {
             this.file = file2;
+            this.logger = logger;
         }
 
         /**
          * @see org.eclipse.jface.operation.IRunnableWithProgress#run(org.eclipse.core.runtime.IProgressMonitor)
          */
         public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+        	monitor = new OperationMonitor(monitor, logger);
             monitor.beginTask("Getting libs", 100);
             try {
                 result = interpreterManager.addInterpreter(file, monitor);
             } catch (Exception e) {
+            	logger.println("Exception detected: "+e.getMessage());
                 this.e = e;
             }
             monitor.done();
