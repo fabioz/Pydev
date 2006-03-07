@@ -128,5 +128,17 @@
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
+<node COLOR="#0033ff" CREATED="1141658334352" ID="Freemind_Link_1814459883" MODIFIED="1141658448041" POSITION="right" TEXT="auto-indent &#xa;(Jorge Godoy &lt;godoy@ieee.org&gt;)">
+<font NAME="SansSerif" SIZE="18"/>
+<node COLOR="#00b439" CREATED="1141658346899" ID="Freemind_Link_1879754442" MODIFIED="1141658412030" TEXT="moving forward with sucessive TABs&#xa;pressed.  When I press TAB on Emacs it use a soft tab (i.e. what Eclips calls&#xa;&apos;space-tab&apos;) and indent my code to the next indentation level and stop&#xa;indenting.  Even when in the middle of the line and if I&apos;m in the beginning of&#xa;the line it moves the cursor to the beginning of the code.&#xa;">
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+<node COLOR="#00b439" CREATED="1141658490694" ID="Freemind_Link_836615977" MODIFIED="1141658509475" TEXT="TAB means go to the next indentation level, no matter where the line starts. &#xa;">
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+<node COLOR="#00b439" CREATED="1141658532282" ID="Freemind_Link_862633378" MODIFIED="1141658541696" TEXT="Using BACKSPACE to remove indentation from my code: if I&apos;m in a&#xa;nesting level and I want to move my code one level down, I have to press&#xa;backspace &apos;n&apos; times (n == the number of spaces used by soft tabs in my Eclipse&#xa;configuration) on lines where I have code.  (The menu option &apos;Python&#xa;backspace&apos; doesn&apos;t work.)&#xa;">
+<font NAME="SansSerif" SIZE="16"/>
+</node>
+</node>
 </node>
 </map>
