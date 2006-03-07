@@ -13,22 +13,23 @@ manual_101 = \
 ('manual_101_tips'           , 'Some useful tips'               ))
 
 manual_adv = \
-(('manual_adv_features'       , 'Features'                        ),
-('manual_adv_editor_prefs'   , 'Editor preferences'              ),
-('manual_adv_refactoring'    , 'Refactoring'                     ),
-('manual_adv_assistants'     , 'Content Assistants'              ),
-('manual_adv_coverage'       , 'Code Coverage'                   ),
-('manual_adv_tasks'          , 'Tasks'                           ),
-('manual_adv_code_analysis'  , 'Code Analysis'                   ),
-('manual_adv_quick_outline'  , 'Quick Outline'                   ),
-('manual_adv_gotodef'        , 'Go to Definition'                ),
-('manual_adv_compltemp'      , 'Templates completion'            ),
-('manual_adv_complctx'       , 'Context-sensitive completions'   ),
-('manual_adv_complnoctx'     , 'Context-insensitive completions' ),
-('manual_adv_complauto'      , 'Auto-suggest keywords'           ),
-('manual_adv_debugger'       , 'Debugger'                        ),
-('manual_adv_remote_debugger', 'Remote Debugger'                 ),
-('manual_adv_debug_console'  , 'Debug Console'                   ),
+(('manual_adv_features'              , 'Features'                        ),
+('manual_adv_editor_prefs'           , 'Editor preferences'              ),
+('manual_adv_refactoring'            , 'Refactoring'                     ),
+('manual_adv_assistants'             , 'Content Assistants'              ),
+('manual_adv_coverage'               , 'Code Coverage'                   ),
+('manual_adv_tasks'                  , 'Tasks'                           ),
+('manual_adv_code_analysis'          , 'Code Analysis'                   ),
+('manual_adv_quick_outline'          , 'Quick Outline'                   ),
+('manual_adv_open_decl_quick'        , 'Open Declaration Quick Outline'  ),
+('manual_adv_gotodef'                , 'Go to Definition'                ),
+('manual_adv_compltemp'              , 'Templates completion'            ),
+('manual_adv_complctx'               , 'Context-sensitive completions'   ),
+('manual_adv_complnoctx'             , 'Context-insensitive completions' ),
+('manual_adv_complauto'              , 'Auto-suggest keywords'           ),
+('manual_adv_debugger'               , 'Debugger'                        ),
+('manual_adv_remote_debugger'        , 'Remote Debugger'                 ),
+('manual_adv_debug_console'          , 'Debug Console'                   ),
 )
 
 def template( template, contents, title, **kwargs ):
@@ -90,6 +91,7 @@ def main():
     template('../templateManual.html', 'manual_adv_tasks'          , 'Tasks'                           )
     template('../templateManual.html', 'manual_adv_code_analysis'  , 'Code Analysis'                   )
     template('../templateManual.html', 'manual_adv_quick_outline'  , 'Quick Outline'                   )
+    template('../templateManual.html', 'manual_adv_open_decl_quick', 'Open Declaration Quick Outline'  )
     template('../templateManual.html', 'manual_adv_gotodef'        , 'Go to Definition'                )
     template('../templateManual.html', 'manual_adv_compltemp'      , 'Templates completion'            )
     template('../templateManual.html', 'manual_adv_complctx'       , 'Context-sensitive completions'   )
