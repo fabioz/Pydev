@@ -25,7 +25,7 @@ Pydev Extensions:
 - Added open declaration 'quick dialog' - Ctrl+Shift+T: Enables the user to find any global (class, method or attribute) declaration,
 including methods and attributes from classes (does not show only 'top-level' tokens).
 - Code analysis minor bugs fixed
-- Added a 'memento' for the Quick outline
+- Added a 'memento' for the Quick outline layout
 
 after 1.0.1
 
