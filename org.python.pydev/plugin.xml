@@ -161,15 +161,10 @@
                label="Source"
                path="edit"
                id="org.python.pydev.editor.actions.sourceMenu">
-            <separator
-                  name="editGroup">
-            </separator>
-            <separator
-                  name="addGroup">
-            </separator>
-            <separator
-            	  name="whitespaceGroup">
-            </separator>
+            <separator name="editGroup"/>
+            <separator name="addGroup"/>
+            <separator name="whitespaceGroup"/>
+            <separator name="evaluateGroup"/>
          </menu>
          <action
                definitionId="org.python.pydev.editor.actions.firstChar"

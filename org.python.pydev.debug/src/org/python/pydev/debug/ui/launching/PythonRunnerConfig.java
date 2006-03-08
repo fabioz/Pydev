@@ -58,6 +58,7 @@ public class PythonRunnerConfig {
 	public String pythonpathUsed;
 	// debugging
 	public boolean isDebug;
+	public boolean isInteractive;
 	private int debugPort = 0;  // use getDebugPort
 	public int acceptTimeout = 5000; // miliseconds
 	public String[] envp = null;
@@ -216,8 +217,9 @@ public class PythonRunnerConfig {
 	    this.configuration = conf;
         this.run = run;
 		isDebug = mode.equals(ILaunchManager.DEBUG_MODE);
+		isInteractive = mode.equals("interactive");
 		
-		resource = getLocation(conf);
+        resource = getLocation(conf);
 		interpreter = getInterpreter(conf);
 		arguments = getArguments(conf);
 		IPath workingPath = getWorkingDirectory(conf);
@@ -246,6 +248,7 @@ public class PythonRunnerConfig {
         //make the environment
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         envp = launchManager.getEnvironment(conf);
+        
         if(envp == null){
             //ok, the user has done nothing to the environment, just get all the default environment and
             //put the pythonpath in it
@@ -435,7 +438,12 @@ public class PythonRunnerConfig {
         
     		cmdArgs.add(interpreter.toOSString());
     		// Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
-    		cmdArgs.add("-u");
+            if(isInteractive){
+                cmdArgs.add("-i");
+                
+            }else{
+                cmdArgs.add("-u");
+            }
         
     		if (isDebug) {
     			cmdArgs.add(getDebugScript());
@@ -475,9 +483,12 @@ public class PythonRunnerConfig {
     		}
         }
         
-		cmdArgs.add(resource.toOSString());
-		for (int i=0; arguments != null && i<arguments.length; i++){
-			cmdArgs.add(arguments[i]);
+        if(!isInteractive){
+            //wnen it is interactive, we don't have the resource
+    		cmdArgs.add(resource.toOSString());
+        }
+        for (int i=0; arguments != null && i<arguments.length; i++){
+            cmdArgs.add(arguments[i]);
         }
         
 		String[] retVal = new String[cmdArgs.size()];

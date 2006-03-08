@@ -132,15 +132,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     /** listeners that get notified of model changes */
     List<IModelListener> modelListeners;
 
-    private static List<IPyEditListener> saveListeners;
+    private static List<IPyEditListener> editListeners;
     
     @SuppressWarnings("unchecked")
 	public PyEdit() {
         super();
         
         //initialize the 'save' listeners of PyEdit
-        if (saveListeners == null){
-        	saveListeners = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYEDIT_LISTENER);
+        if (editListeners == null){
+        	editListeners = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYEDIT_LISTENER);
         }
         
         modelListeners = new ArrayList<IModelListener>();
@@ -354,8 +354,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         fixEncoding(getEditorInput(), getDocument());
         super.performSave(overwrite, progressMonitor);
         parser.notifySaved();
-        if(saveListeners != null){
-	        for(IPyEditListener listener : saveListeners){
+        if(editListeners != null){
+	        for(IPyEditListener listener : editListeners){
 	        	try {
                     listener.onSave(this);
                 } catch (Exception e) {
@@ -531,6 +531,18 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         IAction openAction = new PyOpenAction();
         setAction(ACTION_OPEN, openAction);
         enableBrowserLikeLinks();
+        
+        if(editListeners != null){
+            for(IPyEditListener listener : editListeners){
+                try {
+                    listener.onCreateActions(resources, this);
+                } catch (Exception e) {
+                    //must not fail
+                    PydevPlugin.log(e);
+                }
+            }
+        }
+
     }
 
     protected void initializeKeyBindingScopes() {

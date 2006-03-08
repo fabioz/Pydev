@@ -122,7 +122,7 @@ public class PythonRunner {
 		t.addConsoleInputListener();
 	}
 
-    private static void doIt(PythonRunnerConfig config, IProgressMonitor monitor, String [] envp, String[] cmdLine, File workingDirectory, ILaunch launch) throws CoreException{
+    private static IProcess doIt(PythonRunnerConfig config, IProgressMonitor monitor, String [] envp, String[] cmdLine, File workingDirectory, ILaunch launch) throws CoreException{
         if (monitor == null)
         	monitor = new NullProgressMonitor();
         IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
@@ -153,6 +153,7 @@ public class PythonRunner {
 
         // Registered the process with the debug plugin
         subMonitor.subTask("Done");
+        return process;
     }
 
     private static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException{

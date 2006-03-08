@@ -56,7 +56,7 @@
 	<launchConfigurationType
         delegate="org.python.pydev.debug.ui.launching.RegularLaunchConfigurationDelegate"
         id="org.python.pydev.debug.regularLaunchConfigurationType"
-        modes="run, debug"
+        modes="run, debug, interactive"
         name="Python Run"
         public="true">
 	</launchConfigurationType>

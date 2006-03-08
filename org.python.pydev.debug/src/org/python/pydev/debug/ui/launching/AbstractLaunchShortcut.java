@@ -144,7 +144,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 	 * @param file
 	 * @return default string for the location field
 	 */
-	protected String getDefaultLocation (IResource file) {
+	public static String getDefaultLocation (IResource file) {
 		return file.getRawLocation().toString();
 // E3		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
 // E3		return varManager.generateVariableExpression("workspace_loc", file.getFullPath().toString());
@@ -152,18 +152,28 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 	
     protected abstract String getLaunchConfigurationType();
     
+    protected ILaunchConfiguration createDefaultLaunchConfiguration(IResource resource) {
+        IInterpreterManager pythonInterpreterManager = getInterpreterManager();
+        String projName = resource.getProject().getName();
+        return createDefaultLaunchConfiguration(resource, getLaunchConfigurationType(), getDefaultLocation(resource), pythonInterpreterManager, projName);
+    }
 	/**
 	 * COPIED/MODIFIED from AntLaunchShortcut
+	 * @param location 
+	 * @param pythonInterpreterManager 
 	 */
-	protected ILaunchConfiguration createDefaultLaunchConfiguration(IResource resource) {
+	public static ILaunchConfiguration createDefaultLaunchConfiguration(IResource resource, String launchConfigurationType, 
+            String location, IInterpreterManager pythonInterpreterManager, String projName) {
+        
+        
 		ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
-		ILaunchConfigurationType type = manager.getLaunchConfigurationType(getLaunchConfigurationType());
+		ILaunchConfigurationType type = manager.getLaunchConfigurationType(launchConfigurationType);
 		if (type == null) {
 			reportError("Python launch configuration not found", null);
 			return null;
 		}
 
-        StringBuffer buffer = new StringBuffer(resource.getProject().getName());
+        StringBuffer buffer = new StringBuffer(projName);
 		buffer.append(" ");
 		buffer.append(resource.getName());
 		String name = buffer.toString().trim();
@@ -173,15 +183,14 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 
 			ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, name);
 			// Python Main Tab Arguments
-			String location = getDefaultLocation(resource);
+			
 //			IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
 //			String baseDirectory = varManager.generateVariableExpression("workspace_loc",resource.getRawLocation().removeLastSegments(1).toString());
 			String baseDirectory = resource.getRawLocation().removeLastSegments(1).toString();
 			String arguments = "";
-			IInterpreterManager pythonInterpreterManager = getInterpreterManager();
             String interpreter = pythonInterpreterManager.getDefaultInterpreter();
 			
-            workingCopy.setAttribute(Constants.ATTR_PROJECT,resource.getProject().getName());
+            workingCopy.setAttribute(Constants.ATTR_PROJECT,projName);
             workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE,resource.getType());
             workingCopy.setAttribute(Constants.ATTR_INTERPRETER,interpreter);
             
