@@ -39,6 +39,9 @@
 <node COLOR="#00b439" CREATED="1140103999359" ID="Freemind_Link_9314489" MODIFIED="1140104013437" TEXT="Chandler:&#xa;&#xa;http://wiki.osafoundation.org/bin/view/Projects/GettingChandler&#xa;http://wiki.osafoundation.org/bin/view/Projects/BuildingChandler">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
+<node COLOR="#00b439" CREATED="1141847037452" ID="Freemind_Link_860460502" MODIFIED="1141847039859" TEXT=" result = {}, F3 no result d&#xe1; erro.">
+<font NAME="SansSerif" SIZE="16"/>
+</node>
 </node>
 <node COLOR="#0033ff" CREATED="1139594227703" ID="Freemind_Link_1643430887" MODIFIED="1140001041687" POSITION="right" TEXT="Code Completion">
 <font NAME="SansSerif" SIZE="18"/>
