@@ -94,24 +94,10 @@ If some specific detail does not work in the way it is described, please report 
 --------------------------------------------------------------------------------------------------------------Title
 How do I configure my PYTHONPATH?
 --------------------------------------------------------------------------------------------------------------Answer
-There are 3 places where you have to go to configure the PYTHONPATH, and by doing so, 
-PyLint, code completion, running and others should use this configuration.<br/><br/>
 
-<strong>1.</strong>Go to window->preferences->pydev->Python Interpreters and 
-set the python interpreter location. <br/><br/>
-<IMG src="images/faq/interpreter_conf.png" border="1" >
-<br/><br/>
-
-<strong>2.</strong>In the navigator, right click on the project root and choose 'properties'. <br/><br/>
-In <b>PyDev PYTHONPATH</b>, you have to set your <b>source folders</b> (where your sources are within the project) and the 
-<b>external source folders</b> (folders that are not within your eclipse environment).<br/><br/>
-<IMG src="images/faq/properties_conf.png" border="1" >
-<br/><br/>
-
-<strong>3.</strong>Also in the project properties, you have to choose the project references, so that your 
-current projects gets those projects configurations in the PYTHONPATH.  <br/><br/>
-<IMG src="images/faq/references_conf.png" border="1" >
-<br/><br/>
+Please refer to the Getting Started Guide at 
+<a href="http://www.fabioz.com/pydev/manual_101_root.html">http://www.fabioz.com/pydev/manual_101_root.html</a>
+for up-to-date information on how to correctly install and configure your PYTHONPATH.
 
 
 <br><br>
@@ -398,129 +384,10 @@ Petru Lauric<br/>
 OK, I know that many features are available, but I just don't know how can I access them through my keyboard!!
 --------------------------------------------------------------------------------------------------------------Answer
 
-<table border="1" cellpadding="5"
-cellspacing="0" bgcolor="white">
-<tbody>
-
-<tr>
-<td colspan="2">Keybindings from Pydev</td>
-</tr>
-
-<tr>
-<td><strong>Code Completion</strong></td>
-<td>Ctrl+Space</td>
-</tr>
-
-
-
-<tr>
-<td><strong>Template Completion</strong></td>
-<td>Ctrl+Space  <br></td>
-</tr>
-
-<tr>
-<td><strong>Content Assistant</strong> </td>
-<td>Ctrl+1        </td>
-</tr>
-
-<tr>
-<td><strong>Navigate Up</strong></td>
-<td>Ctrl+Shift+Up       </td>
-</tr>
-
-<tr>
-<td><strong>Navigate Down</strong></td>
-<td>Ctrl+Shift+Down   </td>
-</tr>
-
-<tr>
-<td><strong>Comment</strong></td>
-<td>Ctrl+3                  </td>
-</tr>
-
-<tr>
-<td><strong>UnComment</strong></td>
-<td>Ctrl+Shift+3          </td>
-</tr>
-
-<tr>
-<td><strong>Make block comment</strong></td>
-<td>Ctrl+4       </td>
-</tr>
-
-<tr>
-<td><strong>Go To Definition</strong></td>
-<td>F3             </td>
-</tr>
-
-<tr>
-<td><strong>Collapse All</strong></td>
-<td>Ctrl+9             </td>
-</tr>
-
-<tr>
-<td><strong>UnCollapse All</strong></td>
-<td>Ctrl+0           </td>
-</tr>
-
-<tr>
-<td><strong>Format Code</strong></td>
-<td>Ctrl+Shift+F           </td>
-</tr>
-
-<tr>
-<td><strong>Sort imports alphabetically (or selection)</strong></td>
-<td>Ctrl+Shift+O           </td>
-</tr>
-
-<tr>
-<td><strong>Refactor: Rename</strong></td>
-<td>Shift+Alt+R           </td>
-</tr>
-
-<tr>
-<td><strong>Refactor:Extract Local Variable</strong></td>
-<td>Shift+Alt+L           </td>
-</tr>
-
-<tr>
-<td><strong>Refactor:Extract Method</strong></td>
-<td>Shift+Alt+M           </td>
-</tr>
-
-<tr>
-<td><strong>Refactor:Inline Local Variable</strong></td>
-<td>Shift+Alt+I           </td>
-</tr>
-
-
-
-
-<tr >
-<td colspan="2">Some useful Eclipse provided keybindings</td>
-</tr>
-
-<tr>
-<td><strong>Run last lauch</strong></td>
-<td>Ctrl+F11 (see how to customize perspective)</td>
-</tr>
-
-<tr>
-<td><strong>Debug last lauch</strong></td>
-<td>F11 (see how to customize perspective)</td>
-</tr>
-
-<tr>
-<td><strong>Simple text completion</strong></td>
-<td>Alt+/</td>
-</tr>
-
-
-</tbody>
-</table>
+Please refer to: <a href="http://www.fabioz.com/pydev/manual_adv_keybindings.html">http://www.fabioz.com/pydev/manual_adv_keybindings.html</a>
+for up-to-date info on the most useful keybindings provided by Pydev and Eclipse.
 
 <br><br>
-Many of them can be customized in the Keybindings menu (window->preferences->workbench->keys).
 
 
 
