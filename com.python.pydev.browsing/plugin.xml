@@ -16,6 +16,6 @@
    </extension>	
    
    <extension point="org.python.pydev.pydev_pyedit_listener">
-  		<builder_participant class="com.python.pydev.browsing.view.PydevPackageExplorerContentProvider"/>
+  		<pyedit_listener_participant class="com.python.pydev.browsing.view.PydevPackageExplorerContentProvider"/>
    </extension>
 </plugin>

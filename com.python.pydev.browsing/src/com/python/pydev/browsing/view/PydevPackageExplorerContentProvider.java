@@ -6,15 +6,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListResourceBundle;
 import java.util.Map;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.internal.ui.workingsets.HistoryWorkingSetUpdater;
 import org.eclipse.jdt.internal.ui.workingsets.WorkingSetModel;
 import org.eclipse.jface.text.Document;
@@ -23,24 +22,19 @@ import org.eclipse.jface.util.Assert;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.model.WorkbenchContentProvider;
-import org.eclipse.ui.views.IViewDescriptor;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
-import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
-import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.browsing.BrowsingPlugin;
 
@@ -322,4 +316,8 @@ public class PydevPackageExplorerContentProvider extends WorkbenchContentProvide
         	part.getViewer().refresh();
         }                
 	}
+
+    public void onCreateActions(ListResourceBundle resources, PyEdit edit) {
+        //do nothing
+    }
 }
