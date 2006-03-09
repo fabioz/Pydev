@@ -10,6 +10,11 @@ jython module management (may be handy)
 org.python.core.SysPackageManager
 
 
+
+after 1.0.3
+
+
+
 after 1.0.2
 
 Pydev:
