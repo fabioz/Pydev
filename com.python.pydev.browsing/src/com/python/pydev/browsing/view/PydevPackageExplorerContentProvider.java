@@ -281,13 +281,15 @@ public class PydevPackageExplorerContentProvider extends WorkbenchContentProvide
 	}
 	
 	public void onSave(PyEdit edit) {
-		System.out.println("onSave");
 		IDocument document = edit.getDocument();
 		
 		IWorkbenchPage page = BrowsingPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IFile file = (IFile)page.getActiveEditor().getEditorInput().getAdapter(IFile.class);		
 		
 		SourceModule module = (SourceModule)AbstractModule.createModuleFromDoc(file.getName(), null, document, null, 0);
+        if(module == null || module.getAst() == null){
+            return;
+        }
 		DefinitionsASTIteratorVisitor visitor = DefinitionsASTIteratorVisitor.create(module.getAst());
 		
 		Iterator<ASTEntry> it = visitor.getOutline();
