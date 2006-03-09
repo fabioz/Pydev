@@ -982,15 +982,31 @@ Import Import(): {}
 }
 
 //TODO: allways allowed (treat different versions in other places, to see if this is correct or not)
-void ImportFrom(): { String mod; String name; }
+void ImportFrom(): { String mod; String name;int state=0; }
 {
     mod=dotted_name() <IMPORT> {this.addSpecialToken(" import ");}
-(
-    <MULTIPLY> {this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
-    | (name=import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) //from xxx import a,b,c
-    | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   name=import_as_name() ((<NEWLINE>)* {this.addSpecialToken(",");} <COMMA> (<NEWLINE>)* import_as_name())* 
-    <RPAREN>  {this.findTokenAndAdd(")");}  //from xxx import (a,b,c)
-)
+	(
+		//from xxx import *
+	    <MULTIPLY> {this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
+	    
+	    //from xxx import a,b,c
+	    | (name=import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) 
+	    
+	    //from xxx import (a,b,c)
+	    | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   
+	      name=import_as_name() 
+	      (
+	       ({
+	         if(state!=0){
+	             throw new ParseException("Invalid syntax: 2 commas cannot be grouped.", getToken(1));
+	         }
+	         state=1; 
+	         this.addSpecialToken(",");
+	         } 
+	         <COMMA> ( {state=0;} import_as_name())? )* 
+	       <RPAREN>  {this.findTokenAndAdd(")");} 
+	      )
+	)
 }
 
 //dotted_as_name: dotted_name [NAME NAME]

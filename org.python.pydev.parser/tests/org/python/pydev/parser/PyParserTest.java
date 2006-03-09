@@ -6,6 +6,8 @@ package org.python.pydev.parser;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.jface.text.Document;
+import org.python.parser.ParseException;
 import org.python.parser.SimpleNode;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
@@ -23,7 +25,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testOnDocBaseHTTPServer();
+            test.testNewImportParser();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -190,6 +192,28 @@ public class PyParserTest extends PyParserTestBase{
         "\n" +
         "";
         parseLegalDocStr(s);
+    }
+    
+    public void testNewImportParser2() {
+        String s = "" +
+        "from a import (b,\n" +
+        "            c,\n" +
+        "            )\n" +
+        "\n" +
+        "\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testNewImportParser3() {
+        String s = "" +
+        "from a import (b,\n" +
+        "            c,,\n" + //err
+        "            )\n" +
+        "\n" +
+        "\n" +
+        "";
+        parseILegalDoc(new Document(s));
     }
     
     public void testParser() {

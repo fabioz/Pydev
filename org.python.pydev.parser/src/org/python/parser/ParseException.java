@@ -57,17 +57,25 @@ public class ParseException extends Exception {
   }
 
   public ParseException(String message, SimpleNode node) {
+      this(message, node.beginLine, node.beginColumn);
+  }
+  
+  public ParseException(String message, Token t) {
+      this(message, t.beginLine, t.beginColumn);
+  }
+  
+  public ParseException(String message, int beginLine, int beginColumn) {
     super(message);
     // If a node is passed in, provide just enough info to get current line/column out
     Token t = new Token();
-    t.beginLine = node.beginLine;
-    t.beginColumn = node.beginColumn;
+    t.beginLine = beginLine;
+    t.beginColumn = beginColumn;
     
     currentToken = new Token();
     currentToken.next = t;
     t = currentToken;
-    t.beginLine = node.beginLine;
-    t.beginColumn = node.beginColumn;
+    t.beginLine = beginLine;
+    t.beginColumn = beginColumn;
     
     specialConstructor = false;
   }

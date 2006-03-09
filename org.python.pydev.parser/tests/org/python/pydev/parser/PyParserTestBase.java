@@ -45,7 +45,19 @@ public class PyParserTestBase extends TestCase {
 	protected SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo) {
 	    return parseLegalDoc(doc, additionalErrInfo, parser);
     }
-	/**
+	protected void parseILegalDoc(IDocument doc) {
+	    parser.setDocument(doc, false);
+	    Object[] objects = parser.reparseDocument((IPythonNature)null);
+	    Object err = objects[1];
+	    if(err == null){
+	        fail("Expected a ParseException and the doc was successfully parsed.");
+        }
+	    if(!(err instanceof ParseException)){
+	        fail("Expected a ParseException and received:"+err.getClass());
+	    }
+    }
+
+    /**
 	 * @param additionalErrInfo can be used to add additional errors to the fail message if the doc is not parseable
 	 * @param parser the parser to be used to do the parsing.
 	 */
