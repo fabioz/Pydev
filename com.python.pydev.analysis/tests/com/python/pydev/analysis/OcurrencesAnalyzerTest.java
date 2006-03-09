@@ -99,6 +99,20 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals("TestCase", msgs[0].getAdditionalInfo().get(0));
         assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
     }
+    
+    public void testClassVar(){
+        doc = new Document(
+            "class Foo(object):\n"+
+            "    x = 1\n"+
+            "    def m1(self):\n"+
+            "        print x\n" //should access with self.x or Foo.x
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs,1);
+        
+    }
 
     public void testConsiderAsGlobals(){
     	doc = new Document(
