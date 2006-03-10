@@ -14,6 +14,7 @@ import org.python.parser.ast.FunctionDef;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.decoratorsType;
 import org.python.parser.ast.exprType;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -22,9 +23,17 @@ import com.python.pydev.analysis.IAnalysisPreferences;
 
 public class NoSelfChecker {
 
+    public static class Expected{
+        public String expected;
+        public String received;
+        public Expected(String expected, String received) {
+            this.expected = expected;
+            this.received = received;
+        }
+    }
+    
     private Stack<Integer> scope = new Stack<Integer>();
-    private Stack<HashMap<String, FunctionDef>> maybeNoSelfDefinedItems = new Stack<HashMap<String, FunctionDef>>();
-    private Stack<HashMap<String, FunctionDef>> maybeNoClsDefinedItems = new Stack<HashMap<String, FunctionDef>>();
+    private Stack<HashMap<String, Tuple<Expected, FunctionDef>>> maybeNoSelfDefinedItems = new Stack<HashMap<String, Tuple<Expected, FunctionDef>>>();
     
     private MessagesManager messagesManager;
     private String moduleName;
@@ -37,26 +46,27 @@ public class NoSelfChecker {
 
     public void beforeClassDef(ClassDef node) {
         scope.push(Scope.SCOPE_TYPE_CLASS);
-        maybeNoSelfDefinedItems.push(new HashMap<String, FunctionDef>());
-        maybeNoClsDefinedItems.push(new HashMap<String, FunctionDef>());
+        maybeNoSelfDefinedItems.push(new HashMap<String, Tuple<Expected, FunctionDef>>());
     }
 
     public void afterClassDef(ClassDef node) {
         scope.pop();
         
-        creteMessagesForStack(maybeNoSelfDefinedItems, "self");
-        creteMessagesForStack(maybeNoClsDefinedItems, "cls");
+        creteMessagesForStack(maybeNoSelfDefinedItems);
     }
 
     /**
      * @param stack
      * @param shouldBeDefined
      */
-    private void creteMessagesForStack(Stack<HashMap<String, FunctionDef>> stack, String shouldBeDefined) {
-        HashMap<String, FunctionDef> noDefinedItems = stack.pop();
-        for (Map.Entry<String, FunctionDef> entry : noDefinedItems.entrySet()) {
-            SourceToken token = AbstractVisitor.makeToken(entry.getValue(), moduleName);
-            messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_SELF, token, new Object[]{token, shouldBeDefined});
+    private void creteMessagesForStack(Stack<HashMap<String, Tuple<Expected, FunctionDef>>> stack) {
+        HashMap<String, Tuple<Expected, FunctionDef>> noDefinedItems = stack.pop();
+        for (Map.Entry<String, Tuple<Expected, FunctionDef>> entry : noDefinedItems.entrySet()) {
+            Expected expected = entry.getValue().o1;
+            if(!expected.expected.equals(expected.received)){
+                SourceToken token = AbstractVisitor.makeToken(entry.getValue().o2, moduleName);
+                messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_SELF, token, new Object[]{token, entry.getValue().o1.expected});
+            }
         }
     }
 
@@ -74,6 +84,7 @@ public class NoSelfChecker {
             //let's check if we have to start with self or cls
             boolean startsWithSelf = false;
             boolean startsWithCls = false;
+            String received = "";
             if(node.args != null){
                 
                 if(node.args.args.length > 0){
@@ -87,6 +98,7 @@ public class NoSelfChecker {
                         } else if(n.id.equals("cls")){
                             startsWithCls = true;
                         }
+                        received = n.id;
                     }
                 }
             }
@@ -110,12 +122,21 @@ public class NoSelfChecker {
                     }
                 }
             }
+            
             //didn't have staticmethod decorator either
-            if(!startsWithSelf && !startsWithCls && !isStaticMethod && !isClassMethod){
-                maybeNoSelfDefinedItems.peek().put(NodeUtils.getRepresentationString(node), node);
-            }
-            if(startsWithCls && !isClassMethod){
-                maybeNoClsDefinedItems.peek().put(NodeUtils.getRepresentationString(node), node);
+            String rep = NodeUtils.getRepresentationString(node);
+            if(rep.equals("__new__")){
+                
+                //__new__ could start wit cls or self
+                if(!startsWithCls && !startsWithSelf){
+                    maybeNoSelfDefinedItems.peek().put(rep, new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
+                }
+                
+            }else if(!startsWithSelf && !startsWithCls && !isStaticMethod && !isClassMethod){
+                maybeNoSelfDefinedItems.peek().put(rep, new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
+            
+            } else if(startsWithCls && !isClassMethod){
+                maybeNoSelfDefinedItems.peek().put(rep, new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
             }
         }
         scope.push(Scope.SCOPE_TYPE_METHOD);
@@ -140,35 +161,33 @@ public class NoSelfChecker {
                 return;
             }
             
-            FunctionDef def = maybeNoSelfDefinedItems.peek().get(rep);
-            FunctionDef defCls = maybeNoClsDefinedItems.peek().get(rep);
+            Tuple<Expected, FunctionDef> tup = maybeNoSelfDefinedItems.peek().get(rep);
+            if(tup == null){
+                return;
+            }
             
-            if(def != null || defCls != null){
-                //ok, it may be a staticmethod, let's check its value (should be a call)
-                exprType expr = node.value;
-                if(expr instanceof Call){
-                    Call call = (Call) expr;
-                    if(call.args.length == 1){
-                        String argRep = NodeUtils.getRepresentationString(call.args[0]);
-                        if(argRep != null && argRep.equals(rep)){
-                            String funcCall = NodeUtils.getRepresentationString(call.func);
+            FunctionDef def = tup.o2;
+            if(def == null){
+                return;
+            }
+            
+            //ok, it may be a staticmethod, let's check its value (should be a call)
+            exprType expr = node.value;
+            if(expr instanceof Call){
+                Call call = (Call) expr;
+                if(call.args.length == 1){
+                    String argRep = NodeUtils.getRepresentationString(call.args[0]);
+                    if(argRep != null && argRep.equals(rep)){
+                        String funcCall = NodeUtils.getRepresentationString(call.func);
+                        
+                        
+                        if(def != null && funcCall != null && funcCall.equals("staticmethod")){
+                            //ok, finally... it is a staticmethod after all...
+                            maybeNoSelfDefinedItems.peek().remove(rep);
                             
-                            
-                            if(def != null && funcCall != null && funcCall.equals("staticmethod")){
-                                //ok, finally... it is a staticmethod after all...
-                                maybeNoSelfDefinedItems.peek().remove(rep);
-                                
-                            }else if(funcCall.equals("classmethod")){
-	                            if(defCls != null && funcCall != null){
-	                                //ok, finally... it is a classmethod after all...
-	                                maybeNoClsDefinedItems.peek().remove(rep);
-	                                
-	                            }else if(def != null && funcCall != null){ //if the definitions were found for the staticmethod, but it was found as a classmethod
-	                            	//ok, it is probably defined in the 'self' stack, so, move it to the 'cls' stack
-	                            	FunctionDef defToMove = maybeNoSelfDefinedItems.peek().remove(rep);
-	                            	maybeNoClsDefinedItems.peek().put(rep, defToMove);
-	                            }
-                            }
+                        }else if(funcCall.equals("classmethod")){
+                            //ok, finally... it is a classmethod after all...
+                            tup.o1.expected = "cls";
                         }
                     }
                 }

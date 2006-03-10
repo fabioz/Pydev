@@ -26,7 +26,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.test5UnusedVariables();
+            analyzer2.testClsInNew();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -111,6 +111,35 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,1);
+        
+    }
+    
+    public void testClsInNew(){
+        doc = new Document(
+            "class C2:\n"+
+            "    def __new__(cls):\n"+
+            "        print cls\n"+
+            ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs,0);
+        
+    }
+    
+    public void testClsInsteadOfSelf(){
+        doc = new Document(
+                "class C2:\n"+
+                "    def foo(cls):\n"+
+                "        print cls\n"+
+                ""
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs,1);
+        assertContainsMsg("Method 'foo' should have self as first parameter", msgs);
         
     }
 
