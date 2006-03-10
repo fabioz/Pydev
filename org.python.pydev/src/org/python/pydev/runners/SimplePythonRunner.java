@@ -144,6 +144,14 @@ public class SimplePythonRunner extends SimpleRunner {
                 throw new RuntimeException(e1);
             }
 
+            try {
+            	//just to see if we get something after the process finishes (and let the other threads run).
+            	synchronized (this) {
+            		this.wait(50);
+				}
+			} catch (Exception e) {
+				//ignore
+			}
             return new Tuple<String, String>(std.contents.toString(), err.contents.toString());
             
         } else {
