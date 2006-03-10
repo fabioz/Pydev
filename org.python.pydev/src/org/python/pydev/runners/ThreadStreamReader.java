@@ -3,7 +3,6 @@
  */
 package org.python.pydev.runners;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -18,8 +17,7 @@ public class ThreadStreamReader extends Thread {
 
     public void run() {
         try {
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader in = new BufferedReader(isr);
+            InputStreamReader in = new InputStreamReader(is);
             int c;
             while ((c = in.read()) != -1) {
                 contents.append((char) c);

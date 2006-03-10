@@ -54,5 +54,23 @@ if __name__ == '__main__':
     for builtinMod in sys.builtin_module_names:
         print '|', builtinMod
         
+    
+    for i in range(8196):
+        print ' '# print some spaces to see if we remove any buffering...
         
-
+    try:
+        sys.stdout.flush()
+    except:
+        pass
+    
+    try:
+        sys.stderr.flush()
+    except:
+        pass
+    
+    try:
+        #and give some time to let it read things (just in case)
+        sleep(0.5)
+    except:
+        pass
+    
