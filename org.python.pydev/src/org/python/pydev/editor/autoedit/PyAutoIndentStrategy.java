@@ -6,6 +6,8 @@
 
 package org.python.pydev.editor.autoedit;
 
+import java.util.HashMap;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.DocumentCommand;
@@ -18,6 +20,8 @@ import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.jython.IPythonInterpreter;
+import org.python.pydev.jython.JythonPlugin;
 
 /**
  * Class which implements the following behaviors:
@@ -30,7 +34,12 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 
     private IIndentPrefs prefs;
-
+    IPythonInterpreter interpreter;
+    
+    public PyAutoIndentStrategy(){
+    	interpreter = JythonPlugin.newPythonInterpreter();
+    }
+    
     public void setIndentPrefs(IIndentPrefs prefs) {
         this.prefs = prefs;
     }
@@ -42,11 +51,17 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
         return this.prefs;
     }
 
+    
+    
     /**
      * Set indentation automatically after newline.
      */
     private String autoIndentNewline(IDocument document, int length, String text, int offset)
             throws BadLocationException {
+    	HashMap<String, Object> locals = new HashMap<String, Object>();
+    	locals.put("text",text);
+    	JythonPlugin.exec(locals, "indent.py", interpreter);
+    	
         if (length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text)) {
 
             if (offset > 0) {

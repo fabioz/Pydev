@@ -6,14 +6,11 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
+import org.python.pydev.core.bundle.BundleUtils;
 import org.python.pydev.ui.ImageCache;
 
 /**
@@ -41,18 +38,10 @@ public class BundleInfo implements IBundleInfo{
     public File getRelativePath(IPath relative) throws CoreException {
         Bundle bundle = PydevPlugin.getDefault().getBundle();
 
-        URL bundleURL = Platform.find(bundle, relative);
-        URL fileURL;
-        try {
-            fileURL = Platform.asLocalURL(bundleURL);
-            File f = new File(fileURL.getPath());
-
-            return f;
-        } catch (IOException e) {
-            throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Can't find python debug script", null));
-        }
+        return BundleUtils.getRelative(relative, bundle);
     }
-    /**
+    
+	/**
      * @see org.python.pydev.plugin.IBundleInfo#getPluginID()
      */
     public String getPluginID() {
