@@ -158,10 +158,18 @@ public class PydevMarkerUtils {
                 PydevPlugin.log(e);
             }
         }else{
-        	//to check if it exists, we don't check all attributes, so, let's update those that we don't check.
+        	//to check if it exists, we don't check all attributes, so, let's update those that we don't check (if needed).
         	try {
-				marker.setAttribute(IMarker.LINE_NUMBER, new Integer(lineStart));
-				marker.setAttribute(IMarker.SEVERITY, new Integer(severity));
+        		final Object lN = marker.getAttribute(IMarker.LINE_NUMBER);
+				if(lN == null || ((Integer)lN) != lineStart){
+        			marker.setAttribute(IMarker.LINE_NUMBER, new Integer(lineStart));
+        		}
+				
+        		final Object mS = marker.getAttribute(IMarker.SEVERITY);
+				if(mS == null || ((Integer)mS) != severity){
+        			marker.setAttribute(IMarker.SEVERITY, new Integer(severity));
+        		}
+				
 			} catch (Exception e) {
 				PydevPlugin.log(e);
 			}
