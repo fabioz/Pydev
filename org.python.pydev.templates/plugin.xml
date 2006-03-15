@@ -141,11 +141,20 @@ ${cursor}
       <template
             autoinsert="true"
             contextTypeId="org.python.pydev.editor.templates.python"
-            description="Method definition (class)"
+            description="def __init__(self):"
+            icon="icons/template.gif"
+            id="org.python.pydev.editor.templates.python.ini"
+            name="ini">
+         <pattern>def __init__(self):${cursor}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            description="def __init__(self, ${params})"
             icon="icons/template.gif"
             id="org.python.pydev.editor.templates.python.init"
-            name="init">
-         <pattern>def __init__(self):${cursor}</pattern>
+            name="inip">
+         <pattern>def __init__(self, ${params}):${cursor}</pattern>
       </template>
       <template
             autoinsert="true"
