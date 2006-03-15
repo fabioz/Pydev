@@ -3,7 +3,6 @@ package org.python.pydev.plugin;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -54,14 +53,15 @@ import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.bundle.BundleInfo;
+import org.python.pydev.core.bundle.IBundleInfo;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.pyunit.ITestRunListener;
 import org.python.pydev.pyunit.PyUnitTestRunner;
-import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
@@ -69,6 +69,18 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
  */
 public class PydevPlugin extends AbstractUIPlugin implements Preferences.IPropertyChangeListener {
+    // ----------------- SINGLETON THINGS -----------------------------
+    public static IBundleInfo info;
+    public static IBundleInfo getBundleInfo(){
+        if(PydevPlugin.info == null){
+            PydevPlugin.info = new BundleInfo(PydevPlugin.getDefault().getBundle());
+        }
+        return PydevPlugin.info;
+    }
+    public static void setBundleInfo(IBundleInfo b){
+        PydevPlugin.info = b;
+    }
+    // ----------------- END BUNDLE INFO THINGS --------------------------
 	
     private static IInterpreterManager pythonInterpreterManager;
     private static IInterpreterManager jythonInterpreterManager;
@@ -85,6 +97,8 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     public static IInterpreterManager getJythonInterpreterManager() {
         return jythonInterpreterManager;
     }
+    // ----------------- END SINGLETON THINGS --------------------------
+
     /**
      * returns the interpreter manager for a given nature
      * @param nature the nature from where we want to get the associated interpreter manager
@@ -206,7 +220,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     public static String getPluginID() {
-        return BundleInfo.getBundleInfo().getPluginID();
+        return PydevPlugin.getBundleInfo().getPluginID();
     }
 
     /**
@@ -532,11 +546,11 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @throws CoreException
      */
     public static File getRelativePath(IPath relative) throws CoreException {
-        return BundleInfo.getBundleInfo().getRelativePath(relative);
+        return PydevPlugin.getBundleInfo().getRelativePath(relative);
     }
     
     public static ImageCache getImageCache(){
-        return BundleInfo.getBundleInfo().getImageCache();
+        return PydevPlugin.getBundleInfo().getImageCache();
     }
     
 

@@ -33,6 +33,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
@@ -46,7 +47,6 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
 
 /**

@@ -21,6 +21,7 @@ import org.eclipse.jface.text.rules.PatternRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
+import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -36,10 +37,12 @@ import org.python.pydev.plugin.PydevPlugin;
  * if it knows the type of the partition."
  */
 public class PyPartitionScanner extends RuleBasedPartitionScanner {
-	public final static String PY_COMMENT = "__python_comment";
-	public final static String PY_SINGLELINE_STRING = "__python_singleline_string";
-	public final static String PY_MULTILINE_STRING = "__python_multiline_string";
-	public final static String PY_BACKQUOTES = "__python_backquotes";
+    //this is just so that we don't have to break the interface
+	public final static String PY_COMMENT            = ParsingUtils.PY_COMMENT           ;
+	public final static String PY_SINGLELINE_STRING  = ParsingUtils.PY_SINGLELINE_STRING ;
+	public final static String PY_MULTILINE_STRING   = ParsingUtils.PY_MULTILINE_STRING  ;
+	public final static String PY_BACKQUOTES         = ParsingUtils.PY_BACKQUOTES        ;
+	public final static String PY_DEFAULT            = ParsingUtils.PY_DEFAULT           ;
     
     public final static String[] types = {PY_COMMENT, PY_SINGLELINE_STRING, PY_MULTILINE_STRING, PY_BACKQUOTES};
     public static final String PYTHON_PARTITION_TYPE = "__PYTHON_PARTITION_TYPE";

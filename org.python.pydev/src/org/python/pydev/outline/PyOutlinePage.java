@@ -24,10 +24,10 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
 
 /**

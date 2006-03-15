@@ -3,12 +3,13 @@
  * Created: Jul 29, 2003
  * License: Common Public License v1.0
  */
-package org.python.pydev.ui;
+package org.python.pydev.core.bundle;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
@@ -19,7 +20,7 @@ import org.eclipse.swt.graphics.Image;
 public class ImageCache {
 	
 	
-	private HashMap imageHash = new HashMap(10);
+	private Map<String, Image> imageHash = new HashMap<String, Image>(10);
 	private URL baseURL; 
 	private Image missing = null;
 	

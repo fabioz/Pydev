@@ -22,8 +22,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.debug.unittest.ITestRunListener;
-import org.python.pydev.ui.ImageCache;
 /**
  * The main plugin for Python Debugger.
  * 

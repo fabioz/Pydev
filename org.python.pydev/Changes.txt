@@ -12,7 +12,8 @@ org.python.core.SysPackageManager
 
 
 after 1.0.3
-
+Pydev:
+- Does not try to make different indentations inside multilines
 
 
 after 1.0.2

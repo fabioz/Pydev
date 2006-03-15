@@ -12,7 +12,6 @@ import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.PythonInterpreterManagerStub;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonCodeCompletionTestsBase;
-import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class SimpleJythonRunnerTest extends JythonCodeCompletionTestsBase {
@@ -34,7 +33,7 @@ public class SimpleJythonRunnerTest extends JythonCodeCompletionTestsBase {
 
     public void testRun() throws CoreException, IOException {
         SimpleJythonRunner runner = new SimpleJythonRunner();
-        File absoluteFile = BundleInfo.getBundleInfo().getRelativePath(new Path("interpreterInfo.py")).getAbsoluteFile();
+        File absoluteFile = PydevPlugin.getBundleInfo().getRelativePath(new Path("interpreterInfo.py")).getAbsoluteFile();
         String string = runner.runAndGetOutputWithJar(absoluteFile.getCanonicalPath(), TestDependent.JYTHON_JAR_LOCATION, null, null, null, new NullProgressMonitor()).o1;
 //        String string = runner.runAndGetOutput(absoluteFile.getCanonicalPath(), (String)null, null);
         assertNotNull(string);

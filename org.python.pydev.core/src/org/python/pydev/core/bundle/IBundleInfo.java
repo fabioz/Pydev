@@ -3,13 +3,12 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.plugin;
+package org.python.pydev.core.bundle;
 
 import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.python.pydev.ui.ImageCache;
 
 /**
  * @author Fabio Zadrozny

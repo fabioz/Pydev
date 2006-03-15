@@ -5,12 +5,14 @@
  */
 package org.python.pydev.editor;
 
+import junit.framework.TestCase;
+
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.autoedit.AbstractIndentPrefs;
 import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-
-import junit.framework.TestCase;
+import org.python.pydev.jython.JythonPlugin;
+import org.python.pydev.ui.BundleInfoStub;
 
 /**
  * @author Fabio Zadrozny
@@ -36,6 +38,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
+        JythonPlugin.setBundleInfo(new BundleInfoStub());
     }
 
     /*
@@ -313,7 +316,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "\n" +
-                   "\t  ";
+                   "\t";
         assertEquals(expected, docCmd.text);
 
         //test after \t[ a,\n
@@ -321,7 +324,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "\n" +
-                   "\t\t  ";
+                   "\t\t";
         assertEquals(expected, docCmd.text);
 
         //test after \t[ a,\n
@@ -329,13 +332,13 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "\n" +
-                   "\t\t  ";
+                   "\t\t";
         assertEquals(expected, docCmd.text);
     }        
 
     public void testAutoClose() {
     	strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
-        String doc = "class c(object): #";
+        String doc = "class c(object): ";
         DocCmd docCmd = new DocCmd(doc.length(), 0, "[");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         String expected = "[]";
@@ -390,7 +393,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         doc = "class c(object): #";
         docCmd = new DocCmd(doc.length(), 0, "(");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
-        expected = "()";
+        expected = "("; //in comment
         assertEquals(expected, docCmd.text);
         
         doc = "def a";

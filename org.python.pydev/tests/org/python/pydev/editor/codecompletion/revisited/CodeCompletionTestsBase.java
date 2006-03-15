@@ -23,7 +23,6 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.BundleInfoStub;
@@ -56,7 +55,7 @@ public class CodeCompletionTestsBase extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        BundleInfo.setBundleInfo(new BundleInfoStub());
+        PydevPlugin.setBundleInfo(new BundleInfoStub());
         preferences = new Preferences();
         ProjectModulesManager.IN_TESTS = true;
     }
@@ -66,7 +65,7 @@ public class CodeCompletionTestsBase extends TestCase {
      */
     protected void tearDown() throws Exception {
         super.tearDown();
-        BundleInfo.setBundleInfo(null);
+        PydevPlugin.setBundleInfo(null);
         ProjectModulesManager.IN_TESTS = false;
     }
     

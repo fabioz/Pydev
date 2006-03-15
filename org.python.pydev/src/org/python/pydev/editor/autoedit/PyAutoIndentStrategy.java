@@ -6,8 +6,6 @@
 
 package org.python.pydev.editor.autoedit;
 
-import java.util.HashMap;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.DocumentCommand;
@@ -58,11 +56,8 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
      */
     private String autoIndentNewline(IDocument document, int length, String text, int offset)
             throws BadLocationException {
-    	HashMap<String, Object> locals = new HashMap<String, Object>();
-    	locals.put("text",text);
-    	JythonPlugin.exec(locals, "indent.py", interpreter);
     	
-        if (length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text)) {
+        if (isNewLineText(document, length, text)) {
 
             if (offset > 0) {
                 PySelection selection = new PySelection(document, offset);
@@ -100,14 +95,20 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                             }
                         }
                     }
-                    
-                    
-                    
-                    
                 }
             }
         }
         return text;
+    }
+
+    /**
+     * @param document
+     * @param length
+     * @param text
+     * @return
+     */
+    private boolean isNewLineText(IDocument document, int length, String text) {
+        return length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text);
     }
 
     public static final String[] DEDENT_TOKENS = new String[]{
@@ -158,8 +159,29 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
      * @see org.eclipse.jface.text.IAutoEditStrategy#customizeDocumentCommand(IDocument, DocumentCommand)
      */
     public void customizeDocumentCommand(IDocument document, DocumentCommand command) {
+//        I was going to do some things in jython here, but there is too much code around for that...
+//        HashMap<String, Object> locals = new HashMap<String, Object>();
+//        locals.put("cmd",command);
+//        locals.put("doc",document);
+//        locals.put("prefs",getIndentPrefs());
+//        locals.put("strategy",this);
+//        if(JythonPlugin.exec(locals, "indent.py", interpreter) == true){
+//            //ok, it has already executed what was needed, so, let's return
+//            return;
+//        }
+//      
         // super idents newlines the same amount as the previous line
         super.customizeDocumentCommand(document, command);
+        
+        String contentType = ParsingUtils.getContentType(document.get(), command.offset);
+        if(!contentType.equals( ParsingUtils.PY_DEFAULT)){
+            //the indentation is only valid for things in the code (comments should not be indented).
+            //(that is, if it is not a new line... in this case, it may have to be indented)
+            if(!isNewLineText(document, command.length, command.text)){
+                return;
+            }
+        }
+        
 
         try {
             command.text = autoIndentNewline(document, command.length, command.text, command.offset);
@@ -297,8 +319,8 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             command.text = "BadLocationException";
             throw new RuntimeException(e);
         }
-
     }
+
     /**
      * This function makes the else auto-dedent (if available)
      * @return the new indent and the number of chars it has been dedented (so, that has to be considered as a shift to the left
@@ -390,9 +412,11 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                 b.append(indentationString);
             }
             
-            while (spaceSteps >= 0){
-                spaceSteps -= 1;
-                b.append(" ");
+            if(prefs.getUseSpaces()){
+                while (spaceSteps >= 0){
+                    spaceSteps -= 1;
+                    b.append(" ");
+                }
             }
 
             return initial + b.toString();

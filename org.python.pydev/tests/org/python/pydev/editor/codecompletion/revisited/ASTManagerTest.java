@@ -11,7 +11,6 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.plugin.BundleInfo;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -58,7 +57,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     protected void tearDown() throws Exception {
         super.tearDown();
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        BundleInfo.setBundleInfo(null);
+        PydevPlugin.setBundleInfo(null);
     }
 
     public void testCompletion(){

@@ -10,7 +10,8 @@ import java.io.File;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.plugin.IBundleInfo;
+import org.python.pydev.core.bundle.IBundleInfo;
+import org.python.pydev.core.bundle.ImageCache;
 
 
 public class BundleInfoStub implements IBundleInfo {
@@ -24,6 +25,9 @@ public class BundleInfoStub implements IBundleInfo {
         }
         if(relative.toString().indexOf("jycompletionserver.py") != -1){
             return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"PySrc/jycompletionserver.py");
+        }
+        if(relative.toString().indexOf("indent.py") != -1){
+            return new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC+"jysrc/indent.py");
         }
         throw new RuntimeException("Not available info on: "+relative);
     }

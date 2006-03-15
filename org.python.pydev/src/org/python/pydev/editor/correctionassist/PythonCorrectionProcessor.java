@@ -16,6 +16,7 @@ import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
@@ -27,7 +28,6 @@ import org.python.pydev.editor.correctionassist.heuristics.AssistTry;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.ImageCache;
 
 /**
  * This class should be used to give context help

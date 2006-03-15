@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.plugin.BundleInfo;
+import org.python.pydev.plugin.PydevPlugin;
 
 public class SWTTest extends TestCase{
 
@@ -27,7 +27,7 @@ public class SWTTest extends TestCase{
      */
     protected void setUp() throws Exception {
         super.setUp();
-        BundleInfo.setBundleInfo(new BundleInfoStub());
+        PydevPlugin.setBundleInfo(new BundleInfoStub());
         try {
             if(TestDependent.HAS_SWT_ON_PATH){
                 display = createDisplay();
@@ -51,7 +51,7 @@ public class SWTTest extends TestCase{
      */
     protected void tearDown() throws Exception {
         super.tearDown();
-        BundleInfo.setBundleInfo(null);
+        PydevPlugin.setBundleInfo(null);
     }
 
     /**

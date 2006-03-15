@@ -321,4 +321,45 @@ public class ParsingUtils {
         }
     }
 
+    public final static String PY_COMMENT           = "__python_comment";
+    public final static String PY_SINGLELINE_STRING = "__python_singleline_string";
+    public final static String PY_MULTILINE_STRING  = "__python_multiline_string";
+    public final static String PY_BACKQUOTES        = "__python_backquotes";
+    public final static String PY_DEFAULT           = "__dftl_partition_content_type";
+
+    /**
+     * @param initial
+     * @param currPos
+     * @return the content type of the 
+     */
+    public static String getContentType(String initial, int currPos) {
+        StringBuffer buf = new StringBuffer(initial);
+        String curr = PY_DEFAULT;
+        
+        for (int i = 0; i < buf.length() && i < currPos; i++) {
+            char ch = buf.charAt(i);
+            curr = PY_DEFAULT;
+            
+            if(ch == '#'){
+                curr = PY_COMMENT;
+                
+                int j = i;
+                while(j < buf.length()-1 && ch != '\n' && ch != '\r'){
+                    j++;
+                    ch = buf.charAt(j);
+                }
+                i = j;
+            }
+            if(i >= currPos){
+                return curr;
+            }
+            
+            if(ch == '\'' || ch == '"'){
+                curr = PY_SINGLELINE_STRING;
+                i = getLiteralEnd(buf, i, ch);
+            }
+        }
+        return curr;
+    }
+
 }

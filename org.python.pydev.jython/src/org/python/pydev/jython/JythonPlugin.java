@@ -11,7 +11,8 @@ import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 import org.python.core.PyObject;
 import org.python.pydev.core.REF;
-import org.python.pydev.core.bundle.BundleUtils;
+import org.python.pydev.core.bundle.BundleInfo;
+import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.util.PythonInterpreter;
@@ -20,6 +21,18 @@ import org.python.util.PythonInterpreter;
  * The main plugin class to be used in the desktop.
  */
 public class JythonPlugin extends Plugin {
+    // ----------------- SINGLETON THINGS -----------------------------
+    public static IBundleInfo info;
+    public static IBundleInfo getBundleInfo(){
+        if(JythonPlugin.info == null){
+            JythonPlugin.info = new BundleInfo(JythonPlugin.getDefault().getBundle());
+        }
+        return JythonPlugin.info;
+    }
+    public static void setBundleInfo(IBundleInfo b){
+        JythonPlugin.info = b;
+    }
+    // ----------------- END BUNDLE INFO THINGS --------------------------
 
 	//The shared instance.
 	private static JythonPlugin plugin;
@@ -65,8 +78,12 @@ public class JythonPlugin extends Plugin {
 	}
 	
 	public static File getFileWithinJySrc(String f){
-        IPath relative = new Path("jysrc").addTrailingSeparator().append(f);
-		return BundleUtils.getRelative(relative, getDefault().getBundle());
+        try {
+            IPath relative = new Path("jysrc").addTrailingSeparator().append(f);
+            return getBundleInfo().getRelativePath(relative);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 	}
 
 	/**
@@ -94,7 +111,7 @@ public class JythonPlugin extends Plugin {
 	 *         If further info is needed, the interpreter itself should be checked for return values
 	 * 
 	 */
-	public static Object exec(HashMap<String, Object> locals, String fileToExec, IPythonInterpreter interpreter) {
+	public static boolean exec(HashMap<String, Object> locals, String fileToExec, IPythonInterpreter interpreter) {
 		File fileWithinJySrc = JythonPlugin.getFileWithinJySrc(fileToExec);
     	return exec(locals, interpreter, fileWithinJySrc);
 	}
@@ -103,7 +120,7 @@ public class JythonPlugin extends Plugin {
 	 * @see JythonPlugin#exec(HashMap, String, PythonInterpreter)
 	 * Same as before but the file to execute is passed as a parameter
 	 */
-	public static Object exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, File fileToExec) {
+	public static boolean exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, File fileToExec) {
 		try {
 			for (Map.Entry<String, Object> entry : locals.entrySet()) {
 				interpreter.set(entry.getKey(), entry.getValue());
@@ -126,9 +143,16 @@ public class JythonPlugin extends Plugin {
 			}
 			
 			if(regenerate){
-				String fileContents = REF.getFileContents(fileToExec);
 				String path = REF.getFileAbsolutePath(fileToExec);
-				String exec = StringUtils.format("code = compile('''%s''', '%s', 'exec')", fileContents, path);
+                String loadFile = "" +
+"f = open('"+fileToExec+"')\n" +
+"try:                      \n" +
+"    toExec = f.read()     \n" +
+"finally:                  \n" +
+"    f.close()             \n" +
+                        "";
+                interpreter.exec(loadFile);
+				String exec = StringUtils.format("code = compile(toExec, '%s', 'exec')", path);
 				interpreter.exec(exec);
 			}
 			
