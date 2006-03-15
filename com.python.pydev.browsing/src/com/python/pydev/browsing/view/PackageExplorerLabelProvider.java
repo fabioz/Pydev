@@ -15,6 +15,7 @@ import org.python.parser.ast.Import;
 import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.NameTok;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.editor.model.AttributeNode;
 import org.python.pydev.editor.model.ImportFromNode;
 import org.python.pydev.editor.model.ImportNode;
@@ -22,7 +23,6 @@ import org.python.pydev.editor.model.NameEqualsMainNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.ImageCache;
 
 import com.python.pydev.browsing.ui.UIConstants;
 

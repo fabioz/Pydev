@@ -15,11 +15,11 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.plugin.nature.SystemPythonNature;
-import org.python.pydev.ui.ImageCache;
 import org.python.pydev.ui.UIConstants;
 
 import com.python.pydev.PydevPlugin;

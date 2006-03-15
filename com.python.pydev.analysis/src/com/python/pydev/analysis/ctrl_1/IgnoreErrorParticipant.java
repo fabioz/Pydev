@@ -13,11 +13,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.ImageCache;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.IAnalysisPreferences;

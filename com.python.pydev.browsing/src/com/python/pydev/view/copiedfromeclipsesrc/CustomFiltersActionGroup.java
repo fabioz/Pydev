@@ -48,8 +48,8 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.actions.ActionGroup;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.ImageCache;
 
 import com.python.pydev.browsing.BrowsingPlugin;
 import com.python.pydev.browsing.ui.UIConstants;

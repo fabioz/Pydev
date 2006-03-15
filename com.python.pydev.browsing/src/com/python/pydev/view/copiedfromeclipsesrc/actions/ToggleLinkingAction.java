@@ -12,7 +12,7 @@ package com.python.pydev.view.copiedfromeclipsesrc.actions;
 
 import java.net.MalformedURLException;
 
-import org.python.pydev.ui.ImageCache;
+import org.python.pydev.core.bundle.ImageCache;
 
 import com.python.pydev.browsing.BrowsingPlugin;
 import com.python.pydev.browsing.ui.UIConstants;
