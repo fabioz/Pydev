@@ -179,7 +179,6 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
             }
 
         } catch (BadLocationException x) {
-        } catch (IOException x) {
         }
 
         return false;
@@ -195,26 +194,28 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
      * @return the offset of the closing peer
      * @throws IOException
      */
-    protected int searchForClosingPeer(int offset, char openingPeer, char closingPeer, IDocument document)
-            throws IOException {
+    public int searchForClosingPeer(int offset, char openingPeer, char closingPeer, IDocument document){
+        try {
+            fReader.configureForwardReader(document, offset + 1, document.getLength(), true, true);
 
-        fReader.configureForwardReader(document, offset + 1, document.getLength(), true, true);
+            int stack = 1;
+            char c = (char)fReader.read();
+            while (c != PythonCodeReader.EOF) {
+                if (c == openingPeer && c != closingPeer)
+                    stack++;
+                else if (c == closingPeer)
+                    stack--;
 
-        int stack = 1;
-        int c = fReader.read();
-        while (c != PythonCodeReader.EOF) {
-            if (c == openingPeer && c != closingPeer)
-                stack++;
-            else if (c == closingPeer)
-                stack--;
+                if (stack == 0)
+                    return fReader.getOffset();
 
-            if (stack == 0)
-                return fReader.getOffset();
+                c = (char) fReader.read();
+            }
 
-            c = fReader.read();
+            return -1;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        return -1;
     }
 
     /**

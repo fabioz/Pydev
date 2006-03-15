@@ -14,7 +14,7 @@ org.python.core.SysPackageManager
 after 1.0.3
 Pydev:
 - Does not try to make different indentations inside multilines
-
+- Does not try to add spaces to make smart-indent when in only tabs mode
 
 after 1.0.2
 
