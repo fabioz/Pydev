@@ -25,8 +25,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testAfterClosePar1();
-            s.testAfterClosePar2();
+            s.testIndentLevel();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -128,6 +127,32 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "\n" +
         "        ";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    public void testIndentLevel() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        
+        String doc = "" +
+                "def m1(): #some comment\n" +
+                "    print foo(a,\n" +
+                "              b)";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n    ";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    public void testIndentLevel2() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        
+        String doc = "" +
+        "def m1(): #some comment\n" +
+        "    def metfoo(a,\n" +
+        "               b):";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n        ";
         assertEquals(expected, docCmd.text);
     }
     

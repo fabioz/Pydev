@@ -713,6 +713,38 @@ public class PySelection {
         }
         return null;
     }
+    
+    public String getPreviousLineThatStartsScope() {
+        DocIterator iterator = new DocIterator(this.getCursorLine(), false);
+        while(iterator.hasNext()){
+            String line = (String) iterator.next();
+            String trimmed = line.trim();
+            if(trimmed.startsWith("if ")      || 
+               trimmed.startsWith("if(")      || 
+               trimmed.startsWith("for ")     || 
+               trimmed.startsWith("for(")     || 
+               trimmed.startsWith("except")   || 
+               trimmed.startsWith("except(")  ||
+               trimmed.startsWith("def ")     ||
+               trimmed.startsWith("class ")   ||
+               trimmed.startsWith("else ")    ||
+               trimmed.startsWith("else:")    ||
+               trimmed.startsWith("elif:")    ||
+               trimmed.startsWith("elif(")    ||
+               trimmed.startsWith("elif ")    ||
+               trimmed.startsWith("while ")   ||
+               trimmed.startsWith("while(")   ||
+               trimmed.startsWith("try ")     ||
+               trimmed.startsWith("try:")     ||
+               trimmed.startsWith("finally ") ||
+               trimmed.startsWith("finally:") 
+               ){
+                return line;
+            }
+        }
+        return null;
+    }
+
 
     class DocIterator implements Iterator{
         private int startingLine;
@@ -745,6 +777,7 @@ public class PySelection {
             throw new RuntimeException("Remove not implemented.");
         }
     }
+
 
 
   

@@ -64,8 +64,6 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                 String lineWithoutComments = PySelection.getLineWithoutComments(selection.getLineContentsToCursor());
                 
                 if(lineWithoutComments.length() > 0){
-                    
-                    
                     //ok, now let's see the auto-indent
                     int curr = lineWithoutComments.length() -1;
                     char lastChar = lineWithoutComments.charAt(curr);
@@ -75,13 +73,33 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                         curr--;
                         lastChar = lineWithoutComments.charAt(curr);
                     }
-    
+
+
                     if (curr > 0) {
-    
-                        if (lastChar == ':') {
-                            String initial = text;
-    
-                            text = initial + prefs.getIndentationString();
+                        int smartIndent = determineSmartIndent(document, offset, selection);
+                        
+                        if(smartIndent == -1 && DocUtils.isClosingPeer(lastChar)){
+                            //we have to check if smartIndent is -1 because otherwise we are inside some bracket
+                            PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
+                            int bracketOffset = selection.getLineOffset()+curr;
+                            IRegion region = matcher.match(document, bracketOffset+1);
+                            int openingBracketLine = document.getLineOfOffset(region.getOffset());
+                            String openingBracketLineStr = PySelection.getLine(document, openingBracketLine);
+                            int first = PyAction.getFirstCharPosition(openingBracketLineStr);
+                            String initial = getBeforeNewLine(text);
+                            text = initial + openingBracketLineStr.substring(0, first);
+                            
+                        } else if (smartIndent == -1 && lastChar == ':') {
+                            //we have to check if smartIndent is -1 because otherwise we are in a dict
+                            String previousIfLine = selection.getPreviousLineThatStartsScope();
+                            if(previousIfLine != null){
+                                String initial = getBeforeNewLine(text);
+                                String indent = PyAction.getIndentationFromLine(previousIfLine);
+                                text = initial + indent + prefs.getIndentationString();
+                                
+                            }else{
+                                text = text + prefs.getIndentationString();
+                            }
     
                         }else{
                             //ok, normal indent until now...
@@ -91,7 +109,10 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                             if(startsWithDedentToken(trimmedLine)){
                                 text = dedent(text);
                             }else{
-                            	text = smartIndentAfterPar(document, text, offset, selection);
+                                //if we should not use smart indent, this function has no use.
+                                if(this.prefs.getSmartIndentPar()){
+                                    text = makeSmartIndent(text, smartIndent);
+                                }
                             }
                         }
                     }
@@ -374,31 +395,14 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
      * @return Indentation String
      * @throws BadLocationException
      */
-    private String smartIndentAfterPar(IDocument document, String text, int offset, PySelection ps)
+    private String makeSmartIndent(String text, int smartIndent)
             throws BadLocationException {
-    	//if we should not use smart indent, this function has no use.
-    	if(!this.prefs.getSmartIndentPar()){
-    		return text;
-    	}
-
-    	int smartIndent = totalIndentAmountAfterCommaNewline(document, offset, ps);
         if (smartIndent > 0) {
             String initial = text;
 
             // Discard everything but the newline from initial, since we'll
             // build the smart indent from scratch anyway.
-            int initialLength = initial.length();
-            for (int i = 0; i < initialLength; i++) {
-                char theChar = initial.charAt(i);
-                // This covers all cases I know of, but if there is any platform
-                // with weird newline then this would need to be smarter.
-                if (theChar != '\r' && theChar != '\n') {
-                    if (i > 0) {
-                        initial = initial.substring(0, i);
-                    }
-                    break;
-                }
-            }
+            initial = getBeforeNewLine(initial);
 
             // Create the actual indentation string
             String indentationString = prefs.getIndentationString();
@@ -421,6 +425,26 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
             return initial + b.toString();
         }
         return text;
+    }
+
+    /**
+     * @param initial
+     * @return
+     */
+    private String getBeforeNewLine(String initial) {
+        int initialLength = initial.length();
+        for (int i = 0; i < initialLength; i++) {
+            char theChar = initial.charAt(i);
+            // This covers all cases I know of, but if there is any platform
+            // with weird newline then this would need to be smarter.
+            if (theChar != '\r' && theChar != '\n') {
+                if (i > 0) {
+                    initial = initial.substring(0, i);
+                }
+                break;
+            }
+        }
+        return initial;
     }
 
     /**
@@ -530,15 +554,12 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 	 * We would return the indentation needed to place the caret at the #
 	 * position.
 	 * 
-	 * @param document
-	 *            The document
-	 * @param offset
-	 *            The document offset of the last character on the previous line
+	 * @param document The document
+	 * @param offset The document offset of the last character on the previous line
      * @param ps 
-	 * @return indent, or -1 if smart indent could not be determined (fall back
-	 *         to default)
+	 * @return indent, or -1 if smart indent could not be determined (fall back to default)
 	 */
-    private int totalIndentAmountAfterCommaNewline(IDocument document, int offset, PySelection ps)
+    private int determineSmartIndent(IDocument document, int offset, PySelection ps)
             throws BadLocationException {
     	
         PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);

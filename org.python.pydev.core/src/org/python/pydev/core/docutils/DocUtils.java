@@ -162,4 +162,8 @@ public class DocUtils {
      * </ul>
      */
     public static final char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
+
+    public static boolean isClosingPeer(char lastChar) {
+        return lastChar == '}' || lastChar == ')' || lastChar == ']';
+    }
 }
