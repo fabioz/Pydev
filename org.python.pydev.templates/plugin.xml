@@ -73,7 +73,7 @@ if __name__ == '__main__':
             id="org.python.pydev.editor.templates.python.eq">
 <pattern>
 def __eq__(self, o):
-    if isintance(o, self.__class__):
+    if isinstance(o, self.__class__):
         ${pass}${cursor}
 
     return False

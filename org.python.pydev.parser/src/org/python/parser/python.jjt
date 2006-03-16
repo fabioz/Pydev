@@ -155,58 +155,66 @@ public class PythonGrammar
         token_source.specialTokens.add(new Object[]{o, STRATEGY_ADD_AFTER_PREV});
     }
 
-    private boolean findTokenAndAdd(String token) {
-    	return findTokenAndAdd(token, token, DEFAULT_SEARCH_ON_LAST);
+
+    private boolean findTokenAndAdd(String token) throws ParseException {
+        return findTokenAndAdd(token, token, DEFAULT_SEARCH_ON_LAST);
     }
-    
-	private Object createSpecialStr(String token) {
-		return createSpecialStr(token, token);
-	}
-	private Object createSpecialStr(String token, boolean searchOnLast) {
-		return createSpecialStr(token, token, searchOnLast);
-	}
-	
-	private Object createSpecialStr(String token, String put) {
-		return createSpecialStr(token, put, DEFAULT_SEARCH_ON_LAST);
-	}
-	private Object createSpecialStr(String token, String put, boolean searchOnLast) {
-		Token t;
-		if(searchOnLast){
-			t = jj_lastpos;
-		}else{
-			t = this.token;
-		}
-		while(t != null && t.image != null && t.image.equals(token) == false){
-			t = t.next;
-		}
-		if(t != null){
-			return new SpecialStr(put,t.beginLine, t.beginColumn);
-		}
-		//return put;
-	    throw new RuntimeException("Unable to find to create token:"+token);
-	}
-	
+
+    private Object createSpecialStr(String token) throws ParseException {
+    	return createSpecialStr(token, token);
+    }
+    private Object createSpecialStr(String token, boolean searchOnLast) throws ParseException {
+        return createSpecialStr(token, token, searchOnLast);
+    }
+
+    private Object createSpecialStr(String token, String put) throws ParseException {
+        return createSpecialStr(token, put, DEFAULT_SEARCH_ON_LAST);
+    }
+    private Object createSpecialStr(String token, String put, boolean searchOnLast) throws ParseException {
+        Token t;
+        if(searchOnLast){
+                t = jj_lastpos;
+        }else{
+                t = this.token;
+        }
+        while(t != null && t.image != null && t.image.equals(token) == false){
+                t = t.next;
+        }
+        if(t != null){
+                return new SpecialStr(put,t.beginLine, t.beginColumn);
+        }
+        //return put;
+        if(this.token != null){
+        	throw new ParseException("Expected:"+token, this.token);
+        }else if(jj_lastpos != null){
+        	throw new ParseException("Expected:"+token, jj_lastpos);
+        }else{
+        	throw new ParseException("Expected:"+token);
+        }
+    }
+
     /**
      * This is so that we add the String with the beginLine and beginColumn
+     * @throws ParseException 
      */
-	private boolean findTokenAndAdd(String token, String put, boolean searchOnLast) {
-		Object s = createSpecialStr(token, put, searchOnLast);
-		token_source.specialTokens.add(new Object[]{s, STRATEGY_ADD_AFTER_PREV});
-		return s instanceof SpecialStr;
-	}
+    private boolean findTokenAndAdd(String token, String put, boolean searchOnLast) throws ParseException {
+        Object s = createSpecialStr(token, put, searchOnLast);
+        token_source.specialTokens.add(new Object[]{s, STRATEGY_ADD_AFTER_PREV});
+        return s instanceof SpecialStr;
+    }
 
-	/**
+        /**
 	 * Used so that we can add it to the last id node (we have to add it to the correct token at the TreeBuilder later)
 	 */
     private void addToLastIdNode(String token, boolean after){
-	    if(DEBUG){
-	    	System.out.println("addToLastIdNode:"+token+ " to "+lastIdNode);
-	    }
-    	if(after){
-    		lastIdNode.specialsAfter.add(token);
-    	}else{
-    		lastIdNode.specialsBefore.add(token);
-    	}
+        if(DEBUG){
+            System.out.println("addToLastIdNode:"+token+ " to "+lastIdNode);
+        }
+        if(after){
+                lastIdNode.specialsAfter.add(token);
+        }else{
+                lastIdNode.specialsBefore.add(token);
+        }
     }
 
 

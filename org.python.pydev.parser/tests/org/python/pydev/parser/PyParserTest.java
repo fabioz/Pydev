@@ -25,7 +25,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testNewImportParser();
+            test.testErr();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -47,6 +47,14 @@ public class PyParserTest extends PyParserTestBase{
         assertEquals("self",((Name)f.args.args[0]).id);
         assertEquals("a",((Name)f.args.args[1]).id);
     }
+    
+    public void testErr() {
+    	String s = "" +
+    	"def m():\n" +
+    	"    call(a,";
+    	ParseException exception = parseILegalDoc(new Document(s));
+    }
+    
     
     public void testYield() {
         String s = "" +

@@ -45,7 +45,7 @@ public class PyParserTestBase extends TestCase {
 	protected SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo) {
 	    return parseLegalDoc(doc, additionalErrInfo, parser);
     }
-	protected void parseILegalDoc(IDocument doc) {
+	protected ParseException parseILegalDoc(IDocument doc) {
 	    parser.setDocument(doc, false);
 	    Object[] objects = parser.reparseDocument((IPythonNature)null);
 	    Object err = objects[1];
@@ -55,6 +55,7 @@ public class PyParserTestBase extends TestCase {
 	    if(!(err instanceof ParseException)){
 	        fail("Expected a ParseException and received:"+err.getClass());
 	    }
+	    return (ParseException) err;
     }
 
     /**
