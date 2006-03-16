@@ -16,6 +16,8 @@ Pydev:
 - Does not try to make different indentations inside multilines
 - Does not try to add spaces to make smart-indent when in only tabs mode
 - Indents correctly after opening some bracket or after closing some bracket
+- Indents to expected level when hitting tab
+- Fixed bug: syntax error described instead of throwing an error
 - Added jython scripting (still needs some example)
 
 //        I was going to do some things in jython here, but there is too much code around for that...
@@ -29,6 +31,8 @@ Pydev:
 //            return;
 //        }
 //      
+
+Pydev Extensions:
 
 
 after 1.0.2
