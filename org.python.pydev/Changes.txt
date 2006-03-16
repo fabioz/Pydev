@@ -18,6 +18,19 @@ Pydev:
 - Indents correctly after opening some bracket or after closing some bracket
 - Added jython scripting (still needs some example)
 
+//        I was going to do some things in jython here, but there is too much code around for that...
+//        HashMap<String, Object> locals = new HashMap<String, Object>();
+//        locals.put("cmd",command);
+//        locals.put("doc",document);
+//        locals.put("prefs",getIndentPrefs());
+//        locals.put("strategy",this);
+//        if(JythonPlugin.exec(locals, "indent.py", interpreter) == true){
+//            //ok, it has already executed what was needed, so, let's return
+//            return;
+//        }
+//      
+
+
 after 1.0.2
 
 Pydev:

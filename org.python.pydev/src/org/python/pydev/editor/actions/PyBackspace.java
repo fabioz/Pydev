@@ -125,18 +125,22 @@ public class PyBackspace extends PyAction {
             } else {
                 //System.out.println("not only whitespaces");
                 //this situation is:
-                //    |a (delete to previous indentation - considers cursor
-                // position)
-                //or
+                //    |a (delete to previous indentation - considers cursor position)
+                //
+            	//or
+            	//
                 //    as | as (delete single char)
-                //or
-                //  | a (delete to previous indentation - considers cursor
-                // position)
+            	//
                 //so, we have to treat it carefully
                 //TODO: use the conditions above and not just erase a single
                 // char.
 
-                eraseSingleChar(ps);
+            	if(PyAction.containsOnlyWhitespaces(ps.getLineContentsToCursor())){
+            		eraseToIndentation(ps, indentation);
+            		
+            	}else{
+            		eraseSingleChar(ps);
+            	}
             }
         }
     }
@@ -227,8 +231,7 @@ public class PyBackspace extends PyAction {
      * just uses the indentation string and erases the number of chars from it.
      * 
      * @param ps
-     * @param indentation -
-     *            this is in number of characters.
+     * @param indentation this is in number of characters.
      * @throws BadLocationException
      */
     private void eraseToIndentation(PySelection ps, int indentation) throws BadLocationException {

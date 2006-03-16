@@ -25,7 +25,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testIndentLevel3();
+            s.testIndentingWithTab6();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -78,6 +78,113 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(0, 0, " ");
         strategy.customizeDocumentCommand(new Document(""), docCmd);
         assertEquals(" ", docCmd.text);
+    }
+    
+    public void testTabInComment() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "#comment" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\t");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("    ", docCmd.text); // a single tab should go to the correct indent
+    	
+    }
+    
+    public void testIndentingWithTab() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "class C:\n" +
+    			     "    def m1(self):\n" +
+    			     "";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\t");
+		strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("        ", docCmd.text); // a single tab should go to the correct indent
+    }
+    
+    public void testIndentingWithTab2() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    			"class C:\n" +
+    			"    pass\n" +
+    			"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\t");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("    ", docCmd.text); // a single tab should go to the correct indent
+    }
+    
+    public void testIndentingWithTab3() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"class C:\n" +
+    	"    def m1(self):            \n" +
+    	"        print 1\n" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\t");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("        ", docCmd.text); // a single tab should go to the correct indent
+    }
+    
+    public void testIndentingWithTab4() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"class C:\n" +
+    	"    def m1(self):            \n" +
+    	"        print 'a'\n" +
+    	"        " + //now, a 'regular' tab should happen
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\t");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("    ", docCmd.text); // a single tab should go to the correct indent
+    }
+    
+    public void testIndentingWithTab5() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"class C:\n" +
+    	"    def m1(self):            \n" +
+    	"        print 'a'\n" +
+    	"       " + //now, only 1 space is missing to the correct indent
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\t");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals(" ", docCmd.text); // a single tab should go to the correct indent
+    }
+    
+    public void testIndentingWithTab6() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"class C:\n" +
+    	"    def m1(self):            \n" +
+    	"print 'a'" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength()-"print 'a'".length(), 0, "\t");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("        ", docCmd.text); // a single tab should go to the correct indent
+    }
+    
+    public void testIndentingWithTab7() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"class C:\n" +
+    	"    def m1(self):            \n" +
+    	"  print 'a'" +
+    	"";
+    	String expected = "" +
+    	"class C:\n" +
+    	"    def m1(self):            \n" +
+    	"print 'a'" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength()-"  print 'a'".length(), 0, "\t");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("        ", docCmd.text); // a single tab should go to the correct indent
+    	assertEquals(expected, doc.get()); // the spaces after the indent should be removed
     }
     
     public void testTabs() {

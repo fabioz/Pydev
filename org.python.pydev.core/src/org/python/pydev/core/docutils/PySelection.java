@@ -284,14 +284,20 @@ public class PySelection {
             return 0;
         }
     }
+    
     /**
-     * Gets cursor offset within a line.
-     * 
-     * @return int Offset to put cursor at
+     * @return the offset of the cursor
      */
     public int getLineOffset() {
+    	return getLineOffset(getCursorLine());
+    }
+    
+    /**
+     * @return the offset of the specified line
+     */
+    public int getLineOffset(int line) {
         try {
-            return getDoc().getLineInformation(getCursorLine()).getOffset();
+            return getDoc().getLineInformation(line).getOffset();
         } catch (Exception e) {
             return 0;
         }
@@ -358,6 +364,31 @@ public class PySelection {
             e.printStackTrace();
         } 
     }
+    
+	public void deleteSpacesAfter(int offset) {
+		try {
+			int initial = offset;
+			String next = doc.get(offset, 1);
+			
+			//don't delete 'all' that is considered whitespace (as \n and \r)
+			try {
+				while (next.charAt(0) == ' ' || next.charAt(0) == '\t') {
+					offset++;
+					next = doc.get(offset, 1);
+				}
+			} catch (Exception e) {
+				// ignore
+			}
+			
+			final int len = offset-initial;
+			if(len > 0){
+				doc.replace(initial, len, "");
+			}
+		} catch (Exception e) {
+			//ignore
+		}
+	}
+
     
     /**
      * Deletes the current selected text
@@ -777,6 +808,8 @@ public class PySelection {
             throw new RuntimeException("Remove not implemented.");
         }
     }
+
+
 
 
 
