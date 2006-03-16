@@ -166,4 +166,13 @@ public class DocUtils {
     public static boolean isClosingPeer(char lastChar) {
         return lastChar == '}' || lastChar == ')' || lastChar == ']';
     }
+
+
+	public static boolean hasOpeningBracket(String trimmedLine) {
+		return trimmedLine.indexOf('{') != -1 || trimmedLine.indexOf('(') != -1 || trimmedLine.indexOf('[') != -1;
+	}
+	
+	public static boolean hasClosingBracket(String trimmedLine) {
+		return trimmedLine.indexOf('}') != -1 || trimmedLine.indexOf(')') != -1 || trimmedLine.indexOf(']') != -1;
+	}
 }

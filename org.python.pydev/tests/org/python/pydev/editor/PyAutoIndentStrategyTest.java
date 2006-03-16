@@ -25,7 +25,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testIndentLevel();
+            s.testIndentLevel3();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -128,6 +128,18 @@ public class PyAutoIndentStrategyTest extends TestCase {
         expected = "\n" +
         "        ";
         assertEquals(expected, docCmd.text);
+    }
+    
+    public void testIndentLevel3() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	
+    	String doc = "" +
+		"a = (1, \n" +
+		"  2,"; //should keep this indent, and not go to the opening bracket indent.
+    	DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "\n  ";
+    	assertEquals(expected, docCmd.text);
     }
     
     public void testIndentLevel() {

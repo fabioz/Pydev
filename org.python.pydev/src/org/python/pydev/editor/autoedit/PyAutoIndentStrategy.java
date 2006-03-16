@@ -111,7 +111,9 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                             }else{
                                 //if we should not use smart indent, this function has no use.
                                 if(this.prefs.getSmartIndentPar()){
-                                    text = makeSmartIndent(text, smartIndent);
+                                	if(DocUtils.hasOpeningBracket(trimmedLine) || DocUtils.hasClosingBracket(trimmedLine)){
+                                		text = makeSmartIndent(text, smartIndent);
+                                	}
                                 }
                             }
                         }
