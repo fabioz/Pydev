@@ -91,7 +91,7 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                             if(startsWithDedentToken(trimmedLine)){
                                 text = dedent(text);
                             }else{
-                            	text = smartIndentAfterPar(document, text, offset);
+                            	text = smartIndentAfterPar(document, text, offset, selection);
                             }
                         }
                     }
@@ -370,17 +370,18 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
      * @param document
      * @param text
      * @param offset
+     * @param selection 
      * @return Indentation String
      * @throws BadLocationException
      */
-    private String smartIndentAfterPar(IDocument document, String text, int offset)
+    private String smartIndentAfterPar(IDocument document, String text, int offset, PySelection ps)
             throws BadLocationException {
     	//if we should not use smart indent, this function has no use.
     	if(!this.prefs.getSmartIndentPar()){
     		return text;
     	}
 
-    	int smartIndent = totalIndentAmountAfterCommaNewline(document, offset);
+    	int smartIndent = totalIndentAmountAfterCommaNewline(document, offset, ps);
         if (smartIndent > 0) {
             String initial = text;
 
@@ -394,8 +395,6 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
                 if (theChar != '\r' && theChar != '\n') {
                     if (i > 0) {
                         initial = initial.substring(0, i);
-                        --i;
-                        smartIndent -= i;
                     }
                     break;
                 }
@@ -535,57 +534,27 @@ public class PyAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 	 *            The document
 	 * @param offset
 	 *            The document offset of the last character on the previous line
+     * @param ps 
 	 * @return indent, or -1 if smart indent could not be determined (fall back
 	 *         to default)
 	 */
-    private int totalIndentAmountAfterCommaNewline(IDocument document, int offset)
+    private int totalIndentAmountAfterCommaNewline(IDocument document, int offset, PySelection ps)
             throws BadLocationException {
     	
-        int lineStart = document.getLineInformationOfOffset(offset).getOffset();
-        String line = document.get(lineStart, offset - lineStart);
-        int lineLength = line.length();
-
-        for (int i = 0; i < lineLength ; i++) {
-            char theChar = line.charAt(i);
-
-            // This covers all cases I know of, but if there is any platform
-            // with weird newline then this would need to be smarter.
-            if (theChar == '\r' || theChar == '\n')
-                break;
-
-            if (theChar == ')' || theChar == ']' || theChar == '}') {
-            	char peer = DocUtils.getPeer(theChar);
-            	if(PyAction.countChars(theChar, line) > PyAction.countChars(peer, line)){
-            		//ok, we have to do a dedent here
-            		PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
-            		int openingPeerPosition = matcher.searchForOpeningPeer(offset, peer, theChar, document);
-            		if(openingPeerPosition > 0){
-	            		IRegion lineInformationOfOffset = document.getLineInformationOfOffset(openingPeerPosition);
-	            		int j = openingPeerPosition - lineInformationOfOffset.getOffset();
-	            		return j+1;
-            		}
-            	}
-            }
-            
-            if (theChar == '(' || theChar == '[' || theChar == '{') {
-                char peer = DocUtils.getPeer(theChar);
-                if(PyAction.countChars(theChar, line) > PyAction.countChars(peer, line)){
-
-	                //ok, it's not just returning the line now, we have to check for tabs and make each
-	                //tab count for the tabWidth.
-	                int smartIndent = i+1;
-	                String string = line.substring(0, smartIndent - 1);
-	                
-	                for (int j = 0; j < string.length(); j++) {
-	                    char c = string.charAt(j);
-	                    if (c == '\t') {
-	                        smartIndent += prefs.getTabWidth() - 1;
-	                    }
-	                }
-	                return smartIndent;
-                }
+        PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
+        int openingPeerOffset = matcher.searchForAnyOpeningPeer(offset, document);
+        if(openingPeerOffset == -1){
+            return -1;
+        }
+        int openingPeerLineOffset = document.getLineInformationOfOffset(openingPeerOffset).getOffset();
+        int len = openingPeerOffset - openingPeerLineOffset;
+        String str = document.get(openingPeerLineOffset, len);
+        for(int i = 0; i<str.length(); i++){
+            if(str.charAt(i) == '\t'){
+                len += prefs.getTabWidth() - 1;
             }
         }
-        return -1;
+        return len;
+        
     }
 }

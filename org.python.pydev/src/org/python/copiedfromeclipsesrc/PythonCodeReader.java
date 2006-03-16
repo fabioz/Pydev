@@ -1,16 +1,18 @@
-/*
- * TAKEN FROM 
- * 
- * org.eclipse.jdt.internal.ui.text.JavaCodeReader
- */
 package org.python.copiedfromeclipsesrc;
 
 import java.io.IOException;
 
+import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
+import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.PySelection;
 
 /**
+ * The reader works well as long as we are not inside a string at the current offset (this is not enforced here, so,
+ * use at your own risk.
+ * 
  * @author Fabio Zadrozny
  */
 public class PythonCodeReader {
@@ -26,8 +28,6 @@ public class PythonCodeReader {
 	private int fOffset;
 	
 	private int fEnd= -1;
-	private int fCachedLineNumber= -1;
-	private int fCachedLineOffset= -1;
 	
 	
 	public PythonCodeReader() {
@@ -41,7 +41,11 @@ public class PythonCodeReader {
 	}
 	
 	public void configureForwardReader(IDocument document, int offset, int length, boolean skipComments, boolean skipStrings) throws IOException {
-		fDocument= document;
+	    //currently not implemented without skip, so, that's the reason the asserts are here...
+        Assert.isTrue(skipComments);
+        Assert.isTrue(skipStrings);
+
+        fDocument= document;
 		fOffset= offset;
 		fSkipComments= skipComments;
 		fSkipStrings= skipStrings;
@@ -51,17 +55,16 @@ public class PythonCodeReader {
 	}
 	
 	public void configureBackwardReader(IDocument document, int offset, boolean skipComments, boolean skipStrings) throws IOException {
-		fDocument= document;
+        //currently not implemented without skip, so, that's the reason the asserts are here...
+	    Assert.isTrue(skipComments);
+	    Assert.isTrue(skipStrings);
+		
+        fDocument= document;
 		fOffset= offset;
 		fSkipComments= skipComments;
 		fSkipStrings= skipStrings;
 		
 		fForward= false;
-		try {
-			fCachedLineNumber= fDocument.getLineOfOffset(fOffset);
-		} catch (BadLocationException x) {
-			throw new IOException(x.getMessage());
-		}
 	}
 	
 	/*
@@ -78,71 +81,52 @@ public class PythonCodeReader {
 		try {
 			return fForward ? readForwards() : readBackwards();
 		} catch (BadLocationException x) {
-			throw new IOException(x.getMessage());
+			throw new RuntimeException(x);
 		}
 	}
 	
-	private void gotoCommentEnd() throws BadLocationException {
-		while (fOffset < fEnd) {
-			char current= fDocument.getChar(fOffset++);
-			if (current == '*') {
-				if (fOffset < fEnd && fDocument.getChar(fOffset) == '/') {
-					++ fOffset;
-					return;
-				}
-			}
-		}
-	}
-	
-	private void gotoStringEnd(char delimiter) throws BadLocationException {
-		while (fOffset < fEnd) {
-			char current= fDocument.getChar(fOffset++);
-			if (current == '\\') {
-				// ignore escaped characters
-				++ fOffset;
-			} else if (current == delimiter) {
-				return;
-			}
-		}
-	}
-	
-	private void gotoLineEnd() throws BadLocationException {
-		int line= fDocument.getLineOfOffset(fOffset);
-		fOffset= fDocument.getLineOffset(line + 1);
-	}
-	
+    private void gotoStringStart(char delimiter) throws BadLocationException {
+        boolean isMulti = false;
+        
+        if(fOffset >= 2){
+            if(fDocument.getChar(fOffset) == delimiter && fDocument.getChar(fOffset -1) == delimiter){
+                isMulti = true;
+                fOffset--;
+                fOffset--;
+            }
+        }
+
+        while (0 < fOffset) {
+            char current= fDocument.getChar(fOffset);
+            if (current == delimiter) {
+                if( !(0 <= fOffset && fDocument.getChar(fOffset -1) == '\\')){
+                    if(isMulti){
+                        if(fDocument.getChar(fOffset) == delimiter && fDocument.getChar(fOffset -1) == delimiter){
+                            return;
+                        }
+                    }else{
+                        return;
+                    }
+                }
+            }
+            -- fOffset;
+        }
+    }
+
+    
 	private int readForwards() throws BadLocationException {
 		while (fOffset < fEnd) {
 			char current= fDocument.getChar(fOffset++);
 			
 			switch (current) {
-				case '/':
-					
-					if (fSkipComments && fOffset < fEnd) {
-						char next= fDocument.getChar(fOffset);
-						if (next == '*') {
-							// a comment starts, advance to the comment end
-							++ fOffset;
-							gotoCommentEnd();
-							continue;
-						} else if (next == '/') {
-							// '//'-comment starts, advance to the line end
-							gotoLineEnd();
-							continue;
-						}
-					}
-					
+				case '#':
+                    fOffset = ParsingUtils.eatComments(fDocument, new StringBuffer(), fOffset);
 					return current;
 					
 				case '"':
 				case '\'':
-				
-					if (fSkipStrings) {
-						gotoStringEnd(current);
-						continue;
-					}
-					
-					return current;
+				    fOffset = ParsingUtils.eatLiterals(fDocument, new StringBuffer(), fOffset-1)+1;
+					continue;
 			}
 			
 			return current;
@@ -151,80 +135,45 @@ public class PythonCodeReader {
 		return EOF;
 	}
 	
-	private void handleSingleLineComment() throws BadLocationException {
-		int line= fDocument.getLineOfOffset(fOffset);
-		if (line < fCachedLineNumber) {
-			fCachedLineNumber= line;
-			fCachedLineOffset= fDocument.getLineOffset(line);
-			int offset= fOffset;
-			while (fCachedLineOffset < offset) {
-				char current= fDocument.getChar(offset--);
-				if (current == '/' && fCachedLineOffset <= offset && fDocument.getChar(offset) == '/') {
-					fOffset= offset;
-					return;
-				}
-			}
-		}
-	}
-	
-	private void gotoCommentStart() throws BadLocationException {
-		while (0 < fOffset) {
-			char current= fDocument.getChar(fOffset--);
-			if (current == '*' && 0 <= fOffset && fDocument.getChar(fOffset) == '/')
-				return;
-		}
-	}
-	
-	private void gotoStringStart(char delimiter) throws BadLocationException {
-		while (0 < fOffset) {
-			char current= fDocument.getChar(fOffset);
-			if (current == delimiter) {
-				if ( !(0 <= fOffset && fDocument.getChar(fOffset -1) == '\\'))
-					return;
-			}
-			-- fOffset;
-		}
-	}
 		
 	private int readBackwards() throws BadLocationException {
 		
 		while (0 < fOffset) {
 			-- fOffset;
 			
-			handleSingleLineComment();
-			
+			handleComment();
 			char current= fDocument.getChar(fOffset);
 			switch (current) {
-				case '/':
-					
-					if (fSkipComments && fOffset > 1) {
-						char next= fDocument.getChar(fOffset - 1);
-						if (next == '*') {
-							// a comment ends, advance to the comment start
-							fOffset -= 2;
-							gotoCommentStart();
-							continue;
-						}
-					}
-					
-					return current;
-					
-				case '"':
-				case '\'':
-				
-					if (fSkipStrings) {
-						-- fOffset;
-						gotoStringStart(current);
-						continue;
-					}
-					
-					return current;
+            
+    			case '"':
+                case '\'':
+                    -- fOffset;
+                    gotoStringStart(current);
+                    continue;
+            
+                default:
+				return current;
 			}
 			
-			return current;
 		}
 		
 		return EOF;
 	}
+
+    //works as a cache so that we don't have to handle some line over and over again for comments
+    private int handledLine = -1;
+    private void handleComment() throws BadLocationException {
+        int lineOfOffset = fDocument.getLineOfOffset(fOffset);
+        if(handledLine == lineOfOffset){
+            return;
+        }
+        handledLine = lineOfOffset;
+        String line = PySelection.getLine(fDocument, lineOfOffset);
+        int i;
+        if( (i = line.indexOf('#')) != -1){
+            IRegion lineInformation = fDocument.getLineInformation(lineOfOffset);
+            fOffset = lineInformation.getOffset() + i;
+        }
+    }
 }
 

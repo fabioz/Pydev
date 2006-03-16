@@ -400,7 +400,7 @@ public class PySelection {
 
     /**
      * @param ps
-     * @return the line where the cursor is (from the beggining of the line to the cursor position).
+     * @return the line where the cursor is (from the cursor position to the end of the line).
      * @throws BadLocationException
      */
     public String getLineContentsFromCursor() throws BadLocationException {

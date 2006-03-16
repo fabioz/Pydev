@@ -6,12 +6,15 @@
 package org.python.copiedfromeclipsesrc;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.ICharacterPairMatcher;
+import org.python.pydev.core.docutils.DocUtils;
 
 /**
  * A character pair matcher finds to a character at a certain document offset the matching peer character. It
@@ -199,7 +202,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
             fReader.configureForwardReader(document, offset + 1, document.getLength(), true, true);
 
             int stack = 1;
-            char c = (char)fReader.read();
+            int c = fReader.read();
             while (c != PythonCodeReader.EOF) {
                 if (c == openingPeer && c != closingPeer)
                     stack++;
@@ -209,7 +212,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
                 if (stack == 0)
                     return fReader.getOffset();
 
-                c = (char) fReader.read();
+                c = fReader.read();
             }
 
             return -1;
@@ -251,5 +254,45 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+    }
+
+    public int searchForAnyOpeningPeer(int offset, IDocument document) {
+        try {
+            fReader.configureBackwardReader(document, offset, true, true);
+            
+            Map<Character, Integer> stack = new HashMap<Character, Integer>();
+            
+            for (int i = 0; i < fPairs.length; i++) {
+                if(i %2 == 0){
+                    stack.put(fPairs[i], 1);
+                }
+            }
+            
+            int c = fReader.read();
+            while (c != PythonCodeReader.EOF) {
+                if (c == ')' || c == ']' || c == '}' ){
+                    char peer = DocUtils.getPeer((char)c);
+                    Integer iStack = stack.get((char)peer);
+                    iStack++;
+                    stack.put(peer, iStack);
+                    
+                }else if (c == '(' || c == '[' || c == '{'){
+                    Integer iStack = stack.get((char)c);
+                    iStack--;
+                    stack.put((char) c, iStack);
+                    
+                    if (iStack == 0){
+                        return fReader.getOffset();
+                    }
+                }
+                
+                
+                c = fReader.read();
+            }
+            
+            return -1;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

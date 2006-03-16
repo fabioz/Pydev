@@ -25,7 +25,8 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testIndent2();
+            s.testAfterClosePar1();
+            s.testAfterClosePar2();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -182,17 +183,39 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "\n" +
-                   "      ";
+                   "     ";
         assertEquals(expected, docCmd.text);
     }        
     
+    public void testAfterClosePar1() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String doc = "m = [a,";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n" +
+        "     ";
+        assertEquals(expected, docCmd.text);
+        
+    }
+    
+    public void testAfterClosePar2() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String doc = "m = [a,\n" +
+                     "     b,";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n" +
+        "     ";
+        assertEquals(expected, docCmd.text);
+        
+    }
     public void testAfterClosePar() {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         String doc = "m = [a, (#comment";
         DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         String expected = "\n" +
-        "          ";
+        "         ";
         assertEquals(expected, docCmd.text);
         
 //        doc = "m = [a, otherCall(), ]";
@@ -224,12 +247,24 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(doc.length()-1, 0, "\n"); //right before the last ')'
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "\n" +
-        "        ";
+              "       ";
         assertEquals(expected, docCmd.text);
         
     }
     
     public void testIndent3() {
+        
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String doc = ""+
+        "properties.create(a = newClass(),"; 
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n"+
+        "                  ";
+        assertEquals(expected, docCmd.text);
+        
+    }
+    public void testIndent3a() {
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
     	String doc = ""+
 		"properties.create(a = newClass(),\n" +
@@ -249,7 +284,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
     	strategy.customizeDocumentCommand(new Document(doc), docCmd);
     	String expected = "\n"+
-    	"                                ";
+    	"                               ";
     	assertEquals(expected, docCmd.text);
     }
     
@@ -262,7 +297,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
     	strategy.customizeDocumentCommand(new Document(doc), docCmd);
     	String expected = "\n"+
-    	"                   ";
+    	"                  ";
     	assertEquals(expected, docCmd.text);
     }
     

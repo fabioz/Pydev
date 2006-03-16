@@ -3,6 +3,9 @@
  */
 package org.python.pydev.core.docutils;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+
 
 
 public class ParsingUtils {
@@ -202,6 +205,13 @@ public class ParsingUtils {
         if (o instanceof String) {
             return ((String) o).charAt(i);
         }
+        if (o instanceof IDocument) {
+            try {
+                return ((IDocument) o).getChar(i);
+            } catch (BadLocationException e) {
+                throw new RuntimeException(e);
+            }
+        }
         throw new RuntimeException("unable to get char at of "+o.getClass());
     }
     
@@ -214,6 +224,9 @@ public class ParsingUtils {
         }
         if (o instanceof String) {
             return ((String) o).length();
+        }
+        if (o instanceof IDocument) {
+            return ((IDocument) o).getLength();
         }
         throw new RuntimeException("unable to get len of "+o.getClass());
     }
