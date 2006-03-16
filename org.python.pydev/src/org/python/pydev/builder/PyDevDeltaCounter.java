@@ -6,6 +6,7 @@
 package org.python.pydev.builder;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 
@@ -20,6 +21,26 @@ public class PyDevDeltaCounter extends PydevInternalResourceDeltaVisitor{
         super(null, 0);
     }
     
+    /**
+     * Overriden so that we don't load the document on this visitor (there is no need for that).
+     */
+	protected boolean chooseVisit(IResourceDelta delta, IResource resource, boolean isAddOrChange) {
+		switch (delta.getKind()) {
+		    case IResourceDelta.ADDED :
+		        visitAddedResource(resource, null, monitor);
+		        isAddOrChange = true;
+		        break;
+		    case IResourceDelta.CHANGED:
+		        visitChangedResource(resource, null, monitor);
+		        isAddOrChange = true;
+		        break;
+		    case IResourceDelta.REMOVED:
+		        visitRemovedResource(resource, null, monitor);
+		        break;
+		}
+		return isAddOrChange;
+	}
+
     /**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitChangedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */

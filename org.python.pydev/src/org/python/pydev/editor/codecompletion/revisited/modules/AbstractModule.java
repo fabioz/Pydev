@@ -191,7 +191,7 @@ public abstract class AbstractModule implements IModule {
                 }
                 
                 BufferedReader reader = new BufferedReader(in);
-                StringBuffer buffer = new StringBuffer();
+                StringBuffer buffer = new StringBuffer(1024 * 5); //5k is not so much...
 	            try{
 	                String line = "";
 	                while( (line = reader.readLine() ) != null){

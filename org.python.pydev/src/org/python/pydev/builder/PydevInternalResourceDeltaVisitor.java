@@ -95,19 +95,7 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
                 if (PythonPathHelper.isValidSourceFile("."+ext)) {
                     
                     boolean isAddOrChange = false;
-                    switch (delta.getKind()) {
-                        case IResourceDelta.ADDED :
-                            visitAddedResource(resource, PyDevBuilder.getDocFromResource(resource), monitor);
-                            isAddOrChange = true;
-                            break;
-                        case IResourceDelta.CHANGED:
-                            visitChangedResource(resource, PyDevBuilder.getDocFromResource(resource), monitor);
-                            isAddOrChange = true;
-                            break;
-                        case IResourceDelta.REMOVED:
-                            visitRemovedResource(resource, null, monitor);
-                            break;
-                    }
+                    isAddOrChange = chooseVisit(delta, resource, isAddOrChange);
 
                     if(isAddOrChange){
                         //communicate the progress
@@ -120,5 +108,22 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
         
         return true;
     }
+    
+	protected boolean chooseVisit(IResourceDelta delta, IResource resource, boolean isAddOrChange) {
+		switch (delta.getKind()) {
+		    case IResourceDelta.ADDED :
+		        visitAddedResource(resource, PyDevBuilder.getDocFromResource(resource), monitor);
+		        isAddOrChange = true;
+		        break;
+		    case IResourceDelta.CHANGED:
+		        visitChangedResource(resource, PyDevBuilder.getDocFromResource(resource), monitor);
+		        isAddOrChange = true;
+		        break;
+		    case IResourceDelta.REMOVED:
+		        visitRemovedResource(resource, null, monitor);
+		        break;
+		}
+		return isAddOrChange;
+	}
 
 }

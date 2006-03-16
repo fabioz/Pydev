@@ -433,7 +433,7 @@ public class PythonPathHelper implements Serializable{
         String ret = null;
         BufferedReader reader = new BufferedReader(inputStreamReader);
         try{
-            
+            //pep defines that coding must be at 1st or second line: http://www.python.org/doc/peps/pep-0263/
             String l1 = reader.readLine();
             String l2 = reader.readLine();
             
