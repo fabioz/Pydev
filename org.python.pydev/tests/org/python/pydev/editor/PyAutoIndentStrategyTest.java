@@ -11,7 +11,6 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.autoedit.AbstractIndentPrefs;
 import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.ui.BundleInfoStub;
 
 /**
@@ -38,7 +37,6 @@ public class PyAutoIndentStrategyTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        JythonPlugin.setBundleInfo(new BundleInfoStub());
     }
 
     /*

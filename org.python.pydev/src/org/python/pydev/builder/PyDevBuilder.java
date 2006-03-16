@@ -6,8 +6,6 @@
 package org.python.pydev.builder;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,14 +24,15 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.python.pydev.builder.pycremover.PycRemoverBuilderVisitor;
 import org.python.pydev.builder.pylint.PyLintVisitor;
 import org.python.pydev.builder.todo.PyTodoVisitor;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.editor.PyDocumentProvider;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
@@ -278,6 +277,14 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         }
     }
 
+    private static IDocumentProvider provider;
+    public static IDocumentProvider getProvider() {
+    	if(provider == null){
+    		provider = new PyDocumentProvider();
+    	}
+    	return provider;
+	}
+    
     /**
      * Returns a document, created with the contents of a resource.
      * 
@@ -289,30 +296,13 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         if (project != null && resource instanceof IFile) {
 
             IFile file = (IFile) resource;
+
             try {
                 if(! file.isSynchronized(IResource.DEPTH_ZERO)){
                     file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
                 }
-                String encoding = file.getCharset();
-                InputStream stream = file.getContents();
-                StringBuffer buf = new StringBuffer();
 
-                InputStreamReader in = null;
-                try {
-                    if (encoding != null) {
-                        in = new InputStreamReader(stream, encoding);
-                    } else {
-                        in = new InputStreamReader(stream);
-                    }
-
-                    int c;
-                    while ((c = in.read()) != -1) {
-                        buf.append((char) c);
-                    }
-                } finally {
-                    in.close();
-                }
-                return new Document(buf.toString());
+                return getProvider().getDocument(file);
             } catch (Exception e) {
                 PydevPlugin.log(e);
             }

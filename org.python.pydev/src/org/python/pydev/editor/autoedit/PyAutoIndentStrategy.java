@@ -18,8 +18,6 @@ import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.jython.IPythonInterpreter;
-import org.python.pydev.jython.JythonPlugin;
 
 /**
  * Class which implements the following behaviors:
@@ -32,10 +30,8 @@ import org.python.pydev.jython.JythonPlugin;
 public class PyAutoIndentStrategy implements IAutoEditStrategy{
 
     private IIndentPrefs prefs;
-    IPythonInterpreter interpreter;
     
     public PyAutoIndentStrategy(){
-    	interpreter = JythonPlugin.newPythonInterpreter();
     }
     
     public void setIndentPrefs(IIndentPrefs prefs) {
