@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
@@ -149,9 +150,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                                 element = nextElement;
                                 start = element.node.beginLine-1;
                                 end = element.endLine;
-                                if (end == -1) {
-                                    end = start;
-                                }
+                                break;
                             }
                         }
                     }
@@ -159,6 +158,12 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                     if(element.node instanceof FunctionDef){
                         FunctionDef f = (FunctionDef) element.node;
                         start = f.name.beginLine -1;
+                    }
+                    if (end == -1) {
+                    	end = start;
+                    }
+                    if(end < start){
+                    	end = start;
                     }
                 
                     addFoldingMark(element, start, end, model, collapsed);
@@ -184,11 +189,17 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * @throws BadLocationException
      */
     private void addFoldingMark(ASTEntry node, int start, int end, ProjectionAnnotationModel model, ArrayList collapsed) throws BadLocationException {
-
         try {
             IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
             int offset = document.getLineOffset(start);
-            int endOffset = document.getLineOffset(end);
+            int endOffset = offset; 
+            try {
+				endOffset = document.getLineOffset(end);
+			} catch (Exception e) {
+				//sometimes when we are at the last line, the command above will not work very well
+				IRegion lineInformation = document.getLineInformation(end);
+				endOffset = lineInformation.getOffset()+lineInformation.getLength();
+			}
             Position position = new Position(offset, endOffset - offset);
 
             Annotation anottation = getAnnotationToAdd(position, node, model, collapsed);
@@ -199,6 +210,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
             }
 
         } catch (BadLocationException x) {
+        	//this could happen
         }
     }
 
