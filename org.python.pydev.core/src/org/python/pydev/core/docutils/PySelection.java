@@ -35,7 +35,28 @@ public class PySelection {
     
     private IDocument doc;
     private ITextSelection textSelection;
+	public static final String[] DEDENT_TOKENS = new String[]{
+	    "return",
+	    "break",
+	    "continue",
+	    "pass",
+	    "raise",
+	    "yield"
+	};
 
+	public static final String[] INDENT_TOKENS = new String[]{
+		"if"      , 
+		"for"     , 
+		"except"  , 
+		"def"     ,
+		"class"   ,
+		"else"    ,
+		"elif"    ,
+		"while"   ,
+		"try"     ,
+		"finally" 
+	};
+	
 
     /**
 	 * Alternate constructor for PySelection. Takes in a text editor from Eclipse.
@@ -745,36 +766,52 @@ public class PySelection {
         return null;
     }
     
-    public String getPreviousLineThatStartsScope() {
+    /**
+     * @return a tuple with the line that starts the new scope and a boolean indicating if some dedent token
+     * was found while looking for that scope.
+     */
+    public Tuple<String, Boolean> getPreviousLineThatStartsScope() {
         DocIterator iterator = new DocIterator(this.getCursorLine(), false);
+        boolean foundDedent = false;
         while(iterator.hasNext()){
             String line = (String) iterator.next();
             String trimmed = line.trim();
-            if(trimmed.startsWith("if ")      || 
-               trimmed.startsWith("if(")      || 
-               trimmed.startsWith("for ")     || 
-               trimmed.startsWith("for(")     || 
-               trimmed.startsWith("except")   || 
-               trimmed.startsWith("except(")  ||
-               trimmed.startsWith("def ")     ||
-               trimmed.startsWith("class ")   ||
-               trimmed.startsWith("else ")    ||
-               trimmed.startsWith("else:")    ||
-               trimmed.startsWith("elif:")    ||
-               trimmed.startsWith("elif(")    ||
-               trimmed.startsWith("elif ")    ||
-               trimmed.startsWith("while ")   ||
-               trimmed.startsWith("while(")   ||
-               trimmed.startsWith("try ")     ||
-               trimmed.startsWith("try:")     ||
-               trimmed.startsWith("finally ") ||
-               trimmed.startsWith("finally:") 
-               ){
-                return line;
+            
+            if(startsWithDedentToken(trimmed)){
+            	foundDedent = true;
+            }
+            for (String dedent : PySelection.INDENT_TOKENS) {
+            	if(trimmed.startsWith(dedent)){
+            		if(isCompleteToken(trimmed, dedent)){
+            			return new Tuple<String, Boolean>(line, foundDedent);
+            		}
+            	}
             }
         }
         return null;
     }
+
+    public static boolean startsWithDedentToken(String trimmedLine) {
+        for (String dedent : PySelection.DEDENT_TOKENS) {
+            if(trimmedLine.startsWith(dedent)){
+                return isCompleteToken(trimmedLine, dedent);
+            }
+        }
+        return false;
+    }
+
+
+	private static boolean isCompleteToken(String trimmedLine, String dedent) {
+		if(dedent.length() < trimmedLine.length()){
+		    char afterToken = trimmedLine.charAt(dedent.length());
+		    if(afterToken == ' ' || afterToken == ';' || afterToken == '('){
+		        return true;
+		    }
+		    return false;
+		}else{
+		    return true;
+		}
+	}
 
 
     class DocIterator implements Iterator{

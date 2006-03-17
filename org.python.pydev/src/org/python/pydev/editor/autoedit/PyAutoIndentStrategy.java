@@ -56,6 +56,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         if (offset > 0) {
             PySelection selection = new PySelection(document, offset);
             String lineWithoutComments = PySelection.getLineWithoutComments(selection.getLine());
+            int smartIndent = determineSmartIndent(document, offset, selection);
             
             if(lineWithoutComments.length() > 0){
                 //ok, now let's see the auto-indent
@@ -68,7 +69,6 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                     lastChar = lineWithoutComments.charAt(curr);
                 }
 
-                int smartIndent = determineSmartIndent(document, offset, selection);
                 
                 //we have to check if smartIndent is -1 because otherwise we are inside some bracket
                 if(smartIndent == -1 && DocUtils.isClosingPeer(lastChar)){
@@ -86,39 +86,44 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                         String initial = getCharsBeforeNewLine(text);
                         text = initial + openingBracketLineStr.substring(0, first);
                     }
+                    return text;
                     
                 } else if (smartIndent == -1 && lastChar == ':') {
                     //we have to check if smartIndent is -1 because otherwise we are in a dict
                 	//ok, not inside brackets
                     text = indentBasedOnStartingScope(text, selection);
-
-                }else{
-                    String trimmedLine = lineWithoutComments.trim();
-                    
-                    //let's check for dedents...
-                    if(startsWithDedentToken(trimmedLine)){
-                        text = dedent(text);
-                    }else if(smartIndent >= 0){
-                    	if(DocUtils.hasOpeningBracket(trimmedLine) || DocUtils.hasClosingBracket(trimmedLine)){
-                    		text = makeSmartIndent(text, smartIndent);
-                    	}
-                    }else{
-                    	if(selection.getLineContentsToCursor().trim().length() == 0){
-                    		text = indentBasedOnStartingScope(text, selection);
-                    	}
-                    }
+                    return text;
                 }
+            }
+            
+            String trimmedLine = lineWithoutComments.trim();
+            
+            //let's check for dedents...
+            if(PySelection.startsWithDedentToken(trimmedLine)){
+                text = dedent(text);
+            }else if(smartIndent >= 0){
+            	if(DocUtils.hasOpeningBracket(trimmedLine) || DocUtils.hasClosingBracket(trimmedLine)){
+            		text = makeSmartIndent(text, smartIndent);
+            	}
+            }else{
+            	if(selection.getLineContentsToCursor().trim().length() == 0){
+            		text = indentBasedOnStartingScope(text, selection);
+            	}
             }
         }
         return text;
     }
 
 	private String indentBasedOnStartingScope(String text, PySelection selection) {
-		String previousIfLine = selection.getPreviousLineThatStartsScope();
+		Tuple<String,Boolean> previousIfLine = selection.getPreviousLineThatStartsScope();
 		if(previousIfLine != null){
 		    String initial = getCharsBeforeNewLine(text);
-		    String indent = PyAction.getIndentationFromLine(previousIfLine);
-		    text = initial + indent + prefs.getIndentationString();
+		    String indent = PyAction.getIndentationFromLine(previousIfLine.o1);
+		    if(!previousIfLine.o2){
+		    	text = initial + indent + prefs.getIndentationString();
+		    }else{
+		    	text = initial + indent;
+		    }
 		    
 		}
 		return text;
@@ -196,32 +201,6 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
      */
     private boolean isNewLineText(IDocument document, int length, String text) {
         return length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text);
-    }
-
-    public static final String[] DEDENT_TOKENS = new String[]{
-        "return",
-        "break",
-        "continue",
-        "pass",
-        "raise",
-        "yield"
-    };
-
-    private boolean startsWithDedentToken(String trimmedLine) {
-        for (String dedent : DEDENT_TOKENS) {
-            if(trimmedLine.startsWith(dedent)){
-                if(dedent.length() < trimmedLine.length()){
-                    char afterToken = trimmedLine.charAt(dedent.length());
-                    if(afterToken == ' ' || afterToken == ';' || afterToken == '('){
-                        return true;
-                    }
-                    return false;
-                }else{
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     private String dedent(String text) {
