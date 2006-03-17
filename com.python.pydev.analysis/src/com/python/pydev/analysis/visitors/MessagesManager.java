@@ -306,7 +306,7 @@ public class MessagesManager {
 
                 if(l.size() == 1){
                     addAdditionalInfoToUnusedWildImport(message);
-                    result.add(message);
+                    addToResult(result, message);
                     
                 } else{
                     //the generator token has many associated messages - the messages may have different types,
@@ -316,7 +316,7 @@ public class MessagesManager {
                         compositeMessage.addMessage(m);
                     }
                     addAdditionalInfoToUnusedWildImport(compositeMessage);
-                    result.add(compositeMessage);
+                    addToResult(result, compositeMessage);
                 }
             }
             
@@ -328,10 +328,27 @@ public class MessagesManager {
             //}
             // we add even ignore messages because they might be used later in actions dependent on code analysis
             
-            result.add(message);
+            addToResult(result, message);
         }
         
         return (IMessage[]) result.toArray(new IMessage[0]);
+    }
+
+    /**
+     * @param result
+     * @param message
+     */
+    private void addToResult(List<IMessage> result, IMessage message) {
+        if(isUnusedImportMessage(message.getType())){
+            IToken generator = message.getGenerator();
+            if(generator instanceof SourceToken){
+                if(generator.getAsAbsoluteImport().startsWith("__future__.")){
+                    //do not add from __future__ import xxx
+                    return; 
+                }
+            }
+        }
+        result.add(message);
     }
 
     /**

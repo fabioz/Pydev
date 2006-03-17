@@ -26,7 +26,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testClsInNew();
+            analyzer2.testFromFutureImport();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -98,6 +98,17 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals("Unused in wild import: anothertest, guitestcase, main, AnotherTest, t, TestCaseAlias, GUITest", msgs[0].getMessage());
         assertEquals("TestCase", msgs[0].getAdditionalInfo().get(0));
         assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
+    }
+    
+    public void testFromFutureImport(){
+        doc = new Document(
+                "from __future__ import generators\n"
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs,0);
+        
     }
     
     public void testClassVar(){
