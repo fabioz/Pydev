@@ -46,6 +46,9 @@ public class AnalysisRunner {
      * @return true if we can analyze it and false if there is some flag saying that we shouldn't
      */
     public boolean canDoAnalysis(IDocument document) {
+    	if(document == null){
+    		return false;
+    	}
         return document.get().indexOf(PYDEV_CODE_ANALYSIS_IGNORE) == -1;
     }
 
