@@ -30,7 +30,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-          test.testIsInGlobalTokens();
+          test.testClassCompl();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -151,6 +151,16 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 	    requestCompl(s, s.length(), -1, new String[] { "met1()"});
 	}
 
+	
+	public void testClassCompl() throws CoreException, BadLocationException{
+	    String s;
+	    s = "" +
+	    "class Test:\n" +
+        "    classVar = 1\n"+
+	    "    def findIt(self):\n"+
+	    "        self.";
+	    requestCompl(s, s.length(), -1, new String[] { "classVar"});
+	}
 	
 	public void testInnerCtxt() throws CoreException, BadLocationException{
 		String s;
