@@ -88,6 +88,17 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	
     }
     
+    public void testNewLine2() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "err)" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n", docCmd.text); 
+    	
+    }
+    
     public void testTabInComment() {
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
     	String str = "#comment" +

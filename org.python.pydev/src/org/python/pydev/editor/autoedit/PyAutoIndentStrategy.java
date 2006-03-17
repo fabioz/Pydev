@@ -78,11 +78,16 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                         PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
                         int bracketOffset = selection.getLineOffset()+curr;
                         IRegion region = matcher.match(document, bracketOffset+1);
-                        int openingBracketLine = document.getLineOfOffset(region.getOffset());
-                        String openingBracketLineStr = PySelection.getLine(document, openingBracketLine);
-                        int first = PyAction.getFirstCharPosition(openingBracketLineStr);
-                        String initial = getBeforeNewLine(text);
-                        text = initial + openingBracketLineStr.substring(0, first);
+                        
+                        if(region != null){
+                        	//we might not have a match if there is an error in the program...
+                        	//e.g. a single ')' without its counterpart.
+	                        int openingBracketLine = document.getLineOfOffset(region.getOffset());
+	                        String openingBracketLineStr = PySelection.getLine(document, openingBracketLine);
+	                        int first = PyAction.getFirstCharPosition(openingBracketLineStr);
+	                        String initial = getBeforeNewLine(text);
+	                        text = initial + openingBracketLineStr.substring(0, first);
+                        }
                         
                     } else if (smartIndent == -1 && lastChar == ':') {
                         //we have to check if smartIndent is -1 because otherwise we are in a dict
