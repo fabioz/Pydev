@@ -141,7 +141,8 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     
     public void testClsInsteadOfSelf(){
         doc = new Document(
-                "class C2:\n"+
+                "class C2:\n" +
+                "    @str\n"+
                 "    def foo(cls):\n"+
                 "        print cls\n"+
                 ""
@@ -151,6 +152,8 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         
         printMessages(msgs,1);
         assertContainsMsg("Method 'foo' should have self as first parameter", msgs);
+        assertEquals(9, msgs[0].getStartCol(doc));
+        assertEquals(3, msgs[0].getStartLine(doc));
         
     }
 
