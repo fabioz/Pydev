@@ -19,7 +19,7 @@ Pydev:
 - Indents to expected level when hitting tab
 - Fixed bug: syntax error described instead of throwing an error
 - Added jython scripting (still needs some example)
-- Profiled Pydev a little, so, some things might be faster ;-P
+- Profiled Pydev (and I'm hoping you'll actually "feel" the difference) -- It is awesome when you see that 90/10 in action (altough I think it is something more like 99/1).
 
 //        I was going to do some things in jython here, but there is too much code around for that...
 //        HashMap<String, Object> locals = new HashMap<String, Object>();
