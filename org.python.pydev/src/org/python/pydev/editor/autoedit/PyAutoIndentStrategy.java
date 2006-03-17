@@ -268,6 +268,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         	
             if (isNewLine) {
             	command.text = autoIndentNewline(document, command.length, command.text, command.offset);
+            	new PySelection(document, command.offset).deleteSpacesAfter(command.offset);
             }else if(command.text.equals("\t")){
             	PySelection ps = new PySelection(document, command.offset);
             	//it is a tab

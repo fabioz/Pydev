@@ -23,7 +23,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNewLine();
+            s.testNewLine3();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -75,6 +75,19 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(0, 0, " ");
         strategy.customizeDocumentCommand(new Document(""), docCmd);
         assertEquals(" ", docCmd.text);
+    }
+    
+    public void testNewLine3() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "for a in b:    " +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength()-4, 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n    ", docCmd.text); 
+    	
+    	String expected = "for a in b:";
+    	assertEquals(expected, doc.get());
     }
     
     public void testNewLine() {
