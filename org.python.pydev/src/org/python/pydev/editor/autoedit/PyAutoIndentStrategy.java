@@ -72,8 +72,9 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                 if (curr > 0) {
                     int smartIndent = determineSmartIndent(document, offset, selection);
                     
+                    //we have to check if smartIndent is -1 because otherwise we are inside some bracket
                     if(smartIndent == -1 && DocUtils.isClosingPeer(lastChar)){
-                        //we have to check if smartIndent is -1 because otherwise we are inside some bracket
+                    	//ok, not inside brackets
                         PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
                         int bracketOffset = selection.getLineOffset()+curr;
                         IRegion region = matcher.match(document, bracketOffset+1);
@@ -85,6 +86,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                         
                     } else if (smartIndent == -1 && lastChar == ':') {
                         //we have to check if smartIndent is -1 because otherwise we are in a dict
+                    	//ok, not inside brackets
                         String previousIfLine = selection.getPreviousLineThatStartsScope();
                         if(previousIfLine != null){
                             String initial = getBeforeNewLine(text);
@@ -96,10 +98,9 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                         }
 
                     }else{
-                        //ok, normal indent until now...
-                        //let's check for dedents...
                         String trimmedLine = lineWithoutComments.trim();
                         
+                        //let's check for dedents...
                         if(startsWithDedentToken(trimmedLine)){
                             text = dedent(text);
                         }else{

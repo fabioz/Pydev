@@ -172,7 +172,10 @@ public class PythonCodeReader {
         int i;
         if( (i = line.indexOf('#')) != -1){
             IRegion lineInformation = fDocument.getLineInformation(lineOfOffset);
-            fOffset = lineInformation.getOffset() + i;
+            int offset = lineInformation.getOffset() + i;
+            if(offset < fOffset){
+            	fOffset = offset;
+            }
         }
     }
 }

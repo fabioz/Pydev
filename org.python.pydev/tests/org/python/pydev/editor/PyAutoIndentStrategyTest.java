@@ -11,7 +11,6 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.autoedit.AbstractIndentPrefs;
 import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.ui.BundleInfoStub;
 
 /**
  * @author Fabio Zadrozny
@@ -24,7 +23,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testIndentingWithTab6();
+            s.testNewLine();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -76,6 +75,17 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(0, 0, " ");
         strategy.customizeDocumentCommand(new Document(""), docCmd);
         assertEquals(" ", docCmd.text);
+    }
+    
+    public void testNewLine() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "createintervention() #create " +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n", docCmd.text); 
+    	
     }
     
     public void testTabInComment() {
