@@ -192,10 +192,9 @@ public class PydevMarkerUtils {
                     existingMarkers.add(marker);
                 }
             } catch (CoreException e) {
-                throw new RuntimeException(e);
+            	existingMarkers = new ArrayList<IMarker>();
+                PydevPlugin.log(e);
             }
-        }else{
-        	existingMarkers = new ArrayList<IMarker>();
         }
         return existingMarkers;
     }
