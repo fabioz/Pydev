@@ -55,7 +55,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
     	
         if (offset > 0) {
             PySelection selection = new PySelection(document, offset);
-            String lineWithoutComments = PySelection.getLineWithoutComments(selection.getLineContentsToCursor());
+            String lineWithoutComments = PySelection.getLineWithoutComments(selection.getLine());
             
             if(lineWithoutComments.length() > 0){
                 //ok, now let's see the auto-indent
@@ -68,60 +68,61 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                     lastChar = lineWithoutComments.charAt(curr);
                 }
 
-
-                if (curr > 0) {
-                    int smartIndent = determineSmartIndent(document, offset, selection);
+                int smartIndent = determineSmartIndent(document, offset, selection);
+                
+                //we have to check if smartIndent is -1 because otherwise we are inside some bracket
+                if(smartIndent == -1 && DocUtils.isClosingPeer(lastChar)){
+                	//ok, not inside brackets
+                    PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
+                    int bracketOffset = selection.getLineOffset()+curr;
+                    IRegion region = matcher.match(document, bracketOffset+1);
                     
-                    //we have to check if smartIndent is -1 because otherwise we are inside some bracket
-                    if(smartIndent == -1 && DocUtils.isClosingPeer(lastChar)){
-                    	//ok, not inside brackets
-                        PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
-                        int bracketOffset = selection.getLineOffset()+curr;
-                        IRegion region = matcher.match(document, bracketOffset+1);
-                        
-                        if(region != null){
-                        	//we might not have a match if there is an error in the program...
-                        	//e.g. a single ')' without its counterpart.
-	                        int openingBracketLine = document.getLineOfOffset(region.getOffset());
-	                        String openingBracketLineStr = PySelection.getLine(document, openingBracketLine);
-	                        int first = PyAction.getFirstCharPosition(openingBracketLineStr);
-	                        String initial = getBeforeNewLine(text);
-	                        text = initial + openingBracketLineStr.substring(0, first);
-                        }
-                        
-                    } else if (smartIndent == -1 && lastChar == ':') {
-                        //we have to check if smartIndent is -1 because otherwise we are in a dict
-                    	//ok, not inside brackets
-                        String previousIfLine = selection.getPreviousLineThatStartsScope();
-                        if(previousIfLine != null){
-                            String initial = getBeforeNewLine(text);
-                            String indent = PyAction.getIndentationFromLine(previousIfLine);
-                            text = initial + indent + prefs.getIndentationString();
-                            
-                        }else{
-                            text = text + prefs.getIndentationString();
-                        }
+                    if(region != null){
+                    	//we might not have a match if there is an error in the program...
+                    	//e.g. a single ')' without its counterpart.
+                        int openingBracketLine = document.getLineOfOffset(region.getOffset());
+                        String openingBracketLineStr = PySelection.getLine(document, openingBracketLine);
+                        int first = PyAction.getFirstCharPosition(openingBracketLineStr);
+                        String initial = getCharsBeforeNewLine(text);
+                        text = initial + openingBracketLineStr.substring(0, first);
+                    }
+                    
+                } else if (smartIndent == -1 && lastChar == ':') {
+                    //we have to check if smartIndent is -1 because otherwise we are in a dict
+                	//ok, not inside brackets
+                    text = indentBasedOnStartingScope(text, selection);
 
+                }else{
+                    String trimmedLine = lineWithoutComments.trim();
+                    
+                    //let's check for dedents...
+                    if(startsWithDedentToken(trimmedLine)){
+                        text = dedent(text);
+                    }else if(smartIndent >= 0){
+                    	if(DocUtils.hasOpeningBracket(trimmedLine) || DocUtils.hasClosingBracket(trimmedLine)){
+                    		text = makeSmartIndent(text, smartIndent);
+                    	}
                     }else{
-                        String trimmedLine = lineWithoutComments.trim();
-                        
-                        //let's check for dedents...
-                        if(startsWithDedentToken(trimmedLine)){
-                            text = dedent(text);
-                        }else{
-                            //if we should not use smart indent, this function has no use.
-                            if(this.prefs.getSmartIndentPar()){
-                            	if(DocUtils.hasOpeningBracket(trimmedLine) || DocUtils.hasClosingBracket(trimmedLine)){
-                            		text = makeSmartIndent(text, smartIndent);
-                            	}
-                            }
-                        }
+                    	if(selection.getLineContentsToCursor().trim().length() == 0){
+                    		text = indentBasedOnStartingScope(text, selection);
+                    	}
                     }
                 }
             }
         }
         return text;
     }
+
+	private String indentBasedOnStartingScope(String text, PySelection selection) {
+		String previousIfLine = selection.getPreviousLineThatStartsScope();
+		if(previousIfLine != null){
+		    String initial = getCharsBeforeNewLine(text);
+		    String indent = PyAction.getIndentationFromLine(previousIfLine);
+		    text = initial + indent + prefs.getIndentationString();
+		    
+		}
+		return text;
+	}
 
 
 	/**
@@ -267,8 +268,11 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         try {
         	
             if (isNewLine) {
-            	command.text = autoIndentNewline(document, command.length, command.text, command.offset);
-            	new PySelection(document, command.offset).deleteSpacesAfter(command.offset);
+            	if(prefs.getSmartIndentPar()){
+	            	command.text = autoIndentNewline(document, command.length, command.text, command.offset);
+	            	PySelection selection = new PySelection(document, command.offset);
+	        		selection.deleteSpacesAfter(command.offset);
+            	}
             }else if(command.text.equals("\t")){
             	PySelection ps = new PySelection(document, command.offset);
             	//it is a tab
@@ -499,7 +503,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 
             // Discard everything but the newline from initial, since we'll
             // build the smart indent from scratch anyway.
-            initial = getBeforeNewLine(initial);
+            initial = getCharsBeforeNewLine(initial);
 
             // Create the actual indentation string
             String indentationString = prefs.getIndentationString();
@@ -528,7 +532,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
      * @param initial
      * @return
      */
-    private String getBeforeNewLine(String initial) {
+    private String getCharsBeforeNewLine(String initial) {
         int initialLength = initial.length();
         for (int i = 0; i < initialLength; i++) {
             char theChar = initial.charAt(i);

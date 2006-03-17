@@ -18,12 +18,15 @@ import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 public class PyAutoIndentStrategyTest extends TestCase {
 
     private PyAutoIndentStrategy strategy;
+	private String doc;
+	private DocCmd docCmd;
+	private String expected;
 
     public static void main(String[] args) {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNewLine3();
+            s.testIndentLevel3();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -88,6 +91,41 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	
     	String expected = "for a in b:";
     	assertEquals(expected, doc.get());
+    }
+    
+    public void testNewLine4() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    			"def a():\n" +
+    			"    print a" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength()-"    print a".length(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	String expected = "" +
+    	"def a():\n" +
+    	"print a" +
+    	"";
+    	assertEquals(expected, doc.get()); 
+    	assertEquals("\n    ", docCmd.text); 
+    	
+    }
+    
+    public void testNewLine5() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"def a():\n" +
+    	"    " +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength()-"    ".length(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	String expected = "" +
+    	"def a():\n" +
+    	"" +
+    	"";
+    	assertEquals(expected, doc.get()); 
+    	assertEquals("\n    ", docCmd.text); 
     }
     
     public void testNewLine() {
@@ -245,13 +283,16 @@ public class PyAutoIndentStrategyTest extends TestCase {
     public void testCommentsIndent() {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
 
-        String doc = "class c: #some comment";
-        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        doc = "class c: #some comment";
+        docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
-        String expected = "\n" +
-                          "    ";
+        expected = "\n" +
+                   "    ";
         assertEquals(expected, docCmd.text);
-
+    }
+    
+    public void testCommentsIndent2() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         //test not indent more
         doc = "    # comment:";
         docCmd = new DocCmd(doc.length(), 0, "\n");

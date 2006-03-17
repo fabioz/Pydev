@@ -451,7 +451,7 @@ public class PydevPrefs extends PreferencePage implements IWorkbenchPreferencePa
                 "simply move the cursor to the position after the ')' without inserting a new one.", TOOLTIP_WIDTH));
         
         //smart indent
-        b = addCheckBox(appearanceComposite, "Use smart-indent for '(', '[' and '{'?", SMART_INDENT_PAR, 0);
+        b = addCheckBox(appearanceComposite, "Use smart-indent?", SMART_INDENT_PAR, 0);
         
         //auto colon
         b = addCheckBox(appearanceComposite, "Automatic colon detection", AUTO_COLON, 0);
