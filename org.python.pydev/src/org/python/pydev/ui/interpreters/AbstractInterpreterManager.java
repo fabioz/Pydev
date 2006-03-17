@@ -13,7 +13,6 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -105,7 +104,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @see org.python.pydev.core.IInterpreterManager#getInterpreters()
      */
     public String[] getInterpreters() {
-        return getInterpretersFromPersistedString(prefs.getString(getPreferenceName()));
+        return getInterpretersFromPersistedString(getPersistedString());
     }
     
     /**
@@ -305,6 +304,18 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         return buf.toString();
     }
 
+    String persistedString;
+    public String getPersistedString() {
+    	if(persistedString == null){
+    		persistedString = prefs.getString(getPreferenceName());
+    	}
+    	return persistedString;
+    }
+    
+    public void setPersistedString(String s) {
+    	persistedString = s;
+    	prefs.setValue(getPreferenceName(), s);
+    }
 
     /**
      * @return whether this interpreter manager can be used to get info on the specified nature

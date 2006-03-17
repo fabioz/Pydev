@@ -591,14 +591,14 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     protected void doStore() {
         String s = createList(list.getItems());
         if (s != null){
-            getPreferenceStore().setValue(getPreferenceName(), s);
+        	interpreterManager.setPersistedString(s);
         }
     }
     
     @Override
     protected void doLoad() {
         if (list != null) {
-            String s = getPreferenceStore().getString(getPreferenceName());
+        	String s = interpreterManager.getPersistedString();
             String[] array = parseString(s);
             for (int i = 0; i < array.length; i++) {
                 list.add(array[i]);
@@ -607,6 +607,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         updateTree();
     }
 
+    public String getPreferenceName(){
+    	throw new RuntimeException("The preferences should be stored/gotten from the IInterpreterManager, and not directly.");
+    }
     
     /** Overriden
      */

@@ -420,17 +420,25 @@ public class PythonNature implements IPythonNature {
     }
 
     /**
+     * Stores the version (the actual version is as a persistent property in the project).
+     * This is so that we don't have a runtime penalty for it.
+     */
+    private String persistentProperty = null;
+    
+    /**
      * @return the python version for the project
      * @throws CoreException 
      */
     public String getVersion() throws CoreException {
         if(project != null){
-            String persistentProperty = project.getPersistentProperty(PYTHON_PROJECT_VERSION);
-            if(persistentProperty == null){ //there is no such property set (let's set it to the default
-                String defaultVersion = getDefaultVersion();
-                setVersion(defaultVersion);
-                persistentProperty = defaultVersion;
-            }
+        	if(persistentProperty == null){
+	            persistentProperty = project.getPersistentProperty(PYTHON_PROJECT_VERSION);
+	            if(persistentProperty == null){ //there is no such property set (let's set it to the default
+	                String defaultVersion = getDefaultVersion();
+	                setVersion(defaultVersion);
+	                persistentProperty = defaultVersion;
+	            }
+        	}
             return persistentProperty;
         }
         return null;
@@ -441,6 +449,7 @@ public class PythonNature implements IPythonNature {
      */
     public void setVersion(String version) throws CoreException{
         if(project != null){
+        	this.persistentProperty = version;
             project.setPersistentProperty(PYTHON_PROJECT_VERSION, version);
         }
     }

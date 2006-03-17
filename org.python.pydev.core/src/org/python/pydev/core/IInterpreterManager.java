@@ -110,5 +110,16 @@ public interface IInterpreterManager {
      * @return the name that is related to this manager (e.g.: python, jython...)
      */
     String getManagerRelatedName();
+
+    /**
+     * @return the Persisted string with the information on this interpreter manager.
+     */
+	public String getPersistedString();
+
+	/**
+	 * Set the string to be persisted with the information on this interpreter manager
+	 * @param s
+	 */
+	public void setPersistedString(String s);
     
 }
