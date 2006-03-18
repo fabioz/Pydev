@@ -6,6 +6,7 @@
 package org.python.pydev.builder;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,6 +14,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -24,7 +28,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.ui.texteditor.DocumentProviderRegistry;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.python.pydev.builder.pycremover.PycRemoverBuilderVisitor;
 import org.python.pydev.builder.pylint.PyLintVisitor;
@@ -32,7 +38,6 @@ import org.python.pydev.builder.todo.PyTodoVisitor;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
-import org.python.pydev.editor.PyDocumentProvider;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
@@ -277,14 +282,6 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         }
     }
 
-    private static IDocumentProvider provider;
-    public static IDocumentProvider getProvider() {
-    	if(provider == null){
-    		provider = new PyDocumentProvider();
-    	}
-    	return provider;
-	}
-    
     /**
      * Returns a document, created with the contents of a resource.
      * 
@@ -302,7 +299,18 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                     file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
                 }
 
-                return getProvider().getDocument(file);
+                ITextFileBufferManager textFileBufferManager = FileBuffers.getTextFileBufferManager();
+                ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(file.getFullPath());
+                IDocument doc = textFileBuffer.getDocument();
+                if(doc == null){
+                    //can this actually happen?
+                    InputStream contents = file.getContents();
+                    int i = contents.available();
+                    byte b[] = new byte[i];
+                    contents.read(b);
+                    doc = new Document(new String(b));
+                }
+                return doc;
             } catch (Exception e) {
                 PydevPlugin.log(e);
             }
