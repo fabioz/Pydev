@@ -58,7 +58,7 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
                         IResource[] initDependents = getInitDependents(resource);
                         
                         for (int i = 0; i < initDependents.length; i++) {
-                            REF.invoke(visitor, name, initDependents[i], PyDevBuilder.getDocFromResource(initDependents[i]), monitor);
+                            REF.invoke(visitor, name, initDependents[i], REF.getDocFromResource(initDependents[i]), monitor);
                         }
                     }
                 } catch (Exception e) {

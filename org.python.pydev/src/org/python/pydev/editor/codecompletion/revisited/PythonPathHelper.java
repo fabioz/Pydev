@@ -5,16 +5,9 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -28,7 +21,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
@@ -407,79 +399,5 @@ public class PythonPathHelper implements Serializable{
             }
         }
 	}
-
-    public static String getPythonFileEncoding(IDocument doc) {
-        Reader inputStreamReader = new StringReader(doc.get());
-        return getPythonFileEncoding(inputStreamReader);
-    }
-    
-    /**
-     * @param f
-     * @return
-     */
-    public static String getPythonFileEncoding(File f) {
-        try {
-            Reader inputStreamReader = new InputStreamReader(new FileInputStream(f));
-            return getPythonFileEncoding(inputStreamReader);
-        } catch (FileNotFoundException e) {
-            return null;
-        }
-    }
-
-    /**
-     * @param inputStreamReader
-     */
-    private static String getPythonFileEncoding(Reader inputStreamReader) {
-        String ret = null;
-        BufferedReader reader = new BufferedReader(inputStreamReader);
-        try{
-            //pep defines that coding must be at 1st or second line: http://www.python.org/doc/peps/pep-0263/
-            String l1 = reader.readLine();
-            String l2 = reader.readLine();
-            
-            String lEnc = null;
-            //encoding must be specified in first or second line...
-            if (l1 != null && l1.toLowerCase().indexOf("coding") != -1){
-                lEnc = l1; 
-            }
-            else if (l2 != null && l2.toLowerCase().indexOf("coding") != -1){
-                lEnc = l2; 
-            }
-            else{
-                ret = null;
-            }
-            
-            if(lEnc != null){
-                lEnc = lEnc.trim();
-                if(lEnc.length() == 0){
-                    ret = null;
-                    
-                }else if(lEnc.charAt(0) == '#'){ //it must be a comment line
-                    
-                    //ok, the encoding line is in lEnc
-                    lEnc = lEnc.substring(lEnc.indexOf("coding")+6);
-                    
-                    char c;
-                    while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) == ' ' || c == ':' || c == '=')) {
-                        lEnc = lEnc.substring(1);
-                    }
-    
-                    StringBuffer buffer = new StringBuffer();
-                    while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) != ' ' || c == '-' || c == '*')) {
-                        
-                        buffer.append(c);
-                        lEnc = lEnc.substring(1);
-                    }
-    
-                    ret = buffer.toString().trim();
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }finally{
-            try {reader.close();} catch (IOException e1) {}
-        }
-        return ret;
-    }
 
 }

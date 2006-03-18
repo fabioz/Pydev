@@ -6,7 +6,6 @@
 package org.python.pydev.builder;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,10 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.filebuffers.FileBuffers;
-import org.eclipse.core.filebuffers.ITextFileBuffer;
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -26,12 +21,8 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.ui.texteditor.DocumentProviderRegistry;
-import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.python.pydev.builder.pycremover.PycRemoverBuilderVisitor;
 import org.python.pydev.builder.pylint.PyLintVisitor;
 import org.python.pydev.builder.todo.PyTodoVisitor;
@@ -236,7 +227,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             if(moduleNameForResource == null){
             	PythonNature.getPythonNature(r.getProject());
             }
-            IDocument doc = getDocFromResource(r);
+            IDocument doc = REF.getDocFromResource(r);
             
             HashMap<String, Object> memo = new HashMap<String, Object>();
             memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, true); //mark it as full build
@@ -280,42 +271,6 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             String name = msgBuf.toString();
             monitor.subTask(name);
         }
-    }
-
-    /**
-     * Returns a document, created with the contents of a resource.
-     * 
-     * @param resource
-     * @return
-     */
-    public static IDocument getDocFromResource(IResource resource) {
-        IProject project = resource.getProject();
-        if (project != null && resource instanceof IFile) {
-
-            IFile file = (IFile) resource;
-
-            try {
-                if(! file.isSynchronized(IResource.DEPTH_ZERO)){
-                    file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-                }
-
-                ITextFileBufferManager textFileBufferManager = FileBuffers.getTextFileBufferManager();
-                ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(file.getFullPath());
-                IDocument doc = textFileBuffer.getDocument();
-                if(doc == null){
-                    //can this actually happen?
-                    InputStream contents = file.getContents();
-                    int i = contents.available();
-                    byte b[] = new byte[i];
-                    contents.read(b);
-                    doc = new Document(new String(b));
-                }
-                return doc;
-            } catch (Exception e) {
-                PydevPlugin.log(e);
-            }
-        }
-        return null;
     }
 
 }

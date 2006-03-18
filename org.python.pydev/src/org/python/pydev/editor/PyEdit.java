@@ -60,7 +60,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
@@ -375,7 +374,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     private void fixEncoding(final IEditorInput input, IDocument document) {
         if (input instanceof FileEditorInput) {
             final IFile file = (IFile) ((FileEditorInput) input).getAdapter(IFile.class);
-            final String encoding = PythonPathHelper.getPythonFileEncoding(document);
+            final String encoding = REF.getPythonFileEncoding(document);
             if (encoding != null) {
                 try {
                     if (encoding.equals(file.getCharset()) == false) {

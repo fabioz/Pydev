@@ -9,6 +9,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -112,11 +113,11 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
 	protected boolean chooseVisit(IResourceDelta delta, IResource resource, boolean isAddOrChange) {
 		switch (delta.getKind()) {
 		    case IResourceDelta.ADDED :
-		        visitAddedResource(resource, PyDevBuilder.getDocFromResource(resource), monitor);
+		        visitAddedResource(resource, REF.getDocFromResource(resource), monitor);
 		        isAddOrChange = true;
 		        break;
 		    case IResourceDelta.CHANGED:
-		        visitChangedResource(resource, PyDevBuilder.getDocFromResource(resource), monitor);
+		        visitChangedResource(resource, REF.getDocFromResource(resource), monitor);
 		        isAddOrChange = true;
 		        break;
 		    case IResourceDelta.REMOVED:

@@ -5,17 +5,11 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.modules;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.parser.SimpleNode;
 import org.python.pydev.core.FindInfo;
@@ -31,7 +25,6 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Fabio Zadrozny
@@ -161,52 +154,7 @@ public abstract class AbstractModule implements IModule {
         String path = REF.getFileAbsolutePath(f);
         if(PythonPathHelper.isValidFileMod(path)){
 	        if(PythonPathHelper.isValidSourceFile(path)){
-	            FileInputStream stream = new FileInputStream(f);
-	            
-	            InputStreamReader in = null;
-                
-	            try {
-	                //I wish we had an IFile here, but as that's not possible...
-	                //This is way too decoupled from the workbench itself so that we
-	                //can have this kind of thing... 
-	                String encoding = PythonPathHelper.getPythonFileEncoding(f);
-	                if(encoding != null){
-	                	//some common errors...
-	                	if(encoding.toLowerCase().trim().equals("latin-1")){
-	                		encoding = "latin1";
-	                	
-	                	}else if(encoding.toLowerCase().equals("utf_8")){
-	                		encoding = "utf-8";
-	                	}
-	                	
-	                }
-	                if(encoding != null){
-	                    in = new InputStreamReader(stream, encoding);
-	                }else{
-	                    in = new InputStreamReader(stream);
-	                }
-                } catch (UnsupportedEncodingException e) {
-                    PydevPlugin.log(e);
-                    in = new InputStreamReader(stream);
-                }
-                
-                BufferedReader reader = new BufferedReader(in);
-                StringBuffer buffer = new StringBuffer(1024 * 5); //5k is not so much...
-	            try{
-	                String line = "";
-	                while( (line = reader.readLine() ) != null){
-	                    buffer.append(line);
-	                    buffer.append('\n');
-	                }
-
-	            }catch (Exception e2) {
-                    PydevPlugin.log(e2);
-                }finally{
-	                try {reader.close();} catch (IOException e1) {}
-	            }
-	            
-                Document doc = new Document(buffer.toString());
-                return createModuleFromDoc(name, f, doc, nature, currLine);
+                return createModuleFromDoc(name, f, REF.getDocFromFile(f), nature, currLine);
 	
 	        }else{ //this should be a compiled extension... we have to get completions from the python shell.
 	            return new CompiledModule(name, nature.getAstManager());

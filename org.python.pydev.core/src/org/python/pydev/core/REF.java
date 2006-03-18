@@ -5,21 +5,38 @@
  */
 package org.python.pydev.core;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.apache.commons.codec.binary.Base64;
+import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.util.Assert;
 import org.python.pydev.core.log.Log;
 
 
@@ -69,13 +86,38 @@ public class REF {
     public static String getFileContents(File file) {
         try {
             FileInputStream stream = new FileInputStream(file);
-            int i = stream.available();
-            byte[] b = new byte[i];
-            stream.read(b);
-            return new String(b);
+            return getFileContents(stream, null, null);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * @param stream
+     * @return
+     * @throws IOException
+     */
+    private static String getFileContents(InputStream contentStream, String encoding, IProgressMonitor monitor) throws IOException {
+        Reader in= null;
+        final int DEFAULT_FILE_SIZE= 15 * 1024;
+
+        if (encoding == null){
+            in= new BufferedReader(new InputStreamReader(contentStream), DEFAULT_FILE_SIZE);
+        }else{
+            in= new BufferedReader(new InputStreamReader(contentStream, encoding), DEFAULT_FILE_SIZE);
+        }
+        
+        StringBuffer buffer= new StringBuffer(DEFAULT_FILE_SIZE);
+        char[] readBuffer= new char[2048];
+        int n= in.read(readBuffer);
+        while (n > 0) {
+            if (monitor != null && monitor.isCanceled())
+                return null;
+
+            buffer.append(readBuffer, 0, n);
+            n= in.read(readBuffer);
+        }
+        return buffer.toString();
     }
 
     /**
@@ -293,6 +335,164 @@ public class REF {
     	}
     	return o1.equals(o2);
     }
+
+    /**
+     * @return the document given its 'filesystem' file
+     */
+    public static IDocument getDocFromFile(java.io.File f) {
+        IPath path = Path.fromOSString(getFileAbsolutePath(f));
+        IDocument doc = getDocFromPath(path);
+        if (doc == null) {
+            return getPythonDocFromFile(f);
+        }
+        return doc;
+    }
+
+    /**
+     * @return the document given its 'filesystem' file (checks for the declared python encoding in the file)
+     */
+    private static IDocument getPythonDocFromFile(java.io.File f) {
+        try {
+            Assert.isTrue(f.exists(), "The file: "+f+" does not exist.");
+            Assert.isTrue(f.isFile(), "The file: "+f+" is not recognized as a file.");
+            
+            FileInputStream stream = new FileInputStream(f);
+            String fileContents = "";
+            try {
+                String encoding = getPythonFileEncoding(f);
+                fileContents = getFileContents(stream, encoding, null);
+            } finally {
+                stream.close();
+            }
+            return new Document(fileContents);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @return null if it was unable to get the document from the path (this may happen if it was not refreshed).
+     * Or the document that represents the file
+     */
+    public static IDocument getDocFromPath(IPath path) {
+        ITextFileBufferManager textFileBufferManager = FileBuffers.getTextFileBufferManager();
+        ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path);
+        if(textFileBuffer != null){
+            return textFileBuffer.getDocument();
+        }
+        return null;
+    }
+
+    /**
+     * Returns a document, created with the contents of a resource (first tries to get from the 'FileBuffers',
+     * and if that fails, it creates one reading the file.
+     */
+    public static IDocument getDocFromResource(IResource resource) {
+        IProject project = resource.getProject();
+        if (project != null && resource instanceof IFile) {
     
+            IFile file = (IFile) resource;
+    
+            try {
+                if(! file.isSynchronized(IResource.DEPTH_ZERO)){
+                    file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+                }
+                IPath path = file.getFullPath();
+    
+                IDocument doc = getDocFromPath(path);
+                if(doc == null){
+                    //can this actually happen?... yeap, it can
+                    InputStream contents = file.getContents();
+                    int i = contents.available();
+                    byte b[] = new byte[i];
+                    contents.read(b);
+                    doc = new Document(new String(b));
+                }
+                return doc;
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+        return null;
+    }
+    
+    
+
+    /**
+     * The encoding declared in the document is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
+     */
+    public static String getPythonFileEncoding(IDocument doc) {
+        Reader inputStreamReader = new StringReader(doc.get());
+        return getPythonFileEncoding(inputStreamReader);
+    }
+    
+    /**
+     * The encoding declared in the file is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
+     */
+    public static String getPythonFileEncoding(File f) {
+        try {
+            Reader inputStreamReader = new InputStreamReader(new FileInputStream(f));
+            return getPythonFileEncoding(inputStreamReader);
+        } catch (FileNotFoundException e) {
+            return null;
+        }
+    }
+
+    /**
+     * The encoding declared in the reader is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
+     */
+    private static String getPythonFileEncoding(Reader inputStreamReader) {
+        String ret = null;
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+        try{
+            //pep defines that coding must be at 1st or second line: http://www.python.org/doc/peps/pep-0263/
+            String l1 = reader.readLine();
+            String l2 = reader.readLine();
+            
+            String lEnc = null;
+            //encoding must be specified in first or second line...
+            if (l1 != null && l1.toLowerCase().indexOf("coding") != -1){
+                lEnc = l1; 
+            }
+            else if (l2 != null && l2.toLowerCase().indexOf("coding") != -1){
+                lEnc = l2; 
+            }
+            else{
+                ret = null;
+            }
+            
+            if(lEnc != null){
+                lEnc = lEnc.trim();
+                if(lEnc.length() == 0){
+                    ret = null;
+                    
+                }else if(lEnc.charAt(0) == '#'){ //it must be a comment line
+                    
+                    //ok, the encoding line is in lEnc
+                    lEnc = lEnc.substring(lEnc.indexOf("coding")+6);
+                    
+                    char c;
+                    while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) == ' ' || c == ':' || c == '=')) {
+                        lEnc = lEnc.substring(1);
+                    }
+    
+                    StringBuffer buffer = new StringBuffer();
+                    while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) != ' ' || c == '-' || c == '*')) {
+                        
+                        buffer.append(c);
+                        lEnc = lEnc.substring(1);
+                    }
+    
+                    ret = buffer.toString().trim();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally{
+            try {reader.close();} catch (IOException e1) {}
+        }
+        return ret;
+    }
+
 }
 

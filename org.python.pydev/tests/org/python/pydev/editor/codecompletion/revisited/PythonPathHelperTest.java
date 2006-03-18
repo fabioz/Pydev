@@ -11,6 +11,7 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
@@ -268,7 +269,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
     
     public void testGetEncoding(){
         String loc = TestDependent.TEST_PYSRC_LOC+"testenc/encutf8.py";
-        String encoding = PythonPathHelper.getPythonFileEncoding(new File(loc));
+        String encoding = REF.getPythonFileEncoding(new File(loc));
         assertEquals("utf-8", encoding.toLowerCase());
     }
 
