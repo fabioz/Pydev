@@ -19,7 +19,7 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
         try {
             PythonCompletionTestWithBuiltins builtins = new PythonCompletionTestWithBuiltins();
             builtins.setUp();
-            builtins.testPreferSrc();
+            builtins.testPreferForcedBuiltin();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionTestWithBuiltins.class);
@@ -111,6 +111,15 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
     }
 
     
+    
+    public void testPreferForcedBuiltin() throws BadLocationException, IOException, Exception{
+        if(TestDependent.HAS_MX_DATETIME){
+            String s = ""+
+            "from mx import DateTime\n"+
+            "DateTime.";
+            requestCompl(s, s.length(), -1, new String[]{"now()"});
+        }
+    }
     
     public void testPreferSrc() throws BadLocationException, IOException, Exception{
         String s = ""+

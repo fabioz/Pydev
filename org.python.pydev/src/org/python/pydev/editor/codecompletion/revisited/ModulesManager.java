@@ -428,11 +428,17 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         String[] builtins = getBuiltins();
         
         for (int i = 0; i < builtins.length; i++) {
-            if (name.equals(builtins[i])) {
-                n = cache.getObj(new ModulesKey(name, null));
-                if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ //still not created or not defined as compiled module (as it should be)
-                    n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
-                    doAddSingleModule(new ModulesKey(n.getName(), null), n);
+            String forcedBuiltin = builtins[i];
+            if (name.startsWith(forcedBuiltin)) {
+                if(name.length() > forcedBuiltin.length() && name.charAt(forcedBuiltin.length()) == '.'){
+                    return null; //it should be regarded as a compiled module (and therefore should be accessed only as its root).
+                }
+                if(name.equals(forcedBuiltin)){
+                    n = cache.getObj(new ModulesKey(name, null));
+                    if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ //still not created or not defined as compiled module (as it should be)
+                        n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
+                        doAddSingleModule(new ModulesKey(n.getName(), null), n);
+                    }
                 }
             }
         }

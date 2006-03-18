@@ -652,11 +652,6 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 	            
 	            if(modRep.equals(tok)){
                     String act = activationToken;
-//                    String act = act.substring(tok.length());
-//                    if(act.startsWith(".")){
-//                        act = act.substring(1);
-//                    }
-                        
 	            	return findOnImportedMods(importedModule, tok, nature, act, currentModuleName);
 	            }
 	        }

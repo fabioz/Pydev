@@ -120,6 +120,7 @@ public class CodeCompletionTestsBase extends TestCase {
             //get default and restore the pythonpath
             InterpreterInfo info = getDefaultInterpreterInfo();
             info.restoreCompiledLibs(getProgressMonitor());
+            info.forcedLibs.add("mx");
             info.restorePythonpath(path, getProgressMonitor()); //here
 
             //postconditions
