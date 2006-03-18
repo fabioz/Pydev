@@ -1,5 +1,7 @@
 from testlib.unittest.anothertest import AnotherTest
 from testlib.unittest import anothertest
+import testlib.unittest
+import os.path
 
 class SomeA(object):
     def fun(self):
@@ -10,5 +12,7 @@ class C1(object):
     b = AnotherTest
     c = anothertest.AnotherTest
     d = anothertest
+    e = testlib.unittest.TestCase
+    f = os.path
 
 c1 = C1()

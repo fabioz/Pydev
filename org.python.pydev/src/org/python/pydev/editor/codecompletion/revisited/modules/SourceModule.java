@@ -16,6 +16,7 @@ import org.python.parser.ast.Assign;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
+import org.python.parser.ast.ImportFrom;
 import org.python.parser.ast.Name;
 import org.python.parser.ast.Str;
 import org.python.pydev.core.FindInfo;
@@ -185,7 +186,6 @@ public class SourceModule extends AbstractModule {
                                         value = NodeUtils.getRepresentationString(assign.value);
                                         System.out.println(value);
                                         definitions = findDefinition(value, d.line, d.col, manager.getNature(), new ArrayList<FindInfo>());
-                                        
                                     }else if(d.ast instanceof ClassDef){
                                         IToken[] toks = (IToken[]) getToks(initialState, manager, d.ast).toArray(new IToken[0]);
                                         if(iActTok == actToks.length-1){
@@ -200,7 +200,7 @@ public class SourceModule extends AbstractModule {
                                         d = visitor.definitions.get(0);
                                         value = d.value;
                                         
-                                    }else if (d.ast == null && d.module != null && d.value.length() == 0){
+                                    }else if ((d.ast == null && d.module != null) || d.ast instanceof ImportFrom){
                                         ICompletionState copy = initialState.getCopy();
                                         copy.setActivationToken(value);
                                         IToken[] completionsForModule = manager.getCompletionsForModule(this, copy);

@@ -6,6 +6,7 @@ package org.python.pydev.editor.codecompletion;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
@@ -19,7 +20,7 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
         try {
             PythonCompletionTestWithBuiltins builtins = new PythonCompletionTestWithBuiltins();
             builtins.setUp();
-            builtins.testPreferForcedBuiltin();
+            builtins.testDeepNested6();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionTestWithBuiltins.class);
@@ -121,6 +122,15 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
         }
     }
     
+    public void testDeepNested6() throws CoreException, BadLocationException{
+        String s;
+        s = "" +
+        "from extendable.nested2 import hub\n"+
+        "hub.c1.f.";
+        requestCompl(s, s.length(), -1, new String[] { "curdir"});
+    }
+    
+
     public void testPreferSrc() throws BadLocationException, IOException, Exception{
         String s = ""+
         "import prefersrc\n"+

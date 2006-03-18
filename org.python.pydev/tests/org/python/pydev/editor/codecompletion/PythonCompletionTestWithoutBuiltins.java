@@ -30,7 +30,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-          test.testDeepNested4();
+          test.testDeepNested5();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -206,6 +206,14 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 	    "from extendable.nested2 import hub\n"+
 	    "hub.c1.d.";
 	    requestCompl(s, s.length(), -1, new String[] { "AnotherTest"});
+	}
+	
+	public void testDeepNested5() throws CoreException, BadLocationException{
+	    String s;
+	    s = "" +
+	    "from extendable.nested2 import hub\n"+
+	    "hub.c1.e.";
+	    requestCompl(s, s.length(), -1, new String[] { "assertBMPsNotEqual"});
 	}
 	
 	
