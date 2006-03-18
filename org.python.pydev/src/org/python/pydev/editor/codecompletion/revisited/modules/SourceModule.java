@@ -174,7 +174,12 @@ public class SourceModule extends AbstractModule {
                         try {
                             Definition[] definitions;
                             String value = activationToken;
+                            String initialValue=null;
                             while(true){
+                                if(value.equals(initialValue)){
+                                    break;
+                                }
+                                initialValue = value;
                                 if(iActTok > actToks.length){
                                     break; //unable to find it
                                 }
@@ -184,7 +189,6 @@ public class SourceModule extends AbstractModule {
                                     if(d.ast instanceof Assign){
                                         Assign assign = (Assign) d.ast;
                                         value = NodeUtils.getRepresentationString(assign.value);
-//                                        System.out.println(value);
                                         definitions = findDefinition(value, d.line, d.col, manager.getNature(), new ArrayList<FindInfo>());
                                     }else if(d.ast instanceof ClassDef){
                                         IToken[] toks = (IToken[]) getToks(initialState, manager, d.ast).toArray(new IToken[0]);
@@ -200,32 +204,23 @@ public class SourceModule extends AbstractModule {
                                         d = visitor.definitions.get(0);
                                         value = d.value;
                                         if(d instanceof AssignDefinition){
-                                            ICompletionState copy = initialState.getCopy();
-                                            copy.setActivationToken(value);
-                                            IToken[] completionsForModule = manager.getCompletionsForModule(this, copy);
-                                            return completionsForModule;
+                                            return getValueCompletions(initialState, manager, value);
                                         }
                                         
                                     }else if ((d.ast == null && d.module != null) || d.ast instanceof ImportFrom){
-                                        ICompletionState copy = initialState.getCopy();
-                                        copy.setActivationToken(value);
-                                        IToken[] completionsForModule = manager.getCompletionsForModule(this, copy);
-                                        return completionsForModule;
+                                        return getValueCompletions(initialState, manager, value);
                                         
                                     }else{
-                                        //System.out.println("breaking");
                                         break;
                                     }
                                 }else{
-                                    ICompletionState copy = initialState.getCopy();
-                                    copy.setActivationToken(value);
-                                    IToken[] completionsForModule = manager.getCompletionsForModule(this, copy);
-                                    return completionsForModule;
+                                    return getValueCompletions(initialState, manager, value);
                                 }
                                 iActTok++;
                             }
+                        } catch (CompletionRecursionException e) {
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            PydevPlugin.log(e);
                         }
                     }
                 } else if(rep.equals(activationToken)){
@@ -236,6 +231,20 @@ public class SourceModule extends AbstractModule {
             System.err.println("Expecting SourceToken, got: "+t.getClass().getName());
         }
         return new IToken[0];
+    }
+
+    /**
+     * @param initialState
+     * @param manager
+     * @param value
+     * @return
+     */
+    private IToken[] getValueCompletions(ICompletionState initialState, ICodeCompletionASTManager manager, String value) {
+        initialState.checkFindMemory(this, value);
+        ICompletionState copy = initialState.getCopy();
+        copy.setActivationToken(value);
+        IToken[] completionsForModule = manager.getCompletionsForModule(this, copy);
+        return completionsForModule;
     }
 
     /**

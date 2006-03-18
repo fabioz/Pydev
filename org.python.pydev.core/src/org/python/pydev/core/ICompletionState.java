@@ -40,5 +40,7 @@ public interface ICompletionState {
 
     void checkMemory(IModule module, String base);
 
+    void checkFindMemory(IModule module, String value);
+
 
 }
