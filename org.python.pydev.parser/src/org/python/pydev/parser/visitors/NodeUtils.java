@@ -294,6 +294,9 @@ public class NodeUtils {
                 return getLineDefinition(((Attribute)ast2).value);
             }
         }
+        if(ast2 instanceof FunctionDef){
+            return ((FunctionDef)ast2).name.beginLine;
+        }
         return ast2.beginLine;
     }
 
