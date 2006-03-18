@@ -20,7 +20,7 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
         try {
             PythonCompletionTestWithBuiltins builtins = new PythonCompletionTestWithBuiltins();
             builtins.setUp();
-            builtins.testDeepNested7();
+            builtins.testDeepNested8();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionTestWithBuiltins.class);
@@ -135,6 +135,14 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
         s = "" +
         "from extendable.nested2 import hub\n"+
         "hub.c1.f.curdir.";
+        requestCompl(s, s.length(), -1, new String[] { "upper()"});
+    }
+    
+    public void testDeepNested8() throws CoreException, BadLocationException{
+        String s;
+        s = "" +
+        "from extendable.nested2 import hub\n"+
+        "hub.C1.f.altsep.";
         requestCompl(s, s.length(), -1, new String[] { "upper()"});
     }
     

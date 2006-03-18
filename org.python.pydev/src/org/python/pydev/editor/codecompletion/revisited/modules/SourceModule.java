@@ -531,7 +531,7 @@ public class SourceModule extends AbstractModule {
                     finalRep += comp.getRepresentation();
                     try {
                         IDefinition[] definitions = module.findDefinition(finalRep, -1, -1, nature, new ArrayList<FindInfo>());
-                        if(definitions.length == 1){
+                        if(definitions.length > 0){
                             return (Definition) definitions[0];
                         }
                     } catch (Exception e) {
