@@ -30,7 +30,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-          test.testClassCompl();
+          test.testSameName();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -173,6 +173,15 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 		"    s = Test()\n"+
 		"    s.";
 		requestCompl(s, s.length(), -1, new String[] { "findIt()"});
+	}
+	
+	
+	public void testDeepNested() throws CoreException, BadLocationException{
+	    String s;
+	    s = "" +
+    	    "import hub\n"+
+    	    "hub.c1.a.n";
+	    requestCompl(s, s.length(), -1, new String[] { "fun()"});
 	}
 	
 	

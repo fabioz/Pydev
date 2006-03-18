@@ -376,9 +376,13 @@ public class REF {
      */
     public static IDocument getDocFromPath(IPath path) {
         ITextFileBufferManager textFileBufferManager = FileBuffers.getTextFileBufferManager();
-        ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path);
-        if(textFileBuffer != null){
-            return textFileBuffer.getDocument();
+        
+        if(textFileBufferManager != null){//we don't have it in tests
+            ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path);
+
+            if(textFileBuffer != null){ //we don't have it when it is not properly refreshed
+                return textFileBuffer.getDocument();
+            }
         }
         return null;
     }

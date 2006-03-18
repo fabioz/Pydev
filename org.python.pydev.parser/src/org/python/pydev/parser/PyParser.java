@@ -357,6 +357,12 @@ public class PyParser {
 
         IDocument newDoc = new Document(startDoc);
         StringBuffer endingComments = PySelection.removeEndingComments(newDoc);
+        try {
+            //make sure it ends with a new line
+            newDoc.replace(newDoc.getLength(), 0, "\n");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         String initialDoc = newDoc.get();
         
         
