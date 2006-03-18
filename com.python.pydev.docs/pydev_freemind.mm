@@ -18,8 +18,9 @@
 <node COLOR="#0033ff" CREATED="1139594201281" ID="Freemind_Link_91517654" MODIFIED="1140001041546" POSITION="left" TEXT="Bugs (not in sf)">
 <font NAME="SansSerif" SIZE="18"/>
 <icon BUILTIN="full-1"/>
-<node COLOR="#00b439" CREATED="1139594167765" ID="Freemind_Link_363994591" MODIFIED="1140001041546" TEXT="Ctrl+Alt+W: looses action">
+<node COLOR="#00b439" CREATED="1139594167765" ID="Freemind_Link_363994591" MODIFIED="1142644172484" TEXT="Ctrl+Alt+W: looses action">
 <font NAME="SansSerif" SIZE="16"/>
+<icon BUILTIN="button_ok"/>
 </node>
 <node COLOR="#00b439" CREATED="1139594377406" ID="Freemind_Link_442163909" MODIFIED="1140001041546" TEXT="from xxx &apos;import&apos; completion should only work in the &apos;code&apos; partition">
 <font NAME="SansSerif" SIZE="16"/>
@@ -32,9 +33,9 @@
 <font NAME="SansSerif" SIZE="16"/>
 <icon BUILTIN="button_ok"/>
 </node>
-<node COLOR="#00b439" CREATED="1139915855015" ID="Freemind_Link_577285573" MODIFIED="1140001041671" TEXT="Limit the number of modules with the AST&#xa;that can be in the memory at any time.">
+<node COLOR="#00b439" CREATED="1139915855015" ID="Freemind_Link_577285573" MODIFIED="1142644167421" TEXT="Limit the number of modules with the AST&#xa;that can be in the memory at any time.">
 <font NAME="SansSerif" SIZE="16"/>
-<icon BUILTIN="full-1"/>
+<icon BUILTIN="button_ok"/>
 </node>
 <node COLOR="#00b439" CREATED="1140103999359" ID="Freemind_Link_9314489" MODIFIED="1140104013437" TEXT="Chandler:&#xa;&#xa;http://wiki.osafoundation.org/bin/view/Projects/GettingChandler&#xa;http://wiki.osafoundation.org/bin/view/Projects/BuildingChandler">
 <font NAME="SansSerif" SIZE="16"/>
@@ -43,13 +44,13 @@
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
-<node COLOR="#0033ff" CREATED="1139594227703" ID="Freemind_Link_1643430887" MODIFIED="1140001041687" POSITION="right" TEXT="Code Completion">
+<node COLOR="#0033ff" CREATED="1139594227703" ID="Freemind_Link_1643430887" MODIFIED="1142643906171" POSITION="right" TEXT="Code Completion">
 <font NAME="SansSerif" SIZE="18"/>
 <node COLOR="#00b439" CREATED="1139594237328" ID="Freemind_Link_215044614" MODIFIED="1140001041687" TEXT="Code Completion for parameters: &#xa;bring the data as &apos;ctx insensitive after &apos;x&apos; characters">
 <edge WIDTH="thin"/>
 <font NAME="SansSerif" SIZE="16"/>
 </node>
-<node COLOR="#00b439" CREATED="1139594311703" ID="Freemind_Link_1252891293" MODIFIED="1140001041718" TEXT="filter compatible interfaces if there is some &#xa;method already declared (in the context)">
+<node COLOR="#00b439" CREATED="1139594311703" ID="Freemind_Link_1252891293" MODIFIED="1142644060562" STYLE="bubble" TEXT="filter compatible interfaces if there is some &#xa;method already declared (in the context)">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 <node COLOR="#00b439" CREATED="1139594344859" ID="Freemind_Link_378572787" MODIFIED="1140001041734" TEXT="filter method if there is some assert isinstance(xxx,Class)">
@@ -71,14 +72,15 @@
 <node COLOR="#00b439" CREATED="1139594480906" ID="Freemind_Link_739678165" MODIFIED="1140001041734" TEXT="Refactoring">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
-<node COLOR="#00b439" CREATED="1139594467156" ID="Freemind_Link_1278244917" MODIFIED="1140001041734" TEXT="Pretty print">
+<node COLOR="#00b439" CREATED="1139594467156" FOLDED="true" ID="Freemind_Link_1278244917" MODIFIED="1140001041734" TEXT="Pretty print">
 <font NAME="SansSerif" SIZE="16"/>
 <node COLOR="#990000" CREATED="1139837309343" ID="Freemind_Link_1597348608" MODIFIED="1140001041750" TEXT="&apos;comment-blocks&apos; should be &apos;resized&apos; &#xa;to the default print margin size">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
 </node>
-<node COLOR="#00b439" CREATED="1139835619343" ID="Freemind_Link_1180334227" MODIFIED="1140001041765" TEXT="A &apos;token&apos; browser should be provided &#xa;(something similar to the show quick outline)">
+<node COLOR="#00b439" CREATED="1139835619343" FOLDED="true" ID="Freemind_Link_1180334227" MODIFIED="1142644118609" TEXT="A &apos;token&apos; browser should be provided &#xa;(something similar to the show quick outline)">
 <font NAME="SansSerif" SIZE="16"/>
+<icon BUILTIN="button_ok"/>
 <node COLOR="#990000" CREATED="1139835686546" ID="Freemind_Link_103166661" MODIFIED="1140001041796" TEXT="The user could choose to &#xa;show classes, methods, etc.">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
@@ -122,7 +124,7 @@
 </node>
 </node>
 </node>
-<node COLOR="#0033ff" CREATED="1139937919875" ID="Freemind_Link_342607119" MODIFIED="1140001041875" POSITION="left" TEXT="other improvements">
+<node COLOR="#0033ff" CREATED="1139937919875" FOLDED="true" ID="Freemind_Link_342607119" MODIFIED="1140001041875" POSITION="left" TEXT="other improvements">
 <font NAME="SansSerif" SIZE="18"/>
 <node COLOR="#00b439" CREATED="1139937931906" ID="Freemind_Link_1003255905" MODIFIED="1140001041875" TEXT="make memory profiling">
 <font NAME="SansSerif" SIZE="16"/>
@@ -131,8 +133,9 @@
 <font NAME="SansSerif" SIZE="16"/>
 </node>
 </node>
-<node COLOR="#0033ff" CREATED="1141658334352" ID="Freemind_Link_1814459883" MODIFIED="1141658448041" POSITION="right" TEXT="auto-indent &#xa;(Jorge Godoy &lt;godoy@ieee.org&gt;)">
+<node COLOR="#0033ff" CREATED="1141658334352" FOLDED="true" ID="Freemind_Link_1814459883" MODIFIED="1142643870375" POSITION="right" TEXT="auto-indent &#xa;(Jorge Godoy &lt;godoy@ieee.org&gt;)">
 <font NAME="SansSerif" SIZE="18"/>
+<icon BUILTIN="button_ok"/>
 <node COLOR="#00b439" CREATED="1141658346899" ID="Freemind_Link_1879754442" MODIFIED="1141658412030" TEXT="moving forward with sucessive TABs&#xa;pressed.  When I press TAB on Emacs it use a soft tab (i.e. what Eclips calls&#xa;&apos;space-tab&apos;) and indent my code to the next indentation level and stop&#xa;indenting.  Even when in the middle of the line and if I&apos;m in the beginning of&#xa;the line it moves the cursor to the beginning of the code.&#xa;">
 <font NAME="SansSerif" SIZE="16"/>
 </node>
