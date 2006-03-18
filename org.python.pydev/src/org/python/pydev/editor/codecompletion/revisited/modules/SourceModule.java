@@ -184,7 +184,7 @@ public class SourceModule extends AbstractModule {
                                     if(d.ast instanceof Assign){
                                         Assign assign = (Assign) d.ast;
                                         value = NodeUtils.getRepresentationString(assign.value);
-                                        System.out.println(value);
+//                                        System.out.println(value);
                                         definitions = findDefinition(value, d.line, d.col, manager.getNature(), new ArrayList<FindInfo>());
                                     }else if(d.ast instanceof ClassDef){
                                         IToken[] toks = (IToken[]) getToks(initialState, manager, d.ast).toArray(new IToken[0]);
@@ -199,6 +199,12 @@ public class SourceModule extends AbstractModule {
                                         classDef.accept(visitor);
                                         d = visitor.definitions.get(0);
                                         value = d.value;
+                                        if(d instanceof AssignDefinition){
+                                            ICompletionState copy = initialState.getCopy();
+                                            copy.setActivationToken(value);
+                                            IToken[] completionsForModule = manager.getCompletionsForModule(this, copy);
+                                            return completionsForModule;
+                                        }
                                         
                                     }else if ((d.ast == null && d.module != null) || d.ast instanceof ImportFrom){
                                         ICompletionState copy = initialState.getCopy();
@@ -475,31 +481,63 @@ public class SourceModule extends AbstractModule {
     		tokens = getGlobalTokens();
     	}
         for (IToken token : tokens) {
-            if(token.getRepresentation().equals(rep) && token instanceof SourceToken){
-            	//ok, we found it
-                SimpleNode a = ((SourceToken)token).getAst();
-                
-                //this is just to get its scope...
-                FindScopeVisitor scopeVisitor = new FindScopeVisitor(a.beginLine, a.beginColumn);
-                if (ast != null){
+            boolean sameRep = token.getRepresentation().equals(rep);
+            if(sameRep){
+                if(token instanceof SourceToken){
+                	//ok, we found it
+                    SimpleNode a = ((SourceToken)token).getAst();
+                    
+                    //this is just to get its scope...
+                    FindScopeVisitor scopeVisitor = new FindScopeVisitor(a.beginLine, a.beginColumn);
+                    if (ast != null){
+                        try {
+                            ast.accept(scopeVisitor);
+                        } catch (Exception e) {
+                            PydevPlugin.log(e);
+                        }
+                    }
+                    Tuple<Integer, Integer> def = getLineColForDefinition(a);
+                    
+                    String parentPackage = token.getParentPackage();
+                    IModule module = this;
+                    if(nature != null){
+                    	IModule mod = nature.getAstManager().getModule(parentPackage, nature, true);
+                    	if(mod != null){
+                    		module = mod;
+                    	}
+                    }
+                    //line, col
+                    return new Definition(def.o1, def.o2, tok, a, scopeVisitor.scope, module);
+                }else{
+                    CompiledToken comp = (CompiledToken) token;
+                    String parentPackage = comp.getParentPackage();
+                    FullRepIterable iterable = new FullRepIterable(parentPackage, true);
+                    
+                    IModule module = null;
+                    for(String modName: iterable){
+                        module = nature.getAstManager().getModule(modName, nature, true);
+                        if(module != null){
+                            break;
+                        }
+                    }
+                    if(module == null){
+                        return null;
+                    }
+                    int length = module.getName().length();
+                    String finalRep = "";
+                    if(parentPackage.length() > length){
+                        finalRep = parentPackage.substring(length + 1)+'.';
+                    }
+                    finalRep += comp.getRepresentation();
                     try {
-                        ast.accept(scopeVisitor);
+                        IDefinition[] definitions = module.findDefinition(finalRep, -1, -1, nature, new ArrayList<FindInfo>());
+                        if(definitions.length == 1){
+                            return (Definition) definitions[0];
+                        }
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
+                        throw new RuntimeException(e);
                     }
                 }
-                Tuple<Integer, Integer> def = getLineColForDefinition(a);
-                
-                String parentPackage = token.getParentPackage();
-                IModule module = this;
-                if(nature != null){
-                	IModule mod = nature.getAstManager().getModule(parentPackage, nature, true);
-                	if(mod != null){
-                		module = mod;
-                	}
-                }
-                //line, col
-                return new Definition(def.o1, def.o2, tok, a, scopeVisitor.scope, module);
             }
         }
         

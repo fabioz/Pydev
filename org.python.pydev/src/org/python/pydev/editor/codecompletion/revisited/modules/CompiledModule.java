@@ -209,14 +209,15 @@ public class CompiledModule extends AbstractModule{
 	        try {
 	            AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
 	            synchronized(shell){
-		            List<String[]> completions = shell.getImportCompletions(name+"."+state.getActivationToken(), manager.getModulesManager().getCompletePythonPath()).o2;
+		            String act = name+"."+state.getActivationToken();
+                    List<String[]> completions = shell.getImportCompletions(act, manager.getModulesManager().getCompletePythonPath()).o2;
 		            
 		            ArrayList<IToken> array = new ArrayList<IToken>();
 		            
 		            for (Iterator iter = completions.iterator(); iter.hasNext();) {
 		                String[] element = (String[]) iter.next(); 
 		                if(element.length >= 4){//it might be a server error
-		                    IToken t = new CompiledToken(element[0], element[1], element[2], name, Integer.parseInt(element[3]));
+		                    IToken t = new CompiledToken(element[0], element[1], element[2], act, Integer.parseInt(element[3]));
 			                array.add(t);
 		                }
 		                
