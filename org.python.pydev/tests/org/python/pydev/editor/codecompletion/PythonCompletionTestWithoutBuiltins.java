@@ -30,7 +30,7 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
 	      test.setUp();
-          test.testSameName();
+          test.testDeepNested4();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -179,9 +179,33 @@ public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase
 	public void testDeepNested() throws CoreException, BadLocationException{
 	    String s;
 	    s = "" +
-    	    "import hub\n"+
-    	    "hub.c1.a.n";
+    	    "from extendable.nested2 import hub\n"+
+    	    "hub.c1.a.";
 	    requestCompl(s, s.length(), -1, new String[] { "fun()"});
+	}
+	
+	public void testDeepNested2() throws CoreException, BadLocationException{
+	    String s;
+	    s = "" +
+	    "from extendable.nested2 import hub\n"+
+	    "hub.c1.b.";
+	    requestCompl(s, s.length(), -1, new String[] { "another()"});
+	}
+	
+	public void testDeepNested3() throws CoreException, BadLocationException{
+	    String s;
+	    s = "" +
+	    "from extendable.nested2 import hub\n"+
+	    "hub.c1.c.";
+	    requestCompl(s, s.length(), -1, new String[] { "another()"});
+	}
+	
+	public void testDeepNested4() throws CoreException, BadLocationException{
+	    String s;
+	    s = "" +
+	    "from extendable.nested2 import hub\n"+
+	    "hub.c1.d.";
+	    requestCompl(s, s.length(), -1, new String[] { "AnotherTest"});
 	}
 	
 	

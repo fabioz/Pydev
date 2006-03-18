@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.python.parser.SimpleNode;
+import org.python.parser.ast.Assign;
 import org.python.parser.ast.Attribute;
 import org.python.parser.ast.ClassDef;
 import org.python.parser.ast.FunctionDef;
@@ -147,71 +148,142 @@ public class SourceModule extends AbstractModule {
 
     
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
+     * @see org.python.pydev.core.IModule#getGlobalTokens(org.python.pydev.core.ICompletionState, org.python.pydev.core.ICodeCompletionASTManager)
      */
-    public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
+    public IToken[] getGlobalTokens(ICompletionState initialState, ICodeCompletionASTManager manager) {
         IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS);
         
         if(t instanceof SourceToken[]){
 	        SourceToken[] tokens = (SourceToken[]) t;
 	        for (int i = 0; i < tokens.length; i++) {
-	            if(tokens[i].getRepresentation().equals(state.getActivationToken())){
-	                
-	                SimpleNode a = tokens[i].getAst();
-	                    
-                    //COMPLETION: get the completions for the whole hierarchy if this is a class!!
-                    List modToks = new ArrayList(Arrays.asList(GlobalModelVisitor.getTokens(a, GlobalModelVisitor.INNER_DEFS, name)));
-                    
-                    try {
-                        if (a instanceof ClassDef) {
-                            ClassDef c = (ClassDef) a;
-                            for (int j = 0; j < c.bases.length; j++) {
-                                if (c.bases[j] instanceof Name) {
-                                    Name n = (Name) c.bases[j];
-                                    String base = n.id;
-                                    //An error in the programming might result in an error.
-                                    //
-                                    //e.g. The case below results in a loop.
-                                    //
-                                    //class A(B):
-                                    //    
-                                    //    def a(self):
-                                    //        pass
-                                    //        
-                                    //class B(A):
-                                    //    
-                                    //    def b(self):
-                                    //        pass
-                                    state = state.getCopy();
-                                    state.setActivationToken(base);
-
-                                    state.checkMemory(this, base);
-
-                                    final IToken[] comps = manager.getCompletionsForModule(this, state);
-                                    modToks.addAll(Arrays.asList(comps));
-                                } else if (c.bases[j] instanceof Attribute) {
-                                    Attribute attr = (Attribute) c.bases[j];
-                                    String s = NodeUtils.getFullRepresentationString(attr);
-
-                                    state = state.getCopy();
-                                    state.setActivationToken(s);
-                                    final IToken[] comps = manager.getCompletionsForModule(this, state);
-                                    modToks.addAll(Arrays.asList(comps));
+	            String activationToken = initialState.getActivationToken();
+                SourceToken token = tokens[i];
+                String rep = token.getRepresentation();
+                
+                SimpleNode ast = token.getAst();
+                
+                if(activationToken.length() > rep.length() && activationToken.startsWith(rep)){
+                    int iActTok = 0;
+                    String[] actToks = activationToken.split("\\.");
+                    if(actToks[iActTok].equals(rep)){
+                        String act = actToks[iActTok];
+                        //System.out.println("Now we have to find act..."+act+"(which is a definition of:"+rep+")");
+                        try {
+                            Definition[] definitions;
+                            String value = activationToken;
+                            while(true){
+                                if(iActTok > actToks.length){
+                                    break; //unable to find it
                                 }
+                                definitions = findDefinition(value, token.getLineDefinition(), token.getColDefinition(), manager.getNature(), new ArrayList<FindInfo>());
+                                if(definitions.length == 1){
+                                    Definition d = definitions[0];
+                                    if(d.ast instanceof Assign){
+                                        Assign assign = (Assign) d.ast;
+                                        value = NodeUtils.getRepresentationString(assign.value);
+                                        System.out.println(value);
+                                        definitions = findDefinition(value, d.line, d.col, manager.getNature(), new ArrayList<FindInfo>());
+                                        
+                                    }else if(d.ast instanceof ClassDef){
+                                        IToken[] toks = (IToken[]) getToks(initialState, manager, d.ast).toArray(new IToken[0]);
+                                        if(iActTok == actToks.length-1){
+                                            return toks;
+                                        }
+                                        value = d.value;
+                                        
+                                    }else if (d.ast instanceof Name){
+                                        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(actToks[actToks.length-1], d.line, d.col, d.module);
+                                        ClassDef classDef = d.scope.getClassDef();
+                                        classDef.accept(visitor);
+                                        d = visitor.definitions.get(0);
+                                        value = d.value;
+                                        
+                                    }else if (d.ast == null && d.module != null && d.value.length() == 0){
+                                        ICompletionState copy = initialState.getCopy();
+                                        copy.setActivationToken(value);
+                                        IToken[] completionsForModule = manager.getCompletionsForModule(this, copy);
+                                        return completionsForModule;
+                                        
+                                    }else{
+                                        //System.out.println("breaking");
+                                        break;
+                                    }
+                                }else{
+                                    ICompletionState copy = initialState.getCopy();
+                                    copy.setActivationToken(value);
+                                    IToken[] completionsForModule = manager.getCompletionsForModule(this, copy);
+                                    return completionsForModule;
+                                }
+                                iActTok++;
                             }
-
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    } catch (CompletionRecursionException e) {
-                        // let's return what we have so far...
                     }
-                    
-                    return (IToken[]) modToks.toArray(new IToken[0]);
+                } else if(rep.equals(activationToken)){
+                    return (IToken[]) getToks(initialState, manager, ast).toArray(new IToken[0]);
 	            }
 	        }
         }else{
             System.err.println("Expecting SourceToken, got: "+t.getClass().getName());
         }
         return new IToken[0];
+    }
+
+    /**
+     * @param initialState
+     * @param manager
+     * @param ast
+     * @return
+     */
+    private List<IToken> getToks(ICompletionState initialState, ICodeCompletionASTManager manager, SimpleNode ast) {
+        List<IToken> modToks = modToks = new ArrayList<IToken>(Arrays.asList(GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name)));//name = moduleName
+        
+        try {
+            //COMPLETION: get the completions for the whole hierarchy if this is a class!!
+            ICompletionState state;
+            if (ast instanceof ClassDef) {
+                ClassDef c = (ClassDef) ast;
+                for (int j = 0; j < c.bases.length; j++) {
+                    if (c.bases[j] instanceof Name) {
+                        Name n = (Name) c.bases[j];
+                        String base = n.id;
+                        //An error in the programming might result in an error.
+                        //
+                        //e.g. The case below results in a loop.
+                        //
+                        //class A(B):
+                        //    
+                        //    def a(self):
+                        //        pass
+                        //        
+                        //class B(A):
+                        //    
+                        //    def b(self):
+                        //        pass
+                        state = initialState.getCopy();
+                        state.setActivationToken(base);
+
+                        state.checkMemory(this, base);
+
+                        final IToken[] comps = manager.getCompletionsForModule(this, state);
+                        modToks.addAll(Arrays.asList(comps));
+                    } else if (c.bases[j] instanceof Attribute) {
+                        Attribute attr = (Attribute) c.bases[j];
+                        String s = NodeUtils.getFullRepresentationString(attr);
+
+                        state = initialState.getCopy();
+                        state.setActivationToken(s);
+                        final IToken[] comps = manager.getCompletionsForModule(this, state);
+                        modToks.addAll(Arrays.asList(comps));
+                    }
+                }
+
+            }
+        } catch (CompletionRecursionException e) {
+            // let's return what we have so far...
+        }
+        return modToks;
     }
 
     public Definition[] findDefinition(String rep, int line, int col, IPythonNature nature, List<FindInfo> lFindInfo) throws Exception{

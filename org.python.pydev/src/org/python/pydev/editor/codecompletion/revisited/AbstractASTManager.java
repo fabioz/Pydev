@@ -651,7 +651,13 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 	            final String modRep = importedModule.getRepresentation(); //this is its 'real' representation (alias) on the file (if it is from xxx import a as yyy, it is yyy)
 	            
 	            if(modRep.equals(tok)){
-	            	return findOnImportedMods(importedModule, tok, nature, activationToken, currentModuleName);
+                    String act = activationToken;
+//                    String act = act.substring(tok.length());
+//                    if(act.startsWith(".")){
+//                        act = act.substring(1);
+//                    }
+                        
+	            	return findOnImportedMods(importedModule, tok, nature, act, currentModuleName);
 	            }
 	        }
         }   
