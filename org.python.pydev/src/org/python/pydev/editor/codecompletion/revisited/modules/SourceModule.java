@@ -163,10 +163,12 @@ public class SourceModule extends AbstractModule {
                 SimpleNode ast = token.getAst();
                 
                 if(activationToken.length() > rep.length() && activationToken.startsWith(rep)){
+                    //we need this thing to work correctly for nested modules...
+                    //some tests are available at: PythonCompletionTestWithoutBuiltins.testDeepNestedXXX
+                    
                     int iActTok = 0;
                     String[] actToks = activationToken.split("\\.");
                     if(actToks[iActTok].equals(rep)){
-                        String act = actToks[iActTok];
                         //System.out.println("Now we have to find act..."+act+"(which is a definition of:"+rep+")");
                         try {
                             Definition[] definitions;
