@@ -26,7 +26,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testFromFutureImport();
+            analyzer2.testClsInsteadOfSelf();
             analyzer2.tearDown();
             System.out.println("finished");
             
