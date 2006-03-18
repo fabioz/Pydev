@@ -84,6 +84,31 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         this.selection = selection;
     }
 
+    private Text lastWithFocus;
+    protected String lastWithFocusStr;
+    private void setFocusOn(Text txt, String string) {
+        if(txt != null){
+            //System.out.println("seting focus on:"+string);
+            txt.setFocus();
+            lastWithFocus = txt;
+            lastWithFocusStr = string;
+        }
+    }
+    public void resetFocusOnLast(){
+        if(lastWithFocus != null){
+            //System.out.println("reseting focus on:"+lastWithFocusStr);
+            lastWithFocus.setFocus();
+        }
+    }
+    
+    @Override
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        if(visible == true){
+            resetFocusOnLast();
+        }
+    }
+
     public void createControl(Composite parent) {
         // top level group
         Composite topLevel = new Composite(parent, SWT.NONE);
@@ -122,6 +147,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
     }
     protected abstract boolean shouldCreatePackageSelect() ;
 
+    
     /**
      * @param topLevel
      */
@@ -136,7 +162,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
             textName.setText(initialTextName);
         }
         if(setFocus){
-            textName.setFocus();
+            setFocusOn(textName, "name");
             textName.setSelection(textName.getText().length());
         }
     }
@@ -150,7 +176,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         textProject.addKeyListener(this);
         btBrowseProject = new Button(topLevel, SWT.NONE);
         setLayout(label, textProject, btBrowseProject);
-        textProject.setFocus();
+        setFocusOn(textProject, "project");
 
         btBrowseProject.addSelectionListener(new SelectionListener(){
 
@@ -203,7 +229,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
             setLayout(label, textPackage, btBrowsePackage);
     
             if(setFocus){
-                textPackage.setFocus();
+                setFocusOn(textPackage, "package");
             }
     
             btBrowsePackage.addSelectionListener(new SelectionListener(){
