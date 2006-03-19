@@ -18,4 +18,12 @@
   		<pyedit_listener_participant class="com.python.pydev.interactiveconsole.EvaluateActionSetter"/>
    </extension>
 
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.python.pydev.interactiveconsole.InteractiveConsolePreferencesPage"
+            category="org.python.pydev.prefs.extensions"
+            id="com.python.pydev.interactiveconsole.InteractiveConsolePreferencesPage"
+            name="Interactive Console"/>
+   </extension>
+
 </plugin>

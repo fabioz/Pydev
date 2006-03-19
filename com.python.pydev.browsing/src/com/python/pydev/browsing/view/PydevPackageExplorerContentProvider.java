@@ -322,4 +322,10 @@ public class PydevPackageExplorerContentProvider extends WorkbenchContentProvide
     public void onCreateActions(ListResourceBundle resources, PyEdit edit) {
         //do nothing
     }
+
+    public void onDispose(PyEdit edit) {
+    }
+
+    public void onSetDocument(IDocument document, PyEdit edit) {
+    }
 }

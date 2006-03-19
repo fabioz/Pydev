@@ -20,7 +20,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.variables,
  org.eclipse.debug.core,
  org.eclipse.debug.ui,
- org.python.pydev.debug
+ org.python.pydev.debug,
+ org.eclipse.ui.console
 Eclipse-AutoStart: true
 Bundle-ClassPath: pydev.jar,
  retroweaver-rt.jar,
