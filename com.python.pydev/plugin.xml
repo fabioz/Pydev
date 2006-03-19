@@ -14,6 +14,7 @@
    		<quick_outline class="com.python.pydev.actions.PyShowOutline"/>
    </extension>
    
+<!-- Have an instance observing all the PyEdit editors -->
    <extension point="org.python.pydev.pydev_pyedit_listener">
   		<pyedit_listener_participant class="com.python.pydev.interactiveconsole.EvaluateActionSetter"/>
    </extension>
@@ -24,6 +25,11 @@
             category="org.python.pydev.prefs.extensions"
             id="com.python.pydev.interactiveconsole.InteractiveConsolePreferencesPage"
             name="Interactive Console"/>
+   </extension>
+<!-- Initialize our preferences -->
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.python.pydev.PydevExtensionInitializer"/>
    </extension>
 
 </plugin>

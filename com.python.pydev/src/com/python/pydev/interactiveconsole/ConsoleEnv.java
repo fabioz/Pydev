@@ -18,6 +18,7 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.console.IConsole;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -35,12 +36,15 @@ public class ConsoleEnv {
     protected boolean showInputInPrompt;
     protected IResource resource;
 
-    
-    public ConsoleEnv(IProject project, IResource resource, boolean showInputInPrompt2) {
+    /**
+     * Creates a console environment for a given project and a given resource.
+     * @param manager the interpreter manager to be used
+     */
+    public ConsoleEnv(IProject project, IResource resource, boolean showInputInPrompt2, IInterpreterManager manager) {
         this.project = project;
         this.resource = resource;
         try {
-            startIt(project, resource, showInputInPrompt2);
+            startIt(project, resource, showInputInPrompt2, manager);
         } catch (Exception e) {
             PydevPlugin.log(e);
             throw new RuntimeException(e);
@@ -48,10 +52,23 @@ public class ConsoleEnv {
         
     }
 
-    private void startIt(IProject project, IResource resource, boolean showInputInPrompt2) throws CoreException, BadLocationException, IOException {
+    /**
+     * This funcion makes the launch of the interpreter in interactive mode and writes the initial commands 
+     * (without showing them at the prompt).
+     * @param manager the interpreter manager to be used
+     */
+    private void startIt(IProject project, IResource resource, boolean showInputInPrompt2, IInterpreterManager manager) throws CoreException, BadLocationException, IOException {
+        String type = null;
+        if(manager.isPython()){
+            type = "org.python.pydev.debug.regularLaunchConfigurationType";
+        }else if (manager.isJython()){
+            type = "org.python.pydev.debug.jythonLaunchConfigurationType";
+        }else{
+            throw new RuntimeException("Unable to determine its launch type.");
+        }
         ILaunchConfiguration configuration = 
-            AbstractLaunchShortcut.createDefaultLaunchConfiguration(resource, "org.python.pydev.debug.regularLaunchConfigurationType", 
-                AbstractLaunchShortcut.getDefaultLocation(resource), PydevPlugin.getPythonInterpreterManager(), project.getName());
+            AbstractLaunchShortcut.createDefaultLaunchConfiguration(resource, type, 
+                AbstractLaunchShortcut.getDefaultLocation(resource), manager, project.getName());
         
         ILaunch launch = configuration.launch("interactive", new NullProgressMonitor());
         IProcess[] processes = launch.getProcesses();
@@ -62,8 +79,7 @@ public class ConsoleEnv {
         
         //we don't want to show this...
         this.showInputInPrompt = false;
-        write(null, process, "import sys; sys.ps1=''; sys.ps2=''\r\n");
-        write(null, process, "'PYTHONPATH:',sys.path\r\n");
+        write(null, process, InteractiveConsolePreferencesPage.getInitialInterpreterCmds());
         
         this.showInputInPrompt = showInputInPrompt2;
     }
@@ -85,6 +101,7 @@ public class ConsoleEnv {
                     if(string.length() > 0 && Character.isWhitespace(string.charAt(0))){
                         //and only if we have some whitespace in the beginning of some text
                         addFinalNewLine = true;
+                        break;
                     }
                 }
             }

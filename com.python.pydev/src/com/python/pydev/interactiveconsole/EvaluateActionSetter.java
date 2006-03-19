@@ -3,45 +3,80 @@
  */
 package com.python.pydev.interactiveconsole;
 
-import java.lang.ref.WeakReference;
 import java.util.ListResourceBundle;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.swt.SWT;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.autoedit.AbstractIndentPrefs;
 
 /**
- * This class will evaluate commands.
+ * This class will setup the editor so that we can evaluate commands on new lines.
+ * 
+ * It is as a 'singleton' for all PyEdit editors.
  */
-public class EvaluateActionSetter implements IPyEditListener, IDocumentListener {
+public class EvaluateActionSetter implements IPyEditListener{
     
     private static final String EVALUATE_ACTION_ID = "org.python.pydev.interactiveconsole.EvaluateActionSetter";
 
-    private ConsoleEnv fConsoleEnv;
+    /**
+     * As this class is a 'singleton', this means that we will only have 1 active console at any time (or at least
+     * one for each type of interpreter: jython or python).
+     */
+    private Map<PyEdit, ConsoleEnv> fConsoleEnv = new WeakHashMap<PyEdit, ConsoleEnv>();
 
-    private IDocument doc;
-    private PyEdit edit;
+    /**
+     * @return a console environment for a given project and editor. If it still does not exist or is
+     * already terminated, a new console env will be created.
+     */
+    public synchronized ConsoleEnv getConsoleEnv(IProject project, PyEdit edit) {
+        try {
+            ConsoleEnv consoleEnv = fConsoleEnv.get(edit);
 
-    public ConsoleEnv getConsoleEnv(IProject project, PyEdit edit) {
-        if(fConsoleEnv == null || fConsoleEnv.isTerminated()){
-            fConsoleEnv = new ConsoleEnv(project, edit.getIFile(), InteractiveConsolePreferencesPage.showConsoleInput());
+            if (consoleEnv == null || consoleEnv.isTerminated()) {
+                
+                consoleEnv = new ConsoleEnv(project, edit.getIFile(), InteractiveConsolePreferencesPage.showConsoleInput(), 
+                        edit.getPythonNature().getRelatedInterpreterManager());
+                
+                fConsoleEnv.put(edit, consoleEnv);
+                
+            }
+            return consoleEnv;
+            
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return fConsoleEnv;
     }
 
-    public void onSave(PyEdit edit) {
-        //ignore
+    /**
+     * @return whether we have an active console linked to some edit.
+     */
+    public boolean isConsoleEnvActive(PyEdit edit) {
+        try {
+            ConsoleEnv consoleEnv = fConsoleEnv.get(edit);
+            boolean notNull = consoleEnv != null;
+            boolean ret = notNull && !consoleEnv.isTerminated();
+            if(notNull && ret == false){
+                //it exists but is already terminated (so, let's remove it from the cache)
+                consoleEnv = fConsoleEnv.remove(edit);
+            }
+            return ret;
+            
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    /**
+     * This method associates Ctrl+new line with the evaluation of commands in the console. 
+     */
     public void onCreateActions(ListResourceBundle resources, final PyEdit edit) {
-        this.edit = edit;
+        new PyEditConsoleListener(this, edit);
         edit.setAction(EVALUATE_ACTION_ID, new Action() {  
 
             public int getAccelerator() {
@@ -62,42 +97,19 @@ public class EvaluateActionSetter implements IPyEditListener, IDocumentListener 
         edit.setActionActivationCode(EVALUATE_ACTION_ID, '\r', -1, SWT.CTRL);
     }
 
+    
+    public void onSave(PyEdit edit) {
+        //ignore
+    }
+
     public void onDispose(PyEdit edit) {
-        if(this.doc != null){
-            this.doc.removeDocumentListener(this);
-            this.doc = null;
-        }
+        //ignore
     }
 
     public void onSetDocument(IDocument document, PyEdit edit) {
-        if(this.doc != null){
-            this.doc.removeDocumentListener(this);
-        }
-        
-        this.doc = document;
-
-        if(this.doc != null){
-            document.addDocumentListener(this);
-        }
+        //ignore
     }
 
-    private boolean isNewLineText(IDocument document, int length, String text) {
-        return length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text);
-    }
-    
-    public void documentAboutToBeChanged(DocumentEvent event) {
-    }
 
-    public void documentChanged(DocumentEvent event) {
-        if(isNewLineText(doc, event.fLength, event.getText())){
-            if(InteractiveConsolePreferencesPage.evalOnNewLine()){
-                if(fConsoleEnv != null && !fConsoleEnv.isTerminated()){
-                    PySelection selection = new PySelection(edit);
-                    String code = selection.getLine()+"\r\n";
-                    getConsoleEnv(edit.getProject(), edit).execute(code);
-                }
-            }
-        }
-    }
 
 }

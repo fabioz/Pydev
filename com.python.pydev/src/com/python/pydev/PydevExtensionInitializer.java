@@ -29,5 +29,6 @@ public class PydevExtensionInitializer extends AbstractPreferenceInitializer{
 
         node.putBoolean(InteractiveConsolePreferencesPage.EVAL_ON_NEW_LINE, InteractiveConsolePreferencesPage.DEFAULT_EVAL_ON_NEW_LINE);
         node.putBoolean(InteractiveConsolePreferencesPage.SHOW_CONSOLE_INPUT, InteractiveConsolePreferencesPage.DEFAULT_SHOW_CONSOLE_INPUT);
+        node.put(InteractiveConsolePreferencesPage.INITIAL_INTERPRETER_CMDS, InteractiveConsolePreferencesPage.DEFAULT_INITIAL_INTERPRETER_CMDS);
 	}
 }
