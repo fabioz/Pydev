@@ -135,7 +135,7 @@ public class PyBackspace extends PyAction {
                 //TODO: use the conditions above and not just erase a single
                 // char.
 
-            	if(PyAction.containsOnlyWhitespaces(ps.getLineContentsToCursor())){
+            	if(PySelection.containsOnlyWhitespaces(ps.getLineContentsToCursor())){
             		eraseToIndentation(ps, indentation);
             		
             	}else{
@@ -163,7 +163,7 @@ public class PyBackspace extends PyAction {
             for (int i = currentLine - 1; i >= 0; i++) {
                 int currentLineOffset = ps.getDoc().getLineOffset(i);
                 if (ps.getDoc().getChar(currentLineOffset + 1) != '#') {
-                    int currentLineFirstCharPos = getFirstCharRelativePosition(ps.getDoc(), currentLineOffset);
+                    int currentLineFirstCharPos = PySelection.getFirstCharRelativePosition(ps.getDoc(), currentLineOffset);
                     return currentLineFirstCharPos;
                 }
             }

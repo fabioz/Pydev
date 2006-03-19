@@ -38,7 +38,7 @@ public class AssistDocString implements IAssistProps {
         }
         List params = tuple.o1;
         
-	    String initial = PyAction.getIndentationFromLine(ps.getCursorLineContents());
+	    String initial = PySelection.getIndentationFromLine(ps.getCursorLineContents());
         String delimiter = PyAction.getDelimiter(ps.getDoc());
         String indentation = PyAction.getStaticIndentationString();
 	    String inAndIndent = delimiter+initial+indentation;

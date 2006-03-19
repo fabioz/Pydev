@@ -137,82 +137,6 @@ public abstract class PyAction implements IEditorActionDelegate {
 
 
 	/**
-	 * Returns the position of the first non whitespace char in the current line.
-	 * @param doc
-	 * @param cursorOffset
-	 * @return position of the first character of the line (returned as an absolute
-	 * 		   offset)
-	 * @throws BadLocationException
-	 */
-	public static int getFirstCharPosition(IDocument doc, int cursorOffset)
-		throws BadLocationException {
-        IRegion region;
-		region = doc.getLineInformationOfOffset(cursorOffset);
-		int offset = region.getOffset();
-		return offset + getFirstCharRelativePosition(doc, cursorOffset);
-	}
-	
-	
-
-	/**
-     * @param doc
-     * @param cursorOffset
-     * @return
-     * @throws BadLocationException
-     */
-    public static int getFirstCharRelativePosition(IDocument doc, int cursorOffset) throws BadLocationException {
-        IRegion region;
-		region = doc.getLineInformationOfOffset(cursorOffset);
-		return getFirstCharRelativePosition(doc, region);
-    }
-
-	/**
-     * @param doc
-     * @param cursorOffset
-     * @return
-     * @throws BadLocationException
-     */
-    public static int getFirstCharRelativeLinePosition(IDocument doc, int line) throws BadLocationException {
-        IRegion region;
-		region = doc.getLineInformation(line);
-		return getFirstCharRelativePosition(doc, region);
-    }
-
-    /**
-     * @param doc
-     * @param region
-     * @return
-     * @throws BadLocationException
-     */
-    public static int getFirstCharRelativePosition(IDocument doc, IRegion region) throws BadLocationException {
-        int offset = region.getOffset();
-		String src = doc.get(offset, region.getLength());
-
-		return getFirstCharPosition(src);
-    }
-
-    /**
-     * @param src
-     * @return
-     */
-    public static int getFirstCharPosition(String src) {
-        int i = 0;
-		boolean breaked = false;
-		while (i < src.length()) {
-		    if (   Character.isWhitespace(src.charAt(i)) == false && src.charAt(i) != '\t'  ) {
-		        i++;
-			    breaked = true;
-				break;
-			}
-		    i++;
-		}
-		if (!breaked){
-		    i++;
-		}
-		return (i - 1);
-    }
-
-    /**
 	 * Returns the position of the last non whitespace char in the current line.
 	 * @param doc
 	 * @param cursorOffset
@@ -266,7 +190,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 	 */
 	protected void gotoFirstVisibleChar(IDocument doc, int cursorOffset) {
 		try {
-			setCaretPosition(getFirstCharPosition(doc, cursorOffset));
+			setCaretPosition(PySelection.getFirstCharPosition(doc, cursorOffset));
 		} catch (BadLocationException e) {
 			beep(e);
 		}
@@ -279,7 +203,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 	 */
 	protected boolean isAtFirstVisibleChar(IDocument doc, int cursorOffset) {
 		try {
-			return getFirstCharPosition(doc, cursorOffset) == cursorOffset;
+			return PySelection.getFirstCharPosition(doc, cursorOffset) == cursorOffset;
 		} catch (BadLocationException e) {
 			return false;
 		}
@@ -380,41 +304,6 @@ public abstract class PyAction implements IEditorActionDelegate {
     }
 
     /**
-     * @param selection
-     * @return
-     */
-    public static String getIndentationFromLine(String selection) {
-        int firstCharPosition = getFirstCharPosition(selection);
-        return selection.substring(0, firstCharPosition);
-    }
-
-    /**
-     * @param c
-     * @param string
-     */
-    public static boolean containsOnlyWhitespaces(String string) {
-        for (int i = 0; i < string.length(); i++) {
-            if(Character.isWhitespace(string.charAt(i)) == false){
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    /**
-     * @param c
-     * @param string
-     */
-    public static boolean containsOnly(char c, String string) {
-        for (int i = 0; i < string.length(); i++) {
-            if(string.charAt(i) != c){
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * Counts the number of occurences of a certain character in a string.
      * 
      * @param line the string to search in
@@ -455,7 +344,7 @@ public abstract class PyAction implements IEditorActionDelegate {
 
     public static String lowerChar(String s, int pos){
         char[] ds = s.toCharArray(); 
-        ds[pos] = (""+ds[pos]).toLowerCase().charAt(0);
+        ds[pos] = Character.toLowerCase(ds[pos]);
         return new String(ds);
     }
 

@@ -34,7 +34,7 @@ Pydev:
 //      
 
 Pydev Extensions:
-
+- Python and Jython console
 
 after 1.0.2
 

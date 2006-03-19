@@ -13,6 +13,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
@@ -82,7 +83,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                     	//e.g. a single ')' without its counterpart.
                         int openingBracketLine = document.getLineOfOffset(region.getOffset());
                         String openingBracketLineStr = PySelection.getLine(document, openingBracketLine);
-                        int first = PyAction.getFirstCharPosition(openingBracketLineStr);
+                        int first = PySelection.getFirstCharPosition(openingBracketLineStr);
                         String initial = getCharsBeforeNewLine(text);
                         text = initial + openingBracketLineStr.substring(0, first);
                     }
@@ -91,7 +92,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                 } else if (smartIndent == -1 && lastChar == ':') {
                     //we have to check if smartIndent is -1 because otherwise we are in a dict
                 	//ok, not inside brackets
-                    text = indentBasedOnStartingScope(text, selection);
+                    text = indentBasedOnStartingScope(text, selection, false);
                     return text;
                 }
             }
@@ -107,20 +108,25 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             	}
             }else{
             	if(selection.getLineContentsToCursor().trim().length() == 0){
-            		text = indentBasedOnStartingScope(text, selection);
+            		text = indentBasedOnStartingScope(text, selection, true);
             	}
             }
         }
         return text;
     }
 
-	private String indentBasedOnStartingScope(String text, PySelection selection) {
-		Tuple<String,Boolean> previousIfLine = selection.getPreviousLineThatStartsScope();
+	private String indentBasedOnStartingScope(String text, PySelection selection, boolean checkForLowestBeforeNewScope) {
+		Tuple3<String,Integer, String> previousIfLine = selection.getPreviousLineThatStartsScope();
 		if(previousIfLine != null){
 		    String initial = getCharsBeforeNewLine(text);
-		    String indent = PyAction.getIndentationFromLine(previousIfLine.o1);
-		    if(!previousIfLine.o2){
-		    	text = initial + indent + prefs.getIndentationString();
+		    String indent = PySelection.getIndentationFromLine(previousIfLine.o1);
+		    if(previousIfLine.o2 == -1){
+                if(checkForLowestBeforeNewScope && previousIfLine.o3 != null){
+                    indent = PySelection.getIndentationFromLine(previousIfLine.o3);
+                    text = initial + indent;
+                }else{
+                    text = initial + indent + prefs.getIndentationString();
+                }
 		    }else{
 		    	text = initial + indent;
 		    }
@@ -435,8 +441,8 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                 
                 String previousIfLine = ps.getPreviousLineThatAcceptsElse();
                 if(previousIfLine != null){
-                    String ifIndent = PyAction.getIndentationFromLine(previousIfLine);
-                    String lineIndent = PyAction.getIndentationFromLine(lineContents);
+                    String ifIndent = PySelection.getIndentationFromLine(previousIfLine);
+                    String lineIndent = PySelection.getIndentationFromLine(lineContents);
                     
                     String indent = prefs.getIndentationString();
                     if(lineIndent.length() == ifIndent.length()+indent.length()){

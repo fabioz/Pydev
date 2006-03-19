@@ -20,6 +20,7 @@ import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.log.Log;
 
 /**
@@ -767,29 +768,161 @@ public class PySelection {
     }
     
     /**
-     * @return a tuple with the line that starts the new scope and a boolean indicating if some dedent token
-     * was found while looking for that scope.
+     * @return a tuple with:
+     * - the line that starts the new scope 
+     * - an int indicating if some dedent token was found while looking for that scope (contains the offset to the first char or -1 if no dedent was found).
+     * - a string with the lowest indent (null if none was found)
      */
-    public Tuple<String, Boolean> getPreviousLineThatStartsScope() {
+    public Tuple3<String, Integer, String> getPreviousLineThatStartsScope() {
         DocIterator iterator = new DocIterator(this.getCursorLine(), false);
-        boolean foundDedent = false;
+        int foundDedent = -1;
+        int lowest = Integer.MAX_VALUE;
+        String lowestStr = null;
+        
         while(iterator.hasNext()){
             String line = (String) iterator.next();
             String trimmed = line.trim();
             
-            if(startsWithDedentToken(trimmed)){
-            	foundDedent = true;
-            }
             for (String dedent : PySelection.INDENT_TOKENS) {
             	if(trimmed.startsWith(dedent)){
             		if(isCompleteToken(trimmed, dedent)){
-            			return new Tuple<String, Boolean>(line, foundDedent);
+            			return new Tuple3<String, Integer, String>(line, foundDedent, lowestStr);
             		}
             	}
             }
+            //we have to check for the first condition (if a dedent is found, but we already found 
+            //one with a first char, the dedent should not be taken into consideration... and vice-versa).
+            if(lowestStr == null && foundDedent == -1 && startsWithDedentToken(trimmed)){
+                foundDedent = getFirstCharPosition(line);
+                
+            }else if(foundDedent == -1 && trimmed.length() > 0){
+                int firstCharPosition = getFirstCharPosition(line);
+                if(firstCharPosition < lowest){
+                    lowest = firstCharPosition;
+                    lowestStr = line;
+                }
+            }
+
         }
         return null;
     }
+
+    /**
+     * @param c
+     * @param string
+     */
+    public static boolean containsOnly(char c, String string) {
+        for (int i = 0; i < string.length(); i++) {
+            if(string.charAt(i) != c){
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * @param c
+     * @param string
+     */
+    public static boolean containsOnlyWhitespaces(String string) {
+        for (int i = 0; i < string.length(); i++) {
+            if(Character.isWhitespace(string.charAt(i)) == false){
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * @param selection
+     * @return
+     */
+    public static String getIndentationFromLine(String selection) {
+        int firstCharPosition = getFirstCharPosition(selection);
+        return selection.substring(0, firstCharPosition);
+    }
+
+
+    /**
+     * @param src
+     * @return
+     */
+    public static int getFirstCharPosition(String src) {
+        int i = 0;
+    	boolean breaked = false;
+    	while (i < src.length()) {
+    	    if (   Character.isWhitespace(src.charAt(i)) == false && src.charAt(i) != '\t'  ) {
+    	        i++;
+    		    breaked = true;
+    			break;
+    		}
+    	    i++;
+    	}
+    	if (!breaked){
+    	    i++;
+    	}
+    	return (i - 1);
+    }
+
+
+    /**
+     * @param doc
+     * @param region
+     * @return
+     * @throws BadLocationException
+     */
+    public static int getFirstCharRelativePosition(IDocument doc, IRegion region) throws BadLocationException {
+        int offset = region.getOffset();
+    	String src = doc.get(offset, region.getLength());
+    
+    	return getFirstCharPosition(src);
+    }
+
+
+    /**
+     * @param doc
+     * @param cursorOffset
+     * @return
+     * @throws BadLocationException
+     */
+    public static int getFirstCharRelativeLinePosition(IDocument doc, int line) throws BadLocationException {
+        IRegion region;
+    	region = doc.getLineInformation(line);
+    	return getFirstCharRelativePosition(doc, region);
+    }
+
+
+    /**
+     * @param doc
+     * @param cursorOffset
+     * @return
+     * @throws BadLocationException
+     */
+    public static int getFirstCharRelativePosition(IDocument doc, int cursorOffset) throws BadLocationException {
+        IRegion region;
+    	region = doc.getLineInformationOfOffset(cursorOffset);
+    	return getFirstCharRelativePosition(doc, region);
+    }
+
+
+    /**
+     * Returns the position of the first non whitespace char in the current line.
+     * @param doc
+     * @param cursorOffset
+     * @return position of the first character of the line (returned as an absolute
+     * 		   offset)
+     * @throws BadLocationException
+     */
+    public static int getFirstCharPosition(IDocument doc, int cursorOffset)
+    	throws BadLocationException {
+        IRegion region;
+    	region = doc.getLineInformationOfOffset(cursorOffset);
+    	int offset = region.getOffset();
+    	return offset + getFirstCharRelativePosition(doc, cursorOffset);
+    }
+
 
     public static boolean startsWithDedentToken(String trimmedLine) {
         for (String dedent : PySelection.DEDENT_TOKENS) {
@@ -804,7 +937,7 @@ public class PySelection {
 	private static boolean isCompleteToken(String trimmedLine, String dedent) {
 		if(dedent.length() < trimmedLine.length()){
 		    char afterToken = trimmedLine.charAt(dedent.length());
-		    if(afterToken == ' ' || afterToken == ';' || afterToken == '('){
+		    if(afterToken == ' ' || afterToken == ':' || afterToken == ';' || afterToken == '('){
 		        return true;
 		    }
 		    return false;

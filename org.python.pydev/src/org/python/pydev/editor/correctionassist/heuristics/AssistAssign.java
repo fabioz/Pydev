@@ -77,7 +77,7 @@ public class AssistAssign implements IAssistProps {
         
         String tok = callName;
 
-        int firstCharPosition = PyAction.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset());
+        int firstCharPosition = PySelection.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset());
         callName += " = ";
         l.add(new PyCompletionProposal(callName, firstCharPosition, 0, 0, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_LOCAL),
                 "Assign to local ("+tok+")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT));

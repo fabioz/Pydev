@@ -40,7 +40,7 @@ public class AssistTry implements IAssistProps {
         String string = ps.getDoc().get(start, end-start);
         String delimiter = PyAction.getDelimiter(ps.getDoc());
         
-        int firstCharPosition = PyAction.getFirstCharRelativePosition(ps.getDoc(), start);
+        int firstCharPosition = PySelection.getFirstCharRelativePosition(ps.getDoc(), start);
         String startIndent = "";
         int i = 0;
         while(i < firstCharPosition){

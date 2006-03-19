@@ -185,7 +185,7 @@ public class PyFormatStd extends PyAction implements IFormatter{
 	        formatStr = trim(new StringBuffer(formatStr));
 	        
 	        String closing = ")";
-	        if(buf1.length() > 0 && PyAction.containsOnlyWhitespaces(buf1.toString())){
+	        if(buf1.length() > 0 && PySelection.containsOnlyWhitespaces(buf1.toString())){
 	            formatStr += buf1.toString();
 	        }else if(std.parametersWithSpace){
 	            closing = " )";
