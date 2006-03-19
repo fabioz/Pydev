@@ -77,7 +77,7 @@
     <launchConfigurationType
         delegate="org.python.pydev.debug.ui.launching.JythonLaunchConfigurationDelegate"
         id="org.python.pydev.debug.jythonLaunchConfigurationType"
-        modes="run, debug"
+        modes="run, debug, interactive"
         name="Jython run"
         public="true"
         sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"

@@ -144,10 +144,17 @@ public class PythonRunner {
         checkProcess(p);
 
         IProcess process;
+        String label = cmdLine[cmdLine.length-1];
         if(config.isJython()) {
-            process = registerWithDebugPluginForProcessType(cmdLine[cmdLine.length-1], launch, p, processAttributes, "java");
+            if(config.isInteractive){
+                label = "Interactive session: "+cmdLine[0]+" ... "+config.interpreter.toOSString()+" ("+config.resource.lastSegment()+")"; //java jython.jar
+            }
+            process = registerWithDebugPluginForProcessType(label, launch, p, processAttributes, "java");
         } else {
-            process = registerWithDebugPlugin(cmdLine[cmdLine.length-1], launch, p, processAttributes);
+            if(config.isInteractive){
+                label = "Interactive session: "+cmdLine[0]+" ("+config.resource.lastSegment()+")"; //c:/bin/python.exe
+            }
+            process = registerWithDebugPlugin(label, launch, p, processAttributes);
         }
         checkProcess(p, process);
 
