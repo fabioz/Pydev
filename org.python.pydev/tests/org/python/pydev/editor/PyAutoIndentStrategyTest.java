@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNewLine6();
+            s.testNewLine7();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -103,6 +103,20 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
     	strategy.customizeDocumentCommand(doc, docCmd);
     	assertEquals("\n", docCmd.text); 
+    }
+    
+    public void testNewLine7() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String str = "" +
+        "class C:\n" +
+        "    a = 30\n" +
+        "print C.a\n" +
+        "\n" +
+        "";
+        final Document doc = new Document(str);
+        DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+        strategy.customizeDocumentCommand(doc, docCmd);
+        assertEquals("\n", docCmd.text); 
     }
     
     public void testNewLine4() {

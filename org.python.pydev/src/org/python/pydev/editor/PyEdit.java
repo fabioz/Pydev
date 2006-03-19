@@ -131,7 +131,82 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     /** listeners that get notified of model changes */
     List<IModelListener> modelListeners;
 
+    // ---------------------------- listeners stuff
+    /**
+     * Those are the ones that register with the PYDEV_PYEDIT_LISTENER extension point
+     */
     private static List<IPyEditListener> editListeners;
+    
+    /**
+     * Those are the ones that register at runtime (not throught extensions points).
+     */
+    private List<IPyEditListener> registeredEditListeners = new ArrayList<IPyEditListener>();
+    
+    public void addPyeditListener(IPyEditListener listener){
+        registeredEditListeners.add(listener);
+    }
+    
+    public void removePyeditListener(IPyEditListener listener){
+        registeredEditListeners.remove(listener);
+    }
+
+    private void notifyOnDispose() {
+        for(IPyEditListener listener : getAllListeners()){
+            try {
+                listener.onDispose(this);
+            } catch (Exception e) {
+                //must not fail
+                PydevPlugin.log(e);
+            }
+        }
+    }
+
+    /**
+     * @param document the document just set
+     */
+    private void notifyOnSetDocument(IDocument document) {
+        for(IPyEditListener listener : getAllListeners()){
+            try {
+                listener.onSetDocument(document, this);
+            } catch (Exception e) {
+                //must not fail
+                PydevPlugin.log(e);
+            }
+        }
+    }
+    
+    private void notifyOnCreateActions(MyResources resources) {
+        for(IPyEditListener listener : getAllListeners()){
+            try {
+                listener.onCreateActions(resources, this);
+            } catch (Exception e) {
+                //must not fail
+                PydevPlugin.log(e);
+            }
+        }
+    }
+
+    private void notifyOnSave() {
+        for(IPyEditListener listener : getAllListeners()){
+            try {
+                listener.onSave(this);
+            } catch (Exception e) {
+                //must not fail
+                PydevPlugin.log(e);
+            }
+        }
+    }
+    
+    private List<IPyEditListener> getAllListeners() {
+        ArrayList<IPyEditListener> listeners = new ArrayList<IPyEditListener>();
+        if(editListeners != null){
+            listeners.addAll(editListeners);
+        }
+        listeners.addAll(registeredEditListeners);
+        return listeners;
+    }
+
+    // ---------------------------- end listeners stuff
     
     @SuppressWarnings("unchecked")
 	public PyEdit() {
@@ -252,6 +327,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         
         //set the parser for the document
         parser.setDocument(document);
+        notifyOnSetDocument(document);
 
         // listen to changes in TAB_WIDTH preference
         prefListener = new Preferences.IPropertyChangeListener() {
@@ -328,6 +404,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             parser.setDocument(document);
             PyPartitionScanner.checkPartitionScanner(document);
         }
+        notifyOnSetDocument(document);
     }
     
     /**
@@ -353,18 +430,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         fixEncoding(getEditorInput(), getDocument());
         super.performSave(overwrite, progressMonitor);
         parser.notifySaved();
-        if(editListeners != null){
-	        for(IPyEditListener listener : editListeners){
-	        	try {
-                    listener.onSave(this);
-                } catch (Exception e) {
-                    //must not fail
-                    PydevPlugin.log(e);
-                }
-	        }
-        }
+        notifyOnSave();
     }
-    
+
     /**
      * Forces the encoding to the one specified in the file
      * 
@@ -412,6 +480,16 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     }
     
 
+    public IFile getIFile() {
+        IEditorInput editorInput = this.getEditorInput();
+        if (editorInput instanceof FileEditorInput) {
+            IFile file = (IFile) ((FileEditorInput) editorInput).getAdapter(IFile.class);
+            return file;
+        }
+        return null;
+        
+    }
+    
     /**
      * @return
      *  
@@ -442,11 +520,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
     // cleanup
     public void dispose() {
+        notifyOnDispose();
+
         PydevPrefs.getPreferences().removePropertyChangeListener(prefListener);
         parser.dispose();
         colorCache.dispose();
         super.dispose();
     }
+
 
     private static final String TEMPLATE_PROPOSALS_ID = "org.python.pydev.editors.PyEdit.TemplateProposals";
 
@@ -531,18 +612,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         setAction(ACTION_OPEN, openAction);
         enableBrowserLikeLinks();
         
-        if(editListeners != null){
-            for(IPyEditListener listener : editListeners){
-                try {
-                    listener.onCreateActions(resources, this);
-                } catch (Exception e) {
-                    //must not fail
-                    PydevPlugin.log(e);
-                }
-            }
-        }
+        notifyOnCreateActions(resources);
 
     }
+
 
     protected void initializeKeyBindingScopes() {
         setKeyBindingScopes(new String[] { "org.python.pydev.ui.editor.scope" }); //$NON-NLS-1$

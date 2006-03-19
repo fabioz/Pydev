@@ -2,6 +2,8 @@ package org.python.pydev.editor;
 
 import java.util.ListResourceBundle;
 
+import org.eclipse.jface.text.IDocument;
+
 
 public interface IPyEditListener {
 
@@ -17,4 +19,12 @@ public interface IPyEditListener {
      * @param edit the PyEdit
      */
     void onCreateActions(ListResourceBundle resources, PyEdit edit);
+
+    /**
+     * This method is called whenever the edit is disposed
+     * @param edit the edit that will be disposed.
+     */
+    void onDispose(PyEdit edit);
+
+    void onSetDocument(IDocument document, PyEdit edit);
 }
