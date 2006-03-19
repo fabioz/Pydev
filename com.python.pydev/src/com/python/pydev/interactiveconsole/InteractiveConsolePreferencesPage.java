@@ -8,7 +8,6 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.plugin.PydevPrefs;
 
 import com.python.pydev.PydevPlugin;
 
@@ -20,7 +19,7 @@ public class InteractiveConsolePreferencesPage extends FieldEditorPreferencePage
     public static final String EVAL_ON_NEW_LINE = "EVAL_ON_NEW_LINE";
     public static final boolean DEFAULT_EVAL_ON_NEW_LINE = false;
     
-    protected InteractiveConsolePreferencesPage() {
+    public InteractiveConsolePreferencesPage() {
         super(GRID);
         //Set the preference store for the preference page.
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());      
@@ -28,7 +27,7 @@ public class InteractiveConsolePreferencesPage extends FieldEditorPreferencePage
     }
 
     @Override
-    protected void createFieldEditors() {
+    public void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
         addField(new BooleanFieldEditor(SHOW_CONSOLE_INPUT, "Show the input given to the console?", p));
@@ -42,14 +41,14 @@ public class InteractiveConsolePreferencesPage extends FieldEditorPreferencePage
      * should we show the inputs that are given to the console?
      */
     public static boolean showConsoleInput() {
-        return PydevPrefs.getPreferences().getBoolean(SHOW_CONSOLE_INPUT);
+        return PydevPlugin.getDefault().getPreferenceStore().getBoolean(SHOW_CONSOLE_INPUT);
     }
     
     /**
      * should we evaluate on each new line or only on request?
      */
     public static boolean evalOnNewLine() {
-        return PydevPrefs.getPreferences().getBoolean(EVAL_ON_NEW_LINE);
+        return PydevPlugin.getDefault().getPreferenceStore().getBoolean(EVAL_ON_NEW_LINE);
     }
 
 }

@@ -36,11 +36,11 @@ public class ConsoleEnv {
     protected IResource resource;
 
     
-    public ConsoleEnv(IProject project, IResource resource, boolean showInputInPrompt) {
+    public ConsoleEnv(IProject project, IResource resource, boolean showInputInPrompt2) {
         this.project = project;
         this.resource = resource;
         try {
-            startIt(project, resource, showInputInPrompt);
+            startIt(project, resource, showInputInPrompt2);
         } catch (Exception e) {
             PydevPlugin.log(e);
             throw new RuntimeException(e);
@@ -48,7 +48,7 @@ public class ConsoleEnv {
         
     }
 
-    private void startIt(IProject project, IResource resource, boolean showInputInPrompt) throws CoreException, BadLocationException, IOException {
+    private void startIt(IProject project, IResource resource, boolean showInputInPrompt2) throws CoreException, BadLocationException, IOException {
         ILaunchConfiguration configuration = 
             AbstractLaunchShortcut.createDefaultLaunchConfiguration(resource, "org.python.pydev.debug.regularLaunchConfigurationType", 
                 AbstractLaunchShortcut.getDefaultLocation(resource), PydevPlugin.getPythonInterpreterManager(), project.getName());
@@ -65,7 +65,7 @@ public class ConsoleEnv {
         write(null, process, "import sys; sys.ps1=''; sys.ps2=''\r\n");
         write(null, process, "'PYTHONPATH:',sys.path\r\n");
         
-        this.showInputInPrompt = showInputInPrompt;
+        this.showInputInPrompt = showInputInPrompt2;
     }
 
     /**
@@ -76,13 +76,19 @@ public class ConsoleEnv {
     public void execute(String code) {
         try {
             IDocument doc = processConsole.getDocument();
-            String[] strings = code.split("\r\n");
             boolean addFinalNewLine = false;
-            for (String string : strings) {
-                if(string.length() > 0 && Character.isWhitespace(string.charAt(0))){
-                    addFinalNewLine = true;
+
+            //we will only add an additional new line when we are not evaluating on a per-line basis
+            if(!InteractiveConsolePreferencesPage.evalOnNewLine()){
+                String[] strings = code.split("\r\n");
+                for (String string : strings) {
+                    if(string.length() > 0 && Character.isWhitespace(string.charAt(0))){
+                        //and only if we have some whitespace in the beginning of some text
+                        addFinalNewLine = true;
+                    }
                 }
             }
+            
             write(doc, process, code);
             if(addFinalNewLine){
                 write(doc, process, "\r\n");
