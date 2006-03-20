@@ -5,8 +5,8 @@
  */
 package org.python.pydev.editor.model;
 
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.NameTok;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 /**

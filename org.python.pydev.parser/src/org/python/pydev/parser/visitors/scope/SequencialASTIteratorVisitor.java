@@ -1,6 +1,6 @@
 package org.python.pydev.parser.visitors.scope;
 
-import org.python.parser.SimpleNode;
+import org.python.pydev.parser.jython.SimpleNode;
 
 public class SequencialASTIteratorVisitor extends EasyAstIteratorBase{
 

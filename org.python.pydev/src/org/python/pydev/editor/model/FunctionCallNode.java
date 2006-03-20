@@ -6,7 +6,7 @@
 package org.python.pydev.editor.model;
 
 import org.eclipse.core.runtime.IStatus;
-import org.python.parser.ast.Call;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**

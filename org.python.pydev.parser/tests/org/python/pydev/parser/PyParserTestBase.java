@@ -2,10 +2,10 @@ package org.python.pydev.parser;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.python.parser.ParseException;
-import org.python.parser.SimpleNode;
-import org.python.parser.Token;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.parser.jython.ParseException;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.Token;
 
 import junit.framework.TestCase;
 

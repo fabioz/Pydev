@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.python.parser.ast.Name;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**

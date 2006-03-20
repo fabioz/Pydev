@@ -8,25 +8,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.Attribute;
-import org.python.parser.ast.Call;
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.Expr;
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.Import;
-import org.python.parser.ast.ImportFrom;
-import org.python.parser.ast.ListComp;
-import org.python.parser.ast.NameTok;
-import org.python.parser.ast.Num;
-import org.python.parser.ast.Str;
-import org.python.parser.ast.Subscript;
-import org.python.parser.ast.Tuple;
-import org.python.parser.ast.aliasType;
-import org.python.parser.ast.exprType;
-import org.python.parser.ast.stmtType;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.ListComp;
+import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.Subscript;
+import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.stmtType;
 
 public class NodeUtils {
 
@@ -102,7 +102,7 @@ public class NodeUtils {
             Call call = ((Call)node);
             return getRepresentationString(call.func, useTypeRepr);
             
-        }else if (node instanceof org.python.parser.ast.List || node instanceof ListComp){
+        }else if (node instanceof org.python.pydev.parser.jython.ast.List || node instanceof ListComp){
             String val = "[]";
             if(useTypeRepr){
             	val = getBuiltinType(val);

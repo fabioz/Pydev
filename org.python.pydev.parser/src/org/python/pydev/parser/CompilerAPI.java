@@ -5,7 +5,7 @@
  */
 package org.python.pydev.parser;
 
-import org.python.parser.IParserHost;
+import org.python.pydev.parser.jython.IParserHost;
 
 /**
  * Implement Py methods required by PythonGrammar

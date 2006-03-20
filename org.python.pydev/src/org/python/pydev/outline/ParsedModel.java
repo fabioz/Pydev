@@ -9,10 +9,10 @@ import java.util.ArrayList;
 
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Display;
-import org.python.parser.SimpleNode;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.IModelListener;
+import org.python.pydev.parser.jython.SimpleNode;
 
 /**
  * ParsedModel represents a python file, parsed for OutlineView display

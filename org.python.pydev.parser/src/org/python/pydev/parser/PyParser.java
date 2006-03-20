@@ -22,20 +22,20 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
-import org.python.parser.IParserHost;
-import org.python.parser.ParseException;
-import org.python.parser.PythonGrammar;
-import org.python.parser.ReaderCharStream;
-import org.python.parser.SimpleNode;
-import org.python.parser.TokenMgrError;
-import org.python.parser.ast.Module;
-import org.python.parser.ast.commentType;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.parser.jython.IParserHost;
+import org.python.pydev.parser.jython.ParseException;
+import org.python.pydev.parser.jython.PythonGrammar;
+import org.python.pydev.parser.jython.ReaderCharStream;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.TokenMgrError;
+import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.commentType;
 
 /**
  * PyParser uses org.python.parser to parse the document (lexical analysis) It

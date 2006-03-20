@@ -5,9 +5,9 @@
  */
 package org.python.pydev.editor.model;
 
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.NameTok;
-import org.python.parser.ast.aliasType;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.aliasType;
 
 /**
  * ImportAlias represents individual imports.

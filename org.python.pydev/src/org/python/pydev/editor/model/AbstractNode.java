@@ -8,8 +8,8 @@ package org.python.pydev.editor.model;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IPath;
-import org.python.parser.ast.NameTok;
-import org.python.parser.ast.aliasType;
+import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.aliasType;
 
 /**
  * ModelNode is a superclass of all nodes.

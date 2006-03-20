@@ -9,16 +9,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.Assign;
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.Import;
-import org.python.parser.ast.ImportFrom;
-import org.python.parser.ast.NameTok;
-import org.python.parser.ast.aliasType;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
@@ -102,21 +102,21 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     }
 
     /**
-     * @see org.python.parser.ast.VisitorBase#unhandled_node(org.python.parser.SimpleNode)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
     protected Object unhandled_node(SimpleNode node) throws Exception {
         return null;
     }
 
     /**
-     * @see org.python.parser.ast.VisitorBase#traverse(org.python.parser.SimpleNode)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#traverse(org.python.pydev.parser.jython.SimpleNode)
      */
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
     
     /**
-     * @see org.python.parser.ast.VisitorBase#visitClassDef(org.python.parser.ast.ClassDef)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
      */
     public Object visitClassDef(ClassDef node) throws Exception {
         defsStack.push(node);
@@ -126,7 +126,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     }
     
     /**
-     * @see org.python.parser.ast.VisitorBase#visitFunctionDef(org.python.parser.ast.FunctionDef)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitFunctionDef(org.python.pydev.parser.jython.ast.FunctionDef)
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         defsStack.push(node);
@@ -136,7 +136,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     }
     
     /**
-     * @see org.python.parser.ast.VisitorBase#visitAssign(org.python.parser.ast.Assign)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
         

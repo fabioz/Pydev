@@ -5,8 +5,8 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
-import org.python.parser.ast.Assign;
 import org.python.pydev.core.IModule;
+import org.python.pydev.parser.jython.ast.Assign;
 
 
 public class AssignDefinition extends Definition{

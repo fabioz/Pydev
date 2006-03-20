@@ -5,7 +5,7 @@
  */
 package org.python.pydev.editor.model;
 
-import org.python.parser.ast.Import;
+import org.python.pydev.parser.jython.ast.Import;
 
 /**
  * Represents import & import as statements

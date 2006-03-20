@@ -254,14 +254,16 @@ public class JythonPlugin extends Plugin {
 			if(regenerate){
 				String path = REF.getFileAbsolutePath(fileToExec);
                 String loadFile = "" +
-						"f = open('"+fileToExec+"')\n" +
+						"f = open(r'%s')           \n" +
 						"try:                      \n" +
 						"    toExec = f.read()     \n" +
 						"finally:                  \n" +
 						"    f.close()             \n" +
                         "";
-                interpreter.exec(loadFile);
-				String exec = StringUtils.format("code = compile(toExec, '%s', 'exec')", path);
+                String toExec = StringUtils.format(loadFile, path);
+                REF.writeStrToFile("Will exec:>>"+toExec+"<<", "c:/temp/test.txt");
+                interpreter.exec(toExec);
+				String exec = StringUtils.format("code = compile(toExec, r'%s', 'exec')", path);
 				interpreter.exec(exec);
 			}
 			

@@ -5,15 +5,15 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.Assign;
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.Import;
-import org.python.parser.ast.ImportFrom;
-import org.python.parser.ast.Name;
-import org.python.parser.ast.Str;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.Str;
 
 /**
  * This class visits only the global context. Other visitors should visit contexts inside of this one.
@@ -60,7 +60,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
     /**
      * Name should be whithin assign.
      * 
-     * @see org.python.parser.ast.VisitorIF#visitAssign(org.python.parser.ast.Assign)
+     * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
         node.traverse(this);
@@ -70,7 +70,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
     /**
      * Visiting some name
      * 
-     * @see org.python.parser.ast.VisitorIF#visitName(org.python.parser.ast.Name)
+     * @see org.python.pydev.parser.jython.ast.VisitorIF#visitName(org.python.pydev.parser.jython.ast.Name)
      */
     public Object visitName(Name node) throws Exception {
         //when visiting the global namespace, we don't go into any inner scope.
@@ -84,7 +84,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
 
     /**
      * Visiting some import from
-     * @see org.python.parser.ast.VisitorBase#visitImportFrom(org.python.parser.ast.ImportFrom)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImportFrom(org.python.pydev.parser.jython.ast.ImportFrom)
      */
     public Object visitImportFrom(ImportFrom node) throws Exception {
         if (this.visitWhat == WILD_MODULES) {
@@ -99,7 +99,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
 
     /**
      * Visiting some import
-     * @see org.python.parser.ast.VisitorBase#visitImport(org.python.parser.ast.Import)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImport(org.python.pydev.parser.jython.ast.Import)
      */
     public Object visitImport(Import node) throws Exception {
         if (this.visitWhat == ALIAS_MODULES) {
@@ -110,7 +110,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
 
     
     /**
-     * @see org.python.parser.ast.VisitorBase#visitStr(org.python.parser.ast.Str)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitStr(org.python.pydev.parser.jython.ast.Str)
      */
     public Object visitStr(Str node) throws Exception {
         if(this.visitWhat == MODULE_DOCSTRING){

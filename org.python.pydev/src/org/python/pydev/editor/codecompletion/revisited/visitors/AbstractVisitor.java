@@ -8,19 +8,19 @@ package org.python.pydev.editor.codecompletion.revisited.visitors;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.Compare;
-import org.python.parser.ast.If;
-import org.python.parser.ast.Import;
-import org.python.parser.ast.ImportFrom;
-import org.python.parser.ast.Name;
-import org.python.parser.ast.NameTok;
-import org.python.parser.ast.Str;
-import org.python.parser.ast.VisitorBase;
-import org.python.parser.ast.aliasType;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Compare;
+import org.python.pydev.parser.jython.ast.If;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.VisitorBase;
+import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 /**

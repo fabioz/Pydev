@@ -7,7 +7,7 @@ package org.python.pydev.parser;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.IDocument;
-import org.python.parser.SimpleNode;
+import org.python.pydev.parser.jython.SimpleNode;
 
 /**
  * PyParser broadcasts events to IParserListeners 

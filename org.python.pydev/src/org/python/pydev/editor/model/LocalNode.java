@@ -5,7 +5,7 @@
  */
 package org.python.pydev.editor.model;
 
-import org.python.parser.ast.Name;
+import org.python.pydev.parser.jython.ast.Name;
 
 
 /**

@@ -5,16 +5,16 @@ package org.python.pydev.parser.visitors.scope;
 
 import java.util.Iterator;
 
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.Assign;
-import org.python.parser.ast.Attribute;
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.Import;
-import org.python.parser.ast.ImportFrom;
-import org.python.parser.ast.Name;
-import org.python.parser.ast.VisitorBase;
-import org.python.parser.ast.exprType;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.VisitorBase;
+import org.python.pydev.parser.jython.ast.exprType;
 
 /**
  * This class is used so that after transversing the AST, we have a simple structure for navigating
@@ -34,7 +34,7 @@ import org.python.parser.ast.exprType;
 public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
     
     /** 
-     * @see org.python.parser.ast.VisitorBase#visitAssign(org.python.parser.ast.Assign)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
         exprType[] targets = node.targets;

@@ -5,7 +5,7 @@
  */
 package org.python.pydev.editor.model;
 
-import org.python.parser.SimpleNode;
+import org.python.pydev.parser.jython.SimpleNode;
 
 /**
  * PyEdit will broadcast model changes to IModelListeners.

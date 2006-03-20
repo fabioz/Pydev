@@ -5,8 +5,8 @@
  */
 package org.python.pydev.editor.model;
 
-import org.python.parser.ast.ImportFrom;
-import org.python.parser.ast.NameTok;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.NameTok;
 
 /**
  * ImportFrom node spans first argument of "from import" statement.

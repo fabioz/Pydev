@@ -7,11 +7,11 @@ package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import java.util.Stack;
 
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.If;
-import org.python.parser.ast.Module;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.If;
+import org.python.pydev.parser.jython.ast.Module;
 
 /**
  * @author Fabio Zadrozny
@@ -55,7 +55,7 @@ public class FindScopeVisitor extends AbstractVisitor {
     }
 
     /**
-     * @see org.python.parser.ast.VisitorBase#unhandled_node(org.python.parser.SimpleNode)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
     protected Object unhandled_node(SimpleNode node) throws Exception {
         //the line passed in starts at 1 and the lines for the visitor nodes start at 0
@@ -76,14 +76,14 @@ public class FindScopeVisitor extends AbstractVisitor {
     }
 
     /**
-     * @see org.python.parser.ast.VisitorBase#traverse(org.python.parser.SimpleNode)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#traverse(org.python.pydev.parser.jython.SimpleNode)
      */
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
     
     /**
-     * @see org.python.parser.ast.VisitorBase#visitIf(org.python.parser.ast.If)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitIf(org.python.pydev.parser.jython.ast.If)
      */
     public Object visitIf(If node) throws Exception {
         if(isIfMAinNode(node)){
@@ -95,7 +95,7 @@ public class FindScopeVisitor extends AbstractVisitor {
 
     
     /**
-     * @see org.python.parser.ast.VisitorBase#visitClassDef(org.python.parser.ast.ClassDef)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
      */
     public Object visitClassDef(ClassDef node) throws Exception {
         if(!found){
@@ -107,7 +107,7 @@ public class FindScopeVisitor extends AbstractVisitor {
     }
     
     /**
-     * @see org.python.parser.ast.VisitorBase#visitFunctionDef(org.python.parser.ast.FunctionDef)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitFunctionDef(org.python.pydev.parser.jython.ast.FunctionDef)
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         if(!found){

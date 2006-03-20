@@ -5,7 +5,7 @@
  */
 package org.python.pydev.editor.model;
 
-import org.python.parser.ast.Pass;
+import org.python.pydev.parser.jython.ast.Pass;
 
 /**
  * @author Fabio Zadrozny

@@ -3,13 +3,13 @@
  */
 package org.python.pydev.parser.visitors.scope;
 
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.Assign;
-import org.python.parser.ast.Attribute;
-import org.python.parser.ast.Import;
-import org.python.parser.ast.ImportFrom;
-import org.python.parser.ast.Name;
-import org.python.parser.ast.exprType;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.exprType;
 
 /**
  * This class is used so that after transversing the AST, we have a simple structure for navigating
@@ -30,7 +30,7 @@ public class EasyASTIteratorVisitor extends EasyAstIteratorBase{
     
 
     /** 
-     * @see org.python.parser.ast.VisitorBase#visitImport(org.python.parser.ast.Import)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImport(org.python.pydev.parser.jython.ast.Import)
      */
     public Object visitImport(Import node) throws Exception {
         atomic(node);
@@ -38,7 +38,7 @@ public class EasyASTIteratorVisitor extends EasyAstIteratorBase{
     }
 
     /** 
-     * @see org.python.parser.ast.VisitorBase#visitImportFrom(org.python.parser.ast.ImportFrom)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImportFrom(org.python.pydev.parser.jython.ast.ImportFrom)
      */
     public Object visitImportFrom(ImportFrom node) throws Exception {
         atomic(node);
@@ -47,7 +47,7 @@ public class EasyASTIteratorVisitor extends EasyAstIteratorBase{
     
 
     /** 
-     * @see org.python.parser.ast.VisitorBase#visitAssign(org.python.parser.ast.Assign)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
         exprType[] targets = node.targets;

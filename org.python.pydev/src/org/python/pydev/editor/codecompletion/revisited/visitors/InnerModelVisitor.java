@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.Assign;
-import org.python.parser.ast.Call;
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.FunctionDef;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 
 /**
  * This class is used to visit the inner context of class or a function. 
@@ -50,14 +50,14 @@ public class InnerModelVisitor extends AbstractVisitor {
     
     
     /**
-     * @see org.python.parser.ast.VisitorBase#unhandled_node(org.python.parser.SimpleNode)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
     protected Object unhandled_node(SimpleNode node) throws Exception {
         return null;
     }
 
     /**
-     * @see org.python.parser.ast.VisitorBase#traverse(org.python.parser.SimpleNode)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#traverse(org.python.pydev.parser.jython.SimpleNode)
      */
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
@@ -92,7 +92,7 @@ public class InnerModelVisitor extends AbstractVisitor {
     }
         
     /**
-     * @see org.python.parser.ast.VisitorBase#visitAssign(org.python.parser.ast.Assign)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
         if(visiting == VISITING_CLASS){
@@ -108,7 +108,7 @@ public class InnerModelVisitor extends AbstractVisitor {
     }
     
     /**
-     * @see org.python.parser.ast.VisitorBase#visitCall(org.python.parser.ast.Call)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitCall(org.python.pydev.parser.jython.ast.Call)
      */
     public Object visitCall(Call node) throws Exception {
         if(visiting == VISITING_CLASS){

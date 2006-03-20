@@ -5,7 +5,7 @@
  */
 package org.python.pydev.editor.model;
 
-import org.python.parser.ast.If;
+import org.python.pydev.parser.jython.ast.If;
 
 /**
  * if __name__ == 'main' Node.

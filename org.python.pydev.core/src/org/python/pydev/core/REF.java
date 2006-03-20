@@ -207,6 +207,24 @@ public class REF {
 		return Base64.decodeBase64(persisted.getBytes());
 	}
 
+	public static void writeStrToFile(String str, String file) {
+		writeStrToFile(str, new File(file));
+	}
+	
+	public static void writeStrToFile(String str, File file) {
+		try {
+			FileOutputStream stream = new FileOutputStream(file);
+			try {
+				stream.write(str.getBytes());
+			} finally{
+				stream.close();
+			}
+		} catch (FileNotFoundException e) {
+			Log.log(e);
+		} catch (IOException e) {
+			Log.log(e);
+		}
+	}
 
     /**
      * @param file

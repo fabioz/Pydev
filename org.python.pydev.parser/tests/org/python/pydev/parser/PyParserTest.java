@@ -7,15 +7,15 @@ import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
-import org.python.parser.ParseException;
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.Module;
-import org.python.parser.ast.Name;
-import org.python.parser.ast.Str;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.parser.jython.ParseException;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
