@@ -3,11 +3,11 @@
  */
 package com.python.pydev.refactoring.refactorer.refactorings;
 
-import org.python.parser.SimpleNode;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.visitors.OcurrencesVisitor;

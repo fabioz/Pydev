@@ -3,8 +3,8 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.NameTok;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.NameTok;
 
 
 public class ClassInfo extends AbstractInfo{

@@ -5,9 +5,9 @@ package com.python.pydev.refactoring.visitors;
 
 import java.io.IOException;
 
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.Module;
 import org.python.pydev.parser.PyParserTestBase;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Module;
 
 public class PrettyPrinterTest extends PyParserTestBase{
 

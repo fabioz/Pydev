@@ -20,8 +20,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.actions.ActionGroup;
 import org.eclipse.ui.actions.NewWizardMenu;
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.browsing.view.CompositeASTEntry;

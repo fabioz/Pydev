@@ -5,8 +5,8 @@ package com.python.pydev.analysis;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.IDocument;
-import org.python.parser.SimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 

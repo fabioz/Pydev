@@ -7,11 +7,11 @@ import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.NameTok;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.NameTok;
 
 public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 

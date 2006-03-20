@@ -10,33 +10,6 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.IDocument;
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.Assign;
-import org.python.parser.ast.Attribute;
-import org.python.parser.ast.Call;
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.Dict;
-import org.python.parser.ast.Expr;
-import org.python.parser.ast.For;
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.Global;
-import org.python.parser.ast.If;
-import org.python.parser.ast.Import;
-import org.python.parser.ast.ImportFrom;
-import org.python.parser.ast.ListComp;
-import org.python.parser.ast.Name;
-import org.python.parser.ast.NameTok;
-import org.python.parser.ast.Raise;
-import org.python.parser.ast.Str;
-import org.python.parser.ast.Subscript;
-import org.python.parser.ast.TryExcept;
-import org.python.parser.ast.TryFinally;
-import org.python.parser.ast.Tuple;
-import org.python.parser.ast.VisitorBase;
-import org.python.parser.ast.While;
-import org.python.parser.ast.argumentsType;
-import org.python.parser.ast.decoratorsType;
-import org.python.parser.ast.exprType;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
@@ -44,6 +17,33 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Dict;
+import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.For;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Global;
+import org.python.pydev.parser.jython.ast.If;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.ListComp;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.Raise;
+import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.Subscript;
+import org.python.pydev.parser.jython.ast.TryExcept;
+import org.python.pydev.parser.jython.ast.TryFinally;
+import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.VisitorBase;
+import org.python.pydev.parser.jython.ast.While;
+import org.python.pydev.parser.jython.ast.argumentsType;
+import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -143,7 +143,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * nothing is additionally handled here (but all functions even the ones that treat it forward the call
      * to this method, so, it might be useful in subclasses).
      *  
-     * @see org.python.parser.ast.VisitorBase#unhandled_node(org.python.parser.SimpleNode)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
     protected Object unhandled_node(SimpleNode node) throws Exception {
         return null;
@@ -151,7 +151,7 @@ public class OcurrencesVisitor extends VisitorBase{
 
     /**
      * transverse the node 
-     * @see org.python.parser.ast.VisitorBase#traverse(org.python.parser.SimpleNode)
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#traverse(org.python.pydev.parser.jython.SimpleNode)
      */
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
@@ -164,7 +164,7 @@ public class OcurrencesVisitor extends VisitorBase{
     
     /**
      * we are starting a new scope when visiting a class 
-     * @see org.python.parser.ast.VisitorIF#visitClassDef(org.python.parser.ast.ClassDef)
+     * @see org.python.pydev.parser.jython.ast.VisitorIF#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
      */
     public Object visitClassDef(ClassDef node) throws Exception {
         addToNamesToIgnore(node);
@@ -210,7 +210,7 @@ public class OcurrencesVisitor extends VisitorBase{
     
     /**
      * we are starting a new scope when visiting a function 
-     * @see org.python.parser.ast.VisitorIF#visitFunctionDef(org.python.parser.ast.FunctionDef)
+     * @see org.python.pydev.parser.jython.ast.VisitorIF#visitFunctionDef(org.python.pydev.parser.jython.ast.FunctionDef)
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
     	unhandled_node(node);
@@ -315,7 +315,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * 
      * e.g.: if it is an import such as 'os.path', it will return 2 tokens, one for 'os' and one for 'os.path',
      *  
-     * @see org.python.parser.ast.VisitorIF#visitImport(org.python.parser.ast.Import)
+     * @see org.python.pydev.parser.jython.ast.VisitorIF#visitImport(org.python.pydev.parser.jython.ast.Import)
      */
     public Object visitImport(Import node) throws Exception {
     	unhandled_node(node);
@@ -327,7 +327,7 @@ public class OcurrencesVisitor extends VisitorBase{
 
     /**
      * visit some import 
-     * @see org.python.parser.ast.VisitorIF#visitImportFrom(org.python.parser.ast.ImportFrom)
+     * @see org.python.pydev.parser.jython.ast.VisitorIF#visitImportFrom(org.python.pydev.parser.jython.ast.ImportFrom)
      */
     public Object visitImportFrom(ImportFrom node) throws Exception {
     	unhandled_node(node);
@@ -354,7 +354,7 @@ public class OcurrencesVisitor extends VisitorBase{
     /**
      * Visiting some name
      * 
-     * @see org.python.parser.ast.VisitorIF#visitName(org.python.parser.ast.Name)
+     * @see org.python.pydev.parser.jython.ast.VisitorIF#visitName(org.python.pydev.parser.jython.ast.Name)
      */
     public Object visitName(Name node) throws Exception {
     	unhandled_node(node);
@@ -400,7 +400,7 @@ public class OcurrencesVisitor extends VisitorBase{
     /**
      * visiting some attribute, as os.path or math().val or (10,10).__class__
      *  
-     * @see org.python.parser.ast.VisitorIF#visitAttribute(org.python.parser.ast.Attribute)
+     * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAttribute(org.python.pydev.parser.jython.ast.Attribute)
      */
     public Object visitAttribute(Attribute node) throws Exception {
     	unhandled_node(node);
@@ -524,7 +524,7 @@ public class OcurrencesVisitor extends VisitorBase{
     
     /**
      * overriden because we want the value to be visited before the targets 
-     * @see org.python.parser.ast.VisitorIF#visitAssign(org.python.parser.ast.Assign)
+     * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
     	unhandled_node(node);
@@ -584,7 +584,7 @@ public class OcurrencesVisitor extends VisitorBase{
     /**
      * overriden because we need to visit the generators first
      * 
-     * @see org.python.parser.ast.VisitorIF#visitListComp(org.python.parser.ast.ListComp)
+     * @see org.python.pydev.parser.jython.ast.VisitorIF#visitListComp(org.python.pydev.parser.jython.ast.ListComp)
      */
     public Object visitListComp(ListComp node) throws Exception {
     	unhandled_node(node);

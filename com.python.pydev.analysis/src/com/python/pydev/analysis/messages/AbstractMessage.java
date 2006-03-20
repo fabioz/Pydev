@@ -11,18 +11,18 @@ import java.util.Map;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.Import;
-import org.python.parser.ast.ImportFrom;
-import org.python.parser.ast.NameTok;
-import org.python.parser.ast.aliasType;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.aliasType;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 

@@ -5,10 +5,10 @@ package com.python.pydev.refactoring.visitors;
 
 import java.io.File;
 
-import org.python.parser.SimpleNode;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.PyParserTestBase;
+import org.python.pydev.parser.jython.SimpleNode;
 
 public class PrettyPrinterLibTest extends PyParserTestBase{
 

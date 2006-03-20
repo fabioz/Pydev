@@ -3,8 +3,8 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.NameTok;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.NameTok;
 
 public class FuncInfo extends AbstractInfo{
     

@@ -8,13 +8,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.python.parser.SimpleNode;
-import org.python.parser.ast.Expr;
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.Pass;
-import org.python.parser.ast.Tuple;
-import org.python.parser.ast.VisitorBase;
-import org.python.parser.ast.exprType;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Pass;
+import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.VisitorBase;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 public class MemoVisitor extends VisitorBase{

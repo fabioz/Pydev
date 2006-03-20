@@ -6,7 +6,7 @@ package com.python.pydev.refactoring.visitors;
 import java.io.IOException;
 import java.util.Stack;
 
-import org.python.parser.SimpleNode;
+import org.python.pydev.parser.jython.SimpleNode;
 
 public class WriteState implements IWriterEraser {
 

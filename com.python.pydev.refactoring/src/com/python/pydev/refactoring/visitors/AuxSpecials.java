@@ -11,12 +11,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
-import org.python.parser.SimpleNode;
-import org.python.parser.SpecialStr;
-import org.python.parser.ast.Assign;
-import org.python.parser.ast.Call;
-import org.python.parser.ast.commentType;
-import org.python.parser.ast.exprType;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.SpecialStr;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.jython.ast.exprType;
 
 /**
  * This class is used as a helper to write special tokens, such as comments and other literals.

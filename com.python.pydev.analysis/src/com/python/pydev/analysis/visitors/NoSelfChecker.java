@@ -7,16 +7,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import org.python.parser.ast.Assign;
-import org.python.parser.ast.Call;
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.Name;
-import org.python.parser.ast.decoratorsType;
-import org.python.parser.ast.exprType;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.python.pydev.analysis.IAnalysisPreferences;

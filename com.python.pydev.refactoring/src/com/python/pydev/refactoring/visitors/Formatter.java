@@ -4,12 +4,12 @@
 package com.python.pydev.refactoring.visitors;
 
 import org.eclipse.jface.text.IDocument;
-import org.python.parser.SimpleNode;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.IFormatter;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.jython.SimpleNode;
 
 public class Formatter implements IFormatter{
 

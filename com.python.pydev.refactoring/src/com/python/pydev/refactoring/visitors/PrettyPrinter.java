@@ -6,58 +6,58 @@ package com.python.pydev.refactoring.visitors;
 
 import java.io.IOException;
 
-import org.python.parser.SimpleNode;
-import org.python.parser.SpecialStr;
-import org.python.parser.ast.Assert;
-import org.python.parser.ast.Assign;
-import org.python.parser.ast.Attribute;
-import org.python.parser.ast.AugAssign;
-import org.python.parser.ast.BinOp;
-import org.python.parser.ast.BoolOp;
-import org.python.parser.ast.Break;
-import org.python.parser.ast.Call;
-import org.python.parser.ast.ClassDef;
-import org.python.parser.ast.Compare;
-import org.python.parser.ast.Comprehension;
-import org.python.parser.ast.Continue;
-import org.python.parser.ast.Delete;
-import org.python.parser.ast.Dict;
-import org.python.parser.ast.Exec;
-import org.python.parser.ast.For;
-import org.python.parser.ast.FunctionDef;
-import org.python.parser.ast.If;
-import org.python.parser.ast.Import;
-import org.python.parser.ast.ImportFrom;
-import org.python.parser.ast.Index;
-import org.python.parser.ast.Lambda;
-import org.python.parser.ast.ListComp;
-import org.python.parser.ast.Module;
-import org.python.parser.ast.Name;
-import org.python.parser.ast.NameTok;
-import org.python.parser.ast.Num;
-import org.python.parser.ast.Pass;
-import org.python.parser.ast.Print;
-import org.python.parser.ast.Raise;
-import org.python.parser.ast.Return;
-import org.python.parser.ast.Slice;
-import org.python.parser.ast.Str;
-import org.python.parser.ast.StrJoin;
-import org.python.parser.ast.Subscript;
-import org.python.parser.ast.TryExcept;
-import org.python.parser.ast.TryFinally;
-import org.python.parser.ast.Tuple;
-import org.python.parser.ast.UnaryOp;
-import org.python.parser.ast.While;
-import org.python.parser.ast.Yield;
-import org.python.parser.ast.aliasType;
-import org.python.parser.ast.argumentsType;
-import org.python.parser.ast.commentType;
-import org.python.parser.ast.decoratorsType;
-import org.python.parser.ast.excepthandlerType;
-import org.python.parser.ast.exprType;
-import org.python.parser.ast.keywordType;
-import org.python.parser.ast.stmtType;
-import org.python.parser.ast.suiteType;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.SpecialStr;
+import org.python.pydev.parser.jython.ast.Assert;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.AugAssign;
+import org.python.pydev.parser.jython.ast.BinOp;
+import org.python.pydev.parser.jython.ast.BoolOp;
+import org.python.pydev.parser.jython.ast.Break;
+import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Compare;
+import org.python.pydev.parser.jython.ast.Comprehension;
+import org.python.pydev.parser.jython.ast.Continue;
+import org.python.pydev.parser.jython.ast.Delete;
+import org.python.pydev.parser.jython.ast.Dict;
+import org.python.pydev.parser.jython.ast.Exec;
+import org.python.pydev.parser.jython.ast.For;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.If;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Index;
+import org.python.pydev.parser.jython.ast.Lambda;
+import org.python.pydev.parser.jython.ast.ListComp;
+import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Pass;
+import org.python.pydev.parser.jython.ast.Print;
+import org.python.pydev.parser.jython.ast.Raise;
+import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.Slice;
+import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.StrJoin;
+import org.python.pydev.parser.jython.ast.Subscript;
+import org.python.pydev.parser.jython.ast.TryExcept;
+import org.python.pydev.parser.jython.ast.TryFinally;
+import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.UnaryOp;
+import org.python.pydev.parser.jython.ast.While;
+import org.python.pydev.parser.jython.ast.Yield;
+import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.parser.jython.ast.argumentsType;
+import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.jython.ast.excepthandlerType;
+import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.keywordType;
+import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.suiteType;
 
 /**
  * statements that 'need' to be on a new line:
@@ -277,7 +277,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     }
     
     @Override
-    public Object visitList(org.python.parser.ast.List node) throws Exception{
+    public Object visitList(org.python.pydev.parser.jython.ast.List node) throws Exception{
         return visitGeneric(node, "visitList", false, null, true);
     }
 
