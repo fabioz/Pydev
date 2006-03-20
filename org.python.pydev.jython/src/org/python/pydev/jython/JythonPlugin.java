@@ -261,7 +261,7 @@ public class JythonPlugin extends Plugin {
 						"    f.close()             \n" +
                         "";
                 String toExec = StringUtils.format(loadFile, path);
-                REF.writeStrToFile("Will exec:>>"+toExec+"<<", "c:/temp/test.txt");
+                //REF.writeStrToFile("Will exec:>>"+toExec+"<<", "c:/temp/test.txt");
                 interpreter.exec(toExec);
 				String exec = StringUtils.format("code = compile(toExec, r'%s', 'exec')", path);
 				interpreter.exec(exec);
