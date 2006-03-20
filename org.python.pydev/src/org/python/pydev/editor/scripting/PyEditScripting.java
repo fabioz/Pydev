@@ -16,6 +16,8 @@ import org.python.pydev.jython.JythonPlugin;
  * This class is used for scripting in Pydev.
  * It listens to the PyEdit actions and passes what is needed for the interpreter.
  * 
+ * A new PyEditScripting is created for each editor. Therefore, we have one interpreter for each editor.
+ * 
  * @author Fabio
  */
 public class PyEditScripting implements IPyEditListener {
@@ -26,22 +28,42 @@ public class PyEditScripting implements IPyEditListener {
         interpreter = JythonPlugin.newPythonInterpreter();
     }
     
-    public void onSave(PyEdit edit) {
+
+	private void doExec(HashMap<String, Object> locals) {
+		JythonPlugin.execAll(locals, "pyedit", interpreter); //execute all the files that start with 'pyedit' that are located beneath
+        													 //the org.python.pydev.jython/jysrc directory
+	}
+
+	public void onSave(PyEdit edit) {
+    	HashMap<String, Object> locals = new HashMap<String, Object>();
+    	locals.put("cmd", "onSave");
+    	locals.put("editor", edit);
+    	doExec(locals); 
     }
 
     public void onCreateActions(ListResourceBundle resources, PyEdit edit) {
-        // I was going to do some things in jython here, but there is too much code around for that...
         HashMap<String, Object> locals = new HashMap<String, Object>();
         locals.put("cmd", "onCreateActions");
         locals.put("editor", edit);
-        JythonPlugin.exec(locals, "pyedit.py", interpreter);
+        doExec(locals);
     }
 
     public void onDispose(PyEdit edit) {
+    	HashMap<String, Object> locals = new HashMap<String, Object>();
+    	locals.put("cmd", "onDispose");
+    	locals.put("editor", edit);
+    	doExec(locals);
+    	
+    	interpreter.cleanup();
         interpreter = null;
     }
 
     public void onSetDocument(IDocument document, PyEdit edit) {
+    	HashMap<String, Object> locals = new HashMap<String, Object>();
+    	locals.put("cmd", "onSetDocument");
+    	locals.put("document", document);
+    	locals.put("editor", edit);
+    	doExec(locals);
     }
 
 }

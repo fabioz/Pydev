@@ -55,9 +55,6 @@ if __name__ == '__main__':
         print '|', builtinMod
         
     
-    for i in range(8196):
-        print ' '# print some spaces to see if we remove any buffering...
-        
     try:
         sys.stdout.flush()
     except:
@@ -74,3 +71,4 @@ if __name__ == '__main__':
     except:
         pass
     
+    raise RuntimeError('Ok, this is so that it shows the output (ugly hack for some platforms, so that it releases the output).')

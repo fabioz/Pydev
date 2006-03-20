@@ -57,16 +57,17 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
             new Thread() {
                 public void run() {
                     ProjectionAnnotationModel modelT = null;
-                    for (int i = 0; i < 10 && modelT == null; i++) {
-                        modelT = (ProjectionAnnotationModel) editor.getAdapter(ProjectionAnnotationModel.class);
+                    for (int i = 0; i < 20 && modelT == null; i++) { //we will try it for 2 secs...
                         try {
-                            sleep(50);
+                            sleep(100);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                    }
-                    if (modelT != null) {
-                        addMarksToModel(root2, modelT);
+                        modelT = (ProjectionAnnotationModel) editor.getAdapter(ProjectionAnnotationModel.class);
+                        if (modelT != null) {
+                        	addMarksToModel(root2, modelT);
+                        	break;
+                        }
                     }
                 }
             }.start();
@@ -80,7 +81,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * @param root2
      * @param model
      */
-    private void addMarksToModel(SimpleNode root2, ProjectionAnnotationModel model) {
+    private synchronized void addMarksToModel(SimpleNode root2, ProjectionAnnotationModel model) {
         try {
             if (model != null) {
                 ArrayList collapsed = new ArrayList();

@@ -47,9 +47,10 @@ public class PythonPathHelper implements Serializable{
      * @return a trimmed string with all the '\' converted to '/'
      */
     public String getDefaultPathStr(String str, boolean acceptPoint){
-        if(acceptPoint == false && str.indexOf(".") == 0){ //cannot start with a dot
-            throw new RuntimeException("The pythonpath can only have absolute paths (cannot start with '.', therefore, the path: '"+str+"' is not valid.");
-        }
+    	//this check is no longer done... could result in other problems
+		// if(acceptPoint == false && str.indexOf(".") == 0){ //cannot start with a dot
+		// 		throw new RuntimeException("The pythonpath can only have absolute paths (cannot start with '.', therefore, the path: '"+str+"' is not valid.");
+		// }
         File file = new File(str);
         if(file.exists()){
             str = REF.getFileAbsolutePath(file);
@@ -58,7 +59,7 @@ public class PythonPathHelper implements Serializable{
     }
     
     public String getDefaultPathStr(String str){
-        return getDefaultPathStr(str, false);
+        return getDefaultPathStr(str, true);
     }
     
     /**

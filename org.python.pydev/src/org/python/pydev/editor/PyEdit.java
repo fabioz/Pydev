@@ -142,6 +142,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * Those are the ones that register at runtime (not throught extensions points).
      */
     private List<IPyEditListener> registeredEditListeners = new ArrayList<IPyEditListener>();
+
+    /**
+     * This is the scripting engine that is binded to this interpreter.
+     */
+	private PyEditScripting pyEditScripting;
     
     public void addPyeditListener(IPyEditListener listener){
         registeredEditListeners.add(listener);
@@ -217,7 +222,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         if (editListeners == null){
         	editListeners = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYEDIT_LISTENER);
         }
-        addPyeditListener(new PyEditScripting());
         
         modelListeners = new ArrayList<IModelListener>();
         colorCache = new ColorCache(PydevPlugin.getChainedPrefStore());
@@ -292,7 +296,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
         super.init(site, input);
 
-        IDocument document = getDocument(input);
+        final IDocument document = getDocument(input);
         
         // check the document partitioner (sanity check / fix)
         PyPartitionScanner.checkPartitionScanner(document);
@@ -327,10 +331,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }.start();
 
         
-        //set the parser for the document
-        parser.setDocument(document);
-        notifyOnSetDocument(document);
-
         // listen to changes in TAB_WIDTH preference
         prefListener = new Preferences.IPropertyChangeListener() {
             public void propertyChange(Preferences.PropertyChangeEvent event) {
@@ -372,6 +372,21 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         };
         resetForceTabs();
         PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
+        
+        
+        new Thread(){
+        	@Override
+        	public void run() {
+        		//let's do that in a thread, so that we don't have any delays in setting up the editor
+        		pyEditScripting = new PyEditScripting();
+        		addPyeditListener(pyEditScripting);
+        		
+        		//set the parser for the document
+        		parser.setDocument(document);
+        		notifyOnSetDocument(document);
+        	}
+        }.start();
+
     }
 
     /**
@@ -527,6 +542,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         PydevPrefs.getPreferences().removePropertyChangeListener(prefListener);
         parser.dispose();
         colorCache.dispose();
+        pyEditScripting = null;
         super.dispose();
     }
 
