@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -144,6 +147,39 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         }
     }
     
+
+    
+    /**
+     * @param resource the resource we want to know about
+     * @return true if it is in the pythonpath
+     */
+    protected boolean isInPythonPath(IResource resource){
+        IProject project = resource.getProject();
+        PythonNature nature = PythonNature.getPythonNature(project);
+        if(project != null && nature != null){
+            ICodeCompletionASTManager astManager = nature.getAstManager();
+            if(astManager == null){
+            	//this is needed because it may not be restarted already...
+            	//also, this will only happen when initializing eclipse with some editors already open
+            	
+            	for(int i=0; i<10 && astManager == null; i++){ //we will wait 10 seconds for it
+            		try {
+						Thread.sleep(1000);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					astManager = nature.getAstManager();
+            	}
+            }
+            if(astManager != null){
+                IModulesManager modulesManager = astManager.getModulesManager();
+                return modulesManager.isInPythonPath(resource, project);
+            }
+        }
+
+        return false;
+    }
+
     /**
      * here we have to detect errors / warnings from the code analysis
      */

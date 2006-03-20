@@ -30,6 +30,7 @@ public class AnalysisParserObserver implements IParserObserver{
         if(fileAdapter == null){
             return;
         }
+        
 
         if(AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE){
             //create the module

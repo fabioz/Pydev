@@ -22,7 +22,30 @@ import org.python.pydev.editor.PyEdit;
  */
 public class EvaluateActionSetter implements IPyEditListener{
     
-    private static final String EVALUATE_ACTION_ID = "org.python.pydev.interactiveconsole.EvaluateActionSetter";
+    private class EvaluateAction extends Action {
+		private final PyEdit edit;
+
+		private EvaluateAction(PyEdit edit) {
+			super();
+			this.edit = edit;
+		}
+
+		public int getAccelerator() {
+		    return SWT.CTRL|'\r';
+		}
+
+		public String getText() {
+		    return "Evaluate Python Code in Console";
+		}
+
+		public  void run(){
+		    PySelection selection = new PySelection(edit);
+		    String code = selection.getTextSelection().getText();
+		    getConsoleEnv(edit.getProject(), edit).execute(code);
+		}
+	}
+
+	private static final String EVALUATE_ACTION_ID = "org.python.pydev.interactiveconsole.EvaluateActionSetter";
 
     /**
      * As this class is a 'singleton', this means that we will only have 1 active console at any time (or at least
@@ -77,23 +100,8 @@ public class EvaluateActionSetter implements IPyEditListener{
      */
     public void onCreateActions(ListResourceBundle resources, final PyEdit edit) {
         new PyEditConsoleListener(this, edit);
-        edit.setAction(EVALUATE_ACTION_ID, new Action() {  
-
-            public int getAccelerator() {
-                return SWT.CTRL|'\r';
-            }
-
-            public String getText() {
-                return "Evaluate Python Code in Console";
-            }
-            
-            public  void run(){
-                PySelection selection = new PySelection(edit);
-                String code = selection.getTextSelection().getText();
-                getConsoleEnv(edit.getProject(), edit).execute(code);
-            }
-        });
-
+        final EvaluateAction evaluateAction = new EvaluateAction(edit);
+		edit.setAction(EVALUATE_ACTION_ID, evaluateAction);
         edit.setActionActivationCode(EVALUATE_ACTION_ID, '\r', -1, SWT.CTRL);
     }
 
