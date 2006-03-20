@@ -67,6 +67,7 @@ import org.python.pydev.editor.model.AbstractNode;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.editor.model.ModelMaker;
+import org.python.pydev.editor.scripting.PyEditScripting;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
@@ -216,6 +217,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         if (editListeners == null){
         	editListeners = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYEDIT_LISTENER);
         }
+        addPyeditListener(new PyEditScripting());
         
         modelListeners = new ArrayList<IModelListener>();
         colorCache = new ColorCache(PydevPlugin.getChainedPrefStore());
