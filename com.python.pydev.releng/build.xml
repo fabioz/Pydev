@@ -12,7 +12,7 @@
 		<property name = "timestamp"            value = "${DSTAMP}${TSTAMP}" />
 		<property name = "buildDirectory"       value = "${basedir}/results" />
 		<property name = "baseLocation"         value = "${buildDirectory}/eclipse"/>
-		<property name = "pde.build.scripts"    value = "${EC_HOME}\plugins\org.eclipse.pde.build_3.1.0\scripts"/>
+		<property name = "pde.build.scripts"    value = "${EC_HOME}\plugins\org.eclipse.pde.build_3.1.2\scripts"/>
 		<property name = "collectingFolder"     value = "eclipse"/>
 		<property name = "archivePrefix"        value = "eclipse"/>
 		<property name = "buildType"            value = "I" />
