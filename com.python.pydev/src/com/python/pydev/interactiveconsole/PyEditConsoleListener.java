@@ -83,7 +83,11 @@ public class PyEditConsoleListener implements IPyEditListener, IDocumentListener
         if(setter.isConsoleEnvActive(edit)){
             PySelection selection = new PySelection(edit);
             String code = selection.getLine()+"\r\n";
-            setter.getConsoleEnv(edit.getProject(), edit).execute(code);
+            try {
+                setter.getConsoleEnv(edit.getProject(), edit).execute(code);
+            } catch (UserCanceledException e) {
+                //ok
+            }
         }
     }
 

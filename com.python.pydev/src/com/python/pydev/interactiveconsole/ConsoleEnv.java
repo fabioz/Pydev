@@ -4,22 +4,15 @@
 package com.python.pydev.interactiveconsole;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
-import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IOConsole;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -30,52 +23,46 @@ import org.python.pydev.plugin.PydevPlugin;
 public class ConsoleEnv {
 
     protected IProject project;
-    protected OutputStream consoleOutput;
     protected IProcess process;
-    protected ProcessConsole processConsole;
+    protected IOConsole processConsole;
     protected boolean showInputInPrompt;
     protected IResource resource;
 
     /**
      * Creates a console environment for a given project and a given resource.
      * @param manager the interpreter manager to be used
+     * @throws UserCanceledException 
+     * @throws IOException 
+     * @throws BadLocationException 
      */
-    public ConsoleEnv(IProject project, IResource resource, boolean showInputInPrompt2, IInterpreterManager manager) {
+    public ConsoleEnv(IProject project, IResource resource, boolean showInputInPrompt2, IInterpreterManager manager) throws UserCanceledException {
         this.project = project;
         this.resource = resource;
         try {
             startIt(project, resource, showInputInPrompt2, manager);
-        } catch (Exception e) {
+        } catch (CoreException e) {
             PydevPlugin.log(e);
             throw new RuntimeException(e);
-        }
         
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+
+        }        
     }
 
     /**
      * This funcion makes the launch of the interpreter in interactive mode and writes the initial commands 
      * (without showing them at the prompt).
      * @param manager the interpreter manager to be used
+     * @throws UserCanceledException 
      */
-    private void startIt(IProject project, IResource resource, boolean showInputInPrompt2, IInterpreterManager manager) throws CoreException, BadLocationException, IOException {
-        String type = null;
-        if(manager.isPython()){
-            type = "org.python.pydev.debug.regularLaunchConfigurationType";
-        }else if (manager.isJython()){
-            type = "org.python.pydev.debug.jythonLaunchConfigurationType";
-        }else{
-            throw new RuntimeException("Unable to determine its launch type.");
-        }
-        ILaunchConfiguration configuration = 
-            AbstractLaunchShortcut.createDefaultLaunchConfiguration(resource, type, 
-                AbstractLaunchShortcut.getDefaultLocation(resource), manager, project.getName());
-        
-        ILaunch launch = configuration.launch("interactive", new NullProgressMonitor());
-        IProcess[] processes = launch.getProcesses();
-        process = processes[0];
-
-        IConsole console = DebugUITools.getConsole(process);
-        processConsole = (ProcessConsole) console;
+    private void startIt(IProject project, IResource resource, boolean showInputInPrompt2, IInterpreterManager manager) throws CoreException, BadLocationException, IOException, UserCanceledException {
+        IProcessFactory processFactory = new IProcessFactory();
+        process = processFactory.createIProcess(project, resource, manager);
+        processConsole = processFactory.getIOConsole(process);
         
         //we don't want to show this...
         this.showInputInPrompt = false;
@@ -91,7 +78,6 @@ public class ConsoleEnv {
      */
     public void execute(String code) {
         try {
-            IDocument doc = processConsole.getDocument();
             boolean addFinalNewLine = false;
 
             //we will only add an additional new line when we are not evaluating on a per-line basis
@@ -106,6 +92,7 @@ public class ConsoleEnv {
                 }
             }
             
+            IDocument doc = processConsole.getDocument();
             write(doc, process, code);
             if(addFinalNewLine){
                 write(doc, process, "\r\n");

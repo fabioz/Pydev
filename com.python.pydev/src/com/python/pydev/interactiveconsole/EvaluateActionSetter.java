@@ -12,6 +12,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.SWT;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 
@@ -34,14 +35,18 @@ public class EvaluateActionSetter implements IPyEditListener{
 		    return SWT.CTRL|'\r';
 		}
 
-		public String getText() {
-		    return "Evaluate Python Code in Console";
-		}
-
 		public  void run(){
-		    PySelection selection = new PySelection(edit);
-		    String code = selection.getTextSelection().getText();
-		    getConsoleEnv(edit.getProject(), edit).execute(code);
+		    try {
+                PySelection selection = new PySelection(edit);
+                String code = selection.getTextSelection().getText();
+                try {
+                    getConsoleEnv(edit.getProject(), edit).execute(code);
+                } catch (UserCanceledException e) {
+                    //ok
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
 		}
 	}
 
@@ -56,8 +61,9 @@ public class EvaluateActionSetter implements IPyEditListener{
     /**
      * @return a console environment for a given project and editor. If it still does not exist or is
      * already terminated, a new console env will be created.
+     * @throws UserCanceledException 
      */
-    public synchronized ConsoleEnv getConsoleEnv(IProject project, PyEdit edit) {
+    public synchronized ConsoleEnv getConsoleEnv(IProject project, PyEdit edit) throws UserCanceledException {
         try {
             ConsoleEnv consoleEnv = fConsoleEnv.get(edit);
 
@@ -71,6 +77,8 @@ public class EvaluateActionSetter implements IPyEditListener{
             }
             return consoleEnv;
             
+        } catch (UserCanceledException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
