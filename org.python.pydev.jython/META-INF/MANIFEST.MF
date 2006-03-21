@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Jython Plug-in
-Bundle-SymbolicName: org.python.pydev.jython
+Bundle-SymbolicName: org.python.pydev.jython; singleton:=true
 Bundle-Version: 0.9.7.1
 Bundle-ClassPath: pydev-jython.jar,
  retroweaver-rt.jar,
@@ -10,7 +10,10 @@ Bundle-Activator: org.python.pydev.jython.JythonPlugin
 Bundle-Vendor: Fabio Zadrozny
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
- org.python.pydev.core
+ org.python.pydev.core,
+ org.eclipse.ui,
+ org.eclipse.ui.console,
+ org.eclipse.jface.text
 Eclipse-AutoStart: true
 Export-Package: org.python.compiler,
  org.python.core,

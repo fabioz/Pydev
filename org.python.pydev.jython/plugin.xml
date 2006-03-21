@@ -2,4 +2,18 @@
 <?eclipse version="3.0"?>
 <plugin>
 
+<!-- Preferences page -->
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.python.pydev.jython.ui.JyScriptingPreferencesPage"
+            category="org.python.pydev.prefs"
+            id="org.python.pydev.jython.ui.JyScriptingPreferencesPage"
+            name="Scripting Pydev"/>
+   </extension>
+<!-- Initialize our preferences -->
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="org.python.pydev.jython.ScriptingExtensionInitializer"/>
+   </extension>
+
 </plugin>

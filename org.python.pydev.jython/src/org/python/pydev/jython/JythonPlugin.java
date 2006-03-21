@@ -10,7 +10,10 @@ import java.util.Map;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Plugin;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.core.PyObject;
@@ -20,12 +23,13 @@ import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
 import org.python.util.PythonInterpreter;
 
 /**
  * The main plugin class to be used in the desktop.
  */
-public class JythonPlugin extends Plugin {
+public class JythonPlugin extends AbstractUIPlugin {
     // ----------------- SINGLETON THINGS -----------------------------
     public static IBundleInfo info;
     public static IBundleInfo getBundleInfo(){
@@ -268,15 +272,52 @@ public class JythonPlugin extends Plugin {
 			}
 			
 			interpreter.exec("exec(code)");
-		} catch (Exception e) {
-			Log.log(IStatus.ERROR, "Error while executing:"+fileToExec, e);
+		} catch (Throwable e) {
+			if(JyScriptingPreferencesPage.getShowScriptingOutput()){
+				Log.log(IStatus.ERROR, "Error while executing:"+fileToExec, e);
+			}
 		}
 	}
 
+
 	public static IPythonInterpreter newPythonInterpreter() {
 		PythonInterpreterWrapper interpreter = new PythonInterpreterWrapper();
+		interpreter.setOut(new ScriptOutput(getBlack()));
+		interpreter.setErr(new ScriptOutput(getRed()));
 		interpreter.set("False", 0);
 		interpreter.set("True", 1);
 		return interpreter;
 	}
+	
+	static Color red;
+	static Color black;
+	private static Color getRed() {
+		if(red == null){
+			synchronized (Display.getDefault()) {
+				Display.getDefault().syncExec(new Runnable(){
+					
+					public void run() {
+						red = Display.getDefault().getSystemColor(SWT.COLOR_RED);
+					}
+				});
+			}
+		}
+		return red;
+	}
+	
+	private static Color getBlack() {
+		if(black == null){
+			synchronized (Display.getDefault()) {
+				Display.getDefault().syncExec(new Runnable(){
+
+					public void run() {
+						black = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
+					}
+				});
+			}
+		}
+		return black;
+	}
+	
+
 }

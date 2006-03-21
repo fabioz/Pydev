@@ -35,7 +35,6 @@ assert cmd is not None
 #interface: PyEdit object: this is the actual editor that we will act upon
 assert editor is not None
 
-
 #--------------------------------------------------------------- ACTION DEFINITION
 if cmd == 'onCreateActions':
     from org.eclipse.swt import SWT
