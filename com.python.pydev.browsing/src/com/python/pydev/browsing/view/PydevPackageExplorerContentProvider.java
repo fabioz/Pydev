@@ -31,6 +31,7 @@ import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -281,16 +282,14 @@ public class PydevPackageExplorerContentProvider extends WorkbenchContentProvide
 	}
 	
 	public void onSave(PyEdit edit) {
-		IDocument document = edit.getDocument();
-		
 		IWorkbenchPage page = BrowsingPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IFile file = (IFile)page.getActiveEditor().getEditorInput().getAdapter(IFile.class);		
 		
-		SourceModule module = (SourceModule)AbstractModule.createModuleFromDoc(file.getName(), null, document, null, 0);
-        if(module == null || module.getAst() == null){
+        SimpleNode ast = edit.getAST();
+        if(ast == null){
             return;
         }
-		DefinitionsASTIteratorVisitor visitor = DefinitionsASTIteratorVisitor.create(module.getAst());
+		DefinitionsASTIteratorVisitor visitor = DefinitionsASTIteratorVisitor.create(ast);
 		
 		Iterator<ASTEntry> it = visitor.getOutline();
         ArrayList<CompositeASTEntry> list = new ArrayList<CompositeASTEntry>();        
