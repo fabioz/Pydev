@@ -1,15 +1,3 @@
-Things to look when doing jython integration:
-
-org.eclipse.jdt.internal.debug.ui.launcher.LocalJavaApplicationTabGroup
-org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup
-org.eclipse.jdt.launching.JavaLaunchDelegate
-org.eclipse.ant.core.AntRunner
-org.eclipse.ant.internal.ui.preferences.AntRuntimePreferencePage
-
-jython module management (may be handy)
-org.python.core.SysPackageManager
-
-
 
 after 1.0.3
 Pydev:
@@ -18,23 +6,16 @@ Pydev:
 - Indents correctly after opening some bracket or after closing some bracket
 - Indents to expected level when hitting tab
 - Fixed bug: syntax error described instead of throwing an error
-- Added jython scripting (still needs some example)
+- Added jython scripting 
 - Profiled Pydev (and I'm hoping you'll actually "feel" the difference) -- It is awesome when you see that 90/10 in action (altough I think it is something more like 99/1).
-
-//        I was going to do some things in jython here, but there is too much code around for that...
-//        HashMap<String, Object> locals = new HashMap<String, Object>();
-//        locals.put("cmd",command);
-//        locals.put("doc",document);
-//        locals.put("prefs",getIndentPrefs());
-//        locals.put("strategy",this);
-//        if(JythonPlugin.exec(locals, "indent.py", interpreter) == true){
-//            //ok, it has already executed what was needed, so, let's return
-//            return;
-//        }
-//      
+- Added a 'go to next problem' with jython scripting capabilities, as a first example on how to script Pydev with Jython (Ctrl+.)
 
 Pydev Extensions:
-- Python and Jython console
+- Python and Jython interactive console (Ctrl+Enter)
+
+
+
+
 
 after 1.0.2
 
@@ -52,6 +33,9 @@ Pydev Extensions:
 including methods and attributes from classes (does not show only 'top-level' tokens).
 - Code analysis minor bugs fixed
 - Added a 'memento' for the Quick outline layout
+
+
+
 
 after 1.0.1
 
