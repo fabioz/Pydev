@@ -373,19 +373,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         resetForceTabs();
         PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
         
-        
-        new Thread(){
-        	@Override
-        	public void run() {
-        		//let's do that in a thread, so that we don't have any delays in setting up the editor
-        		pyEditScripting = new PyEditScripting();
-        		addPyeditListener(pyEditScripting);
-        		
-        		//set the parser for the document
-        		parser.setDocument(document);
-        		notifyOnSetDocument(document);
-        	}
-        }.start();
+    
+		//let's do that in a thread, so that we don't have any delays in setting up the editor
+		pyEditScripting = new PyEditScripting();
+		addPyeditListener(pyEditScripting);
+		
+		//set the parser for the document
+		parser.setDocument(document);
+		notifyOnSetDocument(document);
 
     }
 

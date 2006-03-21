@@ -15,17 +15,21 @@ NOTE: between one call and the other to this script, all the globals we set befo
 arguments will be changed before calling it again
 
 NOTE2: This code is 'compiled' at runtime, and the file timestamp will be cached with the code, so, if it changes,
-it will be automatically reloaded
+it will be automatically reloaded (no need to restart eclipse for that).
 
 Java-Side inner workings:
-- Refer to: org.python.pydev.editor.scripting.PyEditScripting
-- and   to: org.python.pydev.jython.JythonPlugin
+- Refer to: org.python.pydev.editor.scripting.PyEditScripting (this is the class that binds any script that starts with pyedit to the PyEdit editor)
+- and   to: org.python.pydev.jython.JythonPlugin (this is the class that makes the actual call to the jython code).
 
 Some IMPORTANT implementation notes:
 - The same interpreter will be used for all the scripts within a PyEdit, so, be careful on what is left in the namespace...
 
 '''
-
+if False:
+    from org.python.pydev.editor import PyEdit #@UnresolvedImport
+    cmd = 'command string'
+    editor = PyEdit
+    
 #--------------------------------------------------------------- REQUIRED LOCALS
 #interface: String indicating which command will be executed
 #As this script will be watching the PyEdit (that is the actual editor in Pydev), and this script
@@ -37,12 +41,11 @@ assert editor is not None
 
 #--------------------------------------------------------------- ACTION DEFINITION
 if cmd == 'onCreateActions':
-    from org.eclipse.swt import SWT
-    from org.eclipse.jface.action import Action
-    from org.python.pydev.core.docutils import PySelection
-    from java.lang import String
-    from org.eclipse.core.resources import IMarker
-    from org.eclipse.core.resources import IResource
+    from org.eclipse.swt import SWT #@UnresolvedImport
+    from org.eclipse.jface.action import Action #@UnresolvedImport
+    from org.python.pydev.core.docutils import PySelection #@UnresolvedImport
+    from org.eclipse.core.resources import IMarker #@UnresolvedImport
+    from org.eclipse.core.resources import IResource #@UnresolvedImport
 
     FIND_NEXT_PROBLEM_ACTION_ID = "org.python.pydev.core.script.pyedit_find_next_problem"
     

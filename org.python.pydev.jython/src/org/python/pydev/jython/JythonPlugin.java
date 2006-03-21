@@ -235,6 +235,12 @@ public class JythonPlugin extends AbstractUIPlugin {
 	 */
 	public static void exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, File fileToExec) {
 		try {
+		    String fileName = fileToExec.getName();
+            if(!fileName.endsWith(".py")){
+                throw new RuntimeException("The script to be executed must be a python file.");
+            }
+            String codeObjName = "code"+fileName.substring(0, fileName.indexOf('.'));
+            
 			for (Map.Entry<String, Object> entry : locals.entrySet()) {
 				interpreter.set(entry.getKey(), entry.getValue());
 			}
@@ -249,7 +255,7 @@ public class JythonPlugin extends AbstractUIPlugin {
 			
 			if(!regenerate){
 				//if the 'code' object does not exist, we have to regenerate it. 
-				PyObject obj = interpreter.get("code");
+				PyObject obj = interpreter.get(codeObjName);
 				if (obj == null){
 					regenerate = true;
 				}
@@ -258,20 +264,20 @@ public class JythonPlugin extends AbstractUIPlugin {
 			if(regenerate){
 				String path = REF.getFileAbsolutePath(fileToExec);
                 String loadFile = "" +
+						"print 'opening', r'%s'    \n" +
 						"f = open(r'%s')           \n" +
 						"try:                      \n" +
 						"    toExec = f.read()     \n" +
 						"finally:                  \n" +
 						"    f.close()             \n" +
                         "";
-                String toExec = StringUtils.format(loadFile, path);
-                //REF.writeStrToFile("Will exec:>>"+toExec+"<<", "c:/temp/test.txt");
+                String toExec = StringUtils.format(loadFile, path, path);
                 interpreter.exec(toExec);
-				String exec = StringUtils.format("code = compile(toExec, r'%s', 'exec')", path);
+				String exec = StringUtils.format("%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
 				interpreter.exec(exec);
 			}
 			
-			interpreter.exec("exec(code)");
+			interpreter.exec(StringUtils.format("exec(%s)" , codeObjName));
 		} catch (Throwable e) {
 			if(JyScriptingPreferencesPage.getShowScriptingOutput()){
 				Log.log(IStatus.ERROR, "Error while executing:"+fileToExec, e);
