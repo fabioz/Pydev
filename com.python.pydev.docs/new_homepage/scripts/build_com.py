@@ -1,35 +1,24 @@
 import datetime
 
-#http://www.fabioz.com/pydev/successful_payment.html
-#http://www.fabioz.com/pydev/cancel_payment.html
-manual_101 = \
-(('manual_101_root'           , 'Getting Started'                ),
-('manual_101_install'        , 'Installing'                     ),
-('manual_101_interpreter'    , 'Configuring the interpreter'    ),
-('manual_101_project_conf'   , 'Creating a project'             ),
-('manual_101_project_conf2'  , 'Configuring a project'          ),
-('manual_101_first_module'   , 'Creating a module'              ),
-('manual_101_run'            , 'Running your first program'     ),
-('manual_101_tips'           , 'Some useful tips'               ))
-
-manual_adv = \
-(('manual_adv_features'              , 'Features'                        ),
-('manual_adv_editor_prefs'           , 'Editor preferences'              ),
-('manual_adv_refactoring'            , 'Refactoring'                     ),
-('manual_adv_assistants'             , 'Content Assistants'              ),
-('manual_adv_coverage'               , 'Code Coverage'                   ),
-('manual_adv_tasks'                  , 'Tasks'                           ),
-('manual_adv_code_analysis'          , 'Code Analysis'                   ),
-('manual_adv_quick_outline'          , 'Quick Outline'                   ),
-('manual_adv_open_decl_quick'        , 'Open Declaration Quick Outline'  ),
-('manual_adv_gotodef'                , 'Go to Definition'                ),
-('manual_adv_compltemp'              , 'Templates completion'            ),
-('manual_adv_complctx'               , 'Context-sensitive completions'   ),
-('manual_adv_complnoctx'             , 'Context-insensitive completions' ),
-('manual_adv_complauto'              , 'Auto-suggest keywords'           ),
-('manual_adv_debugger'               , 'Debugger'                        ),
-('manual_adv_remote_debugger'        , 'Remote Debugger'                 ),
-('manual_adv_debug_console'          , 'Debug Console'                   ),
+manualAdv = (
+    ('../templateManual.html', 'manual_adv_features'                      , 'Features'                        ),
+    ('../templateManual.html', 'manual_adv_editor_prefs'                  , 'Editor preferences'              ),
+    ('../templateManual.html', 'manual_adv_refactoring'                   , 'Refactoring'                     ),
+    ('../templateManual.html', 'manual_adv_assistants'                    , 'Content Assistants'              ),
+    ('../templateManual.html', 'manual_adv_coverage'                      , 'Code Coverage'                   ),
+    ('../templateManual.html', 'manual_adv_tasks'                         , 'Tasks'                           ),
+    ('../templateManual.html', 'manual_adv_code_analysis'                 , 'Code Analysis'                   ),
+    ('../templateManual.html', 'manual_adv_quick_outline'                 , 'Quick Outline'                   ),
+    ('../templateManual.html', 'manual_adv_open_decl_quick'               , 'Open Declaration Quick Outline'  ),
+    ('../templateManual.html', 'manual_adv_gotodef'                       , 'Go to Definition'                ),
+    ('../templateManual.html', 'manual_adv_compltemp'                     , 'Templates completion'            ),
+    ('../templateManual.html', 'manual_adv_complctx'                      , 'Context-sensitive completions'   ),
+    ('../templateManual.html', 'manual_adv_complnoctx'                    , 'Context-insensitive completions' ),
+    ('../templateManual.html', 'manual_adv_complauto'                     , 'Auto-suggest keywords'           ),
+    ('../templateManual.html', 'manual_adv_debugger'                      , 'Debugger'                        ),
+    ('../templateManual.html', 'manual_adv_remote_debugger'               , 'Remote Debugger'                 ),
+    ('../templateManual.html', 'manual_adv_debug_console'                 , 'Debug Console'                   ),
+    ('../templateManual.html', 'manual_adv_interactive_console'           , 'Interactive Console'             ),
 )
 
 def template( template, contents, title, **kwargs ):
@@ -83,23 +72,18 @@ def main():
     template('../templateManual.html', 'manual_101_run'            , 'Running your first program'      )
     template('../templateManual.html', 'manual_101_tips'           , 'Some useful tips'                )
     
-    template('../templateManual.html', 'manual_adv_features'       , 'Features'                        )
-    template('../templateManual.html', 'manual_adv_editor_prefs'   , 'Editor preferences'              )
-    template('../templateManual.html', 'manual_adv_refactoring'    , 'Refactoring'                     )
-    template('../templateManual.html', 'manual_adv_assistants'     , 'Content Assistants'              )
-    template('../templateManual.html', 'manual_adv_coverage'       , 'Code Coverage'                   )
-    template('../templateManual.html', 'manual_adv_tasks'          , 'Tasks'                           )
-    template('../templateManual.html', 'manual_adv_code_analysis'  , 'Code Analysis'                   )
-    template('../templateManual.html', 'manual_adv_quick_outline'  , 'Quick Outline'                   )
-    template('../templateManual.html', 'manual_adv_open_decl_quick', 'Open Declaration Quick Outline'  )
-    template('../templateManual.html', 'manual_adv_gotodef'        , 'Go to Definition'                )
-    template('../templateManual.html', 'manual_adv_compltemp'      , 'Templates completion'            )
-    template('../templateManual.html', 'manual_adv_complctx'       , 'Context-sensitive completions'   )
-    template('../templateManual.html', 'manual_adv_complnoctx'     , 'Context-insensitive completions' )
-    template('../templateManual.html', 'manual_adv_complauto'      , 'Auto-suggest keywords'           )
-    template('../templateManual.html', 'manual_adv_debugger'       , 'Debugger'                        )
-    template('../templateManual.html', 'manual_adv_remote_debugger', 'Remote Debugger'                 )
-    template('../templateManual.html', 'manual_adv_debug_console'  , 'Debug Console'                   )
+    for i, curr in enumerate(manualAdv):
+        #we have the previous and the next by default
+        prev = ('', 'manual','Root') #first one
+        if i > 0:
+            prev = manualAdv[i-1]
+        
+        next = ('', 'manual_adv_features','Features') #last one
+        if i < len(manualAdv)-1:
+            next = manualAdv[i+1]
+        
+        templ, page, title = curr
+        template(templ, page, title, prev=prev[1], next=next[1], title_prev='(%s)'%prev[2], title_next='(%s)'%next[2])
     
     template('../templateManual.html', 'manual_adv_keybindings'    , 'Keybindings'                     )
 
