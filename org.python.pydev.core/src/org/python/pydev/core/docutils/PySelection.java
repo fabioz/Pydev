@@ -755,7 +755,7 @@ public class PySelection {
      * May return null if it was not found.
      */
     public String getPreviousLineThatAcceptsElse() {
-        DocIterator iterator = new DocIterator(this.getCursorLine(), false);
+        DocIterator iterator = new DocIterator(false);
         while(iterator.hasNext()){
             String line = (String) iterator.next();
             String trimmed = line.trim();
@@ -774,7 +774,7 @@ public class PySelection {
      * - a string with the lowest indent (null if none was found)
      */
     public Tuple3<String, Integer, String> getPreviousLineThatStartsScope() {
-        DocIterator iterator = new DocIterator(this.getCursorLine(), false);
+        DocIterator iterator = new DocIterator(false);
         int foundDedent = -1;
         int lowest = Integer.MAX_VALUE;
         String lowestStr = null;
@@ -947,12 +947,12 @@ public class PySelection {
 	}
 
 
-    class DocIterator implements Iterator{
+    private class DocIterator implements Iterator{
         private int startingLine;
         private boolean forward;
-
-        public DocIterator(int startingLine, boolean forward){
-            this.startingLine = startingLine;
+        private boolean isFirst = true;
+        public DocIterator(boolean forward){
+            this.startingLine = getCursorLine();
             this.forward = forward;
         }
 
@@ -964,14 +964,28 @@ public class PySelection {
             }
         }
 
+        /**
+         * Note that the first thing it returns is the lineContents to cursor (and only after that
+         * does it return from the full line).
+         */
         public Object next() {
-            String line = getLine(startingLine);
-            if(forward){
-                throw new RuntimeException("Forward iterator not implemented.");
-            }else{
-                startingLine--;
-            }
-            return line;
+        	try {
+        		String line;
+				if (isFirst) {
+					line = getLineContentsToCursor();
+					isFirst = false;
+				}else{
+					line = getLine(startingLine);
+				}
+				if (forward) {
+					throw new RuntimeException("Forward iterator not implemented.");
+				} else {
+					startingLine--;
+				}
+				return line;
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
         }
 
         public void remove() {
