@@ -13,6 +13,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.console.IOConsole;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -35,11 +36,11 @@ public class ConsoleEnv {
      * @throws IOException 
      * @throws BadLocationException 
      */
-    public ConsoleEnv(IProject project, IResource resource, boolean showInputInPrompt2, IInterpreterManager manager) throws UserCanceledException {
+    public ConsoleEnv(IProject project, IResource resource, boolean showInputInPrompt2, IInterpreterManager manager, PyEdit edit) throws UserCanceledException {
         this.project = project;
         this.resource = resource;
         try {
-            startIt(project, resource, showInputInPrompt2, manager);
+            startIt(project, resource, showInputInPrompt2, manager, edit);
         } catch (CoreException e) {
             PydevPlugin.log(e);
             throw new RuntimeException(e);
@@ -57,16 +58,17 @@ public class ConsoleEnv {
      * This funcion makes the launch of the interpreter in interactive mode and writes the initial commands 
      * (without showing them at the prompt).
      * @param manager the interpreter manager to be used
+     * @param edit 
      * @throws UserCanceledException 
      */
-    private void startIt(IProject project, IResource resource, boolean showInputInPrompt2, IInterpreterManager manager) throws CoreException, BadLocationException, IOException, UserCanceledException {
+    private void startIt(IProject project, IResource resource, boolean showInputInPrompt2, IInterpreterManager manager, PyEdit edit) throws CoreException, BadLocationException, IOException, UserCanceledException {
         IProcessFactory processFactory = new IProcessFactory();
-        process = processFactory.createIProcess(project, resource, manager);
+        process = processFactory.createIProcess(project, resource, manager, edit);
         processConsole = processFactory.getIOConsole(process);
         
         //we don't want to show this...
         this.showInputInPrompt = false;
-        write(null, process, InteractiveConsolePreferencesPage.getInitialInterpreterCmds());
+        write(null, InteractiveConsolePreferencesPage.getInitialInterpreterCmds());
         
         this.showInputInPrompt = showInputInPrompt2;
     }
@@ -83,19 +85,21 @@ public class ConsoleEnv {
             //we will only add an additional new line when we are not evaluating on a per-line basis
             if(!InteractiveConsolePreferencesPage.evalOnNewLine()){
                 String[] strings = code.split("\r\n");
-                for (String string : strings) {
-                    if(string.length() > 0 && Character.isWhitespace(string.charAt(0))){
-                        //and only if we have some whitespace in the beginning of some text
-                        addFinalNewLine = true;
-                        break;
+                if(strings.length > 1){
+                    for (String string : strings) {
+                        if(string.length() > 0 && Character.isWhitespace(string.charAt(0))){
+                            //and only if we have some whitespace in the beginning of some text
+                            addFinalNewLine = true;
+                            break;
+                        }
                     }
                 }
             }
             
             IDocument doc = processConsole.getDocument();
-            write(doc, process, code);
+            write(doc, code);
             if(addFinalNewLine){
-                write(doc, process, "\r\n");
+                write(doc, "\r\n");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -105,7 +109,7 @@ public class ConsoleEnv {
     /**
      * Writes something to the process (throught the document or throught the console).
      */
-    private void write(IDocument doc, IProcess process2, String string) throws BadLocationException, IOException {
+    private void write(IDocument doc, String string) throws BadLocationException, IOException {
         if(showInputInPrompt){
             doc.replace(doc.getLength(), 0, string);
         }else{
@@ -118,6 +122,14 @@ public class ConsoleEnv {
      */
     public boolean isTerminated() {
         return process.isTerminated();
+    }
+
+    public void terminate() {
+        try {
+            process.terminate();
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }
     }
 
 }

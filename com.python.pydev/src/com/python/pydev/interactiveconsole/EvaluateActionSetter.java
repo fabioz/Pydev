@@ -70,7 +70,7 @@ public class EvaluateActionSetter implements IPyEditListener{
             if (consoleEnv == null || consoleEnv.isTerminated()) {
                 
                 consoleEnv = new ConsoleEnv(project, edit.getIFile(), InteractiveConsolePreferencesPage.showConsoleInput(), 
-                        edit.getPythonNature().getRelatedInterpreterManager());
+                        edit.getPythonNature().getRelatedInterpreterManager(), edit);
                 
                 fConsoleEnv.put(edit, consoleEnv);
                 
@@ -119,7 +119,12 @@ public class EvaluateActionSetter implements IPyEditListener{
     }
 
     public void onDispose(PyEdit edit) {
-        //ignore
+        if(isConsoleEnvActive(edit)){
+            ConsoleEnv env = fConsoleEnv.get(edit);
+            if(env != null){
+                env.terminate();
+            }
+        }
     }
 
     public void onSetDocument(IDocument document, PyEdit edit) {

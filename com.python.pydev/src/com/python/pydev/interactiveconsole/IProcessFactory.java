@@ -22,6 +22,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IOConsole;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
+import org.python.pydev.editor.PyEdit;
 
 /**
  * This class is used to create the given IProcess and get the console that is attached to that process. 
@@ -80,7 +81,7 @@ public class IProcessFactory {
      * @throws CoreException
      * @throws UserCanceledException 
      */
-    public IProcess createIProcess(IProject project, IResource resource, IInterpreterManager manager) throws CoreException, UserCanceledException {
+    public IProcess createIProcess(IProject project, IResource resource, IInterpreterManager manager, PyEdit edit) throws CoreException, UserCanceledException {
         String type = null;
     
         if(manager.isPython()){
@@ -108,7 +109,7 @@ public class IProcessFactory {
         }
         
         if(type.equals("internalJython")){
-            throw new UserCanceledException("Not impl");
+            return new JythonInternalProcess(edit);
             
         }else{
         
@@ -126,6 +127,9 @@ public class IProcessFactory {
      * @return the IOConsole attached to the current process
      */
     public IOConsole getIOConsole(IProcess process) {
+        if(process instanceof JythonInternalProcess){
+            return ((JythonInternalProcess)process).getIOConsole();
+        }
         return (IOConsole) DebugUITools.getConsole(process);
     }
 
