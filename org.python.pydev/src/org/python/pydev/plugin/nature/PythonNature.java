@@ -84,7 +84,12 @@ public class PythonNature implements IPythonNature {
     /**
      * We have to know if it has already been initialized.
      */
-    private boolean initialized;
+    private boolean initializationStarted;
+    
+    /**
+     * We have to know if it has already been initialized.
+     */
+    private boolean initializationFinished;
 
     /**
      * Manages pythonpath things
@@ -210,8 +215,8 @@ public class PythonNature implements IPythonNature {
      */
     private void init() {
         final PythonNature nature = this;
-        if (initialized == false) {
-            initialized = true;
+        if (initializationStarted == false) {
+            initializationStarted = true;
             
             Job codeCompletionLoadJob = new Job("Pydev code completion") {
 
@@ -258,6 +263,7 @@ public class PythonNature implements IPythonNature {
                             PydevPlugin.log(e);
                         }
                     }
+                    initializationFinished = true;
                     jobProgressComunicator.done();
                     return Status.OK_STATUS;
                 }
@@ -350,7 +356,8 @@ public class PythonNature implements IPythonNature {
                 } catch (Throwable e) {
                     PydevPlugin.log(e);
                 }
-                                                
+
+                initializationFinished = true;
                 //end task
                 jobProgressComunicator.done();
                 return Status.OK_STATUS;
@@ -363,7 +370,20 @@ public class PythonNature implements IPythonNature {
     /**
      * @return Returns the completionsCache.
      */
-    public ICodeCompletionASTManager getAstManager() {    
+    public ICodeCompletionASTManager getAstManager() {
+        if(astManager == null){
+        	//this is needed because it may not be restarted already...
+        	//also, this will only happen when initializing eclipse with some editors already open
+        	
+        	for(int i=0; i<10 && astManager == null && !initializationFinished; i++){ //we will wait 10 seconds for it
+        		try {
+					Thread.sleep(1000);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+        	}
+        }
+
         return astManager;
     }
     
