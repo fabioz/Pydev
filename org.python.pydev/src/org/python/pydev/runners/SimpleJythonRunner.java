@@ -159,7 +159,6 @@ public class SimpleJythonRunner extends SimpleRunner{
         };
         String executionString = getCommandLineAsString(s);
 
-        System.out.println("running jython: "+executionString);
         return executionString;
     }
 

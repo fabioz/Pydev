@@ -45,7 +45,7 @@ public abstract class AbstractShell {
     public static final int OTHERS_SHELL = 2;
     public static final int COMPLETION_SHELL = 1;
     protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000;
-    protected static final int DEBUG_SHELL = 2;
+    protected static final int DEBUG_SHELL = -1;
     
     /**
      * Determines if we are already in a method that starts the shell
