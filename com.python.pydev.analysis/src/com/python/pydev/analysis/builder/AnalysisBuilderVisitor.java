@@ -158,19 +158,6 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         PythonNature nature = PythonNature.getPythonNature(project);
         if(project != null && nature != null){
             ICodeCompletionASTManager astManager = nature.getAstManager();
-            if(astManager == null){
-            	//this is needed because it may not be restarted already...
-            	//also, this will only happen when initializing eclipse with some editors already open
-            	
-            	for(int i=0; i<10 && astManager == null; i++){ //we will wait 10 seconds for it
-            		try {
-						Thread.sleep(1000);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					astManager = nature.getAstManager();
-            	}
-            }
             if(astManager != null){
                 IModulesManager modulesManager = astManager.getModulesManager();
                 return modulesManager.isInPythonPath(resource, project);

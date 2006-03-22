@@ -20,7 +20,7 @@ import com.python.pydev.PydevPlugin;
 public class InteractiveConsolePreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
 
     public static final String SHOW_CONSOLE_INPUT = "SHOW_CONSOLE_INPUT";
-    public static final boolean DEFAULT_SHOW_CONSOLE_INPUT = false;
+    public static final boolean DEFAULT_SHOW_CONSOLE_INPUT = true;
 
     public static final String EVAL_ON_NEW_LINE = "EVAL_ON_NEW_LINE";
     public static final boolean DEFAULT_EVAL_ON_NEW_LINE = false;
