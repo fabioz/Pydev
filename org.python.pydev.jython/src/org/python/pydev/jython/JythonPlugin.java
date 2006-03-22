@@ -13,6 +13,9 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -286,10 +289,36 @@ public class JythonPlugin extends AbstractUIPlugin {
 	}
 
 
+    
+    // -------------- static things
+    
+    /**
+     * This is the console we are writing to
+     */
+    private static MessageConsole fConsole;
+
+    /**
+     * @return the console to use
+     */
+    private static MessageConsole getConsole() {
+        try {
+            if (fConsole == null) {
+                fConsole = new MessageConsole("", JythonPlugin.getBundleInfo().getImageCache().getDescriptor("icons/python.gif"));
+                ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { fConsole });
+            }
+            return fConsole;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Creates a new Python interpreter (with jython) and returns it.
+     */
 	public static IPythonInterpreter newPythonInterpreter() {
 		PythonInterpreterWrapper interpreter = new PythonInterpreterWrapper();
-		interpreter.setOut(new ScriptOutput(getBlack()));
-		interpreter.setErr(new ScriptOutput(getRed()));
+		interpreter.setOut(new ScriptOutput(getBlack(), getConsole()));
+		interpreter.setErr(new ScriptOutput(getRed(), getConsole()));
 		interpreter.set("False", 0);
 		interpreter.set("True", 1);
 		return interpreter;
@@ -297,7 +326,10 @@ public class JythonPlugin extends AbstractUIPlugin {
 	
 	static Color red;
 	static Color black;
-	private static Color getRed() {
+    static Color green;
+    
+    
+	public static Color getRed() {
 		if(red == null){
 			synchronized (Display.getDefault()) {
 				Display.getDefault().syncExec(new Runnable(){
@@ -311,7 +343,7 @@ public class JythonPlugin extends AbstractUIPlugin {
 		return red;
 	}
 	
-	private static Color getBlack() {
+	public static Color getBlack() {
 		if(black == null){
 			synchronized (Display.getDefault()) {
 				Display.getDefault().syncExec(new Runnable(){
@@ -324,6 +356,23 @@ public class JythonPlugin extends AbstractUIPlugin {
 		}
 		return black;
 	}
+	public static Color getGreen() {
+	    if(green == null){
+	        synchronized (Display.getDefault()) {
+	            Display.getDefault().syncExec(new Runnable(){
+	                
+	                public void run() {
+                        green = new Color(Display.getDefault(), 0, 200, 125);
+	                }
+	            });
+	        }
+	    }
+	    return green;
+	}
+    
+    public static IInteractiveConsole newInteractiveConsole() {
+        return new InteractiveConsoleWrapper();
+    }
 	
 
 }

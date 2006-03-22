@@ -1,5 +1,7 @@
 package org.python.pydev.jython;
 
+import java.io.OutputStream;
+
 import org.python.core.PyObject;
 
 /**
@@ -41,4 +43,9 @@ public interface IPythonInterpreter {
      */
 	void cleanup();
 	
+
+    void setOut(OutputStream output);
+
+    void setErr(OutputStream output);
+
 }

@@ -45,4 +45,16 @@ public class StringUtils {
         }
         return j;
     }
+
+    public static String rightTrim(String input) {
+        int len = input.length();
+        int st = 0;
+        int off = 0;      
+        char[] val = input.toCharArray();
+
+        while ((st < len) && (val[off + len - 1] <= ' ')) {
+            len--;
+        }
+        return input.substring(0, len);
+    }
 }
