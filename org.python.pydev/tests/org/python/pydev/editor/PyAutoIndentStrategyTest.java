@@ -202,6 +202,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	
     }
     
+    
     public void testTabInComment() {
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
     	String str = "#comment" +
@@ -838,6 +839,31 @@ public class PyAutoIndentStrategyTest extends TestCase {
 		assertEquals(expected, docCmd.text);
 		assertEquals(0, docCmd.caretOffset);
     }
+    
+    public void testParens() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "isShown() #suite()" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength()-") #suite()".length(), 0, ")");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("", docCmd.text); 
+    	assertEquals(9, docCmd.caretOffset);
+    	
+    }
+    
+    public void testParens2() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "isShown() #suite()'" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength()-") #suite()'".length(), 0, ")");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("", docCmd.text); 
+    	assertEquals(9, docCmd.caretOffset);
+    	
+    }
+
     
     public void testElse() {
         //first part of test - simple case

@@ -275,8 +275,8 @@ public class ParsingUtils {
                 
                 int j = i;
                 while(j < buf.length() && ch != '\n' && ch != '\r'){
-                    j++;
                     ch = buf.charAt(j);
+                    j++;
                 }
                 buf.delete(i, j);
             }
