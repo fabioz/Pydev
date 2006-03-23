@@ -21,6 +21,16 @@ manualAdv = (
     ('../templateManual.html', 'manual_adv_interactive_console'           , 'Interactive Console'             ),
 )
 
+manualArticles = (
+    ('../templateManual.html', 'manual_articles'           , 'Articles'                 ),
+    ('../templateManual.html', 'manual_articles_scripting' , 'Jython Scripting in Pydev'),
+)
+
+manualScreencasts = (
+    ('../templateManual.html', 'manual_screencasts'               , 'Screencasts'                                      ),
+    ('../templateManual.html', 'manual_screencasts_presentation1' , 'Screencast: Starring: Interactive Console'        ),
+)
+
 def template( template, contents, title, **kwargs ):
 
     contents_file = '../%s.contents.html' % contents
@@ -41,7 +51,7 @@ def template( template, contents, title, **kwargs ):
     
     contents = contents.replace('%(title)s',         title)
     contents = contents.replace('%(date)s',          datetime.datetime.now().strftime('%d %B %Y'))
-    contents = contents.replace('LAST_VERSION_TAG',  LAST_VERSION_TAG)
+    contents = contents.replace('LAST_VERSION_TAG',  LAST_VERSION_TAG) #@UndefinedVariable
     
     file( target_file, 'w' ).write( contents ) 
 
@@ -53,6 +63,20 @@ def getContents(contents_file, tag):
     except ValueError:
         return ''
     return contents_area
+    
+def templateForAll(lst, first, last):
+    for i, curr in enumerate(lst):
+        #we have the previous and the next by default
+        prev = first #first one
+        if i > 0:
+            prev = lst[i-1]
+        
+        next = last #last one
+        if i < len(lst)-1:
+            next = lst[i+1]
+        
+        templ, page, title = curr
+        template(templ, page, title, prev=prev[1], next=next[1], title_prev='(%s)'%prev[2], title_next='(%s)'%next[2])
     
 
 def main():
@@ -72,20 +96,15 @@ def main():
     template('../templateManual.html', 'manual_101_run'            , 'Running your first program'      )
     template('../templateManual.html', 'manual_101_tips'           , 'Some useful tips'                )
     
-    for i, curr in enumerate(manualAdv):
-        #we have the previous and the next by default
-        prev = ('', 'manual','Root') #first one
-        if i > 0:
-            prev = manualAdv[i-1]
-        
-        next = ('', 'manual_adv_features','Features') #last one
-        if i < len(manualAdv)-1:
-            next = manualAdv[i+1]
-        
-        templ, page, title = curr
-        template(templ, page, title, prev=prev[1], next=next[1], title_prev='(%s)'%prev[2], title_next='(%s)'%next[2])
+    templateForAll(manualAdv, ('', 'manual','Root'), ('', 'manual_adv_features','Features'))
     
     template('../templateManual.html', 'manual_adv_keybindings'    , 'Keybindings'                     )
+    
+    templateForAll(manualArticles   , ('', 'manual','Root'), ('', 'manual_articles'   ,'Articles'))
+    templateForAll(manualScreencasts, ('', 'manual','Root'), ('', 'manual_screencasts','Screencasts'))
+
+def getDict(**kwargs):
+    return kwargs
 
 def DoIt():
     main()
