@@ -288,6 +288,7 @@ public class PythonRunnerConfig {
 	            String[] s = new String[envp.length+1];
 	            System.arraycopy(envp, 0, s, 0, envp.length);
 	            s[s.length-1] = "PYTHONPATH="+pythonpath;
+	            envp = s;
 		            
     		}
         }

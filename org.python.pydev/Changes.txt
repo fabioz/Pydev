@@ -9,6 +9,7 @@ Pydev:
 - Added jython scripting 
 - Profiled Pydev (and I'm hoping you'll actually "feel" the difference) -- It is awesome when you see that 90/10 in action (altough I think it is something more like 99/1).
 - Added a 'go to next problem' with jython scripting capabilities, as a first example on how to script Pydev with Jython (Ctrl+.)
+- Fixed bug: the pythonpath was not added when additional environment variables where specified
 
 Pydev Extensions:
 - Python and Jython interactive console (Ctrl+Enter)
