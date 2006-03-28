@@ -568,6 +568,12 @@
             description="Rename"
             categoryId="org.python.pydev.ui.category.refactoring"
             id="org.python.pydev.refactoring.rename"/>
+      <!-- Offline Command -->
+      <command
+            name="Offline Action for scripting"
+            description="Offline Action for scripting"
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.scriptEngine"/>
    </extension>
             
    <extension point="org.eclipse.ui.bindings">
@@ -726,6 +732,12 @@
             sequence="Shift+Alt+R"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.refactoring.rename"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="Ctrl+2"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.editor.actions.scriptEngine"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
    </extension>

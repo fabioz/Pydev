@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
@@ -33,6 +34,8 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
@@ -40,6 +43,7 @@ import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
+import org.eclipse.ui.part.EditorActionBarContributor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
@@ -54,6 +58,8 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.editor.actions.OfflineAction;
+import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
@@ -625,6 +631,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         setAction(ACTION_OPEN, openAction);
         enableBrowserLikeLinks();
         
+        
+        // ----------------------------------------------------------------------------------------
+        // Offline action
+        action= new OfflineAction(resources, "Pyedit.ScriptEngine", this); 
+        action.setActionDefinitionId("org.python.pydev.editor.actions.scriptEngine");
+        action.setId("org.python.pydev.editor.actions.scriptEngine");
+        setAction("PydevScriptEngine", action);
+        
         notifyOnCreateActions(resources);
 
     }
@@ -641,15 +655,50 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     public AbstractNode getPythonModel() {
         return pythonModel;
     }
+    
+    /**
+     * Returns the status line manager of this editor.
+     * @return the status line manager of this editor
+     * @since 2.0
+     * 
+     * copied from superclass, as it is private there...
+     */
+    public IStatusLineManager getStatusLineManager() {
 
+        IEditorActionBarContributor contributor= getEditorSite().getActionBarContributor();
+        if (!(contributor instanceof EditorActionBarContributor))
+            return null;
+
+        IActionBars actionBars= ((EditorActionBarContributor) contributor).getActionBars();
+        if (actionBars == null)
+            return null;
+
+        return actionBars.getStatusLineManager();
+    }
+
+    /**
+     * This is the 'offline' action
+     */
+    protected OfflineActionTarget fOfflineActionTarget;
+    
     /**
      * @return an outline view
      */
     public Object getAdapter(Class adapter) {
-        if (IContentOutlinePage.class.equals(adapter))
+        if (OfflineActionTarget.class.equals(adapter)) {
+            if (fOfflineActionTarget == null) {
+                IStatusLineManager manager= getStatusLineManager();
+                if (manager != null)
+                    fOfflineActionTarget= (getSourceViewer() == null ? null : new OfflineActionTarget(getSourceViewer(), manager));
+            }
+            return fOfflineActionTarget;
+        }
+
+        if (IContentOutlinePage.class.equals(adapter)){
             return new PyOutlinePage(this);
-        else
+        }else{
             return super.getAdapter(adapter);
+        }
     }
 
     /**
