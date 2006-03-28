@@ -4,19 +4,13 @@
 package org.python.pydev.editor.actions;
 
 
-import java.util.Stack;
-
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.text.Assert;
-import org.eclipse.jface.text.IFindReplaceTarget;
-import org.eclipse.jface.text.IFindReplaceTargetExtension;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextListener;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITextViewerExtension;
 import org.eclipse.jface.text.TextEvent;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -29,7 +23,6 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.IStatusField;
 import org.eclipse.ui.texteditor.IStatusFieldExtension;
 
@@ -39,11 +32,11 @@ import org.eclipse.ui.texteditor.IStatusFieldExtension;
  * 
  * Reference implementation: 
  * 
- * class IncrementalFindTarget implements IFindReplaceTarget, IFindReplaceTargetExtension, VerifyKeyListener, MouseListener, FocusListener, ISelectionChangedListener, ITextListener {
+ * class IncrementalFindTarget implements IFindReplaceTargetExtension, VerifyKeyListener, MouseListener, FocusListener, ISelectionChangedListener, ITextListener {
 
  * @author Fabio
  */
-public class OfflineActionTarget implements IFindReplaceTarget, IFindReplaceTargetExtension, VerifyKeyListener, MouseListener, FocusListener, ISelectionChangedListener, ITextListener {
+public class OfflineActionTarget implements VerifyKeyListener, MouseListener, FocusListener, ISelectionChangedListener, ITextListener {
 
 
     /** The string representing rendered tab */
@@ -53,17 +46,10 @@ public class OfflineActionTarget implements IFindReplaceTarget, IFindReplaceTarg
     private final ITextViewer fTextViewer;
     /** The status line manager for output */
     private final IStatusLineManager fStatusLine;
-    /** The find replace target to delegate find requests */
-    private final IFindReplaceTarget fTarget;
     /** The current find string */
     private StringBuffer fFindString= new StringBuffer();
     /** The position of the first upper case character, -1 if none */
     private int fCasePosition;
-    /**
-     * The position in the stack of the first wrap search, -1 if none
-     * @since 2.1
-     */
-    private int fWrapPosition;
     /** The position of the last successful find */
     private int fCurrentIndex;
     /** A flag indicating if last find was successful */
@@ -81,18 +67,6 @@ public class OfflineActionTarget implements IFindReplaceTarget, IFindReplaceTarg
      * @since 2.1
      */
     private boolean fSearching;
-    /** The current find stack */
-    private Stack fSessionStack;
-    /**
-     * The previous search string
-     * @since 2.1
-     */
-    private String fPrevFindString= ""; //$NON-NLS-1$
-    /**
-     * The previous position of the first upper case character, -1 if none
-     * @since 3.0
-     */
-    private int fPrevCasePosition= -1;
     /**
      * The find status field.
      * @since 3.0
@@ -106,72 +80,7 @@ public class OfflineActionTarget implements IFindReplaceTarget, IFindReplaceTarg
      */
     private boolean fIsStatusFieldExtension;
 
-    /**
-     * Data structure for a search result.
-     * @since 2.1
-     */
-    private class SearchResult {
-        int selection, length, index, findLength;
-        boolean found, forward;
 
-        /**
-         * Creates a new search result data object and fills
-         * it with the current values of this target.
-         */
-        public SearchResult() {
-            Point p= fTarget.getSelection();
-            selection= p.x;
-            length= p.y;
-            index= fCurrentIndex;
-            findLength= fFindString.length();
-            found= fFound;
-            forward= fForward;
-        }
-
-    }
-
-    /**
-     * Stores the search result.
-     */
-    private void saveState() {
-        fSessionStack.push(new SearchResult());
-    }
-
-    /**
-     * Restores the search result.
-     *
-     * @since 2.1
-     */
-    private void restoreState() {
-
-        StyledText text= fTextViewer.getTextWidget();
-        if (text == null || text.isDisposed())
-            return;
-
-        SearchResult searchResult= null;
-        if (!fSessionStack.empty())
-            searchResult= (SearchResult) fSessionStack.pop();
-
-        if (searchResult == null) {
-            text.getDisplay().beep();
-            return;
-        }
-
-        text.setSelectionRange(searchResult.selection, searchResult.length);
-        text.showSelection();
-
-        // relies on the contents of the StringBuffer
-        fFindString.setLength(searchResult.findLength);
-        fCurrentIndex= searchResult.index;
-        fFound= searchResult.found;
-        fForward= searchResult.forward;
-
-        // Recalculate the indices
-        if (fFindString.length() < fCasePosition)
-            fCasePosition= -1;
-        if (fSessionStack.size() < fWrapPosition)
-            fWrapPosition= -1;
-    }
 
     /**
      * Creates an instance of an incremental find target.
@@ -183,48 +92,6 @@ public class OfflineActionTarget implements IFindReplaceTarget, IFindReplaceTarg
         Assert.isNotNull(manager);
         fTextViewer= viewer;
         fStatusLine= manager;
-        fTarget= viewer.getFindReplaceTarget();
-    }
-
-    /*
-     * @see IFindReplaceTarget#canPerformFind()
-     */
-    public boolean canPerformFind() {
-        return fTarget.canPerformFind();
-    }
-
-    /*
-     * @see IFindReplaceTarget#findAndSelect(int, String, boolean, boolean, boolean)
-     */
-    public int findAndSelect(int offset, String findString, boolean searchForward, boolean caseSensitive, boolean wholeWord) {
-        return fTarget.findAndSelect(offset, findString, searchForward, caseSensitive, wholeWord);
-    }
-
-    /*
-     * @see IFindReplaceTarget#getSelection()
-     */
-    public Point getSelection() {
-        return fTarget.getSelection();
-    }
-
-    /*
-     * @see IFindReplaceTarget#getSelectionText()
-     */
-    public String getSelectionText() {
-        return fTarget.getSelectionText();
-    }
-
-    /*
-     * @see IFindReplaceTarget#isEditable()
-     */
-    public boolean isEditable() {
-        return false;
-    }
-
-    /*
-     * @see IFindReplaceTarget#replaceSelection(String)
-     */
-    public void replaceSelection(String text) {
     }
 
     /*
@@ -235,17 +102,13 @@ public class OfflineActionTarget implements IFindReplaceTarget, IFindReplaceTarg
 
         // Workaround since some accelerators get handled directly by the OS
         if (fInstalled) {
-            saveState();
-            repeatSearch(fForward);
             updateStatus();
             fSearching= false;
             return;
         }
 
         fFindString.setLength(0);
-        fSessionStack= new Stack();
         fCasePosition= -1;
-        fWrapPosition= -1;
         fFound= true;
 
         // clear initial selection
@@ -265,9 +128,6 @@ public class OfflineActionTarget implements IFindReplaceTarget, IFindReplaceTarg
 
         updateStatus();
 
-        if (fTarget instanceof IFindReplaceTargetExtension)
-            ((IFindReplaceTargetExtension) fTarget).beginSession();
-
         fSearching= false;
     }
 
@@ -275,8 +135,6 @@ public class OfflineActionTarget implements IFindReplaceTarget, IFindReplaceTarg
      * @see IFindReplaceTargetExtension#endSession()
      */
     public void endSession() {
-        if (fTarget instanceof IFindReplaceTargetExtension)
-            ((IFindReplaceTargetExtension) fTarget).endSession();
 
         // will uninstall itself
     }
@@ -419,13 +277,11 @@ public class OfflineActionTarget implements IFindReplaceTarget, IFindReplaceTarg
             // backspace    and delete
             case 0x08:
             case 0x7F:
-                restoreState();
                 event.doit= false;
                 break;
 
             default:
                 if (event.stateMask == 0 || event.stateMask == SWT.SHIFT || event.stateMask == (SWT.ALT | SWT.CTRL)) { // SWT.ALT | SWT.CTRL covers AltGr (see bug 43049)
-                    saveState();
                     addCharSearch(event.character);
                     event.doit= false;
                 }
@@ -436,66 +292,6 @@ public class OfflineActionTarget implements IFindReplaceTarget, IFindReplaceTarg
         fSearching= false;
     }
 
-    /**
-     * Repeats the last search while possibly changing the direction.
-     *
-     * @param forward <code>true</code> iff the next search should be forward
-     * @return if the search was successful
-     * @since 2.1
-     */
-    private boolean repeatSearch(boolean forward) {
-        if (fFindString.length() == 0) {
-            fFindString= new StringBuffer(fPrevFindString);
-            fCasePosition= fPrevCasePosition;
-        }
-
-        String string= fFindString.toString();
-        if (string.length() == 0) {
-            fFound= true;
-            return true;
-        }
-
-        StyledText text= fTextViewer.getTextWidget();
-        // Cannot use fTarget.getSelection since that does not return which side of the
-        // selection the caret is on.
-        int startIndex= text.getCaretOffset();
-        if (!forward)
-            startIndex -= 1;
-
-        // Check to see if a wrap is necessary
-        if (!fFound && (fForward == forward)) {
-            startIndex= -1;
-            if (fWrapPosition == -1)
-                fWrapPosition= fSessionStack.size();
-        }
-        fForward = forward;
-
-        // Find the string
-        text.setRedraw(false);
-        int index= fTarget.findAndSelect(startIndex, string, fForward, fCasePosition != -1, false);
-
-        // Set the caret on the left if the search is reversed
-        if (!forward) {
-            Point p= fTarget.getSelection();
-            text.setSelectionRange(p.x + p.y, -p.y);
-            p= null;
-        }
-        text.setRedraw(true);
-
-        // Take appropriate action
-        boolean found = (index != -1);
-        if (!found && fFound) {
-            text= fTextViewer.getTextWidget();
-            if (text != null && !text.isDisposed())
-                text.getDisplay().beep();
-        }
-
-        if (found)
-            fCurrentIndex= startIndex;
-
-        fFound= found;
-        return found;
-    }
 
     /**
      * Adds the given character to the search string and repeats the search with the last parameters.
@@ -514,38 +310,33 @@ public class OfflineActionTarget implements IFindReplaceTarget, IFindReplaceTarg
         StyledText text= fTextViewer.getTextWidget();
 
         text.setRedraw(false);
-        int index= fTarget.findAndSelect(fCurrentIndex, string, fForward, fCasePosition != -1, false);
-
-        // Set the caret on the left if the search is reversed
-        if (!fForward) {
-            Point p= fTarget.getSelection();
-            text.setSelectionRange(p.x + p.y, -p.y);
-        }
+//        int index= fTarget.findAndSelect(fCurrentIndex, string, fForward, fCasePosition != -1, false);
+//
+//        // Set the caret on the left if the search is reversed
+//        if (!fForward) {
+//            Point p= fTarget.getSelection();
+//            text.setSelectionRange(p.x + p.y, -p.y);
+//        }
         text.setRedraw(true);
+//
+//        // Take appropriate action
+//        boolean found = (index != -1);
+//        if (!found && fFound) {
+//            text= fTextViewer.getTextWidget();
+//            if (text != null && !text.isDisposed())
+//                text.getDisplay().beep();
+//        }
 
-        // Take appropriate action
-        boolean found = (index != -1);
-        if (!found && fFound) {
-            text= fTextViewer.getTextWidget();
-            if (text != null && !text.isDisposed())
-                text.getDisplay().beep();
-        }
-
-        fFound= found;
-        return found;
+//        fFound= found;
+        return true;
     }
 
     /**
      * Leaves this incremental search session.
      */
     private void leave() {
-        if (fFindString.length() != 0) {
-            fPrevFindString= fFindString.toString();
-            fPrevCasePosition= fCasePosition;
-        }
         statusClear();
         uninstall();
-        fSessionStack = null;
     }
 
     /*
@@ -675,23 +466,6 @@ public class OfflineActionTarget implements IFindReplaceTarget, IFindReplaceTarg
         return buffer.toString();
     }
 
-    /*
-     * @see IFindReplaceTargetExtension#getLineSelection()
-     */
-    public Point getLineSelection() {
-        if (fTarget instanceof IFindReplaceTargetExtension)
-            return ((IFindReplaceTargetExtension) fTarget).getLineSelection();
-
-        return null; // XXX should not return null
-    }
-
-    /*
-     * @see IFindReplaceTargetExtension#setSelection(int, int)
-     */
-    public void setSelection(int offset, int length) {
-        if (fTarget instanceof IFindReplaceTargetExtension)
-            ((IFindReplaceTargetExtension) fTarget).setSelection(offset, length);
-    }
 
     /*
      * @see IFindReplaceTargetExtension#setScopeHighlightColor(Color)
@@ -704,15 +478,7 @@ public class OfflineActionTarget implements IFindReplaceTarget, IFindReplaceTarg
      * @since 2.1
      */
     public void selectionChanged(SelectionChangedEvent e) {
-        boolean ignore= false;
-        ISelection selection= e.getSelection();
-        if (selection instanceof ITextSelection) {
-            ITextSelection textSelection= (ITextSelection)selection;
-            Point range= getSelection();
-            ignore= textSelection.getOffset() + textSelection.getLength() == range.x + range.y;
-        }
-        if (!fSearching && !ignore)
-            leave();
+        System.out.println("selection changed:"+e);
     }
 
     /**
