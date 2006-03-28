@@ -23,6 +23,7 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.ui.texteditor.IStatusField;
 import org.eclipse.ui.texteditor.IStatusFieldExtension;
+import org.python.pydev.editor.PyEdit;
 
 /**
  * This action is supposed to be subclassed. It provides means to attach a listener to the editor and grab the input until
@@ -57,6 +58,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      * @see IStatusFieldExtension
      */
     private boolean fIsStatusFieldExtension;
+	private PyEdit fEdit;
 
 
 
@@ -65,11 +67,12 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      * @param viewer the text viewer to operate on
      * @param manager the status line manager for output
      */
-    public OfflineActionTarget(ITextViewer viewer, IStatusLineManager manager) {
+    public OfflineActionTarget(ITextViewer viewer, IStatusLineManager manager, PyEdit edit) {
         Assert.isNotNull(viewer);
         Assert.isNotNull(manager);
         fTextViewer= viewer;
         fStatusLine= manager;
+        fEdit = edit;
     }
 
     public void beginSession() {
@@ -187,7 +190,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
         // event.character != 0
         } else {
 
-            switch (event.character) {
+			switch (event.character) {
 
             // ESC = quit
             case 0x1B:
@@ -197,14 +200,20 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
             	
             //CR = exec and quit
             case 0x0D:
-            	System.out.println("exec "+fFindString);
-                leave();
+            	final boolean executed = fEdit.onOfflineAction(fFindString.toString(), this);
+            	if(executed){
+            		leave();
+            	}
                 event.doit= false;
+                if(!executed){
+                	return; //we don't want to update the status
+                }
                 break;
 
             // backspace    and delete
             case 0x08:
             case 0x7F:
+            	removeLastCharSearch();
                 event.doit= false;
                 break;
 
@@ -221,6 +230,22 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
 
 
     /**
+     * Is called from the outside on a backspace action (because it will eat the backspace, we have to make this
+     * 'little' hack)
+     */
+    public void removeLastCharSearchAndUpdateStatus() {
+    	removeLastCharSearch();
+    	updateStatus();
+    }
+    
+    private void removeLastCharSearch() {
+    	final int len = fFindString.length();
+    	if(len > 0){
+    		fFindString.deleteCharAt(len-1);
+    	}
+	}
+
+	/**
      * Adds the given character to the search string and repeats the search with the last parameters.
      *
      * @param c the character to append to the search pattern
@@ -310,7 +335,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      * Sets the status error message, clears the status message.
      * @param string the status error message
      */
-    private void statusError(String string) {
+    public void statusError(String string) {
         if (fStatusField != null) {
             if (fIsStatusFieldExtension) {
                 ((IStatusFieldExtension)fStatusField).setErrorText(escapeTabs(string));
@@ -330,7 +355,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     /**
      * Clears the status message and the status error message.
      */
-    private void statusClear() {
+    public void statusClear() {
         if (fStatusField != null) {
             if (fIsStatusFieldExtension) {
                 fStatusField.setText(""); //$NON-NLS-1$
@@ -385,4 +410,9 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
         fStatusField= statusField;
         fIsStatusFieldExtension= fStatusField instanceof IStatusFieldExtension;
     }
+
+
+	public boolean isInstalled() {
+		return fInstalled;
+	}
 }

@@ -35,6 +35,13 @@ public class PyBackspace extends PyAction {
      *  - erase a single character.
      */
     public void run(IAction action) {
+    	OfflineActionTarget adapter = (OfflineActionTarget) getPyEdit().getAdapter(OfflineActionTarget.class);
+    	if(adapter != null){
+    		if(adapter.isInstalled()){
+    			adapter.removeLastCharSearchAndUpdateStatus();
+    			return;
+    		}
+    	}
         // Select from text editor
         PySelection ps = new PySelection(getTextEditor());
 

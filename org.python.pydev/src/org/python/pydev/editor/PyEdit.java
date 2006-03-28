@@ -689,7 +689,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             if (fOfflineActionTarget == null) {
                 IStatusLineManager manager= getStatusLineManager();
                 if (manager != null)
-                    fOfflineActionTarget= (getSourceViewer() == null ? null : new OfflineActionTarget(getSourceViewer(), manager));
+                    fOfflineActionTarget= (getSourceViewer() == null ? null : new OfflineActionTarget(getSourceViewer(), manager, this));
             }
             return fOfflineActionTarget;
         }
@@ -950,5 +950,30 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     public SimpleNode getAST() {
         return ast;
     }
+
+    Map<String, IAction> onOfflineActionListeners = new HashMap<String, IAction>();
+    public void addOfflineActionListener(String key, IAction action) {
+    	onOfflineActionListeners.put(key, action);
+	}
+    
+    /**
+     * @return if an action was binded and was successfully executed
+     */
+	public boolean onOfflineAction(String requestedStr, OfflineActionTarget target) {
+		IAction action = onOfflineActionListeners.get(requestedStr);
+		if(action != null){
+			try {
+				action.run();
+			} catch (Throwable e) {
+				PydevPlugin.log(e);
+				return false;
+			}
+			return true;
+		}else{
+			target.statusError("No action was found binded to:"+requestedStr);
+			return false;
+		}
+	}
+
 }
 
