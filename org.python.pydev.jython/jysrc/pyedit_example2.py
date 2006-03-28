@@ -1,3 +1,14 @@
+'''
+In this example we bind a simple action, that when run will open a dialog to the user.
+
+The action is binded to the 'OfflineActions' in the PyEdit... The 'offline actions' are those that are
+started with Ctrl+2 (yeah, I know the name is nonsense) and after that the user will type what he wants.
+
+In this case, the user will have to press 'Ctrl+2' then 'ex2' then <ENTER> to activate it. It should be clear
+in the example below on how to bind any other action (subclass of the IAction interface) to any other text 
+entered after Ctrl+2.
+'''
+
 if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport
     cmd = 'command string'
@@ -14,7 +25,7 @@ assert editor is not None
 
 if cmd == 'onCreateActions':
     from org.eclipse.jface.action import Action #@UnresolvedImport
-    from org.eclipse.jface.dialogs import MessageDialog#@UnresolvedImport
+    from org.eclipse.jface.dialogs import MessageDialog #@UnresolvedImport
     
     class ExampleCommand2(Action):
         def run(self):
