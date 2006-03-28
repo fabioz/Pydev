@@ -103,6 +103,11 @@ if cmd == 'onCreateActions':
     #bind the action to some internal definition
     editor.setAction(FIND_NEXT_PROBLEM_ACTION_ID, FindNextProblemAction()) 
     #bind the action to some code
+    
+    #NOTE: this is not the standard way to do it... The correct way would be creating a command in the plugin.xml
+    #then make a keybinding for that command, and associate the command to the action
+    
+    #with this implementation, the user is not able to change this keybinding.
     editor.setActionActivationCode(FIND_NEXT_PROBLEM_ACTION_ID, '.', -1, SWT.CTRL); #will be activated on Ctrl+.
     
     

@@ -634,7 +634,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         
         // ----------------------------------------------------------------------------------------
         // Offline action
-        action= new OfflineAction(resources, "Pyedit.ScriptEngine", this); 
+        action= new OfflineAction(resources, "Pyedit.ScriptEngine.", this); 
         action.setActionDefinitionId("org.python.pydev.editor.actions.scriptEngine");
         action.setId("org.python.pydev.editor.actions.scriptEngine");
         setAction("PydevScriptEngine", action);
