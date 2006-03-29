@@ -14,6 +14,7 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 
 import com.python.pydev.analysis.AnalysisPlugin;
@@ -54,7 +55,7 @@ public class Refactorer extends AbstractPyRefactoring{
 		//might turn out a little tricky.
 		if(request.nature == null){
 			//the request is not associated to any project. It is probably a system file. So, let's check it...
-            Tuple<SystemPythonNature,String> infoForFile = AnalysisPlugin.getInfoForFile(request.file);
+            Tuple<SystemPythonNature,String> infoForFile = PydevPlugin.getInfoForFile(request.file);
             if(infoForFile != null){
                 modName = infoForFile.o2;
                 request.nature = infoForFile.o1;

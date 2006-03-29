@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.dialogs.TwoPaneElementSelector;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
@@ -16,7 +14,6 @@ import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
-import org.python.pydev.ui.UIConstants;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
@@ -34,7 +31,7 @@ public class PyGlobalsBrowser extends PyAction{
             additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(pythonNature);
         }else{
             //is null
-            Tuple<SystemPythonNature, String> infoForFile = AnalysisPlugin.getInfoForFile(getPyEdit().getEditorFile());
+            Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getPyEdit().getEditorFile());
             if(infoForFile != null){
                 AbstractAdditionalInterpreterInfo additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(infoForFile.o1.getRelatedInterpreterManager());
                 additionalInfo.add(additionalSystemInfo);

@@ -1,6 +1,5 @@
 package com.python.pydev.analysis;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,15 +10,12 @@ import org.osgi.framework.BundleContext;
 import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
-import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
-import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.ui.UIConstants;
 
 import com.python.pydev.PydevPlugin;
@@ -57,69 +53,8 @@ public class AnalysisPlugin extends AbstractUIPlugin {
 		plugin = null;
 	}
 
-	static String getModNameFromFile(File file) {
-    	if(file == null){
-    		return null;
-    	}
-    	String name = file.getName();
-    	int i = name.indexOf('.');
-    	if (i != -1){
-    		return name.substring(0, i);
-    	}
-    	return name;
-    }
 
 	/**
-	 * @param file the file we want to get info on.
-	 * @return a tuple with the pythonnature to be used and the name of the module represented by the file in that scenario.
-	 */
-    public static Tuple<SystemPythonNature, String> getInfoForFile(File file){
-        String modName = null;
-        IInterpreterManager pythonInterpreterManager = org.python.pydev.plugin.PydevPlugin.getPythonInterpreterManager();
-        IInterpreterManager jythonInterpreterManager = org.python.pydev.plugin.PydevPlugin.getJythonInterpreterManager();
-    
-        SystemPythonNature systemPythonNature = new SystemPythonNature(pythonInterpreterManager);
-        SystemPythonNature pySystemPythonNature = systemPythonNature;
-        SystemPythonNature jySystemPythonNature = null;
-        try {
-            modName = systemPythonNature.resolveModule(file);
-        } catch (Exception e) {
-            // that's ok
-        }
-        if(modName == null){
-            systemPythonNature = new SystemPythonNature(jythonInterpreterManager);
-            jySystemPythonNature = systemPythonNature;
-            try {
-                modName = systemPythonNature.resolveModule(file);
-            } catch (Exception e) {
-                // that's ok
-            }
-        }
-        if(modName != null){
-            return new Tuple<SystemPythonNature, String>(systemPythonNature, modName);
-        }else{
-            //unable to discover it
-            try {
-                // the default one is python
-                pythonInterpreterManager.getDefaultInterpreter();
-                modName = getModNameFromFile(file);
-                return new Tuple<SystemPythonNature, String>(pySystemPythonNature, modName);
-            } catch (Exception e) {
-                //the python interpreter manager is not valid or not configured
-                try {
-                    // the default one is jython
-                    jythonInterpreterManager.getDefaultInterpreter();
-                    modName = getModNameFromFile(file);
-                    return new Tuple<SystemPythonNature, String>(jySystemPythonNature, modName);
-                } catch (Exception e1) {
-                    // ok, nothing to do about it, no interpreter is configured
-                    return null;
-                }
-            }
-        }
-    }
-
-    /**
      * @param pointers the list where the pointers will be added
      * @param manager the manager to be used to get the definition
      * @param nature the nature to be used
