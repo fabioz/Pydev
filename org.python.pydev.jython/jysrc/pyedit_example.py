@@ -14,5 +14,5 @@ assert editor is not None
 
 #---- Uncomment the line below to see the outputs received
 
-#print 'ok, we just received the command:', cmd, ' from the editor with the file:', editor.getIFile().getName()
+#print 'ok, we just received the command:', cmd, ' from the editor with the file:', editor.getEditorFile().getName()
 
