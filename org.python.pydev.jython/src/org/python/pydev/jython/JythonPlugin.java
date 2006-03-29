@@ -267,7 +267,7 @@ public class JythonPlugin extends AbstractUIPlugin {
 			if(regenerate){
 				String path = REF.getFileAbsolutePath(fileToExec);
                 String loadFile = "" +
-						"print 'opening', r'%s'    \n" +
+						"#print 'opening', r'%s'    \n" +
 						"f = open(r'%s')           \n" +
 						"try:                      \n" +
 						"    toExec = f.read()     \n" +

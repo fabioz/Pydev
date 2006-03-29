@@ -1,8 +1,3 @@
-/*
- * @author: atotic
- * Created: July 10, 2003
- * License: Common Public License v1.0
- */
 package org.python.pydev.editor;
 
 import java.io.File;
