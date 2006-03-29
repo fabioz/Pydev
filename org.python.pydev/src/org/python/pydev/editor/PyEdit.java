@@ -924,12 +924,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     }
 
     /**
-     * @return
-     *  
+     * @return the python nature associated with this editor.
      */
     public IPythonNature getPythonNature() {
         IProject project = getProject();
-        return PythonNature.getPythonNature(project);
+        IPythonNature pythonNature = PythonNature.getPythonNature(project);
+        if(pythonNature == null){
+            pythonNature = PydevPlugin.getInfoForFile(getEditorFile()).o1;
+        }
+        return pythonNature;
     }
 
     protected void initializeEditor() {
