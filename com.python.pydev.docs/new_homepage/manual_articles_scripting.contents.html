@@ -102,31 +102,33 @@
 	<p>
 		You will receive (currently) 4 commands:
 		<ul>
-			<li>onSetDocument: You can then link your commands to listen to changes in the document if you want (besides the standard
+			<li><strong>onSetDocument</strong>: You can then link your commands to listen to changes in the document if you want (besides the standard
 				'editor' and 'cmd' variables, you will also be able to have access to a 'document' variable (it is an IDocument).</li>
-			<li>onCreateActions: It is called only once when the actions are being created. You should handle it to add your
+			<li><strong>onCreateActions</strong>: It is called only once when the actions are being created. You should handle it to add your
 			own actions in the PyEdit (the pyedit_example2.py shows the default way of doing this)</li> 
-			<li>onSave: want to do something when the PyEdit saves its content? That's your chance...</li>
-			<li>onDispose: Called when the PyEdit is going to dispose itself.</li>
+			<li><strong>onSave</strong>: want to do something when the PyEdit saves its content? That's your chance...</li>
+			<li><strong>onDispose</strong>: Called when the PyEdit is going to dispose itself.</li>
 		</ul>
 	</p>
 	
 		
 	<br/>
 	<p>
-		And that's it. We've seen how to create scripts and make pydev load them for editor actions. I reccomend you to check 
-		the 3 scripts as examples (those come in the org.python.pydev.jython_xxx/jysrc folder, and have links to
-		them in the resources section in the end of this page). Those are:<br/>
+		And that's it. We've seen how to create scripts and make pydev load them for editor actions. If you want to 
+		keep on, you should check some example scripts that come with pydev 
+		(those come in the org.python.pydev.jython_xxx/jysrc folder -- there are links to
+		them in the resources section in the end of this page). You should check:<br/>
 		
 		<ul>
 			<li><strong>pyedit_example.py</strong>: this is the simple example we covered here, to see the output of the commands we have</li>
-			<li><strong>pyedit_example2.py</strong>: this is an example on how to bind some action to the 'default' keybindig structure that 
-			is provided by Pydev to jython scripts.</li>
+			<li><strong>pyedit_example2.py</strong>: this is an example on how to bind some action to the <strong>'default' keybindig structure</strong> that 
+			is provided by Pydev for jython scripts.</li>
 			<li><strong>pyedit_next_problem.py</strong>: This is the implementation of the <strong>go to next problem</strong> that is
-			implemented at Pydev. <strong>Disclaimer</strong>: the way it binds to the keybinding is not really correct... It only works because there
+			implemented at Pydev. <strong>Disclaimer</strong>: the way it binds to the keybinding is not the one you should follow... It only works because there
 			was already an action binded to it, so, it works, but is not the 'right' way to do it (so, you should follow the pyedit_example2.py
 			way of doing things instead of following this on -- in this one, you also cannot change its keybinding, which is surely not
-			a good thing).</li>
+			a good thing. Now, if you don't want to use the 'default' approach, you'd have to change the plugin.xml to add a command and a keybinding to 
+			it correctly).</li>
 		</ul>
 		
 	</p>
@@ -158,7 +160,7 @@
 
 	<br/>
 	<p>
-		So, that's it... Happy Scripting.<br/><br/>
+		So, that's it... Happy Scripting,<br/><br/>
 		Fabio
 	</p>
 	
