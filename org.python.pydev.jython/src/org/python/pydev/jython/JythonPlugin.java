@@ -34,7 +34,10 @@ import org.python.util.PythonInterpreter;
  * The main plugin class to be used in the desktop.
  */
 public class JythonPlugin extends AbstractUIPlugin {
-    // ----------------- SINGLETON THINGS -----------------------------
+    
+	private static final boolean DEBUG = false;
+    
+	// ----------------- SINGLETON THINGS -----------------------------
     public static IBundleInfo info;
     public static IBundleInfo getBundleInfo(){
         if(JythonPlugin.info == null){
@@ -188,12 +191,6 @@ public class JythonPlugin extends AbstractUIPlugin {
 
 
 	/**
-	 * Holds a cache with the name of the created code to a tuple with the file timestamp and the Code Object
-	 * that was generated with the contents of that timestamp.
-	 */
-	private static Map<File, Tuple<Long, Object>> codeCache = new HashMap<File,Tuple<Long, Object>>();
-	
-	/**
 	 * This is a helper for:
 	 * - Loading a file from the filesystem with jython code
 	 * - Compiling it to a code object (that will remain in the 'code' local for the interpreter)
@@ -256,60 +253,81 @@ public class JythonPlugin extends AbstractUIPlugin {
 		return files;
 	}
 
+
+	/**
+	 * Holds a cache with the name of the created code to a tuple with the file timestamp and the Code Object
+	 * that was generated with the contents of that timestamp.
+	 */
+	private static Map<File, Tuple<Long, Object>> codeCache = new HashMap<File,Tuple<Long, Object>>();
+	
 	/**
 	 * @see JythonPlugin#exec(HashMap, String, PythonInterpreter)
 	 * Same as before but the file to execute is passed as a parameter
 	 */
 	public static synchronized void exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, File fileToExec) {
-		try {
-		    String fileName = fileToExec.getName();
-            if(!fileName.endsWith(".py")){
-                throw new RuntimeException("The script to be executed must be a python file.");
-            }
-            String codeObjName = "code"+fileName.substring(0, fileName.indexOf('.'));
-            
-			for (Map.Entry<String, Object> entry : locals.entrySet()) {
-				interpreter.set(entry.getKey(), entry.getValue());
-			}
-			
-			boolean regenerate = false;
-			Tuple<Long, Object> timestamp = codeCache.get(fileToExec);
-			if(timestamp == null || timestamp.o1 != fileToExec.lastModified()){
-				//the file timestamp changed, so, we have to regenerate it
-				regenerate = true;
-			}
-			
-			if(!regenerate){
-				//if the 'code' object does not exist, we have to regenerate it. 
-				PyObject obj = interpreter.get(codeObjName);
-				if (obj == null){
-					interpreter.set(codeObjName, timestamp.o2);
+		synchronized (codeCache) { //hold on there... one at a time... please?
+			try {
+			    String fileName = fileToExec.getName();
+	            if(!fileName.endsWith(".py")){
+	                throw new RuntimeException("The script to be executed must be a python file.");
+	            }
+	            String codeObjName = "code"+fileName.substring(0, fileName.indexOf('.'));
+	            final String codeObjTimestampName = codeObjName+"Timestamp";
+	            
+				for (Map.Entry<String, Object> entry : locals.entrySet()) {
+					interpreter.set(entry.getKey(), entry.getValue());
 				}
-			}
-			
-			if(regenerate){
-				String path = REF.getFileAbsolutePath(fileToExec);
-                String loadFile = "" +
-						"print '--->  reloading', r'%s'\n" +
-						"f = open(r'%s')               \n" +
-						"try:                          \n" +
-						"    toExec = f.read()         \n" +
-						"finally:                      \n" +
-						"    f.close()                 \n" +
-                        "";
-                String toExec = StringUtils.format(loadFile, path, path);
-                interpreter.exec(toExec);
-				String exec = StringUtils.format("%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
-				interpreter.exec(exec);
 				
-				Object codeObj = interpreter.get(codeObjName);
-				codeCache.put(fileToExec, new Tuple<Long, Object>(fileToExec.lastModified(), codeObj));
-			}
-			
-			interpreter.exec(StringUtils.format("exec(%s)" , codeObjName));
-		} catch (Throwable e) {
-			if(JyScriptingPreferencesPage.getShowScriptingOutput()){
-				Log.log(IStatus.ERROR, "Error while executing:"+fileToExec, e);
+				boolean regenerate = false;
+				Tuple<Long, Object> timestamp = codeCache.get(fileToExec);
+				final long lastModified = fileToExec.lastModified();
+				if(timestamp == null || timestamp.o1 != lastModified){
+					//the file timestamp changed, so, we have to regenerate it
+					regenerate = true;
+				}
+				
+				if(!regenerate){
+					//if the 'code' object does not exist or if it's timestamp is outdated, we have to re-set it. 
+					PyObject obj = interpreter.get(codeObjName);
+					PyObject pyTime = interpreter.get(codeObjTimestampName);
+					if (obj == null || pyTime == null || !pyTime.__tojava__(Long.class).equals(timestamp.o1)){
+						if(DEBUG){
+							System.out.println("Resetting object: "+codeObjName);
+						}
+						interpreter.set(codeObjName, timestamp.o2);
+						interpreter.set(codeObjTimestampName, timestamp.o1);
+					}
+				}
+				
+				if(regenerate){
+					if(DEBUG){
+						System.out.println("Regenerating: "+codeObjName);
+					}
+					String path = REF.getFileAbsolutePath(fileToExec);
+	                String loadFile = "" +
+							"print '--->  reloading', r'%s'\n" +
+							"f = open(r'%s')               \n" +
+							"try:                          \n" +
+							"    toExec = f.read()         \n" +
+							"finally:                      \n" +
+							"    f.close()                 \n" +
+	                        "";
+	                String toExec = StringUtils.format(loadFile, path, path);
+	                interpreter.exec(toExec);
+					String exec = StringUtils.format("%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
+					interpreter.exec(exec);
+					//set its timestamp
+					interpreter.set(codeObjTimestampName, lastModified);
+					
+					Object codeObj = interpreter.get(codeObjName);
+					codeCache.put(fileToExec, new Tuple<Long, Object>(lastModified, codeObj));
+				}
+				
+				interpreter.exec(StringUtils.format("exec(%s)" , codeObjName));
+			} catch (Throwable e) {
+				if(JyScriptingPreferencesPage.getShowScriptingOutput()){
+					Log.log(IStatus.ERROR, "Error while executing:"+fileToExec, e);
+				}
 			}
 		}
 	}
