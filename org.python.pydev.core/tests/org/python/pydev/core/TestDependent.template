@@ -17,6 +17,7 @@ public class TestDependent {
     //NOTE: this should set to the tests pysrc location, so that it can be added to the pythonpath.
     public static final String TEST_PYSRC_LOC="E:/eclipse_workspace/org.python.pydev/tests/pysrc/";
     public static final String TEST_PYDEV_PLUGIN_LOC = "E:/eclipse_workspace/org.python.pydev/";
+    public static final String TEST_PYDEV_JYTHON_PLUGIN_LOC = "E:/eclipse_workspace/org.python.pydev.jython/";
 
     //java info
     public static final String JAVA_LOCATION="C:/Program Files/Java/jre1.5.0_04/bin/java.exe";
@@ -31,4 +32,5 @@ public class TestDependent {
     public static final boolean HAS_GLU_INSTALLED = true;
     public static final boolean HAS_SWT_ON_PATH = false;
     public static final boolean HAS_NUMARRAY_INSTALLED = true;
+	public static final boolean HAS_MX_DATETIME = false;
 }
