@@ -31,7 +31,7 @@ public class PyEditScripting implements IPyEditListener {
 
 	private void doExec(HashMap<String, Object> locals) {
 		JythonPlugin.execAll(locals, "pyedit", interpreter); //execute all the files that start with 'pyedit' that are located beneath
-        													 //the org.python.pydev.jython/jysrc directory
+        													 //the org.python.pydev.jython/jysrc directory and some user specified dir (if any).
 	}
 
 	public void onSave(PyEdit edit) {

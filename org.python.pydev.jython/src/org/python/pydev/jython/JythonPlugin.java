@@ -22,6 +22,7 @@ import org.osgi.framework.BundleContext;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.docutils.StringUtils;
@@ -187,9 +188,10 @@ public class JythonPlugin extends AbstractUIPlugin {
 
 
 	/**
-	 * Holds a cache with the name of the created code to the file timestamp
+	 * Holds a cache with the name of the created code to a tuple with the file timestamp and the Code Object
+	 * that was generated with the contents of that timestamp.
 	 */
-	private static Map<File, Long> codeCache = new HashMap<File,Long>();
+	private static Map<File, Tuple<Long, Object>> codeCache = new HashMap<File,Tuple<Long, Object>>();
 	
 	/**
 	 * This is a helper for:
@@ -216,7 +218,31 @@ public class JythonPlugin extends AbstractUIPlugin {
 	}
 	
 	public static void execAll(HashMap<String, Object> locals, final String startingWith, IPythonInterpreter interpreter) {
+		//exec files beneath jysrc in org.python.pydev.jython
 		File jySrc = JythonPlugin.getJySrcDirFile();
+		File[] files = getFilesBeneathFolder(startingWith, jySrc);
+		if(files != null){
+			for(File f : files){
+				exec(locals, interpreter, f);
+			}
+		}
+		
+		//exec files beneath some folder specified by the user
+		File additionalScriptingLocation = JyScriptingPreferencesPage.getAdditionalScriptingLocation();
+		if(additionalScriptingLocation != null){
+			files = getFilesBeneathFolder(startingWith, additionalScriptingLocation);
+			if(files != null){
+				for(File f : files){
+					exec(locals, interpreter, f);
+				}
+			}
+		}
+		
+	}
+	/**
+	 * List all the 'target' scripts available beneath some folder.
+	 */
+	private static File[] getFilesBeneathFolder(final String startingWith, File jySrc) {
 		File[] files = jySrc.listFiles(new FileFilter(){
 
 			public boolean accept(File pathname) {
@@ -227,16 +253,14 @@ public class JythonPlugin extends AbstractUIPlugin {
 			}
 			
 		});
-		for(File f : files){
-			exec(locals, interpreter, f);
-		}
+		return files;
 	}
 
 	/**
 	 * @see JythonPlugin#exec(HashMap, String, PythonInterpreter)
 	 * Same as before but the file to execute is passed as a parameter
 	 */
-	public static void exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, File fileToExec) {
+	public static synchronized void exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, File fileToExec) {
 		try {
 		    String fileName = fileToExec.getName();
             if(!fileName.endsWith(".py")){
@@ -249,35 +273,37 @@ public class JythonPlugin extends AbstractUIPlugin {
 			}
 			
 			boolean regenerate = false;
-			Long timestamp = codeCache.get(fileToExec);
-			if(timestamp == null || timestamp != fileToExec.lastModified()){
+			Tuple<Long, Object> timestamp = codeCache.get(fileToExec);
+			if(timestamp == null || timestamp.o1 != fileToExec.lastModified()){
 				//the file timestamp changed, so, we have to regenerate it
 				regenerate = true;
-				codeCache.put(fileToExec, fileToExec.lastModified());
 			}
 			
 			if(!regenerate){
 				//if the 'code' object does not exist, we have to regenerate it. 
 				PyObject obj = interpreter.get(codeObjName);
 				if (obj == null){
-					regenerate = true;
+					interpreter.set(codeObjName, timestamp.o2);
 				}
 			}
 			
 			if(regenerate){
 				String path = REF.getFileAbsolutePath(fileToExec);
                 String loadFile = "" +
-						"#print 'opening', r'%s'    \n" +
-						"f = open(r'%s')           \n" +
-						"try:                      \n" +
-						"    toExec = f.read()     \n" +
-						"finally:                  \n" +
-						"    f.close()             \n" +
+						"print '--->  reloading', r'%s'\n" +
+						"f = open(r'%s')               \n" +
+						"try:                          \n" +
+						"    toExec = f.read()         \n" +
+						"finally:                      \n" +
+						"    f.close()                 \n" +
                         "";
                 String toExec = StringUtils.format(loadFile, path, path);
                 interpreter.exec(toExec);
 				String exec = StringUtils.format("%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
 				interpreter.exec(exec);
+				
+				Object codeObj = interpreter.get(codeObjName);
+				codeCache.put(fileToExec, new Tuple<Long, Object>(fileToExec.lastModified(), codeObj));
 			}
 			
 			interpreter.exec(StringUtils.format("exec(%s)" , codeObjName));
