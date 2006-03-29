@@ -2,6 +2,7 @@ import datetime
 
 manualAdv = (
     ('../templateManual.html', 'manual_adv_features'                      , 'Features'                        ),
+    ('../templateManual.html', 'manual_adv_interactive_console'           , 'Interactive Console'             ),
     ('../templateManual.html', 'manual_adv_editor_prefs'                  , 'Editor preferences'              ),
     ('../templateManual.html', 'manual_adv_refactoring'                   , 'Refactoring'                     ),
     ('../templateManual.html', 'manual_adv_assistants'                    , 'Content Assistants'              ),
@@ -18,7 +19,6 @@ manualAdv = (
     ('../templateManual.html', 'manual_adv_debugger'                      , 'Debugger'                        ),
     ('../templateManual.html', 'manual_adv_remote_debugger'               , 'Remote Debugger'                 ),
     ('../templateManual.html', 'manual_adv_debug_console'                 , 'Debug Console'                   ),
-    ('../templateManual.html', 'manual_adv_interactive_console'           , 'Interactive Console'             ),
 )
 
 manualArticles = (
