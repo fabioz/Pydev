@@ -284,6 +284,9 @@ public class PydevPackageExplorerContentProvider extends WorkbenchContentProvide
 	public void onSave(PyEdit edit) {
 		IWorkbenchPage page = BrowsingPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IFile file = (IFile)page.getActiveEditor().getEditorInput().getAdapter(IFile.class);		
+		if(file == null){
+			return; //it is an external file
+		}
 		
         SimpleNode ast = edit.getAST();
         if(ast == null){
