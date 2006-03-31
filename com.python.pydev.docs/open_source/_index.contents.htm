@@ -38,18 +38,21 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <h3>New Release: LAST_VERSION_TAG</h3>
 
 <h4>Major highlights:</h4>
-<li>Fixed error while organizing imports with the construct from xxx import (a,b\n c)
-</li><li>Auto-dedent for 'else:' and 'elif' constructs
-</li><li>Added color customization for the function name and class name
-</li><li>Fixed debugger error: it could halt when getting some variable representation if the variable translated in a string that was huge
-</li><li>Fixed error while debugging with conditional breakpoint (it was only evaluated the first time) -- Thanks to Achim Nierbeck for this fix
-</li><li>Show in view: Resource Navigator (Ctrl+Alt+W) now is always active on the pydev view
-</li><li>Fixed leak on template images
+
+<li><strong>Added jython scripting </strong>
+</li><li>Added a 'go to next problem' with jython scripting capabilities, as a first example on how to script Pydev with Jython (Ctrl+.)
+</li><li>A brand new indentation engine is available:</li>
+<ul>
+	<li>Does not try to make different indentations inside multilines
+	</li><li>Does not try to add spaces to make smart-indent when in only tabs mode
+	</li><li>Indents correctly after opening some bracket or after closing some bracket
+	</li><li>Indents to 'expected level' when hitting tab</li>
+</ul>
+<li>Fixed bug: syntax error described instead of throwing an error
+</li><li>Profiled Pydev (not that much, but still, I guess you'll be able to 'feel' it) -- It is awesome when you see that 90/10 in action (altough I think it is something more like 99/1).
+</li><li>Fixed bug: the pythonpath was not added when additional environment variables where specified
 </li>
 
-<h3>Homepage changes</h3>
-
-<a href="roadmap.html">Roadmap reviewed</a>
 
 <br/><br/>
 
