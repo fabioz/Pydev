@@ -48,54 +48,90 @@ a img {
 
 
 /* Header
------------------------------------------------ */
 #header {
-  width:660px;
-  margin:0 auto 10px;
-  border:1px solid #ccc;
+  width:760px;
   }
-#blog-title {
-  margin:5px 5px 0;
-  padding:20px 20px .25em;
-  border:1px solid #eee;
-  border-width:1px 1px 0;
-  font-size:200%;
-  line-height:1.2em;
-  font-weight:normal;
-  color:#666;
-  text-transform:uppercase;
-  letter-spacing:.2em;
-  }
-#blog-title a {
-  color:#666;
-  text-decoration:none;
-  }
-#blog-title a:hover {
-  color:#c60;
-  }
+----------------------------------------------- */
+	  
+  #wrapper {
+    margin: 0 auto;
+    width: 760px;
+    text-align: left;
+    }
+	  
+  #blog-header {
+    padding-bottom: 15px;
+    background: #2A4D74 url(http://www.fabioz.com/pydev/images/bg_header_bottom2.gif) no-repeat left bottom;
+    }
+
+  #blog-header div {
+    background: #2A4D74 url(http://www.blogblog.com/thisaway_blue/bg_header.gif) repeat-x left bottom;
+    }
+
+#blog-header h1 {
+margin: 0;
+padding: 26px 0 0 84px;
+color: #eef6fe;
+font-size: 30px;
+line-height: 25px;
+text-transform:uppercase;
+background: url(http://www.blogblog.com/thisaway_blue/icon_header.gif) no-repeat 16px 26px;
+}
+	  
+#blog-header p {
+margin: 0;
+padding: 7px 16px 0 84px;
+color: #eef6fe;
+font-size: 10px;
+font-weight: bold;
+line-height: 14px;
+}
+#blog-header h1 a {
+color: #eef6fe;
+text-decoration: none;
+}
+
+#blog-header h1 a:hover {
+color: #b4c7d9;
+}
+
+/* end Header changes
+  background:#2A4D74;
+----------------------------------------------- */
+
 #description {
   margin:0 5px 5px;
   padding:0 20px 20px;
-  border:1px solid #eee;
-  border-width:0 1px 1px;
-  max-width:700px;
-  font:78%/1.4em "Trebuchet MS",Trebuchet,Arial,Verdana,Sans-serif;
-  text-transform:uppercase;
+  font:78%/1.4em Arial,Verdana,Sans-serif;
   letter-spacing:.2em;
   color:#999;
+  background:#2A4D74;
+  }
+#descriptionlinks {
+  margin:0 5px 5px;
+  padding:0 20px 20px;
+  font:78%/1.4em Arial,Verdana,Sans-serif;
+  letter-spacing:.2em;
+  color:#999;
+  background:#3A5D84;
+border-top: 1px solid #64A6F3;
+border-bottom: 1px solid #64A6F3;
+  }
+#descriptionlinks a {
+  color:#ffffff;
   }
 
 
 /* Content
 ----------------------------------------------- */
 #content {
-  width:660px;
+  width:760px;
   margin:0 auto;
   padding:0;
   text-align:left;
   }
 #main {
-  width:410px;
+  width:510px;
   float:left;
   }
 #sidebar {
@@ -274,7 +310,7 @@ p.post-footer {
 /* Footer
 ----------------------------------------------- */
 #footer {
-  width:660px;
+  width:760px;
   clear:both;
   margin:0 auto;
   }
@@ -295,15 +331,22 @@ p.post-footer {
 
 <body>
 
-<div id="header">
+<div id="wrapper">
+<div id="blog-header">
 
-  <h1 id="blog-title">
+  <h1>
     <ItemPage><a href="<$BlogURL$>"></ItemPage>
 	<$BlogTitle$>
 	<ItemPage></a></ItemPage>
   </h1>
   <p id="description"><$BlogDescription$></p>
+		<br/>
+  <p id="descriptionlinks">LINKS: &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+	  <a href="http://www.fabioz.com/pydev"><strong>Pydev Extensions</strong></a>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+	  <a href="http://pydev.sf.net"><strong>Pydev Open Source</strong></a>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+	  <a href="http://pydev.blogspot.com/atom.xml">RSS</a></p>
 
+</div>
 </div>
 
 <!-- Begin #content -->
@@ -396,20 +439,6 @@ p.post-footer {
 
 <!-- Begin #sidebar -->
 <div id="sidebar"><div id="sidebar2">
-  <h2 class="sidebar-title">Reaching Pydev Extensions</h2>
-    <ul class="archive-list">
-  <a href="http://www.fabioz.com/pydev">http://www.fabioz.com/pydev</a>	
-  </ul>
-	
-  <h2 class="sidebar-title">Reaching Pydev 'Open Source'</h2>
-    <ul class="archive-list">
-  <a href="http://pydev.sf.net">http://pydev.sf.net</a>	
-  </ul>
-
-  <h2 class="sidebar-title">This blog in <a href="http://pydev.blogspot.com/atom.xml"><img src="http://pydev.sourceforge.net/images/general/xml.png" alt="RSS" /></a></h2>
-  <ul class="archive-list">
-  </ul>
-
 
   <!-- Google ad -->
 <script type="text/javascript"><!--
