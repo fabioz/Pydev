@@ -21,6 +21,19 @@ manualAdv = (
     ('../templateManual.html', 'manual_adv_debug_console'                 , 'Debug Console'                   ),
 )
 
+manual101 = (
+    ('../templateManual.html', 'manual_101_root'           , 'Getting Started'                 ),
+    ('../templateManual.html', 'manual_101_install'        , 'Installing'                      ),
+    ('../templateManual.html', 'manual_101_interpreter'    , 'Configuring the interpreter'     ),
+    ('../templateManual.html', 'manual_101_project_conf'   , 'Creating a project'              ),
+    ('../templateManual.html', 'manual_101_project_conf2'  , 'Configuring a project'           ),
+    ('../templateManual.html', 'manual_101_first_module'   , 'Creating a module'               ),
+    ('../templateManual.html', 'manual_101_run'            , 'Running your first program'      ),
+    ('../templateManual.html', 'manual_101_eclipse'        , 'Configuring Eclipse'             ),
+    ('../templateManual.html', 'manual_101_tips'           , 'Some useful tips'                ),
+
+)
+
 manualArticles = (
     ('../templateManual.html', 'manual_articles'           , 'Articles'                 ),
     ('../templateManual.html', 'manual_articles_scripting' , 'Jython Scripting in Pydev'),
@@ -87,14 +100,7 @@ def main():
     template('../template1.html     ', 'manual'                    , 'Manual'                          )
     template('../template1.html     ', 'about'                     , 'About'                           )
     
-    template('../templateManual.html', 'manual_101_root'           , 'Getting Started'                 )
-    template('../templateManual.html', 'manual_101_install'        , 'Installing'                      )
-    template('../templateManual.html', 'manual_101_interpreter'    , 'Configuring the interpreter'     )
-    template('../templateManual.html', 'manual_101_project_conf'   , 'Creating a project'              )
-    template('../templateManual.html', 'manual_101_project_conf2'  , 'Configuring a project'           )
-    template('../templateManual.html', 'manual_101_first_module'   , 'Creating a module'               )
-    template('../templateManual.html', 'manual_101_run'            , 'Running your first program'      )
-    template('../templateManual.html', 'manual_101_tips'           , 'Some useful tips'                )
+    templateForAll(manual101, ('', 'manual','Root'), ('', 'manual_adv_features'   ,'Features'))
     
     templateForAll(manualAdv, ('', 'manual','Root'), ('', 'manual_adv_features','Features'))
     
