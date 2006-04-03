@@ -138,20 +138,20 @@
 	<strong>IMPORTANT NOTES:</strong>
 		<ul>
 			<li>
-				The sources that are added to the PYTHONPATH are the Lib dir from jython and the jysrc dir (both under the
+				The directories that are added to the <strong>PYTHONPATH</strong> are the Lib dir from jython and the jysrc dir (both under the
 				org.python.pydev.jython plugin).
 			</li>
 			<li>
-				There is one interpreter for each PyEdit, so, while it is not reused across editors, it is reused in the same editor...
+				There is <strong>one interpreter</strong> for each PyEdit, so, while it is not reused across editors, it is <strong>reused in the same editor</strong>...
 				So, be careful not to mess with global things. Ideally, you should only rely on things that the editor will pass you
 				(such as the editor, the cmd, the document...)
 			</li>
 			<li>
-				Some commands rely on having some specific command, so, you might not 'feel' the change until you restart the editor 
-				(this is the case when registering actions depending on: onCreateActions).
+				Some commands rely on having some specific command, so, you might not 'see' the change until you restart the editor 
+				(this is the case when registering actions depending on: <strong>onCreateActions</strong>).
 			</li>
 			<li>
-				If you have further doubts about scripting, you can register at the pydev-code list at sourceforge, and ask them there,
+				If you have further doubts about scripting, you can register at the <strong>pydev-code</strong> list at sourceforge, and ask them there,
 				and if you've been able to create some nice, useful script, you can contribute it back to pydev by creating a bug and
 				attaching your script there.
 			</li>
