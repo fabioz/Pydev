@@ -17,6 +17,7 @@ import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Continue;
 import org.python.pydev.parser.jython.ast.Delete;
 import org.python.pydev.parser.jython.ast.Exec;
+import org.python.pydev.parser.jython.ast.Global;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Lambda;
@@ -195,6 +196,7 @@ public class PrettyPrinterUtils extends VisitorBase{
         addMethod("visitRaise" , "superRaise");
         addMethod("visitStrJoin" , "superStrJoin");
         addMethod("visitAssert" , "superAssert");
+        addMethod("visitGlobal" , "superGlobal");
     }
     
     
@@ -240,6 +242,10 @@ public class PrettyPrinterUtils extends VisitorBase{
         state.pushInStmt(node);
 	}
 
+    public Object superGlobal(Global node) throws Exception {
+        return super.visitGlobal(node);
+    }
+    
     public Object superYield(Yield node) throws Exception {
         return super.visitYield(node);
     }

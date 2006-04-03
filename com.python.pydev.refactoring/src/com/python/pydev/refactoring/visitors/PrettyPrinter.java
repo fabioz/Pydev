@@ -25,6 +25,7 @@ import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Global;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
@@ -723,6 +724,11 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     @Override
     public Object visitYield(Yield node) throws Exception {
         return visitGeneric(node, "visitYield");
+    }
+    
+    @Override
+    public Object visitGlobal(Global node) throws Exception {
+        return visitGeneric(node, "visitGlobal");
     }
 
     @Override

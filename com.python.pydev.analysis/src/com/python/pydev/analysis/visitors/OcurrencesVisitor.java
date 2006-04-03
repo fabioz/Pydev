@@ -33,6 +33,7 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
@@ -385,10 +386,10 @@ public class OcurrencesVisitor extends VisitorBase{
     @Override
     public Object visitGlobal(Global node) throws Exception {
     	unhandled_node(node);
-        for(String name :node.names){
-            Name nameAst = new Name(name, Name.Store);
-            nameAst.beginLine = node.beginLine;
-            nameAst.beginColumn = -1;
+        for(NameTokType name :node.names){
+            Name nameAst = new Name(((NameTok)name).id, Name.Store);
+            nameAst.beginLine = name.beginLine;
+            nameAst.beginColumn = name.beginColumn;
 
             SourceToken token = AbstractVisitor.makeToken(nameAst, moduleName);
             scope.addTokenToGlobalScope(token);
