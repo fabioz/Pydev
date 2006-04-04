@@ -9,6 +9,8 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.visitors.comparator.DifferException;
+import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
 
 public class PrettyPrinterLibTest extends PyParserTestBase{
 
@@ -46,13 +48,21 @@ public class PrettyPrinterLibTest extends PyParserTestBase{
         for (int i = 0; i < files.length; i++) {
             File f = files[i];
             if(f.getAbsolutePath().toLowerCase().endsWith(".py")){
-                WriterEraser writer = PrettyPrinterTest.makePrint(prefs, parseLegalDocStr(REF.getFileContents(f), f));
+                SimpleNode original = parseLegalDocStr(REF.getFileContents(f), f);
+                WriterEraser writer = PrettyPrinterTest.makePrint(prefs, original);
+                SimpleNode node = null;
                 try {
-                    SimpleNode node = parseLegalDocStr(writer.getBuffer().toString());
+                    node = parseLegalDocStr(writer.getBuffer().toString());
                     System.out.println("succeded:"+f);
                 } catch (Throwable e) {
                     e.printStackTrace();
                     fail("Error, unable to pretty-print and regenerate file:"+f);
+                }
+                SimpleNodeComparator comparator = new SimpleNodeComparator();
+                try {
+                    comparator.compare(original, node);
+                } catch (DifferException e) {
+                    System.out.println("Compare did not suceed:"+f);
                 }
             }
         }
