@@ -9,9 +9,9 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 
@@ -34,7 +34,7 @@ public interface IAnalysisMarkersParticipant {
      * @throws CoreException 
      */
     public abstract void addProps(IMarker marker, IAnalysisPreferences analysisPreferences, 
-            String line, PySelection ps, int offset, PythonNature nature,
+            String line, PySelection ps, int offset, IPythonNature nature,
             PyEdit edit, List<ICompletionProposal> props) throws BadLocationException, CoreException;
 
 }

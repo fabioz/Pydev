@@ -7,12 +7,12 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
-import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.builder.AnalysisRunner;
@@ -26,7 +26,7 @@ public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
 	}
 
 
-	public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, PyEdit edit, int offset) throws BadLocationException {
+	public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
 		List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
 		if(ps.getCursorLine() == 0){
 	        IgnoreCompletionProposal proposal = new IgnoreCompletionProposal(

@@ -14,13 +14,13 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.UIConstants;
 
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
@@ -37,7 +37,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
             String line, 
             PySelection ps, 
             int offset, 
-            PythonNature nature,
+            IPythonNature nature,
             PyEdit edit, 
             List<ICompletionProposal> props) throws BadLocationException, CoreException {
         
