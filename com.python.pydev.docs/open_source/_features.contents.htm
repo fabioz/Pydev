@@ -1,24 +1,18 @@
-<h2>New on: 1.0.4</h2>
+<h2>New on: 1.0.5</h2>
 
 <br/>
-<li><strong>Added jython scripting </strong>
-<ul>
-	<li><a href="http://www.fabioz.com/pydev/manual_articles_scripting.html">Link to article on how to create your own scripts with the new scripting engine.</a></li>
-</ul>
-</li><li>Added an 'easy' way to bind actions after Ctrl+2 (to make scripting easier)
-</li><li>Added a way to list things binded with Ctrl+2 (To see: Ctrl+2+help)
-</li><li>Added a 'go to next problem' with jython scripting capabilities, as a first example on how to script Pydev with Jython (Ctrl+.)
-</li><li>A brand new indentation engine is available:</li>
-<ul>
-	<li>Does not try to make different indentations inside multilines
-	</li><li>Does not try to add spaces to make smart-indent when in only tabs mode
-	</li><li>Indents correctly after opening some bracket or after closing some bracket
-	</li><li>Indents to 'expected level' when hitting tab</li>
-</ul>
-<li>Fixed bug: syntax error described instead of throwing an error
-</li><li>Profiled Pydev (not that much, but still, I hope you'll be able to 'feel' it)
-</li><li>Fixed bug: the pythonpath was not added when additional environment variables where specified
-</li><li>And as always, other bugs have been fixed
+<li>
+	Another batch of things to improve <strong>indentation</strong>:
+	<ul>
+<li>	    Indent does not try to make auto-indentation when pasting
+</li><li>	When smart-indent is not selected, it will still add an indentation level after ':'
+</li><li>	It will keep the indent of the previous line on new-lines if the current line is empty
+</li><li>	Other little things
+</li>
+	</ul>
+</li>
+<li>Added a place to specify <strong>vm arguments</strong> (for jython or python) -- thanks to  Rudi de Andrade for this patch
+</li><li>Added a way to kill the underlying python/jython shells (<strong>Ctrl+2+kill</strong>)
 </li>
 
 <br/>
@@ -76,6 +70,34 @@
 
 <hr/>
 <h2>Features History</h2>
+
+	
+	
+<h2>New on: 1.0.4</h2>
+
+<br/>
+<li><strong>Added jython scripting </strong>
+<ul>
+	<li><a href="http://www.fabioz.com/pydev/manual_articles_scripting.html">Link to article on how to create your own scripts with the new scripting engine.</a></li>
+</ul>
+</li><li>Added an 'easy' way to bind actions after Ctrl+2 (to make scripting easier)
+</li><li>Added a way to list things binded with Ctrl+2 (To see: Ctrl+2+help)
+</li><li>Added a 'go to next problem' with jython scripting capabilities, as a first example on how to script Pydev with Jython (Ctrl+.)
+</li><li>A brand new indentation engine is available:</li>
+<ul>
+	<li>Does not try to make different indentations inside multilines
+	</li><li>Does not try to add spaces to make smart-indent when in only tabs mode
+	</li><li>Indents correctly after opening some bracket or after closing some bracket
+	</li><li>Indents to 'expected level' when hitting tab</li>
+</ul>
+<li>Fixed bug: syntax error described instead of throwing an error
+</li><li>Profiled Pydev (not that much, but still, I hope you'll be able to 'feel' it)
+</li><li>Fixed bug: the pythonpath was not added when additional environment variables where specified
+</li><li>And as always, other bugs have been fixed
+</li>
+
+<br/>
+
 
 	
 <h2>New on: 1.0.3</h2>

@@ -18,8 +18,8 @@ COMP2
 set EC_HOME=D:\bin\eclipse\312
 set EC_WORKSPACE=E:\eclipse_workspace
 set RETROWEAVER_HOME=E:\install\Dev.Retroweaver
-set PYDEV_VERSION=1.0.4
-set BUILD_ID=1_0_4
+set PYDEV_VERSION=1.0.5
+set BUILD_ID=1_0_5
 e:
 
 
