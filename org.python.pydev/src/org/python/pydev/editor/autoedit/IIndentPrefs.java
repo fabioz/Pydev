@@ -83,4 +83,9 @@ public interface IIndentPrefs {
      * Get whether we should auto-dedent 'else:'
      */
     public boolean getAutoDedentElse();
+    
+    /**
+     * @return whether we should indent to a parenthesis level on auto-indent or only add 1 tab to the indent).
+     */
+    public boolean getIndentToParLevel();
 }

@@ -27,6 +27,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
@@ -46,7 +47,6 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.UIConstants;
 
 /**
@@ -166,7 +166,7 @@ public class PyCodeCompletion {
         
         ArrayList ret = new ArrayList();
         try {
-            PythonNature pythonNature = request.nature;
+        	IPythonNature pythonNature = request.nature;
             if (pythonNature == null) {
                 throw new RuntimeException("Unable to get python nature.");
             }

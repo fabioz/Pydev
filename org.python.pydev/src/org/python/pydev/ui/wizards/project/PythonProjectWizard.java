@@ -132,6 +132,7 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
                 folder.create(true, true, monitor);
             
                 nature.getPythonPathNature().setProjectSourcePath(folder.getFullPath().toString());
+                nature.rebuildPath();
             }
         } finally {
             monitor.done();
@@ -244,7 +245,11 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
         try {
             PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
         } catch (NotConfiguredInterpreterException ncie) {
-            return false;
+            try {
+                PydevPlugin.getJythonInterpreterManager().getDefaultInterpreter();
+            } catch (Exception e) {
+                return false;
+            }
         }
         return true;
     }

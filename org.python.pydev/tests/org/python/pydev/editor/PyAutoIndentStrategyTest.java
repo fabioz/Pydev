@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testIndent();
+            s.testAfterCloseParOnlyIndent2();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -80,6 +80,36 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(" ", docCmd.text);
     }
     
+    
+
+    public void testNewLineAfterReturn() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    			"def m1(self):\n" +
+    			"    return 'foo'\n" +
+    			"#ffo" +
+    			"" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength()-"#ffo".length(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n", docCmd.text); 
+    	
+    }
+    
+    public void testNewLineAfterLineWithComment() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"string1 = '01234546789[#]" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n", docCmd.text); 
+    	
+    }
+    
+
     public void testNewLine3() {
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
     	String str = "for a in b:    " +
@@ -97,7 +127,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
     	String str = "" +
     			"for v in w:\n" +
-    			"    pass\n" +
+    			"    pass\n" + //dedent on pass
     			"";
     	final Document doc = new Document(str);
     	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
@@ -145,6 +175,40 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	assertEquals("\n    ", docCmd.text); 
     }
     
+    public void testIndentAfterRet() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"class Foo:\n" +
+    	"    def m1():\n" +
+    	"        for a in b:\n" +
+    	"            if a = 20:\n" +
+    	"                print 'foo'\n" +
+    	"        return 30\n" +
+    	"    " +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n    ", docCmd.text); 
+    }
+    
+    public void testIndentAfterRet2() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"class Foo:\n" +
+    	"    def m1():\n" +
+    	"        for a in b:\n" +
+    	"            if a = 20:\n" +
+    	"                print 'foo'\n" +
+    	"        return 30\n" +
+    	"    \n" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\t");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("    ", docCmd.text); 
+    }
+    
     public void testNewLine9() {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         String str = "" +
@@ -186,10 +250,10 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	strategy.customizeDocumentCommand(doc, docCmd);
     	String expected = "" +
     	"def a():\n" +
-    	"" +
+    	"    " +
     	"";
     	assertEquals(expected, doc.get()); 
-    	assertEquals("\n    ", docCmd.text); 
+    	assertEquals("\n", docCmd.text); 
     }
     
     public void testNewLine() {
@@ -260,6 +324,20 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\t");
     	strategy.customizeDocumentCommand(doc, docCmd);
     	assertEquals("        ", docCmd.text); // a single tab should go to the correct indent
+    }
+    
+    public void testWithoutSmartIndent() {
+    	final TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+    	prefs.smartIndentAfterPar = false;
+		strategy.setIndentPrefs(prefs);
+    	String str = "" +
+    	"class C:\n" +
+    	"    def m1(self):" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n        ", docCmd.text); // a single tab should go to the correct indent
     }
     
     public void testIndentingWithTab4() {
@@ -478,6 +556,34 @@ public class PyAutoIndentStrategyTest extends TestCase {
         "     ";
         assertEquals(expected, docCmd.text);
         
+    }
+    
+    public void testAfterCloseParOnlyIndent() {
+    	final TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+		strategy.setIndentPrefs(prefs);
+		prefs.indentToParLevel = false;
+    	String doc = "m = [a,";
+    	DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "\n" +
+    	"    ";
+    	assertEquals(expected, docCmd.text);
+    	
+    }
+    
+    public void testAfterCloseParOnlyIndent2() {
+    	final TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+    	strategy.setIndentPrefs(prefs);
+    	prefs.indentToParLevel = false;
+    	String doc = "" +
+    			"class A:\n" +
+    			"    def m1(a,";
+    	DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "\n" +
+    	"        ";
+    	assertEquals(expected, docCmd.text);
+    	
     }
     
     public void testAfterClosePar2() {
@@ -1113,7 +1219,8 @@ public class PyAutoIndentStrategyTest extends TestCase {
         boolean autoWriteImport = true;
         boolean smartIndentAfterPar = true;
         boolean autoAddSelf = true;
-        private boolean autoElse;
+        boolean autoElse;
+		boolean indentToParLevel = true;
 
         public TestIndentPrefs(boolean useSpaces, int tabWidth){
             this.useSpaces = useSpaces;
@@ -1166,6 +1273,10 @@ public class PyAutoIndentStrategyTest extends TestCase {
         public boolean getAutoDedentElse() {
             return autoElse;
         }
+
+		public boolean getIndentToParLevel() {
+			return indentToParLevel;
+		}
 
     }
 

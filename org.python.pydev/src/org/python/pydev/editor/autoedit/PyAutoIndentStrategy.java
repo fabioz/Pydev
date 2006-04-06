@@ -116,19 +116,34 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
     }
 
 	private String indentBasedOnStartingScope(String text, PySelection selection, boolean checkForLowestBeforeNewScope) {
-		Tuple3<String,Integer, String> previousIfLine = selection.getPreviousLineThatStartsScope();
+		Tuple3<String,String, String> previousIfLine = selection.getPreviousLineThatStartsScope();
 		if(previousIfLine != null){
 		    String initial = getCharsBeforeNewLine(text);
-		    String indent = PySelection.getIndentationFromLine(previousIfLine.o1);
-		    if(previousIfLine.o2 == -1){
-                if(checkForLowestBeforeNewScope && previousIfLine.o3 != null){
+		    
+		    if(previousIfLine.o2 == null){ //no dedent was found
+		    	String indent = PySelection.getIndentationFromLine(previousIfLine.o1);
+
+		    	if(checkForLowestBeforeNewScope && previousIfLine.o3 != null){
+		    		
                     indent = PySelection.getIndentationFromLine(previousIfLine.o3);
                     text = initial + indent;
+                    
                 }else{
+                	
                     text = initial + indent + prefs.getIndentationString();
+                    
                 }
-		    }else{
-		    	text = initial + indent;
+		    	
+		    }else{ //some dedent was found
+		    	String indent = PySelection.getIndentationFromLine(previousIfLine.o2);
+		    	String indentationString = prefs.getIndentationString();
+		    	
+		    	final int i = indent.length() - indentationString.length() +1;
+		    	if (i > 0 && indent.length() > i){
+		    		text = indent.substring(0, i);
+		    	}else{
+		    		text = indent; // can this happen?
+		    	}
 		    }
 		    
 		}
@@ -178,8 +193,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 
 		try {
 			// find start of line
-			int p= (offset == d.getLength() ? offset  - 1 : offset);
-			IRegion info= d.getLineInformationOfOffset(p);
+			IRegion info= d.getLineInformationOfOffset(offset);
 			int start= info.getOffset();
 
 			// find white spaces
@@ -206,7 +220,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
      * @return
      */
     private boolean isNewLineText(IDocument document, int length, String text) {
-        return length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text);
+        return length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text) && text.length() < 3;
     }
 
     private String dedent(String text) {
@@ -254,9 +268,17 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         	
             if (isNewLine) {
             	if(prefs.getSmartIndentPar()){
-	            	command.text = autoIndentNewline(document, command.length, command.text, command.offset);
-	            	PySelection selection = new PySelection(document, command.offset);
-	        		selection.deleteSpacesAfter(command.offset);
+            	    PySelection selection = new PySelection(document, command.offset);
+                    if(selection.getCursorLineContents().trim().length() > 0){
+    	            	command.text = autoIndentNewline(document, command.length, command.text, command.offset);
+    	        		selection.deleteSpacesAfter(command.offset);
+                    }
+            	}else{
+            		PySelection selection = new PySelection(document, command.offset);
+            		if(selection.getCursorLineContents().trim().endsWith(":")){
+            			command.text += prefs.getIndentationString();
+            		}
+            		
             	}
             }else if(command.text.equals("\t")){
             	PySelection ps = new PySelection(document, command.offset);
@@ -396,7 +418,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
              * already a matching one, don't insert it. Just move the cursor to
              * the next space.
              */
-            else if (command.text.length() > 0 && prefs.getAutoBraces()) {
+            else if (command.text.length() < 3 && prefs.getAutoBraces()) {
                 // you can only do the replacement if the next character already there is what the user is trying to input
                 
                 if (command.offset < document.getLength() && document.get(command.offset, 1).equals(command.text)) {
@@ -653,13 +675,27 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         if(openingPeerOffset == -1){
             return -1;
         }
-        int openingPeerLineOffset = document.getLineInformationOfOffset(openingPeerOffset).getOffset();
-        int len = openingPeerOffset - openingPeerLineOffset;
-        String str = document.get(openingPeerLineOffset, len);
-        for(int i = 0; i<str.length(); i++){
-            if(str.charAt(i) == '\t'){
-                len += prefs.getTabWidth() - 1;
-            }
+        final IRegion lineInformationOfOffset = document.getLineInformationOfOffset(openingPeerOffset);
+        int len = -1;
+        String contents = "";
+        if(prefs.getIndentToParLevel()){
+			int openingPeerLineOffset = lineInformationOfOffset.getOffset();
+	        len = openingPeerOffset - openingPeerLineOffset;
+	        contents = document.get(openingPeerLineOffset, len);
+        }else{
+        	//ok, we have to get the 
+        	int line = document.getLineOfOffset(openingPeerOffset);
+        	final String indent = prefs.getIndentationString();
+			contents = PySelection.getLine(document, line);
+			contents = PySelection.getIndentationFromLine(contents);
+        	contents += indent.substring(0, indent.length()-1); //we have to make it -1 (that's what the smartindent expects)
+        	len = contents.length();
+        }
+        //add more spaces for each tab
+        for(int i = 0; i<contents.length(); i++){
+        	if(contents.charAt(i) == '\t'){
+        		len += prefs.getTabWidth() - 1;
+        	}
         }
         return len;
         

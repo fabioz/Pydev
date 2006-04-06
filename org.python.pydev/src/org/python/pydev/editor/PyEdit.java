@@ -2,6 +2,7 @@ package org.python.pydev.editor;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListResourceBundle;
@@ -29,6 +30,9 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorInput;
@@ -38,6 +42,7 @@ import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
+import org.eclipse.ui.internal.util.SWTResourceUtil;
 import org.eclipse.ui.part.EditorActionBarContributor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
@@ -949,29 +954,61 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         return ast;
     }
 
-    Map<String, IAction> onOfflineActionListeners = new HashMap<String, IAction>();
+    Map<String, ActionInfo> onOfflineActionListeners = new HashMap<String, ActionInfo>();
+    public Collection<ActionInfo> getOfflineActionDescriptions(){
+        return onOfflineActionListeners.values();
+    }
     public void addOfflineActionListener(String key, IAction action) {
-    	onOfflineActionListeners.put(key, action);
+        onOfflineActionListeners.put(key, new ActionInfo(action, "not described", key, true));
+    }
+    public void addOfflineActionListener(String key, IAction action, String description, boolean needsEnter) {
+    	onOfflineActionListeners.put(key, new ActionInfo(action, description, key, needsEnter));
 	}
-    
+    public boolean activatesAutomaticallyOn(String key){
+        ActionInfo info = onOfflineActionListeners.get(key);
+        if(info != null){
+            if(!info.needsEnter){
+                return true;
+            }
+        }
+        return false;
+    }
     /**
      * @return if an action was binded and was successfully executed
      */
 	public boolean onOfflineAction(String requestedStr, OfflineActionTarget target) {
-		IAction action = onOfflineActionListeners.get(requestedStr);
-		if(action != null){
-			try {
-				action.run();
-			} catch (Throwable e) {
-				PydevPlugin.log(e);
-				return false;
-			}
-			return true;
-		}else{
-			target.statusError("No action was found binded to:"+requestedStr);
+		ActionInfo actionInfo = onOfflineActionListeners.get(requestedStr);
+        if(actionInfo == null){
+            target.statusError("No action was found binded to:"+requestedStr);
+            return false;
+            
+        }
+            
+        IAction action = actionInfo.action;
+		if(action == null){
+		    target.statusError("No action was found binded to:"+requestedStr);
+		    return false;
+        }
+        
+		try {
+			action.run();
+		} catch (Throwable e) {
+		    target.statusError("Exception raised when executing action:"+requestedStr+" - "+e.getMessage());
+			PydevPlugin.log(e);
 			return false;
 		}
+		return true;
 	}
+    
+    
+	public Font getFont(FontData descriptor) {
+        Font font = (Font) SWTResourceUtil.getFontTable().get(descriptor);
+        if (font == null) {
+            font = new Font(Display.getCurrent(), descriptor);
+            SWTResourceUtil.getFontTable().put(descriptor, font);
+        }
+        return font;
+    }
 
 }
 

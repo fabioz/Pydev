@@ -53,7 +53,7 @@ public class WelcomePage extends WizardPage {
         
         Text interpreterNoteText = new Text(panel, SWT.MULTI);
         interpreterNoteText.setEditable(false);
-        interpreterNoteText.setText("Please configure a Python interpreter in Window -> Preferences -> PyDev \nbefore creating a new Python project");
+        interpreterNoteText.setText("Please configure a Python or Jython interpreter in Window -> Preferences -> PyDev \nbefore creating a new Pydev project");
                                             
         setErrorMessage(null);        
         return panel;        

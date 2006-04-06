@@ -69,6 +69,7 @@ public class PythonSourceFolderWizard extends AbstractPythonWizard {
             curr=newPath;
         }
         pathNature.setProjectSourcePath(curr);
+        PythonNature.getPythonNature(project).rebuildPath();
         return null;
     }
 

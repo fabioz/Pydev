@@ -9,6 +9,7 @@ import java.io.File;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICompletionRequest;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -33,7 +34,7 @@ public class CompletionRequest implements ICompletionRequest{
         this.qualifier = qualifier;
     }
 
-    public CompletionRequest(File editorFile, PythonNature nature, IDocument doc,
+    public CompletionRequest(File editorFile, IPythonNature nature, IDocument doc,
             String activationToken, int documentOffset, int qlen,
             PyCodeCompletion codeCompletion, 
             String qualifier){
@@ -69,7 +70,7 @@ public class CompletionRequest implements ICompletionRequest{
     }
 
     public File editorFile;
-    public PythonNature nature;
+    public IPythonNature nature;
     public IDocument doc;
     public String activationToken; 
     public String qualifier; 

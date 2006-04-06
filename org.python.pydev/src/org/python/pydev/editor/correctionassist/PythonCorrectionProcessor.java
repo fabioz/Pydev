@@ -27,7 +27,6 @@ import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
 import org.python.pydev.editor.correctionassist.heuristics.AssistTry;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * This class should be used to give context help
@@ -111,7 +110,7 @@ public class PythonCorrectionProcessor implements IContentAssistProcessor {
                                         ps, 
                                         imageCache, 
                                         edit.getEditorFile(), 
-                                        (PythonNature)edit.getPythonNature(), 
+                                        edit.getPythonNature(), 
                                         edit,
                                         offset)
                         );

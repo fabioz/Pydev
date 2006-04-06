@@ -1,4 +1,16 @@
 
+after 1.0.4
+Pydev:
+- Indent does not try to make auto-indentation when pasting
+- When smart-indent is not selected, it will still add an indentation level after ':'
+- It will keep the indent of the previous line on new-lines if the current line is empty
+- Other little things
+- Added a place to specify vm arguments (for jython or python) -- thanks to  Rudi de Andrade for this patch
+- Added a way to kill the underlying python/jython shells (Ctrl+2+kill)
+
+Pydev Extensions:
+- Made the pop-up pop 'less' while in evaluation
+
 after 1.0.3
 Pydev:
 - Does not try to make different indentations inside multilines

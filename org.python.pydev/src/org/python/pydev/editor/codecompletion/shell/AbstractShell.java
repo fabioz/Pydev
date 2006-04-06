@@ -130,7 +130,7 @@ public abstract class AbstractShell {
 	            
 	            Map<Integer,AbstractShell> rel = (Map<Integer, AbstractShell>) iter.next();
 	            if(rel != null){
-	                for (Iterator iter2 = rel.values().iterator(); iter.hasNext();) {
+	                for (Iterator iter2 = rel.values().iterator(); iter2.hasNext();) {
 	                    AbstractShell element = (AbstractShell) iter2.next();
 	                    if(element != null){
 	                        try {

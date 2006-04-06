@@ -11,12 +11,12 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.FixCompletionProposal;
-import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.UIConstants;
 
 /**
@@ -27,7 +27,7 @@ public class AssistImport implements IAssistProps {
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.core.bundle.ImageCache)
      */
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, PythonNature nature, PyEdit edit, int offsetReceived) throws BadLocationException {
+    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offsetReceived) throws BadLocationException {
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
         String sel = PyAction.getLineWithoutComments(ps).trim();
 

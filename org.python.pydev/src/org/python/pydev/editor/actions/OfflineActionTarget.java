@@ -200,10 +200,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
             	
             //CR = exec and quit
             case 0x0D:
-            	final boolean executed = fEdit.onOfflineAction(fFindString.toString(), this);
-            	if(executed){
-            		leave();
-            	}
+            	boolean executed = doExec();
                 event.doit= false;
                 if(!executed){
                 	return; //we don't want to update the status
@@ -219,13 +216,31 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
 
             default:
                 if (event.stateMask == 0 || event.stateMask == SWT.SHIFT || event.stateMask == (SWT.ALT | SWT.CTRL)) { // SWT.ALT | SWT.CTRL covers AltGr (see bug 43049)
-                    addCharSearch(event.character);
                     event.doit= false;
+                    if(addCharSearch(event.character)){
+                        //ok, triggered some automatic action (does not need enter)
+                        executed = doExec();
+                        if(!executed){
+                            return; //we don't want to update the status
+                        }
+                        
+                    }
                 }
                 break;
             }
         }
         updateStatus();
+    }
+
+    /**
+     * @return
+     */
+    private boolean doExec() {
+        final boolean executed = fEdit.onOfflineAction(fFindString.toString(), this);
+        if(executed){
+        	leave();
+        }
+        return executed;
     }
 
 
@@ -249,14 +264,11 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      * Adds the given character to the search string and repeats the search with the last parameters.
      *
      * @param c the character to append to the search pattern
-     * @return <code>true</code> the search found a match
+     * @return <code>true</code> if the action triggered some 'automatic' action
      */
     private boolean addCharSearch(char c) {
         fFindString.append(c);
-        //String string= fFindString.toString();
-        //StyledText text= fTextViewer.getTextWidget();
-
-        return true;
+        return fEdit.activatesAutomaticallyOn(fFindString.toString());
     }
 
     /**
