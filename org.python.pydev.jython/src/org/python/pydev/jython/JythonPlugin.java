@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -86,7 +87,7 @@ public class JythonPlugin extends AbstractUIPlugin {
 				for (int i = 0; i < bundles.length; ++i) {
 					try {
 						return bundles[i].loadClass(className);
-					} catch (ClassNotFoundException e2) {
+					} catch (Throwable e2) {
 					}
 				}
 				// Didn't find the class anywhere, rethrow e.
@@ -139,10 +140,15 @@ public class JythonPlugin extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		//initialize the Jython runtime
+		Properties prop2 = new Properties();
+		prop2.put("python.home", REF.getFileAbsolutePath(getPluginRootDir()));
+		prop2.put("python.path", REF.getFileAbsolutePath(getJySrcDirFile()));
+		prop2.put("python.security.respectJavaAccessibility", "false"); //don't respect java accessibility, so that we can access protected members on subclasses
 		
 		try {
 			allBundleClassLoader = new AllBundleClassLoader(context.getBundles(), this.getClass().getClassLoader());
-			PySystemState.initialize(System.getProperties(), null, new String[] { "" }, allBundleClassLoader);
+			PySystemState.initialize(System.getProperties(), prop2, new String[0], allBundleClassLoader);
 			String[] packageNames = getDefault().allBundleClassLoader.getPackageNames();
 			for (int i = 0; i < packageNames.length; ++i) {
 				PySystemState.add_package(packageNames[i]);
@@ -150,10 +156,19 @@ public class JythonPlugin extends AbstractUIPlugin {
 		} catch (Exception e) {
 			Log.log(e);
 		}
+        
 
 	}
 
-	/**
+	private File getPluginRootDir() {
+        try {
+            IPath relative = new Path(".");
+            return getBundleInfo().getRelativePath(relative);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    /**
 	 * This method is called when the plug-in is stopped
 	 */
 	public void stop(BundleContext context) throws Exception {
@@ -168,6 +183,14 @@ public class JythonPlugin extends AbstractUIPlugin {
 		return plugin;
 	}
 	
+	public static File getJythonLibDir(){
+	    try {
+	        IPath relative = new Path("Lib");
+	        return getBundleInfo().getRelativePath(relative);
+	    } catch (Exception e) {
+	        throw new RuntimeException(e);
+	    }
+	}
 	public static File getFileWithinJySrc(String f){
         try {
             IPath relative = new Path("jysrc").addTrailingSeparator().append(f);

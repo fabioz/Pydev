@@ -20,8 +20,12 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
 import org.eclipse.core.filebuffers.FileBuffers;
@@ -32,6 +36,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.Document;
@@ -104,7 +109,13 @@ public class REF {
         if (encoding == null){
             in= new BufferedReader(new InputStreamReader(contentStream), DEFAULT_FILE_SIZE);
         }else{
-            in= new BufferedReader(new InputStreamReader(contentStream, encoding), DEFAULT_FILE_SIZE);
+            try {
+                in = new BufferedReader(new InputStreamReader(contentStream, encoding), DEFAULT_FILE_SIZE);
+            } catch (UnsupportedEncodingException e) {
+                Log.log(e);
+                //keep going without the encoding
+                in= new BufferedReader(new InputStreamReader(contentStream), DEFAULT_FILE_SIZE);
+            }
         }
         
         StringBuffer buffer= new StringBuffer(DEFAULT_FILE_SIZE);
@@ -119,7 +130,6 @@ public class REF {
         }
         return buffer.toString();
     }
-
     /**
      * @param o the object we want as a string
      * @return the string representing the object as base64
@@ -138,14 +148,14 @@ public class REF {
         return new String(encodeBase64(out));
     }
 
-	public static byte[] encodeBase64(ByteArrayOutputStream out) {
-		byte[] byteArray = out.toByteArray();
-		return encodeBase64(byteArray);
-	}
+    public static byte[] encodeBase64(ByteArrayOutputStream out) {
+        byte[] byteArray = out.toByteArray();
+        return encodeBase64(byteArray);
+    }
 
-	public static byte[] encodeBase64(byte[] byteArray) {
-		return Base64.encodeBase64(byteArray);
-	}
+    public static byte[] encodeBase64(byte[] byteArray) {
+        return Base64.encodeBase64(byteArray);
+    }
     
     /**
      * 
@@ -203,28 +213,28 @@ public class REF {
         return o;
     }
 
-	public static byte[] decodeBase64(String persisted) {
-		return Base64.decodeBase64(persisted.getBytes());
-	}
+    public static byte[] decodeBase64(String persisted) {
+        return Base64.decodeBase64(persisted.getBytes());
+    }
 
-	public static void writeStrToFile(String str, String file) {
-		writeStrToFile(str, new File(file));
-	}
-	
-	public static void writeStrToFile(String str, File file) {
-		try {
-			FileOutputStream stream = new FileOutputStream(file);
-			try {
-				stream.write(str.getBytes());
-			} finally{
-				stream.close();
-			}
-		} catch (FileNotFoundException e) {
-			Log.log(e);
-		} catch (IOException e) {
-			Log.log(e);
-		}
-	}
+    public static void writeStrToFile(String str, String file) {
+        writeStrToFile(str, new File(file));
+    }
+    
+    public static void writeStrToFile(String str, File file) {
+        try {
+            FileOutputStream stream = new FileOutputStream(file);
+            try {
+                stream.write(str.getBytes());
+            } finally{
+                stream.close();
+            }
+        } catch (FileNotFoundException e) {
+            Log.log(e);
+        } catch (IOException e) {
+            Log.log(e);
+        }
+    }
 
     /**
      * @param file
@@ -327,31 +337,31 @@ public class REF {
     }
 
     public static char [] INVALID_FILESYSTEM_CHARS = {
-    	'!', '@', '#', '$', '%', '^', '&', '*', 
-    	'(', ')', '[', ']', '{', '}', '=', '+',
-    	'.', ' ', '`', '~', '\'', '"', ',', ';'};
+        '!', '@', '#', '$', '%', '^', '&', '*', 
+        '(', ')', '[', ']', '{', '}', '=', '+',
+        '.', ' ', '`', '~', '\'', '"', ',', ';'};
 
     public static String getValidProjectName(IProject project) {
-		String name = project.getName();
-		
-		for (char c : INVALID_FILESYSTEM_CHARS) {
-			name = name.replace(c, '_');
-		}
-		
-		return name;
-	}
+        String name = project.getName();
+        
+        for (char c : INVALID_FILESYSTEM_CHARS) {
+            name = name.replace(c, '_');
+        }
+        
+        return name;
+    }
 
     /**
      * Makes an equal comparisson taking into account that one of the parameters may be null.
      */
     public static boolean nullEq(Object o1, Object o2){
-    	if (o1 == null && o2 == null){
-    		return true;
-    	}
-    	if(o1 == null || o2 == null){
-    		return false;
-    	}
-    	return o1.equals(o2);
+        if (o1 == null && o2 == null){
+            return true;
+        }
+        if(o1 == null || o2 == null){
+            return false;
+        }
+        return o1.equals(o2);
     }
 
     /**
@@ -462,6 +472,7 @@ public class REF {
 
     /**
      * The encoding declared in the reader is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
+     * -- may return null
      */
     private static String getPythonFileEncoding(Reader inputStreamReader) {
         String ret = null;
@@ -512,6 +523,31 @@ public class REF {
             e.printStackTrace();
         }finally{
             try {reader.close();} catch (IOException e1) {}
+        }
+        ret = getValidEncoding(ret);
+        return ret;
+    }
+
+    public static Set<String> encodings = new HashSet<String>();
+    public static String getValidEncoding(String ret) {
+        if(ret == null){
+            return ret;
+        }
+        final String lower = ret.trim().toLowerCase();
+        if(lower.startsWith("latin")){
+            if(lower.indexOf("1") != -1){
+                return "latin1"; //latin1
+            }
+        }
+        if(lower.startsWith("utf")){
+            if(lower.endsWith("8")){
+                return "UTF-8"; //exact match
+            }
+        }
+        if(!Charset.isSupported(ret)){
+            String msg = "The encoding found: "+ret+" is not a valid encoding.";
+            Log.log(IStatus.ERROR, msg, new UnsupportedEncodingException(msg));
+            return null; //ok, we've been unable to make it supported (better return null than an unsupported encoding).
         }
         return ret;
     }

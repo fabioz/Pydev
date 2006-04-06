@@ -25,6 +25,9 @@ public interface Constants {
 	static final String ID_JYTHON_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.jythonLaunchConfigurationType";
 	static final String PROCESS_TYPE = "PYDEV.PYTHON";
 	
+	static final String ATTR_VM_ARGUMENTS = "org.python.pydev.debug.vm.arguments";
+	static final String JAVA_NATURE = "org.eclipse.jdt.core.javanature";
+	
 // LaunchConfiguration properties
 // ATTR_* are copied from IExternalToolConstants, replicated since I have no access to originals
 	static final String ATTR_LOCATION = "org.eclipse.ui.externaltools" + ".ATTR_LOCATION";

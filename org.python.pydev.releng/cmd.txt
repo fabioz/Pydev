@@ -10,20 +10,18 @@ Bug I submitted about java1.4 target not respected
 https://bugs.eclipse.org/bugs/show_bug.cgi?id=105899
 
 
-COMP1
-set EC_HOME=C:\bin\eclipse310
-set EC_WORKSPACE=D:\eclipse_workspace
+Actual command line:
 
-COMP2
-set EC_HOME=D:\bin\eclipse\310
+set EC_HOME=D:\bin\eclipse\312
 set EC_WORKSPACE=E:\eclipse_workspace
 set RETROWEAVER_HOME=E:\install\Dev.Retroweaver
-set PYDEV_VERSION=0.9.8.2
-set BUILD_ID=0_9_8_2
+set PYDEV_VERSION=1.0.5
+set BUILD_ID=1_0_5
+e:
 
 
-Actual command line:
-d:
+
 cd %EC_WORKSPACE%\org.python.pydev.releng 
 java5 -cp %EC_HOME%\startup.jar org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE% -DPYDEV_VERSION=%PYDEV_VERSION% -DBUILD_ID=%BUILD_ID%  -DRETROWEAVER_HOME=%RETROWEAVER_HOME% -DdontFetchAnything=True -DcleanAfter=True
 
+ec4

@@ -32,5 +32,5 @@ if cmd == 'onCreateActions':
             MessageDialog.openInformation(editor.getSite().getShell(), "Example2", "Activated!!");
             
             
-    editor.addOfflineActionListener("ex2", ExampleCommand2()) #the user can activate this action with: Ctrl+2  ex2<ENTER>
+    editor.addOfflineActionListener("ex2", ExampleCommand2(), 'Example on how to bind script action', True) #the user can activate this action with: Ctrl+2  ex2<ENTER>
             

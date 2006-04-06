@@ -9,6 +9,7 @@ Bundle-ClassPath: pydev-jython.jar,
 Bundle-Activator: org.python.pydev.jython.JythonPlugin
 Bundle-Vendor: Fabio Zadrozny
 Bundle-Localization: plugin
+Eclipse-BuddyPolicy: global
 Require-Bundle: org.eclipse.core.runtime,
  org.python.pydev.core,
  org.eclipse.ui,
@@ -21,5 +22,6 @@ Export-Package: org.python.compiler,
  org.python.modules.sre,
  org.python.parser,
  org.python.pydev.jython,
+ org.python.pydev.jython.ui,
  org.python.rmi,
  org.python.util

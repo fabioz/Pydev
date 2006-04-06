@@ -770,12 +770,12 @@ public class PySelection {
     /**
      * @return a tuple with:
      * - the line that starts the new scope 
-     * - an int indicating if some dedent token was found while looking for that scope (contains the offset to the first char or -1 if no dedent was found).
+     * - a String with the line where some dedent token was found while looking for that scope.
      * - a string with the lowest indent (null if none was found)
      */
-    public Tuple3<String, Integer, String> getPreviousLineThatStartsScope() {
+    public Tuple3<String, String, String> getPreviousLineThatStartsScope() {
         DocIterator iterator = new DocIterator(false);
-        int foundDedent = -1;
+        String foundDedent = null;
         int lowest = Integer.MAX_VALUE;
         String lowestStr = null;
         
@@ -786,16 +786,16 @@ public class PySelection {
             for (String dedent : PySelection.INDENT_TOKENS) {
             	if(trimmed.startsWith(dedent)){
             		if(isCompleteToken(trimmed, dedent)){
-            			return new Tuple3<String, Integer, String>(line, foundDedent, lowestStr);
+            			return new Tuple3<String, String, String>(line, foundDedent, lowestStr);
             		}
             	}
             }
             //we have to check for the first condition (if a dedent is found, but we already found 
             //one with a first char, the dedent should not be taken into consideration... and vice-versa).
-            if(lowestStr == null && foundDedent == -1 && startsWithDedentToken(trimmed)){
-                foundDedent = getFirstCharPosition(line);
+            if(lowestStr == null && foundDedent == null && startsWithDedentToken(trimmed)){
+                foundDedent = line;
                 
-            }else if(foundDedent == -1 && trimmed.length() > 0){
+            }else if(foundDedent == null && trimmed.length() > 0){
                 int firstCharPosition = getFirstCharPosition(line);
                 if(firstCharPosition < lowest){
                     lowest = firstCharPosition;

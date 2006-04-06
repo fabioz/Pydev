@@ -45,6 +45,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
     Text baseDirectoryField;
     Text programArgumentField;
     Combo interpreterComboField;
+    Text vmArgumentsField;
 
     protected ModifyListener modifyListener = new ModifyListener() {
         public void modifyText(ModifyEvent e) {       
@@ -162,6 +163,25 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         data.horizontalSpan = 2;
         interpreterComboField.setLayoutData (data);
         interpreterComboField.addModifyListener(modifyListener);
+        
+    	//label
+    	Label l3 = new Label(comp,SWT.None);
+    	l3.setText("VM arguments (for python.exe or java.exe): ");
+    	data = new GridData(GridData.FILL_HORIZONTAL);
+    	data.horizontalSpan = 2;
+    	l3.setLayoutData(data);
+    	
+    	//Text of the Arguments        
+    	vmArgumentsField = new Text(comp, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.WRAP);
+    	data = new GridData();
+    	data.grabExcessHorizontalSpace = true;
+    	data.grabExcessVerticalSpace = true;
+        data.horizontalAlignment = SWT.FILL;
+        data.verticalAlignment = SWT.FILL;
+        data.horizontalSpan = 2;
+        data.verticalSpan = 5;
+        vmArgumentsField.setLayoutData(data);
+        vmArgumentsField.addModifyListener(modifyListener);
 
         button = new Button (comp, SWT.NONE);
         button.setText ("See resulting command-line for the given parameters");
@@ -179,7 +199,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         data.grabExcessVerticalSpace = true;
         data.horizontalAlignment = GridData.FILL;
         data.verticalAlignment = GridData.FILL;
-        data.horizontalSpan = 2;
+        data.horizontalSpan = 1;
         data.verticalSpan = 5;
         text.setLayoutData (data);
         
@@ -250,14 +270,16 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         String baseDirectory = "";
         String interpreter = "";
         String arguments = "";
+        String vmArguments = "";
         try {
             baseDirectory = conf.getAttribute(Constants.ATTR_WORKING_DIRECTORY, "");
             interpreter = conf.getAttribute(Constants.ATTR_INTERPRETER, "");
+            vmArguments = conf.getAttribute(Constants.ATTR_VM_ARGUMENTS,"");
             arguments = conf.getAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "");
         }
         catch (CoreException e) {
         }
-        
+        vmArgumentsField.setText(vmArguments);
         baseDirectoryField.setText(baseDirectory);
         programArgumentField.setText(arguments);
         String[] interpreters = interpreterComboField.getItems();
@@ -298,6 +320,9 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         
         value = programArgumentField.getText().trim();
         setAttribute(conf, Constants.ATTR_PROGRAM_ARGUMENTS, value);
+        
+        value = vmArgumentsField.getText().trim();
+        setAttribute(conf, Constants.ATTR_VM_ARGUMENTS, value);
         
         value = interpreterComboField.getText();
         setAttribute(conf, Constants.ATTR_INTERPRETER, value);

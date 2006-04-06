@@ -25,6 +25,9 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.launching.JavaRuntime;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.REF;
 import org.python.pydev.debug.codecoverage.PyCoverage;
@@ -49,8 +52,8 @@ public class PythonRunnerConfig {
     public static final String RUN_REGULAR  = "RUN_REGULAR";
     public static final String RUN_UNITTEST = "RUN_UNITTEST";
     public static final String RUN_JYTHON   = "RUN_JYTHON";
-    
-    
+        
+    public IProject project;
 	public IPath resource;
 	public IPath interpreter;
 	public String[] arguments;
@@ -237,7 +240,7 @@ public class PythonRunnerConfig {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get project for the run",null));
         }
         
-        IProject project = w.getRoot().getProject(projName);
+        project = w.getRoot().getProject(projName);   
         
 
         if(project == null){ //Ok, we could not find it out
@@ -394,7 +397,24 @@ public class PythonRunnerConfig {
     private String getRunFilesScript() throws CoreException {
         return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("runfiles.py"));
     }
-
+    
+    
+	private String getClasspath(IJavaProject javaProject) throws JavaModelException {
+		
+		String[] cp = null;
+		try {
+			cp = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		String ret = "";
+		for (String s : cp){
+			ret += s + SimpleRunner.getPythonPathSeparator();
+		}
+		
+		return ret;
+		
+	}
 	/**
 	 * Create a command line for launching.
 	 * @return command line ready to be exec'd
@@ -413,9 +433,21 @@ public class PythonRunnerConfig {
 
             //some nice things on the classpath config: http://mindprod.com/jgloss/classpath.html
             cmdArgs.add("-classpath");
-            cmdArgs.add(interpreter+SimpleRunner.getPythonPathSeparator()+pythonpathUsed);
+            String cpath;
+            
+            //TODO: add some option in the project so that the user can choose to use the
+            //classpath specified in the java project instead of the pythonpath itself
+            
+//            if (project.getNature(Constants.JAVA_NATURE) != null){
+//            	cpath  = getClasspath(JavaCore.create(project));
+//            } else {
+            	cpath = interpreter + SimpleRunner.getPythonPathSeparator() + pythonpathUsed;
+//            }
+            cmdArgs.add(cpath);
             cmdArgs.add("-Dpython.path="+pythonpathUsed); //will be added to the env variables in the run (check if this works on all platforms...)
             
+           	addVmArgs(cmdArgs);
+            	
             if (isDebug) {
             	cmdArgs.add("-Dpython.security.respectJavaAccessibility=false"); //TODO: the user should configure this -- we use it so that 
             																	 //we can access the variables during debugging. 
@@ -446,6 +478,8 @@ public class PythonRunnerConfig {
                 cmdArgs.add("-u");
             }
         
+            addVmArgs(cmdArgs);
+            
     		if (isDebug) {
     			cmdArgs.add(getDebugScript());
                 cmdArgs.add("--type");
@@ -497,8 +531,30 @@ public class PythonRunnerConfig {
 		return retVal;
 	}
 
+    /**
+     * @param cmdArgs
+     * @throws CoreException
+     */
+    private void addVmArgs(List<String> cmdArgs) throws CoreException {
+        String[] vmArguments = getVMArguments(configuration);
+        if(vmArguments != null){
+            for (int i = 0; i < vmArguments.length; i++){
+            	cmdArgs.add(vmArguments[i]);
+            }
+        }
+    }
+
 	
 	
+    private String[] getVMArguments(ILaunchConfiguration configuration) throws CoreException {
+    	String args = configuration.getAttribute(Constants.ATTR_VM_ARGUMENTS, (String) null);
+        if (args != null) {
+            String expanded = getStringVariableManager().performStringSubstitution(args);
+            return parseStringIntoList(expanded);
+       }
+       return null;
+	}
+
 	public String getCommandLineAsString() {
 		String[] args;
         try {

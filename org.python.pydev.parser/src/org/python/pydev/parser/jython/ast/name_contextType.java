@@ -10,6 +10,7 @@ public interface name_contextType {
     public static final int KwArg = 6;
     public static final int ImportModule = 7;
     public static final int Attrib = 8;
+    public static final int GlobalName = 9;
 
     public static final String[] name_contextTypeNames = new String[] {
         "<undef>",
@@ -21,5 +22,6 @@ public interface name_contextType {
         "KwArg",
         "ImportModule",
         "Attrib",
+        "GlobalName",
     };
 }

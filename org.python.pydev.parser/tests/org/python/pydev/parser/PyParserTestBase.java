@@ -38,10 +38,6 @@ public class PyParserTestBase extends TestCase {
 	    return parseLegalDoc(doc, additionalErrInfo, new PyParser());
 	}
 
-	protected SimpleNode parseLegalDoc(IDocument doc) {
-        return parseLegalDoc(doc);
-    }
-    
 	protected SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo) {
 	    return parseLegalDoc(doc, additionalErrInfo, parser);
     }

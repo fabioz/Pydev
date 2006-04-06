@@ -25,7 +25,7 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testErr();
+            test.testMultilineStr();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -46,6 +46,35 @@ public class PyParserTest extends PyParserTestBase{
         FunctionDef f = (FunctionDef) d.body[0];
         assertEquals("self",((Name)f.args.args[0]).id);
         assertEquals("a",((Name)f.args.args[1]).id);
+    }
+    
+    public void testMultilineStr() {
+    	String s = "" +
+    	"a = '''\n" +
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n"+
+    	"really really big string\n" +
+    	"really really big string\n" +
+    	"really really big string\n" +
+    	"'''";
+    	parseLegalDocStr(s);
     }
     
     public void testErr() {

@@ -107,10 +107,6 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         return (exprType) stack.popNode();
     }
 
-    private String makeIdentifier() {
-        return ((Name) stack.popNode()).id;
-    }
-
     private NameTok makeName(int ctx) {
         Name name = (Name) stack.popNode();
         NameTok n = new NameTok(name.id, ctx);
@@ -122,11 +118,11 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         return n;
     }
     
-    private String[] makeIdentifiers() {
+    private NameTok[] makeIdentifiers(int ctx) {
         int l = stack.nodeArity();
-        String[] ids = new String[l];
+        NameTok[] ids = new NameTok[l];
         for (int i = l - 1; i >= 0; i--) {
-            ids[i] = makeIdentifier();
+            ids[i] = makeName(ctx);
         }
         return ids;
     }
@@ -444,7 +440,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             exprType type = arity >= 1 ? makeExpr() : null;
             return new Raise(type, inst, tback);
         case JJTGLOBAL_STMT:
-            return new Global(makeIdentifiers());
+            Global global = new Global(makeIdentifiers(NameTok.GlobalName));
+            return global;
         case JJTEXEC_STMT:
             exprType globals = arity >= 3 ? makeExpr() : null;
             exprType locals = arity >= 2 ? makeExpr() : null;

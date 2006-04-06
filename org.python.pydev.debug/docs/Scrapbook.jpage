@@ -1,2 +1,0 @@
-String a = System.getProperty("PATH");
-System.out.println(a);

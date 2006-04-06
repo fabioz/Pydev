@@ -1,4 +1,4 @@
-<project name="jython-parser" default="parser" basedir="E:\eclipse_workspace\org.python.pydev.parser\src\org\python\parser">
+<project name="jython-parser" default="parser" basedir="D:\eclipse_workspace\org.python.pydev.parser\src\org\python\pydev\parser\jython">
 <!--
 <project name="jython-parser" default="parser" basedir="D:\eclipse_workspace\org.python.pydev.parser\src\org\python\parser">
 -->

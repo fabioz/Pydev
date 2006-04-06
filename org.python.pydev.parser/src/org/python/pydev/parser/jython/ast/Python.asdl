@@ -11,7 +11,7 @@ module Python
 
 	NameTok = NameTok(identifier id, name_context ctx)
 
-	name_context = ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule | Attrib
+	name_context = ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule | Attrib | GlobalName
 
 	-- the body is an array of statements (this is not used for all constructs because initially the suite was 'inlined'
 	-- in the constructs, but some information was lost in this way).
@@ -48,7 +48,7 @@ module Python
 	      -- still supports use as a function!
 	      | Exec(expr body, expr? globals, expr? locals)
 
-	      | Global(identifier* names)
+	      | Global(NameTok* names)
 	      | Expr(expr value)
 	      | Pass | Break | Continue
 
