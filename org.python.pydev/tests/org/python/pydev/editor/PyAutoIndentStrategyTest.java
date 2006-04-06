@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNewLineAfterReturn();
+            s.testNewLineAfterLineWithComment();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -100,7 +100,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
     public void testNewLineAfterLineWithComment() {
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
     	String str = "" +
-    	"string1 = '01234546789[#]" +
+    	"string1 = '01234546789[#]'" +
     	"";
     	final Document doc = new Document(str);
     	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");

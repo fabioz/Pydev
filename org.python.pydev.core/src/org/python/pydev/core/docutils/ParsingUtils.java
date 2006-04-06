@@ -262,13 +262,17 @@ public class ParsingUtils {
         return i;
     }
 
+    public static void removeCommentsWhitespacesAndLiterals(StringBuffer buf) {
+        removeCommentsWhitespacesAndLiterals(buf, true);
+    }
     /**
      * Removes all the comments, whitespaces and literals from a stringbuffer (might be useful when
      * just finding matches for something).
      * 
      * @param buf the buffer from where things should be removed.
+     * @param whitespacesToo: are you sure about the whitespaces?
      */
-    public static void removeCommentsWhitespacesAndLiterals(StringBuffer buf) {
+    public static void removeCommentsWhitespacesAndLiterals(StringBuffer buf, boolean whitespacesToo) {
         for (int i = 0; i < buf.length(); i++) {
             char ch = buf.charAt(i);
             if(ch == '#'){
@@ -287,11 +291,13 @@ public class ParsingUtils {
             }
         }
         
-        int length = buf.length();
-        for (int i = length -1; i >= 0; i--) {
-            char ch = buf.charAt(i);
-            if(Character.isWhitespace(ch)){
-                buf.deleteCharAt(i);
+        if(whitespacesToo){
+            int length = buf.length();
+            for (int i = length -1; i >= 0; i--) {
+                char ch = buf.charAt(i);
+                if(Character.isWhitespace(ch)){
+                    buf.deleteCharAt(i);
+                }
             }
         }
     }

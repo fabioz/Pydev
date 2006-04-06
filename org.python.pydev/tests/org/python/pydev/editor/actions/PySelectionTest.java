@@ -24,7 +24,16 @@ public class PySelectionTest extends TestCase {
     private String docContents;
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(PySelectionTest.class);
+        try {
+            PySelectionTest test = new PySelectionTest();
+            test.setUp();
+            test.testGetLineWithoutComments();
+            test.tearDown();
+            
+            junit.textui.TestRunner.run(PySelectionTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     /*
@@ -277,5 +286,13 @@ public class PySelectionTest extends TestCase {
         ps = new PySelection(doc, doc.getLength());
         assertEquals(null, ps.getPreviousLineThatAcceptsElse());
         
+    }
+    
+    public void testGetLineWithoutComments() {
+        String s = 
+            "a = 'ethuenoteuho#ueoth'";
+        doc = new Document(s);
+        ps = new PySelection(doc, doc.getLength());
+        assertEquals("a = ", ps.getLineWithoutCommentsOrLiterals());
     }
 }

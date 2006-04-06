@@ -56,7 +56,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
     	
         if (offset > 0) {
             PySelection selection = new PySelection(document, offset);
-            String lineWithoutComments = PySelection.getLineWithoutComments(selection.getLine());
+            String lineWithoutComments = PySelection.getLineWithoutCommentsOrLiterals(selection.getLine());
             int smartIndent = determineSmartIndent(document, offset, selection);
             
             if(lineWithoutComments.length() > 0){
@@ -396,7 +396,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             else if (command.text.equals(" ")) {
             	if( prefs.getAutoWriteImport()){
             		PySelection ps = new PySelection(document, command.offset);
-	                String completeLine = ps.getLineWithoutComments();
+	                String completeLine = ps.getLineWithoutCommentsOrLiterals();
 	                String lineToCursor = ps.getLineContentsToCursor().trim();
 	                if(completeLine.indexOf("import") == -1){
 	                    String importsTipperStr = PyCodeCompletion.getImportsTipperStr(lineToCursor, false);

@@ -249,16 +249,14 @@ public class PySelection {
         PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
     }
 
-    public static String getLineWithoutComments(String l) {
-        int i;
-        if((i = l.indexOf('#') ) != -1){
-            l = l.substring(0, i);
-        }
-        return l;
+    public static String getLineWithoutCommentsOrLiterals(String l) {
+        StringBuffer buf = new StringBuffer(l);
+        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, false);
+        return buf.toString();
         
     }
-    public String getLineWithoutComments() {
-        return getLineWithoutComments(getLine());
+    public String getLineWithoutCommentsOrLiterals() {
+        return getLineWithoutCommentsOrLiterals(getLine());
     }
     
     /**
