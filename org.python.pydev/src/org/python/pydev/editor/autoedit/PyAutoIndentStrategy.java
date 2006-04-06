@@ -138,11 +138,11 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 		    	String indent = PySelection.getIndentationFromLine(previousIfLine.o2);
 		    	String indentationString = prefs.getIndentationString();
 		    	
-		    	final int i = indent.length() - indentationString.length() +1;
+		    	final int i = indent.length() - indentationString.length();
 		    	if (i > 0 && indent.length() > i){
-		    		text = indent.substring(0, i);
+		    		text = indent.substring(0, i+1);
 		    	}else{
-		    		text = indent; // can this happen?
+		    		text = initial; // this can happen if we found a dedent that is 1 level deep
 		    	}
 		    }
 		    
