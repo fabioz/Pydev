@@ -1,4 +1,10 @@
 
+after 1.0.5
+
+Pydev Extensions:
+
+- Analysis happens in a Thread, so, you should now always have the latest parse without any halts (this happened only when the option was set to analyze only on save).
+
 after 1.0.4
 Pydev:
 - Indent does not try to make auto-indentation when pasting

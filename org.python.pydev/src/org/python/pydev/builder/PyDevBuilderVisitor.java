@@ -125,13 +125,23 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     protected IModule getSourceModule(IResource resource, IDocument document) {
         IModule module = (IModule) memo.get(MODULE_CACHE);
         if(module == null){
-            PythonNature nature = PythonNature.getPythonNature(resource.getProject());
-            IFile f = (IFile) resource;
-            String file = f.getRawLocation().toOSString();
-            String moduleName = getModuleName(resource);
-            module = AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, 0);
+            module = createSoureModule(resource, document, getModuleName(resource));
             setModuleInCache(module);
         }
+        return module;
+    }
+
+    /**
+     * @param resource
+     * @param document
+     * @return
+     */
+    public static IModule createSoureModule(IResource resource, IDocument document, String moduleName) {
+        IModule module;
+        PythonNature nature = PythonNature.getPythonNature(resource.getProject());
+        IFile f = (IFile) resource;
+        String file = f.getRawLocation().toOSString();
+        module = AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, 0);
         return module;
     }
 
@@ -192,7 +202,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @param resource the resource we want to know about
      * @return true if it is in the pythonpath
      */
-    protected boolean isInPythonPath(IResource resource){
+    public static boolean isInPythonPath(IResource resource){
         IProject project = resource.getProject();
         PythonNature nature = PythonNature.getPythonNature(project);
         if(project != null && nature != null){
