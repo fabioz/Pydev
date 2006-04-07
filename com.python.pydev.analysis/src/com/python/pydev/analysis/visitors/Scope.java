@@ -12,6 +12,9 @@ import java.util.Stack;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.parser.jython.ast.TryExcept;
+import org.python.pydev.parser.jython.ast.excepthandlerType;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
@@ -92,6 +95,25 @@ public class Scope implements Iterable<ScopeItems>{
      * - imports such as import os.path (one token is created for os and one for os.path) 
      */
     public void addImportTokens(List list, IToken generator) {
+    	Stack<TryExcept> tryExceptNodes = scope.peek().getCurrTryExceptNodes();
+    	boolean reportUndefinedImports = true;
+    	for (TryExcept except : tryExceptNodes) {
+			if(!reportUndefinedImports){
+				break;
+			}
+			for(excepthandlerType handler : except.handlers){
+				if(handler.type != null){
+					String rep = NodeUtils.getRepresentationString(handler.type);
+					if(rep != null && rep.equals("ImportError")){
+						reportUndefinedImports = false;
+						break;
+					}
+				}
+			}
+		}
+    	
+    	
+    	
     	boolean requireTokensToBeImports = false;
     	ImportInfo importInfo = null;
     	if(generator != null ){
@@ -101,7 +123,7 @@ public class Scope implements Iterable<ScopeItems>{
     			throw new RuntimeException("Only imports should generate multiple tokens " +
     			"(it may be null for imports in the form import foo.bar, but then all its tokens must be imports).");
     		}
-            importInfo = importChecker.visitImportToken(generator);
+            importInfo = importChecker.visitImportToken(generator, reportUndefinedImports);
 
     	}else{
     		requireTokensToBeImports = true;
@@ -118,7 +140,7 @@ public class Scope implements Iterable<ScopeItems>{
             	if(!o.isImport()){
             		throw new RuntimeException("Expecting import token");
             	}
-            	importInfo = importChecker.visitImportToken(o);
+            	importInfo = importChecker.visitImportToken(o, reportUndefinedImports);
             }
             //can be either the one resolved in the wild import or in this token (if it is not a wild import)
         	found.importInfo= importInfo;
@@ -169,7 +191,7 @@ public class Scope implements Iterable<ScopeItems>{
                 
             }else{
             
-                if(!found.isUsed() && m.getIfSubScope() == 0){ // it was not used, and we're not in an if scope...
+                if(!found.isUsed() && !m.getIsInSubSubScope()){ // it was not used, and we're not in an if scope...
                     
                     //this kind of unused message should only happen if we are at the same scope...
                     if(found.getSingle().scopeFound.getScopeId() == getCurrScopeId()){
@@ -282,6 +304,14 @@ public class Scope implements Iterable<ScopeItems>{
         scope.peek().removeIfSubScope();
     }
 
+    public void addTryExceptSubScope(TryExcept node) {
+    	scope.peek().addTryExceptSubScope(node);
+    }
+    
+    public void removeTryExceptSubScope() {
+    	scope.peek().removeTryExceptSubScope();
+    }
+    
     public ScopeItems currentScope() {
         if(scope.size() == 0){
             return null;
@@ -347,5 +377,6 @@ public class Scope implements Iterable<ScopeItems>{
         }
         return false;
     }
+
 
 }

@@ -26,7 +26,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testClassVar();
+            analyzer2.testImportWithTryExcept2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -125,7 +125,34 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         
         printMessages(msgs,1);
         assertEquals("Undefined variable: x", msgs[0].getMessage());
-        
+    }
+    
+    
+    public void testImportWithTryExcept(){
+    	doc = new Document(
+    			"try:\n"+
+    			"    import foo\n"+
+    			"except ImportError:\n"+
+    			"    foo = None\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,0);
+    }
+    
+    public void testImportWithTryExcept2(){
+    	doc = new Document(
+    			"try:\n"+
+    			"    import foo\n"+
+    			"except:\n"+
+    			"    foo = None\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,1);
+    	assertEquals("Unresolved import: foo", msgs[0].getMessage());
     }
     
     public void testClsInNew(){

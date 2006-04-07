@@ -8,9 +8,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.parser.jython.ast.TryExcept;
 
 public class ScopeItems {
     Map<String,Found> m = new HashMap<String,Found>();
@@ -21,6 +23,7 @@ public class ScopeItems {
     Map<String, IToken> namesToIgnore = new HashMap<String, IToken>();
     
     int ifSubScope = 0;
+    Stack<TryExcept> tryExceptSubScope = new Stack<TryExcept>();
     private int scopeId;
     private int scopeType;
 
@@ -49,9 +52,21 @@ public class ScopeItems {
         ifSubScope--;
     }
 
-    public int getIfSubScope() {
-        return ifSubScope;
+    public void addTryExceptSubScope(TryExcept node) {
+    	tryExceptSubScope.push(node);
     }
+    
+    public void removeTryExceptSubScope() {
+    	tryExceptSubScope.pop();
+    }
+    
+	public Stack<TryExcept> getCurrTryExceptNodes() {
+		return tryExceptSubScope;
+	}
+
+	public boolean getIsInSubSubScope() {
+		return ifSubScope != 0 || tryExceptSubScope.size() != 0;
+	}
 
     /**
      * @return Returns the scopeId.
@@ -94,5 +109,7 @@ public class ScopeItems {
         }
         return found;
     }
+
+
 
 }

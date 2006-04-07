@@ -76,6 +76,7 @@ public class ImportChecker {
 
     /**
      * @param token MUST be an import token
+     * @param reportUndefinedImports 
      * 
      * @return the module where the token was found and a String representing the way it was found 
      * in the module.
@@ -84,7 +85,7 @@ public class ImportChecker {
      * to get dependency info, because it is actually dependent on the module, event though it does not have the
      * token we were looking for.
      */
-    public ImportInfo visitImportToken(IToken token) {
+    public ImportInfo visitImportToken(IToken token, boolean reportUndefinedImports) {
         //try to find it as a relative import
         boolean wasResolved = false;
         Tuple<IModule, String> modTok = null;
@@ -103,7 +104,7 @@ public class ImportChecker {
         	
             
             //if it got here, it was not resolved
-        	if(!wasResolved && messagesManager != null){
+        	if(!wasResolved && messagesManager != null && reportUndefinedImports){
         		messagesManager.addMessage(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, token);
         	}
             

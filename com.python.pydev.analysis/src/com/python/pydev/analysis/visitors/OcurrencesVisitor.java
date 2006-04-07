@@ -585,9 +585,9 @@ public class OcurrencesVisitor extends VisitorBase{
 
     @Override
     public Object visitTryExcept(TryExcept node) throws Exception {
-        scope.addIfSubScope();
+        scope.addTryExceptSubScope(node);
         Object r = super.visitTryExcept(node);
-        scope.removeIfSubScope();
+        scope.removeTryExceptSubScope();
         return r;
     }
     
