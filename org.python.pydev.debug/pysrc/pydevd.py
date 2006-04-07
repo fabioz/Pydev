@@ -10,6 +10,7 @@ connected = False
 #this is because jython does not have staticmethods
 PyDBCtx_threadToCtx = {}
 PyDBCtx_Lock = threading.RLock()
+PyDBCtx_Threads = {}#weakref.WeakValueDictionary()
 
 def PyDBCtx_GetCtxs():
     PyDBCtx_Lock.acquire()
@@ -24,8 +25,13 @@ def PyDBCtx_GetCtxs():
 def PyDBCtx_GetCtx(frame, currThread):
     PyDBCtx_Lock.acquire()
     try:
-        #we create a context for each thread
+        #keep the last frame for each thread (previously we were keeping all the frames, in the context,
+        #but that was a bad thing, as things in the frames did not die).
         threadId = id(currThread)
+        PyDBCtx_Threads[threadId] = weakref.ref(currThread)
+        currThread._lastFrame = frame
+        
+        #we create a context for each thread
         ctxs = PyDBCtx_threadToCtx.get(threadId)
         if ctxs is None:
             ctxs = {}
@@ -49,7 +55,14 @@ def PyDBCtx_SetTraceForAllFileCtxs(f):
         if g:
             for ctx in PyDBCtx_GetCtxs():
                 if ctx.filename == f:
-                    ctx.frame.f_trace = g.trace_dispatch
+                    thread = PyDBCtx_Threads.get(ctx.thread_id)()#it is a weakref
+                    if thread is not None:
+                        frame = thread._lastFrame
+                        while frame:
+                            currFile = NormFile(frame.f_code.co_filename)
+                            if f == currFile:
+                                frame.f_trace = g.trace_dispatch
+                            frame = frame.f_back
     finally:
         PyDBCtx_Lock.release()
                 
@@ -60,12 +73,11 @@ class PyDBCtx:
     def __init__(self, frame, threadId):
         self.filename = NormFile(frame.f_code.co_filename)
         self.base = os.path.basename( self.filename )
-        self.frame = frame
         self.thread_id = threadId
         self.lock = threading.RLock()
         
     def __str__(self):
-        return 'PyDBCtx [%s %s %s]' % (self.base, self.thread_id, self.frame)
+        return 'PyDBCtx [%s %s %s]' % (self.base, self.thread_id)
     
     def acquire(self):
         self.lock.acquire()

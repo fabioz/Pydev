@@ -50,7 +50,7 @@ public class CompletionRequest implements ICompletionRequest{
         
     }
 
-    public CompletionRequest(File editorFile, PythonNature nature, IDocument doc,
+    public CompletionRequest(File editorFile, IPythonNature nature, IDocument doc,
             int documentOffset,
             PyCodeCompletion codeCompletion){
 

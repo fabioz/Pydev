@@ -156,7 +156,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
      */
     private Object[] getPythonProposals(ITextViewer viewer, int documentOffset, IDocument doc) throws CoreException, BadLocationException {
         CompletionRequest request = new CompletionRequest(edit.getEditorFile(), 
-                (PythonNature)edit.getPythonNature(), doc, documentOffset,
+                edit.getPythonNature(), doc, documentOffset,
                 codeCompletion);
         boolean showTemplates = true;
         

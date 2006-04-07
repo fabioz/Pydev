@@ -1,10 +1,11 @@
 
 after 1.0.5
 
-Pydev Extensions:
 Pydev:
 - 2 minor 'quirks' were fixed when indenting
+- The debugger had some changes (so, if you had halts with it, please try it again).
 
+Pydev Extensions:
 - Analysis happens in a Thread, so, you should now always have the latest parse without any halts (this happened only when the option was set to analyze only on save).
 
 after 1.0.4
