@@ -8,11 +8,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -46,11 +48,11 @@ import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.builder.CancelledException;
 import com.python.pydev.analysis.messages.IMessage;
 
 /**
@@ -63,7 +65,7 @@ public class OcurrencesVisitor extends VisitorBase{
     /**
      * nature is needed for imports
      */
-    protected PythonNature nature;
+    protected IPythonNature nature;
     
     /**
      * this is the name of the module we are visiting
@@ -107,14 +109,21 @@ public class OcurrencesVisitor extends VisitorBase{
      * It is needed so that we add 'dependency info' to it.
      */
     protected AbstractAdditionalDependencyInfo infoForProject;
+
+    /**
+     * To keep track of cancels
+     */
+    private IProgressMonitor monitor;
     
     /**
      * Constructor
      * @param prefs 
      * @param document 
+     * @param monitor 
      */
     @SuppressWarnings("unchecked")
-	public OcurrencesVisitor(PythonNature nature, String moduleName, IModule current, IAnalysisPreferences prefs, IDocument document) {
+	public OcurrencesVisitor(IPythonNature nature, String moduleName, IModule current, IAnalysisPreferences prefs, IDocument document, IProgressMonitor monitor) {
+        this.monitor = monitor;
         this.infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
         this.current = current;
         this.nature = nature;
@@ -131,6 +140,12 @@ public class OcurrencesVisitor extends VisitorBase{
         }
     }
     
+    private void checkStop(){
+        if(monitor.isCanceled()){
+            throw new CancelledException();
+        }
+    }
+
     /**
      * @return the generated messages.
      */
@@ -147,6 +162,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
     protected Object unhandled_node(SimpleNode node) throws Exception {
+        checkStop();
         return null;
     }
 
@@ -155,6 +171,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @see org.python.pydev.parser.jython.ast.VisitorBase#traverse(org.python.pydev.parser.jython.SimpleNode)
      */
     public void traverse(SimpleNode node) throws Exception {
+        checkStop();
         node.traverse(this);
     }
 

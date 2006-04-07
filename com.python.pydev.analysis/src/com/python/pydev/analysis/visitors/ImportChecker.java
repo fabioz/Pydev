@@ -6,11 +6,11 @@ package com.python.pydev.analysis.visitors;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
@@ -37,7 +37,7 @@ public class ImportChecker {
     /**
      * this is the nature we are analyzing
      */
-    private PythonNature nature;
+    private IPythonNature nature;
 
     /**
      * this is the name of the module that we are analyzing
@@ -66,7 +66,7 @@ public class ImportChecker {
     /**
      * constructor - will remove all dependency info on the project that we will start to analyze
      */
-    public ImportChecker(MessagesManager messagesManager, PythonNature nature, String moduleName, AbstractAdditionalDependencyInfo infoForProject) {
+    public ImportChecker(MessagesManager messagesManager, IPythonNature nature, String moduleName, AbstractAdditionalDependencyInfo infoForProject) {
         this.messagesManager = messagesManager;
         
         this.nature = nature;
@@ -96,7 +96,7 @@ public class ImportChecker {
         		if(modTok.o2.length() == 0){
         		    wasResolved = true;
                     
-        		} else if( isRepAvailable(nature, modTok.o1, modTok.o2)){
+        		} else if( isRepAvailable(modTok.o1, modTok.o2)){
         		    wasResolved = true;
                 }
         	}
@@ -121,7 +121,7 @@ public class ImportChecker {
     }
     
 
-    private boolean isRepAvailable(PythonNature nature, IModule module, String qualifier) {
+    private boolean isRepAvailable(IModule module, String qualifier) {
         boolean found = false;
         if(module != null){
             if(qualifier.startsWith(".")){
