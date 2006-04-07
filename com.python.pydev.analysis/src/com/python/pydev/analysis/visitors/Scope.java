@@ -21,17 +21,17 @@ public class Scope implements Iterable<ScopeItems>{
     /**
      * the scope type is a method
      */
-    public static final int SCOPE_TYPE_GLOBAL = 0;
+    public static final int SCOPE_TYPE_GLOBAL = 1;
 
     /**
      * the scope type is a method
      */
-    public static final int SCOPE_TYPE_METHOD = 1;
+    public static final int SCOPE_TYPE_METHOD = 2;
 
     /**
      * the scope type is a class
      */
-    public static final int SCOPE_TYPE_CLASS = 2;
+    public static final int SCOPE_TYPE_CLASS = 4;
     
     /**
      * when we are at method definition, not always is as expected...
@@ -255,15 +255,20 @@ public class Scope implements Iterable<ScopeItems>{
     }
     
     public Found findFirst(String name, boolean setUsed) {
+    	return findFirst(name,setUsed,SCOPE_TYPE_GLOBAL|SCOPE_TYPE_CLASS|SCOPE_TYPE_METHOD);
+    }
+    
+    public Found findFirst(String name, boolean setUsed, int acceptedScopes) {
         TopDownStackIteratable<ScopeItems> topDown = new TopDownStackIteratable<ScopeItems>(scope);
         for (ScopeItems m : topDown) {
-            
-            Found f = m.get(name);
-            if(f != null){
-                if(setUsed){
-                    f.setUsed(true);
-                }
-                return f;
+            if((m.getScopeType() & acceptedScopes) != 0){
+	            Found f = m.get(name);
+	            if(f != null){
+	                if(setUsed){
+	                    f.setUsed(true);
+	                }
+	                return f;
+	            }
             }
         }
         return null;

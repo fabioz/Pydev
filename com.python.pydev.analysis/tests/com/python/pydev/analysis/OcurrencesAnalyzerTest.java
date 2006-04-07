@@ -26,7 +26,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testClsInsteadOfSelf();
+            analyzer2.testClassVar();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -113,15 +113,18 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     
     public void testClassVar(){
         doc = new Document(
-            "class Foo(object):\n"+
+            "class Foo:\n"+
             "    x = 1\n"+
             "    def m1(self):\n"+
-            "        print x\n" //should access with self.x or Foo.x
+            "        print x\n"+ //should access with self.x or Foo.x
+            "        print Foo.x\n"+ 
+            "        print self.x\n" 
         );
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs,1);
+        assertEquals("Undefined variable: x", msgs[0].getMessage());
         
     }
     

@@ -635,7 +635,8 @@ public class OcurrencesVisitor extends VisitorBase{
         for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
             Found n = it.next();
             
-            IToken tok = n.getSingle().tok;
+            final GenAndTok probablyNotDefinedFirst = n.getSingle();
+			IToken tok = probablyNotDefinedFirst.tok;
             String rep = tok.getRepresentation();
             //we also get a last pass to the unused to see if they might have been defined later on the higher scope
             
@@ -643,9 +644,15 @@ public class OcurrencesVisitor extends VisitorBase{
             boolean setUsed = false;
             for (Found found : foundItems) {
                 //the scope where it is defined must be an outer scope so that we can say it was defined later...
-                if(found.getSingle().scopeId < n.getSingle().scopeId){
-                    found.setUsed(true);
-                    setUsed = true;
+                final GenAndTok foundItemFirst = found.getSingle();
+                
+                //if something was not defined in a method, if we are in the class definition, it won't be found.
+                if(probablyNotDefinedFirst.scopeFound.getScopeType() == Scope.SCOPE_TYPE_METHOD &&
+                	m.getScopeType() != Scope.SCOPE_TYPE_CLASS){
+					if(foundItemFirst.scopeId < probablyNotDefinedFirst.scopeId){
+	                    found.setUsed(true);
+	                    setUsed = true;
+	                }
                 }
             }
             if(setUsed){
@@ -742,10 +749,18 @@ public class OcurrencesVisitor extends VisitorBase{
         Found foundAs = null;
         String foundAsStr = null;
         
+        int acceptedScopes = 0;
+        if(scope.getCurrScopeItems().getScopeType() == Scope.SCOPE_TYPE_METHOD){
+        	acceptedScopes = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD;
+        }else{
+        	acceptedScopes = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD | Scope.SCOPE_TYPE_CLASS;
+        	
+        }
+        
         //search for it
         while (found == false && it.hasNext()){
             String nextTokToSearch = (String) it.next();
-			foundAs = scope.findFirst(nextTokToSearch, true);
+			foundAs = scope.findFirst(nextTokToSearch, true, acceptedScopes);
 			found = foundAs != null;
 			if(found){
 				foundAsStr = nextTokToSearch;
