@@ -66,10 +66,6 @@ public class PythonRunnerConfig {
 	public int acceptTimeout = 5000; // miliseconds
 	public String[] envp = null;
 
-	// unit test specific
-	private int unitTestPort = 0;  // use getUnitTestPort
-	private String unitTestModule;
-	private String unitTestModuleDir;
     private String run;
     private ILaunchConfiguration configuration;
 
@@ -229,10 +225,6 @@ public class PythonRunnerConfig {
 		workingDirectory = workingPath == null ? null : workingPath.toFile();
 		acceptTimeout = PydevPrefs.getPreferences().getInt(PydevPrefs.CONNECT_TIMEOUT);
 
-        if (isUnittest()){
-			setUnitTestInfo();
-		}
-
 		//find the project
         IWorkspace w = ResourcesPlugin.getWorkspace();
         String projName = conf.getAttribute(Constants.ATTR_PROJECT, "");
@@ -336,28 +328,7 @@ public class PythonRunnerConfig {
 		return debugPort;		
 	}
 
-    public int getUnitTestPort(){
-		return unitTestPort;		
-	}
 
-    public void setUnitTestPort() throws CoreException {
-		unitTestPort = SocketUtil.findUnusedLocalPort("", 5000, 15000); //$NON-NLS-1$
-		if (unitTestPort == -1)
-			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not find a free socket for unit test run", null));
-	}
-
-    private void setUnitTestInfo() throws CoreException {
-		setUnitTestPort();
-
-    	// get the test module name and path so that we can import it in Python
-		int segmentCount = resource.segmentCount();
-
-		IPath noextPath = resource.removeFileExtension();
-		unitTestModule =  noextPath.lastSegment();
-		IPath modulePath = resource.uptoSegment(segmentCount-1);
-		unitTestModuleDir = modulePath.toString();
-    }
-    
 	public String getRunningName() {
 		return resource.lastSegment();
 	}
@@ -503,18 +474,7 @@ public class PythonRunnerConfig {
     		}
     
     		if(isUnittest()){
-                if (isFile()){
-        			cmdArgs.add(getUnitTestScript());
-        			cmdArgs.add(Integer.toString(getUnitTestPort()));
-        			cmdArgs.add(unitTestModuleDir);
-        			cmdArgs.add(unitTestModule);
-        			String[] retVal = new String[cmdArgs.size()];
-        			cmdArgs.toArray(retVal);
-        			return retVal;
-    
-                }else{ //run all testcases
-                    cmdArgs.add(getRunFilesScript());
-                }
+                cmdArgs.add(getRunFilesScript());
     		}
         }
         

@@ -24,7 +24,6 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
-import org.python.pydev.debug.unittest.PyUnitTestRunner;
 import org.python.pydev.runners.SimpleRunner;
 
 /**
@@ -164,42 +163,7 @@ public class PythonRunner {
     }
 
     private static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException{
-        if(!config.isFile()){
-            doIt(config, monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
-        }else{
-            if (monitor == null)
-            	monitor = new NullProgressMonitor();
-            IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
-            subMonitor.beginTask("Launching python in unittest mode", 1);
-            
-            // Launch & connect to the debugger		
-            subMonitor.subTask("Constructing command_line...");
-            subMonitor.subTask("Exec...");
-    		String[] cmdLine = config.getCommandLine();
-    
-            Process p = DebugPlugin.exec(cmdLine, config.workingDirectory, config.envp);	
-            checkProcess(p);
-
-            IProcess process = registerWithDebugPlugin(SimpleRunner.getCommandLineAsString(cmdLine), cmdLine[cmdLine.length-1], launch, p);
-            checkProcess(p, process);
-            
-            // Register the process with the debug plugin
-            subMonitor.subTask("Done");
-    
-            int port = config.getUnitTestPort();
-            String full_path_to_file = config.resource.toOSString();
-            PyUnitTestRunner unitTestRunner = new PyUnitTestRunner(subMonitor, port, full_path_to_file);
-    		try {
-    			unitTestRunner.readTestResults();
-    		} catch (IOException e1) {
-    			e1.printStackTrace();
-    		} finally {
-    	        if(p != null){
-    	        	p.destroy();
-    	        }
-    		}
-            
-        }        
+    	doIt(config, monitor, config.envp, config.getCommandLine(), config.workingDirectory, launch);
     }
 
     /**
