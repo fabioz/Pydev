@@ -105,7 +105,7 @@ public class Scope {
     public List<ASTEntry> getOcurrences(String occurencesFor) {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
         
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(this.scope.get(0));
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(this.scope.get(this.scope.size()-1));
         Iterator<ASTEntry> iterator = visitor.getIterator(new Class[]{Name.class, NameTokType.class});
         while(iterator.hasNext()){
             ASTEntry entry = iterator.next();
