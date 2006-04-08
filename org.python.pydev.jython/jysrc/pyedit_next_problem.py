@@ -59,9 +59,6 @@ if cmd == 'onCreateActions':
         '''This class defines an Action that goes to the next problem
         '''
         
-        def getAccelerator(self):
-            return SWT.CTRL|'.'
-        
         def getStartAndEnd(self, marker):
             '''Helper to get the char start and end of the marker
             '''
@@ -101,14 +98,16 @@ if cmd == 'onCreateActions':
                     return
     
     #bind the action to some internal definition
-    editor.setAction(FIND_NEXT_PROBLEM_ACTION_ID, FindNextProblemAction()) 
-    #bind the action to some code
+    act = FindNextProblemAction()
     
-    #NOTE: this is not the standard way to do it... The correct way would be creating a command in the plugin.xml
-    #then make a keybinding for that command, and associate the command to the action
+    #ok, the plugin.xml file defined a command and a binding with the string from FIND_NEXT_PROBLEM_ACTION_ID.
+    #by seting the action definition id and the id itself, we will bind this command to the keybinding defined
+    #(this is the right way of doing it, as it will enter the abstractions of Eclipse and allow the user to
+    #later change that keybinding).
+    act.setActionDefinitionId(FIND_NEXT_PROBLEM_ACTION_ID)
+    act.setId(FIND_NEXT_PROBLEM_ACTION_ID)
+    editor.setAction(FIND_NEXT_PROBLEM_ACTION_ID, act) 
     
-    #with this implementation, the user is not able to change this keybinding.
-    editor.setActionActivationCode(FIND_NEXT_PROBLEM_ACTION_ID, '.', -1, SWT.CTRL); #will be activated on Ctrl+.
     
     
     
