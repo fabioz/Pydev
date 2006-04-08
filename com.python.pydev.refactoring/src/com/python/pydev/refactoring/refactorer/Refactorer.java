@@ -53,7 +53,7 @@ public class Refactorer extends AbstractPyRefactoring{
             final PyRenameRefactoringWizard wizard = new PyRenameRefactoringWizard(renameRefactoring, "Rename", "inputPageDescription", request, request.duringProcessInfo.initialName);
             try {
                 RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(wizard);
-                op.run(PyAction.getShell(), "PyRefactorAction - dialogTitle");
+                op.run(PyAction.getShell(), "Rename Refactor Action");
             } catch (InterruptedException e) {
                 // do nothing. User action got cancelled
             }
@@ -63,7 +63,7 @@ public class Refactorer extends AbstractPyRefactoring{
         return null;
 	}
 	public boolean canRename() {
-		return false;
+		return true;
 	}
 
 	public ItemPointer[] findDefinition(RefactoringRequest request) {

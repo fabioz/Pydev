@@ -13,6 +13,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 
 public class PyRenameRefactoringWizard extends RefactoringWizard {
@@ -42,8 +43,13 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
     protected TextInputWizardPage createInputPage(String message, String initialSetting) {
         return new TextInputWizardPage(message, true, initialSetting) {
             protected RefactoringStatus validateTextField(String text) {
-                req.duringProcessInfo.name = text;
-                return new RefactoringStatus();
+                RefactoringStatus status = new RefactoringStatus();
+                if(DocUtils.isWord(text)){
+                    req.duringProcessInfo.name = text;
+                }else{
+                    status.addFatalError("The name:"+text+" is not a valid identifier.");
+                }
+                return status;
             }
 
             public void createControl(Composite parent) {

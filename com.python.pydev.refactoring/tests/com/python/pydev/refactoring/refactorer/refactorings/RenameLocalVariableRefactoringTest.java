@@ -9,6 +9,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
@@ -20,7 +21,16 @@ import com.python.pydev.refactoring.wizards.PyRenameLocalVariableProcessor;
 public class RenameLocalVariableRefactoringTest extends CodeCompletionTestsBase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
+        try {
+            RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
+            test.setUp();
+            test.testRenameInstance2();
+            test.tearDown();
+
+            junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -35,9 +45,6 @@ public class RenameLocalVariableRefactoringTest extends CodeCompletionTestsBase 
 
     }
 
-    /**
-     * 
-     */
     private void createDefaultDoc() {
         String str="" +
         "def method():\n"+
@@ -66,6 +73,32 @@ public class RenameLocalVariableRefactoringTest extends CodeCompletionTestsBase 
         request.duringProcessInfo.name = "bbb";
         
         applyRefactoring(request, true);
+        
+    }
+    public void testRenameInstance2() throws Exception {
+        String str = "" +
+                "class Foo:\n" +
+                "    def m1(self,%s):\n" +//we want to target only the bb in this method and not in the next
+                "        print %s\n" +
+                "    def m2(self,bb):\n" +
+                "        return bb\n" +
+                "\n";
+        doc = new Document(StringUtils.format(str, new Object[]{"bb", "bb"}));
+        int line = 2;
+        int col = 16;
+        PySelection ps = new PySelection(doc, line, col);
+        
+        RefactoringRequest request = new RefactoringRequest(null, ps, nature);
+        request.moduleName = "foo";
+        request.duringProcessInfo.initialName = "bb";
+        request.duringProcessInfo.initialOffset = ps.getAbsoluteCursorOffset();
+        request.duringProcessInfo.name = "aaa";
+        
+        applyRefactoring(request);
+        
+        String refactored = doc.get();
+        //System.out.println(refactored);
+        assertEquals(StringUtils.format(str, new Object[]{"aaa", "aaa"}),  refactored);
         
     }
     public void testRenameInstance() throws Exception {

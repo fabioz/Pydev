@@ -80,7 +80,9 @@ If not for those things, I'd probably roll my own).
 
 So, now that that's set, let's start ;-)
 
+5 hours later...
 
+First working version for renaming local variable working... Still, 
 
 
 

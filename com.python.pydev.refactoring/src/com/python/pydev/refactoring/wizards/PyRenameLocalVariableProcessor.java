@@ -22,6 +22,7 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
@@ -149,7 +150,9 @@ public class PyRenameLocalVariableProcessor extends RenameProcessor {
             status.addFatalError("The definition found is not valid. "+pointer);
         }
         
-        this.ocurrences = pointer.definition.scope.getOcurrences(this.request.duringProcessInfo.initialName);
+        String initialName = this.request.duringProcessInfo.initialName;
+        Scope scope = pointer.definition.scope;
+        this.ocurrences = scope.getOcurrences(initialName);
         
 //        int line = request.getBeginLine();
 //        int col = request.getBeginCol() + 1;
