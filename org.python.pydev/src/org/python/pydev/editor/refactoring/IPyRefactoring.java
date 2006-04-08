@@ -114,4 +114,11 @@ public interface IPyRefactoring {
      * Should throw an exception if it cannot do a refactoring based on the request.
      */
     public void checkAvailableForRefactoring(RefactoringRequest request);
+
+    /**
+     * Determines if this refactoring engine should execute things inside an operation or if it will create 
+     * the operation and synch changes itself.
+     */
+    public boolean useDefaultRefactoringActionCycle();
+
 }

@@ -126,14 +126,17 @@ public abstract class PyRefactorAction extends PyAction {
     public RefactoringRequest getRefactoringRequest(Operation operation){
     	return getRefactoringRequest(null, operation);
     }
+    RefactoringRequest request; 
     public RefactoringRequest getRefactoringRequest(String name, Operation operation){
-        //testing first with whole lines.
-		File file = getPyEdit().getEditorFile();
-		IDocument doc = getPyEdit().getDocument();
-		IPythonNature nature = getPyEdit().getPythonNature();
-		PyEdit pyEdit = getPyEdit(); //may not be available in tests, that's why it is important to be able to operate without it
-		RefactoringRequest request = new RefactoringRequest(file, doc, ps, name, operation, nature, pyEdit);
-
+        if(request == null){
+            //testing first with whole lines.
+    		File file = getPyEdit().getEditorFile();
+    		IDocument doc = getPyEdit().getDocument();
+    		IPythonNature nature = getPyEdit().getPythonNature();
+    		PyEdit pyEdit = getPyEdit(); //may not be available in tests, that's why it is important to be able to operate without it
+    		request = new RefactoringRequest(file, doc, ps, operation, nature, pyEdit);
+        }
+        request.duringProcessInfo.name = name;
 		return request;
     }
 
@@ -217,6 +220,7 @@ public abstract class PyRefactorAction extends PyAction {
     }
 
     protected PySelection ps;
+    protected abstract IPyRefactoring getPyRefactoring();
 
 
     /*
@@ -228,7 +232,19 @@ public abstract class PyRefactorAction extends PyAction {
         // Select from text editor
         ps = new PySelection(getTextEditor());
 
-        if (areRefactorPreconditionsOK(getRefactoringRequest()) == false) {
+        RefactoringRequest req = getRefactoringRequest();
+        if (areRefactorPreconditionsOK(req) == false) {
+            return;
+        }
+        
+        if(!getPyRefactoring().useDefaultRefactoringActionCycle()){
+            //this way, we don't provide anything to sync, ask the input, etc... that's all up to the 
+            //pyrefactoring instance in the perform action
+            try {
+                perform(action, "", null);
+            } catch (Exception e) {
+                PydevPlugin.log(e);
+            }
             return;
         }
 

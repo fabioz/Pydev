@@ -32,7 +32,7 @@ import org.python.pydev.plugin.PydevPrefs;
  */
 public abstract class PyAction implements IEditorActionDelegate {
 
-    public Shell getShell() {
+    public static Shell getShell() {
         return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
     }
 

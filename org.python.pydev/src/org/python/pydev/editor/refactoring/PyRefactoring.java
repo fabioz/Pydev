@@ -113,7 +113,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         s+=        "|"+request.getBeginCol();
         s+=        "|"+request.getEndLine();
         s+=        "|"+request.getEndCol();
-        s+=        "|"+request.name;
+        s+=        "|"+request.duringProcessInfo.name;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
         String string = makeAction(s, request);
@@ -137,7 +137,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         s+=        "|"+REF.getFileAbsolutePath(editorFile);
         s+=        "|"+request.getBeginLine();
         s+=        "|"+request.getBeginCol();
-        s+=        "|"+request.name;
+        s+=        "|"+request.duringProcessInfo.name;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
         String string = makeAction(s, request);
@@ -146,6 +146,9 @@ public class PyRefactoring extends AbstractPyRefactoring {
         communicateRefactorResult(string);
         return string;
         
+    }
+    public String getRenameInputMessage() {
+        return "Please inform the new name.";
     }
 
     public ItemPointer[] findDefinition(RefactoringRequest request) {
@@ -228,7 +231,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
         s+=        "|"+request.getBeginCol();
         s+=        "|"+request.getEndLine();
         s+=        "|"+request.getEndCol();
-        s+=        "|"+request.name;
+        s+=        "|"+request.duringProcessInfo.name;
         s+=        "END@@";
 //        System.out.println("Extract: "+s);
         String string = makeAction(s, request);
@@ -292,6 +295,11 @@ public class PyRefactoring extends AbstractPyRefactoring {
     public boolean canExtractLocalVariable() {
         return true;
     }
+
+    public boolean useDefaultRefactoringActionCycle() {
+        return true;
+    }
+
 
 
 }

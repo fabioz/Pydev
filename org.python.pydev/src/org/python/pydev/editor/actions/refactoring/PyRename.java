@@ -6,7 +6,8 @@
 package org.python.pydev.editor.actions.refactoring;
 
 import org.eclipse.jface.action.IAction;
-import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.eclipse.jface.util.Assert;
+import org.python.pydev.editor.refactoring.IPyRefactoring;
 
 /**
  * @author Fabio Zadrozny
@@ -19,15 +20,28 @@ public class PyRename extends PyRefactorAction {
      *     renameByCoordinates(filename, line, column, newname)
      */
     protected String perform(IAction action, String name, Operation operation) throws Exception {
+        Assert.isNotNull(name);
         String res = "";
         if(name.equals("") == false){
-	        res = getPyRefactoring("canRename").rename(getRefactoringRequest(name, operation));
+	        pyRefactoring = getPyRefactoring();
+            res = pyRefactoring.rename(getRefactoringRequest(name, operation));
         }
         return res;
     }
 
+    IPyRefactoring pyRefactoring;
+    /**
+     * @return
+     */
+    protected IPyRefactoring getPyRefactoring() {
+        if(pyRefactoring == null){
+            pyRefactoring = getPyRefactoring("canRename"); 
+        }
+        return pyRefactoring;
+    }
+
     protected String getInputMessage() {
-        return "Please inform the new name.";
+        return "New value?";
     }
 
     /**

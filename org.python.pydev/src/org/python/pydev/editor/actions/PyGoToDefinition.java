@@ -33,10 +33,20 @@ import org.python.pydev.plugin.PydevPlugin;
  *  
  */
 public class PyGoToDefinition extends PyRefactorAction {
+    IPyRefactoring pyRefactoring;
+    /**
+     * @return
+     */
+    protected IPyRefactoring getPyRefactoring() {
+        if(pyRefactoring == null){
+            pyRefactoring = getPyRefactoring("canFindDefinition"); 
+        }
+        return pyRefactoring;
+    }
 
     protected boolean areRefactorPreconditionsOK(RefactoringRequest request) {
         try {
-            IPyRefactoring pyRefactoring = getPyRefactoring("canFindDefinition");
+            IPyRefactoring pyRefactoring = getPyRefactoring();
             pyRefactoring.checkAvailableForRefactoring(request);
         } catch (Exception e) {
         	e.printStackTrace();

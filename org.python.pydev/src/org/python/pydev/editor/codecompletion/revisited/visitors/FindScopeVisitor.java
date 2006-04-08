@@ -21,12 +21,12 @@ public class FindScopeVisitor extends AbstractVisitor {
     /**
      * Stack of classes / methods representing the scope.
      */
-    private Stack stackScope = new Stack();
+    private Stack<SimpleNode> stackScope = new Stack<SimpleNode>();
 
     /**
      * This is the scope.
      */
-    public Scope scope = new Scope(new Stack());
+    public Scope scope = new Scope(new Stack<SimpleNode>());
     
     /**
      * Variable to mark if we found scope.

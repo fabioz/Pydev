@@ -8,7 +8,7 @@ package org.python.pydev.editor.actions.refactoring;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.IPyRefactoring;
 
 /**
  * @author Fabio Zadrozny
@@ -31,11 +31,23 @@ public class PyExtractMethod extends PyRefactorAction {
         
         String res = "";
         if(name.equals("") == false){
-	        res = getPyRefactoring("canExtract").extract(getRefactoringRequest(name, operation));
+	        res = getPyRefactoring().extract(getRefactoringRequest(name, operation));
         }
         return res;
 
     }
+    
+    IPyRefactoring pyRefactoring;
+    /**
+     * @return
+     */
+    protected IPyRefactoring getPyRefactoring() {
+        if(pyRefactoring == null){
+            pyRefactoring = getPyRefactoring("canExtract"); 
+        }
+        return pyRefactoring;
+    }
+
     
     protected String getInputMessage() {
         return "Please inform the new name.";

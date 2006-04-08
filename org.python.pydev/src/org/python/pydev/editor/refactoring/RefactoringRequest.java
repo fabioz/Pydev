@@ -37,10 +37,6 @@ public class RefactoringRequest{
 	 */
 	public PySelection ps;
 	
-	/**
-	 * The new name in a refactoring (may be null if not applicable)
-	 */
-	public String name;
 
 	/**
 	 * The operation that does the refactoring. Used to give feedback to the user 
@@ -67,20 +63,35 @@ public class RefactoringRequest{
      */
 	private String moduleName;
 
+    public DuringProcessInfo duringProcessInfo;
+    
+    /**
+     * This class contains information that is acquired during the refactoring process (such as the initial or final
+     * name of what we are renaming, etc).
+     */
+    public static class DuringProcessInfo{
+        /**
+         * The new name in a refactoring (may be null if not applicable)
+         */
+        public String name;
+        public String initialName;
+        
+    }
+
 
 	/**
 	 * If the file is passed, we also set the document automatically
 	 * @param f the file correspondent to this request
 	 */
 	public RefactoringRequest(File f, PySelection selection, PythonNature n) {
-		this(f, selection.getDoc(), selection, null, null, n, null); 
+		this(f, selection.getDoc(), selection, null, n, null); 
 	}
 
-	public RefactoringRequest(File f, IDocument doc, PySelection ps2, String name2, Operation operation2, IPythonNature nature2, PyEdit pyEdit2) {
+	public RefactoringRequest(File f, IDocument doc, PySelection ps2, Operation operation2, IPythonNature nature2, PyEdit pyEdit2) {
+        this.duringProcessInfo = new DuringProcessInfo();
 		this.file = f;
 		this.doc = doc;
 		this.ps = ps2;
-		this.name = name2;
 		this.operation = operation2;
 		this.nature = nature2;
 		this.pyEdit = pyEdit2;
@@ -151,7 +162,7 @@ public class RefactoringRequest{
     public SimpleNode getAST() {
     	IModule mod = getModule();
     	if(mod instanceof SourceModule){
-    		((SourceModule)mod).getAst();
+    		return ((SourceModule)mod).getAst();
     	}
         return null;
     }

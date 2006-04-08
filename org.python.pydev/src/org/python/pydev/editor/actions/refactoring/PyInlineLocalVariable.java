@@ -8,7 +8,7 @@ package org.python.pydev.editor.actions.refactoring;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.IPyRefactoring;
 
 /**
  * @author Fabio Zadrozny
@@ -25,8 +25,20 @@ public class PyInlineLocalVariable extends PyRefactorAction {
      * @throws CoreException
      */
     protected String perform(IAction action, String name, Operation operation) throws BadLocationException, CoreException {
-        return getPyRefactoring("canInlineLocalVariable").inlineLocalVariable(getRefactoringRequest(operation));
+        return getPyRefactoring().inlineLocalVariable(getRefactoringRequest(operation));
     }
+    
+    IPyRefactoring pyRefactoring;
+    /**
+     * @return
+     */
+    protected IPyRefactoring getPyRefactoring() {
+        if(pyRefactoring == null){
+            pyRefactoring = getPyRefactoring("canInlineLocalVariable"); 
+        }
+        return pyRefactoring;
+    }
+
     
     protected String getInputMessage() {
         return null;
