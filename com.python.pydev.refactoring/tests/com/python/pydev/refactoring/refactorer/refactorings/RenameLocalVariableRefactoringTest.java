@@ -48,9 +48,9 @@ public class RenameLocalVariableRefactoringTest extends CodeCompletionTestsBase 
         PySelection ps = new PySelection(doc, line, col);
 
         RefactoringRequest request = new RefactoringRequest(null, ps, nature);
-        request.name = name;
-        RenameLocalVariableRefactoring refactoring = new RenameLocalVariableRefactoring(request);
-        RefactoryChange refactoringChange = refactoring.getRefactoringChange();
+        request.duringProcessInfo.name = name;
+//        RenameLocalVariableRefactoring refactoring = new RenameLocalVariableRefactoring(request);
+//        RefactoryChange refactoringChange = refactoring.getRefactoringChange();
         
     }
 }
