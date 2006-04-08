@@ -86,13 +86,18 @@ public class PySelection {
     
     public PySelection(IDocument doc, int line, int col, int len) {
     	this.doc = doc;
-    	try {
-			IRegion offsetR = this.doc.getLineInformation(line);
-			this.textSelection = new TextSelection(doc, offsetR.getOffset() + col, 0);
-		} catch (BadLocationException e) {
-			throw new RuntimeException(e);
-		}
+		this.textSelection = new TextSelection(doc, getAbsoluteCursorOffset(line, col), len);
     }
+    
+    public int getAbsoluteCursorOffset(int line, int col) {
+        try {
+            IRegion offsetR = this.doc.getLineInformation(line);
+            return offsetR.getOffset() + col;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     
     /**
      * @param document the document we are using to make the selection
@@ -1180,6 +1185,8 @@ public class PySelection {
             throw new RuntimeException("Remove not implemented.");
         }
     }
+
+
 
 
 

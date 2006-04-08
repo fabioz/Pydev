@@ -60,7 +60,7 @@ public class RefactoringRequest{
     /**
      * The module name (may be null)
      */
-	private String moduleName;
+	public String moduleName;
 
     public DuringProcessInfo duringProcessInfo;
     

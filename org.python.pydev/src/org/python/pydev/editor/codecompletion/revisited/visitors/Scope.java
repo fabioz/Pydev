@@ -18,7 +18,11 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 /**
  * @author Fabio Zadrozny
@@ -98,6 +102,20 @@ public class Scope {
         return getLocalTokens(Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
     
+    public List<ASTEntry> getOcurrences(String occurencesFor) {
+        List<ASTEntry> ret = new ArrayList<ASTEntry>();
+        
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(this.scope.get(0));
+        Iterator<ASTEntry> iterator = visitor.getIterator(new Class[]{Name.class, NameTokType.class});
+        while(iterator.hasNext()){
+            ASTEntry entry = iterator.next();
+            if (occurencesFor.equals(entry.getName())){
+                ret.add(entry);
+            }
+        }
+        return ret;
+    }
+
     /**
      * @param endLine tokens will only be recognized if its beginLine is higher than this parameter.
      */
@@ -167,6 +185,7 @@ public class Scope {
 		}
 		return null;
 	}
+
 }
 
 

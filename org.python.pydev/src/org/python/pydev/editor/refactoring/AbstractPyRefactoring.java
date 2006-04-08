@@ -71,6 +71,9 @@ public abstract class AbstractPyRefactoring implements IPyRefactoring{
         return AbstractPyRefactoring.defaultPyRefactoring;
         
     }
+    public synchronized static void setPyRefactoring(IPyRefactoring ref){
+        AbstractPyRefactoring.pyRefactoring = ref;
+    }
     
     /**
      * 

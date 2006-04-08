@@ -9,7 +9,6 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.VisitorBase;
-import org.python.pydev.parser.jython.ast.VisitorIF;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
@@ -260,6 +259,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @param classes this are the classes we are looking for
      * @return true if the node is from one of the passed classes (may be some subclass too)
      */
+    @SuppressWarnings("unchecked")
     protected boolean isFromClass(SimpleNode node, Class[] classes) {
         Class class1 = node.getClass();
         for (int i = 0; i < classes.length; i++) {

@@ -312,7 +312,12 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 
     public static void logInfo(String msg) {
         IStatus s = PydevPlugin.makeStatus(IStatus.INFO, msg, null);
-        getDefault().getLog().log(s);
+        PydevPlugin plug = getDefault();
+        if(plug == null){//testing mode
+            System.out.println(msg);
+        }else{
+            plug.getLog().log(s);
+        }
     }
     
     public static CoreException log(String msg) {

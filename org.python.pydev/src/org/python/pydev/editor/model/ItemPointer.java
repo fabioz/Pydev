@@ -5,6 +5,10 @@
  */
 package org.python.pydev.editor.model;
 
+import java.io.File;
+
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+
 /**
  * Pointer points to a python resource inside a file system. 
  * 
@@ -16,6 +20,7 @@ public class ItemPointer {
 	public Object file;	// IFile or File object
 	public Location start; // (first character)
 	public Location end;   // (last character)
+    public Definition definition; //the definition that originated this ItemPointer (it might be null).
 	
 	public ItemPointer(Object file) {
 		this(file, new Location(), new Location());
@@ -26,6 +31,23 @@ public class ItemPointer {
 		this.start = start;
 		this.end = end;
 	}
+    
+    public ItemPointer(File file2, Location location, Location location2, Definition definition) {
+        this(file2, location, location2);
+        this.definition = definition;
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer("ItemPointer [");
+        buffer.append(file);
+        buffer.append(" - ");
+        buffer.append(start);
+        buffer.append(" - ");
+        buffer.append(end);
+        buffer.append("]");
+        return buffer.toString();
+    }
     
     @Override
     public boolean equals(Object obj) {
@@ -49,6 +71,10 @@ public class ItemPointer {
     
     @Override
     public int hashCode() {
-        return this.file.hashCode() * 17;
+        if(this.file != null){
+            return this.file.hashCode() * 17;
+        }else{
+            return (this.end.column+1) * (this.start.line+2) * 9;
+        }
     }
 }
