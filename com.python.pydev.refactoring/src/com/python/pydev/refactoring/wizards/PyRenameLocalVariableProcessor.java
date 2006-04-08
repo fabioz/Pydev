@@ -31,30 +31,53 @@ import org.python.pydev.parser.jython.SimpleNode;
  * 
  * 'Blurred things': - if we have something as:
  * 
- * case 1: def m1(): a = 1 def m2(): a = 3 print a print a
+ * case 1: 
  * 
- * case 2: def m1(): a = 1 def m2(): print a a = 3 print a print a
+ * def m1(): 
+ *     a = 1 
+ *     def m2(): 
+ *         a = 3 
+ *         print a 
+ *     print a
  * 
- * case 3: def m1(): a = 1 def m2(): if foo: a = 3 print a print a
+ * case 2: 
+ * 
+ * def m1(): 
+ *     a = 1 
+ *     def m2(): 
+ *         print a 
+ *         a = 3 
+ *         print a 
+ *     print a
+ * 
+ * case 3: 
+ * 
+ * def m1(): 
+ *     a = 1 
+ *     def m2(): 
+ *         if foo: 
+ *             a = 3 
+ *         print a 
+ *     print a
  * 
  * if we rename it inside of m2, do we have to rename it in scope m1 too? what about renaming it in m1?
  * 
  * The solution that will be implemented will be:
- *  - if we rename it inside of m2, it will only rename inside of its scope in any case (the problem is when the rename request commes from an 'upper' scope).
- *  - if we rename it inside of m1, it will rename it in m1 and m2 only if it is used inside that scope before an assign this means that it will rename in m2 in case 2 and 3, but not in case 1.
+ * 
+ *  - if we rename it inside of m2, it will only rename inside of its scope in any case 
+ *  (the problem is when the rename request commes from an 'upper' scope).
+ *  
+ *  - if we rename it inside of m1, it will rename it in m1 and m2 only if it is used inside 
+ *  that scope before an assign this means that it will rename in m2 in case 2 and 3, but not in case 1.
  */
 public class PyRenameLocalVariableProcessor extends RenameProcessor {
 
     private RefactoringRequest request;
 
-    private SimpleNode ast;
-
     private TextChange fChange;
 
     public PyRenameLocalVariableProcessor(RefactoringRequest request) {
         this.request = request;
-        ast = request.getAST();
-        Assert.isNotNull(ast); // we can only do refactorings if we have the ast
     }
 
     private boolean isInside(int col, int colDefinition, int endColDefinition) {
@@ -85,9 +108,14 @@ public class PyRenameLocalVariableProcessor extends RenameProcessor {
 
     @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+        RefactoringStatus status = new RefactoringStatus();
+        SimpleNode ast = request.getAST();
+        if(true){
+            status.addFatalError("AST not generated (syntax error).");
+            return status;
+        }
         int line = request.getBeginLine();
         int col = request.getBeginCol() + 1;
-        RefactoringStatus status = new RefactoringStatus();
         
         FindScopeVisitor visitor = new FindScopeVisitor(line, col);
         try {
@@ -106,7 +134,7 @@ public class PyRenameLocalVariableProcessor extends RenameProcessor {
         } catch (Exception e) {
             status.addError(e.getMessage());
         }
-        return new RefactoringStatus();
+        return status;
     }
 
     @Override
@@ -117,7 +145,7 @@ public class PyRenameLocalVariableProcessor extends RenameProcessor {
         fChange.setEdit(rootEdit);
         fChange.setKeepPreviewEdits(true);
 
-        TextEdit declarationEdit = createRenameEdit(request.getOffset());
+        TextEdit declarationEdit = createRenameEdit(request.duringProcessInfo.initialOffset);
         for (TextEdit t : getAllRenameEdits(declarationEdit)) {
             rootEdit.addChild(t);
             fChange.addTextEditGroup(new TextEditGroup("changeName", t));

@@ -22,7 +22,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
 
@@ -214,7 +213,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
         }
 
         public boolean validate(IDocument document, int offset, DocumentEvent event) {
-            String[] strs = PyCodeCompletion.getActivationTokenAndQual(document, offset); 
+            String[] strs = PySelection.getActivationTokenAndQual(document, offset); 
 
             String activationToken = strs[0];
             String qualifier = strs[1];

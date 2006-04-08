@@ -45,17 +45,22 @@ public class Refactorer extends AbstractPyRefactoring{
      * @see org.python.pydev.editor.refactoring.IPyRefactoring#rename(org.python.pydev.editor.refactoring.RefactoringRequest)
      */
 	public String rename(RefactoringRequest request) {
-        RenameRefactoring renameRefactoring = new RenameRefactoring(new PyRenameLocalVariableProcessor(request));
-        String initial = request.ps.getTextSelection().getText();
-        request.duringProcessInfo.initialName = initial;
-        final PyRenameRefactoringWizard wizard = new PyRenameRefactoringWizard(renameRefactoring, "Rename", "inputPageDescription", request, initial);
         try {
-            RefactoringWizardOpenOperation op= new RefactoringWizardOpenOperation(wizard);
-            op.run(PyAction.getShell(), "PyRefactorAction - dialogTitle");
-        } catch (InterruptedException e) {
-            // do nothing. User action got cancelled
+            RenameRefactoring renameRefactoring = new RenameRefactoring(new PyRenameLocalVariableProcessor(request));
+            Tuple<String, Integer> currToken = request.ps.getCurrToken();
+            request.duringProcessInfo.initialName = currToken.o1;
+            request.duringProcessInfo.initialOffset = currToken.o2;
+            final PyRenameRefactoringWizard wizard = new PyRenameRefactoringWizard(renameRefactoring, "Rename", "inputPageDescription", request, request.duringProcessInfo.initialName);
+            try {
+                RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(wizard);
+                op.run(PyAction.getShell(), "PyRefactorAction - dialogTitle");
+            } catch (InterruptedException e) {
+                // do nothing. User action got cancelled
+            }
+        } catch (Exception e) {
+            PydevPlugin.log(e);
         }
-		return null;
+        return null;
 	}
 	public boolean canRename() {
 		return false;
