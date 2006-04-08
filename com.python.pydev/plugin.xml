@@ -32,4 +32,24 @@
       <initializer class="com.python.pydev.PydevExtensionInitializer"/>
    </extension>
 
+   <extension point="org.eclipse.ui.commands">
+<!-- command: activate interactive console-->
+      <command
+            description="Activates the interactive console."
+            id="org.python.pydev.interactiveconsole.evaluateActionSetter"
+            categoryId="org.python.pydev.ui.category.source"
+            name="Interactive Console">
+      </command>
+   </extension>
+   <extension point="org.eclipse.ui.bindings">
+<!-- binding: activate interactive console-->
+      <key
+            sequence="Ctrl+Enter"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.interactiveconsole.evaluateActionSetter"	
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+   </extension>
+
+
 </plugin>

@@ -10,7 +10,6 @@ import java.util.WeakHashMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.swt.SWT;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPyEditListener;
@@ -31,10 +30,6 @@ public class EvaluateActionSetter implements IPyEditListener{
 			this.edit = edit;
 		}
 
-		public int getAccelerator() {
-		    return SWT.CTRL|'\r';
-		}
-
 		public  void run(){
 		    try {
                 PySelection selection = new PySelection(edit);
@@ -50,7 +45,7 @@ public class EvaluateActionSetter implements IPyEditListener{
 		}
 	}
 
-	private static final String EVALUATE_ACTION_ID = "org.python.pydev.interactiveconsole.EvaluateActionSetter";
+	private static final String EVALUATE_ACTION_ID = "org.python.pydev.interactiveconsole.evaluateActionSetter";
 
     /**
      * As this class is a 'singleton', this means that we will only have 1 active console at any time (or at least
@@ -109,8 +104,9 @@ public class EvaluateActionSetter implements IPyEditListener{
     public void onCreateActions(ListResourceBundle resources, final PyEdit edit) {
         new PyEditConsoleListener(this, edit);
         final EvaluateAction evaluateAction = new EvaluateAction(edit);
+        evaluateAction.setActionDefinitionId(EVALUATE_ACTION_ID);
+        evaluateAction.setId(EVALUATE_ACTION_ID);
 		edit.setAction(EVALUATE_ACTION_ID, evaluateAction);
-        edit.setActionActivationCode(EVALUATE_ACTION_ID, '\r', -1, SWT.CTRL);
     }
 
     
