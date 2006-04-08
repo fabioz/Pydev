@@ -131,6 +131,9 @@ public class PyRefactoring extends AbstractPyRefactoring {
      * @param operation
      */
     public String rename(RefactoringRequest request) {
+        if(request.duringProcessInfo.name == null || request.duringProcessInfo.name.equals("")){
+            return "";
+        }
         File editorFile = request.file;
         String s = "@@BIKE";
         s+=        "renameByCoordinates";

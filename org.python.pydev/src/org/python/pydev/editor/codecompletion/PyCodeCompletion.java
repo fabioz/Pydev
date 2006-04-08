@@ -16,7 +16,6 @@ import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
@@ -29,7 +28,6 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
@@ -629,171 +627,6 @@ public class PyCodeCompletion {
         return PydevPlugin.getScriptWithinPySrc("simpleTipper.py");
     }
 
-    
-    private static String extractPrefix(IDocument document, int offset) {
-    	return extractPrefix(document, offset, false).o1;
-    }
-    
-    /**
-     * 
-     * @param document
-     * @param offset
-     * @param getFullQualifier if true we get the full qualifier (even if it passes the current cursor location)
-     * @return
-     */
-	private static Tuple<String, Integer> extractPrefix(IDocument document, int offset, boolean getFullQualifier) {
-		try {
-			if(getFullQualifier){
-				//if we have to get the full qualifier, we'll have to walk the offset (cursor) forward
-				while(offset < document.getLength()){
-					char ch= document.getChar(offset);
-					if (Character.isJavaIdentifierPart(ch)){
-						offset++;
-					}else{
-						break;
-					}
-					
-				}
-			}
-			int i= offset;
-			
-			if (i > document.getLength())
-				return new Tuple<String, Integer>("", document.getLength()); //$NON-NLS-1$
-		
-			while (i > 0) {
-				char ch= document.getChar(i - 1);
-				if (!Character.isJavaIdentifierPart(ch))
-					break;
-				i--;
-			}
-
-			return new Tuple<String, Integer>(document.get(i, offset - i), offset);
-		} catch (BadLocationException e) {
-			return new Tuple<String, Integer>("", offset); //$NON-NLS-1$
-		}
-	}
-
-    public static String [] getActivationTokenAndQual(String theDoc, int documentOffset) {
-        return getActivationTokenAndQual(new Document(theDoc), documentOffset);
-        
-    }
-	
-    public static String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset) {
-    	return getActivationTokenAndQual(theDoc, documentOffset, false);
-    }
-
-    /**
-     * Returns the activation token.
-     * 
-     * @param theDoc
-     * @param documentOffset the current cursor offset (we may have to change it if getFullQualifier is true)
-     * @param getFullQualifier 
-     * @return the activation token and the qualifier.
-     */
-    public static String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset, boolean getFullQualifier) {
-        Tuple<String, Integer> tupPrefix = extractPrefix(theDoc, documentOffset, getFullQualifier);
-        
-        if(getFullQualifier == true){
-        	//may have changed
-        	documentOffset = tupPrefix.o2;
-        }
-        
-		String activationToken = tupPrefix.o1;
-        documentOffset = documentOffset-activationToken.length()-1;
-
-        try {
-            while(documentOffset >= 0 && documentOffset < theDoc.getLength() && theDoc.get(documentOffset, 1).equals(".")){
-                String tok = extractPrefix(theDoc, documentOffset);
-
-                    
-                String c = theDoc.get(documentOffset-1, 1);
-                
-                if(c.equals("]")){
-	                activationToken = "list."+activationToken;  
-                    break;
-                    
-                }else if(c.equals("}")){
-	                activationToken = "dict."+activationToken;  
-                    break;
-                    
-                }else if(c.equals("'") || c.equals("\"")){
-	                activationToken = "str."+activationToken;  
-                    break;
-                
-                }else if(c.equals(")")){
-                    documentOffset = eatFuncCall(theDoc, documentOffset-1);
-                    tok = extractPrefix(theDoc, documentOffset);
-	                activationToken = tok+"()."+activationToken;  
-                    documentOffset = documentOffset-tok.length()-1;
-                
-                }else if(tok.length() > 0){
-	                activationToken = tok+"."+activationToken;  
-                    documentOffset = documentOffset-tok.length()-1;
-                    
-                }else{
-                    break;
-                }
-
-            }
-        } catch (BadLocationException e) {
-            System.out.println("documentOffset "+documentOffset);
-            System.out.println("theDoc.getLength() "+theDoc.getLength());
-            e.printStackTrace();
-        }
-        
-        String qualifier = "";
-        //we complete on '.' and '('.
-        //' ' gets globals
-        //and any other char gets globals on token and templates.
-
-        //we have to get the qualifier. e.g. bla.foo = foo is the qualifier.
-        if (activationToken.indexOf('.') != -1) {
-            while (endsWithSomeChar(new char[] { '.','[' }, activationToken) == false
-                    && activationToken.length() > 0) {
-
-                qualifier = activationToken.charAt(activationToken.length() - 1) + qualifier;
-                activationToken = activationToken.substring(0, activationToken.length() - 1);
-            }
-        } else { //everything is a part of the qualifier.
-            qualifier = activationToken.trim();
-            activationToken = "";
-        }
-        return new String[]{activationToken, qualifier};
-    }
-
-    
-    /**
-     * @param theDoc
-     * @param documentOffset
-     * @return
-     * @throws BadLocationException
-     */
-    private static int eatFuncCall(IDocument theDoc, int documentOffset) throws BadLocationException {
-        String c = theDoc.get(documentOffset, 1);
-        if(c.equals(")") == false){
-            throw new AssertionError("Expecting ) to eat callable. Received: "+c);
-        }
-        
-        while(documentOffset > 0 && theDoc.get(documentOffset, 1).equals("(") == false){
-            documentOffset -= 1;
-        }
-        
-        return documentOffset;
-    }
-
-
-    /**
-     * Checks if the activationToken ends with some char from cs.
-     */
-    private static boolean endsWithSomeChar(char cs[], String activationToken) {
-        for (int i = 0; i < cs.length; i++) {
-            if (activationToken.endsWith(cs[i] + "")) {
-                return true;
-            }
-        }
-        return false;
-
-    }
     
     /**
      * @param pythonAndTemplateProposals

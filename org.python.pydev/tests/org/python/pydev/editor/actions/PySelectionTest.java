@@ -10,6 +10,7 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 
 import junit.framework.TestCase;
@@ -27,7 +28,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testGetLineWithoutComments();
+            test.testGetCurrToken();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -294,5 +295,35 @@ public class PySelectionTest extends TestCase {
         doc = new Document(s);
         ps = new PySelection(doc, doc.getLength());
         assertEquals("a = ", ps.getLineWithoutCommentsOrLiterals());
+    }
+    
+    public void testGetCurrToken() throws BadLocationException {
+        String s = 
+            " aa = bb";
+        doc = new Document(s);
+        
+        ps = new PySelection(doc, 0);
+        assertEquals(new Tuple<String, Integer>("",0), ps.getCurrToken());
+        
+        ps = new PySelection(doc, 1);
+        assertEquals(new Tuple<String, Integer>("aa",1), ps.getCurrToken());
+        
+        ps = new PySelection(doc, 2);
+        assertEquals(new Tuple<String, Integer>("aa",1), ps.getCurrToken());
+        
+        ps = new PySelection(doc, doc.getLength()-1);
+        assertEquals(new Tuple<String, Integer>("bb",6), ps.getCurrToken());
+        
+        ps = new PySelection(doc, doc.getLength());
+        assertEquals(new Tuple<String, Integer>( "bb",6), ps.getCurrToken());
+        
+        s =" aa = bb ";
+        doc = new Document(s);
+        
+        ps = new PySelection(doc, doc.getLength());
+        assertEquals(new Tuple<String, Integer>("",9), ps.getCurrToken());
+        
+        ps = new PySelection(doc, doc.getLength()-1);
+        assertEquals(new Tuple<String, Integer>("bb",6), ps.getCurrToken());
     }
 }

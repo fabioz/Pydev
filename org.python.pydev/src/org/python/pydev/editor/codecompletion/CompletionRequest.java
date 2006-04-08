@@ -10,6 +10,7 @@ import java.io.File;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -54,7 +55,7 @@ public class CompletionRequest implements ICompletionRequest{
             int documentOffset,
             PyCodeCompletion codeCompletion){
 
-        String[] strs = PyCodeCompletion.getActivationTokenAndQual(doc, documentOffset); 
+        String[] strs = PySelection.getActivationTokenAndQual(doc, documentOffset); 
         this.activationToken = strs[0];
         this.qualifier = strs[1];
         int qlen = qualifier.length();

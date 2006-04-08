@@ -6,7 +6,6 @@
 package org.python.pydev.editor.actions.refactoring;
 
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.util.Assert;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 
 /**
@@ -20,12 +19,9 @@ public class PyRename extends PyRefactorAction {
      *     renameByCoordinates(filename, line, column, newname)
      */
     protected String perform(IAction action, String name, Operation operation) throws Exception {
-        Assert.isNotNull(name);
         String res = "";
-        if(name.equals("") == false){
-	        pyRefactoring = getPyRefactoring();
-            res = pyRefactoring.rename(getRefactoringRequest(name, operation));
-        }
+        pyRefactoring = getPyRefactoring();
+        res = pyRefactoring.rename(getRefactoringRequest(name, operation));
         return res;
     }
 

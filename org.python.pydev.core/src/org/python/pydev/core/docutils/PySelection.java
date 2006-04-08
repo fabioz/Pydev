@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
@@ -696,14 +697,33 @@ public class PySelection {
         return doc.get(absoluteCursorOffset, end-absoluteCursorOffset);
     }
 
-  
-      /**
-         * This function gets the tokens inside the parenthesis that start at the current selection line
-         * 
-         * @param addSelf: this defines whether tokens named self should be added if it is found.
-         * 
-         * @return a Tuple so that the first param is the list and the second the offset of the end of the parentesis it may return null if no starting parentesis was found at the current line
-         */
+    public Tuple<String, Integer> getCurrToken() throws BadLocationException {
+        Tuple<String, Integer> tup = extractPrefix(doc, getAbsoluteCursorOffset(), false);
+        String prefix = tup.o1;
+
+        // ok, now, get the rest of the token, as we already have its prefix
+
+        int start = tup.o2-prefix.length();
+        int end = start;
+        while (doc.getLength() - 1 >= end) {
+            char ch = doc.getChar(end);
+            if(Character.isJavaIdentifierPart(ch)){
+                end++;
+            }else{
+                break;
+            }
+        }
+        String post = doc.get(tup.o2, end-tup.o2);
+        return new Tuple<String, Integer>(prefix+post, start);
+    }
+ 
+   /**
+    * This function gets the tokens inside the parenthesis that start at the current selection line
+    * 
+    * @param addSelf: this defines whether tokens named self should be added if it is found.
+    * 
+    * @return a Tuple so that the first param is the list and the second the offset of the end of the parentesis it may return null if no starting parentesis was found at the current line
+    */
     public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf) {
         List<String> l = new ArrayList<String>();
 
@@ -804,6 +824,176 @@ public class PySelection {
         }
         return null;
     }
+
+    public static String [] getActivationTokenAndQual(String theDoc, int documentOffset) {
+        return PySelection.getActivationTokenAndQual(new Document(theDoc), documentOffset);
+        
+    }
+
+
+    public static String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset) {
+    	return getActivationTokenAndQual(theDoc, documentOffset, false);
+    }
+
+
+    public static String extractPrefix(IDocument document, int offset) {
+    	return extractPrefix(document, offset, false).o1;
+    }
+
+
+    /**
+     * @param theDoc
+     * @param documentOffset
+     * @return
+     * @throws BadLocationException
+     */
+    public static int eatFuncCall(IDocument theDoc, int documentOffset) throws BadLocationException {
+        String c = theDoc.get(documentOffset, 1);
+        if(c.equals(")") == false){
+            throw new AssertionError("Expecting ) to eat callable. Received: "+c);
+        }
+        
+        while(documentOffset > 0 && theDoc.get(documentOffset, 1).equals("(") == false){
+            documentOffset -= 1;
+        }
+        
+        return documentOffset;
+    }
+
+
+    /**
+     * Checks if the activationToken ends with some char from cs.
+     */
+    public static boolean endsWithSomeChar(char cs[], String activationToken) {
+        for (int i = 0; i < cs.length; i++) {
+            if (activationToken.endsWith(cs[i] + "")) {
+                return true;
+            }
+        }
+        return false;
+    
+    }
+
+
+    /**
+     * Returns the activation token.
+     * 
+     * @param theDoc
+     * @param documentOffset the current cursor offset (we may have to change it if getFullQualifier is true)
+     * @param getFullQualifier 
+     * @return the activation token and the qualifier.
+     */
+    public static String [] getActivationTokenAndQual(IDocument theDoc, int documentOffset, boolean getFullQualifier) {
+        Tuple<String, Integer> tupPrefix = extractPrefix(theDoc, documentOffset, getFullQualifier);
+        
+        if(getFullQualifier == true){
+        	//may have changed
+        	documentOffset = tupPrefix.o2;
+        }
+        
+    	String activationToken = tupPrefix.o1;
+        documentOffset = documentOffset-activationToken.length()-1;
+    
+        try {
+            while(documentOffset >= 0 && documentOffset < theDoc.getLength() && theDoc.get(documentOffset, 1).equals(".")){
+                String tok = extractPrefix(theDoc, documentOffset);
+    
+                    
+                String c = theDoc.get(documentOffset-1, 1);
+                
+                if(c.equals("]")){
+                    activationToken = "list."+activationToken;  
+                    break;
+                    
+                }else if(c.equals("}")){
+                    activationToken = "dict."+activationToken;  
+                    break;
+                    
+                }else if(c.equals("'") || c.equals("\"")){
+                    activationToken = "str."+activationToken;  
+                    break;
+                
+                }else if(c.equals(")")){
+                    documentOffset = eatFuncCall(theDoc, documentOffset-1);
+                    tok = extractPrefix(theDoc, documentOffset);
+                    activationToken = tok+"()."+activationToken;  
+                    documentOffset = documentOffset-tok.length()-1;
+                
+                }else if(tok.length() > 0){
+                    activationToken = tok+"."+activationToken;  
+                    documentOffset = documentOffset-tok.length()-1;
+                    
+                }else{
+                    break;
+                }
+    
+            }
+        } catch (BadLocationException e) {
+            System.out.println("documentOffset "+documentOffset);
+            System.out.println("theDoc.getLength() "+theDoc.getLength());
+            e.printStackTrace();
+        }
+        
+        String qualifier = "";
+        //we complete on '.' and '('.
+        //' ' gets globals
+        //and any other char gets globals on token and templates.
+    
+        //we have to get the qualifier. e.g. bla.foo = foo is the qualifier.
+        if (activationToken.indexOf('.') != -1) {
+            while (endsWithSomeChar(new char[] { '.','[' }, activationToken) == false
+                    && activationToken.length() > 0) {
+    
+                qualifier = activationToken.charAt(activationToken.length() - 1) + qualifier;
+                activationToken = activationToken.substring(0, activationToken.length() - 1);
+            }
+        } else { //everything is a part of the qualifier.
+            qualifier = activationToken.trim();
+            activationToken = "";
+        }
+        return new String[]{activationToken, qualifier};
+    }
+
+
+    /**
+     * 
+     * @param document
+     * @param offset
+     * @param getFullQualifier if true we get the full qualifier (even if it passes the current cursor location)
+     * @return
+     */
+    public static Tuple<String, Integer> extractPrefix(IDocument document, int offset, boolean getFullQualifier) {
+    	try {
+    		if(getFullQualifier){
+    			//if we have to get the full qualifier, we'll have to walk the offset (cursor) forward
+    			while(offset < document.getLength()){
+    				char ch= document.getChar(offset);
+    				if (Character.isJavaIdentifierPart(ch)){
+    					offset++;
+    				}else{
+    					break;
+    				}
+    				
+    			}
+    		}
+    		int i= offset;
+    		
+    		if (i > document.getLength())
+    			return new Tuple<String, Integer>("", document.getLength()); //$NON-NLS-1$
+    	
+    		while (i > 0) {
+    			char ch= document.getChar(i - 1);
+    			if (!Character.isJavaIdentifierPart(ch))
+    				break;
+    			i--;
+    		}
+    
+    		return new Tuple<String, Integer>(document.get(i, offset - i), offset);
+    	} catch (BadLocationException e) {
+    		return new Tuple<String, Integer>("", offset); //$NON-NLS-1$
+    	}
+    }
+
 
     /**
      * @param c
@@ -990,6 +1180,9 @@ public class PySelection {
             throw new RuntimeException("Remove not implemented.");
         }
     }
+
+
+
 
 
 

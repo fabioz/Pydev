@@ -11,7 +11,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -75,6 +74,7 @@ public class RefactoringRequest{
          */
         public String name;
         public String initialName;
+        public int initialOffset;
         
     }
 
@@ -171,7 +171,7 @@ public class RefactoringRequest{
      * @return the token and the full qualifier.
      */
 	public String[] getTokenAndQual() {
-		return PyCodeCompletion.getActivationTokenAndQual(doc, ps.getAbsoluteCursorOffset(), true);
+		return PySelection.getActivationTokenAndQual(doc, ps.getAbsoluteCursorOffset(), true);
 	}
 
 

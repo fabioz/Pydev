@@ -15,6 +15,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
@@ -108,7 +109,7 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             
             
             
-            String[] strs = PyCodeCompletion.getActivationTokenAndQual(doc, documentOffset); 
+            String[] strs = PySelection.getActivationTokenAndQual(doc, documentOffset); 
 
             String activationToken = strs[0];
             String qualifier = strs[1];

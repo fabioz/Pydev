@@ -230,6 +230,7 @@ public abstract class PyRefactorAction extends PyAction {
      */
     public void run(final IAction action) {
         // Select from text editor
+        request = null; //clear the cache from previous runs
         ps = new PySelection(getTextEditor());
 
         RefactoringRequest req = getRefactoringRequest();
