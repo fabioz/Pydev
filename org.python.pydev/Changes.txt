@@ -4,10 +4,13 @@ after 1.0.5
 Pydev:
 - 2 minor 'quirks' were fixed when indenting
 - The debugger had some changes (so, if you had halts with it, please try it again).
+- Allow changing the keybinding for activating the Find next problem (Ctrl+.)
 
 Pydev Extensions:
 - Analysis happens in a Thread, so, you should now always have the latest parse without any halts (this happened only when the option was set to analyze only on save).
 - Class variable marked as error when self ommitted
+- when an undefined import is foundn within a try..except ImportError, it will not be reported.
+- Allow changing the keybinding for activating the Interactive Console (Ctrl+Enter)
 
 after 1.0.4
 Pydev:
