@@ -16,7 +16,9 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.core,
  org.python.pydev.parser,
  org.eclipse.core.resources,
- com.python.pydev.analysis
+ com.python.pydev.analysis,
+ org.eclipse.ltk.core.refactoring,
+ org.eclipse.ltk.ui.refactoring
 Eclipse-AutoStart: true
 Bundle-ClassPath: refactoring.jar,
  retroweaver-rt.jar

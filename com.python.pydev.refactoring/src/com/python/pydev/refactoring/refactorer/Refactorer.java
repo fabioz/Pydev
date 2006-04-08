@@ -3,12 +3,15 @@ package com.python.pydev.refactoring.refactorer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
+import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
@@ -21,6 +24,8 @@ import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
+import com.python.pydev.refactoring.wizards.PyRenameLocalVariableProcessor;
+import com.python.pydev.refactoring.wizards.PyRenameRefactoringWizard;
 
 public class Refactorer extends AbstractPyRefactoring{
 
@@ -32,14 +37,29 @@ public class Refactorer extends AbstractPyRefactoring{
 	}
 
 	
+    /**
+     * Actuall renames something... 
+     * 
+     * 1st implementation adds rename to local variables 
+     * 
+     * @see org.python.pydev.editor.refactoring.IPyRefactoring#rename(org.python.pydev.editor.refactoring.RefactoringRequest)
+     */
 	public String rename(RefactoringRequest request) {
+        RenameRefactoring renameRefactoring = new RenameRefactoring(new PyRenameLocalVariableProcessor(request));
+        String initial = request.ps.getTextSelection().getText();
+        request.duringProcessInfo.initialName = initial;
+        final PyRenameRefactoringWizard wizard = new PyRenameRefactoringWizard(renameRefactoring, "Rename", "inputPageDescription", request, initial);
+        try {
+            RefactoringWizardOpenOperation op= new RefactoringWizardOpenOperation(wizard);
+            op.run(PyAction.getShell(), "PyRefactorAction - dialogTitle");
+        } catch (InterruptedException e) {
+            // do nothing. User action got cancelled
+        }
 		return null;
 	}
 	public boolean canRename() {
 		return false;
 	}
-
-	
 
 	public ItemPointer[] findDefinition(RefactoringRequest request) {
 		//ok, let's find the definition.
@@ -59,7 +79,7 @@ public class Refactorer extends AbstractPyRefactoring{
             if(infoForFile != null){
                 modName = infoForFile.o2;
                 request.nature = infoForFile.o1;
-                request.name = modName;
+                request.duringProcessInfo.name = modName;
             }else{
                 return new ItemPointer[0];
             }
@@ -140,6 +160,9 @@ public class Refactorer extends AbstractPyRefactoring{
 
     public void checkAvailableForRefactoring(RefactoringRequest request) {
         //can always do it (does not depend upon the project)
+    }
+    public boolean useDefaultRefactoringActionCycle() {
+        return false;
     }
 
 
