@@ -89,7 +89,8 @@ public class AnalysisPlugin extends AbstractUIPlugin {
         for (Definition definition : definitions) {
             pointers.add(new ItemPointer(definition.module.getFile(),
                     new Location(definition.line-1, definition.col-1),
-                    new Location(definition.line-1, definition.col-1)));
+                    new Location(definition.line-1, definition.col-1), definition)
+                    );
         }
     }
 

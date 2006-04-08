@@ -94,6 +94,7 @@ public class Refactorer extends AbstractPyRefactoring{
 			modName = request.resolveModule();
 		}
 		if(modName == null){
+            PydevPlugin.logInfo("Unable to resolve module for find definition request (modName == null).");
 			return new ItemPointer[0];
 		}
 		IModule mod = request.getModule();

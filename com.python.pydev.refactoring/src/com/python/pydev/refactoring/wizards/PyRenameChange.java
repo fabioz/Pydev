@@ -26,7 +26,7 @@ public class PyRenameChange extends TextChange {
 
     @Override
     protected IDocument acquireDocument(IProgressMonitor pm) throws CoreException {
-        return req.pyEdit.getDocument();
+        return req.doc;
     }
 
     @Override

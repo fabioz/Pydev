@@ -3,6 +3,9 @@
  */
 package com.python.pydev.refactoring.wizards;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -18,11 +21,13 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
-import org.python.pydev.core.IToken;
-import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
+import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 /**
  * Rename to a local variable...
@@ -76,6 +81,8 @@ public class PyRenameLocalVariableProcessor extends RenameProcessor {
 
     private TextChange fChange;
 
+    private List<ASTEntry> ocurrences;
+
     public PyRenameLocalVariableProcessor(RefactoringRequest request) {
         this.request = request;
     }
@@ -109,52 +116,91 @@ public class PyRenameLocalVariableProcessor extends RenameProcessor {
     @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();
+        if(! DocUtils.isWord(request.duringProcessInfo.initialName)){
+            status.addFatalError("The initial name is not valid:"+request.duringProcessInfo.initialName);
+            return status;
+        }
+        
         SimpleNode ast = request.getAST();
-        if(true){
+        if(ast == null){
             status.addFatalError("AST not generated (syntax error).");
             return status;
         }
-        int line = request.getBeginLine();
-        int col = request.getBeginCol() + 1;
+        IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
+        ItemPointer[] pointers = pyRefactoring.findDefinition(request);
         
-        FindScopeVisitor visitor = new FindScopeVisitor(line, col);
-        try {
-            ast.accept(visitor);
-            Scope scope = visitor.scope;
-
-            IToken[] localTokens = scope.getAllLocalTokens();
-            for (IToken token : localTokens) {
-                if (token.getLineDefinition() == line) {
-                    if (isInside(col, token.getColDefinition(), token.getLineColEnd()[1])) {
-                        System.out.println(scope.scope.peek());
-                        System.out.println(token);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            status.addError(e.getMessage());
+        if(pointers.length == 0){
+            status.addFatalError("Unable to find the definition of the variable to rename.");
+            return status;
         }
+        
+        if(pointers.length > 1){
+            StringBuffer buffer = new StringBuffer("Too many definitions found for the variable to rename:");
+            for (ItemPointer pointer : pointers) {
+                buffer.append(pointer);
+                buffer.append("\n");
+            }
+            status.addFatalError(buffer.toString());
+            return status;
+        }
+        
+        ItemPointer pointer = pointers[0];
+        if(pointer.definition == null){
+            status.addFatalError("The definition found is not valid. "+pointer);
+        }
+        
+        this.ocurrences = pointer.definition.scope.getOcurrences(this.request.duringProcessInfo.initialName);
+        
+//        int line = request.getBeginLine();
+//        int col = request.getBeginCol() + 1;
+//        
+//        FindScopeVisitor visitor = new FindScopeVisitor(line, col);
+//        try {
+//            ast.accept(visitor);
+//            Scope scope = visitor.scope;
+//
+//            IToken[] localTokens = scope.getAllLocalTokens();
+//            for (IToken token : localTokens) {
+//                if (token.getLineDefinition() == line) {
+//                    if (isInside(col, token.getColDefinition(), token.getLineColEnd()[1])) {
+//                        System.out.println(scope.scope.peek());
+//                        System.out.println(token);
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            status.addError(e.getMessage());
+//        }
         return status;
     }
 
     @Override
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
+        RefactoringStatus status = new RefactoringStatus();
         fChange = new PyRenameChange(pm, request);
+        if(ocurrences == null){
+            status.addFatalError("No ocurrences found.");
+            return status;
+        }
 
         MultiTextEdit rootEdit = new MultiTextEdit();
         fChange.setEdit(rootEdit);
         fChange.setKeepPreviewEdits(true);
 
-        TextEdit declarationEdit = createRenameEdit(request.duringProcessInfo.initialOffset);
-        for (TextEdit t : getAllRenameEdits(declarationEdit)) {
+        for (TextEdit t : getAllRenameEdits()) {
             rootEdit.addChild(t);
             fChange.addTextEditGroup(new TextEditGroup("changeName", t));
         }
-        return new RefactoringStatus();
+        return status;
     }
 
-    private TextEdit[] getAllRenameEdits(TextEdit declarationEdit) {
-        return new TextEdit[] { declarationEdit };
+    private List<TextEdit> getAllRenameEdits() {
+        List<TextEdit> ret = new ArrayList<TextEdit>();
+        for(ASTEntry entry : ocurrences){
+            int offset = request.ps.getAbsoluteCursorOffset(entry.node.beginLine-1, entry.node.beginColumn-1);
+            ret.add(createRenameEdit(offset));
+        }
+        return ret;
     }
 
     @Override
