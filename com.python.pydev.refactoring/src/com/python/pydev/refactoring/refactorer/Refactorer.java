@@ -38,9 +38,9 @@ public class Refactorer extends AbstractPyRefactoring{
 
 	
     /**
-     * Actuall renames something... 
+     * Renames something... 
      * 
-     * 1st implementation adds rename to local variables 
+     * Basically passes things to the rename processor (it will choose the kind of rename that will happen). 
      * 
      * @see org.python.pydev.editor.refactoring.IPyRefactoring#rename(org.python.pydev.editor.refactoring.RefactoringRequest)
      */
@@ -63,7 +63,7 @@ public class Refactorer extends AbstractPyRefactoring{
         return null;
 	}
 	public boolean canRename() {
-		return true;
+		return false;
 	}
 
 	public ItemPointer[] findDefinition(RefactoringRequest request) {

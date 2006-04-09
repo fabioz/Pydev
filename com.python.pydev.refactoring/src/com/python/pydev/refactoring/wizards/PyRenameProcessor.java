@@ -3,6 +3,9 @@
  */
 package com.python.pydev.refactoring.wizards;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -14,11 +17,14 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
 
 /**
  * Rename to a local variable...
@@ -124,13 +130,18 @@ public class PyRenameProcessor extends RenameProcessor {
         }
         
         if(pointers.length > 1){
-            StringBuffer buffer = new StringBuffer("Too many definitions found for the variable to rename:");
-            for (ItemPointer pointer : pointers) {
-                buffer.append(pointer);
-                buffer.append("\n");
+            //ok, we have to check if we're actually seeing the same thing for all or if there are actually
+            //many definitions around.
+            Object o = checkPointerDefinitions(pointers);
+            if(o instanceof String){
+                status.addFatalError((String) o);
+                return status;
+            }else if (o instanceof ItemPointer){
+                pointers = new ItemPointer[]{(ItemPointer) o};
+            }else{
+                status.addFatalError("Unexpected return:"+o+" class:"+o.getClass());
+                return status;
             }
-            status.addFatalError(buffer.toString());
-            return status;
         }
         
         ItemPointer pointer = pointers[0];
@@ -148,6 +159,38 @@ public class PyRenameProcessor extends RenameProcessor {
         }
         process.checkInitialConditions(pm, status, this.request);
         return status;
+    }
+
+    /**
+     * @param pointers
+     * @return an error msg if something went wrong or an ItemPointer with the definition that we should use.
+     */
+    private Object checkPointerDefinitions(ItemPointer[] pointers) {
+        List<ClassDef> defs = new ArrayList<ClassDef>();
+        
+        for (ItemPointer pointer : pointers) {
+            Definition d = pointer.definition;
+            if(d instanceof AssignDefinition){
+                AssignDefinition a = (AssignDefinition) d;
+                defs.add(a.scope.getClassDef());
+            }else{
+                //they can only be the same if they are all assign definitions (in a class hierarchy).
+                return getTooManyDefsMsg(pointers).toString();
+            }
+        }
+        if(true){
+            throw new RuntimeException("Missing check class hierarchy.");
+        }
+        return pointers[0];
+    }
+
+    private StringBuffer getTooManyDefsMsg(ItemPointer[] pointers) {
+        StringBuffer buffer = new StringBuffer("Too many definitions found for the variable to rename:");
+        for (ItemPointer pointer : pointers) {
+            buffer.append(pointer);
+            buffer.append("\n");
+        }
+        return buffer;
     }
 
     @Override
