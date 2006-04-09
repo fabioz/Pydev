@@ -1,8 +1,10 @@
 package org.python.pydev.parser.visitors.scope;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.python.pydev.parser.jython.SimpleNode;
@@ -14,11 +16,14 @@ import org.python.pydev.parser.visitors.NodeUtils;
 /**
  * Iterator base. Keeps track of the current scope (method or class).
  * 
+ * This object (and subclasses) are 'disposable', meaning that they should only do 1 visit and after that
+ * only the methods to get the classes should be called. 
+ * 
  * @author fabioz
  */
 public abstract class EasyAstIteratorBase  extends VisitorBase{
 
-    protected List<ASTEntry> nodes = new ArrayList<ASTEntry>();
+    private List<ASTEntry> nodes = new ArrayList<ASTEntry>();
 
     protected Stack<SimpleNode> stack = new Stack<SimpleNode>();
     
@@ -52,10 +57,11 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         ASTEntry entry = new ASTEntry(getParent());
         entry.node = node;
 
-        nodes.add(entry);
+        addNode(entry);
         stack.push(node);
         return entry;
     }
+
 
     /**
      * @param entry
@@ -73,7 +79,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         ASTEntry entry = new ASTEntry(getParent());
         entry.node = node;
         entry.endLine = NodeUtils.getLineEnd(node);
-        nodes.add(entry);
+        addNode(entry);
     }
 
     /**
@@ -90,17 +96,23 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     }
 
     /**
+     * Cache to keep track of the nodes and the entries they generated (this is done while visiting).
+     */
+    private Map<SimpleNode, ASTEntry> nodeCache = new HashMap<SimpleNode, ASTEntry>();
+    
+    /**
+     * @param entry
+     */
+    private void addNode(ASTEntry entry) {
+        nodes.add(entry);
+        nodeCache.put(entry.node, entry);
+    }
+    /**
      * @param o
      * @return
      */
     protected ASTEntry getEntryWithNode(SimpleNode o) {
-        for (Iterator iter = nodes.iterator(); iter.hasNext();) {
-            ASTEntry entry = (ASTEntry) iter.next();
-            if(entry.node == o){
-                return entry;
-            }
-        }
-        return null;
+        return nodeCache.get(o);
     }
 
     /** 
