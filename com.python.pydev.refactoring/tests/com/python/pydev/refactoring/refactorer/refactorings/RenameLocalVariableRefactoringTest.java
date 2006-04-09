@@ -3,10 +3,6 @@
  */
 package com.python.pydev.refactoring.refactorer.refactorings;
 
-import org.eclipse.jface.text.Document;
-import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 
 public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
 
@@ -30,8 +26,6 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         "    print %s\n"+
         "";
     }
-
-
     
     public void testRenameErr() throws Exception {
         int line = 2;

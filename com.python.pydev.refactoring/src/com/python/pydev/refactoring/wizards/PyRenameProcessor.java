@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.Change;
+import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
@@ -153,7 +154,7 @@ public class PyRenameProcessor extends RenameProcessor {
     @Override
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();
-        fChange = new PyRenameChange(pm, request);
+        fChange = new DocumentChange("RenameChange: "+request.duringProcessInfo.name, request.doc);
         if(process == null){
             status.addFatalError("Refactoring Process not defined: the pre-conditions were not satisfied.");
         }else{

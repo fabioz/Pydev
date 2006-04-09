@@ -3,13 +3,6 @@
  */
 package com.python.pydev.refactoring.refactorer.refactorings;
 
-import java.util.ArrayList;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.Document;
-import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 
 public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
     public static void main(String[] args) {

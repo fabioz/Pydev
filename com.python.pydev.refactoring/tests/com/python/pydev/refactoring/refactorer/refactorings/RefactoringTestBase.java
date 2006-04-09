@@ -85,6 +85,9 @@ public class RefactoringTestBase extends CodeCompletionTestsBase {
         }
         if(!expectError){
             assertEquals(StringUtils.format(strDoc, getSame("bb")),  refactored);
+        }else{
+            //cannot have changed
+            assertEquals(StringUtils.format(strDoc, getSame(initialName)),  refactored);
         }
     }
 
