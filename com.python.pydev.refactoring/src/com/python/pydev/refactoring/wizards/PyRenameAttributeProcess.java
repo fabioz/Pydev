@@ -6,8 +6,9 @@ package com.python.pydev.refactoring.wizards;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.ltk.core.refactoring.CompositeChange;
+import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
@@ -41,20 +42,22 @@ public class PyRenameAttributeProcess extends AbstractRefactorProcess{
         }
     }
 
-    public void checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context, RefactoringStatus status, TextChange fChange) {
+    public void checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange) {
+        DocumentChange docChange = new DocumentChange("RenameChange: "+request.duringProcessInfo.name, request.doc);
         if(ocurrences == null){
             status.addFatalError("No ocurrences found.");
             return;
         }
 
         MultiTextEdit rootEdit = new MultiTextEdit();
-        fChange.setEdit(rootEdit);
-        fChange.setKeepPreviewEdits(true);
+        docChange.setEdit(rootEdit);
+        docChange.setKeepPreviewEdits(true);
 
         for (Tuple<TextEdit, String> t : getAllRenameEdits(ocurrences)) {
             rootEdit.addChild(t.o1);
-            fChange.addTextEditGroup(new TextEditGroup(t.o2, t.o1));
+            docChange.addTextEditGroup(new TextEditGroup(t.o2, t.o1));
         }
+        fChange.add(docChange);
     }
 
 }
