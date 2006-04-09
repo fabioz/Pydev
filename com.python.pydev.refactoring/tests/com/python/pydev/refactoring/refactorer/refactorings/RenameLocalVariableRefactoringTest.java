@@ -27,13 +27,20 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     private Document doc;
 
     private void createDefaultDoc() {
-        String str="" +
+        String str=getDefaultDocStr();
+        
+        doc = new Document(str);
+    }
+
+    /**
+     * @return
+     */
+    private String getDefaultDocStr() {
+        return "" +
         "def method():\n"+
         "    aaa = 2\n"+
         "    print aaa\n"+
         "";
-        
-        doc = new Document(str);
     }
 
 

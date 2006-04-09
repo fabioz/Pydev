@@ -3,6 +3,9 @@
  */
 package com.python.pydev.refactoring.refactorer.refactorings;
 
+import java.util.ArrayList;
+
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
@@ -32,23 +35,11 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         "    def m2(self):\n" +
         "        print self.%s\n" +
         "";
-        Document doc = new Document(StringUtils.format(str, new Object[]{"aa","aa","aa"}));
         int line = 3;
         int col = 20;
-        PySelection ps = new PySelection(doc, line, col);
-        
-        RefactoringRequest request = new RefactoringRequest(null, ps, nature);
-        request.moduleName = "foo";
-        request.duringProcessInfo.initialName = "aa"; 
-        request.duringProcessInfo.initialOffset = ps.getAbsoluteCursorOffset();
-        request.duringProcessInfo.name = "bb";
-        
-        applyRefactoring(request);
-        String refactored = doc.get();
-        System.out.println(refactored);
-        assertEquals(StringUtils.format(str, new Object[]{"bb", "bb", "bb"}),  refactored);
-
+        checkDefault(str, line, col);
     }
+
 
 
 }

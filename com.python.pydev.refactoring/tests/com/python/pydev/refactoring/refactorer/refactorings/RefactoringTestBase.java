@@ -3,11 +3,16 @@
  */
 package com.python.pydev.refactoring.refactorer.refactorings;
 
+import java.util.ArrayList;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.text.Document;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
+import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
@@ -59,5 +64,39 @@ public class RefactoringTestBase extends CodeCompletionTestsBase {
             assertNotNull(fatal);
         }
     }
+    
+    
+    /**
+     * Always checks for the 'default' test, which is:
+     * - get the document and change all the ocurrences of %s to 'aa'
+     * - apply the refactor process
+     * - check if all the %s ocurrences are now 'bb'
+     */
+    protected void checkDefault(String strDoc, int line, int col) throws CoreException {
+        Document doc = new Document(StringUtils.format(strDoc, getSame("aa")));
+        PySelection ps = new PySelection(doc, line, col);
+        
+        RefactoringRequest request = new RefactoringRequest(null, ps, nature);
+        request.moduleName = "foo";
+        request.duringProcessInfo.initialName = "aa"; 
+        request.duringProcessInfo.initialOffset = ps.getAbsoluteCursorOffset();
+        request.duringProcessInfo.name = "bb";
+        
+        applyRefactoring(request);
+        String refactored = doc.get();
+        //System.out.println(refactored);
+        assertEquals(StringUtils.format(strDoc, getSame("bb")),  refactored);
+    }
+
+
+    protected Object[] getSame(String string) {
+        ArrayList<Object> list = new ArrayList<Object>();
+        for (int i = 0; i < 10; i++) {
+            list.add(string);
+        }
+        return list.toArray();
+    }
+
+
 
 }

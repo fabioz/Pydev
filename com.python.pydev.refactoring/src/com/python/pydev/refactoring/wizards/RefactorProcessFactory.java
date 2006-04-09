@@ -12,8 +12,12 @@ public class RefactorProcessFactory {
         if(definition instanceof AssignDefinition){
             AssignDefinition d = (AssignDefinition) definition;
             if(d.target.indexOf('.') != -1){
-                //ok, it is a member and not a local
-                return null;
+                if(d.target.startsWith("self.")){
+                    //ok, it is a member and not a local
+                    return new PyRenameAttributeProcess(definition);
+                }else{
+                    return null;
+                }
                 
             }else{
                 return new PyRenameLocalProcess(definition);
