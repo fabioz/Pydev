@@ -16,7 +16,6 @@ import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 
 public class Scope implements Iterable<ScopeItems>{
@@ -83,9 +82,9 @@ public class Scope implements Iterable<ScopeItems>{
         return scopeUnique;
     }
     
-    public Scope(MessagesManager messagesManager, IPythonNature nature, String moduleName, AbstractAdditionalDependencyInfo infoForProject) {
+    public Scope(MessagesManager messagesManager, IPythonNature nature, String moduleName) {
         this.messagesManager = messagesManager;
-        this.importChecker = new ImportChecker(this.messagesManager, nature, moduleName, infoForProject);
+        this.importChecker = new ImportChecker(this.messagesManager, nature, moduleName);
     }
 
     /**

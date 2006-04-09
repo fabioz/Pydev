@@ -50,8 +50,6 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
-import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.builder.CancelledException;
 import com.python.pydev.analysis.messages.IMessage;
 
@@ -106,11 +104,6 @@ public class OcurrencesVisitor extends VisitorBase{
     protected MessagesManager messagesManager;
 
     /**
-     * It is needed so that we add 'dependency info' to it.
-     */
-    protected AbstractAdditionalDependencyInfo infoForProject;
-
-    /**
      * To keep track of cancels
      */
     private IProgressMonitor monitor;
@@ -124,12 +117,11 @@ public class OcurrencesVisitor extends VisitorBase{
     @SuppressWarnings("unchecked")
 	public OcurrencesVisitor(IPythonNature nature, String moduleName, IModule current, IAnalysisPreferences prefs, IDocument document, IProgressMonitor monitor) {
         this.monitor = monitor;
-        this.infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
         this.current = current;
         this.nature = nature;
         this.moduleName = moduleName;
         this.messagesManager = new MessagesManager(prefs, moduleName, document);
-        this.scope = new Scope(this.messagesManager, nature, moduleName, infoForProject);
+        this.scope = new Scope(this.messagesManager, nature, moduleName);
         this.duplicationChecker = new DuplicationChecker(this.messagesManager);
         this.noSelfChecker = new NoSelfChecker(this.messagesManager, moduleName);
         
@@ -671,14 +663,6 @@ public class OcurrencesVisitor extends VisitorBase{
                     messagesManager.addUndefinedMessage(n.getSingle().tok);
                 }
             }
-            List<org.python.pydev.core.Tuple<String,Found>> usedItems = m.getUsedItems(); //last scope
-            for (org.python.pydev.core.Tuple<String, Found> tuple : usedItems) {
-                if(AbstractVisitor.isWildImport(tuple.o2.getSingle().generator)){
-                    this.infoForProject.addDepFromWildImportTok(moduleName, tuple.o1);
-                    System.out.println("adding dep for wild import "+moduleName+" - "+tuple.o1);
-                }
-            }
-
             messagesManager.setLastScope(m);
         }
         

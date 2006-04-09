@@ -3,6 +3,8 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import org.python.pydev.core.ObjectsPool;
+
 
 public class AttrInfo extends AbstractInfo{
 
@@ -15,9 +17,9 @@ public class AttrInfo extends AbstractInfo{
      * - we lack all the info to determine if this is a valid assign (we have to see if it is a global
      * or a class or an instance attr).
      */
-    public static AttrInfo fromAssign(String def, String moduleDeclared, String path) {
+    public static AttrInfo fromAssign(String def, String moduleDeclared, String path, ObjectsPool pool) {
         AttrInfo info = new AttrInfo();
-        info.name = def;
+        info.name = (String) pool.getFromPool(def);
         info.moduleDeclared = moduleDeclared;
         info.path = path;
         return info;

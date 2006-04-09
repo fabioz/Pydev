@@ -38,9 +38,14 @@ public interface IInfo extends Serializable {
     int METHOD_WITH_IMPORT_TYPE = 2;
     
     /**
-     * The type when it is a method with import
+     * The type when it is an assign
      */
     int ATTRIBUTE_WITH_IMPORT_TYPE = 3;
+    
+    /**
+     * The type when it is a name
+     */
+    int NAME_WITH_IMPORT_TYPE = 4;
     
     /**
      * @return the type of the information we are holding (given constants)

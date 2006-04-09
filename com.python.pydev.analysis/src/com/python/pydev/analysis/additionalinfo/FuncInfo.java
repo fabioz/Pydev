@@ -3,6 +3,7 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.NameTok;
 
@@ -15,15 +16,15 @@ public class FuncInfo extends AbstractInfo{
      */
     public String[] params;
     
-    public static FuncInfo fromFunctionDef(FunctionDef def, String moduleDeclared, String path) {
-        FuncInfo info = fromFunctionDef(def, moduleDeclared);
+    public static FuncInfo fromFunctionDef(FunctionDef def, String moduleDeclared, String path, ObjectsPool pool) {
+        FuncInfo info = fromFunctionDef(def, moduleDeclared, pool);
         info.path = path;
         return info;
     }
 
-    public static FuncInfo fromFunctionDef(FunctionDef def, String moduleDeclared) {
+    public static FuncInfo fromFunctionDef(FunctionDef def, String moduleDeclared, ObjectsPool pool) {
         FuncInfo info = new FuncInfo();
-        info.name = ((NameTok)def.name).id;
+        info.name = (String) pool.getFromPool(((NameTok)def.name).id);
         info.moduleDeclared = moduleDeclared;
         return info;
     }

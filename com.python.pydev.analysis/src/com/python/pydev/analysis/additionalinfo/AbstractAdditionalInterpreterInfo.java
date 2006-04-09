@@ -21,8 +21,10 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -30,9 +32,11 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
+import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -90,6 +94,11 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     public final static int INNER = 2;
     
+    /**
+     * Defines that some operation should be done on the complete name indexing.
+     */
+    public final static int COMPLETE_INDEX = 4;
+    
 
     /**
      * indexes used so that we can access the information faster - it is ordered through a tree map, and should be
@@ -105,7 +114,21 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * indexes so that we can get 'inner information' from classes, such as methods or inner classes from a class 
      */
     protected TreeMap<String, List<IInfo>> innerInitialsToInfo = new TreeMap<String, List<IInfo>>();
+    
+    /**
+     * indexes all the names that are available
+     */
+    protected TreeMap<String, List<IInfo>> completeIndex = new TreeMap<String, List<IInfo>>();
 
+    /**
+     * Should be used before re-creating the info, so that we have enough memory. 
+     */
+    public void clearAllInfo() {
+        topLevelInitialsToInfo.clear();
+        innerInitialsToInfo.clear();
+        completeIndex.clear();
+    }
+    
     protected Object lock = new Object();
 
 
@@ -152,6 +175,9 @@ public abstract class AbstractAdditionalInterpreterInfo {
             }
             initialsToInfo = innerInitialsToInfo;
             
+        }else if (doOn == COMPLETE_INDEX){
+            initialsToInfo = completeIndex;
+            
         }else{
             throw new RuntimeException("List to add is invalid: "+doOn);
         }
@@ -185,13 +211,14 @@ public abstract class AbstractAdditionalInterpreterInfo {
         return lInfo;
     }
 
+    private static ObjectsPool pool = new ObjectsPool();
     /**
      * adds a method to the definition
      * @param doOn 
      */
-    public void addMethod(FunctionDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
+    protected void addMethod(FunctionDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
         synchronized (lock) {
-	        FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared, path);
+	        FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared, path, pool);
 	        add(info2, generateDelta, doOn);
         }
     }
@@ -200,19 +227,27 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * Adds a class to the definition
      * @param doOn 
      */
-    public void addClass(ClassDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
+    protected void addClass(ClassDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
     	synchronized (lock) {
-	        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared, path);
+	        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared, path, pool);
 	        add(info, generateDelta, doOn);
     	}
+    }
+    
+    protected void addName(String def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
+        synchronized (lock) {
+            NameInfo info = NameInfo.fromName(def, moduleDeclared, path, pool);
+            add(info, generateDelta, doOn);
+        }
     }
     
     /**
      * Adds an attribute to the definition (this is either a global, a class attribute or an instance (self) attribute
      */
-    public void addAttribute(String def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
+    protected void addAttribute(String def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
         synchronized (lock) {
-            AttrInfo info = AttrInfo.fromAssign(def, moduleDeclared, path);
+            
+            AttrInfo info = AttrInfo.fromAssign(def, moduleDeclared, path, pool);
             add(info, generateDelta, doOn);
         }
     }
@@ -224,7 +259,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param moduleDeclared the module where it is declared
      * @param doOn 
      */
-    public void addClassOrFunc(SimpleNode classOrFunc, String moduleDeclared, boolean generateDelta, int doOn, String path) {
+    protected void addClassOrFunc(SimpleNode classOrFunc, String moduleDeclared, boolean generateDelta, int doOn, String path) {
         if(classOrFunc instanceof ClassDef){
             addClass((ClassDef) classOrFunc, moduleDeclared, generateDelta, doOn, path);
         }else{
@@ -286,7 +321,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
                     if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
                         //ok, it has a parent, so, let's check to see if the path we got only has class definitions
                         //as the parent (and get that path)
-                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, false);
+                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, false, false);
                         if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
                             //if the root is not valid, it is not only classes in the path (could be a method inside
                             //a method, or something similar).
@@ -294,7 +329,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
                         }
                     }else{
                         //it is an assign
-                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, true);
+                        Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, true, false);
                         if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
                             addAssignTargets(entry, moduleName, generateDelta, INNER, pathToRoot.o1, pathToRoot.o2);
                         }
@@ -302,11 +337,28 @@ public abstract class AbstractAdditionalInterpreterInfo {
                 }
             }
             
+            //ok, now, add 'all the names'
+            SequencialASTIteratorVisitor visitor2 = new SequencialASTIteratorVisitor();
+            node.accept(visitor2);
+            Iterator<ASTEntry> iterator = visitor2.getIterator(new Class[]{Name.class, NameTok.class});
+            while(iterator.hasNext()) {
+                ASTEntry entry = iterator.next();
+                String id;
+                //I was having out of memory errors without using this pool (running with a 64mb vm)
+                if(entry.node instanceof Name){
+                    id = ((Name)entry.node).id; 
+                }else{
+                    id = ((NameTok)entry.node).id;
+                }
+                addName(id, moduleName, generateDelta, COMPLETE_INDEX, null);
+                
+            }
         } catch (Exception e) {
             PydevPlugin.log(e);
         }
 
     }
+    
 
 
     /**
@@ -316,7 +368,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @return a tuple, where the first element is the path where the entry is located (may return null).
      * and the second element is a boolen that indicates if the last was actually a method or not.
      */
-    private Tuple<String, Boolean> getPathToRoot(ASTEntry entry, boolean lastMayBeMethod) {
+    private Tuple<String, Boolean> getPathToRoot(ASTEntry entry, boolean lastMayBeMethod, boolean acceptAny) {
         if(entry.parent == null){
             return null;
         }
@@ -331,18 +383,20 @@ public abstract class AbstractAdditionalInterpreterInfo {
                 stack.push(entry.parent.node);
                 
             }else if(entry.parent.node instanceof FunctionDef){
-                if(lastIsMethod){
-                    //already found a method
-                    return null;
-                }
-                
-                if(!lastMayBeMethod){
-                    return null;
-                }
-                
-                //ok, the last one may be a method... (in this search, it MUST be the first one...)
-                if(stack.size() != 0){
-                    return null; 
+                if(!acceptAny){
+                    if(lastIsMethod){
+                        //already found a method
+                        return null;
+                    }
+                    
+                    if(!lastMayBeMethod){
+                        return null;
+                    }
+                    
+                    //ok, the last one may be a method... (in this search, it MUST be the first one...)
+                    if(stack.size() != 0){
+                        return null; 
+                    }
                 }
                 
                 //ok, there was a class, so, let's go and set it
@@ -451,6 +505,9 @@ public abstract class AbstractAdditionalInterpreterInfo {
         }
         if((getWhat & INNER) != 0){
             getWithFilter(qualifier, innerInitialsToInfo, toks, filter, useLowerCaseQual);
+        }
+        if((getWhat & COMPLETE_INDEX) != 0){
+            getWithFilter(qualifier, completeIndex, toks, filter, useLowerCaseQual);
         }
         return toks;
     }
@@ -568,7 +625,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     @SuppressWarnings("unchecked")
     protected Object getInfoToSave(){
-        return new Tuple(this.topLevelInitialsToInfo, this.innerInitialsToInfo);
+        return new Tuple3(this.topLevelInitialsToInfo, this.innerInitialsToInfo, this.completeIndex);
     }
     
     /**
@@ -598,9 +655,10 @@ public abstract class AbstractAdditionalInterpreterInfo {
     @SuppressWarnings("unchecked")
     protected void restoreSavedInfo(Object o){
         synchronized (lock) {
-	        Tuple readFromFile = (Tuple) o;
+	        Tuple3 readFromFile = (Tuple3) o;
 	        this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
 	        this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
+	        this.completeIndex = (TreeMap<String, List<IInfo>>) readFromFile.o3;
         }
     }
 
@@ -644,6 +702,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
 			}
         }
     }
+
 
 
 

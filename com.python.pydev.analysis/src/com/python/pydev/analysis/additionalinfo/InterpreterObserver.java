@@ -38,6 +38,10 @@ public class InterpreterObserver implements IInterpreterObserver {
         }
         try {
             try {
+                AbstractAdditionalInterpreterInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager);
+                if(currInfo != null){
+                    currInfo.clearAllInfo();
+                }
                 InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(defaultSelectedInterpreter, monitor);
                 SystemModulesManager m = defaultInterpreterInfo.modulesManager;
                 AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, "(system: " + manager.getManagerRelatedName() + ")",
@@ -100,7 +104,7 @@ public class InterpreterObserver implements IInterpreterObserver {
      */
     private AbstractAdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m, String additionalFeedback, 
             AbstractAdditionalInterpreterInfo info, PythonNature nature) {
-
+        long startsAt = System.currentTimeMillis();
         ModulesKey[] allModules = m.getOnlyDirectModules();
         int i = 0;
         for (ModulesKey key : allModules) {
@@ -151,6 +155,10 @@ public class InterpreterObserver implements IInterpreterObserver {
                 }
             }
         }
+        double delta = System.currentTimeMillis()-startsAt;
+        delta = delta/1000; // in secs
+        System.out.println("Time to restore additional info in secs: "+delta);
+        System.out.println("Time to restore additional info in mins: "+delta/60.0);
         return info;
     }
 
@@ -159,6 +167,12 @@ public class InterpreterObserver implements IInterpreterObserver {
         try {
 			IModulesManager m = nature.getAstManager().getModulesManager();
 			IProject project = nature.getProject();
+            
+            AbstractAdditionalDependencyInfo currInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(project);
+            if(currInfo != null){
+                currInfo.clearAllInfo();
+            }
+            
 			AdditionalProjectInterpreterInfo newProjectInfo = new AdditionalProjectInterpreterInfo(project);
 			String feedback = "(project:" + project.getName() + ")";
 			AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(

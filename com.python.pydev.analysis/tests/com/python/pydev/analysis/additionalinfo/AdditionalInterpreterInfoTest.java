@@ -21,7 +21,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         try {
             AdditionalInterpreterInfoTest test = new AdditionalInterpreterInfoTest();
             test.setUp();
-            test.testAddAttrs();
+            test.testCompleteIndex();
             test.tearDown();
 
             junit.textui.TestRunner.run(AdditionalInterpreterInfoTest.class);
@@ -213,6 +213,26 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         
     }
     
+
+    public void testCompleteIndex() {
+        String doc = 
+            "class Test:\n" +
+            "    class Test2:\n" +
+            "        def mmm(self):\n" +
+            "            a = mmm1\n" +
+            "            print mmm1";
+        SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc), nature, 0);
+        info.addSourceModuleInfo(module, nature, false);
+        
+        List<IInfo> tokensStartingWith = null;
+        
+        tokensStartingWith = info.getTokensStartingWith("m", AbstractAdditionalInterpreterInfo.COMPLETE_INDEX);
+        assertEquals(3, tokensStartingWith.size());
+        assertIsIn("mmm", tokensStartingWith);
+        assertIsIn("mmm1", tokensStartingWith);
+    }
+    
+
     private ClassDef createClassDef(String name) {
         return new ClassDef(new NameTok(name, NameTok.FunctionName), null, null);
     }
@@ -231,6 +251,4 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         return new FunctionDef(new NameTok(metName, NameTok.FunctionName), null, null, null);
     }
     
-    
-
 }

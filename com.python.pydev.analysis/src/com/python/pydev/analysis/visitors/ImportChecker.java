@@ -13,7 +13,6 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 
 /**
  * The import checker not only generates information on errors for unresolved modules, but also gathers
@@ -27,12 +26,6 @@ public class ImportChecker {
      * used to manage the messages
      */
     private MessagesManager messagesManager;
-    
-    /**
-     * Information that will be used for generating dependency info (when this object is constructed,
-     * all the dependency information regarding the module that we will analyze will be removed). 
-     */
-    private AbstractAdditionalDependencyInfo infoForProject;
 
     /**
      * this is the nature we are analyzing
@@ -66,12 +59,11 @@ public class ImportChecker {
     /**
      * constructor - will remove all dependency info on the project that we will start to analyze
      */
-    public ImportChecker(MessagesManager messagesManager, IPythonNature nature, String moduleName, AbstractAdditionalDependencyInfo infoForProject) {
+    public ImportChecker(MessagesManager messagesManager, IPythonNature nature, String moduleName) {
         this.messagesManager = messagesManager;
         
         this.nature = nature;
         this.moduleName = moduleName;
-        this.infoForProject = infoForProject;
     }
 
     /**
@@ -108,9 +100,6 @@ public class ImportChecker {
         		messagesManager.addMessage(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, token);
         	}
             
-            if(wasResolved){
-                this.infoForProject.addDep(this.moduleName, modTok.o1, modTok.o2, token.isWildImport());
-            }
         }
         
         //might still return a modTok, even if the token we were looking for was not found.
