@@ -3,9 +3,6 @@
  */
 package com.python.pydev.refactoring.wizards;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -16,19 +13,12 @@ import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
-import org.eclipse.text.edits.MultiTextEdit;
-import org.eclipse.text.edits.ReplaceEdit;
-import org.eclipse.text.edits.TextEdit;
-import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.core.docutils.DocUtils;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 /**
  * Rename to a local variable...
@@ -82,7 +72,7 @@ public class PyRenameProcessor extends RenameProcessor {
 
     private TextChange fChange;
 
-    private PyRenameLocalProcess process;
+    private IRefactorProcess process;
 
     public PyRenameProcessor(RefactoringRequest request) {
         this.request = request;
@@ -93,9 +83,9 @@ public class PyRenameProcessor extends RenameProcessor {
         return new Object[] { this.request };
     }
 
-    public static final String IDENTIFIER = "org.python.pydev.pyRenameLocalVariable";
+    public static final String IDENTIFIER = "org.python.pydev.pyRename";
 
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     @Override
     public String getIdentifier() {
@@ -152,6 +142,10 @@ public class PyRenameProcessor extends RenameProcessor {
         }
         
         process = RefactorProcessFactory.getProcess(pointer.definition);
+        if(process == null){
+            status.addFatalError("Refactoring Process not defined: the definition found is not valid:"+pointer.definition);
+            return status;
+        }
         process.checkInitialConditions(pm, status, this.request);
         return status;
     }
