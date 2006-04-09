@@ -16,6 +16,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
@@ -103,9 +104,19 @@ public class Scope {
     }
     
     public List<ASTEntry> getOcurrences(String occurencesFor) {
+        SimpleNode simpleNode = this.scope.get(this.scope.size()-1);
+        return getOcurrences(occurencesFor, simpleNode);
+    }
+
+    /**
+     * @param occurencesFor
+     * @param simpleNode
+     * @return
+     */
+    public static List<ASTEntry> getOcurrences(String occurencesFor, SimpleNode simpleNode) {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
         
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(this.scope.get(this.scope.size()-1));
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
         Iterator<ASTEntry> iterator = visitor.getIterator(new Class[]{Name.class, NameTokType.class});
         while(iterator.hasNext()){
             ASTEntry entry = iterator.next();
@@ -115,6 +126,21 @@ public class Scope {
         }
         return ret;
     }
+
+    public static List<ASTEntry> getAttributeOcurrences(String occurencesFor, SimpleNode simpleNode){
+        List<ASTEntry> ret = new ArrayList<ASTEntry>();
+        String occurencesForWithDot = occurencesFor+'.';
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
+        Iterator<ASTEntry> iterator = visitor.getIterator(new Class[]{Attribute.class});
+        while(iterator.hasNext()){
+            ASTEntry entry = iterator.next();
+            String rep = NodeUtils.getFullRepresentationString(entry.node);
+            if (rep.equals(occurencesFor) || rep.startsWith(occurencesForWithDot)){
+                ret.add(entry);
+            }
+        }
+        return ret;
+   }
 
     /**
      * @param endLine tokens will only be recognized if its beginLine is higher than this parameter.
@@ -185,6 +211,7 @@ public class Scope {
 		}
 		return null;
 	}
+
 
 }
 
