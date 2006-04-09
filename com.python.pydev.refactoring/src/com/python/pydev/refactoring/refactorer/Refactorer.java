@@ -24,7 +24,7 @@ import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
-import com.python.pydev.refactoring.wizards.PyRenameLocalVariableProcessor;
+import com.python.pydev.refactoring.wizards.PyRenameProcessor;
 import com.python.pydev.refactoring.wizards.PyRenameRefactoringWizard;
 
 public class Refactorer extends AbstractPyRefactoring{
@@ -46,7 +46,7 @@ public class Refactorer extends AbstractPyRefactoring{
      */
 	public String rename(RefactoringRequest request) {
         try {
-            RenameRefactoring renameRefactoring = new RenameRefactoring(new PyRenameLocalVariableProcessor(request));
+            RenameRefactoring renameRefactoring = new RenameRefactoring(new PyRenameProcessor(request));
             Tuple<String, Integer> currToken = request.ps.getCurrToken();
             request.duringProcessInfo.initialName = currToken.o1;
             request.duringProcessInfo.initialOffset = currToken.o2;

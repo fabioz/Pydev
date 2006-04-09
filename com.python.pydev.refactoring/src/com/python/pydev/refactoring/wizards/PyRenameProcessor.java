@@ -9,7 +9,6 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jface.util.Assert;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
@@ -22,6 +21,7 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
@@ -76,20 +76,16 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
  *  - if we rename it inside of m1, it will rename it in m1 and m2 only if it is used inside 
  *  that scope before an assign this means that it will rename in m2 in case 2 and 3, but not in case 1.
  */
-public class PyRenameLocalVariableProcessor extends RenameProcessor {
+public class PyRenameProcessor extends RenameProcessor {
 
     private RefactoringRequest request;
 
     private TextChange fChange;
 
-    private List<ASTEntry> ocurrences;
+    private PyRenameLocalProcess process;
 
-    public PyRenameLocalVariableProcessor(RefactoringRequest request) {
+    public PyRenameProcessor(RefactoringRequest request) {
         this.request = request;
-    }
-
-    private boolean isInside(int col, int colDefinition, int endColDefinition) {
-        return col >= colDefinition && col <= endColDefinition;
     }
 
     @Override
@@ -99,6 +95,8 @@ public class PyRenameLocalVariableProcessor extends RenameProcessor {
 
     public static final String IDENTIFIER = "org.python.pydev.pyRenameLocalVariable";
 
+    public static final boolean DEBUG = true;
+
     @Override
     public String getIdentifier() {
         return IDENTIFIER;
@@ -106,7 +104,7 @@ public class PyRenameLocalVariableProcessor extends RenameProcessor {
 
     @Override
     public String getProcessorName() {
-        return "Pydev ProcessorName";
+        return "Pydev PyRenameProcessor";
     }
 
     @Override
@@ -149,31 +147,12 @@ public class PyRenameLocalVariableProcessor extends RenameProcessor {
         if(pointer.definition == null){
             status.addFatalError("The definition found is not valid. "+pointer);
         }
+        if(DEBUG){
+            System.out.println("Found:"+pointer.definition);
+        }
         
-        String initialName = this.request.duringProcessInfo.initialName;
-        Scope scope = pointer.definition.scope;
-        this.ocurrences = scope.getOcurrences(initialName);
-        
-//        int line = request.getBeginLine();
-//        int col = request.getBeginCol() + 1;
-//        
-//        FindScopeVisitor visitor = new FindScopeVisitor(line, col);
-//        try {
-//            ast.accept(visitor);
-//            Scope scope = visitor.scope;
-//
-//            IToken[] localTokens = scope.getAllLocalTokens();
-//            for (IToken token : localTokens) {
-//                if (token.getLineDefinition() == line) {
-//                    if (isInside(col, token.getColDefinition(), token.getLineColEnd()[1])) {
-//                        System.out.println(scope.scope.peek());
-//                        System.out.println(token);
-//                    }
-//                }
-//            }
-//        } catch (Exception e) {
-//            status.addError(e.getMessage());
-//        }
+        process = RefactorProcessFactory.getProcess(pointer.definition);
+        process.checkInitialConditions(pm, status, this.request);
         return status;
     }
 
@@ -181,34 +160,17 @@ public class PyRenameLocalVariableProcessor extends RenameProcessor {
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();
         fChange = new PyRenameChange(pm, request);
-        if(ocurrences == null){
-            status.addFatalError("No ocurrences found.");
-            return status;
-        }
-
-        MultiTextEdit rootEdit = new MultiTextEdit();
-        fChange.setEdit(rootEdit);
-        fChange.setKeepPreviewEdits(true);
-
-        for (TextEdit t : getAllRenameEdits()) {
-            rootEdit.addChild(t);
-            fChange.addTextEditGroup(new TextEditGroup("changeName", t));
+        if(process == null){
+            status.addFatalError("Refactoring Process not defined: the pre-conditions were not satisfied.");
+        }else{
+            process.checkFinalConditions(pm, context, status, fChange);
         }
         return status;
     }
 
-    private List<TextEdit> getAllRenameEdits() {
-        List<TextEdit> ret = new ArrayList<TextEdit>();
-        for(ASTEntry entry : ocurrences){
-            int offset = request.ps.getAbsoluteCursorOffset(entry.node.beginLine-1, entry.node.beginColumn-1);
-            ret.add(createRenameEdit(offset));
-        }
-        return ret;
-    }
 
     @Override
     public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-        Assert.isNotNull(request.duringProcessInfo.name);
         return fChange;
     }
 
@@ -217,8 +179,5 @@ public class PyRenameLocalVariableProcessor extends RenameProcessor {
         return null; // no participants are loaded
     }
 
-    private TextEdit createRenameEdit(int offset) {
-        return new ReplaceEdit(offset, request.duringProcessInfo.initialName.length(), request.duringProcessInfo.name);
-    }
 
 }
