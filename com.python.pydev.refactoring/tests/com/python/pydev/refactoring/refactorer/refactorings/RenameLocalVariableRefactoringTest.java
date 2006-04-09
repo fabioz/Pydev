@@ -23,43 +23,22 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         }
     }
 
-
-    private Document doc;
-
-    private void createDefaultDoc() {
-        String str=getDefaultDocStr();
-        
-        doc = new Document(str);
-    }
-
-    /**
-     * @return
-     */
     private String getDefaultDocStr() {
         return "" +
         "def method():\n"+
-        "    aaa = 2\n"+
-        "    print aaa\n"+
+        "    %s = 2\n"+
+        "    print %s\n"+
         "";
     }
 
 
     
     public void testRenameErr() throws Exception {
-        createDefaultDoc();
         int line = 2;
         int col = 10;
-        PySelection ps = new PySelection(doc, line, col);
-        
-        RefactoringRequest request = new RefactoringRequest(null, ps, nature);
-        request.moduleName = "foo";
-        request.duringProcessInfo.initialName = "aaa bb"; //the initial name is not valid
-        request.duringProcessInfo.initialOffset = ps.getAbsoluteCursorOffset();
-        request.duringProcessInfo.name = "bbb";
-        
-        applyRefactoring(request, true);
-        
+        checkDefault(getDefaultDocStr(), line, col, "aaa bb", true);
     }
+
     public void testRenameInstance2() throws Exception {
         String str = "" +
                 "class Foo:\n" +
@@ -68,48 +47,17 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
                 "    def m2(self,bb):\n" +
                 "        return bb\n" +
                 "\n";
-        doc = new Document(StringUtils.format(str, new Object[]{"bb", "bb"}));
         int line = 2;
         int col = 16;
-        PySelection ps = new PySelection(doc, line, col);
-        
-        RefactoringRequest request = new RefactoringRequest(null, ps, nature);
-        request.moduleName = "foo";
-        request.duringProcessInfo.initialName = "bb";
-        request.duringProcessInfo.initialOffset = ps.getAbsoluteCursorOffset();
-        request.duringProcessInfo.name = "aaa";
-        
-        applyRefactoring(request);
-        
-        String refactored = doc.get();
-        //System.out.println(refactored);
-        assertEquals(StringUtils.format(str, new Object[]{"aaa", "aaa"}),  refactored);
-        
+        checkDefault(str, line, col);
     }
+    
     public void testRenameInstance() throws Exception {
-        createDefaultDoc();
-        //the rename local refactoring, as its name says, can only be applied to locals, and not to globals.
-        //the targets are parameters and local instances
+        String str=getDefaultDocStr();
         int line = 2;
         int col = 10;
-        PySelection ps = new PySelection(doc, line, col);
-
-        RefactoringRequest request = new RefactoringRequest(null, ps, nature);
-        request.moduleName = "foo";
-        request.duringProcessInfo.initialName = "aaa";
-        request.duringProcessInfo.initialOffset = ps.getAbsoluteCursorOffset();
-        request.duringProcessInfo.name = "bbb";
         
-        applyRefactoring(request);
-        
-        String refactored = doc.get();
-        assertEquals(  
-                "def method():\n"+
-                "    bbb = 2\n"+
-                "    print bbb\n"+
-                "", 
-                refactored);
-        
+        checkDefault(str, line, col);
     }
 
 

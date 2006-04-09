@@ -23,6 +23,9 @@ import com.python.pydev.refactoring.wizards.PyRenameProcessor;
 
 public class RefactoringTestBase extends CodeCompletionTestsBase {
     
+    private static final boolean DEBUG = false;
+
+
     protected void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
@@ -65,7 +68,26 @@ public class RefactoringTestBase extends CodeCompletionTestsBase {
         }
     }
     
-    
+    protected void checkDefault(String strDoc, int line, int col, String initialName, boolean expectError) throws CoreException {
+        Document doc = new Document(StringUtils.format(strDoc, getSame(initialName)));
+        PySelection ps = new PySelection(doc, line, col);
+        
+        RefactoringRequest request = new RefactoringRequest(null, ps, nature);
+        request.moduleName = "foo";
+        request.duringProcessInfo.initialName = initialName; 
+        request.duringProcessInfo.initialOffset = ps.getAbsoluteCursorOffset();
+        request.duringProcessInfo.name = "bb";
+        
+        applyRefactoring(request, expectError);
+        String refactored = doc.get();
+        if(DEBUG){
+            System.out.println(refactored);
+        }
+        if(!expectError){
+            assertEquals(StringUtils.format(strDoc, getSame("bb")),  refactored);
+        }
+    }
+
     /**
      * Always checks for the 'default' test, which is:
      * - get the document and change all the ocurrences of %s to 'aa'
@@ -73,19 +95,7 @@ public class RefactoringTestBase extends CodeCompletionTestsBase {
      * - check if all the %s ocurrences are now 'bb'
      */
     protected void checkDefault(String strDoc, int line, int col) throws CoreException {
-        Document doc = new Document(StringUtils.format(strDoc, getSame("aa")));
-        PySelection ps = new PySelection(doc, line, col);
-        
-        RefactoringRequest request = new RefactoringRequest(null, ps, nature);
-        request.moduleName = "foo";
-        request.duringProcessInfo.initialName = "aa"; 
-        request.duringProcessInfo.initialOffset = ps.getAbsoluteCursorOffset();
-        request.duringProcessInfo.name = "bb";
-        
-        applyRefactoring(request);
-        String refactored = doc.get();
-        //System.out.println(refactored);
-        assertEquals(StringUtils.format(strDoc, getSame("bb")),  refactored);
+        checkDefault(strDoc, line, col, "aa", false);
     }
 
 
