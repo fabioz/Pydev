@@ -6,5 +6,7 @@
 	<classpathentry kind="lib" path="mail.jar"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="lib" path="activation.jar"/>
+	<classpathentry kind="lib" path="piccolo.jar"/>
+	<classpathentry kind="lib" path="piccolox.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
