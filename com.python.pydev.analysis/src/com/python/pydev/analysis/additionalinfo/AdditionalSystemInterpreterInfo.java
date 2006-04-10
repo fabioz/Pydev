@@ -13,7 +13,7 @@ import java.util.Map;
 import org.python.pydev.core.IInterpreterManager;
 
 
-public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInterpreterInfo{
+public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependencyInfo{
 
     private IInterpreterManager manager;
     /**

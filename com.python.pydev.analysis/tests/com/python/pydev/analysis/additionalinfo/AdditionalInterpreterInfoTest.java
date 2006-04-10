@@ -21,7 +21,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         try {
             AdditionalInterpreterInfoTest test = new AdditionalInterpreterInfoTest();
             test.setUp();
-            test.testCompleteIndex();
+            test.testMap();
             test.tearDown();
 
             junit.textui.TestRunner.run(AdditionalInterpreterInfoTest.class);
@@ -226,8 +226,8 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         
         List<IInfo> tokensStartingWith = null;
         
-        tokensStartingWith = info.getTokensStartingWith("m", AbstractAdditionalInterpreterInfo.COMPLETE_INDEX);
-        assertEquals(3, tokensStartingWith.size());
+        tokensStartingWith = info.getTokensStartingWith("m", AbstractAdditionalDependencyInfo.COMPLETE_INDEX);
+        assertEquals(2, tokensStartingWith.size()); //only 2, one for mmm and one for mm1 (even appearing twice).
         assertIsIn("mmm", tokensStartingWith);
         assertIsIn("mmm1", tokensStartingWith);
     }

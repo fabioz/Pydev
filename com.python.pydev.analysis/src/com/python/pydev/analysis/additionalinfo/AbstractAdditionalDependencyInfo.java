@@ -3,7 +3,21 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import java.io.File;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+
+import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.cache.DiskCache;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * Adds dependency information to the interpreter information. This should be used only for
@@ -18,29 +32,150 @@ import org.python.pydev.core.Tuple;
 public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditionalInterpreterInfo{
     
     public static boolean TESTING = false;
-    
+
+    /**
+     * Defines that some operation should be done on the complete name indexing.
+     */
+    public final static int COMPLETE_INDEX = 4;
+
+    /**
+     * indexes all the names that are available
+     * 
+     * It is actually a Cache<String<Set<String>>,
+     * 
+     * So the key is the module name and the value is a Set of the strings it contains.
+     */
+    protected DiskCache completeIndex; 
+
     /**
      * default constructor
      */
     public AbstractAdditionalDependencyInfo() {
+    	File persistingFolder = getCompletIndexPersistingFolder();
+		completeIndex = new DiskCache(700, persistingFolder, ".indexcache");
+	}
+
+    /**
+     * @return a folder where the index should be persisted
+     */
+	private File getCompletIndexPersistingFolder() {
+		File persistingFolder = getPersistingFolder();
+    	persistingFolder = new File(persistingFolder, "indexcache");
+    	
+    	if(persistingFolder.exists()){
+    		if(persistingFolder.isDirectory()){
+    			persistingFolder.delete();
+    		}
+    	}
+    	if(!persistingFolder.exists()){
+    		persistingFolder.mkdir();
+    	}
+		return persistingFolder;
 	}
     
     @Override
-    public void removeInfoFromModule(String moduleName, boolean generateDelta) {
-    	if(moduleName == null){
-    		throw new AssertionError("The module name may not be null.");
+    public void clearAllInfo() {
+    	synchronized(lock){
+	    	super.clearAllInfo();
+    		try {
+				completeIndex.clear();
+			} catch (NullPointerException e) {
+				//that's ok... because it might be called before actually having any values
+			}
     	}
-        super.removeInfoFromModule(moduleName, generateDelta);
     }
-
+    
+    
     @Override
-    protected Object getInfoToSave() {
-        return new Tuple<Object, Object>(super.getInfoToSave(), null);
+    protected List<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual) {
+    	synchronized(lock){
+	    	List<IInfo> toks = super.getWithFilter(qualifier, getWhat, filter, useLowerCaseQual);
+	    	
+	        if((getWhat & COMPLETE_INDEX) != 0){
+	        	//note that this operation is not as fast as the others, as it relies on a cache that is optimized
+	        	//for space and not for speed (but still, faster than having to do a text-search to know the tokens).
+	            String qualToCompare = qualifier;
+	            if(useLowerCaseQual){
+	                qualToCompare = qualifier.toLowerCase();
+	            }
+	            
+	        	for(String modName : completeIndex.keys()){
+	        		HashSet<String> obj = (HashSet<String>) completeIndex.getObj(modName);
+	        		for(String infoName: obj){
+	        			if(filter.doCompare(qualToCompare, infoName)){
+	                        toks.add(NameInfo.fromName(infoName, modName, null, pool));
+	        			}	
+	        		}
+	        	}
+	        }
+	        return toks;
+    	}
+
     }
     
     @Override
+    public void addAstInfo(SimpleNode node, String moduleName, PythonNature nature, boolean generateDelta) {
+    	super.addAstInfo(node, moduleName, nature, generateDelta);
+        try {
+        	HashSet<String> nameIndexes = new HashSet<String>();
+        	
+			//ok, now, add 'all the names'
+			SequencialASTIteratorVisitor visitor2 = new SequencialASTIteratorVisitor();
+			node.accept(visitor2);
+			Iterator<ASTEntry> iterator = visitor2.getIterator(new Class[] { Name.class, NameTok.class });
+			while (iterator.hasNext()) {
+				ASTEntry entry = iterator.next();
+				String id;
+				//I was having out of memory errors without using this pool (running with a 64mb vm)
+				if (entry.node instanceof Name) {
+					id = ((Name) entry.node).id;
+				} else {
+					id = ((NameTok) entry.node).id;
+				}
+				nameIndexes.add(id);
+			}
+			completeIndex.add(moduleName, nameIndexes);
+		} catch (Exception e) {
+			PydevPlugin.log(e);
+		}
+    }
+    
+    @Override
+    public void removeInfoFromModule(String moduleName, boolean generateDelta) {
+        synchronized (lock) {
+	    	if(moduleName == null){
+	    		throw new AssertionError("The module name may not be null.");
+	    	}
+	    	completeIndex.remove(moduleName);
+	        super.removeInfoFromModule(moduleName, generateDelta);
+        }
+    }
+    
+
+    @Override
+    protected Object getInfoToSave() {
+        return new Tuple<Object, Object>(super.getInfoToSave(), completeIndex);
+    }
+    
+    @SuppressWarnings("unchecked")
+	@Override
     protected void restoreSavedInfo(Object o){
         Tuple readFromFile = (Tuple) o;
+        if(! (readFromFile.o1 instanceof Tuple)){
+        	throw new RuntimeException("Type Error: the info must be regenerated (changed across versions).");
+        }
+        
+        completeIndex = (DiskCache) readFromFile.o2;
+        if(completeIndex == null){
+        	throw new RuntimeException("Type Error (index == null): the info must be regenerated (changed across versions).");
+        }
+        
+        String shouldBeOn = REF.getFileAbsolutePath(getCompletIndexPersistingFolder());
+        if(!completeIndex.getFolderToPersist().equals(shouldBeOn)){
+        	//this can happen if the user moves its .metadata folder (so, we have to validate it).
+        	completeIndex.setFolderToPersist(shouldBeOn);
+        }
+        
         super.restoreSavedInfo(readFromFile.o1);
     }
 

@@ -24,7 +24,6 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -32,11 +31,9 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
-import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
-import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -94,10 +91,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     public final static int INNER = 2;
     
-    /**
-     * Defines that some operation should be done on the complete name indexing.
-     */
-    public final static int COMPLETE_INDEX = 4;
     
 
     /**
@@ -115,37 +108,55 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     protected TreeMap<String, List<IInfo>> innerInitialsToInfo = new TreeMap<String, List<IInfo>>();
     
-    /**
-     * indexes all the names that are available
-     */
-    protected TreeMap<String, List<IInfo>> completeIndex = new TreeMap<String, List<IInfo>>();
 
     /**
      * Should be used before re-creating the info, so that we have enough memory. 
      */
     public void clearAllInfo() {
-        topLevelInitialsToInfo.clear();
-        innerInitialsToInfo.clear();
-        completeIndex.clear();
+        synchronized (lock) {
+        	if(topLevelInitialsToInfo != null){
+        		topLevelInitialsToInfo.clear();
+        	}
+        	if(innerInitialsToInfo != null){
+        		innerInitialsToInfo.clear();
+        	}
+        }
     }
+        
     
     protected Object lock = new Object();
 
 
+    /**
+     * The filter interface
+     */
     public interface Filter{
         boolean doCompare(String lowerCaseQual, IInfo info);
+        boolean doCompare(String lowerCaseQual, String infoName);
     }
     
+    /**
+     * A filter that checks if tokens are equal
+     */
     private Filter equalsFilter  = new Filter(){
         public boolean doCompare(String qualifier, IInfo info) {
-            return info.getName().equals(qualifier);
+            return doCompare(qualifier, info.getName());
+        }
+        public boolean doCompare(String qualifier, String infoName) {
+        	return infoName.equals(qualifier);
         }
     };
 
+    /**
+     * A filter that checks if the tokens starts with a qualifier
+     */
     private Filter startingWithFilter = new Filter(){
 
         public boolean doCompare(String lowerCaseQual, IInfo info) {
-            return info.getName().toLowerCase().startsWith(lowerCaseQual);
+            return doCompare(lowerCaseQual, info.getName());
+        }
+        public boolean doCompare(String qualifier, String infoName) {
+        	return infoName.toLowerCase().startsWith(qualifier);
         }
         
     };
@@ -175,9 +186,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
             }
             initialsToInfo = innerInitialsToInfo;
             
-        }else if (doOn == COMPLETE_INDEX){
-            initialsToInfo = completeIndex;
-            
         }else{
             throw new RuntimeException("List to add is invalid: "+doOn);
         }
@@ -190,7 +198,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param name the name from where we want to get the initials
      * @return the initials for the name
      */
-    private String getInitials(String name) {
+    protected String getInitials(String name) {
         if(name.length() < NUMBER_OF_INITIALS_TO_INDEX){
             return name;
         }
@@ -202,7 +210,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param initialsToInfo this is the list we should use (top level or inner)
      * @return the list of tokens with the specified initials (must be exact match)
      */
-    private List<IInfo> getAndCreateListForInitials(String initials, TreeMap<String, List<IInfo>> initialsToInfo) {
+    protected List<IInfo> getAndCreateListForInitials(String initials, TreeMap<String, List<IInfo>> initialsToInfo) {
         List<IInfo> lInfo = initialsToInfo.get(initials);
         if(lInfo == null){
             lInfo = new ArrayList<IInfo>();
@@ -211,7 +219,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
         return lInfo;
     }
 
-    private static ObjectsPool pool = new ObjectsPool();
+    protected static ObjectsPool pool = new ObjectsPool();
     /**
      * adds a method to the definition
      * @param doOn 
@@ -234,12 +242,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
     	}
     }
     
-    protected void addName(String def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
-        synchronized (lock) {
-            NameInfo info = NameInfo.fromName(def, moduleDeclared, path, pool);
-            add(info, generateDelta, doOn);
-        }
-    }
     
     /**
      * Adds an attribute to the definition (this is either a global, a class attribute or an instance (self) attribute
@@ -337,22 +339,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
                 }
             }
             
-            //ok, now, add 'all the names'
-            SequencialASTIteratorVisitor visitor2 = new SequencialASTIteratorVisitor();
-            node.accept(visitor2);
-            Iterator<ASTEntry> iterator = visitor2.getIterator(new Class[]{Name.class, NameTok.class});
-            while(iterator.hasNext()) {
-                ASTEntry entry = iterator.next();
-                String id;
-                //I was having out of memory errors without using this pool (running with a 64mb vm)
-                if(entry.node instanceof Name){
-                    id = ((Name)entry.node).id; 
-                }else{
-                    id = ((NameTok)entry.node).id;
-                }
-                addName(id, moduleName, generateDelta, COMPLETE_INDEX, null);
-                
-            }
         } catch (Exception e) {
             PydevPlugin.log(e);
         }
@@ -497,20 +483,20 @@ public abstract class AbstractAdditionalInterpreterInfo {
         }
     }
     
-    private List<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual) {
-        ArrayList<IInfo> toks = new ArrayList<IInfo>();
-        
-        if((getWhat & TOP_LEVEL) != 0){
-            getWithFilter(qualifier, topLevelInitialsToInfo, toks, filter, useLowerCaseQual);
-        }
-        if((getWhat & INNER) != 0){
-            getWithFilter(qualifier, innerInitialsToInfo, toks, filter, useLowerCaseQual);
-        }
-        if((getWhat & COMPLETE_INDEX) != 0){
-            getWithFilter(qualifier, completeIndex, toks, filter, useLowerCaseQual);
-        }
-        return toks;
+    protected List<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual) {
+    	synchronized (lock) {
+	        ArrayList<IInfo> toks = new ArrayList<IInfo>();
+	        
+	        if((getWhat & TOP_LEVEL) != 0){
+	            getWithFilter(qualifier, topLevelInitialsToInfo, toks, filter, useLowerCaseQual);
+	        }
+	        if((getWhat & INNER) != 0){
+	            getWithFilter(qualifier, innerInitialsToInfo, toks, filter, useLowerCaseQual);
+	        }
+	        return toks;
+    	}
     }
+    	
     
 
     /**
@@ -519,7 +505,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param toks (out) the tokens will be added to this list
      * @return
      */
-    private void getWithFilter(String qualifier, TreeMap<String, List<IInfo>> initialsToInfo, ArrayList<IInfo> toks, Filter filter, boolean useLowerCaseQual) {
+    protected void getWithFilter(String qualifier, TreeMap<String, List<IInfo>> initialsToInfo, List<IInfo> toks, Filter filter, boolean useLowerCaseQual) {
         String initials = getInitials(qualifier);
         String qualToCompare = qualifier;
         if(useLowerCaseQual){
@@ -625,7 +611,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     @SuppressWarnings("unchecked")
     protected Object getInfoToSave(){
-        return new Tuple3(this.topLevelInitialsToInfo, this.innerInitialsToInfo, this.completeIndex);
+        return new Tuple(this.topLevelInitialsToInfo, this.innerInitialsToInfo);
     }
     
     /**
@@ -655,10 +641,9 @@ public abstract class AbstractAdditionalInterpreterInfo {
     @SuppressWarnings("unchecked")
     protected void restoreSavedInfo(Object o){
         synchronized (lock) {
-	        Tuple3 readFromFile = (Tuple3) o;
+	        Tuple readFromFile = (Tuple) o;
 	        this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
 	        this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
-	        this.completeIndex = (TreeMap<String, List<IInfo>>) readFromFile.o3;
         }
     }
 
