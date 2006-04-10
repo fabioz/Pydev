@@ -235,6 +235,7 @@ public class REF {
             Log.log(e);
         }
     }
+    
 
     /**
      * @param file
@@ -266,6 +267,28 @@ public class REF {
             out.close();
         }
     }
+    
+    public static Object readFromFile(File file){
+    	try {
+    		InputStream in = new FileInputStream(file);
+    		try {
+				ObjectInputStream stream = new ObjectInputStream(in);
+				try {
+					Object o = stream.readObject();
+					return o;
+				} finally {
+					stream.close();
+				}
+			} finally {
+				in.close();
+			}
+    	} catch (Exception e) {
+    		Log.log(e);
+    		return null;
+    	}
+    	
+    }
+
 
     public static String getFileAbsolutePath(String f) {
         return getFileAbsolutePath(new File(f));

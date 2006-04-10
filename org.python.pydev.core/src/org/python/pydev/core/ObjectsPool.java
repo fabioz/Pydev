@@ -8,22 +8,28 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * @author Fabio
+ * This pool is to be regarded as a way to have less object instances for a given class,
+ * so, if you have tons of equal strings, you could pass them here and make them be the same
+ * to save memory. Note that it is created with weak-references for both, the key and the value,
+ * so, it should be safe to assume that it will be available for garbage collecting once
+ * no other place has a reference to the same string.
+ * 
+ * Still, use this with care...
+ * 
+ * Note: should be safe to use in a threaded environment.
  */
 public class ObjectsPool {
 
     public Map pool = new WeakHashMap();
     
     /**
-     * Retorna um objeto que seja igual ao passado e guarda ele no Pool.
+     * Returns an object equal to the one passed as a parameter and puts it in the pool
      * 
-     * Ex.: se um Integer com valor 1 for requisitado do Pool, ele vai verificar se já existe um e retorná-lo.
-     * Se não existe, o objeto passado será colocado no pool e retornado.
-     * 
-     * @param o
-     * @return
+     * E.g.: If an integer with the value 1 is requested, it will se if that value already exists and return it.
+     * If it doesn't exist, the parameter itself will be put in the pool.
      */
-    public Object getFromPool(Object o){
+    @SuppressWarnings("unchecked")
+	public Object getFromPool(Object o){
         Class class_ = o.getClass();
         WeakHashMap weakHashMap;
 
@@ -36,7 +42,22 @@ public class ObjectsPool {
         
         if(weakHashMap.containsKey(o)){
             WeakReference w = (WeakReference)weakHashMap.get(o);
-            return w.get();
+            if(w == null){
+            	//garbage collected...
+            	weakHashMap.put(o, new WeakReference(o));
+            	return o;
+            	
+            }else{
+            	final Object ret = w.get();
+            	if(ret == null && o != null){
+            		//garbage collected just in time hum?
+            		weakHashMap.put(o, new WeakReference(o));
+            		return o;
+            		
+            	}else{
+            		return ret;
+            	}
+            }
         }else{
             weakHashMap.put(o, new WeakReference(o));
             return o;

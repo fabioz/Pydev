@@ -1,5 +1,6 @@
 package org.python.pydev.core.cache;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -8,22 +9,29 @@ import java.util.Map;
  * If the cache is to be used by multiple threads,
  * the cache must be wrapped with code to synchronize the methods
  * cache = (Map)Collections.synchronizedMap(cache);
+ * 
+ * (it is actually serializable or not depending on its keys and values)
  */
-public class LRUCache<Key, Val> implements Cache<Key, Val>{
+public class LRUCache<Key, Val> implements Cache<Key, Val>, Serializable{
 
-	private int maxSize;
+	protected int maxSize;
 
 	public LRUCache(int maxSize){
 		this.maxSize = maxSize;
+		cache = createMap(maxSize);
+	}
+
+	protected LinkedHashMap<Key, Val> createMap(int maxSize) {
+		return new LinkedHashMap<Key,Val>(maxSize+1, .75F, true) {
+	        // This method is called just after a new entry has been added
+	        public boolean removeEldestEntry(Map.Entry eldest) {
+	            return size() > LRUCache.this.maxSize;
+	        }
+	    };
 	}
 	
 	//Create cache
-    Map<Key,Val> cache = new LinkedHashMap<Key,Val>(maxSize+1, .75F, true) {
-        // This method is called just after a new entry has been added
-        public boolean removeEldestEntry(Map.Entry eldest) {
-            return size() > maxSize;
-        }
-    };
+    protected Map<Key,Val> cache;
     
 	public Val getObj(Key key) {
 		return cache.get(key);
