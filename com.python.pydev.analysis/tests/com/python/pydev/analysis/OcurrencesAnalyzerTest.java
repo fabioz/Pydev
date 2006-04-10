@@ -111,6 +111,19 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         
     }
     
+    public void testFromFutureImport2(){
+    	doc = new Document(
+    			"from __future__ import generators\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc("foo", null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,0);
+    	
+    }
+    
+
+    
     public void testClassVar(){
         doc = new Document(
             "class Foo:\n"+
