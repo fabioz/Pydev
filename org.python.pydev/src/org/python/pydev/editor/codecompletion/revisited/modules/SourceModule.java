@@ -200,11 +200,15 @@ public class SourceModule extends AbstractModule {
                                     }else if (d.ast instanceof Name){
                                         FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(actToks[actToks.length-1], d.line, d.col, d.module);
                                         ClassDef classDef = d.scope.getClassDef();
-                                        classDef.accept(visitor);
-                                        d = visitor.definitions.get(0);
-                                        value = d.value;
-                                        if(d instanceof AssignDefinition){
-                                            return getValueCompletions(initialState, manager, value);
+                                        if(classDef != null){
+	                                        classDef.accept(visitor);
+	                                        d = visitor.definitions.get(0);
+	                                        value = d.value;
+	                                        if(d instanceof AssignDefinition){
+	                                            return getValueCompletions(initialState, manager, value);
+	                                        }
+                                        }else{
+                                        	//TODO: ok, this case has to be further worked on...
                                         }
                                         
                                     }else if ((d.ast == null && d.module != null) || d.ast instanceof ImportFrom){
