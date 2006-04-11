@@ -61,6 +61,15 @@
             label="Pydev Search"
             showScopeSection="true"/>
    </extension>
+<!-- view: hierarchy view-->
+<extension point="org.eclipse.ui.views">
+   <view
+        class="com.python.pydev.ui.hierarchy.PyHierarchyView"
+        icon="icons/class_hi.gif"
+        category="org.python.pydev"
+        name="Hierarchy View"
+        id="com.python.pydev.ui.hierarchy.PyHierarchyView"/>
+</extension>
 
 
 </plugin>
