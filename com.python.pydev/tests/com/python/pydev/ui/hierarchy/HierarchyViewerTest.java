@@ -38,6 +38,7 @@ public class HierarchyViewerTest extends TestCase {
         HierarchyViewer viewer = new HierarchyViewer(shell, 0);
         HierarchyNodeModel curr = new HierarchyNodeModel("curr");
         
+        final HierarchyNodeModel par1pac1 = new HierarchyNodeModel("par1", "package1");
         final HierarchyNodeModel par1 = new HierarchyNodeModel("par1");
         final HierarchyNodeModel super1 = new HierarchyNodeModel("super1");
         final HierarchyNodeModel super2 = new HierarchyNodeModel("super2");
@@ -45,6 +46,7 @@ public class HierarchyViewerTest extends TestCase {
         final HierarchyNodeModel par3 = new HierarchyNodeModel("par3");
         
         super1.parents.add(super2);
+        super2.parents.add(par1pac1);
 		par1.parents.add(super1);
 		par1.parents.add(super2);
 		par2.parents.add(super1);

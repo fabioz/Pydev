@@ -13,6 +13,8 @@ import java.util.Set;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.Tuple;
 
+import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
+import edu.umd.cs.piccolo.event.PInputEvent;
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.swt.PSWTCanvas;
 import edu.umd.cs.piccolox.swt.PSWTPath;
@@ -103,7 +105,7 @@ public class HierarchyViewer extends PSWTCanvas{
 	private PBounds addNode(HierarchyNodeView from, HierarchyNodeView toNode, boolean addChildren) {
 		PBounds bounds = toNode.node.getBounds();
 		
-		PSWTPath path = new PSWTPath();
+		final PSWTPath path = new PSWTPath();
 		Point2D to = toNode.node.getCenter();
 		Point2D fromP = from.node.getCenter();
 		if(!addChildren){
@@ -117,6 +119,16 @@ public class HierarchyViewer extends PSWTCanvas{
 		path.setPathToPolyline(new Point2D[]{fromP, to});
 		getLayer().addChild(path);
 		path.moveToBack();
+		path.addInputEventListener(new PBasicInputEventHandler(){
+			@Override
+			public void mouseEntered(PInputEvent event) {
+				path.setStrokeColor(Color.LIGHT_GRAY);
+			}
+			@Override
+			public void mouseExited(PInputEvent event) {
+				path.setStrokeColor(Color.BLACK);
+			}
+		});
 		return bounds;
 	}
 }
