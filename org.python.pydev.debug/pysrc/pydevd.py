@@ -90,7 +90,10 @@ class PyDBAdditionalThreadInfo:
         self.pydev_state = PyDB.STATE_RUN 
         self.pydev_step_stop = None
         self.pydev_step_cmd = None
+        self.pydev_last_event = None
         self.pydev_notify_kill = False
+        self.pydev_stop_on_return_count_1 = False
+        self.pydev_return_call_count = 0
 
 #---------------------------------------------------------------------------------------- THIS IS THE DEBUGGER
 
@@ -410,6 +413,8 @@ class PyDB:
                 info.pydev_step_stop = frame
                 
         elif info.pydev_step_cmd == CMD_STEP_RETURN:
+            info.pydev_stop_on_return_count_1 = True
+            info.pydev_return_call_count = 0
             info.pydev_step_stop = frame.f_back
  
         cmd = self.cmdFactory.makeThreadRunMessage(id(thread), info.pydev_step_cmd)
@@ -453,6 +458,7 @@ class PyDB:
             except AttributeError:
                 additionalInfo = PyDBAdditionalThreadInfo()
                 t.additionalInfo = additionalInfo
+            t.additionalInfo.pydev_last_event = event
                 
             filename = ctx.filename
             # Let's check to see if we are in a line that has a breakpoint. If we don't have a breakpoint, 
@@ -504,7 +510,7 @@ class PyDB:
                 traceback.print_exc()
                 raise
     
-            if not wasSuspended and (event == 'line' or event== 'return'):
+            if not wasSuspended:
                 #step handling. We stop when we hit the right frame
                 try:
                     if additionalInfo.pydev_step_cmd == CMD_STEP_INTO:
@@ -512,9 +518,26 @@ class PyDB:
                         self.doWaitSuspend(t, frame, event, arg)      
                         
                     
-                    elif additionalInfo.pydev_step_cmd == CMD_STEP_OVER or additionalInfo.pydev_step_cmd == CMD_STEP_RETURN:
+                    elif additionalInfo.pydev_step_cmd == CMD_STEP_OVER: 
                         if additionalInfo.pydev_step_stop == frame:
-                            self.setSuspend(t, additionalInfo.pydev_step_cmd)
+                            self.setSuspend(t, CMD_STEP_OVER)
+                            self.doWaitSuspend(t, frame, event, arg)
+                        
+                        
+                    elif additionalInfo.pydev_step_cmd == CMD_STEP_RETURN:
+                        if event == 'return':
+                            additionalInfo.pydev_return_call_count += 1
+                        elif event == 'call':
+                            additionalInfo.pydev_return_call_count -= 1
+                            
+                        if additionalInfo.pydev_stop_on_return_count_1 and additionalInfo.pydev_return_call_count == 1:
+                            additionalInfo.pydev_return_call_count == 0
+                            additionalInfo.pydev_stop_on_return_count_1 = False
+                            self.setSuspend(t, CMD_STEP_RETURN)
+                            self.doWaitSuspend(t, frame, event, arg)
+                            
+                        if additionalInfo.pydev_step_stop == frame:
+                            self.setSuspend(t, CMD_STEP_RETURN)
                             self.doWaitSuspend(t, frame, event, arg)
                 except:
                     additionalInfo.pydev_step_cmd = None

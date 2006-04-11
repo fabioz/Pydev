@@ -5,6 +5,7 @@ Pydev:
 - 2 minor 'quirks' were fixed when indenting
 - The debugger had some changes (so, if you had halts with it, please try it again).
 - Allow changing the keybinding for activating the Find next problem (Ctrl+.)
+- The debugger now does not 'return all functions' on return
 
 Pydev Extensions:
 - Analysis happens in a Thread, so, you should now always have the latest parse without any halts (this happened only when the option was set to analyze only on save).
