@@ -3,11 +3,15 @@
  */
 package com.python.pydev.ui.hierarchy;
 
+import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.core.Tuple;
 
 import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolox.swt.PSWTCanvas;
@@ -19,6 +23,7 @@ import edu.umd.cs.piccolox.swt.PSWTPath;
  * Its implementation will allow viewing of simple connectivity for viewing a class hierarchy.
  */
 public class HierarchyViewer extends PSWTCanvas{
+    Set<HierarchyNodeView> allAdded = new HashSet<HierarchyNodeView>();
 
     public HierarchyViewer(Composite parent, int args) {
         super(parent, args);
@@ -29,44 +34,87 @@ public class HierarchyViewer extends PSWTCanvas{
      */
     public void setHierarchy(HierarchyNodeModel initialNode){
         Set<HierarchyNodeModel> nodesAdded = new HashSet<HierarchyNodeModel>();
+        double y = 10;
+        double x = 10;
 
-        HierarchyNodeView initial = new HierarchyNodeView(this, initialNode, 10,10);
+        HierarchyNodeView initial = new HierarchyNodeView(this, initialNode, x,y, Color.LIGHT_GRAY);
         getLayer().addChild(initial.node);
         nodesAdded.add(initialNode);
+        final double deltaY = 40;
         
-        double y = 40;
-        double x = 10;
-        
-        Set<HierarchyNodeView> nodesToAdd = new HashSet<HierarchyNodeView>();
+        List<HierarchyNodeView> nodesToAdd = new ArrayList<HierarchyNodeView>();
         nodesToAdd.add(initial);
-        
-        for(HierarchyNodeView v : nodesToAdd){
-        	addNodesFor(initialNode, initial, y, x);
-        }
-        
+        addWithDelta(y+deltaY, x, nodesToAdd, deltaY, true);
 
+        nodesToAdd = new ArrayList<HierarchyNodeView>();
+        nodesToAdd.add(initial);
+        double lastY = addWithDelta(y-deltaY, x, nodesToAdd, -deltaY, false);
+        
+        this.getLayer().translate(0, -lastY-deltaY-y);
     }
 
-	private Set<HierarchyNodeView> addNodesFor(HierarchyNodeModel initialNode, HierarchyNodeView initial, double y, double x) {
-		HashSet<HierarchyNodeView> ret = new HashSet<HierarchyNodeView>();
-		HierarchyNodeView view;
-		for(HierarchyNodeModel node: initialNode.children){
-            view = new HierarchyNodeView(this, node, x,y);
-            
-            PBounds bounds = addNode(initial, view);
-            
-            x = bounds.x+bounds.width+2;
-            getLayer().addChild(view.node);
-            ret.add(view);
-        }
-		return ret;
+	private double addWithDelta(double y, double initialX, List<HierarchyNodeView> nodesToAdd, double yDelta, boolean addChildren) {
+		List<HierarchyNodeView> newRound;
+		do{
+			double x = initialX;
+        	newRound  = new ArrayList<HierarchyNodeView>();
+	        for(HierarchyNodeView v : nodesToAdd){
+	        	Tuple<List<HierarchyNodeView>, Double> tup = addNodesFor(v, addChildren ? v.model.children : v.model.parents, y, x, addChildren);
+	        	for(HierarchyNodeView added : tup.o1){
+	        		if(!newRound.contains(added)){
+	        			newRound.add(added);
+	        		}
+	        	}
+				x = tup.o2;
+	        }
+	        nodesToAdd = newRound;
+			y += yDelta;
+			
+        }while(newRound.size() > 0);
+		return y;
 	}
 
-	private PBounds addNode(HierarchyNodeView from, HierarchyNodeView view) {
-		PBounds bounds = view.node.getBounds();
+	private Tuple<List<HierarchyNodeView>, Double> addNodesFor(HierarchyNodeView initial, List<HierarchyNodeModel> toAdd, double y, double x, boolean addChildren) {
+		ArrayList<HierarchyNodeView> ret = new ArrayList<HierarchyNodeView>();
+		HierarchyNodeView view;
+		for(HierarchyNodeModel node: toAdd){
+            view = new HierarchyNodeView(this, node, x,y);
+            if(!allAdded.contains(view)){
+	            PBounds bounds = addNode(initial, view, addChildren);
+	            
+	            x = bounds.x+bounds.width+10;
+	            getLayer().addChild(view.node);
+	            ret.add(view);
+	            allAdded.add(view);
+            }else{
+            	for(HierarchyNodeView added : allAdded){
+            		if(added.equals(view)){
+            			//we have to get this way because the equals is only from the model point...
+            			//which means that we have to get the position of that one now
+            			addNode(initial, added, addChildren);
+            			break;
+            		}
+            	}
+            }
+        }
+		return new Tuple<List<HierarchyNodeView>, Double>(ret, x);
+	}
+
+	private PBounds addNode(HierarchyNodeView from, HierarchyNodeView toNode, boolean addChildren) {
+		PBounds bounds = toNode.node.getBounds();
 		
 		PSWTPath path = new PSWTPath();
-		path.setPathToPolyline(new Point2D[]{from.node.getCenter(), view.node.getCenter()});
+		Point2D to = toNode.node.getCenter();
+		Point2D fromP = from.node.getCenter();
+		if(!addChildren){
+			fromP.setLocation(fromP.getX(), fromP.getY() - (from.node.getHeight()/2.0));
+			to.setLocation(to.getX(), to.getY() + (toNode.node.getHeight()/2.0));
+		}else{
+			fromP.setLocation(fromP.getX(), fromP.getY() + (from.node.getHeight()/2.0));
+			to.setLocation(to.getX(), to.getY() - (toNode.node.getHeight()/2.0));
+		}
+		
+		path.setPathToPolyline(new Point2D[]{fromP, to});
 		getLayer().addChild(path);
 		path.moveToBack();
 		return bounds;
