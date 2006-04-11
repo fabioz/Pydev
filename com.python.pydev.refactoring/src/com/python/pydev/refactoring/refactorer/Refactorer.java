@@ -12,11 +12,15 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 
@@ -26,6 +30,7 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
 import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.refactoring.wizards.PyRenameProcessor;
 import com.python.pydev.refactoring.wizards.PyRenameRefactoringWizard;
+import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
 public class Refactorer extends AbstractPyRefactoring{
 
@@ -110,7 +115,7 @@ public class Refactorer extends AbstractPyRefactoring{
 			throw new RuntimeException(e);
 		}
         
-        if(pointers.size() == 0){
+        if(pointers.size() == 0 && request.findDefinitionInAdditionalInfo){
             String lookForInterface = tokenAndQual[1];
             List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(lookForInterface, request.nature,
                     AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);
@@ -167,8 +172,74 @@ public class Refactorer extends AbstractPyRefactoring{
     public void checkAvailableForRefactoring(RefactoringRequest request) {
         //can always do it (does not depend upon the project)
     }
+    
     public boolean useDefaultRefactoringActionCycle() {
         return false;
+    }
+    
+    public void findReferences(RefactoringRequest request) {
+    }
+    
+    /**
+     * 
+     * @param request
+     * @return the hierarchy model, having the returned node as our 'point of interest'.
+     */
+    public HierarchyNodeModel findClassHierarchy(RefactoringRequest request) {
+        try {
+            request.findDefinitionInAdditionalInfo = false;
+            ItemPointer[] pointers = this.findDefinition(request);
+            if(pointers.length == 1){
+                Definition d = pointers[0].definition;
+                HierarchyNodeModel model = createHierarhyNodeFromDef(d);
+                
+                if(model != null){
+                    ClassDef classDef = (ClassDef) d.ast;
+                    
+                    //ok, let's find the parents...
+                    for(exprType exp :classDef.bases){
+                        String n = NodeUtils.getFullRepresentationString(exp);
+                        Definition[] definitions = (Definition[]) d.module.findDefinition(n, exp.beginColumn+n.length(), exp.beginLine, request.nature, new ArrayList<FindInfo>());
+                        for (Definition definition : definitions) {
+                            HierarchyNodeModel model2 = createHierarhyNodeFromDef(definition);
+                            if(model2 != null){
+                                model.parents.add(model2);
+                            }
+                        }
+                    }
+                    
+                    //and now the children...
+                    List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(model.name, request.nature, AdditionalProjectInterpreterInfo.COMPLETE_INDEX);
+                    for (IInfo info : tokensEqualTo) {
+                        String declaringModuleName = info.getDeclaringModuleName();
+                        IModule module = request.nature.getAstManager().getModule(declaringModuleName, request.nature, false);
+                        
+                        if(module instanceof SourceModule){
+                            SourceModule m = (SourceModule) module;
+                            System.out.println(m);
+                        }
+                    }
+                }
+                return model;
+            }
+            return null;
+            
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    /**
+     * @param d
+     * @param model
+     * @return
+     */
+    private HierarchyNodeModel createHierarhyNodeFromDef(Definition d) {
+        HierarchyNodeModel model = null;
+        if(d.ast instanceof ClassDef){
+            String name = NodeUtils.getRepresentationString(d.ast);
+            model = new HierarchyNodeModel(name, d.module.getName());
+        }
+        return model;
     }
 
 

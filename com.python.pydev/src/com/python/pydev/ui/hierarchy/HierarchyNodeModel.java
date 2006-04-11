@@ -16,14 +16,14 @@ public class HierarchyNodeModel {
     public String name;
     public List<HierarchyNodeModel> parents = new ArrayList<HierarchyNodeModel>();
     public List<HierarchyNodeModel> children = new ArrayList<HierarchyNodeModel>();
-	private String pack;
+	public String moduleName;
     
 	public HierarchyNodeModel(String name) {
 		this(name, "default");
 	}
     public HierarchyNodeModel(String name, String pack) {
         this.name = name;
-        this.pack = pack;
+        this.moduleName = pack;
     }
 
     @Override
@@ -34,6 +34,6 @@ public class HierarchyNodeModel {
     @Override
     public boolean equals(Object obj) {
         final HierarchyNodeModel h = (HierarchyNodeModel)obj;
-		return name.equals(h.name) && pack.equals(h.pack);
+		return name.equals(h.name) && moduleName.equals(h.moduleName);
     }
 }

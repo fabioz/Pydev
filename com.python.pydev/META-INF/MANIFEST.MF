@@ -34,4 +34,6 @@ Export-Package: com.python.pydev,
  com.python.pydev.license.defaults,
  com.python.pydev.properties,
  com.python.pydev.ui,
+ com.python.pydev.ui.hierarchy,
+ com.python.pydev.ui.search,
  com.python.pydev.util

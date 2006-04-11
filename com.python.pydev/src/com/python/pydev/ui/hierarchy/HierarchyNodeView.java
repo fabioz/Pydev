@@ -5,6 +5,12 @@ package com.python.pydev.ui.hierarchy;
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.swt.graphics.Image;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.UIConstants;
 
 import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
 import edu.umd.cs.piccolo.event.PInputEvent;
@@ -25,18 +31,27 @@ public class HierarchyNodeView {
     public PSWTPath node;
     public HierarchyNodeModel model;
 	public Color initialColor;
+	public List<HierarchyNodeViewListener> listeners = new ArrayList<HierarchyNodeViewListener>();
     
     public HierarchyNodeView(PSWTCanvas canvas, HierarchyNodeModel model, double x, double y) {
     	this(canvas, model, x, y, Color.WHITE);
     }
-    
+
+    protected void onClick(PInputEvent event) {
+        for(HierarchyNodeViewListener l:listeners){
+            l.onClick(this, event);
+        }
+    }
+
+
     /**
      * Creates the node based on its starting position.
      */
     public HierarchyNodeView(PSWTCanvas canvas, HierarchyNodeModel model, double x, double y, Color initialColor) {
     	this.model = model;
     	this.initialColor = initialColor;
-        final PSWTImage img = new PSWTImage(canvas, "e:\\eclipse_workspace\\com.python.pydev\\src\\class_obj.gif");
+        Image classImg = PydevPlugin.getImageCache().get(UIConstants.CLASS_ICON);
+        final PSWTImage img = new PSWTImage(canvas, classImg);
         img.translate(0+x, 5+y);
         Rectangle2D imgRect = img.getBounds().getBounds2D();
         final PSWTText text = new PSWTText(model.name);
@@ -59,6 +74,10 @@ public class HierarchyNodeView {
             @Override
             public void mouseExited(PInputEvent event) {
                 rect.setPaint(HierarchyNodeView.this.initialColor);
+            }
+            @Override
+            public void mouseClicked(PInputEvent event) {
+                onClick(event);
             }
         });
         

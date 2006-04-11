@@ -8,6 +8,8 @@ import junit.framework.TestCase;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.BundleInfoStub;
 
 public class HierarchyViewerTest extends TestCase {
 
@@ -17,6 +19,7 @@ public class HierarchyViewerTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
+        PydevPlugin.setBundleInfo(new BundleInfoStub());
     }
 
     protected void tearDown() throws Exception {
@@ -25,10 +28,10 @@ public class HierarchyViewerTest extends TestCase {
     public void testIt() throws Exception {
         Display display = new Display ();
         Shell shell = open(display);
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) display.sleep();
-        }
-        display.dispose();
+//        while (!shell.isDisposed()) {
+//            if (!display.readAndDispatch()) display.sleep();
+//        }
+//        display.dispose();
     }
     
     public static Shell open(Display display) {
