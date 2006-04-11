@@ -82,11 +82,10 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
 	public synchronized Serializable getObj(String key) {
 		synchronized(cache){
 			Serializable v = super.getObj(key);
-			if(v == null && keys.contains(v)){
+			if(v == null && keys.contains(key)){
 				//miss in memory... get from disk
 				File file = getFileForKey(key);
 				v = (Serializable) REF.readFromFile(file);
-				
 				//put it back in memory
 				super.add(key, v);
 			}

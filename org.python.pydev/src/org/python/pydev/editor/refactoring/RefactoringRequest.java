@@ -61,8 +61,13 @@ public class RefactoringRequest{
      * The module name (may be null)
      */
 	public String moduleName;
-
+    
     public DuringProcessInfo duringProcessInfo;
+    
+    /**
+     * may be set to false if we are not interested in searching the additional info for definitions 
+     */
+    public boolean findDefinitionInAdditionalInfo = true;
     
     /**
      * This class contains information that is acquired during the refactoring process (such as the initial or final

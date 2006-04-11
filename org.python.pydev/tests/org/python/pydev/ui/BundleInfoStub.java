@@ -6,6 +6,7 @@
 package org.python.pydev.ui;
 
 import java.io.File;
+import java.net.URL;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -37,6 +38,10 @@ public class BundleInfoStub implements IBundleInfo {
     }
 
     public ImageCache getImageCache() {
-        return null;
+        try {
+            return new ImageCache(new URL("file:///" + TestDependent.TEST_PYDEV_PLUGIN_LOC));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

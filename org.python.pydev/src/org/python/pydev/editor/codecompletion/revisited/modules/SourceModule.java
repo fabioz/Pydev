@@ -56,6 +56,8 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class SourceModule extends AbstractModule {
 
+    public static boolean TESTING = false;
+    
     /**
      * This is the abstract syntax tree based on the jython parser output.
      */
@@ -608,6 +610,9 @@ public class SourceModule extends AbstractModule {
      * @return if the file we have is the same file in the cache.
      */
     public boolean isSynched() {
+        if(this.file == null && TESTING){
+            return true; //when testing we can have a source module without a file
+        }
         return this.file.lastModified() == this.lastModified;
     }
     

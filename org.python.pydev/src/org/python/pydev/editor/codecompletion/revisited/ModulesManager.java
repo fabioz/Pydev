@@ -373,7 +373,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @param key this is the key that should be added
      * @param n 
      */
-    protected void doAddSingleModule(final ModulesKey key, AbstractModule n) {
+    public void doAddSingleModule(final ModulesKey key, AbstractModule n) {
     	this.modulesKeys.put(key, key);
         this.cache.add(key, n);
     }
