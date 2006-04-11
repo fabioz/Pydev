@@ -9,4 +9,11 @@ The process must be the following:
 
 To display it we should always have:
 1. The current class we're seeing 
-2. 
+2
+
+Examples to see better:
+CenterExample (how to center)
+TooltipExample
+NodeLinkExample
+LayoutExample
+
