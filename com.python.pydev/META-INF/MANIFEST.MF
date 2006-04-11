@@ -29,9 +29,7 @@ Eclipse-AutoStart: true
 Bundle-ClassPath: pydev.jar,
  retroweaver-rt.jar,
  mail.jar,
- activation.jar,
- piccolo.jar,
- piccolox.jar
+ activation.jar
 Export-Package: com.python.pydev,
  com.python.pydev.license.defaults,
  com.python.pydev.properties,

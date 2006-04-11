@@ -41,9 +41,11 @@ public class HierarchyViewerTest extends TestCase {
         curr.parents.add(new HierarchyNodeModel("par1"));
         curr.parents.add(new HierarchyNodeModel("par2"));
         
-        curr.children.add(new HierarchyNodeModel("child1"));
+        final HierarchyNodeModel c1 = new HierarchyNodeModel("child1");
+		curr.children.add(c1);
         curr.children.add(new HierarchyNodeModel("child2"));
         
+        c1.children.add(new HierarchyNodeModel("sub1"));
         
         
         viewer.setHierarchy(curr);

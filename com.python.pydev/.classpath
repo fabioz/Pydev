@@ -6,7 +6,5 @@
 	<classpathentry kind="lib" path="mail.jar"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="lib" path="activation.jar"/>
-	<classpathentry sourcepath="C:/Documents and Settings/Fabio/Desktop/piccolo-1.2/piccolo-1.2/src" kind="lib" path="piccolo.jar"/>
-	<classpathentry sourcepath="C:/Documents and Settings/Fabio/Desktop/piccolo-1.2/piccolo-1.2/extras" kind="lib" path="piccolox.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

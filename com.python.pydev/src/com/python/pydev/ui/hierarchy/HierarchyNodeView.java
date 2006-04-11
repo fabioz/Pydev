@@ -23,15 +23,17 @@ import edu.umd.cs.piccolox.swt.PSWTText;
  */
 public class HierarchyNodeView {
     public PSWTPath node;
-
+    public HierarchyNodeModel model;
+    
     /**
      * Creates the node based on its starting position.
      */
-    public HierarchyNodeView(PSWTCanvas canvas, String name, double x, double y) {
-        final PSWTImage img = new PSWTImage(canvas, "D:\\eclipse_workspace\\com.python.pydev\\src\\class_obj.gif");
+    public HierarchyNodeView(PSWTCanvas canvas, HierarchyNodeModel model, double x, double y) {
+    	this.model = model;
+        final PSWTImage img = new PSWTImage(canvas, "e:\\eclipse_workspace\\com.python.pydev\\src\\class_obj.gif");
         img.translate(0+x, 5+y);
         Rectangle2D imgRect = img.getBounds().getBounds2D();
-        final PSWTText text = new PSWTText(name);
+        final PSWTText text = new PSWTText(model.name);
         Rectangle2D textRect = text.getBounds().getBounds2D();
         text.translate(imgRect.getWidth()+2+x, 0+y);
         
