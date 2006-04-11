@@ -4,6 +4,7 @@
 package com.python.pydev.ui.hierarchy;
 
 import java.awt.Color;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,6 +36,9 @@ public class HierarchyViewer extends PSWTCanvas{
      * Sets the hierarchy initializing on the 'node of interest', that is the initial node here.
      */
     public void setHierarchy(HierarchyNodeModel initialNode){
+    	this.getLayer().setTransform(new AffineTransform()); //default transform
+    	this.getLayer().removeAllChildren(); //clear all, as we're setting from the beggining
+    	
         Set<HierarchyNodeModel> nodesAdded = new HashSet<HierarchyNodeModel>();
         double y = 10;
         double x = 10;

@@ -32,8 +32,8 @@
       <initializer class="com.python.pydev.PydevExtensionInitializer"/>
    </extension>
 
-   <extension point="org.eclipse.ui.commands">
 <!-- command: activate interactive console-->
+   <extension point="org.eclipse.ui.commands">
       <command
             description="Activates the interactive console."
             id="org.python.pydev.interactiveconsole.evaluateActionSetter"
@@ -41,8 +41,8 @@
             name="Interactive Console">
       </command>
    </extension>
-   <extension point="org.eclipse.ui.bindings">
 <!-- binding: activate interactive console-->
+   <extension point="org.eclipse.ui.bindings">
       <key
             sequence="Ctrl+Enter"
             contextId="org.python.pydev.ui.editor.scope"
@@ -50,6 +50,41 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
    </extension>
+<!-- command: hierarchy view (F4)-->
+   <extension point="org.eclipse.ui.commands">
+      <command
+            description="Show the class hierarchy for a python class"
+            id="com.python.pydev.actions.pyShowHierarchy"
+            categoryId="org.python.pydev.ui.category.source"
+            name="Show Python Class Hierarchy">
+      </command>
+   </extension>
+<!-- binding: hierarchy view (F4)-->
+   <extension point="org.eclipse.ui.bindings">
+      <key
+            sequence="F4"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="com.python.pydev.actions.pyShowHierarchy"	
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+   </extension>
+<!-- action: hierarchy view (F4)-->
+   <extension point="org.eclipse.ui.editorActions">
+      <editorContribution
+            targetID="org.python.pydev.editor.PythonEditor"
+            id="org.python.pydev.editor.editorContribution">
+         <action
+               definitionId="com.python.pydev.actions.pyShowHierarchy"
+               label="Show Python Class Hierarchy"
+               class="com.python.pydev.actions.PyShowHierarchy"
+               id="com.python.pydev.actions.pyShowHierarchy">
+         </action>
+      </editorContribution>
+   </extension>
+
+
+
+<!-- binding: search page-->
    <extension
          point="org.eclipse.search.searchPages">
       <page

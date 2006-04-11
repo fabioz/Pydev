@@ -1,23 +1,19 @@
 package com.python.pydev.ui.hierarchy;
 
-import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.part.ViewPart;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
-import edu.umd.cs.piccolox.swt.PSWTCanvas;
-
 public class PyHierarchyView extends ViewPart {
 
-	private static PSWTCanvas viewer;
+	private static HierarchyViewer viewer;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -28,7 +24,7 @@ public class PyHierarchyView extends ViewPart {
         layout.marginHeight = 2;
         parent.setLayout(layout);
 
-        SashForm s = new SashForm(parent, SWT.HORIZONTAL);
+        SashForm s = new SashForm(parent, SWT.VERTICAL);
         GridData layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.grabExcessVerticalSpace = true;
@@ -37,10 +33,8 @@ public class PyHierarchyView extends ViewPart {
         s.setLayoutData(layoutData);
         
         parent = s;
-        System.out.println("creating...");
-    	viewer = new PSWTCanvas(parent, 0);
-//        viewer = new HierarchyViewer(parent, 0);
-//		createTempHierarchy();
+        viewer = new HierarchyViewer(parent, 0);
+		createTempHierarchy();
         
         Tree tree = new Tree(parent, 0);
         TreeItem item = new TreeItem(tree, 0);
@@ -89,7 +83,7 @@ public class PyHierarchyView extends ViewPart {
         c1.children.add(new HierarchyNodeModel("sub1"));
         
         
-//        viewer.setHierarchy(curr);
+        viewer.setHierarchy(curr);
 	}
 
 	@Override
