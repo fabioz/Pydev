@@ -31,7 +31,13 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditionalInterpreterInfo{
     
-    public static boolean TESTING = false;
+	/**
+	 * Maximun number of modules to have in memory (when reaching that limit, a module will have to be removed
+	 * before another module is loaded).
+	 */
+    public static final int DISK_CACHE_IN_MEMORY = 300;
+
+	public static boolean TESTING = false;
 
     /**
      * Defines that some operation should be done on the complete name indexing.
@@ -45,14 +51,14 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * 
      * So the key is the module name and the value is a Set of the strings it contains.
      */
-    protected DiskCache completeIndex; 
+    public DiskCache completeIndex; 
 
     /**
      * default constructor
      */
     public AbstractAdditionalDependencyInfo() {
     	File persistingFolder = getCompletIndexPersistingFolder();
-		completeIndex = new DiskCache(700, persistingFolder, ".indexcache");
+		completeIndex = new DiskCache(DISK_CACHE_IN_MEMORY, persistingFolder, ".indexcache");
 	}
 
     /**

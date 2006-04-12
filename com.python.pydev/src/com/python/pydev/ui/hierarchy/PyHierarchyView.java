@@ -53,7 +53,7 @@ public class PyHierarchyView extends ViewPart {
 	private void createTempHierarchy() {
         HierarchyNodeModel curr = new HierarchyNodeModel("curr");
         
-        final HierarchyNodeModel par1pac1 = new HierarchyNodeModel("par1", "package1");
+        final HierarchyNodeModel par1pac1 = new HierarchyNodeModel("par1", "package1", null);
         final HierarchyNodeModel par1 = new HierarchyNodeModel("par1");
         final HierarchyNodeModel super1 = new HierarchyNodeModel("super1");
         final HierarchyNodeModel super2 = new HierarchyNodeModel("super2");

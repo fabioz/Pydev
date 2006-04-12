@@ -6,6 +6,9 @@ package com.python.pydev.ui.hierarchy;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.visitors.NodeUtils;
+
 /**
  * This is an hierarchy node that can have many parents and many children.
  * 
@@ -17,13 +20,19 @@ public class HierarchyNodeModel {
     public List<HierarchyNodeModel> parents = new ArrayList<HierarchyNodeModel>();
     public List<HierarchyNodeModel> children = new ArrayList<HierarchyNodeModel>();
 	public String moduleName;
+	public ClassDef ast;
     
 	public HierarchyNodeModel(String name) {
-		this(name, "default");
+		this(name, "default", null);
 	}
-    public HierarchyNodeModel(String name, String pack) {
+	public HierarchyNodeModel(String pack, ClassDef ast) {
+		this(NodeUtils.getRepresentationString(ast), pack, ast);
+	}
+	
+    public HierarchyNodeModel(String name, String pack, ClassDef ast) {
         this.name = name;
         this.moduleName = pack;
+        this.ast = ast;
     }
 
     @Override

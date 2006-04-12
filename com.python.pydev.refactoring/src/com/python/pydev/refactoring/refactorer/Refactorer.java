@@ -1,6 +1,8 @@
 package com.python.pydev.refactoring.refactorer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,6 +30,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 
 import com.python.pydev.analysis.AnalysisPlugin;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
@@ -183,9 +186,101 @@ public class Refactorer extends AbstractPyRefactoring{
     public void findReferences(RefactoringRequest request) {
     }
     
+    
+    private void findParentDefinitions(IPythonNature nature, Definition d, List<Definition> definitions, HierarchyNodeModel model) throws Exception {
+    	//ok, let's find the parents...
+    	for(exprType exp :model.ast.bases){
+    		String n = NodeUtils.getFullRepresentationString(exp);
+    		final int line = exp.beginLine;
+    		final int col = exp.beginColumn+n.length(); //the col must be the last char because it can be a dotted name
+    		definitions.addAll(Arrays.asList((Definition[])d.module.findDefinition(n, line, col, nature, new ArrayList<FindInfo>())));
+    	}
+    }
+    
+	private void findParents(IPythonNature nature, Definition d, HierarchyNodeModel initialModel, HashSet<HierarchyNodeModel> allFound) throws Exception {
+		List<Definition> definitions = new ArrayList<Definition>();
+		HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
+		foundOnRound.add(initialModel);
+
+		while(foundOnRound.size() > 0){
+			HashSet<HierarchyNodeModel> nextRound = new HashSet<HierarchyNodeModel>(foundOnRound);
+			foundOnRound.clear();
+			
+			for (HierarchyNodeModel toFindOnRound : nextRound) {
+				findParentDefinitions(nature, d, definitions, toFindOnRound);
+				
+				//and add a parent for each definition found (this will make up the next search we will do)
+				for (Definition definition : definitions) {
+					HierarchyNodeModel model2 = createHierarhyNodeFromClassDef(definition);
+					if(model2 != null && allFound.contains(model2) == false){
+						allFound.add(model2);
+						toFindOnRound.parents.add(model2);
+						foundOnRound.add(model2);
+					}
+				}
+			}
+		}
+	}
+	
+	private void findChildren(RefactoringRequest request, HierarchyNodeModel initialModel, HashSet<HierarchyNodeModel> allFound) {
+		//and now the children...
+		AbstractAdditionalDependencyInfo infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(request.nature.getProject());
+		synchronized(infoForProject.completeIndex){
+			infoForProject.completeIndex.startGrowAsNeeded(2000); //let's stop the cache misses while we're in this process
+			try {
+				HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
+				foundOnRound.add(initialModel);
+
+				while(foundOnRound.size() > 0){
+					HashSet<HierarchyNodeModel> nextRound = new HashSet<HierarchyNodeModel>(foundOnRound);
+					foundOnRound.clear();
+
+					for (HierarchyNodeModel toFindOnRound : nextRound) {
+						HashSet<SourceModule> modulesToAnalyze = findLikelyModulesWithChildren(request, toFindOnRound, infoForProject);
+		
+						for (SourceModule module : modulesToAnalyze) {
+							SourceModule m = (SourceModule) module;
+							Iterator<ASTEntry> entries = EasyASTIteratorVisitor.createClassIterator(m.getAst());
+							
+							while (entries.hasNext()) {
+								ASTEntry entry = entries.next();
+								//we're checking for those that have model.name as a parent
+								ClassDef def = (ClassDef) entry.node;
+								List<String> parentNames = NodeUtils.getParentNames(def, true);
+								if (parentNames.contains(toFindOnRound.name)) {
+									final HierarchyNodeModel newNode = new HierarchyNodeModel(module.getName(), def);
+									if(newNode != null && allFound.contains(newNode) == false){
+										toFindOnRound.children.add(newNode);
+										allFound.add(newNode);
+										foundOnRound.add(newNode);
+									}
+								}
+							}
+						}
+					}
+				}				
+				
+			} finally{
+				infoForProject.completeIndex.stopGrowAsNeeded();
+			}
+		}
+	}
+	
+	private HashSet<SourceModule> findLikelyModulesWithChildren(RefactoringRequest request, HierarchyNodeModel model, AbstractAdditionalDependencyInfo infoForProject) {
+		//get the modules that are most likely to have that declaration.
+		HashSet<SourceModule> modulesToAnalyze = new HashSet<SourceModule>();
+		List<IInfo> tokensEqualTo = infoForProject.getTokensEqualTo(model.name, AdditionalProjectInterpreterInfo.COMPLETE_INDEX);
+		for (IInfo info : tokensEqualTo) {
+		    String declaringModuleName = info.getDeclaringModuleName();
+		    IModule module = request.nature.getAstManager().getModule(declaringModuleName, request.nature, false);
+		    if(module instanceof SourceModule){
+		    	modulesToAnalyze.add((SourceModule) module);
+		    }
+		}
+		return modulesToAnalyze;
+	}
+
     /**
-     * 
-     * @param request
      * @return the hierarchy model, having the returned node as our 'point of interest'.
      */
     public HierarchyNodeModel findClassHierarchy(RefactoringRequest request) {
@@ -193,45 +288,18 @@ public class Refactorer extends AbstractPyRefactoring{
             request.findDefinitionInAdditionalInfo = false;
             ItemPointer[] pointers = this.findDefinition(request);
             if(pointers.length == 1){
+            	//ok, this is the default one.
                 Definition d = pointers[0].definition;
                 HierarchyNodeModel model = createHierarhyNodeFromClassDef(d);
                 
-                if(model != null){
-                    ClassDef classDef = (ClassDef) d.ast;
-                    
-                    //ok, let's find the parents...
-                    for(exprType exp :classDef.bases){
-                        String n = NodeUtils.getFullRepresentationString(exp);
-                        Definition[] definitions = (Definition[]) d.module.findDefinition(n, exp.beginColumn+n.length(), exp.beginLine, request.nature, new ArrayList<FindInfo>());
-                        for (Definition definition : definitions) {
-                            HierarchyNodeModel model2 = createHierarhyNodeFromClassDef(definition);
-                            if(model2 != null){
-                                model.parents.add(model2);
-                            }
-                        }
-                    }
-                    
-                    //and now the children...
-                    List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(model.name, request.nature, AdditionalProjectInterpreterInfo.COMPLETE_INDEX);
-                    for (IInfo info : tokensEqualTo) {
-                        String declaringModuleName = info.getDeclaringModuleName();
-                        IModule module = request.nature.getAstManager().getModule(declaringModuleName, request.nature, false);
-                        
-                        if(module instanceof SourceModule){
-                            SourceModule m = (SourceModule) module;
-                            Iterator<ASTEntry> entries = EasyASTIteratorVisitor.createClassIterator(m.getAst());
-                            while(entries.hasNext()){
-                                ASTEntry entry = entries.next();
-                                //we're checking for those that have model.name as a parent
-                                ClassDef def = (ClassDef) entry.node;
-                                List<String> parentNames = NodeUtils.getParentNames(def, true);
-                                if(parentNames.contains(model.name)){
-                                    model.children.add(new HierarchyNodeModel(NodeUtils.getRepresentationString(def), module.getName()));
-                                }
-                            }
-                        }
-                    }
+                if(model == null){
+                	return null;
                 }
+        		HashSet<HierarchyNodeModel> allFound = new HashSet<HierarchyNodeModel>();
+        		allFound.add(model);
+                
+                findParents(request.nature, d, model, allFound);
+                findChildren(request, model, allFound);
                 return model;
             }
             return null;
@@ -240,6 +308,7 @@ public class Refactorer extends AbstractPyRefactoring{
             throw new RuntimeException(e);
         }
     }
+    
     /**
      * @param d
      * @param model
@@ -248,8 +317,7 @@ public class Refactorer extends AbstractPyRefactoring{
     private HierarchyNodeModel createHierarhyNodeFromClassDef(Definition d) {
         HierarchyNodeModel model = null;
         if(d.ast instanceof ClassDef){
-            String name = NodeUtils.getRepresentationString(d.ast);
-            model = new HierarchyNodeModel(name, d.module.getName());
+            model = new HierarchyNodeModel(d.module.getName(), (ClassDef) d.ast);
         }
         return model;
     }
