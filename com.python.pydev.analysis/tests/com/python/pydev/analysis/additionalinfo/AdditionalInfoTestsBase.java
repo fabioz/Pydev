@@ -18,9 +18,14 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.parser.jython.SimpleNode;
 
 import com.python.pydev.analysis.AnalysisTestsBase;
 import com.python.pydev.analysis.builder.AnalysisRunner;
@@ -66,7 +71,8 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
      * @param type the marker type
      * @return the created stub
      */
-    protected MarkerStub createMarkerStub(int start, int end, int type) {
+    @SuppressWarnings("unchecked")
+	protected MarkerStub createMarkerStub(int start, int end, int type) {
         HashMap attrs = new HashMap();
 
         attrs.put(AnalysisRunner.PYDEV_ANALYSIS_TYPE, type);
@@ -76,5 +82,16 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         MarkerStub marker = new MarkerStub(attrs);
         return marker;
     }
+    
+	protected void addFooModule(final SimpleNode ast) {
+		//this is to add the info from the 'foo' module that we just created...
+        List<AbstractAdditionalInterpreterInfo> additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(nature, false);
+        assertEquals(1, additionalInfo.size());
+		additionalInfo.get(0).addAstInfo(ast, "foo", nature, false);
+        ModulesManager modulesManager = (ModulesManager) nature.getAstManager().getModulesManager();
+        SourceModule mod = (SourceModule) AbstractModule.createModule(ast, null, "foo");
+        modulesManager.doAddSingleModule(new ModulesKey("foo", null), mod);
+        //end adding foo module
+	}
     
 }

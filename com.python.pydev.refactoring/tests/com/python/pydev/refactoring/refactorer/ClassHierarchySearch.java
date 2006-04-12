@@ -6,26 +6,22 @@ package com.python.pydev.refactoring.refactorer;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.parser.jython.SimpleNode;
 
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
-import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
 public class ClassHierarchySearch extends AdditionalInfoTestsBase  {
 
     public static void main(String[] args) {
         try {
-            ClassHierarchySearch test = new ClassHierarchySearch();
-            test.setUp();
-            test.tearDown();
+//            ClassHierarchySearch test = new ClassHierarchySearch();
+//            test.setUp();
+//            test.tearDown();
             
             junit.textui.TestRunner.run(ClassHierarchySearch.class);
         } catch (Throwable e) {
@@ -61,12 +57,9 @@ public class ClassHierarchySearch extends AdditionalInfoTestsBase  {
         
         RefactoringRequest request = new RefactoringRequest(null, ps, nature);
         request.moduleName = "foo";
+        final SimpleNode ast = request.getAST();
         
-        List<AbstractAdditionalInterpreterInfo> additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(nature);
-        additionalInfo.get(0).addAstInfo(request.getAST(), "foo", nature, false);
-        ModulesManager modulesManager = (ModulesManager) nature.getAstManager().getModulesManager();
-        SourceModule mod = (SourceModule) AbstractModule.createModule(request.getAST(), null, "foo");
-        modulesManager.doAddSingleModule(new ModulesKey("foo", null), mod);
+        addFooModule(ast);
         
         
         HierarchyNodeModel node = refactorer.findClassHierarchy(request);
@@ -76,6 +69,7 @@ public class ClassHierarchySearch extends AdditionalInfoTestsBase  {
         assertIsIn("Pickler", "pickle", node.parents);
         assertIsIn("Foo", "foo", node.children);
     }
+
 
     private void assertIsIn(String name, String modName, List<HierarchyNodeModel> parents) {
         for (HierarchyNodeModel model : parents) {

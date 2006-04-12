@@ -171,17 +171,23 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         info.save();
     }
 
+    public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature) {
+    	return getAdditionalInfo(nature, true);
+    }
+    
     /**
      * @param nature the nature we want to get info on
      * @return all the additional info that is bounded with some nature (including related projects)
      */
-    public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature) {
+    public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature, boolean addSystemInfo) {
         List<AbstractAdditionalInterpreterInfo> ret = new ArrayList<AbstractAdditionalInterpreterInfo>();
         IProject project = nature.getProject();
         
         //get for the system info
-        AbstractAdditionalInterpreterInfo systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(PydevPlugin.getInterpreterManager(nature));
-        ret.add(systemInfo);
+        if(addSystemInfo){
+	        AbstractAdditionalInterpreterInfo systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(PydevPlugin.getInterpreterManager(nature));
+	        ret.add(systemInfo);
+        }
     
         //get for the current project
         if(project != null){
