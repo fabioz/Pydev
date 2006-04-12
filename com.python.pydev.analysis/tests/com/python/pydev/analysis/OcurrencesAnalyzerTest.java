@@ -100,6 +100,18 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
     }
     
+    public void testDelete(){
+    	doc = new Document(
+    			"def m1():\n"+
+    			"    del foo\n"
+    	);
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,1);
+    	
+    }
+    
     public void testFromFutureImport(){
         doc = new Document(
                 "from __future__ import generators\n"
