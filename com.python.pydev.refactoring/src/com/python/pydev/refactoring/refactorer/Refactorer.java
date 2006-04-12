@@ -1,6 +1,7 @@
 package com.python.pydev.refactoring.refactorer;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
@@ -21,6 +22,8 @@ import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 
@@ -191,7 +194,7 @@ public class Refactorer extends AbstractPyRefactoring{
             ItemPointer[] pointers = this.findDefinition(request);
             if(pointers.length == 1){
                 Definition d = pointers[0].definition;
-                HierarchyNodeModel model = createHierarhyNodeFromDef(d);
+                HierarchyNodeModel model = createHierarhyNodeFromClassDef(d);
                 
                 if(model != null){
                     ClassDef classDef = (ClassDef) d.ast;
@@ -201,7 +204,7 @@ public class Refactorer extends AbstractPyRefactoring{
                         String n = NodeUtils.getFullRepresentationString(exp);
                         Definition[] definitions = (Definition[]) d.module.findDefinition(n, exp.beginColumn+n.length(), exp.beginLine, request.nature, new ArrayList<FindInfo>());
                         for (Definition definition : definitions) {
-                            HierarchyNodeModel model2 = createHierarhyNodeFromDef(definition);
+                            HierarchyNodeModel model2 = createHierarhyNodeFromClassDef(definition);
                             if(model2 != null){
                                 model.parents.add(model2);
                             }
@@ -216,7 +219,16 @@ public class Refactorer extends AbstractPyRefactoring{
                         
                         if(module instanceof SourceModule){
                             SourceModule m = (SourceModule) module;
-                            System.out.println(m);
+                            Iterator<ASTEntry> entries = EasyASTIteratorVisitor.createClassIterator(m.getAst());
+                            while(entries.hasNext()){
+                                ASTEntry entry = entries.next();
+                                //we're checking for those that have model.name as a parent
+                                ClassDef def = (ClassDef) entry.node;
+                                List<String> parentNames = NodeUtils.getParentNames(def, true);
+                                if(parentNames.contains(model.name)){
+                                    model.children.add(new HierarchyNodeModel(NodeUtils.getRepresentationString(def), module.getName()));
+                                }
+                            }
                         }
                     }
                 }
@@ -233,7 +245,7 @@ public class Refactorer extends AbstractPyRefactoring{
      * @param model
      * @return
      */
-    private HierarchyNodeModel createHierarhyNodeFromDef(Definition d) {
+    private HierarchyNodeModel createHierarhyNodeFromClassDef(Definition d) {
         HierarchyNodeModel model = null;
         if(d.ast instanceof ClassDef){
             String name = NodeUtils.getRepresentationString(d.ast);
