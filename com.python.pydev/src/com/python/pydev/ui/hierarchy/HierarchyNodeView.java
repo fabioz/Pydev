@@ -51,7 +51,7 @@ public class HierarchyNodeView {
     	this.model = model;
     	this.initialColor = initialColor;
         Image classImg = PydevPlugin.getImageCache().get(UIConstants.CLASS_ICON);
-        final PSWTImage img = new PSWTImage(canvas, classImg);
+        final PSWTImage img = new PSWTImage(canvas, classImg, false); //do not dispose it.
         img.translate(0+x, 5+y);
         Rectangle2D imgRect = img.getBounds().getBounds2D();
         final PSWTText text = new PSWTText(model.name);

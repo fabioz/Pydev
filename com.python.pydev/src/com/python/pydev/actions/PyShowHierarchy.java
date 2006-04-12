@@ -5,8 +5,13 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
+import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.IPyRefactoring;
+import org.python.pydev.editor.refactoring.RefactoringRequest;
 
+import com.python.pydev.refactoring.IPyRefactoring2;
+import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 import com.python.pydev.ui.hierarchy.PyHierarchyView;
 
 /**
@@ -17,20 +22,48 @@ import com.python.pydev.ui.hierarchy.PyHierarchyView;
  * @author fabioz
  *
  */
-public class PyShowHierarchy extends PyAction{
+public class PyShowHierarchy extends PyRefactorAction{
 
-	public void run(IAction action) {
+
+    IPyRefactoring pyRefactoring;
+    /**
+     * @return
+     */
+    protected IPyRefactoring getPyRefactoring() {
+        if(pyRefactoring == null){
+            pyRefactoring = AbstractPyRefactoring.getPyRefactoring(); //the one provided by the com part (no need to check for it).
+        }
+        return pyRefactoring;
+    }
+
+
+	@Override
+	protected String perform(IAction action, String name, Operation operation) throws Exception {
 		IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		try {
 			IWorkbenchPage page= workbenchWindow.getActivePage();
-			PyHierarchyView view = (PyHierarchyView) page.showView("com.python.pydev.ui.hierarchy.PyHierarchyView");
+			PyHierarchyView view = (PyHierarchyView) page.showView("com.python.pydev.ui.hierarchy.PyHierarchyView", null, IWorkbenchPage.VIEW_VISIBLE);
 			if(view != null){
 				//set whatever is needed for the hierarchy
+				IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
+				if(pyRefactoring instanceof IPyRefactoring2){
+					RefactoringRequest refactoringRequest = getRefactoringRequest();
+					IPyRefactoring2 r2 = (IPyRefactoring2) pyRefactoring;
+					HierarchyNodeModel model = r2.findClassHierarchy(refactoringRequest);
+					view.setHierarchy(model);
+				}
+
 			}
 			
 		} catch (Exception e) {
 			Log.log(e);
 		}
+		return "";
+	}
+
+	@Override
+	protected String getInputMessage() {
+		return null;
 	}
 
 }

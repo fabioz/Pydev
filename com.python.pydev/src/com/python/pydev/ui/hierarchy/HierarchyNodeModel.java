@@ -6,6 +6,7 @@ package com.python.pydev.ui.hierarchy;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.util.Assert;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 
@@ -16,10 +17,22 @@ import org.python.pydev.parser.visitors.NodeUtils;
  */
 public class HierarchyNodeModel {
 
+	/**
+	 * Its name (cannot be null)
+	 */
     public String name;
+    
     public List<HierarchyNodeModel> parents = new ArrayList<HierarchyNodeModel>();
     public List<HierarchyNodeModel> children = new ArrayList<HierarchyNodeModel>();
+    
+    /**
+     * The module where it was defined (might be null)
+     */
 	public String moduleName;
+	
+	/**
+	 * The classdef definition (might be null)
+	 */
 	public ClassDef ast;
     
 	public HierarchyNodeModel(String name) {
@@ -30,6 +43,7 @@ public class HierarchyNodeModel {
 	}
 	
     public HierarchyNodeModel(String name, String pack, ClassDef ast) {
+    	Assert.isNotNull(name);
         this.name = name;
         this.moduleName = pack;
         this.ast = ast;
@@ -44,5 +58,10 @@ public class HierarchyNodeModel {
     public boolean equals(Object obj) {
         final HierarchyNodeModel h = (HierarchyNodeModel)obj;
 		return name.equals(h.name) && moduleName.equals(h.moduleName);
+    }
+    
+    @Override
+    public String toString() {
+    	return "HierarchyNodeModel["+name+" - "+moduleName+"]";
     }
 }

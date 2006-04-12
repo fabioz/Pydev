@@ -175,13 +175,15 @@ public class InterpreterObserver implements IInterpreterObserver {
             
 			AdditionalProjectInterpreterInfo newProjectInfo = new AdditionalProjectInterpreterInfo(project);
 			String feedback = "(project:" + project.getName() + ")";
-			AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(
-					monitor, m, feedback, newProjectInfo, nature);
-
-			if (info != null) {
-				//ok, set it and save it
-				AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
-				AdditionalProjectInterpreterInfo.saveAdditionalInfoForProject(project);
+			synchronized(m){
+				AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(
+						monitor, m, feedback, newProjectInfo, nature);
+	
+				if (info != null) {
+					//ok, set it and save it
+					AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
+					AdditionalProjectInterpreterInfo.saveAdditionalInfoForProject(project);
+				}
 			}
 		} catch (Exception e) {
 			PydevPlugin.log(e);

@@ -38,6 +38,10 @@ public class HierarchyViewer extends PSWTCanvas{
     public void setHierarchy(HierarchyNodeModel initialNode){
     	this.getLayer().setTransform(new AffineTransform()); //default transform
     	this.getLayer().removeAllChildren(); //clear all, as we're setting from the beggining
+    	allAdded.clear();
+    	if(initialNode == null){
+    		initialNode = new HierarchyNodeModel("Invalid");
+    	}
     	
         Set<HierarchyNodeModel> nodesAdded = new HashSet<HierarchyNodeModel>();
         double y = 10;

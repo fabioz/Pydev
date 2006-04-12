@@ -53,26 +53,26 @@ public class PSWTImage extends PNode {
 
 	private transient Image image;
 
-	public PSWTImage(PSWTCanvas canvas) {
+	public PSWTImage(PSWTCanvas canvas, final boolean disposeImage) {
 		super();
 		
 		this.canvas = canvas;
 		canvas.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent de) {
-				if (image != null) {
+				if (image != null && disposeImage) {
 					image.dispose();
 				}	
 			}
 		});
 	}
 	
-	public PSWTImage(PSWTCanvas canvas, Image newImage) {
-		this(canvas);
+	public PSWTImage(PSWTCanvas canvas, Image newImage, boolean disposeImage) {
+		this(canvas, disposeImage);
 		setImage(newImage);
 	}
 
-	public PSWTImage(PSWTCanvas canvas, String fileName) {
-		this(canvas);
+	public PSWTImage(PSWTCanvas canvas, String fileName, boolean disposeImage) {
+		this(canvas, disposeImage);
 		setImage(fileName);	
 	}
 	

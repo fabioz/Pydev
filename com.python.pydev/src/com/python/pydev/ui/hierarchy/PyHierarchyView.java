@@ -34,7 +34,6 @@ public class PyHierarchyView extends ViewPart {
         
         parent = s;
         viewer = new HierarchyViewer(parent, 0);
-		createTempHierarchy();
         
         Tree tree = new Tree(parent, 0);
         TreeItem item = new TreeItem(tree, 0);
@@ -50,40 +49,42 @@ public class PyHierarchyView extends ViewPart {
         item.setImage(PydevPlugin.getImageCache().get(UIConstants.ASSIST_NEW_METHOD));
 	}
 
-	private void createTempHierarchy() {
-        HierarchyNodeModel curr = new HierarchyNodeModel("curr");
-        
-        final HierarchyNodeModel par1pac1 = new HierarchyNodeModel("par1", "package1", null);
-        final HierarchyNodeModel par1 = new HierarchyNodeModel("par1");
-        final HierarchyNodeModel super1 = new HierarchyNodeModel("super1");
-        final HierarchyNodeModel super2 = new HierarchyNodeModel("super2");
-        final HierarchyNodeModel par2 = new HierarchyNodeModel("par2");
-        final HierarchyNodeModel par3 = new HierarchyNodeModel("par3");
-        
-        super1.parents.add(super2);
-        super2.parents.add(par1pac1);
-		par1.parents.add(super1);
-		par1.parents.add(super2);
-		par2.parents.add(super1);
-		par3.parents.add(super2);
+	public void setHierarchy(HierarchyNodeModel model) {
+		viewer.setHierarchy(model);
 		
-		curr.parents.add(par1);
-		curr.parents.add(par2);
-		curr.parents.add(par3);
-		
-        curr.parents.add(new HierarchyNodeModel("par4"));
+//        HierarchyNodeModel curr = new HierarchyNodeModel("curr");
+//        
+//        final HierarchyNodeModel par1pac1 = new HierarchyNodeModel("par1", "package1", null);
+//        final HierarchyNodeModel par1 = new HierarchyNodeModel("par1");
+//        final HierarchyNodeModel super1 = new HierarchyNodeModel("super1");
+//        final HierarchyNodeModel super2 = new HierarchyNodeModel("super2");
+//        final HierarchyNodeModel par2 = new HierarchyNodeModel("par2");
+//        final HierarchyNodeModel par3 = new HierarchyNodeModel("par3");
+//        
+//        super1.parents.add(super2);
+//        super2.parents.add(par1pac1);
+//		par1.parents.add(super1);
+//		par1.parents.add(super2);
+//		par2.parents.add(super1);
+//		par3.parents.add(super2);
+//		
+//		curr.parents.add(par1);
+//		curr.parents.add(par2);
+//		curr.parents.add(par3);
+//		
+//        curr.parents.add(new HierarchyNodeModel("par4"));
+//        
+//        final HierarchyNodeModel c1 = new HierarchyNodeModel("child1");
+//		curr.children.add(c1);
+//        curr.children.add(new HierarchyNodeModel("child2"));
+//        final HierarchyNodeModel c3 = new HierarchyNodeModel("child3");
+//        c3.parents.add(par3); //does not show (we go straight to the top or to the bottom)
+//		curr.children.add(c3);
+//        
+//        c1.children.add(new HierarchyNodeModel("sub1"));
         
-        final HierarchyNodeModel c1 = new HierarchyNodeModel("child1");
-		curr.children.add(c1);
-        curr.children.add(new HierarchyNodeModel("child2"));
-        final HierarchyNodeModel c3 = new HierarchyNodeModel("child3");
-        c3.parents.add(par3); //does not show (we go straight to the top or to the bottom)
-		curr.children.add(c3);
         
-        c1.children.add(new HierarchyNodeModel("sub1"));
-        
-        
-        viewer.setHierarchy(curr);
+//        viewer.setHierarchy(curr);
 	}
 
 	@Override

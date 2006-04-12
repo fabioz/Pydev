@@ -21,7 +21,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         try {
             ClassHierarchySearchTest test = new ClassHierarchySearchTest();
             test.setUp();
-            test.testFindHierarchy4();
+            test.testFindHierarchy6();
             test.tearDown();
             
             junit.textui.TestRunner.run(ClassHierarchySearchTest.class);
@@ -120,6 +120,68 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
     	
     }
     
+    
+    public void testFindHierarchy5() {
+    	String str ="" +
+    	"class Root(object):\n" +
+    	"    pass\n" +
+    	"class Mid1(Root):\n" +
+    	"    pass\n" +
+    	"class Mid2(Root):\n" +
+    	"    pass\n" +
+    	"class Leaf(Mid1, Mid2):\n" +
+    	"    pass\n" +
+    	"\n" +
+    	"";
+    	
+    	final int line = 6;
+    	final int col = 8;
+    	
+    	RefactoringRequest request = setUpFooModule(line, col, str);
+    	
+    	HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+    	assertEquals("Leaf", node.name);
+    	assertEquals("foo", node.moduleName);
+    	
+    	HierarchyNodeModel mid1 = assertIsIn("Mid1", "foo", node.parents);
+    	HierarchyNodeModel mid2 = assertIsIn("Mid2", "foo", node.parents);
+    	assertIsIn("Root", "foo", mid1.parents);
+    	HierarchyNodeModel root = assertIsIn("Root", "foo", mid2.parents);
+    	assertIsIn("object", null, root.parents);
+    	
+    }
+    
+    public void testFindHierarchy6() {
+    	String str ="" +
+    	"class Root(object):\n" +
+    	"    pass\n" +
+    	"class Mid1(Root):\n" +
+    	"    pass\n" +
+    	"class Mid2(Root):\n" +
+    	"    pass\n" +
+    	"class Leaf(Mid1, Mid2):\n" +
+    	"    pass\n" +
+    	"import pickle\n" +
+    	"class Bla(Leaf, Foo):\n" +
+    	"    pass\n" +
+    	"class Foo:\n" +
+    	"    pass\n" +
+    	"";
+    	
+    	final int line = 9;
+    	final int col = 8;
+    	
+    	RefactoringRequest request = setUpFooModule(line, col, str);
+    	
+    	HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+    	assertEquals("Bla", node.name);
+    	assertEquals("foo", node.moduleName);
+    	
+    	HierarchyNodeModel foo = assertIsIn("Foo", "foo", node.parents);
+    	assertEquals(0, foo.parents.size());
+    	
+    }
+    
     private RefactoringRequest setUpFooModule(final int line, final int col) {
     	String str ="" +
     	"import pickle\n" +
@@ -147,8 +209,12 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
 
     private HierarchyNodeModel assertIsIn(String name, String modName, List<HierarchyNodeModel> parents) {
         for (HierarchyNodeModel model : parents) {
-            if(model.name.equals(name) && model.moduleName.equals(modName)){
-                return model;
+            if(model.name.equals(name)){
+            	if(modName == null){
+            		return model;
+            	}else if(model.moduleName.equals(modName)){
+            		return model;
+            	}
             }
         }
         fail("Unable to find node with name:"+name+" mod:"+modName);

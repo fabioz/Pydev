@@ -34,11 +34,12 @@ import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
+import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.refactoring.wizards.PyRenameProcessor;
 import com.python.pydev.refactoring.wizards.PyRenameRefactoringWizard;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
-public class Refactorer extends AbstractPyRefactoring{
+public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2{
 
 	public String extract(RefactoringRequest request) {
 		return null;
@@ -187,18 +188,22 @@ public class Refactorer extends AbstractPyRefactoring{
     }
     
     
-    private void findParentDefinitions(IPythonNature nature, Definition d, List<Definition> definitions, HierarchyNodeModel model) throws Exception {
+    private void findParentDefinitions(IPythonNature nature, Definition d, List<Definition> definitions, List<String> withoutAstDefinitions, HierarchyNodeModel model) throws Exception {
     	//ok, let's find the parents...
     	for(exprType exp :model.ast.bases){
     		String n = NodeUtils.getFullRepresentationString(exp);
     		final int line = exp.beginLine;
     		final int col = exp.beginColumn+n.length(); //the col must be the last char because it can be a dotted name
-    		definitions.addAll(Arrays.asList((Definition[])d.module.findDefinition(n, line, col, nature, new ArrayList<FindInfo>())));
+    		final Definition[] defs = (Definition[])d.module.findDefinition(n, line, col, nature, new ArrayList<FindInfo>());
+    		if(defs.length > 0){
+    			definitions.addAll(Arrays.asList(defs));
+    		}else{
+    			withoutAstDefinitions.add(n);
+    		}
     	}
     }
     
 	private void findParents(IPythonNature nature, Definition d, HierarchyNodeModel initialModel, HashSet<HierarchyNodeModel> allFound) throws Exception {
-		List<Definition> definitions = new ArrayList<Definition>();
 		HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
 		foundOnRound.add(initialModel);
 
@@ -207,16 +212,26 @@ public class Refactorer extends AbstractPyRefactoring{
 			foundOnRound.clear();
 			
 			for (HierarchyNodeModel toFindOnRound : nextRound) {
-				findParentDefinitions(nature, d, definitions, toFindOnRound);
+				List<Definition> definitions = new ArrayList<Definition>();
+				List<String> withoutAstDefinitions = new ArrayList<String>();
+				findParentDefinitions(nature, d, definitions, withoutAstDefinitions, toFindOnRound);
 				
 				//and add a parent for each definition found (this will make up the next search we will do)
 				for (Definition definition : definitions) {
 					HierarchyNodeModel model2 = createHierarhyNodeFromClassDef(definition);
-					if(model2 != null && allFound.contains(model2) == false){
-						allFound.add(model2);
-						toFindOnRound.parents.add(model2);
-						foundOnRound.add(model2);
+					if(model2 != null){
+						if(allFound.contains(model2) == false){
+							allFound.add(model2);
+							toFindOnRound.parents.add(model2);
+							foundOnRound.add(model2);
+						}else{
+							toFindOnRound.parents.add(model2);
+						}
 					}
+				}
+				
+				for(String def : withoutAstDefinitions){
+					toFindOnRound.parents.add(new HierarchyNodeModel(def));
 				}
 			}
 		}
@@ -249,10 +264,14 @@ public class Refactorer extends AbstractPyRefactoring{
 								List<String> parentNames = NodeUtils.getParentNames(def, true);
 								if (parentNames.contains(toFindOnRound.name)) {
 									final HierarchyNodeModel newNode = new HierarchyNodeModel(module.getName(), def);
-									if(newNode != null && allFound.contains(newNode) == false){
-										toFindOnRound.children.add(newNode);
-										allFound.add(newNode);
-										foundOnRound.add(newNode);
+									if(newNode != null){
+										if(allFound.contains(newNode) == false){
+											toFindOnRound.children.add(newNode);
+											allFound.add(newNode);
+											foundOnRound.add(newNode);
+										}else{
+											toFindOnRound.children.add(newNode);
+										}
 									}
 								}
 							}
