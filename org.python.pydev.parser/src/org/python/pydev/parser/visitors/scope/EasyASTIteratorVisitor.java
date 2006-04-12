@@ -3,6 +3,8 @@
  */
 package org.python.pydev.parser.visitors.scope;
 
+import java.util.Iterator;
+
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -91,6 +93,11 @@ public class EasyASTIteratorVisitor extends EasyAstIteratorBase{
             throw new RuntimeException(e);
         }
         return visitor;
+    }
+
+    public static Iterator<ASTEntry> createClassIterator(SimpleNode ast) {
+        EasyASTIteratorVisitor visitor = create(ast);
+        return visitor.getClassesIterator();
     }
 
 }

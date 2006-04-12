@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -492,6 +493,25 @@ public class NodeUtils {
 		
 		return nodes;
 	}
+
+
+    /**
+     * Gets the parent names for a class definition
+     * 
+     * @param onlyLastSegment determines whether we should return only the last segment if the name
+     * of the parent resolves to a dotted name.
+     */
+    public static List<String> getParentNames(ClassDef def, boolean onlyLastSegment) {
+        ArrayList<String> ret = new ArrayList<String>();
+        for(exprType base: def.bases){
+            String rep = getFullRepresentationString(base);
+            if(onlyLastSegment){
+                rep = FullRepIterable.getLastPart(rep);
+            }
+            ret.add(rep);
+        }
+        return ret;
+    }
 
     
 

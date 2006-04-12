@@ -282,6 +282,9 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         return false;
     }
     
+    public List<ASTEntry> getAsList(Class class_) {
+        return getAsList(new Class[]{class_});
+    }
     public List<ASTEntry> getAsList(Class[] classes) {
         return getIteratorAsList(getIterator(classes));
     }
