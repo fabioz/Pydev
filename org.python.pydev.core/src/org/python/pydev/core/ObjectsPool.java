@@ -20,7 +20,7 @@ import java.util.WeakHashMap;
  */
 public class ObjectsPool {
 
-    public Map pool = new WeakHashMap();
+    private Map pool = new WeakHashMap();
     
     /**
      * Returns an object equal to the one passed as a parameter and puts it in the pool
@@ -29,38 +29,40 @@ public class ObjectsPool {
      * If it doesn't exist, the parameter itself will be put in the pool.
      */
     @SuppressWarnings("unchecked")
-	public Object getFromPool(Object o){
-        Class class_ = o.getClass();
-        WeakHashMap weakHashMap;
-
-        if(pool.containsKey(class_)){
-            weakHashMap = (WeakHashMap) pool.get(class_);
-        }else{
-            weakHashMap = new WeakHashMap();
-            pool.put(class_, weakHashMap);
-        }
-        
-        if(weakHashMap.containsKey(o)){
-            WeakReference w = (WeakReference)weakHashMap.get(o);
-            if(w == null){
-            	//garbage collected...
-            	weakHashMap.put(o, new WeakReference(o));
-            	return o;
-            	
-            }else{
-            	final Object ret = w.get();
-            	if(ret == null && o != null){
-            		//garbage collected just in time hum?
-            		weakHashMap.put(o, new WeakReference(o));
-            		return o;
-            		
-            	}else{
-            		return ret;
-            	}
-            }
-        }else{
-            weakHashMap.put(o, new WeakReference(o));
-            return o;
-        }
+	public synchronized Object getFromPool(Object o){
+    	synchronized(pool){
+	        Class class_ = o.getClass();
+	        WeakHashMap weakHashMap;
+	
+	        if(pool.containsKey(class_)){
+	            weakHashMap = (WeakHashMap) pool.get(class_);
+	        }else{
+	            weakHashMap = new WeakHashMap();
+	            pool.put(class_, weakHashMap);
+	        }
+	        
+	        if(weakHashMap.containsKey(o)){
+	            WeakReference w = (WeakReference)weakHashMap.get(o);
+	            if(w == null){
+	            	//garbage collected...
+	            	weakHashMap.put(o, new WeakReference(o));
+	            	return o;
+	            	
+	            }else{
+	            	final Object ret = w.get();
+	            	if(ret == null && o != null){
+	            		//garbage collected just in time hum?
+	            		weakHashMap.put(o, new WeakReference(o));
+	            		return o;
+	            		
+	            	}else{
+	            		return ret;
+	            	}
+	            }
+	        }else{
+	            weakHashMap.put(o, new WeakReference(o));
+	            return o;
+	        }
+    	}
     }
 }
