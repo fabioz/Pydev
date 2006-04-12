@@ -109,6 +109,20 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	
     }
     
+    public void testNewLine10() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"def M1(a):\n" +
+    	"    doFoo(a,b(),\n" +
+    	"          '',b)" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n    ", docCmd.text); 
+    	
+    }
+    
 
     public void testNewLine3() {
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
