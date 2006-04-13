@@ -85,7 +85,11 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
 			if(v == null && keys.contains(key)){
 				//miss in memory... get from disk
 				File file = getFileForKey(key);
-				v = (Serializable) REF.readFromFile(file);
+                v = (Serializable) REF.readFromFile(file);
+                if(v == null){
+                    this.remove(key);
+                    return null;
+                }
 				//put it back in memory
 				super.add(key, v);
 			}

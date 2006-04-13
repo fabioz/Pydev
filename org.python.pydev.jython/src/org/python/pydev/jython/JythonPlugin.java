@@ -86,7 +86,9 @@ public class JythonPlugin extends AbstractUIPlugin {
 				// Look for the class from the bundles.
 				for (int i = 0; i < bundles.length; ++i) {
 					try {
-						return bundles[i].loadClass(className);
+                        if(bundles[i].getState() == Bundle.ACTIVE){ 
+                            return bundles[i].loadClass(className);
+                        }
 					} catch (Throwable e2) {
 					}
 				}
