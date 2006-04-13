@@ -43,6 +43,9 @@ public class HierarchyNodeView {
         }
     }
 
+    public void addListener(HierarchyNodeViewListener l) {
+        this.listeners.add(l);
+    }
 
     /**
      * Creates the node based on its starting position.
@@ -75,9 +78,19 @@ public class HierarchyNodeView {
             public void mouseExited(PInputEvent event) {
                 rect.setPaint(HierarchyNodeView.this.initialColor);
             }
+            
+            //simulate the click... not sure why it way not getting mouseClicked...
+            long pressedOn = -1;
             @Override
-            public void mouseClicked(PInputEvent event) {
-                onClick(event);
+            public void mousePressed(PInputEvent event) {
+                pressedOn = System.currentTimeMillis();
+            }
+            @Override
+            public void mouseReleased(PInputEvent event) {
+                long delta = System.currentTimeMillis() - pressedOn;
+                if(delta < 200){
+                    onClick(event);
+                }
             }
         });
         

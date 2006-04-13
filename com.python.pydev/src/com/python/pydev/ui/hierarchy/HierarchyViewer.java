@@ -26,7 +26,7 @@ import edu.umd.cs.piccolox.swt.PSWTPath;
  * Its implementation will allow viewing of simple connectivity for viewing a class hierarchy.
  */
 public class HierarchyViewer extends PSWTCanvas{
-    Set<HierarchyNodeView> allAdded = new HashSet<HierarchyNodeView>();
+    public Set<HierarchyNodeView> allAdded = new HashSet<HierarchyNodeView>();
 
     public HierarchyViewer(Composite parent, int args) {
         super(parent, args);
@@ -48,6 +48,7 @@ public class HierarchyViewer extends PSWTCanvas{
         double x = 10;
 
         HierarchyNodeView initial = new HierarchyNodeView(this, initialNode, x,y, Color.LIGHT_GRAY);
+        allAdded.add(initial);
         getLayer().addChild(initial.node);
         nodesAdded.add(initialNode);
         final double deltaY = 40;

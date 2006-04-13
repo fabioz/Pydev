@@ -108,13 +108,14 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 	        	for(String modName : completeIndex.keys()){
 	        		HashSet<String> obj = (HashSet<String>) completeIndex.getObj(modName);
                     if(obj == null){
-                        throw new RuntimeException("Null was returned when we were looking for the module:"+modName);
+                        //throw new RuntimeException("Null was returned when we were looking for the module:"+modName);
+                    }else{
+    	        		for(String infoName: obj){
+    	        			if(filter.doCompare(qualToCompare, infoName)){
+    	                        toks.add(NameInfo.fromName(infoName, modName, null, pool));
+    	        			}	
+    	        		}
                     }
-	        		for(String infoName: obj){
-	        			if(filter.doCompare(qualToCompare, infoName)){
-	                        toks.add(NameInfo.fromName(infoName, modName, null, pool));
-	        			}	
-	        		}
 	        	}
 	        }
 	        return toks;
