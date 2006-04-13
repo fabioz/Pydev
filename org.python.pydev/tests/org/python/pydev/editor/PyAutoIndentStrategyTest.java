@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNewLineAfterLineWithComment();
+            s.testNewLine10();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -118,6 +118,33 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	"";
     	final Document doc = new Document(str);
     	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n    ", docCmd.text); 
+    	
+    }
+    
+    public void testNewLine11() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"def fun():\n" +
+    	"    if True:\n" +
+    	"        passif False: 'foo'" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength()-"if False: 'foo'".length(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n    ", docCmd.text); 
+    	
+    }
+    
+    
+    public void testNewLine12() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"if False:print 'done'" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength()-"print 'done'".length(), 0, "\n");
     	strategy.customizeDocumentCommand(doc, docCmd);
     	assertEquals("\n    ", docCmd.text); 
     	

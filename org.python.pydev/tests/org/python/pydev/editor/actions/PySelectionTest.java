@@ -28,7 +28,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testGetCurrToken();
+            test.testAddLine();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -57,6 +57,19 @@ public class PySelectionTest extends TestCase {
         super.tearDown();
     }
 
+    public void testAddLine() {
+    	ps = new PySelection(new Document("line1\nline2\n"), new TextSelection(doc, 0,0));
+    	ps.addLine("foo", 0);
+    	assertEquals("line1\nfoo\nline2\n", ps.getDoc().get());
+    	
+    	ps = new PySelection(new Document("line1\n"), new TextSelection(doc, 0,0));
+    	ps.addLine("foo", 0);
+    	assertEquals("line1\nfoo\n", ps.getDoc().get());
+    	
+    	ps = new PySelection(new Document("line1"), new TextSelection(doc, 0,0));
+    	ps.addLine("foo", 0);
+    	assertEquals("line1\r\nfoo\r\n", ps.getDoc().get());
+	}
     /**
      * @throws BadLocationException
      * 
@@ -201,6 +214,14 @@ public class PySelectionTest extends TestCase {
         assertEquals("a", insideParentesisToks.get(0));
         assertEquals("b", insideParentesisToks.get(1));
         
+        s = "def m1(self, a, b, )";
+        doc = new Document(s);
+        ps = new PySelection(doc, new TextSelection(doc, 0,0));
+        insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        assertEquals(2, insideParentesisToks.size());
+        assertEquals("a", insideParentesisToks.get(0));
+        assertEquals("b", insideParentesisToks.get(1));
+        
         
         s = "def m1(self, a, b=None)";
         doc = new Document(s);
@@ -294,7 +315,7 @@ public class PySelectionTest extends TestCase {
             "a = 'ethuenoteuho#ueoth'";
         doc = new Document(s);
         ps = new PySelection(doc, doc.getLength());
-        assertEquals("a = ", ps.getLineWithoutCommentsOrLiterals());
+        assertEquals("a =                     ", ps.getLineWithoutCommentsOrLiterals());
     }
     
     public void testGetCurrToken() throws BadLocationException {

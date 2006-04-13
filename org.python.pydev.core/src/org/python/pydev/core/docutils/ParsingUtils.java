@@ -269,6 +269,8 @@ public class ParsingUtils {
      * Removes all the comments, whitespaces and literals from a stringbuffer (might be useful when
      * just finding matches for something).
      * 
+     * NOTE: the literals and the comments are changed for spaces (if we don't remove them too)
+     * 
      * @param buf the buffer from where things should be removed.
      * @param whitespacesToo: are you sure about the whitespaces?
      */
@@ -287,7 +289,13 @@ public class ParsingUtils {
             
             if(ch == '\'' || ch == '"'){
                 int j = getLiteralEnd(buf, i, ch);
-                buf.delete(i, j+1);
+                if(whitespacesToo){
+	              	buf.delete(i, j+1);
+                }else{
+	                for (int k = 0; i+k < j+1; k++) {
+						buf.replace(i+k, i+k+1, " ");
+					}
+                }
             }
         }
         

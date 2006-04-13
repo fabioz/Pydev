@@ -442,6 +442,10 @@ public class PySelection {
 	            offset = doc.getLineInformation(afterLine).getOffset();
             }
             
+            if(doc.getNumberOfLines()-1 == afterLine){
+            	contents = endLineDelim + contents;
+            	
+            }
             
             if (!contents.endsWith(endLineDelim)){
                 contents += endLineDelim;
@@ -752,7 +756,7 @@ public class PySelection {
             trimmed = trimmed.replaceAll("\\)", "");
             if (!addSelf && trimmed.equals("self")) {
                 // don't add self...
-            } else {
+            } else if(trimmed.length() > 0){
                 l.add(trimmed);
             }
         }
