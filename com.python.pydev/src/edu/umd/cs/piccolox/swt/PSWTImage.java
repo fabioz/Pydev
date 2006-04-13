@@ -53,6 +53,10 @@ public class PSWTImage extends PNode {
 
 	private transient Image image;
 
+	public PSWTImage(PSWTCanvas canvas) {
+		this(canvas, true);
+	}
+	
 	public PSWTImage(PSWTCanvas canvas, final boolean disposeImage) {
 		super();
 		
@@ -66,11 +70,19 @@ public class PSWTImage extends PNode {
 		});
 	}
 	
+	public PSWTImage(PSWTCanvas canvas, Image newImage) {
+		this(canvas, newImage, true);
+	}
+	
 	public PSWTImage(PSWTCanvas canvas, Image newImage, boolean disposeImage) {
 		this(canvas, disposeImage);
 		setImage(newImage);
 	}
 
+	public PSWTImage(PSWTCanvas canvas, String fileName) {
+		this(canvas, fileName, true);
+	}
+	
 	public PSWTImage(PSWTCanvas canvas, String fileName, boolean disposeImage) {
 		this(canvas, disposeImage);
 		setImage(fileName);	
