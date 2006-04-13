@@ -21,6 +21,7 @@ import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.StepCommand;
 import org.python.pydev.debug.model.remote.ThreadRunCommand;
 import org.python.pydev.debug.model.remote.ThreadSuspendCommand;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Represents python threads.
@@ -114,7 +115,12 @@ public class PyThread extends PlatformObject implements IThread {
 			isStepping = false;
 			//RemoteDebugger d = target.getDebugger();
 			AbstractRemoteDebugger d = target.getDebugger();
-			d.postCommand(new ThreadRunCommand(d, id));
+			if(d != null){
+				d.postCommand(new ThreadRunCommand(d, id));
+			}else{//no debugger?
+				PydevPlugin.log("Terminating: No debugger in target when resuming.");
+				terminate();
+			}
 		}
 	}
 

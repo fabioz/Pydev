@@ -58,27 +58,33 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
 			PyVariableCollection variableCollection = (PyVariableCollection)o;
 			
 			AbstractRemoteDebugger dbg = variableCollection.getDebugger();
-			target = dbg.getTarget();
-			locator = variableCollection;
-			
-			GetVariableCommand variableCommand = variableCollection.getVariableCommand(dbg);
-			variableCommand.setCompletionListener(this);
-			dbg.postCommand(variableCommand);
-			return waitForCommand();
+			if(dbg != null){
+				target = dbg.getTarget();
+				locator = variableCollection;
+				
+				GetVariableCommand variableCommand = variableCollection.getVariableCommand(dbg);
+				variableCommand.setCompletionListener(this);
+				dbg.postCommand(variableCommand);
+				return waitForCommand();
+			}
+			return new Object[0];
 			
 			
 		}else if (o instanceof PyStackFrame){
 			PyStackFrame f = (PyStackFrame) o;
 			
 			AbstractRemoteDebugger dbg = f.getDebugger();
-			target = dbg.getTarget();
-			locator = f;
-
-			GetVariableCommand variableCommand = f.getFrameCommand(dbg);
-			variableCommand.setCompletionListener(this);
-			dbg.postCommand(variableCommand);
-			return waitForCommand();
-			
+			if(dbg != null){
+				target = dbg.getTarget();
+				locator = f;
+	
+				GetVariableCommand variableCommand = f.getFrameCommand(dbg);
+				variableCommand.setCompletionListener(this);
+				dbg.postCommand(variableCommand);
+				return waitForCommand();
+			}
+			return new Object[0];
+				
 		}else if (o instanceof PyVariable){
 			return new Object[0];
 			
