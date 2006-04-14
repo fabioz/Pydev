@@ -124,49 +124,22 @@ class PyDB:
         self.breakpoints = {}
         self.readyToRun = False
         self.lock = threading.RLock()
-
-    def initializeNetwork(self, sock):
-        try:
-            sock.settimeout(None) # infinite, no timeouts from now on - jython does not have it
-        except:
-            pass
-        self.writer = WriterThread(sock)
-        self.writer.start()
-        self.reader = ReaderThread(sock)
-        self.reader.start()        
-        time.sleep(0.1) # give threads time to start        
         
-    def startServer(self, port):
-        """ binds to a port, waits for the debugger to connect """
-        s = socket(AF_INET, SOCK_STREAM)
-        s.bind(('', port))
-        s.listen(1)
-        newSock, addr = s.accept()
-        self.initializeNetwork(newSock)
-
-    def startClient(self, host, port):
-        """ connects to a host/port """
-        pydevd_log(1, "Connecting to " + host + ":" + str(port))
-        try:
-            s = socket(AF_INET, SOCK_STREAM);
-            try:
-                s.settimeout(10) # seconds - jython does not have it
-            except:
-                pass
-
-            s.connect((host, port))
-            pydevd_log(1, "Connected.")
-            self.initializeNetwork(s)
-        except:
-            print "server timed out after 10 seconds, could not connect to " + host + ":" + str(port)
-            print "Exiting. Bye!"
-            sys.exit(1)
-
-    def connect(self, host, port):
+    def connect(self, host, portToRead, portToWrite):
         if host:
-            self.startClient(host, port)
+            s = startClient(host, portToRead)
+            self.reader = ReaderThread(s)
+            
+            newSock = startServer(portToWrite)
+            self.writer = WriterThread(newSock)
+            
+            self.reader.start()        
+            self.writer.start()
         else:
-            self.startServer(port)
+            print 'not done right now...'
+            raise RuntimeError('not done right now...')
+            self.startServer(portToWrite)
+            self.startClient(host, portToRead)
         
 
     def getInternalQueue(self, thread_id):
@@ -598,13 +571,12 @@ class PyDB:
         #now, the local directory has to be added to the pythonpath
         import os
         sys.path.insert(0, os.getcwd())
-        
         # for completness, we'll register the pydevd.reader & pydevd.writer threads
         net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.reader" id="-1"/></xml>')
         self.writer.addCommand(net)
         net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.writer" id="-1"/></xml>')
         self.writer.addCommand(net)
-        
+
         sys.settrace(self.trace_dispatch) 
         try:                     
             threading.settrace(self.trace_dispatch) # for all future threads           
@@ -613,25 +585,31 @@ class PyDB:
 
         while not self.readyToRun: 
             time.sleep(0.1) # busy wait until we receive run command
-            
+        
         execfile(file, globals, locals) #execute the script
 
 
 def processCommandLine(argv):
     """ parses the arguments.
         removes our arguments from the command line """
+    print 'cmd line received:', argv
     retVal = {}
     retVal['type'] = ''
     retVal['client'] = ''
     retVal['server'] = False
-    retVal['port'] = 0
+    retVal['portToRead'] = 0
+    retVal['portToWrite'] = 0
     retVal['file'] = ''
     i=0
     del argv[0]
     while (i < len(argv)):
-        if (argv[i] == '--port'):
+        if (argv[i] == '--portToRead'):
             del argv[i]
-            retVal['port'] = int(argv[i])
+            retVal['portToRead'] = int(argv[i])
+            del argv[i]
+        elif (argv[i] == '--portToWrite'):
+            del argv[i]
+            retVal['portToWrite'] = int(argv[i])
             del argv[i]
         elif (argv[i] == '--type'):
             del argv[i]
@@ -727,6 +705,6 @@ if __name__ == '__main__':
     type = setup['type']
 
     debugger = PyDB()
-    debugger.connect(setup['client'], setup['port'])
+    debugger.connect(setup['client'], setup['portToRead'], setup['portToWrite'])
     debugger.run(setup['file'], None, None)
     

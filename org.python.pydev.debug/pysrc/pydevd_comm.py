@@ -200,6 +200,29 @@ class WriterThread(PyDBDaemonThread):
     
 
 
+#--------------------------------------------------- CREATING THE SOCKET THREADS
+    
+def startServer(port):
+    """ binds to a port, waits for the debugger to connect """
+    s = socket(AF_INET, SOCK_STREAM)
+    s.bind(('', port))
+    s.listen(1)
+    newSock, addr = s.accept()
+    return newSock
+
+def startClient(host, port):
+    """ connects to a host/port """
+    pydevd_log(1, "Connecting to " + host + ":" + str(port))
+    try:
+        s = socket(AF_INET, SOCK_STREAM);
+
+        s.connect((host, port))
+        pydevd_log(1, "Connected.")
+        return s
+    except:
+        print "server timed out after 10 seconds, could not connect to " + host + ":" + str(port)
+        print "Exiting. Bye!"
+        sys.exit(1)
 
 
     

@@ -62,8 +62,9 @@ public class PythonRunnerConfig {
 	// debugging
 	public boolean isDebug;
 	public boolean isInteractive;
-	private int debugPort = 0;  // use getDebugPort
-	public int acceptTimeout = 5000; // miliseconds
+	private int debugPortToRead = 0;  // use getDebugPort
+	private int debugPortToWrite = 0;  // use getDebugPort
+	public int acceptTimeout = 10000; // miliseconds
 	public String[] envp = null;
 
     private String run;
@@ -319,13 +320,22 @@ public class PythonRunnerConfig {
         return false;
     }
 
-    public int getDebugPort() throws CoreException {
-		if (debugPort == 0) {
-			debugPort= SocketUtil.findUnusedLocalPort("", 5000, 15000); //$NON-NLS-1$
-			if (debugPort == -1)
-				throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not find a free socket for debugger", null));
+    public int getDebugPortToWrite() throws CoreException {
+        if (debugPortToWrite == 0) {
+            debugPortToWrite= SocketUtil.findUnusedLocalPort("", 5000, 15000); //$NON-NLS-1$
+            if (debugPortToWrite == -1)
+                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not find a free socketToWrite for debugger", null));
+        }
+        return debugPortToWrite;		
+        
+    }
+    public int getDebugPortToRead() throws CoreException {
+		if (debugPortToRead == 0) {
+			debugPortToRead= SocketUtil.findUnusedLocalPort("", 5000, 15000); //$NON-NLS-1$
+			if (debugPortToRead == -1)
+				throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not find a free socketToWrite for debugger", null));
 		}
-		return debugPort;		
+		return debugPortToRead;		
 	}
 
 
@@ -341,7 +351,7 @@ public class PythonRunnerConfig {
 		    throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
         }
         
-		if (isDebug && ( acceptTimeout < 0|| debugPort < 0) ){
+		if (isDebug && ( acceptTimeout < 0|| getDebugPortToRead() <=0 || getDebugPortToWrite() <=0) ){
 		    throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
         }
 	}
@@ -429,8 +439,10 @@ public class PythonRunnerConfig {
                 cmdArgs.add("jython");
                 cmdArgs.add("--client");
                 cmdArgs.add("localhost");
-                cmdArgs.add("--port");
-                cmdArgs.add(Integer.toString(debugPort));
+                cmdArgs.add("--portToRead");
+                cmdArgs.add(Integer.toString(debugPortToRead));
+                cmdArgs.add("--portToWrite");
+                cmdArgs.add(Integer.toString(debugPortToWrite));
                 cmdArgs.add("--file");
 
             }else{
@@ -457,8 +469,10 @@ public class PythonRunnerConfig {
                 cmdArgs.add("python");
     			cmdArgs.add("--client");
     			cmdArgs.add("localhost");
-    			cmdArgs.add("--port");
-    			cmdArgs.add(Integer.toString(debugPort));
+    			cmdArgs.add("--portToRead");
+    			cmdArgs.add(Integer.toString(debugPortToRead));
+    			cmdArgs.add("--portToWrite");
+    			cmdArgs.add(Integer.toString(debugPortToWrite));
     			cmdArgs.add("--file");
     		}
     		

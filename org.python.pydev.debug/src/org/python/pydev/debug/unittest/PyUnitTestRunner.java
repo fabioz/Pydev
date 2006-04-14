@@ -71,7 +71,7 @@ public class PyUnitTestRunner {
 
         //sleepALittle(1000);
         try {
-	        serverSocket = new ServerSocket(portToReadFrom);         //read from this port
+	        serverSocket = new ServerSocket(portToReadFrom);         //read from this portToRead
 	        try {
 	        	socketToRead = serverSocket.accept();
 	        	try {
