@@ -272,7 +272,7 @@ class NetCommandFactory:
 
     def makeErrorMessage(self, seq, text):
         cmd = NetCommand(CMD_ERROR, seq, text)
-        #print >>sys.stderr, "Error: ", text
+        print >>sys.stderr, "Error: ", text
         return cmd;
 
     def makeThreadCreatedMessage(self,thread):

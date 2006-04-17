@@ -7,8 +7,10 @@ import org.eclipse.debug.core.DebugException;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 
 public abstract class AbstractRemoteDebugger {
-	protected Socket socketToRead;
-	protected Socket socketToWrite;
+    /**
+     * connection socket
+     */
+	protected Socket socket;
     
     /**
      * reading thread
@@ -66,8 +68,9 @@ public abstract class AbstractRemoteDebugger {
 	}
 	
 	public void startTransmission() throws IOException {
-		this.reader = new DebuggerReader( socketToRead, this );		
-		this.writer = new DebuggerWriter(socketToWrite);
+		//socket = connector.getSocket();
+		this.reader = new DebuggerReader( socket, this );		
+		this.writer = new DebuggerWriter(socket);
 		Thread t = new Thread(reader, "pydevd.reader");
 		t.start();
 		t = new Thread(writer, "pydevd.writer");

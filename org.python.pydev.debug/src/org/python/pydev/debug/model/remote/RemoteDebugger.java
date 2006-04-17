@@ -29,8 +29,8 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
 	}	
 
 	public void startConnect(IProgressMonitor monitor) throws IOException, CoreException {
-		monitor.subTask("Finding free socketToWrite...");
-		connector = new ListenConnector(config.getDebugPortToRead(), config.getDebugPortToWrite(), config.acceptTimeout);
+		monitor.subTask("Finding free socket...");
+		connector = new ListenConnector(config.getDebugPort(), config.acceptTimeout);
 		connectThread = new Thread(connector, "pydevd.connect");
 		connectThread.start();
 	}
@@ -69,35 +69,22 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
         
 		if (connector.getException() != null){
 			throw connector.getException();
-        }
-        
-		connected(connector.getSocketToWrite(), connector.getSocketToRead());
+		}
+		connected(connector.getSocket());
 		return false;
 	}
 	
 	/**
 	 * Remote debugger has connected
 	 */
-	private void connected(Socket socketToRead, Socket socketToWrite) throws IOException  {
-	    this.socketToRead = socketToRead;
-		this.socketToWrite = socketToWrite;
+	private void connected(Socket socket) throws IOException  {
+		this.socket = socket;
 	}
 	
 	public void disconnect() {
-		finishSocket(socketToRead);
-		finishSocket(socketToWrite);
-		if (target != null){
-			target.debuggerDisconnected();
-        }
-	}
-
-    /**
-     * @param socketToWrite
-     */
-    private void finishSocket(Socket socket) {
-        if (socket != null) {
+		if (socket != null) {
 			try {
-				socket.shutdownInput(); // trying to make my pydevd notice that the socketToWrite is gone
+				socket.shutdownInput(); // trying to make my pydevd notice that the socket is gone
 			} catch (Exception e) {
 				// ok, ignore
 			}
@@ -113,7 +100,10 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
 			}
 		}
 		socket = null;
-    }
+		if (target != null){
+			target.debuggerDisconnected();
+        }
+	}
 	
 	/**
 	 * Dispose must be called to clean up.

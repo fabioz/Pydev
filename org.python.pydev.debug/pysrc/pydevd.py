@@ -10,20 +10,27 @@ connected = False
 #this is because jython does not have staticmethods
 PyDBCtx_threadToCtx = {}
 PyDBCtx_Lock = threading.RLock()
-PyDBCtx_Threads = {}#weakref.WeakValueDictionary()
+PyDBCtx_Threads = {}
 
-def PyDBCtx_GetCtxs():
+def PyDBCtx_Acquire():
     PyDBCtx_Lock.acquire()
+    return True
+def PyDBCtx_Release():
+    PyDBCtx_Lock.release()
+    return True
+    
+def PyDBCtx_GetCtxs():
+    PyDBCtx_Acquire()
     try:
         ret = []
         for v in PyDBCtx_threadToCtx.values():
             ret += v.values()
     finally:
-        PyDBCtx_Lock.release()
+        PyDBCtx_Release()
     return ret
 
 def PyDBCtx_GetCtx(frame, currThread):
-    PyDBCtx_Lock.acquire()
+    PyDBCtx_Acquire()
     try:
         #keep the last frame for each thread (previously we were keeping all the frames, in the context,
         #but that was a bad thing, as things in the frames did not die).
@@ -44,12 +51,12 @@ def PyDBCtx_GetCtx(frame, currThread):
             ctx = PyDBCtx(frame, threadId)
             ctxs[key] = ctx
     finally:
-        PyDBCtx_Lock.release()
+        PyDBCtx_Release()
 
     return ctx
 
 def PyDBCtx_SetTraceForAllFileCtxs(f):
-    PyDBCtx_Lock.acquire()
+    PyDBCtx_Acquire()
     try:
         g = GetGlobalDebugger()
         if g:
@@ -64,7 +71,7 @@ def PyDBCtx_SetTraceForAllFileCtxs(f):
                                 frame.f_trace = g.trace_dispatch
                             frame = frame.f_back
     finally:
-        PyDBCtx_Lock.release()
+        PyDBCtx_Release()
                 
 class PyDBCtx:
     '''This class is used to keep track of the contexts we pass through (acting as a cache for them).
@@ -81,10 +88,12 @@ class PyDBCtx:
     
     def acquire(self):
         self.lock.acquire()
+        return True
         
     def release(self):
         self.lock.release()
-
+        return True
+    
 class PyDBAdditionalThreadInfo:
     def __init__(self):
         self.pydev_state = PyDB.STATE_RUN 
@@ -125,21 +134,34 @@ class PyDB:
         self.readyToRun = False
         self.lock = threading.RLock()
         
-    def connect(self, host, portToRead, portToWrite):
+    def acquire(self):
+        self.lock.acquire()
+        return True
+    
+    def release(self):
+        self.lock.release()
+        return True
+        
+    def initializeNetwork(self, sock):
+        try:
+            sock.settimeout(None) # infinite, no timeouts from now on - jython does not have it
+        except:
+            pass
+        self.writer = WriterThread(sock)
+        self.reader = ReaderThread(sock)
+        
+        self.writer.start()
+        self.reader.start()        
+        
+        time.sleep(0.1) # give threads time to start        
+
+    def connect(self, host, port):
         if host:
-            s = startClient(host, portToRead)
-            self.reader = ReaderThread(s)
-            
-            newSock = startServer(portToWrite)
-            self.writer = WriterThread(newSock)
-            
-            self.reader.start()        
-            self.writer.start()
+            s = startClient(host, port)
         else:
-            print 'not done right now...'
-            raise RuntimeError('not done right now...')
-            self.startServer(portToWrite)
-            self.startClient(host, portToRead)
+            s = startServer(port)
+            
+        self.initializeNetwork(s)
         
 
     def getInternalQueue(self, thread_id):
@@ -165,17 +187,17 @@ class PyDB:
         
     def postInternalCommand(self, int_cmd, thread_id):
         """ if thread_id is *, post to all the threads (key)"""
-        self.lock.acquire()
-        try:
-            if thread_id == "*":
-                for k in self.cmdQueue.keys(): 
-                    self.cmdQueue[k].put(int_cmd)
-                    
-            else:
-                queue = self.getInternalQueue(thread_id)
-                queue.put(int_cmd)
-        finally:
-            self.lock.release()
+        if self.acquire():
+            try:
+                if thread_id == "*":
+                    for k in self.cmdQueue.keys(): 
+                        self.cmdQueue[k].put(int_cmd)
+                        
+                else:
+                    queue = self.getInternalQueue(thread_id)
+                    queue.put(int_cmd)
+            finally:
+                self.release()
 
     def processInternalCommands(self):
         self.lock.acquire()
@@ -412,6 +434,7 @@ class PyDB:
         
         t = threading.currentThread()
         ctx = PyDBCtx_GetCtx(frame, t)
+        released = False
         ctx.acquire()
         try:
             base = ctx.base
@@ -424,14 +447,12 @@ class PyDB:
             if not t.isAlive():
                 self.processThreadNotAlive(t)
                 return None # suspend tracing
-            wasSuspended = False        
     
             try:
                 additionalInfo = t.additionalInfo
             except AttributeError:
                 additionalInfo = PyDBAdditionalThreadInfo()
                 t.additionalInfo = additionalInfo
-            t.additionalInfo.pydev_last_event = event
                 
             filename = ctx.filename
             # Let's check to see if we are in a line that has a breakpoint. If we don't have a breakpoint, 
@@ -475,7 +496,8 @@ class PyDB:
                     
                 # if thread has a suspend flag, we suspend with a busy wait
                 if additionalInfo.pydev_state == PyDB.STATE_SUSPEND:
-                    wasSuspended = True
+                    ctx.release()
+                    released = True
                     self.doWaitSuspend(t, frame, event, arg)
                     return self.trace_dispatch
                 
@@ -483,37 +505,45 @@ class PyDB:
                 traceback.print_exc()
                 raise
     
-            if not wasSuspended:
-                #step handling. We stop when we hit the right frame
-                try:
-                    if additionalInfo.pydev_step_cmd == CMD_STEP_INTO:
-                        self.setSuspend(t, CMD_STEP_INTO)
-                        self.doWaitSuspend(t, frame, event, arg)      
-                        
+            #step handling. We stop when we hit the right frame
+            try:
+                if additionalInfo.pydev_step_cmd == CMD_STEP_INTO:
+                    self.setSuspend(t, CMD_STEP_INTO)
+                    ctx.release()
+                    released = True
+                    self.doWaitSuspend(t, frame, event, arg)      
                     
-                    elif additionalInfo.pydev_step_cmd == CMD_STEP_OVER: 
-                        if additionalInfo.pydev_step_stop == frame:
-                            self.setSuspend(t, CMD_STEP_OVER)
-                            self.doWaitSuspend(t, frame, event, arg)
+                
+                elif additionalInfo.pydev_step_cmd == CMD_STEP_OVER: 
+                    if additionalInfo.pydev_step_stop == frame:
+                        self.setSuspend(t, CMD_STEP_OVER)
+                        ctx.release()
+                        released = True
+                        self.doWaitSuspend(t, frame, event, arg)
+                    
+                    
+                elif additionalInfo.pydev_step_cmd == CMD_STEP_RETURN:
+                    if event == 'return':
+                        additionalInfo.pydev_return_call_count += 1
+                    elif event == 'call':
+                        additionalInfo.pydev_return_call_count -= 1
                         
+                    if additionalInfo.pydev_stop_on_return_count_1 and additionalInfo.pydev_return_call_count == 1:
+                        additionalInfo.pydev_return_call_count == 0
+                        additionalInfo.pydev_stop_on_return_count_1 = False
+                        self.setSuspend(t, CMD_STEP_RETURN)
+                        ctx.release()
+                        released = True
+                        self.doWaitSuspend(t, frame, event, arg)
                         
-                    elif additionalInfo.pydev_step_cmd == CMD_STEP_RETURN:
-                        if event == 'return':
-                            additionalInfo.pydev_return_call_count += 1
-                        elif event == 'call':
-                            additionalInfo.pydev_return_call_count -= 1
-                            
-                        if additionalInfo.pydev_stop_on_return_count_1 and additionalInfo.pydev_return_call_count == 1:
-                            additionalInfo.pydev_return_call_count == 0
-                            additionalInfo.pydev_stop_on_return_count_1 = False
-                            self.setSuspend(t, CMD_STEP_RETURN)
-                            self.doWaitSuspend(t, frame, event, arg)
-                            
-                        if additionalInfo.pydev_step_stop == frame:
-                            self.setSuspend(t, CMD_STEP_RETURN)
-                            self.doWaitSuspend(t, frame, event, arg)
-                except:
-                    additionalInfo.pydev_step_cmd = None
+                    if additionalInfo.pydev_step_stop == frame:
+                        self.setSuspend(t, CMD_STEP_RETURN)
+                        ctx.release()
+                        released = True
+                        self.doWaitSuspend(t, frame, event, arg)
+            except:
+                traceback.print_exc()
+                additionalInfo.pydev_step_cmd = None
             
             
             #if we are quitting, let's stop the tracing
@@ -523,7 +553,8 @@ class PyDB:
 
             return retVal
         finally:
-            ctx.release()
+            if not released:
+                ctx.release()
 
     def stopTracingFrame(self, frame):
         '''Removes the f_trace hook from the frame and returns None
@@ -569,7 +600,6 @@ class PyDB:
             del sys.path[0]
         
         #now, the local directory has to be added to the pythonpath
-        import os
         sys.path.insert(0, os.getcwd())
         # for completness, we'll register the pydevd.reader & pydevd.writer threads
         net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.reader" id="-1"/></xml>')
@@ -592,24 +622,18 @@ class PyDB:
 def processCommandLine(argv):
     """ parses the arguments.
         removes our arguments from the command line """
-    print 'cmd line received:', argv
     retVal = {}
     retVal['type'] = ''
     retVal['client'] = ''
     retVal['server'] = False
-    retVal['portToRead'] = 0
-    retVal['portToWrite'] = 0
+    retVal['port'] = 0
     retVal['file'] = ''
     i=0
     del argv[0]
     while (i < len(argv)):
-        if (argv[i] == '--portToRead'):
+        if (argv[i] == '--port'):
             del argv[i]
-            retVal['portToRead'] = int(argv[i])
-            del argv[i]
-        elif (argv[i] == '--portToWrite'):
-            del argv[i]
-            retVal['portToWrite'] = int(argv[i])
+            retVal['port'] = int(argv[i])
             del argv[i]
         elif (argv[i] == '--type'):
             del argv[i]
@@ -705,6 +729,6 @@ if __name__ == '__main__':
     type = setup['type']
 
     debugger = PyDB()
-    debugger.connect(setup['client'], setup['portToRead'], setup['portToWrite'])
+    debugger.connect(setup['client'], setup['port'])
     debugger.run(setup['file'], None, None)
     
