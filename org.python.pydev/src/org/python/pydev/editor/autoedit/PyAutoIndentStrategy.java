@@ -140,7 +140,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 		    	
 		    	final int i = indent.length() - indentationString.length();
 		    	if (i > 0 && indent.length() > i){
-		    		text = indent.substring(0, i+1);
+		    		text = (initial+indent).substring(0, i+1);
 		    	}else{
 		    		text = initial; // this can happen if we found a dedent that is 1 level deep
 		    	}
