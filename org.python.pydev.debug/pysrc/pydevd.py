@@ -1,4 +1,3 @@
-import threading
 import traceback
 import weakref
 from pydevd_comm import *
@@ -10,27 +9,20 @@ connected = False
 #this is because jython does not have staticmethods
 PyDBCtx_threadToCtx = {}
 PyDBCtx_Lock = threading.RLock()
-PyDBCtx_Threads = {}
+PyDBCtx_Threads = {}#weakref.WeakValueDictionary()
 
-def PyDBCtx_Acquire():
-    PyDBCtx_Lock.acquire()
-    return True
-def PyDBCtx_Release():
-    PyDBCtx_Lock.release()
-    return True
-    
 def PyDBCtx_GetCtxs():
-    PyDBCtx_Acquire()
+    PyDBCtx_Lock.acquire()
     try:
         ret = []
         for v in PyDBCtx_threadToCtx.values():
             ret += v.values()
     finally:
-        PyDBCtx_Release()
+        PyDBCtx_Lock.release()
     return ret
 
 def PyDBCtx_GetCtx(frame, currThread):
-    PyDBCtx_Acquire()
+    PyDBCtx_Lock.acquire()
     try:
         #keep the last frame for each thread (previously we were keeping all the frames, in the context,
         #but that was a bad thing, as things in the frames did not die).
@@ -51,12 +43,12 @@ def PyDBCtx_GetCtx(frame, currThread):
             ctx = PyDBCtx(frame, threadId)
             ctxs[key] = ctx
     finally:
-        PyDBCtx_Release()
+        PyDBCtx_Lock.release()
 
     return ctx
 
 def PyDBCtx_SetTraceForAllFileCtxs(f):
-    PyDBCtx_Acquire()
+    PyDBCtx_Lock.acquire()
     try:
         g = GetGlobalDebugger()
         if g:
@@ -71,7 +63,7 @@ def PyDBCtx_SetTraceForAllFileCtxs(f):
                                 frame.f_trace = g.trace_dispatch
                             frame = frame.f_back
     finally:
-        PyDBCtx_Release()
+        PyDBCtx_Lock.release()
                 
 class PyDBCtx:
     '''This class is used to keep track of the contexts we pass through (acting as a cache for them).
@@ -88,18 +80,28 @@ class PyDBCtx:
     
     def acquire(self):
         self.lock.acquire()
-        return True
         
     def release(self):
         self.lock.release()
-        return True
+        
+class PyDBCommandThread(PyDBDaemonThread):
     
+    def __init__(self, pyDb):
+        PyDBDaemonThread.__init__(self)
+        self.pyDb = pyDb
+
+    def run(self):
+        sys.settrace(None) # no debugging on this thread
+        while not self.killReceived:
+            self.pyDb.processInternalCommands()
+            time.sleep(0.1)
+            
+
 class PyDBAdditionalThreadInfo:
     def __init__(self):
         self.pydev_state = PyDB.STATE_RUN 
         self.pydev_step_stop = None
         self.pydev_step_cmd = None
-        self.pydev_last_event = None
         self.pydev_notify_kill = False
         self.pydev_stop_on_return_count_1 = False
         self.pydev_return_call_count = 0
@@ -149,7 +151,6 @@ class PyDB:
             pass
         self.writer = WriterThread(sock)
         self.reader = ReaderThread(sock)
-        
         self.writer.start()
         self.reader.start()        
         
@@ -186,21 +187,17 @@ class PyDB:
         return self.cmdQueue[thread_id]
         
     def postInternalCommand(self, int_cmd, thread_id):
-        """ if thread_id is *, post to all the threads (key)"""
-        if self.acquire():
-            try:
-                if thread_id == "*":
-                    for k in self.cmdQueue.keys(): 
-                        self.cmdQueue[k].put(int_cmd)
-                        
-                else:
-                    queue = self.getInternalQueue(thread_id)
-                    queue.put(int_cmd)
-            finally:
-                self.release()
+        """ if thread_id is *, post to all """
+        if thread_id == "*":
+            for k in self.cmdQueue.keys(): 
+                self.cmdQueue[k].put(int_cmd)
+                
+        else:
+            queue = self.getInternalQueue(thread_id)
+            queue.put(int_cmd)
 
     def processInternalCommands(self):
-        self.lock.acquire()
+        self.acquire()
         try:
             threads = threading.enumerate()
             foundNonPyDBDaemonThread = False
@@ -236,11 +233,10 @@ class PyDB:
                 except:
                     sys.exit(0)
         finally:
-            self.lock.release()
+            self.release()
       
-        
     def processNetCommand(self, id, seq, text):
-        self.lock.acquire()
+        self.acquire()
         try:
             try:
                 cmd = None
@@ -360,24 +356,20 @@ class PyDB:
                     
             except Exception, e:
                 traceback.print_exc(e)
+                traceback.print_exc()
                 cmd = self.cmdFactory.makeErrorMessage(seq, "Unexpected exception in processNetCommand: %s\nInitial params: %s" % (str(e), (id, seq, text)))
                 self.writer.addCommand(cmd)
         finally:
-            self.lock.release()
+            self.release()
 
     def processThreadNotAlive(self, thread):
         """ if thread is not alive, cancel trace_dispatch processing """
-        self.lock.acquire()
-        try:
-            wasNotified = thread.additionalInfo.pydev_notify_kill
-                
-            if not wasNotified:
-                cmd = self.cmdFactory.makeThreadKilledMessage(id(thread))
-                self.writer.addCommand(cmd)
-                thread.additionalInfo.pydev_notify_kill = True
-        finally:
-            self.lock.release()
-
+        wasNotified = thread.additionalInfo.pydev_notify_kill
+            
+        if not wasNotified:
+            cmd = self.cmdFactory.makeThreadKilledMessage(id(thread))
+            self.writer.addCommand(cmd)
+            thread.additionalInfo.pydev_notify_kill = True
 
     def setSuspend(self, thread, stop_reason):
         thread.additionalInfo.pydev_state = PyDB.STATE_SUSPEND
@@ -434,14 +426,12 @@ class PyDB:
         
         t = threading.currentThread()
         ctx = PyDBCtx_GetCtx(frame, t)
-        released = False
-        ctx.acquire()
+        base = ctx.base
+
+        if base in DONT_TRACE: #we don't want to debug threading or anything related to pydevd
+            return None
+
         try:
-            base = ctx.base
-    
-            if base in DONT_TRACE: #we don't want to debug threading or anything related to pydevd
-                return None
-    
     
             # if thread is not alive, cancel trace_dispatch processing
             if not t.isAlive():
@@ -496,8 +486,6 @@ class PyDB:
                     
                 # if thread has a suspend flag, we suspend with a busy wait
                 if additionalInfo.pydev_state == PyDB.STATE_SUSPEND:
-                    ctx.release()
-                    released = True
                     self.doWaitSuspend(t, frame, event, arg)
                     return self.trace_dispatch
                 
@@ -507,18 +495,14 @@ class PyDB:
     
             #step handling. We stop when we hit the right frame
             try:
-                if additionalInfo.pydev_step_cmd == CMD_STEP_INTO:
+                if additionalInfo.pydev_step_cmd == CMD_STEP_INTO and event in ('line', 'return'):
                     self.setSuspend(t, CMD_STEP_INTO)
-                    ctx.release()
-                    released = True
                     self.doWaitSuspend(t, frame, event, arg)      
                     
                 
-                elif additionalInfo.pydev_step_cmd == CMD_STEP_OVER: 
+                elif additionalInfo.pydev_step_cmd == CMD_STEP_OVER and event in ('line', 'return'): 
                     if additionalInfo.pydev_step_stop == frame:
                         self.setSuspend(t, CMD_STEP_OVER)
-                        ctx.release()
-                        released = True
                         self.doWaitSuspend(t, frame, event, arg)
                     
                     
@@ -528,33 +512,30 @@ class PyDB:
                     elif event == 'call':
                         additionalInfo.pydev_return_call_count -= 1
                         
-                    if additionalInfo.pydev_stop_on_return_count_1 and additionalInfo.pydev_return_call_count == 1:
+                    if additionalInfo.pydev_stop_on_return_count_1 and additionalInfo.pydev_return_call_count == 1 \
+                        and additionalInfo.pydev_step_stop == frame.f_back  and event in ('line', 'return'):
+                        
                         additionalInfo.pydev_return_call_count == 0
                         additionalInfo.pydev_stop_on_return_count_1 = False
                         self.setSuspend(t, CMD_STEP_RETURN)
-                        ctx.release()
-                        released = True
                         self.doWaitSuspend(t, frame, event, arg)
                         
-                    if additionalInfo.pydev_step_stop == frame:
+                    if additionalInfo.pydev_step_stop == frame and event in ('line', 'return'):
                         self.setSuspend(t, CMD_STEP_RETURN)
-                        ctx.release()
-                        released = True
                         self.doWaitSuspend(t, frame, event, arg)
             except:
                 traceback.print_exc()
                 additionalInfo.pydev_step_cmd = None
-            
-            
-            #if we are quitting, let's stop the tracing
-            retVal = None
-            if not self.quitting:
-                retVal = self.trace_dispatch
-
-            return retVal
         finally:
-            if not released:
-                ctx.release()
+            pass
+        
+        
+        #if we are quitting, let's stop the tracing
+        retVal = None
+        if not self.quitting:
+            retVal = self.trace_dispatch
+
+        return retVal
 
     def stopTracingFrame(self, frame):
         '''Removes the f_trace hook from the frame and returns None
@@ -711,6 +692,7 @@ def settrace(host='localhost'):
         debugger.setSuspend(t, CMD_SET_BREAK)
         
         sys.settrace(debugger.trace_dispatch)
+        PyDBCommandThread(debugger).start()
     
 if __name__ == '__main__':
     print >>sys.stderr, "pydev debugger"
@@ -731,4 +713,5 @@ if __name__ == '__main__':
     debugger = PyDB()
     debugger.connect(setup['client'], setup['port'])
     debugger.run(setup['file'], None, None)
+    PyDBCommandThread(debugger).start()
     
