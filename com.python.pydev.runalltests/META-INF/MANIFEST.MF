@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Runalltests Plug-in
+Bundle-SymbolicName: com.python.pydev.runalltests
+Bundle-Version: 1.0.0
+Bundle-Activator: com.python.pydev.runalltests.RunalltestsPlugin
+Bundle-Vendor: PYTHON
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.python.pydev,
+ org.python.pydev.ast,
+ org.python.pydev.core,
+ org.python.pydev.debug,
+ org.python.pydev.help,
+ org.python.pydev.jython,
+ org.python.pydev.parser,
+ org.python.pydev.templates,
+ com.python.pydev,
+ com.python.pydev.analysis,
+ com.python.pydev.browsing,
+ com.python.pydev.codecompletion,
+ com.python.pydev.debug,
+ com.python.pydev.fastparser,
+ com.python.pydev.refactoring
+Eclipse-AutoStart: true
