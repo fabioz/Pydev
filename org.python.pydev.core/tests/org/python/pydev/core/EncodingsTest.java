@@ -4,10 +4,10 @@ import java.nio.charset.Charset;
 
 import junit.framework.TestCase;
 
-public class TestEncodings extends TestCase {
+public class EncodingsTest extends TestCase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(TestEncodings.class);
+        junit.textui.TestRunner.run(EncodingsTest.class);
     }
     public void testRefEncoding() throws Exception {
         String validEncoding = REF.getValidEncoding("latin-1");

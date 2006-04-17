@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.python.pydev.core,
  org.eclipse.ui,
  org.eclipse.ui.console,
- org.eclipse.jface.text
+ org.eclipse.jface.text,
+ org.junit
 Eclipse-AutoStart: true
 Export-Package: org.python.compiler,
  org.python.core,

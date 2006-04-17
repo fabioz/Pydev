@@ -68,7 +68,7 @@ public class JythonPlugin extends AbstractUIPlugin {
 	/**
 	 * Classloader that knows about all the bundles...
 	 */
-	private class AllBundleClassLoader extends ClassLoader {
+	public static class AllBundleClassLoader extends ClassLoader {
 
 		private Bundle[] bundles;
 
