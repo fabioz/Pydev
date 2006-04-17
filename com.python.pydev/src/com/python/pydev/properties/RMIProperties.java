@@ -12,7 +12,7 @@ import org.osgi.framework.Bundle;
 public class RMIProperties {
 	private final String FILE_NAME = "pydev.properties";
 	public static final String IP = "ip";
-	public static final String PORT = "port";
+	public static final String PORT = "portToRead";
 	
 	private Properties properties;
 	

@@ -36,7 +36,8 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
 			terminated = false;
 			while( true ) {
 				serverSocket.setSoTimeout( TIMEOUT );
-				socket = serverSocket.accept();
+//  TODO: FIX THIS IMPLEMENTATION
+//				socket = serverSocket.accept();
 				startDebugging();
                 if(DEBUG){
                     System.out.println( "PASSED" );
@@ -97,20 +98,20 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
 	}
 	
 	public void disconnect() throws DebugException {	
-		try {
-			if (socket != null) {
-				socket.shutdownInput();	// trying to make my pydevd notice that the socket is gone
-				socket.shutdownOutput();	
-				socket.close();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			// it is going away
-		}
-		socket = null;
-		if (target != null){
-			target.debuggerDisconnected();
-        }
+//		try {
+//			if (socket != null) {
+//				socket.shutdownInput();	// trying to make my pydevd notice that the socketToWrite is gone
+//				socket.shutdownOutput();	
+//				socket.close();
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			// it is going away
+//		}
+//		socket = null;
+//		if (target != null){
+//			target.debuggerDisconnected();
+//        }
 	}
 
 	public void setLaunch(ILaunch launch) {
