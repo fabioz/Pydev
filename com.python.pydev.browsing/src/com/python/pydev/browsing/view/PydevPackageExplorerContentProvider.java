@@ -101,11 +101,15 @@ public class PydevPackageExplorerContentProvider extends WorkbenchContentProvide
 				DefinitionsASTIteratorVisitor visitor = cache.get(element);
 				if( visitor==null ) {
 					is = file.getContents();
-					byte temp[] = new byte[is.available()];
-					is.read(temp);
-					Document doc = new Document( new String(temp) );
-					SourceModule module = (SourceModule)AbstractModule.createModuleFromDoc(file.getName(), null, doc, null, 0);
-					visitor = DefinitionsASTIteratorVisitor.create(module.getAst());
+					try {
+						byte temp[] = new byte[is.available()];
+						is.read(temp);
+						Document doc = new Document( new String(temp) );
+						SourceModule module = (SourceModule)AbstractModule.createModuleFromDoc(file.getName(), null, doc, null, 0);
+						visitor = DefinitionsASTIteratorVisitor.create(module.getAst());
+					} finally {
+						is.close();
+					}
 				}
 		        if(visitor == null){
 		            return EMPTY_ELEMENT;

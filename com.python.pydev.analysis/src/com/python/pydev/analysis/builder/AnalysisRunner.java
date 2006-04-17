@@ -57,6 +57,9 @@ public class AnalysisRunner {
      * @param resource the resource that should have the markers deleted
      */
     public void deleteMarkers(IResource resource) {
+    	if(resource == null){
+    		return;
+    	}
         try {
             resource.deleteMarkers(PYDEV_ANALYSIS_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
         } catch (CoreException e3) {
@@ -73,6 +76,9 @@ public class AnalysisRunner {
      * should be removed.
      */
     public void addMarkers(IResource resource, IDocument document, IMessage[] messages, ArrayList<IMarker> existing) {
+    	if(resource == null){
+    		return;
+    	}
         try {
             
             //add the markers... the id is put as additional info for it

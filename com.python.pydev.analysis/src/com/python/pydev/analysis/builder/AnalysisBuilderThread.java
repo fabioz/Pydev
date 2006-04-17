@@ -3,6 +3,7 @@
  */
 package com.python.pydev.analysis.builder;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -72,7 +73,7 @@ public class AnalysisBuilderThread extends Thread{
     }
 
     private IDocument document;
-    private IResource resource;
+    private WeakReference<IResource> resource;
     private IModule module;
     private boolean analyzeDependent;
     private IProgressMonitor monitor;
@@ -82,7 +83,7 @@ public class AnalysisBuilderThread extends Thread{
     
     public AnalysisBuilderThread(IDocument document, IResource resource, IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild, String moduleName) {
         this.document = document;
-        this.resource = resource;
+        this.resource = new WeakReference<IResource>(resource);
         this.module = module;
         this.analyzeDependent = analyzeDependent;
         this.monitor = monitor;
@@ -114,19 +115,19 @@ public class AnalysisBuilderThread extends Thread{
             IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
             analysisPreferences.clearCaches();
 
-            if (!runner.canDoAnalysis(document) || !PyDevBuilderVisitor.isInPythonPath(resource) || //just get problems in resources that are in the pythonpath
+            if (!runner.canDoAnalysis(document) || !PyDevBuilderVisitor.isInPythonPath(resource.get()) || //just get problems in resources that are in the pythonpath
                     analysisPreferences.makeCodeAnalysis() == false //let's see if we should do code analysis
             ) {
-                runner.deleteMarkers(resource);
+                runner.deleteMarkers(resource.get());
                 return;
             }
 
             checkStop();
-            PythonNature nature = PythonNature.getPythonNature(resource.getProject());
+            PythonNature nature = PythonNature.getPythonNature(resource.get());
 
             //remove dependency information (and anything else that was already generated), but first, gather the modules dependent on this one.
             AnalysisBuilderVisitor.fillDependenciesAndRemoveInfo(moduleName, nature, analyzeDependent, monitor, isFullBuild);
-            recreateCtxInsensitiveInfo(resource, document, module, nature);
+            recreateCtxInsensitiveInfo(resource.get(), document, module, nature);
 
             monitor.setTaskName("Analyzing module: " + moduleName);
             monitor.worked(1);
@@ -135,22 +136,14 @@ public class AnalysisBuilderThread extends Thread{
             OcurrencesAnalyzer analyzer = new OcurrencesAnalyzer();
 
             ArrayList<IMarker> existing = new ArrayList<IMarker>();
-            try {
-                IMarker[] found = resource.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
-                for (IMarker marker : found) {
-                    existing.add(marker);
-                }
-            } catch (CoreException e) {
-                //ignore it
-                PydevPlugin.log(e);
-            } 
+            findAnalysisMarkers(existing); 
             
             //ok, let's do it
             checkStop();
             IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences, document, this.internalCancelMonitor);
             monitor.setTaskName("Adding markers for module: "+moduleName);
             monitor.worked(1);
-            runner.addMarkers(resource, document, messages, existing);
+            runner.addMarkers(resource.get(), document, messages, existing);
             
             checkStop();
             for (IMarker marker : existing) {
@@ -168,8 +161,27 @@ public class AnalysisBuilderThread extends Thread{
         }
         
     }
+
+	private void findAnalysisMarkers(ArrayList<IMarker> existing) {
+		IResource r = resource.get();
+		if(r == null){
+			return;
+		}
+		try {
+		    IMarker[] found = r.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
+		    for (IMarker marker : found) {
+		        existing.add(marker);
+		    }
+		} catch (CoreException e) {
+		    //ignore it
+		    PydevPlugin.log(e);
+		}
+	}
     
     private void recreateCtxInsensitiveInfo(IResource resource, IDocument document, IModule sourceModule, PythonNature nature) {
+    	if(resource == null){
+    		return;
+    	}
         AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
         
         //info.removeInfoFromModule(sourceModule.getName()); -- does not remove info from the module because this should be already
