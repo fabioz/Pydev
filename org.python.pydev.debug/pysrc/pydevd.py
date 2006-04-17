@@ -431,20 +431,23 @@ class PyDB:
         if base in DONT_TRACE: #we don't want to debug threading or anything related to pydevd
             return None
 
+        # if thread is not alive, cancel trace_dispatch processing
+        if not t.isAlive():
+            self.processThreadNotAlive(t)
+            return None # suspend tracing
+        
+        try:
+            additionalInfo = t.additionalInfo
+        except AttributeError:
+            additionalInfo = PyDBAdditionalThreadInfo()
+            t.additionalInfo = additionalInfo
+            
+        filename = ctx.filename
+        released = False
+        ctx.acquire()
         try:
     
-            # if thread is not alive, cancel trace_dispatch processing
-            if not t.isAlive():
-                self.processThreadNotAlive(t)
-                return None # suspend tracing
     
-            try:
-                additionalInfo = t.additionalInfo
-            except AttributeError:
-                additionalInfo = PyDBAdditionalThreadInfo()
-                t.additionalInfo = additionalInfo
-                
-            filename = ctx.filename
             # Let's check to see if we are in a line that has a breakpoint. If we don't have a breakpoint, 
             # we will return nothing for the next trace
             #also, after we hit a breakpoint and go to some other debugging state, we have to force the set trace anyway,
@@ -486,6 +489,8 @@ class PyDB:
                     
                 # if thread has a suspend flag, we suspend with a busy wait
                 if additionalInfo.pydev_state == PyDB.STATE_SUSPEND:
+                    released = True
+                    ctx.release()
                     self.doWaitSuspend(t, frame, event, arg)
                     return self.trace_dispatch
                 
@@ -497,12 +502,16 @@ class PyDB:
             try:
                 if additionalInfo.pydev_step_cmd == CMD_STEP_INTO and event in ('line', 'return'):
                     self.setSuspend(t, CMD_STEP_INTO)
+                    released = True
+                    ctx.release()
                     self.doWaitSuspend(t, frame, event, arg)      
                     
                 
                 elif additionalInfo.pydev_step_cmd == CMD_STEP_OVER and event in ('line', 'return'): 
                     if additionalInfo.pydev_step_stop == frame:
                         self.setSuspend(t, CMD_STEP_OVER)
+                        released = True
+                        ctx.release()
                         self.doWaitSuspend(t, frame, event, arg)
                     
                     
@@ -518,16 +527,21 @@ class PyDB:
                         additionalInfo.pydev_return_call_count == 0
                         additionalInfo.pydev_stop_on_return_count_1 = False
                         self.setSuspend(t, CMD_STEP_RETURN)
+                        released = True
+                        ctx.release()
                         self.doWaitSuspend(t, frame, event, arg)
                         
                     if additionalInfo.pydev_step_stop == frame and event in ('line', 'return'):
                         self.setSuspend(t, CMD_STEP_RETURN)
+                        released = True
+                        ctx.release()
                         self.doWaitSuspend(t, frame, event, arg)
             except:
                 traceback.print_exc()
                 additionalInfo.pydev_step_cmd = None
         finally:
-            pass
+            if not released:
+                ctx.release()
         
         
         #if we are quitting, let's stop the tracing
