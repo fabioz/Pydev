@@ -126,7 +126,7 @@ public abstract class PyRefactorAction extends PyAction {
     public RefactoringRequest getRefactoringRequest(Operation operation){
     	return getRefactoringRequest(null, operation);
     }
-    RefactoringRequest request; 
+    protected RefactoringRequest request; 
     public RefactoringRequest getRefactoringRequest(String name, Operation operation){
         if(request == null){
             //testing first with whole lines.

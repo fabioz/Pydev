@@ -67,6 +67,7 @@ public class PyGoToDefinition extends PyRefactorAction {
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
+    	request = null;
         final Shell shell = getShell();
         try {
 
