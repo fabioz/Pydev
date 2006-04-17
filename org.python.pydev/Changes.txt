@@ -12,6 +12,7 @@ Pydev Extensions:
 - Class variable marked as error when self ommitted
 - when an undefined import is foundn within a try..except ImportError, it will not be reported.
 - Allow changing the keybinding for activating the Interactive Console (Ctrl+Enter)
+- Added a simple text-search that looks for in all .py and .pyw files (so you don't have to enter that in the preferences everytime).
 
 after 1.0.4
 Pydev:

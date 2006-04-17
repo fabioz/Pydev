@@ -444,12 +444,12 @@ public class REF {
      */
     public static IDocument getDocFromResource(IResource resource) {
         IProject project = resource.getProject();
-        if (project != null && resource instanceof IFile) {
+        if (project != null && resource instanceof IFile && resource.exists()) {
     
             IFile file = (IFile) resource;
     
             try {
-                if(! file.isSynchronized(IResource.DEPTH_ZERO)){
+                if(file.exists() && !file.isSynchronized(IResource.DEPTH_ZERO)){
                     file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
                 }
                 IPath path = file.getFullPath();
