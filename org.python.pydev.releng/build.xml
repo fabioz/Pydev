@@ -79,15 +79,15 @@
 		<mkdir dir="${eclipseResults}"/>
 		<mkdir dir="${eclipseResults}/plugins"/>
 		<mkdir dir="${eclipseResults}/features"/>
-		<copy todir="${eclipseResults}/features/${plug0}"><fileset dir="${EC_WORKSPACE}/${plug0}" defaultexcludes="yes" excludes="**/*.class" /></copy>
-		<copy todir="${eclipseResults}/plugins/${plug1}"> <fileset dir="${EC_WORKSPACE}/${plug1}" defaultexcludes="yes" excludes="**/*.class" /></copy>
-		<copy todir="${eclipseResults}/plugins/${plug2}"> <fileset dir="${EC_WORKSPACE}/${plug2}" defaultexcludes="yes" excludes="**/*.class" /></copy>
-		<copy todir="${eclipseResults}/plugins/${plug3}"> <fileset dir="${EC_WORKSPACE}/${plug3}" defaultexcludes="yes" excludes="**/*.class" /></copy>
-		<copy todir="${eclipseResults}/plugins/${plug4}"> <fileset dir="${EC_WORKSPACE}/${plug4}" defaultexcludes="yes" excludes="**/*.class" /></copy>
-		<copy todir="${eclipseResults}/plugins/${plug5}"> <fileset dir="${EC_WORKSPACE}/${plug5}" defaultexcludes="yes" excludes="**/*.class" /></copy>
-		<copy todir="${eclipseResults}/plugins/${plug6}"> <fileset dir="${EC_WORKSPACE}/${plug6}" defaultexcludes="yes" excludes="**/*.class" /></copy>
-		<copy todir="${eclipseResults}/plugins/${plug7}"> <fileset dir="${EC_WORKSPACE}/${plug7}" defaultexcludes="yes" excludes="**/*.class" /></copy>
-		<copy todir="${eclipseResults}/plugins/${plug8}"> <fileset dir="${EC_WORKSPACE}/${plug8}" defaultexcludes="yes" excludes="**/*.class" /></copy>
+		<copy todir="${eclipseResults}/features/${plug0}"><fileset dir="${EC_WORKSPACE}/${plug0}" defaultexcludes="yes" excludes="**/*.class,**/*.indexcache" /></copy>
+		<copy todir="${eclipseResults}/plugins/${plug1}"> <fileset dir="${EC_WORKSPACE}/${plug1}" defaultexcludes="yes" excludes="**/*.class,**/*.indexcache" /></copy>
+		<copy todir="${eclipseResults}/plugins/${plug2}"> <fileset dir="${EC_WORKSPACE}/${plug2}" defaultexcludes="yes" excludes="**/*.class,**/*.indexcache" /></copy>
+		<copy todir="${eclipseResults}/plugins/${plug3}"> <fileset dir="${EC_WORKSPACE}/${plug3}" defaultexcludes="yes" excludes="**/*.class,**/*.indexcache" /></copy>
+		<copy todir="${eclipseResults}/plugins/${plug4}"> <fileset dir="${EC_WORKSPACE}/${plug4}" defaultexcludes="yes" excludes="**/*.class,**/*.indexcache" /></copy>
+		<copy todir="${eclipseResults}/plugins/${plug5}"> <fileset dir="${EC_WORKSPACE}/${plug5}" defaultexcludes="yes" excludes="**/*.class,**/*.indexcache" /></copy>
+		<copy todir="${eclipseResults}/plugins/${plug6}"> <fileset dir="${EC_WORKSPACE}/${plug6}" defaultexcludes="yes" excludes="**/*.class,**/*.indexcache" /></copy>
+		<copy todir="${eclipseResults}/plugins/${plug7}"> <fileset dir="${EC_WORKSPACE}/${plug7}" defaultexcludes="yes" excludes="**/*.class,**/*.indexcache" /></copy>
+		<copy todir="${eclipseResults}/plugins/${plug8}"> <fileset dir="${EC_WORKSPACE}/${plug8}" defaultexcludes="yes" excludes="**/*.class,**/*.indexcache" /></copy>
 	</target>
 		
 	<target name = "doit" depends="recreate">
