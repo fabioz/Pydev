@@ -200,17 +200,32 @@ public class SourceModule extends AbstractModule {
                                         value = d.value;
                                         
                                     }else if (d.ast instanceof Name){
-                                        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(actToks[actToks.length-1], d.line, d.col, d.module);
                                         ClassDef classDef = d.scope.getClassDef();
                                         if(classDef != null){
+                                        	FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(actToks[actToks.length-1], d.line, d.col, d.module);
 	                                        classDef.accept(visitor);
+	                                        if(visitor.definitions.size() == 0){
+	                                        	return new IToken[0];
+	                                        }
 	                                        d = visitor.definitions.get(0);
 	                                        value = d.value;
 	                                        if(d instanceof AssignDefinition){
 	                                            return getValueCompletions(initialState, manager, value);
 	                                        }
                                         }else{
-                                        	//TODO: ok, this case has to be further worked on...
+                                        	if(d.module instanceof SourceModule){
+                                        		FullRepIterable.joinFirstParts(actToks);
+                                        		SourceModule m = (SourceModule) d.module;
+                                        		Definition[] definitions2 = m.findDefinition(FullRepIterable.joinFirstParts(actToks), d.line, d.col,manager.getNature(), null);
+                                        		if(definitions2.length == 0){
+                                        			return new IToken[0];
+                                        		}
+                                        		d = definitions2[0];
+                                        		value = d.value+"."+actToks[actToks.length-1];
+                                        		if(d instanceof AssignDefinition){
+                                        			return ((SourceModule)d.module).getValueCompletions(initialState, manager, value);
+                                        		}
+                                        	}
                                         }
                                         
                                     }else if ((d.ast == null && d.module != null) || d.ast instanceof ImportFrom){
@@ -310,6 +325,9 @@ public class SourceModule extends AbstractModule {
     }
 
     public Definition[] findDefinition(String rep, int line, int col, IPythonNature nature, List<FindInfo> lFindInfo) throws Exception{
+    	if(lFindInfo == null){
+    		lFindInfo = new ArrayList<FindInfo>();
+    	}
         //the line passed in starts at 1 and the lines for the visitor start at 0
         ArrayList<Definition> toRet = new ArrayList<Definition>();
         FindInfo info = new FindInfo();

@@ -24,8 +24,6 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
 import org.eclipse.core.filebuffers.FileBuffers;
@@ -413,7 +411,7 @@ public class REF {
                 String encoding = getPythonFileEncoding(f);
                 fileContents = getFileContents(stream, encoding, null);
             } finally {
-                stream.close();
+                try { stream.close(); } catch (Exception e) {Log.log(e);}
             }
             return new Document(fileContents);
         } catch (Exception e) {
@@ -458,10 +456,14 @@ public class REF {
                 if(doc == null){
                     //can this actually happen?... yeap, it can
                     InputStream contents = file.getContents();
-                    int i = contents.available();
-                    byte b[] = new byte[i];
-                    contents.read(b);
-                    doc = new Document(new String(b));
+                    try {
+						int i = contents.available();
+						byte b[] = new byte[i];
+						contents.read(b);
+						doc = new Document(new String(b));
+					} finally{
+						contents.close();
+					}
                 }
                 return doc;
             } catch (Exception e) {
@@ -486,8 +488,15 @@ public class REF {
      */
     public static String getPythonFileEncoding(File f) {
         try {
-            Reader inputStreamReader = new InputStreamReader(new FileInputStream(f));
-            return getPythonFileEncoding(inputStreamReader);
+            final FileInputStream fileInputStream = new FileInputStream(f);
+			try {
+				Reader inputStreamReader = new InputStreamReader(fileInputStream);
+				String pythonFileEncoding = getPythonFileEncoding(inputStreamReader);
+				return pythonFileEncoding;
+			} finally {
+				//NOTE: the reader will be closed at 'getPythonFileEncoding'. 
+				try { fileInputStream.close(); } catch (Exception e) {Log.log(e);	}
+			}
         } catch (FileNotFoundException e) {
             return null;
         }
@@ -496,6 +505,8 @@ public class REF {
     /**
      * The encoding declared in the reader is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
      * -- may return null
+     * 
+     * Will close the reader.
      */
     private static String getPythonFileEncoding(Reader inputStreamReader) {
         String ret = null;
@@ -551,7 +562,6 @@ public class REF {
         return ret;
     }
 
-    public static Set<String> encodings = new HashSet<String>();
     public static String getValidEncoding(String ret) {
         if(ret == null){
             return ret;

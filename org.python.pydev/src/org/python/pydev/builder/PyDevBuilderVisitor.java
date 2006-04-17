@@ -203,6 +203,9 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @return true if it is in the pythonpath
      */
     public static boolean isInPythonPath(IResource resource){
+    	if(resource == null){
+    		return false;
+    	}
         IProject project = resource.getProject();
         PythonNature nature = PythonNature.getPythonNature(project);
         if(project != null && nature != null){

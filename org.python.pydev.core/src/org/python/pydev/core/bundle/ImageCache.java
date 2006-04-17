@@ -54,6 +54,12 @@ public class ImageCache {
 				desc = getDescriptor(key);
 				image = desc.createImage();
 				imageHash.put(key, image);
+			} catch (NoClassDefFoundError e) {
+				//we're in tests...
+				return null;
+			} catch (UnsatisfiedLinkError e) {
+				//we're in tests...
+				return null;
 			} catch (MalformedURLException e) {
 				// If image is missing, create a default missing one
 				System.err.println("ERROR: Missing image: " + key);

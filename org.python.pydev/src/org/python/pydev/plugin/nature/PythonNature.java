@@ -419,6 +419,13 @@ public class PythonNature implements IPythonNature {
     	return natures;
     }
     
+    public static PythonNature getPythonNature(IResource resource) {
+    	if(resource == null){
+    		return null;
+    	}
+    	return getPythonNature(resource.getProject());
+    	
+    }
     /**
      * @param project the project we want to know about (if it is null, null is returned)
      * @return the python nature for a project (or null if it does not exist for the project)
