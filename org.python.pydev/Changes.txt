@@ -5,14 +5,18 @@ Pydev:
 - 2 minor 'quirks' were fixed when indenting
 - The debugger had some changes (so, if you had halts with it, please try it again).
 - Allow changing the keybinding for activating the Find next problem (Ctrl+.)
-- The debugger now does not 'return all functions' on return
+- The debugger step-return had its behaviour changed.
+
 
 Pydev Extensions:
 - Analysis happens in a Thread, so, you should now always have the latest parse without any halts (this happened only when the option was set to analyze only on save).
 - Class variable marked as error when self ommitted
-- when an undefined import is foundn within a try..except ImportError, it will not be reported.
+- when an undefined import is found within a try..except ImportError, it will not be reported.
 - Allow changing the keybinding for activating the Interactive Console (Ctrl+Enter)
-- Added a simple text-search that looks for in all .py and .pyw files (so you don't have to enter that in the preferences everytime).
+- Added a simple text-search that looks for in all .py and .pyw files.
+- A currently experimental feature has been added: Show hierarchy (F4) -- It is still not ready for 'prime-time', but should provide
+a good insight on what it will be.
+- The keywords that match the 'simple' keywords completion do not show up.
 
 after 1.0.4
 Pydev:
