@@ -20,7 +20,7 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
         try {
             PythonCompletionTestWithBuiltins builtins = new PythonCompletionTestWithBuiltins();
             builtins.setUp();
-            builtins.testDeepNested9();
+            builtins.testCompleteImportBuiltinReference2();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionTestWithBuiltins.class);
@@ -182,6 +182,15 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
     }
     
 
+    public void testCompleteImportBuiltinReference2() throws BadLocationException, IOException, Exception{
+    	String s;
+    	if(TestDependent.HAS_WXPYTHON_INSTALLED){ //we can only test what we have
+    		s = "" +
+    		"from wx import ";
+    		requestCompl(s, s.length(), -1, new String[]{"glcanvas"});
+    	}
+    }
+    
     public void testCompleteImportBuiltinReference() throws BadLocationException, IOException, Exception{
         
         String s;

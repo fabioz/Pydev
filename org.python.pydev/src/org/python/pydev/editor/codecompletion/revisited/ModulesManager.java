@@ -427,20 +427,32 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         //from them).
         String[] builtins = getBuiltins();
         
+        boolean foundStartingWithBuiltin = false;
         for (int i = 0; i < builtins.length; i++) {
             String forcedBuiltin = builtins[i];
             if (name.startsWith(forcedBuiltin)) {
                 if(name.length() > forcedBuiltin.length() && name.charAt(forcedBuiltin.length()) == '.'){
-                    return null; //it should be regarded as a compiled module (and therefore should be accessed only as its root).
+                	foundStartingWithBuiltin = true;
+                	n = cache.getObj(new ModulesKey(name, null));
+                	if(n instanceof EmptyModule || n instanceof SourceModule){ //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
+                		n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
+                		doAddSingleModule(new ModulesKey(n.getName(), null), n);
+                		return n;
+                	}
                 }
+                
                 if(name.equals(forcedBuiltin)){
                     n = cache.getObj(new ModulesKey(name, null));
                     if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ //still not created or not defined as compiled module (as it should be)
                         n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
                         doAddSingleModule(new ModulesKey(n.getName(), null), n);
+                        return n;
                     }
                 }
             }
+        }
+        if(foundStartingWithBuiltin){
+        	return null;
         }
 
 
