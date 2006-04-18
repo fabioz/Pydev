@@ -14,7 +14,7 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
         	ImportsOcurrencesAnalyzerTest analyzer2 = new ImportsOcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testNested();
+            analyzer2.testWx();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -27,6 +27,19 @@ public class ImportsOcurrencesAnalyzerTest extends AnalysisTestsBase {
         System.exit(0);
     }
 
+    public void testWx() throws Exception {
+    	if(TestDependent.HAS_WXPYTHON_INSTALLED){
+    		doc = new Document(
+    				"from wx import glcanvas\n" +
+    				"print glcanvas"
+    		);
+    		analyzer = new OcurrencesAnalyzer();
+    		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    		
+    		printMessages(msgs,0);
+    		
+    	}
+    }
     public void testModuleTokensErr() throws Exception {
     	doc = new Document(
 			"from testlib.unittest import anothertest\n"+

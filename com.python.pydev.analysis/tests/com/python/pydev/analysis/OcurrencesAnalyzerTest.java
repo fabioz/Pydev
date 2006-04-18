@@ -26,7 +26,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testImportWithTryExcept2();
+            analyzer2.testAugAssign();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -110,6 +110,47 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     	
     	printMessages(msgs,1);
     	
+    }
+    
+    public void testAugAssign(){
+    	
+    	doc = new Document(
+    			"def m1():\n"+
+    			"    foo|=1\n"
+    	);
+    	checkAug(1);
+    	
+    	doc = new Document(
+    			"def m1():\n"+
+    			"    foo+=1\n"
+    	);
+    	checkAug(1);
+    	
+    	doc = new Document(
+    			"def m1():\n"+
+    			"    foo*=1\n"
+    	);
+    	checkAug(1);
+    	
+    	doc = new Document(
+    			"def m1():\n"+
+    			"    print foo|1\n"
+    	);
+    	checkAug(1);
+    	
+    	doc = new Document(
+    			"def m1():\n"+
+    			"    foo = 10\n" +
+    			"    foo += 20"
+    	);
+    	checkAug(0);
+    }
+
+    private void checkAug(int errors){
+    	analyzer = new OcurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,errors);
     }
     
     public void testFromFutureImport(){

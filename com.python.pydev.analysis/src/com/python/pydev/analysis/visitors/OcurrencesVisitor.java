@@ -22,6 +22,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.AugAssign;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Dict;
@@ -320,6 +321,11 @@ public class OcurrencesVisitor extends VisitorBase{
     	return null;
     }
     
+    @Override
+    public Object visitAugAssign(AugAssign node) throws Exception {
+    	return super.visitAugAssign(node);
+    }
+    
     /**
      * when visiting an import, just make the token and add it
      * 
@@ -370,7 +376,13 @@ public class OcurrencesVisitor extends VisitorBase{
     	unhandled_node(node);
         //when visiting the global namespace, we don't go into any inner scope.
         SourceToken token = AbstractVisitor.makeToken(node, moduleName);
-        if (node.ctx == Name.Store) {
+        boolean found = true;
+        //on aug assign, it has to enter both, the load and the read (but first the load, because it can be undefined)
+        if (node.ctx == Name.Load || node.ctx == Name.Del || node.ctx == Name.AugStore) {
+            found = markRead(token);
+        }
+        
+        if (node.ctx == Name.Store || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
             String rep = token.getRepresentation();
             boolean inNamesToIgnore = scope.isInNamesToIgnore(rep);
             
@@ -382,11 +394,8 @@ public class OcurrencesVisitor extends VisitorBase{
                     addToNamesToIgnore(node); //ignore self
                 }
             }
-            
-            
-        } else if (node.ctx == Name.Load) {
-            markRead(token);
-        }
+        } 
+        
         return null;
     }
     
@@ -713,10 +722,11 @@ public class OcurrencesVisitor extends VisitorBase{
     
     /**
      * we just found a token, so let's mark the correspondent tokens read (or undefined)
+     * @return true if it was found
      */
-    protected void markRead(IToken token) {
+    protected boolean markRead(IToken token) {
         String rep = token.getRepresentation();
-        markRead(token, rep, true, false);
+        return markRead(token, rep, true, false);
     }
 
     /**
