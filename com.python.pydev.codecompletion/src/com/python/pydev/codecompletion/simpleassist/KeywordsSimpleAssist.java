@@ -147,7 +147,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
         //get them
         if(activationToken.equals("") && qualifier.equals("") == false){
             for (String keyw : CodeCompletionPreferencesPage.getKeywords()) {
-                if(keyw.startsWith(qualifier)){
+                if(keyw.startsWith(qualifier) && !keyw.equals(qualifier)){
                     results.add(new SimpleAssistProposal(keyw, offset - qualifier.length(), qualifier.length(), keyw.length(), PyCompletionProposal.PRIORITY_DEFAULT));
                 }
             }
@@ -219,7 +219,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant{
             String qualifier = strs[1];
             
             if(activationToken.equals("") && qualifier.equals("") == false){
-                if(fReplacementString.startsWith(qualifier)){
+                if(fReplacementString.startsWith(qualifier) && !fReplacementString.equals(qualifier)){
                     return true;
                 }
             }
