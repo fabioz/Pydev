@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore that's because some things rely on jython, some on python... so, let's keep it like that
 """ pydevd_vars deals with variables:
     resolution/conversion to XML.
 """
