@@ -2,7 +2,7 @@
 after 1.0.5
 
 Pydev:
-- 2 minor 'quirks' were fixed when indenting
+- 3 minor 'quirks' were fixed when indenting
 - The debugger had some changes (so, if you had halts with it, please try it again).
 - Allow changing the keybinding for activating the Find next problem (Ctrl+.)
 - The debugger step-return had its behaviour changed.

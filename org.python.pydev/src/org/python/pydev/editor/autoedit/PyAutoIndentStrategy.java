@@ -99,18 +99,17 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             
             String trimmedLine = lineWithoutComments.trim();
             
+            if(smartIndent >= 0 && DocUtils.hasOpeningBracket(trimmedLine) || DocUtils.hasClosingBracket(trimmedLine)){
+                return makeSmartIndent(text, smartIndent);
+            }
             //let's check for dedents...
             if(PySelection.startsWithDedentToken(trimmedLine)){
-                text = dedent(text);
-            }else if(smartIndent >= 0){
-            	if(DocUtils.hasOpeningBracket(trimmedLine) || DocUtils.hasClosingBracket(trimmedLine)){
-            		text = makeSmartIndent(text, smartIndent);
-            	}
-            }else{
-            	if(selection.getLineContentsToCursor().trim().length() == 0){
-            		text = indentBasedOnStartingScope(text, selection, true);
-            	}
+                return dedent(text);
             }
+            
+        	if(selection.getLineContentsToCursor().trim().length() == 0){
+        		return indentBasedOnStartingScope(text, selection, true);
+        	}
         }
         return text;
     }
