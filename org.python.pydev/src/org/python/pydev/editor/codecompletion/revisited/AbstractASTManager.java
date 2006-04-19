@@ -98,7 +98,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         if (absoluteModule.endsWith(".")) {
             absoluteModule = absoluteModule.substring(0, absoluteModule.length() - 1);
         }
-        absoluteModule = absoluteModule.toLowerCase().trim();
+        //absoluteModule = absoluteModule.toLowerCase().trim();
 
         //set to hold the completion (no duplicates allowed).
         Set<IToken> set = new HashSet<IToken>();
@@ -128,7 +128,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             ModulesKey key = (ModulesKey) iter.next();
 
             String element = key.name;
-			if (element.toLowerCase().startsWith(moduleToGetTokensFrom)) {
+			if (element.startsWith(moduleToGetTokensFrom)) {
                 if(onlyFilesOnSameLevel && key.file != null && key.file.isDirectory()){
                 	continue; // we only want those that are in the same directory, and not in other directories...
                 }
