@@ -14,16 +14,16 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShell;
 
-public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
+public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     
     public static void main(String[] args) {
         try {
-            PythonCompletionTestWithBuiltins builtins = new PythonCompletionTestWithBuiltins();
+            PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testCompleteImportBuiltinReference2();
+            builtins.testGlu();
             builtins.tearDown();
             
-            junit.textui.TestRunner.run(PythonCompletionTestWithBuiltins.class);
+            junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -188,6 +188,13 @@ public class PythonCompletionTestWithBuiltins extends CodeCompletionTestsBase{
     		s = "" +
     		"from wx import ";
     		requestCompl(s, s.length(), -1, new String[]{"glcanvas"});
+    	}
+    }
+    
+    public void testGlu() throws IOException, CoreException, BadLocationException {
+    	if(TestDependent.HAS_GLU_INSTALLED){
+    	    final String s = "from OpenGL import ";
+			requestCompl(s, s.length(), -1, new String[]{"GLU", "GLUT"});
     	}
     }
     

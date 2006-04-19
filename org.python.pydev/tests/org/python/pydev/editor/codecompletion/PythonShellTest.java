@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
@@ -87,6 +88,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
     private List getPythonpath() {
         return nature.getAstManager().getModulesManager().getCompletePythonPath();
     }
+    
 
     public void testGlu() throws IOException, CoreException {
         if(TestDependent.HAS_GLU_INSTALLED){

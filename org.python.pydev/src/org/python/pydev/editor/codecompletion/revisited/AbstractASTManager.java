@@ -128,7 +128,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             ModulesKey key = (ModulesKey) iter.next();
 
             String element = key.name;
-			if (element.startsWith(moduleToGetTokensFrom)) {
+			if (element.toLowerCase().startsWith(moduleToGetTokensFrom)) {
                 if(onlyFilesOnSameLevel && key.file != null && key.file.isDirectory()){
                 	continue; // we only want those that are in the same directory, and not in other directories...
                 }

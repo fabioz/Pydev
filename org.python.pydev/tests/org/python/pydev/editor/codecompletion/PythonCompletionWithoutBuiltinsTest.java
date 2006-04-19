@@ -23,19 +23,19 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
  * 
  * @author Fabio Zadrozny
  */
-public class PythonCompletionTestWithoutBuiltins extends CodeCompletionTestsBase {
+public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase {
 
     public static void main(String[] args) {
         
       try {
           //DEBUG_TESTS_BASE = true;
-          PythonCompletionTestWithoutBuiltins test = new PythonCompletionTestWithoutBuiltins();
+          PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
           test.testDeepNested6();
 	      test.tearDown();
           System.out.println("Finished");
 
-          junit.textui.TestRunner.run(PythonCompletionTestWithoutBuiltins.class);
+          junit.textui.TestRunner.run(PythonCompletionWithoutBuiltinsTest.class);
 	  } catch (Exception e) {
 	      e.printStackTrace();
 	  } catch(Error e){

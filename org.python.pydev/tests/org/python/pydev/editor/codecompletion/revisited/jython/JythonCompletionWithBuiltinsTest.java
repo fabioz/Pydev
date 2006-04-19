@@ -11,7 +11,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.JythonShell;
 
-public class JythonCompletionTestWithBuiltins extends JythonCodeCompletionTestsBase{
+public class JythonCompletionWithBuiltinsTest extends JythonCodeCompletionTestsBase{
     
     private static JythonShell shell;
     
