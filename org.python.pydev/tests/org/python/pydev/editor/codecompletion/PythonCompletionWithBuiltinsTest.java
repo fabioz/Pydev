@@ -20,7 +20,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testGlu();
+            builtins.testGlu2();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -198,6 +198,13 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     	}
     }
     
+    public void testGlu2() throws IOException, CoreException, BadLocationException {
+    	if(TestDependent.HAS_GLU_INSTALLED){
+    		final String s = "from OpenGL.GL import ";
+    		requestCompl(s, s.length(), -1, new String[]{"glPushMatrix"});
+    	}
+    }
+    
     public void testCompleteImportBuiltinReference() throws BadLocationException, IOException, Exception{
         
         String s;
@@ -220,7 +227,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         "import os\n"+
         "                \n"+   
         "os.";         
-        File file = new File("tests/pysrc/simpleosimport.py");
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/simpleosimport.py");
         assertTrue(file.exists());
         assertTrue(file.isFile());
         requestCompl(file, s, s.length(), -1, new String[]{"path"});

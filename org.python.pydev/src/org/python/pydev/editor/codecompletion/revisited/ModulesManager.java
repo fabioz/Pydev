@@ -434,6 +434,9 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                 if(name.length() > forcedBuiltin.length() && name.charAt(forcedBuiltin.length()) == '.'){
                 	foundStartingWithBuiltin = true;
                 	n = cache.getObj(new ModulesKey(name, null));
+                	if(n == null && dontSearchInit == false){
+                		n = cache.getObj(new ModulesKey(name+".__init__", null));
+                	}
                 	if(n instanceof EmptyModule || n instanceof SourceModule){ //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
                 		n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
                 		doAddSingleModule(new ModulesKey(n.getName(), null), n);
@@ -448,6 +451,9 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                         doAddSingleModule(new ModulesKey(n.getName(), null), n);
                         return n;
                     }
+                }
+                if(n instanceof CompiledModule){
+                	return n;
                 }
             }
         }
