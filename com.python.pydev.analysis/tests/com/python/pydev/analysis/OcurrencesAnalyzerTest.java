@@ -26,7 +26,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testAugAssign();
+            analyzer2.testGlu2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -398,6 +398,35 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 0);
     }
     
+    public void testGlu(){
+    	if(TestDependent.HAS_GLU_INSTALLED){
+    		doc = new Document(
+    				"from OpenGL.GL import glPushMatrix\n" +
+    				"print glPushMatrix\n" +
+    				""
+    		);
+    		analyzer = new OcurrencesAnalyzer();
+    		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    		
+    		printMessages(msgs, 0);
+    	}
+    	
+    }
+    
+    public void testGlu2(){
+    	if(TestDependent.HAS_GLU_INSTALLED){
+    		doc = new Document(
+    				"from OpenGL.GL import * #@UnusedWildImport\n" +
+    				"print glPushMatrix\n" +
+    				""
+    		);
+    		analyzer = new OcurrencesAnalyzer();
+    		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    		
+    		printMessages(msgs, 0);
+    	}
+    	
+    }
     public void testCompiledUnusedImports5(){
         
         if(TestDependent.HAS_WXPYTHON_INSTALLED){

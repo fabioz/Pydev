@@ -131,6 +131,7 @@ public class Scope implements Iterable<ScopeItems>{
         ScopeItems m = scope.peek();
         for (Iterator iter = list.iterator(); iter.hasNext();) {
             IToken o = (IToken) iter.next();
+            //System.out.println("adding: "+o.getRepresentation());
             Found found = addToken(generator, m, o, o.getRepresentation());
 
             //the token that we find here is either an import (in the case of some from xxx import yyy or import aa.bb)
