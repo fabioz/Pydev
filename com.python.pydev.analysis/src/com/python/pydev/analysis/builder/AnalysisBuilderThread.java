@@ -51,6 +51,17 @@ public class AnalysisBuilderThread extends Thread{
         return availableThreads;
     }
     
+    private void removeFromThreads() {
+        Map<String, AnalysisBuilderThread> available = getAvailableThreads();
+        synchronized(available){
+            AnalysisBuilderThread analysisBuilderThread = available.get(moduleName);
+            if(analysisBuilderThread == this){
+                available.remove(moduleName);
+            }
+        }
+    }
+
+
     /**
      * Creates a thread for analyzing some module (and stopping analysis of some other thread if there is one
      * already running).
@@ -118,7 +129,12 @@ public class AnalysisBuilderThread extends Thread{
             if (!runner.canDoAnalysis(document) || !PyDevBuilderVisitor.isInPythonPath(resource.get()) || //just get problems in resources that are in the pythonpath
                     analysisPreferences.makeCodeAnalysis() == false //let's see if we should do code analysis
             ) {
-                runner.deleteMarkers(resource.get());
+                IResource r = resource.get();
+                if(r != null){
+                    synchronized(r){
+                        runner.deleteMarkers(r);
+                    }
+                }
                 return;
             }
 
@@ -143,14 +159,24 @@ public class AnalysisBuilderThread extends Thread{
             IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences, document, this.internalCancelMonitor);
             monitor.setTaskName("Adding markers for module: "+moduleName);
             monitor.worked(1);
-            runner.addMarkers(resource.get(), document, messages, existing);
             
+            //last chance to stop...
             checkStop();
-            for (IMarker marker : existing) {
-                try {
-                    marker.delete();
-                } catch (CoreException e) {
-                    PydevPlugin.log(e);
+            
+            //don't stop after setting to add / remove the markers
+            
+            IResource r = resource.get();
+            if(r != null){
+                synchronized(r){
+                    runner.addMarkers(resource.get(), document, messages, existing);
+                    
+                    for (IMarker marker : existing) {
+                        try {
+                            marker.delete();
+                        } catch (CoreException e) {
+                            PydevPlugin.log(e);
+                        }
+                    }
                 }
             }
         } catch (CancelledException e) {
@@ -159,23 +185,25 @@ public class AnalysisBuilderThread extends Thread{
         } catch (Exception e){
             PydevPlugin.log(e);
         }
-        
+        removeFromThreads();
     }
 
-	private void findAnalysisMarkers(ArrayList<IMarker> existing) {
+    private void findAnalysisMarkers(ArrayList<IMarker> existing) {
 		IResource r = resource.get();
 		if(r == null){
 			return;
 		}
-		try {
-		    IMarker[] found = r.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
-		    for (IMarker marker : found) {
-		        existing.add(marker);
-		    }
-		} catch (CoreException e) {
-		    //ignore it
-		    PydevPlugin.log(e);
-		}
+        synchronized (r) {
+    		try {
+    		    IMarker[] found = r.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
+    		    for (IMarker marker : found) {
+    		        existing.add(marker);
+    		    }
+    		} catch (CoreException e) {
+    		    //ignore it
+    		    PydevPlugin.log(e);
+    		}
+        }
 	}
     
     private void recreateCtxInsensitiveInfo(IResource resource, IDocument document, IModule sourceModule, PythonNature nature) {
