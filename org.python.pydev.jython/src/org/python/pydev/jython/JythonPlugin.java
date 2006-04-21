@@ -237,7 +237,7 @@ public class JythonPlugin extends AbstractUIPlugin {
 	 */
 	public static Throwable exec(HashMap<String, Object> locals, String fileToExec, IPythonInterpreter interpreter) {
 		File fileWithinJySrc = JythonPlugin.getFileWithinJySrc(fileToExec);
-    	return exec(locals, interpreter, fileWithinJySrc);
+    	return exec(locals, interpreter, fileWithinJySrc, new File[]{fileWithinJySrc.getParentFile()});
 	}
 	
 	public static List<Throwable> execAll(HashMap<String, Object> locals, final String startingWith, IPythonInterpreter interpreter) {
@@ -264,7 +264,7 @@ public class JythonPlugin extends AbstractUIPlugin {
                 File[] files = getFilesBeneathFolder(startingWith, file);
                 if(files != null){
                     for(File f : files){
-                        Throwable throwable = exec(locals, interpreter, f);
+                        Throwable throwable = exec(locals, interpreter, f, beneathFolders);
                         if(throwable != null){
                             errors.add(throwable);
                         }
@@ -299,10 +299,11 @@ public class JythonPlugin extends AbstractUIPlugin {
 	private static Map<File, Tuple<Long, Object>> codeCache = new HashMap<File,Tuple<Long, Object>>();
 	
 	/**
+	 * @param pythonpathFolders folders that should be in the pythonpath when executing the script
 	 * @see JythonPlugin#exec(HashMap, String, PythonInterpreter)
 	 * Same as before but the file to execute is passed as a parameter
 	 */
-	public static synchronized Throwable exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, File fileToExec) {
+	public static synchronized Throwable exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, File fileToExec, File[] pythonpathFolders) {
         if(locals == null){
             locals = new HashMap<String, Object>();
         }
@@ -347,13 +348,42 @@ public class JythonPlugin extends AbstractUIPlugin {
 					String path = REF.getFileAbsolutePath(fileToExec);
 	                String loadFile = "" +
 							"print '--->  reloading', r'%s'\n" +
+                            "import sys                    \n" + //sys will always be on the namespace (so that we can set sys.path)
 							"f = open(r'%s')               \n" +
 							"try:                          \n" +
 							"    toExec = f.read()         \n" +
 							"finally:                      \n" +
 							"    f.close()                 \n" +
+                            "%s                            \n" + //space to put the needed folders on sys.path
 	                        "";
-	                String toExec = StringUtils.format(loadFile, path, path);
+	                
+	                StringBuffer pythonPathFolders = new StringBuffer();
+	                pythonPathFolders.append("[");
+	                for (File file : pythonpathFolders) {
+                        if (file != null){
+    	                    pythonPathFolders.append("r'");
+    	                    pythonPathFolders.append(REF.getFileAbsolutePath(file));
+    	                    pythonPathFolders.append("',");
+                        }
+	                }
+	                pythonPathFolders.append("]");
+                    
+                    StringBuffer addToSysPath = new StringBuffer();
+                    
+                    //we will only add the paths to the pythonpath if it was still not set or if it changed (but it will never remove the ones added before).
+                    addToSysPath.append("if not hasattr(sys, 'PYDEV_PYTHONPATH_SET') or sys.PYDEV_PYTHONPATH_SET != "); //we have to put that in sys because it is the same across different interpreters
+                    addToSysPath.append(pythonPathFolders);
+                    addToSysPath.append(":\n");
+                    
+                    addToSysPath.append("    sys.PYDEV_PYTHONPATH_SET = ");
+                    addToSysPath.append(pythonPathFolders);
+                    addToSysPath.append("\n");
+                    
+                    addToSysPath.append("    sys.path += ");
+                    addToSysPath.append(pythonPathFolders);
+                    addToSysPath.append("\n");
+                    
+	                String toExec = StringUtils.format(loadFile, path, path, addToSysPath.toString());
 	                interpreter.exec(toExec);
 					String exec = StringUtils.format("%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
 					interpreter.exec(exec);

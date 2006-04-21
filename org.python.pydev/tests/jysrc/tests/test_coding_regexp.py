@@ -15,4 +15,3 @@ assert not p.matcher(String('coding foo')).find()
 assert not p.matcher(String('encoding foo')).find()
 assert not p.matcher(String('coding')).find()
 assert not p.matcher(String('coding')).find()
-

@@ -19,7 +19,9 @@ public class Log {
      */
     public static void log(int errorLevel, String message, Throwable e) {
         System.err.println(message);
-        e.printStackTrace();
+        if(e != null){
+            e.printStackTrace();
+        }
         try {
             
 	        Status s = new Status(errorLevel, CorePlugin.getPluginID(), errorLevel, message, e);

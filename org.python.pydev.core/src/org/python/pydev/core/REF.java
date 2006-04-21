@@ -24,6 +24,8 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
 import org.eclipse.core.filebuffers.FileBuffers;
@@ -508,7 +510,7 @@ public class REF {
      * 
      * Will close the reader.
      */
-    private static String getPythonFileEncoding(Reader inputStreamReader) {
+    public static String getPythonFileEncoding(Reader inputStreamReader) {
         String ret = null;
         BufferedReader reader = new BufferedReader(inputStreamReader);
         try{
@@ -518,10 +520,10 @@ public class REF {
             
             String lEnc = null;
             //encoding must be specified in first or second line...
-            if (l1 != null && l1.toLowerCase().indexOf("coding") != -1){
+            if (l1 != null && l1.indexOf("coding") != -1){
                 lEnc = l1; 
             }
-            else if (l2 != null && l2.toLowerCase().indexOf("coding") != -1){
+            else if (l2 != null && l2.indexOf("coding") != -1){
                 lEnc = l2; 
             }
             else{
@@ -536,21 +538,26 @@ public class REF {
                 }else if(lEnc.charAt(0) == '#'){ //it must be a comment line
                     
                     //ok, the encoding line is in lEnc
-                    lEnc = lEnc.substring(lEnc.indexOf("coding")+6);
-                    
-                    char c;
-                    while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) == ' ' || c == ':' || c == '=')) {
-                        lEnc = lEnc.substring(1);
-                    }
-    
-                    StringBuffer buffer = new StringBuffer();
-                    while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) != ' ' || c == '-' || c == '*')) {
+                    Pattern p = Pattern.compile("coding[:=]+[\\s]*[\\w[\\-]]+[\\s]*");
+                    Matcher matcher = p.matcher(lEnc);
+                    if( matcher.find() ){
                         
-                        buffer.append(c);
-                        lEnc = lEnc.substring(1);
+                        lEnc = lEnc.substring(matcher.start()+6);
+                        
+                        char c;
+                        while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) == ' ' || c == ':' || c == '=')) {
+                            lEnc = lEnc.substring(1);
+                        }
+        
+                        StringBuffer buffer = new StringBuffer();
+                        while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) != ' ' || c == '-' || c == '*')) {
+                            
+                            buffer.append(c);
+                            lEnc = lEnc.substring(1);
+                        }
+        
+                        ret = buffer.toString().trim();
                     }
-    
-                    ret = buffer.toString().trim();
                 }
             }
         } catch (IOException e) {
@@ -578,12 +585,19 @@ public class REF {
             }
         }
         if(!Charset.isSupported(ret)){
-            String msg = "The encoding found: "+ret+" is not a valid encoding.";
-            Log.log(IStatus.ERROR, msg, new UnsupportedEncodingException(msg));
+            if(LOG_ENCODING_ERROR){
+                String msg = "The encoding found: >>"+ret+"<< is not a valid encoding.";
+                Log.log(IStatus.ERROR, msg, new UnsupportedEncodingException(msg));
+            }
             return null; //ok, we've been unable to make it supported (better return null than an unsupported encoding).
         }
         return ret;
     }
+    
+    /**
+     * Useful to silent it on tests
+     */
+    public static boolean LOG_ENCODING_ERROR = true;
 
 }
 
