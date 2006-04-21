@@ -42,7 +42,12 @@ public class JyScriptingPreferencesPage extends FieldEditorPreferencePage implem
      * @return if we should show the scripting output in a shell.
      */
     public static boolean getShowScriptingOutput(){
-        return JythonPlugin.getDefault().getPreferenceStore().getBoolean(SHOW_SCRIPTING_OUTPUT);
+        JythonPlugin plugin = JythonPlugin.getDefault();
+        if(plugin == null){
+            //we're in test mode
+            return true; // always show output
+        }
+        return plugin.getPreferenceStore().getBoolean(SHOW_SCRIPTING_OUTPUT);
     }
     
     /**

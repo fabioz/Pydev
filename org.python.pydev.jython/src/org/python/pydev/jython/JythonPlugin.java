@@ -232,35 +232,48 @@ public class JythonPlugin extends AbstractUIPlugin {
 	 * @param interpreter the interpreter that should be used to execute the code
 	 *         
 	 # @note If further info is needed (after the run), the interpreter itself should be checked for return values
+	 * @return any error that happened while executing the script
 	 * 
 	 */
-	public static void exec(HashMap<String, Object> locals, String fileToExec, IPythonInterpreter interpreter) {
+	public static Throwable exec(HashMap<String, Object> locals, String fileToExec, IPythonInterpreter interpreter) {
 		File fileWithinJySrc = JythonPlugin.getFileWithinJySrc(fileToExec);
-    	exec(locals, interpreter, fileWithinJySrc);
+    	return exec(locals, interpreter, fileWithinJySrc);
 	}
 	
-	public static void execAll(HashMap<String, Object> locals, final String startingWith, IPythonInterpreter interpreter) {
+	public static List<Throwable> execAll(HashMap<String, Object> locals, final String startingWith, IPythonInterpreter interpreter) {
 		//exec files beneath jysrc in org.python.pydev.jython
 		File jySrc = JythonPlugin.getJySrcDirFile();
-		File[] files = getFilesBeneathFolder(startingWith, jySrc);
-		if(files != null){
-			for(File f : files){
-				exec(locals, interpreter, f);
-			}
-		}
-		
-		//exec files beneath some folder specified by the user
 		File additionalScriptingLocation = JyScriptingPreferencesPage.getAdditionalScriptingLocation();
-		if(additionalScriptingLocation != null){
-			files = getFilesBeneathFolder(startingWith, additionalScriptingLocation);
-			if(files != null){
-				for(File f : files){
-					exec(locals, interpreter, f);
-				}
-			}
-		}
+        
+		return execAll(locals, startingWith, interpreter, new File[]{jySrc, additionalScriptingLocation});
 		
 	}
+    
+    /**
+     * Executes all the scripts beneath some folders
+     * @param beneathFolders the folders we want to get the scripts from
+     * @return the errors that occured while executing the scripts
+     */
+    public static List<Throwable> execAll(HashMap<String, Object> locals, final String startingWith, IPythonInterpreter interpreter, File[] beneathFolders) {
+        List<Throwable> errors = new ArrayList<Throwable>();
+        for (File file : beneathFolders) {
+            if(file != null){
+                if(!file.exists()){
+                    Log.log(IStatus.ERROR, "The folder:"+file+" does not exist and therefore cannot be used to find scripts to run starting with:"+startingWith, null);
+                }
+                File[] files = getFilesBeneathFolder(startingWith, file);
+                if(files != null){
+                    for(File f : files){
+                        Throwable throwable = exec(locals, interpreter, f);
+                        if(throwable != null){
+                            errors.add(throwable);
+                        }
+                    }
+                }
+            }
+        }
+        return errors;
+    }
 	/**
 	 * List all the 'target' scripts available beneath some folder.
 	 */
@@ -289,7 +302,10 @@ public class JythonPlugin extends AbstractUIPlugin {
 	 * @see JythonPlugin#exec(HashMap, String, PythonInterpreter)
 	 * Same as before but the file to execute is passed as a parameter
 	 */
-	public static synchronized void exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, File fileToExec) {
+	public static synchronized Throwable exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, File fileToExec) {
+        if(locals == null){
+            locals = new HashMap<String, Object>();
+        }
 		synchronized (codeCache) { //hold on there... one at a time... please?
 			try {
 			    String fileName = fileToExec.getName();
@@ -353,8 +369,10 @@ public class JythonPlugin extends AbstractUIPlugin {
 				if(JyScriptingPreferencesPage.getShowScriptingOutput()){
 					Log.log(IStatus.ERROR, "Error while executing:"+fileToExec, e);
 				}
+                return e;
 			}
 		}
+        return null;
 	}
 
 
@@ -381,13 +399,19 @@ public class JythonPlugin extends AbstractUIPlugin {
         }
     }
 
+    public static IPythonInterpreter newPythonInterpreter() {
+        return newPythonInterpreter(true);
+    }
+    
     /**
      * Creates a new Python interpreter (with jython) and returns it.
      */
-	public static IPythonInterpreter newPythonInterpreter() {
+	public static IPythonInterpreter newPythonInterpreter(boolean redirect) {
 		PythonInterpreterWrapper interpreter = new PythonInterpreterWrapper();
-		interpreter.setOut(new ScriptOutput(getBlack(), getConsole()));
-		interpreter.setErr(new ScriptOutput(getRed(), getConsole()));
+        if(redirect){
+    		interpreter.setOut(new ScriptOutput(getBlack(), getConsole()));
+    		interpreter.setErr(new ScriptOutput(getRed(), getConsole()));
+        }
 		interpreter.set("False", 0);
 		interpreter.set("True", 1);
 		return interpreter;

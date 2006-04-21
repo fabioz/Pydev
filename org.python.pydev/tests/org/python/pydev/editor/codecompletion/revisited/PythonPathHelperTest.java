@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.io.CharArrayReader;
 import java.io.File;
 
 import org.eclipse.jface.text.Document;
@@ -266,6 +267,42 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
         
     }
+    public void testGetEncoding2(){
+        String s = "" +
+                "#test.py\n" +
+                "# handles encoding and decoding of xmlBlaster socket protocol \n" +
+                "\n" +
+                "\n" +
+                "";
+        CharArrayReader reader = new CharArrayReader(s.toCharArray());
+        String encoding = REF.getPythonFileEncoding(reader);
+        assertEquals(null, encoding);
+    }
+    
+    public void testGetEncoding3(){
+        //silent it in the tests
+        REF.LOG_ENCODING_ERROR = false;
+        try {
+            String s = "" + "#coding: foo_1\n" + //not valid encoding... will show in log but will not throw error
+                    "# handles encoding and decoding of xmlBlaster socket protocol \n" + "\n" + "\n" + "";
+            CharArrayReader reader = new CharArrayReader(s.toCharArray());
+            String encoding = REF.getPythonFileEncoding(reader);
+            assertEquals(null, encoding);
+        } finally{
+            REF.LOG_ENCODING_ERROR = true;
+        }
+    }
+    
+    public void testGetEncoding4(){
+        String s = "" +
+        "#coding: utf-8\n" + 
+        "\n" +
+        "";
+        CharArrayReader reader = new CharArrayReader(s.toCharArray());
+        String encoding = REF.getPythonFileEncoding(reader);
+        assertEquals("UTF-8", encoding);
+    }
+    
     
     public void testGetEncoding(){
         String loc = TestDependent.TEST_PYSRC_LOC+"testenc/encutf8.py";
@@ -278,7 +315,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         try {
             PythonPathHelperTest test = new PythonPathHelperTest();
             test.setUp();
-            test.testImportAs2();
+            test.testGetEncoding2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PythonPathHelperTest.class);
