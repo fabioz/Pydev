@@ -8,6 +8,7 @@ package org.python.pydev.editor.model;
 import java.io.File;
 
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.parser.jython.SimpleNode;
 
 /**
  * Pointer points to a python resource inside a file system. 
@@ -26,6 +27,15 @@ public class ItemPointer {
 		this(file, new Location(), new Location());
 	}
 
+	public ItemPointer(File file, SimpleNode n) {
+        int line = n.beginLine;
+        int col = n.beginColumn;
+        
+        this.file = file;
+        this.start = new Location(line-1, col-1);
+        this.end = new Location(line-1, col-1);
+    }
+    
 	public ItemPointer(Object file, Location start, Location end) {
 		this.file = file;
 		this.start = start;
