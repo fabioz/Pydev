@@ -17,8 +17,6 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ObjectsPool;
@@ -36,8 +34,6 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-
-import com.python.pydev.analysis.AnalysisPlugin;
 
 
 /**
@@ -578,23 +574,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * @return the path to the folder we want to keep things on
      */
-    protected static File getPersistingFolder() {
-        try {
-            IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
-            String osString = stateLocation.toOSString();
-            if (osString.length() > 0) {
-                char c = osString.charAt(osString.length() - 1);
-                if (c != '\\' && c != '/') {
-                    osString += '/';
-                }
-            }
-            return new File(osString);
-        } catch (NullPointerException e) {
-            //it may fail in tests... (save it in default folder in this cases)
-            PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
-            return new File(".");
-        }
-    }
+    protected abstract File getPersistingFolder();
     
 
     private void saveTo(File pathToSave) {

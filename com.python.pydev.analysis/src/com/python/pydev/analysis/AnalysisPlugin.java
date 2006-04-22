@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -172,7 +174,17 @@ public class AnalysisPlugin extends AbstractUIPlugin {
                 throw new RuntimeException("Undefined type.");
         
         }
-        
     }
+
+    /**
+     * Returns the directory that can be used to store things for some project
+     */
+    public static File getStorageDirForProject(IProject p) {
+        IPath location = p.getWorkingLocation(getDefault().getBundle().getSymbolicName());
+        IPath path = location;
     
+        File file = new File(path.toOSString());
+        return file;
+    }
+
 }

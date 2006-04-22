@@ -10,7 +10,12 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.plugin.PydevPlugin;
+
+import com.python.pydev.analysis.AnalysisPlugin;
 
 
 public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependencyInfo{
@@ -23,6 +28,27 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
 
     public AdditionalSystemInterpreterInfo(IInterpreterManager manager) {
         this.manager = manager;
+    }
+    
+    /**
+     * @return the path to the folder we want to keep things on
+     */
+    protected File getPersistingFolder() {
+        try {
+            IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
+            String osString = stateLocation.toOSString();
+            if (osString.length() > 0) {
+                char c = osString.charAt(osString.length() - 1);
+                if (c != '\\' && c != '/') {
+                    osString += '/';
+                }
+            }
+            return new File(osString);
+        } catch (NullPointerException e) {
+            //it may fail in tests... (save it in default folder in this cases)
+            PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
+            return new File(".");
+        }
     }
 
     @Override

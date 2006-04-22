@@ -14,11 +14,13 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.CancelledException;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -81,7 +83,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
 	public ItemPointer[] findDefinition(RefactoringRequest request) {
 		//ok, let's find the definition.
 		//1. we have to know what we're looking for (activationToken)
-		
+		request.communicateWork("Finding Definition");
 		List<ItemPointer> pointers = new ArrayList<ItemPointer>();
 		String[] tokenAndQual = request.getTokenAndQual();
 		
@@ -109,6 +111,8 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
             PydevPlugin.logInfo("Unable to resolve module for find definition request (modName == null).");
 			return new ItemPointer[0];
 		}
+        
+        request.communicateWork("Module name found:"+modName);
 		IModule mod = request.getModule();
 		
 		
@@ -132,11 +136,13 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
             	//too many matches for that...
             	throw new TooManyMatchesException("Too Many matches ("+tokensEqualTo.size()+") were found for the requested token:"+lookForInterface, tokensEqualTo.size());
             }
+            request.communicateWork(StringUtils.format("Found: %s possible matches.", tokensEqualTo.size()));
             IPythonNature nature = request.nature;
             for (IInfo info : tokensEqualTo) {
                 AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info);
             }
         }
+        request.communicateWork(StringUtils.format("Found: %s matches.", pointers.size()));
 		
 		return pointers.toArray(new ItemPointer[0]);
 	}
@@ -203,7 +209,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
     	}
     }
     
-	private void findParents(IPythonNature nature, Definition d, HierarchyNodeModel initialModel, HashSet<HierarchyNodeModel> allFound) throws Exception {
+	private void findParents(IPythonNature nature, Definition d, HierarchyNodeModel initialModel, HashSet<HierarchyNodeModel> allFound, RefactoringRequest request) throws Exception {
 		HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
 		foundOnRound.add(initialModel);
 
@@ -216,6 +222,8 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
 				List<String> withoutAstDefinitions = new ArrayList<String>();
 				findParentDefinitions(nature, d, definitions, withoutAstDefinitions, toFindOnRound);
 				
+                request.communicateWork(StringUtils.format("Found: %s parents for: %s", definitions.size(), d.value));
+                
 				//and add a parent for each definition found (this will make up the next search we will do)
 				for (Definition definition : definitions) {
 					HierarchyNodeModel model2 = createHierarhyNodeFromClassDef(definition);
@@ -252,9 +260,13 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
 
 					for (HierarchyNodeModel toFindOnRound : nextRound) {
 						HashSet<SourceModule> modulesToAnalyze = findLikelyModulesWithChildren(request, toFindOnRound, infoForProject);
-		
+                        
+						request.communicateWork("Likely modules with matches:"+modulesToAnalyze.size());
+                        
 						for (SourceModule module : modulesToAnalyze) {
 							SourceModule m = (SourceModule) module;
+							request.communicateWork("Analyzing:"+m.getName());
+                            
 							Iterator<ASTEntry> entries = EasyASTIteratorVisitor.createClassIterator(m.getAst());
 							
 							while (entries.hasNext()) {
@@ -317,15 +329,20 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
         		HashSet<HierarchyNodeModel> allFound = new HashSet<HierarchyNodeModel>();
         		allFound.add(model);
                 
-                findParents(request.nature, d, model, allFound);
+                request.communicateWork("Finding superclasses");
+                findParents(request.nature, d, model, allFound, request);
+                request.communicateWork("Finding subclasses");
                 findChildren(request, model, allFound);
+                request.communicateWork("Done");
                 return model;
             }
-            return null;
             
+        } catch (CancelledException e) {
+            //ignore
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return null;
     }
     
     /**

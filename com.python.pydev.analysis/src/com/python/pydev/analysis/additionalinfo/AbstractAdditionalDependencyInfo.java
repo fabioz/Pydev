@@ -57,9 +57,22 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * default constructor
      */
     public AbstractAdditionalDependencyInfo() {
-    	File persistingFolder = getCompletIndexPersistingFolder();
-		completeIndex = new DiskCache(DISK_CACHE_IN_MEMORY, persistingFolder, ".indexcache");
+    	init();
 	}
+
+    public AbstractAdditionalDependencyInfo(boolean callInit) {
+        if(callInit){
+            init();
+        }
+    }
+    
+    /**
+     * 
+     */
+    protected void init() {
+        File persistingFolder = getCompletIndexPersistingFolder();
+		completeIndex = new DiskCache(DISK_CACHE_IN_MEMORY, persistingFolder, ".indexcache");
+    }
 
     /**
      * @return a folder where the index should be persisted

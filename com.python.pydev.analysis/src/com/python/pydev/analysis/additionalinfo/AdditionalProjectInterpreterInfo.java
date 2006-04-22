@@ -15,12 +15,16 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.util.Assert;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
+
+import com.python.pydev.analysis.AnalysisPlugin;
 
 
 public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependencyInfo implements IDeltaProcessor<Object> {
@@ -68,10 +72,24 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         }
     }
 
+    /**
+     * @return the path to the folder we want to keep things on
+     */
+    protected File getPersistingFolder() {
+        try {
+            Assert.isNotNull(project);
+            return AnalysisPlugin.getStorageDirForProject(project);
+        } catch (NullPointerException e) {
+            //it may fail in tests... (save it in default folder in this cases)
+            PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
+            return new File(".");
+        }
+    }
+
     protected DeltaSaver<Object> createDeltaSaver() {
         return new DeltaSaver<Object>(
-                AbstractAdditionalInterpreterInfo.getPersistingFolder(), 
-                REF.getValidProjectName(project)+"_projectinfodelta", 
+                getPersistingFolder(), 
+                "projectinfodelta", 
                 new ICallback<Object, ObjectInputStream>(){
 
             public Object call(ObjectInputStream arg) {
@@ -148,19 +166,17 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     
     
     public AdditionalProjectInterpreterInfo(IProject project) {
+        super(false);
         this.project = project;
+        init();
         deltaSaver = createDeltaSaver();
     }
 
     @Override
     protected File getPersistingLocation() {
-        String name = REF.getValidProjectName(project);
-        if(name == null || name.trim().length() == 0){
-            throw new RuntimeException("The name of the project is not valid: "+project);
-        }
-        return new File(getPersistingFolder(), name+".pydevinfo");
+        return new File(getPersistingFolder(), "AdditionalProjectInterpreterInfo.pydevinfo");
     }
-
+    
     @Override
     protected void setAsDefaultInfo() {
         AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, this);
