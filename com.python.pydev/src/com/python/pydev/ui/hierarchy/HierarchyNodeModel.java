@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.util.Assert;
+import org.python.pydev.core.IModule;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 
@@ -34,6 +35,11 @@ public class HierarchyNodeModel {
 	 * The classdef definition (might be null)
 	 */
 	public ClassDef ast;
+
+    /**
+     * The module where this node is defined (might be null)
+     */
+    public IModule module;
     
 	public HierarchyNodeModel(String name) {
 		this(name, "default", null);
@@ -49,6 +55,11 @@ public class HierarchyNodeModel {
         this.ast = ast;
     }
 
+    public HierarchyNodeModel(IModule module, ClassDef def) {
+        this(module.getName(), def);
+        this.module = module;
+    }
+    
     @Override
     public int hashCode() {
         return name.hashCode();

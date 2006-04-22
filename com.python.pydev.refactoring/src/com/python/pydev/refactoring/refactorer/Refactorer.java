@@ -263,7 +263,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
 								ClassDef def = (ClassDef) entry.node;
 								List<String> parentNames = NodeUtils.getParentNames(def, true);
 								if (parentNames.contains(toFindOnRound.name)) {
-									final HierarchyNodeModel newNode = new HierarchyNodeModel(module.getName(), def);
+									final HierarchyNodeModel newNode = new HierarchyNodeModel(module, def);
 									if(newNode != null){
 										if(allFound.contains(newNode) == false){
 											toFindOnRound.children.add(newNode);
@@ -336,7 +336,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
     private HierarchyNodeModel createHierarhyNodeFromClassDef(Definition d) {
         HierarchyNodeModel model = null;
         if(d.ast instanceof ClassDef){
-            model = new HierarchyNodeModel(d.module.getName(), (ClassDef) d.ast);
+            model = new HierarchyNodeModel(d.module, (ClassDef) d.ast);
         }
         return model;
     }

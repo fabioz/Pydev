@@ -1,5 +1,6 @@
 package com.python.pydev.analysis;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,9 +88,13 @@ public class AnalysisPlugin extends AbstractUIPlugin {
      */
     public static void getAsPointers(List<ItemPointer> pointers, Definition[] definitions) {
         for (Definition definition : definitions) {
-            pointers.add(new ItemPointer(definition.module.getFile(),
-                    new Location(definition.line-1, definition.col-1),
-                    new Location(definition.line-1, definition.col-1), definition)
+            File file = definition.module.getFile();
+            int line = definition.line;
+            int col = definition.col;
+            
+            pointers.add(new ItemPointer(file,
+                    new Location(line-1, col-1),
+                    new Location(line-1, col-1), definition)
                     );
         }
     }
