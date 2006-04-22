@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -68,7 +69,7 @@ public abstract class PyRefactorAction extends PyAction {
 
             try {
                 this.monitor = monitor;
-                monitor.beginTask("Refactor", 500);
+                monitor.beginTask("Refactor", IProgressMonitor.UNKNOWN);
                 this.statusOfOperation = perform(action, nameUsed, this);
                 monitor.done();
             } catch (Exception e) {
@@ -136,6 +137,7 @@ public abstract class PyRefactorAction extends PyAction {
     		PyEdit pyEdit = getPyEdit(); //may not be available in tests, that's why it is important to be able to operate without it
     		request = new RefactoringRequest(file, doc, ps, operation, nature, pyEdit);
         }
+        request.operation = operation;
         request.duringProcessInfo.name = name;
 		return request;
     }
@@ -241,11 +243,20 @@ public abstract class PyRefactorAction extends PyAction {
         if(!getPyRefactoring().useDefaultRefactoringActionCycle()){
             //this way, we don't provide anything to sync, ask the input, etc... that's all up to the 
             //pyrefactoring instance in the perform action
-            try {
-                perform(action, "", null);
-            } catch (Exception e) {
-                PydevPlugin.log(e);
-            }
+            new Job("Performing: "+action.getClass().getName()){
+
+                @Override
+                protected IStatus run(IProgressMonitor monitor) {
+                    try{
+                        Operation o = new Operation(null, action);
+                        o.execute(monitor);
+                    } catch (Exception e) {
+                        PydevPlugin.log(e);
+                    }
+                    return Status.OK_STATUS;
+                }
+                
+            }.schedule();
             return;
         }
 

@@ -23,6 +23,8 @@ import org.python.pydev.core.REF;
 public class DiskCache extends LRUCache<String, Serializable> implements Serializable{
 
 	private static final long serialVersionUID = 1L;
+
+    private static final boolean DEBUG = false;
 	
 	/**
 	 * This is the folder that the cache can use to persist its values
@@ -85,7 +87,13 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
 			if(v == null && keys.contains(key)){
 				//miss in memory... get from disk
 				File file = getFileForKey(key);
-                v = (Serializable) REF.readFromFile(file);
+                if(file.exists()){
+                    v = (Serializable) REF.readFromFile(file);
+                }else{
+                    if(DEBUG){
+                        System.out.println("File: "+file+" is in the cache but does not exist (so, it will be removed).");
+                    }
+                }
                 if(v == null){
                     this.remove(key);
                     return null;
@@ -106,6 +114,9 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
 	 */
 	public synchronized void remove(String key) {
 		synchronized(cache){
+		    if(DEBUG){
+		        System.out.println("Disk cache - Removing: "+key);
+            }
 			super.remove(key);
 			File fileForKey = getFileForKey(key);
 			fileForKey.delete();
@@ -120,6 +131,9 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
 		synchronized(cache){
 			super.add(key, n);
 			File fileForKey = getFileForKey(key);
+			if(DEBUG){
+			    System.out.println("Disk cache - Adding: "+key+" file: "+fileForKey);
+			}
 			REF.writeToFile(n, fileForKey);
 			keys.add(key);
 		}

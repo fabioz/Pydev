@@ -105,6 +105,17 @@ public class RefactoringRequest{
 		}
 	}
 
+    public synchronized void communicateWork(String desc) {
+        if(operation != null){
+            operation.monitor.setTaskName(desc);
+            operation.monitor.worked(1);
+            
+            if(operation.monitor.isCanceled()){
+                throw new CancelledException();
+            }
+        }
+    }
+
 	/**
 	 * @return the module name or null if it is not possible to determine the module name
 	 */
