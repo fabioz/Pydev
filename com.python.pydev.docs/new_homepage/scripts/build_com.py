@@ -12,6 +12,7 @@ manualAdv = (
     ('../templateManual.html', 'manual_adv_quick_outline'                 , 'Quick Outline'                   ),
     ('../templateManual.html', 'manual_adv_open_decl_quick'               , 'Open Declaration Quick Outline'  ),
     ('../templateManual.html', 'manual_adv_gotodef'                       , 'Go to Definition'                ),
+    ('../templateManual.html', 'manual_adv_hierarchy_view'                , 'Hierachy View'                   ),
     ('../templateManual.html', 'manual_adv_compltemp'                     , 'Templates completion'            ),
     ('../templateManual.html', 'manual_adv_complctx'                      , 'Context-sensitive completions'   ),
     ('../templateManual.html', 'manual_adv_complnoctx'                    , 'Context-insensitive completions' ),

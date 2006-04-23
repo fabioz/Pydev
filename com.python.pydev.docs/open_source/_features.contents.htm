@@ -1,19 +1,17 @@
 <h2>New on: 1.0.5</h2>
 
 <br/>
-<li>
-	Another batch of things to improve <strong>indentation</strong>:
-	<ul>
-<li>	    Indent does not try to make auto-indentation when pasting
-</li><li>	When smart-indent is not selected, it will still add an indentation level after ':'
-</li><li>	It will keep the indent of the previous line on new-lines if the current line is empty
-</li><li>	Other little things
+
+<li>Assign variables to attributes (Ctrl+2+a): Contributed by Joel Hedlund (this is the first contribution using the new jython scripting engine).
+</li><li>3 minor 'quirks' were fixed in the indentation engine
+</li><li>The debugger had some changes (so, if you had halts with it, please try it again).
+</li><li>Allow changing the keybinding for activating the Find next problem (Ctrl+.)
+</li><li>The debugger step-return had its behaviour changed.
+</li><li>Additional scripts location added to pythonpath in the jython scripting engine
+</li><li>Transversal of nested references improved
+</li><li>Fixed problems with compiled modules when they had 'nested' module structures (e.g.: wx.glcanvas)
 </li>
-	</ul>
-</li>
-<li>Added a place to specify <strong>vm arguments</strong> (for jython or python) -- thanks to  Rudi de Andrade for this patch
-</li><li>Added a way to kill the underlying python/jython shells (<strong>Ctrl+2+kill</strong>)
-</li>
+
 
 <br/>
 
@@ -70,6 +68,25 @@
 
 <hr/>
 <h2>Features History</h2>
+
+<h2>New on: 1.0.5</h2>
+
+<br/>
+<li>
+	Another batch of things to improve <strong>indentation</strong>:
+	<ul>
+<li>	    Indent does not try to make auto-indentation when pasting
+</li><li>	When smart-indent is not selected, it will still add an indentation level after ':'
+</li><li>	It will keep the indent of the previous line on new-lines if the current line is empty
+</li><li>	Other little things
+</li>
+	</ul>
+</li>
+<li>Added a place to specify <strong>vm arguments</strong> (for jython or python) -- thanks to  Rudi de Andrade for this patch
+</li><li>Added a way to kill the underlying python/jython shells (<strong>Ctrl+2+kill</strong>)
+</li>
+
+<br/>
 
 	
 	
