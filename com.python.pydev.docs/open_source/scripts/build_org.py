@@ -136,6 +136,7 @@ def Main():
     channelPydevEditor         = '1542865200'
     channelPydevPyLint         = '5824164055'
     channelPydevTasks          = '0662167821'
+    channelPydevDevelopers     = '3105630764'
     
     
     Template( '_template.htm', 'index'                   , 'Pydev'                    ,None             , channelPydevIndex        , None)
@@ -154,6 +155,7 @@ def Main():
     Template( '_template.htm', 'editor'                  , 'Editor'                   ,None             , channelPydevEditor       , _otherFeatures())
     Template( '_template.htm', 'pylint'                  , 'PyLint'                   ,None             , channelPydevPyLint       , _otherFeatures())
     Template( '_template.htm', 'tasks'                   , 'Tasks'                    ,None             , channelPydevTasks        , _otherFeatures())
+    Template( '_template.htm', 'developers'              , 'Developers Guide'         ,None             , channelPydevDevelopers   , None)
     
 def DoIt():
     import faqbuild

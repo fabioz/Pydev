@@ -38,43 +38,15 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <h3>New Release: LAST_VERSION_TAG</h3>
 
 <h4>Major highlights:</h4>
-<li>
-	Another batch of things to improve <strong>indentation</strong>:
-	<ul>
-<li>	    Indent does not try to make auto-indentation when pasting
-</li><li>	When smart-indent is not selected, it will still add an indentation level after ':'
-</li><li>	It will keep the indent of the previous line on new-lines if the current line is empty
-</li><li>	Other little things
-</li>
-	</ul>
-</li>
-<li>Added a place to specify <strong>vm arguments</strong> (for jython or python) -- thanks to  Rudi de Andrade for this patch
-</li><li>Added a way to kill the underlying python/jython shells (<strong>Ctrl+2+kill</strong>)
-</li>
 
-<br/>
-<hr/>
-<h3>New Release: 1.0.4</h3>
-<h4>Major highlights:</h4>
-
-<li><strong>Added jython scripting </strong>
-<ul>
-	<li><a href="http://www.fabioz.com/pydev/manual_articles_scripting.html">Link to article on how to create your own scripts with the new scripting engine.</a></li>
-</ul>
-</li><li>Added an 'easy' way to bind actions after <strong>Ctrl+2</strong> (to make scripting easier)
-</li><li>Added a way to list things binded with Ctrl+2 (To see: <strong>Ctrl+2+help</strong>)
-</li><li>Added a 'go to next problem' with jython scripting capabilities, as a first example on how to script Pydev with Jython (<strong>Ctrl+.</strong>)
-</li><li>A brand new <strong>indentation engine</strong> is available:</li>
-<ul>
-	<li>Does not try to make different indentations inside multilines
-	</li><li>Does not try to add spaces to make smart-indent when in only tabs mode
-	</li><li>Indents correctly after opening some bracket or after closing some bracket
-	</li><li>Indents to 'expected level' when hitting tab</li>
-</ul>
-<li>Fixed bug: syntax error described instead of throwing an error
-</li><li>Profiled Pydev (not that much, but still, I hope you'll be able to 'feel' it)
-</li><li>Fixed bug: the pythonpath was not added when additional environment variables where specified
-</li><li>And as always, other bugs have been fixed
+<li>3 minor 'quirks' were fixed in the indentation engine
+</li><li>The debugger had some changes (so, if you had halts with it, please try it again).
+</li><li>Allow changing the keybinding for activating the Find next problem (Ctrl+.)
+</li><li>The debugger step-return had its behaviour changed.
+</li><li>Additional scripts location added to pythonpath in the jython scripting engine
+</li><li>Transversal of nested references improved
+</li><li>Fixed problems with compiled modules when they had 'nested' module structures (e.g.: wx.glcanvas)
+</li><li>Assign variables to attributes (Ctrl+2+a): Contributed by Joel Hedlund (this is the first script contributed with the scripting engine).
 </li>
 
 
