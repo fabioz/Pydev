@@ -6,16 +6,18 @@ Pydev:
 - The debugger had some changes (so, if you had halts with it, please try it again).
 - Allow changing the keybinding for activating the Find next problem (Ctrl+.)
 - The debugger step-return had its behaviour changed.
-
+- Additional scripts location added to pythonpath in the jython scripting engine
+- Transversal of nested references improved
+- Fixed problems with compiled modules when they had 'nested' module structures (e.g.: wx.glcanvas)
+- assign params to attrs (by yohell)
 
 Pydev Extensions:
 - Analysis happens in a Thread, so, you should now always have the latest parse without any halts (this happened only when the option was set to analyze only on save).
 - Class variable marked as error when self ommitted
 - when an undefined import is found within a try..except ImportError, it will not be reported.
 - Allow changing the keybinding for activating the Interactive Console (Ctrl+Enter)
-- Added a simple text-search that looks for in all .py and .pyw files.
-- A currently experimental feature has been added: Show hierarchy (F4) -- It is still not ready for 'prime-time', but should provide
-a good insight on what it will be.
+- Added a simple text-search that looks for in all .py and .pyw files (will be improved in the future to make a real python-like search).
+- New Feature: Show hierarchy (F4) -- Still in a beta state (currently only looks for subclasses on the same project).
 - The keywords that match the 'simple' keywords completion do not show up.
 
 after 1.0.4
