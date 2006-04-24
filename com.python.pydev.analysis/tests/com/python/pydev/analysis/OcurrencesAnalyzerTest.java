@@ -16,6 +16,7 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
 import com.python.pydev.analysis.messages.IMessage;
@@ -26,7 +27,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testGlu3();
+            analyzer2.testCompiledWx();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -455,6 +456,23 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
             printMessages(msgs, 1);
             assertContainsMsg("Unused import: wxButton", msgs);
         }
+    }
+    
+    public void testCompiledWx(){
+    	
+    	if(TestDependent.HAS_WXPYTHON_INSTALLED){
+    		CompiledModule.TRACE_COMPILED_MODULES = true;
+    		doc = new Document(
+				"from wx import glcanvas\n" +
+				"print glcanvas.GLCanvas\n" +
+				""
+    		);
+    		analyzer = new OcurrencesAnalyzer();
+    		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    		CompiledModule.TRACE_COMPILED_MODULES = false;
+    		
+    		printMessages(msgs, 0);
+    	}
     }
     
     public void testImportNotFound(){
