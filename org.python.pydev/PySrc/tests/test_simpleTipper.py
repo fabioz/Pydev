@@ -34,10 +34,9 @@ class Test(unittest.TestCase):
         You can print the results to check...
         '''
         tip = importsTipper.GenerateTip('wxPython.wx')
-        self.assertIn('App'        , tip)
+        self.assertIn('wxApp'        , tip)
         
-        tip = importsTipper.GenerateTip('wxPython.wx.App')
-        print tip
+        tip = importsTipper.GenerateTip('wxPython.wx.wxApp')
         
         tip = importsTipper.GenerateTip('qt')
         self.assertIn('QWidget'        , tip)
@@ -68,15 +67,14 @@ class Test(unittest.TestCase):
         self.assertIn('parseFile'      , tip)
         
     def assertArgs(self, tok, args, tips):
-        for a in tips:
+        for a in tips[1]:
             if tok == a[0]:
                 self.assertEquals(args, a[2])
                 return
         raise AssertionError('%s not in %s', tok, tips)
 
     def assertIn(self, tok, tips):
-        self.assertEquals(4, len(tips[0]))
-        for a in tips:
+        for a in tips[1]:
             if tok == a[0]:
                 return a
         raise AssertionError('%s not in %s' %(tok, tips))
@@ -94,7 +92,12 @@ class Test(unittest.TestCase):
 #            print inspect.getargspec(obj.im_func)
             
         
-        
+def suite():
+    s = unittest.TestSuite()
+    s.addTest(Test("testImports2"))
+    unittest.TextTestRunner(verbosity=2).run(s)
+
 if __name__ == '__main__':
+#    suite()
     unittest.main()
     

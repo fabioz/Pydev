@@ -188,7 +188,10 @@ def GenerateImportsTipForModule( mod ):
             if getDoc:
                 #no need to get this info... too many constants are defined and 
                 #makes things much slower (passing all that through sockets takes quite some time)
-                doc = inspect.getdoc( obj )
+                try:
+                    doc = inspect.getdoc( obj )
+                except:
+                    doc = ''
             
             #add token and doc to return - assure only strings.
             ret.append(   (d, doc, args, str(retType))   )
