@@ -28,6 +28,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
@@ -53,6 +54,11 @@ public class PyParser {
      * just for tests, when we don't have any editor
      */
     public static boolean ACCEPT_NULL_EDITOR = false;
+    
+    /**
+     * Defines whether we should use the fast stream or not
+     */
+    public static boolean USE_FAST_STREAM = false;
     
     /**
      * To know whether we should try to do some reparse changing the input
@@ -367,9 +373,14 @@ public class PyParser {
         String initialDoc = newDoc.get();
         
         
-        StringReader inString = new StringReader(initialDoc);
-        ReaderCharStream in = new ReaderCharStream(inString);
-//        FastCharStream in = new FastCharStream(initialDoc);
+        CharStream in = null;
+        if(USE_FAST_STREAM){
+        	in = new FastCharStream(initialDoc);
+        }else{
+	        StringReader inString = new StringReader(initialDoc);
+	        in = new ReaderCharStream(inString);
+        }
+        
         IParserHost host = new CompilerAPI();
         PythonGrammar grammar = null;
 
