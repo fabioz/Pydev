@@ -791,6 +791,31 @@ MORE : /* Strings */
 <IN_STRING11, IN_USTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
 <IN_STRING21, IN_USTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
 
+/* This is a test to see if we can make the loading of strings more efficient (and maybe replace the MORE that is declared below.
+I stopped this because I've seen that making the CharStream was apparently the number 1 thing to do, but it might be worth
+comming back to this approach later).
+<IN_STRING23> MORE:
+{
+	<~[]> 
+	{
+         try {
+                 while(true){
+                         char c = input_stream.readChar();
+                         image.append(c);
+                         int len = image.length();
+                         if(len > 3 && image.charAt(len-3) == '"' && image.charAt(len-2) == '"'  && image.charAt(len-1) == '"' ){
+                                 input_stream.backup(3);
+                                 image.delete(image.length()-3, image.length());
+                                 break;
+                         }
+                 }
+         } catch (Exception e) {
+             throw new RuntimeException(e);
+         }
+	}
+}
+*/
+
 <IN_STRING13, IN_STRING23, IN_USTRING13, IN_USTRING23> MORE:
 {
     <"\r\n"> {

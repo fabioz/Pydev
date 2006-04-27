@@ -20,16 +20,12 @@ def _ExtractZip( p_zip_filename ):
 def CreateFile(filename=None):
     import StringIO
 
-    # 001) Obtain the filename
-    if filename is None:
-        filename = 'test_vtkReader'
 
     if IS_ZIP_DATA:
         oss = StringIO.StringIO()
         oss.write( GetData() )
         _ExtractZip( oss )
     else:        
-        f = file(filename, 'wb')
         try:
             f.write( GetData() )
         finally:

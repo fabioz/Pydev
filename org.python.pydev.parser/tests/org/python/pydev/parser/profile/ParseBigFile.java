@@ -6,6 +6,10 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.parser.PyParserTestBase;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 public class ParseBigFile extends PyParserTestBase {
 
@@ -38,9 +42,15 @@ public class ParseBigFile extends PyParserTestBase {
         String s = REF.getFileContents(new File(loc));
         for (int i = 0; i < 5; i++) {
         	long curr = System.currentTimeMillis();
-        	parseLegalDocStr(s);
+        	SimpleNode node = parseLegalDocStr(s);
         	
         	System.out.println(StringUtils.format("Took: %s secs", (System.currentTimeMillis()-curr)/1000.0));
+        	SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(node);
+        	
+        	ASTEntry entry = visitor.getAsList(Str.class).get(0);
+        	String s0 = ((Str)entry.node).s;
+        	assertTrue("Expecting big string. Received"+s0, s0.length() > 1 );
+//        	System.out.println(s0);
 		}
 	}
 }
