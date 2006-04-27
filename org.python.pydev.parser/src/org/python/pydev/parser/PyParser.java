@@ -28,6 +28,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.PythonGrammar;
@@ -368,6 +369,7 @@ public class PyParser {
         
         StringReader inString = new StringReader(initialDoc);
         ReaderCharStream in = new ReaderCharStream(inString);
+//        FastCharStream in = new FastCharStream(initialDoc);
         IParserHost host = new CompilerAPI();
         PythonGrammar grammar = null;
 
