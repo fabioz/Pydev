@@ -32,6 +32,8 @@ public final class ReaderCharStream implements CharStream {
 	private int maxNextCharInd = 0;
 
 	private int inBuf = 0;
+	
+	private static final boolean DEBUG = false;
 
 	private final void ExpandBuff(boolean wrapAround) {
 		char[] newbuffer = new char[bufsize + 2048];
@@ -114,6 +116,9 @@ public final class ReaderCharStream implements CharStream {
 		char c = readChar();
 		tokenBegin = bufpos;
 
+		if(DEBUG){
+			System.out.println("ReaderCharStream: BeginToken >>"+(int)c+"<<");
+		}
 		return c;
 	}
 
@@ -167,6 +172,9 @@ public final class ReaderCharStream implements CharStream {
 		char c = buffer[bufpos];
 
 		UpdateLineColumn(c);
+		if(DEBUG){
+			System.out.println("ReaderCharStream: readChar >>"+(int)c+"<<");
+		}
 		return (c);
 	}
 
@@ -205,6 +213,9 @@ public final class ReaderCharStream implements CharStream {
 	}
 
 	public final void backup(int amount) {
+		if(DEBUG){
+			System.out.println("ReaderCharStream: backup >>"+amount+"<<");
+		}
 
 		inBuf += amount;
 		if ((bufpos -= amount) < 0)
@@ -223,10 +234,16 @@ public final class ReaderCharStream implements CharStream {
 	}
 
 	public final String GetImage() {
+		String s = null;
 		if (bufpos >= tokenBegin)
-			return new String(buffer, tokenBegin, bufpos - tokenBegin + 1);
+			s = new String(buffer, tokenBegin, bufpos - tokenBegin + 1);
 		else
-			return new String(buffer, tokenBegin, bufsize - tokenBegin) + new String(buffer, 0, bufpos + 1);
+			s = new String(buffer, tokenBegin, bufsize - tokenBegin) + new String(buffer, 0, bufpos + 1);
+		
+		if(DEBUG){
+			System.out.println("ReaderCharStream: GetImage >>"+s+"<<");
+		}
+		return s;
 	}
 
 	public final char[] GetSuffix(int len) {
@@ -237,6 +254,9 @@ public final class ReaderCharStream implements CharStream {
 		else {
 			System.arraycopy(buffer, bufsize - (len - bufpos - 1), ret, 0, len - bufpos - 1);
 			System.arraycopy(buffer, 0, ret, len - bufpos - 1, bufpos + 1);
+		}
+		if(DEBUG){
+			System.out.println("ReaderCharStream: GetSuffix:"+len+" >>"+new String(ret)+"<<");
 		}
 
 		return ret;

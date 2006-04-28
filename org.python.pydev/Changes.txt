@@ -1,4 +1,10 @@
 
+after 1.0.6
+
+Pydev:
+- The thread that does analysis had its priority lowered
+- The Parser character stream was redone to be more efficient (especially when dealing with big files)
+
 after 1.0.5
 
 Pydev:

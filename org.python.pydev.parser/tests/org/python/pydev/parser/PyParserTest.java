@@ -9,7 +9,6 @@ import java.util.List;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -28,7 +27,7 @@ public class PyParserTest extends PyParserTestBase{
             test.testOnCsvCreated();
             test.tearDown();
             System.out.println("Finished");
-//            junit.textui.TestRunner.run(PyParserTest.class);
+            junit.textui.TestRunner.run(PyParserTest.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,7 +85,7 @@ public class PyParserTest extends PyParserTestBase{
     	String s = "" +
     	"def m():\n" +
     	"    call(a,";
-    	ParseException exception = parseILegalDoc(new Document(s));
+    	parseILegalDoc(new Document(s));
     }
     
     
@@ -220,7 +219,6 @@ public class PyParserTest extends PyParserTestBase{
     	parseLegalDocStr(s);
     	
     	PyParser.USE_FAST_STREAM = true;
-    	s = REF.getFileContents(new File(loc));
     	parseLegalDocStr(s);
     }
     

@@ -4,7 +4,12 @@ import java.io.IOException;
 
 /**
  * An implementation of interface CharStream, where the data is read from a Reader. Completely recreated so that we can read data directly from a String, as the
- * initial implementation was highly inneficient when working only with a string.
+ * initial implementation was highly inneficient when working only with a string (actually, if it was small, there would be no noticeable
+ * delays, but if it became big, then the improvement would be HUGE).
+ * 
+ * It keeps the same semantics for line and column stuff (and shares the previous approach of keeping a buffer for this info).
+ * If we wanted we could optimize it for also taking less memory, but as there is usually not so many concurrent parses, this 
+ * is probably not worth it -- and it would probably be a little slower)
  */
 
 public final class FastCharStream implements CharStream {
@@ -30,6 +35,8 @@ public final class FastCharStream implements CharStream {
 	private int tokenBegin;
 	
 	private static IOException ioException;
+
+	private static final boolean DEBUG = false;
 
 	private final void UpdateLineColumn(char c) {
 		column++;
@@ -83,6 +90,9 @@ public final class FastCharStream implements CharStream {
 				updatePos++;
 				UpdateLineColumn(r);
 			}
+			if(DEBUG){
+				System.out.println("FastCharStream: readChar >>"+(int)r+"<<");
+			}
 			return r;
 		} catch (ArrayIndexOutOfBoundsException e) {
 		    bufpos--;
@@ -128,15 +138,18 @@ public final class FastCharStream implements CharStream {
 	}
 
 	public final void backup(int amount) {
-		bufpos -= amount;
-		if (bufpos < 0) {
-			bufpos = 0;
+		if(DEBUG){
+			System.out.println("FastCharStream: backup >>"+amount+"<<");
 		}
+		bufpos -= amount;
 	}
 
 	public final char BeginToken() throws IOException {
 		char c = readChar();
 		tokenBegin = bufpos;
+		if(DEBUG){
+			System.out.println("FastCharStream: BeginToken >>"+(int)c+"<<");
+		}
 		return c;
 	}
 
@@ -146,6 +159,9 @@ public final class FastCharStream implements CharStream {
 			s = new String(buffer, tokenBegin, bufpos - tokenBegin+1);
 		} else {
 			s = new String(buffer, tokenBegin, buffer.length - tokenBegin+1);
+		}
+		if(DEBUG){
+			System.out.println("FastCharStream: GetImage >>"+s+"<<");
 		}
 		return s;
 	}
@@ -167,6 +183,9 @@ public final class FastCharStream implements CharStream {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
+		if(DEBUG){
+			System.out.println("FastCharStream: GetSuffix:"+len+" >>"+new String(ret)+"<<");
 		}
 		return ret;
 	}

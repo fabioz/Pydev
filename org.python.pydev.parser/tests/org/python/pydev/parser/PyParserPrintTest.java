@@ -3,8 +3,6 @@
  */
 package org.python.pydev.parser;
 
-import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.Module;
 
 public class PyParserPrintTest extends PyParserTestBase{
 
@@ -33,8 +31,7 @@ public class PyParserPrintTest extends PyParserTestBase{
         "    def met1(self, a):#comment2\n" +
         "        pass                   \n" +
         "#comment3";
-        SimpleNode node = parseLegalDocStr(s);
-        Module m = (Module) node;
+        parseLegalDocStr(s);
 
     }
 }

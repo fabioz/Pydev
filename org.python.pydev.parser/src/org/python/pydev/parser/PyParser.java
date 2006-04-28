@@ -58,7 +58,7 @@ public class PyParser {
     /**
      * Defines whether we should use the fast stream or not
      */
-    public static boolean USE_FAST_STREAM = false;
+    public static boolean USE_FAST_STREAM = true;
     
     /**
      * To know whether we should try to do some reparse changing the input
@@ -226,7 +226,8 @@ public class PyParser {
      * stock listener implementation event is fired whenever we get a new root
      * @param original 
      */
-    protected void fireParserChanged(SimpleNode root, IAdaptable file, IDocument doc) {
+    @SuppressWarnings("unchecked")
+	protected void fireParserChanged(SimpleNode root, IAdaptable file, IDocument doc) {
         this.root = root;
         synchronized(parserListeners){
         	for (IParserObserver l : parserListeners) {
@@ -244,7 +245,8 @@ public class PyParser {
      * stock listener implementation event is fired when parse fails
      * @param original 
      */
-    protected void fireParserError(Throwable error, IAdaptable file, IDocument doc) {
+    @SuppressWarnings("unchecked")
+	protected void fireParserError(Throwable error, IAdaptable file, IDocument doc) {
         synchronized(parserListeners){
         	for (IParserObserver l : parserListeners) {
                 l.parserError(error, file, doc);
@@ -335,7 +337,7 @@ public class PyParser {
         public IPythonNature nature;
         public int currentLine=-1;
         public String initial = null;
-        public List linesChanged = new ArrayList();
+        public List<Integer> linesChanged = new ArrayList<Integer>();
         public ParseException parseErr;
         public boolean tryReparse = TRY_REPARSE;
         
@@ -377,6 +379,8 @@ public class PyParser {
         if(USE_FAST_STREAM){
         	in = new FastCharStream(initialDoc);
         }else{
+        	//this should be deprecated in the future (it is still here so that we can evaluate
+        	//the changes done by the change of the reader).
 	        StringReader inString = new StringReader(initialDoc);
 	        in = new ReaderCharStream(inString);
         }

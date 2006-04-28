@@ -3,10 +3,14 @@
  */
 package org.python.pydev.parser.jython;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 
 import junit.framework.TestCase;
+
+import org.python.pydev.core.REF;
+import org.python.pydev.core.TestDependent;
 
 public class ReaderCharStreamTest extends TestCase {
 
@@ -22,6 +26,45 @@ public class ReaderCharStreamTest extends TestCase {
         super.tearDown();
     }
     
+    public void testIt2() throws Exception {
+    	String loc = TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC+"/tests/pysrc/csvcopy.py";
+    	String s = REF.getFileContents(new File(loc));
+    	
+    	StringReader inString = new StringReader(s);
+    	CharStream in = new ReaderCharStream(inString);
+    	checkCvsStream(in);
+    	
+    	in = new FastCharStream(s);
+    	checkCvsStream(in);
+    	
+    	
+    }
+
+	private void checkCvsStream(CharStream in) throws IOException {
+		assertEquals(10,in.BeginToken());
+		in.backup(0);
+		assertEquals("\n",new String(in.GetSuffix(1)));
+		in.backup(1);
+		
+		assertEquals(10,in.readChar());
+    	assertEquals(34,in.readChar());
+    	assertEquals(34,in.readChar());
+    	assertEquals(34,in.readChar());
+    	assertEquals(10,in.readChar());
+    	
+    	assertEquals(97,in.readChar());
+    	
+    	assertEquals(10,in.readChar());
+    	assertEquals(34,in.readChar());
+    	assertEquals(34,in.readChar());
+    	assertEquals(34,in.readChar());
+    	try {
+			in.readChar();
+			fail("Expectend end");
+		} catch (IOException e) {
+			// expected
+		}
+	}
     public void testIt() throws Exception {
         String initialDoc = 
             "a\n" +
