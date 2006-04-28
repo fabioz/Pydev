@@ -16,7 +16,6 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
 import com.python.pydev.analysis.messages.IMessage;
@@ -461,7 +460,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testCompiledWx(){
     	
     	if(TestDependent.HAS_WXPYTHON_INSTALLED){
-    		CompiledModule.TRACE_COMPILED_MODULES = true;
+//    		CompiledModule.TRACE_COMPILED_MODULES = true;
     		doc = new Document(
 				"from wx import glcanvas\n" +
 				"print glcanvas.GLCanvas\n" +
@@ -469,7 +468,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     		);
     		analyzer = new OcurrencesAnalyzer();
     		msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
-    		CompiledModule.TRACE_COMPILED_MODULES = false;
+//    		CompiledModule.TRACE_COMPILED_MODULES = false;
     		
     		printMessages(msgs, 0);
     	}

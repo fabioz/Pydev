@@ -93,6 +93,8 @@ public class AnalysisBuilderThread extends Thread{
     private String moduleName;
     
     public AnalysisBuilderThread(IDocument document, IResource resource, IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild, String moduleName) {
+    	this.setPriority(Thread.MIN_PRIORITY);
+    	this.setName("AnalysisBuilderThread :"+moduleName);
         this.document = document;
         this.resource = new WeakReference<IResource>(resource);
         this.module = module;
