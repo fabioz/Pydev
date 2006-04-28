@@ -28,6 +28,8 @@ public final class FastCharStream implements CharStream {
 	private int updatePos;
 	
 	private int tokenBegin;
+	
+	private static IOException ioException;
 
 	private final void UpdateLineColumn(char c) {
 		column++;
@@ -73,7 +75,7 @@ public final class FastCharStream implements CharStream {
 		this.bufcolumn = new int[initialDoc.length()];
 	}
 
-	public char readChar() throws IOException {
+	public final char readChar() throws IOException {
 		try {
 		    bufpos++;
 			char r = this.buffer[bufpos];
@@ -84,7 +86,10 @@ public final class FastCharStream implements CharStream {
 			return r;
 		} catch (ArrayIndexOutOfBoundsException e) {
 		    bufpos--;
-			throw new IOException();
+		    if (ioException == null){
+		    	ioException = new IOException();
+		    }
+			throw ioException;
 		}
 	}
 
@@ -122,20 +127,20 @@ public final class FastCharStream implements CharStream {
 		return bufline[tokenBegin];
 	}
 
-	public void backup(int amount) {
+	public final void backup(int amount) {
 		bufpos -= amount;
 		if (bufpos < 0) {
 			bufpos = 0;
 		}
 	}
 
-	public char BeginToken() throws IOException {
+	public final char BeginToken() throws IOException {
 		char c = readChar();
 		tokenBegin = bufpos;
 		return c;
 	}
 
-	public String GetImage() {
+	public final String GetImage() {
 		String s = null;
 		if (bufpos >= tokenBegin) {
 			s = new String(buffer, tokenBegin, bufpos - tokenBegin+1);
@@ -145,11 +150,7 @@ public final class FastCharStream implements CharStream {
 		return s;
 	}
 
-	public char[] GetSuffix(int len) {
-
-		if ((bufpos + len) > buffer.length) {
-			len = buffer.length - bufpos;
-		}
+	public final char[] GetSuffix(int len) {
 
 		char[] ret = new char[len];
 		if (len > 0) {
@@ -170,8 +171,10 @@ public final class FastCharStream implements CharStream {
 		return ret;
 	}
 
-	public void Done() {
+	public final void Done() {
 		buffer = null;
+		bufline = null;
+		bufcolumn = null;
 	}
 
 }

@@ -28,13 +28,47 @@ public class ReaderCharStreamTest extends TestCase {
             "bc\n";
         StringReader inString = new StringReader(initialDoc);
         CharStream in = new ReaderCharStream(inString);
-        
         doTests(in);
+
+        inString = new StringReader(initialDoc);
+        in = new ReaderCharStream(inString);
+        doTests2(in);
         
         in = new FastCharStream(initialDoc);
         doTests(in);
+        
+        in = new FastCharStream(initialDoc);
+        doTests2(in);
     }
 
+    private void doTests2(CharStream in) throws IOException {
+		assertEquals('a', in.readChar());
+		assertEquals("a", in.GetImage());
+		
+    	assertEquals('\n',in.BeginToken());
+    	assertEquals('b', in.readChar());
+    	assertEquals("\nb", in.GetImage());
+    	
+    	in.backup(1);
+    	assertEquals("\n", in.GetImage());
+    	
+    	assertEquals('b',in.BeginToken());
+    	assertEquals("b", in.GetImage());
+    	
+    	assertEquals('c',in.BeginToken());
+    	assertEquals("c", in.GetImage());
+    	
+    	assertEquals('\n',in.BeginToken());
+    	assertEquals("\n", in.GetImage());
+    	
+    	try {
+			in.BeginToken();
+			fail("expected exception");
+		} catch (IOException e) {
+			// expected
+		}
+    	assertEquals("\n", in.GetImage());
+    }
     /**
      * @param in
      * @throws IOException
@@ -98,6 +132,28 @@ public class ReaderCharStreamTest extends TestCase {
         }
         assertEquals(3, in.getEndColumn());
         assertEquals(2, in.getEndLine());
+        in.backup(0);
+        assertEquals(3, in.getEndColumn());
+        assertEquals(2, in.getEndLine());
+        
+        
+        assertEquals("bc\n", new String(in.GetSuffix(3)));
+        
+        cs = new char[6];
+        cs[1] = 'a';
+        cs[2] = '\n';
+        cs[3] = 'b';
+        cs[4] = 'c';
+        cs[5] = '\n';
+        final String suf = new String(in.GetSuffix(6));
+		assertEquals(new String(cs), suf);
+        in.backup(4);
+        
+        assertEquals("a", in.GetImage());
+        assertEquals('\n', in.readChar());
+        assertEquals("a\n", in.GetImage());
+        assertEquals(2, in.getEndColumn());
+        assertEquals(1, in.getEndLine());
     }
 
     /**

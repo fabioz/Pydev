@@ -5,8 +5,6 @@ package org.python.pydev.parser.jython;
  */
 
 public final class ReaderCharStream implements CharStream {
-	public static final boolean staticFlag = false;
-
 	int bufsize;
 
 	int available;

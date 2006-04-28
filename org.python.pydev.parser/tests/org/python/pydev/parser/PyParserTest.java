@@ -25,15 +25,20 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testMultilineStr();
+            test.testOnCsvCreated();
             test.tearDown();
             System.out.println("Finished");
-            junit.textui.TestRunner.run(PyParserTest.class);
+//            junit.textui.TestRunner.run(PyParserTest.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    @Override
+    protected void setUp() throws Exception {
+    	super.setUp();
+    	PyParser.USE_FAST_STREAM = true;
+    }
     
     public void testCorrectArgs() {
         String s = "" +
@@ -194,6 +199,29 @@ public class PyParserTest extends PyParserTestBase{
                 parseLegalDocStr(REF.getFileContents(f), f);
             }
         }
+    }
+    
+    public void testOnCsv() {
+    	PyParser.USE_FAST_STREAM = false;
+    	String loc = TestDependent.PYTHON_LIB+"csv.py";
+    	String s = REF.getFileContents(new File(loc));
+    	parseLegalDocStr(s);
+    	
+    	PyParser.USE_FAST_STREAM = true;
+    	loc = TestDependent.PYTHON_LIB+"csv.py";
+    	s = REF.getFileContents(new File(loc));
+    	parseLegalDocStr(s);
+    }
+    
+    public void testOnCsvCreated() {
+    	PyParser.USE_FAST_STREAM = false;
+    	String loc = TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC+"/tests/pysrc/csvcopy.py";
+    	String s = REF.getFileContents(new File(loc));
+    	parseLegalDocStr(s);
+    	
+    	PyParser.USE_FAST_STREAM = true;
+    	s = REF.getFileContents(new File(loc));
+    	parseLegalDocStr(s);
     }
     
     public void testOnUnittestMod() {
