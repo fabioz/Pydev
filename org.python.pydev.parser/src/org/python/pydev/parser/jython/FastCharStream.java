@@ -23,7 +23,7 @@ public final class FastCharStream implements CharStream {
 
 	private int line = 1;
 
-	private int bufpos;
+	private int bufpos = -1;
 
 	private int updatePos;
 	
@@ -75,14 +75,15 @@ public final class FastCharStream implements CharStream {
 
 	public char readChar() throws IOException {
 		try {
+		    bufpos++;
 			char r = this.buffer[bufpos];
-			bufpos++;
 			if(bufpos >= updatePos){
 				updatePos++;
 				UpdateLineColumn(r);
 			}
 			return r;
 		} catch (ArrayIndexOutOfBoundsException e) {
+		    bufpos--;
 			throw new IOException();
 		}
 	}
@@ -106,19 +107,19 @@ public final class FastCharStream implements CharStream {
 	}
 
 	public final int getEndColumn() {
-		return bufcolumn[bufpos-1];
+		return bufcolumn[bufpos];
 	}
 
 	public final int getEndLine() {
-		return bufline[bufpos-1];
+		return bufline[bufpos];
 	}
 
 	public final int getBeginColumn() {
-		return bufcolumn[tokenBegin]+1;
+		return bufcolumn[tokenBegin];
 	}
 
 	public final int getBeginLine() {
-		return bufline[tokenBegin]-1;
+		return bufline[tokenBegin];
 	}
 
 	public void backup(int amount) {
@@ -129,17 +130,17 @@ public final class FastCharStream implements CharStream {
 	}
 
 	public char BeginToken() throws IOException {
-		tokenBegin = bufpos;
 		char c = readChar();
+		tokenBegin = bufpos;
 		return c;
 	}
 
 	public String GetImage() {
 		String s = null;
 		if (bufpos >= tokenBegin) {
-			s = new String(buffer, tokenBegin, bufpos - tokenBegin);
+			s = new String(buffer, tokenBegin, bufpos - tokenBegin+1);
 		} else {
-			s = new String(buffer, tokenBegin, buffer.length - tokenBegin);
+			s = new String(buffer, tokenBegin, buffer.length - tokenBegin+1);
 		}
 		return s;
 	}
@@ -153,7 +154,15 @@ public final class FastCharStream implements CharStream {
 		char[] ret = new char[len];
 		if (len > 0) {
 			try {
-				System.arraycopy(buffer, bufpos - len, ret, 0, len);
+                int initial = bufpos - len +1;
+                if(initial < 0){
+                    int initial0 = initial;
+                    len += initial;
+                    initial = 0;
+                    System.arraycopy(buffer, initial, ret, -initial0, len);
+                }else{
+                    System.arraycopy(buffer, initial, ret, 0, len);
+                }
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
