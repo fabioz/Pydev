@@ -26,7 +26,7 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OcurrencesAnalyzerTest analyzer2 = new OcurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testColError();
+            analyzer2.testMetaclassImport();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -156,6 +156,17 @@ public class OcurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testFromFutureImport(){
         doc = new Document(
                 "from __future__ import generators\n"
+        );
+        analyzer = new OcurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs,0);
+        
+    }
+    
+    public void testMetaclassImport(){
+        doc = new Document(
+                "from psyco.classes import __metaclass__ #@UnresolvedImport\n"
         );
         analyzer = new OcurrencesAnalyzer();
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);

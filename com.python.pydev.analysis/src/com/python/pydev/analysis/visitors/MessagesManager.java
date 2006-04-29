@@ -342,7 +342,8 @@ public class MessagesManager {
         if(isUnusedImportMessage(message.getType())){
             IToken generator = message.getGenerator();
             if(generator instanceof SourceToken){
-                if(generator.getAsAbsoluteImport().indexOf("__future__.") != -1){
+                String asAbsoluteImport = generator.getAsAbsoluteImport();
+                if(asAbsoluteImport.indexOf("__future__.") != -1 || asAbsoluteImport.indexOf("__metaclass__") != -1){
                     //do not add from __future__ import xxx
                     return; 
                 }
