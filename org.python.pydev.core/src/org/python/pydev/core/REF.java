@@ -480,9 +480,9 @@ public class REF {
     /**
      * The encoding declared in the document is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
      */
-    public static String getPythonFileEncoding(IDocument doc) {
+    public static String getPythonFileEncoding(IDocument doc, String fileLocation) {
         Reader inputStreamReader = new StringReader(doc.get());
-        return getPythonFileEncoding(inputStreamReader);
+        return getPythonFileEncoding(inputStreamReader, fileLocation);
     }
     
     /**
@@ -493,7 +493,7 @@ public class REF {
             final FileInputStream fileInputStream = new FileInputStream(f);
 			try {
 				Reader inputStreamReader = new InputStreamReader(fileInputStream);
-				String pythonFileEncoding = getPythonFileEncoding(inputStreamReader);
+				String pythonFileEncoding = getPythonFileEncoding(inputStreamReader, f.getAbsolutePath());
 				return pythonFileEncoding;
 			} finally {
 				//NOTE: the reader will be closed at 'getPythonFileEncoding'. 
@@ -509,8 +509,9 @@ public class REF {
      * -- may return null
      * 
      * Will close the reader.
+     * @param fileLocation the file we want to get the encoding from (just passed for giving a better message if it fails -- may be null).
      */
-    public static String getPythonFileEncoding(Reader inputStreamReader) {
+    public static String getPythonFileEncoding(Reader inputStreamReader, String fileLocation) {
         String ret = null;
         BufferedReader reader = new BufferedReader(inputStreamReader);
         try{
@@ -565,11 +566,14 @@ public class REF {
         }finally{
             try {reader.close();} catch (IOException e1) {}
         }
-        ret = getValidEncoding(ret);
+        ret = getValidEncoding(ret, fileLocation);
         return ret;
     }
 
-    public static String getValidEncoding(String ret) {
+    /**
+     * @param fileLocation may be null
+     */
+    public static String getValidEncoding(String ret, String fileLocation) {
         if(ret == null){
             return ret;
         }
@@ -586,7 +590,7 @@ public class REF {
         }
         if(!Charset.isSupported(ret)){
             if(LOG_ENCODING_ERROR){
-                String msg = "The encoding found: >>"+ret+"<< is not a valid encoding.";
+                String msg = "The encoding found: >>"+ret+"<< on "+fileLocation+" is not a valid encoding.";
                 Log.log(IStatus.ERROR, msg, new UnsupportedEncodingException(msg));
             }
             return null; //ok, we've been unable to make it supported (better return null than an unsupported encoding).

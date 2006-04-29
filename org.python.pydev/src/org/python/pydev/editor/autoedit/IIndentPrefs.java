@@ -29,8 +29,8 @@ public interface IIndentPrefs {
      * 
      * @return True If tabs should be used even if it says we should use spaces.
      */
-    public boolean getForceTabs();
     public void setForceTabs(boolean forceTabs);
+    public boolean getForceTabs();
     
     /**
      * @return the width a tab should have.

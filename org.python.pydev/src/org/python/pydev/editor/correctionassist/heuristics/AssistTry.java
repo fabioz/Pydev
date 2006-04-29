@@ -32,7 +32,7 @@ public class AssistTry implements IAssistProps {
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
         
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
-        String indentation = PyAction.getStaticIndentationString();
+        String indentation = PyAction.getStaticIndentationString(edit);
         
         int start = ps.getStartLine().getOffset();
         int end = ps.getEndLine().getOffset()+ps.getEndLine().getLength();

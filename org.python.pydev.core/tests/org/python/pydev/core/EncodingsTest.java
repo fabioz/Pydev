@@ -10,7 +10,7 @@ public class EncodingsTest extends TestCase {
         junit.textui.TestRunner.run(EncodingsTest.class);
     }
     public void testRefEncoding() throws Exception {
-        String validEncoding = REF.getValidEncoding("latin-1");
+        String validEncoding = REF.getValidEncoding("latin-1", null);
         assertEquals("latin1", validEncoding);
         
         //supported

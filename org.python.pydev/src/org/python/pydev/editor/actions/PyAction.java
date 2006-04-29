@@ -363,17 +363,23 @@ public abstract class PyAction implements IEditorActionDelegate {
      * 
      * @return indentation string (always recreated) 
      */
-    public static String getStaticIndentationString() {
+    public static String getStaticIndentationString(PyEdit edit) {
         try {
             int tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
             boolean useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
             boolean forceTabs = false;
+            if (edit != null){
+                forceTabs = edit.getIndentPrefs().getForceTabs();
+            }
+            
             String identString;
 
-            if (useSpaces && !forceTabs)
+            if (useSpaces && !forceTabs){
                 identString = PyAction.createStaticSpaceString(tabWidth, tabWidth);
-            else
+            }else{
                 identString = "\t";
+            }
+            
             return identString;
         } catch (Exception e) {
             

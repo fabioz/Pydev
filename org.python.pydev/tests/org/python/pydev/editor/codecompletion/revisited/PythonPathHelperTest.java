@@ -275,7 +275,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
                 "\n" +
                 "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        String encoding = REF.getPythonFileEncoding(reader);
+        String encoding = REF.getPythonFileEncoding(reader, null);
         assertEquals(null, encoding);
     }
     
@@ -286,7 +286,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
             String s = "" + "#coding: foo_1\n" + //not valid encoding... will show in log but will not throw error
                     "# handles encoding and decoding of xmlBlaster socket protocol \n" + "\n" + "\n" + "";
             CharArrayReader reader = new CharArrayReader(s.toCharArray());
-            String encoding = REF.getPythonFileEncoding(reader);
+            String encoding = REF.getPythonFileEncoding(reader, null);
             assertEquals(null, encoding);
         } finally{
             REF.LOG_ENCODING_ERROR = true;
@@ -299,7 +299,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         "\n" +
         "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        String encoding = REF.getPythonFileEncoding(reader);
+        String encoding = REF.getPythonFileEncoding(reader, null);
         assertEquals("UTF-8", encoding);
     }
     

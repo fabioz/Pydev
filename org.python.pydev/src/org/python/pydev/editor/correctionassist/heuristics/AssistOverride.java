@@ -35,7 +35,7 @@ public class AssistOverride implements IAssistProps {
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File file, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
         String sel = PyAction.getLineWithoutComments(ps);
-        String indentation = PyAction.getStaticIndentationString();
+        String indentation = PyAction.getStaticIndentationString(edit);
         String delimiter = PyAction.getDelimiter(ps.getDoc());
 
         String indStart = "";

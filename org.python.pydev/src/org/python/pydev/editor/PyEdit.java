@@ -61,6 +61,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyOpenAction;
+import org.python.pydev.editor.autoedit.IIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
@@ -256,10 +257,12 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      */
     private void resetForceTabs() {
         IDocument doc = getDocumentProvider().getDocument(getEditorInput());
-        if (doc == null)
+        if (doc == null){
             return;
+        }
+        
         if (!PydevPrefs.getPreferences().getBoolean(PydevPrefs.GUESS_TAB_SUBSTITUTION)) {
-            indentStrategy.getIndentPrefs().setForceTabs(false);
+            getIndentPrefs().setForceTabs(false);
             return;
         }
 
@@ -285,7 +288,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             }
             i++;
         }
-        indentStrategy.getIndentPrefs().setForceTabs(forceTabs);
+        getIndentPrefs().setForceTabs(forceTabs);
         editConfiguration.resetIndentPrefixes();
         // display a message in the status line
         if (forceTabs) {
@@ -293,6 +296,13 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             if (statusLine != null)
                 statusLine.setMessage(false, "Pydev: forcing tabs", null);
         }
+    }
+
+    /**
+     * @return the indentation preferences
+     */
+    public IIndentPrefs getIndentPrefs() {
+        return indentStrategy.getIndentPrefs();
     }
 
     /**
@@ -460,7 +470,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     private void fixEncoding(final IEditorInput input, IDocument document) {
         if (input instanceof FileEditorInput) {
             final IFile file = (IFile) ((FileEditorInput) input).getAdapter(IFile.class);
-            final String encoding = REF.getPythonFileEncoding(document);
+            final String encoding = REF.getPythonFileEncoding(document, file.getFullPath().toOSString());
             if (encoding != null) {
                 try {
                     if (encoding.equals(file.getCharset()) == false) {

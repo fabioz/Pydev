@@ -10,6 +10,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**
@@ -270,9 +271,9 @@ public class PyBackspace extends PyAction {
     boolean useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
 
     int tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
-
-    boolean forceTabs = false;
-
+    
+    Boolean forceTabs;
+    
     private String createSpaceString(int width) {
         StringBuffer b = new StringBuffer(width);
         while (tabWidth-- > 0)
@@ -285,14 +286,23 @@ public class PyBackspace extends PyAction {
      * @return indentation string (from cache)
      */
     private String getIndentationString() {
-        if (identString == null || tabWidth != PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH)
-                || useSpaces != PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS)) {
+        PyEdit pyEdit = getPyEdit();
+        
+        if (identString == null || 
+                forceTabs == null|| 
+                tabWidth != PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH) ||
+                useSpaces != PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS) ||
+                forceTabs != pyEdit.getIndentPrefs().getForceTabs()) {
+            
             tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
             useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
-            if (useSpaces && !forceTabs)
+            forceTabs = pyEdit.getIndentPrefs().getForceTabs();
+            
+            if (useSpaces && !forceTabs){
                 identString = createSpaceString(tabWidth);
-            else
+            }else{
                 identString = "\t";
+            }
         }
         return identString;
     }
