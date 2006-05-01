@@ -338,7 +338,6 @@ public class SourceModule extends AbstractModule {
         if (ast != null){
         	ast.accept(scopeVisitor);
         }
-
         
         //this visitor checks for assigns for the token
         FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(rep, line, col+1, this);
@@ -350,14 +349,19 @@ public class SourceModule extends AbstractModule {
         	//ok, it is an assign, so, let's get it
 
             for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {
-	            AssignDefinition element = (AssignDefinition) iter.next();
-	            if(element.target.startsWith("self") == false){
-		            if(element.scope.isOuterOrSameScope(scopeVisitor.scope)){
-		                toRet.add(element);
-		            }
-	            }else{
-		            toRet.add(element);
-	            }
+	            Object next = iter.next();
+                if(next instanceof AssignDefinition){
+                    AssignDefinition element = (AssignDefinition) next;
+    	            if(element.target.startsWith("self") == false){
+    		            if(element.scope.isOuterOrSameScope(scopeVisitor.scope)){
+    		                toRet.add(element);
+    		            }
+    	            }else{
+    		            toRet.add(element);
+    	            }
+                }else{
+                    toRet.add((Definition) next);
+                }
 	        }
             return (Definition[]) toRet.toArray(new Definition[0]);
         }
@@ -405,10 +409,16 @@ public class SourceModule extends AbstractModule {
 					if(token.getRepresentation().equals(withoutSelf)){
 						String parentPackage = token.getParentPackage();
 						IModule module = nature.getAstManager().getModule(parentPackage, nature, true);
-						if(module != null && token instanceof SourceToken){
+                        
+						if(token instanceof SourceToken && (module != null || this.name.equals(parentPackage))){
+                            if(module == null){
+                                module = this;
+                            }
+                            
 			                SimpleNode ast2 = ((SourceToken)token).getAst();
 							Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
 							return new Definition[]{new Definition(def.o1, def.o2, token.getRepresentation(), ast2, null, module)};
+                            
 						}else{
 							return new Definition[0];
 						}

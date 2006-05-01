@@ -10,12 +10,10 @@ import java.util.List;
 import java.util.Stack;
 
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.IToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
@@ -121,6 +119,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     public Object visitClassDef(ClassDef node) throws Exception {
         defsStack.push(node);
         node.traverse(this);
+        checkDeclaration(node, (NameTok) node.name);
         defsStack.pop();
         return null;
     }
@@ -131,8 +130,20 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         defsStack.push(node);
         node.traverse(this);
+        checkDeclaration(node, (NameTok) node.name);
         defsStack.pop();
         return null;
+    }
+
+    /**
+     * @param node the declaration node we're interested in (class or function)
+     * @param n the token that represents the name of that declaration
+     */
+    private void checkDeclaration(SimpleNode node, NameTok n) {
+        String rep = NodeUtils.getRepresentationString(node);
+        if(rep.equals(tokenToFind) && line == n.beginLine && col >= n.beginColumn && col <= n.beginColumn+rep.length()){
+            definitions.add(new Definition(line, n.beginColumn, rep, node, new Scope(this.defsStack), module));
+        }
     }
     
     /**

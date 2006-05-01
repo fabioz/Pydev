@@ -5,7 +5,6 @@ package org.python.pydev.editor.refactoring;
 
 import java.io.File;
 
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -91,6 +90,9 @@ public class RefactoringRequest{
     }
 
 
+    public RefactoringRequest() {
+    }
+    
 	/**
 	 * If the file is passed, we also set the document automatically
 	 * @param f the file correspondent to this request
@@ -206,10 +208,14 @@ public class RefactoringRequest{
 		return PySelection.getActivationTokenAndQual(doc, ps.getAbsoluteCursorOffset(), true);
 	}
 
-    public void fillInitialNameAndOffset() throws BadLocationException {
-        Tuple<String, Integer> currToken = ps.getCurrToken();
-        duringProcessInfo.initialName = currToken.o1;
-        duringProcessInfo.initialOffset = currToken.o2;
+    public void fillInitialNameAndOffset(){
+        try {
+            Tuple<String, Integer> currToken = ps.getCurrToken();
+            duringProcessInfo.initialName = currToken.o1;
+            duringProcessInfo.initialOffset = currToken.o2;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
