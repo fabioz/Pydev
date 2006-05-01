@@ -23,7 +23,7 @@ import com.python.pydev.refactoring.wizards.PyRenameProcessor;
 
 public class RefactoringTestBase extends CodeCompletionTestsBase {
     
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
 
     protected void setUp() throws Exception {
@@ -79,9 +79,9 @@ public class RefactoringTestBase extends CodeCompletionTestsBase {
         RefactoringRequest request = new RefactoringRequest(null, ps, nature);
         request.findReferencesOnlyOnLocalScope = onlyOnLocalScope;
         request.moduleName = "foo";
-        request.duringProcessInfo.initialName = initialName; 
-        request.duringProcessInfo.initialOffset = ps.getAbsoluteCursorOffset();
         request.duringProcessInfo.name = "bb";
+        request.fillInitialNameAndOffset();
+        assertEquals(initialName, request.duringProcessInfo.initialName); 
         
         applyRefactoring(request, expectError);
         String refactored = doc.get();

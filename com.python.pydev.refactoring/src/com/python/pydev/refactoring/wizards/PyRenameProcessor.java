@@ -3,6 +3,8 @@
  */
 package com.python.pydev.refactoring.wizards;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,7 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
@@ -26,6 +29,8 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+
+import com.python.pydev.refactoring.IPyRefactoring2;
 
 /**
  * Rename to a local variable...
@@ -79,7 +84,7 @@ public class PyRenameProcessor extends RenameProcessor {
 
     private CompositeChange fChange;
 
-    private IRefactorProcess process;
+    private List<IRefactorProcess> process;
 
     public PyRenameProcessor(RefactoringRequest request) {
         this.request = request;
@@ -133,56 +138,69 @@ public class PyRenameProcessor extends RenameProcessor {
         if(pointers.length > 1){
             //ok, we have to check if we're actually seeing the same thing for all or if there are actually
             //many definitions around.
-            Object o = checkPointerDefinitions(pointers);
+            Object o = checkPointerDefinitions(pointers, (IPyRefactoring2)pyRefactoring);
             if(o instanceof String){
                 status.addFatalError((String) o);
                 return status;
+                
+            }else if (o instanceof ItemPointer[]){
+                pointers = (ItemPointer[]) o;
+                
             }else if (o instanceof ItemPointer){
                 pointers = new ItemPointer[]{(ItemPointer) o};
+                
             }else{
                 status.addFatalError("Unexpected return:"+o+" class:"+o.getClass());
                 return status;
             }
         }
         
-        ItemPointer pointer = pointers[0];
-        if(pointer.definition == null){
-            status.addFatalError("The definition found is not valid. "+pointer);
+        process = new ArrayList<IRefactorProcess>();
+        for (ItemPointer pointer : pointers){
+            if(pointer.definition == null){
+                status.addFatalError("The definition found is not valid. "+pointer);
+            }
+            if(DEBUG){
+                System.out.println("Found:"+pointer.definition);
+            }
+            
+            IRefactorProcess p = RefactorProcessFactory.getProcess(pointer.definition);
+            if(p == null){
+                status.addFatalError("Refactoring Process not defined: the definition found is not valid:"+pointer.definition);
+                return status;
+            }
+            process.add(p);
+            p.checkInitialConditions(pm, status, this.request);
         }
-        if(DEBUG){
-            System.out.println("Found:"+pointer.definition);
-        }
-        
-        process = RefactorProcessFactory.getProcess(pointer.definition);
-        if(process == null){
-            status.addFatalError("Refactoring Process not defined: the definition found is not valid:"+pointer.definition);
-            return status;
-        }
-        process.checkInitialConditions(pm, status, this.request);
         return status;
     }
 
     /**
      * @param pointers
+     * @param refactoring2 
      * @return an error msg if something went wrong or an ItemPointer with the definition that we should use.
      */
-    private Object checkPointerDefinitions(ItemPointer[] pointers) {
-        List<ClassDef> defs = new ArrayList<ClassDef>();
+    private Object checkPointerDefinitions(ItemPointer[] pointers, IPyRefactoring2 refactoring2) {
+        List<AssignDefinition> defs = new ArrayList<AssignDefinition>();
         
         for (ItemPointer pointer : pointers) {
             Definition d = pointer.definition;
             if(d instanceof AssignDefinition){
                 AssignDefinition a = (AssignDefinition) d;
-                defs.add(a.scope.getClassDef());
+                ClassDef classDef = a.scope.getClassDef();
+                if(classDef == null){
+                    return getTooManyDefsMsg(pointers).toString();
+                }
             }else{
                 //they can only be the same if they are all assign definitions (in a class hierarchy).
                 return getTooManyDefsMsg(pointers).toString();
             }
         }
-        if(true){
-            throw new RuntimeException("Missing check class hierarchy.");
+        
+        if(!refactoring2.areAllInSameClassHierarchy(defs)){
+            return getTooManyDefsMsg(pointers).toString();
         }
-        return pointers[0];
+        return pointers;
     }
 
     private StringBuffer getTooManyDefsMsg(ItemPointer[] pointers) {
@@ -199,10 +217,19 @@ public class PyRenameProcessor extends RenameProcessor {
         RefactoringStatus status = new RefactoringStatus();
         fChange = new CompositeChange("RenameChange: "+request.duringProcessInfo.name);
         
-        if(process == null){
+        if(process == null || process.size() == 0){
             status.addFatalError("Refactoring Process not defined: the pre-conditions were not satisfied.");
-        }else{
-            process.checkFinalConditions(pm, context, status, fChange);
+        }
+        
+        try {
+            for (IRefactorProcess p : process) {
+                p.checkFinalConditions(pm, context, status, fChange);
+            }
+        } catch (Throwable e) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            e.printStackTrace(new PrintStream(out));
+            status.addFatalError("Exception while checking final conditions:"+e.getMessage()+"\n"+new String(out.toByteArray()));
+            Log.log(e);
         }
         return status;
     }
@@ -219,10 +246,17 @@ public class PyRenameProcessor extends RenameProcessor {
     }
 
     public List<ASTEntry> getOcurrences() {
-        if(process == null){
+        if(process == null || process.size() == 0){
             return null;
         }
-        return process.getOcurrences();
+        List<ASTEntry> occurrences = new ArrayList<ASTEntry>();
+        for(IRefactorProcess p : process){
+            List<ASTEntry> o = p.getOcurrences();
+            if(o != null){
+                occurrences.addAll(o);
+            }
+        }
+        return occurrences;
     }
 
 }

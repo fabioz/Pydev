@@ -17,6 +17,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
@@ -354,6 +355,10 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
             model = new HierarchyNodeModel(d.module, (ClassDef) d.ast);
         }
         return model;
+    }
+    
+    public boolean areAllInSameClassHierarchy(List<AssignDefinition> defs) {
+        return true;
     }
 
 

@@ -21,12 +21,9 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
-public class PyRenameClassProcess extends AbstractRenameMultipleProcess{
+public class PyRenameClassMethodProcess extends AbstractRenameMultipleProcess {
 
-    private Definition definition;
-    
-    public PyRenameClassProcess(Definition definition) {
-        this.definition = definition;
+    public PyRenameClassMethodProcess(Definition definition) {
     }
 
     public void checkInitialConditions(IProgressMonitor pm, RefactoringStatus status, RefactoringRequest request) {
@@ -41,9 +38,6 @@ public class PyRenameClassProcess extends AbstractRenameMultipleProcess{
             }
        
         }else{
-//            if(module instanceof SourceModule){
-//                List<ASTEntry> occurrences = Scope.getOcurrences(request.duringProcessInfo.initialName, ((SourceModule)module).getAst());
-//            }
             throw new RuntimeException("Currently can only get things in the local scope.");
         }
     }

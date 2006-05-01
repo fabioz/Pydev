@@ -18,7 +18,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
 		try {
 			SearchTest test = new SearchTest();
 			test.setUp();
-			test.testSearchParameter();
+			test.testOnClassFind();
 			test.tearDown();
 
 			junit.textui.TestRunner.run(SearchTest.class);
@@ -342,5 +342,55 @@ public class SearchTest extends AdditionalInfoTestsBase {
         //found the module
         assertTrue("Expecting to find it at line 439 or 440, found it at:"+pointers[0].start.line, 440 == pointers[0].start.line || 439 == pointers[0].start.line); //depends on python version
         assertEquals(0, pointers[0].start.column);
+    }
+    
+    public void testOnMethodFind() throws Exception {
+        //class TestStatic(object):    --line 0  
+        //          
+        //    @staticmethod      
+        //    def static1(self):      --line 3
+        //        pass      
+        //          
+        //    @staticmethod      
+        //    def static2(self):
+        //        pass
+        String line = "    def static1(self):";
+        final File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/static.py");
+        RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
+        refactoringRequest.ps = new PySelection(refactoringRequest.doc, 3, line.length()-"1(self):".length()); //find the 'static1' method itself
+        
+        refactoringRequest.findDefinitionInAdditionalInfo = false;
+        ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+        
+        assertEquals(1, pointers.length);
+        assertEquals(file, pointers[0].file);
+        //found the module
+        assertEquals(8, pointers[0].start.column);
+        assertEquals(3, pointers[0].start.line);
+    }
+    
+    public void testOnClassFind() throws Exception {
+        //class TestStatic(object):    --line 0  
+        //          
+        //    @staticmethod      
+        //    def static1(self):      --line 3
+        //        pass      
+        //          
+        //    @staticmethod      
+        //    def static2(self):
+        //        pass
+        String line = "class TestStatic(object):";
+        final File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/static.py");
+        RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
+        refactoringRequest.ps = new PySelection(refactoringRequest.doc, 0, line.length()-"Static(object):".length()); //find the 'TestStatic' class itself
+        
+        refactoringRequest.findDefinitionInAdditionalInfo = false;
+        ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+        
+        assertEquals(1, pointers.length);
+        assertEquals(file, pointers[0].file);
+        //found the module
+        assertEquals(6, pointers[0].start.column);
+        assertEquals(0, pointers[0].start.line);
     }
 }

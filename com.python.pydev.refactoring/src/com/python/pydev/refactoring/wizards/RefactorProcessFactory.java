@@ -6,6 +6,7 @@ package com.python.pydev.refactoring.wizards;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 
 public class RefactorProcessFactory {
 
@@ -27,6 +28,10 @@ public class RefactorProcessFactory {
         if(definition.ast != null){
             if(definition.ast instanceof ClassDef){
                 return new PyRenameClassProcess(definition);
+            }
+            
+            if(definition.ast instanceof FunctionDef){
+                return new PyRenameClassMethodProcess(definition);
             }
         }
         return new PyRenameLocalProcess(definition);
