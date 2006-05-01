@@ -3,6 +3,7 @@
  */
 package com.python.pydev.refactoring.wizards;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -58,6 +59,10 @@ public class PyRenameAttributeProcess extends AbstractRefactorProcess{
             docChange.addTextEditGroup(new TextEditGroup(t.o2, t.o1));
         }
         fChange.add(docChange);
+    }
+
+    public List<ASTEntry> getOcurrences() {
+        return new ArrayList<ASTEntry>(ocurrences);
     }
 
 }

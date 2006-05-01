@@ -24,7 +24,6 @@ public class RefactorProcessFactory {
             }
         }
         return new PyRenameLocalProcess(definition);
-
     }
 
 }

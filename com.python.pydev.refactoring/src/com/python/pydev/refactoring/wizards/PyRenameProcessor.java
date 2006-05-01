@@ -25,6 +25,7 @@ import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 /**
  * Rename to a local variable...
@@ -217,5 +218,11 @@ public class PyRenameProcessor extends RenameProcessor {
         return null; // no participants are loaded
     }
 
+    public List<ASTEntry> getOcurrences() {
+        if(process == null){
+            return null;
+        }
+        return process.getOcurrences();
+    }
 
 }
