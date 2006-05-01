@@ -24,7 +24,6 @@ public class PyParserTest extends PyParserTestBase{
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
-            test.testOnCsvCreated();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
@@ -209,16 +208,6 @@ public class PyParserTest extends PyParserTestBase{
     	PyParser.USE_FAST_STREAM = true;
     	loc = TestDependent.PYTHON_LIB+"csv.py";
     	s = REF.getFileContents(new File(loc));
-    	parseLegalDocStr(s);
-    }
-    
-    public void testOnCsvCreated() {
-    	PyParser.USE_FAST_STREAM = false;
-    	String loc = TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC+"/tests/pysrc/csvcopy.py";
-    	String s = REF.getFileContents(new File(loc));
-    	parseLegalDocStr(s);
-    	
-    	PyParser.USE_FAST_STREAM = true;
     	parseLegalDocStr(s);
     }
     

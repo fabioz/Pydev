@@ -6754,51 +6754,6 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
     finally { jj_save(26, xla); }
   }
 
-  final private boolean jj_3R_156() {
-    if (jj_3R_53()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_72() {
-    if (jj_3R_125()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_141() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_150()) {
-    jj_scanpos = xsp;
-    if (jj_3R_151()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_150() {
-    if (jj_scan_token(NOT_BOOL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_125() {
-    if (jj_3R_141()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_49() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_71()) {
-    jj_scanpos = xsp;
-    if (jj_3R_72()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_71() {
-    if (jj_3R_124()) return true;
-    return false;
-  }
-
   final private boolean jj_3R_112() {
     if (jj_scan_token(AS)) return true;
     return false;
@@ -7878,6 +7833,51 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
   final private boolean jj_3_12() {
     if (jj_scan_token(IS)) return true;
     if (jj_scan_token(NOT_BOOL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_156() {
+    if (jj_3R_53()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_72() {
+    if (jj_3R_125()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_141() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_150()) {
+    jj_scanpos = xsp;
+    if (jj_3R_151()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_150() {
+    if (jj_scan_token(NOT_BOOL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_125() {
+    if (jj_3R_141()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_49() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_71()) {
+    jj_scanpos = xsp;
+    if (jj_3R_72()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_71() {
+    if (jj_3R_124()) return true;
     return false;
   }
 

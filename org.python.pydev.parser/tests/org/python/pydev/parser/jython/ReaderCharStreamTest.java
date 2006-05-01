@@ -3,14 +3,10 @@
  */
 package org.python.pydev.parser.jython;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 
 import junit.framework.TestCase;
-
-import org.python.pydev.core.REF;
-import org.python.pydev.core.TestDependent;
 
 public class ReaderCharStreamTest extends TestCase {
 
@@ -27,8 +23,11 @@ public class ReaderCharStreamTest extends TestCase {
     }
     
     public void testIt2() throws Exception {
-    	String loc = TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC+"/tests/pysrc/csvcopy.py";
-    	String s = REF.getFileContents(new File(loc));
+    	String s = new String(new char[]{'\n',34,34,34,'\n',97,'\n',34,34,34});
+        //
+        //"""
+        //a
+        //"""
     	
     	StringReader inString = new StringReader(s);
     	CharStream in = new ReaderCharStream(inString);

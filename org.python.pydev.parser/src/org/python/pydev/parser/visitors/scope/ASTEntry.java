@@ -77,6 +77,10 @@ public class ASTEntry{
         }else if(node instanceof Name){
             Name a = (Name) node;
             name = a.id;
+            
+        }else if(node instanceof NameTok){
+            NameTok a = (NameTok) node;
+            name = a.id;
         }
         if(name == null){
             throw new RuntimeException("Unable to get node name: "+node);

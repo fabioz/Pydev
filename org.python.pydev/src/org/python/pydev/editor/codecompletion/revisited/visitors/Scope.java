@@ -20,7 +20,7 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
-import org.python.pydev.parser.jython.ast.NameTokType;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
@@ -117,7 +117,7 @@ public class Scope {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
         
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
-        Iterator<ASTEntry> iterator = visitor.getIterator(new Class[]{Name.class, NameTokType.class});
+        Iterator<ASTEntry> iterator = visitor.getIterator(new Class[]{Name.class, NameTok.class});
         while(iterator.hasNext()){
             ASTEntry entry = iterator.next();
             if (occurencesFor.equals(entry.getName())){
