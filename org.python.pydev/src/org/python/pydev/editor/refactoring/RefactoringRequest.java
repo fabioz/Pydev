@@ -5,9 +5,11 @@ package org.python.pydev.editor.refactoring;
 
 import java.io.File;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
@@ -68,6 +70,11 @@ public class RefactoringRequest{
      * may be set to false if we are not interested in searching the additional info for definitions 
      */
     public boolean findDefinitionInAdditionalInfo = true;
+    
+    /**
+     * may be set to true if we only care about the local scope
+     */
+    public boolean findReferencesOnlyOnLocalScope = false;
     
     /**
      * This class contains information that is acquired during the refactoring process (such as the initial or final
@@ -161,13 +168,22 @@ public class RefactoringRequest{
 	}
 
 	/**
-	 * @return the module for the document
+	 * @return the module for the document (may return the ast from the pyedit if it is available).
 	 */
 	public IModule getModule() {
 		if(module == null){
-			module= AbstractModule.createModuleFromDoc(
-				   resolveModule(), file, doc, 
-				   nature, getBeginLine());
+            if(pyEdit != null){
+                SimpleNode ast = pyEdit.getAST();
+                if(ast != null){
+                    module = AbstractModule.createModule(ast, file, resolveModule());
+                }
+            }
+            
+            if(module == null){
+    			module= AbstractModule.createModuleFromDoc(
+    				   resolveModule(), file, doc, 
+    				   nature, getBeginLine());
+            }
 		}
 		return module;
 	}
@@ -189,6 +205,12 @@ public class RefactoringRequest{
 	public String[] getTokenAndQual() {
 		return PySelection.getActivationTokenAndQual(doc, ps.getAbsoluteCursorOffset(), true);
 	}
+
+    public void fillInitialNameAndOffset() throws BadLocationException {
+        Tuple<String, Integer> currToken = ps.getCurrToken();
+        duringProcessInfo.initialName = currToken.o1;
+        duringProcessInfo.initialOffset = currToken.o2;
+    }
 
 
 }

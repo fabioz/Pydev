@@ -209,7 +209,22 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             }
         }
     }
-    
+
+    @Override
+    protected void handleCursorPositionChanged() {
+        super.handleCursorPositionChanged();
+        for(IPyEditListener listener : getAllListeners()){
+            try {
+                if(listener instanceof IPyEditListener2){
+                    ((IPyEditListener2)listener).handleCursorPositionChanged(this);
+                }
+            } catch (Throwable e) {
+                //must not fail
+                PydevPlugin.log(e);
+            }
+        }
+    }
+
     private List<IPyEditListener> getAllListeners() {
         ArrayList<IPyEditListener> listeners = new ArrayList<IPyEditListener>();
         if(editListeners != null){
@@ -247,6 +262,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
     }
 
+    
     /**
      * Sets the forceTabs preference for auto-indentation.
      * 
