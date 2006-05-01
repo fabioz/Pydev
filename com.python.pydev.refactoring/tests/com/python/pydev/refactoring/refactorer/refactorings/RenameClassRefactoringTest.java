@@ -4,7 +4,6 @@
 package com.python.pydev.refactoring.refactorer.refactorings;
 
 import org.eclipse.core.runtime.CoreException;
-import org.python.pydev.core.docutils.StringUtils;
 
 public class RenameClassRefactoringTest extends RefactoringTestBase {
 
