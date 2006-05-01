@@ -73,15 +73,18 @@ public class RefactoringTestBase extends CodeCompletionTestsBase {
     }
     
     protected void checkDefault(String strDoc, int line, int col, String initialName, boolean expectError, boolean onlyOnLocalScope) throws CoreException {
+        checkDefault(strDoc, line, col, initialName, expectError, onlyOnLocalScope, "bb");
+    }
+    
+    protected void checkDefault(String strDoc, int line, int col, String initialName, boolean expectError, boolean onlyOnLocalScope, String newName) throws CoreException {
         Document doc = new Document(StringUtils.format(strDoc, getSame(initialName)));
         PySelection ps = new PySelection(doc, line, col);
         
         RefactoringRequest request = new RefactoringRequest(null, ps, nature);
         request.findReferencesOnlyOnLocalScope = onlyOnLocalScope;
         request.moduleName = "foo";
-        request.duringProcessInfo.name = "bb";
+        request.duringProcessInfo.name = newName;
         request.fillInitialNameAndOffset();
-        assertEquals(initialName, request.duringProcessInfo.initialName); 
         
         applyRefactoring(request, expectError);
         String refactored = doc.get();
@@ -89,6 +92,7 @@ public class RefactoringTestBase extends CodeCompletionTestsBase {
             System.out.println(refactored);
         }
         if(!expectError){
+            assertEquals(initialName, request.duringProcessInfo.initialName); 
             assertEquals(StringUtils.format(strDoc, getSame("bb")),  refactored);
         }else{
             //cannot have changed

@@ -3,8 +3,6 @@
  */
 package com.python.pydev.refactoring.wizards;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +17,6 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.python.pydev.core.docutils.DocUtils;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
@@ -122,6 +119,11 @@ public class PyRenameProcessor extends RenameProcessor {
             return status;
         }
         
+        if(! DocUtils.isWord(request.duringProcessInfo.name)){
+            status.addFatalError("The new name is not valid:"+request.duringProcessInfo.name);
+            return status;
+        }
+        
         SimpleNode ast = request.getAST();
         if(ast == null){
             status.addFatalError("AST not generated (syntax error).");
@@ -219,17 +221,11 @@ public class PyRenameProcessor extends RenameProcessor {
         
         if(process == null || process.size() == 0){
             status.addFatalError("Refactoring Process not defined: the pre-conditions were not satisfied.");
+            return status;
         }
         
-        try {
-            for (IRefactorProcess p : process) {
-                p.checkFinalConditions(pm, context, status, fChange);
-            }
-        } catch (Throwable e) {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            e.printStackTrace(new PrintStream(out));
-            status.addFatalError("Exception while checking final conditions:"+e.getMessage()+"\n"+new String(out.toByteArray()));
-            Log.log(e);
+        for (IRefactorProcess p : process) {
+            p.checkFinalConditions(pm, context, status, fChange);
         }
         return status;
     }

@@ -30,7 +30,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     public void testRenameErr() throws Exception {
         int line = 2;
         int col = 10;
-        checkDefault(getDefaultDocStr(), line, col, "aaa bb", true);
+        checkDefault(getDefaultDocStr(), line, col, "bb", true, false, "aaa bb");
     }
 
     public void testRenameInstance2() throws Exception {
