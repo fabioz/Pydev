@@ -20,8 +20,8 @@ import org.eclipse.ui.texteditor.TextEditorAction;
  * 
  * @author Fabio
  */
-public class PyToggleMarkOcurrences extends TextEditorAction implements IPropertyChangeListener {
-    public PyToggleMarkOcurrences(ResourceBundle resourceBundle) {
+public class PyToggleMarkOccurrences extends TextEditorAction implements IPropertyChangeListener {
+    public PyToggleMarkOccurrences(ResourceBundle resourceBundle) {
         super(resourceBundle, "PyToggleMarkOccurrencesAction.", null, IAction.AS_CHECK_BOX); //$NON-NLS-1$
         update();
     }

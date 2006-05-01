@@ -20,7 +20,7 @@ import org.python.pydev.editor.PyEdit;
  * 
  * @author Fabio
  */
-public class MarkOcurrencesDispatcher implements IPyEditListener, IDocumentListener, IPyEditListener2{
+public class MarkOccurrencesDispatcher implements IPyEditListener, IDocumentListener, IPyEditListener2{
     
     public void onSave(PyEdit edit) {
     }
@@ -42,7 +42,7 @@ public class MarkOcurrencesDispatcher implements IPyEditListener, IDocumentListe
 
     public void handleCursorPositionChanged(PyEdit edit) {
         System.out.println("here");
-        MarkOcurrencesJob job = MarkOcurrencesJob.get();
+        MarkOccurrencesJob job = MarkOccurrencesJob.get();
         job.scheduleRequest(new WeakReference<PyEdit>(edit));
     }
 }

@@ -69,10 +69,15 @@ public class RefactoringTestBase extends CodeCompletionTestsBase {
     }
     
     protected void checkDefault(String strDoc, int line, int col, String initialName, boolean expectError) throws CoreException {
+        checkDefault(strDoc, line, col, initialName, expectError, false);
+    }
+    
+    protected void checkDefault(String strDoc, int line, int col, String initialName, boolean expectError, boolean onlyOnLocalScope) throws CoreException {
         Document doc = new Document(StringUtils.format(strDoc, getSame(initialName)));
         PySelection ps = new PySelection(doc, line, col);
         
         RefactoringRequest request = new RefactoringRequest(null, ps, nature);
+        request.findReferencesOnlyOnLocalScope = onlyOnLocalScope;
         request.moduleName = "foo";
         request.duringProcessInfo.initialName = initialName; 
         request.duringProcessInfo.initialOffset = ps.getAbsoluteCursorOffset();

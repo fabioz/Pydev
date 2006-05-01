@@ -23,7 +23,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.OcurrencesAnalyzer;
+import com.python.pydev.analysis.OccurrencesAnalyzer;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.messages.IMessage;
@@ -151,7 +151,7 @@ public class AnalysisBuilderThread extends Thread{
             monitor.worked(1);
 
             checkStop();
-            OcurrencesAnalyzer analyzer = new OcurrencesAnalyzer();
+            OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
 
             ArrayList<IMarker> existing = new ArrayList<IMarker>();
             findAnalysisMarkers(existing); 

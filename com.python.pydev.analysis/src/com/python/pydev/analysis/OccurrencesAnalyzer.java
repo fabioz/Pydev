@@ -14,14 +14,14 @@ import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.builder.CancelledException;
 import com.python.pydev.analysis.messages.IMessage;
-import com.python.pydev.analysis.visitors.OcurrencesVisitor;
+import com.python.pydev.analysis.visitors.OccurrencesVisitor;
 
 /**
  * This class should analyze unused imports.
  * 
  * @author Fabio
  */
-public class OcurrencesAnalyzer implements Analyzer {
+public class OccurrencesAnalyzer implements Analyzer {
 
 
     public IMessage[] analyzeDocument(IPythonNature nature, SourceModule module, IAnalysisPreferences prefs, IDocument document) {
@@ -29,7 +29,7 @@ public class OcurrencesAnalyzer implements Analyzer {
     }
     
     public IMessage[] analyzeDocument(IPythonNature nature, SourceModule module, IAnalysisPreferences prefs, IDocument document, IProgressMonitor monitor) {
-        OcurrencesVisitor visitor = new OcurrencesVisitor(nature, module.getName(), module, prefs, document, monitor);
+        OccurrencesVisitor visitor = new OccurrencesVisitor(nature, module.getName(), module, prefs, document, monitor);
         try {
             SimpleNode ast = module.getAst();
             if(ast != null){

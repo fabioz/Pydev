@@ -39,21 +39,21 @@ import com.python.pydev.refactoring.wizards.PyRenameProcessor;
  * 
  * @author Fabio
  */
-public class MarkOcurrencesJob extends Thread{
+public class MarkOccurrencesJob extends Thread{
 
     private static final boolean DEBUG = false;
-    private static MarkOcurrencesJob singleton;
+    private static MarkOccurrencesJob singleton;
     
-    public synchronized static MarkOcurrencesJob get() {
+    public synchronized static MarkOccurrencesJob get() {
         if(singleton == null){
-            singleton = new MarkOcurrencesJob();
+            singleton = new MarkOccurrencesJob();
             singleton.start();
         }
         return singleton;
     }
     
-    private MarkOcurrencesJob() {
-        super("MarkOcurrencesJob");
+    private MarkOccurrencesJob() {
+        super("MarkOccurrencesJob");
         setPriority(Thread.MIN_PRIORITY);
     }
     

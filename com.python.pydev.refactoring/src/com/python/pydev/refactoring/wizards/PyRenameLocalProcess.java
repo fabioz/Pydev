@@ -24,7 +24,7 @@ public class PyRenameLocalProcess extends AbstractRefactorProcess{
 
     private Definition definition;
 
-    private List<ASTEntry> ocurrences;
+    private List<ASTEntry> occurrences;
 
     public PyRenameLocalProcess(Definition definition) {
         this.definition = definition;
@@ -35,10 +35,10 @@ public class PyRenameLocalProcess extends AbstractRefactorProcess{
      */
     public void checkInitialConditions(IProgressMonitor pm, RefactoringStatus status, RefactoringRequest request) {
         Scope scope = definition.scope;
-        this.ocurrences = scope.getOcurrences(request.duringProcessInfo.initialName);
+        this.occurrences = scope.getOcurrences(request.duringProcessInfo.initialName);
         this.request = request;
-        if(this.ocurrences.size() == 0){
-            status.addFatalError("Could not find any ocurrences of:"+request.duringProcessInfo.initialName);
+        if(this.occurrences.size() == 0){
+            status.addFatalError("Could not find any occurrences of:"+request.duringProcessInfo.initialName);
         }
     }
 
@@ -47,8 +47,8 @@ public class PyRenameLocalProcess extends AbstractRefactorProcess{
      */
     public void checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange) {
         DocumentChange docChange = new DocumentChange("RenameChange: "+request.duringProcessInfo.name, request.doc);
-        if(ocurrences == null){
-            status.addFatalError("No ocurrences found.");
+        if(occurrences == null){
+            status.addFatalError("No occurrences found.");
             return;
         }
 
@@ -63,11 +63,11 @@ public class PyRenameLocalProcess extends AbstractRefactorProcess{
         fChange.add(docChange);
     }
     protected List<Tuple<TextEdit, String>> getAllRenameEdits() {
-        return getAllRenameEdits(ocurrences);
+        return getAllRenameEdits(occurrences);
     }
 
     public List<ASTEntry> getOcurrences() {
-        return new ArrayList<ASTEntry>(ocurrences);
+        return new ArrayList<ASTEntry>(occurrences);
     }
 
 }

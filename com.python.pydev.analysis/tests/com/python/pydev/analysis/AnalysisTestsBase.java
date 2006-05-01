@@ -23,7 +23,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
 
     protected String sDoc;
     protected Document doc;
-    protected OcurrencesAnalyzer analyzer;
+    protected OccurrencesAnalyzer analyzer;
     protected IMessage[] msgs;
     protected AnalysisPreferencesStub prefs;
 
@@ -53,7 +53,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
             restorePythonPath(TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES, false);
         }
         prefs = new AnalysisPreferencesStub();
-        analyzer = new OcurrencesAnalyzer();
+        analyzer = new OccurrencesAnalyzer();
         
     }
 

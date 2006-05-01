@@ -59,7 +59,7 @@ import com.python.pydev.analysis.messages.IMessage;
  * 
  * @author Fabio
  */
-public class OcurrencesVisitor extends VisitorBase{
+public class OccurrencesVisitor extends VisitorBase{
 
     /**
      * nature is needed for imports
@@ -116,7 +116,7 @@ public class OcurrencesVisitor extends VisitorBase{
      * @param monitor 
      */
     @SuppressWarnings("unchecked")
-	public OcurrencesVisitor(IPythonNature nature, String moduleName, IModule current, IAnalysisPreferences prefs, IDocument document, IProgressMonitor monitor) {
+	public OccurrencesVisitor(IPythonNature nature, String moduleName, IModule current, IAnalysisPreferences prefs, IDocument document, IProgressMonitor monitor) {
         this.monitor = monitor;
         this.current = current;
         this.nature = nature;
@@ -227,7 +227,7 @@ public class OcurrencesVisitor extends VisitorBase{
     	unhandled_node(node);
         addToNamesToIgnore(node);
 
-        OcurrencesVisitor visitor = this;
+        OccurrencesVisitor visitor = this;
         argumentsType args = node.args;
 
         //visit the defaults first (before starting the scope, because this is where the load of variables from other scopes happens)
@@ -514,7 +514,7 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     protected void visitCallAttr(Call c) throws Exception {
         //now, visit all inside it but the func itself 
-        OcurrencesVisitor visitor = this;
+        OccurrencesVisitor visitor = this;
         if (c.args != null) {
             for (int i = 0; i < c.args.length; i++) {
                 if (c.args[i] != null)
@@ -547,7 +547,7 @@ public class OcurrencesVisitor extends VisitorBase{
      */
     public Object visitAssign(Assign node) throws Exception {
     	unhandled_node(node);
-        OcurrencesVisitor visitor = this;
+        OccurrencesVisitor visitor = this;
         
         //in 'm = a', this is 'a'
         if (node.value != null)
