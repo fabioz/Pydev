@@ -109,14 +109,25 @@ public class Scope {
     }
 
     /**
-     * @param occurencesFor
-     * @param simpleNode
-     * @return
+     * @return a list of occurrences with the matches we're looking for. Does only return the first name in attributes.
      */
     public static List<ASTEntry> getOcurrences(String occurencesFor, SimpleNode simpleNode) {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
         
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
+        SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor(){
+        	@Override
+        	public Object visitAttribute(Attribute node) throws Exception {
+        		List<SimpleNode> attributeParts = NodeUtils.getAttributeParts(node);
+        		atomic(attributeParts.get(0)); //an attribute should always have many parts
+        		return null;
+        	}
+        };
+        try {
+        	simpleNode.accept(visitor);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        
         Iterator<ASTEntry> iterator = visitor.getIterator(new Class[]{Name.class, NameTok.class});
         while(iterator.hasNext()){
             ASTEntry entry = iterator.next();
