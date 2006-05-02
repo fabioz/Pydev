@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameErr();
+            test.testRenameParameter();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -44,6 +44,30 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         int line = 2;
         int col = 16;
         checkDefault(str, line, col);
+    }
+    
+    public void testRenameParameter() throws Exception {
+    	String str = "" +
+    	"class Foo:\n" +
+    	"    def m1(self,%s):\n" +//we want to target only the parameter foo in this method and not the attribute
+    	"        print %s\n" +
+    	"        print self.foo" +
+    	"\n";
+    	int line = 1;
+    	int col = 16;
+    	checkDefault(str, line, col, "foo", false);
+    }
+    
+    public void testRenameParameter2() throws Exception {
+    	String str = "" +
+    	"class Foo:\n" +
+    	"    def m1(self,%s):\n" +//we want to target only the parameter foo in this method and not the attribute
+    	"        print %s\n" +
+    	"        print %s.bla" +
+    	"\n";
+    	int line = 1;
+    	int col = 16;
+    	checkDefault(str, line, col, "foo", false);
     }
     
     public void testRenameInstance() throws Exception {
