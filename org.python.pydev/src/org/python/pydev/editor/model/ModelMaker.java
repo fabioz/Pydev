@@ -139,8 +139,8 @@ public class ModelMaker {
 			}
 		}
 
-		void processMain(If node) {
-			new NameEqualsMainNode(parent, node);
+		void processMain(If node, Str mainStr) {
+			new NameEqualsMainNode(parent, node, mainStr);
 		}
 
 		void processPass(Pass node) {
@@ -207,8 +207,9 @@ public class ModelMaker {
 		}
 		
 		public Object visitIf(If node) throws Exception {
-			if(AbstractVisitor.isIfMAinNode(node)){ 
-			    processMain(node);
+			Str mainStr = AbstractVisitor.isIfMAinNode(node);
+			if(mainStr != null){ 
+			    processMain(node, mainStr);
 			}
 			return super.visitIf(node);
 		}

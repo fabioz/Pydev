@@ -130,7 +130,7 @@ public class ParsedItem  {
 			return modules.toString() + " (" + ((NameTok)importToken.module).id + ")";
 		}
 		else if (token instanceof NameEqualsMainNode) {
-			return "__name__ == main";
+			return "__main__";
 		}
 		else {
 			return "ERROR";

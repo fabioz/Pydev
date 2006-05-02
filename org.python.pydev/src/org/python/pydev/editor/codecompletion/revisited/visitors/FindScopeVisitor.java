@@ -12,6 +12,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Str;
 
 /**
  * @author Fabio Zadrozny
@@ -86,7 +87,8 @@ public class FindScopeVisitor extends AbstractVisitor {
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitIf(org.python.pydev.parser.jython.ast.If)
      */
     public Object visitIf(If node) throws Exception {
-        if(isIfMAinNode(node)){
+    	Str mainNode = isIfMAinNode(node);
+        if(mainNode != null){
             scope.ifMainLine = node.beginLine;
         }
         return super.visitIf(node);

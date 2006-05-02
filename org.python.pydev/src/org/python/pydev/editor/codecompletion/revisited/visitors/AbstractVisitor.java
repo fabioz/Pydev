@@ -242,7 +242,7 @@ public abstract class AbstractVisitor extends VisitorBase{
     /**
      * @param node
      */
-    public static boolean isIfMAinNode(If node) {
+    public static Str isIfMAinNode(If node) {
         if (node.test instanceof Compare) {
     		Compare compareNode = (Compare)node.test;
     		// handcrafted structure walking
@@ -256,11 +256,11 @@ public abstract class AbstractVisitor extends VisitorBase{
         			&& compareNode.comparators.length == 1
         			&& compareNode.comparators[0] instanceof Str 
         			&& ((Str)compareNode.comparators[0]).s.equals("__main__")){
-        			return true;
+        			return (Str)compareNode.comparators[0];
                 }
     		}
     	}
-        return false;
+        return null;
     }
 
 
