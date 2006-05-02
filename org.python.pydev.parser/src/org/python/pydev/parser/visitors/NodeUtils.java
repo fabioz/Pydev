@@ -468,8 +468,8 @@ public class NodeUtils {
      * @return a list with the attribute parts in its forward order, and not backward as presented
      * in the grammar.
      */
-	public static List getAttributeParts(Attribute node) {
-		ArrayList<Object> nodes = new ArrayList<Object>();
+	public static List<SimpleNode> getAttributeParts(Attribute node) {
+		ArrayList<SimpleNode> nodes = new ArrayList<SimpleNode>();
 		
 		nodes.add(node.attr);
 		SimpleNode s = node.value;

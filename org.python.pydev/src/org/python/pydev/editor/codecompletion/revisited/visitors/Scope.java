@@ -107,7 +107,7 @@ public class Scope {
         SimpleNode simpleNode = this.scope.get(this.scope.size()-1);
         return getOcurrences(occurencesFor, simpleNode);
     }
-
+    
     /**
      * @return a list of occurrences with the matches we're looking for. Does only return the first name in attributes.
      */
@@ -138,6 +138,11 @@ public class Scope {
         return ret;
     }
 
+    /**
+     * Search for the attributes that start with the passed parameter.
+     * 
+     * @param occurencesFor if 'foo', will look for all attributes that start with foo or foo.
+     */
     public static List<ASTEntry> getAttributeOcurrences(String occurencesFor, SimpleNode simpleNode){
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
         String occurencesForWithDot = occurencesFor+'.';

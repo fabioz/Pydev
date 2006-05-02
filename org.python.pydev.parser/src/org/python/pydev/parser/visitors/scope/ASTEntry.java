@@ -24,6 +24,12 @@ public class ASTEntry{
     public int endLine;
     private String name;
     
+    public ASTEntry(ASTEntry parent, SimpleNode node){
+        this(parent);
+        this.node = node;
+        this.endLine = node.beginLine;
+    }
+    
     public ASTEntry(ASTEntry parent){
         this.parent = parent;
     }
