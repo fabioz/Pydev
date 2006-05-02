@@ -4,6 +4,7 @@
 package com.python.pydev.refactoring.markocurrences;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
+import com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage;
 import com.python.pydev.refactoring.wizards.PyRenameProcessor;
 
 
@@ -41,7 +43,9 @@ import com.python.pydev.refactoring.wizards.PyRenameProcessor;
  */
 public class MarkOccurrencesJob extends Thread{
 
-    private static final boolean DEBUG = false;
+    private static final String OCCURRENCE_ANNOTATION_TYPE = "org.eclipse.jdt.ui.occurrences";
+	private static final String ANNOTATIONS_CACHE_KEY = "MarkOccurrencesJob Annotations";
+	private static final boolean DEBUG = false;
     private static MarkOccurrencesJob singleton;
     
     public synchronized static MarkOccurrencesJob get() {
@@ -75,7 +79,12 @@ public class MarkOccurrencesJob extends Thread{
                     waitOnNext = true;
                 }
                 long wokenUpAt = currRequestTime;
-                sleep(750);
+                
+                try {
+					sleep(750);
+				} catch (Exception e) {
+					//ignore
+				}
             
                 //there was another request in the meantime (so, let's restart the process)
                 if(wokenUpAt != currRequestTime){
@@ -104,7 +113,10 @@ public class MarkOccurrencesJob extends Thread{
             IDocumentProvider documentProvider = pyEdit.getDocumentProvider();
             IAnnotationModel annotationModel= documentProvider.getAnnotationModel(pyEdit.getEditorInput());
             
-            removeOccurenceAnnotations(annotationModel);
+            removeOccurenceAnnotations(annotationModel, pyEdit);
+            if(!MarkOccurrencesPreferencesPage.useMarkOccurrences()){
+            	continue;
+            }
 
             PyRefactorAction pyRefactorAction = getRefactorAction();
             try {
@@ -148,17 +160,23 @@ public class MarkOccurrencesJob extends Thread{
             List<ASTEntry> ocurrences = processor.getOcurrences();
             if(ocurrences != null){
                 IDocument doc = pyEdit.getDocument();
+                ArrayList<Annotation> annotations = new ArrayList<Annotation>();
+                
                 for (ASTEntry entry : ocurrences) {
                     IRegion lineInformation = doc.getLineInformation(entry.node.beginLine-1);
                     
                     try {
-                        annotationModel.addAnnotation(
-                            new Annotation("org.eclipse.jdt.ui.occurrences", false, "occurrence"), 
+                        final Annotation annotation = new Annotation(OCCURRENCE_ANNOTATION_TYPE, false, "occurrence");
+                        annotations.add(annotation);
+						annotationModel.addAnnotation(
+                            annotation, 
                             new Position(lineInformation.getOffset() + entry.node.beginColumn - 1, req.duringProcessInfo.initialName.length()));
                     } catch (Exception e) {
                         Log.log(e);
                     }
                 }
+                
+                pyEdit.cache.put(ANNOTATIONS_CACHE_KEY, annotations);
             }else{
                 if(DEBUG){
                     System.out.println("Occurrences == null");
@@ -215,18 +233,24 @@ public class MarkOccurrencesJob extends Thread{
     /**
      * @param annotationModel
      */
-    private void removeOccurenceAnnotations(IAnnotationModel annotationModel) {
+    private void removeOccurenceAnnotations(IAnnotationModel annotationModel, PyEdit pyEdit) {
         //remove the annotations
         synchronized(getLockObject(annotationModel)){
+            List<Annotation> annotations = (List<Annotation>) pyEdit.cache.get(ANNOTATIONS_CACHE_KEY);
+
+            if(annotations == null){
+            	return;
+            }
             
             //ok, let's re-use the ocurrences marker from jdt (jdt is a pre-requisite anyway).
-            Iterator<Annotation> annotationIterator = annotationModel.getAnnotationIterator();
+            Iterator<Annotation> annotationIterator = annotations.iterator();
             while(annotationIterator.hasNext()){
                 Annotation annotation = annotationIterator.next();
-                if(annotation.getType().equals("org.eclipse.jdt.ui.occurrences")){
+                if(annotation.getType().equals(OCCURRENCE_ANNOTATION_TYPE)){
                     annotationModel.removeAnnotation(annotation);
                 }
             }
+            pyEdit.cache.put(ANNOTATIONS_CACHE_KEY, null);
         }
         //end remove the annotations
     }

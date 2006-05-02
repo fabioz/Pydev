@@ -12,4 +12,19 @@
    <extension point="org.python.pydev.pydev_pyedit_listener">
   		<pyedit_listener_participant class="com.python.pydev.refactoring.markocurrences.MarkOccurrencesDispatcher"/>
    </extension>
+   
+<!-- Initialize our preferences -->
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.python.pydev.refactoring.RefactoringPreferencesInitializer"/>
+   </extension>
+<!-- Mark Occurrences preferences -->
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage"
+            category="org.python.pydev.prefs.extensions"
+            id="com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage"
+            name="Mark Occurrences"/>
+   </extension>
+
 </plugin>
