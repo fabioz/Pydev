@@ -234,6 +234,18 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         return listeners;
     }
 
+    /**
+     * This map may be used by clients to store info regarding this editor.
+     * 
+     * Clients should be careful so that this key is unique and does not conflict with other
+     * plugins. 
+     * 
+     * This is not enforced.
+     * 
+     * The suggestion is that the cache key is always preceded by the class name that will use it.
+     */
+    public Map<String,Object> cache = new HashMap<String, Object>();
+    
     // ---------------------------- end listeners stuff
     
     @SuppressWarnings("unchecked")
@@ -570,6 +582,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         parser.dispose();
         colorCache.dispose();
         pyEditScripting = null;
+        cache.clear();
+        cache = null;
         super.dispose();
     }
 

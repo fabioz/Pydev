@@ -105,14 +105,64 @@ def parse_cmdline():
     return args
 
 
+#=============================================================================================================
+#IMPORTING 
+#=============================================================================================================
+def FormatAsModuleName( filename):
+    result = filename
+    result = result.replace( '\\', '/' )
+    result = result.split( '/' )
+    result = '.'.join( result )
+    return result
 
+def SystemPath( directories ):
+    return [FormatAsModuleName( p ) for p in sys.path]
+
+def ImportModule( p_import_path ):
+    '''
+        Import the module in the given import path.
+        
+        * Returns the "final" module, so importing "coilib40.subject.visu" return the "visu"
+        module, not the "coilib40" as returned by __import__
+    '''
+    result = __import__( p_import_path )
+    for i in p_import_path.split('.')[1:]:
+        result = getattr( result, i )
+    return result
+
+def ModuleName( filename, system_path ):
+    '''
+        Given a module filename returns the module name for it considering the given system path.
+    '''
+    import os.path, sys
+
+    def matchPath( path_a, path_b ):
+        if sys.platform == 'win32':
+           return path_a.lower().startswith( path_b.lower() )
+        else:
+           return path_a.startswith( path_b )
+    result = FormatAsModuleName( os.path.splitext( filename )[0] )
+    
+    for i_python_path in system_path:
+        if matchPath( result, i_python_path ):
+            result = result[len( i_python_path )+1:]
+            #print 'entered', filename, 'exit', result
+            return result
+        
+    raise RuntimeError( "Python path not found for filename: %r" % filename )
+
+#=============================================================================================================
+#RUN TESTS
+#=============================================================================================================
 def runtests(dirs, verbosity=2):
+    
     loader = unittest.defaultTestLoader
     print 'Finding files...',dirs
     names = []
     for dir in dirs:
         if os.path.isdir(dir):
-            names.extend(FindFiles(dir, ['*.py', '*.pyw'], '', True))
+            #a test can be in any .py file but in __init__ files
+            names.extend(FindFiles(dir, ['*.py', '*.pyw'], ['__init__.*'], True))
             
         elif os.path.isfile(dir):
             names.append(dir)
@@ -123,14 +173,17 @@ def runtests(dirs, verbosity=2):
     print 'done.'
     print 'Importing test modules...',
     alltests = []
+    system_path = SystemPath(sys.path)
     for name in names:
-        dir, fullname = os.path.split(name)
-        modulename = os.path.splitext(fullname)[0]
-        sys.path.append(dir)
-        module = __import__(modulename)
-        tests = loader.loadTestsFromModule(module)
-        alltests.append(tests)
+        try:
+            module = ImportModule(ModuleName(name, system_path))
+            tests = loader.loadTestsFromModule(module)
+            alltests.append(tests)
+        except:
+            #ok, unable to load the module (probably has not __init__.py in its folder structure)
+            pass
     print 'done.'
+    
     runner = unittest.TextTestRunner(sys.stdout, 1, verbosity)
     runner.run(unittest.TestSuite(alltests))
 

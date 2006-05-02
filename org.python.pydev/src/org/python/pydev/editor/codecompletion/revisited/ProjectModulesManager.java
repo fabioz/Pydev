@@ -330,9 +330,6 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     protected ModulesManager[] getManagersInvolved(boolean checkSystemManager) {
         ArrayList<ModulesManager> list = new ArrayList<ModulesManager>();
         SystemModulesManager systemModulesManager = getSystemModulesManager(null);
-        if(checkSystemManager && systemModulesManager != null){
-            list.add(systemModulesManager);
-        }
 
         try {
             if(project != null){
@@ -349,6 +346,10 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
 	                    }
 	                }
 	            }
+            }
+            //the system is the last one we add.
+            if(checkSystemManager && systemModulesManager != null){
+            	list.add(systemModulesManager);
             }
             return (ModulesManager[]) list.toArray(new ModulesManager[list.size()]);
         } catch (CoreException e) {
@@ -367,11 +368,11 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
      */
     public List<String> getCompletePythonPath(){
         List<String> l = new ArrayList<String>();
+        l.addAll(this.pythonPathHelper.pythonpath);
         ModulesManager[] managersInvolved = getManagersInvolved(true);
         for (int i = 0; i < managersInvolved.length; i++) {
             l.addAll(managersInvolved[i].pythonPathHelper.pythonpath);
         }
-        l.addAll(this.pythonPathHelper.pythonpath);
         return l;
     }
 

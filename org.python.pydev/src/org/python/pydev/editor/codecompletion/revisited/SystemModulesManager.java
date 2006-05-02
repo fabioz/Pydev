@@ -20,7 +20,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
 
     private static final long serialVersionUID = 2L;
     private String[] builtins;
-	private IPythonNature nature;
+	private transient IPythonNature nature;
 
     /**
      * @param forcedLibs
