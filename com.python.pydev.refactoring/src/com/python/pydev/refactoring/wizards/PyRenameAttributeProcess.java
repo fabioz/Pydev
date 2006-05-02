@@ -35,6 +35,7 @@ public class PyRenameAttributeProcess extends AbstractRefactorProcess{
         ClassDef classDef = this.definition.scope.getClassDef();
         if(classDef == null){
             status.addFatalError("We're trying to rename an instance variable, but we cannot find a class definition.");
+            return;
         }
         ocurrences = Scope.getAttributeOcurrences(this.definition.target, classDef);
         this.request = request;
