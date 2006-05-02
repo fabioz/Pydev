@@ -79,7 +79,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
          * @return
          */
         private boolean canPassPyLint() {
-            if(pyLintThreads.size() < 4){
+            if(pyLintThreads.size() < PyLintPrefPage.getMaxPyLintDelta()){
                 pyLintThreads.add(this);
                 return true;
             }
