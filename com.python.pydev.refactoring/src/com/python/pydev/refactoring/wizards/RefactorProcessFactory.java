@@ -7,6 +7,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinitio
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 public class RefactorProcessFactory {
 
@@ -31,7 +32,10 @@ public class RefactorProcessFactory {
             }
             
             if(definition.ast instanceof FunctionDef){
-                return new PyRenameClassMethodProcess(definition);
+                return new PyRenameFunctionProcess(definition);
+            }
+            if(NodeUtils.isImport(definition.ast)){
+            	return new PyRenameImportProcess(definition);
             }
         }
         return new PyRenameLocalProcess(definition);

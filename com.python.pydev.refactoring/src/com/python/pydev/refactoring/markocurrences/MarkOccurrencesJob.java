@@ -19,6 +19,7 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -91,7 +92,7 @@ public class MarkOccurrencesJob extends Thread{
                     waitOnNext = false;
                     continue;
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Log.log(e);
             }
             //end sync code
@@ -104,23 +105,42 @@ public class MarkOccurrencesJob extends Thread{
             }
             lastRequestTime = currRequestTime;
             
-            final PyEdit pyEdit = editor.get();
-            
-            if(pyEdit == null){
-                continue;
-            }
-            
-            IDocumentProvider documentProvider = pyEdit.getDocumentProvider();
-            IAnnotationModel annotationModel= documentProvider.getAnnotationModel(pyEdit.getEditorInput());
-            
-            removeOccurenceAnnotations(annotationModel, pyEdit);
-            if(!MarkOccurrencesPreferencesPage.useMarkOccurrences()){
-            	continue;
-            }
-
-            PyRefactorAction pyRefactorAction = getRefactorAction();
             try {
+	            final PyEdit pyEdit = editor.get();
+	            
+	            if(pyEdit == null){
+	                continue;
+	            }
+            
+	            IDocumentProvider documentProvider = pyEdit.getDocumentProvider();
+	            if(documentProvider == null){
+	            	continue;
+	            }
+	            
+	            IAnnotationModel annotationModel= documentProvider.getAnnotationModel(pyEdit.getEditorInput());
+	            if(annotationModel == null){
+	            	continue;
+	            }
+	            removeOccurenceAnnotations(annotationModel, pyEdit);
+	            
+	            if(!MarkOccurrencesPreferencesPage.useMarkOccurrences()){
+	            	continue;
+	            }
+	
+	            //now, let's see if the editor still has a document (so that we still can add stuff to it)
+                IEditorInput editorInput = pyEdit.getEditorInput();
+                if(editorInput == null){
+                	continue;
+                }
+                
+                if(documentProvider.getDocument(editorInput) == null){
+                	continue;
+                }
+                
+                //ok, the editor is still there wit ha document... move on
+                PyRefactorAction pyRefactorAction = getRefactorAction();
                 pyRefactorAction.setEditor(pyEdit);
+                
                 final RefactoringRequest req = getRefactoringRequest(pyEdit, pyRefactorAction);
                 
                 PyRenameProcessor processor = new PyRenameProcessor(req);
@@ -141,7 +161,7 @@ public class MarkOccurrencesJob extends Thread{
                 }
 
                 addAnnotations(pyEdit, annotationModel, req, processor);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Log.log(e);
             }
         }        

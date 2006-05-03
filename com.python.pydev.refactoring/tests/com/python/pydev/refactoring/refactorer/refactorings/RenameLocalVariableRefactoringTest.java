@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameParameter();
+            test.testRenameImportLocally();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -68,6 +68,43 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	int line = 1;
     	int col = 16;
     	checkDefault(str, line, col, "foo", false);
+    }
+    
+    public void testRenameLocalMethod() throws Exception {
+    	String str = "" +
+    	"def Foo():\n" +
+    	"    def %s():\n" +
+    	"        pass\n" +
+    	"    if %s(): pass\n" +
+    	"\n" +
+    	"";
+    	int line = 1;
+    	int col = 9;
+    	checkDefault(str, line, col, "met1", false, true);
+    }
+    
+    public void testRenameLocalMethod2() throws Exception {
+    	String str = "" +
+    	"def %s():\n" +
+    	"    def mm():\n" +
+    	"        print %s()\n" +
+    	"\n" +
+    	"";
+    	int line = 0;
+    	int col = 5;
+    	checkDefault(str, line, col, "met1", false, true);
+    }
+    
+    public void testRenameImportLocally() throws Exception {
+    	String str = "" +
+    	"from foo import %s\n" +
+    	"def mm():\n" +
+    	"    print %s\n" +
+    	"\n" +
+    	"";
+    	int line = 0;
+    	int col = 17;
+    	checkDefault(str, line, col, "bla", false, true);
     }
     
     public void testRenameInstance() throws Exception {

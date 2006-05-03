@@ -19,19 +19,30 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
-public class PyRenameClassMethodProcess extends AbstractRenameMultipleProcess {
+/**
+ * This process takes care of renaming instances of some method either:
+ * 
+ * - on a class
+ * - on a global scope
+ * - in an inner scope (inside of another method)
+ */
+public class PyRenameFunctionProcess extends AbstractRenameMultipleProcess {
 
     private Definition definition;
 
-    public PyRenameClassMethodProcess(Definition definition) {
+    public PyRenameFunctionProcess(Definition definition) {
         this.definition = definition;
         Assert.isTrue(this.definition.ast instanceof FunctionDef);
     }
@@ -49,7 +60,6 @@ public class PyRenameClassMethodProcess extends AbstractRenameMultipleProcess {
             if(functionDefEntry.node.beginLine == this.definition.ast.beginLine && 
                     functionDefEntry.node.beginColumn == this.definition.ast.beginColumn){
                 
-                ret.add(new ASTEntry(functionDefEntry, ((FunctionDef)functionDefEntry.node).name));
                 break;
             }
         }
@@ -59,19 +69,46 @@ public class PyRenameClassMethodProcess extends AbstractRenameMultipleProcess {
             return ret;
         }
         
-        //get the entry for the self.xxx that access that attribute in the class
-        SequencialASTIteratorVisitor classVisitor = SequencialASTIteratorVisitor.create(functionDefEntry.parent.node);
-        it = classVisitor.getIterator(Attribute.class);
-        while(it.hasNext()){
-            ASTEntry entry = it.next();
-            List<SimpleNode> parts = NodeUtils.getAttributeParts((Attribute) entry.node);
-            
-            if(NodeUtils.getRepresentationString(parts.get(0)).equals("self") && 
-                    NodeUtils.getRepresentationString(parts.get(1)).equals(occurencesFor)){
-                
-                ret.add(entry);
-            }
+        if(functionDefEntry.parent != null){
+        	//it has some parent
+        	
+	        final SimpleNode parentNode = functionDefEntry.parent.node;
+	        if(parentNode instanceof ClassDef){
+	        	//ok, we're in a class, the first thing is to add the reference to the function just gotten
+	        	ret.add(new ASTEntry(functionDefEntry, ((FunctionDef)functionDefEntry.node).name));
+	        	
+	        	//get the entry for the self.xxx that access that attribute in the class
+				SequencialASTIteratorVisitor classVisitor = SequencialASTIteratorVisitor.create(parentNode);
+		        it = classVisitor.getIterator(Attribute.class);
+		        while(it.hasNext()){
+		            ASTEntry entry = it.next();
+		            List<SimpleNode> parts = NodeUtils.getAttributeParts((Attribute) entry.node);
+		            
+		            if(NodeUtils.getRepresentationString(parts.get(0)).equals("self") && 
+		                    NodeUtils.getRepresentationString(parts.get(1)).equals(occurencesFor)){
+		                
+		                ret.add(entry);
+		            }
+		        }
+		        
+		        
+	        }else if(parentNode instanceof FunctionDef){
+		    	//get the references inside of the parent (this will include the function itself)
+	    		ret.addAll(Scope.getOcurrences(occurencesFor, parentNode));
+	    	}
+	        
+        } else {
+        	//the function is in the global scope, which means that we should rename
+        	//the occurrences in the whole workspace (as well as in the whole module)
+        	if(request.findReferencesOnlyOnLocalScope){
+        		ret.addAll(Scope.getOcurrences(occurencesFor, simpleNode));
+        	}else{
+        		throw new RuntimeException("Currently is only checking on the module.");
+        	}
         }
+        
+        
+        //get the references to Names that access that method in the same scope
         return ret;
     }
     
@@ -80,7 +117,8 @@ public class PyRenameClassMethodProcess extends AbstractRenameMultipleProcess {
         if(request.findReferencesOnlyOnLocalScope == true){
             SimpleNode root = request.getAST();
             Tuple<String, IDocument> key = new Tuple<String, IDocument>(request.moduleName, request.doc);
-            occurrences.put(key, getOcurrences(request.duringProcessInfo.initialName, root, status));
+            final List<ASTEntry> ocurrences = getOcurrences(request.duringProcessInfo.initialName, root, status);
+			occurrences.put(key, ocurrences);
             
             if(occurrences.size() == 0){
                 status.addFatalError("Could not find any ocurrences of:"+request.duringProcessInfo.initialName);
