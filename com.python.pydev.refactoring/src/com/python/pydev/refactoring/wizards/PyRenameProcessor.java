@@ -17,17 +17,12 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.python.pydev.core.docutils.DocUtils;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-
-import com.python.pydev.refactoring.IPyRefactoring2;
 
 /**
  * Rename to a local variable...
@@ -137,26 +132,6 @@ public class PyRenameProcessor extends RenameProcessor {
             return status;
         }
         
-        if(pointers.length > 1){
-            //ok, we have to check if we're actually seeing the same thing for all or if there are actually
-            //many definitions around.
-            Object o = checkPointerDefinitions(pointers, (IPyRefactoring2)pyRefactoring);
-            if(o instanceof String){
-                status.addFatalError((String) o);
-                return status;
-                
-            }else if (o instanceof ItemPointer[]){
-                pointers = (ItemPointer[]) o;
-                
-            }else if (o instanceof ItemPointer){
-                pointers = new ItemPointer[]{(ItemPointer) o};
-                
-            }else{
-                status.addFatalError("Unexpected return:"+o+" class:"+o.getClass());
-                return status;
-            }
-        }
-        
         process = new ArrayList<IRefactorProcess>();
         for (ItemPointer pointer : pointers){
             if(pointer.definition == null){
@@ -177,42 +152,6 @@ public class PyRenameProcessor extends RenameProcessor {
         return status;
     }
 
-    /**
-     * @param pointers
-     * @param refactoring2 
-     * @return an error msg if something went wrong or an ItemPointer with the definition that we should use.
-     */
-    private Object checkPointerDefinitions(ItemPointer[] pointers, IPyRefactoring2 refactoring2) {
-        List<AssignDefinition> defs = new ArrayList<AssignDefinition>();
-        
-        for (ItemPointer pointer : pointers) {
-            Definition d = pointer.definition;
-            if(d instanceof AssignDefinition){
-                AssignDefinition a = (AssignDefinition) d;
-                ClassDef classDef = a.scope.getClassDef();
-                if(classDef == null){
-                    return getTooManyDefsMsg(pointers).toString();
-                }
-            }else{
-                //they can only be the same if they are all assign definitions (in a class hierarchy).
-                return getTooManyDefsMsg(pointers).toString();
-            }
-        }
-        
-        if(!refactoring2.areAllInSameClassHierarchy(defs)){
-            return getTooManyDefsMsg(pointers).toString();
-        }
-        return pointers;
-    }
-
-    private StringBuffer getTooManyDefsMsg(ItemPointer[] pointers) {
-        StringBuffer buffer = new StringBuffer("Too many definitions found for the variable to rename:");
-        for (ItemPointer pointer : pointers) {
-            buffer.append(pointer);
-            buffer.append("\n");
-        }
-        return buffer;
-    }
 
     @Override
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
