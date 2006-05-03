@@ -513,6 +513,17 @@ public class NodeUtils {
         return ret;
     }
 
+
+    /**
+     * @return true if the node is an import node (and false otherwise).
+     */
+	public static boolean isImport(SimpleNode ast) {
+        if(ast instanceof Import || ast instanceof ImportFrom){
+            return true;
+        }
+        return false;
+	}
+
     
 
 }

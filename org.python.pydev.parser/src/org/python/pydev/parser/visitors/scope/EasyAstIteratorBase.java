@@ -209,7 +209,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     public Iterator<ASTEntry> getIterator() {
         return nodes.iterator();
     }
-
+    
     /**
      * @return an iterator for all the classes definitions
      */
@@ -255,7 +255,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @param classes the classes we are searching for
      * @return an iterator with nodes found from the passed classes
      */
-    public Iterator<ASTEntry> getIterator(Class[] classes) {
+    public Iterator<ASTEntry> getIterator(Class ... classes) {
         List<ASTEntry> newList = new ArrayList<ASTEntry>();
         for (Iterator iter = nodes.iterator(); iter.hasNext();) {
             ASTEntry entry = (ASTEntry) iter.next();
