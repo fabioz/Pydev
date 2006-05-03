@@ -5,13 +5,9 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
-import java.io.File;
-
 import org.eclipse.jface.util.Assert;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.IToken;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 
