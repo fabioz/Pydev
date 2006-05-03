@@ -11,6 +11,9 @@ import org.python.pydev.parser.visitors.NodeUtils;
 
 public class RefactorProcessFactory {
 
+	/**
+	 * Decides which process should take care of the request.
+	 */
     public static IRefactorProcess getProcess(Definition definition) {
         if(definition instanceof AssignDefinition){
             AssignDefinition d = (AssignDefinition) definition;
@@ -37,6 +40,11 @@ public class RefactorProcessFactory {
             if(NodeUtils.isImport(definition.ast)){
             	return new PyRenameImportProcess(definition);
             }
+        }else{
+        	//the definition ast is null. This should mean that it was actually an import
+        	//and pointed to some module
+        	return new PyRenameImportProcess(definition);
+        	
         }
         return new PyRenameLocalProcess(definition);
     }
