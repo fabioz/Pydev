@@ -2100,6 +2100,22 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	printMessages(msgs, 0);
     }
     
+    public void testDefinedInClassAndInLocal2() {
+    	doc = new Document(
+    			"class MyClass(object):\n"+
+    			"    options = [i for i in range(10)]\n"+
+    			"    \n"+
+    			"    def mystery(self):\n"+
+    			"        for i in range(12):\n"+
+    			"            print i #should not be undefined!\n"+
+    			"\n"
+    	);
+    	analyzer = new OccurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs, 0);
+    }
+    
     public void testColError() {
     	doc = new Document("print function()[0].strip()");
     	analyzer = new OccurrencesAnalyzer();

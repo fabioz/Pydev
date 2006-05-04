@@ -190,7 +190,6 @@ public class Scope implements Iterable<ScopeItems>{
                 //keep on going, as it still might be used or unused
                 
             }else{
-            
                 if(!found.isUsed() && !m.getIsInSubSubScope()){ // it was not used, and we're not in an if scope...
                     
                     //this kind of unused message should only happen if we are at the same scope...
@@ -202,7 +201,9 @@ public class Scope implements Iterable<ScopeItems>{
                         }
                     }
                     
-                } else { 
+                } else if (!(m.getScopeType() == Scope.SCOPE_TYPE_METHOD && found.getSingle().scopeFound.getScopeType() == Scope.SCOPE_TYPE_CLASS)){
+                	//if it was found but in a class scope (and we're now in a method scope), we will have to create a new Found.
+                	
                     //found... may have been or not used, (if we're in an if scope, that does not matter, because
                 	//we have to group things toghether for generating messages for all the occurences in the if)
                     found.addGeneratorToFound(generator,o, getCurrScopeId(), getCurrScopeItems());
