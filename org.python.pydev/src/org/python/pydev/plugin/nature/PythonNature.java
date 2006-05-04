@@ -382,6 +382,8 @@ public class PythonNature implements IPythonNature {
 					e.printStackTrace();
 				}
         	}
+        	//next time we won't wait as long.
+        	initializationFinished = true;
         }
 
         return astManager;

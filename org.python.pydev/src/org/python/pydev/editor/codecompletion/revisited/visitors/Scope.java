@@ -145,13 +145,12 @@ public class Scope {
      */
     public static List<ASTEntry> getAttributeOcurrences(String occurencesFor, SimpleNode simpleNode){
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
-        String occurencesForWithDot = occurencesFor+'.';
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
         Iterator<ASTEntry> iterator = visitor.getIterator(new Class[]{Attribute.class});
         while(iterator.hasNext()){
             ASTEntry entry = iterator.next();
             String rep = NodeUtils.getFullRepresentationString(entry.node);
-            if (rep.equals(occurencesFor) || rep.startsWith(occurencesForWithDot)){
+            if (rep.equals(occurencesFor)){
                 ret.add(entry);
             }
         }

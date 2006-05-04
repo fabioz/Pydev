@@ -18,6 +18,7 @@ import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.REF;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.plugin.PydevPlugin;
@@ -42,7 +43,13 @@ public class PyOpenAction extends Action {
             TextSelection sel = new TextSelection(s, e - s);
             textEdit.getSelectionProvider().setSelection(sel);
         } catch (BadLocationException e1) {
-            PydevPlugin.log(IStatus.ERROR, "Error setting selection", e1);
+        	if(textEdit instanceof PyEdit){
+        		PyEdit p = (PyEdit) textEdit;
+        		PydevPlugin.log(IStatus.ERROR, "Error setting selection:"+start+" - "+end+" - "+p.getEditorFile(), e1);
+        		
+        	}else{
+        		PydevPlugin.log(IStatus.ERROR, "Error setting selection:"+start+" - "+end, e1);
+        	}
         }
     }
 

@@ -37,6 +37,9 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
      * @param monitor 
      */
     private void visitWith(String name, boolean isAddOrChange, IResource resource, IDocument document, IProgressMonitor monitor){
+    	if(monitor.isCanceled()){
+    		return; //it's already cancelled
+    	}
         if(!PythonNature.isResourceInPythonpath(resource)){
         	return; // we only analyze resources that are in the pythonpath
         }

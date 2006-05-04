@@ -132,8 +132,9 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
                 folder.create(true, true, monitor);
             
                 nature.getPythonPathNature().setProjectSourcePath(folder.getFullPath().toString());
-                nature.rebuildPath();
             }
+            //we should rebuild the path even if there's no source-folder (this way we will re-create the astmanager)
+            nature.rebuildPath();
         } finally {
             monitor.done();
         }

@@ -480,7 +480,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             try {
                 Definition[] defs = s.findDefinition(state.getActivationToken(), state.getLine(), state.getCol(), state.getNature(), new ArrayList<FindInfo>());
                 for (int i = 0; i < defs.length; i++) {
-                    if(!(defs[0].ast instanceof FunctionDef)){
+                    if(!(defs[i].ast instanceof FunctionDef)){
                         //we might want to extend that later to check the return of some function...
                                 
 	                    ICompletionState copy = state.getCopy();

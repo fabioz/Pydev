@@ -30,10 +30,11 @@ public class HeuristicFindAttrs extends AbstractVisitor {
      * @param how
      * @param methodCall
      */
-    public HeuristicFindAttrs(int where, int how, String methodCall) {
+    public HeuristicFindAttrs(int where, int how, String methodCall, String moduleName) {
         this.where = where;
         this.how = how;
         this.methodCall = methodCall;
+        this.moduleName = moduleName;
     }
     
     public static final int WHITIN_METHOD_CALL = 0;
