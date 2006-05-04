@@ -120,10 +120,9 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      */
     public Object visitClassDef(ClassDef node) throws Exception {
         ASTEntry entry = before(node);
-        Object ret = super.visitClassDef(node);
+        traverse(node);
         after(entry);
-        
-        return ret;
+        return null;
     }
     
     protected boolean isInGlobal() {
@@ -178,10 +177,10 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         ASTEntry entry = before(node);
-        Object ret = super.visitFunctionDef(node);
+        traverse(node);
         after(entry);
         
-        return ret;
+        return null;
     }
 
     public void traverse(FunctionDef node) throws Exception {
