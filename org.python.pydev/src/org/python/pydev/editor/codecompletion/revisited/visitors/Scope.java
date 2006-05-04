@@ -123,18 +123,26 @@ public class Scope {
         return getOcurrences(occurencesFor, simpleNode);
     }
     
+    public static List<ASTEntry> getOcurrences(String occurencesFor, SimpleNode simpleNode) {
+    	return getOcurrences(occurencesFor, simpleNode, true);
+    }
+    
     /**
      * @return a list of occurrences with the matches we're looking for. Does only return the first name in attributes.
      */
-    public static List<ASTEntry> getOcurrences(String occurencesFor, SimpleNode simpleNode) {
+    public static List<ASTEntry> getOcurrences(String occurencesFor, SimpleNode simpleNode, final boolean onlyFirstAttribPart) {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
         
         SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor(){
         	@Override
         	public Object visitAttribute(Attribute node) throws Exception {
-        		List<SimpleNode> attributeParts = NodeUtils.getAttributeParts(node);
-        		atomic(attributeParts.get(0)); //an attribute should always have many parts
-        		return null;
+        		if(onlyFirstAttribPart){
+	        		List<SimpleNode> attributeParts = NodeUtils.getAttributeParts(node);
+	        		atomic(attributeParts.get(0)); //an attribute should always have many parts
+	        		return null;
+        		}else{
+        			return super.visitAttribute(node);
+        		}
         	}
         };
         try {
