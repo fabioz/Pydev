@@ -115,14 +115,23 @@ public class PyRenameFunctionProcess extends AbstractRenameMultipleProcess {
     public void checkInitialConditions(IProgressMonitor pm, RefactoringStatus status, RefactoringRequest request) {
         this.request = request;
         if(request.findReferencesOnlyOnLocalScope == true){
-            SimpleNode root = request.getAST();
-            Tuple<String, IDocument> key = new Tuple<String, IDocument>(request.moduleName, request.doc);
-            final List<ASTEntry> ocurrences = getOcurrences(request.duringProcessInfo.initialName, root, status);
-			occurrences.put(key, ocurrences);
-            
-            if(occurrences.size() == 0){
-                status.addFatalError("Could not find any ocurrences of:"+request.duringProcessInfo.initialName);
-            }
+        	Tuple<String, IDocument> key = new Tuple<String, IDocument>(request.moduleName, request.doc);
+        	SimpleNode root = request.getAST();
+        	List<ASTEntry> ocurrences;
+        	
+    		if(!definition.module.getName().equals(request.moduleName)){
+    			//it was found in another module
+    			ocurrences = Scope.getOcurrences(request.duringProcessInfo.initialName, root, false);
+    			
+    		}else{
+	            ocurrences = getOcurrences(request.duringProcessInfo.initialName, root, status);
+    		}
+    		
+    		occurrences.put(key, ocurrences);
+    		
+    		if(occurrences.size() == 0){
+    			status.addFatalError("Could not find any ocurrences of:"+request.duringProcessInfo.initialName);
+    		}
        
         }else{
             throw new RuntimeException("Currently can only get things in the local scope.");

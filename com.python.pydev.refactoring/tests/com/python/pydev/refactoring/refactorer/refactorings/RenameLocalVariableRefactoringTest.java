@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameMethodImportLocally();
+            test.testRenameMethodImportLocally2();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -152,6 +152,18 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	"";
     	int line = 2;
     	int col = 11;
+    	checkDefault(str, line, col, "existingMethod", false, true);
+    }
+    
+    public void testRenameMethodImportLocally2() throws Exception {
+    	String str = "" +
+    	"from testAssist.assist import ExistingClass\n" +
+    	"def run():\n" +
+    	"    print ExistingClass.%s\n" +
+    	"\n" +
+    	"";
+    	int line = 2;
+    	int col = 26;
     	checkDefault(str, line, col, "existingMethod", false, true);
     }
     
