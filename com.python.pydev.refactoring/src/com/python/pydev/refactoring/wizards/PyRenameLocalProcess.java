@@ -34,9 +34,20 @@ public class PyRenameLocalProcess extends AbstractRefactorProcess{
      * @see com.python.pydev.refactoring.wizards.IRefactorProcess#checkInitialConditions(org.eclipse.core.runtime.IProgressMonitor, org.eclipse.ltk.core.refactoring.RefactoringStatus, org.python.pydev.editor.refactoring.RefactoringRequest)
      */
     public void checkInitialConditions(IProgressMonitor pm, RefactoringStatus status, RefactoringRequest request) {
-        Scope scope = definition.scope;
-        this.occurrences = scope.getOcurrences(request.duringProcessInfo.initialName);
-        this.request = request;
+    	this.request = request;
+    	if(request.findReferencesOnlyOnLocalScope){
+    		if(!definition.module.getName().equals(request.moduleName)){
+    			//it was found in another module, but we want to keep things local
+    			this.occurrences = Scope.getOcurrences(request.duringProcessInfo.initialName, request.getAST());
+    		}
+    	}
+    	
+    	if(this.occurrences == null){
+    		//not looked previously
+	        Scope scope = definition.scope;
+	        this.occurrences = scope.getOcurrences(request.duringProcessInfo.initialName, definition.module);
+    	}
+    	
         if(this.occurrences.size() == 0){
             status.addFatalError("Could not find any occurrences of:"+request.duringProcessInfo.initialName);
         }

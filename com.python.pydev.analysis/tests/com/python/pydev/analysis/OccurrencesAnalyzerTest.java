@@ -26,7 +26,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testMetaclassImport();
+            analyzer2.testDefinedInClassAndInLocal();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2077,6 +2077,22 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 			"    #Is giving Unused variable: i\n"+
 			"    for i in xrange(10):    \n"+
 			"        coerce(dict[i].text.strip())\n"
+    	);
+    	analyzer = new OccurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs, 0);
+    }
+    
+    public void testDefinedInClassAndInLocal() {
+    	doc = new Document(
+    			"class MyClass(object):\n"+
+    			"    foo = 10\n"+
+    			"    \n"+
+    			"    def mystery(self):\n"+
+    			"        for foo in range(12):\n"+
+    			"            print foo\n"+
+    			"\n"
     	);
     	analyzer = new OccurrencesAnalyzer();
     	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);

@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameImportLocally3();
+            test.testRenameImportLocally4();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -129,6 +129,18 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	int line = 0;
     	int col = 10;
     	checkDefault(str, line, col, "sys", false, true);
+    }
+    
+    public void testRenameImportLocally4() throws Exception {
+    	String str = "" +
+    	"from extendable.constants import %s\n" +
+    	"def run():\n" +
+    	"    print %s\n" +
+    	"\n" +
+    	"";
+    	int line = 2;
+    	int col = 11;
+    	checkDefault(str, line, col, "CONSTANT1", false, true);
     }
     
     public void testRenameInstance() throws Exception {
