@@ -12,8 +12,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -103,8 +105,21 @@ public class Scope {
         return getLocalTokens(Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
     
-    public List<ASTEntry> getOcurrences(String occurencesFor) {
-        SimpleNode simpleNode = this.scope.get(this.scope.size()-1);
+    public List<ASTEntry> getOcurrences(String occurencesFor, IModule module) {
+    	SimpleNode simpleNode=null;
+    	
+    	if(this.scope.size() > 0){
+    		simpleNode = this.scope.get(this.scope.size()-1);
+    		
+    	}else if (module instanceof SourceModule){
+    		SourceModule m = (SourceModule) module;
+    		simpleNode = m.getAst();
+    	}
+    	
+    	if (simpleNode == null){
+    		return new ArrayList<ASTEntry>();
+    	}
+    	
         return getOcurrences(occurencesFor, simpleNode);
     }
     

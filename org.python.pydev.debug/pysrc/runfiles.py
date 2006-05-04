@@ -161,7 +161,7 @@ def runtests(dirs, verbosity=2):
     names = []
     for dir in dirs:
         if os.path.isdir(dir):
-            #a test can be in any .py file but in __init__ files
+            #a test can be in any .py file (excluding __init__ files)
             names.extend(FindFiles(dir, ['*.py', '*.pyw'], ['__init__.*'], True))
             
         elif os.path.isfile(dir):

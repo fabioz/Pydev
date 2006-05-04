@@ -5,6 +5,7 @@ Pydev:
 - The thread that does analysis had its priority lowered
 - The Parser character stream was redone to be more efficient (especially when dealing with big files)
 - The pythonpath set now let's the project pythonpath before the system pythonpath
+- The way modules are resolved for loading when running unit-tests has changed
 
 Extensions:
 - Mark Occurences?
@@ -36,7 +37,7 @@ Pydev:
 - When smart-indent is not selected, it will still add an indentation level after ':'
 - It will keep the indent of the previous line on new-lines if the current line is empty
 - Other little things
-- Added a place to specify vm arguments (for jython or python) -- thanks to  Rudi de Andrade for this patch
+- Added a place to specify vm arguments (for jython or python) -- thanks to Rudi de Andrade for this patch
 - Added a way to kill the underlying python/jython shells (Ctrl+2+kill)
 
 Pydev Extensions:
