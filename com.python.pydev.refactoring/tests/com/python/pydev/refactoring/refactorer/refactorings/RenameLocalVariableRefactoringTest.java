@@ -155,6 +155,18 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	checkDefault(str, line, col, "existingMethod", false, true);
     }
     
+    public void testRenameClassImportLocally() throws Exception {
+    	String str = "" +
+    	"from testAssist.assist import %s\n" +
+    	"def run():\n" +
+    	"    print %s\n" +
+    	"\n" +
+    	"";
+    	int line = 2;
+    	int col = 11;
+    	checkDefault(str, line, col, "ExistingClass", false, true);
+    }
+    
     public void testRenameInstance() throws Exception {
         String str=getDefaultDocStr();
         int line = 2;
