@@ -56,10 +56,15 @@ public class ParsingUtilsTest extends TestCase {
     	"'s'" +
     	"";
     	Document d = new Document(str);
-    	Iterator it = ParsingUtils.getNoLiteralsOrCommentsIterator(d);
+    	PyDocIterator it = (PyDocIterator) ParsingUtils.getNoLiteralsOrCommentsIterator(d);
+    	assertEquals(-1, it.getLastReturnedLine());
+    	
     	assertEquals("\n",it.next());
+    	assertEquals(0, it.getLastReturnedLine());
     	assertEquals(true,it.hasNext());
+    	
     	assertEquals("",it.next());
+    	assertEquals(1, it.getLastReturnedLine());
     	assertEquals(false,it.hasNext());
     }
     
@@ -67,9 +72,12 @@ public class ParsingUtilsTest extends TestCase {
     	String str = "" +
     	"#c";
     	Document d = new Document(str);
-    	Iterator it = ParsingUtils.getNoLiteralsOrCommentsIterator(d);
+    	PyDocIterator it = (PyDocIterator) ParsingUtils.getNoLiteralsOrCommentsIterator(d);
+    	assertEquals(-1, it.getLastReturnedLine());
     	assertEquals(true,it.hasNext());
+    	
     	assertEquals("",it.next());
+    	assertEquals(0, it.getLastReturnedLine());
     	assertEquals(false,it.hasNext());
     }
     
@@ -80,15 +88,24 @@ public class ParsingUtilsTest extends TestCase {
     	"bla\r\n" +
     	"what";
     	Document d = new Document(str);
-    	Iterator it = ParsingUtils.getNoLiteralsOrCommentsIterator(d);
+    	PyDocIterator it = (PyDocIterator) ParsingUtils.getNoLiteralsOrCommentsIterator(d);
+    	assertEquals(-1, it.getLastReturnedLine());
     	assertEquals(true,it.hasNext());
+    	
     	assertEquals("pass\r",it.next());
+    	assertEquals(0, it.getLastReturnedLine());
     	assertEquals(true,it.hasNext());
+    	
     	assertEquals("foo\n",it.next());
+    	assertEquals(1, it.getLastReturnedLine());
     	assertEquals(true,it.hasNext());
+    	
     	assertEquals("bla\r\n",it.next());
+    	assertEquals(2, it.getLastReturnedLine());
     	assertEquals(true,it.hasNext());
+    	
     	assertEquals("what",it.next());
+    	assertEquals(3, it.getLastReturnedLine());
     	assertEquals(false,it.hasNext());
     }
     

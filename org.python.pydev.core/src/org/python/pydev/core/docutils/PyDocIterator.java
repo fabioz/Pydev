@@ -2,12 +2,19 @@ package org.python.pydev.core.docutils;
 
 import java.util.Iterator;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 
-public class PyDocIterator implements Iterator {
+public class PyDocIterator implements Iterator<String> {
 
 	private int offset;
 	private IDocument doc;
+	private boolean addNewLinesToRet = true;
+	
+	public PyDocIterator(IDocument doc, boolean addNewLinesToRet) {
+		this(doc);
+		this.addNewLinesToRet = addNewLinesToRet;
+	}
 	
 	public PyDocIterator(IDocument doc) {
 		this.doc = doc;
@@ -16,11 +23,19 @@ public class PyDocIterator implements Iterator {
 	public boolean hasNext() {
 		return offset < doc.getLength();
 	}
+	
+	public int getLastReturnedLine(){
+		try {
+			return doc.getLineOfOffset(offset-1);
+		} catch (BadLocationException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	/**
 	 * 
 	 */
-	public Object next() {
+	public String next() {
         try {
         	StringBuffer buf = new StringBuffer();
 
@@ -50,11 +65,15 @@ public class PyDocIterator implements Iterator {
 			
 			//handle the \r, \n or \r\n
 			if(ch == '\n' || ch == '\r'){
-				buf.append(ch);
+				if(addNewLinesToRet){
+					buf.append(ch);
+				}
 				if(ch == '\r'){
 					if(offset < doc.getLength() && doc.getChar(offset) == '\n'){
 						offset++;
-						buf.append('\n');
+						if(addNewLinesToRet){
+							buf.append('\n');
+						}
 					}
 				}
 			}

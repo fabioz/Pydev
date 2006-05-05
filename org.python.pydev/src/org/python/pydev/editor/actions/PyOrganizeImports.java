@@ -13,8 +13,12 @@ import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DocumentRewriteSession;
+import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.WordUtils;
 import org.python.pydev.editor.PyEdit;
@@ -28,28 +32,34 @@ public class PyOrganizeImports extends PyAction{
     /**
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
-    public void run(IAction action) {
+    @SuppressWarnings("unchecked")
+	public void run(IAction action) {
 		try 
 		{
 			PySelection ps = new PySelection ( getTextEditor ( ));
 		    String endLineDelim = ps.getEndLineDelim();
-			IDocument doc = ps.getDoc();
+			final IDocument doc = ps.getDoc();
+			DocumentRewriteSession session = startWrite(doc);
 			
-			if(ps.getStartLineIndex() == ps.getEndLineIndex()){
-                //let's see if someone wants to make a better implementation in another plugin...
-                List<IOrganizeImports> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS);
-                if(participants.size() == 1){
-                    PyEdit pyEdit = getPyEdit();
-                    participants.get(0).performArrangeImports(ps, pyEdit);
-                }else{
-                    if(participants.size() > 1){
-                        //let's issue a warning... this extension can only have 1 plugin implementing it
-                        PydevPlugin.log("The organize imports has more than one plugin with this extension point, therefore, the default is being used.");
-                    }
-                    performArrangeImports(doc, endLineDelim);
-                }
-			}else{
-			    performSimpleSort(doc, endLineDelim, ps.getStartLineIndex(), ps.getEndLineIndex());
+			try {
+				if (ps.getStartLineIndex() == ps.getEndLineIndex()) {
+					//let's see if someone wants to make a better implementation in another plugin...
+					List<IOrganizeImports> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_ORGANIZE_IMPORTS);
+					if (participants.size() == 1) {
+						PyEdit pyEdit = getPyEdit();
+						participants.get(0).performArrangeImports(ps, pyEdit);
+					} else {
+						if (participants.size() > 1) {
+							//let's issue a warning... this extension can only have 1 plugin implementing it
+							PydevPlugin.log("The organize imports has more than one plugin with this extension point, therefore, the default is being used.");
+						}
+						performArrangeImports(doc, endLineDelim);
+					}
+				} else {
+					performSimpleSort(doc, endLineDelim, ps.getStartLineIndex(), ps.getEndLineIndex());
+				}
+			} finally {
+				endWrite(doc, session);
 			}
 		} 
 		catch ( Exception e ) 
@@ -59,48 +69,49 @@ public class PyOrganizeImports extends PyAction{
 		}		
     }
 
+	private void endWrite(IDocument doc, DocumentRewriteSession session) {
+		if(doc instanceof IDocumentExtension4){
+			IDocumentExtension4 d = (IDocumentExtension4) doc;
+			d.stopRewriteSession(session);
+		}
+	}
+
+	private DocumentRewriteSession startWrite(IDocument doc) {
+		if(doc instanceof IDocumentExtension4){
+			IDocumentExtension4 d = (IDocumentExtension4) doc;
+			return d.startRewriteSession(DocumentRewriteSessionType.UNRESTRICTED);
+		}
+		return null;
+	}
+
     /**
      * Actually does the action in the document.
      * 
      * @param doc
      * @param endLineDelim
      */
-    public static void performArrangeImports(IDocument doc, String endLineDelim){
+    @SuppressWarnings("unchecked")
+	public static void performArrangeImports(IDocument doc, String endLineDelim){
 		ArrayList list = new ArrayList();
-		int lines = doc.getNumberOfLines();
 		
 		int firstImport = -1;
-		boolean inComment = false;
-		for (int i = 0; i < lines; i++) {
-		    String str = PySelection.getLine(doc, i);
+		PyDocIterator it = new PyDocIterator(doc, false);
+		while(it.hasNext()){
+			String str = it.next();
 		    
-		    if(str.indexOf("'''")!=-1){
-		        String string = str.substring(str.indexOf("'''")+3);
-		        if(string.indexOf("'''") == -1){
-			        inComment = !inComment;
-			        continue;
-		        }
-		    }
-		    
-		    if(inComment == false && (str.startsWith("import ") || str.startsWith("from "))){
-                int iToAdd = i;
+		    if((str.startsWith("import ") || str.startsWith("from "))){
+                int iToAdd = it.getLastReturnedLine();
                 if(str.indexOf('(') != -1){ //we have something like from os import (pipe,\nfoo)
-                    i++;
-                    while(i < lines && str.indexOf(')') == -1){
-                        String str1 = PySelection.getLine(doc, i);
-                        str += PyAction.getDelimiter(doc);
-                        str += str1;
-                        i++;
+                    while(it.hasNext() && str.indexOf(')') == -1){
+                        String str1 = it.next();
+                        str += endLineDelim+str1;
                     }
                 }
                 if(WordUtils.endsWith(str, '\\')){
-                    i++;
-                    while(i < lines && WordUtils.endsWith(str, '\\')){
+                    while(it.hasNext() && WordUtils.endsWith(str, '\\')){
                         //we have to get all until there are no more back-slashes
-                        String str1 = PySelection.getLine(doc, i);
-                        str += PyAction.getDelimiter(doc);
-                        str += str1;
-                        i++;
+                        String str1 = it.next();
+                        str += endLineDelim+str1;
                     }
                 }
 		        list.add( new Object[]{new Integer(iToAdd), str} );
@@ -167,7 +178,8 @@ public class PyOrganizeImports extends PyAction{
      * @param startLine
      * @param endLine
      */
-    public static void performSimpleSort(IDocument doc, String endLineDelim, int startLine, int endLine) {
+    @SuppressWarnings("unchecked")
+	public static void performSimpleSort(IDocument doc, String endLineDelim, int startLine, int endLine) {
         try {
 	        ArrayList list = new ArrayList();
 	        for (int i = startLine; i <= endLine; i++) {
