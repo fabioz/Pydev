@@ -3,6 +3,8 @@
  */
 package org.python.pydev.core.docutils;
 
+import java.util.Iterator;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 
@@ -107,7 +109,7 @@ public class ParsingUtils {
      * @param curr current char
      * @return the end of the multiline literal
      */
-    private static int getLiteralEnd(Object cs, int i, char curr) {
+    public static int getLiteralEnd(Object cs, int i, char curr) {
         boolean multi = isMultiLiteral(cs, i, curr);
         
         int j;
@@ -310,6 +312,11 @@ public class ParsingUtils {
         }
     }
     
+	public static Iterator getNoLiteralsOrCommentsIterator(IDocument doc) {
+		return new PyDocIterator(doc);
+	}
+
+    
     public static void removeCommentsAndWhitespaces(StringBuffer buf) {
         
         for (int i = 0; i < buf.length(); i++) {
@@ -388,5 +395,6 @@ public class ParsingUtils {
         }
         return curr;
     }
+
 
 }

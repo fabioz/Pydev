@@ -1,4 +1,4 @@
-"""Assign Params to Attributes by Joel Hedlund <joel.hedlund at gmail.com>.
+"""Assign Params to Attributes by Joel Hedlund <joel.hedlund@gmail.com>.
 
 PyDev script for generating python code that assigns method parameter 
 values to attributes of self with the same name. Activates with 'a' by 
@@ -9,7 +9,7 @@ more details.
 Contact the author for bug reports/feature requests.
 """
 
-__version__ = "1.0.0alpha1"
+__version__ = "1.0.0"
 
 __copyright__ = """Available under the same conditions as PyDev.
 
@@ -20,7 +20,14 @@ http://pydev.sourceforge.net
 
 # Change this if the default does not suit your needs
 ACTIVATION_STRING = 'a'
-WAIT_FOR_ENTER = False
+WAIT_FOR_ENTER = True
+
+# For earlier Python versions
+True, False = 1,0
+
+# Set to True to force Jython script interpreter restart on save events.
+# Useful for Jython PyDev script development, not useful otherwise.
+DEBUG = False
 
 # This is a magic trick that tells the PyDev Extensions editor about the 
 # namespace provided for pydev scripts:
@@ -32,8 +39,11 @@ if False:
 assert cmd is not None 
 assert editor is not None
 
-# 'onSave' can be added to the list for developing purposes.
-if cmd in ['onCreateActions']: 
+if DEBUG and cmd == 'onSave':
+    from org.python.pydev.jython import JythonPlugin #@UnresolvedImport
+    editor.pyEditScripting.interpreter = JythonPlugin.newPythonInterpreter()
+
+if cmd == 'onCreateActions' or DEBUG and cmd == 'onSave': 
     import re
     from java.lang import StringBuffer
     from org.eclipse.jface.action import Action #@UnresolvedImport
@@ -116,6 +126,13 @@ if cmd in ['onCreateActions']:
                 MessageDialog.openInformation(oShell, sTitle, sDialogText)                
             return False
         
+        def _indent(self, sel):
+            """Return the indent of the current line as a str.
+            
+            @param sel: The current selection as a PySelection.
+            """
+            return PySelection.getIndentationFromLine(sel.getCursorLineContents())
+        
         def _assignmentLines(self, params, indent):
             '''Assemble the python code lines for the assignments.
             
@@ -140,9 +157,7 @@ if cmd in ['onCreateActions']:
             iClosingParOffset = oParamInfo.o2
             iClosingParLine = oSelection.getLineOfOffset(iClosingParOffset)
             iInsertAfterLine = iClosingParLine
-            sCurrentLine = oSelection.getCursorLineContents()
-            sPrevIndent = PySelection.getIndentationFromLine(sCurrentLine)
-            sIndent = sPrevIndent + PyAction.getStaticIndentationString()
+            sIndent = self._indent(oSelection) + PyAction.getStaticIndentationString(editor)
             
             # Is there a docstring? In that case we need to skip past it.
             sDocstrFirstLine = oSelection.getLine(iClosingParLine + 1)
