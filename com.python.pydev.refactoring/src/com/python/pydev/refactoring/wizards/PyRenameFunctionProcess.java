@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.util.Assert;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -30,14 +29,14 @@ import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
  * - on a global scope
  * - in an inner scope (inside of another method)
  */
-public class PyRenameFunctionProcess extends AbstractRefactorProcess{
+public class PyRenameFunctionProcess extends AbstractRenameRefactorProcess{
 
     public PyRenameFunctionProcess(Definition definition) {
         super(definition);
         Assert.isTrue(this.definition.ast instanceof FunctionDef);
     }
 
-    public List<ASTEntry> getOcurrences(String occurencesFor, SimpleNode simpleNode, RefactoringStatus status) {
+    private List<ASTEntry> getOcurrences(String occurencesFor, SimpleNode simpleNode, RefactoringStatus status) {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
         
         //get the entry for the function itself
@@ -102,31 +101,21 @@ public class PyRenameFunctionProcess extends AbstractRefactorProcess{
         return ret;
     }
     
-    public void checkInitialConditions(IProgressMonitor pm, RefactoringStatus status, RefactoringRequest request) {
-        super.checkInitialConditions(pm, status, request);
 
-        if(request.findReferencesOnlyOnLocalScope == true){
-        	Tuple<String, IDocument> key = new Tuple<String, IDocument>(request.moduleName, request.doc);
-        	SimpleNode root = request.getAST();
-        	List<ASTEntry> ocurrences;
+    protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
+        Tuple<String, IDocument> key = new Tuple<String, IDocument>(request.moduleName, request.doc);
+        SimpleNode root = request.getAST();
+        List<ASTEntry> ocurrences;
+        
+        if(!definition.module.getName().equals(request.moduleName)){
+        	//it was found in another module
+        	ocurrences = Scope.getOcurrences(request.duringProcessInfo.initialName, root, false);
         	
-    		if(!definition.module.getName().equals(request.moduleName)){
-    			//it was found in another module
-    			ocurrences = Scope.getOcurrences(request.duringProcessInfo.initialName, root, false);
-    			
-    		}else{
-	            ocurrences = getOcurrences(request.duringProcessInfo.initialName, root, status);
-    		}
-    		
-    		occurrences.put(key, ocurrences);
-    		
-    		if(occurrences.size() == 0){
-    			status.addFatalError("Could not find any ocurrences of:"+request.duringProcessInfo.initialName);
-    		}
-       
         }else{
-            throw new RuntimeException("Currently can only get things in the local scope.");
+            ocurrences = getOcurrences(request.duringProcessInfo.initialName, root, status);
         }
+        
+        occurrences.put(key, ocurrences);
     }
 
 }

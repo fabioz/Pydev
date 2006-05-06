@@ -4,6 +4,7 @@
 package com.python.pydev.refactoring.wizards;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -23,9 +24,21 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
-public abstract class AbstractRefactorProcess implements IRefactorProcess{
+/**
+ * This class presents the basic functionality for doing a rename.
+ * 
+ * @author Fabio
+ */
+public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
 
+    /**
+     * The request for the refactor
+     */
     protected RefactoringRequest request;
+    
+    /**
+     * For a rename, we always need a definition
+     */
     protected Definition definition;
     
     /**
@@ -35,11 +48,22 @@ public abstract class AbstractRefactorProcess implements IRefactorProcess{
      */
     protected SortedMap<Tuple<String, IDocument>, List<ASTEntry>> occurrences;
 
-    public AbstractRefactorProcess(Definition definition){
+    /**
+     * @param definition the definition on where this rename should be applied (we will find the references based 
+     * on this definition).
+     */
+    public AbstractRenameRefactorProcess(Definition definition){
         this.definition = definition;
         occurrences = new TreeMap<Tuple<String,IDocument>, List<ASTEntry>>();
     }
     
+    /**
+     * Adds the occurences to be renamed given the request. If the rename is a local rename, and there is no need
+     * of handling multiple files, this should be the preferred way of adding the occurrences.
+     * 
+     * @param request will be used to fill the module name and the document
+     * @param oc the occurrences to add
+     */
     protected void addOccurrences(RefactoringRequest request, List<ASTEntry> oc) {
         Tuple<String, IDocument> key = new Tuple<String, IDocument>(request.moduleName, request.doc);
         occurrences.put(key, oc);
@@ -70,6 +94,25 @@ public abstract class AbstractRefactorProcess implements IRefactorProcess{
     
     public void checkInitialConditions(IProgressMonitor pm, RefactoringStatus status, RefactoringRequest request) {
         this.request = request;
+        
+        if(request.findReferencesOnlyOnLocalScope == true){
+            checkInitialOnLocalScope(status, request);
+            
+        }else{
+            checkInitialOnWorkspace(status, request);
+        }
+
+        if(!occurrencesValid(status)){
+            return;
+        }
+        
+    }
+    protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
+        throw new RuntimeException("Not implemented search on local scope:"+this.getClass().getName());
+    }
+    
+    protected void checkInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request) {
+        throw new RuntimeException("Not implemented search on workspace:"+this.getClass().getName());
     }
     
     /** 
@@ -97,6 +140,33 @@ public abstract class AbstractRefactorProcess implements IRefactorProcess{
         return getAllRenameEdits(getOcurrences());
     }
     
+    /**
+     * Checks if the occurrences gotten are valid or not.
+     * 
+     * @param status the errors will be added to the passed status.
+     * @return true if all is ok and false otherwise
+     */
+    protected boolean occurrencesValid(RefactoringStatus status){
+        if(occurrences.size() == 0){
+            status.addFatalError("No occurrences searched for:"+request.duringProcessInfo.initialName);
+            return false;
+        }
+        
+        for(Iterator<List<ASTEntry>> it = occurrences.values().iterator(); it.hasNext();){
+            List<ASTEntry> entries = it.next();
+            if(entries.size() == 0){
+                status.addFatalError("Could not find any occurrences of:"+request.duringProcessInfo.initialName);
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Implemented from the super interface. Should only be called when we've looked things in the local scope
+     *  
+     * @see com.python.pydev.refactoring.wizards.IRefactorProcess#getOcurrences()
+     */
     public List<ASTEntry> getOcurrences() {
         if(occurrences == null){
             return null;

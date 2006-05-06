@@ -35,7 +35,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         "";
         int line = 3;
         int col = 20;
-        checkDefault(str, line, col);
+        checkDefault(str, line, col, "aa", false, true);
         
     }
     
@@ -50,7 +50,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         "";
         int line = 3;
         int col = 20;
-        checkDefault(str, line, col);
+        checkDefault(str, line, col, "aa", false, true);
     }
     
     public void testClassMethodRename() throws Exception {
