@@ -6,7 +6,6 @@ package com.python.pydev.refactoring.wizards;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -21,34 +20,32 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
-public class PyRenameClassProcess extends AbstractRenameMultipleProcess{
+public class PyRenameClassProcess extends AbstractRefactorProcess{
 
-    private Definition definition;
-    
     public PyRenameClassProcess(Definition definition) {
-        this.definition = definition;
+        super(definition);
     }
 
     public void checkInitialConditions(IProgressMonitor pm, RefactoringStatus status, RefactoringRequest request) {
         this.request = request;
         if(request.findReferencesOnlyOnLocalScope == true){
             SimpleNode root = request.getAST();
-            Tuple<String, IDocument> key = new Tuple<String, IDocument>(request.moduleName, request.doc);
-            occurrences.put(key, Scope.getOcurrences(request.duringProcessInfo.initialName, root));
-            
-            if(occurrences.size() == 0){
+            List<ASTEntry> oc = Scope.getOcurrences(request.duringProcessInfo.initialName, root);
+            if(oc.size() == 0){
                 status.addFatalError("Could not find any ocurrences of:"+request.duringProcessInfo.initialName);
+                return;
             }
+            addOccurrences(request, oc);
+            
        
         }else{
-//            if(module instanceof SourceModule){
-//                List<ASTEntry> occurrences = Scope.getOcurrences(request.duringProcessInfo.initialName, ((SourceModule)module).getAst());
-//            }
             throw new RuntimeException("Currently can only get things in the local scope.");
         }
     }
 
+
     public void checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange) {
+        super.checkInitialConditions(pm, status, request);
         DocumentChange docChange = new DocumentChange("RenameChange: "+request.duringProcessInfo.name, request.doc);
         if(occurrences == null){
             status.addFatalError("No ocurrences found.");
@@ -74,17 +71,5 @@ public class PyRenameClassProcess extends AbstractRenameMultipleProcess{
         }
     }
 
-    public List<ASTEntry> getOcurrences() {
-        if(occurrences == null){
-            return null;
-        }
-        if(occurrences.size() > 1){
-            throw new RuntimeException("This interface cannot get the occurrences for multiple modules.");
-        }
-        if(occurrences.size() == 1){
-            return occurrences.values().iterator().next();
-        }
-        return null;
-    }
 
 }

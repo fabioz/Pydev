@@ -9,7 +9,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         try {
             RenameSelfVariableRefactoringTest test = new RenameSelfVariableRefactoringTest();
             test.setUp();
-            test.testClassMethodRename4();
+            test.testClassMethodRename3();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameSelfVariableRefactoringTest.class);

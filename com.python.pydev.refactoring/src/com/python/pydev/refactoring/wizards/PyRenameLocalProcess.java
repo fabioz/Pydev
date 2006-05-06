@@ -3,7 +3,6 @@
  */
 package com.python.pydev.refactoring.wizards;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -18,34 +17,30 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 public class PyRenameLocalProcess extends AbstractRefactorProcess{
 
-    private Definition definition;
-
-    private List<ASTEntry> occurrences;
 
     public PyRenameLocalProcess(Definition definition) {
-        this.definition = definition;
+        super(definition);
     }
 
     /** 
      * @see com.python.pydev.refactoring.wizards.IRefactorProcess#checkInitialConditions(org.eclipse.core.runtime.IProgressMonitor, org.eclipse.ltk.core.refactoring.RefactoringStatus, org.python.pydev.editor.refactoring.RefactoringRequest)
      */
     public void checkInitialConditions(IProgressMonitor pm, RefactoringStatus status, RefactoringRequest request) {
-    	this.request = request;
+        super.checkInitialConditions(pm, status, request);
     	if(request.findReferencesOnlyOnLocalScope){
     		if(!definition.module.getName().equals(request.moduleName)){
     			//it was found in another module, but we want to keep things local
-    			this.occurrences = Scope.getOcurrences(request.duringProcessInfo.initialName, request.getAST());
-    		}
+    			addOccurrences(request, Scope.getOcurrences(request.duringProcessInfo.initialName, request.getAST()));
+            }
     	}
     	
-    	if(this.occurrences == null){
+    	if(this.occurrences.size() == 0){
     		//not looked previously
 	        Scope scope = definition.scope;
-	        this.occurrences = scope.getOcurrences(request.duringProcessInfo.initialName, definition.module);
+            addOccurrences(request, scope.getOcurrences(request.duringProcessInfo.initialName, definition.module));
     	}
     	
         if(this.occurrences.size() == 0){
@@ -74,11 +69,7 @@ public class PyRenameLocalProcess extends AbstractRefactorProcess{
         fChange.add(docChange);
     }
     protected List<Tuple<TextEdit, String>> getAllRenameEdits() {
-        return getAllRenameEdits(occurrences);
-    }
-
-    public List<ASTEntry> getOcurrences() {
-        return new ArrayList<ASTEntry>(occurrences);
+        return getAllRenameEdits(getOcurrences());
     }
 
 }

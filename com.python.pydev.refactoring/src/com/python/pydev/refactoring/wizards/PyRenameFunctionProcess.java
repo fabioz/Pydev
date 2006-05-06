@@ -25,8 +25,6 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.parser.jython.ast.Name;
-import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
@@ -38,12 +36,10 @@ import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
  * - on a global scope
  * - in an inner scope (inside of another method)
  */
-public class PyRenameFunctionProcess extends AbstractRenameMultipleProcess {
-
-    private Definition definition;
+public class PyRenameFunctionProcess extends AbstractRefactorProcess{
 
     public PyRenameFunctionProcess(Definition definition) {
-        this.definition = definition;
+        super(definition);
         Assert.isTrue(this.definition.ast instanceof FunctionDef);
     }
 
@@ -113,7 +109,8 @@ public class PyRenameFunctionProcess extends AbstractRenameMultipleProcess {
     }
     
     public void checkInitialConditions(IProgressMonitor pm, RefactoringStatus status, RefactoringRequest request) {
-        this.request = request;
+        super.checkInitialConditions(pm, status, request);
+
         if(request.findReferencesOnlyOnLocalScope == true){
         	Tuple<String, IDocument> key = new Tuple<String, IDocument>(request.moduleName, request.doc);
         	SimpleNode root = request.getAST();
@@ -162,19 +159,6 @@ public class PyRenameFunctionProcess extends AbstractRenameMultipleProcess {
         }else{
             throw new RuntimeException("Currently can only get things in the local scope.");
         }
-    }
-
-    public List<ASTEntry> getOcurrences() {
-        if(occurrences == null){
-            return null;
-        }
-        if(occurrences.size() > 1){
-            throw new RuntimeException("This interface cannot get the occurrences for multiple modules.");
-        }
-        if(occurrences.size() == 1){
-            return occurrences.values().iterator().next();
-        }
-        return null;
     }
 
 }

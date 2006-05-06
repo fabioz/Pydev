@@ -3,7 +3,6 @@
  */
 package com.python.pydev.refactoring.wizards;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -24,29 +23,31 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 public class PyRenameAttributeProcess extends AbstractRefactorProcess{
 
-    private AssignDefinition definition;
-    private List<ASTEntry> ocurrences;
+    private AssignDefinition assignDefinition;
 
     public PyRenameAttributeProcess(Definition definition) {
-        this.definition = (AssignDefinition) definition;
+        super(definition);
+        this.assignDefinition = (AssignDefinition) definition;
     }
 
     public void checkInitialConditions(IProgressMonitor pm, RefactoringStatus status, RefactoringRequest request) {
-        ClassDef classDef = this.definition.scope.getClassDef();
+        super.checkInitialConditions(pm, status, request);
+        ClassDef classDef = this.assignDefinition.scope.getClassDef();
         if(classDef == null){
             status.addFatalError("We're trying to rename an instance variable, but we cannot find a class definition.");
             return;
         }
-        ocurrences = Scope.getAttributeOcurrences(this.definition.target, classDef);
-        this.request = request;
-        if(this.ocurrences.size() == 0){
+        List<ASTEntry> oc = Scope.getAttributeOcurrences(this.assignDefinition.target, classDef);
+        if(oc.size() == 0){
             status.addFatalError("Could not find any ocurrences of:"+request.duringProcessInfo.initialName);
+            return;
         }
+        addOccurrences(request, oc);
     }
 
     public void checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange) {
         DocumentChange docChange = new DocumentChange("RenameChange: "+request.duringProcessInfo.name, request.doc);
-        if(ocurrences == null){
+        if(occurrences == null){
             status.addFatalError("No ocurrences found.");
             return;
         }
@@ -55,15 +56,12 @@ public class PyRenameAttributeProcess extends AbstractRefactorProcess{
         docChange.setEdit(rootEdit);
         docChange.setKeepPreviewEdits(true);
 
-        for (Tuple<TextEdit, String> t : getAllRenameEdits(ocurrences)) {
+        for (Tuple<TextEdit, String> t : getAllRenameEdits(getOcurrences())) {
             rootEdit.addChild(t.o1);
             docChange.addTextEditGroup(new TextEditGroup(t.o2, t.o1));
         }
         fChange.add(docChange);
     }
 
-    public List<ASTEntry> getOcurrences() {
-        return new ArrayList<ASTEntry>(ocurrences);
-    }
 
 }
