@@ -11,10 +11,13 @@ import java.util.TreeMap;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
+import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
+import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
+import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
@@ -69,8 +72,30 @@ public abstract class AbstractRefactorProcess implements IRefactorProcess{
         this.request = request;
     }
     
-//    public void checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange) {
-//    }
+    /** 
+     * @see com.python.pydev.refactoring.wizards.IRefactorProcess#checkFinalConditions(org.eclipse.core.runtime.IProgressMonitor, org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext, org.eclipse.ltk.core.refactoring.RefactoringStatus, org.eclipse.ltk.core.refactoring.TextChange)
+     */
+    public void checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context, RefactoringStatus status, CompositeChange fChange) {
+        DocumentChange docChange = new DocumentChange("RenameChange: "+request.duringProcessInfo.name, request.doc);
+        if(occurrences == null){
+            status.addFatalError("No occurrences found.");
+            return;
+        }
+
+        MultiTextEdit rootEdit = new MultiTextEdit();
+        docChange.setEdit(rootEdit);
+        docChange.setKeepPreviewEdits(true);
+
+        for (Tuple<TextEdit, String> t : getAllRenameEdits()) {
+            rootEdit.addChild(t.o1);
+            docChange.addTextEditGroup(new TextEditGroup(t.o2, t.o1));
+        }
+        fChange.add(docChange);
+    }
+    
+    protected List<Tuple<TextEdit, String>> getAllRenameEdits() {
+        return getAllRenameEdits(getOcurrences());
+    }
     
     public List<ASTEntry> getOcurrences() {
         if(occurrences == null){
