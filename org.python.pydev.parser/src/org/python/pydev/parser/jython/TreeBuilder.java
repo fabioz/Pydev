@@ -37,6 +37,7 @@ import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Print;
@@ -952,7 +953,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             parameter.specialsBefore.addAll(node.specialsBefore);
             parameter.specialsAfter.addAll(node.specialsAfter);
             
-            ctx.setStore(fpargs[i]);
+            ctx.setParam(fpargs[i]);
             defaults[i] = node.value;
             if (node.value != null && defaultsSet == false){
                 defaultsSet = true;
@@ -963,7 +964,6 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         // System.out.println("start "+ startofdefaults + " " + l);
         exprType[] newdefs = new exprType[def.length - startofdefaults];
         System.arraycopy(defaults, startofdefaults, newdefs, 0, newdefs.length);
-
         return new argumentsType(fpargs, varg, kwarg, newdefs);
 
     }
@@ -1070,6 +1070,11 @@ class CtxVisitor extends Visitor {
     private int ctx;
 
     public CtxVisitor() { }
+
+    public void setParam(SimpleNode node) throws Exception {
+        this.ctx = expr_contextType.Param;
+        visit(node);
+    }
 
     public void setStore(SimpleNode node) throws Exception {
         this.ctx = expr_contextType.Store;
