@@ -18,6 +18,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
     public int severityForNoSelf;
     public int severityForUnusedWildImport;
     public int severityForUndefinedImportVariable;
+    public int severityForUnusedParameter;
     
     public AnalysisPreferencesStub(){
         severityForUnusedImport = IMarker.SEVERITY_WARNING;
@@ -29,6 +30,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
         severityForNoSelf = IMarker.SEVERITY_ERROR;
         severityForUnusedWildImport = IMarker.SEVERITY_WARNING;
         severityForUndefinedImportVariable = IMarker.SEVERITY_WARNING;
+        severityForUnusedParameter = IMarker.SEVERITY_WARNING;
     }
     
     public int getSeverityForType(int type) {
@@ -58,6 +60,9 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
         }
         if (type == TYPE_UNDEFINED_IMPORT_VARIABLE){
         	return severityForUndefinedImportVariable;
+        }
+        if (type == TYPE_UNUSED_PARAMETER){
+            return severityForUnusedParameter;
         }
         throw new RuntimeException("unable to get severity for type "+type);
     }

@@ -26,7 +26,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testDefinedInClassAndInLocal();
+            analyzer2.testUnusedParameter2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -768,7 +768,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         printMessages(msgs, 1);
-        assertEquals("Unused variable: a", msgs[0].getMessage());
+        assertEquals("Unused parameter: a", msgs[0].getMessage());
     
     }
     
@@ -956,7 +956,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         
         printMessages(msgs, 1);
         assertEquals(1, msgs.length);
-        assertContainsMsg("Unused variable: show", msgs, 1);
+        assertContainsMsg("Unused parameter: show", msgs, 1);
     }
     
     public void testUnusedVariable9() {
@@ -971,7 +971,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         
         printMessages(msgs, 1);
         assertEquals(1, msgs.length);
-        assertContainsMsg("Unused variable: show", msgs, 2);
+        assertContainsMsg("Unused parameter: show", msgs, 2);
     }
     
     public void testUnusedVariable10() {
@@ -986,8 +986,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         
         printMessages(msgs, 2);
         assertEquals(2, msgs.length);
-        assertContainsMsg("Unused variable: show", msgs, 1);
-        assertContainsMsg("Unused variable: show", msgs, 2);
+        assertContainsMsg("Unused parameter: show", msgs, 1);
+        assertContainsMsg("Unused parameter: show", msgs, 2);
     }
     
     public void testUnusedVariable6() {
@@ -1021,7 +1021,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         
         printMessages(msgs,1 );
         assertEquals(1, msgs.length);
-        assertContainsMsg("Unused variable: b", msgs, 1);
+        assertContainsMsg("Unused parameter: b", msgs, 1);
         
     }
     
@@ -1256,7 +1256,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
         
         assertEquals(1, msgs.length);
-        assertContainsMsg("Unused variable: args", msgs, 2);
+        assertContainsMsg("Unused parameter: args", msgs, 2);
         assertEquals(9, msgs[0].getStartCol(doc));
         assertEquals(13, msgs[0].getEndCol(doc));
     }
@@ -1284,7 +1284,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         
         printMessages(msgs,1);
         assertEquals(1, msgs.length);
-        assertContainsMsg("Unused variable: kwargs", msgs, 2);
+        assertContainsMsg("Unused parameter: kwargs", msgs, 2);
         assertEquals(14, msgs[0].getStartCol(doc));
         assertEquals(20, msgs[0].getEndCol(doc));
     }
@@ -2058,6 +2058,39 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	
     	printMessages(msgs, 1);
     	assertEquals("Undefined variable: data", msgs[0].getMessage());
+    }
+    
+    public void testUnusedParameter() {
+        doc = new Document(
+                "def a(x):pass"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 1);
+        assertEquals("Unused parameter: x", msgs[0].getMessage());
+    }
+    
+    public void testUnusedParameter2() {
+        doc = new Document(
+                "def a(*x):pass"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 1);
+        assertEquals("Unused parameter: x", msgs[0].getMessage());
+    }
+    
+    public void testUnusedParameter3() {
+        doc = new Document(
+                "def a(**x):pass"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+        
+        printMessages(msgs, 1);
+        assertEquals("Unused parameter: x", msgs[0].getMessage());
     }
     
     public void testEmptyDict() {

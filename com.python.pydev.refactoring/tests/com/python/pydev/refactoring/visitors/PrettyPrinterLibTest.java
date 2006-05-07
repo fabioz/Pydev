@@ -32,10 +32,10 @@ public class PrettyPrinterLibTest extends PyParserTestBase{
         prefs = new PrettyPrinterPrefs("\n");
     }
 
-//    public void testOnCompleteLib() throws Exception {
-//        File file = new File(TestDependent.PYTHON_LIB);
-//        parseFilesInDir(file);
-//    }
+    public void testOnCompleteLib() throws Exception {
+        File file = new File(TestDependent.PYTHON_LIB);
+        parseFilesInDir(file);
+    }
     
     /**
      * @param file

@@ -12,6 +12,7 @@ public abstract class AbstractAnalysisPreferences implements IAnalysisPreference
             typeToIgnoreMessage = new HashMap<Integer, String>();
             typeToIgnoreMessage.put( TYPE_UNUSED_IMPORT               , MSG_TO_IGNORE_TYPE_UNUSED_IMPORT               );
             typeToIgnoreMessage.put( TYPE_UNUSED_VARIABLE             , MSG_TO_IGNORE_TYPE_UNUSED_VARIABLE             );
+            typeToIgnoreMessage.put( TYPE_UNUSED_PARAMETER            , MSG_TO_IGNORE_TYPE_UNUSED_PARAMETER            );
             typeToIgnoreMessage.put( TYPE_UNDEFINED_VARIABLE          , MSG_TO_IGNORE_TYPE_UNDEFINED_VARIABLE          );
             typeToIgnoreMessage.put( TYPE_DUPLICATED_SIGNATURE        , MSG_TO_IGNORE_TYPE_DUPLICATED_SIGNATURE        );
             typeToIgnoreMessage.put( TYPE_REIMPORT                    , MSG_TO_IGNORE_TYPE_REIMPORT                    );

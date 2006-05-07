@@ -15,6 +15,9 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     
     public static final String DEFAULT_SCOPE = "com.python.pydev.analysis";
     
+    public static final String SEVERITY_UNUSED_PARAMETER = "SEVERITY_UNUSED_PARAMETER";
+    public static final int DEFAULT_SEVERITY_UNUSED_PARAMETER = IMarker.SEVERITY_INFO;
+    
     public static final String SEVERITY_UNUSED_VARIABLE = "SEVERITY_UNUSED_VARIABLE";
     public static final int DEFAULT_SEVERITY_UNUSED_VARIABLE = IMarker.SEVERITY_WARNING;
     

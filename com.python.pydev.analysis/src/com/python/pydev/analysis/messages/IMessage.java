@@ -26,6 +26,7 @@ public interface IMessage {
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNRESOLVED_IMPORT
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNUSED_IMPORT
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNUSED_VARIABLE
+     * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNUSED_PARAMETER
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_UNUSED_WILD_IMPORT
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_USED_WILD_IMPORT
      * 

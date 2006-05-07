@@ -312,10 +312,7 @@ public class OccurrencesVisitor extends VisitorBase{
     public Object visitNameTok(NameTok nameTok) throws Exception {
     	unhandled_node(nameTok);
     	if(nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg){
-            Name name = new Name((nameTok).id, Name.Load);
-            name.beginLine = nameTok.beginLine;
-            name.beginColumn = nameTok.beginColumn;
-            SourceToken token = AbstractVisitor.makeToken(name, moduleName);
+            SourceToken token = AbstractVisitor.makeToken(nameTok, moduleName);
             scope.addToken(token, token, (nameTok).id);
     	}
     	return null;
@@ -382,7 +379,7 @@ public class OccurrencesVisitor extends VisitorBase{
             found = markRead(token);
         }
         
-        if (node.ctx == Name.Store || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
+        if (node.ctx == Name.Store || node.ctx == Name.Param || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
             String rep = token.getRepresentation();
             boolean inNamesToIgnore = scope.isInNamesToIgnore(rep);
             
@@ -468,7 +465,7 @@ public class OccurrencesVisitor extends VisitorBase{
         }
         String fullRep = token.getRepresentation();
 
-        if (node.ctx == Attribute.Store) {
+        if (node.ctx == Attribute.Store || node.ctx == Attribute.Param) {
             //in a store attribute, the first part is always a load
             int i = fullRep.indexOf('.', 0);
             String sub = fullRep;

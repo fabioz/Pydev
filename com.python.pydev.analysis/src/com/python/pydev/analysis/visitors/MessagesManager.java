@@ -19,6 +19,8 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
@@ -224,7 +226,24 @@ public class MessagesManager {
             //or unused variable
             //we have to check if this is a name we should ignore
             if(startsWithNamesToIgnore(g)){
-                addMessage(IAnalysisPreferences.TYPE_UNUSED_VARIABLE, g.generator, g.tok);
+                int type = IAnalysisPreferences.TYPE_UNUSED_VARIABLE;
+                
+                if(g.tok instanceof SourceToken){
+                    SourceToken t = (SourceToken) g.tok;
+                    SimpleNode ast = t.getAst();
+                    if(ast instanceof NameTok){
+                        NameTok n = (NameTok) ast;
+                        if(n.ctx == NameTok.KwArg || n.ctx == NameTok.VarArg || n.ctx == NameTok.KeywordName){
+                            type = IAnalysisPreferences.TYPE_UNUSED_PARAMETER; 
+                        }
+                    }else if(ast instanceof Name){
+                        Name n = (Name) ast;
+                        if(n.ctx == Name.Param){
+                            type = IAnalysisPreferences.TYPE_UNUSED_PARAMETER; 
+                        }
+                    }
+                }
+                addMessage(type, g.generator, g.tok);
             }
         }
     }
