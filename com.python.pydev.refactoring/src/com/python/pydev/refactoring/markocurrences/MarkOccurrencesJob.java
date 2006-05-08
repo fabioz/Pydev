@@ -137,11 +137,19 @@ public class MarkOccurrencesJob extends Thread{
                 	continue;
                 }
                 
+                if(pyEdit.getSelectionProvider() == null){
+                	continue;
+                }
+                
                 //ok, the editor is still there wit ha document... move on
                 PyRefactorAction pyRefactorAction = getRefactorAction();
                 pyRefactorAction.setEditor(pyEdit);
                 
                 final RefactoringRequest req = getRefactoringRequest(pyEdit, pyRefactorAction);
+                
+                if(req == null){
+                	continue;
+                }
                 
                 PyRenameProcessor processor = new PyRenameProcessor(req);
                 //to see if a new request was not created in the meantime (in which case this one will be cancelled)
@@ -215,8 +223,15 @@ public class MarkOccurrencesJob extends Thread{
         final RefactoringRequest req = pyRefactorAction.getRefactoringRequest();
         Display.getDefault().syncExec(new Runnable(){
             public void run() {
-                req.ps = new PySelection(pyEdit);
+                try {
+					req.ps = new PySelection(pyEdit);
+				} catch (NullPointerException e) {
+					// this can happen if the selection was still not set up
+				}
             }});
+        if(req.ps == null){
+        	return null;
+        }
         
         req.fillInitialNameAndOffset();
         req.duringProcessInfo.name = "foo";
