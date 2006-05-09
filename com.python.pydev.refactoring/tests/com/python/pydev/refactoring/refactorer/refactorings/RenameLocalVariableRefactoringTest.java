@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameInstance2();
+            test.testRenameLocalAttr();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -177,6 +177,31 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	int line = 2;
     	int col = 11;
     	checkDefault(str, line, col, "ExistingClass", false, true);
+    }
+    
+    public void testRenameMethodLocally() throws Exception {
+    	String str = "" +
+    	"class Foo:\n" +
+    	"    def %s(self):\n" +
+    	"        tup = 10\n" +
+    	"        tup[1].append(1)\n" +
+    	"";
+    	int line = 1;
+    	int col = 9;
+    	checkDefault(str, line, col, "foo", false, true);
+    }
+    
+    
+    public void testRenameLocalAttr() throws Exception {
+    	String str = "" +
+    	"class Foo:\n" +
+    	"    def foo(self):\n" +
+    	"        %s = [[],[]]\n" +
+    	"        %s[1].append(1)\n" +
+    	"";
+    	int line = 2;
+    	int col = 9;
+    	checkDefault(str, line, col, "tup", false, true);
     }
     
     public void testRenameInstance() throws Exception {
