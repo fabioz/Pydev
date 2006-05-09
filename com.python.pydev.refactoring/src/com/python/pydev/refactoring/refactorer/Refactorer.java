@@ -24,6 +24,7 @@ import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.CancelledException;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -103,16 +104,37 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
             }
 		}
 		
+		
 		if(modName == null){
 			modName = request.resolveModule();
 		}
-		if(modName == null){
-            PydevPlugin.logInfo("Unable to resolve module for find definition request (modName == null).");
+		
+		if(request.nature == null){
+			PydevPlugin.logInfo("Unable to resolve nature for find definition request (python or jython interpreter may not be configured).");
 			return new ItemPointer[0];
+		}
+		
+		IModule mod = request.getModule();
+		if(mod == null){
+			PydevPlugin.logInfo("Unable to resolve module for find definition request.");
+			return new ItemPointer[0];
+		}
+
+		if(modName == null){
+			if(mod.getName() == null){
+				if(mod instanceof SourceModule){
+					SourceModule m = (SourceModule) mod;
+					modName = "__module_not_in_the_pythonpath__";
+					m.setName(modName);
+				}
+			}
+			if(modName == null){
+	            PydevPlugin.logInfo("Unable to resolve module for find definition request (modName == null).");
+				return new ItemPointer[0];
+			}
 		}
         
         request.communicateWork("Module name found:"+modName);
-		IModule mod = request.getModule();
 		
 		
 		String tok = tokenAndQual[0] + tokenAndQual[1];
