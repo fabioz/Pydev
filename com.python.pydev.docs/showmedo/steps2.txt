@@ -1,0 +1,27 @@
+Hi, my name is Fabio and I'm going to show
+you some of the things you're able to do
+with pydev extensions, such as the
+ways you can navigate through the source
+code or make good use of its code-completion
+capabilities and a little bit about its code-analysis
+
+...
+
+So, that's it, I hope you enjoyed it. You can check
+the help ... to know where you can get more info
+about it.
+
+- some navigation utilities:
+  * jump up/down in functions / classes
+  * quick outline
+  * global token browser
+
+- go to definition
+
+- code-completion
+  * Keywords completion
+  * auto-import
+
+- code-analysis and quick-fixes
+
+
