@@ -7,10 +7,11 @@ import java.util.List;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+
+import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 
 public class PyRenameClassProcess extends AbstractRenameRefactorProcess{
 
@@ -20,7 +21,7 @@ public class PyRenameClassProcess extends AbstractRenameRefactorProcess{
 
     protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
         SimpleNode root = request.getAST();
-        List<ASTEntry> oc = Scope.getOcurrences(request.duringProcessInfo.initialName, root);
+        List<ASTEntry> oc = ScopeAnalysis.getOcurrences(request.duringProcessInfo.initialName, root);
         addOccurrences(request, oc);
     }
 }

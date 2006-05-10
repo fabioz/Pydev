@@ -12,7 +12,6 @@ import org.eclipse.jface.util.Assert;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -21,6 +20,8 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
+
+import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 
 /**
  * This process takes care of renaming instances of some method either:
@@ -36,7 +37,7 @@ public class PyRenameFunctionProcess extends AbstractRenameRefactorProcess{
         Assert.isTrue(this.definition.ast instanceof FunctionDef);
     }
 
-    private List<ASTEntry> getOcurrences(String occurencesFor, SimpleNode simpleNode, RefactoringStatus status) {
+    private List<ASTEntry> getLocalOcurrences(String occurencesFor, SimpleNode simpleNode, RefactoringStatus status) {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
         
         //get the entry for the function itself
@@ -80,20 +81,16 @@ public class PyRenameFunctionProcess extends AbstractRenameRefactorProcess{
 		            }
 		        }
 		        
+		        final List<ASTEntry> attributeReferences = ScopeAnalysis.getAttributeReferences(occurencesFor, simpleNode);
+				ret.addAll(attributeReferences);
 		        
 	        }else if(parentNode instanceof FunctionDef){
 		    	//get the references inside of the parent (this will include the function itself)
-	    		ret.addAll(Scope.getOcurrences(occurencesFor, parentNode));
+	    		ret.addAll(ScopeAnalysis.getOcurrences(occurencesFor, parentNode));
 	    	}
 	        
         } else {
-        	//the function is in the global scope, which means that we should rename
-        	//the occurrences in the whole workspace (as well as in the whole module)
-        	if(request.findReferencesOnlyOnLocalScope){
-        		ret.addAll(Scope.getOcurrences(occurencesFor, simpleNode));
-        	}else{
-        		throw new RuntimeException("Currently is only checking on the module.");
-        	}
+        	ret.addAll(ScopeAnalysis.getOcurrences(occurencesFor, simpleNode));
         }
         
         
@@ -109,10 +106,10 @@ public class PyRenameFunctionProcess extends AbstractRenameRefactorProcess{
         
         if(!definition.module.getName().equals(request.moduleName)){
         	//it was found in another module
-        	ocurrences = Scope.getOcurrences(request.duringProcessInfo.initialName, root, false);
+        	ocurrences = ScopeAnalysis.getOcurrences(request.duringProcessInfo.initialName, root, false);
         	
         }else{
-            ocurrences = getOcurrences(request.duringProcessInfo.initialName, root, status);
+            ocurrences = getLocalOcurrences(request.duringProcessInfo.initialName, root, status);
         }
         
         occurrences.put(key, ocurrences);
