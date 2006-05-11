@@ -213,6 +213,9 @@ public class AnalysisBuilderThread extends Thread{
     		return;
     	}
         AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+        if(info == null){
+        	return;
+        }
         
         //info.removeInfoFromModule(sourceModule.getName()); -- does not remove info from the module because this should be already
         //done once it gets here (the AnalysisBuilder, that also makes dependency info should take care of this).

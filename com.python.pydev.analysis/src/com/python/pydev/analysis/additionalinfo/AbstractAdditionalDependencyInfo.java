@@ -138,6 +138,9 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     
     @Override
     public void addAstInfo(SimpleNode node, String moduleName, PythonNature nature, boolean generateDelta) {
+    	if(node == null || moduleName == null){
+    		return;
+    	}
     	super.addAstInfo(node, moduleName, nature, generateDelta);
         try {
         	HashSet<String> nameIndexes = new HashSet<String>();
