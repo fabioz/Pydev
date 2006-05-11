@@ -9,7 +9,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         try {
             RenameSelfVariableRefactoringTest test = new RenameSelfVariableRefactoringTest();
             test.setUp();
-            test.testClassMethodRename3();
+            test.testDontRename2();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameSelfVariableRefactoringTest.class);
@@ -114,6 +114,32 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
     	int line = 2;
     	int col = 14;
     	checkDefault(str, line, col, "blaa", false, true);
+    }
+    
+    public void testDontRename() throws Exception {
+        String str ="" +
+        "class Foo:\n" +
+        "    def %s(self):\n" +
+        "        m1 = 10\n" +
+        "        print m1\n" +
+        "        print self.%s\n" +
+        "";
+        int line = 1;
+        int col = 9;
+        checkDefault(str, line, col, "m1", false, true);
+    }
+    
+    public void testDontRename2() throws Exception {
+        String str ="" +
+        "class Foo:\n" +
+        "    def m1(self):\n" +
+        "        %s = 10\n" +
+        "        print %s\n" +
+        "        print self.m1\n" +
+        "";
+        int line = 2;
+        int col = 9;
+        checkDefault(str, line, col, "m1", false, true);
     }
     
 

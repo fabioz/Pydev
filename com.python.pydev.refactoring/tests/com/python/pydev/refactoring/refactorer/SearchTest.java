@@ -3,6 +3,7 @@ package com.python.pydev.refactoring.refactorer;
 import java.io.File;
 
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
@@ -18,7 +19,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
 		try {
 			SearchTest test = new SearchTest();
 			test.setUp();
-			test.testOnClassFind();
+			test.testOnSameName2();
 			test.tearDown();
 
 			junit.textui.TestRunner.run(SearchTest.class);
@@ -73,6 +74,13 @@ public class SearchTest extends AdditionalInfoTestsBase {
 
 	private RefactoringRequest createRefactoringRequest(String line, final File file) {
 		return new RefactoringRequest(	file, new PySelection(new Document(REF.getFileContents(file)), line.length()),	nature);
+	}
+	
+	private RefactoringRequest createRefactoringRequest(final IDocument doc, String modName, int line, int col) {
+	    PySelection sel = new PySelection(doc, line, col);
+        RefactoringRequest req = new RefactoringRequest(	null, sel,	nature);
+        req.moduleName = modName;
+        return req;
 	}
 	
 	public void testSearch3() throws Exception {
@@ -392,5 +400,41 @@ public class SearchTest extends AdditionalInfoTestsBase {
         //found the module
         assertEquals(6, pointers[0].start.column);
         assertEquals(0, pointers[0].start.line);
+    }
+    
+    public void testOnSameName() throws Exception {
+        String str ="" +
+        "class Foo:\n" +
+        "    def m1(self):\n" + //this line, col 9
+        "        m1 = 10\n" +
+        "        print m1\n" +
+        "        print self.m1\n" +
+        "";
+        
+        RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 9);
+        
+        refactoringRequest.findDefinitionInAdditionalInfo = false;
+        ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+        
+        assertEquals(1, pointers.length);
+        assertEquals(1, pointers[0].start.line);
+    }
+    
+    public void testOnSameName2() throws Exception {
+        String str ="" +
+        "class Foo:\n" +
+        "    def m1():\n" + //this line, col 9
+        "        pass\n" +
+        "    m1 = staticmethod(m1)\n" + //we will find this definition too
+        "";
+        
+        RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 9);
+        
+        refactoringRequest.findDefinitionInAdditionalInfo = false;
+        ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+        
+        assertEquals(2, pointers.length);
+        assertEquals(1, pointers[0].start.line);
+        assertEquals(3, pointers[1].start.line);
     }
 }

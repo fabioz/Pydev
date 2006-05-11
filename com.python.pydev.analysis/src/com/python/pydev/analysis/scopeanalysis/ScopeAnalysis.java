@@ -9,8 +9,11 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
@@ -90,14 +93,38 @@ public class ScopeAnalysis {
 	    		}else{
 	    			return super.visitAttribute(node);
 	    		}
-	    	}
+            }
 	    };
-	    
-	    try {
-	    	simpleNode.accept(visitor);
-	    } catch (Exception e) {
-	        throw new RuntimeException(e);
-	    }
+        if(simpleNode instanceof FunctionDef){
+            //all that because we don't want to visit the name of the function if we've started in a function scope
+            FunctionDef d = (FunctionDef) simpleNode;
+            try {
+                d.args.accept(visitor);
+                if(d.decs != null){
+                    for(decoratorsType dec : d.decs){
+                        if(dec != null){
+                            dec.accept(visitor);
+                        }
+                    }
+                }
+                if(d.body != null){
+                    for(stmtType exp: d.body){
+                        if(exp != null){
+                            exp.accept(visitor);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }else{
+    	    
+    	    try {
+    	    	simpleNode.accept(visitor);
+    	    } catch (Exception e) {
+    	        throw new RuntimeException(e);
+    	    }
+        }
 	    
 	    Iterator<ASTEntry> iterator = visitor.getIterator(new Class[]{Name.class, NameTok.class});
 	    while(iterator.hasNext()){
