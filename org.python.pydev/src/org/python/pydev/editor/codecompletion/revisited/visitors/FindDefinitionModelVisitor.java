@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
@@ -53,6 +54,9 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
 	private int line;
 
 	private int col;
+    
+    private boolean foundAsDefinition = false;
+    private Definition definitionFound;
     
     /**
      * Constructor
@@ -119,8 +123,8 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     public Object visitClassDef(ClassDef node) throws Exception {
         defsStack.push(node);
         node.traverse(this);
-        checkDeclaration(node, (NameTok) node.name);
         defsStack.pop();
+        checkDeclaration(node, (NameTok) node.name);
         return null;
     }
     
@@ -130,8 +134,8 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         defsStack.push(node);
         node.traverse(this);
-        checkDeclaration(node, (NameTok) node.name);
         defsStack.pop();
+        checkDeclaration(node, (NameTok) node.name);
         return null;
     }
 
@@ -142,7 +146,19 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     private void checkDeclaration(SimpleNode node, NameTok n) {
         String rep = NodeUtils.getRepresentationString(node);
         if(rep.equals(tokenToFind) && line == n.beginLine && col >= n.beginColumn && col <= n.beginColumn+rep.length()){
-            definitions.add(new Definition(line, n.beginColumn, rep, node, new Scope(this.defsStack), module));
+            foundAsDefinition = true;
+            // if it is found as a definition it is an 'exact' match, so, erase all the others.
+            Scope scope = new Scope(this.defsStack);
+            for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
+                Definition d = it.next();
+                if(!d.scope.equals(scope)){
+                    it.remove();
+                }
+            }
+            
+            
+            definitionFound = new Definition(line, n.beginColumn, rep, node, scope, module);
+            definitions.add(definitionFound);
         }
     }
     
@@ -150,6 +166,10 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
+        Scope scope = new Scope(this.defsStack);
+        if(foundAsDefinition && !scope.equals(definitionFound.scope)){ //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
+            return null;
+        }
         
         for (int i = 0; i < node.targets.length; i++) {
             String rep = NodeUtils.getFullRepresentationString(node.targets[i]);
@@ -165,7 +185,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
 	            	col = NodeUtils.getColDefinition(node.targets[0]);
 	            }
 
-	            definition = new AssignDefinition(value, rep, i, node, line, col, new Scope(this.defsStack), module);
+                definition = new AssignDefinition(value, rep, i, node, line, col, scope, module);
 	            definitions.add(definition);
 	        }
         }

@@ -172,8 +172,8 @@ public class PyParser {
         parseNow(true);
     }
     
-    public void parseNow(boolean force){
-        scheduler.parseNow(force);
+    public void parseNow(boolean force, Object ... argsToReparse){
+        scheduler.parseNow(force, argsToReparse);
     }
 
     public void setDocument(IDocument document) {
@@ -227,16 +227,24 @@ public class PyParser {
      * @param original 
      */
     @SuppressWarnings("unchecked")
-	protected void fireParserChanged(SimpleNode root, IAdaptable file, IDocument doc) {
+	protected void fireParserChanged(SimpleNode root, IAdaptable file, IDocument doc, Object ... argsToReparse) {
         this.root = root;
         synchronized(parserListeners){
         	for (IParserObserver l : parserListeners) {
-        		l.parserChanged(root, file, doc);
+        		if(l instanceof IParserObserver2){
+        			((IParserObserver2)l).parserChanged(root, file, doc, argsToReparse);
+        		}else{
+        			l.parserChanged(root, file, doc);
+        		}
 			}
 
         	List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
             for (IParserObserver observer : participants) {
-                observer.parserChanged(root, file, doc);
+        		if(observer instanceof IParserObserver2){
+        			((IParserObserver2)observer).parserChanged(root, file, doc, argsToReparse);
+        		}else{
+        			observer.parserChanged(root, file, doc);
+        		}
             }
         }
     }
@@ -246,14 +254,22 @@ public class PyParser {
      * @param original 
      */
     @SuppressWarnings("unchecked")
-	protected void fireParserError(Throwable error, IAdaptable file, IDocument doc) {
+	protected void fireParserError(Throwable error, IAdaptable file, IDocument doc, Object ... argsToReparse) {
         synchronized(parserListeners){
         	for (IParserObserver l : parserListeners) {
-                l.parserError(error, file, doc);
+        		if(l instanceof IParserObserver2){
+        			((IParserObserver2)l).parserError(error, file, doc, argsToReparse);
+        		}else{
+        			l.parserError(error, file, doc);
+        		}
             }
             List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
             for (IParserObserver observer : participants) {
-                observer.parserError(error, file, doc);
+            	if(observer instanceof IParserObserver2){
+            		((IParserObserver2)observer).parserError(error, file, doc, argsToReparse);
+            	}else{
+            		observer.parserError(error, file, doc);
+            	}
             }
         }
     }
@@ -263,16 +279,20 @@ public class PyParser {
      * reparses the document getting the nature associated to the corresponding editor 
      * @return
      */
-    public Object[] reparseDocument() {
-    	return reparseDocument(editorView.getPythonNature());
+    public Object[] reparseDocument(Object ... argsToReparse) {
+    	return reparseDocument(editorView.getPythonNature(), argsToReparse);
     }
     /**
      * Parses the document, generates error annotations
      * 
+     * @param argsToReparse: will be passed to fireParserError / fireParserChanged so that the IParserObserver2
+     * can check it. This is useful when the reparse was done with some specific thing in mind, so that its requestor
+     * can pass some specific thing to the parser observers
+     * 
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
-    public Object[] reparseDocument(IPythonNature nature) {
+    public Object[] reparseDocument(IPythonNature nature, Object ... argsToReparse) {
         
         //get the document ast and error in object
         Object obj[] = reparseDocument(new ParserInfo(document, true, nature, -1));
@@ -312,15 +332,15 @@ public class PyParser {
                     throw new RuntimeException("Null editor received in parser!");
                 }
             }
-            fireParserChanged((SimpleNode) obj[0], adaptable, document);
+            fireParserChanged((SimpleNode) obj[0], adaptable, document, argsToReparse);
         }
         
         if(obj[1] != null && obj[1] instanceof ParseException){
-            fireParserError((ParseException) obj[1], adaptable, document);
+            fireParserError((ParseException) obj[1], adaptable, document, argsToReparse);
         }
         
         if(obj[1] != null && obj[1] instanceof TokenMgrError){
-            fireParserError((TokenMgrError) obj[1], adaptable, document);
+            fireParserError((TokenMgrError) obj[1], adaptable, document, argsToReparse);
         }
         
         return obj;

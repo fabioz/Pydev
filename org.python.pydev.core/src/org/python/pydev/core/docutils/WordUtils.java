@@ -31,7 +31,7 @@ package org.python.pydev.core.docutils;
  * @author <a href="mailto:hps@intermeta.de">Henning P. Schmiedehausen</a>
  * @author Gary Gregory
  * @since 2.0
- * @version $Id: WordUtils.java,v 1.3 2006-04-06 16:05:57 fabioz Exp $
+ * @version $Id: WordUtils.java,v 1.4 2006-05-15 13:47:46 fabioz Exp $
  */
 public class WordUtils {
 

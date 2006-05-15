@@ -22,6 +22,6 @@ public class SequencialASTIteratorVisitor extends EasyAstIteratorBase{
         }
         return visitor;
     }
-
+    
 
 }

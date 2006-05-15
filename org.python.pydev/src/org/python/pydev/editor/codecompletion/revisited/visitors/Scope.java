@@ -12,20 +12,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.parser.jython.ast.Name;
-import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 /**
  * @author Fabio Zadrozny
@@ -62,9 +55,6 @@ public class Scope {
     /**
      * Checks if this scope is an outer scope of the scope passed as a param (s).
      * Or if it is the same scope. 
-     * 
-     * @param s
-     * @return
      */
     public boolean isOuterOrSameScope(Scope s){
         if(this.scope.size() > s.scope.size()){
@@ -75,8 +65,9 @@ public class Scope {
     }
 
     /**
-     * @param s
-     * @return
+     * @param s the scope we're checking for
+     * @return if the scope passed as a parameter starts with the same scope we have here. It should not be
+     * called if the size of the scope we're checking is bigger than the size of 'this' scope. 
      */
     private boolean checkIfScopesMatch(Scope s) {
         Iterator otIt = s.scope.iterator();
@@ -101,85 +92,14 @@ public class Scope {
         return true;
     }
     
+    /**
+     * @return all the local tokens found 
+     */
     public IToken[] getAllLocalTokens(){
         return getLocalTokens(Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
     
-    public List<ASTEntry> getOcurrences(String occurencesFor, IModule module) {
-    	SimpleNode simpleNode=null;
-    	
-    	if(this.scope.size() > 0){
-    		simpleNode = this.scope.get(this.scope.size()-1);
-    		
-    	}else if (module instanceof SourceModule){
-    		SourceModule m = (SourceModule) module;
-    		simpleNode = m.getAst();
-    	}
-    	
-    	if (simpleNode == null){
-    		return new ArrayList<ASTEntry>();
-    	}
-    	
-        return getOcurrences(occurencesFor, simpleNode);
-    }
     
-    public static List<ASTEntry> getOcurrences(String occurencesFor, SimpleNode simpleNode) {
-    	return getOcurrences(occurencesFor, simpleNode, true);
-    }
-    
-    /**
-     * @return a list of occurrences with the matches we're looking for. Does only return the first name in attributes.
-     */
-    public static List<ASTEntry> getOcurrences(String occurencesFor, SimpleNode simpleNode, final boolean onlyFirstAttribPart) {
-        List<ASTEntry> ret = new ArrayList<ASTEntry>();
-        
-        SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor(){
-        	@Override
-        	public Object visitAttribute(Attribute node) throws Exception {
-        		if(onlyFirstAttribPart){
-	        		List<SimpleNode> attributeParts = NodeUtils.getAttributeParts(node);
-	        		atomic(attributeParts.get(0)); //an attribute should always have many parts
-	        		return null;
-        		}else{
-        			return super.visitAttribute(node);
-        		}
-        	}
-        };
-        try {
-        	simpleNode.accept(visitor);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        
-        Iterator<ASTEntry> iterator = visitor.getIterator(new Class[]{Name.class, NameTok.class});
-        while(iterator.hasNext()){
-            ASTEntry entry = iterator.next();
-            if (occurencesFor.equals(entry.getName())){
-                ret.add(entry);
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * Search for the attributes that start with the passed parameter.
-     * 
-     * @param occurencesFor if 'foo', will look for all attributes that start with foo or foo.
-     */
-    public static List<ASTEntry> getAttributeOcurrences(String occurencesFor, SimpleNode simpleNode){
-        List<ASTEntry> ret = new ArrayList<ASTEntry>();
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
-        Iterator<ASTEntry> iterator = visitor.getIterator(new Class[]{Attribute.class});
-        while(iterator.hasNext()){
-            ASTEntry entry = iterator.next();
-            String rep = NodeUtils.getFullRepresentationString(entry.node);
-            if (rep.equals(occurencesFor)){
-                ret.add(entry);
-            }
-        }
-        return ret;
-   }
-
     /**
      * @param endLine tokens will only be recognized if its beginLine is higher than this parameter.
      */
@@ -222,6 +142,9 @@ public class Scope {
         return (SourceToken[]) comps.toArray(new SourceToken[0]);
     }
 
+    /**
+     * @return the modules that are imported in the current (local) scope as tokens
+     */
     public List<IToken> getLocalImportedModules(int line, int col, String moduleName) {
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
         for (Iterator iter = this.scope.iterator(); iter.hasNext();) {
@@ -241,6 +164,9 @@ public class Scope {
         return importedModules;
     }
 
+    /**
+     * @return the first class scope found or null if there is None
+     */
 	public ClassDef getClassDef() {
 		for(SimpleNode node : this.scope){
 			if(node instanceof ClassDef){

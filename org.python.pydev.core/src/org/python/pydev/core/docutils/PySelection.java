@@ -1191,6 +1191,15 @@ public class PySelection {
     }
 
 
+	public static boolean isInSameLine(int offset, IRegion lineInformationOfOffset) {
+        if(offset >= lineInformationOfOffset.getOffset() && 
+        		offset <= (lineInformationOfOffset.getOffset() + lineInformationOfOffset.getLength())){
+        	return true;
+        }
+        return false;
+	}
+
+
 
 
 

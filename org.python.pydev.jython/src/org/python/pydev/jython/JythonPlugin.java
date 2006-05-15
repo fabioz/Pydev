@@ -20,6 +20,8 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.python.core.PyException;
+import org.python.core.PyJavaClass;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.pydev.core.REF;
@@ -396,6 +398,21 @@ public class JythonPlugin extends AbstractUIPlugin {
 				
 				interpreter.exec(StringUtils.format("exec(%s)" , codeObjName));
 			} catch (Throwable e) {
+				//the user requested it to exit
+				if(e instanceof ExitScriptException){
+					return null;
+				}
+				//actually, this is more likely to happen when raising an exception in jython
+				if(e instanceof PyException){
+					PyException pE = (PyException) e;
+					if (pE.type instanceof PyJavaClass){
+						PyJavaClass t = (PyJavaClass) pE.type;
+						if(t.__name__ != null && t.__name__.equals("org.python.pydev.jython.ExitScriptException")){
+							return null;
+						}
+					}
+				}
+				
 				if(JyScriptingPreferencesPage.getShowScriptingOutput()){
 					Log.log(IStatus.ERROR, "Error while executing:"+fileToExec, e);
 				}

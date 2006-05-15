@@ -13,10 +13,12 @@ public class ParsingThread extends Thread {
     boolean force = false;
 
     private ParserScheduler parser;
+    private Object[] argsToReparse;
 
-    ParsingThread(ParserScheduler parser) {
+    ParsingThread(ParserScheduler parser, Object ... argsToReparse) {
         super();
         this.parser = parser;
+        this.argsToReparse = argsToReparse;
     }
 
     public void run() {
@@ -29,7 +31,7 @@ public class ParsingThread extends Thread {
             //ok, now we parse it... if we have not been requested to stop it
             try {
                 parser.state = ParserScheduler.STATE_DOING_PARSE;
-                parser.reparseDocument();
+                parser.reparseDocument(argsToReparse);
             } catch (Throwable e) {
                 Log.log(e);
             }

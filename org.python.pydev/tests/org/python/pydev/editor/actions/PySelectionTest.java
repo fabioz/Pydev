@@ -347,4 +347,18 @@ public class PySelectionTest extends TestCase {
         ps = new PySelection(doc, doc.getLength()-1);
         assertEquals(new Tuple<String, Integer>("bb",6), ps.getCurrToken());
     }
+    
+    public void testGetLine() throws Exception {
+		PySelection sel = new PySelection(new Document("foo\nbla"));
+		assertEquals("foo", sel.getLine());
+		assertEquals(0, sel.getLineOfOffset(1));
+	}
+    
+    public void testSameLine() throws Exception {
+    	final Document doc = new Document("foo\nbla\nxxx");
+    	assertEquals(true, PySelection.isInSameLine(0, doc.getLineInformation(0)));
+    	assertEquals(false, PySelection.isInSameLine(0, doc.getLineInformation(1)));
+    	
+    	assertEquals(true, PySelection.isInSameLine(4, doc.getLineInformation(1)));
+    }
 }

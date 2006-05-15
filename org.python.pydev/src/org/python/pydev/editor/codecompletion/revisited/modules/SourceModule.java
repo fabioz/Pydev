@@ -698,4 +698,8 @@ public class SourceModule extends AbstractModule {
         
         return REF.getFileAbsolutePath(file).equals(REF.getFileAbsolutePath(m.file)) && this.name.equals(m.name); 
     }
+
+	public void setName(String n) {
+		this.name = n;
+	}
 }

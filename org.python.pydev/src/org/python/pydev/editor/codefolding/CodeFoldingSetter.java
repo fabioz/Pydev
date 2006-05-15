@@ -54,10 +54,10 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
             //this had to be done because sometimes we get here and we still are unable to get the
             //projection annotation model. (there should be a better way, but this solves it...
             //even if it looks like a hack...)
-            new Thread() {
+            Thread t = new Thread() {
                 public void run() {
                     ProjectionAnnotationModel modelT = null;
-                    for (int i = 0; i < 20 && modelT == null; i++) { //we will try it for 2 secs...
+                    for (int i = 0; i < 10 && modelT == null; i++) { //we will try it for 10 secs...
                         try {
                             sleep(100);
                         } catch (InterruptedException e) {
@@ -70,7 +70,10 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                         }
                     }
                 }
-            }.start();
+            };
+            t.setPriority(Thread.MIN_PRIORITY);
+            t.setName("CodeFolding - get annotation model");
+            t.start();
         } else {
             addMarksToModel(root2, model);
         }

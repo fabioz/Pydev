@@ -20,7 +20,7 @@ http://pydev.sourceforge.net
 
 # Change this if the default does not suit your needs
 ACTIVATION_STRING = 'a'
-WAIT_FOR_ENTER = True
+WAIT_FOR_ENTER = False
 
 # For earlier Python versions
 True, False = 1,0

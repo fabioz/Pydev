@@ -107,9 +107,21 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                 return dedent(text);
             }
             
-        	if(selection.getLineContentsToCursor().trim().length() == 0){
-        		return indentBasedOnStartingScope(text, selection, true);
-        	}
+            boolean indentBasedOnStartingScope = false;
+            try {
+                char c = selection.getCharAfterCurrentOffset();
+                if(Character.isWhitespace(c)){
+                    indentBasedOnStartingScope = true;
+                }
+            } catch (BadLocationException e) {
+                //(end of the file)
+                indentBasedOnStartingScope = true;
+            }
+            
+            if(indentBasedOnStartingScope && selection.getLineContentsToCursor().trim().length() == 0){
+                return indentBasedOnStartingScope(text, selection, true);
+            }
+            
         }
         return text;
     }
@@ -674,10 +686,36 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         if(openingPeerOffset == -1){
             return -1;
         }
+        
+        //ok, now, if the opening peer is not on the line we're currently, we do not want to make
+        //an 'auto-indent', but keep the current indentation level
         final IRegion lineInformationOfOffset = document.getLineInformationOfOffset(openingPeerOffset);
+        if(!PySelection.isInSameLine(offset, lineInformationOfOffset)){
+        	return -1;
+        }
+        
         int len = -1;
         String contents = "";
         if(prefs.getIndentToParLevel()){
+        	
+        	
+        	//now, there's a little catch here, if we are in a line with an opening peer,
+        	//we have to choose whether to indent to the opening peer or a little further
+        	//e.g.: if the line is 
+        	//method(  self <<- a new line here should indent to the start of the self and not
+        	//to the opening peer.
+        	if(openingPeerOffset < offset){
+        		String fromParToCursor = document.get(openingPeerOffset, offset-openingPeerOffset);
+        		if(fromParToCursor.length() > 0 && fromParToCursor.charAt(0) == '('){
+        			fromParToCursor = fromParToCursor.substring(1);
+        			if(!PySelection.containsOnlyWhitespaces(fromParToCursor)){
+        				final int firstCharPosition = PySelection.getFirstCharPosition(fromParToCursor);
+        				openingPeerOffset += firstCharPosition;
+        			}
+        		}
+        	}
+        	
+        	
 			int openingPeerLineOffset = lineInformationOfOffset.getOffset();
 	        len = openingPeerOffset - openingPeerLineOffset;
 	        contents = document.get(openingPeerLineOffset, len);

@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNewLineAfterReturn2();
+            s.testNewLineAfterOpeningParWithOtherContents();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -97,6 +97,17 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	
     }
     
+    public void testNewLineAfterOpeningParWithOtherContents() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"def m1(  self,";
+    	//        |<-- should indent here in this case, and not on the parenthesis
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n         ", docCmd.text); 
+    }
+    
     public void testNewLineAfterReturn2() {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         String str = "" +
@@ -109,6 +120,64 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.customizeDocumentCommand(doc, docCmd);
         assertEquals("\n            ", docCmd.text); 
         
+    }
+    
+    
+    public void testMaintainIndent() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String str = "" +
+        "def moo():\n" +
+        "    if not 1:\n" +
+        "        print 'foo'\n" +
+        "    print 'bla'"+
+        "";
+        
+        
+        final Document doc = new Document(str);
+        DocCmd docCmd = new DocCmd(doc.getLength()-"print 'bla'".length(), 0, "\n");
+        strategy.customizeDocumentCommand(doc, docCmd);
+        assertEquals("\n    ", docCmd.text); 
+        
+    }
+    
+    
+    public void testNoAutoIndentClosingPar() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"newTuple = (\n" +
+    	"              what(),\n" + //the next line should be indented to this one, and not to the start of the indent
+    	"            )\n" +
+    	"";
+    	
+    	
+    	final Document doc = new Document(str);
+    	String s = 
+    		"\n"+
+    		"            )\n";
+    	DocCmd docCmd = new DocCmd(doc.getLength()-s.length(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n              ", docCmd.text); 
+    	
+    }
+    
+    public void testNoAutoIndentClosingPar2() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"newTuple = (\n" +
+    	"              what(),\n" + 
+    	"\n" + //pressing tab in the start of this line will bring us to the 'what()' level.
+    	"            )\n" +
+    	"";
+    	
+    	
+    	final Document doc = new Document(str);
+    	String s = 
+    		"\n"+
+    		"            )\n";
+    	DocCmd docCmd = new DocCmd(doc.getLength()-s.length(), 0, "\t");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("              ", docCmd.text); 
+    	
     }
     
     public void testNewLineAfterLineWithComment() {

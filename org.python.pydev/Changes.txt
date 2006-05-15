@@ -6,6 +6,7 @@ Pydev:
 - The Parser character stream was redone to be more efficient (especially when dealing with big files)
 - The pythonpath set now let's the project pythonpath before the system pythonpath
 - The way modules are resolved for loading when running unit-tests has changed
+- Indentation further improved
 
 Extensions:
 - Mark Occurences?

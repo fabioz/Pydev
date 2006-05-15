@@ -65,7 +65,10 @@ public class ParserScheduler {
         parseNow(false);
     }
     
-    public void parseNow(boolean force) {
+    /**
+     * The arguments passed in argsToReparse will be passed to the reparseDocument, and then on to fireParserChanged / fireParserError
+     */
+    public void parseNow(boolean force, Object ... argsToReparse) {
         if(!force){
             if(state != STATE_WAITING_FOR_ELAPSE && state != STATE_DOING_PARSE){
                 //waiting or parse later
@@ -85,7 +88,7 @@ public class ParserScheduler {
                 //a parse is already in action
             }else{
                 if(parserThreadLocal == null){
-                    parserThreadLocal = new ParsingThread(this);
+                    parserThreadLocal = new ParsingThread(this, argsToReparse);
                     parsingThread = parserThreadLocal;
                     parserThreadLocal.force = true;
                     parserThreadLocal.setPriority(Thread.MIN_PRIORITY); //parsing is low priority
@@ -139,9 +142,11 @@ public class ParserScheduler {
 
     /**
      * this should call back to the parser itself for doing a parse
+     * 
+     * The argsToReparse will be passed to the IParserObserver2
      */
-    public void reparseDocument() {
-        parser.reparseDocument();
+    public void reparseDocument(Object ... argsToReparse) {
+        parser.reparseDocument(argsToReparse);
     }
 
 
