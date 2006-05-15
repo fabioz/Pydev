@@ -11,18 +11,30 @@ PyDBCtx_threadToCtx = {}
 PyDBCtx_Lock = threading.RLock()
 PyDBCtx_Threads = {}#weakref.WeakValueDictionary()
 
+PyDBCtx_UseLocks = False #I don't know why jython halts when using this synchronization...
+
+def PyDBCtx_LockAcquire():
+    if PyDBCtx_UseLocks:
+        PyDBCtx_Lock.acquire()
+    return True
+    
+def PyDBCtx_LockRelease():
+    if PyDBCtx_UseLocks:
+        PyDBCtx_Lock.release()
+    return True
+    
 def PyDBCtx_GetCtxs():
-    PyDBCtx_Lock.acquire()
+    PyDBCtx_LockAcquire()
     try:
         ret = []
         for v in PyDBCtx_threadToCtx.values():
             ret += v.values()
     finally:
-        PyDBCtx_Lock.release()
+        PyDBCtx_LockRelease()
     return ret
 
 def PyDBCtx_GetCtx(frame, currThread):
-    PyDBCtx_Lock.acquire()
+    PyDBCtx_LockAcquire()
     try:
         #keep the last frame for each thread (previously we were keeping all the frames, in the context,
         #but that was a bad thing, as things in the frames did not die).
@@ -43,12 +55,12 @@ def PyDBCtx_GetCtx(frame, currThread):
             ctx = PyDBCtx(frame, threadId)
             ctxs[key] = ctx
     finally:
-        PyDBCtx_Lock.release()
+        PyDBCtx_LockRelease()
 
     return ctx
 
 def PyDBCtx_SetTraceForAllFileCtxs(f):
-    PyDBCtx_Lock.acquire()
+    PyDBCtx_LockAcquire()
     try:
         g = GetGlobalDebugger()
         if g:
@@ -63,7 +75,7 @@ def PyDBCtx_SetTraceForAllFileCtxs(f):
                                 frame.f_trace = g.trace_dispatch
                             frame = frame.f_back
     finally:
-        PyDBCtx_Lock.release()
+        PyDBCtx_LockRelease()
                 
 class PyDBCtx:
     '''This class is used to keep track of the contexts we pass through (acting as a cache for them).
@@ -80,9 +92,11 @@ class PyDBCtx:
     
     def acquire(self):
         self.lock.acquire()
+        return True
         
     def release(self):
         self.lock.release()
+        return True
         
 class PyDBCommandThread(PyDBDaemonThread):
     
@@ -91,6 +105,7 @@ class PyDBCommandThread(PyDBDaemonThread):
         self.pyDb = pyDb
 
     def run(self):
+        time.sleep(5) #this one will only start later on (because otherwise we may not have any non-daemon threads
         sys.settrace(None) # no debugging on this thread
         while not self.killReceived:
             self.pyDb.processInternalCommands()
@@ -211,7 +226,7 @@ class PyDB:
                         while True:
                             int_cmd = queue.get(False)
                             if int_cmd.canBeExecutedBy(id(threading.currentThread())):
-                                pydevd_log(2, "processign internal command " + str(int_cmd))
+                                pydevd_log(2, "processing internal command " + str(int_cmd))
                                 int_cmd.doIt(self)
                             else:
                                 pydevd_log(2, "NOT processign internal command " + str(int_cmd))
@@ -610,7 +625,9 @@ class PyDB:
 
         while not self.readyToRun: 
             time.sleep(0.1) # busy wait until we receive run command
-        
+            
+        PyDBCommandThread(debugger).start()
+
         execfile(file, globals, locals) #execute the script
 
 
@@ -727,5 +744,4 @@ if __name__ == '__main__':
     debugger = PyDB()
     debugger.connect(setup['client'], setup['port'])
     debugger.run(setup['file'], None, None)
-    PyDBCommandThread(debugger).start()
     

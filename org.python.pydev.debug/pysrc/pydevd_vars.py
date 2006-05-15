@@ -29,6 +29,7 @@ except:
 #------------------------------------------------------------------------------------------------------ class for errors
 
 class VariableError(RuntimeError):pass
+class FrameNotFoundError(RuntimeError):pass
 
 
 #------------------------------------------------------------------------------------------------------ resolvers in map
@@ -222,7 +223,7 @@ Current     thread_id:%s, available frames:
 %s
 ''' % (thread_id, lookingFor, id(threading.currentThread()), msgFrames)
 
-        raise VariableError(errMsg)
+        raise FrameNotFoundError(errMsg)
     
     return frameFound
 

@@ -272,7 +272,8 @@ class NetCommandFactory:
 
     def makeErrorMessage(self, seq, text):
         cmd = NetCommand(CMD_ERROR, seq, text)
-        print >>sys.stderr, "Error: ", text
+        if pydevd_trace > 2:
+            print >>sys.stderr, "Error: ", text
         return cmd;
 
     def makeThreadCreatedMessage(self,thread):
@@ -450,17 +451,20 @@ class InternalGetFrame(InternalThreadCommand):
     def doIt(self, dbg):
         """ Converts request into python variable """
         try:
-            xml = "<xml>"            
-            frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
-            xml += pydevd_vars.frameVarsToXML(frame)
-            xml += "</xml>"
-            cmd = dbg.cmdFactory.makeGetFrameMessage(self.sequence, xml)
-            dbg.writer.addCommand(cmd)
-        except Exception:
-            exc_info = sys.exc_info()
-            s = StringIO.StringIO()
-            traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = s)
-            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving frame" + s.getvalue())
+            try:
+                xml = "<xml>"            
+                frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
+                xml += pydevd_vars.frameVarsToXML(frame)
+                xml += "</xml>"
+                cmd = dbg.cmdFactory.makeGetFrameMessage(self.sequence, xml)
+                dbg.writer.addCommand(cmd)
+            except pydevd_vars.FrameNotFoundError:
+                #don't print this error: frame not found: means that the client is dis-synchronized (but that's ok)
+                cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving frame: %s from thread: %s" % (self.frame_id, self.thread_id))
+                dbg.writer.addCommand(cmd)
+        except:
+            traceback.print_exc()
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error resolving frame: %s from thread: %s" % (self.frame_id, self.thread_id))
             dbg.writer.addCommand(cmd)
 
            
