@@ -131,6 +131,9 @@ public class MarkOccurrencesJob extends Thread{
 	            
 
 	            Tuple3<RefactoringRequest,PyRenameProcessor,Boolean> ret = checkAnnotations(pyEdit, documentProvider);
+	            if(pyEdit.cache == null){ //disposed (cannot add or remove annotations)
+	            	continue;
+	            }
 	            if(ret.o3){
 	            	if(!addAnnotations(pyEdit, annotationModel, ret.o1, ret.o2)){
 	            		//something went wrong, so, let's remove the occurrences
@@ -207,6 +210,11 @@ public class MarkOccurrencesJob extends Thread{
         synchronized (getLockObject(annotationModel)) {
             List<ASTEntry> ocurrences = processor.getOcurrences();
             if(ocurrences != null){
+            	Map<String, Object> cache = pyEdit.cache;
+            	if(cache == null){
+            		return false;
+            	}
+            	
                 IDocument doc = pyEdit.getDocument();
                 ArrayList<Annotation> annotations = new ArrayList<Annotation>();
                 Map<Annotation, Position> toAddAsMap = new HashMap<Annotation, Position>();                
@@ -233,7 +241,7 @@ public class MarkOccurrencesJob extends Thread{
                 ext.replaceAnnotations(toRemove.toArray(new Annotation[0]), toAddAsMap);
 
                 //put them in the pyEdit
-                pyEdit.cache.put(ANNOTATIONS_CACHE_KEY, annotations);
+				cache.put(ANNOTATIONS_CACHE_KEY, annotations);
             }else{
                 if(DEBUG){
                     System.out.println("Occurrences == null");
@@ -247,9 +255,16 @@ public class MarkOccurrencesJob extends Thread{
     /**
      * @return the list of occurrence annotations in the pyedit
      */
+	@SuppressWarnings("unchecked")
 	private List<Annotation> getCurrentAnnotationsInPyEdit(final PyEdit pyEdit) {
-		List<Annotation> inEdit = (List<Annotation>) pyEdit.cache.get(ANNOTATIONS_CACHE_KEY);
 		List<Annotation> toRemove = new ArrayList<Annotation>();
+		final Map<String, Object> cache = pyEdit.cache;
+		
+		if(cache == null){
+			return toRemove;
+		}
+		
+		List<Annotation> inEdit = (List<Annotation>) cache.get(ANNOTATIONS_CACHE_KEY);
 		if(inEdit != null){
 		    Iterator<Annotation> annotationIterator = inEdit.iterator();
 		    while(annotationIterator.hasNext()){
@@ -321,11 +336,16 @@ public class MarkOccurrencesJob extends Thread{
 	private void removeOccurenceAnnotations(IAnnotationModel annotationModel, PyEdit pyEdit) {
         //remove the annotations
         synchronized(getLockObject(annotationModel)){
+        	Map<String, Object> cache = pyEdit.cache;
+        	if(cache == null){
+        		return;
+        	}
+        	
             Iterator<Annotation> annotationIterator = getCurrentAnnotationsInPyEdit(pyEdit).iterator();
             while(annotationIterator.hasNext()){
                 annotationModel.removeAnnotation(annotationIterator.next());
             }
-            pyEdit.cache.put(ANNOTATIONS_CACHE_KEY, null);
+			cache.put(ANNOTATIONS_CACHE_KEY, null);
         }
         //end remove the annotations
     }
