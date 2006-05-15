@@ -218,6 +218,17 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	checkDefault(str, line, col, "met1", false, true);
     }
     
+    public void testRenameUndefined() throws Exception {
+    	String str = "" +
+    	"from a import %s\n" +
+    	"print %s\n" +
+    	"";
+    	int line = 0;
+    	int col = 15;
+    	checkDefault(str, line, col, "foo", false, true);
+    }
+
+    
     public void testRenameInstance() throws Exception {
         String str=getDefaultDocStr();
         int line = 2;
