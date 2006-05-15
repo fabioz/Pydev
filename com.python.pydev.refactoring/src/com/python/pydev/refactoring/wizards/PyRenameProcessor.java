@@ -127,27 +127,31 @@ public class PyRenameProcessor extends RenameProcessor {
         IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
         ItemPointer[] pointers = pyRefactoring.findDefinition(request);
         
-        if(pointers.length == 0){
-            status.addFatalError("Unable to find the definition of the variable to rename.");
-            return status;
-        }
-        
         process = new ArrayList<IRefactorProcess>();
-        for (ItemPointer pointer : pointers){
-            if(pointer.definition == null){
-                status.addFatalError("The definition found is not valid. "+pointer);
-            }
-            if(DEBUG){
-                System.out.println("Found:"+pointer.definition);
-            }
-            
-            IRefactorProcess p = RefactorProcessFactory.getProcess(pointer.definition);
-            if(p == null){
-                status.addFatalError("Refactoring Process not defined: the definition found is not valid:"+pointer.definition);
-                return status;
-            }
-            process.add(p);
-            p.checkInitialConditions(pm, status, this.request);
+        
+        if(pointers.length == 0){
+        	//no definition found
+        	IRefactorProcess p = RefactorProcessFactory.getRenameAnyProcess();
+        	process.add(p);
+        	p.checkInitialConditions(pm, status, this.request);
+        	
+        }else{
+	        for (ItemPointer pointer : pointers){
+	            if(pointer.definition == null){
+	                status.addFatalError("The definition found is not valid. "+pointer);
+	            }
+	            if(DEBUG){
+	                System.out.println("Found:"+pointer.definition);
+	            }
+	            
+	            IRefactorProcess p = RefactorProcessFactory.getProcess(pointer.definition);
+	            if(p == null){
+	                status.addFatalError("Refactoring Process not defined: the definition found is not valid:"+pointer.definition);
+	                return status;
+	            }
+	            process.add(p);
+	            p.checkInitialConditions(pm, status, this.request);
+	        }
         }
         return status;
     }

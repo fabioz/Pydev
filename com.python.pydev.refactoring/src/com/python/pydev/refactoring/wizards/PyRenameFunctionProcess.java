@@ -86,11 +86,11 @@ public class PyRenameFunctionProcess extends AbstractRenameRefactorProcess{
 		        
 	        }else if(parentNode instanceof FunctionDef){
 		    	//get the references inside of the parent (this will include the function itself)
-	    		ret.addAll(ScopeAnalysis.getOcurrences(occurencesFor, parentNode));
+	    		ret.addAll(ScopeAnalysis.getLocalOcurrences(occurencesFor, parentNode));
 	    	}
 	        
         } else {
-        	ret.addAll(ScopeAnalysis.getOcurrences(occurencesFor, simpleNode));
+        	ret.addAll(ScopeAnalysis.getLocalOcurrences(occurencesFor, simpleNode));
         }
         
         
@@ -106,7 +106,7 @@ public class PyRenameFunctionProcess extends AbstractRenameRefactorProcess{
         
         if(!definition.module.getName().equals(request.moduleName)){
         	//it was found in another module
-        	ocurrences = ScopeAnalysis.getOcurrences(request.duringProcessInfo.initialName, root, false);
+        	ocurrences = ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root, false);
         	
         }else{
             ocurrences = getLocalOcurrences(request.duringProcessInfo.initialName, root, status);

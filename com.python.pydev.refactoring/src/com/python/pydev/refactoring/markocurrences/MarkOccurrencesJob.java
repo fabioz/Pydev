@@ -5,11 +5,15 @@ package com.python.pydev.refactoring.markocurrences;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -18,9 +22,11 @@ import org.eclipse.jface.text.ISynchronizable;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
+import org.eclipse.jface.text.source.IAnnotationModelExtension;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
@@ -70,6 +76,7 @@ public class MarkOccurrencesJob extends Thread{
 
     @SuppressWarnings("unchecked")
     public void run() {
+    	
         while(true){
             //synchronization code
             try {
@@ -121,54 +128,18 @@ public class MarkOccurrencesJob extends Thread{
 	            if(annotationModel == null){
 	            	continue;
 	            }
-	            removeOccurenceAnnotations(annotationModel, pyEdit);
 	            
-	            if(!MarkOccurrencesPreferencesPage.useMarkOccurrences()){
-	            	continue;
-	            }
-	
-	            //now, let's see if the editor still has a document (so that we still can add stuff to it)
-                IEditorInput editorInput = pyEdit.getEditorInput();
-                if(editorInput == null){
-                	continue;
-                }
-                
-                if(documentProvider.getDocument(editorInput) == null){
-                	continue;
-                }
-                
-                if(pyEdit.getSelectionProvider() == null){
-                	continue;
-                }
-                
-                //ok, the editor is still there wit ha document... move on
-                PyRefactorAction pyRefactorAction = getRefactorAction();
-                pyRefactorAction.setEditor(pyEdit);
-                
-                final RefactoringRequest req = getRefactoringRequest(pyEdit, pyRefactorAction);
-                
-                if(req == null){
-                	continue;
-                }
-                
-                PyRenameProcessor processor = new PyRenameProcessor(req);
-                //to see if a new request was not created in the meantime (in which case this one will be cancelled)
-                if (currRequestTime != lastRequestTime) {
-                    continue;
-                }
-                
-                monitor.setCanceled(false);
-                processor.checkInitialConditions(monitor);
-                if (currRequestTime != lastRequestTime) {
-                    continue;
-                }
-                
-                processor.checkFinalConditions(monitor, null);
-                if (currRequestTime != lastRequestTime) {
-                    continue;
-                }
 
-                addAnnotations(pyEdit, annotationModel, req, processor);
+	            Tuple3<RefactoringRequest,PyRenameProcessor,Boolean> ret = checkAnnotations(pyEdit, documentProvider);
+	            if(ret.o3){
+	            	if(!addAnnotations(pyEdit, annotationModel, ret.o1, ret.o2)){
+	            		//something went wrong, so, let's remove the occurrences
+	            		removeOccurenceAnnotations(annotationModel, pyEdit);
+	            	}
+	            }else{
+	            	removeOccurenceAnnotations(annotationModel, pyEdit);
+	            }
+	            
             } catch (Throwable e) {
                 Log.log(e);
             }
@@ -176,42 +147,120 @@ public class MarkOccurrencesJob extends Thread{
     }
 
     /**
-     * @param pyEdit
-     * @param annotationModel
-     * @param req
-     * @param processor
-     * @throws BadLocationException
+     * @return a tuple with the refactoring request, the processor and a boolean indicating if all pre-conditions succedded.
      */
-    private void addAnnotations(final PyEdit pyEdit, IAnnotationModel annotationModel, final RefactoringRequest req, PyRenameProcessor processor) throws BadLocationException {
+    private Tuple3<RefactoringRequest,PyRenameProcessor,Boolean> checkAnnotations(PyEdit pyEdit, IDocumentProvider documentProvider) throws BadLocationException, OperationCanceledException, CoreException {
+        if(!MarkOccurrencesPreferencesPage.useMarkOccurrences()){
+        	return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(null,null,false);
+        }
+
+        //now, let's see if the editor still has a document (so that we still can add stuff to it)
+        IEditorInput editorInput = pyEdit.getEditorInput();
+        if(editorInput == null){
+        	return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(null,null,false);
+        }
+        
+        if(documentProvider.getDocument(editorInput) == null){
+        	return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(null,null,false);
+        }
+        
+        if(pyEdit.getSelectionProvider() == null){
+        	return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(null,null,false);
+        }
+        
+        //ok, the editor is still there wit ha document... move on
+        PyRefactorAction pyRefactorAction = getRefactorAction();
+        pyRefactorAction.setEditor(pyEdit);
+        
+        final RefactoringRequest req = getRefactoringRequest(pyEdit, pyRefactorAction);
+        
+        if(req == null){
+        	return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(null,null,false);
+        }
+        
+        PyRenameProcessor processor = new PyRenameProcessor(req);
+        //to see if a new request was not created in the meantime (in which case this one will be cancelled)
+        if (currRequestTime != lastRequestTime) {
+        	return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(null,null,false);
+        }
+        
+        monitor.setCanceled(false);
+        processor.checkInitialConditions(monitor);
+        if (currRequestTime != lastRequestTime) {
+        	return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(null,null,false);
+        }
+        
+        processor.checkFinalConditions(monitor, null);
+        if (currRequestTime != lastRequestTime) {
+        	return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(null,null,false);
+        }
+        
+        //ok, pre-conditions suceeded
+		return new Tuple3<RefactoringRequest,PyRenameProcessor,Boolean>(req,processor,true);
+	}
+
+	/**
+	 * @return true if the annotations were removed and added without any problems and false otherwise
+     */
+    private boolean addAnnotations(final PyEdit pyEdit, IAnnotationModel annotationModel, final RefactoringRequest req, PyRenameProcessor processor) throws BadLocationException {
         //add the annotations
         synchronized (getLockObject(annotationModel)) {
             List<ASTEntry> ocurrences = processor.getOcurrences();
             if(ocurrences != null){
                 IDocument doc = pyEdit.getDocument();
                 ArrayList<Annotation> annotations = new ArrayList<Annotation>();
+                Map<Annotation, Position> toAddAsMap = new HashMap<Annotation, Position>();                
                 
                 for (ASTEntry entry : ocurrences) {
                     IRegion lineInformation = doc.getLineInformation(entry.node.beginLine-1);
                     
                     try {
-                        final Annotation annotation = new Annotation(OCCURRENCE_ANNOTATION_TYPE, false, "occurrence");
+                        Annotation annotation = new Annotation(OCCURRENCE_ANNOTATION_TYPE, false, "occurrence");
+                        Position position = new Position(lineInformation.getOffset() + entry.node.beginColumn - 1, req.duringProcessInfo.initialName.length());
+                        toAddAsMap.put(annotation, position);
                         annotations.add(annotation);
-						annotationModel.addAnnotation(
-                            annotation, 
-                            new Position(lineInformation.getOffset() + entry.node.beginColumn - 1, req.duringProcessInfo.initialName.length()));
+						
                     } catch (Exception e) {
                         Log.log(e);
                     }
                 }
                 
+                //get the ones to remove
+                List<Annotation> toRemove = getCurrentAnnotationsInPyEdit(pyEdit);
+                
+                //replace them
+                IAnnotationModelExtension ext = (IAnnotationModelExtension) annotationModel;
+                ext.replaceAnnotations(toRemove.toArray(new Annotation[0]), toAddAsMap);
+
+                //put them in the pyEdit
                 pyEdit.cache.put(ANNOTATIONS_CACHE_KEY, annotations);
             }else{
                 if(DEBUG){
                     System.out.println("Occurrences == null");
                 }
+                return false;
             }
         }
+        return true;
     }
+
+    /**
+     * @return the list of occurrence annotations in the pyedit
+     */
+	private List<Annotation> getCurrentAnnotationsInPyEdit(final PyEdit pyEdit) {
+		List<Annotation> inEdit = (List<Annotation>) pyEdit.cache.get(ANNOTATIONS_CACHE_KEY);
+		List<Annotation> toRemove = new ArrayList<Annotation>();
+		if(inEdit != null){
+		    Iterator<Annotation> annotationIterator = inEdit.iterator();
+		    while(annotationIterator.hasNext()){
+		        Annotation annotation = annotationIterator.next();
+		        if(annotation.getType().equals(OCCURRENCE_ANNOTATION_TYPE)){
+		            toRemove.add(annotation);
+		        }
+		    }
+		}
+		return toRemove;
+	}
 
     /**
      * @param pyEdit
@@ -268,22 +317,13 @@ public class MarkOccurrencesJob extends Thread{
     /**
      * @param annotationModel
      */
-    private void removeOccurenceAnnotations(IAnnotationModel annotationModel, PyEdit pyEdit) {
+    @SuppressWarnings("unchecked")
+	private void removeOccurenceAnnotations(IAnnotationModel annotationModel, PyEdit pyEdit) {
         //remove the annotations
         synchronized(getLockObject(annotationModel)){
-            List<Annotation> annotations = (List<Annotation>) pyEdit.cache.get(ANNOTATIONS_CACHE_KEY);
-
-            if(annotations == null){
-            	return;
-            }
-            
-            //ok, let's re-use the ocurrences marker from jdt (jdt is a pre-requisite anyway).
-            Iterator<Annotation> annotationIterator = annotations.iterator();
+            Iterator<Annotation> annotationIterator = getCurrentAnnotationsInPyEdit(pyEdit).iterator();
             while(annotationIterator.hasNext()){
-                Annotation annotation = annotationIterator.next();
-                if(annotation.getType().equals(OCCURRENCE_ANNOTATION_TYPE)){
-                    annotationModel.removeAnnotation(annotation);
-                }
+                annotationModel.removeAnnotation(annotationIterator.next());
             }
             pyEdit.cache.put(ANNOTATIONS_CACHE_KEY, null);
         }

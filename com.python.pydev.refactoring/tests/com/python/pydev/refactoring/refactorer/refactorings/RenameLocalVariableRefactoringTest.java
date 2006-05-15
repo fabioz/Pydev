@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameAttribute();
+            test.testNotFoundAttr();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -228,6 +228,17 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	checkDefault(str, line, col, "foo", false, true);
     }
 
+    public void testNotFoundAttr() throws Exception {
+    	String str = "" +
+    	"class Foo:\n" +
+    	"    def %s(self, foo):\n" +
+    	"        print foo.%s\n" +
+    	"";
+    	int line = 2;
+    	int col = 19;
+    	checkDefault(str, line, col, "met1", false, true);
+    }
+    
     
     public void testRenameInstance() throws Exception {
         String str=getDefaultDocStr();

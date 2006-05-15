@@ -49,4 +49,8 @@ public class RefactorProcessFactory {
         return new PyRenameLocalProcess(definition);
     }
 
+	public static IRefactorProcess getRenameAnyProcess() {
+		return new PyRenameAnyLocalProcess();
+	}
+
 }

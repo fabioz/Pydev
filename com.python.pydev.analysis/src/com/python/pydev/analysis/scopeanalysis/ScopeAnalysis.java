@@ -47,7 +47,7 @@ public class ScopeAnalysis {
 	 * @param scope the scope we're in
 	 * @return a list of entries with the occurrences
 	 */
-    public static List<ASTEntry> getOcurrences(String occurencesFor, IModule module, Scope scope) {
+    public static List<ASTEntry> getLocalOcurrences(String occurencesFor, IModule module, Scope scope) {
     	SimpleNode simpleNode=null;
     	
     	if(scope.scope.size() > 0){
@@ -62,7 +62,7 @@ public class ScopeAnalysis {
     		return new ArrayList<ASTEntry>();
     	}
     	
-        return ScopeAnalysis.getOcurrences(occurencesFor, simpleNode);
+        return ScopeAnalysis.getLocalOcurrences(occurencesFor, simpleNode);
     }
 
 
@@ -71,15 +71,16 @@ public class ScopeAnalysis {
      * @param simpleNode we will want the occurences below this node
      * @return a list of entries with the occurrences
      */
-	public static List<ASTEntry> getOcurrences(String occurencesFor, SimpleNode simpleNode) {
-		return ScopeAnalysis.getOcurrences(occurencesFor, simpleNode, true);
+	public static List<ASTEntry> getLocalOcurrences(String occurencesFor, SimpleNode simpleNode) {
+		return ScopeAnalysis.getLocalOcurrences(occurencesFor, simpleNode, true);
 	}
 
 
 	/**
-	 * @return a list of occurrences with the matches we're looking for. Does only return the first name in attributes.
+	 * @return a list of occurrences with the matches we're looking for.
+	 * Does only return the first name in attributes if onlyFirstAttribPart is true (otherwise will check all attribute parts)
 	 */
-	public static List<ASTEntry> getOcurrences(String occurencesFor, SimpleNode simpleNode, final boolean onlyFirstAttribPart) {
+	public static List<ASTEntry> getLocalOcurrences(String occurencesFor, SimpleNode simpleNode, final boolean onlyFirstAttribPart) {
 	    List<ASTEntry> ret = new ArrayList<ASTEntry>();
 	    
 	    SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor(){

@@ -21,7 +21,7 @@ public class PyRenameClassProcess extends AbstractRenameRefactorProcess{
 
     protected void checkInitialOnLocalScope(RefactoringStatus status, RefactoringRequest request) {
         SimpleNode root = request.getAST();
-        List<ASTEntry> oc = ScopeAnalysis.getOcurrences(request.duringProcessInfo.initialName, root);
+        List<ASTEntry> oc = ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root);
         addOccurrences(request, oc);
     }
 }
