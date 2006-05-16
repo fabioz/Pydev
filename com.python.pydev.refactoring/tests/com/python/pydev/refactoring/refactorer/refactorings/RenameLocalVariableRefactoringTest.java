@@ -251,6 +251,17 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     }
     
     
+    public void testDict() throws Exception {
+    	String str = "" +
+    	"%s = {}\n" +
+    	"print %s[1]\n" +
+    	"";
+    	int line = 0;
+    	int col = 1;
+    	checkDefault(str, line, col, "ddd", false, true);
+    }
+    
+    
     public void testRenameInstance() throws Exception {
         String str=getDefaultDocStr();
         int line = 2;
