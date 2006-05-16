@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testNotFoundAttr();
+            test.testMultiStr();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -237,6 +237,17 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	int line = 2;
     	int col = 19;
     	checkDefault(str, line, col, "met1", false, true);
+    }
+    
+    
+    public void testMultiStr() throws Exception {
+        String str = "" +
+        "%s = str(1)+ 'foo2'\n" +
+        "print %s\n" +
+        "";
+        int line = 0;
+        int col = 1;
+        checkDefault(str, line, col, "ss", false, true);
     }
     
     
