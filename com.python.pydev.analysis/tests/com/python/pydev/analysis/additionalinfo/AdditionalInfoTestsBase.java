@@ -26,6 +26,7 @@ import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.AnalysisTestsBase;
 import com.python.pydev.analysis.builder.AnalysisRunner;
@@ -40,7 +41,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         super.setUp();
     }
 
-    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws CoreException, BadLocationException{
         if(documentOffset == -1)
             documentOffset = strDoc.length();
         
