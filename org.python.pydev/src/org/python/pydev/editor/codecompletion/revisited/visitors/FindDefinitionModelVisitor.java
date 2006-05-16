@@ -176,6 +176,9 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
 	        
             if(rep != null && rep.equals(tokenToFind)){
 	            String value = NodeUtils.getFullRepresentationString(node.value);
+                if(value == null){
+                    value = "";
+                }
 	            AssignDefinition definition;
 	            int line = NodeUtils.getLineDefinition(node.value);
 	            int col = NodeUtils.getColDefinition(node.value);
