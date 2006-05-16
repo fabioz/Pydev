@@ -31,7 +31,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
 	      test.setUp();
-          test.testDeepNested6();
+          test.testProj2Global();
 	      test.tearDown();
           System.out.println("Finished");
 
@@ -112,6 +112,21 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 			"    def met3(self): \n" +
 			"        self.c.";
         requestCompl(s, s.length(), -1, new String[] { "met1()"});
+	}
+	
+	public void testProj2() throws CoreException, BadLocationException{
+		String s;
+		s = ""+
+		"import proj2root\n" +
+		"print proj2root.";
+		requestCompl(s, s.length(), -1, new String[] { "Proj2Root"}, nature2);
+	}
+	
+	public void testProj2Global() throws CoreException, BadLocationException{
+		String s;
+		s = ""+
+		"import ";
+		requestCompl(s, s.length(), -1, new String[] { "proj2root", "testlib"}, nature2);
 	}
 	
 	public void testInnerImport() throws CoreException, BadLocationException{

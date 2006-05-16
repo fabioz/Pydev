@@ -662,6 +662,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     
     /**
      * Checks if some module can be resolved and returns the module it is resolved to (and to which token).
+     * 
      */
     protected Tuple<IModule, String> findOnImportedMods(IToken importedModule, String tok, IPythonNature nature, 
     		String activationToken, String currentModuleName) {
@@ -792,8 +793,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * First it tries with the full path, and them removes a part of the final of
      * that path until it finds the module or the path is empty.
      * 
-     * @param rep
      * @param currentModuleName this is the module name (used to check validity for relative imports) -- not used if dontSearchInit is false
+     * if this parameter is not null, it means we're looking for a relative import. When checking for relative imports, 
+     * we should only check the modules that are directly under this project (so, we should not check the whole pythonpath for
+     * it, just direct modules) 
+     * 
      * @return tuple with found module and the String removed from the path in
      * order to find the module.
      */

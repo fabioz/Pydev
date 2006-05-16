@@ -102,6 +102,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
     public void restorePythonPath(boolean force){
         restoreSystemPythonPath(force, TestDependent.JYTHON_LIB_LOCATION+"|"+TestDependent.JAVA_RT_JAR_LOCATION);
         restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
+        restoreProjectPythonPath2(force, TestDependent.TEST_PYSRC_LOC2);
         checkSize();
     }
 

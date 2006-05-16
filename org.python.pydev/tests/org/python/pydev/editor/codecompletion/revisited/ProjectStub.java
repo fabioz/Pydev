@@ -21,15 +21,28 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.content.IContentTypeMatcher;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.python.pydev.plugin.nature.PythonNature;
 
 public class ProjectStub implements IProject {
 
     String name;
-    public ProjectStub(String path) {
-        this.name = path;
+	private IProject[] referencedProjects;
+	private PythonNature nature;
+	private String path;
+	
+    public ProjectStub(String name, String path2) {
+    	this.path = path2;
+        this.name = name;
+        this.referencedProjects = new IProject[0];
+    }
+    
+    public ProjectStub(String name, String path2, IProject[] referencedProjects) {
+    	this(name, path2);
+    	this.referencedProjects = referencedProjects;
     }
 
     public void build(int kind, String builderName, Map args, IProgressMonitor monitor) throws CoreException {
@@ -73,7 +86,10 @@ public class ProjectStub implements IProject {
     }
 
     public IProjectNature getNature(String natureId) throws CoreException {
-        throw new RuntimeException("not impl");
+    	if(nature == null){
+    		throw new RuntimeException("not expected");
+    	}
+    	return nature;
     }
 
     public IPath getPluginWorkingLocation(IPluginDescriptor plugin) {
@@ -81,12 +97,12 @@ public class ProjectStub implements IProject {
     }
 
     public IPath getWorkingLocation(String id) {
-        throw new RuntimeException("not impl");
+        return new Path(path);
     }
 
     public IProject[] getReferencedProjects() throws CoreException {
         //no referenced projects
-        return new IProject[0];
+        return referencedProjects;
     }
 
     public IProject[] getReferencingProjects() {
@@ -94,7 +110,10 @@ public class ProjectStub implements IProject {
     }
 
     public boolean hasNature(String natureId) throws CoreException {
-        throw new RuntimeException("not impl");
+    	if(PythonNature.PYTHON_NATURE_ID.equals(natureId)){
+    		return true;
+    	}
+        throw new RuntimeException("not expected");
     }
 
     public boolean isNatureEnabled(String natureId) throws CoreException {
@@ -397,5 +416,9 @@ public class ProjectStub implements IProject {
     public boolean isConflicting(ISchedulingRule rule) {
         throw new RuntimeException("not impl");
     }
+
+	public void setNature(PythonNature nature) {
+		this.nature = nature;
+	}
 
 }

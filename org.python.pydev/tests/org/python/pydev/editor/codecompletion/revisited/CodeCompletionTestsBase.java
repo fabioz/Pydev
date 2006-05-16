@@ -10,6 +10,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -45,7 +46,15 @@ public class CodeCompletionTestsBase extends TestCase {
      * Check the restorePythonPath function.
      */
 	public static PythonNature nature;
+	
+	/**
+	 * Nature for the second project
+	 */
+	public static PythonNature nature2;
+	
 	public static Class restored;
+	public static Class restored2;
+	
 	public static Class restoredSystem;
 	public Preferences preferences;
     protected static boolean DEBUG_TESTS_BASE = false;
@@ -74,15 +83,37 @@ public class CodeCompletionTestsBase extends TestCase {
             //cache
             restored = this.getClass();
             nature = createNature();
-            nature.setProject(new ProjectStub("testProjectStub"));
+            ProjectStub projectStub = new ProjectStub("testProjectStub", path);
+			nature.setProject(projectStub);
+			projectStub.setNature(nature);
     	    nature.setAstManager(new ASTManager());
     	    
     	    ASTManager astManager = ((ASTManager)nature.getAstManager());
             astManager.setNature(nature);
-            astManager.changePythonPath(path, null, getProgressMonitor(),null);
+            astManager.setProject(projectStub, false);
+            astManager.changePythonPath(path, projectStub, getProgressMonitor(),null);
             return true;
         }
         return false;
+    }
+    
+    protected boolean restoreProjectPythonPath2(boolean force, String path){
+    	if(restored2 == null || restored2 != this.getClass() || force){
+    		//cache
+    		restored2 = this.getClass();
+    		nature2 = createNature();
+    		ProjectStub projectStub = new ProjectStub("testProjectStub2", path, new IProject[]{nature.getProject()});
+			nature2.setProject(projectStub); //references the project 1
+			projectStub.setNature(nature2);
+    		nature2.setAstManager(new ASTManager());
+    		
+    		ASTManager astManager = ((ASTManager)nature2.getAstManager());
+    		astManager.setNature(nature2);
+    		astManager.setProject(projectStub, false);
+    		astManager.changePythonPath(path, projectStub, getProgressMonitor(),null);
+    		return true;
+    	}
+    	return false;
     }
 
     /**
@@ -185,6 +216,7 @@ public class CodeCompletionTestsBase extends TestCase {
     public void restorePythonPath(String path, boolean force){
         restoreSystemPythonPath(force, path);
         restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
+        restoreProjectPythonPath2(force, TestDependent.TEST_PYSRC_LOC2);
         checkSize();
     }
     
@@ -196,6 +228,7 @@ public class CodeCompletionTestsBase extends TestCase {
     public void restorePythonPathWithSitePackages(boolean force){
         restoreSystemPythonPath(force, TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES);
         restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
+        restoreProjectPythonPath2(force, TestDependent.TEST_PYSRC_LOC2);
         checkSize();
     }
 
@@ -214,9 +247,11 @@ public class CodeCompletionTestsBase extends TestCase {
             System.out.println("-------------- Restoring project pythonpath");
         }
         restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
+        restoreProjectPythonPath2(force, TestDependent.TEST_PYSRC_LOC2);
         if(DEBUG_TESTS_BASE){
-            System.out.println("-------------- Checking size");
+            System.out.println("-------------- Checking size (for proj1 and proj2)");
         }
+        
         checkSize();
     }
     
@@ -227,8 +262,13 @@ public class CodeCompletionTestsBase extends TestCase {
     protected void checkSize() {
         IInterpreterManager iMan = getInterpreterManager();
         InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
-        int size = ((ASTManager)nature.getAstManager()).getSize();
         assertTrue(info.modulesManager.getSize() > 0);
+        
+        int size = ((ASTManager)nature.getAstManager()).getSize();
+        assertTrue("Interpreter size:"+info.modulesManager.getSize()+" should be smaller than project size:"+size+" " +
+        		"(because it contains system+project info)" , info.modulesManager.getSize() < size );
+        
+        size = ((ASTManager)nature2.getAstManager()).getSize();
         assertTrue("Interpreter size:"+info.modulesManager.getSize()+" should be smaller than project size:"+size+" " +
         		"(because it contains system+project info)" , info.modulesManager.getSize() < size );
     }
@@ -252,12 +292,19 @@ public class CodeCompletionTestsBase extends TestCase {
     protected PyCodeCompletion codeCompletion;
     
     public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
-    	return requestCompl(null, strDoc, documentOffset, returned, retCompl);
+    	return requestCompl(strDoc, documentOffset, returned, retCompl, nature);
+    }
+    public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws CoreException, BadLocationException{
+    	return requestCompl(null, strDoc, documentOffset, returned, retCompl, nature);
     }
     
     public ICompletionProposal[] requestCompl(File file, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
         String strDoc = REF.getFileContents(file);
         return requestCompl(file, strDoc, documentOffset, returned, retCompl);
+    }
+    
+    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+    	return requestCompl(file, strDoc, documentOffset, returned, retCompl, nature);
     }
     
     /**
@@ -274,7 +321,7 @@ public class CodeCompletionTestsBase extends TestCase {
      * @throws CoreException
      * @throws BadLocationException
      */
-    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws CoreException, BadLocationException{
         if(documentOffset == -1)
             documentOffset = strDoc.length();
         
