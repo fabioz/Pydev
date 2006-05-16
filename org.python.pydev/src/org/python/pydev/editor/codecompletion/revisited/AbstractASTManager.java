@@ -253,15 +253,27 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
     
     
+    /**
+     * By default does not look for relative import
+     */
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
+    	return modulesManager.getModule(name, nature, dontSearchInit, false);
+    }
 
     /**
      * This method returns the module that corresponds to the path passed as a parameter.
      * 
      * @param name
+     * @param lookingForRelative determines whether we're looking for a relative module (in which case we should
+     * not check in other places... only in the module)
      * @return the module represented by this name
      */
-    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
-        return modulesManager.getModule(name, nature, dontSearchInit);
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit, boolean lookingForRelative) {
+    	if(lookingForRelative){
+    		return modulesManager.getRelativeModule(name, nature);
+    	}else{
+    		return modulesManager.getModule(name, nature, dontSearchInit);
+    	}
     }
 
     /**
@@ -803,13 +815,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      */
     protected Tuple<IModule, String> findModuleFromPath(String rep, IPythonNature nature, boolean dontSearchInit, String currentModuleName){
         String tok = "";
-        IModule mod = getModule(rep, nature, dontSearchInit);
+        boolean lookingForRelative = currentModuleName != null;
+		IModule mod = getModule(rep, nature, dontSearchInit, lookingForRelative);
         String mRep = rep;
         int index;
         while(mod == null && (index = mRep.lastIndexOf('.')) != -1){
             tok = mRep.substring(index+1) + "."+tok;
             mRep = mRep.substring(0,index);
-            mod = getModule(mRep, nature, dontSearchInit);
+            mod = getModule(mRep, nature, dontSearchInit, lookingForRelative);
         }
         if (tok.endsWith(".")){
             tok = tok.substring(0, tok.length()-1); //remove last point if found.

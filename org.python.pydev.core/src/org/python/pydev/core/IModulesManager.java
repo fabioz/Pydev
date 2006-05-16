@@ -34,6 +34,7 @@ public interface IModulesManager {
 
     public abstract ModulesKey[] getAllModules();
 
+    public abstract IModule getRelativeModule(String name, IPythonNature nature);
     public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit);
 
     public abstract IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit);

@@ -102,6 +102,7 @@ public interface ICodeCompletionASTManager {
      * @param nature
      * @return the module with the specified name.
      */
+    public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit, boolean lookingForRelative);
     public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit);
 
     

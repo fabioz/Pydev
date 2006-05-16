@@ -79,4 +79,8 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
 		return new ArrayList<String>(super.getPythonPath());
 	}
 
+	public IModule getRelativeModule(String name, IPythonNature nature) {
+		return super.getModule(name, nature, true);
+	}
+
 }

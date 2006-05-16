@@ -230,6 +230,13 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         return getModule(name, nature, true, dontSearchInit);
     }
     
+    /**
+     * When looking for relative, we do not check dependencies
+     */
+    public IModule getRelativeModule(String name, IPythonNature nature) {
+    	return super.getModule(name, nature, true);
+    }
+    
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean, boolean)
      */

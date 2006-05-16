@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShell;
@@ -20,7 +21,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testGlu2();
+            builtins.testRelativeOnSameProj();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -123,11 +124,24 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     }
     
     public void testDeepNested6() throws CoreException, BadLocationException{
+    	String s;
+    	s = "" +
+    	"from extendable.nested2 import hub\n"+
+    	"hub.c1.f.";
+    	requestCompl(s, s.length(), -1, new String[] { "curdir"});
+    }
+    
+    public void testRelativeOnSameProj() throws CoreException, BadLocationException{
         String s;
         s = "" +
-        "from extendable.nested2 import hub\n"+
-        "hub.c1.f.";
-        requestCompl(s, s.length(), -1, new String[] { "curdir"});
+        "import prefersrc\n" +
+        "prefersrc.";
+        AbstractModule.MODULE_NAME_WHEN_FILE_IS_UNDEFINED = "foo";
+        try {
+			requestCompl(s, s.length(), -1, new String[] { "OkGotHere" }, nature2);
+		} finally {
+			AbstractModule.MODULE_NAME_WHEN_FILE_IS_UNDEFINED = "";
+		}
     }
     
     public void testDeepNested7() throws CoreException, BadLocationException{

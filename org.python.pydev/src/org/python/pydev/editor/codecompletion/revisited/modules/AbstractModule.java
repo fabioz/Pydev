@@ -31,7 +31,12 @@ import org.python.pydev.parser.jython.SimpleNode;
  */
 public abstract class AbstractModule implements IModule {
 
-    /** 
+	/**
+	 * May be changed for tests
+	 */
+    public static String MODULE_NAME_WHEN_FILE_IS_UNDEFINED = "";
+
+	/** 
      * @see org.python.pydev.core.IModule#getWildImportedModules()
      */
     public abstract IToken[] getWildImportedModules();
@@ -192,7 +197,7 @@ public abstract class AbstractModule implements IModule {
      * This function creates a module and resolves the module name (use this function if only the file is available).
      */
 	public static IModule createModuleFromDoc(File file, IDocument doc, IPythonNature pythonNature, int line, IModulesManager projModulesManager) {
-		String moduleName = "";
+		String moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;
 	    if(file != null){
 			moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
 	    }
@@ -233,7 +238,7 @@ public abstract class AbstractModule implements IModule {
      * @return the module
      */
     public static IModule createModule(SimpleNode n, File file, IModulesManager projModulesManager) {
-		String moduleName = "";
+		String moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;
 	    if(file != null){
 			moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
 	    }
