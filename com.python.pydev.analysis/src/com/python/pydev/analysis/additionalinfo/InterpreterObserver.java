@@ -69,26 +69,33 @@ public class InterpreterObserver implements IInterpreterObserver {
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyInterpreterManagerRecreated(org.python.pydev.ui.interpreters.AbstractInterpreterManager)
      */
     public void notifyInterpreterManagerRecreated(final IInterpreterManager manager) {
-        if(!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(manager)){
-            //not successfully loaded
-            Job j = new Job("Pydev... Restoring additional info"){
+        try {
+            manager.getDefaultInterpreter(); //may throw a 'not configured' exception
+            
+            if (!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(manager)) {
+                //not successfully loaded
+                Job j = new Job("Pydev... Restoring additional info") {
 
-                
-                @Override
-                protected IStatus run(IProgressMonitor monitorArg) {
-                    try {
-                        JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev... Restoring additional info", IProgressMonitor.UNKNOWN, this);
-                        notifyDefaultPythonpathRestored(manager, manager.getDefaultInterpreter(), jobProgressComunicator);
-                        jobProgressComunicator.done();
-                    } catch (Exception e) {
-                        PydevPlugin.log(e);
+                    @Override
+                    protected IStatus run(IProgressMonitor monitorArg) {
+                        try {
+                            final String defaultInterpreter = manager.getDefaultInterpreter(); //it should be configured if we reach here.
+                            JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev... Restoring additional info", IProgressMonitor.UNKNOWN, this);
+                            notifyDefaultPythonpathRestored(manager, defaultInterpreter, jobProgressComunicator);
+                            jobProgressComunicator.done();
+                        } catch (Exception e) {
+                            PydevPlugin.log(e);
+                        }
+                        return Status.OK_STATUS;
                     }
-                    return Status.OK_STATUS;
-                }
-                
-            };
-            j.setPriority(Job.BUILD);
-            j.schedule();
+
+                };
+                j.setPriority(Job.BUILD);
+                j.schedule();
+            }
+        } catch (NotConfiguredInterpreterException e) {
+            //ok, we've received the notification, so the interpreter was restored... but there is no info about it,
+            //so, just ignore it.
         }
     }
 

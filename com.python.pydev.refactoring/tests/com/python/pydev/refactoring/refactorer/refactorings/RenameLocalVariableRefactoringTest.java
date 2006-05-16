@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testMultiStr();
+            test.testImport();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -259,5 +259,16 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         checkDefault(str, line, col);
     }
 
+    
+    public void testImport() throws Exception {
+        String str = "" +
+        "import os\n" +
+        "print os.%s\n" +
+        "";
+        int line = 1;
+        int col = 10;
+        checkDefault(str, line, col, "path", false, true);
+    }
+    
 
 }
