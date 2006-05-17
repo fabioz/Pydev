@@ -19,7 +19,7 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-import com.python.pydev.analysis.IAnalysisPreferences;
+import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 
 public class NoSelfChecker {
 
@@ -35,11 +35,11 @@ public class NoSelfChecker {
     private Stack<Integer> scope = new Stack<Integer>();
     private Stack<HashMap<String, Tuple<Expected, FunctionDef>>> maybeNoSelfDefinedItems = new Stack<HashMap<String, Tuple<Expected, FunctionDef>>>();
     
-    private MessagesManager messagesManager;
     private String moduleName;
+    private AbstractScopeAnalyzerVisitor visitor;
 
-    public NoSelfChecker(MessagesManager messagesManager, String moduleName) {
-        this.messagesManager = messagesManager;
+    public NoSelfChecker(AbstractScopeAnalyzerVisitor visitor, String moduleName) {
+        this.visitor = visitor;
         this.moduleName = moduleName;
         scope.push(Scope.SCOPE_TYPE_GLOBAL); //we start in the global scope
     }
@@ -65,7 +65,7 @@ public class NoSelfChecker {
             Expected expected = entry.getValue().o1;
             if(!expected.expected.equals(expected.received)){
                 SourceToken token = AbstractVisitor.makeToken(entry.getValue().o2, moduleName);
-                messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_SELF, token, new Object[]{token, entry.getValue().o1.expected});
+                visitor.onAddNoSelf(token, new Object[]{token, entry.getValue().o1.expected});
             }
         }
     }

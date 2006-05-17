@@ -12,7 +12,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
-import com.python.pydev.analysis.IAnalysisPreferences;
+import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 
 /**
  * The import checker not only generates information on errors for unresolved modules, but also gathers
@@ -23,11 +23,6 @@ import com.python.pydev.analysis.IAnalysisPreferences;
 public class ImportChecker {
 
     /**
-     * used to manage the messages
-     */
-    private MessagesManager messagesManager;
-
-    /**
      * this is the nature we are analyzing
      */
     private IPythonNature nature;
@@ -36,6 +31,8 @@ public class ImportChecker {
      * this is the name of the module that we are analyzing
      */
     private String moduleName;
+
+    private AbstractScopeAnalyzerVisitor visitor;
 
     public static class ImportInfo{
     	public IModule mod;
@@ -59,11 +56,10 @@ public class ImportChecker {
     /**
      * constructor - will remove all dependency info on the project that we will start to analyze
      */
-    public ImportChecker(MessagesManager messagesManager, IPythonNature nature, String moduleName) {
-        this.messagesManager = messagesManager;
-        
+    public ImportChecker(AbstractScopeAnalyzerVisitor visitor, IPythonNature nature, String moduleName) {
         this.nature = nature;
         this.moduleName = moduleName;
+        this.visitor = visitor;
     }
 
     /**
@@ -96,8 +92,8 @@ public class ImportChecker {
         	
             
             //if it got here, it was not resolved
-        	if(!wasResolved && messagesManager != null && reportUndefinedImports){
-        		messagesManager.addMessage(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, token);
+        	if(!wasResolved && reportUndefinedImports){
+                visitor.addUnresolvedImport(token);
         	}
             
         }

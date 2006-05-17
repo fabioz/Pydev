@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testImport();
+//            test.testImport();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -273,7 +273,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     
     public void testImport() throws Exception {
         String str = "" +
-        "import os\n" +
+        "import os.%s\n" +
         "print os.%s\n" +
         "";
         int line = 1;

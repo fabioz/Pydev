@@ -11,16 +11,19 @@ So, that's it, I hope you enjoyed it. You can check
 the help ... to know where you can get more info
 about it.
 
+- code-completion
+  * Common tokens completion
+  * Templates (init)
+  * Class completions on self
+  * Locals
+  * auto-import
+
 - some navigation utilities:
   * jump up/down in functions / classes
   * quick outline
   * global token browser
 
 - go to definition
-
-- code-completion
-  * Keywords completion
-  * auto-import
 
 - code-analysis and quick-fixes
 

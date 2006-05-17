@@ -14,7 +14,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-import com.python.pydev.analysis.IAnalysisPreferences;
+import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 
 /**
  * Used to check for duplicated signatures
@@ -27,17 +27,14 @@ public class DuplicationChecker {
      * used to know the defined signatures
      */
     private Stack<Map<String,String>> stack = new Stack<Map<String,String>>();
+    private AbstractScopeAnalyzerVisitor visitor;
     
     /**
-     * used to manage the messages
-     */
-    private MessagesManager messagesManager;
-
-    /**
      * constructor
+     * @param visitor 
      */
-    public DuplicationChecker(MessagesManager messagesManager) {
-        this.messagesManager = messagesManager;
+    public DuplicationChecker(AbstractScopeAnalyzerVisitor visitor) {
+        this.visitor = visitor;
         startScope("", null); 
     }
 
@@ -66,7 +63,7 @@ public class DuplicationChecker {
             String exists = stack.peek().get(name);
             if(exists != null){
                 SourceToken token = AbstractVisitor.makeToken(node, "");
-                messagesManager.addMessage(IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE, token, name );
+                visitor.onAddDuplicatedSignature(token, name);
             }
         }
     }
