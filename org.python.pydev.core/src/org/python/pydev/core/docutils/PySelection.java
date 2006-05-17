@@ -884,6 +884,10 @@ public class PySelection {
     }
 
 
+    public String [] getActivationTokenAndQual(boolean getFullQualifier) {
+    	return getActivationTokenAndQual(doc, getAbsoluteCursorOffset(), getFullQualifier);
+    }
+    
     /**
      * Returns the activation token.
      * 
@@ -1198,6 +1202,8 @@ public class PySelection {
         }
         return false;
 	}
+
+
 
 
 
