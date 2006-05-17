@@ -57,6 +57,12 @@ import com.python.pydev.analysis.visitors.NoSelfChecker;
 import com.python.pydev.analysis.visitors.Scope;
 import com.python.pydev.analysis.visitors.ScopeItems;
 
+/**
+ * This is a visitor that transverses the scopes available and is able to provide information
+ * on all the scopes (subclasses should implement the specifics about it).
+ * 
+ * @author Fabio
+ */
 public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
     /**
@@ -639,7 +645,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         //ok, this was the last scope, so, the ones probably not defined are really not defined at this
         //point
         if(scope.size() == 0){
-            
             onLastScope(m);
         }
         
