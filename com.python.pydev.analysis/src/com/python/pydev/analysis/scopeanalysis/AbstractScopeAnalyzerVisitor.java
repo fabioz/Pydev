@@ -149,10 +149,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         checkStop();
         node.traverse(this);
     }
-
-    
-    
-
     
     
     /**
@@ -651,17 +647,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         
     }
 
-    /**
-     * @param reportUnused
-     * @param m
-     */
-    protected abstract void afterEndScope(boolean reportUnused, ScopeItems m);
-    
-    /**
-     * @param m
-     */
-    protected abstract void onLastScope(ScopeItems m);
-
 
     
     /**
@@ -783,15 +768,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return found;
     }
 
-    /**
-     * @param token
-     */
-    protected abstract void onAddUndefinedMessage(IToken token);
-
-    /**
-     * @param foundTok
-     */
-    protected abstract void onAddUndefinedVarInImportMessage(IToken foundTok);
 
     protected IToken findNameTok(IToken token, String tokToCheck) {
         if(token instanceof SourceToken){
@@ -813,12 +789,21 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
         return token;
     }
+    
+
+    protected abstract void afterEndScope(boolean reportUnused, ScopeItems m);
+
+    protected abstract void onLastScope(ScopeItems m);
+
+    protected abstract void onAddUndefinedMessage(IToken token);
+
+    protected abstract void onAddUndefinedVarInImportMessage(IToken foundTok);
 
     public abstract void onAddUnusedMessage(Found found);
 
     public abstract void onAddReimportMessage(Found newFound);
 
-    public abstract void addUnresolvedImport(IToken token);
+    public abstract void onAddUnresolvedImport(IToken token);
 
     public abstract void onAddDuplicatedSignature(SourceToken token, String name);
 

@@ -100,7 +100,7 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     }
 
     @Override
-    public void addUnresolvedImport(IToken token) {
+    public void onAddUnresolvedImport(IToken token) {
         messagesManager.addMessage(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, token);
     }
 

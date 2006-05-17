@@ -16,6 +16,7 @@ import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
+import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 
 public class Scope implements Iterable<ScopeItems>{
@@ -69,22 +70,22 @@ public class Scope implements Iterable<ScopeItems>{
      */
     private Stack<ScopeItems> scope = new Stack<ScopeItems>();
     
-    private MessagesManager messagesManager;
-    
     private Stack<Integer> scopeId = new Stack<Integer>();
 
     
     
     private int scopeUnique = 0;
 
+    private AbstractScopeAnalyzerVisitor visitor;
+
     private int getNewId() {
         scopeUnique++;
         return scopeUnique;
     }
     
-    public Scope(MessagesManager messagesManager, IPythonNature nature, String moduleName) {
-        this.messagesManager = messagesManager;
-        this.importChecker = new ImportChecker(this.messagesManager, nature, moduleName);
+    public Scope(AbstractScopeAnalyzerVisitor visitor, IPythonNature nature, String moduleName) {
+        this.visitor = visitor;
+        this.importChecker = new ImportChecker(visitor, nature, moduleName);
     }
 
     /**
@@ -197,7 +198,7 @@ public class Scope implements Iterable<ScopeItems>{
                         
                         //we don't get unused at the global scope or class definition scope unless it's an import
                         if(found.getSingle().scopeFound.getScopeType() == Scope.SCOPE_TYPE_METHOD || found.isImport()){ 
-                            messagesManager.addUnusedMessage(found);
+                            visitor.onAddUnusedMessage(found);
                         }
                     }
                     
@@ -219,7 +220,7 @@ public class Scope implements Iterable<ScopeItems>{
         m.put(rep, newFound);
 
         if(isReimport){
-            messagesManager.addReimportMessage(newFound);
+            visitor.onAddReimportMessage(newFound);
         }
         return newFound;
     }

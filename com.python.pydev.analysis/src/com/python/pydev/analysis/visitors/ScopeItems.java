@@ -15,15 +15,15 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.ast.TryExcept;
 
 public class ScopeItems {
-    Map<String,Found> m = new HashMap<String,Found>();
+    public Map<String,Found> m = new HashMap<String,Found>();
     
     /**
      * Stack for names that should not generate warnings, such as builtins, method names, etc.
      */
-    Map<String, IToken> namesToIgnore = new HashMap<String, IToken>();
+    public Map<String, IToken> namesToIgnore = new HashMap<String, IToken>();
     
-    int ifSubScope = 0;
-    Stack<TryExcept> tryExceptSubScope = new Stack<TryExcept>();
+    public int ifSubScope = 0;
+    public Stack<TryExcept> tryExceptSubScope = new Stack<TryExcept>();
     private int scopeId;
     private int scopeType;
 

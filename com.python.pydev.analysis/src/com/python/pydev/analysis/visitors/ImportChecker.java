@@ -93,7 +93,7 @@ public class ImportChecker {
             
             //if it got here, it was not resolved
         	if(!wasResolved && reportUndefinedImports){
-                visitor.addUnresolvedImport(token);
+                visitor.onAddUnresolvedImport(token);
         	}
             
         }
