@@ -14,7 +14,10 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Raise;
+import org.python.pydev.parser.jython.ast.Str;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
@@ -51,12 +54,6 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
         this.noSelfChecker = new NoSelfChecker(this, moduleName);
     }
 
-    @Override
-    public Object visitAssign(Assign node) throws Exception {
-    	Object ret = super.visitAssign(node);
-        noSelfChecker.visitAssign(node);
-    	return ret;
-    }
     
     /**
      * @return the generated messages.
@@ -97,8 +94,13 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
      * @param reportUnused
      * @param m
      */
-    protected void onAfterEndScope(boolean reportUnused, ScopeItems m) {
-        if(reportUnused){
+    protected void onAfterEndScope(SimpleNode node, ScopeItems m) {
+        boolean reportUnused = true;
+        if(node != null && node instanceof FunctionDef){
+        	reportUnused = !isVirtual((FunctionDef) node);
+        }
+        
+		if(reportUnused){
             //so, now, we clear the unused
             int scopeType = m.getScopeType();
             for (Found f : m.values()) {
@@ -110,6 +112,26 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
                 }
             }
         }
+    }
+    
+    /**
+     * A method is virtual if it contains only raise and string statements 
+     */
+    protected boolean isVirtual(FunctionDef node) {
+        if(node.body != null){
+            for(SimpleNode n : node.body){
+                if(n instanceof Raise){
+                    continue;
+                }
+                if(n instanceof Expr){
+                    if(((Expr)n).value instanceof Str){
+                        continue;
+                    }
+                }
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -160,4 +182,10 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     public void onAddNoSelf(SourceToken token, Object[] objects) {
         messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_SELF, token, objects);
    }
+
+
+	@Override
+	protected void onAfterVisitAssign(Assign node) {
+        noSelfChecker.visitAssign(node);
+	}
 }

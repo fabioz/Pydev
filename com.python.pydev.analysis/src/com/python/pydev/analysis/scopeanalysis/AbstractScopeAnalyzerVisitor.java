@@ -25,7 +25,6 @@ import org.python.pydev.parser.jython.ast.AugAssign;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Dict;
-import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
@@ -36,8 +35,6 @@ import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
-import org.python.pydev.parser.jython.ast.Raise;
-import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
@@ -248,25 +245,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return null;
     }
     
-    /**
-     * A method is virtual if it contains only raise and string statements 
-     */
-    protected boolean isVirtual(FunctionDef node) {
-        if(node.body != null){
-            for(SimpleNode n : node.body){
-                if(n instanceof Raise){
-                    continue;
-                }
-                if(n instanceof Expr){
-                    if(((Expr)n).value instanceof Str){
-                        continue;
-                    }
-                }
-                return false;
-            }
-        }
-        return true;
-    }
 
     /**
      * We want to make the name tok a regular name for interpreting purposes.
@@ -520,10 +498,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                     node.targets[i].accept(visitor);
             }
         }
+        onAfterVisitAssign(node);
         return null;
     }
     
-    /**
+
+	/**
      * overriden because we need to know about if scopes
      */
     public Object visitIf(If node) throws Exception {
@@ -597,7 +577,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     protected void endScope(SimpleNode node) {
     	onBeforeEndScope(node);
-
     	
         ScopeItems m = scope.endScope(); //clear the last scope
         for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
@@ -634,14 +613,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             onLastScope(m);
         }
         
-        boolean reportUnused = true;
-        if(node != null && node instanceof FunctionDef){
-        	reportUnused = !isVirtual((FunctionDef) node);
-        }
         
-        onAfterEndScope(reportUnused, m);
+        onAfterEndScope(node, m);
     }
-    
+
     /**
      * Finds an item given its full representation (so, os.path can be found as 'os' and 'os.path')
      */
@@ -784,11 +759,15 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
     
     
+    //these are the methods that should be overriden. Those are hooks to subclasses do whatever they need to do
+    //on those cases
+    protected abstract void onAfterVisitAssign(Assign node);
+
 	protected abstract void onAfterStartScope(int newScopeType, SimpleNode node);
 
 	protected abstract void onBeforeEndScope(SimpleNode node);
 
-    protected abstract void onAfterEndScope(boolean reportUnused, ScopeItems m);
+    protected abstract void onAfterEndScope(SimpleNode node, ScopeItems m);
 
     protected abstract void onLastScope(ScopeItems m);
 

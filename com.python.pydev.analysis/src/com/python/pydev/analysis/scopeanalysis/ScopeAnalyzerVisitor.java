@@ -14,6 +14,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
 
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.ScopeItems;
@@ -47,7 +48,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     }
 
     @Override
-    protected void onAfterEndScope(boolean reportUnused, ScopeItems m) {
+    protected void onAfterEndScope(SimpleNode node, ScopeItems m) {
     }
 
     @Override
@@ -80,5 +81,9 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 
 	@Override
 	protected void onBeforeEndScope(SimpleNode node) {
+	}
+
+	@Override
+	protected void onAfterVisitAssign(Assign node) {
 	}
 }
