@@ -98,6 +98,11 @@ public abstract class AbstractMessage implements IMessage{
     	return startCol;
     	
     }
+    
+    public static int getStartCol(IToken generator, IDocument doc) {
+    	return getStartCol(generator, doc, generator.getRepresentation());
+    }
+    
     public static int getStartCol(IToken generator, IDocument doc, String shortMessage) {
         int colDefinition=0;
        

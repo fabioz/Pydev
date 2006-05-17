@@ -17,8 +17,10 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Name;
 
 import com.python.pydev.analysis.messages.AbstractMessage;
 import com.python.pydev.analysis.visitors.Found;
@@ -30,9 +32,11 @@ import com.python.pydev.analysis.visitors.ScopeItems;
  */
 public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 
-    private String nameToFind;
+    private String completeNameToFind="";
+    private String nameToFind="";
 	private PySelection ps;
 	private List<Found> foundOccurrences = new ArrayList<Found>();
+	private boolean finished = false;
 
 	public ScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current,  
             IDocument document, IProgressMonitor monitor, PySelection ps) {
@@ -42,10 +46,13 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 			Tuple<String, Integer> currToken = ps.getCurrToken();
 			nameToFind = currToken.o1;
 			
-			this.ps = ps;
+			String[] tokenAndQual = ps.getActivationTokenAndQual(true);
+			completeNameToFind = tokenAndQual[0]+tokenAndQual[1];
+			
 		} catch (BadLocationException e) {
 			Log.log(e);
 		}
+		this.ps = ps;
     }
 
     @Override
@@ -94,8 +101,10 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 
     @Override
     protected void onAfterEndScope(SimpleNode node, ScopeItems m) {
-		System.out.println("Finishing: " + m);
-		Found found = m.get(this.nameToFind);
+		Found found = m.get(this.completeNameToFind);
+		if(found == null){
+			return;
+		}
 		List<GenAndTok> all = found.getAll();
 		for (GenAndTok tok : all) {
 			int startLine = AbstractMessage.getStartLine(tok.generator, this.document)-1;
@@ -119,14 +128,70 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 				Log.log(e);
 			}
 		}
-		System.out.println("Found: " + found);
-		
     }
     
-	public List<Found> getOccurrences() {
-		endScope(null); //finish the last scope
+	public List<Found> getFoundOccurrences() {
+		if(!finished){
+			finished = true;
+			endScope(null); //finish the last scope
+		}
 		
 		return new ArrayList<Found>(foundOccurrences);
 	}
+
+	/**
+	 * We get the occurrences as tokens for the name we're looking for. Note that the complete name
+	 * we're looking for may not be equal to the 'partial' name.
+	 * 
+	 * This can happen when we're looking for some import such as os.path, and are looking just for the 'path' part.
+	 * So, when this happens, the return is analyzed and only returns names as the one we're looking for (with
+	 * the correct line and col positions). 
+	 */
+	public List<IToken> getTokenOccurrences() {
+		boolean fullEqualsPart = nameToFind.equals(completeNameToFind);
+		ArrayList<IToken> complete = getCompleteTokenOccurrences();
+		
+		ArrayList<IToken> ret;
+		if(!fullEqualsPart){
+			ret = new ArrayList<IToken>();
+			
+			for (IToken token : complete) {
+				//if it is different, we have to make partial names
+				Name nameAst = new Name(nameToFind, Name.Store);
+				String representation = token.getRepresentation();
+				String[] strings = representation.split("\\.");
+				
+				int plus = 0;
+				for (String string : strings) {
+					if(string.equals(nameToFind)){
+						break;
+					}
+					plus += string.length()+1; //len + dot
+				}
+				nameAst.beginColumn = AbstractMessage.getStartCol(token, ps.getDoc())+plus;
+				nameAst.beginLine = AbstractMessage.getStartLine(token, ps.getDoc());
+				ret.add(AbstractVisitor.makeToken(nameAst, moduleName));
+			}
+		}else{
+			ret = complete;
+		}
+		
+		return ret;
+	}
+
+	private ArrayList<IToken> getCompleteTokenOccurrences() {
+		List<Found> foundOccurrences2 = getFoundOccurrences();
+		ArrayList<IToken> ret = new ArrayList<IToken>();
+		for (Found found : foundOccurrences2) {
+			List<GenAndTok> all = found.getAll();
+			for (GenAndTok tok : all) {
+				ret.add(tok.generator);
+				ret.addAll(tok.references);
+			}
+		}
+		return ret;
+	}
+	
+	
 	
 }
