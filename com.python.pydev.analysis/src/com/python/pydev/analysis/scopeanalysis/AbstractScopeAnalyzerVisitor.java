@@ -123,7 +123,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         this.duplicationChecker = new DuplicationChecker(this);
         this.noSelfChecker = new NoSelfChecker(this, moduleName);
         
-        startScope(Scope.SCOPE_TYPE_GLOBAL); //initial scope - there is only one 'global' 
+        startScope(Scope.SCOPE_TYPE_GLOBAL, null); //initial scope - there is only one 'global' 
         List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(CompletionState.getEmptyCompletionState(nature), new ArrayList());
         for(IToken t : builtinCompletions){
             scope.getCurrScopeItems().namesToIgnore.put(t.getRepresentation(), t);
@@ -164,13 +164,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     public Object visitClassDef(ClassDef node) throws Exception {
         addToNamesToIgnore(node);
 
-        startScope(Scope.SCOPE_TYPE_CLASS);
-        duplicationChecker.beforeClassDef(node);
-        noSelfChecker.beforeClassDef(node);
+        startScope(Scope.SCOPE_TYPE_CLASS, node);
         Object object = super.visitClassDef(node);
-        noSelfChecker.afterClassDef(node);
-        duplicationChecker.afterClassDef(node);
-        endScope(true);
+        endScope(node);
         
         return object;
     }
@@ -230,9 +226,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             }
         }
 
-        startScope(Scope.SCOPE_TYPE_METHOD);
-        duplicationChecker.beforeFunctionDef(node); //duplication checker
-        noSelfChecker.beforeFunctionDef(node);
+        startScope(Scope.SCOPE_TYPE_METHOD, node);
 
 
         scope.isInMethodDefinition = true;
@@ -263,9 +257,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             }
         }
 
-        duplicationChecker.afterFunctionDef(node);//duplication checker
-        noSelfChecker.afterFunctionDef(node);
-        endScope(!isVirtual(node)); //don't report unused variables if the method is virtual
+        endScope(node); //don't report unused variables if the method is virtual
         return null;
     }
     
@@ -602,9 +594,20 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     
     /**
      * initializes a new scope
+     * @param node 
      */
-    protected void startScope(int newScopeType) {
+    protected void startScope(int newScopeType, SimpleNode node) {
         scope.startScope(newScopeType);
+        
+        if(newScopeType == Scope.SCOPE_TYPE_CLASS){
+	        duplicationChecker.beforeClassDef((ClassDef) node);
+	        noSelfChecker.beforeClassDef((ClassDef) node);
+	        
+        }else if(newScopeType == Scope.SCOPE_TYPE_METHOD){
+	        duplicationChecker.beforeFunctionDef((FunctionDef) node); //duplication checker
+	        noSelfChecker.beforeFunctionDef((FunctionDef) node);
+        }
+
     }
     
     /**
@@ -612,7 +615,18 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * @param reportUnused: defines whether we should report unused things found (we may not want to do that 
      * when we have an abstract method)
      */
-    protected void endScope(boolean reportUnused) {
+    protected void endScope(SimpleNode node) {
+    	if(node instanceof ClassDef){
+	        noSelfChecker.afterClassDef((ClassDef) node);
+	        duplicationChecker.afterClassDef((ClassDef) node);
+	        
+    	} else if(node instanceof FunctionDef){
+            duplicationChecker.afterFunctionDef((FunctionDef) node);//duplication checker
+            noSelfChecker.afterFunctionDef((FunctionDef) node);
+    		
+    	}
+
+    	
         ScopeItems m = scope.endScope(); //clear the last scope
         for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
             Found n = it.next();
@@ -648,8 +662,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             onLastScope(m);
         }
         
-        afterEndScope(reportUnused, m);
+        boolean reportUnused = true;
+        if(node != null && node instanceof FunctionDef){
+        	reportUnused = !isVirtual((FunctionDef) node);
+        }
         
+        afterEndScope(reportUnused, m);
     }
 
 

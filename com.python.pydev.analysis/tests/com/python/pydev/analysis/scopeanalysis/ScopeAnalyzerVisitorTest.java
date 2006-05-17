@@ -5,6 +5,7 @@ package com.python.pydev.analysis.scopeanalysis;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
@@ -33,7 +34,12 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
                 "\n"
         );
         SourceModule mod = (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0);
-        new ScopeAnalyzerVisitor(nature, "foo", mod, doc, new NullProgressMonitor());
+        int line=0;
+        int col=1;
+		PySelection ps = new PySelection(doc, line, col);
+        ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(nature, "foo", mod, doc, new NullProgressMonitor(), ps);
+        mod.getAst().accept(visitor);
+        
     }
 
 }

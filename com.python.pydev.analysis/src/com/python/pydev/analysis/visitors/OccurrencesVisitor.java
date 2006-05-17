@@ -39,7 +39,7 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
      * @return the generated messages.
      */
     public IMessage[] getMessages() {
-        endScope(true); //have to end the scope that started when we created the class.
+        endScope(null); //have to end the scope that started when we created the class.
         
         return messagesManager.getMessages();
     }
