@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import org.python.pydev.core.IToken;
@@ -15,7 +16,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.ast.TryExcept;
 
 public class ScopeItems {
-    public Map<String,Found> m = new HashMap<String,Found>();
+    private Map<String,Found> m = new HashMap<String,Found>();
     
     /**
      * Stack for names that should not generate warnings, such as builtins, method names, etc.
@@ -95,6 +96,10 @@ public class ScopeItems {
             buffer.append("\n");
         }
         return buffer.toString();
+    }
+    
+    public Set<Map.Entry<String, Found>> entrySet(){
+    	return m.entrySet();
     }
 
     /**

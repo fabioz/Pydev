@@ -94,6 +94,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     private IProgressMonitor monitor;
     
     /**
+     * Document we're working on.
+     */
+    protected IDocument document;
+    
+    /**
      * Constructor
      * @param prefs 
      * @param document 
@@ -105,6 +110,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         this.current = current;
         this.nature = nature;
         this.moduleName = moduleName;
+        this.document = document;
         this.scope = new Scope(this, nature, moduleName);
         
         startScope(Scope.SCOPE_TYPE_GLOBAL, null); //initial scope - there is only one 'global' 
@@ -564,9 +570,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     protected void startScope(int newScopeType, SimpleNode node) {
         scope.startScope(newScopeType);
-        
         onAfterStartScope(newScopeType, node);
-
     }
 
     
@@ -683,6 +687,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             found = foundAs != null;
             if(found){
                 foundAsStr = nextTokToSearch;
+                foundAs.getSingle().references.add(token);
             }
         }
         

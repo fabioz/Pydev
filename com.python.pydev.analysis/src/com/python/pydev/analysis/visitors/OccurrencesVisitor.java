@@ -36,7 +36,6 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
      */
     protected MessagesManager messagesManager;
 
-
     /**
      * used to check for duplication in signatures
      */
@@ -70,6 +69,7 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     protected void onAddUndefinedVarInImportMessage(IToken foundTok) {
         messagesManager.addUndefinedVarInImportMessage(foundTok, foundTok.getRepresentation());
     }
+    
     /**
      * @param token
      */

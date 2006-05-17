@@ -54,6 +54,10 @@ public class Found implements Iterable<GenAndTok>{
     public GenAndTok getSingle() {
         return found.get(found.size() -1); //always returns the last (this is the one that is binded at the current place in the scope)
     }
+    
+	public List<GenAndTok> getAll() {
+		return found;
+	}
 
     public boolean isImport() {
         return getSingle().generator.isImport();
@@ -77,4 +81,5 @@ public class Found implements Iterable<GenAndTok>{
 	public boolean isWildImport() {
 		return getSingle().generator.isWildImport();
 	}
+
 }

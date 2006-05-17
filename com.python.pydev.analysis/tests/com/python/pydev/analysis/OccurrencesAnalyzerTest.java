@@ -26,7 +26,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUnusedParameter2();
+            analyzer2.testColError3();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2157,6 +2157,37 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	printMessages(msgs, 1);
     	assertEquals("Undefined variable: function", msgs[0].getMessage());
     	assertEquals(7, msgs[0].getStartCol(doc));
+    }
+    
+    public void testColError2() {
+    	doc = new Document("" +
+    			"class Foo(object):\n" +
+    			"    def  m1(self):\n" +
+    			"        pass\n" +
+    			"    def  m1(self):\n" +
+    			"        pass\n" +
+    			"");
+    	analyzer = new OccurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs, 1);
+    	assertEquals("Duplicated signature: m1", msgs[0].getMessage());
+    	assertEquals(10, msgs[0].getStartCol(doc));
+    }
+    
+    public void testColError3() {
+    	doc = new Document("" +
+    			"class  Foo(object):\n" +
+    			"    pass\n" +
+    			"class  Foo(object):\n" +
+    			"    pass\n" +
+    	"");
+    	analyzer = new OccurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs, 1);
+    	assertEquals("Duplicated signature: Foo", msgs[0].getMessage());
+    	assertEquals(8, msgs[0].getStartCol(doc));
     }
     
 }

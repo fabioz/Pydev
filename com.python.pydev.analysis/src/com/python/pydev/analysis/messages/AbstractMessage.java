@@ -75,30 +75,37 @@ public abstract class AbstractMessage implements IMessage{
     int line = -1;
     public int getStartLine(IDocument doc) {
     	if(line < 0){
-    		line = generator.getLineDefinition();
+    		line = getStartLine(generator, doc);
     	}
     	return line;
     }
 
+    public static int getStartLine(IToken generator, IDocument doc) {
+    	return generator.getLineDefinition();
+    }
+    
+    int startCol = -1;
     /**
      * gets the start col of the message
      *  
      * @see com.python.pydev.analysis.messages.IMessage#getStartCol(org.eclipse.jface.text.IDocument)
      */
-    int startCol = -1;
     public int getStartCol(IDocument doc) {
     	if(startCol >= 0){
     		return startCol;
     	}
+    	startCol = getStartCol(generator, doc, getShortMessage().toString());
+    	return startCol;
+    	
+    }
+    public static int getStartCol(IToken generator, IDocument doc, String shortMessage) {
         int colDefinition=0;
        
         //not import...
         if(!generator.isImport()){
             colDefinition = generator.getColDefinition();
             if(colDefinition > 0){
-                colDefinition = fixCol(colDefinition);
-                startCol = colDefinition;
-                return startCol;
+                return fixCol(generator, colDefinition);
             }
         }
         
@@ -110,19 +117,16 @@ public abstract class AbstractMessage implements IMessage{
             ImportFrom i = (ImportFrom) ast;
             //if it is a wild import, it starts on the module name
             if(AbstractVisitor.isWildImport(i)){
-                startCol = i.module.beginColumn;
-                return startCol;
+                return i.module.beginColumn;
             }else{
                 //no wild import, let's check the 'as name'
-                startCol = getNameForRepresentation(i, getShortMessage().toString(), false).beginColumn;
-                return startCol;
+            	return getNameForRepresentation(i, shortMessage, false).beginColumn;
             }
             
         }else if(ast instanceof Import){
-            String shortMessage = getShortMessage().toString();
             NameTok it = getNameForRepresentation(ast, shortMessage, false);
-            startCol = it.beginColumn;
-            return startCol;
+            return it.beginColumn;
+            
         }else{
             throw new RuntimeException("It is not an import");
         }
@@ -136,7 +140,7 @@ public abstract class AbstractMessage implements IMessage{
      * 
      * @return the name tok for the representation in a given import
      */
-    private NameTok getNameForRepresentation(SimpleNode imp, String rep, boolean returnAsName){
+    private static NameTok getNameForRepresentation(SimpleNode imp, String rep, boolean returnAsName){
 	    	
         aliasType[] names;
         if(imp instanceof Import){
@@ -176,14 +180,16 @@ public abstract class AbstractMessage implements IMessage{
     /**
      * Fix the column for a class or function def
      */
-    private int fixCol(int col) {
+    private static int fixCol(IToken generator, int col) {
         if(generator instanceof SourceToken){
             SimpleNode ast = ((SourceToken)generator).getAst();
             if(ast instanceof ClassDef){
-                return col + 6;
+            	ClassDef d = (ClassDef) ast;
+                return d.name.beginColumn;
             }
             if(ast instanceof FunctionDef){
-                return col + 4;
+            	FunctionDef d = (FunctionDef) ast;
+            	return d.name.beginColumn;
             }
         }
         return col;
@@ -195,30 +201,46 @@ public abstract class AbstractMessage implements IMessage{
     int endLine = -1;
     public int getEndLine(IDocument doc) {
     	if(endLine < 0){
-	        if(generator instanceof SourceToken){
-	            endLine = ((SourceToken)generator).getLineEnd();
-	        }
+			endLine = getEndLine(generator, doc);
     	}
-        return endLine;
+    	return endLine;
+    	
+    }
+    public static int getEndLine(IToken generator, IDocument doc) {
+    	if(generator instanceof SourceToken){
+    		return ((SourceToken)generator).getLineEnd();
+    	}else{
+    		return -1;
+    	}
     }
 
 
-    /**
-     * @return the end column for this message
-     *  
-     * @see com.python.pydev.analysis.messages.IMessage#getEndCol(org.eclipse.jface.text.IDocument)
-     */
     int endCol = -1;
     public int getEndCol(IDocument doc) {
     	if(endCol >= 0){
     		return endCol;
     	}
+    	endCol = getEndCol(generator, doc, getShortMessage().toString());
+    	return endCol;
+    	
+    }
+    /**
+     * @param generator is the token that generated this message
+     * @param doc is the document where this message will be put
+     * @param shortMessage is used when it is an import ( = foundTok.getRepresentation())
+     * 
+     * @return the end column for this message
+     *  
+     * @see com.python.pydev.analysis.messages.IMessage#getEndCol(org.eclipse.jface.text.IDocument)
+     */
+    public static int getEndCol(IToken generator, IDocument doc, String shortMessage) {
+    	int endCol = -1;
         if(generator.isImport()){
             //ok, it is an import... (can only be a source token)
             SourceToken s = (SourceToken) generator;
             
             SimpleNode ast = s.getAst();
-            String shortMessage = getShortMessage().toString();
+            
             if(ast instanceof ImportFrom){
                 ImportFrom i = (ImportFrom) ast;
                 //ok, now, this depends on the name
@@ -260,7 +282,7 @@ public abstract class AbstractMessage implements IMessage{
             if(colEnd == -1){
                 return -1;
             }
-            endCol = fixCol(colEnd);
+            endCol = fixCol(generator, colEnd);
             return endCol;
         }
         return -1;

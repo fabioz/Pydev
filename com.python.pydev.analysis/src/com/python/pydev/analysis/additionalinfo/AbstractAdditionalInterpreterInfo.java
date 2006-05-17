@@ -293,7 +293,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * Add info from a generated ast
      * @param node the ast root
-     * @param m 
      */
     public void addAstInfo(SimpleNode node, String moduleName, PythonNature nature, boolean generateDelta) {
     	if(node == null || moduleName == null){
