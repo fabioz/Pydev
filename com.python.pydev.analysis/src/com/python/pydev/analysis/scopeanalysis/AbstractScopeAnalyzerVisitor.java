@@ -50,10 +50,8 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.builder.CancelledException;
-import com.python.pydev.analysis.visitors.DuplicationChecker;
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.GenAndTok;
-import com.python.pydev.analysis.visitors.NoSelfChecker;
 import com.python.pydev.analysis.visitors.Scope;
 import com.python.pydev.analysis.visitors.ScopeItems;
 
@@ -92,16 +90,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * this is the module we are visiting
      */
     protected IModule current;
-
-    /**
-     * used to check for duplication in signatures
-     */
-    protected DuplicationChecker duplicationChecker;
     
-    /**
-     * used to check if a signature from a method starts with self (if it is not a staticmethod)
-     */
-    protected NoSelfChecker noSelfChecker;
     /**
      * To keep track of cancels
      */
@@ -120,8 +109,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         this.nature = nature;
         this.moduleName = moduleName;
         this.scope = new Scope(this, nature, moduleName);
-        this.duplicationChecker = new DuplicationChecker(this);
-        this.noSelfChecker = new NoSelfChecker(this, moduleName);
         
         startScope(Scope.SCOPE_TYPE_GLOBAL, null); //initial scope - there is only one 'global' 
         List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(CompletionState.getEmptyCompletionState(nature), new ArrayList());
@@ -533,7 +520,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                     node.targets[i].accept(visitor);
             }
         }
-        noSelfChecker.visitAssign(node);
         return null;
     }
     
@@ -599,16 +585,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     protected void startScope(int newScopeType, SimpleNode node) {
         scope.startScope(newScopeType);
         
-        if(newScopeType == Scope.SCOPE_TYPE_CLASS){
-	        duplicationChecker.beforeClassDef((ClassDef) node);
-	        noSelfChecker.beforeClassDef((ClassDef) node);
-	        
-        }else if(newScopeType == Scope.SCOPE_TYPE_METHOD){
-	        duplicationChecker.beforeFunctionDef((FunctionDef) node); //duplication checker
-	        noSelfChecker.beforeFunctionDef((FunctionDef) node);
-        }
+        onAfterStartScope(newScopeType, node);
 
     }
+
     
     /**
      * finalizes the current scope
@@ -616,15 +596,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * when we have an abstract method)
      */
     protected void endScope(SimpleNode node) {
-    	if(node instanceof ClassDef){
-	        noSelfChecker.afterClassDef((ClassDef) node);
-	        duplicationChecker.afterClassDef((ClassDef) node);
-	        
-    	} else if(node instanceof FunctionDef){
-            duplicationChecker.afterFunctionDef((FunctionDef) node);//duplication checker
-            noSelfChecker.afterFunctionDef((FunctionDef) node);
-    		
-    	}
+    	onBeforeEndScope(node);
 
     	
         ScopeItems m = scope.endScope(); //clear the last scope
@@ -667,10 +639,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         	reportUnused = !isVirtual((FunctionDef) node);
         }
         
-        afterEndScope(reportUnused, m);
+        onAfterEndScope(reportUnused, m);
     }
-
-
     
     /**
      * Finds an item given its full representation (so, os.path can be found as 'os' and 'os.path')
@@ -813,8 +783,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return token;
     }
     
+    
+	protected abstract void onAfterStartScope(int newScopeType, SimpleNode node);
 
-    protected abstract void afterEndScope(boolean reportUnused, ScopeItems m);
+	protected abstract void onBeforeEndScope(SimpleNode node);
+
+    protected abstract void onAfterEndScope(boolean reportUnused, ScopeItems m);
 
     protected abstract void onLastScope(ScopeItems m);
 

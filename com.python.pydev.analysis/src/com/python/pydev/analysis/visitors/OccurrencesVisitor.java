@@ -11,6 +11,10 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
@@ -29,12 +33,31 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
      */
     protected MessagesManager messagesManager;
 
+
+    /**
+     * used to check for duplication in signatures
+     */
+    protected DuplicationChecker duplicationChecker;
+    
+    /**
+     * used to check if a signature from a method starts with self (if it is not a staticmethod)
+     */
+    protected NoSelfChecker noSelfChecker;
+    
     public OccurrencesVisitor(IPythonNature nature, String moduleName, IModule current, IAnalysisPreferences prefs, IDocument document, IProgressMonitor monitor) {
         super(nature, moduleName, current, document, monitor);
         this.messagesManager = new MessagesManager(prefs, moduleName, document);
-
+        this.duplicationChecker = new DuplicationChecker(this);
+        this.noSelfChecker = new NoSelfChecker(this, moduleName);
     }
 
+    @Override
+    public Object visitAssign(Assign node) throws Exception {
+    	Object ret = super.visitAssign(node);
+        noSelfChecker.visitAssign(node);
+    	return ret;
+    }
+    
     /**
      * @return the generated messages.
      */
@@ -74,7 +97,7 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
      * @param reportUnused
      * @param m
      */
-    protected void afterEndScope(boolean reportUnused, ScopeItems m) {
+    protected void onAfterEndScope(boolean reportUnused, ScopeItems m) {
         if(reportUnused){
             //so, now, we clear the unused
             int scopeType = m.getScopeType();
@@ -88,6 +111,30 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
             }
         }
     }
+
+    @Override
+	protected void onAfterStartScope(int newScopeType, SimpleNode node) {
+		if(newScopeType == Scope.SCOPE_TYPE_CLASS){
+	        duplicationChecker.beforeClassDef((ClassDef) node);
+	        noSelfChecker.beforeClassDef((ClassDef) node);
+	        
+        }else if(newScopeType == Scope.SCOPE_TYPE_METHOD){
+	        duplicationChecker.beforeFunctionDef((FunctionDef) node); //duplication checker
+	        noSelfChecker.beforeFunctionDef((FunctionDef) node);
+        }
+	}
+    
+	@Override
+	protected void onBeforeEndScope(SimpleNode node) {
+		if(node instanceof ClassDef){
+	        noSelfChecker.afterClassDef((ClassDef) node);
+	        duplicationChecker.afterClassDef((ClassDef) node);
+	        
+    	} else if(node instanceof FunctionDef){
+            duplicationChecker.afterFunctionDef((FunctionDef) node);//duplication checker
+            noSelfChecker.afterFunctionDef((FunctionDef) node);
+    	}
+	}
 
     @Override
     public void onAddUnusedMessage(Found found) {

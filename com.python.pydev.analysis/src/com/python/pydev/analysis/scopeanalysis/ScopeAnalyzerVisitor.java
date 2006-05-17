@@ -13,6 +13,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.parser.jython.SimpleNode;
 
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.ScopeItems;
@@ -46,7 +47,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     }
 
     @Override
-    protected void afterEndScope(boolean reportUnused, ScopeItems m) {
+    protected void onAfterEndScope(boolean reportUnused, ScopeItems m) {
     }
 
     @Override
@@ -72,4 +73,12 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     @Override
     public void onAddNoSelf(SourceToken token, Object[] objects) {
     }
+
+	@Override
+	protected void onAfterStartScope(int newScopeType, SimpleNode node) {
+	}
+
+	@Override
+	protected void onBeforeEndScope(SimpleNode node) {
+	}
 }
