@@ -21,7 +21,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	try {
 			ScopeAnalyzerVisitorTest test = new ScopeAnalyzerVisitorTest();
 			test.setUp();
-			test.testIt3();
+			test.testIt7();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalyzerVisitorTest.class);
 		} catch (Exception e) {
@@ -103,7 +103,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     public void testIt3() throws Exception {
     	doc = new Document(
     			"import os.path.os\n"+
-    			"print os.path.os\n"+
+    			"print  os.path.os\n"+
     			"\n"
     	);
     	checkTest3Results(0, 10, "path");
@@ -114,6 +114,47 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	
     	checkTest3Results(0, 15, "os");
     	checkTest3Results(1, 15, "os"); //let's see if it checks the relative position correctly
+    }
+    
+    public void testIt7() throws Exception {
+    	doc = new Document(
+    			"from os import path\n"+
+    			"print          path\n"+
+    			"\n"
+    	);
+    	checkTest3Results(0, 15, "path");
+    	checkTest3Results(1, 15, "path");
+    }
+    
+    
+    public void testIt8() throws Exception {
+    	doc = new Document(
+    			"from os import foo, path\n"+
+    			"print               path\n"+
+    			"\n"
+    	);
+    	checkTest3Results(0, 20, "path");
+    	checkTest3Results(1, 20, "path");
+    }
+    
+    public void testIt9() throws Exception {
+    	doc = new Document(
+    			"from os import foo as path\n"+
+    			"print                 path\n"+
+    			"\n"
+    	);
+    	checkTest3Results(0, 22, "path");
+    	checkTest3Results(1, 22, "path");
+    }
+    
+    public void testIt10() throws Exception {
+    	doc = new Document(
+    			"import path as foo\n"+
+    			"print          foo\n"+
+    			"\n"
+    	);
+    	checkTest3Results(0, 15, "foo");
+    	checkTest3Results(1, 15, "foo");
     }
     
 
@@ -129,7 +170,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	IToken tok1 = tokenOccurrences.get(1);
     	assertEquals(lookFor, tok1.getRepresentation());
 		assertEquals(1, AbstractMessage.getStartLine(tok1, doc)-1);
-    	assertEquals(col-1, AbstractMessage.getStartCol(tok1, doc)-1);
+    	assertEquals(col, AbstractMessage.getStartCol(tok1, doc)-1);
 	}    	
     
     

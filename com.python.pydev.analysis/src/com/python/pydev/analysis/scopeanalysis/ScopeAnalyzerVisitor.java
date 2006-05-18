@@ -24,7 +24,11 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
@@ -198,8 +202,37 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 			IToken token = tup.o1;
 			
 			//if it is different, we have to make partial names
-			SimpleNode ast = ((SourceToken)tup.o1).getAst();
-			String representation = NodeUtils.getFullRepresentationString(ast);
+			SourceToken sourceToken = (SourceToken)tup.o1;
+			SimpleNode ast = (sourceToken).getAst();
+			
+			String representation = null;
+			
+			if(ast instanceof ImportFrom){
+				ImportFrom f = (ImportFrom) ast;
+				for (aliasType t : f.names){
+					NameTok importName = NodeUtils.getNameForAlias(t);
+					String importRep = NodeUtils.getFullRepresentationString(importName);
+					
+					if(importRep.equals(nameToFind)){
+						ast = importName;
+						representation = importRep;
+						break;
+					}
+					
+				}
+				
+			}else if(ast instanceof Import){
+				representation = NodeUtils.getFullRepresentationString(ast);
+				Import f = (Import) ast;
+				NameTok importName = NodeUtils.getNameForRep(f.names, representation);
+				if(importName != null){
+					ast = importName;
+				}
+				
+				
+			}else{
+				representation = NodeUtils.getFullRepresentationString(ast);
+			}
 			
 			if(nameToFind.equals(representation)){
 				ret.add(new ASTEntry(tup.o3, ast));
