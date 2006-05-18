@@ -12,6 +12,8 @@ PyDBCtx_Lock = threading.RLock()
 PyDBCtx_Threads = {}#weakref.WeakValueDictionary()
 
 PyDBCtx_UseLocks = False #I don't know why jython halts when using this synchronization...
+PyDBCtxObjUseLocks = True
+PyDBUseLocks = True
 
 def PyDBCtx_LockAcquire():
     if PyDBCtx_UseLocks:
@@ -76,7 +78,8 @@ def PyDBCtx_SetTraceForAllFileCtxs(f):
                             frame = frame.f_back
     finally:
         PyDBCtx_LockRelease()
-                
+
+
 class PyDBCtx:
     '''This class is used to keep track of the contexts we pass through (acting as a cache for them).
     '''
@@ -91,11 +94,13 @@ class PyDBCtx:
         return 'PyDBCtx [%s %s %s]' % (self.base, self.thread_id)
     
     def acquire(self):
-        self.lock.acquire()
+        if PyDBCtxObjUseLocks:
+            self.lock.acquire()
         return True
         
     def release(self):
-        self.lock.release()
+        if PyDBCtxObjUseLocks:
+            self.lock.release()
         return True
         
 class PyDBCommandThread(PyDBDaemonThread):
@@ -152,11 +157,13 @@ class PyDB:
         self.lock = threading.RLock()
         
     def acquire(self):
-        self.lock.acquire()
+        if PyDBUseLocks:
+            self.lock.acquire()
         return True
     
     def release(self):
-        self.lock.release()
+        if PyDBUseLocks:
+            self.lock.release()
         return True
         
     def initializeNetwork(self, sock):
