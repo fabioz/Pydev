@@ -205,15 +205,18 @@ public abstract class AbstractMessage implements IMessage{
      */
     int endLine = -1;
     public int getEndLine(IDocument doc) {
+    	return getEndLine(doc, true);
+    }
+    public int getEndLine(IDocument doc, boolean getOnlyToFirstDot) {
     	if(endLine < 0){
-			endLine = getEndLine(generator, doc);
+			endLine = getEndLine(generator, doc, getOnlyToFirstDot);
     	}
     	return endLine;
     	
     }
-    public static int getEndLine(IToken generator, IDocument doc) {
+    public static int getEndLine(IToken generator, IDocument doc, boolean getOnlyToFirstDot) {
     	if(generator instanceof SourceToken){
-    		return ((SourceToken)generator).getLineEnd();
+    		return ((SourceToken)generator).getLineEnd(getOnlyToFirstDot);
     	}else{
     		return -1;
     	}
@@ -222,10 +225,13 @@ public abstract class AbstractMessage implements IMessage{
 
     int endCol = -1;
     public int getEndCol(IDocument doc) {
+    	return getEndCol(doc, true);
+    }
+    public int getEndCol(IDocument doc, boolean getOnlyToFirstDot) {
     	if(endCol >= 0){
     		return endCol;
     	}
-    	endCol = getEndCol(generator, doc, getShortMessage().toString());
+    	endCol = getEndCol(generator, doc, getShortMessage().toString(), getOnlyToFirstDot);
     	return endCol;
     	
     }
@@ -238,7 +244,7 @@ public abstract class AbstractMessage implements IMessage{
      *  
      * @see com.python.pydev.analysis.messages.IMessage#getEndCol(org.eclipse.jface.text.IDocument)
      */
-    public static int getEndCol(IToken generator, IDocument doc, String shortMessage) {
+    public static int getEndCol(IToken generator, IDocument doc, String shortMessage, boolean getOnlyToFirstDot) {
     	int endCol = -1;
         if(generator.isImport()){
             //ok, it is an import... (can only be a source token)
@@ -282,7 +288,7 @@ public abstract class AbstractMessage implements IMessage{
         
         //no import... make it regular
         if(generator instanceof SourceToken){
-            int colEnd = ((SourceToken)generator).getColEnd();
+            int colEnd = ((SourceToken)generator).getColEnd(getOnlyToFirstDot);
             
             if(colEnd == -1){
                 return -1;

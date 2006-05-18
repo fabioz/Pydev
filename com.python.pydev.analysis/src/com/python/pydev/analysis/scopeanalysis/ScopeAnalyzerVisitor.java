@@ -106,29 +106,38 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 			return;
 		}
 		List<GenAndTok> all = found.getAll();
-		for (GenAndTok tok : all) {
-			int startLine = AbstractMessage.getStartLine(tok.generator, this.document)-1;
-			int endLine = AbstractMessage.getEndLine(tok.generator, this.document)-1;
-
-			int startCol = AbstractMessage.getStartCol(tok.generator, this.document, tok.generator.getRepresentation())-1;
-			int endCol = AbstractMessage.getEndCol(tok.generator, this.document, tok.generator.getRepresentation())-1;
-
-			int absoluteCursorOffset = ps.getAbsoluteCursorOffset();
-			try {
-				IRegion region = document.getLineInformationOfOffset(absoluteCursorOffset);
-				int currLine = document.getLineOfOffset(absoluteCursorOffset);
-				int currCol = absoluteCursorOffset - region.getOffset();
-				
-				if(currLine >= startLine && currLine <= endLine && currCol >= startCol && currCol <= endCol){
-					//ok, it's a valid occurrence, so, let's add it.
-					foundOccurrences.add(found);
-					break;
+		int absoluteCursorOffset = ps.getAbsoluteCursorOffset();
+		try {
+			IRegion region = document.getLineInformationOfOffset(absoluteCursorOffset);
+			int currLine = document.getLineOfOffset(absoluteCursorOffset);
+			int currCol = absoluteCursorOffset - region.getOffset();
+			
+			for (GenAndTok gen : all) {
+				for (IToken tok2 : gen.getAllTokens()) {
+					if(checkToken(found, currLine, currCol, tok2)){
+						return; //ok, found it
+					}
 				}
-			} catch (Exception e) {
-				Log.log(e);
 			}
+		} catch (Exception e) {
+			Log.log(e);
 		}
+		
     }
+
+	private boolean checkToken(Found found, int currLine, int currCol, IToken generator) {
+		int startLine = AbstractMessage.getStartLine(generator, this.document)-1;
+		int endLine = AbstractMessage.getEndLine(generator, this.document, false)-1;
+		
+		int startCol = AbstractMessage.getStartCol(generator, this.document, generator.getRepresentation())-1;
+		int endCol = AbstractMessage.getEndCol(generator, this.document, generator.getRepresentation(), false)-1;
+		if(currLine >= startLine && currLine <= endLine && currCol >= startCol && currCol <= endCol){
+			//ok, it's a valid occurrence, so, let's add it.
+			foundOccurrences.add(found);
+			return true;
+		}
+		return false;
+	}
     
 	public List<Found> getFoundOccurrences() {
 		if(!finished){
@@ -140,7 +149,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	}
 
 	/**
-	 * We get the occurrences as tokens for the name we're looking for. Note that the complete name
+	 * We get the occurrences as tokens for the name we're looking for. Note that the complete name (may be a dotted name)
 	 * we're looking for may not be equal to the 'partial' name.
 	 * 
 	 * This can happen when we're looking for some import such as os.path, and are looking just for the 'path' part.
@@ -179,6 +188,9 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		return ret;
 	}
 
+	/**
+	 * @return all the occurrences found in a 'complete' way (dotted name).
+	 */
 	private ArrayList<IToken> getCompleteTokenOccurrences() {
 		List<Found> foundOccurrences2 = getFoundOccurrences();
 		ArrayList<IToken> ret = new ArrayList<IToken>();

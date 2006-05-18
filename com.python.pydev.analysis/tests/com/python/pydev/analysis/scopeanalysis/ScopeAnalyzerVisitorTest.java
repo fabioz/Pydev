@@ -67,7 +67,15 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	);
     	int line=0;
     	int col=12;
-    	List<IToken> tokenOccurrences = getTokenOccurrences(line, col);
+    	checkTest3Results(line, col);
+    	
+    	line=1;
+    	col=12; //same thing, but now checking through one of the references
+    	checkTest3Results(line, col);
+    }
+
+	private void checkTest3Results(int line, int col) throws Exception {
+		List<IToken> tokenOccurrences = getTokenOccurrences(line, col);
     	assertEquals(2, tokenOccurrences.size());
     	
     	IToken tok0 = tokenOccurrences.get(0);
@@ -79,7 +87,8 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	assertEquals("path", tok1.getRepresentation());
 		assertEquals(1, AbstractMessage.getStartLine(tok1, doc)-1);
     	assertEquals(9, AbstractMessage.getStartCol(tok1, doc)-1);
-    }    	
+	}    	
+    
     
     public void testIt() throws Exception {
         doc = new Document(

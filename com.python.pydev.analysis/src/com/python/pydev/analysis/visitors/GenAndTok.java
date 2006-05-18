@@ -70,4 +70,11 @@ public class GenAndTok{
         buffer.append("]");
         return buffer.toString();
     }
+
+	public List<IToken> getAllTokens() {
+		ArrayList<IToken> ret = new ArrayList<IToken>();
+		ret.add(generator);
+		ret.addAll(references);
+		return ret;
+	}
 }
