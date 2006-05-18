@@ -524,6 +524,27 @@ public class NodeUtils {
         return false;
 	}
 
+
+	public static NameTok getNameForAlias(aliasType t) {
+		if(t.asname != null){
+			return (NameTok) t.asname;
+		}else{
+			return (NameTok) t.name;
+		}
+	}
+
+
+	public static NameTok getNameForRep(aliasType[] names, String representation) {
+		for (aliasType name : names) {
+			NameTok nameForAlias = getNameForAlias(name);
+			String aliasRep = NodeUtils.getRepresentationString(nameForAlias);
+			if(representation.equals(aliasRep)){
+				return nameForAlias;
+			}
+		}
+		return null;
+	}
+
     
 
 }
