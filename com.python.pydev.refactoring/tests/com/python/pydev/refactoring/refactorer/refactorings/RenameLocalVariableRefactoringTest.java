@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testImport();
+//            test.testLocalNotGottenStuff();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -279,6 +279,30 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         int line = 1;
         int col = 10;
         checkDefault(str, line, col, "path", false, true);
+    }
+    
+    public void testLocalNotGotten() throws Exception {
+    	String str = "" +
+    	"foo.%s = 10\n" + //accessing this should not affect the locals (not taking methods into account)
+    	"print foo.%s\n" + 
+    	"bla = 20\n" +
+    	"print bla\n" +
+    	"";
+    	
+    	int line = 0;
+    	int col = 5;
+    	checkDefault(str, line, col, "bla", false, true);
+    }
+    
+    public void testLocalNotGotten2() throws Exception {
+    	String str = "" +
+    	"print foo.%s\n" + //accessing this should not affect the locals (not taking methods into account) 
+    	"print bla\n" +
+    	"";
+    	
+    	int line = 0;
+    	int col = 11;
+    	checkDefault(str, line, col, "bla", false, true);
     }
     
 
