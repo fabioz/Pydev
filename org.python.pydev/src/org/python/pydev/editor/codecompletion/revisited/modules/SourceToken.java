@@ -94,19 +94,36 @@ public class SourceToken extends AbstractToken{
         return NodeUtils.getColDefinition(ast);
     }
 
-    int[] colLineEnd;
-    public int getLineEnd(){
-        if(colLineEnd == null){
-            colLineEnd = NodeUtils.getColLineEnd(getAst());
-        }
-        return colLineEnd[0];
+    int[] colLineEndToFirstDot;
+    int[] colLineEndComplete;
+    public int getLineEnd(boolean getOnlyToFirstDot){
+    	if(getOnlyToFirstDot){
+    		if(colLineEndToFirstDot == null){
+    			colLineEndToFirstDot = NodeUtils.getColLineEnd(getAst(), getOnlyToFirstDot);
+    		}
+    		return colLineEndToFirstDot[0];
+    		
+    	}else{
+    		if(colLineEndComplete == null){
+    			colLineEndComplete = NodeUtils.getColLineEnd(getAst(), getOnlyToFirstDot);
+    		}
+    		return colLineEndComplete[0];
+    	}
     }
     
-    public int getColEnd(){
-        if(colLineEnd == null){
-            colLineEnd = NodeUtils.getColLineEnd(getAst());
-        }
-        return colLineEnd[1];
+    public int getColEnd(boolean getOnlyToFirstDot){
+    	if(getOnlyToFirstDot){
+    		if(colLineEndToFirstDot == null){
+    			colLineEndToFirstDot = NodeUtils.getColLineEnd(getAst(), getOnlyToFirstDot);
+    		}
+    		return colLineEndToFirstDot[1];
+    		
+    	}else{
+    		if(colLineEndComplete == null){
+    			colLineEndComplete = NodeUtils.getColLineEnd(getAst(), getOnlyToFirstDot);
+    		}
+    		return colLineEndComplete[1];
+    	}
     }
     
     @Override
