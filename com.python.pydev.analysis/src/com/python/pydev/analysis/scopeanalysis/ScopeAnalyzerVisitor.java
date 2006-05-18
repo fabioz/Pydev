@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
@@ -16,6 +17,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -23,6 +25,8 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.analysis.messages.AbstractMessage;
 import com.python.pydev.analysis.visitors.Found;
@@ -37,7 +41,9 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     private String completeNameToFind="";
     private String nameToFind="";
 	private PySelection ps;
-	private List<Tuple<Found, Integer>> foundOccurrences = new ArrayList<Tuple<Found, Integer>>();
+	private List<Tuple3<Found, Integer, ASTEntry>> foundOccurrences = new ArrayList<Tuple3<Found, Integer, ASTEntry>>();
+	private Stack<ASTEntry> parents; //initialized on demand
+	
 	private boolean finished = false;
 
 	public ScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current,  
@@ -91,6 +97,17 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 
 	@Override
 	protected void onAfterStartScope(int newScopeType, SimpleNode node) {
+		if(parents == null){
+			parents = new Stack<ASTEntry>();
+		}
+		if(node == null){
+			return;
+		}
+		if(parents.size() == 0){
+			parents.push(new ASTEntry(null, node));
+		}else{
+			parents.add(new ASTEntry(parents.peek(), node));
+		}
 	}
 
 	@Override
@@ -110,6 +127,11 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 
     @Override
     protected void onAfterEndScope(SimpleNode node, ScopeItems m) {
+    	ASTEntry parent = null;
+    	if(node != null){
+    		parent = parents.pop();
+    	}
+    	
 		Found found = m.get(this.completeNameToFind);
 		if(found == null){
 			return;
@@ -123,7 +145,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 			
 			for (GenAndTok gen : all) {
 				for (IToken tok2 : gen.getAllTokens()) {
-					if(checkToken(found, currLine, currCol, tok2)){
+					if(checkToken(found, currLine, currCol, tok2, parent)){
 						return; //ok, found it
 					}
 				}
@@ -133,7 +155,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		}
     }
 
-	private boolean checkToken(Found found, int currLine, int currCol, IToken generator) {
+	private boolean checkToken(Found found, int currLine, int currCol, IToken generator, ASTEntry parent) {
 		int startLine = AbstractMessage.getStartLine(generator, this.document)-1;
 		int endLine = AbstractMessage.getEndLine(generator, this.document, false)-1;
 		
@@ -141,22 +163,23 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		int endCol = AbstractMessage.getEndCol(generator, this.document, generator.getRepresentation(), false)-1;
 		if(currLine >= startLine && currLine <= endLine && currCol >= startCol && currCol <= endCol){
 			//ok, it's a valid occurrence, so, let's add it.
-			foundOccurrences.add(new Tuple<Found, Integer>(found, currCol-startCol));
+			foundOccurrences.add(new Tuple3<Found, Integer, ASTEntry>(found, currCol-startCol, parent));
 			return true;
 		}
 		return false;
 	}
     
-	public List<Found> getFoundOccurrences() {
-		checkFinished();
-		ArrayList<Found> ret = new ArrayList<Found>();
-		for (Tuple<Found, Integer> found2 : foundOccurrences) {
-			ret.add(found2.o1);
+
+	public List<IToken> getTokenOccurrences() {
+		List<IToken> ret = new ArrayList<IToken>();
+		
+		List<ASTEntry> entryOccurrences = getEntryOccurrences();
+		for (ASTEntry entry : entryOccurrences) {
+			ret.add(AbstractVisitor.makeToken(entry.node, moduleName));
 		}
 		return ret;
 	}
-
-
+	
 	/**
 	 * We get the occurrences as tokens for the name we're looking for. Note that the complete name (may be a dotted name)
 	 * we're looking for may not be equal to the 'partial' name.
@@ -165,18 +188,21 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	 * So, when this happens, the return is analyzed and only returns names as the one we're looking for (with
 	 * the correct line and col positions). 
 	 */
-	public List<IToken> getTokenOccurrences() {
+	public List<ASTEntry> getEntryOccurrences() {
 		checkFinished();
 		
-		ArrayList<Tuple<IToken, Integer>> complete = getCompleteTokenOccurrences();
-		ArrayList<IToken> ret = new ArrayList<IToken>();
+		ArrayList<Tuple3<IToken, Integer, ASTEntry>> complete = getCompleteTokenOccurrences();
+		ArrayList<ASTEntry> ret = new ArrayList<ASTEntry>();
 		
-		for (Tuple<IToken, Integer> tup: complete) {
+		for (Tuple3<IToken, Integer, ASTEntry> tup: complete) {
 			IToken token = tup.o1;
+			
 			//if it is different, we have to make partial names
-			String representation = token.getRepresentation();
+			SimpleNode ast = ((SourceToken)tup.o1).getAst();
+			String representation = NodeUtils.getFullRepresentationString(ast);
+			
 			if(nameToFind.equals(representation)){
-				ret.add(token);
+				ret.add(new ASTEntry(tup.o3, ast));
 				continue;
 			}
 			
@@ -192,7 +218,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 			}
 			nameAst.beginColumn = AbstractMessage.getStartCol(token, ps.getDoc())+plus;
 			nameAst.beginLine = AbstractMessage.getStartLine(token, ps.getDoc());
-			ret.add(AbstractVisitor.makeToken(nameAst, moduleName));
+			ret.add(new ASTEntry(tup.o3, nameAst));
 		}
 		
 		return ret;
@@ -201,26 +227,32 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	/**
 	 * @return all the occurrences found in a 'complete' way (dotted name).
 	 */
-	private ArrayList<Tuple<IToken, Integer>> getCompleteTokenOccurrences() {
+	private ArrayList<Tuple3<IToken, Integer, ASTEntry>> getCompleteTokenOccurrences() {
 		//that's because we don't want duplicates
 		Set<Tuple<IToken, Integer>> f = new HashSet<Tuple<IToken, Integer>>();
 		
-		ArrayList<Tuple<IToken, Integer>> ret = new ArrayList<Tuple<IToken, Integer>>();
-		for (Tuple<Found, Integer> found : foundOccurrences) {
+		ArrayList<Tuple3<IToken, Integer, ASTEntry>> ret = new ArrayList<Tuple3<IToken, Integer, ASTEntry>>();
+		
+		for (Tuple3<Found, Integer, ASTEntry> found : foundOccurrences) {
+			
 			List<GenAndTok> all = found.o1.getAll();
+			
 			for (GenAndTok tok : all) {
+				
 				Tuple<IToken, Integer> tup = new Tuple<IToken, Integer>(tok.generator, found.o2);
+				Tuple3<IToken, Integer, ASTEntry> tup3 = new Tuple3<IToken, Integer, ASTEntry>(tok.generator, found.o2, found.o3);
 				
 				if(!f.contains(tup)){
 					f.add(tup);
-					ret.add(tup);
+					ret.add(tup3);
 				}
 				
 				for (IToken t: tok.references){
 					tup = new Tuple<IToken, Integer>(t, found.o2);
+					tup3 = new Tuple3<IToken, Integer, ASTEntry>(t, found.o2, found.o3);
 					if(!f.contains(tup)){
 						f.add(tup);
-						ret.add(tup);
+						ret.add(tup3);
 					}
 				}
 			}
