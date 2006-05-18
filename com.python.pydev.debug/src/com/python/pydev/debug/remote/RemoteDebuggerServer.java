@@ -36,8 +36,7 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
 			terminated = false;
 			while( true ) {
 				serverSocket.setSoTimeout( TIMEOUT );
-//  TODO: FIX THIS IMPLEMENTATION
-//				socket = serverSocket.accept();
+				socket = serverSocket.accept();
 				startDebugging();
                 if(DEBUG){
                     System.out.println( "PASSED" );
@@ -89,8 +88,12 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
 			reader = null;
 		}
         try {
-        	launch.removeDebugTarget( target );
-            target.terminate();
+        	if(launch != null){
+        		launch.removeDebugTarget( target );
+        	}
+        	if(target != null){
+        		target.terminate();
+        	}
         } catch (DebugException e) {
             throw new RuntimeException(e);
         }
@@ -98,6 +101,7 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
 	}
 	
 	public void disconnect() throws DebugException {	
+		//dispose() calls terminate() that calls disconnect()
 //		try {
 //			if (socket != null) {
 //				socket.shutdownInput();	// trying to make my pydevd notice that the socketToWrite is gone
