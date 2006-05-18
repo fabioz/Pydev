@@ -65,28 +65,28 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     			"print os.path\n"+
     			"\n"
     	);
-    	int line=0;
-    	int col=12;
-    	checkTest3Results(line, col);
+    	checkTest3Results(0, 10, "path");
     	
-    	line=1;
-    	col=12; //same thing, but now checking through one of the references
-    	checkTest3Results(line, col);
+    	checkTest3Results(1, 10, "path");
+    	
+    	checkTest3Results(0, 7, "os");
+    	
+    	checkTest3Results(1, 7, "os");
     }
 
-	private void checkTest3Results(int line, int col) throws Exception {
+	private void checkTest3Results(int line, int col, String lookFor) throws Exception {
 		List<IToken> tokenOccurrences = getTokenOccurrences(line, col);
     	assertEquals(2, tokenOccurrences.size());
     	
     	IToken tok0 = tokenOccurrences.get(0);
-    	assertEquals("path", tok0.getRepresentation());
+    	assertEquals(lookFor, tok0.getRepresentation());
 		assertEquals(0, AbstractMessage.getStartLine(tok0, doc)-1);
-    	assertEquals(10, AbstractMessage.getStartCol(tok0, doc)-1);
+    	assertEquals(col, AbstractMessage.getStartCol(tok0, doc)-1);
     	
     	IToken tok1 = tokenOccurrences.get(1);
-    	assertEquals("path", tok1.getRepresentation());
+    	assertEquals(lookFor, tok1.getRepresentation());
 		assertEquals(1, AbstractMessage.getStartLine(tok1, doc)-1);
-    	assertEquals(9, AbstractMessage.getStartCol(tok1, doc)-1);
+    	assertEquals(col-1, AbstractMessage.getStartCol(tok1, doc)-1);
 	}    	
     
     

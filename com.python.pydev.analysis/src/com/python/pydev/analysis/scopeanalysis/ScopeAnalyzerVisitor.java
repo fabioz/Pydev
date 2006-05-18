@@ -157,32 +157,30 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	 * the correct line and col positions). 
 	 */
 	public List<IToken> getTokenOccurrences() {
-		boolean fullEqualsPart = nameToFind.equals(completeNameToFind);
 		ArrayList<IToken> complete = getCompleteTokenOccurrences();
+		ArrayList<IToken> ret = new ArrayList<IToken>();
 		
-		ArrayList<IToken> ret;
-		if(!fullEqualsPart){
-			ret = new ArrayList<IToken>();
-			
-			for (IToken token : complete) {
-				//if it is different, we have to make partial names
-				Name nameAst = new Name(nameToFind, Name.Store);
-				String representation = token.getRepresentation();
-				String[] strings = representation.split("\\.");
-				
-				int plus = 0;
-				for (String string : strings) {
-					if(string.equals(nameToFind)){
-						break;
-					}
-					plus += string.length()+1; //len + dot
-				}
-				nameAst.beginColumn = AbstractMessage.getStartCol(token, ps.getDoc())+plus;
-				nameAst.beginLine = AbstractMessage.getStartLine(token, ps.getDoc());
-				ret.add(AbstractVisitor.makeToken(nameAst, moduleName));
+		for (IToken token : complete) {
+			//if it is different, we have to make partial names
+			String representation = token.getRepresentation();
+			if(nameToFind.equals(representation)){
+				ret.add(token);
+				continue;
 			}
-		}else{
-			ret = complete;
+			
+			Name nameAst = new Name(nameToFind, Name.Store);
+			String[] strings = representation.split("\\.");
+			
+			int plus = 0;
+			for (String string : strings) {
+				if(string.equals(nameToFind)){
+					break;
+				}
+				plus += string.length()+1; //len + dot
+			}
+			nameAst.beginColumn = AbstractMessage.getStartCol(token, ps.getDoc())+plus;
+			nameAst.beginLine = AbstractMessage.getStartLine(token, ps.getDoc());
+			ret.add(AbstractVisitor.makeToken(nameAst, moduleName));
 		}
 		
 		return ret;
