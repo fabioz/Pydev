@@ -22,7 +22,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	try {
 			ScopeAnalyzerVisitorTest test = new ScopeAnalyzerVisitorTest();
 			test.setUp();
-			test.testIt3();
+			test.testIt6();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalyzerVisitorTest.class);
 		} catch (Exception e) {
@@ -58,20 +58,63 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	assertEquals(6, tokenOccurrences.get(1).getColDefinition()-1);
     }    	
     
+    public void testIt4() throws Exception {
+    	doc = new Document(
+    			"print os\n"+
+    			"\n"
+    	);
+    	int line=0;
+    	int col=7;
+    	//if we don't have the definition, we don't have any references...
+    	List<IToken> tokenOccurrences = getTokenOccurrences(line, col);
+    	assertEquals(0, tokenOccurrences.size());
+    }    	
+    
+    public void testIt5() throws Exception {
+    	doc = new Document(
+    			"foo = 10\n" +
+    			"print foo\n" +
+    			"foo = 20\n"+
+    			"print foo\n" +
+    			"\n"
+    	);
+    	int line=0;
+    	int col=0;
+    	//if we don't have the definition, we don't have any references...
+    	List<IToken> tokenOccurrences = getTokenOccurrences(line, col);
+    	assertEquals(4, tokenOccurrences.size());
+    }    	
+    
+    
+    public void testIt6() throws Exception {
+    	doc = new Document(
+    			"foo = 10\n" +
+    			"foo.a = 10\n" +
+    			"print foo.a\n" +
+    			"foo.a = 20\n"+
+    			"print foo.a\n" +
+    			"\n"
+    	);
+    	//if we don't have the definition, we don't have any references...
+    	assertEquals(0, getTokenOccurrences(1, 4).size());
+    	assertEquals(5, getTokenOccurrences(1, 0).size());
+    }    	
+    
     
     public void testIt3() throws Exception {
     	doc = new Document(
-    			"import os.path\n"+
-    			"print os.path\n"+
+    			"import os.path.os\n"+
+    			"print os.path.os\n"+
     			"\n"
     	);
     	checkTest3Results(0, 10, "path");
-    	
     	checkTest3Results(1, 10, "path");
     	
     	checkTest3Results(0, 7, "os");
-    	
     	checkTest3Results(1, 7, "os");
+    	
+    	checkTest3Results(0, 15, "os");
+    	checkTest3Results(1, 15, "os"); //let's see if it checks the relative position correctly
     }
 
 	private void checkTest3Results(int line, int col, String lookFor) throws Exception {

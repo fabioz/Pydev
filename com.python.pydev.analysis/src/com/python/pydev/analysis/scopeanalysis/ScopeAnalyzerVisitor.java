@@ -4,7 +4,9 @@
 package com.python.pydev.analysis.scopeanalysis;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
@@ -35,7 +37,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     private String completeNameToFind="";
     private String nameToFind="";
 	private PySelection ps;
-	private List<Found> foundOccurrences = new ArrayList<Found>();
+	private List<Tuple<Found, Integer>> foundOccurrences = new ArrayList<Tuple<Found, Integer>>();
 	private boolean finished = false;
 
 	public ScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current,  
@@ -98,6 +100,13 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	@Override
 	protected void onAfterVisitAssign(Assign node) {
 	}
+	
+	private void checkFinished() {
+		if(!finished){
+			finished = true;
+			endScope(null); //finish the last scope
+		}
+	}
 
     @Override
     protected void onAfterEndScope(SimpleNode node, ScopeItems m) {
@@ -122,7 +131,6 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		} catch (Exception e) {
 			Log.log(e);
 		}
-		
     }
 
 	private boolean checkToken(Found found, int currLine, int currCol, IToken generator) {
@@ -133,20 +141,21 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		int endCol = AbstractMessage.getEndCol(generator, this.document, generator.getRepresentation(), false)-1;
 		if(currLine >= startLine && currLine <= endLine && currCol >= startCol && currCol <= endCol){
 			//ok, it's a valid occurrence, so, let's add it.
-			foundOccurrences.add(found);
+			foundOccurrences.add(new Tuple<Found, Integer>(found, currCol-startCol));
 			return true;
 		}
 		return false;
 	}
     
 	public List<Found> getFoundOccurrences() {
-		if(!finished){
-			finished = true;
-			endScope(null); //finish the last scope
+		checkFinished();
+		ArrayList<Found> ret = new ArrayList<Found>();
+		for (Tuple<Found, Integer> found2 : foundOccurrences) {
+			ret.add(found2.o1);
 		}
-		
-		return new ArrayList<Found>(foundOccurrences);
+		return ret;
 	}
+
 
 	/**
 	 * We get the occurrences as tokens for the name we're looking for. Note that the complete name (may be a dotted name)
@@ -157,10 +166,13 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	 * the correct line and col positions). 
 	 */
 	public List<IToken> getTokenOccurrences() {
-		ArrayList<IToken> complete = getCompleteTokenOccurrences();
+		checkFinished();
+		
+		ArrayList<Tuple<IToken, Integer>> complete = getCompleteTokenOccurrences();
 		ArrayList<IToken> ret = new ArrayList<IToken>();
 		
-		for (IToken token : complete) {
+		for (Tuple<IToken, Integer> tup: complete) {
+			IToken token = tup.o1;
 			//if it is different, we have to make partial names
 			String representation = token.getRepresentation();
 			if(nameToFind.equals(representation)){
@@ -173,7 +185,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 			
 			int plus = 0;
 			for (String string : strings) {
-				if(string.equals(nameToFind)){
+				if(string.equals(nameToFind) && (plus + nameToFind.length() >= tup.o2) ){
 					break;
 				}
 				plus += string.length()+1; //len + dot
@@ -189,14 +201,28 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	/**
 	 * @return all the occurrences found in a 'complete' way (dotted name).
 	 */
-	private ArrayList<IToken> getCompleteTokenOccurrences() {
-		List<Found> foundOccurrences2 = getFoundOccurrences();
-		ArrayList<IToken> ret = new ArrayList<IToken>();
-		for (Found found : foundOccurrences2) {
-			List<GenAndTok> all = found.getAll();
+	private ArrayList<Tuple<IToken, Integer>> getCompleteTokenOccurrences() {
+		//that's because we don't want duplicates
+		Set<Tuple<IToken, Integer>> f = new HashSet<Tuple<IToken, Integer>>();
+		
+		ArrayList<Tuple<IToken, Integer>> ret = new ArrayList<Tuple<IToken, Integer>>();
+		for (Tuple<Found, Integer> found : foundOccurrences) {
+			List<GenAndTok> all = found.o1.getAll();
 			for (GenAndTok tok : all) {
-				ret.add(tok.generator);
-				ret.addAll(tok.references);
+				Tuple<IToken, Integer> tup = new Tuple<IToken, Integer>(tok.generator, found.o2);
+				
+				if(!f.contains(tup)){
+					f.add(tup);
+					ret.add(tup);
+				}
+				
+				for (IToken t: tok.references){
+					tup = new Tuple<IToken, Integer>(t, found.o2);
+					if(!f.contains(tup)){
+						f.add(tup);
+						ret.add(tup);
+					}
+				}
 			}
 		}
 		return ret;
