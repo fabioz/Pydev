@@ -385,7 +385,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                     if (sourceViewer == null){
                         return;
                     }
+                    getIndentPrefs().regenerateIndentString();
                     sourceViewer.getTextWidget().setTabs(PydevPlugin.getDefault().getPluginPreferences().getInt(PydevPrefs.TAB_WIDTH));
+                    
+                }else if (property.equals(PydevPrefs.SUBSTITUTE_TABS)) {
+                	getIndentPrefs().regenerateIndentString();
                    
                 //auto adjust for file tabs
                 } else if (property.equals(PydevPrefs.GUESS_TAB_SUBSTITUTION)) {
@@ -821,19 +825,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             }
         }
 
-        
-        //delete the problem markers
-        try {
-            IResource res = (IResource) input.getAdapter(IResource.class);
-            if (res != null){
-                res.deleteMarkers(IMarker.PROBLEM, false, 1);
-            }
-        } catch (CoreException e) {
-            // What bad can come from removing markers? Ignore this exception
-            PydevPlugin.log(IStatus.WARNING, "Unexpected error removing markers", e);
-        }
-        
-        
         int lastLine = doc.getNumberOfLines();
         try {
             doc.getLineInformation(lastLine - 1);
@@ -861,7 +852,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                 return;
             }
 
-            fileAdapter.deleteMarkers(IMarker.PROBLEM, false, 1);
             int errorStart;
             int errorEnd;
             int errorLine;

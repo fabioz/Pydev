@@ -5,6 +5,8 @@
  */
 package org.python.pydev.editor.autoedit;
 
+import org.python.pydev.core.cache.PyPreferencesCache;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevPrefs;
 
 public class DefaultIndentPrefs extends AbstractIndentPrefs {
@@ -13,27 +15,45 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      */
     private String indentString = null;
 
-    private boolean useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
+    private boolean useSpaces;
 
-    private int tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
+    private int tabWidth;
+    
+	private static PyPreferencesCache cache;
+	
+	private PyPreferencesCache getCache(){
+    	if(cache == null){
+    		cache = new PyPreferencesCache(PydevPlugin.getDefault().getPreferenceStore());
+    	}
+    	return cache;
+	}
+	
+	public DefaultIndentPrefs(){
+		PyPreferencesCache c = getCache();
+		useSpaces = c.getBoolean(PydevPrefs.SUBSTITUTE_TABS);
+		tabWidth = c.getInt(PydevPrefs.TAB_WIDTH);
+	}
 
     public boolean getUseSpaces() {
-        if(useSpaces != PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS)){
-            useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
-            regenerateIndetString();
+        PyPreferencesCache c = getCache();
+		if(useSpaces != c.getBoolean(PydevPrefs.SUBSTITUTE_TABS)){
+            useSpaces = c.getBoolean(PydevPrefs.SUBSTITUTE_TABS);
+            regenerateIndentString();
         }
         return useSpaces;
     }
 
     public int getTabWidth() {
-        if(tabWidth != PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH)){
-            tabWidth = PydevPrefs.getPreferences().getInt(PydevPrefs.TAB_WIDTH);
-            regenerateIndetString();
+        if(tabWidth != getCache().getInt(PydevPrefs.TAB_WIDTH)){
+            tabWidth = getCache().getInt(PydevPrefs.TAB_WIDTH);
+            regenerateIndentString();
         }
         return tabWidth;
     }
 
-    private void regenerateIndetString(){
+    public void regenerateIndentString(){
+    	getCache().clear(PydevPrefs.TAB_WIDTH);
+    	getCache().clear(PydevPrefs.SUBSTITUTE_TABS);
         indentString = super.getIndentationString();
     }
     /**
@@ -44,7 +64,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      */
     public String getIndentationString() {
         if (indentString == null){
-            regenerateIndetString();
+            regenerateIndentString();
         }
 
         return indentString;
@@ -54,35 +74,35 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      * @see org.python.pydev.editor.autoedit.IIndentPrefs#getAutoParentesis()
      */
     public boolean getAutoParentesis() {
-        return PydevPrefs.getPreferences().getBoolean(PydevPrefs.AUTO_PAR);
+        return getCache().getBoolean(PydevPrefs.AUTO_PAR);
     }
     
     public boolean getIndentToParLevel() {
-    	return PydevPrefs.getPreferences().getBoolean(PydevPrefs.AUTO_INDENT_TO_PAR_LEVEL);
+    	return getCache().getBoolean(PydevPrefs.AUTO_INDENT_TO_PAR_LEVEL);
     }
 
     public boolean getAutoColon() {
-        return PydevPrefs.getPreferences().getBoolean(PydevPrefs.AUTO_COLON);
+        return getCache().getBoolean(PydevPrefs.AUTO_COLON);
     }
 
     public boolean getAutoBraces() {
-        return PydevPrefs.getPreferences().getBoolean(PydevPrefs.AUTO_BRACES);
+        return getCache().getBoolean(PydevPrefs.AUTO_BRACES);
     }
 
     public boolean getAutoWriteImport() {
-        return PydevPrefs.getPreferences().getBoolean(PydevPrefs.AUTO_WRITE_IMPORT_STR);
+        return getCache().getBoolean(PydevPrefs.AUTO_WRITE_IMPORT_STR);
     }
 
     public boolean getSmartIndentPar() {
-    	return PydevPrefs.getPreferences().getBoolean(PydevPrefs.SMART_INDENT_PAR);
+    	return getCache().getBoolean(PydevPrefs.SMART_INDENT_PAR);
     }
 
 	public boolean getAutoAddSelf() {
-		return PydevPrefs.getPreferences().getBoolean(PydevPrefs.AUTO_ADD_SELF);
+		return getCache().getBoolean(PydevPrefs.AUTO_ADD_SELF);
 	}
 
     public boolean getAutoDedentElse() {
-        return PydevPrefs.getPreferences().getBoolean(PydevPrefs.AUTO_DEDENT_ELSE);
+        return getCache().getBoolean(PydevPrefs.AUTO_DEDENT_ELSE);
     }
 
 }

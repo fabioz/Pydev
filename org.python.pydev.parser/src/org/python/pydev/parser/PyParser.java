@@ -317,21 +317,27 @@ public class PyParser {
             }
         }
         
+        //delete the markers
+        if (original != null){
+        	try {
+        		IMarker[] markers = original.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+        		if(markers.length > 0){
+        			original.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+        		}
+        	} catch (CoreException e) {
+        		Log.log(e);
+        	}
+        	
+        }else if(adaptable == null){
+        	//ok, we have nothing... maybe we are in tests...
+        	if (!PyParser.ACCEPT_NULL_EDITOR){
+        		throw new RuntimeException("Null editor received in parser!");
+        	}
+        }
+        //end delete the markers
+        
         if(obj[0] != null && obj[0] instanceof SimpleNode){
             //ok, reparse succesful, lets erase the markers that are in the editor we just parsed
-            if (original != null){
-                try {
-                    original.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
-                } catch (CoreException e) {
-                    Log.log(e);
-                }
-                
-            }else if(adaptable == null){
-                //ok, we have nothing... maybe we are in tests...
-                if (!PyParser.ACCEPT_NULL_EDITOR){
-                    throw new RuntimeException("Null editor received in parser!");
-                }
-            }
             fireParserChanged((SimpleNode) obj[0], adaptable, document, argsToReparse);
         }
         

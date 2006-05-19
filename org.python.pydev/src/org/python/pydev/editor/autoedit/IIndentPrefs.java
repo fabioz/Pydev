@@ -88,4 +88,9 @@ public interface IIndentPrefs {
      * @return whether we should indent to a parenthesis level on auto-indent or only add 1 tab to the indent).
      */
     public boolean getIndentToParLevel();
+
+    /**
+     * Should be called to regenerate the indent string that's in the cache.
+     */
+	public void regenerateIndentString();
 }

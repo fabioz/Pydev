@@ -11,6 +11,7 @@ public class ThreadStreamReader extends Thread {
     public StringBuffer contents;
 
     public ThreadStreamReader(InputStream is) {
+    	this.setName("ThreadStreamReader");
         contents = new StringBuffer();
         this.is = is;
     }

@@ -24,11 +24,13 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
     public static void main(String[] args) {
         try {
-            PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
-            s.setUp();
-            s.testMaintainIndent2();
-            s.tearDown();
-            junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
+//            PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
+//            s.setUp();
+//            s.testMaintainIndent2();
+//            s.tearDown();
+        	for (int i = 0; i < 100; i++) {
+        		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
+			}
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -1419,6 +1421,10 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
 		public boolean getIndentToParLevel() {
 			return indentToParLevel;
+		}
+
+		public void regenerateIndentString() {
+			//ignore it
 		}
 
     }
