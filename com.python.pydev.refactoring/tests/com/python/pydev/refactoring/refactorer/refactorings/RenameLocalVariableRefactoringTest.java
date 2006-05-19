@@ -283,10 +283,11 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     
     public void testLocalNotGotten() throws Exception {
     	String str = "" +
-    	"foo.%s = 10\n" + //accessing this should not affect the locals (not taking methods into account)
-    	"print foo.%s\n" + 
-    	"bla = 20\n" +
-    	"print bla\n" +
+    	"def m1():\n" +
+    	"    foo.%s = 10\n" + //accessing this should not affect the locals (not taking methods into account)
+    	"    print foo.%s\n" + 
+    	"    bla = 20\n" +
+    	"    print bla\n" +
     	"";
     	
     	int line = 0;
@@ -296,8 +297,9 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     
     public void testLocalNotGotten2() throws Exception {
     	String str = "" +
-    	"print foo.%s\n" + //accessing this should not affect the locals (not taking methods into account) 
-    	"print bla\n" +
+    	"def m1():\n" +
+    	"    print foo.%s\n" + //accessing this should not affect the locals (not taking methods into account) 
+    	"    print bla\n" +
     	"";
     	
     	int line = 0;
@@ -305,5 +307,15 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	checkDefault(str, line, col, "bla", false, true);
     }
     
-
+    public void testLocalGotten() throws Exception {
+    	String str = "" +
+    	"def m1():\n" +
+    	"    print foo.bla\n" +  
+    	"    print %s\n" + //should only affect the locals
+    	"";
+    	
+    	int line = 1;
+    	int col = 7;
+    	checkDefault(str, line, col, "bla", false, true);
+    }
 }
