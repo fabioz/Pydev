@@ -264,7 +264,13 @@ public class PySelection {
     public String getLineWithoutCommentsOrLiterals() {
         return getLineWithoutCommentsOrLiterals(getLine());
     }
-    
+
+	public static String getLineWithoutLiterals(String line) {
+		StringBuffer buf = new StringBuffer(line);
+		ParsingUtils.removeLiterals(buf);
+		return buf.toString();
+	}
+
     /**
      * Gets current line from document.
      * 
@@ -1213,6 +1219,8 @@ public class PySelection {
         }
         return false;
 	}
+
+
 
 
 

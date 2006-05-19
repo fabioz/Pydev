@@ -174,7 +174,7 @@ public class PythonCodeReader {
         if( (i = line.indexOf('#')) != -1){
         	
         	//and now we check if that comment is not within a string.
-        	String withoutCommentsOrLiterals = PySelection.getLineWithoutCommentsOrLiterals(line);
+        	String withoutCommentsOrLiterals = PySelection.getLineWithoutLiterals(line);
         	if(withoutCommentsOrLiterals.indexOf('#') != -1){
 	            IRegion lineInformation = fDocument.getLineInformation(lineOfOffset);
 	            int offset = lineInformation.getOffset() + i;

@@ -311,6 +311,25 @@ public class ParsingUtils {
             }
         }
     }
+	public static void removeLiterals(StringBuffer buf) {
+        for (int i = 0; i < buf.length(); i++) {
+            char ch = buf.charAt(i);
+            if(ch == '#'){
+                //just past through comments
+                while(i < buf.length() && ch != '\n' && ch != '\r'){
+                    ch = buf.charAt(i);
+                    i++;
+                }
+            }
+            
+            if(ch == '\'' || ch == '"'){
+                int j = getLiteralEnd(buf, i, ch);
+                for (int k = 0; i+k < j+1; k++) {
+					buf.replace(i+k, i+k+1, " ");
+				}
+            }
+        }
+	}
     
 	public static Iterator getNoLiteralsOrCommentsIterator(IDocument doc) {
 		return new PyDocIterator(doc);
@@ -395,6 +414,7 @@ public class ParsingUtils {
         }
         return curr;
     }
+
 
 
 }
