@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.util.Assert;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -48,6 +49,18 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	private List<Tuple3<Found, Integer, ASTEntry>> foundOccurrences = new ArrayList<Tuple3<Found, Integer, ASTEntry>>();
 	private Stack<ASTEntry> parents; //initialized on demand
 	
+	/**
+	 * Keeps the variables that are really undefined (we keep them here if there's still a chance that
+	 * what we're looking for is an undefined variable and all in the same scope should also be marked
+	 * as that same undefined).
+	 */
+	private List<Found> undefinedFound = new ArrayList<Found>();
+	/**
+	 * This one is not null only if it is the name we're looking for in the exact position (even if it does
+	 * not have a definition).
+	 */
+	private Found hitAsUndefined = null;
+	
 	private boolean finished = false;
 
 	public ScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current,  
@@ -67,9 +80,6 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		this.ps = ps;
     }
 
-    @Override
-    protected void onAddUndefinedMessage(IToken token) {
-    }
 
     @Override
     protected void onAddUndefinedVarInImportMessage(IToken foundTok) {
@@ -77,8 +87,21 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 
     @Override
     protected void onLastScope(ScopeItems m) {
+		//not found
+        for(Found found: probablyNotDefined){
+        	ASTEntry parent = peekParent();
+        	if(checkFound(found, parent) == null){
+        		//ok, it was actually not found, so, after marking it as an occurrence, we have to check all 
+        		//the others that have the same representation in its scope.
+        		if(found.getSingle().generator.getRepresentation().equals(nameToFind)){
+        			undefinedFound.add(found);
+        		}
+        	}else{
+        		hitAsUndefined = found;
+        	}
+        }
     }
-
+    
     @Override
     public void onAddUnusedMessage(Found found) {
     }
@@ -99,6 +122,47 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     public void onAddNoSelf(SourceToken token, Object[] objects) {
     }
 
+    @Override
+    protected void onAddUndefinedMessage(IToken token) {
+    	Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
+    	ASTEntry parent = peekParent();
+    	if(checkFound(found, parent) == null){
+    		//ok, it was actually not found, so, after marking it as an occurrence, we have to check all 
+    		//the others that have the same representation in its scope.
+    		if(token.getRepresentation().equals(nameToFind)){
+    			undefinedFound.add(found);
+    		}
+    	}else{
+    		hitAsUndefined = found;
+    	}
+    }
+
+
+    /**
+     * If the 'parents' stack is higher than 0, peek it (may return null)
+     */
+	private ASTEntry peekParent() {
+		ASTEntry parent = null;
+    	if(parents.size() > 0){
+    		parent = parents.peek();
+    	}
+		return parent;
+	}
+
+	/**
+	 * If the 'parents' stack is higher than 0, pop it (may return null)
+	 */
+	private ASTEntry popParent(SimpleNode node) {
+		ASTEntry parent = null;
+    	if(node != null){
+    		parent = parents.pop();
+    	}
+		return parent;
+	}
+    
+	/**
+	 * When we start the scope, we have to put an entry in the parents.
+	 */
 	@Override
 	protected void onAfterStartScope(int newScopeType, SimpleNode node) {
 		if(parents == null){
@@ -122,6 +186,9 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	protected void onAfterVisitAssign(Assign node) {
 	}
 	
+	/**
+	 * If it is still not finished we'll have to finish it (end the last scope).
+	 */
 	private void checkFinished() {
 		if(!finished){
 			finished = true;
@@ -131,16 +198,34 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 
     @Override
     protected void onAfterEndScope(SimpleNode node, ScopeItems m) {
-    	ASTEntry parent = null;
-    	if(node != null){
-    		parent = parents.pop();
+    	Found found = m.get(this.completeNameToFind);
+    	if(found != null){
+    		checkFound(node, found);
+    		
+    	}else if(hitAsUndefined != null){
+    		for(Found f :this.undefinedFound){
+    			if(f.getSingle().scopeFound == hitAsUndefined.getSingle().scopeFound){
+    				Assert.isTrue(foundOccurrences.size() == 1);
+    				Tuple3<Found, Integer, ASTEntry> hit = foundOccurrences.get(0);
+    				foundOccurrences.add(new Tuple3<Found, Integer, ASTEntry>(f, hit.o2, hit.o3));
+    			}
+    		}
     	}
     	
-		Found found = m.get(this.completeNameToFind);
+    }
+
+    private Found checkFound(SimpleNode node, Found found) {
+    	ASTEntry parent = popParent(node);
+		return checkFound(found, parent);
+    }
+
+    
+	private Found checkFound(Found found, ASTEntry parent) {
 		if(found == null){
-			return;
+			return null;
 		}
 		List<GenAndTok> all = found.getAll();
+		
 		int absoluteCursorOffset = ps.getAbsoluteCursorOffset();
 		try {
 			IRegion region = document.getLineInformationOfOffset(absoluteCursorOffset);
@@ -150,14 +235,15 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 			for (GenAndTok gen : all) {
 				for (IToken tok2 : gen.getAllTokens()) {
 					if(checkToken(found, currLine, currCol, tok2, parent)){
-						return; //ok, found it
+						return found; //ok, found it
 					}
 				}
 			}
 		} catch (Exception e) {
 			Log.log(e);
 		}
-    }
+		return null;
+	}
 
 	private boolean checkToken(Found found, int currLine, int currCol, IToken generator, ASTEntry parent) {
 		int startLine = AbstractMessage.getStartLine(generator, this.document)-1;
@@ -174,6 +260,9 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	}
     
 
+	/**
+	 * @return all the token occurrences
+	 */
 	public List<IToken> getTokenOccurrences() {
 		List<IToken> ret = new ArrayList<IToken>();
 		

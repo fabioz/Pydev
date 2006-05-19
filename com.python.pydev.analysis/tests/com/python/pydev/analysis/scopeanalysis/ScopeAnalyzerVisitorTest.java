@@ -21,7 +21,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	try {
 			ScopeAnalyzerVisitorTest test = new ScopeAnalyzerVisitorTest();
 			test.setUp();
-			test.testIt7();
+			test.testIt12();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalyzerVisitorTest.class);
 		} catch (Exception e) {
@@ -64,9 +64,9 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	);
     	int line=0;
     	int col=7;
-    	//if we don't have the definition, we don't have any references...
+    	//if we don't have the definition, we may still have occurrences
     	List<IToken> tokenOccurrences = getTokenOccurrences(line, col);
-    	assertEquals(0, tokenOccurrences.size());
+    	assertEquals(1, tokenOccurrences.size());
     }    	
     
     public void testIt5() throws Exception {
@@ -106,14 +106,14 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     			"print  os.path.os\n"+
     			"\n"
     	);
-    	checkTest3Results(0, 10, "path");
-    	checkTest3Results(1, 10, "path");
+    	checkTestResults(0, 10, "path");
+    	checkTestResults(1, 10, "path");
     	
-    	checkTest3Results(0, 7, "os");
-    	checkTest3Results(1, 7, "os");
+    	checkTestResults(0, 7, "os");
+    	checkTestResults(1, 7, "os");
     	
-    	checkTest3Results(0, 15, "os");
-    	checkTest3Results(1, 15, "os"); //let's see if it checks the relative position correctly
+    	checkTestResults(0, 15, "os");
+    	checkTestResults(1, 15, "os"); //let's see if it checks the relative position correctly
     }
     
     public void testIt7() throws Exception {
@@ -122,8 +122,8 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     			"print          path\n"+
     			"\n"
     	);
-    	checkTest3Results(0, 15, "path");
-    	checkTest3Results(1, 15, "path");
+    	checkTestResults(0, 15, "path");
+    	checkTestResults(1, 15, "path");
     }
     
     
@@ -133,8 +133,8 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     			"print               path\n"+
     			"\n"
     	);
-    	checkTest3Results(0, 20, "path");
-    	checkTest3Results(1, 20, "path");
+    	checkTestResults(0, 20, "path");
+    	checkTestResults(1, 20, "path");
     }
     
     public void testIt9() throws Exception {
@@ -143,8 +143,8 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     			"print                 path\n"+
     			"\n"
     	);
-    	checkTest3Results(0, 22, "path");
-    	checkTest3Results(1, 22, "path");
+    	checkTestResults(0, 22, "path");
+    	checkTestResults(1, 22, "path");
     }
     
     public void testIt10() throws Exception {
@@ -153,24 +153,53 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     			"print          foo\n"+
     			"\n"
     	);
-    	checkTest3Results(0, 15, "foo");
-    	checkTest3Results(1, 15, "foo");
+    	checkTestResults(0, 15, "foo");
+    	checkTestResults(1, 15, "foo");
+    }
+    
+    public void testIt11() throws Exception {
+    	doc = new Document(
+    			"print          foo\n"+
+    			"print          foo\n"+
+    			"\n"
+    	);
+    	checkTestResults(0, 15, "foo");
+    	checkTestResults(1, 15, "foo", false);
+    }
+    
+    public void testIt12() throws Exception {
+    	doc = new Document(
+    			"def m1():\n" +
+    			"    print foo\n"+
+    			"    print bla.foo\n"+
+    			"\n"
+    	);
+    	List<IToken> tokenOccurrences = getTokenOccurrences(1, 11);
+    	assertEquals(1, tokenOccurrences.size());
     }
     
 
-	private void checkTest3Results(int line, int col, String lookFor) throws Exception {
+    private void checkTestResults(int line, int col, String lookFor) throws Exception {
+    	checkTestResults(line, col, lookFor, true);
+    }
+    
+	private void checkTestResults(int line, int col, String lookFor, boolean checkPositions) throws Exception {
 		List<IToken> tokenOccurrences = getTokenOccurrences(line, col);
     	assertEquals(2, tokenOccurrences.size());
     	
     	IToken tok0 = tokenOccurrences.get(0);
     	assertEquals(lookFor, tok0.getRepresentation());
-		assertEquals(0, AbstractMessage.getStartLine(tok0, doc)-1);
-    	assertEquals(col, AbstractMessage.getStartCol(tok0, doc)-1);
+    	if(checkPositions){
+			assertEquals(0, AbstractMessage.getStartLine(tok0, doc)-1);
+	    	assertEquals(col, AbstractMessage.getStartCol(tok0, doc)-1);
+    	}
     	
     	IToken tok1 = tokenOccurrences.get(1);
     	assertEquals(lookFor, tok1.getRepresentation());
-		assertEquals(1, AbstractMessage.getStartLine(tok1, doc)-1);
-    	assertEquals(col, AbstractMessage.getStartCol(tok1, doc)-1);
+    	if(checkPositions){
+			assertEquals(1, AbstractMessage.getStartLine(tok1, doc)-1);
+	    	assertEquals(col, AbstractMessage.getStartCol(tok1, doc)-1);
+    	}
 	}    	
     
     

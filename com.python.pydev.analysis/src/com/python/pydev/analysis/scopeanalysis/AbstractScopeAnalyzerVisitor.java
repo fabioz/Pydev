@@ -700,10 +700,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 rep = rep.substring(0, i);
             }
             if(addToNotDefined && !scope.isInNamesToIgnore(rep)){
-                if(scope.size() > 1){
+                if(scope.size() > 1){ //if we're not in the global scope, it might be defined later
                     probablyNotDefined.add(new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems())); //we are not in the global scope, so it might be defined later...
                 }else{
-                    onAddUndefinedMessage(token);
+                    onAddUndefinedMessage(token); //it is in the global scope, so, it is undefined.
                 }
             }
         }else if(checkIfIsValidImportToken){

@@ -10,6 +10,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.DocumentChange;
@@ -19,10 +20,14 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+
+import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
 
 /**
  * This class presents the basic functionality for doing a rename.
@@ -179,5 +184,25 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
         }
         return null;
     }
+
+    
+
+    /**
+     * Searches for a list of entries that are found within a scope.
+     */
+	protected List<ASTEntry> getOccurrencesWithScopeAnalyzer(RefactoringRequest request) {
+		List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
+    	
+        IModule module = request.getModule();
+		ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(request.nature, request.moduleName, 
+        		module, request.doc, new NullProgressMonitor(), request.ps);
+        try {
+			request.getAST().accept(visitor);
+			entryOccurrences = visitor.getEntryOccurrences();
+		} catch (Exception e) {
+			Log.log(e);
+		}
+		return entryOccurrences;
+	}
 
 }

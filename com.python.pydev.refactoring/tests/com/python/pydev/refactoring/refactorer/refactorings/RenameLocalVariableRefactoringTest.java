@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-//            test.testLocalNotGottenStuff();
+            test.testLocalGotten();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -290,8 +290,8 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	"    print bla\n" +
     	"";
     	
-    	int line = 0;
-    	int col = 5;
+    	int line = 1;
+    	int col = 9;
     	checkDefault(str, line, col, "bla", false, true);
     }
     
@@ -302,8 +302,8 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	"    print bla\n" +
     	"";
     	
-    	int line = 0;
-    	int col = 11;
+    	int line = 1;
+    	int col = 15;
     	checkDefault(str, line, col, "bla", false, true);
     }
     
@@ -314,8 +314,8 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	"    print %s\n" + //should only affect the locals
     	"";
     	
-    	int line = 1;
-    	int col = 7;
+    	int line = 2;
+    	int col = 11;
     	checkDefault(str, line, col, "bla", false, true);
     }
 }
