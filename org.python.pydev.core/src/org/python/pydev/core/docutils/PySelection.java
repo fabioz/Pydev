@@ -393,27 +393,38 @@ public class PySelection {
     
 	public void deleteSpacesAfter(int offset) {
 		try {
-			int initial = offset;
-			String next = doc.get(offset, 1);
-			
-			//don't delete 'all' that is considered whitespace (as \n and \r)
-			try {
-				while (next.charAt(0) == ' ' || next.charAt(0) == '\t') {
-					offset++;
-					next = doc.get(offset, 1);
-				}
-			} catch (Exception e) {
-				// ignore
-			}
-			
-			final int len = offset-initial;
+			final int len = countSpacesAfter(offset);
 			if(len > 0){
-				doc.replace(initial, len, "");
+				doc.replace(offset, len, "");
 			}
 		} catch (Exception e) {
 			//ignore
 		}
 	}
+
+
+	public int countSpacesAfter(int offset) throws BadLocationException {
+		if(offset >= doc.getLength()){
+			return 0;
+		}
+		
+		int initial = offset;
+		String next = doc.get(offset, 1);
+		
+		//don't delete 'all' that is considered whitespace (as \n and \r)
+		try {
+			while (next.charAt(0) == ' ' || next.charAt(0) == '\t') {
+				offset++;
+				next = doc.get(offset, 1);
+			}
+		} catch (Exception e) {
+			// ignore
+		}
+		
+		return offset-initial;
+	}
+	
+
 
     
     /**
@@ -1202,6 +1213,8 @@ public class PySelection {
         }
         return false;
 	}
+
+
 
 
 

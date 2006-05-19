@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNewLineAfterOpeningParWithOtherContents();
+            s.testMaintainIndent2();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -140,6 +140,25 @@ public class PyAutoIndentStrategyTest extends TestCase {
         
     }
     
+    public void testMaintainIndent2() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"def moo():\n" +
+    	"    if not 1:\n" +
+    	"        print 'foo'\n" +
+    	"    print 'bla'"+
+    	"";
+    	
+    	
+    	final Document doc = new Document(str);
+    	int offset = doc.getLength()-"  print 'bla'".length();
+		DocCmd docCmd = new DocCmd(offset, 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n  ", docCmd.text); 
+    	assertEquals(offset+2, docCmd.caretOffset); 
+    	
+    }
+    
     
     public void testNoAutoIndentClosingPar() {
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
@@ -243,7 +262,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	strategy.customizeDocumentCommand(doc, docCmd);
     	assertEquals("\n    ", docCmd.text); 
     	
-    	String expected = "for a in b:";
+    	String expected = "for a in b:    ";
     	assertEquals(expected, doc.get());
     }
     
@@ -356,10 +375,10 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	strategy.customizeDocumentCommand(doc, docCmd);
     	String expected = "" +
     	"def a():\n" +
-    	"print a" +
+    	"    print a" +
     	"";
     	assertEquals(expected, doc.get()); 
-    	assertEquals("\n    ", docCmd.text); 
+    	assertEquals("\n", docCmd.text); 
     	
     }
     

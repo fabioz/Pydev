@@ -109,8 +109,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             
             boolean indentBasedOnStartingScope = false;
             try {
-                char c = selection.getCharAfterCurrentOffset();
-                if(Character.isWhitespace(c)){
+                if (PySelection.containsOnlyWhitespaces(selection.getLineContentsFromCursor())){
                     indentBasedOnStartingScope = true;
                 }
             } catch (BadLocationException e) {
@@ -282,7 +281,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             	    PySelection selection = new PySelection(document, command.offset);
                     if(selection.getCursorLineContents().trim().length() > 0){
     	            	command.text = autoIndentNewline(document, command.length, command.text, command.offset);
-    	        		selection.deleteSpacesAfter(command.offset);
+    	            	command.caretOffset = command.offset + selection.countSpacesAfter(command.offset);
                     }
             	}else{
             		PySelection selection = new PySelection(document, command.offset);
