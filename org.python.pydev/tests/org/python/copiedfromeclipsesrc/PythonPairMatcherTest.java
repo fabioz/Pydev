@@ -19,14 +19,24 @@ public class PythonPairMatcherTest extends TestCase {
 	}
 	
 	public void testMatch() throws Exception {
-		PythonPairMatcher matcher = new PythonPairMatcher(new char[]{'(', ')', '[', ']'});
+		PythonPairMatcher matcher = getMatcher();
 		String s = "test (";
 		assertEquals(5, matcher.searchForOpeningPeer(s.length(), '(', ')', new Document(s)));
 		s = "test ";
 		assertEquals(-1, matcher.searchForOpeningPeer(s.length(), '(', ')', new Document(s)));
 		s = "test () ";
 		assertEquals(-1, matcher.searchForOpeningPeer(s.length(), '(', ')', new Document(s)));
+	}
+	
+	public void testMatch1() throws Exception {
+		PythonPairMatcher matcher = getMatcher();
+		String s = "\ntest ('[#') ";
+		assertEquals(-1, matcher.searchForAnyOpeningPeer(s.length(), new Document(s)));
 		
+	}
+
+	private PythonPairMatcher getMatcher() {
+		return new PythonPairMatcher(new char[]{'(', ')', '[', ']'});
 	}
 
 }

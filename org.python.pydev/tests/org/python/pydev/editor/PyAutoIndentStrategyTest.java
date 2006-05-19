@@ -24,13 +24,11 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
     public static void main(String[] args) {
         try {
-//            PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
-//            s.setUp();
-//            s.testMaintainIndent2();
-//            s.tearDown();
-        	for (int i = 0; i < 100; i++) {
-        		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
-			}
+            PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
+            s.setUp();
+            s.testDontChangeCursorOffset();
+            s.tearDown();
+    		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -99,6 +97,31 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	
     }
     
+    public void testIgnoreComment() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"titleEnd = ('[#')" +
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n", docCmd.text); 
+    	
+    }
+    
+    public void testIgnoreComment2() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"titleEnd = ('''\n" +
+    	"            [#''')" + //should wrap to the start
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n", docCmd.text); 
+    	
+    }
+    
     public void testNewLineAfterOpeningParWithOtherContents() {
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
     	String str = "" +
@@ -158,6 +181,25 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	strategy.customizeDocumentCommand(doc, docCmd);
     	assertEquals("\n  ", docCmd.text); 
     	assertEquals(offset+2, docCmd.caretOffset); 
+    	
+    }
+    
+    
+    public void testDontChangeCursorOffset() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"def moo():\n" +
+    	"    if not 1:\n" +
+    	"        print    'foo'" +
+    	"";
+    	
+    	
+    	final Document doc = new Document(str);
+    	int offset = doc.getLength()-"    'foo'".length();
+    	DocCmd docCmd = new DocCmd(offset, 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n        ", docCmd.text); 
+    	assertEquals(0, docCmd.caretOffset); //don't change it 
     	
     }
     

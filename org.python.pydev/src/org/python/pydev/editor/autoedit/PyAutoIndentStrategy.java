@@ -281,7 +281,9 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             	    PySelection selection = new PySelection(document, command.offset);
                     if(selection.getCursorLineContents().trim().length() > 0){
     	            	command.text = autoIndentNewline(document, command.length, command.text, command.offset);
-    	            	command.caretOffset = command.offset + selection.countSpacesAfter(command.offset);
+    	            	if(PySelection.containsOnlyWhitespaces(selection.getLineContentsToCursor())){
+    	            		command.caretOffset = command.offset + selection.countSpacesAfter(command.offset);
+    	            	}
                     }
             	}else{
             		PySelection selection = new PySelection(document, command.offset);

@@ -170,12 +170,18 @@ public class PythonCodeReader {
         handledLine = lineOfOffset;
         String line = PySelection.getLine(fDocument, lineOfOffset);
         int i;
+        //first we check for a comment possibility
         if( (i = line.indexOf('#')) != -1){
-            IRegion lineInformation = fDocument.getLineInformation(lineOfOffset);
-            int offset = lineInformation.getOffset() + i;
-            if(offset < fOffset){
-            	fOffset = offset;
-            }
+        	
+        	//and now we check if that comment is not within a string.
+        	String withoutCommentsOrLiterals = PySelection.getLineWithoutCommentsOrLiterals(line);
+        	if(withoutCommentsOrLiterals.indexOf('#') != -1){
+	            IRegion lineInformation = fDocument.getLineInformation(lineOfOffset);
+	            int offset = lineInformation.getOffset() + i;
+	            if(offset < fOffset){
+	            	fOffset = offset;
+	            }
+        	}
         }
     }
 }
