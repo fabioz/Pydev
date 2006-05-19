@@ -6,6 +6,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.cache.PyPreferencesCache;
 
 import com.python.pydev.refactoring.RefactoringPlugin;
 
