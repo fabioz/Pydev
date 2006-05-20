@@ -1,19 +1,30 @@
 package org.python.pydev.core.docutils;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.Tuple3;
 
 public class PyDocIterator implements Iterator<String> {
 
 	private int offset;
 	private IDocument doc;
 	private boolean addNewLinesToRet = true;
+    private boolean returnNewLinesOnLiterals = false;
+    private boolean inLiteral = false;
+    private int literalEnd;
+    private boolean changeLiteralsForSpaces;
 	
-	public PyDocIterator(IDocument doc, boolean addNewLinesToRet) {
+    public PyDocIterator(IDocument doc, boolean addNewLinesToRet) {
+        this(doc, addNewLinesToRet, false, false);
+    }
+	public PyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals, boolean changeLiteralsForSpaces) {
 		this(doc);
 		this.addNewLinesToRet = addNewLinesToRet;
+        this.returnNewLinesOnLiterals = returnNewLinesOnLiterals;
+        this.changeLiteralsForSpaces = changeLiteralsForSpaces;
 	}
 	
 	public PyDocIterator(IDocument doc) {
@@ -32,12 +43,60 @@ public class PyDocIterator implements Iterator<String> {
 		}
 	}
 
+	private String nextInLiteral() {
+	    StringBuffer buf = new StringBuffer();
+	    try {
+            
+            char ch = doc.getChar(offset);
+            while (offset < literalEnd && ch != '\n' && ch != '\r') {
+                ch = doc.getChar(offset);
+                offset++;
+                if(changeLiteralsForSpaces){
+                    buf.append(' ');
+                }
+            }
+            if(offset >= literalEnd){
+                inLiteral = false;
+                offset++;
+                if(changeLiteralsForSpaces){
+                    buf.append(' ');
+                }
+                return buf.toString();
+            }
+            
+            if(ch == '\r'){ 
+                ch = doc.getChar(offset+1);
+                if(ch == '\n'){
+                    offset++;
+                    ch = '\n';
+                }
+            }
+            buf.append(ch);
+            return buf.toString();
+            
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
 	/**
 	 * 
 	 */
 	public String next() {
+        
         try {
         	StringBuffer buf = new StringBuffer();
+            
+        	if(inLiteral){
+        	    String ret = nextInLiteral();
+        	    if(ret.length() > 0){
+                    if(WordUtils.endsWith(ret, '\r') || WordUtils.endsWith(ret, '\n')){
+                        return ret;
+                    }else{
+                        buf.append(ret);
+                    }
+        	    }
+        	}
 
         	char ch = 0;
         	
@@ -51,8 +110,24 @@ public class PyDocIterator implements Iterator<String> {
 					}
 					
 				}else if (ch == '\'' || ch == '"') {
-					offset = ParsingUtils.getLiteralEnd(doc, offset, ch);
-					offset++;
+                    if(returnNewLinesOnLiterals){
+                        inLiteral = true;
+                        literalEnd = ParsingUtils.getLiteralEnd(doc, offset, ch);
+                        String ret = nextInLiteral();
+                        if(ret.length() > 0){
+                            if(WordUtils.endsWith(ret, '\r') || WordUtils.endsWith(ret, '\n')){
+                                return ret;
+                            }else{
+                                buf.append(ret);
+                            }
+                        }
+                    }else{
+                        if(this.changeLiteralsForSpaces){
+                            throw new RuntimeException("Not supported in this case.");
+                        }
+                        offset = ParsingUtils.getLiteralEnd(doc, offset, ch);
+                        offset++;
+                    }
 					
 				}else if(ch != '\n' && ch != '\r'){
 					//will be added later

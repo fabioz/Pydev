@@ -10,7 +10,15 @@ import junit.framework.TestCase;
 public class PythonCodeReaderTest extends TestCase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(PythonCodeReaderTest.class);
+        try {
+            PythonCodeReaderTest t = new PythonCodeReaderTest();
+            t.setUp();
+            t.testBackwardComments();
+            t.tearDown();
+            junit.textui.TestRunner.run(PythonCodeReaderTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     private PythonCodeReader reader;

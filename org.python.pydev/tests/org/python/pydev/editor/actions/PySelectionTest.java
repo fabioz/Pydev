@@ -11,6 +11,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
 
 import junit.framework.TestCase;
@@ -28,7 +29,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testAddLine();
+            test.testDocIterator();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -360,5 +361,39 @@ public class PySelectionTest extends TestCase {
     	assertEquals(false, PySelection.isInSameLine(0, doc.getLineInformation(1)));
     	
     	assertEquals(true, PySelection.isInSameLine(4, doc.getLineInformation(1)));
+    }
+    
+    public void testGetCurrLineWithoutCommsOrLiterals() throws Exception {
+        Document doc = new Document("a#foo\nxxx");
+        PySelection selection = new PySelection(doc);
+        assertEquals("a", selection.getLineContentsToCursor(true, true));
+        
+        String str = "" +
+        "titleEnd = ('''\n" +
+        "            [#''')" + //get with spaces in the place of lines or comments
+        "";
+        doc = new Document(str);
+        selection = new PySelection(doc, str.length()-1);
+        assertEquals("                 )", selection.getLineContentsToCursor(true, true));
+        
+        str = "" +
+        "foopp" + 
+        "";
+        doc = new Document(str);
+        selection = new PySelection(doc, 3); //only 'foo'
+        assertEquals("foo", selection.getLineContentsToCursor(true, true));
+        
+
+    }
+    
+    public void testDocIterator() throws Exception {
+        String str = "" +
+        "''\n" +
+        "bla" + 
+        "";
+        doc = new Document(str);
+        PyDocIterator iterator = new PyDocIterator(doc,  false, true, true);
+        assertEquals("  ",iterator.next());
+        
     }
 }

@@ -34,6 +34,13 @@ public class PythonPairMatcherTest extends TestCase {
 		assertEquals(-1, matcher.searchForAnyOpeningPeer(s.length(), new Document(s)));
 		
 	}
+	
+	public void testMatch2() throws Exception {
+	    PythonPairMatcher matcher = getMatcher();
+	    String s = "\ntest ('''\n[#''') ";
+	    assertEquals(-1, matcher.searchForAnyOpeningPeer(s.length(), new Document(s)));
+	    
+	}
 
 	private PythonPairMatcher getMatcher() {
 		return new PythonPairMatcher(new char[]{'(', ')', '[', ']'});

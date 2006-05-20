@@ -56,7 +56,9 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
     	
         if (offset > 0) {
             PySelection selection = new PySelection(document, offset);
-            String lineWithoutComments = PySelection.getLineWithoutCommentsOrLiterals(selection.getLineContentsToCursor());
+
+            String lineWithoutComments = selection.getLineContentsToCursor(true, true);
+
             int smartIndent = determineSmartIndent(document, offset, selection);
             
             if(lineWithoutComments.length() > 0){

@@ -318,7 +318,7 @@ public class PySelection {
     }
     
     /**
-     * @return the offset of the cursor
+     * @return the offset of the line where the cursor is
      */
     public int getLineOffset() {
     	return getLineOffset(getCursorLine());
@@ -490,6 +490,28 @@ public class PySelection {
         return lineToCursor;
     }
 
+    /**
+     * Get the current line up to where the cursor is without any comments or literals.
+     */
+    public String getLineContentsToCursor(boolean removeComments, boolean removeLiterals) throws BadLocationException {
+        PyDocIterator it = new PyDocIterator(getDoc(), false, true, true);
+        int cursorLine = getCursorLine();
+        int lineOffset = getLineOffset();
+        
+        while(it.hasNext()){
+            String line = it.next();
+            if(it.getLastReturnedLine() == cursorLine){
+                int endLineOffset = lineOffset+line.length();
+                if(endLineOffset > getAbsoluteCursorOffset() +1){
+                    return line.substring(0, line.length() - (endLineOffset - getAbsoluteCursorOffset()));
+                }
+                return line;
+            }
+        }
+        
+        return "";
+    }
+    
     /**
      * @param ps
      * @return the line where the cursor is (from the beggining of the line to the cursor position).
@@ -905,6 +927,49 @@ public class PySelection {
     	return getActivationTokenAndQual(doc, getAbsoluteCursorOffset(), getFullQualifier);
     }
     
+    public static List<Integer> getLineBreakOffsets(String replacementString) {
+        ArrayList<Integer> ret = new ArrayList<Integer>();
+        
+        int lineBreaks = 0;
+        int ignoreNextNAt = -1;
+        
+        //we may have line breaks with \r\n, or only \n or \r
+        for (int i = 0; i < replacementString.length(); i++) {
+            if(replacementString.charAt(i) == '\r'){
+                lineBreaks++;
+                ret.add(i);
+                ignoreNextNAt = i + 1;
+            }
+            if(replacementString.charAt(i) == '\n'){
+                if(ignoreNextNAt != i){
+                    ret.add(i);
+                    lineBreaks++;
+                }
+            }
+        }
+        
+        return ret;
+    }
+    public static int countLineBreaks(String replacementString) {
+        int lineBreaks = 0;
+        int ignoreNextNAt = -1;
+        
+        //we may have line breaks with \r\n, or only \n or \r
+        for (int i = 0; i < replacementString.length(); i++) {
+            if(replacementString.charAt(i) == '\r'){
+                lineBreaks++;
+                ignoreNextNAt = i + 1;
+            }
+            if(replacementString.charAt(i) == '\n'){
+                if(ignoreNextNAt != i){
+                    lineBreaks++;
+                }
+            }
+        }
+        return lineBreaks;
+    }
+
+
     /**
      * Returns the activation token.
      * 

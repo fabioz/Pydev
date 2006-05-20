@@ -3,6 +3,8 @@
  */
 package org.python.pydev.editor.actions;
 
+import org.python.pydev.core.docutils.PySelection;
+
 import junit.framework.TestCase;
 
 public class PyActionTest extends TestCase {
@@ -20,11 +22,11 @@ public class PyActionTest extends TestCase {
     }
 
     public void testCountLineBreaks() {
-        assertEquals(0, PyAction.countLineBreaks("aaa"));
-        assertEquals(1, PyAction.countLineBreaks("aaa\n"));
-        assertEquals(2, PyAction.countLineBreaks("aaa\n\r"));
-        assertEquals(1, PyAction.countLineBreaks("aaa\r\n"));
-        assertEquals(3, PyAction.countLineBreaks("aaa\nooo\nooo\n"));
-        assertEquals(2, PyAction.countLineBreaks("aaa\r\nbb\r\n"));
+        assertEquals(0, PySelection.countLineBreaks("aaa"));
+        assertEquals(1, PySelection.countLineBreaks("aaa\n"));
+        assertEquals(2, PySelection.countLineBreaks("aaa\n\r"));
+        assertEquals(1, PySelection.countLineBreaks("aaa\r\n"));
+        assertEquals(3, PySelection.countLineBreaks("aaa\nooo\nooo\n"));
+        assertEquals(2, PySelection.countLineBreaks("aaa\r\nbb\r\n"));
     }
 }

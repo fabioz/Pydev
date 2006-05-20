@@ -173,14 +173,14 @@ public class PythonCodeReader {
         //first we check for a comment possibility
         if( (i = line.indexOf('#')) != -1){
         	
-        	//and now we check if that comment is not within a string.
-        	String withoutCommentsOrLiterals = PySelection.getLineWithoutLiterals(line);
-        	if(withoutCommentsOrLiterals.indexOf('#') != -1){
-	            IRegion lineInformation = fDocument.getLineInformation(lineOfOffset);
-	            int offset = lineInformation.getOffset() + i;
-	            if(offset < fOffset){
-	            	fOffset = offset;
-	            }
+            IRegion lineInformation = fDocument.getLineInformation(lineOfOffset);
+            int offset = lineInformation.getOffset() + i;
+            
+            String contentType = ParsingUtils.getContentType(fDocument.get(), offset+1);
+            if(contentType.equals(ParsingUtils.PY_COMMENT)){
+                if(offset < fOffset){
+                	fOffset = offset;
+                }
         	}
         }
     }

@@ -143,7 +143,7 @@ public class PyOrganizeImports extends PyAction{
 		for (Iterator iter = list.iterator(); iter.hasNext();) {
 		    Object[] element = (Object[]) iter.next();
             String s = (String) element[1];
-            int i = PyAction.countLineBreaks(s);
+            int i = PySelection.countLineBreaks(s);
             while(i >= 0){
                 PySelection.deleteLine(doc, ((Integer)element[0]).intValue());
                 i--;
