@@ -24,10 +24,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
 	//private ILaunch launch;
 	private IProcess process;		
 
-	public PyDebugTarget(ILaunch launch, 
-							IProcess process, 
-							IPath file, 
-							RemoteDebugger debugger) {
+	public PyDebugTarget(ILaunch launch, IProcess process, IPath file, RemoteDebugger debugger) {
 		this.launch = launch;
 		this.process = process;
 		this.file = file;

@@ -77,9 +77,6 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 			IMarker marker = ((PyBreakpoint) element).getMarker();
 			try {
 				Map attrs = marker.getAttributes();
-				// Set set = attrs.keySet();
-				// for (Iterator i = set.iterator(); i.hasNext();)
-				// System.out.println(i.next().toString());
 				IResource resource = marker.getResource();
 				String file = resource.getFullPath().lastSegment();
 				Object lineNumber = attrs.get(IMarker.LINE_NUMBER);
@@ -103,7 +100,7 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 				PydevDebugPlugin.log(IStatus.ERROR, "error retreiving marker attributes", e);
 				return "error";
 			}
-		} else if (element instanceof PyDebugTarget || element instanceof PyStackFrame || element instanceof PyThread) {
+		} else if (element instanceof AbstractDebugTarget || element instanceof PyStackFrame || element instanceof PyThread) {
 			return null; // defaults work
 			
 		} else if (element instanceof PyVariableCollection || element instanceof PyVariable) {
@@ -121,9 +118,15 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 			} catch (DebugException e) {
 				return null;
 			}
-		}
-		PydevDebugPlugin.log(IStatus.ERROR, "unknown debug type", null);
-		return null;
+            
+		}else if(element == null){
+		    PydevDebugPlugin.log(IStatus.ERROR, "PyDebugModelPresentation: element == null", null);
+            return null;
+            
+        }else{
+            PydevDebugPlugin.log(IStatus.ERROR, "PyDebugModelPresentation:\nclass not expected for presentation:"+element.getClass()+"\n(returning default presentation).", null);
+            return null;
+        }
 	}
 
 	/**

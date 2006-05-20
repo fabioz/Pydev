@@ -113,8 +113,7 @@ public class PythonRunner {
 		}
 		subMonitor.subTask("Done");
 		// hook up debug model, and we are off & running
-		PyDebugTarget t = new PyDebugTarget(launch, process, 
-									config.resource, debugger);
+		PyDebugTarget t = new PyDebugTarget(launch, process, config.resource, debugger);
 		launch.setSourceLocator(new PySourceLocator());
 		debugger.startTransmission(); // this starts reading/writing from sockets
 		t.initialize();

@@ -196,7 +196,6 @@ public abstract class AbstractDebugTarget extends PlatformObject implements IDeb
 	public void processCommand(String sCmdCode, String sSeqCode, String payload) {
 		try {
             int cmdCode = Integer.parseInt(sCmdCode);
-//            int seqCode = Integer.parseInt(sSeqCode);
             
             if (cmdCode == AbstractDebuggerCommand.CMD_THREAD_CREATED){
                 processThreadCreated(payload);

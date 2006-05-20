@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 
 public abstract class AbstractRemoteDebugger {

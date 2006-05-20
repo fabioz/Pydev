@@ -15,41 +15,46 @@ each command has a format:
 
     Commands:
  
-    NUMBER   NAME            FROM*     ARGUMENTS           RESPONSE      NOTE
+    NUMBER   NAME                 FROM*     ARGUMENTS                     RESPONSE      NOTE
 100 series: program execution
-    101      RUN                  RDB       -                   -
-    102      LIST_THREADS         RDB                           RETURN with XML listing of all threads
-    103      THREAD_CREATE        PYDB      -                   XML with thread information
-    104      THREAD_KILL          RDB       id                  kills the thread
-                                  PYDB      id                  nofies RDB that thread was killed
-    105      THREAD_SUSPEND       RDB       XML of the stack,   suspends the thread
+    101      RUN                  RDB       -                             -
+    102      LIST_THREADS         RDB                                     RETURN with XML listing of all threads
+    103      THREAD_CREATE        PYDB      -                             XML with thread information
+    104      THREAD_KILL          RDB       id                            kills the thread
+                                  PYDB      id                            nofies RDB that thread was killed
+    105      THREAD_SUSPEND       RDB       XML of the stack,             suspends the thread
                                             reason for suspension
-                                  PYDB      id                  notifies RDB that thread was suspended
-    106      THREAD_RUN           RDB       id                  resume the thread
-                                  PYDB      id \t reason        notifies RDB that thread was resumed
+                                  PYDB      id                            notifies RDB that thread was suspended
+    106      THREAD_RUN           RDB       id                            resume the thread
+                                  PYDB      id \t reason                  notifies RDB that thread was resumed
     107      STEP_INTO            RDB       thread_id
     108      STEP_OVER            RDB       thread_id
     109      STEP_RETURN          RDB       thread_id
-    110      GET_VARIABLE         RDB       var_locator         GET_VARIABLE with XML of var content
+    110      GET_VARIABLE         RDB       var_locator                   GET_VARIABLE with XML of var content
                                             see code for definition
     111      SET_BREAK            RDB       file/line of the breakpoint
     112      REMOVE_BREAK         RDB       file/line of the return
-    113      EVALUATE_EXPRESSION  RDB   expression          result of evaluating the expression
-    114      CMD_GET_FRAME 
-    115      CMD_EXEC_EXPRESSION
+    113      EVALUATE_EXPRESSION  RDB       expression                    result of evaluating the expression
+    114      CMD_GET_FRAME        RDB
+    115      CMD_EXEC_EXPRESSION  RDB
+    116      CMD_WRITE_TO_CONSOLE PYDB
     
 500 series diagnostics/ok
-    901      VERSION         either      Version string (1.0)               Currently just used at startup
-    902      RETURN          either      Depends on caller    -
+    901      VERSION              either      Version string (1.0)        Currently just used at startup
+    902      RETURN               either      Depends on caller    -
     
 900 series: errors
-    501      ERROR           either      -                 This is reserved for unexpected errors.
+    501      ERROR                either      -                           This is reserved for unexpected errors.
                                   
     * RDB - remote debugger, the java end
     * PYDB - pydevd, the python end
 '''
 import traceback
-import StringIO
+
+try:
+    import cStringIO as StringIO #may not alway be available
+except:
+    import StringIO #@Reimport
 
 try:
     __setFalse = False
@@ -87,9 +92,13 @@ CMD_REMOVE_BREAK = 112
 CMD_EVALUATE_EXPRESSION = 113
 CMD_GET_FRAME = 114
 CMD_EXEC_EXPRESSION = 115
+CMD_WRITE_TO_CONSOLE = 116
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
+
+MAX_IO_MSG_SIZE = 400 #if the io is too big, we'll not send all (could make the debugger too non-responsive)
+                      #this number can be changed if there's need to do so
 
 VERSION_STRING = "1.0"
 
@@ -97,6 +106,8 @@ VERSION_STRING = "1.0"
 #--------------------------------------------------------------------------------------------------- UTILITIES
 
 pydevd_trace = -1
+
+
 
 def pydevd_log(level, s):
     """ levels are: 
@@ -288,7 +299,6 @@ class NetCommandFactory:
  
     def makeListThreadsMessage(self, seq):
         """ returns thread listing as XML """
-        print 'makeListThreadsMessage'
         try:
             t = threading.enumerate()
             cmdText = "<xml>"
@@ -300,6 +310,25 @@ class NetCommandFactory:
         except:
             return self.makeErrorMessage(seq, sys.exc_info()[0])
 
+    def makeIoMessage(self, v, ctx, dbg=None):
+        '''
+        @param v: the message to pass to the debug server
+        @param ctx: 1 for stdio 2 for stderr
+        @param dbg: If not none, add to the writer
+        '''
+        
+        try:
+            if len(v) >  MAX_IO_MSG_SIZE:
+                v = v[0:MAX_IO_MSG_SIZE]
+                v += '...'
+                
+            v = pydevd_vars.makeValidXmlValue(urllib.quote(v, '/>_= \t'))
+            net = NetCommand(str(CMD_WRITE_TO_CONSOLE), 0, '<xml><io s="%s" ctx="%s"/></xml>' % (v, ctx))
+            if dbg:
+                dbg.writer.addCommand(net)
+        except:
+            return self.makeErrorMessage(0, sys.exc_info()[0])
+    
     def makeVersionMessage(self, seq):
         try:
             return NetCommand(CMD_VERSION, seq, VERSION_STRING)

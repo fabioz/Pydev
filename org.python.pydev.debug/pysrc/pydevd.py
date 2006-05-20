@@ -1,10 +1,13 @@
 import traceback
 import weakref
-from pydevd_comm import *
+from pydevd_comm import * #@UnusedWildImport
+import pydevd_io
 
 DONT_TRACE = ('pydevd.py' , 'threading.py', 'pydevd_vars.py', 'pydevd_comm.py')
 
 connected = False
+bufferStdOutToServer = False
+bufferStdErrToServer = False
 
 #this is because jython does not have staticmethods
 PyDBCtx_threadToCtx = {}
@@ -118,7 +121,7 @@ class PyDBCommandThread(PyDBDaemonThread):
                     self.pyDb.processInternalCommands()
                 except:
                     if pydevd_trace >= 0: print 'Finishing debug communication...(2)'
-                time.sleep(0.1)
+                time.sleep(0.5)
         except:
             #only got this error in interpreter shutdown
             if pydevd_trace >= 0: print 'Finishing debug communication... (3)'
@@ -225,9 +228,30 @@ class PyDB:
             queue = self.getInternalQueue(thread_id)
             queue.put(int_cmd)
 
+    def checkOutput(self, out, ctx):
+        '''Checks the output to see if we have to send some buffered output to the debug server
+        
+        @param out: sys.stdout or sys.stderr
+        @param ctx: the context indicating: 1=stdout and 2=stderr (to know the colors to write it)
+        '''
+        
+        try:
+            v = out.getvalue()
+            if v:
+                self.cmdFactory.makeIoMessage(v, ctx, self)
+        except:
+            traceback.print_exc()
+        
+
     def processInternalCommands(self):
         self.acquire()
         try:
+            if bufferStdOutToServer:
+                self.checkOutput(sys.stdoutBuf,1)
+                    
+            if bufferStdErrToServer:
+                self.checkOutput(sys.stderrBuf,2)
+
             threads = threading.enumerate()
             foundNonPyDBDaemonThread = False
             for t in threads:
@@ -416,7 +440,7 @@ class PyDB:
         info = thread.additionalInfo
         while info.pydev_state == PyDB.STATE_SUSPEND:            
             self.processInternalCommands()
-            time.sleep(0.1)
+            time.sleep(0.2)
             
         #process any stepping instructions 
         if info.pydev_step_cmd == CMD_STEP_INTO:
@@ -706,12 +730,20 @@ def SetTraceForParents(frame, dispatch_func):
         frame.f_trace = dispatch_func
         frame = frame.f_back
 
-def settrace(host='localhost'):
+def settrace(host='localhost', stdoutToServer = False, stderrToServer = False):
     '''
-    @param host: the user may specify another host, 
+    @param host: the user may specify another host, if the debug server is not in the same machine
+    @param stdoutToServer: when this is true, the stdout is passed to the debug server
+    @param stderrToServer: when this is true, the stderr is passed to the debug server
+    so that they are printed in its console and not in this process console.
     '''
     
     global connected
+    global bufferStdOutToServer
+    global bufferStdErrToServer
+    bufferStdOutToServer = stdoutToServer
+    bufferStdErrToServer = stderrToServer
+    
     if not connected :
         connected = True  
         
@@ -725,6 +757,14 @@ def settrace(host='localhost'):
         net = NetCommand(str(CMD_THREAD_CREATE), 0, '<xml><thread name="pydevd.writer" id="-1"/></xml>')
         debugger.writer.addCommand(net)
         
+        if bufferStdOutToServer:
+            sys.stdoutBuf = pydevd_io.IOBuf()
+            sys.stdout = pydevd_io.IORedirector(sys.stdout, sys.stdoutBuf)
+            
+        if bufferStdErrToServer:
+            sys.stderrBuf = pydevd_io.IOBuf()
+            sys.stderr = pydevd_io.IORedirector(sys.stderr, sys.stderrBuf)
+            
         SetTraceForParents(sys._getframe(), debugger.trace_dispatch)
         
         t = threading.currentThread()      

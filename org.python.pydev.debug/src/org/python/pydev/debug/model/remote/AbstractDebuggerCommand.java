@@ -47,6 +47,7 @@ public abstract class AbstractDebuggerCommand {
 	static public final int CMD_EVALUATE_EXPRESSION = 113;
 	static public final int CMD_GET_FRAME = 114;
 	static public final int CMD_EXEC_EXPRESSION = 115;
+	static public final int CMD_WRITE_TO_CONSOLE = 116;
 	static public final int CMD_ERROR = 901;
 	static public final int CMD_VERSION = 501;
 	static public final int CMD_RETURN = 502;
