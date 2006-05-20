@@ -14,6 +14,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.util.Assert;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -203,13 +204,18 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     		checkFound(node, found);
     		
     	}else if(hitAsUndefined != null){
-    		for(Found f :this.undefinedFound){
-    			if(f.getSingle().scopeFound == hitAsUndefined.getSingle().scopeFound){
-    				Assert.isTrue(foundOccurrences.size() == 1);
-    				Tuple3<Found, Integer, ASTEntry> hit = foundOccurrences.get(0);
-    				foundOccurrences.add(new Tuple3<Found, Integer, ASTEntry>(f, hit.o2, hit.o3));
-    			}
-    		}
+            String foundRep = hitAsUndefined.getSingle().generator.getRepresentation();
+            if(foundRep.indexOf('.') == -1 || FullRepIterable.getFirstPart(foundRep).equals(nameToFind)){
+                //now, there's a catch here, if we found it as an attribute,
+                //we cannot get the locals
+                for(Found f :this.undefinedFound){
+                    if(f.getSingle().scopeFound == hitAsUndefined.getSingle().scopeFound){
+                        Assert.isTrue(foundOccurrences.size() == 1);
+                        Tuple3<Found, Integer, ASTEntry> hit = foundOccurrences.get(0);
+                        foundOccurrences.add(new Tuple3<Found, Integer, ASTEntry>(f, hit.o2, hit.o3));
+                    }
+                }
+            }
     	}
     	
     }

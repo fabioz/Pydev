@@ -21,7 +21,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	try {
 			ScopeAnalyzerVisitorTest test = new ScopeAnalyzerVisitorTest();
 			test.setUp();
-			test.testIt12();
+			test.testIt13();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalyzerVisitorTest.class);
 		} catch (Exception e) {
@@ -178,6 +178,16 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	assertEquals(1, tokenOccurrences.size());
     }
     
+    public void testIt13() throws Exception {
+        doc = new Document(
+                "def m1():\n" +
+                "    print foo.bla\n" + //accessing this should not get the locals
+                "    print bla\n"
+        );
+        List<IToken> tokenOccurrences = getTokenOccurrences(1, 15);
+        assertEquals(1, tokenOccurrences.size());
+        
+    }
 
     private void checkTestResults(int line, int col, String lookFor) throws Exception {
     	checkTestResults(line, col, lookFor, true);

@@ -20,9 +20,9 @@ public class RefactorProcessFactory {
             if(d.target.indexOf('.') != -1){
                 if(d.target.startsWith("self.")){
                     //ok, it is a member and not a local
-                    return new PyRenameAttributeProcess(definition);
+                    return new PyRenameSelfAttributeProcess(definition);
                 }else{
-                    return null;
+                    return new PyRenameAttributeProcess(definition);
                 }
                 
             }else{
