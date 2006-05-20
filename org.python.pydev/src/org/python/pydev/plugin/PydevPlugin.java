@@ -451,26 +451,20 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     public static IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist) {
         IEditorInput edInput = null;
         IWorkspace w = ResourcesPlugin.getWorkspace();      
-        IFile file = w.getRoot().getFileForLocation(path);
-        if (file == null  || !file.exists()){
+        IFile files[] = w.getRoot().findFilesForLocation(path);
+        if (files == null  || files.length == 0 || !files[0].exists()){
             //it is probably an external file
-            File file2 = path.toFile();
-            if(file2.exists()){
-                edInput = createEditorInput(file2);
+            File systemFile = path.toFile();
+            if(systemFile.exists()){
+                edInput = createEditorInput(systemFile);
                 
             }else if(askIfDoesNotExist){
                 //this is the last resort... First we'll try to check for a 'good' match,
                 //and if there's more than one we'll ask it to the user
                 List<IFile> likelyFiles = getLikelyFiles(path, w);
-                //we are out of the loop from the interface when this is called
-                if (likelyFiles.size()== 1){
-                    return new FileEditorInput(likelyFiles.get(0));
-                }
-                if(likelyFiles.size() > 0){
-                    file = selectWorkspaceFile(likelyFiles.toArray(new IFile[0]));
-                    if(file != null){
-                        return new FileEditorInput(file);
-                    }
+                IFile iFile = selectWorkspaceFile(likelyFiles.toArray(new IFile[0]));
+                if(iFile != null){
+                    return new FileEditorInput(iFile);
                 }
                 
                 //ok, ask the user for any file in the computer
@@ -479,12 +473,18 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
                     return input;
                 }
             }
-        }else{
-            edInput = new FileEditorInput(file);
+        }else{ //file exists
+            edInput = doFileEditorInput(selectWorkspaceFile(files));
         }
         return edInput;
     }
 
+    private static IEditorInput doFileEditorInput(IFile file) {
+        if(file == null){
+            return null;
+        }
+        return new FileEditorInput(file);
+    }
     /**
      * This is the last resort... pointing to some filesystem file to get the editor for some path.
      */
@@ -553,8 +553,14 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     
     private static IEditorInput createEditorInput(File file) {
         IFile[] workspaceFile= getWorkspaceFile(file);
-        if (workspaceFile != null && workspaceFile.length > 0)
-            return new FileEditorInput(workspaceFile[0]);
+        if (workspaceFile != null && workspaceFile.length > 0){
+            IFile file2 = selectWorkspaceFile(workspaceFile);
+            if(file2 != null){
+                return new FileEditorInput(file2);
+            }else{
+                return new FileEditorInput(workspaceFile[0]);
+            }
+        }
         return new PydevFileEditorInput(file);
     }
 
@@ -585,6 +591,12 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
     
     private static IFile selectWorkspaceFile(final IFile[] files) {
+        if(files.length == 0){
+            return null;
+        }
+        if(files.length == 1){
+            return files[0];
+        }
         final List<IFile> selected = new ArrayList<IFile>();
         
         Runnable r = new Runnable(){
@@ -728,6 +740,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @param addSubFolders: indicates if sub-folders should be added
      * @return tuple with files in pos 0 and folders in pos 1
      */
+    @SuppressWarnings("unchecked")
     private static List<File>[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean addSubFolders, int level, boolean checkHasInit) {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
@@ -805,7 +818,8 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     private List listeners = new ArrayList();
 
 
-	public void addTestListener(ITestRunListener listener) {
+	@SuppressWarnings("unchecked")
+    public void addTestListener(ITestRunListener listener) {
 		listeners.add(listener);
 	}
 	
