@@ -41,6 +41,8 @@ public class PydevdServerLaunchConfigurationDelegate extends AbstractLaunchConfi
 		IProcess pro = DebugPlugin.newProcess( launch, p, label, processAttributes );
 		
 		RemoteDebuggerServer.getInstance().setLaunch(launch);
+		RemoteDebuggerServer.getInstance().setServerProcess(p);
+		RemoteDebuggerServer.getInstance().setIProcess(pro);
 	}
 		
 	@Override

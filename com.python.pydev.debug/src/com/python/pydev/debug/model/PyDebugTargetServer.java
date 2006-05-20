@@ -8,7 +8,9 @@ import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
 
@@ -16,8 +18,7 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
 	private static final boolean DEBUG = false;
     private boolean isTerminated;
 	
-	public PyDebugTargetServer( ILaunch launch, IPath file, 
-							    RemoteDebuggerServer debugger) {				
+	public PyDebugTargetServer( ILaunch launch, IPath file, RemoteDebuggerServer debugger) {				
 		this.file = file;
 		this.debugger = debugger;
 		this.threads = new IThread[0];
@@ -65,9 +66,25 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
 			breakpointManager.removeBreakpointListener(this);
 		}
 	}
+    
+    public void processCommand(String sCmdCode, String sSeqCode, String payload) {
+        if(Integer.parseInt(sCmdCode) == AbstractDebuggerCommand.CMD_WRITE_TO_CONSOLE){
+            ProcessServer serverProcess = ((RemoteDebuggerServer)debugger).getServerProcess();
+            
+            //payload = <xml><io s="%s" ctx="%s"/></xml>
+            Tuple<String,Integer> message = XMLMessage.getMessage(payload);
+            if(message.o2 == 1){
+                serverProcess.writeToStdOut(message.o1);
+            }else{
+                serverProcess.writeToStdErr(message.o1);
+            }
+        }else{
+            super.processCommand(sCmdCode, sSeqCode, payload);
+        }
+    }
 
 	public IProcess getProcess() {
-		return null;
+		return ((RemoteDebuggerServer)debugger).getIProcess();
 	}
 
 	public ILaunch getLaunch() {

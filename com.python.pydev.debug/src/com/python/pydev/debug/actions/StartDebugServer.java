@@ -40,8 +40,7 @@ public class StartDebugServer implements IWorkbenchWindowActionDelegate {
 		PydevdServerLaunchShortcut s = new PydevdServerLaunchShortcut();
 		s.launch(null,"run","");
 		
-		Thread t = new Thread( RemoteDebuggerServer.getInstance() );
-		t.start();
+		RemoteDebuggerServer.getInstance(); //doing that, it will automatically start it
 	}
 
 	/**
