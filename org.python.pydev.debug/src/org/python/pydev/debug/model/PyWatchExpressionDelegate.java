@@ -39,6 +39,9 @@ public class PyWatchExpressionDelegate
 			
 			AbstractRemoteDebugger dbg;
 			dbg = ((AbstractDebugTarget)context.getDebugTarget()).getDebugger();
+            if(dbg == null){
+                return; //disposed
+            }
 			
 			// send the command, and then busy-wait
 			EvaluateExpressionCommand cmd = new EvaluateExpressionCommand( 

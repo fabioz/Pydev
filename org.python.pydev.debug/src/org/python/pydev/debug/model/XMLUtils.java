@@ -158,7 +158,10 @@ public class XMLUtils {
 			try {
                 if (file != null){
                     file = URLDecoder.decode(file, "UTF-8");
-                    file = REF.getFileAbsolutePath(new File(file));
+                    File tempFile = new File(file);
+                    if(tempFile.exists()){
+                        file = REF.getFileAbsolutePath(tempFile);
+                    }
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);

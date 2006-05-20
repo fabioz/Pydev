@@ -112,9 +112,16 @@ class PyDBCommandThread(PyDBDaemonThread):
     def run(self):
         time.sleep(5) #this one will only start later on (because otherwise we may not have any non-daemon threads
         sys.settrace(None) # no debugging on this thread
-        while not self.killReceived:
-            self.pyDb.processInternalCommands()
-            time.sleep(0.1)
+        try:
+            while not self.killReceived:
+                try:
+                    self.pyDb.processInternalCommands()
+                except:
+                    if pydevd_trace >= 0: print 'Finishing debug communication...(2)'
+                time.sleep(0.1)
+        except:
+            #only got this error in interpreter shutdown
+            if pydevd_trace >= 0: print 'Finishing debug communication... (3)'
             
 
 class PyDBAdditionalThreadInfo:

@@ -34,11 +34,17 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
+import org.eclipse.jface.window.Window;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
@@ -57,7 +63,9 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -433,24 +441,116 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 //  ===================== ALL BELOW IS COPIED FROM org.eclipse.ui.internal.editors.text.OpenExternalFileAction
 //  =====================
 
+    public static IEditorInput createEditorInput(IPath path) {
+        return createEditorInput(path, true);
+    }
     /**
      * @param path
      * @return
      */
-    public static IEditorInput createEditorInput(IPath path) {
-        IEditorInput edInput;
+    public static IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist) {
+        IEditorInput edInput = null;
         IWorkspace w = ResourcesPlugin.getWorkspace();      
         IFile file = w.getRoot().getFileForLocation(path);
         if (file == null  || !file.exists()){
             //it is probably an external file
             File file2 = path.toFile();
-            edInput = createEditorInput(file2);
+            if(file2.exists()){
+                edInput = createEditorInput(file2);
+                
+            }else if(askIfDoesNotExist){
+                //this is the last resort... First we'll try to check for a 'good' match,
+                //and if there's more than one we'll ask it to the user
+                List<IFile> likelyFiles = getLikelyFiles(path, w);
+                //we are out of the loop from the interface when this is called
+                if (likelyFiles.size()== 1){
+                    return new FileEditorInput(likelyFiles.get(0));
+                }
+                if(likelyFiles.size() > 0){
+                    file = selectWorkspaceFile(likelyFiles.toArray(new IFile[0]));
+                    if(file != null){
+                        return new FileEditorInput(file);
+                    }
+                }
+                
+                //ok, ask the user for any file in the computer
+                IEditorInput input = selectFilesystemFileForPath(path);
+                if(input != null){
+                    return input;
+                }
+            }
         }else{
             edInput = new FileEditorInput(file);
         }
         return edInput;
     }
 
+    /**
+     * This is the last resort... pointing to some filesystem file to get the editor for some path.
+     */
+    private static IEditorInput selectFilesystemFileForPath(final IPath path) {
+        final List<String> l = new ArrayList<String>();
+        Runnable r = new Runnable(){
+
+            public void run() {
+                Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+                FileDialog dialog = new FileDialog(shell);
+                dialog.setText(path+" - select correspondent filesystem file.");
+                dialog.setFilterExtensions(new String[]{"*.py; *.pyw"});
+                String string = dialog.open();
+                if(string != null){
+                    l.add(string);
+                }
+            }
+        };
+        if(Display.getCurrent() == null){ //not ui-thread
+            Display.getDefault().syncExec(r);
+        }else{
+            r.run();
+        }
+        if(l.size() > 0){
+            String fileAbsolutePath = REF.getFileAbsolutePath(l.get(0));
+            return new PydevFileEditorInput(new File(fileAbsolutePath));
+        }
+        return null;
+    }
+    
+    /**
+     * This method will pass all the files in the workspace and check if there's a file that might
+     * be a match to some path (use only as an almost 'last-resort').
+     */
+    private static List<IFile> getLikelyFiles(IPath path, IWorkspace w) {
+        List<IFile> ret = new ArrayList<IFile>();
+        try {
+            IResource[] resources = w.getRoot().members();
+            getLikelyFiles(path, ret, resources);
+        } catch (CoreException e) {
+            Log.log(e);
+        }
+        return ret;
+    }
+    
+    /**
+     * Used to recursively get the likely files given the first set of containers
+     */
+    private static void getLikelyFiles(IPath path, List<IFile> ret, IResource[] resources) throws CoreException {
+        String strPath = path.removeFileExtension().lastSegment().toLowerCase(); //this will return something as 'foo'
+        
+        for (IResource resource : resources) {
+            if(resource instanceof IFile){
+                IFile f = (IFile) resource;
+                
+                if(PythonPathHelper.isValidSourceFile(f)){
+                    if(resource.getFullPath().removeFileExtension().lastSegment().toLowerCase().equals(strPath)){ 
+                        ret.add((IFile) resource);
+                    }
+                }
+            }else if(resource instanceof IContainer){
+                getLikelyFiles(path, ret, ((IContainer)resource).members());
+            }
+        }
+    }
+    
     private static IEditorInput createEditorInput(File file) {
         IFile[] workspaceFile= getWorkspaceFile(file);
         if (workspaceFile != null && workspaceFile.length > 0)
@@ -468,10 +568,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         }
         
         return files;
-        //we are out of the loop from the interface when this is called
-//        if (files.length == 1)
-//            return files[0];
-//        return selectWorkspaceFile(files);
     }
     
 
@@ -487,15 +583,33 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         }
         return (IFile[])existentFiles.toArray(new IFile[existentFiles.size()]);
     }
-//    private IFile selectWorkspaceFile(IFile[] files) {
-//        ElementListSelectionDialog dialog= new ElementListSelectionDialog(fWindow.getShell(), new FileLabelProvider());
-//        dialog.setElements(files);
-//        dialog.setTitle(TextEditorMessages.OpenExternalFileAction_title_selectWorkspaceFile);
-//        dialog.setMessage(TextEditorMessages.OpenExternalFileAction_message_fileLinkedToMultiple);
-//        if (dialog.open() == Window.OK)
-//            return (IFile) dialog.getFirstResult();
-//        return null;
-//    }
+    
+    private static IFile selectWorkspaceFile(final IFile[] files) {
+        final List<IFile> selected = new ArrayList<IFile>();
+        
+        Runnable r = new Runnable(){
+            public void run() {
+                Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+                ElementListSelectionDialog dialog= new ElementListSelectionDialog(shell, new PyFileLabelProvider());
+                dialog.setElements(files);
+                dialog.setTitle("Select Workspace File");
+                dialog.setMessage("File may be matched to multiple files in the workspace.");
+                if (dialog.open() == Window.OK){
+                    selected.add((IFile) dialog.getFirstResult());
+                }
+            }
+            
+        };
+        if(Display.getCurrent() == null){ //not ui-thread
+            Display.getDefault().syncExec(r);
+        }else{
+            r.run();
+        }
+        if(selected.size() > 0){
+            return selected.get(0);
+        }
+        return null;
+    }
 
     
 //  =====================

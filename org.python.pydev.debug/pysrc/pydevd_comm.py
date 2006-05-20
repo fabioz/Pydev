@@ -110,7 +110,7 @@ def pydevd_log(level, s):
 
 def NormFile(filename):
     try:
-        rPath = os.path.realpath
+        rPath = os.path.realpath #@UndefinedVariable
     except:
         # jython does not support os.path.realpath
         # realpath is a no-op on systems without islink support
@@ -189,7 +189,13 @@ class WriterThread(PyDBDaemonThread):
         sys.settrace(None) # no debugging on this thread
         try:
             while not self.killReceived:
-                cmd = self.cmdQueue.get(1)
+                try:
+                    cmd = self.cmdQueue.get(1)
+                except:
+                    if pydevd_trace >= 0: print 'Finishing debug communication...(1)'
+                    #when liberating the thread here, we could have errors because we were shutting down
+                    #but the thread was still not liberated
+                    return
                 out = cmd.getOutgoing()
                 pydevd_log(1, "sending cmd " + out)
                 bytesSent = self.sock.send(out) #TODO: this does not guarantee that all message are sent (and jython does not have a send all)
@@ -325,12 +331,12 @@ class NetCommandFactory:
                 myId = str(id(curFrame))
                 #print "id is ", myId
                 
-                myName = curFrame.f_code.co_name
+                myName = curFrame.f_code.co_name #method name (if in method) or ? if global
                 #print "name is ", myName
                 
                 myFile = NormFile( curFrame.f_code.co_filename )                
-                #myFile = inspect.getsourcefile(curFrame) or inspect.getfile(frame)
                 #print "file is ", myFile
+                #myFile = inspect.getsourcefile(curFrame) or inspect.getfile(frame)
                 
                 myLine = str(curFrame.f_lineno)
                 #print "line is ", myLine

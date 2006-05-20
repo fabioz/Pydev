@@ -26,13 +26,14 @@ public class PySourceLocator implements ISourceLocator, ISourcePresentation {
 	// Returns the file
 	public IEditorInput getEditorInput(Object element) {
 		IEditorInput edInput = null;
-		if (element instanceof PyStackFrame) 
-		{
+		if (element instanceof PyStackFrame) {
+            
 			IPath path = ((PyStackFrame)element).getPath();			
-			if (path != null && !path.toString().startsWith("<")) 
-			{								
+            
+			if (path != null && !path.toString().startsWith("<")){								
 		        edInput = PydevPlugin.createEditorInput(path);                
 			}
+            
 		}
 		return edInput;
 	}
