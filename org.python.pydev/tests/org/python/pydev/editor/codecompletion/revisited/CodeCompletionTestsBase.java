@@ -36,7 +36,7 @@ import org.python.pydev.utils.PrintProgressMonitor;
 public class CodeCompletionTestsBase extends TestCase {
 
     public static void main(String[] args) {
-        //for single setup / teardow, check http://www.beust.com/weblog/archives/000082.html
+        //for single setup / teardown, check http://www.beust.com/weblog/archives/000082.html
         //(may be useful to get rid of the ThreadStreamReader threads)
         junit.textui.TestRunner.run(CodeCompletionTestsBase.class);
     }
@@ -48,7 +48,9 @@ public class CodeCompletionTestsBase extends TestCase {
 	public static PythonNature nature;
 	
 	/**
-	 * Nature for the second project
+	 * Nature for the second project. 
+     * 
+     * This nature has the other nature as a dependency.
 	 */
 	public static PythonNature nature2;
 	
@@ -83,7 +85,7 @@ public class CodeCompletionTestsBase extends TestCase {
             //cache
             restored = this.getClass();
             nature = createNature();
-            ProjectStub projectStub = new ProjectStub("testProjectStub", path);
+            ProjectStub projectStub = new ProjectStub("testProjectStub", path, new IProject[0], new IProject[0]);
 			nature.setProject(projectStub);
 			projectStub.setNature(nature);
     	    nature.setAstManager(new ASTManager());
@@ -102,7 +104,13 @@ public class CodeCompletionTestsBase extends TestCase {
     		//cache
     		restored2 = this.getClass();
     		nature2 = createNature();
-    		ProjectStub projectStub = new ProjectStub("testProjectStub2", path, new IProject[]{nature.getProject()});
+            
+    		ProjectStub natureProject = (ProjectStub) nature.getProject();
+            ProjectStub projectStub = new ProjectStub("testProjectStub2", path, new IProject[]{natureProject}, new IProject[0]);
+            
+            //as we're adding a reference, we also have to set the referencing...
+            natureProject.referencingProjects = new IProject[]{projectStub};
+            
 			nature2.setProject(projectStub); //references the project 1
 			projectStub.setNature(nature2);
     		nature2.setAstManager(new ASTManager());

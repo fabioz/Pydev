@@ -30,19 +30,16 @@ import org.python.pydev.plugin.nature.PythonNature;
 public class ProjectStub implements IProject {
 
     String name;
-	private IProject[] referencedProjects;
+	public IProject[] referencedProjects;
+	public IProject[] referencingProjects;
 	private PythonNature nature;
 	private String path;
-	
-    public ProjectStub(String name, String path2) {
-    	this.path = path2;
-        this.name = name;
-        this.referencedProjects = new IProject[0];
-    }
     
-    public ProjectStub(String name, String path2, IProject[] referencedProjects) {
-    	this(name, path2);
+    public ProjectStub(String name, String path2, IProject[] referencedProjects, IProject[] referencingProjects) {
+    	this.path = path2;
+    	this.name = name;
     	this.referencedProjects = referencedProjects;
+        this.referencingProjects = referencingProjects;
     }
 
     public void build(int kind, String builderName, Map args, IProgressMonitor monitor) throws CoreException {
@@ -106,7 +103,7 @@ public class ProjectStub implements IProject {
     }
 
     public IProject[] getReferencingProjects() {
-        throw new RuntimeException("not impl");
+        return referencingProjects;
     }
 
     public boolean hasNature(String natureId) throws CoreException {

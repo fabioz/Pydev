@@ -331,32 +331,29 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
 
 
     /**
-     * @param checkSystemManager 
-     * @return Returns the managersInvolved (does not include itself).
+     * @param checkSystemManager whether the system manager should be added
+     * @param referenced true if we should get the referenced projects 
+     *                   false if we should get the referencing projects
+     * @return the Managers that this project references or the ones that reference this project (depends on 'referenced') 
      */
-    protected ModulesManager[] getManagersInvolved(boolean checkSystemManager) {
+    private ModulesManager[] getManagers(boolean checkSystemManager, boolean referenced) {
         ArrayList<ModulesManager> list = new ArrayList<ModulesManager>();
         SystemModulesManager systemModulesManager = getSystemModulesManager(null);
-
+        
         try {
             if(project != null){
-	            IProject[] referencedProjects = project.getReferencedProjects();
-	            for (int i = 0; i < referencedProjects.length; i++) {
-	                PythonNature nature = PythonNature.getPythonNature(referencedProjects[i]);
-	                if(nature!=null){
-	                    ICodeCompletionASTManager otherProjectAstManager = nature.getAstManager();
-	                    if(otherProjectAstManager != null){
-	                    	IModulesManager projectModulesManager = otherProjectAstManager.getModulesManager();
-		                    if(projectModulesManager != null){
-		                        list.add((ModulesManager) projectModulesManager);
-		                    }
-	                    }
-	                }
-	            }
+                IProject[] projects;
+                if(referenced){
+                    projects = project.getReferencedProjects();
+                }else{
+                    projects = project.getReferencingProjects();
+                    
+                }
+                fillWithModulesManagers(list, projects);
             }
             //the system is the last one we add.
             if(checkSystemManager && systemModulesManager != null){
-            	list.add(systemModulesManager);
+                list.add(systemModulesManager);
             }
             return (ModulesManager[]) list.toArray(new ModulesManager[list.size()]);
         } catch (CoreException e) {
@@ -368,6 +365,42 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
             }
         }
     }
+    
+
+    /**
+     * @param list the list that will be filled with the managers
+     * @param projects the projects that should have the managers added
+     */
+    private void fillWithModulesManagers(ArrayList<ModulesManager> list, IProject[] projects) {
+        for (int i = 0; i < projects.length; i++) {
+            PythonNature nature = PythonNature.getPythonNature(projects[i]);
+            if(nature!=null){
+                ICodeCompletionASTManager otherProjectAstManager = nature.getAstManager();
+                if(otherProjectAstManager != null){
+                    IModulesManager projectModulesManager = otherProjectAstManager.getModulesManager();
+                    if(projectModulesManager != null){
+                        list.add((ModulesManager) projectModulesManager);
+                    }
+                }
+            }
+        }
+    }
+
+    
+    /**
+     * @return Returns the managers that this project references(does not include itself).
+     */
+    public ModulesManager[] getManagersInvolved(boolean checkSystemManager) {
+        return getManagers(checkSystemManager, true);
+    }
+
+    /**
+     * @return Returns the managers that reference this project (does not include itself).
+     */
+    public ModulesManager[] getRefencingManagersInvolved(boolean checkSystemManager) {
+        return getManagers(checkSystemManager, false);
+    }
+
 
     
     /** 
@@ -382,6 +415,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         }
         return l;
     }
+
 
 
 
