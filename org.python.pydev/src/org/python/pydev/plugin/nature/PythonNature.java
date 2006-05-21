@@ -378,6 +378,8 @@ public class PythonNature implements IPythonNature {
         	for(int i=0; i<10 && astManager == null && !initializationFinished; i++){ //we will wait 10 seconds for it
         		try {
 					Thread.sleep(1000);
+        		} catch (InterruptedException e) {
+                    //ignore
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
