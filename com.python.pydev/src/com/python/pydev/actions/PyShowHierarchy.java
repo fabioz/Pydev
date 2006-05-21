@@ -55,7 +55,7 @@ public class PyShowHierarchy extends PyRefactorAction{
             }
         };
         
-		Display.getDefault().asyncExec(r);
+		Display.getDefault().syncExec(r); //sync it here, so that we can check it later...
 		if(view != null){
 		    //set whatever is needed for the hierarchy
 		    IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
@@ -71,7 +71,7 @@ public class PyShowHierarchy extends PyRefactorAction{
                         view.setHierarchy(model);
                     }
                 };
-                Display.getDefault().asyncExec(r);
+                Display.getDefault().asyncExec(r); //this can be 'not synched'
             }
 		}
 		return "";
