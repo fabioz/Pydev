@@ -7,6 +7,7 @@ package org.python.pydev.editor.refactoring;
 
 
 import org.eclipse.ui.IPropertyListener;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.model.ItemPointer;
 
 /**
@@ -120,5 +121,13 @@ public interface IPyRefactoring {
      * the operation and synch changes itself.
      */
     public boolean useDefaultRefactoringActionCycle();
+
+    /**
+     * This function checks if this engine is available to make the refactoring in some nature.
+     * 
+     * @param pythonNature the nature where the refactoring will be applied.
+     * @throws RuntimeException with the message of the failure.
+     */
+    public void canRefactorNature(IPythonNature pythonNature) throws RuntimeException;
 
 }

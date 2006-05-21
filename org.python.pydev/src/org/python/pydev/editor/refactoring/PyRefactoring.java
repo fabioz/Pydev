@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
@@ -73,7 +74,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
      * @return
      */
     private String makeAction(String str, RefactoringRequest request){
-        PyRefactorAction.checkAvailableForRefactoring(request);
+        PyRefactorAction.checkAvailableForRefactoring(request, this);
 
         AbstractShell pytonShell;
         try {
@@ -302,6 +303,17 @@ public class PyRefactoring extends AbstractPyRefactoring {
     public boolean useDefaultRefactoringActionCycle() {
         return true;
     }
+
+    public void canRefactorNature(IPythonNature pythonNature) throws RuntimeException {
+        try {
+            if (!pythonNature.isPython()) {
+                throw new RuntimeException("Can only do actions dependent on Bycicle Repair Man in Python projects.");
+            }
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 
 

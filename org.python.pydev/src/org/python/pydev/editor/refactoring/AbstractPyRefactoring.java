@@ -129,8 +129,9 @@ public abstract class AbstractPyRefactoring implements IPyRefactoring{
 
 
     public void checkAvailableForRefactoring(RefactoringRequest request) {
-        PyRefactorAction.checkAvailableForRefactoring(request);
+        PyRefactorAction.checkAvailableForRefactoring(request, pyRefactoring);
     }
+    
 
 
 }

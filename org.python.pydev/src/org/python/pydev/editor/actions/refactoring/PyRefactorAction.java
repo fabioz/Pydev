@@ -186,12 +186,9 @@ public abstract class PyRefactorAction extends PyAction {
 
     }
 
-    /**
-     * @param edit
-     */
-    protected boolean areRefactorPreconditionsOK(RefactoringRequest request) {
+    protected boolean areRefactorPreconditionsOK(RefactoringRequest request, IPyRefactoring pyRefactoring) {
         try {
-            checkAvailableForRefactoring(request);
+            checkAvailableForRefactoring(request, pyRefactoring);
         } catch (Exception e) {
             ErrorDialog.openError(null, "Error", "Unable to do requested action", 
                     new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, e.getMessage(), null));
@@ -236,11 +233,12 @@ public abstract class PyRefactorAction extends PyAction {
         ps = new PySelection(getTextEditor());
 
         RefactoringRequest req = getRefactoringRequest();
-        if (areRefactorPreconditionsOK(req) == false) {
+        IPyRefactoring pyRefactoring = getPyRefactoring();
+        if (areRefactorPreconditionsOK(req, pyRefactoring) == false) {
             return;
         }
         
-        if(!getPyRefactoring().useDefaultRefactoringActionCycle()){
+        if(!pyRefactoring.useDefaultRefactoringActionCycle()){
             //this way, we don't provide anything to sync, ask the input, etc... that's all up to the 
             //pyrefactoring instance in the perform action
             new Job("Performing: "+action.getClass().getName()){
@@ -342,20 +340,13 @@ public abstract class PyRefactorAction extends PyAction {
 
     /**
      * should throw an exception if we cannot do a refactoring in this editor.
-     * 
-     * @param editor
+     * @param pyRefactoring the refactoring engine
      */
-    public static void checkAvailableForRefactoring(RefactoringRequest request) {
+    public static void checkAvailableForRefactoring(RefactoringRequest request, IPyRefactoring pyRefactoring) {
         IPythonNature pythonNature = request.nature;
         if(pythonNature == null){
             throw new RuntimeException("Unable to do refactor because the file is an a project that does not have the pydev nature configured.");
         }
-        try {
-            if(!pythonNature.isPython()){
-                throw new RuntimeException("Can only do actions dependent on Bycicle Repair Man in Python projects.");
-            }
-        } catch (CoreException e) {
-            throw new RuntimeException(e);
-        }
+        pyRefactoring.canRefactorNature(pythonNature);
     }
 }
