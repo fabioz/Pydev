@@ -24,7 +24,6 @@ import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.CancelledException;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
-import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -381,6 +380,9 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
     
     public boolean areAllInSameClassHierarchy(List<AssignDefinition> defs) {
         return true;
+    }
+    public void canRefactorNature(IPythonNature pythonNature) throws RuntimeException {
+        //do nothing (should throw exception if not available)
     }
 
 
