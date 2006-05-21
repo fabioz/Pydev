@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
@@ -21,7 +22,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         try {
             ClassHierarchySearchTest test = new ClassHierarchySearchTest();
             test.setUp();
-            test.testFindHierarchy6();
+            test.testFindHierarchy8();
             test.tearDown();
             
             junit.textui.TestRunner.run(ClassHierarchySearchTest.class);
@@ -41,6 +42,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
     }
 
     protected void tearDown() throws Exception {
+        CompiledModule.COMPILED_MODULES_ENABLED = false;
         super.tearDown();
     }
     
@@ -182,6 +184,10 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
     	
     }
     
+    public void testFindHierarchy8() {
+        
+    }
+
     private RefactoringRequest setUpFooModule(final int line, final int col) {
     	String str ="" +
     	"import pickle\n" +
