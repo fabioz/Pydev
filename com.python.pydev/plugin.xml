@@ -19,10 +19,6 @@
   		<pyedit_listener_participant class="com.python.pydev.interactiveconsole.EvaluateActionSetter"/>
    </extension>
    
-<!-- Create the needed actions -->
-   <extension point="org.python.pydev.pydev_pyedit_listener">
-  		<pyedit_listener_participant class="com.python.pydev.actions.ActionCreatorPyEditListener"/>
-   </extension>
 
 <!-- prefereces page -->
    <extension point="org.eclipse.ui.preferencePages">

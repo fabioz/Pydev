@@ -23,7 +23,6 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IAnnotationModelExtension;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.python.pydev.core.Tuple3;
@@ -171,8 +170,7 @@ public class MarkOccurrencesJob extends Thread{
         }
         
         //ok, the editor is still there wit ha document... move on
-        PyRefactorAction pyRefactorAction = getRefactorAction();
-        pyRefactorAction.setEditor(pyEdit);
+        PyRefactorAction pyRefactorAction = getRefactorAction(pyEdit);
         
         final RefactoringRequest req = getRefactoringRequest(pyEdit, pyRefactorAction);
         
@@ -207,8 +205,8 @@ public class MarkOccurrencesJob extends Thread{
     private boolean addAnnotations(final PyEdit pyEdit, IAnnotationModel annotationModel, final RefactoringRequest req, PyRenameProcessor processor) throws BadLocationException {
         //add the annotations
         synchronized (getLockObject(annotationModel)) {
-            List<ASTEntry> ocurrences = processor.getOcurrences();
-            if(ocurrences != null){
+            List<ASTEntry> occurrences = processor.getOcurrences();
+            if(occurrences != null){
             	Map<String, Object> cache = pyEdit.cache;
             	if(cache == null){
             		return false;
@@ -218,7 +216,7 @@ public class MarkOccurrencesJob extends Thread{
                 ArrayList<Annotation> annotations = new ArrayList<Annotation>();
                 Map<Annotation, Position> toAddAsMap = new HashMap<Annotation, Position>();                
                 
-                for (ASTEntry entry : ocurrences) {
+                for (ASTEntry entry : occurrences) {
                     IRegion lineInformation = doc.getLineInformation(entry.node.beginLine-1);
                     
                     try {
@@ -251,22 +249,21 @@ public class MarkOccurrencesJob extends Thread{
         return true;
     }
 
+    public static RefactoringRequest getRefactoringRequest(final PyEdit pyEdit, PyRefactorAction pyRefactorAction) throws BadLocationException {
+    	return getRefactoringRequest(pyEdit, pyRefactorAction, null);
+    }
+    
     /**
-     * @param pyEdit
-     * @param pyRefactorAction
-     * @return
+     * @param pyEdit the editor where we should look for the occurrences
+     * @param pyRefactorAction the action that will return the initial refactoring request
+     * @param ps the pyselection used (if null it will be created in this method)
+     * @return a refactoring request suitable for finding the locals in the file
      * @throws BadLocationException
      */
-    private RefactoringRequest getRefactoringRequest(final PyEdit pyEdit, PyRefactorAction pyRefactorAction) throws BadLocationException {
+	public static RefactoringRequest getRefactoringRequest(final PyEdit pyEdit, PyRefactorAction pyRefactorAction, PySelection ps) throws BadLocationException {
         final RefactoringRequest req = pyRefactorAction.getRefactoringRequest();
-        Display.getDefault().syncExec(new Runnable(){
-            public void run() {
-                try {
-					req.ps = new PySelection(pyEdit);
-				} catch (NullPointerException e) {
-					// this can happen if the selection was still not set up
-				}
-            }});
+        req.ps = PySelection.createFromNonUiThread(pyEdit);
+        
         if(req.ps == null){
         	return null;
         }
@@ -279,9 +276,10 @@ public class MarkOccurrencesJob extends Thread{
     }
 
     /**
-     * @return
+     * @param pyEdit the editor that will have this action
+     * @return the action (with the pyedit attached to it)
      */
-    private PyRefactorAction getRefactorAction() {
+    public static PyRefactorAction getRefactorAction(PyEdit pyEdit) {
         PyRefactorAction pyRefactorAction = new PyRefactorAction(){
    
             @Override
@@ -300,6 +298,7 @@ public class MarkOccurrencesJob extends Thread{
             }
             
         };
+        pyRefactorAction.setEditor(pyEdit);
         return pyRefactorAction;
     }
 

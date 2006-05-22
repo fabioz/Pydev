@@ -27,4 +27,8 @@
             name="Mark Occurrences"/>
    </extension>
 
+<!-- Create the needed actions -->
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.refactoring.actions.ActionCreatorPyEditListener"/>
+   </extension>
 </plugin>
