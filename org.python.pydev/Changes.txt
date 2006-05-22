@@ -11,7 +11,9 @@ Pydev:
 - Lot's of bugs 
 
 Extensions:
-- Mark Occurences?
+- Ctrl+2+c: force a code-analysis
+- Ctrl+2+r: rename all the occurrences of the selected token in the file (python-aware)
+- Mark Occurences: find all the occurrences of the selected token in the file (python-aware)
 
 after 1.0.5
 
