@@ -8,16 +8,24 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 some of its features below.</p>
 
 
-<h3>Release 1.0.6 <IMG src="images/new.png" border="0" /></h3>
+<h3>Release 1.0.7 <IMG src="images/new.png" border="0" /></h3>
 <ul>
-	<li>A beta-version of a <a href="manual_adv_hierarchy_view.html">hierarchy view</a> has been added</li>
+	<li><a href="manual_adv_markoccurrences.html">Mark Occurrences</a> is able to highlight all the occurrences of some token in a file (and is python-aware)</li>
+	<li><a href="manual_adv_renameoccurrences.html">Rename Occurrences</a> is able to rename all the occurrences of some token in a file (<strong>Ctrl+2+R</strong>)</li>
+	<li><a href="manual_adv_hierarchy_view.html">Hierarchy view</a> is final (can now find children classes in referencing modules)</li>
+	<li><a href="manual_adv_remote_debugger.html">Remote debugger</a> 
+		<ul>
+			<li>Can redirect the output to the client (the signature for starting the remote debugger became settrace(host='localhost', stdoutToServer = False, stderrToServer = False))</li>
+			<li>Maps the locations from the server to the client even if they are not in the same exact paths</li>
+		</ul>
+	</li>
+	<li>Force code-analysis in the current editor (<strong>Ctrl+2+C</strong>)</li>
 </ul>
 
 
 <h3>News</h3>
 
-<p>The homepage has gained 2 new sessions: <a href="manual_articles.html">Articles</a> and <a href="manual_screencasts.html">Screencasts</a> 
-	(both can be acessed under the <a href="manual.html">manual</a>).
+<p>Two screencasts demonstrating pydev and pydev extensions have been created. They are hosted at <a href="http://showmedo.com/videoListPage?listKey=PyDevEclipseList">ShowMeDo.com</a>.
 </p>
 
 

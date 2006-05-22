@@ -55,10 +55,15 @@
 <h3>Important Notes</h3>
 	<p>
 		<strong>NOTE 1</strong>: the settrace() function can have an optional parameter to specify the host where the remote
-		debugger is listening. E.g.: pydevd.settrace('10.0.0.1')
+		debugger is listening. E.g.: <strong>pydevd.settrace('10.0.0.1')</strong>
 	</p>
 	<p>
-		<strong>NOTE 2</strong>: You can have the running program in one machine and Pydev Extensions on another machine,
+		<strong>NOTE 2</strong>: the settrace() function can have optional parameters to specify that all the messages
+		printed to stdout or stderr should be passed to the server to show.
+		E.g.: <strong>pydevd.settrace(stdoutToServer=True, stderrToServer=True)</strong>
+	</p>
+	<p>
+		<strong>NOTE 3</strong>: You can have the running program in one machine and Pydev Extensions on another machine,
 		but there is currently one limitation to that approach:<br/><br/>
 		When a breakpoint is resolved to know if we should suspend execution, it checks it in a 'file-system dependent way',
 		so, if you have set breakpoints, they are probably not going to have any effect if the modules actually map to different
