@@ -113,9 +113,9 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     }
 
     @Override
-    protected void doRemoveSingleModule(ModulesKey key) {
+    public void doRemoveSingleModule(ModulesKey key) {
         super.doRemoveSingleModule(key);
-        if(deltaSaver != null || !IN_TESTS){ //we want the error if we are not in tests
+        if(deltaSaver != null || !IN_TESTS){ //we don't want deltas in tests
             //overriden to add delta
             deltaSaver.addDeleteCommand(key);
             checkDeltaSize();
@@ -126,7 +126,7 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     @Override
     public void doAddSingleModule(ModulesKey key, AbstractModule n) {
         super.doAddSingleModule(key, n);
-        if(deltaSaver != null || !IN_TESTS){ //we want the error if we are not in tests
+        if(deltaSaver != null || !IN_TESTS){ //we don't want deltas in tests
             //overriden to add delta
             deltaSaver.addInsertCommand(key);
             checkDeltaSize();
