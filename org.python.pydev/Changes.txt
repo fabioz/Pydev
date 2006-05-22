@@ -2,18 +2,23 @@
 after 1.0.6
 
 Pydev:
-- The thread that does analysis had its priority lowered
 - The Parser character stream was redone to be more efficient (especially when dealing with big files)
-- The pythonpath set now let's the project pythonpath before the system pythonpath
+- The thread that does analysis had its priority lowered
+- When running a file, the pythonpath set now let's the project pythonpath before the system pythonpath
 - The way modules are resolved for loading when running unit-tests has changed
 - Indentation further improved
 - Debugger changes for working with jython
-- Lot's of bugs 
+- <strong>Ctrl+2+w</strong>: wraps the current paragraph to the number of lines specified in the preferences. This was provided by Don Tailor (revisions are also available in http://pilger.googlepages.com/pydevstuff)
+- Lot's of bug-fixes
 
 Extensions:
-- Ctrl+2+c: force a code-analysis
-- Ctrl+2+r: rename all the occurrences of the selected token in the file (python-aware)
-- Mark Occurences: find all the occurrences of the selected token in the file (python-aware)
+- Mark Occurrences: find all the occurrences of the selected token in the file (python-aware)
+- <strong>Ctrl+2+r</strong>: rename all the occurrences of the selected token in the file (python-aware)
+- Remote debugger can redirect the output to the client (the signature for starting the remote debugger became settrace(host='localhost', stdoutToServer = False, stderrToServer = False))
+- It is now possible to map the locations from the server to the client even if they are not in the same exact paths
+- <strong>Ctrl+2+c</strong>: force code-analysis in the current editor
+- The find hierarchy was improved and can now find children classes in referencing modules
+
 
 after 1.0.5
 

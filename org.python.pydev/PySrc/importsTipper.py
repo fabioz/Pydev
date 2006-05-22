@@ -158,43 +158,47 @@ def GenerateImportsTipForModule( mod ):
         args = ''
 
         if getCompleteInfo:
-            obj = getattr(mod, d)
-            retType = TYPE_BUILTIN
-
-            if inspect.ismethod(obj) or inspect.isbuiltin(obj) or inspect.isfunction(obj) or inspect.isroutine(obj):
-                try:
-                    args, vargs, kwargs, defaults = inspect.getargspec( obj )
+            try:
+                obj = getattr(mod, d)
+                retType = TYPE_BUILTIN
+    
+                if inspect.ismethod(obj) or inspect.isbuiltin(obj) or inspect.isfunction(obj) or inspect.isroutine(obj):
+                    try:
+                        args, vargs, kwargs, defaults = inspect.getargspec( obj )
+                            
+                        r = ''
+                        for a in ( args ):
+                            if len( r ) > 0:
+                                r += ', '
+                            r += str( a )
+                        args = '(%s)' % (r)
+                    except TypeError:
+                        args = '()'
+    
+                    retType = TYPE_FUNCTION
+                
+                
+                #check if we have to get docs
+                getDoc = True
+                for class_ in dontGetDocsOn:
+                    if isinstance(obj, class_):
+                        getDoc = False
+                        break
                         
-                    r = ''
-                    for a in ( args ):
-                        if len( r ) > 0:
-                            r += ', '
-                        r += str( a )
-                    args = '(%s)' % (r)
-                except TypeError:
-                    args = '()'
-
-                retType = TYPE_FUNCTION
-            
-            
-            #check if we have to get docs
-            getDoc = True
-            for class_ in dontGetDocsOn:
-                if isinstance(obj, class_):
-                    getDoc = False
-                    break
-                    
-            doc = ''
-            if getDoc:
-                #no need to get this info... too many constants are defined and 
-                #makes things much slower (passing all that through sockets takes quite some time)
-                try:
-                    doc = inspect.getdoc( obj )
-                except:
-                    doc = ''
-            
-            #add token and doc to return - assure only strings.
-            ret.append(   (d, doc, args, str(retType))   )
+                doc = ''
+                if getDoc:
+                    #no need to get this info... too many constants are defined and 
+                    #makes things much slower (passing all that through sockets takes quite some time)
+                    try:
+                        doc = inspect.getdoc( obj )
+                    except: #may happen on jython when checking java classes (so, just ignore it)
+                        doc = ''
+                
+                #add token and doc to return - assure only strings.
+                ret.append(   (d, doc, args, str(retType))   )
+                
+            except: #just ignore and get it without aditional info
+                ret.append(   (d, '', args, TYPE_BUILTIN_AS_STR)   )
             
         else: #getCompleteInfo == False
         
