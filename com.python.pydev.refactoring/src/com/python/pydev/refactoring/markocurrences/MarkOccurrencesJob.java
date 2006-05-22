@@ -36,6 +36,7 @@ import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
+import com.python.pydev.PydevPlugin;
 import com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage;
 import com.python.pydev.refactoring.wizards.PyRenameProcessor;
 
@@ -50,9 +51,7 @@ import com.python.pydev.refactoring.wizards.PyRenameProcessor;
  */
 public class MarkOccurrencesJob extends Thread{
 
-    private static final String OCCURRENCE_ANNOTATION_TYPE = "org.eclipse.jdt.ui.occurrences";
-	private static final String ANNOTATIONS_CACHE_KEY = "MarkOccurrencesJob Annotations";
-	private static final boolean DEBUG = false;
+    private static final boolean DEBUG = false;
     private static MarkOccurrencesJob singleton;
     
     public synchronized static MarkOccurrencesJob get() {
@@ -223,7 +222,7 @@ public class MarkOccurrencesJob extends Thread{
                     IRegion lineInformation = doc.getLineInformation(entry.node.beginLine-1);
                     
                     try {
-                        Annotation annotation = new Annotation(OCCURRENCE_ANNOTATION_TYPE, false, "occurrence");
+                        Annotation annotation = new Annotation(PydevPlugin.OCCURRENCE_ANNOTATION_TYPE, false, "occurrence");
                         Position position = new Position(lineInformation.getOffset() + entry.node.beginColumn - 1, req.duringProcessInfo.initialName.length());
                         toAddAsMap.put(annotation, position);
                         annotations.add(annotation);
@@ -234,14 +233,14 @@ public class MarkOccurrencesJob extends Thread{
                 }
                 
                 //get the ones to remove
-                List<Annotation> toRemove = getCurrentAnnotationsInPyEdit(pyEdit);
+                List<Annotation> toRemove = PydevPlugin.getOccurrenceAnnotationsInPyEdit(pyEdit);
                 
                 //replace them
                 IAnnotationModelExtension ext = (IAnnotationModelExtension) annotationModel;
                 ext.replaceAnnotations(toRemove.toArray(new Annotation[0]), toAddAsMap);
 
                 //put them in the pyEdit
-				cache.put(ANNOTATIONS_CACHE_KEY, annotations);
+				cache.put(PydevPlugin.ANNOTATIONS_CACHE_KEY, annotations);
             }else{
                 if(DEBUG){
                     System.out.println("Occurrences == null");
@@ -251,31 +250,6 @@ public class MarkOccurrencesJob extends Thread{
         }
         return true;
     }
-
-    /**
-     * @return the list of occurrence annotations in the pyedit
-     */
-	@SuppressWarnings("unchecked")
-	private List<Annotation> getCurrentAnnotationsInPyEdit(final PyEdit pyEdit) {
-		List<Annotation> toRemove = new ArrayList<Annotation>();
-		final Map<String, Object> cache = pyEdit.cache;
-		
-		if(cache == null){
-			return toRemove;
-		}
-		
-		List<Annotation> inEdit = (List<Annotation>) cache.get(ANNOTATIONS_CACHE_KEY);
-		if(inEdit != null){
-		    Iterator<Annotation> annotationIterator = inEdit.iterator();
-		    while(annotationIterator.hasNext()){
-		        Annotation annotation = annotationIterator.next();
-		        if(annotation.getType().equals(OCCURRENCE_ANNOTATION_TYPE)){
-		            toRemove.add(annotation);
-		        }
-		    }
-		}
-		return toRemove;
-	}
 
     /**
      * @param pyEdit
@@ -341,11 +315,11 @@ public class MarkOccurrencesJob extends Thread{
         		return;
         	}
         	
-            Iterator<Annotation> annotationIterator = getCurrentAnnotationsInPyEdit(pyEdit).iterator();
+            Iterator<Annotation> annotationIterator = PydevPlugin.getOccurrenceAnnotationsInPyEdit(pyEdit).iterator();
             while(annotationIterator.hasNext()){
                 annotationModel.removeAnnotation(annotationIterator.next());
             }
-			cache.put(ANNOTATIONS_CACHE_KEY, null);
+			cache.put(PydevPlugin.ANNOTATIONS_CACHE_KEY, null);
         }
         //end remove the annotations
     }

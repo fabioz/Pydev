@@ -5,16 +5,22 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.REF;
+import org.python.pydev.editor.PyEdit;
 
 import com.python.pydev.license.ClientEncryption;
 import com.python.pydev.util.PydevExtensionNotifier;
@@ -28,6 +34,8 @@ public class PydevPlugin extends AbstractUIPlugin {
 	private static PydevPlugin plugin;
 	private PydevExtensionNotifier notifier;
 	private boolean validated;
+    public static final String ANNOTATIONS_CACHE_KEY = "MarkOccurrencesJob Annotations";
+    public static final String OCCURRENCE_ANNOTATION_TYPE = "org.eclipse.jdt.ui.occurrences";
 	
 	/**
 	 * The constructor.
@@ -176,6 +184,31 @@ public class PydevPlugin extends AbstractUIPlugin {
         
         //if it got here, everything is ok...
         return true;
+    }
+
+    /**
+     * @return the list of occurrence annotations in the pyedit
+     */
+    @SuppressWarnings("unchecked")
+    public static final List<Annotation> getOccurrenceAnnotationsInPyEdit(final PyEdit pyEdit) {
+    	List<Annotation> toRemove = new ArrayList<Annotation>();
+    	final Map<String, Object> cache = pyEdit.cache;
+    	
+    	if(cache == null){
+    		return toRemove;
+    	}
+    	
+    	List<Annotation> inEdit = (List<Annotation>) cache.get(ANNOTATIONS_CACHE_KEY);
+    	if(inEdit != null){
+    	    Iterator<Annotation> annotationIterator = inEdit.iterator();
+    	    while(annotationIterator.hasNext()){
+    	        Annotation annotation = annotationIterator.next();
+    	        if(annotation.getType().equals(OCCURRENCE_ANNOTATION_TYPE)){
+    	            toRemove.add(annotation);
+    	        }
+    	    }
+    	}
+    	return toRemove;
     }
 
     public static Calendar getExpTime(String time) {
