@@ -15,8 +15,8 @@
 <p>
 	The other 'source' of <strong>improvements</strong> is through code given by people that miss something, and instead of just reporting it and
 	waiting to see if it gets implemented get so excited (or annoyed) that they just do it and contribute their code back to Pydev.
-	(and that's the real <strong>magic</strong> of Open Source -- if you are in that team, below are some quick instructions on how to get the 
-	code and compile it).
+	(and that's the real <strong>magic</strong> of Open Source -- if you are in that team, you can check some quick instructions on how to get the 
+	code and compile it at the <a href="developers.html">Developers manual</a>).
 </p>
 
 <p>
@@ -31,32 +31,3 @@
 
 
 
-
-
-
-
-<H3>You'd like to give it a try?</H3>
-
-<P>You can download the latest source 
-		from sourceforge. </P>
-
-<STRONG>Compiling the code:</STRONG><br/>
-<P>To compile, you need to set the following preferences:</P>
-
-<P>'Plug-In Development: Java Build Path Control: Use classpath containers' to true</P>
-
-<P>'Plug-In Development: Target Platform' select "this application" and enable all plugins.</P>
-
-<P>Most of the code is well-documented in javadoc. I try 
-	to cc every answer to a coding question to pydev-code, so you can look there for 
-	hints too. That's it. If you have not developed Eclipse plugins before, I 
-	recommend reading the online documentation and trying out a sample plugin. 
-	Doing some prep work before jumping in will really pay off.</P>
-
-<STRONG>Compiling the tests:</STRONG><br/>
-<P>If you are compiling the tests too, you have to create a file named 
-	<strong>org.python.pydev.editor.codecompletion.revisited.TestDependent.java</strong>. There is a file named
-	TestDependent.template that can be used as a base for it (there are many system-dependent things
-	that have to be specified for running tests).
-</P>
-<STRONG>Then, it is all up to you.</STRONG>
