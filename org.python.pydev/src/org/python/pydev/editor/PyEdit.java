@@ -683,6 +683,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         action.setId("org.python.pydev.editor.actions.scriptEngine");
         setAction("PydevScriptEngine", action);
         
+        
         notifyOnCreateActions(resources);
 
     }
