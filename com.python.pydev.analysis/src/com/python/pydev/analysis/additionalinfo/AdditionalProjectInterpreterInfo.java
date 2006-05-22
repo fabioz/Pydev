@@ -23,19 +23,26 @@ import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 
 
 public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependencyInfo implements IDeltaProcessor<Object> {
 
+    /**
+     * This is the project that contains this info
+     */
     private IProject project;
+    
     /**
      * holds nature info (project name points to info)
      */
     private static Map<String, AbstractAdditionalDependencyInfo> additionalNatureInfo = new HashMap<String, AbstractAdditionalDependencyInfo>();
 
-
+    public IProject getProject(){
+        return project;
+    }
     
     //----------------------------------------------------------------------------- START DELTA RELATED 
     /**
@@ -238,8 +245,10 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         String name = REF.getValidProjectName(project);
         AbstractAdditionalDependencyInfo info = additionalNatureInfo.get(name);
         if(info == null){
-            info = new AdditionalProjectInterpreterInfo(project);
-            additionalNatureInfo.put(name, info);
+            if(PythonNature.getPythonNature(project) != null){
+                info = new AdditionalProjectInterpreterInfo(project);
+                additionalNatureInfo.put(name, info);
+            }
         }
         return info;
     }
@@ -274,6 +283,25 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         List<AbstractAdditionalInterpreterInfo> additionalInfo = getAdditionalInfo(nature);
         for (AbstractAdditionalInterpreterInfo info : additionalInfo) {
             ret.addAll(info.getTokensStartingWith(qualifier, getWhat));
+        }
+        return ret;
+    }
+
+
+    /**
+     * @param project the project we want to get info on
+     * @return a list of the additional info for the project + referencing projects
+     */
+    public static List<AbstractAdditionalDependencyInfo> getAdditionalInfoForProjectAndReferencing(IProject project) {
+        List<AbstractAdditionalDependencyInfo> ret = new ArrayList<AbstractAdditionalDependencyInfo>();
+        ret.add(getAdditionalInfoForProject(project));
+        
+        IProject[] referencingProjects = project.getReferencingProjects();
+        for (IProject p : referencingProjects) {
+            AbstractAdditionalDependencyInfo info2 = getAdditionalInfoForProject(p);
+            if(info2 != null){
+                ret.add(info2);
+            }
         }
         return ret;
     }

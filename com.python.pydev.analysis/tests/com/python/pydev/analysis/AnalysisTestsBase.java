@@ -11,6 +11,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
@@ -43,6 +44,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
     protected void setUp() throws Exception {
         super.setUp();
         AbstractAdditionalDependencyInfo.TESTING = true;
+        ProjectModulesManager.IN_TESTS = true;
         //additional info
         observer = new InterpreterObserver();
 

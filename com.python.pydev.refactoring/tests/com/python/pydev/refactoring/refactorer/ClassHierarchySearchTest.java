@@ -6,12 +6,14 @@ package com.python.pydev.refactoring.refactorer;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
@@ -43,6 +45,12 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
 
     protected void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
+        ProjectModulesManager projectModulesManager = ((ProjectModulesManager)nature.getAstManager().getModulesManager());
+        projectModulesManager.doRemoveSingleModule(new ModulesKey("foo", null));
+        projectModulesManager.doRemoveSingleModule(new ModulesKey("fooIn1", null));
+        
+        projectModulesManager = ((ProjectModulesManager)nature2.getAstManager().getModulesManager());
+        projectModulesManager.doRemoveSingleModule(new ModulesKey("fooIn2", null));
         super.tearDown();
     }
     
@@ -185,7 +193,22 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
     }
     
     public void testFindHierarchy8() {
+        String str  ="class FooIn1(object):pass\n";
+        String str2 ="from fooIn1 import FooIn1\nclass FooIn2(FooIn1):pass\n";
         
+        final int line = 0;
+        final int col = 8;
+        
+        RefactoringRequest request;
+        request = setUpModule(line, col, str2, "fooIn2", nature2);
+        request = setUpModule(line, col, str, "fooIn1", nature);
+        
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        assertEquals("FooIn1", node.name);
+        assertEquals("fooIn1", node.moduleName);
+        
+        HierarchyNodeModel foo = assertIsIn("FooIn2", "fooIn2", node.children);
+        assertEquals(0, foo.parents.size());
     }
 
     private RefactoringRequest setUpFooModule(final int line, final int col) {
@@ -201,16 +224,22 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
     }
     
 	private RefactoringRequest setUpFooModule(final int line, final int col, String str) {
+	    String modName = "foo";
+	    PythonNature natureToAdd = nature;
+        return setUpModule(line, col, str, modName, natureToAdd);
+	}
+
+    private RefactoringRequest setUpModule(final int line, final int col, String str, String modName, PythonNature natureToAdd) {
         Document doc = new Document(str);
 		PySelection ps = new PySelection(doc, line, col);
         
-        RefactoringRequest request = new RefactoringRequest(null, ps, nature);
-        request.moduleName = "foo";
+        RefactoringRequest request = new RefactoringRequest(null, ps, natureToAdd);
+        request.moduleName = modName;
         final SimpleNode ast = request.getAST();
         
-        addFooModule(ast);
+        addModuleToNature(ast, modName, natureToAdd);
 		return request;
-	}
+    }
 
 
     private HierarchyNodeModel assertIsIn(String name, String modName, List<HierarchyNodeModel> parents) {

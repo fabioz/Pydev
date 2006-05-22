@@ -30,6 +30,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 
 import com.python.pydev.analysis.AnalysisPlugin;
@@ -267,66 +268,90 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
 	
 	private void findChildren(RefactoringRequest request, HierarchyNodeModel initialModel, HashSet<HierarchyNodeModel> allFound) {
 		//and now the children...
-		AbstractAdditionalDependencyInfo infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(request.nature.getProject());
-		synchronized(infoForProject.completeIndex){
-			infoForProject.completeIndex.startGrowAsNeeded(2000); //let's stop the cache misses while we're in this process
-			try {
-				HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
-				foundOnRound.add(initialModel);
+		List<AbstractAdditionalDependencyInfo> infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProjectAndReferencing(request.nature.getProject());
+        for (AbstractAdditionalDependencyInfo info : infoForProject) {
+            info.completeIndex.startGrowAsNeeded(2000); //let's stop the cache misses while we're in this process
+        }
+        
+		try {
+			HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
+			foundOnRound.add(initialModel);
 
-				while(foundOnRound.size() > 0){
-					HashSet<HierarchyNodeModel> nextRound = new HashSet<HierarchyNodeModel>(foundOnRound);
-					foundOnRound.clear();
+			while(foundOnRound.size() > 0){
+				HashSet<HierarchyNodeModel> nextRound = new HashSet<HierarchyNodeModel>(foundOnRound);
+				foundOnRound.clear();
 
-					for (HierarchyNodeModel toFindOnRound : nextRound) {
-						HashSet<SourceModule> modulesToAnalyze = findLikelyModulesWithChildren(request, toFindOnRound, infoForProject);
-                        
-						request.communicateWork("Likely modules with matches:"+modulesToAnalyze.size());
-                        
-						for (SourceModule module : modulesToAnalyze) {
-							SourceModule m = (SourceModule) module;
-							request.communicateWork("Analyzing:"+m.getName());
-                            
-							Iterator<ASTEntry> entries = EasyASTIteratorVisitor.createClassIterator(m.getAst());
-							
-							while (entries.hasNext()) {
-								ASTEntry entry = entries.next();
-								//we're checking for those that have model.name as a parent
-								ClassDef def = (ClassDef) entry.node;
-								List<String> parentNames = NodeUtils.getParentNames(def, true);
-								if (parentNames.contains(toFindOnRound.name)) {
-									final HierarchyNodeModel newNode = new HierarchyNodeModel(module, def);
-									if(newNode != null){
-										if(allFound.contains(newNode) == false){
-											toFindOnRound.children.add(newNode);
-											allFound.add(newNode);
-											foundOnRound.add(newNode);
-										}else{
-											toFindOnRound.children.add(newNode);
-										}
-									}
-								}
-							}
-						}
-					}
-				}				
-				
-			} finally{
-				infoForProject.completeIndex.stopGrowAsNeeded();
-			}
+				for (HierarchyNodeModel toFindOnRound : nextRound) {
+					HashSet<SourceModule> modulesToAnalyze = findLikelyModulesWithChildren(request, toFindOnRound, infoForProject);
+					request.communicateWork("Likely modules with matches:"+modulesToAnalyze.size());
+					findChildrenOnModules(request, allFound, foundOnRound, toFindOnRound, modulesToAnalyze);
+                    
+				}
+			}				
+			
+		} finally{
+		    for (AbstractAdditionalDependencyInfo info : infoForProject) {
+		        info.completeIndex.stopGrowAsNeeded();
+            }
 		}
 	}
+    
+    private void findChildrenOnModules(RefactoringRequest request, HashSet<HierarchyNodeModel> allFound, HashSet<HierarchyNodeModel> foundOnRound, HierarchyNodeModel toFindOnRound, HashSet<SourceModule> modulesToAnalyze) {
+        for (SourceModule module : modulesToAnalyze) {
+        	SourceModule m = (SourceModule) module;
+        	request.communicateWork("Analyzing:"+m.getName());
+            
+        	Iterator<ASTEntry> entries = EasyASTIteratorVisitor.createClassIterator(m.getAst());
+        	
+        	while (entries.hasNext()) {
+        		ASTEntry entry = entries.next();
+        		//we're checking for those that have model.name as a parent
+        		ClassDef def = (ClassDef) entry.node;
+        		List<String> parentNames = NodeUtils.getParentNames(def, true);
+        		if (parentNames.contains(toFindOnRound.name)) {
+        			final HierarchyNodeModel newNode = new HierarchyNodeModel(module, def);
+        			if(newNode != null){
+        				if(allFound.contains(newNode) == false){
+        					toFindOnRound.children.add(newNode);
+        					allFound.add(newNode);
+        					foundOnRound.add(newNode);
+        				}else{
+        					toFindOnRound.children.add(newNode);
+        				}
+        			}
+        		}
+        	}
+        }
+    }
 	
-	private HashSet<SourceModule> findLikelyModulesWithChildren(RefactoringRequest request, HierarchyNodeModel model, AbstractAdditionalDependencyInfo infoForProject) {
+	private HashSet<SourceModule> findLikelyModulesWithChildren(RefactoringRequest request, HierarchyNodeModel model, List<AbstractAdditionalDependencyInfo> infoForProject) {
 		//get the modules that are most likely to have that declaration.
 		HashSet<SourceModule> modulesToAnalyze = new HashSet<SourceModule>();
-		List<IInfo> tokensEqualTo = infoForProject.getTokensEqualTo(model.name, AdditionalProjectInterpreterInfo.COMPLETE_INDEX);
-		for (IInfo info : tokensEqualTo) {
-		    String declaringModuleName = info.getDeclaringModuleName();
-		    IModule module = request.nature.getAstManager().getModule(declaringModuleName, request.nature, false);
-		    if(module instanceof SourceModule){
-		    	modulesToAnalyze.add((SourceModule) module);
-		    }
+        for (AbstractAdditionalDependencyInfo additionalInfo : infoForProject) {
+    		List<IInfo> tokensEqualTo = additionalInfo.getTokensEqualTo(model.name, AdditionalProjectInterpreterInfo.COMPLETE_INDEX);
+    		for (IInfo info : tokensEqualTo) {
+    		    String declaringModuleName = info.getDeclaringModuleName();
+                
+    		    IModule module = null;
+                
+                IPythonNature pythonNature = null;
+    		    if(additionalInfo instanceof AdditionalProjectInterpreterInfo){
+    		        AdditionalProjectInterpreterInfo projectInterpreterInfo = (AdditionalProjectInterpreterInfo) additionalInfo;
+                    pythonNature = PythonNature.getPythonNature(projectInterpreterInfo.getProject());
+                    
+                }
+                if(pythonNature == null){
+                    pythonNature = request.nature;
+                }
+                module = pythonNature.getAstManager().getModule(declaringModuleName, pythonNature, false);
+                if(module == null && pythonNature != request.nature){
+                    module = request.nature.getAstManager().getModule(declaringModuleName, request.nature, false);
+                }
+                
+    		    if(module instanceof SourceModule){
+    		    	modulesToAnalyze.add((SourceModule) module);
+    		    }
+            }
 		}
 		return modulesToAnalyze;
 	}

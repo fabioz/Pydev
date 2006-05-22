@@ -85,14 +85,23 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
     }
     
 	protected void addFooModule(final SimpleNode ast) {
-		//this is to add the info from the 'foo' module that we just created...
-        List<AbstractAdditionalInterpreterInfo> additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(nature, false);
-        assertEquals(1, additionalInfo.size());
-		additionalInfo.get(0).addAstInfo(ast, "foo", nature, false);
-        ModulesManager modulesManager = (ModulesManager) nature.getAstManager().getModulesManager();
-        SourceModule mod = (SourceModule) AbstractModule.createModule(ast, null, "foo");
-        modulesManager.doAddSingleModule(new ModulesKey("foo", null), mod);
-        //end adding foo module
+	    String modName = "foo";
+	    PythonNature natureToAdd = nature;
+		addModuleToNature(ast, modName, natureToAdd);
 	}
+
+    /**
+     * @param ast the ast that defines the module
+     * @param modName the module name
+     * @param natureToAdd the nature where the module should be added
+     */
+    protected void addModuleToNature(final SimpleNode ast, String modName, PythonNature natureToAdd) {
+        //this is to add the info from the module that we just created...
+        AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureToAdd.getProject());
+        additionalInfo.addAstInfo(ast, modName, natureToAdd, false);
+        ModulesManager modulesManager = (ModulesManager) natureToAdd.getAstManager().getModulesManager();
+        SourceModule mod = (SourceModule) AbstractModule.createModule(ast, null, modName);
+        modulesManager.doAddSingleModule(new ModulesKey(modName, null), mod);
+    }
     
 }
