@@ -204,6 +204,27 @@ public class PyAutoIndentStrategyTest extends TestCase {
     }
     
     
+    public void testTabIndentToLevel() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"properties.create( \n" +
+    	"                  a,\n" +
+    	"        \n" +
+    	"\n" + //cursor is here
+    	"                  b,\n" +
+    	")" +
+    	"";
+    	
+    	
+    	final Document doc = new Document(str);
+    	int offset = doc.getLength()-"\n                  b,\n)".length();
+    	DocCmd docCmd = new DocCmd(offset, 0, "\t");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("                  ", docCmd.text); 
+    	
+    }
+    
+    
     public void testNoAutoIndentClosingPar() {
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
     	String str = "" +
