@@ -100,6 +100,19 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals("testcase", msgs[0].getAdditionalInfo().get(1));
     }
     
+    public void testFalseUnused(){
+    	doc = new Document(
+    			"def m1():\n"+
+    			"    name = ''\n"+
+    			"    getattr(1, name).text().latin1\n"
+    	);
+    	analyzer = new OccurrencesAnalyzer();
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc);
+    	
+    	printMessages(msgs,0);
+    	
+    }
+    
     public void testDelete(){
     	doc = new Document(
     			"def m1():\n"+

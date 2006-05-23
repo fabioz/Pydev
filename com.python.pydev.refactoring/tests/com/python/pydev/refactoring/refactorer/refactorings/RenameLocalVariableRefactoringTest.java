@@ -318,4 +318,15 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	int col = 11;
     	checkDefault(str, line, col, "bla", false, true);
     }
+    
+    public void testRenameSelf() throws Exception {
+    	String str = "" +
+		"def checkProps(%s):\n" +
+		"    getattr(%s).value\n" +
+		"\n";
+    	
+    	int line = 0;
+    	int col = 17;
+    	checkDefault(str, line, col, "self", false, true);
+    }
 }

@@ -188,6 +188,16 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
         assertEquals(1, tokenOccurrences.size());
         
     }
+    
+    public void testIt14() throws Exception {
+    	doc = new Document(
+    			"def checkProps(self):\n" +
+    			"    getattr(self).value\n" +
+    			"\n"
+    	);
+    	List<IToken> tokenOccurrences = getTokenOccurrences(0, 16);
+    	assertEquals(2, tokenOccurrences.size());
+    }
 
     private void checkTestResults(int line, int col, String lookFor) throws Exception {
     	checkTestResults(line, col, lookFor, true);
