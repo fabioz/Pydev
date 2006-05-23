@@ -225,6 +225,58 @@ public class PyAutoIndentStrategyTest extends TestCase {
     }
     
     
+    
+    public void testTabIndentToLevel2() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"class ContaminantFont( Barrier, ModelBase ):\n" +
+    	"    '''\n" +
+    	"    This class contains information to edit a contaminant.\n" +
+    	"    '''\n" +
+    	"    properties.create( \n" +
+    	"                          \n" +
+    	"                          #defines where is the source (in the water or in the soil)\n" +
+    	"                          sourceLocation = SOURCE_LOCATION_WATER,\n" +
+    	"                          \n" +
+    	"" + //we're here (indent to the first level)
+    	"";
+    	
+    	
+    	final Document doc = new Document(str);
+    	int offset = doc.getLength();
+    	DocCmd docCmd = new DocCmd(offset, 0, "\t");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("    ", docCmd.text); 
+    	
+    }
+    
+    
+    
+    public void testTabIndentToLevel3() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"class ContaminantFont( Barrier, ModelBase ):\n" +
+    	"    '''\n" +
+    	"    This class contains information to edit a contaminant.\n" +
+    	"    '''\n" +
+    	"    properties.create( \n" +
+    	"                          \n" +
+    	"                          #defines where is the source (in the water or in the soil)\n" +
+    	"                          sourceLocation = SOURCE_LOCATION_WATER,\n" +
+    	"                          \n" +
+    	"    " + //now that we're already in the first level, indent to the current level
+    	"";
+    	
+    	
+    	final Document doc = new Document(str);
+    	int offset = doc.getLength();
+    	DocCmd docCmd = new DocCmd(offset, 0, "\t");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("                      ", docCmd.text); 
+    	
+    }
+    
+    
     public void testNoAutoIndentClosingPar() {
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
     	String str = "" +
