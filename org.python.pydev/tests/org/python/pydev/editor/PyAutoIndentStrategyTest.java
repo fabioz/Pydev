@@ -394,6 +394,18 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	assertEquals("\n", docCmd.text); 
     }
     
+    public void testNewLine6a() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    	"def getSpilledComps( *dummy ):\n" +
+    	"    return [self.component4]" + //dedent here
+    	"";
+    	final Document doc = new Document(str);
+    	DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+    	strategy.customizeDocumentCommand(doc, docCmd);
+    	assertEquals("\n", docCmd.text); 
+    }
+    
     public void testNewLine7() {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         String str = "" +
