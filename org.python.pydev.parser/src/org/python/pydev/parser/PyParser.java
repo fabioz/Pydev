@@ -230,7 +230,7 @@ public class PyParser {
 	protected void fireParserChanged(SimpleNode root, IAdaptable file, IDocument doc, Object ... argsToReparse) {
         this.root = root;
         synchronized(parserListeners){
-        	for (IParserObserver l : parserListeners) {
+        	for (IParserObserver l : new ArrayList<IParserObserver>(parserListeners)) { //work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
         		if(l instanceof IParserObserver2){
         			((IParserObserver2)l).parserChanged(root, file, doc, argsToReparse);
         		}else{
@@ -256,7 +256,7 @@ public class PyParser {
     @SuppressWarnings("unchecked")
 	protected void fireParserError(Throwable error, IAdaptable file, IDocument doc, Object ... argsToReparse) {
         synchronized(parserListeners){
-        	for (IParserObserver l : parserListeners) {
+        	for (IParserObserver l : new ArrayList<IParserObserver>(parserListeners)) {//work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
         		if(l instanceof IParserObserver2){
         			((IParserObserver2)l).parserError(error, file, doc, argsToReparse);
         		}else{
