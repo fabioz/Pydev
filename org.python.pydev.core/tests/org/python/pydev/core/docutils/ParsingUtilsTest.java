@@ -12,7 +12,15 @@ import junit.framework.TestCase;
 public class ParsingUtilsTest extends TestCase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(ParsingUtilsTest.class);
+    	try {
+			ParsingUtilsTest test = new ParsingUtilsTest();
+			test.setUp();
+			test.testIterator7();
+			test.tearDown();
+			junit.textui.TestRunner.run(ParsingUtilsTest.class);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
     }
 
     protected void setUp() throws Exception {
@@ -79,6 +87,107 @@ public class ParsingUtilsTest extends TestCase {
     	assertEquals("",it.next());
     	assertEquals(0, it.getLastReturnedLine());
     	assertEquals(false,it.hasNext());
+    }
+    
+    
+    public void testIterator5() throws Exception {
+    	String str = "" +
+    	"class Foo:\n" +
+    	"    '''\n" +
+    	"    \"\n"+
+    	"    b\n"+
+    	"    '''a\n"+
+    	"    pass\n"+
+    	"\n";
+    	Document d = new Document(str);
+    	PyDocIterator it = new PyDocIterator(d, false, true, true);
+    	assertEquals(-1, it.getLastReturnedLine());
+    	assertEquals(true,it.hasNext());
+    	
+    	assertEquals("class Foo:",it.next());
+    	assertEquals(0, it.getLastReturnedLine());
+    	assertEquals(true,it.hasNext());
+    	
+    	assertEquals("       ",it.next());
+    	assertEquals(1, it.getLastReturnedLine());
+    	assertEquals(true,it.hasNext());
+    	
+    	assertEquals("     ",it.next());
+    	assertEquals(2, it.getLastReturnedLine());
+    	assertEquals(true,it.hasNext());
+    	
+    	assertEquals("     ",it.next());
+    	assertEquals(3, it.getLastReturnedLine());
+    	assertEquals(true,it.hasNext());
+    	
+    	assertEquals("       a",it.next());
+    	assertEquals(4, it.getLastReturnedLine());
+    	assertEquals(true,it.hasNext());
+    	
+    	assertEquals("    pass",it.next());
+    	assertEquals(5, it.getLastReturnedLine());
+    	assertEquals(true,it.hasNext());
+    	
+    	assertEquals("",it.next());
+    	assertEquals(6, it.getLastReturnedLine());
+    	assertEquals(false,it.hasNext());
+    }
+    
+    
+    
+    public void testIterator7() throws Exception {
+    	String str = "" +
+    	"'''\n" +
+    	"\n" +
+    	"'''\n" +
+    	"";
+    	Document d = new Document(str);
+    	PyDocIterator it = new PyDocIterator(d, false, true, true);
+    	
+    	assertEquals("   ",it.next());
+    	assertEquals(0, it.getLastReturnedLine());
+    	assertEquals(true,it.hasNext());
+    	
+    	assertEquals("",it.next());
+    	assertEquals(1, it.getLastReturnedLine());
+    	assertEquals(true,it.hasNext());
+    	
+    	assertEquals("   ",it.next());
+    	assertEquals(2, it.getLastReturnedLine());
+    	assertEquals(false,it.hasNext());
+    }
+    
+    public void testIterator6() throws Exception {
+    	String str = "" +
+    	"'''\n" +
+    	"\n" +
+    	"'''\n" +
+    	"class Foo:\n" +
+    	"    '''\n" +
+    	"    \"\n"+
+    	"    b\n"+
+    	"    '''a\n"+
+    	"    pass\n"+
+    	"    def m1(self):\n" +
+    	"        '''\n" +
+    	"        eueueueueue\n" +
+    	"        '''\n" +
+    	"\n" +
+    	"\n";
+    	Document d = new Document(str);
+    	PyDocIterator it = new PyDocIterator(d, false, true, true);
+    	assertEquals(-1, it.getLastReturnedLine());
+    	assertEquals(true,it.hasNext());
+    	for (int i = 0; i < d.getNumberOfLines()-1; i++) {
+			it.next();
+			assertEquals(i, it.getLastReturnedLine());
+			if(i == d.getNumberOfLines()-2){
+				assertTrue("Failed at line:"+i,!it.hasNext());
+				
+			}else{
+				assertTrue("Failed at line:"+i,it.hasNext());
+			}
+		}
     }
     
     public void testIterator4() throws Exception {

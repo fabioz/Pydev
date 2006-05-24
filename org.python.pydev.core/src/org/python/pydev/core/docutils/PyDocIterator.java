@@ -1,11 +1,9 @@
 package org.python.pydev.core.docutils;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.Tuple3;
 
 public class PyDocIterator implements Iterator<String> {
 
@@ -20,6 +18,13 @@ public class PyDocIterator implements Iterator<String> {
     public PyDocIterator(IDocument doc, boolean addNewLinesToRet) {
         this(doc, addNewLinesToRet, false, false);
     }
+    
+    /**
+     * @param doc the document where we will iterate
+     * @param addNewLinesToRet whether the new line character should be added to the return
+     * @param returnNewLinesOnLiterals whether we should return the new lines found in the literals (not the char, but the line itself)
+     * @param changeLiteralsForSpaces whether we should replace the literals with spaces (so that we don't loose offset information)
+     */
 	public PyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals, boolean changeLiteralsForSpaces) {
 		this(doc);
 		this.addNewLinesToRet = addNewLinesToRet;
@@ -51,7 +56,7 @@ public class PyDocIterator implements Iterator<String> {
             while (offset < literalEnd && ch != '\n' && ch != '\r') {
                 ch = doc.getChar(offset);
                 offset++;
-                if(changeLiteralsForSpaces){
+                if(changeLiteralsForSpaces && ch != '\n' && ch != '\r'){
                     buf.append(' ');
                 }
             }
@@ -80,7 +85,7 @@ public class PyDocIterator implements Iterator<String> {
     }
     
 	/**
-	 * 
+	 * @return the next line in the document
 	 */
 	public String next() {
         
@@ -88,9 +93,14 @@ public class PyDocIterator implements Iterator<String> {
         	StringBuffer buf = new StringBuffer();
             
         	if(inLiteral){
+        		int initialOffset = offset;
         	    String ret = nextInLiteral();
-        	    if(ret.length() > 0){
+        	    if(ret.length() > 0 && initialOffset < offset){ //if it didn't move in the offset, disregard the results
                     if(WordUtils.endsWith(ret, '\r') || WordUtils.endsWith(ret, '\n')){
+                    	if(!addNewLinesToRet){
+                    		ret = ret.substring(0, ret.length() -1);
+                    	}
+                    	buf.append(ret);
                         return ret;
                     }else{
                         buf.append(ret);
@@ -116,7 +126,11 @@ public class PyDocIterator implements Iterator<String> {
                         String ret = nextInLiteral();
                         if(ret.length() > 0){
                             if(WordUtils.endsWith(ret, '\r') || WordUtils.endsWith(ret, '\n')){
-                                return ret;
+                            	if(!addNewLinesToRet){
+                            		ret = ret.substring(0, ret.length() -1);
+                            	}
+                            	buf.append(ret);
+                                return buf.toString();
                             }else{
                                 buf.append(ret);
                             }
