@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -31,6 +33,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.parser.IParserObserver;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.refactoring.markocurrences.MarkOccurrencesJob;
@@ -40,8 +44,74 @@ import com.python.pydev.refactoring.wizards.PyRenameProcessor;
  * This action should mark to rename all the occurrences found for some name in the file
  */
 public class PyRenameInFileAction extends Action{
+	
+	/**
+	 * This class makes the rename when the reparse we asked for is triggered.
+	 */
+	private class RenameInFileParserObserver implements IParserObserver {
+		
+		public void parserChanged(SimpleNode root, IAdaptable file, IDocument doc) {
+			pyEdit.getParser().removeParseListener(this); //we'll only listen for this single parse
+			
+			try {
+				ISourceViewer viewer= pyEdit.getPySourceViewer();
+				IDocument document= viewer.getDocument();
+				PySelection ps = PySelection.createFromNonUiThread(pyEdit);
+				LinkedPositionGroup group= new LinkedPositionGroup();
+				
+				if(!fillWithOccurrences(document, group, new NullProgressMonitor(), ps)){
+					return ;
+				}
+				
+				if (group.isEmpty()) {
+					return ;
+				}
+				
+				LinkedModeModel model= new LinkedModeModel();
+				model.addGroup(group);
+				model.forceInstall();
+				final LinkedModeUI ui= new EditorLinkedModeUI(model, viewer);
+				Tuple<String,Integer> currToken = ps.getCurrToken();
+				ui.setExitPosition(viewer, currToken.o2 + currToken.o1.length(), 0, Integer.MAX_VALUE);
+				Runnable r = new Runnable(){
+					public void run() {
+						ui.enter();
+					}
+				};
+				RunInUiThread.async(r);
+			} catch (BadLocationException e) {
+				Log.log(e);
+			} catch (Exception e) {
+				Log.log(e);
+			}
+		}
+		
+		public void parserError(Throwable error, IAdaptable file, IDocument doc) {
+		}
+	}
 
-    private PyEdit pyEdit;
+
+
+	/**
+	 * This class adds an observer and triggers a reparse that this listener should listen to. 
+	 */
+    private class RenameInFileJob extends Job {
+
+		private RenameInFileJob(String name) {
+			super(name);
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+				IParserObserver observer = new RenameInFileParserObserver();
+				pyEdit.getParser().addParseListener(observer); //it will analyze when the next parse is finished
+				pyEdit.getParser().parseNow(true);
+			return Status.OK_STATUS;
+		}
+	}
+
+
+	private PyEdit pyEdit;
 
 
     public PyRenameInFileAction(PyEdit edit) {
@@ -50,49 +120,7 @@ public class PyRenameInFileAction extends Action{
 
 
     public void run() {
-    	Job j = new Job("Rename In File"){
-
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				try {
-					ISourceViewer viewer= pyEdit.getPySourceViewer();
-					IDocument document= viewer.getDocument();
-					PySelection ps = PySelection.createFromNonUiThread(pyEdit);
-					LinkedPositionGroup group= new LinkedPositionGroup();
-					
-					if(!fillWithOccurrences(document, group, monitor, ps)){
-						return Status.OK_STATUS;
-					}
-					
-					if (group.isEmpty()) {
-						return Status.OK_STATUS;
-					}
-					
-					if(monitor.isCanceled()){
-						return Status.OK_STATUS;
-					}
-					
-					LinkedModeModel model= new LinkedModeModel();
-					model.addGroup(group);
-					model.forceInstall();
-					final LinkedModeUI ui= new EditorLinkedModeUI(model, viewer);
-					Tuple<String,Integer> currToken = ps.getCurrToken();
-					ui.setExitPosition(viewer, currToken.o2 + currToken.o1.length(), 0, Integer.MAX_VALUE);
-					Runnable r = new Runnable(){
-						public void run() {
-							ui.enter();
-						}
-					};
-					RunInUiThread.async(r);
-				} catch (BadLocationException e) {
-					Log.log(e);
-				} catch (Exception e) {
-					Log.log(e);
-				}
-				return Status.OK_STATUS;
-			}
-    		
-    	};
+    	Job j = new RenameInFileJob("Rename In File");
     	j.setPriority(Job.INTERACTIVE);
     	j.schedule();
     }

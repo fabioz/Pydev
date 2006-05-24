@@ -30,7 +30,7 @@ public class AnalyzeOnRequestSetter implements IPyEditListener{
 
 	public void onCreateActions(ListResourceBundle resources, PyEdit edit) {
 		AnalyzeOnRequestAction action = new AnalyzeOnRequestAction(edit);
-		edit.addOfflineActionListener("c", action, "Code-analysis on request", true);
+		edit.addOfflineActionListener("c", action, "Code-analysis on request", false);
 	}
 
 	public void onDispose(PyEdit edit) {
