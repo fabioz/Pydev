@@ -198,6 +198,17 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	List<IToken> tokenOccurrences = getTokenOccurrences(0, 16);
     	assertEquals(2, tokenOccurrences.size());
     }
+    
+    public void testIt15() throws Exception {
+    	doc = new Document(
+    			"from testrec2.core import leaf:\n" +
+    			"class Foo(leaf.Leaf):\n" +
+    			"    def setUp(self):\n" +
+    			"        leaf.Leaf.setUp(self)"
+    	);
+    	List<IToken> tokenOccurrences = getTokenOccurrences(1, 16);
+    	assertEquals(2, tokenOccurrences.size());
+    }
 
     private void checkTestResults(int line, int col, String lookFor) throws Exception {
     	checkTestResults(line, col, lookFor, true);
