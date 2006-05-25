@@ -38,7 +38,16 @@ public class Tuple<X ,Y> implements Serializable{
     
     @Override
     public int hashCode() {
-        return o1.hashCode() * o2.hashCode();
+    	if(o1 != null && o2 != null){
+    		return o1.hashCode() * o2.hashCode();
+    	}
+    	if(o1 != null){
+    		return o1.hashCode();
+    	}
+    	if(o2 != null){
+    		return o2.hashCode();
+    	}
+    	return 7;
     }
     
     @Override

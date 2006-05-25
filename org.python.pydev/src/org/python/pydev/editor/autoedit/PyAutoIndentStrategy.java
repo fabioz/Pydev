@@ -212,10 +212,10 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 			String line = d.get(info.getOffset(), info.getLength());
 			
 			if(!considerEmptyLines){
+				int currLine = d.getLineOfOffset(offset);
 				while(PySelection.containsOnlyWhitespaces(line)){
-					int currLine = d.getLineOfOffset(offset);
 					currLine--;
-					if(currLine == 0){
+					if(currLine >= 0){
 						break;
 					}
 					info= d.getLineInformation(currLine);
