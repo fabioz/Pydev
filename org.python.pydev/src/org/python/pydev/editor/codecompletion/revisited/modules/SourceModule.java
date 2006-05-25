@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 
 import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
@@ -29,6 +30,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Scope;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -324,7 +326,8 @@ public class SourceModule extends AbstractModule {
         return modToks;
     }
 
-    public Definition[] findDefinition(String rep, int line, int col, IPythonNature nature, List<FindInfo> lFindInfo) throws Exception{
+    @SuppressWarnings("unchecked")
+	public Definition[] findDefinition(String rep, int line, int col, IPythonNature nature, List<FindInfo> lFindInfo) throws Exception{
     	if(lFindInfo == null){
     		lFindInfo = new ArrayList<FindInfo>();
     	}
@@ -417,7 +420,10 @@ public class SourceModule extends AbstractModule {
                             
 			                SimpleNode ast2 = ((SourceToken)token).getAst();
 							Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
-							return new Definition[]{new Definition(def.o1, def.o2, token.getRepresentation(), ast2, null, module)};
+							Stack<SimpleNode> stack = new Stack<SimpleNode>();
+							stack.add(classDef);
+							Scope scope = new Scope(stack);
+							return new Definition[]{new Definition(def.o1, def.o2, token.getRepresentation(), ast2, scope, module)};
                             
 						}else{
 							return new Definition[0];

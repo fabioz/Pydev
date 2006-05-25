@@ -176,6 +176,16 @@ public class Scope {
 		return null;
 	}
 
+	/**
+	 * @return whether the last element found in this scope is a class definition
+	 */
+	public boolean isLastClassDef() {
+		if(this.scope.size() > 0 && this.scope.peek() instanceof ClassDef){
+			return true;
+		}
+		return false;
+	}
+
 
 }
 
