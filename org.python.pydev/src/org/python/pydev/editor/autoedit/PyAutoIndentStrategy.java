@@ -79,18 +79,18 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                     PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
                     int bracketOffset = selection.getLineOffset()+curr;
                     IRegion region = matcher.match(document, bracketOffset+1);
-                    
                     if(region != null){
-                    	//we might not have a match if there is an error in the program...
-                    	//e.g. a single ')' without its counterpart.
-                        int openingBracketLine = document.getLineOfOffset(region.getOffset());
-                        String openingBracketLineStr = PySelection.getLine(document, openingBracketLine);
-                        int first = PySelection.getFirstCharPosition(openingBracketLineStr);
-                        String initial = getCharsBeforeNewLine(text);
-                        text = initial + openingBracketLineStr.substring(0, first);
+                    	if(!PySelection.endsInSameLine(document, region)){
+	                    	//we might not have a match if there is an error in the program...
+	                    	//e.g. a single ')' without its counterpart.
+	                        int openingBracketLine = document.getLineOfOffset(region.getOffset());
+	                        String openingBracketLineStr = PySelection.getLine(document, openingBracketLine);
+	                        int first = PySelection.getFirstCharPosition(openingBracketLineStr);
+	                        String initial = getCharsBeforeNewLine(text);
+	                        text = initial + openingBracketLineStr.substring(0, first);
+	                        return text;
+	                    }
                     }
-                    return text;
-                    
                 } else if (smartIndent == -1 && lastChar == ':') {
                     //we have to check if smartIndent is -1 because otherwise we are in a dict
                 	//ok, not inside brackets
@@ -101,7 +101,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             
             String trimmedLine = lineWithoutComments.trim();
             
-            if(smartIndent >= 0 && DocUtils.hasOpeningBracket(trimmedLine) || DocUtils.hasClosingBracket(trimmedLine)){
+            if(smartIndent >= 0 && (DocUtils.hasOpeningBracket(trimmedLine) || DocUtils.hasClosingBracket(trimmedLine))){
                 return makeSmartIndent(text, smartIndent);
             }
             //let's check for dedents...

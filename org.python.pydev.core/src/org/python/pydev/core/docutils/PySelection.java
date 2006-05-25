@@ -1311,6 +1311,17 @@ public class PySelection {
         return false;
 	}
 
+	public static boolean endsInSameLine(IDocument document, IRegion region) {
+		try {
+			int startLine = document.getLineOfOffset(region.getOffset());
+			int end = region.getOffset() + region.getLength();
+			int endLine = document.getLineOfOffset(end);
+			return startLine == endLine;
+		} catch (BadLocationException e) {
+			return false;
+		}
+	}
+
 
 
 
