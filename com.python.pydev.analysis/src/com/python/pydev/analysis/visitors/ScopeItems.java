@@ -21,7 +21,7 @@ public class ScopeItems {
     /**
      * Stack for names that should not generate warnings, such as builtins, method names, etc.
      */
-    public Map<String, IToken> namesToIgnore = new HashMap<String, IToken>();
+    public Map<String, Tuple<IToken, Found>> namesToIgnore = new HashMap<String, Tuple<IToken, Found>>();
     
     public int ifSubScope = 0;
     public Stack<TryExcept> tryExceptSubScope = new Stack<TryExcept>();

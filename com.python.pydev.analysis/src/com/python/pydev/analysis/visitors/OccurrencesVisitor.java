@@ -10,6 +10,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -83,8 +84,8 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     protected void onLastScope(ScopeItems m) {
         for(Found n : probablyNotDefined){
             String rep = n.getSingle().tok.getRepresentation();
-            Map<String, IToken> lastInStack = m.namesToIgnore;
-            if(!scope.findInNamesToIgnore(rep, lastInStack)){
+            Map<String, Tuple<IToken, Found>> lastInStack = m.namesToIgnore;
+            if(scope.findInNamesToIgnore(rep, lastInStack) == null){
                 messagesManager.addUndefinedMessage(n.getSingle().tok);
             }
         }

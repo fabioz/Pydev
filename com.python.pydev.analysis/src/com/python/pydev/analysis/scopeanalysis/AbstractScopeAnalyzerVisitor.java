@@ -116,7 +116,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         startScope(Scope.SCOPE_TYPE_GLOBAL, null); //initial scope - there is only one 'global' 
         List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(CompletionState.getEmptyCompletionState(nature), new ArrayList());
         for(IToken t : builtinCompletions){
-            scope.getCurrScopeItems().namesToIgnore.put(t.getRepresentation(), t);
+        	Found found = makeFound(t);
+        	org.python.pydev.core.Tuple<IToken, Found> tup = new org.python.pydev.core.Tuple<IToken, Found>(t, found);
+        	addToNamesToIgnore(t, scope.getCurrScopeItems(), tup);
         }
     }
     
@@ -167,7 +169,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     protected void addToNamesToIgnore(SimpleNode node) {
         SourceToken token = AbstractVisitor.makeToken(node, "");
         ScopeItems currScopeItems = scope.getCurrScopeItems();
-        currScopeItems.namesToIgnore.put(token.getRepresentation(), token);
+        
+    	Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
+    	org.python.pydev.core.Tuple<IToken, Found> tup = new org.python.pydev.core.Tuple<IToken, Found>(token, found);
+        addToNamesToIgnore(token, currScopeItems, tup);
         
         //after adding it to the names to ignore, let's see if there is someone waiting for this declaration
         //in the 'probably not defined' stack. 
@@ -188,8 +193,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
     }
 
-    
-    /**
+	protected void addToNamesToIgnore(IToken token, ScopeItems currScopeItems, org.python.pydev.core.Tuple<IToken, Found> tup) {
+		currScopeItems.namesToIgnore.put(token.getRepresentation(), tup);
+		onAfterAddToNamesToIgnore(currScopeItems, tup);
+	}
+
+
+	/**
      * we are starting a new scope when visiting a function 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitFunctionDef(org.python.pydev.parser.jython.ast.FunctionDef)
      */
@@ -328,7 +338,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         
         if (node.ctx == Name.Store || node.ctx == Name.Param || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
             String rep = token.getRepresentation();
-            boolean inNamesToIgnore = scope.isInNamesToIgnore(rep);
+            boolean inNamesToIgnore = doCheckIsInNamesToIgnore(rep, token);
             
             if(!inNamesToIgnore){
                 
@@ -342,6 +352,15 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         
         return null;
     }
+
+    /**
+     * @param rep the representation we're looking for
+     * @return whether the representation is in the names to ignore
+     */
+	protected boolean doCheckIsInNamesToIgnore(String rep, IToken token) {
+		org.python.pydev.core.Tuple<IToken, Found> found = scope.isInNamesToIgnore(rep);
+		return found != null;
+	}
     
     
     
@@ -699,9 +718,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 //if it is an attribute, we have to check the names to ignore just with its first part
                 rep = rep.substring(0, i);
             }
-            if(addToNotDefined && !scope.isInNamesToIgnore(rep)){
+            if(addToNotDefined && !doCheckIsInNamesToIgnore(rep, token)){
                 if(scope.size() > 1){ //if we're not in the global scope, it might be defined later
-                    probablyNotDefined.add(new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems())); //we are not in the global scope, so it might be defined later...
+                    probablyNotDefined.add(makeFound(token)); //we are not in the global scope, so it might be defined later...
                 }else{
                     onAddUndefinedMessage(token); //it is in the global scope, so, it is undefined.
                 }
@@ -740,6 +759,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
         return found;
     }
+
+	protected Found makeFound(IToken token) {
+		return new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
+	}
 
 
     protected IToken findNameTok(IToken token, String tokToCheck) {
@@ -790,6 +813,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
     public abstract void onAddNoSelf(SourceToken token, Object[] objects);
 
+    /**
+     * This one is not abstract, but is provided as a hook, as the others.
+     */
+	protected void onAfterAddToNamesToIgnore(ScopeItems currScopeItems, org.python.pydev.core.Tuple<IToken, Found> tup) {
+	}
 
 
 }

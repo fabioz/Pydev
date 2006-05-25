@@ -122,10 +122,26 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     @Override
     public void onAddNoSelf(SourceToken token, Object[] objects) {
     }
-
+    
+    @Override
+    protected void onAfterAddToNamesToIgnore(ScopeItems currScopeItems, Tuple<IToken, Found> tup) {
+    	if(tup.o1 instanceof SourceToken){
+			checkFound(tup.o2, peekParent());
+    	}
+    }
+    
+    @Override
+    protected boolean doCheckIsInNamesToIgnore(String rep, IToken token) {
+    	org.python.pydev.core.Tuple<IToken, Found> found = scope.isInNamesToIgnore(rep);
+    	if(found != null){
+    		found.o2.getSingle().references.add(token);
+    	}
+    	return found != null;
+    }
+    
     @Override
     protected void onAddUndefinedMessage(IToken token) {
-    	Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
+    	Found found = makeFound(token);
     	ASTEntry parent = peekParent();
     	if(checkFound(found, parent) == null){
     		//ok, it was actually not found, so, after marking it as an occurrence, we have to check all 

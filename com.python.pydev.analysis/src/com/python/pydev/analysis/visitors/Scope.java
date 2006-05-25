@@ -11,6 +11,7 @@ import java.util.Stack;
 
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
@@ -345,7 +346,7 @@ public class Scope implements Iterable<ScopeItems>{
     /**
      * find out if an item is in the names to ignore given its full representation
      */
-    public boolean findInNamesToIgnore(String fullRep, Map<String, IToken> lastInStack) {
+    public Tuple<IToken, Found> findInNamesToIgnore(String fullRep, Map<String, Tuple<IToken, Found>> lastInStack) {
         
         int i = fullRep.indexOf('.', 0);
 
@@ -353,17 +354,17 @@ public class Scope implements Iterable<ScopeItems>{
             String sub = fullRep.substring(0,i);
             i = fullRep.indexOf('.', i+1);
             if(lastInStack.containsKey(sub)){
-                return true;
+                return lastInStack.get(sub);
             }
         }
 
-        return lastInStack.containsKey(fullRep);
+        return lastInStack.get(fullRep);
     }
 
     /**
      * checks if there is some token in the names that are defined (but should be ignored)
      */
-    public boolean isInNamesToIgnore(String rep) {
+    public Tuple<IToken, Found> isInNamesToIgnore(String rep) {
     	int currScopeType = getCurrScopeItems().getScopeType();
     	
         for(ScopeItems s : this.scope){
@@ -372,12 +373,13 @@ public class Scope implements Iterable<ScopeItems>{
     			continue;
         	}
         	
-        	Map<String,IToken> m = s.namesToIgnore;
-            if(findInNamesToIgnore(rep, m)){
-                return true;
+        	Map<String,Tuple<IToken, Found>> m = s.namesToIgnore;
+            Tuple<IToken, Found> found = findInNamesToIgnore(rep, m);
+			if(found != null){
+                return found;
             }
         }
-        return false;
+        return null;
     }
 
 
