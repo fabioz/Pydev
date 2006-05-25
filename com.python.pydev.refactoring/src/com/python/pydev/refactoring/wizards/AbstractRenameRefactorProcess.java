@@ -5,9 +5,11 @@ package com.python.pydev.refactoring.wizards;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -81,6 +83,8 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
 
 
     protected List<Tuple<TextEdit, String>> getAllRenameEdits(List<ASTEntry> ocurrences) {
+    	Set<Integer> s = new HashSet<Integer>();
+    	
         List<Tuple<TextEdit, String>> ret = new ArrayList<Tuple<TextEdit, String>>();
         StringBuffer buf = new StringBuffer();
         buf.append("Change: ");
@@ -93,7 +97,10 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
             entryBuf.append(entry.node.beginLine);
             entryBuf.append(")");
             int offset = request.ps.getAbsoluteCursorOffset(entry.node.beginLine-1, entry.node.beginColumn-1);
-            ret.add(new Tuple<TextEdit, String>(createRenameEdit(offset), entryBuf.toString()));
+            if(!s.contains(offset)){
+	            s.add(offset);
+	            ret.add(new Tuple<TextEdit, String>(createRenameEdit(offset), entryBuf.toString()));
+            }
         }
         return ret;
     }
