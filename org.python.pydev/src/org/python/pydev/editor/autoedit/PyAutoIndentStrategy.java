@@ -186,7 +186,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 	}
 
 	private void autoIndentSameAsPrevious(IDocument d, DocumentCommand c) {
-		String txt = autoIndentSameAsPrevious(d, c.offset, c.text);
+		String txt = autoIndentSameAsPrevious(d, c.offset, c.text, true);
 		if(txt != null){
 			c.text = txt;
 		}
@@ -195,10 +195,13 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 	 * Copies the indentation of the previous line.
 	 *
 	 * @param d the document to work on
-	 * @param text 
+	 * @param text the string that should added to the start of the returned string
+	 * @param considerEmptyLines whether we should consider empty lines in this function
 	 * @param c the command to deal with
+	 * 
+	 * @return a string with text+ the indentation found in the previous line (or previous non-empty line). 
 	 */
-	private String autoIndentSameAsPrevious(IDocument d, int offset, String text) {
+	private String autoIndentSameAsPrevious(IDocument d, int offset, String text, boolean considerEmptyLines) {
 
 		if (offset == -1 || d.getLength() == 0)
 			return null;
@@ -206,6 +209,20 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 		try {
 			// find start of line
 			IRegion info= d.getLineInformationOfOffset(offset);
+			String line = d.get(info.getOffset(), info.getLength());
+			
+			if(!considerEmptyLines){
+				while(PySelection.containsOnlyWhitespaces(line)){
+					int currLine = d.getLineOfOffset(offset);
+					currLine--;
+					if(currLine == 0){
+						break;
+					}
+					info= d.getLineInformation(currLine);
+					line = d.get(info.getOffset(), info.getLength());
+				}
+			}
+			
 			int start= info.getOffset();
 
 			// find white spaces
@@ -304,7 +321,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             		//(so that we know the 'expected' output
             		IRegion prevLineInfo = document.getLineInformation(cursorLine-1);
             		int prevLineEndOffset = prevLineInfo.getOffset()+prevLineInfo.getLength();
-            		String txt = autoIndentSameAsPrevious(document, prevLineEndOffset, "\n");
+            		String txt = autoIndentSameAsPrevious(document, prevLineEndOffset, "\n", false);
             		txt = autoIndentNewline(document, 0, txt, prevLineEndOffset);
             		txt = txt.substring(1);//remove the newline
             		

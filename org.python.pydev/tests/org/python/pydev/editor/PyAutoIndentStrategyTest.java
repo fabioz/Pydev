@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNewLine10();
+            s.testTabIndentToLevel();
             s.tearDown();
     		junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
