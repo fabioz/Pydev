@@ -28,6 +28,9 @@ public class PyRenameAttributeProcess extends AbstractRenameRefactorProcess{
 		
         List<ASTEntry> attributeOcurrences = ScopeAnalysis.getAttributeOcurrences(this.target, ast);
 		addOccurrences(request, attributeOcurrences);
+		
+		attributeOcurrences = ScopeAnalysis.getAttributeReferences(this.target, ast);
+		addOccurrences(request, attributeOcurrences);
     }
 
 }

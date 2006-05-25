@@ -4,7 +4,6 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
-import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.EasyAstIteratorBase;
 
 /**
@@ -16,7 +15,7 @@ public class AttributeReferencesVisitor extends EasyAstIteratorBase{
 	private boolean inAttr = false;
 	
 	protected Object unhandled_node(SimpleNode node) throws Exception {
-		if(inAttr){
+		if(inAttr || isInClassDecl()){
 			if(node instanceof Name || node instanceof NameTok){
 				atomic(node);
 			}
@@ -28,12 +27,9 @@ public class AttributeReferencesVisitor extends EasyAstIteratorBase{
 	@Override
 	public Object visitAttribute(Attribute node) throws Exception {
 		inAttr = true;
-		String fullRepresentationString = NodeUtils.getFullRepresentationString(node);
 		Object ret = null;
 		
-		if(!fullRepresentationString.startsWith("self")){
-			ret = super.visitAttribute(node);
-		}
+		ret = super.visitAttribute(node);
 		
 		inAttr = false;
 		return ret;

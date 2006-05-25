@@ -29,12 +29,6 @@ public class RefactorProcessFactory {
                 return new PyRenameLocalProcess(definition);
             }
         }
-        //if(definition.scope != null){
-        	//classvar
-        	//if(definition.scope.isLastClassDef()){
-        	//	return new PyRenameAttributeProcess(definition, definition.value, false);
-        	//}
-        //}
         if(definition.ast != null){
             if(definition.ast instanceof ClassDef){
                 return new PyRenameClassProcess(definition);
@@ -51,6 +45,12 @@ public class RefactorProcessFactory {
         	//and pointed to some module
         	return new PyRenameImportProcess(definition);
         	
+        }
+        if(definition.scope != null){
+        	//classvar
+        	if(definition.scope.isLastClassDef()){
+        		return new PyRenameAttributeProcess(definition, definition.value);
+        	}
         }
         return new PyRenameLocalProcess(definition);
     }
