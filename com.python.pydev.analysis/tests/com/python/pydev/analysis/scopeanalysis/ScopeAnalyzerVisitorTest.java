@@ -209,6 +209,18 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	List<IToken> tokenOccurrences = getTokenOccurrences(1, 16);
     	assertEquals(2, tokenOccurrences.size());
     }
+    
+    public void testIt16() throws Exception {
+    	doc = new Document(
+    			"class Foo:\n" +
+    			"    vlMolecularWeigth = ''\n" +
+    			"    def toSimulator(self):\n" +
+    			"        print self.vlMolecularWeigth\n" +
+    			""
+    	);
+    	List<IToken> tokenOccurrences = getTokenOccurrences(3, 21);
+    	assertEquals(2, tokenOccurrences.size());
+    }
 
     private void checkTestResults(int line, int col, String lookFor) throws Exception {
     	checkTestResults(line, col, lookFor, true);

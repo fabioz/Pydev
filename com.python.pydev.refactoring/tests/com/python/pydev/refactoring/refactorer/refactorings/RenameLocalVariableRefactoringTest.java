@@ -329,4 +329,17 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	int col = 17;
     	checkDefault(str, line, col, "self", false, true);
     }
+    
+    public void testRenameClassVar() throws Exception {
+    	String str = "" +
+		"class Foo:\n" +
+		"    %s = ''\n" +
+		"    def toSimulator(self):\n" +
+		"        print self.%s\n" +
+		"";
+    	
+    	int line = 3;
+    	int col = 21;
+    	checkDefault(str, line, col, "vlMolecularWeigth", false, true);
+    }
 }
