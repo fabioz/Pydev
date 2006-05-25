@@ -4,10 +4,10 @@
 package com.python.pydev.refactoring.wizards;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -51,7 +51,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      * key: tuple with module name and the document representing that module
      * value: list of ast entries to be replaced
      */
-    protected SortedMap<Tuple<String, IDocument>, List<ASTEntry>> occurrences;
+    protected Map<Tuple<String, IDocument>, List<ASTEntry>> occurrences;
 
     /**
      * @param definition the definition on where this rename should be applied (we will find the references based 
@@ -59,7 +59,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      */
     public AbstractRenameRefactorProcess(Definition definition){
         this.definition = definition;
-        occurrences = new TreeMap<Tuple<String,IDocument>, List<ASTEntry>>();
+        occurrences = new HashMap<Tuple<String,IDocument>, List<ASTEntry>>();
     }
     
     /**
@@ -71,7 +71,12 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorProcess{
      */
     protected void addOccurrences(RefactoringRequest request, List<ASTEntry> oc) {
         Tuple<String, IDocument> key = new Tuple<String, IDocument>(request.moduleName, request.doc);
-        occurrences.put(key, oc);
+        List<ASTEntry> existent = occurrences.get(key);
+        if(existent == null){
+        	occurrences.put(key, oc);
+        }else{
+        	existent.addAll(oc);
+        }
     }
 
 

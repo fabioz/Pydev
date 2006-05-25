@@ -20,15 +20,21 @@ public class RefactorProcessFactory {
             if(d.target.indexOf('.') != -1){
                 if(d.target.startsWith("self.")){
                     //ok, it is a member and not a local
-                    return new PyRenameSelfAttributeProcess(definition);
+                    return new PyRenameSelfAttributeProcess(definition, d.target);
                 }else{
-                    return new PyRenameAttributeProcess(definition);
+                    return new PyRenameAttributeProcess(definition, d.target);
                 }
                 
             }else{
                 return new PyRenameLocalProcess(definition);
             }
         }
+        //if(definition.scope != null){
+        	//classvar
+        	//if(definition.scope.isLastClassDef()){
+        	//	return new PyRenameAttributeProcess(definition, definition.value, false);
+        	//}
+        //}
         if(definition.ast != null){
             if(definition.ast instanceof ClassDef){
                 return new PyRenameClassProcess(definition);
