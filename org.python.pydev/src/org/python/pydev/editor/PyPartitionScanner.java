@@ -21,7 +21,7 @@ import org.eclipse.jface.text.rules.PatternRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
-import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -36,18 +36,8 @@ import org.python.pydev.plugin.PydevPlugin;
  * "An IPartitionTokenScanner can also start in the middle of a partition,
  * if it knows the type of the partition."
  */
-public class PyPartitionScanner extends RuleBasedPartitionScanner {
-    //this is just so that we don't have to break the interface
-	public final static String PY_COMMENT            = ParsingUtils.PY_COMMENT           ;
-	public final static String PY_SINGLELINE_STRING  = ParsingUtils.PY_SINGLELINE_STRING ;
-	public final static String PY_MULTILINE_STRING   = ParsingUtils.PY_MULTILINE_STRING  ;
-	public final static String PY_BACKQUOTES         = ParsingUtils.PY_BACKQUOTES        ;
-	public final static String PY_DEFAULT            = ParsingUtils.PY_DEFAULT           ;
-    
-    public final static String[] types = {PY_COMMENT, PY_SINGLELINE_STRING, PY_MULTILINE_STRING, PY_BACKQUOTES};
-    public static final String PYTHON_PARTITION_TYPE = "__PYTHON_PARTITION_TYPE";
-    
-	public PyPartitionScanner() {
+public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPythonPartitions {
+    public PyPartitionScanner() {
 		super();
 		List<IPredicateRule> rules = new ArrayList<IPredicateRule>();
 
@@ -60,7 +50,7 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
 	}
 
 	private void addReprRule(List<IPredicateRule> rules) {
-		rules.add(new SingleLineRule("`", "`", new Token(PY_BACKQUOTES)));
+		rules.add(new SingleLineRule("`", "`", new Token(IPythonPartitions.PY_BACKQUOTES)));
 	}
 
 	private void addSinglelineStringRule(List<IPredicateRule> rules) {
@@ -69,20 +59,22 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
 //		rules.add(new SingleLineRule("'", "'", singleLineString, '\\')); -- changed to the construct below because we need to continue on escape
 
 		
-		IToken singleLineString = new Token(PY_SINGLELINE_STRING);
+		IToken singleLineString1 = new Token(IPythonPartitions.PY_SINGLELINE_STRING1);
+		IToken singleLineString2 = new Token(IPythonPartitions.PY_SINGLELINE_STRING2);
 		// deal with "" and '' strings
 		boolean breaksOnEOL = true;
 		boolean breaksOnEOF = false;
 		boolean escapeContinuesLine = true;
-		rules.add(new PatternRule("'", "'", singleLineString, '\\', breaksOnEOL, breaksOnEOF, escapeContinuesLine));
-		rules.add(new PatternRule("\"", "\"", singleLineString, '\\', breaksOnEOL, breaksOnEOF, escapeContinuesLine));
+		rules.add(new PatternRule("'", "'", singleLineString1, '\\', breaksOnEOL, breaksOnEOF, escapeContinuesLine));
+		rules.add(new PatternRule("\"", "\"", singleLineString2, '\\', breaksOnEOL, breaksOnEOF, escapeContinuesLine));
 	}
 
 	private void addMultilineStringRule(List<IPredicateRule> rules) {
-		IToken multiLineString = new Token(PY_MULTILINE_STRING);
+		IToken multiLineString1 = new Token(IPythonPartitions.PY_MULTILINE_STRING1);
+		IToken multiLineString2 = new Token(IPythonPartitions.PY_MULTILINE_STRING2);
 		// deal with ''' and """ strings
-		rules.add(new MultiLineRule("'''", "'''", multiLineString, '\\')); 
-		rules.add(new MultiLineRule("\"\"\"", "\"\"\"", multiLineString,'\\'));
+		rules.add(new MultiLineRule("'''", "'''", multiLineString1, '\\')); 
+		rules.add(new MultiLineRule("\"\"\"", "\"\"\"", multiLineString2,'\\'));
 		
 		//there is a bug in this construct: When parsing a simple document such as:
 		//
@@ -102,7 +94,7 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
 	}
 
 	private void addCommentRule(List<IPredicateRule> rules) {
-		IToken comment = new Token(PY_COMMENT);
+		IToken comment = new Token(IPythonPartitions.PY_COMMENT);
 		rules.add(new EndOfLineRule("#", comment));
 	}
 	
@@ -110,7 +102,7 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
 	 * @return all types recognized by this scanner (used by doc partitioner)
 	 */
 	static public String[] getTypes() {
-		return types;
+		return IPythonPartitions.types;
 	}
 
 	public static void checkPartitionScanner(IDocument document) {
@@ -119,11 +111,11 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
         }
         
         IDocumentExtension3 docExtension= (IDocumentExtension3) document;
-	    IDocumentPartitioner partitioner = docExtension.getDocumentPartitioner(PYTHON_PARTITION_TYPE);
+	    IDocumentPartitioner partitioner = docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
 	    if (partitioner == null){
             addPartitionScanner(document);
             //get it again for the next check
-            partitioner = docExtension.getDocumentPartitioner(PYTHON_PARTITION_TYPE);
+            partitioner = docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
         }
 	    if (!(partitioner instanceof PyPartitioner)){
             PydevPlugin.log("Partitioner should be subclass of PyPartitioner. It is "+partitioner.getClass());
@@ -139,11 +131,11 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner {
     public static void addPartitionScanner(IDocument document) {
         if (document != null) {
             IDocumentExtension3 docExtension= (IDocumentExtension3) document;
-            if(docExtension.getDocumentPartitioner(PYTHON_PARTITION_TYPE) == null){
+            if(docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE) == null){
                 //set the new one
                 FastPartitioner partitioner = new PyPartitioner(new PyPartitionScanner(), getTypes());
                 partitioner.connect(document);
-                docExtension.setDocumentPartitioner(PYTHON_PARTITION_TYPE,partitioner);
+                docExtension.setDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE,partitioner);
             }
         }
     }

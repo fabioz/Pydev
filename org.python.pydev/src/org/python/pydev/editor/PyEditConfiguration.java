@@ -28,6 +28,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
@@ -90,7 +91,9 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
      * The SourceViewer will ignore double-clicks and any other configuration behaviors inside any partition not declared here
      */
     public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
-        return new String[] { IDocument.DEFAULT_CONTENT_TYPE, PyPartitionScanner.PY_COMMENT, PyPartitionScanner.PY_SINGLELINE_STRING, PyPartitionScanner.PY_MULTILINE_STRING };
+        return new String[] { IDocument.DEFAULT_CONTENT_TYPE, IPythonPartitions.PY_COMMENT, 
+        		IPythonPartitions.PY_SINGLELINE_STRING1, IPythonPartitions.PY_SINGLELINE_STRING2, 
+        		IPythonPartitions.PY_MULTILINE_STRING1, IPythonPartitions.PY_MULTILINE_STRING2 };
     }
 
     /**
@@ -178,7 +181,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
         if (reconciler == null) {
             reconciler = new PresentationReconciler();
-            reconciler.setDocumentPartitioning(PyPartitionScanner.PYTHON_PARTITION_TYPE);
+            reconciler.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
 
             DefaultDamagerRepairer dr;
 
@@ -192,27 +195,28 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
 
             IPreferenceStore preferences = PydevPlugin.getChainedPrefStore();
             // Comments have uniform color
-            commentScanner = new PyColoredScanner(colorCache, PydevPrefs.COMMENT_COLOR, 
-            		preferences.getInt(PydevPrefs.COMMENT_STYLE));
+            commentScanner = new PyColoredScanner(colorCache, PydevPrefs.COMMENT_COLOR, preferences.getInt(PydevPrefs.COMMENT_STYLE));
             dr = new DefaultDamagerRepairer(commentScanner);
-            reconciler.setDamager(dr, PyPartitionScanner.PY_COMMENT);
-            reconciler.setRepairer(dr, PyPartitionScanner.PY_COMMENT);
+            reconciler.setDamager(dr, IPythonPartitions.PY_COMMENT);
+            reconciler.setRepairer(dr, IPythonPartitions.PY_COMMENT);
 
             // Backquotes have uniform color
-            backquotesScanner = new PyColoredScanner(colorCache, PydevPrefs.BACKQUOTES_COLOR,
-            		preferences.getInt(PydevPrefs.BACKQUOTES_STYLE));
+            backquotesScanner = new PyColoredScanner(colorCache, PydevPrefs.BACKQUOTES_COLOR,preferences.getInt(PydevPrefs.BACKQUOTES_STYLE));
             dr = new DefaultDamagerRepairer(backquotesScanner);
-            reconciler.setDamager(dr, PyPartitionScanner.PY_BACKQUOTES);
-            reconciler.setRepairer(dr, PyPartitionScanner.PY_BACKQUOTES);
+            reconciler.setDamager(dr, IPythonPartitions.PY_BACKQUOTES);
+            reconciler.setRepairer(dr, IPythonPartitions.PY_BACKQUOTES);
             
             // Strings have uniform color
-            stringScanner = new PyColoredScanner(colorCache, PydevPrefs.STRING_COLOR,
-            		preferences.getInt(PydevPrefs.STRING_STYLE));
+            stringScanner = new PyColoredScanner(colorCache, PydevPrefs.STRING_COLOR,preferences.getInt(PydevPrefs.STRING_STYLE));
             dr = new DefaultDamagerRepairer(stringScanner);
-            reconciler.setDamager(dr, PyPartitionScanner.PY_SINGLELINE_STRING);
-            reconciler.setRepairer(dr, PyPartitionScanner.PY_SINGLELINE_STRING);
-            reconciler.setDamager(dr, PyPartitionScanner.PY_MULTILINE_STRING);
-            reconciler.setRepairer(dr, PyPartitionScanner.PY_MULTILINE_STRING);
+            reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_STRING1);
+            reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_STRING1);
+            reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_STRING2);
+            reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_STRING2);
+            reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_STRING1);
+            reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_STRING1);
+            reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_STRING2);
+            reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_STRING2);
 
             // Default content is code, we need syntax highlighting
             codeScanner = new PyCodeScanner(colorCache);
@@ -235,15 +239,17 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
     	PythonCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(this.getEdit());
 
         // No code completion in comments
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, PyPartitionScanner.PY_SINGLELINE_STRING);
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, PyPartitionScanner.PY_MULTILINE_STRING);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_STRING1);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_STRING2);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_STRING1);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_STRING2);
         pyContentAssistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
         pyContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
         pyContentAssistant.enableAutoActivation(true);
 
         //delay and auto activate set on PyContentAssistant constructor.
 
-        pyContentAssistant.setDocumentPartitioning(PyPartitionScanner.PYTHON_PARTITION_TYPE);
+        pyContentAssistant.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
         
         return pyContentAssistant;
     }
@@ -261,15 +267,17 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         IContentAssistProcessor processor = new PythonCorrectionProcessor(this.getEdit());
 
         // Correction assist works on all
-        assistant.setContentAssistProcessor(processor, PyPartitionScanner.PY_SINGLELINE_STRING);
-        assistant.setContentAssistProcessor(processor, PyPartitionScanner.PY_MULTILINE_STRING);
-        assistant.setContentAssistProcessor(processor, PyPartitionScanner.PY_COMMENT);
+        assistant.setContentAssistProcessor(processor, IPythonPartitions.PY_SINGLELINE_STRING1);
+        assistant.setContentAssistProcessor(processor, IPythonPartitions.PY_SINGLELINE_STRING2);
+        assistant.setContentAssistProcessor(processor, IPythonPartitions.PY_MULTILINE_STRING1);
+        assistant.setContentAssistProcessor(processor, IPythonPartitions.PY_MULTILINE_STRING2);
+        assistant.setContentAssistProcessor(processor, IPythonPartitions.PY_COMMENT);
         assistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
         assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 
         //delay and auto activate set on PyContentAssistant constructor.
 
-        assistant.setDocumentPartitioning(PyPartitionScanner.PYTHON_PARTITION_TYPE);
+        assistant.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
         
         return assistant;
     }
@@ -293,7 +301,7 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         
         //delay and auto activate set on PyContentAssistant constructor.
         
-        assistant.setDocumentPartitioning(PyPartitionScanner.PYTHON_PARTITION_TYPE);
+        assistant.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
        
         assistant.enableAutoActivation(true);
         assistant.setAutoActivationDelay(0);

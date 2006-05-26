@@ -27,6 +27,7 @@ import org.eclipse.ui.commands.IHandler;
 import org.eclipse.ui.commands.IWorkbenchCommandSupport;
 import org.eclipse.ui.commands.Priority;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
+import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.ui.PythonSourceViewer;
@@ -70,7 +71,7 @@ public class BreakpointConditionEditor {
 		
 
 		IDocument document= new Document();
-		IDocumentPartitioner partitioner= new PyPartitioner(new PyPartitionScanner(), PyPartitionScanner.types);
+		IDocumentPartitioner partitioner= new PyPartitioner(new PyPartitionScanner(), IPythonPartitions.types);
 		document.setDocumentPartitioner(partitioner);
 		partitioner.connect(document);
 		/*

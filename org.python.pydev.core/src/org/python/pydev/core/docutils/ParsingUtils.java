@@ -7,10 +7,11 @@ import java.util.Iterator;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IPythonPartitions;
 
 
 
-public class ParsingUtils {
+public class ParsingUtils implements IPythonPartitions{
     
     /**
      * @param cs the char array we are parsing
@@ -374,11 +375,6 @@ public class ParsingUtils {
         }
     }
 
-    public final static String PY_COMMENT           = "__python_comment";
-    public final static String PY_SINGLELINE_STRING = "__python_singleline_string";
-    public final static String PY_MULTILINE_STRING  = "__python_multiline_string";
-    public final static String PY_BACKQUOTES        = "__python_backquotes";
-    public final static String PY_DEFAULT           = "__dftl_partition_content_type";
 
     /**
      * @param initial
@@ -408,7 +404,10 @@ public class ParsingUtils {
             }
             
             if(ch == '\'' || ch == '"'){
-                curr = PY_SINGLELINE_STRING;
+            	curr = PY_SINGLELINE_STRING1;
+            	if(ch == '"'){
+            		curr = PY_SINGLELINE_STRING2;
+            	}
                 i = getLiteralEnd(buf, i, ch);
             }
         }

@@ -13,7 +13,7 @@ import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.python.pydev.editor.PyPartitionScanner;
+import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -24,7 +24,7 @@ public class PyTextHover implements ITextHover{
     public PyTextHover(ISourceViewer sourceViewer, String contentType) {
         pythonCommentOrMultiline = false;
         
-        for(String type : PyPartitionScanner.types){
+        for(String type : IPythonPartitions.types){
             if(type.equals(contentType)){
                 pythonCommentOrMultiline = true;
             }

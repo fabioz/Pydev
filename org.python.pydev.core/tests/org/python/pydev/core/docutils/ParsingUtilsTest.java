@@ -38,7 +38,7 @@ public class ParsingUtilsTest extends TestCase {
                 "pass\n" +
                 "";
         assertEquals(ParsingUtils.PY_COMMENT, ParsingUtils.getContentType(str, 2));
-        assertEquals(ParsingUtils.PY_SINGLELINE_STRING, ParsingUtils.getContentType(str, 10));
+        assertEquals(ParsingUtils.PY_SINGLELINE_STRING1, ParsingUtils.getContentType(str, 10));
         assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, 17));
     }
     
