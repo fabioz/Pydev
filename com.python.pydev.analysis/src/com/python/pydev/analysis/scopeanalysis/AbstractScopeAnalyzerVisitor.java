@@ -478,6 +478,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     protected void visitCallAttr(Call c) throws Exception {
         //now, visit all inside it but the func itself 
         AbstractScopeAnalyzerVisitor visitor = this;
+        if(c.func instanceof Attribute){
+            visitAttribute((Attribute) c.func);
+        }
         if (c.args != null) {
             for (int i = 0; i < c.args.length; i++) {
                 if (c.args[i] != null)
