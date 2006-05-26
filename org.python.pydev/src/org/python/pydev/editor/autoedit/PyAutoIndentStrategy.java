@@ -51,7 +51,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
     /**
      * Set indentation automatically after newline.
      */
-    private String autoIndentNewline(IDocument document, int length, String text, int offset)
+    private Tuple<String,Boolean> autoIndentNewline(IDocument document, int length, String text, int offset)
             throws BadLocationException {
     	
         if (offset > 0) {
@@ -59,7 +59,9 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 
             String lineWithoutComments = selection.getLineContentsToCursor(true, true);
 
-            int smartIndent = determineSmartIndent(document, offset, selection);
+            Tuple<Integer, Boolean> tup = determineSmartIndent(document, offset, selection);
+            int smartIndent = tup.o1;
+            boolean isInsidePar = tup.o2;
             
             if(lineWithoutComments.length() > 0){
                 //ok, now let's see the auto-indent
@@ -88,25 +90,25 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 	                        int first = PySelection.getFirstCharPosition(openingBracketLineStr);
 	                        String initial = getCharsBeforeNewLine(text);
 	                        text = initial + openingBracketLineStr.substring(0, first);
-	                        return text;
+	                        return new Tuple<String, Boolean>(text, isInsidePar);
 	                    }
                     }
                 } else if (smartIndent == -1 && lastChar == ':') {
                     //we have to check if smartIndent is -1 because otherwise we are in a dict
                 	//ok, not inside brackets
                     text = indentBasedOnStartingScope(text, selection, false);
-                    return text;
+                    return new Tuple<String, Boolean>(text, isInsidePar);
                 }
             }
             
             String trimmedLine = lineWithoutComments.trim();
             
             if(smartIndent >= 0 && (DocUtils.hasOpeningBracket(trimmedLine) || DocUtils.hasClosingBracket(trimmedLine))){
-                return makeSmartIndent(text, smartIndent);
+                return new Tuple<String, Boolean>(makeSmartIndent(text, smartIndent), isInsidePar);
             }
             //let's check for dedents...
             if(PySelection.startsWithDedentToken(trimmedLine)){
-                return dedent(text);
+                return new Tuple<String, Boolean>(dedent(text),isInsidePar);
             }
             
             boolean indentBasedOnStartingScope = false;
@@ -120,13 +122,16 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             }
             
             if(indentBasedOnStartingScope && selection.getLineContentsToCursor().trim().length() == 0){
-                return indentBasedOnStartingScope(text, selection, true);
+                return new Tuple<String, Boolean>(indentBasedOnStartingScope(text, selection, true), isInsidePar);
             }
             
         }
-        return text;
+        return new Tuple<String, Boolean>(text, false);
     }
 
+    /**
+     * @return the text for the indent 
+     */
 	private String indentBasedOnStartingScope(String text, PySelection selection, boolean checkForLowestBeforeNewScope) {
 		Tuple3<String,String, String> previousIfLine = selection.getPreviousLineThatStartsScope();
 		if(previousIfLine != null){
@@ -215,7 +220,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 				int currLine = d.getLineOfOffset(offset);
 				while(PySelection.containsOnlyWhitespaces(line)){
 					currLine--;
-					if(currLine >= 0){
+					if(currLine <= 0){
 						break;
 					}
 					info= d.getLineInformation(currLine);
@@ -299,7 +304,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             	if(prefs.getSmartIndentPar()){
             	    PySelection selection = new PySelection(document, command.offset);
                     if(selection.getCursorLineContents().trim().length() > 0){
-    	            	command.text = autoIndentNewline(document, command.length, command.text, command.offset);
+    	            	command.text = autoIndentNewline(document, command.length, command.text, command.offset).o1;
     	            	if(PySelection.containsOnlyWhitespaces(selection.getLineContentsToCursor())){
     	            		command.caretOffset = command.offset + selection.countSpacesAfter(command.offset);
     	            	}
@@ -321,10 +326,13 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             		//(so that we know the 'expected' output
             		IRegion prevLineInfo = document.getLineInformation(cursorLine-1);
             		int prevLineEndOffset = prevLineInfo.getOffset()+prevLineInfo.getLength();
-            		String txt = autoIndentSameAsPrevious(document, prevLineEndOffset, "\n", false);
-            		txt = autoIndentNewline(document, 0, txt, prevLineEndOffset);
+            		String prevExpectedIndent = autoIndentSameAsPrevious(document, prevLineEndOffset, "\n", false);
+                    String txt = prevExpectedIndent;
+            		Tuple<String, Boolean> prevLineTup = autoIndentNewline(document, 0, txt, prevLineEndOffset);
+                    txt = prevLineTup.o1;
             		txt = txt.substring(1);//remove the newline
-            		
+                    prevExpectedIndent = prevExpectedIndent.substring(1);
+                    
             		if (txt.length() > 0){
             			//now, we should not apply that indent if we are already at the 'max' indent in this line
             			//(or better: we should go to that max if it would pass it)
@@ -334,6 +342,9 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 
             			if(currSize >= sizeExpected){
             				//do nothing (we already passed what we expected from the indentation)
+                            if(prevLineTup.o2){
+                                command.text = prevExpectedIndent.substring(sizeApplied-sizeExpected);
+                            }
             			}else if(sizeExpected == sizeApplied){
             				ps.deleteSpacesAfter(command.offset);
             				command.text = txt;
@@ -697,21 +708,22 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
 	 * @param offset The document offset of the last character on the previous line
      * @param ps 
 	 * @return indent, or -1 if smart indent could not be determined (fall back to default)
+     * and a boolean indicating if we're inside a parenthesis
 	 */
-    private int determineSmartIndent(IDocument document, int offset, PySelection ps)
+    private Tuple<Integer,Boolean> determineSmartIndent(IDocument document, int offset, PySelection ps)
             throws BadLocationException {
     	
         PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
         int openingPeerOffset = matcher.searchForAnyOpeningPeer(offset, document);
         if(openingPeerOffset == -1){
-            return -1;
+            return new Tuple<Integer,Boolean>(-1, false);
         }
         
         //ok, now, if the opening peer is not on the line we're currently, we do not want to make
         //an 'auto-indent', but keep the current indentation level
         final IRegion lineInformationOfOffset = document.getLineInformationOfOffset(openingPeerOffset);
         if(!PySelection.isInSameLine(offset, lineInformationOfOffset)){
-        	return -1;
+            return new Tuple<Integer,Boolean>(-1, true);
         }
         
         int len = -1;
@@ -754,7 +766,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         		len += prefs.getTabWidth() - 1;
         	}
         }
-        return len;
+        return new Tuple<Integer,Boolean>(len, true);
         
     }
 }
