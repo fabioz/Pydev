@@ -41,42 +41,26 @@ public class FastPythonPartitionScanner implements IPartitionTokenScanner, IPyth
 		};
 	private int fTokenOffset;
 	private int fTokenLength;
+	private String currContentType;
 	
-	
-	private static int getState(String contentType) {
-
-		if (contentType == null)
-			return PYTHON;
-
-		else if (contentType.equals(PY_COMMENT))
-			return COMMENT;
-
-		else if (contentType.equals(PY_SINGLELINE_STRING1))
-			return SINGLE_LINE_STRING1;
-		
-		else if (contentType.equals(PY_SINGLELINE_STRING2))
-			return SINGLE_LINE_STRING2;
-
-		else if (contentType.equals(PY_MULTILINE_STRING1))
-			return MULTI_LINE_STRING1;
-		
-		else if (contentType.equals(PY_MULTILINE_STRING2))
-			return MULTI_LINE_STRING2;
-		
-		else if (contentType.equals(PY_BACKQUOTES))
-			return BACKQUOTES;
-
-		else //DEFAULT
-			return PYTHON;
-	}
 
 	public void setPartialRange(IDocument document, int offset, int length, String contentType, int partitionOffset) {
-		fScanner.setRange(document, offset, length);
-		fTokenOffset= offset;
-		fTokenLength= 0;
+		if(partitionOffset != -1 && partitionOffset < offset){
+			fScanner.setRange(document, partitionOffset, length+(offset-partitionOffset));
+			fTokenOffset= partitionOffset;
+			fTokenLength= 0;
+			currContentType = null;
+			
+		}else{
+			fScanner.setRange(document, offset, length);
+			fTokenOffset= offset;
+			fTokenLength= 0;
+			currContentType = contentType;
+		}
 	}
 
 	public void setRange(IDocument document, int offset, int length) {
+		currContentType = null;
 		fScanner.setRange(document, offset, length);
 		fTokenOffset= offset;
 		fTokenLength= 0;
@@ -97,46 +81,137 @@ public class FastPythonPartitionScanner implements IPartitionTokenScanner, IPyth
 	public IToken nextToken() {
 		fTokenOffset += fTokenLength;
 		fTokenLength= 0;
-
-		while (true) {
-			final int ch= fScanner.read();
-
-			// characters
-	 		switch (ch) {
-	 		
-	 		case ICharacterScanner.EOF:
-	 			fTokenLength++;
-	 			return Token.EOF;
-	 			
-	 		case '#':
-	 			int offsetEnd = fTokenOffset;
-	 			int ch2 = fScanner.read();
-	 			offsetEnd++;
-	 			
-	 	        while(ch2!= '\n' && ch2 != '\r' && ch != ICharacterScanner.EOF){
-	 	        	offsetEnd++;
-	 	        	ch2 = fScanner.read();
-	 	        }
-	 	        fTokenLength = offsetEnd-fTokenOffset;
-	 	        return fTokens[COMMENT];
-	 	        
-	 		case '\'':
-		 		offsetEnd = fTokenOffset;
-		 		ch2 = fScanner.read();
-		 		offsetEnd++;
-		 		
-		 		while(ch2!= '\n' && ch2 != '\r' && ch != ICharacterScanner.EOF){
-		 			offsetEnd++;
-		 			ch2 = fScanner.read();
-		 		}
-		 		fTokenLength = offsetEnd-fTokenOffset;
-		 		return fTokens[COMMENT];
-	 	        
-	 		default:
-	 			fTokenLength++;
-	 			return fTokens[PYTHON];
-	 		}
+		
+		int ch= fScanner.read();
+		if(ch == ICharacterScanner.EOF){
+			fTokenLength++;
+			return Token.EOF;
 		}
- 	}
+
+		if(currContentType != null){
+			if(currContentType.equals(PY_COMMENT)){
+				return handleComment(ch);
+			}
+			if(currContentType.equals(PY_SINGLELINE_STRING1)){
+				return handleSingleQuotedString(ch);
+				
+			}
+			if(currContentType.equals(PY_SINGLELINE_STRING2)){
+				return handleSingleQuotedString(ch);
+				
+			}
+			if(currContentType.equals(PY_MULTILINE_STRING1)){
+				return handleSingleQuotedString(ch);
+				
+			}
+			if(currContentType.equals(PY_MULTILINE_STRING2)){
+				return handleSingleQuotedString(ch);
+				
+			}
+			if(currContentType.equals(PY_BACKQUOTES)){
+				
+			}
+			
+		}
+		
+
+		
+		// characters
+ 		switch (ch) {
+ 		case '#':
+			return handleComment(ch);
+ 	        
+ 		case '"':
+ 		case '\'':
+ 			return handleSingleQuotedString(ch);
+ 	        
+ 		default:
+ 			fTokenLength++;
+ 			return fTokens[PYTHON];
+ 		}
+	}
+
+	private IToken handleSingleQuotedString(int ch) {
+		int initialChar = ch;
+		int offsetEnd = fTokenOffset;
+		
+		if(isMultiLiteral(ch)){
+			offsetEnd += 2; //ok, it is a multi-line with single quotes
+			return handleMultiSingleQuotedString(ch, offsetEnd, initialChar);
+		}
+		
+		//it is a single-line string
+		ch = fScanner.read();
+		offsetEnd++;
+		
+		while(ch!= '\n' && ch != '\r' && ch != initialChar && ch != ICharacterScanner.EOF){
+			ch = fScanner.read();
+			offsetEnd++;
+		}
+		
+		offsetEnd++;
+		fTokenLength = offsetEnd-fTokenOffset;
+		if(initialChar == '\''){
+			return fTokens[SINGLE_LINE_STRING1];
+		}else{
+			return fTokens[SINGLE_LINE_STRING2];
+		}
+	}
+
+	
+	private IToken handleMultiSingleQuotedString(int ch, int offsetEnd, int initialChar) {
+		//it is a multi-line string
+		ch = fScanner.read();
+		offsetEnd++;
+		
+		while(ch != ICharacterScanner.EOF){
+			if(ch == initialChar){
+				if(isMultiLiteral(ch)){
+					offsetEnd+=2;
+					if(initialChar == '\''){
+						return fTokens[MULTI_LINE_STRING1];
+					}else{
+						return fTokens[MULTI_LINE_STRING2];
+					}
+				}
+			}
+			ch = fScanner.read();
+			offsetEnd++;
+		}
+		
+		if(initialChar == '\''){
+			return fTokens[SINGLE_LINE_STRING1];
+		}else{
+			return fTokens[SINGLE_LINE_STRING2];
+		}
+	}
+
+	private boolean isMultiLiteral(int ch) {
+		int c1 = fScanner.read();
+		if(c1 == ch){
+			int c2 = fScanner.read();
+			if(c2 == ch){
+				return true;
+			}
+			if(c2 != ICharacterScanner.EOF){
+				fScanner.unread();
+			}
+		}
+		if(c1 != ICharacterScanner.EOF){
+			fScanner.unread();
+		}
+		return false;
+	}
+
+	private IToken handleComment(int ch) {
+		int offsetEnd = fTokenOffset;
+		
+		while(ch!= '\n' && ch != '\r' && ch != ICharacterScanner.EOF){
+			ch = fScanner.read();
+			offsetEnd++;
+		}
+		fTokenLength = offsetEnd-fTokenOffset;
+		return fTokens[COMMENT];
+	}
 
 }
