@@ -124,11 +124,11 @@
 			<li><strong>pyedit_example2.py</strong>: this is an example on how to bind some action to the <strong>'default' keybindig structure</strong> that 
 			is provided by Pydev for jython scripts.</li>
 			<li><strong>pyedit_next_problem.py</strong>: This is the implementation of the <strong>go to next problem</strong> that is
-			implemented at Pydev. <strong>Disclaimer</strong>: the way it binds to the keybinding is not the one you should follow... It only works because there
-			was already an action binded to it, so, it works, but is not the 'right' way to do it (so, you should follow the pyedit_example2.py
-			way of doing things instead of following this on -- in this one, you also cannot change its keybinding, which is surely not
-			a good thing. Now, if you don't want to use the 'default' approach, you'd have to change the plugin.xml to add a command and a keybinding to 
-			it correctly).</li>
+			implemented at Pydev. <strong>Disclaimer</strong>: the way it binds to the keybinding would require you to change the plugin.xml
+			as it is based on the Eclipse structure, which is much more static than the way of binding things to the pydev editor presented
+			to you on pyedit_example2.py (it would require changes in the plugin.xml file of the plugin, but on the other way, it would also
+			allow you to change the keybinding for it).
+			</li>
 		</ul>
 		
 	</p>
@@ -169,25 +169,25 @@
 		<strong>Resources</strong> (links to the cvs view at sourceforge)<br/>
 		<ul>
 			<li>
-				<strong><a href="http://cvs.sourceforge.net/viewcvs.py/pydev/org.python.pydev/src/org/python/pydev/editor/PyEdit.java?view=markup">PyEdit.java</a></strong>
+				<strong><a href="http://pydev.cvs.sourceforge.net/pydev/org.python.pydev/src/org/python/pydev/editor/PyEdit.java?view=markup">PyEdit.java</a></strong>
 			</li>
 			<li>
-				<strong><a href="http://cvs.sourceforge.net/viewcvs.py/pydev/org.python.pydev.jython/jysrc/?view=markup">org.python.pydev.jythor/jysrc</a></strong>
+				<strong><a href="http://pydev.cvs.sourceforge.net/pydev/org.python.pydev.jython/jysrc/">org.python.pydev.jythor/jysrc</a></strong>
 			</li>
 			<li>
-				<strong><a href="http://cvs.sourceforge.net/viewcvs.py/pydev/org.python.pydev/src/org/python/pydev/editor/IPyEditListener.java?view=markup">IPyEditListener.java</a></strong>
+				<strong><a href="http://pydev.cvs.sourceforge.net/pydev/org.python.pydev/src/org/python/pydev/editor/IPyEditListener.java?view=markup">IPyEditListener.java</a></strong>
 			</li>
 			<li>
-				<strong><a href="http://cvs.sourceforge.net/viewcvs.py/pydev/org.python.pydev/src/org/python/pydev/editor/scripting/PyEditScripting.java?view=markup">PyEditScripting.java</a></strong>
+				<strong><a href="http://pydev.cvs.sourceforge.net/pydev/org.python.pydev/src/org/python/pydev/editor/scripting/PyEditScripting.java?view=markup">PyEditScripting.java</a></strong>
 			</li>
 			<li>
-				<strong><a href="http://cvs.sourceforge.net/viewcvs.py/pydev/org.python.pydev.jython/jysrc/pyedit_example.py?view=markup">pyedit_example.py</a></strong>
+				<strong><a href="http://pydev.cvs.sourceforge.net/pydev/org.python.pydev.jython/jysrc/pyedit_example.py?view=markup">pyedit_example.py</a></strong>
 			</li>
 			<li>
-				<strong><a href="http://cvs.sourceforge.net/viewcvs.py/pydev/org.python.pydev.jython/jysrc/pyedit_example2.py?view=markup">pyedit_example2.py</a></strong>
+				<strong><a href="http://pydev.cvs.sourceforge.net/pydev/org.python.pydev.jython/jysrc/pyedit_example2.py?view=markup">pyedit_example2.py</a></strong>
 			</li>
 			<li>
-				<strong><a href="http://cvs.sourceforge.net/viewcvs.py/pydev/org.python.pydev.jython/jysrc/pyedit_next_problem.py?view=markup">pyedit_next_problem.py</a></strong>
+				<strong><a href="http://pydev.cvs.sourceforge.net/pydev/org.python.pydev.jython/jysrc/pyedit_next_problem.py?view=markup">pyedit_next_problem.py</a></strong>
 			</li>
 		</ul>
 		
