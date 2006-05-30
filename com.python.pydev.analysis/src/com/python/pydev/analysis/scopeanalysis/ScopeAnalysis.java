@@ -87,6 +87,9 @@ public class ScopeAnalysis {
 	    	@Override
 	    	public Object visitAttribute(Attribute node) throws Exception {
 	    		if(onlyFirstAttribPart){
+	    			//this will visit the attribute parts if call, subscript, etc.
+	    			AbstractScopeAnalyzerVisitor.visitNeededAttributeParts(node, this);
+	    			
 	        		List<SimpleNode> attributeParts = NodeUtils.getAttributeParts(node);
 	        		atomic(attributeParts.get(0)); //an attribute should always have many parts
 	        		traverse(attributeParts.get(0));

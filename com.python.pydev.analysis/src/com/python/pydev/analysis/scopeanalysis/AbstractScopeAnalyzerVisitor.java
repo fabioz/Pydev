@@ -386,43 +386,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     public Object visitAttribute(Attribute node) throws Exception {
         unhandled_node(node);
-        boolean valueVisited = false;
-        final exprType value = node.value;
-        if(value instanceof Subscript){
-            Subscript subs = (Subscript) value;
-            this.traverse(subs.slice);
-            if(subs.value instanceof Name){
-                visitName((Name) subs.value);
-            }else{
-                this.traverse(subs.value);
-            }
-            //No need to keep visiting. Reason:
-            //Let's take the example:
-            //print function()[0].strip()
-            //function()[0] is part 1 of attribute
-            //
-            //and the .strip will constitute the second part of the attribute
-            //and its value (from the subscript) constitutes the 'function' part,
-            //so, when we visit it directly, we don't have to visit the first part anymore,
-            //because it was just visited... kind of strange to think about it though.
-            return null;
-        }
-        if(value instanceof Call){
-            visitCallAttr((Call) value);
-            valueVisited = true;
-            
-        }else if(value instanceof Tuple){
-            visitTuple((Tuple) value);
-            valueVisited = true;
-            
-        }else if(value instanceof Dict){
-            visitDict((Dict) value);
-            return null;
-        }
-        if(!valueVisited){
-            if(visitNeededValues(value)){
-                return null;
-            }
+        boolean doReturn = visitNeededAttributeParts(node, this);
+        
+        if(doReturn){
+        	return null;
         }
 
         SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName);
@@ -461,13 +428,66 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return null;
     }
 
-    protected boolean visitNeededValues(exprType value) throws Exception {
+    /**
+     * In this function, the visitor will transverse the value of the attribute as needed,
+     * if it is a subscript, call, etc, as those things are not actually a part of the attribute,
+     * but are rather 'in' the attribute.
+     * 
+     * @param node the attribute to visit
+     * @param base the visitor that should visit the elements inside the attribute
+     * @return true if there's no need to keep visiting other stuff in the attribute
+     * @throws Exception
+     */
+	public static boolean visitNeededAttributeParts(final Attribute node, VisitorBase base) throws Exception {
+		exprType value = node.value;
+		boolean valueVisited = false;
+		boolean doReturn = false;
+        if(value instanceof Subscript){
+            Subscript subs = (Subscript) value;
+            base.traverse(subs.slice);
+            if(subs.value instanceof Name){
+                base.visitName((Name) subs.value);
+            }else{
+            	base.traverse(subs.value);
+            }
+            //No need to keep visiting. Reason:
+            //Let's take the example:
+            //print function()[0].strip()
+            //function()[0] is part 1 of attribute
+            //
+            //and the .strip will constitute the second part of the attribute
+            //and its value (from the subscript) constitutes the 'function' part,
+            //so, when we visit it directly, we don't have to visit the first part anymore,
+            //because it was just visited... kind of strange to think about it though.
+            doReturn = true;
+            
+        } else if(value instanceof Call){
+        	visitCallAttr((Call) value, base);
+            valueVisited = true;
+            
+        }else if(value instanceof Tuple){
+        	base.visitTuple((Tuple) value);
+            valueVisited = true;
+            
+        }else if(value instanceof Dict){
+        	base.visitDict((Dict) value);
+            doReturn = true;
+        }
+        if(!doReturn && !valueVisited){
+            if(visitNeededValues(value, base)){
+            	doReturn = true;
+            }
+        }
+		return doReturn;
+	}
+
+    protected static boolean visitNeededValues(exprType value, VisitorBase base) throws Exception {
         if(value instanceof Name){
             return false;
         }else if (value instanceof Attribute){
-            return visitNeededValues(((Attribute)value).value);
+            return visitNeededValues(((Attribute)value).value, base);
         }else{
-            value.accept(this);
+            value.accept(base);
             return true;
         }
     }
@@ -475,11 +495,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * used if we want to visit all in a call but the func itself (that's the call name).
      */
-    protected void visitCallAttr(Call c) throws Exception {
+    protected static void visitCallAttr(Call c, VisitorBase base) throws Exception {
         //now, visit all inside it but the func itself 
-        AbstractScopeAnalyzerVisitor visitor = this;
+    	VisitorBase visitor = base;
         if(c.func instanceof Attribute){
-            visitAttribute((Attribute) c.func);
+            base.visitAttribute((Attribute) c.func);
         }
         if (c.args != null) {
             for (int i = 0; i < c.args.length; i++) {

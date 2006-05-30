@@ -202,7 +202,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     public void testIt15() throws Exception {
     	doc = new Document(
     			"from testrec2.core import leaf:\n" +
-    			"class Foo(leaf.Leaf):\n" +
+    			"class Foo(leaf.Leaf):\n" + //on the Leaf part
     			"    def setUp(self):\n" +
     			"        leaf.Leaf.setUp(self)"
     	);

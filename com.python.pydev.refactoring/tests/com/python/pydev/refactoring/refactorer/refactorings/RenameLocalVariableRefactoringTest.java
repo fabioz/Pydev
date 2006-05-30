@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-//            test.testRenameClassVar();
+            test.testRenameSelf();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -327,7 +327,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	
     	int line = 0;
     	int col = 17;
-    	checkDefault(str, line, col, "self", false, true);
+    	checkDefault(str, line, col, "fff", false, true);
     }
     
     public void testRenameClassVar() throws Exception {
