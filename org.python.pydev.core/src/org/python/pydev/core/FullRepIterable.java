@@ -203,4 +203,18 @@ public class FullRepIterable implements Iterable<String>{
 		return buffer.toString();
 	}
 
+	/**
+	 * @return whether the foundRep contains some part with the nameToFind
+	 */
+	public static boolean containsPart(String foundRep, String nameToFind) {
+		String[] strings = foundRep.split("\\.");
+		for (String string : strings) {
+			if(string.equals(nameToFind)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+
 }
