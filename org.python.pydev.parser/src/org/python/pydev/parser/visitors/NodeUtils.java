@@ -15,6 +15,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
@@ -189,8 +190,10 @@ public class NodeUtils {
     
     
     public static String getFullRepresentationString(SimpleNode node) {
-
-        
+    	if (node instanceof Dict){
+    		return "dict";
+    	}
+    	
         if (node instanceof Str || node instanceof Num){
             return getRepresentationString(node, true);
         } 

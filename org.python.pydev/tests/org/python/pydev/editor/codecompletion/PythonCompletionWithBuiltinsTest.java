@@ -21,7 +21,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testRelativeOnSameProj();
+            builtins.testDictAssign();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -166,6 +166,14 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         "from extendable.nested2 import hub\n"+
         "hub.C1.f.inexistant.";
         requestCompl(s, s.length(), -1, new String[] { });
+    }
+    
+    public void testDictAssign() throws CoreException, BadLocationException{
+    	String s;
+    	s = "" +
+    	"a = {}\n"+
+    	"a.";
+    	requestCompl(s, s.length(), -1, new String[] { "keys()" });
     }
     
 
