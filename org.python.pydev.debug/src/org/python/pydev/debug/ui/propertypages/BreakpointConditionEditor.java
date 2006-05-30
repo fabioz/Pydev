@@ -28,11 +28,11 @@ import org.eclipse.ui.commands.IWorkbenchCommandSupport;
 import org.eclipse.ui.commands.Priority;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.docutils.PyPartitionScanner;
+import org.python.pydev.core.docutils.PyPartitioner;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.ui.PythonSourceViewer;
-import org.python.pydev.editor.PyPartitionScanner;
-import org.python.pydev.editor.PyPartitioner;
 
 public class BreakpointConditionEditor {
 

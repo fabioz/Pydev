@@ -15,11 +15,14 @@ import java.util.StringTokenizer;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
+import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.log.Log;
@@ -516,22 +519,46 @@ public class PySelection {
      * Get the current line up to where the cursor is without any comments or literals.
      */
     public String getLineContentsToCursor(boolean removeComments, boolean removeLiterals) throws BadLocationException {
-        PyDocIterator it = new PyDocIterator(getDoc(), false, true, true);
-        int cursorLine = getCursorLine();
-        int lineOffset = getLineOffset();
+        if(removeComments == false || removeLiterals == false){
+            throw new RuntimeException("Currently only accepts removing the literals and comments.");
+        }
+        int cursorOffset = getAbsoluteCursorOffset();
         
-        while(it.hasNext()){
-            String line = it.next();
-            if(it.getLastReturnedLine() == cursorLine){
-                int endLineOffset = lineOffset+line.length();
-                if(endLineOffset > getAbsoluteCursorOffset() +1){
-                    return line.substring(0, line.length() - (endLineOffset - getAbsoluteCursorOffset()));
-                }
-                return line;
-            }
+        IRegion lineInformationOfOffset = doc.getLineInformationOfOffset(cursorOffset);
+        IDocumentPartitioner partitioner = PyPartitionScanner.checkPartitionScanner(doc);
+        if(partitioner == null){
+            throw new RuntimeException("Partitioner not set up.");
         }
         
-        return "";
+        StringBuffer buffer = new StringBuffer();
+        int offset = lineInformationOfOffset.getOffset();
+        int length = lineInformationOfOffset.getLength();
+        for (int i = offset; i <= offset+length && i < cursorOffset; i++) {
+            String contentType = partitioner.getContentType(i);
+            if(contentType.equals(IPythonPartitions.PY_DEFAULT)){
+                buffer.append(doc.getChar(i));
+            }else{
+                buffer.append(' ');
+            }
+        }
+        return buffer.toString();
+        
+//        this was the previous implementation. changed because it was too slow (and because the partitioner was bugged on previous versions)
+//        PyDocIterator it = new PyDocIterator(getDoc(), false, true, true);
+//        int cursorLine = getCursorLine();
+//        int lineOffset = getLineOffset();
+//        
+//        while(it.hasNext()){
+//            String line = it.next();
+//            if(it.getLastReturnedLine() == cursorLine){
+//                int endLineOffset = lineOffset+line.length();
+//                if(endLineOffset > getAbsoluteCursorOffset() +1){
+//                    return line.substring(0, line.length() - (endLineOffset - getAbsoluteCursorOffset()));
+//                }
+//                return line;
+//            }
+//        }
+        
     }
     
     /**

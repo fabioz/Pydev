@@ -4,7 +4,7 @@
  * License: Common Public License v1.0
  */
 
-package org.python.pydev.editor;
+package org.python.pydev.core.docutils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.python.pydev.core.IPythonPartitions;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 /**
  * Rule-based partition scanner
@@ -105,9 +105,13 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
 		return IPythonPartitions.types;
 	}
 
-	public static void checkPartitionScanner(IDocument document) {
+    /**
+     * Checks if the partitioner is correctly set in the document.
+     * @return the partitioner that is set in the document
+     */
+	public static IDocumentPartitioner checkPartitionScanner(IDocument document) {
 	    if(document == null){
-	        return;
+	        return null;
         }
         
         IDocumentExtension3 docExtension= (IDocumentExtension3) document;
@@ -118,26 +122,33 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
             partitioner = docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
         }
 	    if (!(partitioner instanceof PyPartitioner)){
-            PydevPlugin.log("Partitioner should be subclass of PyPartitioner. It is "+partitioner.getClass());
+            Log.log("Partitioner should be subclass of PyPartitioner. It is "+partitioner.getClass());
 	    }
+        return partitioner;
     }
     
     /**
      * @see http://help.eclipse.org/help31/index.jsp?topic=/org.eclipse.platform.doc.isv/guide/editors_documents.htm
      * @see http://jroller.com/page/bobfoster -  Saturday July 16, 2005
-     * @param element
-     * @param document
+     * @param document the document where we want to add the partitioner
+     * @return the added document partitioner (or null)
      */
-    public static void addPartitionScanner(IDocument document) {
+    public static IDocumentPartitioner addPartitionScanner(IDocument document) {
         if (document != null) {
             IDocumentExtension3 docExtension= (IDocumentExtension3) document;
-            if(docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE) == null){
+            IDocumentPartitioner curr = docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
+            
+            if(curr == null){
                 //set the new one
                 FastPartitioner partitioner = new PyPartitioner(new PyPartitionScanner(), getTypes());
                 partitioner.connect(document);
                 docExtension.setDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE,partitioner);
+                return partitioner;
+            }else{
+                return curr;
             }
         }
+        return null;
     }
     
     

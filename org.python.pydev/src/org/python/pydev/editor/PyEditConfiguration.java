@@ -95,6 +95,11 @@ public class PyEditConfiguration extends SourceViewerConfiguration {
         		IPythonPartitions.PY_SINGLELINE_STRING1, IPythonPartitions.PY_SINGLELINE_STRING2, 
         		IPythonPartitions.PY_MULTILINE_STRING1, IPythonPartitions.PY_MULTILINE_STRING2 };
     }
+    
+    @Override
+    public String getConfiguredDocumentPartitioning(ISourceViewer sourceViewer) {
+        return IPythonPartitions.PYTHON_PARTITION_TYPE;
+    }
 
     /**
      * Cache the result, because we'll get asked for it multiple times Now, we always return the PyAutoIndentStrategy. (even on commented lines).

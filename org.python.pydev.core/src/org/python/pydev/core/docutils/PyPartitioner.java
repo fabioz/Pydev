@@ -4,7 +4,7 @@
  * 
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor;
+package org.python.pydev.core.docutils;
 
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;

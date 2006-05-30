@@ -29,7 +29,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testDocIterator();
+            test.testGetCurrLineWithoutCommsOrLiterals();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -365,7 +365,7 @@ public class PySelectionTest extends TestCase {
     
     public void testGetCurrLineWithoutCommsOrLiterals() throws Exception {
         Document doc = new Document("a#foo\nxxx");
-        PySelection selection = new PySelection(doc);
+        PySelection selection = new PySelection(doc, 1);
         assertEquals("a", selection.getLineContentsToCursor(true, true));
         
         String str = "" +
@@ -373,7 +373,7 @@ public class PySelectionTest extends TestCase {
         "            [#''')" + //get with spaces in the place of lines or comments
         "";
         doc = new Document(str);
-        selection = new PySelection(doc, str.length()-1);
+        selection = new PySelection(doc, str.length());
         assertEquals("                 )", selection.getLineContentsToCursor(true, true));
         
         str = "" +

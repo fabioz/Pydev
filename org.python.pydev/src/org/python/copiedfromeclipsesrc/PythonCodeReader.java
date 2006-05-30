@@ -176,7 +176,7 @@ public class PythonCodeReader {
             IRegion lineInformation = fDocument.getLineInformation(lineOfOffset);
             int offset = lineInformation.getOffset() + i;
             
-            String contentType = ParsingUtils.getContentType(fDocument.get(), offset+1);
+            String contentType = ParsingUtils.getContentType(fDocument, offset+1);
             if(contentType.equals(ParsingUtils.PY_COMMENT)){
                 if(offset < fOffset){
                 	fOffset = offset;

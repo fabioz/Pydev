@@ -286,7 +286,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
     		autoIndentSameAsPrevious(document, command);
     	}
         
-        String contentType = ParsingUtils.getContentType(document.get(), command.offset);
+        String contentType = ParsingUtils.getContentType(document, command.offset);
 		if(!contentType.equals( ParsingUtils.PY_DEFAULT)){
             //the indentation is only valid for things in the code (comments should not be indented).
             //(that is, if it is not a new line... in this case, it may have to be indented)

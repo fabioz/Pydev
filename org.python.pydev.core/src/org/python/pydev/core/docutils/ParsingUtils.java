@@ -7,6 +7,8 @@ import java.util.Iterator;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
+import org.eclipse.jface.text.IDocumentPartitioner;
 import org.python.pydev.core.IPythonPartitions;
 
 
@@ -377,9 +379,14 @@ public class ParsingUtils implements IPythonPartitions{
 
 
     /**
-     * @param initial
-     * @param currPos
-     * @return the content type of the 
+     * @param initial the document
+     * @param currPos the offset we're interested in
+     * @return the content type of the current position
+     * 
+     * The version with the IDocument as a parameter should be preffered, as
+     * this one can be much slower (still, it is an alternative in tests or
+     * other places that do not have document access), but keep in mind
+     * that it may be slow.
      */
     public static String getContentType(String initial, int currPos) {
         StringBuffer buf = new StringBuffer(initial);
@@ -412,6 +419,22 @@ public class ParsingUtils implements IPythonPartitions{
             }
         }
         return curr;
+    }
+
+    /**
+     * @param document the document we want to get info on
+     * @param i the document offset we're interested in
+     * @return the content type at that position (according to IPythonPartitions)
+     * 
+     * Uses the default if the partitioner is not set in the document (for testing purposes)
+     */
+    public static String getContentType(IDocument document, int i) {
+        IDocumentExtension3 docExtension= (IDocumentExtension3) document;
+        IDocumentPartitioner partitioner = docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
+        if(partitioner != null){
+            return partitioner.getContentType(i);
+        }
+        return getContentType(document.get(), i);
     }
 
 

@@ -58,6 +58,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyOpenAction;
