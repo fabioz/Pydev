@@ -226,9 +226,10 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
                 //we cannot get the locals
                 for(Found f :this.undefinedFound){
                     if(f.getSingle().scopeFound == hitAsUndefined.getSingle().scopeFound){
-                        Assert.isTrue(foundOccurrences.size() == 1);
-                        Tuple3<Found, Integer, ASTEntry> hit = foundOccurrences.get(0);
-                        foundOccurrences.add(new Tuple3<Found, Integer, ASTEntry>(f, hit.o2, hit.o3));
+                        if (foundOccurrences.size() == 1){
+	                        Tuple3<Found, Integer, ASTEntry> hit = foundOccurrences.get(0);
+	                        foundOccurrences.add(new Tuple3<Found, Integer, ASTEntry>(f, hit.o2, hit.o3));
+                        }
                     }
                 }
             }
