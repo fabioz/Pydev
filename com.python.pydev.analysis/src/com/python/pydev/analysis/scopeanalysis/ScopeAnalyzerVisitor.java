@@ -94,7 +94,8 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
         	if(checkFound(found, parent) == null){
         		//ok, it was actually not found, so, after marking it as an occurrence, we have to check all 
         		//the others that have the same representation in its scope.
-        		if(found.getSingle().generator.getRepresentation().equals(nameToFind)){
+        		String rep = found.getSingle().generator.getRepresentation();
+        		if(FullRepIterable.containsPart(rep, nameToFind)){
         			undefinedFound.add(found);
         		}
         	}else{
@@ -221,16 +222,19 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     		
     	}else if(hitAsUndefined != null){
             String foundRep = hitAsUndefined.getSingle().generator.getRepresentation();
-            if(foundRep.indexOf('.') == -1 || FullRepIterable.getFirstPart(foundRep).equals(nameToFind)){
+            
+            if(foundRep.indexOf('.') == -1 || FullRepIterable.containsPart(foundRep,nameToFind)){
                 //now, there's a catch here, if we found it as an attribute,
                 //we cannot get the locals
                 for(Found f :this.undefinedFound){
-                    if(f.getSingle().scopeFound == hitAsUndefined.getSingle().scopeFound){
+                	if(f.getSingle().generator.getRepresentation().startsWith(foundRep)){
+//                    if(f.getSingle().scopeFound == hitAsUndefined.getSingle().scopeFound){
                         if (foundOccurrences.size() == 1){
 	                        Tuple3<Found, Integer, ASTEntry> hit = foundOccurrences.get(0);
 	                        foundOccurrences.add(new Tuple3<Found, Integer, ASTEntry>(f, hit.o2, hit.o3));
                         }
-                    }
+//                    }
+                	}
                 }
             }
     	}

@@ -21,7 +21,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	try {
 			ScopeAnalyzerVisitorTest test = new ScopeAnalyzerVisitorTest();
 			test.setUp();
-//			test.testIt16();
+			test.testIt12();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalyzerVisitorTest.class);
 		} catch (Exception e) {
