@@ -83,7 +83,11 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
 		} catch (CoreException e) {
 			tempVariables = new PyVariable[1];
 			tempVariables[0] = new PyVariable(target, "Error", "pydev ERROR", "Could not resolve variable");
-			PydevDebugPlugin.log(IStatus.ERROR, "Error fetching a variable", e);
+			
+			String msg = e.getMessage(); //we don't want to show this error
+			if(msg.indexOf("Error resolving frame:") == -1 && msg.indexOf("from thread:") == -1){
+				PydevDebugPlugin.log(IStatus.ERROR, "Error fetching a variable", e);
+			}
 		}
 		return tempVariables;
 	}
