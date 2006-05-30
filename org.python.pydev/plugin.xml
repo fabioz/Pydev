@@ -95,6 +95,12 @@
             id="org.python.pydev.prefs">
       </page>
       <page
+            name="Editor"
+            category="org.python.pydev.prefs"
+            class="org.python.pydev.plugin.PydevPrefs2"
+            id="org.python.pydev.prefs2">
+      </page>
+      <page
             name="Interpreter - Python"
             category="org.python.pydev.prefs"
             class="org.python.pydev.ui.pythonpathconf.PythonInterpreterPreferencesPage"
