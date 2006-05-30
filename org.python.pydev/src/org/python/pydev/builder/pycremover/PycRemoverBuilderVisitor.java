@@ -20,11 +20,32 @@ public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
 
     @Override
     public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+        String loc = resource.getLocation().toOSString();
+        if(loc != null && loc.length() > 3){
+            String dotPy = loc.substring(0, loc.length()-1);
+            File file = new File(dotPy); //.py file
+            if(file.exists()){
+                return;
+            }
+            file = new File(dotPy+"w"); //.pyw file
+            if(file.exists()){
+                return;
+            }
+            //if still did not return, let's remove it
+            treatPycFile(loc);
+        }
     }
 
     @Override
     public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         String loc = resource.getLocation().toOSString()+"c"; //.py+c = .pyc
+        treatPycFile(loc);
+    }
+
+    /**
+     * @param loc
+     */
+    private void treatPycFile(String loc) {
         if(loc.endsWith(".pyc")){
             //the .py has just been removed, so, remove the .pyc if it exists
             try {

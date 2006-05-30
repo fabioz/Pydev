@@ -9,7 +9,9 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.python.pydev.builder.pycremover.PycRemoverBuilderVisitor;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -103,7 +105,15 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
                         currentResourcesVisited++;
                         PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, this);
                     }
+                }else if(ext.equals("pyc")){
+                    try {
+                        //we do that because we may have an added .pyc without a correspondent .py file
+                        new PycRemoverBuilderVisitor().visitAddedResource(resource, null, monitor); //doc is not used in pyc remover
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
                 }
+
             }
         }
         
