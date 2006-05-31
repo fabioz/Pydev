@@ -1,7 +1,7 @@
 /*
  * Created on Apr 30, 2006
  */
-package com.python.pydev.refactoring.refactorer.refactorings;
+package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
 import org.eclipse.core.runtime.CoreException;
 

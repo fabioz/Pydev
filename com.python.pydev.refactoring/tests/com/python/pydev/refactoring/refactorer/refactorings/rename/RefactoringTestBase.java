@@ -1,7 +1,7 @@
 /*
  * Created on Apr 9, 2006
  */
-package com.python.pydev.refactoring.refactorer.refactorings;
+package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
 import java.util.ArrayList;
 
@@ -39,15 +39,15 @@ public class RefactoringTestBase extends CodeCompletionTestsBase {
         super.tearDown();
     }
 
-    protected void applyRefactoring(RefactoringRequest request) throws CoreException {
-        applyRefactoring(request, false);
+    protected void applyRenameRefactoring(RefactoringRequest request) throws CoreException {
+        applyRenameRefactoring(request, false);
     }
 
     /**
      * @param request
      * @throws CoreException
      */
-    protected void applyRefactoring(RefactoringRequest request, boolean expectError) throws CoreException {
+    protected void applyRenameRefactoring(RefactoringRequest request, boolean expectError) throws CoreException {
         PyRenameProcessor processor = new PyRenameProcessor(request);
         checkStatus(processor.checkInitialConditions(new NullProgressMonitor()), expectError);
         checkStatus(processor.checkFinalConditions(new NullProgressMonitor(), null), expectError);
@@ -86,7 +86,7 @@ public class RefactoringTestBase extends CodeCompletionTestsBase {
         request.duringProcessInfo.name = newName;
         request.fillInitialNameAndOffset();
         
-        applyRefactoring(request, expectError);
+        applyRenameRefactoring(request, expectError);
         String refactored = doc.get();
         if(DEBUG){
             System.out.println(refactored);

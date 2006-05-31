@@ -1,7 +1,7 @@
 /*
  * Created on Apr 9, 2006
  */
-package com.python.pydev.refactoring.refactorer.refactorings;
+package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
 
 public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
