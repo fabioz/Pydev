@@ -39,10 +39,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
-import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
-import org.eclipse.ui.internal.ide.IIDEHelpContextIds;
 import org.python.pydev.ui.PyProjectPythonDetails;
 
 /**
@@ -129,14 +125,12 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
         composite.setLayoutData(new GridData(GridData.FILL_BOTH));
         composite.setFont(parent.getFont());
 
-        PlatformUI.getWorkbench().getHelpSystem().setHelp(composite,
-                IIDEHelpContextIds.NEW_PROJECT_WIZARD_PAGE);
 
         createProjectNameGroup(composite);
         createProjectLocationGroup(composite);
         createProjectDetails(composite);
         checkSrcFolder = new Button(composite , SWT.CHECK);
-        checkSrcFolder.setText("Create default 'src' folder and add it to the pythonpath?");
+        checkSrcFolder.setText("Cr&eate default 'src' folder and add it to the pythonpath?");
         checkSrcFolder.setSelection(true);
         checkSrcFolder.addSelectionListener(this);
         
@@ -190,8 +184,8 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
         // new project label
         Label projectContentsLabel = new Label(projectGroup, SWT.NONE);
         projectContentsLabel.setFont(font);
-        projectContentsLabel
-                .setText(IDEWorkbenchMessages.WizardNewProjectCreationPage_projectContentsLabel);
+        
+        projectContentsLabel.setText("Project contents:");
 
         GridData labelData = new GridData();
         labelData.horizontalSpan = 3;
@@ -199,7 +193,7 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
 
         final Button useDefaultsButton = new Button(projectGroup, SWT.CHECK
                 | SWT.RIGHT);
-        useDefaultsButton.setText(IDEWorkbenchMessages.WizardNewProjectCreationPage_useDefaultLabel);
+        useDefaultsButton.setText("Use &default");
         useDefaultsButton.setSelection(useDefaults);
         useDefaultsButton.setFont(font);
 
@@ -243,7 +237,9 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
         // new project label
         Label projectLabel = new Label(projectGroup, SWT.NONE);
         projectLabel.setFont(font);
-        projectLabel.setText(IDEWorkbenchMessages.WizardNewProjectCreationPage_nameLabel);
+    	
+        	
+        projectLabel.setText("&Project name:");
 
         // new project name entry field
         projectNameField = new Text(projectGroup, SWT.BORDER);
@@ -271,7 +267,7 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
         // location label
         locationLabel = new Label(projectGroup, SWT.NONE);
         locationLabel.setFont(font);
-        locationLabel.setText(IDEWorkbenchMessages.WizardNewProjectCreationPage_locationLabel);
+        locationLabel.setText("Director&y");
         locationLabel.setEnabled(enabled);
 
         // project location entry field
@@ -285,7 +281,7 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
         // browse button
         browseButton = new Button(projectGroup, SWT.PUSH);
         browseButton.setFont(font);
-        browseButton.setText(IDEWorkbenchMessages.WizardNewProjectCreationPage_browseLabel);
+        browseButton.setText("B&rowse");
         browseButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 handleLocationBrowseButtonPressed();
@@ -373,9 +369,8 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
      *  Open an appropriate directory browser
      */
     private void handleLocationBrowseButtonPressed() {
-        DirectoryDialog dialog = new DirectoryDialog(locationPathField
-                .getShell());
-        dialog.setMessage(IDEWorkbenchMessages.WizardNewProjectCreationPage_directoryLabel);
+        DirectoryDialog dialog = new DirectoryDialog(locationPathField.getShell());
+        dialog.setMessage("Select the project contents directory.");
 
         String dirName = getProjectLocationFieldValue();
         if (!dirName.equals("")) { //$NON-NLS-1$
@@ -435,12 +430,12 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
      *   <code>false</code> if at least one is invalid
      */
     private boolean validatePage() {
-        IWorkspace workspace = IDEWorkbenchPlugin.getPluginWorkspace();
+        IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
         String projectFieldContents = getProjectNameFieldValue();
         if (projectFieldContents.equals("")) { //$NON-NLS-1$
             setErrorMessage(null);
-            setMessage(IDEWorkbenchMessages.WizardNewProjectCreationPage_projectNameEmpty);
+            setMessage("Project name is empty");
             return false;
         }
 
@@ -455,29 +450,29 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
 
         if (locationFieldContents.equals("")) { //$NON-NLS-1$
             setErrorMessage(null);
-            setMessage(IDEWorkbenchMessages.WizardNewProjectCreationPage_projectLocationEmpty);
+            setMessage("Project location is empty");
             return false;
         }
 
         IPath path = new Path(""); //$NON-NLS-1$
         if (!path.isValidPath(locationFieldContents)) {
-            setErrorMessage(IDEWorkbenchMessages.WizardNewProjectCreationPage_locationError);
+            setErrorMessage("Project location is not valid");
             return false;
         }
         if (!useDefaults
                 && Platform.getLocation().isPrefixOf(
                         new Path(locationFieldContents))) {
-            setErrorMessage(IDEWorkbenchMessages.WizardNewProjectCreationPage_defaultLocationError);
+            setErrorMessage("Default location error");
             return false;
         }
 
         if (getProjectHandle().exists()) {
-            setErrorMessage(IDEWorkbenchMessages.WizardNewProjectCreationPage_projectExistsMessage);
+            setErrorMessage("Project already exists");
             return false;
         }
 
         if (isExistingProjectLocation()) {
-            setErrorMessage(IDEWorkbenchMessages.WizardNewProjectCreationPage_projectLocationExistsMessage);
+            setErrorMessage("Project location already exists");
             return false;
         }
 

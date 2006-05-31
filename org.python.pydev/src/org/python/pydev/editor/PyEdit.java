@@ -174,6 +174,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     @Override
     protected void handleCursorPositionChanged() {
         super.handleCursorPositionChanged();
+        if(!initFinished){
+        	return;
+        }
         for(IPyEditListener listener : getAllListeners()){
             try {
                 if(listener instanceof IPyEditListener2){
@@ -906,7 +909,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             PydevPlugin.log(e1);
         } catch (BadLocationException e2) {
             // Whatever, could not create a marker. Swallow this one
-        	PydevPlugin.log(e2);
+        	//PydevPlugin.log(e2);
         }
     }
 

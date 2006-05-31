@@ -34,12 +34,12 @@ public class JythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      * @return an interpreter editor (used to add/edit/remove the information on an editor)
      */
     protected AbstractInterpreterEditor getInterpreterEditor(Composite p) {
-        return new JythonInterpreterEditor (getInterpretersTitle(), p, PydevPlugin.getJythonInterpreterManager());
+        return new JythonInterpreterEditor (getInterpretersTitle(), p, PydevPlugin.getJythonInterpreterManager(true));
     }
 
     @Override
     protected void doRestore(String defaultSelectedInterpreter, IProgressMonitor monitor) {
-        IInterpreterManager iMan = PydevPlugin.getJythonInterpreterManager();
+        IInterpreterManager iMan = PydevPlugin.getJythonInterpreterManager(true);
         iMan.restorePythopathFor(defaultSelectedInterpreter, monitor);
         
         //we also need to restart our code-completion shell after doing that, as we may have a new classpath,
@@ -49,7 +49,7 @@ public class JythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
     
     @Override
     protected void doClear(List<String> allButTheseInterpreters, IProgressMonitor monitor) {
-        IInterpreterManager iMan = PydevPlugin.getJythonInterpreterManager();
+        IInterpreterManager iMan = PydevPlugin.getJythonInterpreterManager(true);
         iMan.clearAllBut(allButTheseInterpreters);
     }
 }

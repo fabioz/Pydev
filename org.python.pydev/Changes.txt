@@ -1,4 +1,25 @@
 
+after 1.0.8
+
+Pydev:
+- Startup is now faster for the plugin: actions, scripts, etc. are now all initialized in a separate thread
+- Indentation engine does not degrade as document grows
+- Multiple-string does not mess up highlighting anymore
+- code completion issue with {} solved
+
+
+Extensions:
+- mark occurrences improved
+
+
+after 1.0.7
+
+Pydev:
+- single bug-fix: enter could lead into loop
+
+Extensions:
+- rename occurrences forces parse
+
 after 1.0.6
 
 Pydev:

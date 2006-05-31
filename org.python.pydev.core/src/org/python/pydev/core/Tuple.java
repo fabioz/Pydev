@@ -27,6 +27,24 @@ public class Tuple<X ,Y> implements Serializable{
         }
         
         Tuple t2 = (Tuple) obj;
+        if(o1 == t2.o1 && o2 == t2.o2){ //all the same 
+        	return true;
+        }
+        
+    	if(o1 == null && t2.o1 != null){
+    		return false;
+    	}
+    	if(o2 == null && t2.o2 != null){
+    		return false;
+    	}
+    	if(o1 != null && t2.o1 == null){
+    		return false;
+    	}
+    	if(o2 != null && t2.o2 == null){
+    		return false;
+    	}
+        
+        
         if(!o1.equals(t2.o1)){
             return false;
         }

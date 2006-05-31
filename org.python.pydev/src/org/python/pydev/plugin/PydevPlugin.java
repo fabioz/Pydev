@@ -94,18 +94,41 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     // ----------------- END BUNDLE INFO THINGS --------------------------
 	
     private static IInterpreterManager pythonInterpreterManager;
-    private static IInterpreterManager jythonInterpreterManager;
     public static void setPythonInterpreterManager(IInterpreterManager interpreterManager) {
         PydevPlugin.pythonInterpreterManager = interpreterManager;
     }
     public static IInterpreterManager getPythonInterpreterManager() {
-        return pythonInterpreterManager;
+        return getPythonInterpreterManager(false);
+    }
+    public static IInterpreterManager getPythonInterpreterManager(boolean haltOnStub) {
+    	while(pythonInterpreterManager instanceof StubInterpreterManager){ //this happens during initialization
+    		try {
+    			Thread.sleep(100);
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
+    	}
+    	return pythonInterpreterManager;
     }
 
+    
+    
+    
+    private static IInterpreterManager jythonInterpreterManager;
     public static void setJythonInterpreterManager(IInterpreterManager interpreterManager) {
         PydevPlugin.jythonInterpreterManager = interpreterManager;
     }
     public static IInterpreterManager getJythonInterpreterManager() {
+    	return getJythonInterpreterManager(false);
+    }
+    public static IInterpreterManager getJythonInterpreterManager(boolean haltOnStub) {
+    	while(jythonInterpreterManager instanceof StubInterpreterManager){ //this happens during initialization
+			try {
+				Thread.sleep(100);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+    	}
         return jythonInterpreterManager;
     }
     // ----------------- END SINGLETON THINGS --------------------------

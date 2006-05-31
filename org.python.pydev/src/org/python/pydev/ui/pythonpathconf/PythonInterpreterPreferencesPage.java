@@ -31,7 +31,7 @@ public class PythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      * @return an interpreter editor (used to add/edit/remove the information on an editor)
      */
     protected AbstractInterpreterEditor getInterpreterEditor(Composite p) {
-        return new PythonInterpreterEditor (getInterpretersTitle(), p, PydevPlugin.getPythonInterpreterManager());
+        return new PythonInterpreterEditor (getInterpretersTitle(), p, PydevPlugin.getPythonInterpreterManager(true));
     }
     
 
@@ -40,13 +40,13 @@ public class PythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      * @param monitor a monitor to display the progress to the user.
      */
     protected void doRestore(final String defaultSelectedInterpreter, IProgressMonitor monitor) {
-        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager();
+        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager(true);
         iMan.restorePythopathFor(defaultSelectedInterpreter, monitor);
     }
     
     @Override
     protected void doClear(List<String> allButTheseInterpreters, IProgressMonitor monitor) {
-        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager();
+        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager(true);
         iMan.clearAllBut(allButTheseInterpreters);
     }
 
