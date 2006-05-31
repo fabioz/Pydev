@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.util.Assert;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -140,6 +139,12 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     	return found != null;
     }
     
+
+    @Override
+    protected void onFoundUnresolvedImportPart(IToken token, String rep) {
+        onAddUndefinedMessage(token);
+    }
+    
     @Override
     protected void onAddUndefinedMessage(IToken token) {
     	Found found = makeFound(token);
@@ -203,7 +208,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	@Override
 	protected void onAfterVisitAssign(Assign node) {
 	}
-	
+    
 	/**
 	 * If it is still not finished we'll have to finish it (end the last scope).
 	 */

@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameSelf();
+//            test.testRenameNonLocal();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -341,5 +341,20 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	int line = 3;
     	int col = 21;
     	checkDefault(str, line, col, "vlMolecularWeigth", false, true);
+    }
+    
+    public void testRenameNonLocal() throws Exception {
+        String str = "" +
+        "import b    \n" +
+        "print b.%s\n" +
+        "class C2:\n" +
+        "    def m1(self):\n" +
+        "        barr = 10\n" + //should not rename the local
+        "\n" +
+        "";
+        
+        int line = 1;
+        int col = 9;
+        checkDefault(str, line, col, "barr", false, true);
     }
 }

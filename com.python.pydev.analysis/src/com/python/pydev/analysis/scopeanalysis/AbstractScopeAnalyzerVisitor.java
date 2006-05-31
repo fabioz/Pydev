@@ -775,6 +775,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                             onAddUndefinedVarInImportMessage(foundTok);
                         }
                     }
+                }else if(foundAs.isImport() && !foundAs.importInfo.wasResolved){
+                    //import was not resolved
+                    onFoundUnresolvedImportPart(token, rep);
                 }
             } catch (Exception e) {
                 PydevPlugin.log("Error checking for valid tokens (imports) for "+moduleName,e);
@@ -783,7 +786,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return found;
     }
 
-	protected Found makeFound(IToken token) {
+
+    protected Found makeFound(IToken token) {
 		return new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
 	}
 
@@ -841,6 +845,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
 	protected void onAfterAddToNamesToIgnore(ScopeItems currScopeItems, org.python.pydev.core.Tuple<IToken, Found> tup) {
 	}
+	/**
+	 * This one is not abstract, but is provided as a hook, as the others.
+	 */
+    protected void onFoundUnresolvedImportPart(IToken token, String rep) {
+    }
 
 
 }

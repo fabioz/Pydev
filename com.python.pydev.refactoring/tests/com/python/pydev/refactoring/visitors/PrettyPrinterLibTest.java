@@ -15,6 +15,9 @@ import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
 public class PrettyPrinterLibTest extends PyParserTestBase{
 
 
+    private static boolean MAKE_COMPLETE_PARSE = false;
+
+
     public static void main(String[] args) {
         try {
             junit.textui.TestRunner.run(PrettyPrinterLibTest.class);
@@ -34,7 +37,11 @@ public class PrettyPrinterLibTest extends PyParserTestBase{
 
     public void testOnCompleteLib() throws Exception {
         File file = new File(TestDependent.PYTHON_LIB);
-        parseFilesInDir(file);
+        if(MAKE_COMPLETE_PARSE){
+            parseFilesInDir(file);
+        }else{
+            System.out.println("COMPLETE LIB NOT PARSED!");
+        }
     }
     
     /**
