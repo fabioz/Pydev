@@ -21,7 +21,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	try {
 			ScopeAnalyzerVisitorTest test = new ScopeAnalyzerVisitorTest();
 			test.setUp();
-			test.testIt16();
+			test.testIt17();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalyzerVisitorTest.class);
 		} catch (Exception e) {
@@ -213,12 +213,24 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     public void testIt16() throws Exception {
         doc = new Document(
                 "import b    \n" +
-                "print b.bar\n" + //this one is selected
+                "print b.bar\n" + //this one is selected (b is undefined)
                 "class C2:\n" +
                 "    def m1(self):\n" +
                 "        bar = 10\n" //should not get this one
         );
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 10);
+        assertEquals(1, tokenOccurrences.size());
+    }
+    
+    public void testIt17() throws Exception {
+        doc = new Document(
+                "import testlib    \n" +
+                "print testlib.bar\n" + //this one is selected (bar is undefined)
+                "class C2:\n" +
+                "    def m1(self):\n" +
+                "        bar = 10\n" //should not get this one
+        );
+        List<IToken> tokenOccurrences = getTokenOccurrences(1, 16);
         assertEquals(1, tokenOccurrences.size());
     }
     

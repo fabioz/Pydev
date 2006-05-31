@@ -81,9 +81,6 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     }
 
 
-    @Override
-    protected void onAddUndefinedVarInImportMessage(IToken foundTok) {
-    }
 
     @Override
     protected void onLastScope(ScopeItems m) {
@@ -144,6 +141,12 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     protected void onFoundUnresolvedImportPart(IToken token, String rep) {
         onAddUndefinedMessage(token);
     }
+    
+    @Override
+    protected void onAddUndefinedVarInImportMessage(IToken token) {
+        onAddUndefinedMessage(token);
+    }
+
     
     @Override
     protected void onAddUndefinedMessage(IToken token) {
