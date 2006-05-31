@@ -2,6 +2,8 @@ package com.python.pydev.analysis.scopeanalysis;
 
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.scope.EasyAstIteratorBase;
@@ -34,6 +36,18 @@ public class AttributeReferencesVisitor extends EasyAstIteratorBase{
 		inAttr = false;
 		return ret;
 	}
+    
+    @Override
+    public Object visitFunctionDef(FunctionDef node) throws Exception {
+        atomic(node.name);
+        return super.visitFunctionDef(node);
+    }
+    
+    @Override
+    public Object visitClassDef(ClassDef node) throws Exception {
+        atomic(node.name);
+        return super.visitClassDef(node);
+    }
 
 	
 

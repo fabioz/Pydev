@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-//            test.testRenameNonLocal();
+            test.testRenameNonLocal2();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -357,4 +357,19 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         int col = 9;
         checkDefault(str, line, col, "barr", false, true);
     }
+
+    public void testRenameNonLocal2() throws Exception {
+        String str = "" +
+        "def m1():\n" +
+        "    bar = 10\n" +
+        "    bar.%s\n" + //selected (Foo)
+        "    foop = 20\n" +
+        "";
+        
+        int line = 2;
+        int col = 9;
+        checkDefault(str, line, col, "foop", false, true);
+    }
+    
+
 }
