@@ -155,6 +155,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * This is the scripting engine that is binded to this interpreter.
      */
 	private PyEditScripting pyEditScripting;
+
+	/**
+	 * Lock for initialization sync
+	 */
+	private Object lock = new Object();
     
     public void addPyeditListener(IPyEditListener listener){
         registeredEditListeners.add(listener);
@@ -164,52 +169,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         registeredEditListeners.remove(listener);
     }
 
-    private void notifyOnDispose() {
-        for(IPyEditListener listener : getAllListeners()){
-            try {
-                listener.onDispose(this);
-            } catch (Exception e) {
-                //must not fail
-                PydevPlugin.log(e);
-            }
-        }
-    }
-
-    /**
-     * @param document the document just set
-     */
-    private void notifyOnSetDocument(IDocument document) {
-        for(IPyEditListener listener : getAllListeners()){
-            try {
-                listener.onSetDocument(document, this);
-            } catch (Exception e) {
-                //must not fail
-                PydevPlugin.log(e);
-            }
-        }
-    }
     
-    private void notifyOnCreateActions(MyResources resources) {
-        for(IPyEditListener listener : getAllListeners()){
-            try {
-                listener.onCreateActions(resources, this);
-            } catch (Exception e) {
-                //must not fail
-                PydevPlugin.log(e);
-            }
-        }
-    }
-
-    private void notifyOnSave() {
-        for(IPyEditListener listener : getAllListeners()){
-            try {
-                listener.onSave(this);
-            } catch (Throwable e) {
-                //must not fail
-                PydevPlugin.log(e);
-            }
-        }
-    }
 
     @Override
     protected void handleCursorPositionChanged() {
@@ -226,7 +186,17 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
     }
 
-    private List<IPyEditListener> getAllListeners() {
+    public List<IPyEditListener> getAllListeners() {
+    	while (initFinished == false){
+    		synchronized(getLock()){
+    			try {
+    				getLock().wait();
+				} catch (Exception e) {
+					//ignore
+					e.printStackTrace();
+				}
+    		}
+    	}
         ArrayList<IPyEditListener> listeners = new ArrayList<IPyEditListener>();
         if(editListeners != null){
             listeners.addAll(editListeners);
@@ -235,7 +205,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         return listeners;
     }
 
-    /**
+    private Object getLock() {
+		return lock;
+	}
+
+	/**
      * This map may be used by clients to store info regarding this editor.
      * 
      * Clients should be careful so that this key is unique and does not conflict with other
@@ -246,6 +220,13 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * The suggestion is that the cache key is always preceded by the class name that will use it.
      */
     public Map<String,Object> cache = new HashMap<String, Object>();
+
+    /**
+     * Indicates whether the init was already finished
+     */
+	protected boolean initFinished = false;
+
+	private PyEditNotifier notifier;
     
     // ---------------------------- end listeners stuff
     
@@ -339,6 +320,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      *  
      */
     public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
+    	notifier = new PyEditNotifier(this);
         super.init(site, input);
 
         final IDocument document = getDocument(input);
@@ -423,13 +405,25 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
         
     
-		//let's do that in a thread, so that we don't have any delays in setting up the editor
-		pyEditScripting = new PyEditScripting();
-		addPyeditListener(pyEditScripting);
-		
-		//set the parser for the document
-		parser.setDocument(document);
-		notifyOnSetDocument(document);
+        Runnable runnable = new Runnable(){
+
+			public void run() {
+				//let's do that in a thread, so that we don't have any delays in setting up the editor
+				pyEditScripting = new PyEditScripting();
+				addPyeditListener(pyEditScripting);
+				
+				//set the parser for the document
+				parser.setDocument(document);
+				notifier.notifyOnSetDocument(document);
+				initFinished = true;
+				synchronized(getLock()){
+					getLock().notifyAll();
+				}
+			}
+        };
+        Thread thread = new Thread(runnable);
+        thread.setPriority(Thread.MIN_PRIORITY);
+        thread.start();
 
     }
 
@@ -465,7 +459,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             parser.setDocument(document);
             PyPartitionScanner.checkPartitionScanner(document);
         }
-        notifyOnSetDocument(document);
+        notifier.notifyOnSetDocument(document);
     }
     
     /**
@@ -491,7 +485,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         fixEncoding(getEditorInput(), getDocument());
         super.performSave(overwrite, progressMonitor);
         parser.notifySaved();
-        notifyOnSave();
+        notifier.notifyOnSave();
     }
 
     /**
@@ -581,7 +575,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
     // cleanup
     public void dispose() {
-        notifyOnDispose();
+    	notifier.notifyOnDispose();
 
         PydevPrefs.getPreferences().removePropertyChangeListener(prefListener);
         parser.dispose();
@@ -605,7 +599,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
     public static final int SIMPLEASSIST_PROPOSALS = 999778;
     
-    private static class MyResources extends ListResourceBundle {
+    public static class MyResources extends ListResourceBundle {
         public Object[][] getContents() {
             return contents;
         }
@@ -685,8 +679,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         setAction("PydevScriptEngine", action);
         
         
-        notifyOnCreateActions(resources);
-
+        notifier.notifyOnCreateActions(resources);
     }
 
 

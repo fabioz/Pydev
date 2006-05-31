@@ -176,6 +176,9 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         	defaultSelectedInterpreter = iMan.getDefaultInterpreter();
         }
         InterpreterInfo info = (InterpreterInfo) iMan.getInterpreterInfo(defaultSelectedInterpreter, new NullProgressMonitor());
+        if(info == null){
+        	return null; //may happen during initialization
+        }
         return info.modulesManager;
     }
     
@@ -339,6 +342,10 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
     private ModulesManager[] getManagers(boolean checkSystemManager, boolean referenced) {
         ArrayList<ModulesManager> list = new ArrayList<ModulesManager>();
         SystemModulesManager systemModulesManager = getSystemModulesManager(null);
+        if(systemModulesManager == null){
+        	//may happen in initialization
+        	return new ModulesManager[]{};
+        }
         
         try {
             if(project != null){

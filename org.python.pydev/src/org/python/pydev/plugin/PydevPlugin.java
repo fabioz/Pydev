@@ -161,16 +161,21 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         } catch (MissingResourceException x) {
             resourceBundle = null;
         }
-        Preferences preferences = plugin.getPluginPreferences();
+        final Preferences preferences = plugin.getPluginPreferences();
         preferences.addPropertyChangeListener(this);
-        setPythonInterpreterManager(new PythonInterpreterManager(preferences));
-        setJythonInterpreterManager(new JythonInterpreterManager(preferences));
+        
+        //set them temporarily
+        setPythonInterpreterManager(new StubInterpreterManager(true));
+        setJythonInterpreterManager(new StubInterpreterManager(false));
         
 
         //restore the nature for all python projects
         new Job("PyDev: Restoring projects python nature"){
 
             protected IStatus run(IProgressMonitor monitor) {
+            	setPythonInterpreterManager(new PythonInterpreterManager(preferences));
+            	setJythonInterpreterManager(new JythonInterpreterManager(preferences));
+            	
                 IProject[] projects = getWorkspace().getRoot().getProjects();
                 for (int i = 0; i < projects.length; i++) {
                     IProject project = projects[i];

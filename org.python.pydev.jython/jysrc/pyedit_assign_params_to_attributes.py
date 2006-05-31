@@ -86,7 +86,6 @@ if cmd == 'onCreateActions' or DEBUG and cmd == 'onSave':
             
         """
         _rDef = re.compile(r'^\s+def\s')
-        _sNewline = PyAction.getDelimiter(editor.getDocument())
         
         def _scriptApplicable(self, selection):
             '''Raise ScriptUnapplicableError if the script is unapplicable.
@@ -145,6 +144,9 @@ if cmd == 'onCreateActions' or DEBUG and cmd == 'onSave':
             return self._sNewline.join(ls)
             
         def run(self):
+            #gotten here (and not in the class resolution as before) because we want it to be resolved 
+            #when we execute it, and not when setting it
+            self._sNewline = PyAction.getDelimiter(editor.getDocument())
             oSelection = PySelection(editor)            
             oDocument = editor.getDocument()
             if not self._scriptApplicable(oSelection):

@@ -46,7 +46,9 @@ if cmd == 'onCreateActions':
     from org.python.pydev.core.docutils import PySelection #@UnresolvedImport
     from org.eclipse.core.resources import IMarker #@UnresolvedImport
     from org.eclipse.core.resources import IResource #@UnresolvedImport
-
+    from java.lang import Runnable
+    from org.eclipse.swt.widgets import Display #@UnresolvedImport
+    
     FIND_NEXT_PROBLEM_ACTION_ID = "org.python.pydev.core.script.pyedit_find_next_problem"
     
     def cmpMarkers(a,b):
@@ -96,19 +98,42 @@ if cmd == 'onCreateActions':
                 if charStart is not None: #same thing, but return on first not None
                     editor.selectAndReveal(charStart, charEnd - charStart)
                     return
+
+    def bindInInterface():
+        #bind the action to some internal definition
+        act = FindNextProblemAction()
+        
+        #ok, the plugin.xml file defined a command and a binding with the string from FIND_NEXT_PROBLEM_ACTION_ID.
+        #by seting the action definition id and the id itself, we will bind this command to the keybinding defined
+        #(this is the right way of doing it, as it will enter the abstractions of Eclipse and allow the user to
+        #later change that keybinding).
+        act.setActionDefinitionId(FIND_NEXT_PROBLEM_ACTION_ID)
+        act.setId(FIND_NEXT_PROBLEM_ACTION_ID)
+        try:
+            #may happen because we're starting it in a thread, so, it may be closed before
+            #we've the change to bind it
+            editor.setAction(FIND_NEXT_PROBLEM_ACTION_ID, act) 
+        except:
+            pass
     
-    #bind the action to some internal definition
-    act = FindNextProblemAction()
-    
-    #ok, the plugin.xml file defined a command and a binding with the string from FIND_NEXT_PROBLEM_ACTION_ID.
-    #by seting the action definition id and the id itself, we will bind this command to the keybinding defined
-    #(this is the right way of doing it, as it will enter the abstractions of Eclipse and allow the user to
-    #later change that keybinding).
-    act.setActionDefinitionId(FIND_NEXT_PROBLEM_ACTION_ID)
-    act.setId(FIND_NEXT_PROBLEM_ACTION_ID)
-    editor.setAction(FIND_NEXT_PROBLEM_ACTION_ID, act) 
-    
-    
+
+    class RunInUi(Runnable):
+        '''Helper class that implements a Runnable (just so that we
+        can pass it to the Java side). It simply calls some callable.
+        '''
+       
+        def __init__(self, c):
+            self.callable = c
+        def run(self):
+            self.callable ()
+           
+    def runInUi(callable):
+        '''
+        @param callable: the callable that will be run in the UI
+        '''
+        Display.getDefault().asyncExec(RunInUi(callable))
+       
+    runInUi(bindInInterface)
     
     
     
