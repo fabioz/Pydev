@@ -10,6 +10,7 @@ import java.util.WeakHashMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPyEditListener;
@@ -106,7 +107,12 @@ public class EvaluateActionSetter implements IPyEditListener{
         final EvaluateAction evaluateAction = new EvaluateAction(edit);
         evaluateAction.setActionDefinitionId(EVALUATE_ACTION_ID);
         evaluateAction.setId(EVALUATE_ACTION_ID);
-		edit.setAction(EVALUATE_ACTION_ID, evaluateAction);
+		Runnable runnable = new Runnable() {
+			public void run() {
+				edit.setAction(EVALUATE_ACTION_ID, evaluateAction);
+			}
+		};
+		Display.getDefault().syncExec(runnable);
     }
 
     
