@@ -4,6 +4,7 @@
 package com.python.pydev.refactoring.visitors;
 
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
@@ -15,12 +16,12 @@ public class Formatter implements IFormatter{
 
     public void formatAll(IDocument doc, PyEdit edit) {
         try {
-            Object[] objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, edit.getPythonNature()));
-            if(objects[1]!= null){
+            Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, edit.getPythonNature()));
+            if(objects.o2!= null){
               edit.setStatusLineErrorMessage("Format not done: Unable to parse the document correctly");
                 
-            } else if (objects[0] != null) {
-                SimpleNode n = (SimpleNode) objects[0];
+            } else if (objects.o1 != null) {
+                SimpleNode n = objects.o1;
                 final WriterEraser stringWriter = new WriterEraser();
                 PrettyPrinterPrefs prefs = new PrettyPrinterPrefs("\n");
                 PrettyPrinter printer = new PrettyPrinter(prefs, stringWriter);

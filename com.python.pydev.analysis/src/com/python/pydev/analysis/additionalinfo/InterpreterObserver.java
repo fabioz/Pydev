@@ -13,6 +13,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.parser.PyParser;
@@ -141,8 +142,8 @@ public class InterpreterObserver implements IInterpreterObserver {
                             
                             //  the code below works with the default parser (that has much more info... and is much slower)
                             PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(new Document(REF.getFileContents(key.file)), false, null);
-                            Object[] obj = PyParser.reparseDocument(parserInfo);
-                            SimpleNode node = (SimpleNode) obj[0];
+                            Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(parserInfo);
+                            SimpleNode node = obj.o1;
 
                             //maybe later we can change by this, if it becomes faster and more consistent
                             //SimpleNode node = FastParser.reparseDocument(REF.getFileContents(key.file));
