@@ -25,6 +25,7 @@ import org.eclipse.ui.IFileEditorInput;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -275,13 +276,7 @@ public class PyParser {
     }
 
     // ---------------------------------------------------------------------------- parsing
-    /**
-     * reparses the document getting the nature associated to the corresponding editor 
-     * @return
-     */
-    public Object[] reparseDocument(Object ... argsToReparse) {
-    	return reparseDocument(editorView.getPythonNature(), argsToReparse);
-    }
+
     /**
      * Parses the document, generates error annotations
      * 
@@ -292,10 +287,10 @@ public class PyParser {
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
-    public Object[] reparseDocument(IPythonNature nature, Object ... argsToReparse) {
+    public Tuple<SimpleNode, Throwable> reparseDocument(Object ... argsToReparse) {
         
         //get the document ast and error in object
-        Object obj[] = reparseDocument(new ParserInfo(document, true, nature, -1));
+        Tuple<SimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, true, -1));
         
         IFile original = null;
         IAdaptable adaptable = null;
@@ -336,17 +331,17 @@ public class PyParser {
         }
         //end delete the markers
         
-        if(obj[0] != null && obj[0] instanceof SimpleNode){
+        if(obj.o1 != null){
             //ok, reparse succesful, lets erase the markers that are in the editor we just parsed
-            fireParserChanged((SimpleNode) obj[0], adaptable, document, argsToReparse);
+            fireParserChanged(obj.o1, adaptable, document, argsToReparse);
         }
         
-        if(obj[1] != null && obj[1] instanceof ParseException){
-            fireParserError((ParseException) obj[1], adaptable, document, argsToReparse);
+        if(obj.o1 != null && obj.o2 instanceof ParseException){
+            fireParserError((ParseException) obj.o2, adaptable, document, argsToReparse);
         }
         
-        if(obj[1] != null && obj[1] instanceof TokenMgrError){
-            fireParserError((TokenMgrError) obj[1], adaptable, document, argsToReparse);
+        if(obj.o1 != null && obj.o2 instanceof TokenMgrError){
+            fireParserError((TokenMgrError) obj.o2, adaptable, document, argsToReparse);
         }
         
         return obj;
@@ -360,19 +355,25 @@ public class PyParser {
     public static class ParserInfo{
         public IDocument document;
         public boolean stillTryToChangeCurrentLine=true; 
-        public IPythonNature nature;
         public int currentLine=-1;
         public String initial = null;
         public List<Integer> linesChanged = new ArrayList<Integer>();
         public ParseException parseErr;
         public boolean tryReparse = TRY_REPARSE;
         
+        public ParserInfo(IDocument document, boolean changedCurrentLine){
+            this(document, changedCurrentLine, null);
+        }
+        
         public ParserInfo(IDocument document, boolean changedCurrentLine, IPythonNature nature){
             this.document = document;
             this.stillTryToChangeCurrentLine = changedCurrentLine;
-            this.nature = nature;
         }
 
+        public ParserInfo(IDocument document, boolean changedCurrentLine, int currentLine){
+            this(document, changedCurrentLine, null, currentLine);
+        }
+        
         public ParserInfo(IDocument document, boolean changedCurrentLine, IPythonNature nature, int currentLine){
             this(document, changedCurrentLine, nature);
             this.currentLine = currentLine;
@@ -383,7 +384,7 @@ public class PyParser {
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
-    public static Object[] reparseDocument(ParserInfo info) {
+    public static Tuple<SimpleNode, Throwable> reparseDocument(ParserInfo info) {
         // create a stream with document's data
         String startDoc = info.document.get();
         if(info.initial == null){
@@ -426,7 +427,7 @@ public class PyParser {
                 Module m = (Module) newRoot;
                 m.addSpecial(new commentType(endingComments.toString()), true);
             }
-            return new Object[]{newRoot,null};
+            return new Tuple<SimpleNode, Throwable>(newRoot,null);
 		
 
         } catch (ParseException parseErr) {
@@ -445,7 +446,7 @@ public class PyParser {
                     newRoot = tryReparseAgain(info, info.parseErr);
                 }
             }
-            return new Object[]{newRoot, parseErr};
+            return new Tuple<SimpleNode, Throwable>(newRoot, parseErr);
             
         
         } catch (TokenMgrError tokenErr) {
@@ -457,11 +458,11 @@ public class PyParser {
                 }
             }
             
-            return new Object[]{newRoot, tokenErr};
+            return new Tuple<SimpleNode, Throwable>(newRoot, tokenErr);
 
         } catch (Exception e) {
             Log.log(e);
-            return new Object[]{null, null};
+            return new Tuple<SimpleNode, Throwable>(null, null);
         
         } catch (Throwable e) {
 			//PythonGrammar$LookaheadSuccess error: this happens sometimes when the file is
@@ -471,7 +472,7 @@ public class PyParser {
 			}else{
 				Log.log(e);
 			}
-			return new Object[]{null, null};
+			return new Tuple<SimpleNode, Throwable>(null, null);
         }
     }
 
@@ -562,7 +563,7 @@ public class PyParser {
             Document doc = new Document(docToParse);
             info.document = doc;
             info.stillTryToChangeCurrentLine = false;
-	        return (SimpleNode) reparseDocument(info)[0];
+	        return reparseDocument(info).o1;
         }
         return null;
     }

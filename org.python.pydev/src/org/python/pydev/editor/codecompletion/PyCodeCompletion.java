@@ -278,7 +278,7 @@ public class PyCodeCompletion {
      */
     public static IToken[] getSelfCompletions(CompletionRequest request, List theList, CompletionState state, boolean getOnlySupers) {
     	IToken[] comps = new IToken[0];
-        SimpleNode s = (SimpleNode) PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, request.nature, state.line))[0];
+        SimpleNode s = PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, request.nature, state.line)).o1;
         if(s != null){
             FindScopeVisitor visitor = new FindScopeVisitor(state.line, 0);
             try {

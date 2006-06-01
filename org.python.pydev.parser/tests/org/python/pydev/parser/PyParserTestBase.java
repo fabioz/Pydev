@@ -1,13 +1,13 @@
 package org.python.pydev.parser;
 
+import junit.framework.TestCase;
+
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
-
-import junit.framework.TestCase;
 
 public class PyParserTestBase extends TestCase {
     protected PyParser parser;
@@ -43,8 +43,8 @@ public class PyParserTestBase extends TestCase {
     }
 	protected ParseException parseILegalDoc(IDocument doc) {
 	    parser.setDocument(doc, false);
-	    Object[] objects = parser.reparseDocument((IPythonNature)null);
-	    Object err = objects[1];
+        Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
+	    Object err = objects.o2;
 	    if(err == null){
 	        fail("Expected a ParseException and the doc was successfully parsed.");
         }
@@ -60,8 +60,8 @@ public class PyParserTestBase extends TestCase {
 	 */
 	protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
 	    parser.setDocument(doc, false);
-	    Object[] objects = parser.reparseDocument((IPythonNature)null);
-	    Object err = objects[1];
+        Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
+	    Object err = objects.o2;
 	    if(err != null){
 	        String s = "";
 	        for (int i = 0; i < additionalErrInfo.length; i++) {
@@ -78,8 +78,8 @@ public class PyParserTestBase extends TestCase {
 	         
 	        fail("Expected no error, received: "+err+" "+s);
 	    }
-	    assertNotNull(objects[0]);
-	    return (SimpleNode) objects[0];
+	    assertNotNull(objects.o1);
+	    return objects.o1;
 	}
 
     public void testEmpty() {

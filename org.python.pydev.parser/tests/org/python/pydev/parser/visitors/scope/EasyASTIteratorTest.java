@@ -8,6 +8,7 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -67,8 +68,8 @@ public class EasyASTIteratorTest extends TestCase {
 		"c = C()\n" +
 		"";
         
-        Object[] objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
-        SimpleNode root = (SimpleNode) objects[0];
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        SimpleNode root = objects.o1;
         root.accept(visitor);
         Iterator iterator = visitor.getIterator();
         check((ASTEntry) iterator.next(), "C", 1, 1, 2);
@@ -94,8 +95,8 @@ public class EasyASTIteratorTest extends TestCase {
 		"c               \n"+     
 		"'''             \n";      
         
-        Object[] objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
-        SimpleNode root = (SimpleNode) objects[0];
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        SimpleNode root = objects.o1;
         root.accept(visitor);
         Iterator iterator = visitor.getIterator();
         check((ASTEntry) iterator.next(), "C", 1, 1, 8);
@@ -122,8 +123,8 @@ public class EasyASTIteratorTest extends TestCase {
 		"    t2            \n"+  
 		"    '''           \n";         
 
-        Object[] objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
-        SimpleNode root = (SimpleNode) objects[0];
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        SimpleNode root = objects.o1;
         root.accept(visitor);
         Iterator iterator = visitor.getIterator();
         check((ASTEntry) iterator.next(), "C", 1, 1, 6);
@@ -145,8 +146,8 @@ public class EasyASTIteratorTest extends TestCase {
 		"from test.lib import test as alias\n" +
 		"";
         
-        Object[] objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
-        SimpleNode root = (SimpleNode) objects[0];
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        SimpleNode root = objects.o1;
         root.accept(visitor);
         Iterator iterator = visitor.getIterator();
         check((ASTEntry) iterator.next(), "import test.lib", 8, 1, 1);
@@ -166,8 +167,8 @@ public class EasyASTIteratorTest extends TestCase {
 "\n" +
 "\n";
 
-        Object[] objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
-        SimpleNode root = (SimpleNode) objects[0];
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        SimpleNode root = objects.o1;
         root.accept(visitor);
         Iterator iterator = visitor.getIterator();
         check((ASTEntry) iterator.next(), "D", 1, 1, 4);
@@ -190,8 +191,8 @@ public class EasyASTIteratorTest extends TestCase {
         		"    classAttr = 10\n" +
         		"pass";
         
-        Object[] objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
-        SimpleNode root = (SimpleNode) objects[0];
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        SimpleNode root = objects.o1;
         root.accept(visitor);
         Iterator iterator = visitor.getIterator();
         check((ASTEntry) iterator.next(), "C", 1, 1, 6);

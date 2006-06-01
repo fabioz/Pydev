@@ -20,6 +20,7 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -181,13 +182,13 @@ public abstract class AbstractModule implements IModule {
         if(f != null){
 	        String absolutePath = REF.getFileAbsolutePath(f);
 	        if(PythonPathHelper.isValidSourceFile(absolutePath)){
-		        Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine));
-		        SimpleNode n = (SimpleNode) obj[0];
+                Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine));
+		        SimpleNode n = obj.o1;
 		        return new SourceModule(name, f, n);
 	        }
         } else {
-	        Object[] obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine));
-	        SimpleNode n = (SimpleNode) obj[0];
+            Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine));
+	        SimpleNode n = obj.o1;
 	        return new SourceModule(name, f, n);
         }
         return null;
