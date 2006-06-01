@@ -383,5 +383,17 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
     	checkRename(str, line, col, "PrettyPrinter", false, true);
     }
     
+    public void testRename2() throws Exception {
+    	String str = "" +
+    	"import bla as %s\n" +
+    	"raise %s.ffff(msg)\n" +
+    	"\n" +
+    	"";
+    	
+    	int line = 0;
+    	int col = 15;
+    	checkRename(str, line, col, "fooo", false, true);
+    }
+    
 
 }

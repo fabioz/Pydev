@@ -31,5 +31,17 @@ public class RenameClassRefactoringTest extends RefactoringTestBase {
         int col = 8;
         checkRename(str, line, col, "Foo", false, true);
     }
+    
+    public void testRenameClassVar() throws CoreException {
+    	String str = "" +
+    	"class Foo:\n" +
+    	"    %s = 10\n" +
+    	"    def m1(self):\n" +
+    	"        print self.%s\n" +
+    	"\n" +
+    	"\n" +
+    	"\n";
+    	checkRename(str, 1, 5, "bla", false, true);
+    }
 
 }
