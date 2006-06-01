@@ -312,6 +312,13 @@
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.pyFormatStd">
          </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.pySelectWord"
+               label="Select the current word"
+               class="org.python.pydev.editor.actions.PySelectWord"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.pySelectWord">
+         </action>
 
 		<!-- This is for the refactoring having the existing action (definition) -->
          <action
@@ -549,6 +556,13 @@
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.pyFormatStd">
       </command>
+<!-- command: Select Word-->
+      <command
+            name="Select Word"
+            description="Select the whole word"
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pySelectWord">
+      </command>
       <!-- This is for making a keybinding for it-->
       <!-- Extract Method -->
       <command
@@ -714,6 +728,12 @@
             sequence="Ctrl+Shift+F"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.pyFormatStd"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="Ctrl+W"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.editor.actions.pySelectWord"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key

@@ -6,7 +6,8 @@ Pydev:
 - Indentation engine does not degrade as document grows
 - Multiple-string does not mess up highlighting anymore
 - code completion issue with {} solved
-
+- Ctrl+W: now expands the selection to cover the whole word where the cursor is
+- Assign to attributes (provided by Joel Hedlund) was expanded so that Ctrl+1 on method line provides it as a valid proposal
 
 Extensions:
 - mark occurrences improved
