@@ -4,6 +4,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.Change;
+import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
@@ -14,6 +15,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 public class PyExtractMethodProcessor extends RefactoringProcessor{
 
     private RefactoringRequest request;
+	private CompositeChange fChange;
 
 	public PyExtractMethodProcessor (RefactoringRequest request) {
         this.request = request;
@@ -21,42 +23,47 @@ public class PyExtractMethodProcessor extends RefactoringProcessor{
 
 	@Override
 	public Object[] getElements() {
-		return null;
+        return new Object[] { this.request };
 	}
 
+    public static final String IDENTIFIER = "org.python.pydev.pyExtractMethod";
+    
 	@Override
 	public String getIdentifier() {
-		return null;
+		return IDENTIFIER;
 	}
 
 	@Override
 	public String getProcessorName() {
-		return null;
+		return "Pydev PyExtractMethodProcessor";
 	}
 
 	@Override
 	public boolean isApplicable() throws CoreException {
-		return false;
+		return true;
 	}
 
 	@Override
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		return null;
+        RefactoringStatus status = new RefactoringStatus();
+		return status;
 	}
 
 	@Override
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
-		return null;
+        RefactoringStatus status = new RefactoringStatus();
+        fChange = new CompositeChange("RenameChange: "+request.duringProcessInfo.name);
+		return status;
 	}
 
 	@Override
 	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		return null;
+		return fChange; 
 	}
 
 	@Override
 	public RefactoringParticipant[] loadParticipants(RefactoringStatus status, SharableParticipants sharedParticipants) throws CoreException {
-		return null;
+		return null; // no participants are loaded
 	}
 
 }
