@@ -38,7 +38,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.refactoring.markocurrences.MarkOccurrencesJob;
-import com.python.pydev.refactoring.wizards.PyRenameProcessor;
+import com.python.pydev.refactoring.wizards.rename.PyRenameProcessor;
 
 /**
  * This action should mark to rename all the occurrences found for some name in the file

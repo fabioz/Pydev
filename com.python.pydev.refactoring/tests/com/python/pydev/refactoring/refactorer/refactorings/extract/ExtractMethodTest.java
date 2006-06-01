@@ -28,9 +28,16 @@ public class ExtractMethodTest extends RefactoringTestBase {
     }
 
     public void test1() throws Exception {
-        Document document = new Document("" +
-                "a = 1" +
-                "");
+        String initial = ""+
+            "a=1\n" +
+            "";
         
+        String expected = ""+
+    		"m1()\n" +
+    		"def m1():\n" +
+    		"    a=\n1" +
+    		"";
+        
+        checkExtract(initial, expected, 0,0,3, false, "m1");
     }
 }

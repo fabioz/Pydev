@@ -1,7 +1,7 @@
 /*
  * Created on Mar 1, 2006
  */
-package com.python.pydev.refactoring.wizards;
+package com.python.pydev.refactoring.wizards.rename;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,9 @@ import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+
+import com.python.pydev.refactoring.wizards.IRefactorProcess;
+import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
 
 /**
  * Rename to a local variable...

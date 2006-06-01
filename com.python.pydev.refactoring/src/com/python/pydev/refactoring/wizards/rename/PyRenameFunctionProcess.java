@@ -1,7 +1,7 @@
 /*
  * Created on May 1, 2006
  */
-package com.python.pydev.refactoring.wizards;
+package com.python.pydev.refactoring.wizards.rename;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -1,7 +1,7 @@
 /*
  * Created on Apr 8, 2006
  */
-package com.python.pydev.refactoring.wizards;
+package com.python.pydev.refactoring.wizards.rename;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.ltk.core.refactoring.Refactoring;
@@ -15,6 +15,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+
+import com.python.pydev.refactoring.wizards.TextInputWizardPage;
 
 public class PyRenameRefactoringWizard extends RefactoringWizard {
 

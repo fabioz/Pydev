@@ -39,8 +39,8 @@ import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInf
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.refactoring.IPyRefactoring2;
-import com.python.pydev.refactoring.wizards.PyRenameProcessor;
-import com.python.pydev.refactoring.wizards.PyRenameRefactoringWizard;
+import com.python.pydev.refactoring.wizards.rename.PyRenameProcessor;
+import com.python.pydev.refactoring.wizards.rename.PyRenameRefactoringWizard;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
 public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2{

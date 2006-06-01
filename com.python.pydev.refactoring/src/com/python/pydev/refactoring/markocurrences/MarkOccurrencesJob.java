@@ -37,7 +37,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.PydevPlugin;
 import com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage;
-import com.python.pydev.refactoring.wizards.PyRenameProcessor;
+import com.python.pydev.refactoring.wizards.rename.PyRenameProcessor;
 
 
 /**

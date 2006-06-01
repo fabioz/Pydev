@@ -1,4 +1,4 @@
-package com.python.pydev.refactoring.wizards;
+package com.python.pydev.refactoring.wizards.rename;
 
 import java.util.List;
 

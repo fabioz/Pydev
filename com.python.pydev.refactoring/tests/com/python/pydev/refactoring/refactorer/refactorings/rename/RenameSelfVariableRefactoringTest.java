@@ -35,7 +35,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         "";
         int line = 3;
         int col = 20;
-        checkDefault(str, line, col, "aa", false, true);
+        checkRename(str, line, col, "aa", false, true);
         
     }
     
@@ -50,7 +50,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         "";
         int line = 3;
         int col = 20;
-        checkDefault(str, line, col, "aa", false, true);
+        checkRename(str, line, col, "aa", false, true);
     }
     
     public void testClassMethodRename() throws Exception {
@@ -61,7 +61,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         "";
         int line = 2;
         int col = 19;
-        checkDefault(str, line, col, "m1", false, true);
+        checkRename(str, line, col, "m1", false, true);
     }
     
     public void testClassMethodRename2() throws Exception {
@@ -72,7 +72,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         "";
         int line = 1;
         int col = 9;
-        checkDefault(str, line, col, "m1", false, true);
+        checkRename(str, line, col, "m1", false, true);
     }
     
     public void testClassMethodRename3() throws Exception {
@@ -84,7 +84,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         "";
         int line = 1;
         int col = 9;
-        checkDefault(str, line, col, "m1", false, true);
+        checkRename(str, line, col, "m1", false, true);
     }
 
     public void testClassMethodRename4() throws Exception {
@@ -98,7 +98,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
     	"";
     	int line = 2;
     	int col = 14;
-    	checkDefault(str, line, col, "blaa", false, true);
+    	checkRename(str, line, col, "blaa", false, true);
     }
     
     public void testClassMethodRename5() throws Exception {
@@ -113,7 +113,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
     	"";
     	int line = 2;
     	int col = 14;
-    	checkDefault(str, line, col, "blaa", false, true);
+    	checkRename(str, line, col, "blaa", false, true);
     }
     
     public void testDontRename() throws Exception {
@@ -126,7 +126,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         "";
         int line = 1;
         int col = 9;
-        checkDefault(str, line, col, "m1", false, true);
+        checkRename(str, line, col, "m1", false, true);
     }
     
     public void testDontRename2() throws Exception {
@@ -139,7 +139,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringTestBase{
         "";
         int line = 2;
         int col = 9;
-        checkDefault(str, line, col, "m1", false, true);
+        checkRename(str, line, col, "m1", false, true);
     }
     
 

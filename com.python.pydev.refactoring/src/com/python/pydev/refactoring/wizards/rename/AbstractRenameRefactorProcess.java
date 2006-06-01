@@ -1,7 +1,7 @@
 /*
  * Created on Apr 9, 2006
  */
-package com.python.pydev.refactoring.wizards;
+package com.python.pydev.refactoring.wizards.rename;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +30,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;
+import com.python.pydev.refactoring.wizards.IRefactorProcess;
 
 /**
  * This class presents the basic functionality for doing a rename.

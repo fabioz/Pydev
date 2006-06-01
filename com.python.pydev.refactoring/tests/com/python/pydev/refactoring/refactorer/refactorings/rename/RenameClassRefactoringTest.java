@@ -29,7 +29,7 @@ public class RenameClassRefactoringTest extends RefactoringTestBase {
         "\n";
         int line = 2;
         int col = 8;
-        checkDefault(str, line, col, "Foo", false, true);
+        checkRename(str, line, col, "Foo", false, true);
     }
 
 }

@@ -9,6 +9,14 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 
+import com.python.pydev.refactoring.wizards.rename.PyRenameAnyLocalProcess;
+import com.python.pydev.refactoring.wizards.rename.PyRenameAttributeProcess;
+import com.python.pydev.refactoring.wizards.rename.PyRenameClassProcess;
+import com.python.pydev.refactoring.wizards.rename.PyRenameFunctionProcess;
+import com.python.pydev.refactoring.wizards.rename.PyRenameImportProcess;
+import com.python.pydev.refactoring.wizards.rename.PyRenameLocalProcess;
+import com.python.pydev.refactoring.wizards.rename.PyRenameSelfAttributeProcess;
+
 public class RefactorProcessFactory {
 
 	/**

@@ -1,4 +1,4 @@
-package com.python.pydev.refactoring.wizards;
+package com.python.pydev.refactoring.wizards.rename;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
