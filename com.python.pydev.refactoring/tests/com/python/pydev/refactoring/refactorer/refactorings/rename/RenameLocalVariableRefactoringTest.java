@@ -10,7 +10,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         try {
             RenameLocalVariableRefactoringTest test = new RenameLocalVariableRefactoringTest();
             test.setUp();
-            test.testRenameNonLocal2();
+            test.testRename1();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameLocalVariableRefactoringTest.class);
@@ -369,6 +369,18 @@ public class RenameLocalVariableRefactoringTest extends RefactoringTestBase {
         int line = 2;
         int col = 9;
         checkRename(str, line, col, "foop", false, true);
+    }
+    
+    public void testRename1() throws Exception {
+    	String str = "" +
+    	"import pprint\n" +
+    	"def myHook():\n" +
+    	"    pprint.%s()\n" +
+    	"";
+    	
+    	int line = 2;
+    	int col = 12;
+    	checkRename(str, line, col, "PrettyPrinter", false, true);
     }
     
 

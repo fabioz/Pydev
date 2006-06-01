@@ -23,5 +23,7 @@ public class PyRenameClassProcess extends AbstractRenameRefactorProcess{
         SimpleNode root = request.getAST();
         List<ASTEntry> oc = ScopeAnalysis.getLocalOcurrences(request.duringProcessInfo.initialName, root);
         addOccurrences(request, oc);
+        oc = ScopeAnalysis.getAttributeReferences(request.duringProcessInfo.initialName, request.getAST());
+		addOccurrences(request, oc);
     }
 }
