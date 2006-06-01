@@ -66,18 +66,6 @@ public abstract class PyAction implements IEditorActionDelegate {
 	}
 	
 	/**
-	 * This method returns the delimiter for the document
-	 * @param doc
-	 * @param startLineIndex
-	 * @return  delimiter for the document (\n|\r\|r\n)
-	 * @throws BadLocationException
-	 */
-	public static String getDelimiter(IDocument doc, int line){
-		return PySelection.getDelimiter(doc, line); 
-		
-	}
-
-	/**
 	 * This function returns the text editor.
 	 */
 	protected ITextEditor getTextEditor() {

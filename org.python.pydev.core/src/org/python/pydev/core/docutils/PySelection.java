@@ -19,6 +19,7 @@ import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
+import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.IPythonPartitions;
@@ -632,34 +633,13 @@ public class PySelection {
         return "";
     }
 
+    /**
+     * @return the delimiter that should be used for the passed document
+     */
     public static String getDelimiter(IDocument doc){
-        return getDelimiter(doc, 0);
+        return TextUtilities.getDefaultLineDelimiter(doc);
     }
     
-    /**
-     * This method returns the delimiter for the document
-     * @param doc
-     * @param startLineIndex
-     * @return  delimiter for the document (\n|\r\|r\n)
-     * @throws BadLocationException
-     */
-    public static String getDelimiter(IDocument doc, int line){
-        String endLineDelim;
-        try {
-            if (doc.getNumberOfLines() > 1){
-                endLineDelim = doc.getLineDelimiter(line);
-                if (endLineDelim == null) {
-                    endLineDelim = doc.getLegalLineDelimiters()[0];
-                }
-                return endLineDelim;
-            }
-        } catch (BadLocationException e) {
-            Log.log(e);
-        }
-        return System.getProperty("line.separator"); 
-        
-    }
-
     /**
      * @return Returns the endLineDelim.
      */
