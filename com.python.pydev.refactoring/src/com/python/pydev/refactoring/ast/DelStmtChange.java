@@ -3,6 +3,7 @@ package com.python.pydev.refactoring.ast;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.DocumentChange;
+import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -33,6 +34,14 @@ public class DelStmtChange extends AbstractStmtChange{
         //this is the statement we should remove
         stmtType stmt = attrObj[pos];
         
+        int offsetStart = getOffsetFromStmtBegin(stmt, doc);
+        stmtType next = null;
+        if(attrObj.length > pos+1){
+        	next = attrObj[pos+1];
+        }
+		int offsetEnd = getStmtOffsetEnd(stmt, next, doc, getPrefs(doc));
+        DeleteEdit delEdit = new DeleteEdit(offsetStart, offsetEnd - offsetStart);
+        addTextEdit("Del Stmt Change", tup, delEdit);
 		return tup.o1;
 	}
 
