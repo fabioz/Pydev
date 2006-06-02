@@ -150,7 +150,7 @@ public class PySelection {
         this(doc, 0);
     }
     /**
-     * In event of partial selection, used to select the full lines involved.
+     * In event of partial selection, used to select the full lines involved. 
      */
     public void selectCompleteLine() {
         IRegion endLine = getEndLine();
@@ -1137,8 +1137,9 @@ public class PySelection {
 
 
     /**
-     * @param c
-     * @param string
+     * @param string the string we care about
+     * @return true if the string passed is only composed of whitespaces (or characters that
+     * are regarded as whitespaces by Character.isWhitespace)
      */
     public static boolean containsOnlyWhitespaces(String string) {
         for (int i = 0; i < string.length(); i++) {
@@ -1239,6 +1240,9 @@ public class PySelection {
     }
 
 
+    /**
+     * @return true if this line starts with a dedent token (the passed string should be already trimmed)
+     */
     public static boolean startsWithDedentToken(String trimmedLine) {
         for (String dedent : PySelection.DEDENT_TOKENS) {
             if(trimmedLine.startsWith(dedent)){
@@ -1262,6 +1266,9 @@ public class PySelection {
 	}
 
 
+	/**
+	 * Class to help iterating through the document
+	 */
     private class DocIterator implements Iterator{
         private int startingLine;
         private boolean forward;
@@ -1309,14 +1316,19 @@ public class PySelection {
     }
 
 
-	public static boolean isInSameLine(int offset, IRegion lineInformationOfOffset) {
-        if(offset >= lineInformationOfOffset.getOffset() && 
-        		offset <= (lineInformationOfOffset.getOffset() + lineInformationOfOffset.getLength())){
+    /**
+     * @return if the offset is inside the region
+     */
+	public static boolean isInside(int offset, IRegion region) {
+        if(offset >= region.getOffset() && offset <= (region.getOffset() + region.getLength())){
         	return true;
         }
         return false;
 	}
 
+	/**
+	 * @return if the region passed is composed of a single line
+	 */
 	public static boolean endsInSameLine(IDocument document, IRegion region) {
 		try {
 			int startLine = document.getLineOfOffset(region.getOffset());
@@ -1325,6 +1337,21 @@ public class PySelection {
 			return startLine == endLine;
 		} catch (BadLocationException e) {
 			return false;
+		}
+	}
+
+	/**
+	 * @param offset the offset we want info on
+	 * @return a tuple with the line, col of the passed offset in the document 
+	 */
+	public Tuple<Integer, Integer> getLineAndCol(int offset) {
+		try {
+			IRegion region = doc.getLineInformationOfOffset(offset);
+			int line = doc.getLineOfOffset(offset);
+			int col = offset - region.getOffset();
+			return new Tuple<Integer, Integer>(line, col);
+		} catch (BadLocationException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

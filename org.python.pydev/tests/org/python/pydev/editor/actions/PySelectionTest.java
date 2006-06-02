@@ -357,10 +357,10 @@ public class PySelectionTest extends TestCase {
     
     public void testSameLine() throws Exception {
     	final Document doc = new Document("foo\nbla\nxxx");
-    	assertEquals(true, PySelection.isInSameLine(0, doc.getLineInformation(0)));
-    	assertEquals(false, PySelection.isInSameLine(0, doc.getLineInformation(1)));
+    	assertEquals(true, PySelection.isInside(0, doc.getLineInformation(0)));
+    	assertEquals(false, PySelection.isInside(0, doc.getLineInformation(1)));
     	
-    	assertEquals(true, PySelection.isInSameLine(4, doc.getLineInformation(1)));
+    	assertEquals(true, PySelection.isInside(4, doc.getLineInformation(1)));
     }
     
     public void testGetCurrLineWithoutCommsOrLiterals() throws Exception {

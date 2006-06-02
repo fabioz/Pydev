@@ -22,7 +22,7 @@ public class FindScopeVisitor extends AbstractVisitor {
     /**
      * Stack of classes / methods representing the scope.
      */
-    private Stack<SimpleNode> stackScope = new Stack<SimpleNode>();
+    protected Stack<SimpleNode> stackScope = new Stack<SimpleNode>();
 
     /**
      * This is the scope.
@@ -32,7 +32,7 @@ public class FindScopeVisitor extends AbstractVisitor {
     /**
      * Variable to mark if we found scope.
      */
-    private boolean found = false;
+    protected boolean found = false;
     
     /**
      * line to find
@@ -45,10 +45,17 @@ public class FindScopeVisitor extends AbstractVisitor {
     private int col;
 
     /**
+     * Only for subclasses
+     */
+    protected FindScopeVisitor(){
+    	
+    }
+    
+    /**
      * Constructor
      * 
-     * @param line
-     * @param col
+     * @param line in ast coords (starts at 1)
+     * @param col in ast coords (starts at 1)
      */
     public FindScopeVisitor(int line, int col){
        this.line = line;
@@ -87,13 +94,19 @@ public class FindScopeVisitor extends AbstractVisitor {
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitIf(org.python.pydev.parser.jython.ast.If)
      */
     public Object visitIf(If node) throws Exception {
-    	Str mainNode = isIfMAinNode(node);
+    	checkIfMainNode(node);
+        return super.visitIf(node);
+    }
+
+    /**
+     * Checks if we found an 'if' main node
+     */
+	protected void checkIfMainNode(If node) {
+		Str mainNode = isIfMAinNode(node);
         if(mainNode != null){
             scope.ifMainLine = node.beginLine;
         }
-        return super.visitIf(node);
-    }
-    
+	}
 
     
     /**

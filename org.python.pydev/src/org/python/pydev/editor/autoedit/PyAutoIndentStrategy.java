@@ -722,7 +722,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         //ok, now, if the opening peer is not on the line we're currently, we do not want to make
         //an 'auto-indent', but keep the current indentation level
         final IRegion lineInformationOfOffset = document.getLineInformationOfOffset(openingPeerOffset);
-        if(!PySelection.isInSameLine(offset, lineInformationOfOffset)){
+        if(!PySelection.isInside(offset, lineInformationOfOffset)){
             return new Tuple<Integer,Boolean>(-1, true);
         }
         
