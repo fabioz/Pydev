@@ -5,14 +5,11 @@ package com.python.pydev.refactoring.ast;
 
 import junit.framework.TestCase;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Module;
-import org.python.pydev.parser.jython.ast.NameTok;
-import org.python.pydev.parser.jython.ast.Pass;
-import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.parser.jython.ast.stmtType;
 
 public class PyASTChangerTest extends TestCase {
 
@@ -30,22 +27,18 @@ public class PyASTChangerTest extends TestCase {
         super.tearDown();
     }
 
+    
     public void test1() throws Exception {
         Document doc = new Document("");
         PyASTChanger changer = new PyASTChanger(doc);
-        SimpleNode ast = changer.getInitialAST();
+        SimpleNode ast = changer.getAST();
         Module m = (Module) ast;
         assertEquals(0, m.body.length);
         
-        NameTok name = new NameTok("test", NameTok.ClassName);
-        name.addSpecial(":", true);
-        Pass pass = new Pass();
-        pass.addSpecial("pass", false);
-        ClassDef classDef = new ClassDef(name, new exprType[0], new stmtType[]{pass});
+        ClassDef classDef = PyASTFactory.makePassClassDef("test");
         
         changer.addStmt(m, "body", 0, classDef);
-        
-        changer.apply();
+        changer.apply(new NullProgressMonitor());
         
         String result = doc.get();
         if(DEBUG){
@@ -53,4 +46,25 @@ public class PyASTChangerTest extends TestCase {
         }
         assertEquals("class test:\n    pass\n", result);
     }
+    
+    public void test2() throws Exception {
+        Document doc = new Document("class C1:pass\n");
+        PyASTChanger changer = new PyASTChanger(doc);
+        SimpleNode ast = changer.getAST();
+        Module m = (Module) ast;
+        assertEquals(1, m.body.length);
+        
+        ClassDef classDef = PyASTFactory.makePassClassDef("test");
+        
+        changer.addStmt(m, "body", 1, classDef);
+        changer.apply(new NullProgressMonitor());
+        
+        String result = doc.get();
+        if(DEBUG){
+            System.out.println(result);
+        }
+        assertEquals("class C1:pass\nclass test:\n    pass\n", result);
+        
+    }
+
 }

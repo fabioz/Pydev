@@ -4,14 +4,14 @@
 package com.python.pydev.refactoring.ast;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.parser.jython.SimpleNode;
+import org.eclipse.ltk.core.refactoring.Change;
 
 public interface IChanges {
 
     /**
-     * This method applies the change it describes and returns the resulting ast
+     * @return the change to be applied to the document
      * @throws Throwable 
      */
-    SimpleNode apply(SimpleNode initialAst, Document doc) throws Throwable;
+    Change getChange(Document doc) throws Throwable;
 
 }
