@@ -104,6 +104,10 @@ public abstract class AbstractMessage implements IMessage{
     }
     
     public static int getStartCol(IToken generator, IDocument doc, String shortMessage) {
+    	return getStartCol(generator, doc, shortMessage, false);
+    	
+    }
+    public static int getStartCol(IToken generator, IDocument doc, String shortMessage, boolean returnAsName) {
         int colDefinition=0;
        
         //not import...
@@ -125,11 +129,11 @@ public abstract class AbstractMessage implements IMessage{
                 return i.module.beginColumn;
             }else{
                 //no wild import, let's check the 'as name'
-            	return getNameForRepresentation(i, shortMessage, false).beginColumn;
+            	return getNameForRepresentation(i, shortMessage, returnAsName).beginColumn;
             }
             
         }else if(ast instanceof Import){
-            NameTok it = getNameForRepresentation(ast, shortMessage, false);
+            NameTok it = getNameForRepresentation(ast, shortMessage, returnAsName);
             return it.beginColumn;
             
         }else{

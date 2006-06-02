@@ -284,7 +284,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 		int startLine = AbstractMessage.getStartLine(generator, this.document)-1;
 		int endLine = AbstractMessage.getEndLine(generator, this.document, false)-1;
 		
-		int startCol = AbstractMessage.getStartCol(generator, this.document, generator.getRepresentation())-1;
+		int startCol = AbstractMessage.getStartCol(generator, this.document, generator.getRepresentation(), true)-1;
 		int endCol = AbstractMessage.getEndCol(generator, this.document, generator.getRepresentation(), false)-1;
 		if(currLine >= startLine && currLine <= endLine && currCol >= startCol && currCol <= endCol){
 			//ok, it's a valid occurrence, so, let's add it.

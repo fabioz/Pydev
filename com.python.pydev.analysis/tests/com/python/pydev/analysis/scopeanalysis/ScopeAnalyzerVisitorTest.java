@@ -11,6 +11,9 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.python.pydev.analysis.AnalysisTestsBase;
 import com.python.pydev.analysis.messages.AbstractMessage;
@@ -21,7 +24,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     	try {
 			ScopeAnalyzerVisitorTest test = new ScopeAnalyzerVisitorTest();
 			test.setUp();
-			test.testIt17();
+			test.testIt18();
 			test.tearDown();
 			junit.textui.TestRunner.run(ScopeAnalyzerVisitorTest.class);
 		} catch (Exception e) {
@@ -232,6 +235,25 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
         );
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 16);
         assertEquals(1, tokenOccurrences.size());
+    }
+    
+    public void testIt18() throws Exception {
+    	doc = new Document(
+    	    	"import bla as fooo\n" +
+    	    	"raise fooo.ffff(msg)\n"
+    	);
+    	List<IToken> tokenOccurrences = getTokenOccurrences(0, 16);
+    	assertEquals(2, tokenOccurrences.size());
+    	
+    	IToken t0 = tokenOccurrences.get(0);
+    	IToken t1 = tokenOccurrences.get(1);
+    	SimpleNode ast0 = ((SourceToken)t0).getAst();
+    	SimpleNode ast1 = ((SourceToken)t1).getAst();
+    	
+		assertEquals("fooo", t0.getRepresentation());
+		assertEquals("fooo", t1.getRepresentation());
+    	assertEquals(15, NodeUtils.getColDefinition(ast0));
+    	assertEquals(7, NodeUtils.getColDefinition(ast1));
     }
     
     
