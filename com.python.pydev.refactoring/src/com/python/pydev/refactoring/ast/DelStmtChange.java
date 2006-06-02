@@ -32,9 +32,9 @@ public class DelStmtChange extends AbstractStmtChange{
         }
         
         //this is the statement we should remove
-        stmtType stmt = attrObj[pos];
+        SimpleNode stmt = attrObj[pos];
         
-        int offsetStart = getOffsetFromStmtBegin(stmt, doc);
+        int offsetStart = getOffsetFromNodeBegin(stmt, doc);
         stmtType next = null;
         if(attrObj.length > pos+1){
         	next = attrObj[pos+1];

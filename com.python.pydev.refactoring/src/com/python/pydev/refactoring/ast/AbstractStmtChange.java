@@ -52,12 +52,12 @@ public abstract class AbstractStmtChange implements IChanges {
      *  
      * @return the end of the statement passed as an absolute offset
      */
-	protected int getStmtOffsetEnd(stmtType after, stmtType before, IDocument doc, PrettyPrinterPrefs prefs) {
+	protected int getStmtOffsetEnd(SimpleNode after, stmtType before, IDocument doc, PrettyPrinterPrefs prefs) {
 		try {
 			
 			if(before != null){
 				//it's easier to get it this way
-				return getOffsetFromStmtBegin(before, doc);
+				return getOffsetFromNodeBegin(before, doc);
 			}
 			
 			//ok, if we didn't have the node 
@@ -100,9 +100,13 @@ public abstract class AbstractStmtChange implements IChanges {
 	}
 
 
-	protected int getOffsetFromStmtBegin(stmtType before, IDocument doc) throws BadLocationException {
-		int line = before.beginLine-1;
-		int col = before.beginColumn-1;
+	/**
+	 * @return the offset from the start of the passed node
+	 * @throws BadLocationException
+	 */
+	protected int getOffsetFromNodeBegin(SimpleNode node, IDocument doc) throws BadLocationException {
+		int line = node.beginLine-1;
+		int col = node.beginColumn-1;
 		
 		int lineOffset = doc.getLineOffset(line);
 		lineOffset += col;

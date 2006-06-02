@@ -11,6 +11,9 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.parser.jython.SimpleNode;
+
+import com.python.pydev.refactoring.ast.GetSelectedStmtsVisitor;
 
 public class PyExtractMethodProcessor extends RefactoringProcessor{
 
@@ -46,7 +49,20 @@ public class PyExtractMethodProcessor extends RefactoringProcessor{
 	@Override
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();
+        
+        getSelectedStmt();
+        
 		return status;
+	}
+
+	private SimpleNode[] getSelectedStmt() {
+		GetSelectedStmtsVisitor visitor = new GetSelectedStmtsVisitor(request.ps);
+		try {
+			request.getAST().accept(visitor);
+			return visitor.getSelectedStmts();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
