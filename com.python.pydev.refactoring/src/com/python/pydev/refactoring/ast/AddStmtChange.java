@@ -8,14 +8,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MultiTextEdit;
-import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -28,7 +27,7 @@ import com.python.pydev.refactoring.visitors.WriterEraser;
  * This change adds a statement to the ast
  * @author Fabio
  */
-public class AddStmtChange implements IChanges {
+public class AddStmtChange extends AbstractStmtChange{
 
     private SimpleNode applyAt;
     private String attr;
@@ -42,16 +41,13 @@ public class AddStmtChange implements IChanges {
         this.stmt = stmt;
     }
 
+    
     /**
-     * @see com.python.pydev.refactoring.ast.IChanges#getChange(org.eclipse.jface.text.Document)
+     * @see com.python.pydev.refactoring.ast.IChanges#getChange(org.eclipse.jface.text.IDocument)
      */
-    public Change getChange(Document doc) throws Throwable {
-        DocumentChange docChange = new DocumentChange("Add Stmt Change", doc);
-        
-        MultiTextEdit rootEdit = new MultiTextEdit();
-        docChange.setEdit(rootEdit);
-        docChange.setKeepPreviewEdits(true);
-
+    public Change getChange(IDocument doc) throws Throwable {
+    	Tuple<DocumentChange, MultiTextEdit> tup = getDocChange(doc);
+    	
         stmtType[] attrObj = (stmtType[]) REF.getAttrObj(applyAt, attr);
         
         int prevStmtPos = 0;
@@ -90,12 +86,13 @@ public class AddStmtChange implements IChanges {
         
         InsertEdit insertEdit = new InsertEdit(prevStmtPos, buffer.toString());
         
-        rootEdit.addChild(insertEdit);
-        docChange.addTextEditGroup(new TextEditGroup("Add Stmt Change", insertEdit));
-        return docChange;
+        addTextEdit("Add Stmt Change", tup, insertEdit);
+        return tup.o1;
     }
 
-    /**
+
+
+	/**
      * @param prefs the preferences when printing the nodes
      * @param after: the offset returned should be after the end of the offset of this node (so this
      * is the node before the statement we're adding)

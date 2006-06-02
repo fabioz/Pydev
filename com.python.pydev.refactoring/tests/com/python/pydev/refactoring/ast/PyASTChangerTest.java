@@ -19,7 +19,7 @@ public class PyASTChangerTest extends TestCase {
     	try {
 			PyASTChangerTest test = new PyASTChangerTest();
 			test.setUp();
-			test.test2();
+			test.test4();
 			test.tearDown();
 			
 			junit.textui.TestRunner.run(PyASTChangerTest.class);
@@ -96,6 +96,27 @@ public class PyASTChangerTest extends TestCase {
     		System.out.println(result);
     	}
     	assertEquals("class C1:pass\nclass test:\n    pass\nclass C2:pass\n", result);
+    	
+    }
+    
+    public void test4() throws Exception {
+    	Document doc = new Document("" +
+    			"class C1:pass\n" +
+    			"class C2:pass\n" +
+    	"");
+    	PyASTChanger changer = new PyASTChanger(doc);
+    	SimpleNode ast = changer.getAST();
+    	Module m = (Module) ast;
+    	assertEquals(2, m.body.length);
+    	
+    	changer.delStmt(m, "body", 1);
+    	changer.apply(new NullProgressMonitor());
+    	
+    	String result = doc.get();
+    	if(DEBUG){
+    		System.out.println(result);
+    	}
+    	assertEquals("class C1:pass\n", result);
     	
     }
 
