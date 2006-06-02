@@ -34,6 +34,12 @@ public class RefactorProcessFactory {
                 }
                 
             }else{
+                if(definition.scope != null){
+                	//classvar
+                	if(definition.scope.isLastClassDef()){
+                		return new PyRenameAttributeProcess(definition, d.target);
+                	}
+                }
                 return new PyRenameLocalProcess(definition);
             }
         }

@@ -12,7 +12,7 @@ public class RenameClassRefactoringTest extends RefactoringTestBase {
         try {
             RenameClassRefactoringTest test = new RenameClassRefactoringTest();
             test.setUp();
-            test.testRenameClass();
+            test.testRenameClassVar();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameClassRefactoringTest.class);
