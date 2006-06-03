@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.VisitorBase;
@@ -29,11 +30,24 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     
     protected SimpleNode lastVisited;
     
+    private int higherLine = -1;
+    
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
     protected Object unhandled_node(SimpleNode node) throws Exception {
         this.lastVisited = node;
+        if (this.lastVisited.beginLine > higherLine){
+            higherLine = this.lastVisited.beginLine;
+        }
+        for(Object o : node.specialsAfter){
+            if(o instanceof SpecialStr){
+                SpecialStr str = (SpecialStr) o;
+                if (str.beginLine > higherLine){
+                    higherLine = str.beginLine;
+                }
+            }
+        }
         return null;
     }
 
@@ -68,7 +82,12 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      */
     private void after(ASTEntry entry) {
         stack.pop();
-        entry.endLine = NodeUtils.getLineEnd(lastVisited);
+        int lineEnd = NodeUtils.getLineEnd(lastVisited);
+        if(lineEnd > higherLine){
+            entry.endLine = lineEnd;
+        }else{
+            entry.endLine = higherLine;
+        }
     }
 
 
