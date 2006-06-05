@@ -230,6 +230,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 	protected boolean initFinished = false;
 
 	private PyEditNotifier notifier;
+
+	private boolean disposed = false;
+	public boolean isDisposed() {
+		return disposed;
+	}
     
     // ---------------------------- end listeners stuff
     
@@ -578,6 +583,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
 
     // cleanup
     public void dispose() {
+    	this.disposed = true;
     	notifier.notifyOnDispose();
 
         PydevPrefs.getPreferences().removePropertyChangeListener(prefListener);
