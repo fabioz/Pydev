@@ -440,23 +440,25 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * Checks if there is some available info on the given module
      */
 	public boolean hasInfoOn(String moduleName) {
-		//we just check the top level (it is not possible to have info on an inner structure without
-		//having it in the top level too).
-        Iterator<List<IInfo>> itListOfInfo = topLevelInitialsToInfo.values().iterator();
-        while (itListOfInfo.hasNext()) {
-
-            Iterator<IInfo> it = itListOfInfo.next().iterator();
-            while (it.hasNext()) {
-
-                IInfo info = it.next();
-                if(info != null && info.getDeclaringModuleName() != null){
-                    if(info.getDeclaringModuleName().equals(moduleName)){
-                        return true;
-                    }
-                }
-            }
-        }
-		return false;
+		synchronized (lock) {
+			//we just check the top level (it is not possible to have info on an inner structure without
+			//having it in the top level too).
+	        Iterator<List<IInfo>> itListOfInfo = topLevelInitialsToInfo.values().iterator();
+	        while (itListOfInfo.hasNext()) {
+	
+	            Iterator<IInfo> it = itListOfInfo.next().iterator();
+	            while (it.hasNext()) {
+	
+	                IInfo info = it.next();
+	                if(info != null && info.getDeclaringModuleName() != null){
+	                    if(info.getDeclaringModuleName().equals(moduleName)){
+	                        return true;
+	                    }
+	                }
+	            }
+	        }
+			return false;
+		}
 	}
 	
 	/**

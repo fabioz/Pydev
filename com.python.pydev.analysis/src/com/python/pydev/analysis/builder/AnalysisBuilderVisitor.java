@@ -74,7 +74,11 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         }
         String moduleName = getModuleName(resource);
         AnalysisBuilderThread thread = AnalysisBuilderThread.createThread(document, resource, module, analyzeDependent, monitor, isFullBuild(), moduleName);
-        thread.start();
+        if(isFullBuild()){
+        	thread.run();
+        }else{
+        	thread.start();
+        }
     }
 
 
