@@ -56,7 +56,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      */
     public void traverse(SimpleNode node) throws Exception {
         if(node instanceof FunctionDef){
-            traverse((FunctionDef)node);
+            traverse((FunctionDef)node); //the order we traverse it is different
         }else{
             node.traverse(this);
         }

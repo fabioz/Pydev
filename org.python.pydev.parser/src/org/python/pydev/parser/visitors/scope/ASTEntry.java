@@ -16,13 +16,39 @@ import org.python.pydev.parser.visitors.NodeUtils;
 
 
 /**
+ * This class defines an AST entry.
+ * 
+ * It's creator may not fill all the needed info (because, getting that info
+ * will usually get more processing), so, be careful when accessing this
+ * info to make sure that the creator of this info actually provides it.
+ * 
  * @author Fabio
  */
 public class ASTEntry{
+    /**
+     * This is the parent of this entry. It may be null
+     */
     public ASTEntry parent;
+    
+    /**
+     * This is the node that represents this entry
+     */
     public SimpleNode node;
+    
+    /**
+     * This is the line where the entry finishes (most iterators will give you that)
+     */
     public int endLine;
+    
+    /**
+     * This is the name that this entry represents
+     */
     private String name;
+    
+    /**
+     * This is the column where the entry finishes (most iterators will NOT give you that)
+     */
+    public int endCol;
     
     public ASTEntry(ASTEntry parent, SimpleNode node){
         this(parent);
