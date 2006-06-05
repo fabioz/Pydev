@@ -30,11 +30,19 @@ public class RefactoringTestBase extends CodeCompletionTestsBase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        CompiledModule.COMPILED_MODULES_ENABLED = false;
-        this.restorePythonPath(false);
+        CompiledModule.COMPILED_MODULES_ENABLED = getCompiledModulesEnabled();
+        this.restorePythonPath(getForceRestorePythonPath());
         AbstractPyRefactoring.setPyRefactoring(new Refactorer());
         
     }
+
+	protected boolean getForceRestorePythonPath() {
+		return false;
+	}
+
+	protected boolean getCompiledModulesEnabled() {
+		return false;
+	}
     
     protected void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = true;

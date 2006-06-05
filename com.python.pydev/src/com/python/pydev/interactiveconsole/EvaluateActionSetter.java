@@ -109,7 +109,9 @@ public class EvaluateActionSetter implements IPyEditListener{
         evaluateAction.setId(EVALUATE_ACTION_ID);
 		Runnable runnable = new Runnable() {
 			public void run() {
-				edit.setAction(EVALUATE_ACTION_ID, evaluateAction);
+				if(!edit.isDisposed()){
+					edit.setAction(EVALUATE_ACTION_ID, evaluateAction);
+				}
 			}
 		};
 		Display.getDefault().syncExec(runnable);

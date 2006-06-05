@@ -333,6 +333,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 			
 			if(ast instanceof ImportFrom){
 				ImportFrom f = (ImportFrom) ast;
+				//f.names may be empty if it is a wild import
 				for (aliasType t : f.names){
 					NameTok importName = NodeUtils.getNameForAlias(t);
 					String importRep = NodeUtils.getFullRepresentationString(importName);
@@ -358,6 +359,9 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 				representation = NodeUtils.getFullRepresentationString(ast);
 			}
 			
+			if(representation == null){
+				continue; //can happen on wild imports
+			}
 			if(nameToFind.equals(representation)){
 				ret.add(new ASTEntry(tup.o3, ast));
 				continue;
