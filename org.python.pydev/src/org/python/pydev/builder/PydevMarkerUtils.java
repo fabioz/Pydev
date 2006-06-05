@@ -97,85 +97,87 @@ public class PydevMarkerUtils {
     public static IMarker createMarker(IResource resource, IDocument doc, String message, 
             int lineStart, int colStart, int lineEnd, int colEnd, 
             String markerType, int severity, Map<String, Object> additionalInfo, List<IMarker> existingMarkers) {
-    
-        existingMarkers = checkExistingMarkers(resource, markerType, existingMarkers);
+    	synchronized (resource) {
 
-        if(lineStart < 0){
-            lineStart = 0;
-        }
-        
-        int startAbsolute;
-        int endAbsolute;
-        
-        try {
-            IRegion start = doc.getLineInformation(lineStart);
-            startAbsolute = start.getOffset() + colStart;
-            if (lineEnd >= 0 && colEnd >= 0) {
-                IRegion end = doc.getLineInformation(lineEnd);
-                endAbsolute = end.getOffset() + colEnd;
-            } else {
-                //ok, we have to calculate it based on the line contents...
-                String line = doc.get(start.getOffset(), start.getLength());
-                int i;
-                StringBuffer buffer;
-                if((i = line.indexOf('#')) != -1){
-                    buffer = new StringBuffer(line.substring(0, i));
-                }else{
-                    buffer = new StringBuffer(line);
-                }
-                while(buffer.length() > 0 && Character.isWhitespace(buffer.charAt(buffer.length() - 1))){
-                    buffer.deleteCharAt(buffer.length() -1);
-                }
-                endAbsolute = start.getOffset() + buffer.length();
-            }
-        } catch (BadLocationException e) {
-            throw new RuntimeException("Unable to get the location requested for the resource "+resource.getLocation(), e);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    
-        IMarker marker = markerExists(resource, message, startAbsolute, endAbsolute, markerType, existingMarkers);
-        if (marker == null) {
-            try {
-                
-                
-                HashMap<String, Object> map = new HashMap<String, Object>();
-                map.put(IMarker.MESSAGE, message);
-                map.put(IMarker.LINE_NUMBER, new Integer(lineStart));
-                map.put(IMarker.CHAR_START, new Integer(startAbsolute));
-                map.put(IMarker.CHAR_END, new Integer(endAbsolute));
-                map.put(IMarker.SEVERITY, new Integer(severity));
-                
-                //add the additional info
-                if(additionalInfo != null){
-	                for (Map.Entry<String, Object> entry : additionalInfo.entrySet()) {
-	                    map.put(entry.getKey(), entry.getValue());
+	        existingMarkers = checkExistingMarkers(resource, markerType, existingMarkers);
+	
+	        if(lineStart < 0){
+	            lineStart = 0;
+	        }
+	        
+	        int startAbsolute;
+	        int endAbsolute;
+	        
+	        try {
+	            IRegion start = doc.getLineInformation(lineStart);
+	            startAbsolute = start.getOffset() + colStart;
+	            if (lineEnd >= 0 && colEnd >= 0) {
+	                IRegion end = doc.getLineInformation(lineEnd);
+	                endAbsolute = end.getOffset() + colEnd;
+	            } else {
+	                //ok, we have to calculate it based on the line contents...
+	                String line = doc.get(start.getOffset(), start.getLength());
+	                int i;
+	                StringBuffer buffer;
+	                if((i = line.indexOf('#')) != -1){
+	                    buffer = new StringBuffer(line.substring(0, i));
+	                }else{
+	                    buffer = new StringBuffer(line);
 	                }
-                }
-                
-                MarkerUtilities.createMarker(resource, map, markerType);
-            } catch (Exception e) {
-                PydevPlugin.log(e);
-            }
-        }else{
-        	//to check if it exists, we don't check all attributes, so, let's update those that we don't check (if needed).
-        	try {
-        		final Object lN = marker.getAttribute(IMarker.LINE_NUMBER);
-				if(lN == null || ((Integer)lN) != lineStart){
-        			marker.setAttribute(IMarker.LINE_NUMBER, new Integer(lineStart));
-        		}
-				
-        		final Object mS = marker.getAttribute(IMarker.SEVERITY);
-				if(mS == null || ((Integer)mS) != severity){
-        			marker.setAttribute(IMarker.SEVERITY, new Integer(severity));
-        		}
-				
-			} catch (Exception e) {
-				PydevPlugin.log(e);
-			}
-            existingMarkers.remove(marker);
-        }
-        return marker;
+	                while(buffer.length() > 0 && Character.isWhitespace(buffer.charAt(buffer.length() - 1))){
+	                    buffer.deleteCharAt(buffer.length() -1);
+	                }
+	                endAbsolute = start.getOffset() + buffer.length();
+	            }
+	        } catch (BadLocationException e) {
+	            throw new RuntimeException("Unable to get the location requested for the resource "+resource.getLocation(), e);
+	        } catch (Exception e) {
+	            throw new RuntimeException(e);
+	        }
+	    
+	        IMarker marker = markerExists(resource, message, startAbsolute, endAbsolute, markerType, existingMarkers);
+	        if (marker == null) {
+	            try {
+	                
+	                
+	                HashMap<String, Object> map = new HashMap<String, Object>();
+	                map.put(IMarker.MESSAGE, message);
+	                map.put(IMarker.LINE_NUMBER, new Integer(lineStart));
+	                map.put(IMarker.CHAR_START, new Integer(startAbsolute));
+	                map.put(IMarker.CHAR_END, new Integer(endAbsolute));
+	                map.put(IMarker.SEVERITY, new Integer(severity));
+	                
+	                //add the additional info
+	                if(additionalInfo != null){
+		                for (Map.Entry<String, Object> entry : additionalInfo.entrySet()) {
+		                    map.put(entry.getKey(), entry.getValue());
+		                }
+	                }
+	                
+	                MarkerUtilities.createMarker(resource, map, markerType);
+	            } catch (Exception e) {
+	                PydevPlugin.log(e);
+	            }
+	        }else{
+	        	//to check if it exists, we don't check all attributes, so, let's update those that we don't check (if needed).
+	        	try {
+	        		final Object lN = marker.getAttribute(IMarker.LINE_NUMBER);
+					if(lN == null || ((Integer)lN) != lineStart){
+	        			marker.setAttribute(IMarker.LINE_NUMBER, new Integer(lineStart));
+	        		}
+					
+	        		final Object mS = marker.getAttribute(IMarker.SEVERITY);
+					if(mS == null || ((Integer)mS) != severity){
+	        			marker.setAttribute(IMarker.SEVERITY, new Integer(severity));
+	        		}
+					
+				} catch (Exception e) {
+					PydevPlugin.log(e);
+				}
+	            existingMarkers.remove(marker);
+	        }
+	        return marker;
+    	}
     }
     /**
      * @param resource
@@ -184,28 +186,32 @@ public class PydevMarkerUtils {
      * @return
      */
     private static List<IMarker> checkExistingMarkers(IResource resource, String markerType, List<IMarker> existingMarkers) {
-        if(existingMarkers == null){
-            try {
-                existingMarkers = new ArrayList<IMarker>();
-                IMarker[] markers = resource.findMarkers(markerType, true, IResource.DEPTH_ZERO);
-                for (IMarker marker : markers) {
-                    existingMarkers.add(marker);
-                }
-            } catch (CoreException e) {
-            	existingMarkers = new ArrayList<IMarker>();
-                PydevPlugin.log(e);
-            }
-        }
-        return existingMarkers;
+    	synchronized (resource) {
+	        if(existingMarkers == null){
+	            try {
+	                existingMarkers = new ArrayList<IMarker>();
+	                IMarker[] markers = resource.findMarkers(markerType, true, IResource.DEPTH_ZERO);
+	                for (IMarker marker : markers) {
+	                    existingMarkers.add(marker);
+	                }
+	            } catch (CoreException e) {
+	            	existingMarkers = new ArrayList<IMarker>();
+	                PydevPlugin.log(e);
+	            }
+	        }
+	        return existingMarkers;
+    	}
     }
     
 
 
     public static IMarker createMarker(IResource resource, IDocument doc, String message, int lineNumber, String markerType, int severity, boolean userEditable, boolean istransient, List<IMarker> existingMarkers) {
-    	HashMap<String, Object> map = new HashMap<String, Object>();
-    	map.put(IMarker.USER_EDITABLE, new Boolean(userEditable));
-    	map.put(IMarker.TRANSIENT, new Boolean(istransient));
-        return createMarker(resource, doc, message, lineNumber, 0, lineNumber, 0, markerType, severity, map, existingMarkers);
+    	synchronized (resource) {
+	    	HashMap<String, Object> map = new HashMap<String, Object>();
+	    	map.put(IMarker.USER_EDITABLE, new Boolean(userEditable));
+	    	map.put(IMarker.TRANSIENT, new Boolean(istransient));
+	        return createMarker(resource, doc, message, lineNumber, 0, lineNumber, 0, markerType, severity, map, existingMarkers);
+    	}
     }
 
 }
