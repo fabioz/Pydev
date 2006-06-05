@@ -44,13 +44,28 @@ import com.python.pydev.refactoring.wizards.rename.PyRenameRefactoringWizard;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
 public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2{
-
-	public String extract(RefactoringRequest request) {
-		return null;
-	}
+    //--------------------------------------------------------- things we can do
 	public boolean canExtract() {
 		return false;
 	}
+    public boolean canRename() {
+        return false;
+    }
+    public boolean canInlineLocalVariable() {
+        return false;
+    }
+    public boolean canExtractLocalVariable() {
+        return false;
+    }
+    public boolean canFindDefinition() {
+        return true;
+    }
+    //----------------------------------------------------- end things we can do
+
+    
+    public String extract(RefactoringRequest request) {
+        return null;
+    }
 
 	
     /**
@@ -75,9 +90,6 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
             PydevPlugin.log(e);
         }
         return null;
-	}
-	public boolean canRename() {
-		return false;
 	}
 
 	public ItemPointer[] findDefinition(RefactoringRequest request) {
@@ -168,22 +180,13 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
 		return pointers.toArray(new ItemPointer[0]);
 	}
     
-    public boolean canFindDefinition() {
-		return true;
-	}
 
 	
-	public boolean canInlineLocalVariable() {
-		return false;
-	}
 	public String inlineLocalVariable(RefactoringRequest request) {
 		return null;
 	}
 
 	
-	public boolean canExtractLocalVariable() {
-		return false;
-	}
 	public String extractLocalVariable(RefactoringRequest request) {
 		return null;
 	}

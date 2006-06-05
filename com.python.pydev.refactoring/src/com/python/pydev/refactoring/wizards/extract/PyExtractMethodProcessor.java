@@ -1,5 +1,7 @@
 package com.python.pydev.refactoring.wizards.extract;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -50,12 +52,13 @@ public class PyExtractMethodProcessor extends RefactoringProcessor{
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();
         
-        getSelectedStmt();
+        List<SimpleNode> selectedStmt = getSelectedStmt();
+        System.out.println(selectedStmt);
         
 		return status;
 	}
 
-	private SimpleNode[] getSelectedStmt() {
+	private List<SimpleNode> getSelectedStmt() {
 		GetSelectedStmtsVisitor visitor = new GetSelectedStmtsVisitor(request.ps);
 		try {
 			request.getAST().accept(visitor);
