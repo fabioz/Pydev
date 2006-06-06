@@ -3,6 +3,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.net.URI;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
@@ -13,6 +14,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceProxy;
 import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspace;
@@ -416,6 +418,22 @@ public class ProjectStub implements IProject {
 
 	public void setNature(PythonNature nature) {
 		this.nature = nature;
+	}
+
+	public IResourceProxy createProxy() {
+		return null;
+	}
+
+	public URI getLocationURI() {
+		return null;
+	}
+
+	public URI getRawLocationURI() {
+		return null;
+	}
+
+	public boolean isLinked(int options) {
+		return false;
 	}
 
 }
