@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.python.pydev.core.FindInfo;
@@ -125,6 +126,26 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
 			PydevPlugin.logInfo("Unable to resolve nature for find definition request (python or jython interpreter may not be configured).");
 			return new ItemPointer[0];
 		}
+		
+		//check if it is already initialized....
+		try {
+			if(request.nature.isPython()){
+				if(!PydevPlugin.isPythonInterpreterInitialized()){
+					PydevPlugin.logInfo("Python interpreter manager not initialized.");
+					return new ItemPointer[0];
+				}
+			}else if(request.nature.isJython()){
+				if(!PydevPlugin.isJythonInterpreterInitialized()){
+					PydevPlugin.logInfo("Jython interpreter manager not initialized.");
+					return new ItemPointer[0];
+				}
+			}else{
+				throw new RuntimeException("Project is neither python nor jython?");
+			}
+		} catch (CoreException e1) {
+			throw new RuntimeException(e1);
+		}
+		//end check if it is already initialized....
 		
 		IModule mod = request.getModule();
 		if(mod == null){
