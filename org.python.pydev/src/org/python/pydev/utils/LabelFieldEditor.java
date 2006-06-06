@@ -6,16 +6,10 @@
 package org.python.pydev.utils;
 
 import org.eclipse.jface.preference.FieldEditor;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 
 
 public class LabelFieldEditor extends FieldEditor {
-    private Label label;
-
     public LabelFieldEditor(String name, String labelText, Composite parent) {
         init(name, labelText);
         createControl(parent);

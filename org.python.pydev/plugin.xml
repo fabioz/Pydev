@@ -95,7 +95,7 @@
             id="org.python.pydev.prefs">
       </page>
       <page
-            name="Editor"
+            name="Typing"
             category="org.python.pydev.prefs"
             class="org.python.pydev.plugin.PydevPrefs2"
             id="org.python.pydev.prefs2">

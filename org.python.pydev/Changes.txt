@@ -8,6 +8,7 @@ Pydev:
 - code completion issue with {} solved
 - Ctrl+W: now expands the selection to cover the whole word where the cursor is
 - Assign to attributes (provided by Joel Hedlund) was expanded so that Ctrl+1 on method line provides it as a valid proposal
+- A Typing preferences page was created so that the main page now fits in lower resolutions 
 
 Extensions:
 - mark occurrences improved
