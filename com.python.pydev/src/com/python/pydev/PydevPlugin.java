@@ -35,7 +35,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 	private PydevExtensionNotifier notifier;
 	private boolean validated;
     public static final String ANNOTATIONS_CACHE_KEY = "MarkOccurrencesJob Annotations";
-    public static final String OCCURRENCE_ANNOTATION_TYPE = "org.eclipse.jdt.ui.occurrences";
+    public static final String OCCURRENCE_ANNOTATION_TYPE = "com.python.pydev.occurrences";
 	
 	/**
 	 * The constructor.

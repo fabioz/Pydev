@@ -107,6 +107,35 @@
         name="Hierarchy View"
         id="com.python.pydev.ui.hierarchy.PyHierarchyView"/>
 </extension>
+<!-- occurrences annotation-->
+<extension point="org.eclipse.ui.editors.annotationTypes">
+	<type name="com.python.pydev.occurrences"/>
+</extension>
 
+<extension point="org.eclipse.ui.editors.markerAnnotationSpecification">
+	  <specification
+            annotationType="com.python.pydev.occurrences"
+            label="Occurrences (Pydev)"
+            icon="icons/searchm_obj.gif"
+            textPreferenceKey="pydevOccurrenceIndication"
+            textPreferenceValue="false"
+            highlightPreferenceKey="pydevOccurrenceHighlighting"
+            highlightPreferenceValue="true"
+            contributesToHeader="false"
+            overviewRulerPreferenceKey="pydevOccurrenceIndicationInOverviewRuler"
+            overviewRulerPreferenceValue="true"
+            verticalRulerPreferenceKey="pydevOccurrenceIndicationInVerticalRuler"
+            verticalRulerPreferenceValue="false"
+            colorPreferenceKey="occurrenceIndicationColor"
+            colorPreferenceValue="255,255,190"
+            presentationLayer="4"
+            showInNextPrevDropdownToolbarActionKey="pydevShowOccurrenceInNextPrevDropdownToolbarAction"
+            showInNextPrevDropdownToolbarAction="true"
+            isGoToNextNavigationTargetKey="pydevIsOccurrenceGoToNextNavigationTarget"
+	        isGoToNextNavigationTarget="false"
+            isGoToPreviousNavigationTargetKey="pydevIsOccurrenceGoToPreviousNavigationTarget"
+	        isGoToPreviousNavigationTarget="false">
+	  </specification>
+</extension>
 
 </plugin>
