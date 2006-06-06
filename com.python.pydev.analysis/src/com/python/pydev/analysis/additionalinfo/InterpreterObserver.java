@@ -69,20 +69,20 @@ public class InterpreterObserver implements IInterpreterObserver {
      *  
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyInterpreterManagerRecreated(org.python.pydev.ui.interpreters.AbstractInterpreterManager)
      */
-    public void notifyInterpreterManagerRecreated(final IInterpreterManager manager) {
+    public void notifyInterpreterManagerRecreated(final IInterpreterManager iManager) {
         try {
-            manager.getDefaultInterpreter(); //may throw a 'not configured' exception
+            iManager.getDefaultInterpreter(); //may throw a 'not configured' exception
             
-            if (!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(manager)) {
+            if (!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(iManager)) {
                 //not successfully loaded
                 Job j = new Job("Pydev... Restoring additional info") {
 
                     @Override
                     protected IStatus run(IProgressMonitor monitorArg) {
                         try {
-                            final String defaultInterpreter = manager.getDefaultInterpreter(); //it should be configured if we reach here.
+                            final String defaultInterpreter = iManager.getDefaultInterpreter(); //it should be configured if we reach here.
                             JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev... Restoring additional info", IProgressMonitor.UNKNOWN, this);
-                            notifyDefaultPythonpathRestored(manager, defaultInterpreter, jobProgressComunicator);
+                            notifyDefaultPythonpathRestored(iManager, defaultInterpreter, jobProgressComunicator);
                             jobProgressComunicator.done();
                         } catch (Exception e) {
                             PydevPlugin.log(e);
