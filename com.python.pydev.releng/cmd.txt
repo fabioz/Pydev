@@ -21,8 +21,8 @@ set PDE_BUILD_SCRIPTS=\plugins\org.eclipse.pde.build_3.1.2\scripts
 e:
 
 
-set PYDEV_VERSION=1.0.9
-set BUILD_ID=1_0_9
+set PYDEV_VERSION=1.1.0
+set BUILD_ID=1_1_0
 
 cd %EC_WORKSPACE%\org.python.pydev.releng 
 java5 -cp %EC_HOME%\startup.jar org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE% -DPYDEV_VERSION=%PYDEV_VERSION% -DBUILD_ID=%BUILD_ID%  -DRETROWEAVER_HOME=%RETROWEAVER_HOME% -DdontFetchAnything=True -DcleanAfter=True -DPDE_BUILD_SCRIPTS=%PDE_BUILD_SCRIPTS%

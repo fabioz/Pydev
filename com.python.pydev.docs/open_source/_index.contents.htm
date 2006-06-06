@@ -36,31 +36,23 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <h2>News: </h2>
 
 
+
 <h3>New Release: LAST_VERSION_TAG</h3>
-
-  
-<li>This is a single-bugfix release. It fixes an error that could occur when adding a newline in a document
-	that had a docstring with an empty newline in the global level.
-</li>
-
-
-<h3>New Release: 1.0.7</h3>
 
 <h4>Major highlights:</h4>
 
-  
-<li>The Parser character stream was redone to be more efficient (especially when dealing with big files)
-</li><li>The thread that does analysis had its priority lowered
-</li><li>When running a file, the pythonpath set now let's the project pythonpath before the system pythonpath
-</li><li>The way modules are resolved for loading when running unit-tests has changed
-</li><li>Indentation further improved
-</li><li>Debugger changes for working with jython
-</li><li><strong>Ctrl+2+w</strong>: wraps the current paragraph to the number of lines specified in the preferences. This was provided by <strong>Don Tailor</strong> (revisions are also available in <a href="http://pilger.googlepages.com/pydevstuff">http://pilger.googlepages.com/pydevstuff</a>)
-</li><li>Lot's of bug-fixes and optimizations
+<ul>
+<li>Startup is now faster for the plugin: actions, scripts, etc. are now all initialized in a separate thread
+</li><li>Indentation engine does not degrade as document grows
+</li><li>Multiple-string does not mess up highlighting anymore
+</li><li>code completion issue with {} solved
+</li><li>Ctrl+W: now expands the selection to cover the whole word where the cursor is
+</li><li>Assign to attributes (provided by Joel Hedlund) was expanded so that Ctrl+1 on method line provides it as a valid proposal
+</li><li>A Typing preferences page was created so that the main page now fits in lower resolutions 
 </li>
+</ul>
 
-
-<br/><br/>
+<br/>
 
 <h3>News</h3>
 
