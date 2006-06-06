@@ -217,6 +217,22 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         
     }
     
+    public static boolean isPythonInterpreterInitialized() {
+    	IInterpreterManager pythonInterpreterManager2 = getPythonInterpreterManager();
+    	if(pythonInterpreterManager2 instanceof StubInterpreterManager){
+    		return false;
+    	}
+    	return true;
+	}
+    
+    public static boolean isJythonInterpreterInitialized() {
+    	IInterpreterManager jythonInterpreterManager2 = getJythonInterpreterManager();
+    	if(jythonInterpreterManager2 instanceof StubInterpreterManager){
+    		return false;
+    	}
+    	return true;
+    }
+    
 
     /**
      * This is called when the plugin is being stopped.
