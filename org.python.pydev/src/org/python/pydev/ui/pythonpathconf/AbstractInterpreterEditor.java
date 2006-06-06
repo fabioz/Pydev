@@ -370,7 +370,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                             String filePath = dialog.open();
                             if(filePath != null){
                                 info.libs.add(filePath);
-                                System.out.println("do add folder");
+                                changed = true;
                             }
                             
                         } else if (widget == addBtSystemJar) {
@@ -379,7 +379,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                             if(filePath != null){
                                 info.libs.add(filePath);
                                 info.dllLibs.add(filePath);
-                                System.out.println("do add jar");
+                                changed = true;
                             }
                                 
                         } else if (widget == removeBtSystemFolder) {
@@ -389,8 +389,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                                 String text = s.getText();
                                 info.libs.remove(text);
                                 info.dllLibs.remove(text);
+                                changed = true;
                             }
-                            System.out.println("do remove");
                         }
                         updateTree();
                     }
