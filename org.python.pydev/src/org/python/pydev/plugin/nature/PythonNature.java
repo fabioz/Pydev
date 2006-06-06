@@ -437,6 +437,9 @@ public class PythonNature implements IPythonNature {
     public static PythonNature getPythonNature(IProject project) {
         if(project != null){
             try {
+            	if(!project.isOpen()){
+            		return null;
+            	}
                 if(project.hasNature(PYTHON_NATURE_ID)){
 	                IProjectNature n = project.getNature(PYTHON_NATURE_ID);
 	                if(n instanceof PythonNature){
