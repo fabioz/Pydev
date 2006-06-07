@@ -103,4 +103,42 @@ public class FullRepIterableTest extends TestCase {
     	assertEquals("__init__",FullRepIterable.getLastPart("test.__init__"));
     	assertEquals("__init__",FullRepIterable.getLastPart("test.test.__init__"));
     }
+    
+    
+    public void testDotSplit() throws Exception {
+    	String[] strings = FullRepIterable.dotSplit("foo.bar.f");
+    	assertEquals(3, strings.length);
+    	assertEquals("foo", strings[0]);
+    	assertEquals("bar", strings[1]);
+    	assertEquals("f", strings[2]);
+		
+    	strings = FullRepIterable.dotSplit("foo.bar.");
+    	assertEquals(2, strings.length);
+    	assertEquals("foo", strings[0]);
+    	assertEquals("bar", strings[1]);
+    	
+    	assertEquals(0, "...".split("\\.").length);
+    	strings = FullRepIterable.dotSplit("...");
+    	assertEquals(0, strings.length);
+    	
+    	strings = FullRepIterable.dotSplit("");
+    	assertEquals(0, strings.length);
+    	
+    	strings = FullRepIterable.dotSplit("foo");
+    	assertEquals(1, strings.length);
+    	assertEquals("foo", strings[0]);
+    	
+    	strings = FullRepIterable.dotSplit("f.bu");
+    	assertEquals(2, strings.length);
+    	assertEquals("f", strings[0]);
+    	assertEquals("bu", strings[1]);
+    	
+    	strings = FullRepIterable.dotSplit("..f.b...u..");
+    	assertEquals(3, strings.length);
+    	assertEquals("f", strings[0]);
+    	assertEquals("b", strings[1]);
+    	assertEquals("u", strings[2]);
+    	
+	}
+
 }

@@ -17,7 +17,6 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
@@ -298,16 +297,35 @@ public abstract class PyAction implements IEditorActionDelegate {
      * @param c the character to search for
      * @return an integer (int) representing the number of occurences of this character
      */
-    public static int countChars(char c, Object line) {
-        int ret = 0;
-        for (int i = 0; i < ParsingUtils.len(line); i++) {
-            if(ParsingUtils.charAt(line, i) == c){
-                ret += 1;
-            }
-        }
-        return ret;
+    public static int countChars(char c, String line) {
+    	int ret = 0;
+    	int len = line.length();
+		for (int i = 0; i < len; i++) {
+    		if(line.charAt(i) == c){
+    			ret += 1;
+    		}
+    	}
+    	return ret;
     }
-
+    
+    /**
+     * Counts the number of occurences of a certain character in a string.
+     * 
+     * @param line the string to search in
+     * @param c the character to search for
+     * @return an integer (int) representing the number of occurences of this character
+     */
+    public static int countChars(char c, StringBuffer line) {
+    	int ret = 0;
+    	int len = line.length();
+		for (int i = 0; i < len; i++) {
+    		if(line.charAt(i) == c){
+    			ret += 1;
+    		}
+    	}
+    	return ret;
+    }
+    
     /**
      * @param ps
      * @return string with the token or empty token if not found.

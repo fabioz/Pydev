@@ -258,14 +258,12 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
     public static void communicateProgress(IProgressMonitor monitor, int totalResources, int i, IResource r, PyDevBuilderVisitor visitor) {
         if(monitor != null){
             StringBuffer msgBuf = new StringBuffer();
-            msgBuf.append("Visiting... (");
+            msgBuf.append(r.getName());
+            msgBuf.append(" (");
             msgBuf.append(i);
             msgBuf.append(" of ");
             msgBuf.append(totalResources);
-            msgBuf.append(") - ");
-            msgBuf.append(r.getProjectRelativePath());
-            msgBuf.append(" - visitor: ");
-            msgBuf.append(visitor.getClass().getName());
+            msgBuf.append(")");
        
             //in this case the visitor does not have the progress and therefore does not communicate the progress
             String name = msgBuf.toString();

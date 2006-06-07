@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -82,7 +83,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
     public Object visitCall(Call node) throws Exception {
         if(entryPointCorrect == false && methodCall.length() > 0){
 	        entryPointCorrect = true;
-	        String[] c = methodCall.split("\\.");
+	        String[] c = FullRepIterable.dotSplit(methodCall);
 	        
 	        
 	        

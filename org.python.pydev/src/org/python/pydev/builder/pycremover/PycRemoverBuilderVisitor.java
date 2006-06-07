@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
 public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
 
@@ -31,6 +32,17 @@ public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
             if(file.exists()){
                 return;
             }
+            
+            //this is needed because this method might be called alone (not in the grouper that checks
+            //if it is in the pythonpath before)
+            //
+            //this happens only when a .pyc file is found... if it was a .py file, this would not be needed (as is the
+            //case in the visit removed resource)
+            
+        	if(!PythonNature.isResourceInPythonpath(dotPy, resource.getProject())){
+            	return; // we only analyze resources that are in the pythonpath
+            }
+
             //if still did not return, let's remove it
             treatPycFile(loc);
         }

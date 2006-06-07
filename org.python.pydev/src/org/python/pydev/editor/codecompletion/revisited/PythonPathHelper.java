@@ -241,7 +241,7 @@ public class PythonPathHelper implements Serializable{
                         
                         //this means that more than 1 module is specified, so, in order to get it,
                         //we have to go and see if all the folders to that module have __init__.py in it...
-                        String[] modulesParts = s.split("\\.");
+                        String[] modulesParts = FullRepIterable.dotSplit(s);
                         
                         if(modulesParts.length > 1 && moduleFile.isFile()){
                             String[] t = new String[modulesParts.length -1];

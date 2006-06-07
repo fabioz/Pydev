@@ -172,7 +172,7 @@ public class SourceModule extends AbstractModule {
                     //some tests are available at: PythonCompletionTestWithoutBuiltins.testDeepNestedXXX
                     
                     int iActTok = 0;
-                    String[] actToks = activationToken.split("\\.");
+                    String[] actToks = FullRepIterable.dotSplit(activationToken);
                     if(actToks[iActTok].equals(rep)){
                         //System.out.println("Now we have to find act..."+act+"(which is a definition of:"+rep+")");
                         try {

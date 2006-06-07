@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.python.pydev.core.FullRepIterable;
 
 
 public class PythonPackageWizard  extends AbstractPythonWizard {
@@ -42,7 +43,7 @@ public class PythonPackageWizard  extends AbstractPythonWizard {
         }
         IContainer parent = validatedSourceFolder;
         String validatedName = filePage.getValidatedName();
-        String[] packageParts = validatedName.split("\\.");
+        String[] packageParts = FullRepIterable.dotSplit(validatedName);
         for (String packagePart : packageParts) {
             IFolder folder = parent.getFolder(new Path(packagePart));
             if(!folder.exists()){

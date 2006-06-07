@@ -3,6 +3,7 @@
  */
 package org.python.pydev.core;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -207,13 +208,49 @@ public class FullRepIterable implements Iterable<String>{
 	 * @return whether the foundRep contains some part with the nameToFind
 	 */
 	public static boolean containsPart(String foundRep, String nameToFind) {
-		String[] strings = foundRep.split("\\.");
+		String[] strings = dotSplit(foundRep);
 		for (String string : strings) {
 			if(string.equals(nameToFind)){
 				return true;
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Splits the string as would string.split("\\."), but without yielding empty strings
+	 */
+	public static String[] dotSplit(String string) {
+		ArrayList<String> ret = new ArrayList<String>();
+		int len = string.length();
+		
+		int last = 0;
+		
+		char c = 0;
+		
+		for (int i = 0; i < len; i++) {
+			c = string.charAt(i);
+			if(c == '.'){
+				if(last != i){
+					ret.add(string.substring(last, i));
+				}
+				while(c == '.' && i < len-1){
+					i++;
+					c = string.charAt(i);
+				}
+				last = i;
+			}
+		}
+		if(c != '.'){
+			if(last == 0 && len > 0){
+				ret.add(string); //it is equal to the original (no dots)
+				
+			}else if(last < len){
+				ret.add(string.substring(last, len));
+				
+			}
+		}
+		return ret.toArray(new String[ret.size()]);
 	}
 	
 

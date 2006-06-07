@@ -159,7 +159,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 }
 
                 if (element.length() > 0 && goForIt) {
-                    String[] splitted = element.split("\\.");
+                    String[] splitted = FullRepIterable.dotSplit(element);
                     if (splitted.length > 0) {
                         //this is the completion
                         set.add(new ConcreteToken(splitted[0], "", "", moduleToGetTokensFrom, type));
