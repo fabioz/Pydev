@@ -8,7 +8,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.ModulesKey;
@@ -125,7 +124,8 @@ public class InterpreterObserver implements IInterpreterObserver {
 
                 if (key.file.exists()) {
 
-                    if (PythonPathHelper.isValidSourceFile(REF.getFileAbsolutePath(key.file))) {
+                    String fileAbsolutePath = REF.getFileAbsolutePath(key.file);
+					if (PythonPathHelper.isValidSourceFile(fileAbsolutePath)) {
                         StringBuffer buffer = new StringBuffer();
                         buffer.append("Creating ");
                         buffer.append(additionalFeedback);
@@ -141,7 +141,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                         try {
                             
                             //  the code below works with the default parser (that has much more info... and is much slower)
-                            PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(new Document(REF.getFileContents(key.file)), false, null);
+                            PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(REF.getDocFromFile(key.file), false, null);
                             Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(parserInfo);
                             SimpleNode node = obj.o1;
 
