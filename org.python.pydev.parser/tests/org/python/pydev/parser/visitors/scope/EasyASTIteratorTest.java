@@ -168,6 +168,9 @@ public class EasyASTIteratorTest extends TestCase {
 "\n";
 
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str), false, null));
+        if(objects.o2 != null){
+            throw new RuntimeException(objects.o2);
+        }
         SimpleNode root = objects.o1;
         root.accept(visitor);
         Iterator iterator = visitor.getIterator();

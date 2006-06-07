@@ -186,7 +186,7 @@ class coverage:
             self.start()
             import __main__
             sys.path[0] = os.path.dirname(sys.argv[0])
-            execfile(sys.argv[0], __main__.__dict__)
+            execfile(sys.argv[0], __main__.__dict__) #@UndefinedVariable
         if not args:
             args = self.cexecuted.keys()
         ignore_errors = settings.get('ignore-errors')
@@ -302,7 +302,7 @@ class coverage:
             raise self.error, "File '%s' not Python source." % filename
         source = open(filename, 'r')
         import parser
-        tree = parser.suite(source.read()).totuple(1)
+        tree = parser.suite(source.read()).totuple(1) #@UndefinedVariable
         source.close()
         statements = {}
         self.find_statements(tree, statements)
@@ -650,4 +650,4 @@ if __name__ == '__main__':
 #
 #
 #
-# $Id: coverage.py,v 1.9 2006-05-15 13:45:28 fabioz Exp $
+# $Id: coverage.py,v 1.10 2006-06-07 00:31:06 fabioz Exp $

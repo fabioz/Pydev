@@ -37,7 +37,6 @@ import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
-import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Print;
@@ -114,8 +113,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         n.beginColumn = name.beginColumn;
         n.beginLine = name.beginLine;
         addSpecials(name, n);
-        name.specialsBefore = n.specialsBefore;
-        name.specialsAfter = n.specialsAfter;
+        name.specialsBefore = n.getSpecialsBefore();
+        name.specialsAfter = n.getSpecialsAfter();
         return n;
     }
     
@@ -212,7 +211,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             boolean nl = true;
             if (stack.nodeArity() == 0){
             	Print p = new Print(null, null, true);
-            	p.specialsBefore.add(0, "print ");
+            	p.getSpecialsBefore().add(0, "print ");
                 return p;
             }
             
@@ -221,7 +220,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 nl = false;
             }
             Print p = new Print(null, makeExprs(), nl);
-        	p.specialsBefore.add(0, "print ");
+        	p.getSpecialsBefore().add(0, "print ");
             return p;
         case JJTPRINTEXT_STMT:
             nl = true;
@@ -231,8 +230,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             }
             exprs = makeExprs(stack.nodeArity()-1);
             p = new Print(makeExpr(), exprs, nl);
-            p.specialsBefore.add(0, ">> ");
-        	p.specialsBefore.add(0, "print ");
+            p.getSpecialsBefore().add(0, ">> ");
+        	p.getSpecialsBefore().add(0, "print ");
             return p;
         case JJTBEGIN_FOR_STMT:
             return new For(null,null,null,null);
@@ -318,8 +317,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         case JJTBEGIN_DECORATOR:
             return new decoratorsType(null,null,null,null, null);
         case JJTDECORATORS:
-            ArrayList list2 = new ArrayList();
-            ArrayList listArgs = new ArrayList();
+            ArrayList<Object> list2 = new ArrayList<Object>();
+            ArrayList<Object> listArgs = new ArrayList<Object>();
             while(stack.nodeArity() > 0){
                 SimpleNode node = (SimpleNode) stack.popNode();
                 while(!(node instanceof decoratorsType)){
@@ -643,9 +642,9 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             arguments = makeArguments(arity - 1);
             Lambda lambda = new Lambda(arguments, test);
             if(arguments == null || arguments.args == null || arguments.args.length == 0){
-                lambda.specialsBefore.add("lambda");
+                lambda.getSpecialsBefore().add("lambda");
             }else{
-                lambda.specialsBefore.add("lambda ");
+                lambda.getSpecialsBefore().add("lambda ");
             }
             return lambda;
         case JJTELLIPSES:
@@ -662,17 +661,25 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             java.util.List<Object> specialsAfter = new ArrayList<Object>();
             for (int j = 0; j < arity; j++) {
                 if (arr[j].getId() == JJTCOLON){
-                    specialsBefore.addAll(arr[j].specialsBefore);
-                    specialsAfter.addAll(arr[j].specialsAfter);
-                    arr[j].specialsBefore.clear(); //this nodes may be reused among parses, so, we have to erase the specials
-                    arr[j].specialsAfter.clear();
+                    if(arr[j].specialsBefore != null){
+                        specialsBefore.addAll(arr[j].specialsBefore);
+                        arr[j].specialsBefore.clear(); //this nodes may be reused among parses, so, we have to erase the specials
+                    }
+                    if(arr[j].specialsAfter != null){
+                        specialsAfter.addAll(arr[j].specialsAfter);
+                        arr[j].specialsAfter.clear();
+                    }
                     k++;
                 }else{
                     values[k] = (exprType) arr[j];
-                    values[k].specialsBefore.addAll(specialsBefore);
-                    values[k].specialsBefore.addAll(specialsAfter);
-                    specialsBefore.clear();
-                    specialsAfter.clear();
+                    if(specialsBefore.size() > 0){
+                        values[k].getSpecialsBefore().addAll(specialsBefore);
+                        specialsBefore.clear();
+                    }
+                    if(specialsAfter.size() > 0){
+                        values[k].getSpecialsBefore().addAll(specialsAfter);
+                        specialsAfter.clear();
+                    }
                 }
             }
             SimpleNode sliceRet;
@@ -682,8 +689,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 sliceRet = new Slice(values[0], values[1], values[2]);
             }
             //this may happen if we have no values
-            sliceRet.specialsBefore.addAll(specialsBefore);
-            sliceRet.specialsAfter.addAll(specialsAfter);
+            sliceRet.getSpecialsBefore().addAll(specialsBefore);
+            sliceRet.getSpecialsAfter().addAll(specialsAfter);
             specialsBefore.clear();
             specialsAfter.clear();
             return sliceRet;
@@ -755,8 +762,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
                 //we have to set that, because if we later add things to the previous Name, we will now want it to be added to
                 //the new name (comments will only appear later and may be added to the previous name -- so, we replace the previous
                 //name specials list).
-                name0.specialsBefore = name.specialsBefore;
-                name0.specialsAfter = name.specialsAfter;
+                name0.specialsBefore = name.getSpecialsBefore();
+                name0.specialsAfter = name.getSpecialsAfter();
             }
             name.id = sb.toString();
             return name;
@@ -793,22 +800,30 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
 
     private void addSpecialsAndClearOriginal(SimpleNode from, SimpleNode to) {
     	addSpecials(from, to);
-    	from.specialsBefore.clear();
-    	from.specialsAfter.clear();
+        if(from.specialsBefore != null){
+            from.specialsBefore.clear();
+        }
+        if(from.specialsAfter != null){
+            from.specialsAfter.clear();
+        }
 	}
 
 	private void addSpecials(SimpleNode from, SimpleNode to) {
-        to.specialsBefore.addAll(from.specialsBefore);
-        to.specialsAfter.addAll(from.specialsAfter);
+        if(from.specialsBefore != null && from.specialsBefore.size() > 0){
+            to.getSpecialsBefore().addAll(from.specialsBefore);
+        }
+        if(from.specialsAfter != null && from.specialsAfter.size() > 0){
+            to.getSpecialsAfter().addAll(from.specialsAfter);
+        }
     }
     
-    private void addSpecialsBeforeToAfter(SimpleNode from, SimpleNode to) {
-        to.specialsAfter.addAll(from.specialsBefore);
-        from.specialsBefore.clear();
-    }
     private void addSpecialsBefore(SimpleNode from, SimpleNode to) {
-        to.specialsBefore.addAll(from.specialsBefore);
-        to.specialsBefore.addAll(from.specialsAfter);
+        if(from.specialsBefore != null && from.specialsBefore.size() > 0){
+            to.getSpecialsBefore().addAll(from.specialsBefore);
+        }
+        if(from.specialsAfter != null && from.specialsAfter.size() > 0){
+            to.getSpecialsBefore().addAll(from.specialsAfter);
+        }
     }
 
     /**
@@ -819,8 +834,13 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         Suite suite = (Suite)popNode();
         stmtType[] body;
         body = suite.body;
-        body[0].specialsBefore.addAll(suite.specialsBefore);
-        body[body.length-1].specialsAfter.addAll(suite.specialsAfter);
+        if(suite.specialsBefore != null && suite.specialsBefore.size() > 0){
+            body[0].getSpecialsBefore().addAll(suite.specialsBefore);
+        }
+        
+        if(suite.specialsAfter != null && suite.specialsAfter.size() > 0){
+            body[body.length-1].getSpecialsAfter().addAll(suite.specialsAfter);
+        }
         return body;
     }
 
@@ -830,8 +850,8 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         exprType kwargs = null;
 
         exprType func = null;
-        ArrayList keywordsl = new ArrayList();
-        ArrayList argsl = new ArrayList();
+        ArrayList<SimpleNode> keywordsl = new ArrayList<SimpleNode>();
+        ArrayList<SimpleNode> argsl = new ArrayList<SimpleNode>();
         for (Iterator iter = nodes.iterator(); iter.hasNext();) {
             SimpleNode node = (SimpleNode) iter.next();
             
@@ -840,15 +860,15 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
 				final ExtraArgValue extraArg = (ExtraArgValue) node;
                 kwargs = (extraArg).value;
                 this.addSpecialsAndClearOriginal(extraArg, kwargs);
-                extraArg.specialsBefore = kwargs.specialsBefore;
-                extraArg.specialsAfter = kwargs.specialsAfter;
+                extraArg.specialsBefore = kwargs.getSpecialsBefore();
+                extraArg.specialsAfter = kwargs.getSpecialsAfter();
                 
             } else if (node.getId() == JJTEXTRAARGVALUELIST) {
             	final ExtraArgValue extraArg = (ExtraArgValue) node;
                 starargs = extraArg.value;
                 this.addSpecialsAndClearOriginal(extraArg, starargs);
-                extraArg.specialsBefore = starargs.specialsBefore;
-                extraArg.specialsAfter = starargs.specialsAfter;
+                extraArg.specialsBefore = starargs.getSpecialsBefore();
+                extraArg.specialsAfter = starargs.getSpecialsAfter();
                 
             } else if(node instanceof keywordType){
                 //keyword
@@ -888,13 +908,6 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
         return new AugAssign(target, op, value);
     }
 
-    private void dumpStack() {
-        int n = stack.nodeArity();
-        System.out.println("nodeArity:" + n);
-        if (n > 0) {
-            System.out.println("peek:" + stack.peekNode());
-        }
-    }
 
     SimpleNode peekNode() {
         return (SimpleNode) stack.peekNode();
@@ -950,8 +963,12 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             exprType parameter = node.parameter;
             fpargs[i] = parameter;
 
-            parameter.specialsBefore.addAll(node.specialsBefore);
-            parameter.specialsAfter.addAll(node.specialsAfter);
+            if(node.specialsBefore != null && node.specialsBefore.size() > 0){
+                parameter.getSpecialsBefore().addAll(node.specialsBefore);
+            }
+            if(node.specialsAfter != null && node.specialsAfter.size() > 0){
+                parameter.getSpecialsAfter().addAll(node.specialsAfter);
+            }
             
             ctx.setParam(fpargs[i]);
             defaults[i] = node.value;
@@ -983,7 +1000,7 @@ public class TreeBuilder implements PythonGrammarTreeConstants {
             l--;
             addSpecialsAndClearOriginal(node, stararg);
         }
-        ArrayList list = new ArrayList();
+        ArrayList<SimpleNode> list = new ArrayList<SimpleNode>();
         for (int i = l-1; i >= 0; i--) {
             list.add((DefaultArg) popNode());
         }

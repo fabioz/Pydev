@@ -40,11 +40,13 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         if (this.lastVisited.beginLine > higherLine){
             higherLine = this.lastVisited.beginLine;
         }
-        for(Object o : node.specialsAfter){
-            if(o instanceof SpecialStr){
-                SpecialStr str = (SpecialStr) o;
-                if (str.beginLine > higherLine){
-                    higherLine = str.beginLine;
+        if(node.specialsAfter != null){
+            for(Object o : node.specialsAfter){
+                if(o instanceof SpecialStr){
+                    SpecialStr str = (SpecialStr) o;
+                    if (str.beginLine > higherLine){
+                        higherLine = str.beginLine;
+                    }
                 }
             }
         }

@@ -5,14 +5,12 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * Tests here have no dependency on the pythonpath.

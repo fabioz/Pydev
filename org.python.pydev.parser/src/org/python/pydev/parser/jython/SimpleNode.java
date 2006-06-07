@@ -20,9 +20,11 @@ public class SimpleNode implements Node {
      * 
      * If they are not of commentType, they should be strings, with things such as colons, parenthesis, etc, to help
      * in the process of pretty-printing the ast.
+     * 
+     * They are only initialized 'on-demand'
      */
-    public List<Object> specialsBefore = new ArrayList<Object>();
-    public List<Object> specialsAfter  = new ArrayList<Object>();
+    public List<Object> specialsBefore;
+    public List<Object> specialsAfter;
 
     public SimpleNode() { }
 
@@ -57,17 +59,17 @@ public class SimpleNode implements Node {
             
             if(after){
                 if(special instanceof commentType){
-                    specialsAfter.add(special);
+                    getSpecialsAfter().add(special);
                 }else{
                     int addAt = countAfter(special);
-                    specialsAfter.add(addAt, special);
+                    getSpecialsAfter().add(addAt, special);
                 }
             }else{
                 if(special instanceof commentType){
-                    specialsBefore.add(special);
+                    getSpecialsBefore().add(special);
                 }else{
                     int addAt = countBefore(special);
-                    specialsBefore.add(addAt, special);
+                    getSpecialsBefore().add(addAt, special);
                 }
             }
 //            if(this instanceof DefaultArg){
@@ -77,6 +79,20 @@ public class SimpleNode implements Node {
 //                System.out.println("Adding:"+special+" after:"+after+" to:"+this+" class:"+special.getClass());
 //            }
         }
+    }
+
+    public List<Object> getSpecialsBefore() {
+        if(specialsBefore == null){
+            specialsBefore = new ArrayList<Object>();
+        }
+        return specialsBefore;
+    }
+    
+    public List<Object> getSpecialsAfter() {
+        if(specialsAfter == null){
+            specialsAfter = new ArrayList<Object>();
+        }
+        return specialsAfter;
     }
 
     private int countStrings() {
@@ -112,6 +128,9 @@ public class SimpleNode implements Node {
      * @return
      */
     private int getIndex(int[] lineCol, List l) {
+        if(l == null){
+            return 0;
+        }
         int i=0;
         for(Object o : l){
             int[] existing = getLineCol(o);
@@ -149,6 +168,9 @@ public class SimpleNode implements Node {
      * @return
      */
     private int doCount(List l) {
+        if(l == null){
+            return 0;
+        }
         int i=0;
         for(Object o : l){
             if (o instanceof String || o instanceof SpecialStr){

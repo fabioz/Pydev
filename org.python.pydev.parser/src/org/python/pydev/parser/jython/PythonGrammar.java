@@ -190,9 +190,9 @@ public class PythonGrammar/*@bgen(jjtree)*/implements PythonGrammarTreeConstants
             System.out.println("addToLastIdNode:"+token+ " to "+lastIdNode);
         }
         if(after){
-                lastIdNode.specialsAfter.add(token);
+                lastIdNode.getSpecialsAfter().add(token);
         }else{
-                lastIdNode.specialsBefore.add(token);
+                lastIdNode.getSpecialsBefore().add(token);
         }
     }
 

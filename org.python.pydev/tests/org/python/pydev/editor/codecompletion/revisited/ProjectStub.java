@@ -120,7 +120,7 @@ public class ProjectStub implements IProject {
     }
 
     public boolean isOpen() {
-        throw new RuntimeException("not impl");
+        return true;
     }
 
     public void move(IProjectDescription description, boolean force, IProgressMonitor monitor) throws CoreException {

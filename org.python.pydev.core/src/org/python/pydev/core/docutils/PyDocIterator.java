@@ -14,6 +14,7 @@ public class PyDocIterator implements Iterator<String> {
     private boolean inLiteral = false;
     private int literalEnd;
     private boolean changeLiteralsForSpaces;
+    private int lastReturned = -1;
 	
     public PyDocIterator(IDocument doc, boolean addNewLinesToRet) {
         this(doc, addNewLinesToRet, false, false);
@@ -42,10 +43,11 @@ public class PyDocIterator implements Iterator<String> {
 	
 	public int getLastReturnedLine(){
 		try {
-			return doc.getLineOfOffset(offset-1);
+            lastReturned = doc.getLineOfOffset(offset-1);
 		} catch (BadLocationException e) {
-			throw new RuntimeException(e);
+			//ignore (keep the last one)
 		}
+        return lastReturned;
 	}
 
 	private String nextInLiteral() {

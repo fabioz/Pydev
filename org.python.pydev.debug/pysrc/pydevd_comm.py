@@ -69,9 +69,7 @@ import sys
 import threading
 import Queue as PydevQueue
 from socket import socket
-from socket import AF_INET
-from socket import SOCK_STREAM
-from socket import error
+from socket import AF_INET, SOCK_STREAM, error #@UnresolvedImport
 import urllib
 import string
 import pydevd_vars
