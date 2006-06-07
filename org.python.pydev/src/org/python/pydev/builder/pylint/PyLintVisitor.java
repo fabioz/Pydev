@@ -70,6 +70,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         List markers = new ArrayList();
         
         public PyLintThread(IResource resource, IDocument document, IPath location){
+            setName("PyLint thread");
             this.resource = resource;
             this.document = document;
             this.location = location;

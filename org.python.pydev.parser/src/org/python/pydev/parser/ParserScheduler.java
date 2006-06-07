@@ -121,7 +121,7 @@ public class ParserScheduler {
             state = STATE_PARSE_LATER;
             //ok, the time for this request is:
             timeParseLaterRequested = System.currentTimeMillis();
-            new Thread(){
+            Thread thread = new Thread(){
                 @Override
                 public void run() {
                     try {
@@ -134,7 +134,9 @@ public class ParserScheduler {
                         parseNow();
                     }
                 }
-            }.start();
+            };
+            thread.setName("ParserScheduler");
+            thread.start();
         }
         
     }

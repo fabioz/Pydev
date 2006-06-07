@@ -16,6 +16,7 @@ public class ThreadStreamReaderPrinter extends Thread {
     
     public ThreadStreamReaderPrinter(InputStream is) {
         contents = new StringBuffer();
+        setName("ThreadStreamReaderPrinter");
         this.is = is;
     }
 

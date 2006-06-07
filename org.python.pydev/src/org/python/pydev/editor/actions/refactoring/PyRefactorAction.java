@@ -307,11 +307,13 @@ public abstract class PyRefactorAction extends PyAction {
      *  
      */
     private void restartRefactorShell() {
-        new Thread() {
+        Thread thread = new Thread() {
             public void run() {
                 AbstractPyRefactoring.restartShells();
             }
-        }.start();
+        };
+        thread.setName("Restart Refactor Shell");
+        thread.start();
 
     }
 

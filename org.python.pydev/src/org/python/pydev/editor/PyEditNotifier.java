@@ -58,6 +58,7 @@ public class PyEditNotifier {
 	private void runIt(Runnable runnable) {
 		Thread thread = new Thread(runnable);
 		thread.setPriority(Thread.MIN_PRIORITY);
+        thread.setName("PyEditNotifier");
 		thread.start();
 	}
 

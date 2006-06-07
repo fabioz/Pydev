@@ -18,6 +18,7 @@ public class StreamConsumer extends Thread {
 	private String lastLine;
 	public StreamConsumer(InputStream inputStream) {
 		super();
+        setName("StreamConsumer");
 		setDaemon(true);
 		bReader = new BufferedReader(new InputStreamReader(inputStream));
 	}

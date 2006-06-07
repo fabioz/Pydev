@@ -346,7 +346,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         
         //we also want to initialize our shells...
         //we use 2: one for refactoring and one for code completion.
-        new Thread() {
+        Thread thread2 = new Thread() {
             public void run() {
                 try {
                     //ok, behaviour change... we just initialize the shell that is not for code completion
@@ -363,7 +363,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                 }
 
             }
-        }.start();
+        };
+        thread2.setName("Shell starter");
+        thread2.start();
 
         
         // listen to changes in TAB_WIDTH preference
@@ -431,6 +433,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         };
         Thread thread = new Thread(runnable);
         thread.setPriority(Thread.MIN_PRIORITY);
+        thread.setName("PyEdit initializer");
         thread.start();
 
     }

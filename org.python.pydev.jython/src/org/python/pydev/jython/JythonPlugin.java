@@ -398,6 +398,10 @@ public class JythonPlugin extends AbstractUIPlugin {
 				
 				interpreter.exec(StringUtils.format("exec(%s)" , codeObjName));
 			} catch (Throwable e) {
+                if(JythonPlugin.getDefault() == null){
+                    //it is already disposed
+                    return null;
+                }
 				//the user requested it to exit
 				if(e instanceof ExitScriptException){
 					return null;

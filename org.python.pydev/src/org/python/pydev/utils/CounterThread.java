@@ -23,6 +23,7 @@ public class CounterThread extends Thread{
 		this.callback      = callback;       
 		this.elapseTime    = elapseTime;    
 		this.stopWhenReaches = stopWhenReaches;
+        setName("Callback (CounterThread)");
 	}
 	
 	@Override

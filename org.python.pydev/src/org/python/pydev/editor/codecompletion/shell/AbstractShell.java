@@ -440,7 +440,10 @@ public abstract class AbstractShell {
         //will print things if we are debugging or just get it (and do nothing except emptying it)
         stdReader = new ThreadStreamReader(process.getInputStream());
         errReader = new ThreadStreamReader(process.getErrorStream());
-
+        
+        stdReader.setName("Shell reader (stdout)");
+        errReader.setName("Shell reader (stderr)");
+        
         stdReader.start();
         errReader.start();
     }
