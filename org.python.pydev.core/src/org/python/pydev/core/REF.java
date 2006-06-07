@@ -403,6 +403,11 @@ public class REF {
      * @return the document given its 'filesystem' file (checks for the declared python encoding in the file)
      */
     private static IDocument getPythonDocFromFile(java.io.File f) {
+    	IDocument docFromPath = getDocFromPath(Path.fromOSString(getFileAbsolutePath(f)));
+    	if(docFromPath != null){
+    		return docFromPath;
+    	}
+    	
         try {
             Assert.isTrue(f.exists(), "The file: "+f+" does not exist.");
             Assert.isTrue(f.isFile(), "The file: "+f+" is not recognized as a file.");
