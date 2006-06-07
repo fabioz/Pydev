@@ -15,7 +15,7 @@ import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
 public class PrettyPrinterLibTest extends PyParserTestBase{
 
 
-    private static boolean MAKE_COMPLETE_PARSE = false;
+    private static boolean MAKE_COMPLETE_PARSE = true;
 
 
     public static void main(String[] args) {

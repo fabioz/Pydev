@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.BundleInfoStub;
 
@@ -26,6 +27,9 @@ public class HierarchyViewerTest extends TestCase {
         super.tearDown();
     }
     public void testIt() throws Exception {
+        if(!TestDependent.HAS_SWT_ON_PATH){
+            return;
+        }
         Display display = new Display ();
         Shell shell = open(display);
 //        while (!shell.isDisposed()) {

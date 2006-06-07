@@ -40,6 +40,9 @@ public class AuxSpecials {
         writeSpecialsBefore(node, null, null, true);
     }
     public void writeSpecialsBefore(SimpleNode node, String[] ignore, String[] write, boolean writeComments) throws IOException {
+        if(node.specialsBefore == null){
+            return;
+        }
         for (Object c : node.specialsBefore){
             if(c instanceof commentType){
                 if(writeComments){
@@ -100,7 +103,11 @@ public class AuxSpecials {
     }
     public void writeSpecialsAfter(SimpleNode node, boolean isNewScope) throws IOException {
     	int line = node.beginLine;
-    	
+        
+    	if(node.specialsAfter == null){
+    	    return;   
+        }
+        
         for (Object o : node.specialsAfter){
             if(o instanceof commentType){
                 commentType c = (commentType)o;
@@ -133,6 +140,9 @@ public class AuxSpecials {
     }
 
     public void writeStringsAfter(SimpleNode node) throws IOException {
+        if(node.specialsAfter == null){
+            return;
+        }
         for (Object o : node.specialsAfter){
             if(o instanceof String){
                 state.write(prefs.getReplacement((String)o));
@@ -144,6 +154,9 @@ public class AuxSpecials {
 
     
     public void writeCommentsAfter(SimpleNode node) throws IOException {
+        if(node.specialsAfter == null){
+            return;
+        }
         for (Object o : node.specialsAfter){
             if(o instanceof commentType){
                 state.write(((commentType)o).id);
@@ -154,9 +167,11 @@ public class AuxSpecials {
         }
     }
     public boolean hasCommentsAfter(SimpleNode node) {
-        for (Object o : node.specialsAfter){
-            if(o instanceof commentType){
-                return true;
+        if(node.specialsAfter != null){
+            for (Object o : node.specialsAfter){
+                if(o instanceof commentType){
+                    return true;
+                }
             }
         }
         return false;
@@ -189,6 +204,9 @@ public class AuxSpecials {
      * @param to comments will be added to this node
      */
     public void moveComments(SimpleNode from, SimpleNode to) {
+        if(from.specialsAfter == null){
+            return;
+        }
         for (Iterator iter = from.specialsAfter.iterator(); iter.hasNext();) {
             Object o = iter.next();
             if(o instanceof commentType){

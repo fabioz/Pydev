@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.core.TestDependent;
 
 public class GetInfoDialogTest extends TestCase {
 
@@ -28,6 +29,10 @@ public class GetInfoDialogTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
+        if(!TestDependent.HAS_SWT_ON_PATH){
+            return;
+        }
+
         display = new Display();
         createSShell();
     }

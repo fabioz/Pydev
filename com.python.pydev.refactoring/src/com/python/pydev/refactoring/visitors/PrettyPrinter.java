@@ -101,10 +101,12 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     @Override
     public Object visitModule(Module node) throws Exception {
         super.visitModule(node);
-        for(Object o :node.specialsAfter){
-            commentType t = (commentType) o;
-            String c = t.id.trim();
-            state.write(c);
+        if(node.specialsAfter != null){
+            for(Object o :node.specialsAfter){
+                commentType t = (commentType) o;
+                String c = t.id.trim();
+                state.write(c);
+            }
         }
         return null;
     }
@@ -558,7 +560,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             
             //now, if it is an elif, it will end up calling the 'visitIf' again,
             //but if it is an 'else:' we will have to make the indent again
-            if(node.specialsAfter.contains(new SpecialStr("else:",0,0))){ //the SpecialStr only compares with its String
+            if(node.specialsAfter != null && node.specialsAfter.contains(new SpecialStr("else:",0,0))){ //the SpecialStr only compares with its String
             	inElse = true;
             	state.indent();
                 if(!fixNewStatementCondition()){
@@ -700,8 +702,8 @@ public class PrettyPrinter extends PrettyPrinterUtils{
                 exprType arg = d[i-diff];
                 if(arg != null){
                     arg.accept(this);
-                    type.specialsAfter.add(0, state.popTempBuffer());
-                    type.specialsAfter.add(0, "=");
+                    type.getSpecialsAfter().add(0, state.popTempBuffer());
+                    type.getSpecialsAfter().add(0, "=");
                 }else{
                     state.popTempBuffer();
                 }
