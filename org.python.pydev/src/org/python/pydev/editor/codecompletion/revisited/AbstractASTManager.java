@@ -131,7 +131,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     		ModulesKey key = itModules.next();
     		
             String element = key.name;
-			if (element.startsWith(moduleToGetTokensFrom)) {
+//			if (element.startsWith(moduleToGetTokensFrom)) { we don't check that anymore because we get all the modules starting with it already
                 if(onlyFilesOnSameLevel && key.file != null && key.file.isDirectory()){
                 	continue; // we only want those that are in the same directory, and not in other directories...
                 }
@@ -168,7 +168,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                         set.add(new ConcreteToken(splitted[0], "", "", moduleToGetTokensFrom, type));
                     }
                 }
-            }
+//            }
         }
     }
 
