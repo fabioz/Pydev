@@ -4,8 +4,8 @@
 package com.python.pydev.refactoring.visitors;
 
 import java.io.IOException;
-import java.util.Stack;
 
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 
 public class WriteState implements IWriterEraser {
@@ -13,7 +13,7 @@ public class WriteState implements IWriterEraser {
     private IWriterEraser writer;
     private PrettyPrinterPrefs prefs;
     private StringBuffer indentation = new StringBuffer();
-    private Stack<SimpleNode> stmtStack = new Stack<SimpleNode>();
+    private FastStack<SimpleNode> stmtStack = new FastStack<SimpleNode>();
     
     public final static int INITIAL_STATE = -1;
     public final static int LAST_STATE_NEW_LINE = 0;

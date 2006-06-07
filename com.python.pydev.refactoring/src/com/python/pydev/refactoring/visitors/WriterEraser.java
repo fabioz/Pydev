@@ -1,10 +1,10 @@
 package com.python.pydev.refactoring.visitors;
 
-import java.util.Stack;
+import org.python.pydev.core.structure.FastStack;
 
 public class WriterEraser implements IWriterEraser{
 
-	Stack<StringBuffer> buf = new Stack<StringBuffer>();
+	FastStack<StringBuffer> buf = new FastStack<StringBuffer>();
 	
     public WriterEraser(){
         pushTempBuffer(); //this is the initial buffer (should never be removed)

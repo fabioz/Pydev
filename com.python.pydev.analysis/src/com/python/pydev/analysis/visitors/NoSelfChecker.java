@@ -5,9 +5,9 @@ package com.python.pydev.analysis.visitors;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -32,8 +32,8 @@ public class NoSelfChecker {
         }
     }
     
-    private Stack<Integer> scope = new Stack<Integer>();
-    private Stack<HashMap<String, Tuple<Expected, FunctionDef>>> maybeNoSelfDefinedItems = new Stack<HashMap<String, Tuple<Expected, FunctionDef>>>();
+    private FastStack<Integer> scope = new FastStack<Integer>();
+    private FastStack<HashMap<String, Tuple<Expected, FunctionDef>>> maybeNoSelfDefinedItems = new FastStack<HashMap<String, Tuple<Expected, FunctionDef>>>();
     
     private String moduleName;
     private AbstractScopeAnalyzerVisitor visitor;
@@ -59,7 +59,7 @@ public class NoSelfChecker {
      * @param stack
      * @param shouldBeDefined
      */
-    private void creteMessagesForStack(Stack<HashMap<String, Tuple<Expected, FunctionDef>>> stack) {
+    private void creteMessagesForStack(FastStack<HashMap<String, Tuple<Expected, FunctionDef>>> stack) {
         HashMap<String, Tuple<Expected, FunctionDef>> noDefinedItems = stack.pop();
         for (Map.Entry<String, Tuple<Expected, FunctionDef>> entry : noDefinedItems.entrySet()) {
             Expected expected = entry.getValue().o1;

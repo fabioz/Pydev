@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
@@ -21,6 +20,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -47,7 +47,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
     private String nameToFind="";
 	private PySelection ps;
 	private List<Tuple3<Found, Integer, ASTEntry>> foundOccurrences = new ArrayList<Tuple3<Found, Integer, ASTEntry>>();
-	private Stack<ASTEntry> parents; //initialized on demand
+	private FastStack<ASTEntry> parents; //initialized on demand
 	
 	/**
 	 * Keeps the variables that are really undefined (we keep them here if there's still a chance that
@@ -192,7 +192,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 	@Override
 	protected void onAfterStartScope(int newScopeType, SimpleNode node) {
 		if(parents == null){
-			parents = new Stack<ASTEntry>();
+			parents = new FastStack<ASTEntry>();
 		}
 		if(node == null){
 			return;

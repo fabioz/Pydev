@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.Stack;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -23,6 +22,7 @@ import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -358,7 +358,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
         //to be analyzed.
         
         //let's get the stack
-        Stack<SimpleNode> stack = new Stack<SimpleNode>();
+        FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
         while(entry.parent != null){
             if(entry.parent.node instanceof ClassDef){
                 stack.push(entry.parent.node);

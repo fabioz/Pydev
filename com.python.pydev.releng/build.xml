@@ -86,6 +86,17 @@
 	<target name = "doit" depends="recreate">
 
         <echo message="Initializing build:"/>
+		
+		<!--delete the plugins if they already exist in the installation-->
+		<delete dir="${EC_HOME}/${fol0}" />
+		<delete dir="${EC_HOME}/${fol1}" />
+		<delete dir="${EC_HOME}/${fol2}" />
+		<delete dir="${EC_HOME}/${fol3}" />
+		<delete dir="${EC_HOME}/${fol4}" />
+		<delete dir="${EC_HOME}/${fol5}" />
+		<delete dir="${EC_HOME}/${fol6}" />
+
+		<!-- Now, make the eclipse releng -->
 		<ant antfile="build.xml" dir="${pde.build.scripts}">
 			<property name = "builder" value = "${basedir}" />
 		</ant>

@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.ast.TryExcept;
 
 public class ScopeItems {
@@ -24,7 +24,7 @@ public class ScopeItems {
     public Map<String, Tuple<IToken, Found>> namesToIgnore = new HashMap<String, Tuple<IToken, Found>>();
     
     public int ifSubScope = 0;
-    public Stack<TryExcept> tryExceptSubScope = new Stack<TryExcept>();
+    public FastStack<TryExcept> tryExceptSubScope = new FastStack<TryExcept>();
     private int scopeId;
     private int scopeType;
 
@@ -61,7 +61,7 @@ public class ScopeItems {
     	tryExceptSubScope.pop();
     }
     
-	public Stack<TryExcept> getCurrTryExceptNodes() {
+	public FastStack<TryExcept> getCurrTryExceptNodes() {
 		return tryExceptSubScope;
 	}
 

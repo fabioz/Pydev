@@ -5,8 +5,8 @@ package com.python.pydev.analysis.visitors;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -26,7 +26,7 @@ public class DuplicationChecker {
     /**
      * used to know the defined signatures
      */
-    private Stack<Map<String,String>> stack = new Stack<Map<String,String>>();
+    private FastStack<Map<String,String>> stack = new FastStack<Map<String,String>>();
     private AbstractScopeAnalyzerVisitor visitor;
     
     /**

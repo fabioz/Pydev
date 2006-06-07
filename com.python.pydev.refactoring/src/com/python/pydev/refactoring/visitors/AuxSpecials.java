@@ -4,19 +4,12 @@
 package com.python.pydev.refactoring.visitors;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Stack;
 
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
-import org.python.pydev.parser.jython.ast.Assign;
-import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.commentType;
-import org.python.pydev.parser.jython.ast.exprType;
 
 /**
  * This class is used as a helper to write special tokens, such as comments and other literals.
@@ -29,7 +22,7 @@ public class AuxSpecials {
     
     private WriteState state;
     private PrettyPrinterPrefs prefs;
-    private Stack<AuxState> auxState = new Stack<AuxState>();
+    private FastStack<AuxState> auxState = new FastStack<AuxState>();
 
     public AuxSpecials(WriteState state, PrettyPrinterPrefs prefs) {
         this.state = state;

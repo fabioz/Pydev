@@ -12,6 +12,7 @@ import java.util.Stack;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
@@ -69,9 +70,9 @@ public class Scope implements Iterable<ScopeItems>{
      * this stack is used to hold the scope. when we enter a scope, an item is added, and when we
      * exit, it is removed (and the analysis of unused tokens should happen at this time).
      */
-    private Stack<ScopeItems> scope = new Stack<ScopeItems>();
+    private FastStack<ScopeItems> scope = new FastStack<ScopeItems>();
     
-    private Stack<Integer> scopeId = new Stack<Integer>();
+    private FastStack<Integer> scopeId = new FastStack<Integer>();
 
     
     
@@ -96,7 +97,7 @@ public class Scope implements Iterable<ScopeItems>{
      * - imports such as import os.path (one token is created for os and one for os.path) 
      */
     public void addImportTokens(List list, IToken generator) {
-    	Stack<TryExcept> tryExceptNodes = scope.peek().getCurrTryExceptNodes();
+    	FastStack<TryExcept> tryExceptNodes = scope.peek().getCurrTryExceptNodes();
     	boolean reportUndefinedImports = true;
     	for (TryExcept except : tryExceptNodes) {
 			if(!reportUndefinedImports){

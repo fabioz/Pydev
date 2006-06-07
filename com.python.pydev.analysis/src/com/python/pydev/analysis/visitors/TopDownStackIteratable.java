@@ -4,7 +4,8 @@
 package com.python.pydev.analysis.visitors;
 
 import java.util.Iterator;
-import java.util.Stack;
+
+import org.python.pydev.core.structure.FastStack;
 
 /**
  * used to pass a stack starting at the top (the stack iterator works as the list iterator, and that is
@@ -14,9 +15,9 @@ import java.util.Stack;
  */
 class TopDownIterator<E> implements Iterator<E>{
 
-    private Stack<E> scope;
+    private FastStack<E> scope;
     private int curr;
-    public TopDownIterator(Stack<E> scope) {
+    public TopDownIterator(FastStack<E> scope) {
         this.scope = scope;
         this.curr = scope.size();
     }
@@ -38,9 +39,9 @@ class TopDownIterator<E> implements Iterator<E>{
 
 public class TopDownStackIteratable<E> implements Iterable<E>{
 
-    private Stack<E> scope;
+    private FastStack<E> scope;
 
-    public TopDownStackIteratable(Stack<E> scope) {
+    public TopDownStackIteratable(FastStack<E> scope) {
         this.scope = scope;
     }
 
