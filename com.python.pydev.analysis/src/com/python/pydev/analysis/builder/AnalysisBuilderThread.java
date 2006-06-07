@@ -144,7 +144,10 @@ public class AnalysisBuilderThread extends Thread{
             PythonNature nature = PythonNature.getPythonNature(resource.get());
 
             //remove dependency information (and anything else that was already generated), but first, gather the modules dependent on this one.
-            AnalysisBuilderVisitor.fillDependenciesAndRemoveInfo(moduleName, nature, analyzeDependent, monitor, isFullBuild);
+            if(!isFullBuild){
+            	//if it is a full build, that info is already removed
+            	AnalysisBuilderVisitor.fillDependenciesAndRemoveInfo(moduleName, nature, analyzeDependent, monitor, isFullBuild);
+            }
             recreateCtxInsensitiveInfo(resource.get(), document, module, nature);
 
             //monitor.setTaskName("Analyzing module: " + moduleName);

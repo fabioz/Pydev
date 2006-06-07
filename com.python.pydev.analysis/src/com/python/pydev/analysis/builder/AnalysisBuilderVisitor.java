@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -91,7 +92,16 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         
         fillDependenciesAndRemoveInfo(moduleName, nature, true, monitor, isFullBuild());
     }
+    
 
+    @Override
+    public void visitingWillStart(IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature) {
+    	if(isFullBuild){
+	    	AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+	    	info.clearAllInfo();
+    	}
+    }
+    
     /**
      * @param moduleName this is the module name
      * @param nature this is the nature
