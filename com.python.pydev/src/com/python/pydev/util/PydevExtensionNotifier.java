@@ -249,6 +249,7 @@ public class PydevExtensionNotifier extends Thread{
     private boolean inMessageBox = false;
 
     public PydevExtensionNotifier() {
+        setName("Looping");
 	}
 	
 	@Override

@@ -44,6 +44,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
         
         public UpdateJob(){
             setPriority(Thread.MIN_PRIORITY);
+            setName("TreeSelectionDialog: UpdateJob");
         }
         @Override
         public void run() {
