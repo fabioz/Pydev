@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -285,8 +284,9 @@ public class Scope implements Iterable<ScopeItems>{
     }
     
     public Found findFirst(String name, boolean setUsed, int acceptedScopes) {
-        TopDownStackIteratable<ScopeItems> topDown = new TopDownStackIteratable<ScopeItems>(scope);
-        for (ScopeItems m : topDown) {
+        Iterator<ScopeItems> topDown = scope.topDownIterator();
+        while (topDown.hasNext()) {
+        	ScopeItems m = topDown.next();
             if((m.getScopeType() & acceptedScopes) != 0){
 	            Found f = m.get(name);
 	            if(f != null){
