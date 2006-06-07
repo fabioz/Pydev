@@ -29,7 +29,7 @@ public class SimpleNode implements Node {
     public SimpleNode() { }
 
     public static Node jjtCreate(PythonGrammar p, int id) {
-        return p.jjtree.openNode(id);
+        return p.jjtree.builder.openNode(id);
     }
 
     public int getId() {

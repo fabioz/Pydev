@@ -1,7 +1,9 @@
 package org.python.pydev.core.structure;
 
 import java.util.EmptyStackException;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
 public class FastStack<E> extends LinkedList<E> {
@@ -84,6 +86,25 @@ public class FastStack<E> extends LinkedList<E> {
 
 	public E elementAt(int i) {
 		return this.get(i);
+	}
+	
+	public Iterator<E> topDownIterator(){
+		final ListIterator<E> l = this.listIterator(this.size());
+		return new Iterator<E>(){
+			
+			public boolean hasNext() {
+				return l.hasPrevious();
+			}
+
+			public E next() {
+				return l.previous();
+			}
+
+			public void remove() {
+				throw new RuntimeException("Not Impl");
+			}
+			
+		};
 	}
 
 }

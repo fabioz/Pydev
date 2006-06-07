@@ -8,22 +8,22 @@ package org.python.pydev.parser.jython;
 import org.python.pydev.core.structure.FastStack;
 
 class JJTPythonGrammarState {
-    private FastStack nodes;
-    private IntStack marks;
-    private IntStack lines;
-    private IntStack columns;
+    private FastStack<Node> nodes;
+    private FastStack<Integer> marks;
+    private FastStack<Integer> lines;
+    private FastStack<Integer> columns;
 
     private int sp; // number of nodes on stack
     private int mk; // current mark
     private boolean node_created;
 
-    private TreeBuilder builder;
+    TreeBuilder builder;
 
     JJTPythonGrammarState() {
-        nodes = new FastStack();
-        marks = new IntStack();
-        lines = new IntStack();
-        columns = new IntStack();
+        nodes = new FastStack<Node>();
+        marks = new FastStack<Integer>();
+        lines = new FastStack<Integer>();
+        columns = new FastStack<Integer>();
         sp = 0;
         mk = 0;
         builder = new TreeBuilder(this);
@@ -48,7 +48,7 @@ class JJTPythonGrammarState {
     /* Returns the root node of the AST.  It only makes sense to call
        this after a successful parse. */
     Node rootNode() {
-        return (Node)nodes.getFirst();
+        return nodes.getFirst();
     }
 
     /* Pushes a node on to the stack. */
@@ -63,12 +63,12 @@ class JJTPythonGrammarState {
         if (--sp < mk) {
             mk = marks.pop();
         }
-        return (Node)nodes.pop();
+        return nodes.pop();
     }
 
     /* Returns the node currently on the top of the stack. */
     Node peekNode() {
-        return (Node)nodes.peek();
+        return nodes.peek();
     }
 
     /* Returns the number of children on the stack in the current node
@@ -154,7 +154,7 @@ class JJTPythonGrammarState {
             if (newNode == null) {
                 throw new ParseException("Internal AST builder error");
             }
-            if(marks.sp > 0){
+            if(marks.size() > 0){
                 mk = marks.pop();
             }else{
                 mk = 0;
@@ -167,66 +167,7 @@ class JJTPythonGrammarState {
         }
     }
 
-    public void dumpTop(String reason) {
-        int a = nodeArity();
-        System.out.println("dumpTop:" + reason);
-        System.out.println("arity:" + a);
-        for (int i = 0; i < a; i++) {
-            Node n = (Node) nodes.elementAt(nodes.size() - i-1);
-            System.out.println("   " + n);
-        }
-    }
-
-    public Node openNode(int id) {
-        return builder.openNode(id);
-    }
-
-    public void dump(String reason) {
-        int a = nodeArity();
-        System.out.println("dump:" + reason);
-        System.out.println("  mk:" + mk + "  sp:" + sp);
-        for (int i = 0; i < nodes.size(); i++) {
-            Node n = (Node) nodes.elementAt(i);
-            System.out.println("   " + n);
-        }
-        for (int i = 0; i < marks.size(); i++) {
-            System.out.println("   " + marks.elementAt(i));
-        }
-    }
 }
 
 
-class IntStack {
-    int[] stack;
-    int sp = 0;
 
-    public IntStack() {
-        stack = new int[50];
-    }
-
-
-    public void removeAllElements() {
-        sp = 0;
-    }
-
-    public int size() {
-        return sp;
-    }
-
-    public int elementAt(int idx) {
-        return stack[idx];
-    }
-
-    public void push(int val) {
-        if (sp >= stack.length) {
-            int[] newstack = new int[sp*2];
-            System.arraycopy(stack, 0, newstack, 0, sp);
-            stack = newstack;
-        }
-        stack[sp++] = val;
-    }
-
-    public int pop() {
-        return stack[--sp];
-    }
-}
