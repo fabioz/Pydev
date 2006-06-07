@@ -27,6 +27,7 @@ import org.python.pydev.builder.pycremover.PycRemoverBuilderVisitor;
 import org.python.pydev.builder.pylint.PyLintVisitor;
 import org.python.pydev.builder.todo.PyTodoVisitor;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
@@ -94,7 +95,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 Collections.sort(visitors); 
 
                 PydevGrouperVisitor grouperVisitor = new PydevGrouperVisitor(visitors, monitor, counterVisitor.getNVisited());
-                notifyVisitingWillStart(visitors, monitor);
+                notifyVisitingWillStart(visitors, monitor, false, null);
                 delta.accept(grouperVisitor);
                 notifyVisitingEnded(visitors, monitor);
                 
@@ -113,7 +114,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
         //we need the project...
         if (project != null) {
-            PythonNature nature = PythonNature.getPythonNature(project);
+            IPythonNature nature = PythonNature.getPythonNature(project);
             IPythonPathNature pythonPathNature = nature.getPythonPathNature();
             pythonPathNature.getProjectSourcePath(); //this is just to update the paths (in case the project name has just changed)
             
@@ -122,7 +123,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 List<IResource> resourcesToParse = new ArrayList<IResource>();
     
                 List<PyDevBuilderVisitor> visitors = getVisitors();
-                notifyVisitingWillStart(visitors, monitor);
+                notifyVisitingWillStart(visitors, monitor, true, nature);
     
                 monitor.beginTask("Building...", (visitors.size() * 100) + 30);
     
@@ -171,9 +172,9 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
     }
 
-    private void notifyVisitingWillStart(List<PyDevBuilderVisitor> visitors, IProgressMonitor monitor) {
+    private void notifyVisitingWillStart(List<PyDevBuilderVisitor> visitors, IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature) {
         for (PyDevBuilderVisitor visitor : visitors) {
-            visitor.visitingWillStart(monitor);
+            visitor.visitingWillStart(monitor, isFullBuild, nature);
         }
     }
 
@@ -191,7 +192,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * @param member the resource we are adding
      * @param nature the nature associated to the resource
      */
-    private void addToResourcesToParse(List<IResource> resourcesToParse, IResource member, PythonNature nature) {
+    private void addToResourcesToParse(List<IResource> resourcesToParse, IResource member, IPythonNature nature) {
         //analyze it only if it is a valid source file 
         String fileExtension = member.getFileExtension();
         if (fileExtension != null && PythonPathHelper.isValidSourceFile("."+fileExtension)) {
@@ -258,6 +259,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
     public static void communicateProgress(IProgressMonitor monitor, int totalResources, int i, IResource r, PyDevBuilderVisitor visitor) {
         if(monitor != null){
             StringBuffer msgBuf = new StringBuffer();
+            msgBuf.append("Checking... ");
             msgBuf.append(r.getName());
             msgBuf.append(" (");
             msgBuf.append(i);

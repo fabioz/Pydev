@@ -21,6 +21,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -304,8 +305,9 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * This function is called right before a visiting session starts for a delta (end will
      * only be called when the whole delta is processed).
      * @param monitor this is the monitor that will be used in the visit
+     * @param nature 
      */
-    public void visitingWillStart(IProgressMonitor monitor){
+    public void visitingWillStart(IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature){
         
     }
     
