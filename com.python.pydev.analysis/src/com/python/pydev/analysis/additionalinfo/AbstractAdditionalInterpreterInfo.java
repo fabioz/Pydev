@@ -268,7 +268,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     private void addAssignTargets(ASTEntry entry, String moduleName, boolean generateDelta, int doOn, String path, boolean lastIsMethod ) {
         String rep = NodeUtils.getFullRepresentationString(entry.node);
         if(lastIsMethod){
-            String[] parts = rep.split("\\.");
+            String[] parts = FullRepIterable.dotSplit(rep);
             if(parts.length >= 2){
                 //at least 2 parts are required
                 if(parts[0].equals("self")){

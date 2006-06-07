@@ -147,7 +147,7 @@ public class AnalysisBuilderThread extends Thread{
             AnalysisBuilderVisitor.fillDependenciesAndRemoveInfo(moduleName, nature, analyzeDependent, monitor, isFullBuild);
             recreateCtxInsensitiveInfo(resource.get(), document, module, nature);
 
-            monitor.setTaskName("Analyzing module: " + moduleName);
+            //monitor.setTaskName("Analyzing module: " + moduleName);
             monitor.worked(1);
 
             checkStop();
@@ -159,7 +159,7 @@ public class AnalysisBuilderThread extends Thread{
             //ok, let's do it
             checkStop();
             IMessage[] messages = analyzer.analyzeDocument(nature, (SourceModule) module, analysisPreferences, document, this.internalCancelMonitor);
-            monitor.setTaskName("Adding markers for module: "+moduleName);
+            //monitor.setTaskName("Adding markers for module: "+moduleName);
             monitor.worked(1);
             
             //last chance to stop...

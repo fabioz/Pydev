@@ -368,7 +368,7 @@ public class ScopeAnalyzerVisitor extends AbstractScopeAnalyzerVisitor{
 			}
 			
 			Name nameAst = new Name(nameToFind, Name.Store);
-			String[] strings = representation.split("\\.");
+			String[] strings = FullRepIterable.dotSplit(representation);
 			
 			int plus = 0;
 			for (String string : strings) {
