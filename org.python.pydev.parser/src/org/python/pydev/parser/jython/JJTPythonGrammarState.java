@@ -80,7 +80,7 @@ class JJTPythonGrammarState {
         columns.push(col);
     }
 
-    void setNodePos() {
+    SimpleNode setNodePos() {
         SimpleNode n = (SimpleNode) peekNode();
         
         int popLine = lines.pop();
@@ -90,6 +90,7 @@ class JJTPythonGrammarState {
         int popCol = columns.pop();
 		if(n.beginColumn == 0)
         	n.beginColumn = popCol;
+        return n;
     }
 
 

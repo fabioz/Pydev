@@ -48,70 +48,72 @@ public class PythonGrammar
         jjtree.pushNodePos(t.beginLine, t.beginColumn);
     }
 
-    void addToPeek(Object t, boolean after){
-    	addToPeek(t, after, null);
+    void addToPeek(Object t, boolean after) {
+        addToPeek(t, after, null);
     }
-    
-    void addToPeekCallFunc(Object t, boolean after){
+
+    void addToPeekCallFunc(Object t, boolean after) {
         Call n = (Call) jjtree.peekNode();
         n.func.addSpecial(t, after);
     }
-    
 
-    void addToPeek(Object t, boolean after, Class class_){
-	    SimpleNode n = (SimpleNode)jjtree.peekNode();
-	    if(class_ != null){
-	    	//just check if  it is the class we were expecting.
-			if (n.getClass().equals(class_) == false){
-				throw new RuntimeException("Error, expecting another class.");
-			}
-		}
-	    n.addSpecial(t,after);
+    void addToPeek(Object t, boolean after, Class class_) {
+        SimpleNode peeked = (SimpleNode) jjtree.peekNode();
+        addToPeek(peeked, after, class_);
+    }
+    
+    void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) {
+        if (class_ != null) {
+            // just check if it is the class we were expecting.
+            if (peeked.getClass().equals(class_) == false) {
+                throw new RuntimeException("Error, expecting another class.");
+            }
+        }
+        peeked.addSpecial(t, after);
     }
 
     void jjtreeCloseNodeScope(Node n) {
-	    if(DEBUG){
-	    	System.out.println("closing scope:"+n);
-	    }
-        jjtree.setNodePos();
+        if (DEBUG) {
+            System.out.println("closing scope:" + n);
+        }
+        SimpleNode peeked = jjtree.setNodePos();
         List specialTokens = token_source.specialTokens;
         boolean after = true;
-        if(n instanceof SimpleNode){
-            if(specialTokens.size() > 0){
-                if(prev == null){
-                        //it was not previously set, let's get the current and add it before that token
+        if (n instanceof SimpleNode) {
+            if (specialTokens.size() > 0) {
+                if (prev == null) {
+                    // it was not previously set, let's get the current and add it before that token
                     after = false;
-                    prev = (SimpleNode) jjtree.peekNode();
+                    prev = peeked;
                 }
-        	    if(DEBUG){
-	                System.out.println("closing scope "+jjtree.peekNode().getClass());
-	            }
+                if (DEBUG) {
+                    System.out.println("closing scope " + peeked.getClass());
+                }
 
                 for (Iterator iter = specialTokens.iterator(); iter.hasNext();) {
                     Object next = iter.next();
-                    int strategy = STRATEGY_ADD_AFTER_PREV; //default strategy
-                    if(next instanceof Object[]){
-                        strategy = (Integer)((Object[])next)[1];
-                        next = ((Object[])next)[0];
+                    int strategy = STRATEGY_ADD_AFTER_PREV; // default strategy
+                    if (next instanceof Object[]) {
+                        strategy = (Integer) ((Object[]) next)[1];
+                        next = ((Object[]) next)[0];
                     }
 
+                    if (strategy == STRATEGY_BEFORE_NEXT) { // try to set 'before the next' and not after prev token
+                        addToPeek(peeked, next, false, null);
+                    } else {
+                        // may still add before the next, if there was no prev (we can check that by the 'after' variable)
+                        // in this case, we'll do some checks to see if it is really correct (checking for the line and column)
 
-                    if(strategy == STRATEGY_BEFORE_NEXT){ //try to set 'before the next' and not after prev token
-                        addToPeek(next, false);
-                    }else{
-                        //may still add before the next, if there was no prev (we can check that by the 'after' variable)
-                        //in this case, we'll do some checks to see if it is really correct (checking for the line and column)
-
-                        if(next instanceof Token){
-                            findTokenToAdd((Token)next).addSpecial(next, after);
-                        }else{
+                        if (next instanceof Token) {
+                            findTokenToAdd((Token) next).addSpecial(next, after);
+                        } else {
                             prev.addSpecial(next, after);
                         }
                     }
                 }
                 specialTokens.clear();
             }
-            prev = (SimpleNode) jjtree.peekNode();
+            prev = (SimpleNode) peeked;
         }
     }
 
@@ -201,20 +203,6 @@ public class PythonGrammar
         Object s = createSpecialStr(token, put, searchOnLast);
         token_source.specialTokens.add(new Object[]{s, STRATEGY_ADD_AFTER_PREV});
         return s instanceof SpecialStr;
-    }
-
-        /**
-	 * Used so that we can add it to the last id node (we have to add it to the correct token at the TreeBuilder later)
-	 */
-    private void addToLastIdNode(String token, boolean after){
-        if(DEBUG){
-            System.out.println("addToLastIdNode:"+token+ " to "+lastIdNode);
-        }
-        if(after){
-                lastIdNode.getSpecialsAfter().add(token);
-        }else{
-                lastIdNode.getSpecialsBefore().add(token);
-        }
     }
 
 
