@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -124,9 +125,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @param set the set where the tokens should be added
      */
     protected void getAbsoluteImportTokens(String moduleToGetTokensFrom, Set<IToken> set, int type, boolean onlyFilesOnSameLevel) {
-        for (Iterator iter = Arrays.asList(modulesManager.getAllModules()).iterator(); iter.hasNext();) {
-            ModulesKey key = (ModulesKey) iter.next();
-
+    	SortedMap<ModulesKey,ModulesKey> modulesStartingWith = modulesManager.getAllModulesStartingWith(moduleToGetTokensFrom);
+    	Iterator<ModulesKey> itModules = modulesStartingWith.keySet().iterator();
+    	while(itModules.hasNext()){
+    		ModulesKey key = itModules.next();
+    		
             String element = key.name;
 			if (element.startsWith(moduleToGetTokensFrom)) {
                 if(onlyFilesOnSameLevel && key.file != null && key.file.isDirectory()){
@@ -150,7 +153,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 //and not xmlrpclib
                 //if we have xml token (not using the qualifier here) 
                 if (moduleToGetTokensFrom.length() != 0) {
-                    if (element.startsWith(".")) {
+                    if (element.length() > 0 && element.charAt(0) == ('.')) {
                         element = element.substring(1);
                         goForIt = true;
                     }

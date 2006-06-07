@@ -13,12 +13,13 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -73,9 +74,11 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * 
      * Implementation changed to contain a cache, so that it does not grow to much (some out of memo errors
      * were thrown because of the may size when having too many modules).
+     * 
+     * It is sorted so that we can get things in a 'subtree' faster
      */
 //    protected transient Map<ModulesKey, AbstractModule> modules = new HashMap<ModulesKey, AbstractModule>();
-	protected transient Map<ModulesKey, ModulesKey> modulesKeys = new HashMap<ModulesKey, ModulesKey>();
+	protected transient SortedMap<ModulesKey, ModulesKey> modulesKeys = new TreeMap<ModulesKey, ModulesKey>();
 	protected transient Cache<ModulesKey, AbstractModule> cache = createCache();
     
 	protected Cache<ModulesKey, AbstractModule> createCache(){
@@ -100,7 +103,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
     private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
     	cache = createCache();
-    	modulesKeys = new HashMap<ModulesKey, ModulesKey>();
+    	modulesKeys = new TreeMap<ModulesKey, ModulesKey>();
     	
         files = new HashSet<File>();
         aStream.defaultReadObject();
@@ -127,7 +130,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     /**
      * @param modules The modules to set.
      */
-    private void setModules(HashMap<ModulesKey, ModulesKey> keys) {
+    private void setModules(SortedMap<ModulesKey, ModulesKey> keys) {
         this.modulesKeys = keys;
     }
     
@@ -192,7 +195,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     private void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, 
     		List<String> pythonpathList, List<File> completions, List<String> fromJar, int total, String defaultSelectedInterpreter) {
 
-    	HashMap<ModulesKey, ModulesKey> keys = new HashMap<ModulesKey, ModulesKey>();
+    	SortedMap<ModulesKey, ModulesKey> keys = new TreeMap<ModulesKey, ModulesKey>();
         int j = 0;
 
         //now, create in memory modules for all the loaded files (empty modules).
@@ -389,15 +392,21 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         return s;
     }
 
-    /**
-     * @return a Set of strings with all the modules.
-     */
-    public ModulesKey[] getAllModules() {
-        return (ModulesKey[]) this.modulesKeys.keySet().toArray(new ModulesKey[0]);
+    public SortedMap<ModulesKey,ModulesKey> getAllDirectModulesStartingWith(String strStartingWith) {
+    	if(strStartingWith.length() == 0){
+    		return modulesKeys;
+    	}
+    	ModulesKey startingWith = new ModulesKey(strStartingWith, null);
+    	ModulesKey endingWith = new ModulesKey(startingWith+"z", null);
+    	return modulesKeys.subMap(startingWith, endingWith);
+    }
+    
+    public SortedMap<ModulesKey,ModulesKey> getAllModulesStartingWith(String strStartingWith) {
+    	return getAllDirectModulesStartingWith(strStartingWith);
     }
     
     public ModulesKey[] getOnlyDirectModules() {
-        return getAllModules();
+    	return (ModulesKey[]) this.modulesKeys.keySet().toArray(new ModulesKey[0]);
     }
 
     /**
@@ -562,4 +571,5 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     public List<String> getPythonPath(){
         return new ArrayList<String>(pythonPathHelper.pythonpath);
     }
+
 }

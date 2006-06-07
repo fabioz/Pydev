@@ -7,10 +7,10 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -202,27 +202,17 @@ public class ProjectModulesManager extends ModulesManager implements IDeltaProce
         return s;
     }
     
-    /** 
-     * @see org.python.pydev.core.IProjectModulesManager#getOnlyDirectModules()
+    /**
+     * @return all the modules that start with some token (from this manager and others involved)
      */
     @Override
-    public ModulesKey[] getOnlyDirectModules() {
-        return super.getAllModules();
-    }
-
-    /** 
-     * @see org.python.pydev.core.IProjectModulesManager#getAllModules()
-     */
-    @Override
-    public ModulesKey[] getAllModules() {
-        List<ModulesKey> ret = new ArrayList<ModulesKey>();
-        ret.addAll(Arrays.asList(super.getAllModules()));
-                
-        ModulesManager[] managersInvolved = this.getManagersInvolved(true);
-        for (int i = 0; i < managersInvolved.length; i++) {
-            ret.addAll((Arrays.asList(managersInvolved[i].getAllModules())));
-        }
-        return ret.toArray(new ModulesKey[0]);
+    public SortedMap<ModulesKey, ModulesKey> getAllModulesStartingWith(String strStartingWith) {
+    	SortedMap<ModulesKey, ModulesKey> ret = getAllDirectModulesStartingWith(strStartingWith);
+    	ModulesManager[] managersInvolved = this.getManagersInvolved(true);
+    	for (int i = 0; i < managersInvolved.length; i++) {
+    		ret.putAll(managersInvolved[i].getAllDirectModulesStartingWith(strStartingWith));
+    	}
+		return ret;
     }
 
     

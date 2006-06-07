@@ -2,6 +2,7 @@ package org.python.pydev.core;
 
 import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -31,8 +32,6 @@ public interface IModulesManager {
     public abstract Set<String> getAllModuleNames();
 
     public abstract ModulesKey[] getOnlyDirectModules();
-
-    public abstract ModulesKey[] getAllModules();
 
     public abstract IModule getRelativeModule(String name, IPythonNature nature);
     public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit);
@@ -84,5 +83,8 @@ public interface IModulesManager {
      * @return the paths that constitute the pythonpath as a list of strings
      */
     public abstract List<String> getCompletePythonPath();
+
+    public abstract SortedMap<ModulesKey,ModulesKey> getAllModulesStartingWith(String moduleToGetTokensFrom);
+    public abstract SortedMap<ModulesKey,ModulesKey> getAllDirectModulesStartingWith(String moduleToGetTokensFrom);
 
 }
