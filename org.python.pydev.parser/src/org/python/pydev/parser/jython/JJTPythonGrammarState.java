@@ -5,8 +5,10 @@
 
 package org.python.pydev.parser.jython;
 
+import org.python.pydev.core.structure.FastStack;
+
 class JJTPythonGrammarState {
-    private java.util.Stack nodes;
+    private FastStack nodes;
     private IntStack marks;
     private IntStack lines;
     private IntStack columns;
@@ -18,7 +20,7 @@ class JJTPythonGrammarState {
     private TreeBuilder builder;
 
     JJTPythonGrammarState() {
-        nodes = new java.util.Stack();
+        nodes = new FastStack();
         marks = new IntStack();
         lines = new IntStack();
         columns = new IntStack();
@@ -46,7 +48,7 @@ class JJTPythonGrammarState {
     /* Returns the root node of the AST.  It only makes sense to call
        this after a successful parse. */
     Node rootNode() {
-        return (Node)nodes.elementAt(0);
+        return (Node)nodes.getFirst();
     }
 
     /* Pushes a node on to the stack. */

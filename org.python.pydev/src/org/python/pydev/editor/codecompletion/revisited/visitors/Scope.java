@@ -10,9 +10,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -25,13 +25,13 @@ import org.python.pydev.parser.visitors.NodeUtils;
  */
 public class Scope {
 
-    public Stack<SimpleNode> scope = new Stack<SimpleNode>();
+    public FastStack<SimpleNode> scope = new FastStack<SimpleNode>();
     
     public int scopeEndLine = -1;
 
     public int ifMainLine = -1;
     
-    public Scope(Stack<SimpleNode> scope){
+    public Scope(FastStack<SimpleNode> scope){
         this.scope.addAll(scope);
     }
     

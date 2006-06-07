@@ -72,10 +72,11 @@ public class Token {
    */
   public static final Token newToken(int ofKind)
   {
-     switch(ofKind)
-     {
-       default : return new Token();
-     }
+	  throw new RuntimeException("It should be initialized directly.");
+//     switch(ofKind)
+//     {
+//       default : return new Token();
+//     }
   }
 
 }

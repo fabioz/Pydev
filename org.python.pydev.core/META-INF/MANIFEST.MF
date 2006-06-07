@@ -28,4 +28,5 @@ Export-Package: org.apache.commons.codec,
  org.python.pydev.core.docutils,
  org.python.pydev.core.log,
  org.python.pydev.core.performanceeval,
+ org.python.pydev.core.structure,
  org.python.pydev.core.uiutils

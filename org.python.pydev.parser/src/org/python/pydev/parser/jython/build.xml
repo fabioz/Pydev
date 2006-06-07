@@ -74,6 +74,8 @@ Current setting is: ${javaccHome}
             <arg file="${parser.dir}/python.jj" />
         </java>
         <delete file="${parser.dir}/python.jj" />
+        <echo>Updating jjFillToken in file PythonGrammarTokenManager.java</echo>
+    	<replace file="${parser.dir}/PythonGrammarTokenManager.java" token="Token t = Token.newToken(jjmatchedKind)" value="Token t = new Token()"/>
     </target>
 
     <!-- confirmation -->

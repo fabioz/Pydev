@@ -38,44 +38,6 @@ public final class FastCharStream implements CharStream {
 
 	private static final boolean DEBUG = false;
 
-	private final void UpdateLineColumn(char c) {
-		column++;
-
-		if (prevCharIsLF) {
-			prevCharIsLF = false;
-			line += (column = 1);
-		} else if (prevCharIsCR) {
-			prevCharIsCR = false;
-			if (c == '\n') {
-				prevCharIsLF = true;
-			} else
-				line += (column = 1);
-		}
-
-		switch (c) {
-		case '\r':
-			prevCharIsCR = true;
-			break;
-		case '\n':
-			prevCharIsLF = true;
-			break;
-		// ok, this was commented out because the position would not reflect correctly the positions found in the ast.
-		// this may have other problems, but they have to be analyzed better to see the problems this may bring
-		// (files that mix tabs and spaces may suffer, but I could not find out very well the problems -- anyway,
-		// restricting the analysis to files that have only tabs or only spaces seems reasonable -- shortcuts are available
-		// so that we can convert a file from one type to another, so, what remains is making some lint analysis to be sure of it).
-		// case '\t' :
-		// column--;
-		// column += (8 - (column & 07));
-		// break;
-		default:
-			break;
-		}
-
-		bufline[bufpos] = line;
-		bufcolumn[bufpos] = column;
-	}
-
 	public FastCharStream(String initialDoc) {
 		this.buffer = initialDoc.toCharArray();
 		this.bufline = new int[initialDoc.length()];
@@ -86,13 +48,40 @@ public final class FastCharStream implements CharStream {
 		try {
 		    bufpos++;
 			char r = this.buffer[bufpos];
+			
 			if(bufpos >= updatePos){
 				updatePos++;
-				UpdateLineColumn(r);
+				
+				//start UpdateLineCol
+				column++;
+				
+				if (prevCharIsLF) {
+					prevCharIsLF = false;
+					line += (column = 1);
+					
+				} else if (prevCharIsCR) {
+					
+					prevCharIsCR = false;
+					if (r == '\n') {
+						prevCharIsLF = true;
+					} else {
+						line += (column = 1);
+					}
+				}
+				
+				if(r == '\r'){
+					prevCharIsCR = true;
+					
+				}else if(r == '\n'){
+					prevCharIsLF = true;
+					
+				}
+				
+				bufline[bufpos] = line;
+				bufcolumn[bufpos] = column;
+				//end UpdateLineCol
 			}
-			if(DEBUG){
-				System.out.println("FastCharStream: readChar >>"+(int)r+"<<");
-			}
+			
 			return r;
 		} catch (ArrayIndexOutOfBoundsException e) {
 		    bufpos--;
@@ -154,16 +143,11 @@ public final class FastCharStream implements CharStream {
 	}
 
 	public final String GetImage() {
-		String s = null;
 		if (bufpos >= tokenBegin) {
-			s = new String(buffer, tokenBegin, bufpos - tokenBegin+1);
+			return new String(buffer, tokenBegin, bufpos - tokenBegin+1);
 		} else {
-			s = new String(buffer, tokenBegin, buffer.length - tokenBegin+1);
+			return new String(buffer, tokenBegin, buffer.length - tokenBegin+1);
 		}
-		if(DEBUG){
-			System.out.println("FastCharStream: GetImage >>"+s+"<<");
-		}
-		return s;
 	}
 
 	public final char[] GetSuffix(int len) {

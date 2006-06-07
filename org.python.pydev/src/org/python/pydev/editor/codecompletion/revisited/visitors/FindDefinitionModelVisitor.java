@@ -8,9 +8,9 @@ package org.python.pydev.editor.codecompletion.revisited.visitors;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
 
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -38,7 +38,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     /**
      * Stack of classes / methods to get to a definition.
      */
-    private Stack<SimpleNode> defsStack = new Stack<SimpleNode>();
+    private FastStack<SimpleNode> defsStack = new FastStack<SimpleNode>();
     
     /**
      * This is the module we are visiting

@@ -59,7 +59,7 @@ public class PythonGrammar
 
     void addToPeek(Object t, boolean after, Class class_) {
         SimpleNode peeked = (SimpleNode) jjtree.peekNode();
-        addToPeek(peeked, after, class_);
+        addToPeek(peeked, t, after, class_);
     }
     
     void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) {

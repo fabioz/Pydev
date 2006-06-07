@@ -1,12 +1,10 @@
 package org.python.pydev.parser.visitors.scope;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Stack;
 
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -26,7 +24,8 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
 
     private List<ASTEntry> nodes = new ArrayList<ASTEntry>();
 
-    protected Stack<SimpleNode> stack = new Stack<SimpleNode>();
+    protected FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
+    private final FastStack<ASTEntry> parents = new FastStack<ASTEntry>();
     
     protected SimpleNode lastVisited;
     
@@ -70,10 +69,16 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @return
      */
     private ASTEntry before(SimpleNode node) {
-        ASTEntry entry = new ASTEntry(getParent());
+    	ASTEntry entry;
+    	if(parents.size() > 0){
+    		entry = new ASTEntry(parents.peek());
+    	}else{
+    		entry = new ASTEntry(null);
+    	}
+    	
         entry.node = node;
 
-        addNode(entry);
+        nodes.add(entry);
         stack.push(node);
         return entry;
     }
@@ -97,52 +102,26 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @param node
      */
     protected void atomic(SimpleNode node) {
-        ASTEntry entry = new ASTEntry(getParent());
+    	ASTEntry entry;
+    	if(parents.size() > 0){
+    		entry = new ASTEntry(parents.peek());
+    	}else{
+    		entry = new ASTEntry(null);
+    	}
         entry.node = node;
         entry.endLine = NodeUtils.getLineEnd(node);
-        addNode(entry);
-    }
-
-    /**
-     * @return
-     */
-    protected ASTEntry getParent() {
-        for (int i = stack.size()-1; i >= 0; i--) {
-            SimpleNode o = (SimpleNode) stack.get(i);
-            if(o instanceof ClassDef || o instanceof FunctionDef){
-                return getEntryWithNode(o);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Cache to keep track of the nodes and the entries they generated (this is done while visiting).
-     */
-    private Map<SimpleNode, ASTEntry> nodeCache = new HashMap<SimpleNode, ASTEntry>();
-    
-    /**
-     * @param entry
-     */
-    private void addNode(ASTEntry entry) {
         nodes.add(entry);
-        nodeCache.put(entry.node, entry);
     }
-    /**
-     * @param o
-     * @return
-     */
-    protected ASTEntry getEntryWithNode(SimpleNode o) {
-        return nodeCache.get(o);
-    }
-
+    
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
      */
     public Object visitClassDef(ClassDef node) throws Exception {
         ASTEntry entry = before(node);
+        parents.push(entry);
         traverse(node);
         after(entry);
+        parents.pop();
         return null;
     }
     
@@ -198,7 +177,9 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         ASTEntry entry = before(node);
+        parents.push(entry);
         traverse(node);
+        parents.pop();
         after(entry);
         
         return null;

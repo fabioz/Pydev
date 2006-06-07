@@ -3382,7 +3382,7 @@ public void SwitchTo(int lexState)
 
 protected Token jjFillToken()
 {
-   Token t = Token.newToken(jjmatchedKind);
+   Token t = new Token();
    t.kind = jjmatchedKind;
    if (jjmatchedPos < 0)
    {

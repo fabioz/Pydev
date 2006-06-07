@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
 
 import org.python.pydev.core.FindInfo;
 import org.python.pydev.core.FullRepIterable;
@@ -22,6 +21,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
@@ -420,7 +420,7 @@ public class SourceModule extends AbstractModule {
                             
 			                SimpleNode ast2 = ((SourceToken)token).getAst();
 							Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
-							Stack<SimpleNode> stack = new Stack<SimpleNode>();
+							FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
 							stack.add(classDef);
 							Scope scope = new Scope(stack);
 							return new Definition[]{new Definition(def.o1, def.o2, token.getRepresentation(), ast2, scope, module)};

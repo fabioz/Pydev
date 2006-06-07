@@ -5,8 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
-import java.util.Stack;
-
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -22,12 +21,12 @@ public class FindScopeVisitor extends AbstractVisitor {
     /**
      * Stack of classes / methods representing the scope.
      */
-    protected Stack<SimpleNode> stackScope = new Stack<SimpleNode>();
+    protected FastStack<SimpleNode> stackScope = new FastStack<SimpleNode>();
 
     /**
      * This is the scope.
      */
-    public Scope scope = new Scope(new Stack<SimpleNode>());
+    public Scope scope = new Scope(new FastStack<SimpleNode>());
     
     /**
      * Variable to mark if we found scope.
@@ -72,7 +71,7 @@ public class FindScopeVisitor extends AbstractVisitor {
 	            //scope is locked at this time.
 	            found = true;
 	            int original = scope.ifMainLine;
-	            scope = new Scope((Stack<SimpleNode>) this.stackScope.clone());
+	            scope = new Scope((FastStack<SimpleNode>) this.stackScope.clone());
 	            scope.ifMainLine = original;
 	        }
         }else{
