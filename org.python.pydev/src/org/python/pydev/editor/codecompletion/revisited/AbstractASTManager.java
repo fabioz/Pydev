@@ -293,7 +293,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         state2.setActivationToken (NodeUtils.getBuiltinType(state.getActivationToken()));
 
         if(state2.getActivationToken() != null){
-            IModule m = getModule("__builtin__", state.getNature(), false);
+            IModule m = getBuiltinMod(state.getNature());
             return m.getGlobalTokens(state2, this);
         }
         return null;
@@ -407,7 +407,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 }
                 
                 //If it was still not found, go to builtins.
-                IModule builtinsMod = getModule("__builtin__", state.getNature(), false);
+                IModule builtinsMod = getBuiltinMod(state.getNature());
                 if(builtinsMod != null && builtinsMod != module){
 	                tokens = getCompletionsForModule( builtinsMod, state);
 	                if (tokens.length > 0){
@@ -556,18 +556,48 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getBuiltinCompletions
+     * @return the builtin completions
      */
-    public List getBuiltinCompletions(ICompletionState state, List completions) {
-        IModule builtMod = getModule("__builtin__", state.getNature(), false);
-        if(builtMod != null){
-            IToken[] toks = builtMod.getGlobalTokens();
-            for (int i = 0; i < toks.length; i++) {
-                completions.add(toks[i]);
-            }
+    public List<IToken> getBuiltinCompletions(ICompletionState state, List<IToken> completions) {
+        IPythonNature nature = state.getNature();
+        IToken[] builtinCompletions = getBuiltinComps(nature);
+        if(builtinCompletions != null){
+			for (int i = 0; i < builtinCompletions.length; i++) {
+				completions.add(builtinCompletions[i]);
+			}
         }
         return completions;
+        
     }
+
+
+    /**
+     * @return the tokens in the builtins
+     */
+	protected IToken[] getBuiltinComps(IPythonNature nature) {
+		IToken[] builtinCompletions = nature.getBuiltinCompletions();
+		
+        if(builtinCompletions == null || builtinCompletions.length == 0){
+        	IModule builtMod = getBuiltinMod(nature);
+        	if(builtMod != null){
+        		builtinCompletions = builtMod.getGlobalTokens();
+        		nature.setBuiltinCompletions(builtinCompletions);
+        	}
+        }
+		return builtinCompletions;
+	}
+
+	/**
+	 * @return the module that represents the builtins
+	 */
+	protected IModule getBuiltinMod(IPythonNature nature) {
+		IModule mod = nature.getBuiltinMod();
+		if(mod == null){
+			mod = getModule("__builtin__", nature, false);
+			nature.setBuiltinMod(mod);
+		}
+		return mod;
+	}
 
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForWildImport

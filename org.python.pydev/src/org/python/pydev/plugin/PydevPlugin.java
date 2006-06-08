@@ -15,9 +15,11 @@ import java.util.ResourceBundle;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -741,14 +743,28 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     /**
-     * Returns the directories and python files in a list.
-     * 
-     * @param file
-     * @return tuple with files in pos 0 and folders in pos 1
+     * @return All the IFiles below the current folder that are python files (does not check if it has an __init__ path)
      */
-    public static List<File>[] getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs) {
-        return getPyFilesBelow(file, monitor, true, true);
+    public static List<IFile> getAllIFilesBelow(IFolder member) {
+    	final ArrayList<IFile> ret = new ArrayList<IFile>();
+    	try {
+			member.accept(new IResourceVisitor(){
+
+				public boolean visit(IResource resource) {
+					if(resource instanceof IFile){
+						ret.add((IFile) resource);
+						return false; //has no members
+					}
+					return true;
+				}
+				
+			});
+		} catch (CoreException e) {
+			throw new RuntimeException(e);
+		}
+    	return ret;
     }
+    
     /**
      * Returns the directories and python files in a list.
      * 

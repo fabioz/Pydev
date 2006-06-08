@@ -33,8 +33,10 @@ import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.plugin.PydevPlugin;
@@ -95,6 +97,16 @@ public class PythonNature implements IPythonNature {
      * Manages pythonpath things
      */
     private IPythonPathNature pythonPathNature = new PythonPathNature();
+    
+    /**
+     * This is used to keep the builtin completions
+     */
+    private IToken[] builtinCompletions;
+    
+    /**
+     * This is used to keep the builtin module
+     */
+    private IModule builtinMod;
 
     /**
      * This method is called only when the project has the nature added..
@@ -312,11 +324,17 @@ public class PythonNature implements IPythonNature {
     
 	public void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor) {
 		try {
+			clearCaches();
 			String paths = this.pythonPathNature.getOnlyProjectPythonPathStr();
 			this.rebuildPath(defaultSelectedInterpreter, paths);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public void clearCaches() {
+		this.builtinCompletions = null; //when the interpreter is changed, we have to reset it
+		this.builtinMod = null;
 	}
 
     /**
@@ -467,7 +485,7 @@ public class PythonNature implements IPythonNature {
         if(project != null){
         	if(persistentProperty == null){
 	            persistentProperty = project.getPersistentProperty(PYTHON_PROJECT_VERSION);
-	            if(persistentProperty == null){ //there is no such property set (let's set it to the default
+	            if(persistentProperty == null){ //there is no such property set (let's set it to the default)
 	                String defaultVersion = getDefaultVersion();
 	                setVersion(defaultVersion);
 	                persistentProperty = defaultVersion;
@@ -482,6 +500,7 @@ public class PythonNature implements IPythonNature {
      * @throws CoreException 
      */
     public void setVersion(String version) throws CoreException{
+		clearCaches();
         if(project != null){
         	this.persistentProperty = version;
             project.setPersistentProperty(PYTHON_PROJECT_VERSION, version);
@@ -605,6 +624,24 @@ public class PythonNature implements IPythonNature {
         throw new RuntimeException("Unable to find the related interpreter manager.");
         
     }
+
+    
+    // ------------------------------------------------------------------------------------------ LOCAL CACHES
+	public void setBuiltinCompletions(IToken[] comps) {
+		this.builtinCompletions = comps;
+	}
+
+	public IToken[] getBuiltinCompletions() {
+		return builtinCompletions;
+	}
+
+	public IModule getBuiltinMod() {
+		return builtinMod;
+	}
+
+	public void setBuiltinMod(IModule mod) {
+		this.builtinMod = mod;
+	}
 
 }
 

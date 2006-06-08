@@ -5,7 +5,6 @@
  */
 package org.python.pydev.builder;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,15 +12,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.pycremover.PycRemoverBuilderVisitor;
 import org.python.pydev.builder.pylint.PyLintVisitor;
@@ -42,7 +40,7 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class PyDevBuilder extends IncrementalProjectBuilder {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
 	/**
      * 
@@ -122,7 +120,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             
             //and the nature...
             if (nature != null){
-                List<IResource> resourcesToParse = new ArrayList<IResource>();
+                List<IFile> resourcesToParse = new ArrayList<IFile>();
     
                 List<PyDevBuilderVisitor> visitors = getVisitors();
                 notifyVisitingWillStart(visitors, monitor, true, nature);
@@ -141,32 +139,18 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                             }
     
                             if (member.getType() == IResource.FILE) {
-                                addToResourcesToParse(resourcesToParse, member, nature);
+                                addToResourcesToParse(resourcesToParse, (IFile)member, nature);
                                 
                             } else if (member.getType() == IResource.FOLDER) {
                                 //if it is a folder, let's get all python files that are beneath it
                                 //the heuristics to know if we have to analyze them are the same we have
                                 //for a single file
-                                IPath location = ((IFolder) member).getLocation();
-                                File folder = new File(location.toOSString());
-                                List l = PydevPlugin.getPyFilesBelow(folder, null, true, false)[0];
+                                List<IFile> l = PydevPlugin.getAllIFilesBelow((IFolder) member);
                                 
-                                for (Iterator iter = l.iterator(); iter.hasNext();) {
-                                    File element = (File) iter.next();
-                                    if (DEBUG){
-                                    	System.out.println("Resolving file: "+element);
-                                    }
-                                    
-                                    IPath path = PydevPlugin.getPath(new Path(REF.getFileAbsolutePath(element)));
-                                    if (DEBUG){
-                                    	System.out.println("Path: "+path);
-                                    }
-                                    IResource resource = project.findMember(path);
-                                    if (DEBUG){
-                                    	System.out.println("Resolved resource: "+resource);
-                                    }
-                                    if (resource != null) {
-                                        addToResourcesToParse(resourcesToParse, resource, nature);
+                                for (Iterator<IFile> iter = l.iterator(); iter.hasNext();) {
+                                    IFile element = iter.next();
+                                    if (element != null) {
+                                        addToResourcesToParse(resourcesToParse, element, nature);
                                     }
                                 }
                             } else {
@@ -208,7 +192,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * @param member the resource we are adding
      * @param nature the nature associated to the resource
      */
-    private void addToResourcesToParse(List<IResource> resourcesToParse, IResource member, IPythonNature nature) {
+    private void addToResourcesToParse(List<IFile> resourcesToParse, IFile member, IPythonNature nature) {
         //analyze it only if it is a valid source file 
         String fileExtension = member.getFileExtension();
         if(DEBUG){
@@ -232,7 +216,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * @param monitor
      * @param visitors
      */
-    public void buildResources(List resourcesToParse, IProgressMonitor monitor, List visitors) {
+    public void buildResources(List<IFile> resourcesToParse, IProgressMonitor monitor, List visitors) {
 
         // we have 100 units here
         double inc = (visitors.size() * 100) / (double) resourcesToParse.size();
@@ -241,10 +225,10 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         int totalResources = resourcesToParse.size();
         int i = 0;
 
-        for (Iterator iter = resourcesToParse.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
+        for (Iterator<IFile> iter = resourcesToParse.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
             i += 1;
             total += inc;
-            IResource r = (IResource) iter.next();
+            IFile r = iter.next();
             if(!PythonNature.isResourceInPythonpath(r)){
             	continue; // we only analyze resources that are in the pythonpath
             }

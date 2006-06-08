@@ -8,8 +8,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -99,5 +101,19 @@ public class SystemPythonNature implements IPythonNature{
     public IInterpreterManager getRelatedInterpreterManager() {
         return manager;
     }
+
+	public IToken[] getBuiltinCompletions() {
+		return null;
+	}
+
+	public void setBuiltinCompletions(IToken[] toks) {
+	}
+
+	public IModule getBuiltinMod() {
+		return null;
+	}
+
+	public void setBuiltinMod(IModule mod) {
+	}
 
 }

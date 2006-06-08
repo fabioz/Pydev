@@ -99,4 +99,25 @@ public interface IPythonNature extends IProjectNature{
 	void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor);
     
     IInterpreterManager getRelatedInterpreterManager();
+
+    /**
+     * @return the tokens for the builtins. As getting the builtins is VERY usual, we'll keep them here.
+     * (we can't forget to change it when the interpreter is changed -- on rebuildPath)
+     * 
+     * May return null if not set
+     */
+    IToken[] getBuiltinCompletions();
+    /**
+     * @param toks those are the tokens that are set as builtin completions.
+     */
+	void setBuiltinCompletions(IToken[] toks);
+
+	/**
+	 * @return the module for the builtins (may return null if not set)
+	 */
+	IModule getBuiltinMod();
+	/**
+	 * @param mod the builtion module
+	 */
+	void setBuiltinMod(IModule mod);
 }
