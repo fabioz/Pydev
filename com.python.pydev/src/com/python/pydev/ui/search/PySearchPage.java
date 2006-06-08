@@ -53,13 +53,12 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class PySearchPage extends DialogPage implements ISearchPage, IReplacePage{
@@ -87,7 +86,6 @@ public class PySearchPage extends DialogPage implements ISearchPage, IReplacePag
 	private Button fIsCaseSensitiveCheckbox;
 	private Button fIsRegExCheckbox;
 	private CLabel fStatusLabel;
-	private Button fSearchDerivedCheckbox;
 
 	private ISearchPageContainer fContainer;
 
@@ -367,7 +365,12 @@ public class PySearchPage extends DialogPage implements ISearchPage, IReplacePag
 	}
 		
 	private String[] getExtensions() {
-		return new String[]{"*.py", "*.pyw"};
+		ArrayList<String> exts = new ArrayList<String>();
+		String[] dottedValidSourceFiles = PythonPathHelper.getDottedValidSourceFiles();
+		for (String sourceFile : dottedValidSourceFiles) {
+			exts.add('*'+sourceFile);
+		}
+		return exts.toArray(new String[0]);
 	}
 
 	private boolean isCaseSensitive() {
@@ -613,19 +616,6 @@ public class PySearchPage extends DialogPage implements ISearchPage, IReplacePag
 		}
 	}
 
-	private String getExtensionFromEditor() {
-		IEditorPart ep= getActivePage().getActiveEditor();
-		if (ep != null) {
-			Object elem= ep.getEditorInput();
-			if (elem instanceof IFileEditorInput) {
-				String extension= ((IFileEditorInput)elem).getFile().getFileExtension();
-				if (extension == null)
-					return ((IFileEditorInput)elem).getFile().getName();
-				return "*." + extension; //$NON-NLS-1$
-			}
-		}
-		return null;
-	}
 
 	private void addFileNameControls(Composite group) {
 		// grid layout with 2 columns
