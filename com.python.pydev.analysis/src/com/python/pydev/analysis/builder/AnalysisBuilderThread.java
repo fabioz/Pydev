@@ -105,6 +105,15 @@ public class AnalysisBuilderThread extends Thread{
         this.internalCancelMonitor = new NullProgressMonitor();
     }
 
+    private void dispose() {
+        this.document = null;
+        this.resource = null;
+        this.module = null;
+        this.monitor = null;
+        this.moduleName = null;
+        this.internalCancelMonitor = null;
+    }
+    
     public void stopAnalysis() {
         this.internalCancelMonitor.setCanceled(true);
     }
@@ -189,9 +198,16 @@ public class AnalysisBuilderThread extends Thread{
             //System.out.println("Ok, canceled previous");
         } catch (Exception e){
             PydevPlugin.log(e);
+        } finally{
+            try{
+                removeFromThreads();
+            }catch (Throwable e){
+                PydevPlugin.log(e);
+            }
+            dispose();
         }
-        removeFromThreads();
     }
+
 
     private void findAnalysisMarkers(ArrayList<IMarker> existing) {
 		IResource r = resource.get();
