@@ -31,7 +31,7 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
-import org.python.pydev.core.cache.Cache;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -41,27 +41,64 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
+ * This class manages the modules that are available
+ * 
  * @author Fabio Zadrozny
  */
 public abstract class ModulesManager implements IModulesManager, Serializable {
 
-	private final class ModulesManagerCache extends LRUCache<ModulesKey, AbstractModule> {
-		private ModulesManagerCache(int size) {
-			super(size);
-		}
+    /**
+     * This is a 'global' cache implementation, that can have at most n objects in
+     * the memory at any time.
+     */
+	private static final class ModulesManagerCache  {
+        /**
+         * Defines the maximun amount of modules that can be in the memory at any time (for all the managers)
+         */
+        private static final int MAX_NUMBER_OF_MODULES = 400;
 
+        private Object mutex;
+        
+        /**
+         * The access to the cache is synchronized
+         */
+		private LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule> internalCache;
+
+        private ModulesManagerCache() {
+            mutex = this;
+            internalCache = new LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule>(MAX_NUMBER_OF_MODULES);
+		}
+        
 		/**
 		 * Overriden so that if we do not find the key, we have the chance to create it.
 		 */
-		public AbstractModule getObj(ModulesKey key) {
-			AbstractModule obj = super.getObj(key);
-			if(obj == null && modulesKeys.containsKey(key)){
-				key = modulesKeys.get(key); //get the 'real' key
-				obj = AbstractModule.createEmptyModule(key.name, key.file);
-				this.add(key, obj);
-			}
-			return obj;
+		public AbstractModule getObj(ModulesKey key, ModulesManager modulesManager) {
+            synchronized (mutex) {
+    			Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
+                
+                AbstractModule obj = internalCache.getObj(keyTuple);
+    			if(obj == null && modulesManager.modulesKeys.containsKey(key)){
+    				key = modulesManager.modulesKeys.get(key); //get the 'real' key
+    				obj = AbstractModule.createEmptyModule(key.name, key.file);
+                    internalCache.add(keyTuple, obj);
+    			}
+    			return obj;
+            }
 		}
+
+        public void remove(ModulesKey key, ModulesManager modulesManager) {
+            synchronized (mutex) {
+                Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
+                internalCache.remove(keyTuple);
+            }
+        }
+
+        public void add(ModulesKey key, AbstractModule n, ModulesManager modulesManager) {
+            synchronized (mutex) {
+                Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
+                internalCache.add(keyTuple, n);
+            }
+        }
 	}
 
 	public ModulesManager(){
@@ -77,12 +114,11 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * 
      * It is sorted so that we can get things in a 'subtree' faster
      */
-//    protected transient Map<ModulesKey, AbstractModule> modules = new HashMap<ModulesKey, AbstractModule>();
 	protected transient SortedMap<ModulesKey, ModulesKey> modulesKeys = new TreeMap<ModulesKey, ModulesKey>();
-	protected transient Cache<ModulesKey, AbstractModule> cache = createCache();
+	private static transient ModulesManagerCache cache = createCache();
     
-	protected Cache<ModulesKey, AbstractModule> createCache(){
-		return new ModulesManagerCache(300);
+	private static ModulesManagerCache createCache(){
+		return new ModulesManagerCache();
 	}
 	
     /**
@@ -102,7 +138,6 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * Custom deserialization is needed.
      */
     private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
-    	cache = createCache();
     	modulesKeys = new TreeMap<ModulesKey, ModulesKey>();
     	
         files = new HashSet<File>();
@@ -124,7 +159,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     private void writeObject(ObjectOutputStream aStream) throws IOException {
         aStream.defaultWriteObject();
         //write only the keys
-        aStream.writeObject(new HashSet(modulesKeys.keySet()));
+        aStream.writeObject(new HashSet<ModulesKey>(modulesKeys.keySet()));
     }
 
     /**
@@ -366,7 +401,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
     protected void doRemoveSingleModule(ModulesKey key) {
         this.modulesKeys.remove(key);
-        this.cache.remove(key);
+        ModulesManager.cache.remove(key, this);
     }
 
     /**
@@ -378,7 +413,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
     public void doAddSingleModule(final ModulesKey key, AbstractModule n) {
     	this.modulesKeys.put(key, key);
-        this.cache.add(key, n);
+        ModulesManager.cache.add(key, n, this);
     }
 
     /**
@@ -442,9 +477,9 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             if (name.startsWith(forcedBuiltin)) {
                 if(name.length() > forcedBuiltin.length() && name.charAt(forcedBuiltin.length()) == '.'){
                 	foundStartingWithBuiltin = true;
-                	n = cache.getObj(new ModulesKey(name, null));
+                	n = cache.getObj(new ModulesKey(name, null), this);
                 	if(n == null && dontSearchInit == false){
-                		n = cache.getObj(new ModulesKey(name+".__init__", null));
+                		n = cache.getObj(new ModulesKey(name+".__init__", null), this);
                 	}
                 	if(n instanceof EmptyModule || n instanceof SourceModule){ //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
                 		n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
@@ -454,7 +489,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                 }
                 
                 if(name.equals(forcedBuiltin)){
-                    n = cache.getObj(new ModulesKey(name, null));
+                    n = cache.getObj(new ModulesKey(name, null), this);
                     if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ //still not created or not defined as compiled module (as it should be)
                         n = new CompiledModule(name, PyCodeCompletion.TYPE_BUILTIN, nature.getAstManager());
                         doAddSingleModule(new ModulesKey(n.getName(), null), n);
@@ -474,7 +509,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         if(n == null){
             if(!dontSearchInit){
                 if(n == null){
-                    n = cache.getObj(new ModulesKey(name + ".__init__", null));
+                    n = cache.getObj(new ModulesKey(name + ".__init__", null), this);
                     if(n != null){
                         name += ".__init__";
                     }
@@ -482,7 +517,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             }
             if (n == null) {
             	ModulesKey key = new ModulesKey(name, null);
-            	n = cache.getObj(key);
+            	n = cache.getObj(key, this);
             }
         }
 

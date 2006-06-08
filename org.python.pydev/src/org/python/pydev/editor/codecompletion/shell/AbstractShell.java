@@ -21,7 +21,6 @@ import java.util.StringTokenizer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction.Operation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
@@ -698,52 +697,6 @@ public abstract class AbstractShell {
         if (process!= null){
             process.destroy();
             process = null;
-        }
-    }
-
-    public synchronized void sendGoToDirMsg(File file) {
-        while(isInOperation){
-            sleepALittle(100);
-        }
-        isInOperation = true;
-        try {
-            if (finishedForGood) {
-                throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to change the shell dir.");
-            }
-            checkShell();
-
-            try {
-                if (file.isDirectory() == false) {
-                    file = file.getParentFile();
-                }
-
-                String str = REF.getFileAbsolutePath(file);
-                str = URLEncoder.encode(str, ENCODING_UTF_8);
-                this.write("@@CHANGE_DIR:" + str + "END@@");
-                this.read(); //this should be the ok message...
-
-            } catch (IOException e) {
-                try {
-                    restartShell();
-                } catch (Exception e1) {
-
-                }
-                PydevPlugin.log(IStatus.ERROR, "ERROR sending go to dir msg.", e);
-            }
-        } finally {
-            isInOperation = false;
-        }
-    }
-
-    private synchronized void checkShell() {
-        try {
-            if (this.socketToWrite == null || !this.socketToWrite.isBound() || 
-                this.socketToRead == null  || !this.socketToRead.isBound()  ||
-                this.serverSocket == null  || !this.serverSocket.isBound()) {
-                restartShell();
-            }
-        } catch (Exception e) {
-            // ok
         }
     }
 

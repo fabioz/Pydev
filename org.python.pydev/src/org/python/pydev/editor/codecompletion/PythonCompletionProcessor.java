@@ -18,9 +18,7 @@ import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.CompletionRecursionException;
-import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Dmoore
@@ -82,16 +80,6 @@ public class PythonCompletionProcessor implements IContentAssistProcessor {
             boolean showTemplates = true;
             //Get code completion proposals
             if(PyCodeCompletionPreferencesPage.useCodeCompletion()){
-	            try {
-                    //change the dir in the shell (so that we can ask for relative imports)... this might or not be used,
-                    //but we have to do it before the completion process begins
-	                AbstractShell.getServerShell(edit.getPythonNature(), AbstractShell.COMPLETION_SHELL).sendGoToDirMsg(edit.getEditorFile());
-	            } catch (Exception e) {
-	                //if we don't suceed, we don't have to fail... just go on and try
-	                // to complete...
-	            	PydevPlugin.log(e);
-	            }
-	
                 Object[] objects = new Object[]{new ArrayList(), new Boolean(true)};
                 try {
                     objects = getPythonProposals(viewer, documentOffset, doc);
