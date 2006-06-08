@@ -756,18 +756,39 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @return tuple with files in pos 0 and folders in pos 1
      */
     public static List<File>[] getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs, boolean checkHasInit) {
-        FileFilter filter = new FileFilter() {
+        FileFilter filter = getPyFilesFileFilter(includeDirs);
+        return getPyFilesBelow(file, filter, monitor, true, checkHasInit);
+    }
+    
+    /**
+     * @param includeDirs determines if we can include subdirectories
+     * @return a file filter only for python files (and other dirs if specified)
+     */
+	public static FileFilter getPyFilesFileFilter(final boolean includeDirs) {
+		return new FileFilter() {
     
             public boolean accept(File pathname) {
-                if (includeDirs)
-                    return pathname.isDirectory() || pathname.toString().endsWith(".py");
-                else
-                    return pathname.isDirectory() == false && pathname.toString().endsWith(".py");
+                if (includeDirs){
+                	if(pathname.isDirectory()){
+                		return true;
+                	}
+                	if(PythonPathHelper.isValidSourceFile(pathname.toString())){
+                		return true;
+                	}
+                	return false;
+                }else{
+                	if(pathname.isDirectory()){
+                		return false;
+                	}
+                	if(PythonPathHelper.isValidSourceFile(pathname.toString())){
+                		return true;
+                	}
+                	return false;
+                }
             }
     
         };
-        return getPyFilesBelow(file, filter, monitor, true, checkHasInit);
-    }
+	}
 
 
     public static List<File>[] getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor, boolean checkHasInit) {
@@ -815,8 +836,8 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 	                    monitor.worked(1);
 	                    monitor.setTaskName("Found:" + file2.toString());
 	                    
-                        if (checkHasInit){
-    	                    if(file2.getName().equals("__init__.py")){
+                        if (checkHasInit && hasInit == false){
+    	                    if(PythonPathHelper.isValidInitFile(file2.getName())){
     	                        hasInit = true;
     	                    }
                         }

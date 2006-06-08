@@ -42,7 +42,9 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class PyDevBuilder extends IncrementalProjectBuilder {
 
-    /**
+    private static final boolean DEBUG = true;
+
+	/**
      * 
      * @return a list of visitors for building the application.
      */
@@ -151,12 +153,26 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                                 
                                 for (Iterator iter = l.iterator(); iter.hasNext();) {
                                     File element = (File) iter.next();
+                                    if (DEBUG){
+                                    	System.out.println("Resolving file: "+element);
+                                    }
+                                    
                                     IPath path = PydevPlugin.getPath(new Path(REF.getFileAbsolutePath(element)));
+                                    if (DEBUG){
+                                    	System.out.println("Path: "+path);
+                                    }
                                     IResource resource = project.findMember(path);
+                                    if (DEBUG){
+                                    	System.out.println("Resolved resource: "+resource);
+                                    }
                                     if (resource != null) {
                                         addToResourcesToParse(resourcesToParse, resource, nature);
                                     }
                                 }
+                            } else {
+                            	if (DEBUG){
+                            		System.out.println("Unknown type: "+member.getType());
+                            	}
                             }
                         } catch (Exception e) {
                             // that's ok...
@@ -195,7 +211,15 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
     private void addToResourcesToParse(List<IResource> resourcesToParse, IResource member, IPythonNature nature) {
         //analyze it only if it is a valid source file 
         String fileExtension = member.getFileExtension();
+        if(DEBUG){
+        	System.out.println("Checking name:'"+member.getName()+"' projPath:'"+member.getProjectRelativePath()+ "' ext:'"+fileExtension+"'");
+        	System.out.println("loc:'"+member.getLocation()+"' rawLoc:'"+member.getRawLocation()+"'");
+        	
+        }
         if (fileExtension != null && PythonPathHelper.isValidSourceFile("."+fileExtension)) {
+        	if(DEBUG){
+        		System.out.println("Adding resource to parse:"+member.getProjectRelativePath());
+        	}
             resourcesToParse.add(member);
         }
     }

@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 
 
 public class PythonPackageWizard  extends AbstractPythonWizard {
@@ -50,7 +51,7 @@ public class PythonPackageWizard  extends AbstractPythonWizard {
                 folder.create(true, true, monitor);
             }
             parent = folder;
-            IFile file = parent.getFile(new Path("__init__.py"));
+            IFile file = parent.getFile(new Path("__init__"+PythonPathHelper.getDefaultDottedPythonExtension()));
             if(!file.exists()){
                 file.create(new ByteArrayInputStream(new byte[0]), true, monitor);
             }

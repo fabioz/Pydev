@@ -155,28 +155,53 @@ public class PythonPathHelper implements Serializable{
         return false;
     }
     
+    private final static String[] DOTTED_VALID_SOURCE_FILES = new String[]{".py", ".pyw"};
+    private final static String[] VALID_SOURCE_FILES = new String[]{"py", "pyw"};
+    
+    public final static String[] getDottedValidSourceFiles() {
+    	return DOTTED_VALID_SOURCE_FILES;
+    }
+    
+    public final static String[] getValidSourceFiles() {
+    	return VALID_SOURCE_FILES;
+    }
+    
+    public final static String getDefaultDottedPythonExtension(){
+    	return ".py";
+    }
+    
     /**
-     * @param path
-     * @return if the path passed belongs to a valid python source file
+     * @return if the path passed belongs to a valid python source file (checks for the extension)
      */
     public static boolean isValidSourceFile(String path) {
         path = path.toLowerCase();
-        return path.endsWith(".py") || path.endsWith(".pyw");
+        for(String end : getDottedValidSourceFiles()){
+        	if(path.endsWith(end)){
+        		return true;
+        	}
+        }
+        return false;
     }
     
+    /**
+     * @return whether an IFile is a valid source file given its extension
+     */
     public static boolean isValidSourceFile(IFile file) {
         String ext = file.getFileExtension();
         if(ext == null){ // no extension
         	return false;
         }
 		ext = ext.toLowerCase();
-        return ext.equals("py") || ext.equals("pyw");
+		for(String end : getValidSourceFiles()){
+			if(ext.equals(end)){
+				return true;
+			}
+		}
+        return false;
     }
 
     
     /**
-     * 
-     * @param path
      * @return if the paths maps to a valid python module (depending on its extension).
      */
     public static boolean isValidFileMod(String path){
@@ -338,9 +363,8 @@ public class PythonPathHelper implements Serializable{
     }
 
     /**
-     * @param root
-     * @param string
-     * @return
+     * @param root this is the folder we're checking
+     * @return true if it is a folder with an __init__ python file
      */
     private boolean isFileOrFolderWithInit(File root) {
         if(root.isDirectory() == false){
@@ -353,16 +377,25 @@ public class PythonPathHelper implements Serializable{
             return false;
         }
         
-        //check for an __init__.py
+        //check for an __init__ file
         String[] items = root.list();
         for (int j = 0; j < items.length; j++) {
-            if(items[j].toLowerCase().equals("__init__.py")){
+            String item = items[j];
+			if(isValidInitFile(item)){
                 return true;
             }
         }
         
         return false;
     }
+
+    /**
+     * @param item the file we want to check
+     * @return true if the file is a valid __init__ file
+     */
+	public static boolean isValidInitFile(String item) {
+		return item.toLowerCase().indexOf("__init__.") != -1 && isValidSourceFile(item);
+	}
 
     /**
      * @param s
